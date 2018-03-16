@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+includedir_pkg=${prefix}/include/neko
+compiler=@FC@
+ 
+Name: NEKO
+Version: @PACKAGE_VERSION@
+Description:
+Requires: 
+Libs: -L${libdir} -lneko @LDFLAGS@ @LIBS@
+Cflags: @FCFLAGS@ -I${includedir} -I${includedir_pkg} 
