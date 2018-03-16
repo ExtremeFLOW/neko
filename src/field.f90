@@ -2,12 +2,14 @@
 !
 module field
   use num_types
-
+  use mesh
+  implicit none
   
   type field_t
      real(kind=dp), allocatable :: x(:,:,:,:)
      real(kind=dp), allocatable :: y(:,:,:,:)
      real(kind=dp), allocatable :: z(:,:,:,:)     
+     type(mesh_t), pointer :: msh
   end type field_t
 
   interface assignment(=)
@@ -17,28 +19,28 @@ module field
 contains
 
   !> Initialize a field @a f
-  subroutine field_init(f, nx, ny, nz, ne)
+  subroutine field_init(f, mesh)
     type(field_t), intent(inout) :: f !< Field
-    integer, intent(in) :: nx         !< Points in x-dir
-    integer, intent(in) :: ny         !< Points in y-dir
-    integer, intent(in) :: nz         !< Points in z-dir
-    integer, intent(in) :: ne         !< Number of elements
+    type(mesh_t), target, intent(in) :: mesh
     integer :: ierr
+
+    f%msh => mesh
     
     if (.not. allocated(f%x)) then
-       allocate(f%x(nx, ny, nz, ne), stat = ierr)
+       allocate(f%x(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%lelv), stat = ierr)
        f%x = 0d0
     end if
 
     if (.not. allocated(f%y)) then
-       allocate(f%y(nx, ny, nz, ne), stat = ierr)
+       allocate(f%y(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%lelv), stat = ierr)
        f%y = 0d0
     end if
 
     if (.not. allocated(f%z)) then
-       allocate(f%z(nx, ny, nz, ne), stat = ierr)
+       allocate(f%x(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%lelv), stat = ierr)
        f%z = 0d0
     end if
+
 
   end subroutine field_init
 
@@ -64,17 +66,11 @@ contains
     type(field_t), intent(inout) :: this_f
     type(field_t), intent(in) :: f
     integer :: i, j, k, l
-    integer :: nj, nk, nl, ne
 
-    nj = size(f%x, 1)
-    nk = size(f%x, 2)
-    nl = size(f%x, 3)
-    ne = size(f%x, 4)
-
-    do i = 1, n
-       do l = 1, nl
-          do k = 1, nk
-             do j = 1, nj
+    do i = 1, f%msh%lelv
+       do l = 1, f%msh%lz1
+          do k = 1, f%msh%ly1
+             do j = 1, f%msh%lz1
                 this_f%x(j, k, l, i) = f%x(j, k, l, i)
                 this_f%y(j, k, l, i) = f%y(j, k, l, i)
                 this_f%z(j, k, l, i) = f%z(j, k, l, i)
