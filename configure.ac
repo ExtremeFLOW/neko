@@ -12,5 +12,17 @@ AC_PROG_FC(,90)
 #AX_F90_MODULE_FLAG
 AX_COARRAY
 
+
+# Checks for Doxygen
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+if test -n "$DOXYGEN"; then
+  AC_CHECK_PROGS([DOXYGEN_DEPS], [dot])
+fi
+AM_CONDITIONAL([ENABLE_DOXYGEN], [test -n "$DOXYGEN_DEPS"])
+
 AC_CONFIG_FILES([Makefile src/Makefile neko.pc])
+
+# Doxygen
+AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
+
 AC_OUTPUT
