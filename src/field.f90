@@ -16,6 +16,10 @@ module field
      module procedure field_assign_field
   end interface assignment(=)
 
+  interface field_add
+     module procedure field_add_field, field_add_scalar
+  end interface field_add
+
 contains
 
   !> Initialize a field @a f
@@ -79,8 +83,51 @@ contains
        end do
     end do
     
-
   end subroutine field_assign_field
+
+  !> Add \f$ F(u_1, u_2, ... , u_n) =
+  !! F(u_1, u_2, ... , u_n) + G(u_1, u_2, ... , u_n) \f$
+  !! @note Component wise
+  subroutine field_add_field(f, g)
+    type(field_t), intent(inout) :: f
+    type(field_t), intent(in) :: g
+    integer i, j, k, l
+
+    do i = 1, f%msh%lelv
+       do l = 1, f%msh%lz1
+          do k = 1, f%msh%ly1
+             do j = 1, f%msh%lz1
+                f%x(j, k, l, i) = f%x(j, k, l, i) + g%x(j, k, l, i)
+                f%y(j, k, l, i) = f%y(j, k, l, i) + g%y(j, k, l, i)
+                f%z(j, k, l, i) = f%z(j, k, l, i) + g%z(j, k, l, i)
+             end do
+          end do
+       end do
+    end do
+    
+  end subroutine field_add_field
+
+
+  !> Add \f$ F(u_1, u_2, ... , u_n) =
+  !! F(u_1, u_2, ... , u_n) + a \f$
+  subroutine field_add_scalar(f, a)
+    type(field_t), intent(inout) :: f
+    real(kind=dp), intent(in) :: a
+    integer i, j, k, l
+
+    do i = 1, f%msh%lelv
+       do l = 1, f%msh%lz1
+          do k = 1, f%msh%ly1
+             do j = 1, f%msh%lz1
+                f%x(j, k, l, i) = f%x(j, k, l, i) + a
+                f%y(j, k, l, i) = f%y(j, k, l, i) + a
+                f%z(j, k, l, i) = f%z(j, k, l, i) + a
+             end do
+          end do
+       end do
+    end do
+    
+  end subroutine field_add_scalar
 
 end module field
 
