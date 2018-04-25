@@ -25,17 +25,22 @@ contains
     type(mesh_t), intent(inout) :: m
     integer, intent(in) :: ndim
     integer, intent(in) :: nelv
+    integer ::  npts
     
+    
+    ntps = 4
+    if (ndim .eq. 3)  npts = 8
+
     if (.not. allocated(m%xc)) then
-       allocate(m%xc(4, nelv))
+       allocate(m%xc(ntps, nelv))
     end if
 
     if (.not. allocated(m%yc)) then
-       allocate(m%yc(4, nelv))
+       allocate(m%yc(ntps, nelv))
     end if
 
     if (ndim .gt. 2 .and. (.not. allocated(m%zc))) then
-       allocate(m%zc(4, nelv))
+       allocate(m%zc(ntps, nelv))
     end if
     
   end subroutine mesh_init_coordinates
