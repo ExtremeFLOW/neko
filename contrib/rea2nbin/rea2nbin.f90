@@ -59,6 +59,9 @@ program rea2nbin
         read(9, *) (msh%xc(j, i),j=1,4)
         read(9, *) (msh%yc(j, i),j=1,4)
         read(9, *) (msh%zc(j, i),j=1,4)
+        read(9, *) (msh%xc(j, i),j=5,8)
+        read(9, *) (msh%yc(j, i),j=5,8)
+        read(9, *) (msh%zc(j, i),j=5,8)
      end if
   end do
 
