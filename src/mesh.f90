@@ -32,15 +32,15 @@ contains
     if (ndim .eq. 3)  npts = 8
 
     if (.not. allocated(m%xc)) then
-       allocate(m%xc(ntps, nelv))
+       allocate(m%xc(npts, nelv))
     end if
 
     if (.not. allocated(m%yc)) then
-       allocate(m%yc(ntps, nelv))
+       allocate(m%yc(npts, nelv))
     end if
 
     if (ndim .gt. 2 .and. (.not. allocated(m%zc))) then
-       allocate(m%zc(ntps, nelv))
+       allocate(m%zc(npts, nelv))
     end if
     
   end subroutine mesh_init_coordinates
