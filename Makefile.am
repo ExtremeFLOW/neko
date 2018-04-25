@@ -1,7 +1,7 @@
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = neko.pc
 
-SUBDIRS = src
+SUBDIRS = src contrib
 
 if ENABLE_DOXYGEN
 SUBDIRS += doc
