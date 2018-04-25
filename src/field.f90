@@ -24,7 +24,7 @@ contains
 
   !> Initialize a field @a f
   subroutine field_init(f, mesh)
-    type(field_t), intent(inout) :: f !< Field
+    type(field_t), intent(inout) :: f !< Field to be initialized
     type(mesh_t), target, intent(in) :: mesh
     integer :: ierr
 

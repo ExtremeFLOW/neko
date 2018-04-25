@@ -20,6 +20,7 @@ module mesh
 
 contains 
 
+  !> Initialize coordinate arrays
   subroutine mesh_init_coordinates(m, ndim, nelv)
     type(mesh_t), intent(inout) :: m
     integer, intent(in) :: ndim
