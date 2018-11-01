@@ -28,7 +28,7 @@ contains
     integer ::  npts
     
     
-    ntps = 4
+    npts = 4
     if (ndim .eq. 3)  npts = 8
 
     if (.not. allocated(m%xc)) then
