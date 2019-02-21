@@ -21,8 +21,7 @@ program rea2nbin
 
   rea_file = file_t(fname)
 
-!  call rea_read(fname, msh)
-  call file_read(rea_file, msh)
+  call rea_file%read(msh)
 
   call mesh_free(msh)
 
