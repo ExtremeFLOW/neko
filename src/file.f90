@@ -1,4 +1,5 @@
 module file
+  use utils
   use generic_file
   use rea, only:rea_file_t
   use vtk_file
@@ -42,7 +43,7 @@ contains
     else if (suffix .eq.  "vtk") then
        allocate(vtk_file_t::this%file_type)
     else
-       write(*,*) 'Unknown file format'
+       call neko_error('Unknown file format')
     end if
 
     q => this%file_type

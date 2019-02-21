@@ -5,6 +5,7 @@
 module rea
   use generic_file
   use num_types
+  use utils
   use mesh
   implicit none
   private
@@ -59,8 +60,7 @@ contains
        msh => data
        read_param = .false.
     class default
-       write(*,*) 'Invalid output data'
-       return
+       call neko_error('Invalid output data')
     end select
 
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
@@ -99,6 +99,11 @@ contains
     read(9, *)
     read(9, *)
     read(9, *) nelgs,ndim, nelgv
+    if (nelgs .lt. 0) then
+       !> @todo Add support to load binary NEKTON meshes
+       call neko_error('Binary NEKTON meshes are not supported')
+    end if
+
     write(*,*) nelgs, ndim, nelgv
     
     

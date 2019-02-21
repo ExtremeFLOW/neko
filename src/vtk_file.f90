@@ -4,6 +4,7 @@
 module vtk_file
   use num_types
   use generic_file
+  use utils
   use mesh
   implicit none
   private
@@ -30,8 +31,7 @@ contains
     type is (mesh_t)
        msh => data
     class default
-       write(*,*) 'Invalid data'
-       return
+       call neko_error('Invalid data')
     end select
 
     open(unit=9, file=trim(this%fname))
