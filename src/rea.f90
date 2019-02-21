@@ -1,17 +1,28 @@
 module rea
+  use generic_file
   use num_types
   use mesh
+  implicit none
+  private
+
+  type, extends(generic_file_t) :: rea_t
+   contains
+     procedure :: read => rea_read
+     procedure :: write => rea_write
+  end type rea_t
+
+  public :: rea_t
 
 contains
   
-  subroutine rea_read(fname, msh)
-    character(len=*), intent(in) :: fname
-    type(mesh_t), intent(inout) :: msh
+  subroutine rea_read(this, data)
+    class(rea_t) :: this
+    class(*), intent(inout) :: data
     integer :: ndim, nparam, nskip, nlogic
-    integer :: nelgs, nelgv
+    integer :: nelgs, nelgv, i, j, ierr
 
-    open(unit=9,file=trim(fname), status='old', iostat=ierr)
-    write(*, '(A,A)') ' Reading ', fname
+    open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
+    write(*, '(A,A)') ' Reading ', this%fname
     
     read(9, *)
     read(9, *)
@@ -41,23 +52,33 @@ contains
     read(9, *) nelgs,ndim, nelgv
     write(*,*) nelgs, ndim, nelgv
     
-    call mesh_init_coordinates(msh, ndim, nelgv)
     
-    do i = 1, nelgv
-       read(9, *)
-       if (ndim .eq. 2) then
-          read(9, *) (msh%xc(j, i),j=1,4)
-          read(9, *) (msh%yc(j, i),j=1,4)
-       else if (ndim .eq. 3) then
-          read(9, *) (msh%xc(j, i),j=1,4)
-          read(9, *) (msh%yc(j, i),j=1,4)
-          read(9, *) (msh%zc(j, i),j=1,4)
-          read(9, *) (msh%xc(j, i),j=5,8)
-          read(9, *) (msh%yc(j, i),j=5,8)
-          read(9, *) (msh%zc(j, i),j=5,8)
-       end if
-    end do
-
+    select type(data)
+    type is (mesh_t)    
+       call mesh_init_coordinates(data, ndim, nelgv)       
+       do i = 1, nelgv
+          read(9, *)
+          if (ndim .eq. 2) then
+             read(9, *) (data%xc(j, i),j=1,4)
+             read(9, *) (data%yc(j, i),j=1,4)
+          else if (ndim .eq. 3) then
+             read(9, *) (data%xc(j, i),j=1,4)
+             read(9, *) (data%yc(j, i),j=1,4)
+             read(9, *) (data%zc(j, i),j=1,4)
+             read(9, *) (data%xc(j, i),j=5,8)
+             read(9, *) (data%yc(j, i),j=5,8)
+             read(9, *) (data%zc(j, i),j=5,8)
+          end if
+       end do
+    class default
+       write(*,*) 'Fail!'
+    end select
     
   end subroutine rea_read
+
+
+  subroutine rea_write(this, data)
+    class(rea_t) :: this
+    class(*), intent(in) :: data
+  end subroutine rea_write
 end module rea

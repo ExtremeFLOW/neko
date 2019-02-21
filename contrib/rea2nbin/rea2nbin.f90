@@ -1,7 +1,7 @@
 program rea2nbin
   use num_types
   use mesh
-  use rea
+  use file
   implicit none
 
   integer :: i, j, ierr
@@ -9,6 +9,7 @@ program rea2nbin
   integer :: nelgs, nelgv
   character(len=80) :: fname, output, opt
   type(mesh_t) :: msh
+  type(file_t) :: rea_file
   
   if (command_argument_count() .lt. 2) then
      write(*,*) 'Usage: ./rea2nbin <reafile> <neko mesh>'
@@ -18,7 +19,10 @@ program rea2nbin
   call get_command_argument(1, fname)
   call get_command_argument(2, output)
 
-  call rea_read(fname, msh)
+  rea_file = file_t(fname)
+
+!  call rea_read(fname, msh)
+  call file_read(rea_file, msh)
 
   call mesh_free(msh)
 
