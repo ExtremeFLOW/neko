@@ -10,13 +10,13 @@ program rea2nbin
   character(len=80) :: fname, output, opt
   type(mesh_t) :: msh
   
-  if (iargc() .lt. 2) then
+  if (command_argument_count() .lt. 2) then
      write(*,*) 'Usage: ./rea2nbin <reafile> <neko mesh>'
      stop
   end if
   
-  call getarg(1, fname)
-  call getarg(2, output)
+  call get_command_argument(1, fname)
+  call get_command_argument(2, output)
 
   call rea_read(fname, msh)
 
