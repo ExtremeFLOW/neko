@@ -1,6 +1,7 @@
 module file
   use generic_file
-  use rea
+  use rea, only:rea_file_t
+  use vtk_file
   implicit none
   
   type file_t
@@ -38,6 +39,8 @@ contains
     
     if (suffix .eq. "rea") then
        allocate(rea_file_t::this%file_type)
+    else if (suffix .eq.  "vtk") then
+       allocate(vtk_file_t::this%file_type)
     else
        write(*,*) 'Unknown file format'
     end if

@@ -4,6 +4,7 @@ libneko_a_SOURCES = \
 	generic_file.f90\
 	mesh.f90\
 	rea.f90\
+	vtk_file.f90\
 	file.f90\
 	field.f90
 

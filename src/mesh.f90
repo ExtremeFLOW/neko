@@ -27,7 +27,8 @@ contains
     integer, intent(in) :: nelv
     integer ::  npts
     
-    
+    m%lelv = nelv
+    m%dim = ndim
     npts = 4
     if (ndim .eq. 3)  npts = 8
 
