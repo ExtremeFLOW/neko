@@ -1,7 +1,6 @@
 module file
   use generic_file
   use rea
-  use mesh
   implicit none
   
   type file_t
@@ -38,7 +37,7 @@ contains
     end if
     
     if (suffix .eq. "rea") then
-       allocate(rea_t::this%file_type)
+       allocate(rea_file_t::this%file_type)
     else
        write(*,*) 'Unknown file format'
     end if

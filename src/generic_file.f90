@@ -2,13 +2,14 @@ module generic_file
   use num_types
   implicit none
   
+  !> A generic file handler
   type, abstract :: generic_file_t
      character(len=80) :: fname
      integer :: counter
    contains
-     procedure :: init => generic_file_init
-     procedure(generic_file_write), deferred :: write
-     procedure(generic_file_read), deferred :: read
+     procedure :: init => generic_file_init           !< Constructor
+     procedure(generic_file_write), deferred :: write !< Write method
+     procedure(generic_file_read), deferred :: read   !< Read method
   end type generic_file_t
 
   abstract interface

@@ -1,3 +1,7 @@
+!
+!> NEKTON session data
+!! @details This module is used to represent NEKTON session data
+!
 module rea
   use generic_file
   use num_types
@@ -5,21 +9,59 @@ module rea
   implicit none
   private
 
-  type, extends(generic_file_t) :: rea_t
+  !> Interface for NEKTON ascii files
+  type, extends(generic_file_t) :: rea_file_t
    contains
-     procedure :: read => rea_read
-     procedure :: write => rea_write
+     procedure :: read => rea_file_read
+     procedure :: write => rea_file_write
+  end type rea_file_t
+
+  !> NEKTON session data struct.
+  !! @todo add missing data fields
+  type rea_t
+     type(mesh_t) :: msh                     !< Mesh (rep. as a Neko mesh)
+     real(kind=dp), allocatable :: params(:) !< Parameters
   end type rea_t
-
-  public :: rea_t
-
+  
+  public :: rea_file_t, rea_t
+  
 contains
   
-  subroutine rea_read(this, data)
-    class(rea_t) :: this
+  !> Free a NEKTON session data
+  subroutine rea_free(r)
+    type(rea_t), intent(inout) :: r
+
+    call mesh_free(r%msh)
+    
+    if (allocated(r%params)) then
+       deallocate(r%params)
+    end if
+
+  end subroutine rea_free
+
+  !> Load NEKTON session data from an ascii file
+  subroutine rea_file_read(this, data)
+    class(rea_file_t) :: this
     class(*), intent(inout) :: data
+    type(mesh_t), pointer :: msh
+    real(kind=dp), pointer :: params(:)
     integer :: ndim, nparam, nskip, nlogic
     integer :: nelgs, nelgv, i, j, ierr
+    logical :: read_param
+
+    select type(data)
+    type is (rea_t)
+       call rea_free(data)       
+       msh => data%msh
+       params => data%params
+       read_param = .true.
+    type is (mesh_t)    
+       msh => data
+       read_param = .false.
+    class default
+       write(*,*) 'Invalid output data'
+       return
+    end select
 
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     write(*, '(A,A)') ' Reading ', this%fname
@@ -29,10 +71,17 @@ contains
     read(9, *) ndim
     read(9, *) nparam
     
-    ! Skip parameters
-    do i = 1, nparam
-       read(9, *)
-    end do
+    if (.not. read_param) then
+       ! Skip parameters
+       do i = 1, nparam
+          read(9, *)
+       end do
+    else       
+       allocate(params(nparam))
+       do i = 1, nparam
+          read(9, *) params(i)
+       end do
+    end if
     
     ! Skip passive scalars
     read(9, *) nskip
@@ -53,32 +102,30 @@ contains
     write(*,*) nelgs, ndim, nelgv
     
     
-    select type(data)
-    type is (mesh_t)    
-       call mesh_init_coordinates(data, ndim, nelgv)       
-       do i = 1, nelgv
-          read(9, *)
-          if (ndim .eq. 2) then
-             read(9, *) (data%xc(j, i),j=1,4)
-             read(9, *) (data%yc(j, i),j=1,4)
-          else if (ndim .eq. 3) then
-             read(9, *) (data%xc(j, i),j=1,4)
-             read(9, *) (data%yc(j, i),j=1,4)
-             read(9, *) (data%zc(j, i),j=1,4)
-             read(9, *) (data%xc(j, i),j=5,8)
-             read(9, *) (data%yc(j, i),j=5,8)
-             read(9, *) (data%zc(j, i),j=5,8)
-          end if
-       end do
-    class default
-       write(*,*) 'Fail!'
-    end select
+    call mesh_init_coordinates(msh, ndim, nelgv)       
+    do i = 1, nelgv
+       read(9, *)
+       if (ndim .eq. 2) then
+          read(9, *) (msh%xc(j, i),j=1,4)
+          read(9, *) (msh%yc(j, i),j=1,4)
+       else if (ndim .eq. 3) then
+          read(9, *) (msh%xc(j, i),j=1,4)
+          read(9, *) (msh%yc(j, i),j=1,4)
+          read(9, *) (msh%zc(j, i),j=1,4)
+          read(9, *) (msh%xc(j, i),j=5,8)
+          read(9, *) (msh%yc(j, i),j=5,8)
+          read(9, *) (msh%zc(j, i),j=5,8)
+       end if
+    end do
+    !> @todo Add support for curved side data
+
+    close(9)
     
-  end subroutine rea_read
+  end subroutine rea_file_read
 
 
-  subroutine rea_write(this, data)
-    class(rea_t) :: this
+  subroutine rea_file_write(this, data)
+    class(rea_file_t) :: this
     class(*), intent(in) :: data
-  end subroutine rea_write
+  end subroutine rea_file_write
 end module rea
