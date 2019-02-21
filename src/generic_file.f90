@@ -16,7 +16,7 @@ module generic_file
      subroutine generic_file_write(this, data)
        import :: generic_file_t
        class(generic_file_t) :: this
-       class(*), intent(in) :: data
+       class(*), target, intent(in) :: data
      end subroutine generic_file_write
   end interface
   
@@ -24,7 +24,7 @@ module generic_file
      subroutine generic_file_read(this, data)
        import :: generic_file_t
        class(generic_file_t) :: this
-       class(*), intent(inout) :: data
+       class(*), target, intent(inout) :: data
      end subroutine generic_file_read
   end interface
 

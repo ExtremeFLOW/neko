@@ -42,7 +42,7 @@ contains
   !> Load NEKTON session data from an ascii file
   subroutine rea_file_read(this, data)
     class(rea_file_t) :: this
-    class(*), intent(inout) :: data
+    class(*), target, intent(inout) :: data
     type(mesh_t), pointer :: msh
     real(kind=dp), pointer :: params(:)
     integer :: ndim, nparam, nskip, nlogic
@@ -126,6 +126,6 @@ contains
 
   subroutine rea_file_write(this, data)
     class(rea_file_t) :: this
-    class(*), intent(in) :: data
+    class(*), target, intent(in) :: data
   end subroutine rea_file_write
 end module rea
