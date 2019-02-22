@@ -5,8 +5,8 @@ module point
   implicit none
   private
 
-  type, private ::  point_t
-     real(kind=dp) :: x(3)
+  type, public ::  point_t
+     real(kind=dp), private :: x(3)
    contains
      procedure :: point_eq
      procedure :: point_lt
