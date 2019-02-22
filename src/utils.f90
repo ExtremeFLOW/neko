@@ -4,6 +4,8 @@
 module utils
   implicit none
 
+  integer, parameter :: NEKO_FNAME_LEN = 1024
+
 contains
 
   subroutine neko_error(error_msg)

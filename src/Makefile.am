@@ -7,7 +7,8 @@ libneko_a_SOURCES = \
 	rea.f90\
 	vtk_file.f90\
 	file.f90\
-	field.f90
+	field.f90\
+	neko.f90
 
 
 pkginclude_HEADERS =  $(wildcard *.mod)

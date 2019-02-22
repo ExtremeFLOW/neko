@@ -1,13 +1,11 @@
 program rea2nbin
-  use num_types
-  use mesh
-  use file
+  use neko
   implicit none
 
   integer :: i, j, ierr
   integer :: ndim, nparam, nskip, nlogic
   integer :: nelgs, nelgv
-  character(len=80) :: fname, output, opt
+  character(len=NEKO_FNAME_LEN) :: fname, output, opt
   type(mesh_t) :: msh
   type(file_t) :: rea_file
   

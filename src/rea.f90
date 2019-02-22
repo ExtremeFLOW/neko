@@ -64,7 +64,7 @@ contains
     end select
 
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    write(*, '(A,A)') ' Reading ', this%fname
+    write(*, '(A,A)') " Reading NEKTON file ", this%fname
     
     read(9, *)
     read(9, *)
@@ -104,9 +104,6 @@ contains
        call neko_error('Binary NEKTON meshes are not supported')
     end if
 
-    write(*,*) nelgs, ndim, nelgv
-    
-    
     call mesh_init_coordinates(msh, ndim, nelgv)       
     do i = 1, nelgv
        read(9, *)
@@ -122,6 +119,7 @@ contains
           read(9, *) (msh%zc(j, i),j=5,8)
        end if
     end do
+    write(*,*) 'Done'
     !> @todo Add support for curved side data
 
     close(9)

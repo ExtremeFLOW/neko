@@ -45,7 +45,7 @@ contains
     npts = 4
     if (msh%dim .eq. 3) npts = 8
 
-    ! Dump coordinates
+    ! Dump coordinates (yes we're keeping duplicates)
     write(9, fmt='(A,I8,A)') 'POINTS', msh%lelv*npts,' double'
     if (msh%dim .eq. 2) then
        do i = 1, msh%lelv
