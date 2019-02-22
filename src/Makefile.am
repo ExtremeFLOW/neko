@@ -2,6 +2,7 @@ lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	num_types.f90 \
 	utils.f90\
+	point.F90\
 	generic_file.f90\
 	mesh.f90\
 	rea.f90\
