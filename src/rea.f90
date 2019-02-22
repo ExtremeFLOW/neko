@@ -11,7 +11,7 @@ module rea
   private
 
   !> Interface for NEKTON ascii files
-  type, extends(generic_file_t) :: rea_file_t
+  type, public, extends(generic_file_t) :: rea_file_t
    contains
      procedure :: read => rea_file_read
      procedure :: write => rea_file_write
@@ -19,12 +19,10 @@ module rea
 
   !> NEKTON session data struct.
   !! @todo add missing data fields
-  type rea_t
+  type, public :: rea_t
      type(mesh_t) :: msh                     !< Mesh (rep. as a Neko mesh)
      real(kind=dp), allocatable :: params(:) !< Parameters
   end type rea_t
-  
-  public :: rea_file_t, rea_t
   
 contains
   
@@ -104,6 +102,8 @@ contains
        call neko_error('Binary NEKTON meshes are not supported')
     end if
 
+    write(*,1) ndim, nelgv
+1   format(1x,'ndim = ', i1, ', nelements =', i7)
     call mesh_init_coordinates(msh, ndim, nelgv)       
     do i = 1, nelgv
        read(9, *)
@@ -120,6 +120,8 @@ contains
        end if
     end do
     write(*,*) 'Done'
+
+    
     !> @todo Add support for curved side data
 
     close(9)
@@ -128,7 +130,7 @@ contains
 
 
   subroutine rea_file_write(this, data)
-    class(rea_file_t) :: this
+    class(rea_file_t), intent(in) :: this
     class(*), target, intent(in) :: data
   end subroutine rea_file_write
 end module rea

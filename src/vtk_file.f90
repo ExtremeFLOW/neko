@@ -10,19 +10,17 @@ module vtk_file
   private
   
   !> Interface for legacy VTK files
-  type, extends(generic_file_t) :: vtk_file_t
+  type, public, extends(generic_file_t) :: vtk_file_t
    contains
      procedure :: read => vtk_file_read
      procedure :: write => vtk_file_write
   end type vtk_file_t
 
-  public :: vtk_file_t
-
 contains
 
   !> Write data in legacy VTK
   subroutine vtk_file_write(this, data)
-    class(vtk_file_t) :: this
+    class(vtk_file_t), intent(in) :: this
     class(*), target, intent(in) :: data
     type(mesh_t), pointer :: msh
     integer :: i, j, npts, vtk_type

@@ -62,7 +62,7 @@ contains
   !> Write @a data to a file
   !! @param data Data to be written
   subroutine file_write(this, data)
-    class(file_t), target :: this
+    class(file_t), intent(in) :: this
     class(*), intent(inout) :: data
 
     call this%file_type%write(data)
@@ -72,7 +72,7 @@ contains
   !> Read @a data from a file
   !! @param data Read data
   subroutine file_read(this, data)
-    class(file_t), target :: this
+    class(file_t), intent(in) :: this
     class(*), intent(inout) :: data
 
     call this%file_type%read(data)
