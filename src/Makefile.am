@@ -3,6 +3,9 @@ libneko_a_SOURCES = \
 	num_types.f90 \
 	utils.f90\
 	point.F90\
+	element.f90\
+	quad.f90\
+	hex.f90\
 	generic_file.f90\
 	mesh.f90\
 	rea.f90\
