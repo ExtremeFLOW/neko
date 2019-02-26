@@ -13,14 +13,10 @@ module point
      procedure :: point_lt
      procedure :: point_gt
      procedure :: point_assign
-     procedure :: point_write
      generic :: operator(.eq.) => point_eq
      generic :: operator(.lt.) => point_lt
      generic :: operator(.gt.) => point_gt
      generic :: assignment(=) => point_assign
-#ifdef HAVE_DERIVED_TYPE_IO
-     generic :: write(formatted) => point_write
-#endif
   end type point_t
 
   interface point_t
@@ -44,21 +40,6 @@ contains
     class(point_t), intent(inout) :: this
     real(kind=dp), dimension(3), intent(in) :: x
   end subroutine point_assign
-
-  !> Write point information
-  subroutine point_write(this, unit, iotype, v_list, iostat, iomsg)
-    class(point_t), intent(in) :: this
-    integer, intent(in) :: unit
-    character(len=*), intent(in) :: iotype
-    integer, intent(in) :: v_list(:)
-    integer, intent(out) :: iostat
-    character(len=*), intent(inout) :: iomsg
-    
-    write(*,*) this%x
-
-    iostat = 0
-    
-  end subroutine point_write
 
   !> Check if \f$ p_{1} = p_{2} \f$
   pure function point_eq(p1, p2) result(res)
