@@ -2,10 +2,11 @@
 !
 module point
   use num_types
+  use entity
   implicit none
   private
 
-  type, public ::  point_t
+  type, extends(entity_t), public ::  point_t
      real(kind=dp), private :: x(3)
    contains
      procedure :: point_eq
@@ -28,11 +29,15 @@ module point
 
 contains
   
-  pure function point_init(x) result(this)
+  function point_init(x, id) result(this)
     real(kind=dp), dimension(3), intent(in) :: x
+    integer, intent(inout) :: id
     type(point_t) :: this
 
+    call this%init(id)
+
     this%x = x
+
   end function point_init
   
   subroutine point_assign(this, x)

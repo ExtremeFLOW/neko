@@ -4,6 +4,7 @@ module neko
   use num_types
   use utils
   use generic_file
+  use entity
   use point
   use element
   use quad
