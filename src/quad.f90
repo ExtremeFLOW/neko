@@ -3,6 +3,7 @@
 module quad
   use num_types
   use element
+  use point
   implicit none
   private
 
@@ -20,23 +21,41 @@ module quad
 
 contains
   
-  subroutine quad_init(this, id, pts)
+  subroutine quad_init(this, id, p1, p2, p3, p4)
     class(quad_t), intent(inout) :: this
     integer, intent(inout) :: id
-    integer, dimension(NEKO_QUAD_NPTS), intent(in) :: pts
+    type(point_t), target, intent(in) :: p1, p2, p3, p4
     integer :: i
 
     call this%init(id, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS)
 
-    do i = 1, NEKO_QUAD_NPTS
-       this%pts(i) = pts(i)
-    end do
+    this%pts(1)%p => p1
+    this%pts(2)%p => p2
+    this%pts(3)%p => p3
+    this%pts(4)%p => p4
 
   end subroutine quad_init
 
   function quad_diameter(this) result(res)
     class(quad_t), intent(in) :: this
-    real(kind=dp) :: res
+    real(kind=dp) :: d1, d2, res
+    real(kind=dp) :: x(3, NEKO_QUAD_NPTS)
+    integer :: i
+
+    d1 = 0d0
+    d2 = 0d0
+
+    do i = 1, NEKO_QUAD_GDIM
+       x(:, i) = this%pts(i)%p%x
+    end do
+
+    do i = 1, NEKO_QUAD_GDIM
+       d1 = d1 + (x(i, 4) - x(i, 1))**2
+       d2 = d2 + (x(i, 3) - x(i, 2))**2
+    end do
+
+    res = sqrt(max(d1, d2))
+
   end function quad_diameter
 
   pure function quad_equal(this, other) result(res)
@@ -51,7 +70,7 @@ contains
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
           do i = 1, this%npts()
-             if (this%pts(i) .ne. other%pts(i)) then
+             if (this%pts(i)%p .ne. other%pts(i)%p) then
                 return
              end if
           end do

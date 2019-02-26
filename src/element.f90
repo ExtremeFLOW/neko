@@ -1,6 +1,7 @@
 module element
   use num_types
   use entity
+  use point
   implicit none
   private
 
@@ -8,9 +9,9 @@ module element
   !! @details An element is a collection of @a npts_ points forming an
   !! element of dimension @a gdim_
   type, public, extends(entity_t), abstract :: element_t
-     integer, private :: gdim_            !< Geometric dimension
-     integer, private :: npts_            !< Number of points
-     integer, allocatable :: pts(:)       !< Points of an element (indicies)
+     integer, private :: gdim_              !< Geometric dimension
+     integer, private :: npts_              !< number of points
+     type(point_ptr), allocatable :: pts(:) !< Points of an element 
    contains
      procedure, pass(this) :: element_init
      procedure :: gdim => element_gdim

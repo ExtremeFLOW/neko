@@ -1,6 +1,10 @@
 !> Defines a mesh
 module mesh
   use num_types
+  use point
+  use element
+  use hex
+  use quad
   implicit none
 
   type mesh_t
@@ -15,6 +19,9 @@ module mesh
      real(kind=dp), allocatable :: xc(:,:)   !< X-coordinates
      real(kind=dp), allocatable :: yc(:,:)   !< Y-coordinates
      real(kind=dp), allocatable :: zc(:,:)   !< Z-coordinates
+
+     type(point_t), allocatable :: points(:)     !< List of points
+     class(element_t), allocatable :: elements(:) !< List of elements
 
   end type mesh_t
 

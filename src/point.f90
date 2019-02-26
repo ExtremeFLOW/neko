@@ -7,17 +7,24 @@ module point
   private
 
   type, extends(entity_t), public ::  point_t
-     real(kind=dp), private :: x(3)
+     real(kind=dp), dimension(3) :: x
    contains
      procedure :: point_eq
+     procedure :: point_ne
      procedure :: point_lt
      procedure :: point_gt
      procedure :: point_assign
      generic :: operator(.eq.) => point_eq
+     generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
      generic :: operator(.gt.) => point_gt
      generic :: assignment(=) => point_assign
   end type point_t
+
+  !> Defines a pointer to a point type
+  type, public ::  point_ptr
+     type(point_t), pointer :: p
+  end type point_ptr
 
   interface point_t
      module procedure point_init
@@ -56,6 +63,22 @@ contains
     end if
     
   end function point_eq
+
+  !> Check if \f$ p_{1} != p_{2} \f$
+  pure function point_ne(p1, p2) result(res)
+    class(point_t), intent(in) :: p1
+    class(point_t), intent(in) :: p2
+    logical :: res
+
+    if (p1%x(1) .ne. p2%x(1) .and. &
+         p1%x(2) .ne. p2%x(2) .and. &
+         p1%x(3) .ne. p2%x(3)) then
+       res = .true.
+    else
+       res = .false.
+    end if
+    
+  end function point_ne
   
   !> Check if \f$ p_{1} < p_{2} \f$
   pure function point_lt(p1, p2) result(res)
