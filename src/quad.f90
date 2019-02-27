@@ -35,22 +35,23 @@ contains
 
   end subroutine quad_init
 
-  pure function quad_diameter(this) result(res)
+  function quad_diameter(this) result(res)
     class(quad_t), intent(in) :: this
     real(kind=dp) :: d1, d2, res
-    real(kind=dp) :: x(3, NEKO_QUAD_NPTS)
+    type(point_t), pointer :: p1, p2, p3, p4
     integer :: i
 
     d1 = 0d0
     d2 = 0d0
 
-    do i = 1, NEKO_QUAD_GDIM
-       x(:, i) = this%pts(i)%p%x
-    end do
+    p1 => this%p(1)
+    p2 => this%p(2)
+    p3 => this%p(3)
+    p4 => this%p(4)
 
     do i = 1, NEKO_QUAD_GDIM
-       d1 = d1 + (x(i, 4) - x(i, 1))**2
-       d2 = d2 + (x(i, 3) - x(i, 2))**2
+       d1 = d1 + (p4%x(i) - p1%x(i))**2
+       d2 = d2 + (p3%x(i) - p2%x(i))**2
     end do
 
     res = sqrt(max(d1, d2))

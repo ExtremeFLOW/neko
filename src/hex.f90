@@ -39,10 +39,10 @@ contains
 
   end subroutine hex_init
 
-  pure function hex_diameter(this) result(res)
+  function hex_diameter(this) result(res)
     class(hex_t), intent(in) :: this
     real(kind=dp) :: d1, d2, d3, d4, res
-    real(kind=dp) :: x(3, NEKO_HEX_NPTS)
+    type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
     integer :: i
 
     d1 = 0d0
@@ -50,15 +50,20 @@ contains
     d3 = 0d0
     d4 = 0d0
 
-    do i = 1, NEKO_HEX_GDIM
-       x(:, i) = this%pts(i)%p%x
-    end do
+    p1 => this%p(1)
+    p2 => this%p(2)
+    p3 => this%p(3)
+    p4 => this%p(4)
+    p5 => this%p(5)
+    p6 => this%p(6)
+    p7 => this%p(7)
+    p8 => this%p(8)
 
     do i = 1, NEKO_HEX_GDIM
-       d1 = d1 + (x(i, 7) - x(i, 1))**2
-       d2 = d2 + (x(i, 8) - x(i, 2))**2
-       d3 = d3 + (x(i, 5) - x(i, 3))**2
-       d4 = d4 + (x(i, 6) - x(i, 4))**2
+       d1 = d1 + (p7%x(i) - p1%x(i))**2
+       d2 = d2 + (p8%x(i) - p2%x(i))**2
+       d3 = d3 + (p5%x(i) - p3%x(i))**2
+       d4 = d4 + (p6%x(i) - p4%x(i))**2
     end do
 
     res = sqrt(max(max(d1, d2), max(d3, d4)))

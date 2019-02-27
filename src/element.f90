@@ -16,14 +16,16 @@ module element
      procedure, pass(this) :: element_init
      procedure :: gdim => element_gdim
      procedure :: npts => element_npts
+     procedure :: p => element_point 
      procedure(element_equal), pass(this), deferred :: equal
      procedure(element_diameter), pass(this), deferred :: diameter
      procedure :: n_points => element_npts
+     procedure, non_overridable :: element_point
      generic, public :: init => element_init
   end type element_t
 
   abstract interface
-     pure function element_diameter(this) result(res)
+     function element_diameter(this) result(res)
        import :: element_t
        import :: dp
        class(element_t), intent(in) :: this
@@ -72,5 +74,13 @@ contains
     integer :: npts
     npts = this%npts_
   end function element_npts
+
+  !> Return a pointer to point @a i of the element
+  function element_point(this, i) result(pt)
+    class(element_t), intent(in) :: this
+    integer, intent(in) :: i
+    type(point_t), pointer :: pt
+    pt => this%pts(i)%p
+  end function element_point
 
 end module element
