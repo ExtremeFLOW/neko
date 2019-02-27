@@ -2,6 +2,7 @@
 module htable
   use num_types
   use utils
+  use point
   implicit none
   private
 
@@ -30,6 +31,15 @@ module htable
      generic, public :: free => htable_free
   end type htable_t
 
+  abstract interface
+     pure function htable_hash(this, k) result(hash)
+       import htable_t
+       class(htable_t), intent(in) :: this
+       class(*), intent(in) :: k
+       integer :: hash
+     end function htable_hash
+  end interface
+
   !> Integer based hash table
   type, public, extends(htable_t) :: htable_i4_t
    contains
@@ -53,16 +63,19 @@ module htable
      generic, public :: set => htable_r8_set
      generic, public :: get => htable_r8_get
   end type htable_r8_t
- 
-  abstract interface
-     pure function htable_hash(this, k) result(hash)
-       import htable_t
-       class(htable_t), intent(in) :: this
-       class(*), value, intent(in) :: k
-       integer :: hash
-     end function htable_hash
-  end interface
 
+  !> Point based hash table
+  type, public, extends(htable_t) :: htable_pt_t
+   contains
+     procedure, pass(this) :: htable_pt_init
+     procedure, pass(this) :: htable_pt_set
+     procedure, pass(this) :: htable_pt_get
+     procedure, pass(this) :: hash => htable_pt_hash
+     generic, public :: init => htable_pt_init
+     generic, public :: set => htable_pt_set
+     generic, public :: get => htable_pt_get
+  end type htable_pt_t
+ 
 contains
 
   !> Initialize a hash table of type @a data
@@ -125,7 +138,7 @@ contains
     integer index, i
     class(*), pointer :: dp
 
-    index = this%hash(key)
+    index = this%hash(value)
     i = this%size - 1
     do while (i .ge. 0)
        if ((.not. this%t(index)%valid) .or. &
@@ -141,6 +154,11 @@ contains
           type is (double precision)
              select type(dp)
              type is (double precision)
+                dp = value
+             end select
+          type is (point_t)
+             select type(dp)
+             type is (point_t)
                 dp = value
              end select
           end select
@@ -159,9 +177,11 @@ contains
        allocate(htable_i4_t::tmp)
     type is (double precision)
        allocate(htable_r8_t::tmp)
+    type is (point_t)
+       allocate(htable_pt_t::tmp)
     end select
 
-    call htable_init(this, ishft(this%size, 1), value)
+    call htable_init(tmp, ishft(this%size, 1), value)
 
     do i = 0, this%size - 1
        if (this%t(i)%valid) then
@@ -181,10 +201,15 @@ contains
     integer, intent(in) :: key
     class(*), intent(inout) :: value
     integer :: rcode
+    class(*), pointer :: kp
     class(*), pointer :: dp
     integer :: index, i
 
-    index = this%hash(key)
+    index = this%hash(value)
+    if (index .lt. 0) then
+       call neko_error("Invalid hash generated")
+    end if
+
     i = this%size
     
     do while (i .ge. 0)
@@ -202,6 +227,11 @@ contains
              type is (double precision)
                 value = dp
              end select
+          type is (point_t)
+             select type(value)
+             type is (point_t)
+                value = dp
+             end select
           end select
           rcode = 0
           return
@@ -215,6 +245,7 @@ contains
   !
   ! Integer based implementation
   !
+  !> Initialize an integer based hash table
   subroutine htable_i4_init(this, size)
     class(htable_i4_t), intent(inout) :: this
     integer, value :: size
@@ -224,6 +255,7 @@ contains
     
   end subroutine htable_i4_init
 
+  !> Insert an integer into the hash table
   subroutine htable_i4_set(this, key, value) 
     class(htable_i4_t), target, intent(inout) :: this
     integer, intent(in) :: key
@@ -239,6 +271,7 @@ contains
 
   end subroutine htable_i4_set
 
+  !> Retrive an integer with key @a key from the hash table
   function htable_i4_get(this, key, value) result(rcode)
     class(htable_i4_t), target, intent(inout) :: this
     integer, intent(in) :: key
@@ -249,11 +282,17 @@ contains
 
   end function htable_i4_get
 
+  !> Hash function for an integer based hash table
   pure function htable_i4_hash(this, k) result(hash)
     class(htable_i4_t), intent(in) :: this
-    integer, value, intent(in) :: k
+    class(*), intent(in) :: k
     integer :: hash
-    hash = modulo(k * (k + 3), this%size)
+    select type(k)
+    type is (integer)
+       hash = modulo(k * (k + 3), this%size)
+    class default
+       hash = -1
+    end select
   end function htable_i4_hash
 
   !
@@ -293,12 +332,71 @@ contains
 
   end function htable_r8_get
 
+  !> Hash function for a double precision based hash table
   pure function htable_r8_hash(this, k) result(hash)
     class(htable_r8_t), intent(in) :: this
-    real(kind=dp), value, intent(in) :: k
+    class(*), intent(in) :: k
     integer :: hash
-    hash = modulo(floor((2d0 * abs(fraction(k)) - 1d0) * 2**16), this%size)
+    select type(k)
+    type is (double precision)
+       hash = modulo(floor((2d0 * abs(fraction(k)) - 1d0) * 2**16), this%size)
+    class default
+       hash = -1
+    end select
   end function htable_r8_hash
+
+  !
+  ! Point based implementation
+  !
+  subroutine htable_pt_init(this, size)
+    class(htable_pt_t), intent(inout) :: this
+    integer, value :: size
+    type(point_t) :: data
+
+    call htable_init(this, size, data)
+    
+  end subroutine htable_pt_init
+
+  subroutine htable_pt_set(this, key, value) 
+    class(htable_pt_t), target, intent(inout) :: this
+    integer, intent(in) :: key
+    type(point_t), intent(in) :: value
+    class(*), allocatable :: data
+    allocate(data, source=value)
+
+    select type(data)
+    type is (point_t)
+       data = value
+       call htable_set(this, key, data)
+    end select
+
+  end subroutine htable_pt_set
+
+  function htable_pt_get(this, key, value) result(rcode)
+    class(htable_pt_t), target, intent(inout) :: this
+    integer, intent(in) :: key
+    type(point_t), intent(inout) :: value
+    integer :: rcode
+
+    rcode = htable_get(this, key, value)
+
+  end function htable_pt_get
+
+  !> Hash function for a point based hash table
+  pure function htable_pt_hash(this, k) result(hash)
+    class(htable_pt_t), intent(in) :: this
+    class(*), intent(in) :: k
+    integer :: hash
+    select type(k)
+    type is (point_t)
+       hash = modulo(floor((2d0 * &
+            abs(fraction(k%x(1) * k%x(2) * k%x(3))) - 1d0) * 2**16), &
+            this%size) 
+    class default
+       hash = -1
+    end select
+
+  end function htable_pt_hash
   
 
 end module htable
