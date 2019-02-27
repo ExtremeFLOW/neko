@@ -23,7 +23,7 @@ contains
     class(vtk_file_t), intent(in) :: this
     class(*), target, intent(in) :: data
     type(mesh_t), pointer :: msh
-    integer :: i, j, npts, vtk_type
+    integer :: i, j, vtk_type
 
     select type(data)
     type is (mesh_t)
@@ -40,38 +40,26 @@ contains
     write(9, fmt='(A)') 'ASCII'
     write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
 
-    npts = 4
-    if (msh%dim .eq. 3) npts = 8
-
     ! Dump coordinates (yes we're keeping duplicates)
-    write(9, fmt='(A,I8,A)') 'POINTS', msh%lelv*npts,' double'
-    if (msh%dim .eq. 2) then
-       do i = 1, msh%lelv
-          do j = 1, npts
-             write(9, fmt='(F15.8,F15.8,F15.8)') msh%xc(j,i), msh%yc(j,i), 0d0
-          end do
+    write(9, fmt='(A,I8,A)') 'POINTS', msh%nelv*msh%npts,' double'
+    do i = 1, msh%nelv
+       do j = 1, msh%npts
+          write(9, fmt='(F15.8,F15.8,F15.8)') msh%elements(i)%e%pts(j)%p%x
        end do
-    else
-       do i = 1, msh%lelv
-          do j = 1, npts
-             write(9, fmt='(F15.8,F15.8,F15.8)') &
-                  msh%xc(j,i), msh%yc(j,i), msh%zc(j,i)
-          end do
-       end do
-    end if
+    end do
 
     ! Dump cells
-    write(9, fmt='(A,I8,I8)')  'CELLS', msh%lelv, msh%lelv*(npts+1)
+    write(9, fmt='(A,I8,I8)')  'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
     j = 0
-    do i = 1, msh%lelv
-       write(9, *) npts,(j, j=(i-1)*npts,(i-1)*npts + (npts-1))
+    do i = 1, msh%nelv
+       write(9, *) msh%npts,(msh%elements(i)%e%pts(j)%p%id() - 1, j=1, msh%npts)
     end do
 
     ! Dump cell type for each element
-    write(9, fmt='(A,I8)') 'CELL_TYPES', msh%lelv
+    write(9, fmt='(A,I8)') 'CELL_TYPES', msh%nelv
     vtk_type = 9
-    if (msh%dim .eq. 3) vtk_type = 12
-    do i = 1, msh%lelv
+    if (msh%gdim .eq. 3) vtk_type = 12
+    do i = 1, msh%nelv
        write(9, fmt='(I2)') vtk_type
     end do
     close(9)
