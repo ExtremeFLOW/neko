@@ -7,8 +7,8 @@ module quad
   implicit none
   private
 
-  integer, parameter :: NEKO_QUAD_NPTS = 4 !< Number of points
-  integer, parameter :: NEKO_QUAD_GDIM = 2 !< Geometric dimension
+  integer, public, parameter :: NEKO_QUAD_NPTS = 4 !< Number of points
+  integer, public, parameter :: NEKO_QUAD_GDIM = 2 !< Geometric dimension
 
   type, public, extends(element_t) :: quad_t
    contains
@@ -36,7 +36,7 @@ contains
 
   end subroutine quad_init
 
-  function quad_diameter(this) result(res)
+  pure function quad_diameter(this) result(res)
     class(quad_t), intent(in) :: this
     real(kind=dp) :: d1, d2, res
     real(kind=dp) :: x(3, NEKO_QUAD_NPTS)

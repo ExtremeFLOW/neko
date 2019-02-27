@@ -7,8 +7,8 @@ module hex
   implicit none
   private
 
-  integer, parameter :: NEKO_HEX_NPTS = 8 !< Number of points
-  integer, parameter :: NEKO_HEX_GDIM = 3 !< Geometric dimension
+  integer, public, parameter :: NEKO_HEX_NPTS = 8 !< Number of points
+  integer, public, parameter :: NEKO_HEX_GDIM = 3 !< Geometric dimension
 
   type, public, extends(element_t) :: hex_t
    contains
@@ -40,7 +40,7 @@ contains
 
   end subroutine hex_init
 
-  function hex_diameter(this) result(res)
+  pure function hex_diameter(this) result(res)
     class(hex_t), intent(in) :: this
     real(kind=dp) :: d1, d2, d3, d4, res
     real(kind=dp) :: x(3, NEKO_HEX_NPTS)

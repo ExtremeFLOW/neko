@@ -23,7 +23,7 @@ module element
   end type element_t
 
   abstract interface
-     function element_diameter(this) result(res)
+     pure function element_diameter(this) result(res)
        import :: element_t
        import :: dp
        class(element_t), intent(in) :: this
@@ -32,7 +32,7 @@ module element
   end interface
 
   abstract interface
-     function element_equal(this, other) result(res)
+     pure function element_equal(this, other) result(res)
        import :: element_t
        class(element_t), intent(in) :: this
        class(element_t), intent(in) :: other
