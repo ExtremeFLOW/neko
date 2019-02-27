@@ -5,8 +5,11 @@ module htable
   implicit none
   private
 
+  !> \f$ ln(2) \f$
+  real(kind=dp), parameter :: NEKO_M_LN2 = 0.693147180559945d0
+
   !> Hash table entry, tuple (key, data)
-  type, public :: h_tuple_t
+  type :: h_tuple_t
      integer :: key = -1 
      logical :: valid = .false.
      class(*), allocatable :: data
@@ -25,14 +28,16 @@ module htable
      generic, public :: free => htable_free
   end type htable_t
 
-  !> Integer hash table
+  !> Integer based hash table
   type, public, extends(htable_t) :: htable_i4_t
    contains
      procedure, pass(this) :: htable_i4_init
      procedure, pass(this) :: htable_i4_set
+     procedure, pass(this) :: htable_i4_get
      procedure, pass(this) :: hash =>  htable_i4_hash
      generic, public :: init => htable_i4_init
      generic, public :: set => htable_i4_set
+     generic, public :: get => htable_i4_get
   end type htable_i4_t
  
   abstract interface
@@ -74,7 +79,6 @@ contains
 
   subroutine htable_i4_init(this, size)
     class(htable_i4_t), intent(inout) :: this
-    real(kind=dp), parameter :: M_LN2 = 0.693147180559945d0
     integer, value :: size
     integer :: i
 
@@ -84,7 +88,7 @@ contains
        size = 4
     end if
 
-    size = ishft(1, ceiling(log(dble(size)) / M_LN2))
+    size = ishft(1, ceiling(log(dble(size)) / NEKO_M_LN2))
 
     allocate(this%t(0:size))
     this%t(:)%valid = .false.
@@ -142,6 +146,34 @@ contains
 
 
   end subroutine htable_i4_set
+
+  function htable_i4_get(this, key, value) result(rcode)
+    class(htable_i4_t), target, intent(inout) :: this
+    integer, intent(in) :: key
+    integer, intent(inout) :: value
+    integer :: rcode
+    class(*), pointer :: dp
+    integer :: index, i
+
+    index = this%hash(key)
+    i = this%size
+    
+    do while (i .ge. 0)
+       if ((this%t(index)%valid) .and. &
+            this%t(index)%key .eq. key) then
+          dp => this%t(index)%data
+          select type (dp)
+          type is (integer)
+             value = dp
+          end select
+          rcode = 0
+          return
+       end if
+       index = modulo((index + 1), this%size)
+       i = i - 1
+    end do
+    rcode = 1
+  end function htable_i4_get
 
   pure function htable_i4_hash(this, k) result(hash)
     class(htable_i4_t), intent(in) :: this
