@@ -27,7 +27,7 @@ module point
   end type point_ptr
 
   interface point_t
-     module procedure point_init
+     module procedure point_init, point_init_xyz
   end interface point_t
 
 contains
@@ -42,6 +42,21 @@ contains
     this%x = x
 
   end function point_init
+
+  function point_init_xyz(x, y, z, id) result(this)
+    real(kind=dp), intent(in) :: x
+    real(kind=dp), intent(in) :: y
+    real(kind=dp), intent(in) :: z
+    integer, intent(inout) :: id
+    type(point_t) :: this
+
+    call this%init(id)
+
+    this%x(1) = x
+    this%x(2) = y
+    this%x(3) = z
+
+  end function point_init_xyz
   
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
