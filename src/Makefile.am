@@ -7,8 +7,9 @@ libneko_a_SOURCES = \
 	element.f90\
 	quad.f90\
 	hex.f90\
-	generic_file.f90\
+	htable.f90\
 	mesh.f90\
+	generic_file.f90\
 	rea.f90\
 	vtk_file.f90\
 	file.f90\
