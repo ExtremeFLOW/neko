@@ -44,7 +44,7 @@ contains
 
   subroutine element_init(this, id, gdim, npts)
     class(element_t), intent(inout)  :: this
-    integer, intent(in) :: id
+    integer, intent(inout) :: id
     integer, intent(in) :: gdim
     integer, intent(in) :: npts
 
