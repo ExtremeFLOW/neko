@@ -35,8 +35,7 @@ contains
     type(mesh_t), intent(inout) :: m
     integer, intent(in) :: gdim
     integer, intent(in) :: nelv
-    integer :: i, npts
-    type(point_t) :: p(4)
+    integer :: i
     
     call mesh_free(m)
 

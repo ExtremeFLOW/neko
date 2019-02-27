@@ -61,6 +61,10 @@ contains
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
     real(kind=dp), dimension(3), intent(in) :: x
+
+    !> @todo Also consider id
+    this%x = x
+
   end subroutine point_assign
 
   !> Check if \f$ p_{1} = p_{2} \f$

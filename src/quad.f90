@@ -25,7 +25,6 @@ contains
     class(quad_t), intent(inout) :: this
     integer, intent(inout) :: id
     type(point_t), target, intent(in) :: p1, p2, p3, p4
-    integer :: i
 
     call this%init(id, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS)
 
