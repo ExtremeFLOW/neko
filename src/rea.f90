@@ -7,6 +7,7 @@ module rea
   use num_types
   use utils
   use mesh
+  use point  
   implicit none
   private
 
@@ -45,8 +46,10 @@ contains
     type(mesh_t), pointer :: msh
     real(kind=dp), pointer :: params(:)
     integer :: ndim, nparam, nskip, nlogic
-    integer :: nelgs, nelgv, i, j, ierr
+    integer :: nelgs, nelgv, i, j, k, ierr
     logical :: read_param
+    real(kind=dp) :: xc(8), yc(8), zc(8)
+    type(point_t) :: p(8)
 
     select type(data)
     type is (rea_t)
@@ -104,19 +107,32 @@ contains
 
     write(*,1) ndim, nelgv
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
-    call mesh_init_coordinates(msh, ndim, nelgv)       
+    call mesh_init(msh, ndim, nelgv)
+
+    k = 1
     do i = 1, nelgv
        read(9, *)
        if (ndim .eq. 2) then
-          read(9, *) (msh%xc(j, i),j=1,4)
-          read(9, *) (msh%yc(j, i),j=1,4)
+          read(9, *) (xc(j),j=1,4)
+          read(9, *) (yc(j),j=1,4)
+          do j = 1, 4
+             p(j) = point_t(xc(j), yc(j), 0d0, k)
+             k = k + 1
+          end do 
+          call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
        else if (ndim .eq. 3) then
-          read(9, *) (msh%xc(j, i),j=1,4)
-          read(9, *) (msh%yc(j, i),j=1,4)
-          read(9, *) (msh%zc(j, i),j=1,4)
-          read(9, *) (msh%xc(j, i),j=5,8)
-          read(9, *) (msh%yc(j, i),j=5,8)
-          read(9, *) (msh%zc(j, i),j=5,8)
+          read(9, *) (xc(j),j=1,4)
+          read(9, *) (yc(j),j=1,4)
+          read(9, *) (zc(j),j=1,4)
+          read(9, *) (xc(j),j=5,8)
+          read(9, *) (yc(j),j=5,8)
+          read(9, *) (zc(j),j=5,8)
+          do j = 1, 8
+             p(j) = point_t(xc(j), yc(j), zc(j), k)
+             k = k + 1
+          end do
+          call mesh_add_element(msh, i, &
+               p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
        end if
     end do
     write(*,*) 'Done'

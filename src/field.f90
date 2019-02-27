@@ -30,20 +30,20 @@ contains
 
     f%msh => mesh
     
-    if (.not. allocated(f%x)) then
-       allocate(f%x(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%lelv), stat = ierr)
-       f%x = 0d0
-    end if
+    ! if (.not. allocated(f%x)) then
+    !    allocate(f%x(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%nelv), stat = ierr)
+    !    f%x = 0d0
+    ! end if
 
-    if (.not. allocated(f%y)) then
-       allocate(f%y(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%lelv), stat = ierr)
-       f%y = 0d0
-    end if
+    ! if (.not. allocated(f%y)) then
+    !    allocate(f%y(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%nelv), stat = ierr)
+    !    f%y = 0d0
+    ! end if
 
-    if (.not. allocated(f%z)) then
-       allocate(f%x(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%lelv), stat = ierr)
-       f%z = 0d0
-    end if
+    ! if (.not. allocated(f%z)) then
+    !    allocate(f%x(f%msh%lx1, f%msh%ly1, f%msh%lz1, f%msh%nelv), stat = ierr)
+    !    f%z = 0d0
+    ! end if
 
 
   end subroutine field_init
@@ -71,17 +71,17 @@ contains
     type(field_t), intent(in) :: f
     integer :: i, j, k, l
 
-    do i = 1, f%msh%lelv
-       do l = 1, f%msh%lz1
-          do k = 1, f%msh%ly1
-             do j = 1, f%msh%lz1
-                this_f%x(j, k, l, i) = f%x(j, k, l, i)
-                this_f%y(j, k, l, i) = f%y(j, k, l, i)
-                this_f%z(j, k, l, i) = f%z(j, k, l, i)
-             end do
-          end do
-       end do
-    end do
+    ! do i = 1, f%msh%nelv
+    !    do l = 1, f%msh%lz1
+    !       do k = 1, f%msh%ly1
+    !          do j = 1, f%msh%lz1
+    !             this_f%x(j, k, l, i) = f%x(j, k, l, i)
+    !             this_f%y(j, k, l, i) = f%y(j, k, l, i)
+    !             this_f%z(j, k, l, i) = f%z(j, k, l, i)
+    !          end do
+    !       end do
+    !    end do
+    ! end do
     
   end subroutine field_assign_field
 
@@ -93,17 +93,17 @@ contains
     type(field_t), intent(in) :: g
     integer i, j, k, l
 
-    do i = 1, f%msh%lelv
-       do l = 1, f%msh%lz1
-          do k = 1, f%msh%ly1
-             do j = 1, f%msh%lz1
-                f%x(j, k, l, i) = f%x(j, k, l, i) + g%x(j, k, l, i)
-                f%y(j, k, l, i) = f%y(j, k, l, i) + g%y(j, k, l, i)
-                f%z(j, k, l, i) = f%z(j, k, l, i) + g%z(j, k, l, i)
-             end do
-          end do
-       end do
-    end do
+    ! do i = 1, f%msh%nelv
+    !    do l = 1, f%msh%lz1
+    !       do k = 1, f%msh%ly1
+    !          do j = 1, f%msh%lz1
+    !             f%x(j, k, l, i) = f%x(j, k, l, i) + g%x(j, k, l, i)
+    !             f%y(j, k, l, i) = f%y(j, k, l, i) + g%y(j, k, l, i)
+    !             f%z(j, k, l, i) = f%z(j, k, l, i) + g%z(j, k, l, i)
+    !          end do
+    !       end do
+    !    end do
+    ! end do
     
   end subroutine field_add_field
 
@@ -115,17 +115,17 @@ contains
     real(kind=dp), intent(in) :: a
     integer i, j, k, l
 
-    do i = 1, f%msh%lelv
-       do l = 1, f%msh%lz1
-          do k = 1, f%msh%ly1
-             do j = 1, f%msh%lz1
-                f%x(j, k, l, i) = f%x(j, k, l, i) + a
-                f%y(j, k, l, i) = f%y(j, k, l, i) + a
-                f%z(j, k, l, i) = f%z(j, k, l, i) + a
-             end do
-          end do
-       end do
-    end do
+    ! do i = 1, f%msh%nelv
+    !    do l = 1, f%msh%lz1
+    !       do k = 1, f%msh%ly1
+    !          do j = 1, f%msh%lz1
+    !             f%x(j, k, l, i) = f%x(j, k, l, i) + a
+    !             f%y(j, k, l, i) = f%y(j, k, l, i) + a
+    !             f%z(j, k, l, i) = f%z(j, k, l, i) + a
+    !          end do
+    !       end do
+    !    end do
+    ! end do
     
   end subroutine field_add_scalar
 
