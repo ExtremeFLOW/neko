@@ -32,6 +32,7 @@ module htable
      procedure, pass(this) :: htable_get_data
      procedure, pass(this) :: htable_eq_key
      procedure, pass(this) :: htable_set_key
+     procedure, pass(this) :: htable_num_entries
      procedure(htable_hash), pass(this), deferred :: hash
      generic, public :: clear => htable_clear
      generic, public :: free => htable_free
@@ -39,6 +40,7 @@ module htable
      generic, public :: get_data => htable_get_data
      generic, public :: eq_key => htable_eq_key
      generic, public :: set_key => htable_set_key
+     generic, public :: num_entries => htable_num_entries
   end type htable_t
 
   abstract interface
@@ -148,6 +150,13 @@ contains
     end if
     
   end subroutine htable_clear
+
+  !> Return number of entries in the table
+  pure function htable_num_entries(this) result(entries)
+    class(htable_t), intent(in) :: this
+    integer :: entries
+    entries = this%entries
+  end function htable_num_entries
 
   !> Insert tuple @a (key, value) into the hash table
   recursive subroutine htable_set(this, key, data) 
