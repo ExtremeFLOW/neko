@@ -6,6 +6,7 @@ module mesh
   use hex
   use quad
   use utils
+  use htable
   implicit none
 
   type, private :: mesh_element_t
@@ -17,9 +18,13 @@ module mesh
      integer :: nelv            !< Number of elements
      integer :: npts            !< Number of points per element
      integer :: gdim            !< Geometric dimension
+     integer :: mpts            !< Number of (unique) points in the mesh
 
      type(point_t), allocatable :: points(:) !< List of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
+     
+     !> @todo flush this table once mesh is finalized
+     type(htable_pt_t) :: htp   !< Table of unique points
   end type mesh_t
 
   !> Add an element to the mesh
@@ -58,6 +63,9 @@ contains
     end if
 
     allocate(m%points(m%npts*m%nelv))
+
+    call m%htp%init(m%npts*m%nelv, i)
+    m%mpts = 0
     
   end subroutine mesh_init
   
@@ -83,20 +91,18 @@ contains
     integer, intent(inout) :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
-    integer :: pt_offset
+    integer :: p(4)
 
-    pt_offset = m%npts * (el - 1)
+    call mesh_add_point(m, p1, p(1))
+    call mesh_add_point(m, p2, p(2))
+    call mesh_add_point(m, p3, p(3))
+    call mesh_add_point(m, p4, p(4))
 
-    m%points(pt_offset + 1) = p1
-    m%points(pt_offset + 2) = p2
-    m%points(pt_offset + 3) = p3
-    m%points(pt_offset + 4) = p4
-    
     ep => m%elements(el)%e
     select type(ep)
     type is (quad_t)
-       call ep%init(el, m%points(pt_offset + 1), m%points(pt_offset + 2), &
-            m%points(pt_offset + 3), m%points(pt_offset + 4))
+       call ep%init(el, m%points(p(1)), m%points(p(2)), &
+            m%points(p(3)), m%points(p(4)))
     class default
        call neko_error('Invalid element type')
     end select
@@ -109,31 +115,45 @@ contains
     integer, intent(inout) :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
-    integer :: pt_offset
+    integer :: p(8)
 
-    pt_offset = m%npts * (el - 1)
-
-    m%points(pt_offset + 1) = p1
-    m%points(pt_offset + 2) = p2
-    m%points(pt_offset + 3) = p3
-    m%points(pt_offset + 4) = p4
-    m%points(pt_offset + 5) = p5
-    m%points(pt_offset + 6) = p6
-    m%points(pt_offset + 7) = p7
-    m%points(pt_offset + 8) = p8
+    call mesh_add_point(m, p1, p(1))
+    call mesh_add_point(m, p2, p(2))
+    call mesh_add_point(m, p3, p(3))
+    call mesh_add_point(m, p4, p(4))
+    call mesh_add_point(m, p5, p(5))
+    call mesh_add_point(m, p6, p(6))
+    call mesh_add_point(m, p7, p(7))
+    call mesh_add_point(m, p8, p(8))
 
     ep => m%elements(el)%e
     select type(ep)
     type is (hex_t)
-       call ep%init(el, m%points(pt_offset + 1), m%points(pt_offset + 2), &
-            m%points(pt_offset + 3), m%points(pt_offset + 4), &
-            m%points(pt_offset + 5), m%points(pt_offset + 6), &
-            m%points(pt_offset + 7), m%points(pt_offset + 8))
+       call ep%init(el, m%points(p(1)), m%points(p(2)), &
+            m%points(p(3)), m%points(p(4)), &
+            m%points(p(5)), m%points(p(6)), &
+            m%points(p(7)), m%points(p(8)))
     class default
        call neko_error('Invalid element type')
     end select
     
   end subroutine mesh_add_hex
+
+  !> Add a unique point to the mesh
+  subroutine mesh_add_point(m, p, idx)
+    type(mesh_t), intent(inout) :: m
+    type(point_t), intent(inout) :: p
+    integer :: idx
+
+    if (m%htp%get(p, idx) .gt. 0) then
+       m%mpts = m%mpts + 1
+       call m%htp%set(p, m%mpts)
+       idx = m%mpts 
+       call p%set_id(m%mpts)
+       m%points(idx) = p
+    end if
+    
+  end subroutine mesh_add_point
 
 
 end module mesh
