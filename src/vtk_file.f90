@@ -40,12 +40,10 @@ contains
     write(9, fmt='(A)') 'ASCII'
     write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
 
-    ! Dump coordinates (yes we're keeping duplicates)
-    write(9, fmt='(A,I8,A)') 'POINTS', msh%nelv*msh%npts,' double'
-    do i = 1, msh%nelv
-       do j = 1, msh%npts
-          write(9, fmt='(F15.8,F15.8,F15.8)') msh%elements(i)%e%pts(j)%p%x
-       end do
+    ! Dump coordinates
+    write(9, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
+    do i = 1, msh%mpts
+       write(9, fmt='(F15.8,F15.8,F15.8)') msh%points(i)%x
     end do
 
     ! Dump cells
