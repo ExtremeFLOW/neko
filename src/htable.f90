@@ -1,4 +1,6 @@
 !> Implements a hash table ADT
+!! @details A hash table storing tuples @a (key, data), with fixed
+!! data-type @a key but with arbitrary typed @a data
 module htable
   use num_types
   use utils
@@ -150,8 +152,8 @@ contains
   !> Insert tuple @a (key, value) into the hash table
   recursive subroutine htable_set(this, key, data) 
     class(htable_t), target, intent(inout) :: this
-    class(*), target, intent(inout) :: key
-    class(*), intent(inout) ::  data
+    class(*), target, intent(inout) :: key !< Table key
+    class(*), intent(inout) ::  data       !< Data associated with @a key
     class(htable_t), allocatable :: tmp
     integer index, i
 
@@ -198,8 +200,8 @@ contains
   !> Retrieve data associated with @a key into the hash table
   function htable_get(this, key, data) result(rcode)
     class(htable_t), target, intent(inout) :: this
-    class(*), intent(inout) :: key
-    class(*), intent(inout) :: data
+    class(*), intent(inout) :: key  !< Key to retrieve
+    class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
     integer :: index, i
 
@@ -225,8 +227,8 @@ contains
   !> Set data at @a idx to @a value
   subroutine htable_set_data(this, idx, data)
     class(htable_t), target, intent(inout) :: this
-    integer, intent(in) :: idx
-    class(*), intent(in) :: data
+    integer, intent(in) :: idx   !< Table index
+    class(*), intent(in) :: data !< Data to set at @a idx
     class(*), pointer :: dp
 
     dp => this%t(idx)%data
@@ -252,8 +254,8 @@ contains
   !> Return data at @a idx in @a value
   subroutine htable_get_data(this, idx, data)
     class(htable_t), target, intent(in) :: this
-    integer, intent(in) :: idx
-    class(*), intent(inout) :: data
+    integer, intent(in) :: idx      !< Table index
+    class(*), intent(inout) :: data !< Data to retrieve
     class(*), pointer :: dp
 
     dp => this%t(idx)%data
@@ -279,8 +281,8 @@ contains
   !> Compare key at @a idx to @a key
   function htable_eq_key(this, idx, key) result(res)
     class(htable_t), target, intent(in) :: this
-    integer, intent(in) :: idx
-    class(*), intent(in) :: key
+    integer, intent(in) :: idx  !< Table index
+    class(*), intent(in) :: key !< Key to compare against the key at @a idx
     class(*), pointer :: kp
     logical :: res
 
@@ -308,8 +310,8 @@ contains
   !> Set key at @a idx to @a key
   subroutine htable_set_key(this, idx, key) 
     class(htable_t), target, intent(inout) :: this
-    integer, intent(in) :: idx
-    class(*), intent(in) :: key
+    integer, intent(in) :: idx  !< Table index
+    class(*), intent(in) :: key !< Key to set at @a idx
     class(*), pointer :: kp
     
     kp => this%t(idx)%key
@@ -338,8 +340,8 @@ contains
   !> Initialize an integer based hash table
   subroutine htable_i4_init(this, size, data)
     class(htable_i4_t), intent(inout) :: this
-    integer, value :: size
-    class(*), intent(inout), optional :: data
+    integer, value :: size                    !< Initial size of the table
+    class(*), intent(inout), optional :: data !< Data to associate with @a key
     integer :: key
 
     if (present(data)) then
@@ -353,8 +355,8 @@ contains
   !> Insert an integer into the hash table
   subroutine htable_i4_set(this, key, data) 
     class(htable_i4_t), target, intent(inout) :: this
-    integer, intent(inout) :: key
-    class(*), intent(inout) :: data
+    integer, intent(inout) :: key   !< Table key
+    class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
 
@@ -363,8 +365,8 @@ contains
   !> Retrive an integer with key @a key from the hash table
   function htable_i4_get(this, key, data) result(rcode)
     class(htable_i4_t), target, intent(inout) :: this
-    integer, intent(inout) :: key
-    class(*), intent(inout) :: data
+    integer, intent(inout) :: key   !< Key to retrieve
+    class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
     rcode = htable_get(this, key, data)
@@ -387,10 +389,11 @@ contains
   !
   ! Double precision based implementation
   !
+  !> Initialize a double precision based hash table
   subroutine htable_r8_init(this, size, data)
     class(htable_r8_t), intent(inout) :: this
-    integer, value :: size
-    class(*), intent(inout), optional :: data
+    integer, value :: size                    !< Initial size of the table
+    class(*), intent(inout), optional :: data !< Data to associate with @a key
     real(kind=dp) :: key
 
     if (present(data)) then
@@ -401,19 +404,21 @@ contains
     
   end subroutine htable_r8_init
 
+  !> Insert an integer @a key (with @a data) into the hash table
   subroutine htable_r8_set(this, key, data) 
     class(htable_r8_t), target, intent(inout) :: this
-    real(kind=dp), intent(inout) :: key
-    class(*), intent(inout) :: data
+    real(kind=dp), intent(inout) :: key !< Table key
+    class(*), intent(inout) :: data     !< Data associated with @a key
 
     call htable_set(this, key, data)
 
   end subroutine htable_r8_set
 
+  !> Retrive an integer with key @a key from the hash table
   function htable_r8_get(this, key, data) result(rcode)
     class(htable_r8_t), target, intent(inout) :: this
-    real(kind=dp), intent(inout) :: key
-    class(*), intent(inout) :: data
+    real(kind=dp), intent(inout) :: key !< Key to retrieve
+    class(*), intent(inout) :: data     !< Retrieved data
     integer :: rcode
 
     rcode = htable_get(this, key, data)
@@ -438,8 +443,8 @@ contains
   !
   subroutine htable_pt_init(this, size, data)
     class(htable_pt_t), intent(inout) :: this
-    integer, value :: size
-    class(*), intent(inout), optional :: data
+    integer, value :: size                    !< Initial size of the table
+    class(*), intent(inout), optional :: data !< Data to associate with @a key
     type(point_t) :: key
 
     if (present(data)) then
@@ -452,8 +457,8 @@ contains
 
   subroutine htable_pt_set(this, key, data) 
     class(htable_pt_t), target, intent(inout) :: this
-    type(point_t), intent(inout) :: key
-    class(*), intent(inout) :: data
+    type(point_t), intent(inout) :: key !< Table key
+    class(*), intent(inout) :: data     !< Data associated with @a key
 
     call htable_set(this, key, data)
 
@@ -461,8 +466,8 @@ contains
 
   function htable_pt_get(this, key, data) result(rcode)
     class(htable_pt_t), target, intent(inout) :: this
-    type(point_t), intent(inout) :: key
-    class(*), intent(inout) :: data
+    type(point_t), intent(inout) :: key !< Key to retrieve
+    class(*), intent(inout) :: data     !< Retrieved data
     integer :: rcode
 
     rcode = htable_get(this, key, data)
@@ -485,5 +490,4 @@ contains
 
   end function htable_pt_hash
   
-
 end module htable
