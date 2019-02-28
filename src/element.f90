@@ -50,7 +50,7 @@ contains
     integer, intent(in) :: gdim
     integer, intent(in) :: npts
 
-    call this%init(id)
+    call this%set_id(id)
     
     if (allocated(this%pts)) then
        deallocate(this%pts)

@@ -6,24 +6,26 @@ module entity
   type, public, abstract :: entity_t 
      integer, private :: id_ = -1 !< Entity index
    contains
-     procedure, pass(this) :: entity_init
-     procedure, public :: id => entity_id
-     generic, public :: init => entity_init
+     procedure, pass(this) :: entity_id
+     procedure, pass(this) :: entity_set_id     
+     generic, public :: id => entity_id
+     generic, public :: set_id => entity_set_id     
   end type entity_t
 
 contains
 
-  subroutine entity_init(this, id)
-    class(entity_t), intent(inout) :: this
-    integer, intent(in) :: id
-    this%id_ = id
-  end subroutine entity_init
-
-  !> Return id if an entity
+  !> Return @a id_ of an entity
   pure function entity_id(this) result(id)
     class(entity_t), intent(in) :: this
     integer :: id
     id = this%id_
   end function entity_id
+
+  !> Update @a id_ of an entity
+  subroutine entity_set_id(this, id)
+    class(entity_t), intent(inout) :: this
+    integer, intent(in) :: id
+    this%id_ = id
+  end subroutine entity_set_id
     
 end module entity

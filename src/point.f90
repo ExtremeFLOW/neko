@@ -37,8 +37,8 @@ contains
     integer, intent(inout) :: id
     type(point_t) :: this
 
-    call this%init(id)
-
+    call this%set_id(id)
+    
     this%x = x
 
   end function point_init
@@ -50,7 +50,7 @@ contains
     integer, intent(inout) :: id
     type(point_t) :: this
 
-    call this%init(id)
+    call this%set_id(id)
 
     this%x(1) = x
     this%x(2) = y
