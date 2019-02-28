@@ -87,11 +87,14 @@ module htable
 contains
 
   !> Initialize a hash table of type @a data
-  subroutine htable_init(this, size, data)
+  subroutine htable_init(this, size, key, data)
     class(htable_t), intent(inout) :: this
-    integer, value :: size
-    class(*), intent(in) :: data
+    integer, value :: size              !< Initial size of the table
+    class(*), target, intent(in) :: key            !< Type of key
+    class(*), target, intent(in), optional :: data !< Type of data
+    class(*), pointer :: dp
     integer :: i
+    
 
     call this%free()
     
@@ -106,9 +109,14 @@ contains
     this%size = size
     this%entries = 0
 
+    dp => key
+    if (present(data)) then
+       dp => data
+    end if
+
     do i = 0, size
-       allocate(this%t(i)%key, source=data)
-       allocate(this%t(i)%data, source=data)
+       allocate(this%t(i)%key, source=key)
+       allocate(this%t(i)%data, source=dp)
     end do
   end subroutine htable_init
 
@@ -140,10 +148,10 @@ contains
   end subroutine htable_clear
 
   !> Insert tuple @a (key, value) into the hash table
-  recursive subroutine htable_set(this, key, value) 
+  recursive subroutine htable_set(this, key, data) 
     class(htable_t), target, intent(inout) :: this
     class(*), target, intent(inout) :: key
-    class(*), intent(inout) ::  value
+    class(*), intent(inout) ::  data
     class(htable_t), allocatable :: tmp
     integer index, i
 
@@ -153,7 +161,7 @@ contains
     do while (i .ge. 0)
        if ((.not. this%t(index)%valid) .or. this%eq_key(index, key)) then
           call this%set_key(index, key)
-          call this%set_data(index, value)
+          call this%set_data(index, data)
           if (.not. this%t(index)%valid) then
              this%entries = this%entries + 1
           end if
@@ -164,7 +172,7 @@ contains
        i = i - 1
     end do
 
-    select type(value)
+    select type(key)
     type is (integer)
        allocate(htable_i4_t::tmp)
     type is (double precision)
@@ -173,25 +181,25 @@ contains
        allocate(htable_pt_t::tmp)
     end select
 
-    call htable_init(tmp, ishft(this%size, 1), value)
+    call htable_init(tmp, ishft(this%size, 1), key, data)
 
     do i = 0, this%size - 1
        if (this%t(i)%valid) then
-          call htable_set(this, this%t(i)%key, this%t(i)%data)
+          call htable_set(tmp, this%t(i)%key, this%t(i)%data)
        end if
     end do
     this%size = tmp%size
     call move_alloc(tmp%t, this%t)
 
-    call htable_set(this, key, value)
+    call htable_set(this, key, data)
 
   end subroutine htable_set
 
   !> Retrieve data associated with @a key into the hash table
-  function htable_get(this, key, value) result(rcode)
+  function htable_get(this, key, data) result(rcode)
     class(htable_t), target, intent(inout) :: this
     class(*), intent(inout) :: key
-    class(*), intent(inout) :: value
+    class(*), intent(inout) :: data
     integer :: rcode
     integer :: index, i
 
@@ -200,11 +208,11 @@ contains
        call neko_error("Invalid hash generated")
     end if
 
-    i = this%size
+    i = this%size - 1
     
     do while (i .ge. 0)
        if ((this%t(index)%valid) .and. this%eq_key(index, key)) then
-          call this%get_data(index, value)
+          call this%get_data(index, data)          
           rcode = 0
           return
        end if
@@ -215,55 +223,55 @@ contains
   end function htable_get
 
   !> Set data at @a idx to @a value
-  subroutine htable_set_data(this, idx, value)
+  subroutine htable_set_data(this, idx, data)
     class(htable_t), target, intent(inout) :: this
     integer, intent(in) :: idx
-    class(*), intent(in) :: value
+    class(*), intent(in) :: data
     class(*), pointer :: dp
 
     dp => this%t(idx)%data
-    select type (value)
+    select type (data)
     type is (integer)
        select type(dp)
        type is (integer)
-          dp = value
+          dp = data
        end select
     type is (double precision)
        select type(dp)
        type is (double precision)
-          dp = value
+          dp = data
        end select
     type is (point_t)
        select type(dp)
        type is (point_t)
-          dp = value
+          dp = data
        end select
     end select
   end subroutine htable_set_data
 
   !> Return data at @a idx in @a value
-  subroutine htable_get_data(this, idx, value)
+  subroutine htable_get_data(this, idx, data)
     class(htable_t), target, intent(in) :: this
     integer, intent(in) :: idx
-    class(*), intent(inout) :: value
+    class(*), intent(inout) :: data
     class(*), pointer :: dp
 
     dp => this%t(idx)%data
     select type (dp)
     type is (integer)
-       select type(value)
+       select type(data)
        type is (integer)
-          value = dp
+          data = dp
        end select
     type is (double precision)
-       select type(value)
+       select type(data)
        type is (double precision)
-          value = dp
+          data = dp
        end select
     type is (point_t)
-       select type(value)
+       select type(data)
        type is (point_t)
-          value = dp
+          data = dp
        end select
     end select    
   end subroutine htable_get_data
@@ -328,33 +336,38 @@ contains
   ! Integer based implementation
   !
   !> Initialize an integer based hash table
-  subroutine htable_i4_init(this, size)
+  subroutine htable_i4_init(this, size, data)
     class(htable_i4_t), intent(inout) :: this
     integer, value :: size
-    integer :: data
+    class(*), intent(inout), optional :: data
+    integer :: key
 
-    call htable_init(this, size, data)
+    if (present(data)) then
+       call htable_init(this, size, key, data)
+    else
+       call htable_init(this, size, key)
+    end if
     
   end subroutine htable_i4_init
 
   !> Insert an integer into the hash table
-  subroutine htable_i4_set(this, key, value) 
+  subroutine htable_i4_set(this, key, data) 
     class(htable_i4_t), target, intent(inout) :: this
     integer, intent(inout) :: key
-    integer, intent(inout) :: value
+    class(*), intent(inout) :: data
 
-    call htable_set(this, key, value)
+    call htable_set(this, key, data)
 
   end subroutine htable_i4_set
 
   !> Retrive an integer with key @a key from the hash table
-  function htable_i4_get(this, key, value) result(rcode)
+  function htable_i4_get(this, key, data) result(rcode)
     class(htable_i4_t), target, intent(inout) :: this
     integer, intent(inout) :: key
-    integer, intent(inout) :: value
+    class(*), intent(inout) :: data
     integer :: rcode
 
-    rcode = htable_get(this, key, value)
+    rcode = htable_get(this, key, data)
 
   end function htable_i4_get
 
@@ -374,31 +387,36 @@ contains
   !
   ! Double precision based implementation
   !
-  subroutine htable_r8_init(this, size)
+  subroutine htable_r8_init(this, size, data)
     class(htable_r8_t), intent(inout) :: this
     integer, value :: size
-    real(kind=dp) :: data
+    class(*), intent(inout), optional :: data
+    real(kind=dp) :: key
 
-    call htable_init(this, size, data)
+    if (present(data)) then
+       call htable_init(this, size, key, data)
+    else
+       call htable_init(this, size, key)
+    end if
     
   end subroutine htable_r8_init
 
-  subroutine htable_r8_set(this, key, value) 
+  subroutine htable_r8_set(this, key, data) 
     class(htable_r8_t), target, intent(inout) :: this
-    integer, intent(inout) :: key
-    real(kind=dp), intent(inout) :: value
+    real(kind=dp), intent(inout) :: key
+    class(*), intent(inout) :: data
 
-    call htable_set(this, key, value)
+    call htable_set(this, key, data)
 
   end subroutine htable_r8_set
 
-  function htable_r8_get(this, key, value) result(rcode)
+  function htable_r8_get(this, key, data) result(rcode)
     class(htable_r8_t), target, intent(inout) :: this
-    integer, intent(inout) :: key
-    real(kind=dp), intent(inout) :: value
+    real(kind=dp), intent(inout) :: key
+    class(*), intent(inout) :: data
     integer :: rcode
 
-    rcode = htable_get(this, key, value)
+    rcode = htable_get(this, key, data)
 
   end function htable_r8_get
 
@@ -418,31 +436,36 @@ contains
   !
   ! Point based implementation
   !
-  subroutine htable_pt_init(this, size)
+  subroutine htable_pt_init(this, size, data)
     class(htable_pt_t), intent(inout) :: this
     integer, value :: size
-    type(point_t) :: data
+    class(*), intent(inout), optional :: data
+    type(point_t) :: key
 
-    call htable_init(this, size, data)
+    if (present(data)) then
+       call htable_init(this, size, key, data)
+    else
+       call htable_init(this, size, key)
+    end if
     
   end subroutine htable_pt_init
 
-  subroutine htable_pt_set(this, key, value) 
+  subroutine htable_pt_set(this, key, data) 
     class(htable_pt_t), target, intent(inout) :: this
-    integer, intent(inout) :: key
-    type(point_t), intent(inout) :: value
+    type(point_t), intent(inout) :: key
+    class(*), intent(inout) :: data
 
-    call htable_set(this, key, value)
+    call htable_set(this, key, data)
 
   end subroutine htable_pt_set
 
-  function htable_pt_get(this, key, value) result(rcode)
+  function htable_pt_get(this, key, data) result(rcode)
     class(htable_pt_t), target, intent(inout) :: this
-    integer, intent(inout) :: key
-    type(point_t), intent(inout) :: value
+    type(point_t), intent(inout) :: key
+    class(*), intent(inout) :: data
     integer :: rcode
 
-    rcode = htable_get(this, key, value)
+    rcode = htable_get(this, key, data)
 
   end function htable_pt_get
 
