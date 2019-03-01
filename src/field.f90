@@ -52,7 +52,7 @@ contains
      end if
 
      if (.not. allocated(f%z)) then
-        allocate(f%x(f%lx1, f%ly1, f%lz1, f%msh%nelv), stat = ierr)
+        allocate(f%z(f%lx1, f%ly1, f%lz1, f%msh%nelv), stat = ierr)
         f%z = 0d0
      end if
 
