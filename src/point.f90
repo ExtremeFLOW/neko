@@ -2,6 +2,7 @@
 !
 module point
   use num_types
+  use math
   use entity
   implicit none
   private
@@ -32,6 +33,7 @@ module point
 
 contains
   
+  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates
   function point_init(x, id) result(this)
     real(kind=dp), dimension(3), intent(in) :: x
     integer, intent(inout) :: id
@@ -43,6 +45,7 @@ contains
 
   end function point_init
 
+  !> Initialize a point from \f$ (x,y,z) \f$ coordinates
   function point_init_xyz(x, y, z, id) result(this)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
@@ -58,24 +61,25 @@ contains
 
   end function point_init_xyz
   
+  !> Assigns coordinates @a x to a point
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
     real(kind=dp), dimension(3), intent(in) :: x
 
-    !> @todo Also consider id
     this%x = x
 
   end subroutine point_assign
 
   !> Check if \f$ p_{1} = p_{2} \f$
+  !! @note this only checks coordinates
   pure function point_eq(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
     logical :: res
 
-    if (p1%x(1) .eq. p2%x(1) .and. &
-         p1%x(2) .eq. p2%x(2) .and. &
-         p1%x(3) .eq. p2%x(3)) then
+    if (abscmp(p1%x(1), p2%x(1)) .and. &
+         abscmp(p1%x(2), p2%x(2)) .and. &
+         abscmp(p1%x(3), p2%x(3))) then
        res = .true.
     else
        res = .false.
@@ -84,14 +88,15 @@ contains
   end function point_eq
 
   !> Check if \f$ p_{1} != p_{2} \f$
+  !! @note this only checks coordinates
   pure function point_ne(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
     logical :: res
 
-    if (p1%x(1) .ne. p2%x(1) .and. &
-         p1%x(2) .ne. p2%x(2) .and. &
-         p1%x(3) .ne. p2%x(3)) then
+    if (.not. abscmp(p1%x(1), p2%x(1)) .and. &
+         .not. abscmp(p1%x(2), p2%x(2)) .and. &
+         .not. abscmp(p1%x(3), p2%x(3))) then
        res = .true.
     else
        res = .false.
@@ -100,15 +105,16 @@ contains
   end function point_ne
   
   !> Check if \f$ p_{1} < p_{2} \f$
+  !! @note this only checks coordinates
   pure function point_lt(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
     logical :: res
 
     if (p1%x(1) .lt. p2%x(1) .or. &
-         (p1%x(1) .eq. p2%x(1) .and. &
+         (abscmp(p1%x(1), p2%x(1)) .and. &
          (p1%x(2) .lt. p2%x(2) .or. &
-         (p1%x(2) .eq. p2%x(2) .and. p1%x(3) .lt. p2%x(3))))) then
+         (abscmp(p1%x(2), p2%x(2)) .and. p1%x(3) .lt. p2%x(3))))) then
        res = .true.
     else
        res = .false.
@@ -117,6 +123,7 @@ contains
   end function point_lt
 
   !> Check if \f$ p_{1} > p_{2} \f$
+  !! @note this only checks coordinates
   pure function point_gt(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
