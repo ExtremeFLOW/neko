@@ -25,22 +25,15 @@ module htable
      type(h_tuple_t), private, allocatable :: t(:)
    contains
      procedure, pass(this) :: htable_init
-     procedure, pass(this) :: htable_clear
-     procedure, pass(this) :: htable_free
      procedure, pass(this) :: htable_set
-     procedure, pass(this) :: htable_set_data
-     procedure, pass(this) :: htable_get_data
-     procedure, pass(this) :: htable_eq_key
-     procedure, pass(this) :: htable_set_key
-     procedure, pass(this) :: htable_num_entries
+     procedure, pass(this) :: eq_key => htable_eq_key
+     procedure, pass(this) :: set_key => htable_set_key
+     procedure, pass(this) :: set_data => htable_set_data
+     procedure, pass(this) :: get_data => htable_get_data
      procedure(htable_hash), pass(this), deferred :: hash
-     generic, public :: clear => htable_clear
-     generic, public :: free => htable_free
-     generic, public :: set_data => htable_set_data
-     generic, public :: get_data => htable_get_data
-     generic, public :: eq_key => htable_eq_key
-     generic, public :: set_key => htable_set_key
-     generic, public :: num_entries => htable_num_entries
+     procedure, public, pass(this) :: clear => htable_clear
+     procedure, public, pass(this) :: free => htable_free
+     procedure, public, pass(this) :: num_entries => htable_num_entries
   end type htable_t
 
   abstract interface
@@ -55,37 +48,28 @@ module htable
   !> Integer based hash table
   type, public, extends(htable_t) :: htable_i4_t
    contains
-     procedure, pass(this) :: htable_i4_init
-     procedure, pass(this) :: htable_i4_set
-     procedure, pass(this) :: htable_i4_get
+     procedure, pass(this) :: init => htable_i4_init
+     procedure, pass(this) :: set => htable_i4_set
+     procedure, pass(this) :: get => htable_i4_get
      procedure, pass(this) :: hash => htable_i4_hash
-     generic, public :: init => htable_i4_init
-     generic, public :: set => htable_i4_set
-     generic, public :: get => htable_i4_get
   end type htable_i4_t
 
   !> Double precision based hash table
   type, public, extends(htable_t) :: htable_r8_t
    contains
-     procedure, pass(this) :: htable_r8_init
-     procedure, pass(this) :: htable_r8_set
-     procedure, pass(this) :: htable_r8_get
+     procedure, pass(this) :: init => htable_r8_init
+     procedure, pass(this) :: set => htable_r8_set
+     procedure, pass(this) :: get => htable_r8_get
      procedure, pass(this) :: hash => htable_r8_hash
-     generic, public :: init => htable_r8_init
-     generic, public :: set => htable_r8_set
-     generic, public :: get => htable_r8_get
   end type htable_r8_t
 
   !> Point based hash table
   type, public, extends(htable_t) :: htable_pt_t
    contains
-     procedure, pass(this) :: htable_pt_init
-     procedure, pass(this) :: htable_pt_set
-     procedure, pass(this) :: htable_pt_get
+     procedure, pass(this) :: init => htable_pt_init
+     procedure, pass(this) :: set => htable_pt_set
+     procedure, pass(this) :: get => htable_pt_get
      procedure, pass(this) :: hash => htable_pt_hash
-     generic, public :: init => htable_pt_init
-     generic, public :: set => htable_pt_set
-     generic, public :: get => htable_pt_get
   end type htable_pt_t
  
 contains
