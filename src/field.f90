@@ -2,6 +2,7 @@
 !
 module field
   use num_types
+  use math
   use mesh
   implicit none
   
@@ -78,21 +79,14 @@ contains
 
   subroutine field_assign_field(this_f, f)
     type(field_t), intent(inout) :: this_f
-    type(field_t), intent(in) :: f
-    integer :: i, j, k, l
+    type(field_t), intent(inout) :: f
+    integer :: n
 
-    do i = 1, f%msh%nelv
-       do l = 1, f%lz1
-          do k = 1, f%ly1
-             do j = 1, f%lz1
-                this_f%x(j, k, l, i) = f%x(j, k, l, i)
-                this_f%y(j, k, l, i) = f%y(j, k, l, i)
-                this_f%z(j, k, l, i) = f%z(j, k, l, i)
-             end do
-          end do
-       end do
-    end do
-    
+    n = f%msh%nelv * f%lx1 * f%ly1 * f%lz1
+    call copy(this_f%x, f%x, n)
+    call copy(this_f%y, f%y, n)
+    call copy(this_F%z, f%z, n)
+
   end subroutine field_assign_field
 
   !> Add \f$ F(u_1, u_2, ... , u_n) =
@@ -100,21 +94,14 @@ contains
   !! @note Component wise
   subroutine field_add_field(f, g)
     type(field_t), intent(inout) :: f
-    type(field_t), intent(in) :: g
-    integer i, j, k, l
+    type(field_t), intent(inout) :: g
+    integer :: n
 
-    do i = 1, f%msh%nelv
-       do l = 1, f%lz1
-          do k = 1, f%ly1
-             do j = 1, f%lz1
-                f%x(j, k, l, i) = f%x(j, k, l, i) + g%x(j, k, l, i)
-                f%y(j, k, l, i) = f%y(j, k, l, i) + g%y(j, k, l, i)
-                f%z(j, k, l, i) = f%z(j, k, l, i) + g%z(j, k, l, i)
-             end do
-          end do
-       end do
-    end do
-    
+    n = f%msh%nelv * f%lx1 * f%ly1 * f%lz1
+    call add2(f%x, g%x, n)
+    call add2(f%y, g%y, n)
+    call add2(f%z, g%z, n)
+
   end subroutine field_add_field
 
 
@@ -122,21 +109,15 @@ contains
   !! F(u_1, u_2, ... , u_n) + a \f$
   subroutine field_add_scalar(f, a)
     type(field_t), intent(inout) :: f
-    real(kind=dp), intent(in) :: a
-    integer i, j, k, l
+    real(kind=dp), intent(inout) :: a
+    integer :: n
 
-    do i = 1, f%msh%nelv
-       do l = 1, f%lz1
-          do k = 1, f%ly1
-             do j = 1, f%lz1
-                f%x(j, k, l, i) = f%x(j, k, l, i) + a
-                f%y(j, k, l, i) = f%y(j, k, l, i) + a
-                f%z(j, k, l, i) = f%z(j, k, l, i) + a
-             end do
-          end do
-       end do
-    end do
-    
+
+    n = f%msh%nelv * f%lx1 * f%ly1 * f%lz1
+    call cadd(f%x, a, n)
+    call cadd(f%y, a, n)
+    call cadd(f%z, a, n)
+
   end subroutine field_add_scalar
 
 end module field
