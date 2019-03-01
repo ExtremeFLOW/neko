@@ -4,22 +4,6 @@ module math
 
   real(kind=dp), parameter :: NEKO_EPS = epsilon(1d0)
 
-
-  !> Common interface for dot products
-  interface vdot
-     module procedure vdot2, vdot3
-  end interface vdot
-
-  !> Common interface for vector addition
-  interface add
-     module procedure add2, add3, add4
-  end interface add
-
-  !> Common interface to zero data
-  interface zero
-     module procedure rzero, izero
-  end interface zero
-
 contains
 
   !> Return absolute comparison \f$ | x - y | < \epsilon \f$
@@ -128,8 +112,8 @@ contains
 
   !> Vector addition \f$ a = a + b \f$
   subroutine add2(a, b, n)
-    real(kind=dp), dimension(n), intent(inout) :: b
     real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
     integer, intent(in) :: n
     integer :: i
 
