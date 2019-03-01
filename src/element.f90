@@ -3,7 +3,7 @@ module element
   use entity
   use point
   implicit none
-  private
+  private 
 
   !> Base type for an element
   !! @details An element is a collection of @a npts_ points forming an
@@ -13,15 +13,14 @@ module element
      integer, private :: npts_              !< number of points
      type(point_ptr), allocatable :: pts(:) !< Points of an element 
    contains
-     procedure, pass(this) :: element_init
-     procedure :: gdim => element_gdim
-     procedure :: npts => element_npts
-     procedure :: p => element_point 
+     procedure, pass(this) :: element => element_init
+     procedure, pass(this) :: gdim => element_gdim
+     procedure, pass(this) :: npts => element_npts
+     procedure, pass(this) :: p => element_point 
+     procedure, pass(this) :: n_points => element_npts
+     procedure, pass(this), non_overridable :: element_point
      procedure(element_equal), pass(this), deferred :: equal
      procedure(element_diameter), pass(this), deferred :: diameter
-     procedure :: n_points => element_npts
-     procedure, non_overridable :: element_point
-     generic, public :: init => element_init
   end type element_t
 
   abstract interface
@@ -44,6 +43,7 @@ module element
 
 contains
 
+  !> Create an element with @a npts
   subroutine element_init(this, id, gdim, npts)
     class(element_t), intent(inout)  :: this
     integer, intent(inout) :: id
@@ -63,12 +63,14 @@ contains
 
   end subroutine element_init
   
+  !> Get the geometric dimension of an element
   pure function element_gdim(this) result(gdim)
     class(element_t), intent(in) :: this
     integer :: gdim
     gdim = this%gdim_
   end function element_gdim
 
+  !> Get the number of points in an element
   pure function element_npts(this) result(npts)
     class(element_t), intent(in) :: this
     integer :: npts

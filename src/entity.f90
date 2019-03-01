@@ -6,10 +6,8 @@ module entity
   type, public, abstract :: entity_t 
      integer, private :: id_ = -1 !< Entity index
    contains
-     procedure, pass(this) :: entity_id
-     procedure, pass(this) :: entity_set_id     
-     generic, public :: id => entity_id
-     generic, public :: set_id => entity_set_id     
+     procedure, pass(this) :: id => entity_id
+     procedure, pass(this) :: set_id => entity_set_id     
   end type entity_t
 
 contains

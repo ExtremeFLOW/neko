@@ -12,10 +12,9 @@ module quad
 
   type, public, extends(element_t) :: quad_t
    contains
-     procedure, pass(this) :: quad_init
+     procedure, pass(this) :: init => quad_init
      procedure, pass(this) :: diameter => quad_diameter
      procedure, pass(this) :: equal => quad_equal
-     generic, public :: init => quad_init
      generic :: operator(.eq.) => equal
   end type quad_t
 
@@ -26,7 +25,7 @@ contains
     integer, intent(inout) :: id
     type(point_t), target, intent(in) :: p1, p2, p3, p4
 
-    call this%init(id, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS)
+    call this%element(id, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS)
 
     this%pts(1)%p => p1
     this%pts(2)%p => p2

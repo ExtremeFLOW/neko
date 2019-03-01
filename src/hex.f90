@@ -12,10 +12,9 @@ module hex
 
   type, public, extends(element_t) :: hex_t
    contains
-     procedure, pass(this) :: hex_init
+     procedure, pass(this) :: init => hex_init
      procedure, pass(this) :: diameter => hex_diameter
      procedure, pass(this) :: equal => hex_equal
-     generic, public :: init => hex_init
      generic :: operator(.eq.) => equal
   end type hex_t
 
@@ -26,7 +25,7 @@ contains
     integer, intent(inout) :: id
     type(point_t), target, intent(in) :: p1, p2, p3, p4, p5, p6, p7, p8
 
-    call this%init(id, NEKO_HEX_GDIM, NEKO_HEX_NPTS)
+    call this%element(id, NEKO_HEX_GDIM, NEKO_HEX_NPTS)
     
     this%pts(1)%p => p1
     this%pts(2)%p => p2
