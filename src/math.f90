@@ -62,6 +62,17 @@ contains
 
   end subroutine copy
   
+  !> Add a scalar to vector \f$ a = \sum a_i + s \f$
+  subroutine cadd(a, s, n)
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), intent(in) :: s
+    integer, intent(in) :: n
+    integer :: i
+    
+    do i = 1, n
+       a(i) = a(i) + s
+    end do
+  end subroutine cadd
 
 
   !> Compute a cross product \f$ u = v \times w \f$
