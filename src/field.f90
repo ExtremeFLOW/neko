@@ -79,13 +79,13 @@ contains
 
   subroutine field_assign_field(this_f, f)
     type(field_t), intent(inout) :: this_f
-    type(field_t), intent(inout) :: f
+    type(field_t), intent(in) :: f
     integer :: n
 
     n = f%msh%nelv * f%lx1 * f%ly1 * f%lz1
     call copy(this_f%x, f%x, n)
     call copy(this_f%y, f%y, n)
-    call copy(this_F%z, f%z, n)
+    call copy(this_f%z, f%z, n)
 
   end subroutine field_assign_field
 
