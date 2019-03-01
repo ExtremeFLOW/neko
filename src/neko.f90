@@ -3,6 +3,7 @@
 module neko
   use num_types
   use utils
+  use math
   use htable
   use generic_file
   use entity
