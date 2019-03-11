@@ -2,7 +2,11 @@ module math
   use num_types
   implicit none
 
+  !> Machine epsilon \f$ \epsilon \f$
   real(kind=dp), parameter :: NEKO_EPS = epsilon(1d0)
+
+  !> \f$ ln(2) \f$
+  real(kind=dp), parameter :: NEKO_M_LN2 = 0.693147180559945d0
 
 contains
 

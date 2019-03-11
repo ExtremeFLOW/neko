@@ -5,11 +5,9 @@ module htable
   use num_types
   use utils
   use point
+  use math, only : NEKO_M_LN2
   implicit none
   private
-
-  !> \f$ ln(2) \f$
-  real(kind=dp), parameter :: NEKO_M_LN2 = 0.693147180559945d0
 
   !> Hash table entry, tuple (key, data)
   type :: h_tuple_t
