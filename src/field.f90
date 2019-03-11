@@ -12,7 +12,7 @@ module field
      real(kind=dp), allocatable :: y(:,:,:,:)
      real(kind=dp), allocatable :: z(:,:,:,:)     
 
-     type(space_t), pointer :: V
+     type(space_t), pointer :: Vh !< Function space \f$ V_h \f$
      type(mesh_t), pointer :: msh
   end type field_t
 
@@ -32,30 +32,30 @@ contains
     type(mesh_t), target, intent(in) :: msh !< Underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
     integer :: ierr
-    integer :: lx1, ly1, lz1, nelv
+    integer :: lx, ly, lz, nelv
 
     call field_free(f)
 
-    f%V => space
+    f%Vh => space
     f%msh => msh
 
-    lx1 = f%V%lx1
-    ly1 = f%V%ly1
-    lz1 = f%V%lz1
+    lx = f%Vh%lx
+    ly = f%Vh%ly
+    lz = f%Vh%lz
     nelv = f%msh%nelv
         
      if (.not. allocated(f%x)) then
-        allocate(f%x(lx1, ly1, lz1, nelv), stat = ierr)        
+        allocate(f%x(lx, ly, lz, nelv), stat = ierr)        
         f%x = 0d0
      end if
 
      if (.not. allocated(f%y)) then
-        allocate(f%y(lx1, ly1, lz1, nelv), stat = ierr)
+        allocate(f%y(lx, ly, lz, nelv), stat = ierr)
         f%y = 0d0
      end if
 
      if (.not. allocated(f%z)) then
-        allocate(f%z(lx1, ly1, lz1, nelv), stat = ierr)
+        allocate(f%z(lx, ly, lz, nelv), stat = ierr)
         f%z = 0d0
      end if
 
@@ -78,7 +78,7 @@ contains
     end if
 
     nullify(f%msh)
-    nullify(f%V)
+    nullify(f%Vh)
 
   end subroutine field_free
 
@@ -87,7 +87,7 @@ contains
     type(field_t), intent(in) :: f
     integer :: n
 
-    n = f%msh%nelv * f%V%lx1 * f%V%ly1 * f%V%lz1
+    n = f%msh%nelv * f%Vh%lx * f%Vh%ly * f%Vh%lz
     call copy(this_f%x, f%x, n)
     call copy(this_f%y, f%y, n)
     call copy(this_f%z, f%z, n)
@@ -102,7 +102,7 @@ contains
     type(field_t), intent(inout) :: g
     integer :: n
 
-    n = f%msh%nelv * f%V%lx1 * f%V%ly1 * f%V%lz1
+    n = f%msh%nelv * f%Vh%lx * f%Vh%ly * f%Vh%lz
     call add2(f%x, g%x, n)
     call add2(f%y, g%y, n)
     call add2(f%z, g%z, n)
@@ -117,7 +117,7 @@ contains
     real(kind=dp), intent(inout) :: a
     integer :: n
 
-    n = f%msh%nelv * f%V%lx1 * f%V%ly1 * f%V%lz1
+    n = f%msh%nelv * f%Vh%lx * f%Vh%ly * f%Vh%lz
     call cadd(f%x, a, n)
     call cadd(f%y, a, n)
     call cadd(f%z, a, n)
