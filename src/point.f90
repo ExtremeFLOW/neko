@@ -87,7 +87,7 @@ contains
     
   end function point_eq
 
-  !> Check if \f$ p_{1} != p_{2} \f$
+  !> Check if \f$ p_{1} \neq p_{2} \f$
   !! @note this only checks coordinates
   pure function point_ne(p1, p2) result(res)
     class(point_t), intent(in) :: p1
