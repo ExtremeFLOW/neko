@@ -2,6 +2,7 @@ lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	num_types.f90 \
 	utils.f90\
+	speclib.f90 \
 	math.f90\
 	space.f90\
 	entity.f90\

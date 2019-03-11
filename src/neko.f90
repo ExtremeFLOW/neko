@@ -4,6 +4,7 @@ module neko
   use num_types
   use utils
   use math
+  use speclib
   use space
   use htable
   use generic_file
