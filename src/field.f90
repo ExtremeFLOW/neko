@@ -34,6 +34,8 @@ contains
     integer :: ierr
     integer :: lx1, ly1, lz1, nelv
 
+    call field_free(f)
+
     f%V => space
     f%msh => msh
 
@@ -74,6 +76,9 @@ contains
     if (allocated(f%z)) then
        deallocate(f%z)
     end if
+
+    nullify(f%msh)
+    nullify(f%V)
 
   end subroutine field_free
 
