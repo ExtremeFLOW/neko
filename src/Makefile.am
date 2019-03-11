@@ -3,6 +3,7 @@ libneko_a_SOURCES = \
 	num_types.f90 \
 	utils.f90\
 	math.f90\
+	space.f90\
 	entity.f90\
 	point.f90\
 	element.f90\
