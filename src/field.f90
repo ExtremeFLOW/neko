@@ -12,7 +12,7 @@ module field
      real(kind=dp), allocatable :: y(:,:,:,:)
      real(kind=dp), allocatable :: z(:,:,:,:)     
 
-     type(space_t), pointer :: Vh !< Function space \f$ V_h \f$
+     type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh
   end type field_t
 
@@ -36,12 +36,12 @@ contains
 
     call field_free(f)
 
-    f%Vh => space
+    f%Xh => space
     f%msh => msh
 
-    lx = f%Vh%lx
-    ly = f%Vh%ly
-    lz = f%Vh%lz
+    lx = f%Xh%lx
+    ly = f%Xh%ly
+    lz = f%Xh%lz
     nelv = f%msh%nelv
         
      if (.not. allocated(f%x)) then
@@ -78,7 +78,7 @@ contains
     end if
 
     nullify(f%msh)
-    nullify(f%Vh)
+    nullify(f%Xh)
 
   end subroutine field_free
 
@@ -87,7 +87,7 @@ contains
     type(field_t), intent(in) :: f
     integer :: n
 
-    n = f%msh%nelv * f%Vh%lx * f%Vh%ly * f%Vh%lz
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     call copy(this_f%x, f%x, n)
     call copy(this_f%y, f%y, n)
     call copy(this_f%z, f%z, n)
@@ -102,7 +102,7 @@ contains
     type(field_t), intent(inout) :: g
     integer :: n
 
-    n = f%msh%nelv * f%Vh%lx * f%Vh%ly * f%Vh%lz
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     call add2(f%x, g%x, n)
     call add2(f%y, g%y, n)
     call add2(f%z, g%z, n)
@@ -117,7 +117,7 @@ contains
     real(kind=dp), intent(inout) :: a
     integer :: n
 
-    n = f%msh%nelv * f%Vh%lx * f%Vh%ly * f%Vh%lz
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     call cadd(f%x, a, n)
     call cadd(f%y, a, n)
     call cadd(f%z, a, n)
