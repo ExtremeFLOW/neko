@@ -54,7 +54,7 @@ contains
        f%y = 0d0
     end if
     
-    if (.not. allocated(f%z) .and. gdim .gt. 2) then
+    if (.not. allocated(f%z) .and. msh%gdim .gt. 2) then
        allocate(f%z(lx, ly, lz, nelv), stat = ierr)
        f%z = 0d0
     end if
