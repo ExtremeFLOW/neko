@@ -13,7 +13,7 @@ module field
      real(kind=dp), allocatable :: z(:,:,:,:)     
 
      type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
-     type(mesh_t), pointer :: msh
+     type(mesh_t), pointer :: msh !< Mesh
   end type field_t
 
   interface assignment(=)
@@ -43,22 +43,22 @@ contains
     ly = f%Xh%ly
     lz = f%Xh%lz
     nelv = f%msh%nelv
-        
-     if (.not. allocated(f%x)) then
-        allocate(f%x(lx, ly, lz, nelv), stat = ierr)        
-        f%x = 0d0
-     end if
-
-     if (.not. allocated(f%y)) then
-        allocate(f%y(lx, ly, lz, nelv), stat = ierr)
-        f%y = 0d0
-     end if
-
-     if (.not. allocated(f%z)) then
-        allocate(f%z(lx, ly, lz, nelv), stat = ierr)
-        f%z = 0d0
-     end if
-
+    
+    if (.not. allocated(f%x)) then
+       allocate(f%x(lx, ly, lz, nelv), stat = ierr)        
+       f%x = 0d0
+    end if
+    
+    if (.not. allocated(f%y)) then
+       allocate(f%y(lx, ly, lz, nelv), stat = ierr)
+       f%y = 0d0
+    end if
+    
+    if (.not. allocated(f%z) .and. gdim .gt. 2) then
+       allocate(f%z(lx, ly, lz, nelv), stat = ierr)
+       f%z = 0d0
+    end if
+    
   end subroutine field_init
 
   !> Deallocate a field @a f
