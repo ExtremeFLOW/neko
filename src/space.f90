@@ -91,7 +91,7 @@ contains
    end subroutine space_init
 
   subroutine space_free(s)
-    type(space_t), intent(in) :: s
+    type(space_t), intent(inout) :: s
     
     if (allocated(s%zg)) then
        deallocate(s%zg)
