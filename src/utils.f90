@@ -14,13 +14,14 @@ contains
   
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
-
-    write(*,*) '*** ERROR ***'
+    integer :: code
 
     if (present(error_code)) then
-       stop error_code
-    else       
-       stop 
+       write(*,*) '*** ERROR ***', error_code
+       stop
+    else
+       write(*,*) '*** ERROR ***'
+       stop
     end if
 
   end subroutine neko_error_plain
