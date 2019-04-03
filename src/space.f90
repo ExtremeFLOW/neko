@@ -11,6 +11,8 @@ module space
      integer :: lx              !< Polynomial dimension in x-direction
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
+
+     integer :: ndim            !< Number of components
      
      real(kind=sp), allocatable :: zg(:,:) !< Quadrature points
 

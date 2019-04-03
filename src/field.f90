@@ -8,10 +8,9 @@ module field
   implicit none
   
   type field_t
-     real(kind=dp), allocatable :: x(:,:,:,:)
-     real(kind=dp), allocatable :: y(:,:,:,:)
-     real(kind=dp), allocatable :: z(:,:,:,:)     
-
+     !> @todo Is x really a good name for a field?
+     real(kind=dp), allocatable :: x(:,:,:,:,:)
+     
      type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh !< Mesh
   end type field_t
@@ -32,7 +31,7 @@ contains
     type(mesh_t), target, intent(in) :: msh !< Underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
     integer :: ierr
-    integer :: lx, ly, lz, nelv
+    integer :: lx, ly, lz, nelv, ndim
 
     call field_free(f)
 
@@ -43,20 +42,11 @@ contains
     ly = f%Xh%ly
     lz = f%Xh%lz
     nelv = f%msh%nelv
+    ndim = f%Xh%ndim
     
     if (.not. allocated(f%x)) then
-       allocate(f%x(lx, ly, lz, nelv), stat = ierr)        
+       allocate(f%x(lx, ly, lz, nelv, ndim), stat = ierr)        
        f%x = 0d0
-    end if
-    
-    if (.not. allocated(f%y)) then
-       allocate(f%y(lx, ly, lz, nelv), stat = ierr)
-       f%y = 0d0
-    end if
-    
-    if (.not. allocated(f%z) .and. msh%gdim .gt. 2) then
-       allocate(f%z(lx, ly, lz, nelv), stat = ierr)
-       f%z = 0d0
     end if
     
   end subroutine field_init
@@ -69,14 +59,6 @@ contains
        deallocate(f%x)
     end if
 
-    if (allocated(f%y)) then
-       deallocate(f%y)
-    end if
-
-    if (allocated(f%z)) then
-       deallocate(f%z)
-    end if
-
     nullify(f%msh)
     nullify(f%Xh)
 
@@ -87,11 +69,9 @@ contains
     type(field_t), intent(in) :: f
     integer :: n
 
-    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz * f%Xh%ndim
     call copy(this_f%x, f%x, n)
-    call copy(this_f%y, f%y, n)
-    call copy(this_f%z, f%z, n)
-
+    
   end subroutine field_assign_field
 
   !> Add \f$ F(u_1, u_2, ... , u_n) =
@@ -102,10 +82,8 @@ contains
     type(field_t), intent(inout) :: g
     integer :: n
 
-    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz * f%Xh%ndim    
     call add2(f%x, g%x, n)
-    call add2(f%y, g%y, n)
-    call add2(f%z, g%z, n)
 
   end subroutine field_add_field
 
@@ -117,10 +95,8 @@ contains
     real(kind=dp), intent(inout) :: a
     integer :: n
 
-    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz * f%Xh%ndim    
     call cadd(f%x, a, n)
-    call cadd(f%y, a, n)
-    call cadd(f%z, a, n)
 
   end subroutine field_add_scalar
 
