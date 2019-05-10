@@ -25,8 +25,9 @@ contains
     class(*), target, intent(inout) :: data
     type(mesh_t), pointer :: msh
     character(len=80) :: hdr_ver, hdr_str
-    integer :: i, j, nel, ndim, nelv, ierr, el_idx, pt_idx
+    integer :: i, j, k, nel, ndim, nelv, ierr, el_idx, pt_idx
     real(kind=sp), allocatable :: xyz(:)
+    real(kind=sp) :: test, x(8), y(8), z(8)
     type(point_t) :: p(8)
 
     select type(data)
@@ -43,28 +44,65 @@ contains
 
     call mesh_init(msh, ndim, nelv)
 
-    allocate(xyz(nelv * 24))
+    allocate(xyz(nelv * 26))
 
     open(unit=9,file=trim(this%fname), status='old', access='stream', form='unformatted')
-    read(9, pos=81) xyz
+    read(9, pos=81) test
+    read(9, pos=85) xyz
 
     pt_idx = 1
     el_idx = 1
+    k = 2
     if (ndim .eq. 2) then
+       do i = 1, nelv
+          do j = 1, 8
+             x(j) = xyz(k)
+             k = k + 1
+          end do
+
+          do j = 1, 8
+             y(j) = xyz(k)
+             k = k + 1
+          end do
+
+          do j = 1, 8             
+             p(j) = point_t(dble(x(j)), dble(y(j)), 0d0, pt_idx)
+             pt_idx = pt_idx + 1
+          end do
+
+          call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
+          el_idx = el_idx + 1
+       end do       
     else if (ndim .eq. 3) then
        do i = 1, nelv
           do j = 1, 8
-             p(j) = point_t(dble(xyz(24*(i - 1) + j)), &
-                  dble(xyz(24 * (i - 1) + 8 + j)), &
-                  dble(xyz(24 * (i - 1) + 16 + j)), pt_idx)
+             x(j) = xyz(k)
+             k = k + 1
+          end do
+
+          do j = 1, 8
+             y(j) = xyz(k)
+             k = k + 1
+          end do
+
+          do j = 1, 8
+             z(j) = xyz(k)
+             k = k + 1
+          end do
+          k = k + 1
+
+          do j = 1, 8             
+             p(j) = point_t(dble(x(j)), dble(y(j)), dble(z(j)), pt_idx)
              pt_idx = pt_idx + 1
           end do
+
           call mesh_add_element(msh, el_idx, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           el_idx = el_idx + 1
        end do
     end if
 
+    !> @todo Add support for curved side data
 
     close(9)
 
