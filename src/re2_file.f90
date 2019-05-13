@@ -38,7 +38,8 @@ contains
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    write(*,*) trim(hdr_ver), nel, ndim, nelv, trim(hdr_str)
+    write(*,1) ndim, nelv
+1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
 
@@ -101,6 +102,7 @@ contains
           el_idx = el_idx + 1
        end do
     end if
+    write(*,*) 'Done'
 
     !> @todo Add support for curved side data
 
