@@ -2,6 +2,7 @@ module file
   use utils
   use generic_file
   use rea, only:rea_file_t
+  use re2_file
   use vtk_file
   implicit none
   
@@ -39,7 +40,9 @@ contains
     
     if (suffix .eq. "rea") then
        allocate(rea_file_t::this%file_type)
-    else if (suffix .eq.  "vtk") then
+    else if (suffix .eq. "re2") then
+       allocate(re2_file_t::this%file_type)
+    else if (suffix .eq. "vtk") then
        allocate(vtk_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
