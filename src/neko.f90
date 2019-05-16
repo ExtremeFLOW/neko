@@ -18,4 +18,18 @@ module neko
   use vtk_file
   use file
   use field
+  use mpi
+  use mpi_types
+contains
+
+  subroutine neko_init
+    integer :: ierr
+
+    call MPI_Init(ierr)
+
+    call mpi_types_init
+
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+  end subroutine neko_init
+
 end module neko

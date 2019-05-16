@@ -3,14 +3,22 @@ module re2
   use num_types
   implicit none
 
-  !> NEKTON re2 header
-  type, public :: re2_hdr_t
-     character(len=5) :: hdr_ver
-     integer :: nel
-     integer :: ndim
-     integer :: nelv
-     character(len=54) :: hdr_str
-     real(kind=sp) :: endian_test
-  end type re2_hdr_t
+  !> NEKTON re2 element data
+  type :: re2_t
+     real(kind=sp) :: rgroup
+  end type re2_t
+
+  !> NEKTON re2 element data (3d)
+  type, public, extends(re2_t) :: re2_xyz_t    
+     real(kind=sp), dimension(8) :: x
+     real(kind=sp), dimension(8) :: y
+     real(kind=sp), dimension(8) :: z
+  end type re2_xyz_t
+
+  !> NEKTON re2 element data (2d)
+  type, public, extends(re2_t) :: re2_xy_t    
+     real(kind=sp), dimension(8) :: x
+     real(kind=sp), dimension(8) :: y
+  end type re2_xy_t
 
 end module re2

@@ -6,6 +6,9 @@ module re2_file
   use utils
   use mesh
   use point
+  use mpi
+  use mpi_types
+  use re2
   implicit none
   private
   
@@ -23,11 +26,15 @@ contains
   subroutine re2_file_read(this, data)
     class(re2_file_t) :: this
     class(*), target, intent(inout) :: data
+    type(re2_xy_t), allocatable :: re2_data_xy(:)
+    type(re2_xyz_t), allocatable :: re2_data_xyz(:)
     type(mesh_t), pointer :: msh
-    character(len=80) :: hdr_ver, hdr_str
-    integer :: i, j, k, nel, ndim, nelv, ierr, el_idx, pt_idx
+    character(len=5) :: hdr_ver
+    character(len=54) :: hdr_str
+    integer :: i, j, k, fh, nel, ndim, nelv, ierr, el_idx, pt_idx
+    integer :: status(MPI_STATUS_SIZE)
     real(kind=sp), allocatable :: xyz(:)
-    real(kind=sp) :: test, x(8), y(8), z(8)
+    real(kind=sp) :: test
     type(point_t) :: p(8)
 
     select type(data)
@@ -35,65 +42,49 @@ contains
        msh => data
     end select
 
+    
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
+    read(9, *) test
     write(*,1) ndim, nelv
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
 
+    call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
+         MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
+    
+    if (ierr .ne. 0) then
+       call neko_error("Can't open binary NEKTON file ")
+    end if
+    
+
     call mesh_init(msh, ndim, nelv)
-
-    allocate(xyz(nelv * 26))
-
-    open(unit=9,file=trim(this%fname), status='old', access='stream', form='unformatted')
-    read(9, pos=81) test
-    read(9, pos=85) xyz
-
+   
     pt_idx = 1
     el_idx = 1
-    k = 2
     if (ndim .eq. 2) then
+       allocate(re2_data_xy(nelv))
+       call MPI_File_read(fh, re2_data_xy, nelv, MPI_RE2_DATA_XY, status, ierr)
        do i = 1, nelv
-          do j = 1, 8
-             x(j) = xyz(k)
-             k = k + 1
-          end do
-
-          do j = 1, 8
-             y(j) = xyz(k)
-             k = k + 1
-          end do
-
           do j = 1, 8             
-             p(j) = point_t(dble(x(j)), dble(y(j)), 0d0, pt_idx)
+             p(j) = point_t(dble(re2_data_xy(i)%x(j)), &
+                  dble(re2_data_xy(i)%y(j)), 0d0, pt_idx)
              pt_idx = pt_idx + 1
           end do
 
           call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
           el_idx = el_idx + 1
-       end do       
+       end do
+       deallocate(re2_data_xy)
     else if (ndim .eq. 3) then
+       allocate(re2_data_xyz(nelv))
+       call MPI_File_read(fh, re2_data_xyz, nelv, MPI_RE2_DATA_XYZ, status, ierr)
        do i = 1, nelv
-          do j = 1, 8
-             x(j) = xyz(k)
-             k = k + 1
-          end do
-
-          do j = 1, 8
-             y(j) = xyz(k)
-             k = k + 1
-          end do
-
-          do j = 1, 8
-             z(j) = xyz(k)
-             k = k + 1
-          end do
-          k = k + 1
-
           do j = 1, 8             
-             p(j) = point_t(dble(x(j)), dble(y(j)), dble(z(j)), pt_idx)
+             p(j) = point_t(dble(re2_data_xyz(i)%x(j)), &
+                  dble(re2_data_xyz(i)%y(j)), dble(re2_data_xyz(i)%z(j)), pt_idx)
              pt_idx = pt_idx + 1
           end do
 
@@ -101,6 +92,7 @@ contains
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           el_idx = el_idx + 1
        end do
+       deallocate(re2_data_xyz)
     end if
     write(*,*) 'Done'
 
