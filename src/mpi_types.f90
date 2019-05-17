@@ -5,8 +5,8 @@ module mpi_types
   implicit none
   private
 
-  integer :: MPI_RE2_DATA_XYZ !< mpi dervied type for 3D NEKTON re2 data
-  integer :: MPI_RE2_DATA_XY !< MPI dervied type for 2D NEKTON re2 data
+  integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
+  integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data 
 
   ! Public dervied typese
   public :: MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY
@@ -19,6 +19,7 @@ contains
   !> Define all MPI dervied types
   subroutine mpi_types_init
     call mpi_type_re2_xyz_init
+    call mpi_type_re2_xy_init
   end subroutine mpi_types_init
 
   !> Define a MPI derived type for a 3d re2 data

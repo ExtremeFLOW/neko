@@ -32,7 +32,9 @@ contains
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
     integer :: i, j, k, fh, nel, ndim, nelv, ierr, el_idx, pt_idx
+    integer :: rsize, csize
     integer :: status(MPI_STATUS_SIZE)
+    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp), allocatable :: xyz(:)
     real(kind=sp) :: test
     type(point_t) :: p(8)
@@ -46,11 +48,13 @@ contains
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    read(9, *) test
     write(*,1) ndim, nelv
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
+
+    call MPI_Type_size(MPI_CHARACTER, csize, ierr)
+    call MPI_Type_size(MPI_REAL, rsize, ierr)
 
     call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
@@ -62,11 +66,18 @@ contains
 
     call mesh_init(msh, ndim, nelv)
    
+    ! Set offset (header)
+    mpi_offset = RE2_HDR_SIZE * csize
+
+    call MPI_File_read_at(fh, mpi_offset, test, 1, MPI_REAL, status, ierr)
+    mpi_offset = mpi_offset + rsize
+    
     pt_idx = 1
     el_idx = 1
     if (ndim .eq. 2) then
        allocate(re2_data_xy(nelv))
-       call MPI_File_read(fh, re2_data_xy, nelv, MPI_RE2_DATA_XY, status, ierr)
+       call MPI_File_read_at(fh, mpi_offset, &
+            re2_data_xy, nelv, MPI_RE2_DATA_XY, status, ierr)
        do i = 1, nelv
           do j = 1, 8             
              p(j) = point_t(dble(re2_data_xy(i)%x(j)), &
@@ -80,11 +91,13 @@ contains
        deallocate(re2_data_xy)
     else if (ndim .eq. 3) then
        allocate(re2_data_xyz(nelv))
-       call MPI_File_read(fh, re2_data_xyz, nelv, MPI_RE2_DATA_XYZ, status, ierr)
+       call MPI_File_read_at(fh, mpi_offset, &
+            re2_data_xyz, nelv, MPI_RE2_DATA_XYZ, status, ierr)
        do i = 1, nelv
           do j = 1, 8             
              p(j) = point_t(dble(re2_data_xyz(i)%x(j)), &
-                  dble(re2_data_xyz(i)%y(j)), dble(re2_data_xyz(i)%z(j)), pt_idx)
+                  dble(re2_data_xyz(i)%y(j)),&
+                  dble(re2_data_xyz(i)%z(j)), pt_idx)
              pt_idx = pt_idx + 1
           end do
 
@@ -100,7 +113,6 @@ contains
 
     close(9)
 
-    deallocate(xyz)
     
   end subroutine re2_file_read
 

@@ -32,4 +32,11 @@ contains
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
   end subroutine neko_init
 
+  subroutine neko_finalize
+    integer :: ierr
+
+    call mpi_types_Free
+    call MPI_Finalize(ierr)    
+  end subroutine neko_finalize
+
 end module neko

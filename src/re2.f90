@@ -3,6 +3,9 @@ module re2
   use num_types
   implicit none
 
+  !> NEKTON re2 header size
+  integer, parameter :: RE2_HDR_SIZE = 80
+
   !> NEKTON re2 element data
   type :: re2_t
      real(kind=sp) :: rgroup
