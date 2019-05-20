@@ -35,7 +35,6 @@ contains
     integer :: rsize, csize
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
-    real(kind=sp), allocatable :: xyz(:)
     real(kind=sp) :: test
     type(point_t) :: p(8)
 
@@ -63,7 +62,6 @@ contains
        call neko_error("Can't open binary NEKTON file ")
     end if
     
-
     call mesh_init(msh, ndim, nelv)
    
     ! Set offset (header)
