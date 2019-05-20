@@ -105,11 +105,11 @@ contains
        end do
        deallocate(re2_data_xyz)
     end if
+    call MPI_FILE_close(fh, ierr)
     write(*,*) 'Done'
 
     !> @todo Add support for curved side data
 
-    close(9)
 
     
   end subroutine re2_file_read
@@ -117,6 +117,74 @@ contains
   subroutine re2_file_write(this, data)
     class(re2_file_t), intent(in) :: this
     class(*), target, intent(in) :: data
+    type(re2_xy_t), allocatable :: re2_data_xy(:)
+    type(re2_xyz_t), allocatable :: re2_data_xyz(:)
+    type(mesh_t), pointer :: msh
+    character(len=5), parameter :: RE2_HDR_VER = '#v001'
+    character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
+    integer :: i, j, k, fh, ierr, el_idx, pt_idx
+    integer :: status(MPI_STATUS_SIZE)
+    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
+    real(kind=dp) :: apa
+    
+    select type(data)
+    type is (mesh_t)
+       msh => data
+    end select
+
+    open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
+    write(*, '(A,A)') " Writing data as a binary NEKTON file ", this%fname
+    write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, msh%nelv, msh%gdim,&
+         msh%nelv, RE2_HDR_STR
+    write(*,*) 'Done'
+
+    close(9)
+
+    call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
+         MPI_MODE_WRONLY + MPI_MODE_APPEND, MPI_INFO_NULL, fh, ierr)
+    mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
+    
+    call MPI_File_write_at(fh, mpi_offset, RE2_ENDIAN_TEST, 1, MPI_REAL, status, ierr)
+    mpi_offset = mpi_offset + MPI_REAL_SIZE
+
+    if (msh%gdim .eq. 2) then
+       allocate(re2_data_xy(msh%nelv))
+       do i = 1, msh%nelv
+          re2_data_xy(i)%rgroup = 1.0 ! Not used
+          do j = 1, 8 
+             re2_data_xy(i)%x(j) = real(msh%elements(i)%e%pts(j)%p%x(1))
+             re2_data_xy(i)%y(j) = real(msh%elements(i)%e%pts(j)%p%x(2))
+          end do
+       end do
+
+       call MPI_File_write_at(fh, mpi_offset, &
+            re2_data_xy, msh%nelv, MPI_RE2_DATA_XY, status, ierr)
+
+       deallocate(re2_data_xy)
+
+    else if (msh%gdim .eq. 3) then
+       allocate(re2_data_xyz(msh%nelv))
+       do i = 1, msh%nelv
+          re2_data_xyz(i)%rgroup = 1.0 ! Not used
+          do j = 1, 8 
+             re2_data_xyz(i)%x(j) = real(msh%elements(i)%e%pts(j)%p%x(1))
+             re2_data_xyz(i)%y(j) = real(msh%elements(i)%e%pts(j)%p%x(2))
+             re2_data_xyz(i)%z(j) = real(msh%elements(i)%e%pts(j)%p%x(3))
+          end do
+       end do
+
+       call MPI_File_write_at(fh, mpi_offset, &
+            re2_data_xyz, msh%nelv, MPI_RE2_DATA_XYZ, status, ierr)
+       
+       deallocate(re2_data_xyz)
+    else
+       call neko_error("Invalid dimension of mesh")
+    end if
+        
+    call MPI_FILE_close(fh, ierr)
+
+    !> @todo Add support for curved side data
+    
   end subroutine re2_file_write
 
 end module re2_file
