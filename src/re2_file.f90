@@ -32,7 +32,6 @@ contains
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
     integer :: i, j, k, fh, nel, ndim, nelv, ierr, el_idx, pt_idx
-    integer :: rsize, csize
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp) :: test
@@ -52,9 +51,6 @@ contains
     close(9)
 
 
-    call MPI_Type_size(MPI_CHARACTER, csize, ierr)
-    call MPI_Type_size(MPI_REAL, rsize, ierr)
-
     call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     
@@ -65,10 +61,10 @@ contains
     call mesh_init(msh, ndim, nelv)
    
     ! Set offset (header)
-    mpi_offset = RE2_HDR_SIZE * csize
+    mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
 
     call MPI_File_read_at(fh, mpi_offset, test, 1, MPI_REAL, status, ierr)
-    mpi_offset = mpi_offset + rsize
+    mpi_offset = mpi_offset + MPI_REAL_SIZE
     
     if (abs(RE2_ENDIAN_TEST - test) .gt. 1e-4) then
        call neko_error('Invalid endian of re2 file, byte swap not implemented yet')

@@ -8,8 +8,12 @@ module mpi_types
   integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
   integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data 
 
-  ! Public dervied typese
-  public :: MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY
+  integer :: MPI_REAL_SIZE      !< Size of MPI type real
+  integer :: MPI_CHARACTER_SIZE !< Size of MPI type character
+
+  ! Public dervied types and size definitions
+  public :: MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
+       MPI_REAL_SIZE, MPI_CHARACTER_SIZE
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -18,8 +22,16 @@ contains
 
   !> Define all MPI dervied types
   subroutine mpi_types_init
+    integer :: ierr
+
+    ! Define derived types
     call mpi_type_re2_xyz_init
     call mpi_type_re2_xy_init
+
+    ! Check sizes of MPI types
+    call MPI_Type_size(MPI_REAL, MPI_REAL_SIZE, ierr)
+    call MPI_Type_size(MPI_CHARACTER, MPI_CHARACTER_SIZE, ierr)
+
   end subroutine mpi_types_init
 
   !> Define a MPI derived type for a 3d re2 data
