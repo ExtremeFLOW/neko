@@ -75,7 +75,7 @@ contains
     disp(2) = disp(2) - base
     disp(3) = disp(3) - base
 
-    len = 8
+    len = 4
     len(1) = 1
     type = MPI_REAL
 

@@ -77,7 +77,7 @@ contains
        call MPI_File_read_at(fh, mpi_offset, &
             re2_data_xy, nelv, MPI_RE2_DATA_XY, status, ierr)
        do i = 1, nelv
-          do j = 1, 8             
+          do j = 1, 4             
              p(j) = point_t(dble(re2_data_xy(i)%x(j)), &
                   dble(re2_data_xy(i)%y(j)), 0d0, pt_idx)
              pt_idx = pt_idx + 1
@@ -149,7 +149,7 @@ contains
        allocate(re2_data_xy(msh%nelv))
        do i = 1, msh%nelv
           re2_data_xy(i)%rgroup = 1.0 ! Not used
-          do j = 1, 8 
+          do j = 1, 4
              re2_data_xy(i)%x(j) = real(msh%elements(i)%e%pts(j)%p%x(1))
              re2_data_xy(i)%y(j) = real(msh%elements(i)%e%pts(j)%p%x(2))
           end do

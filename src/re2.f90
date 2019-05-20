@@ -23,8 +23,8 @@ module re2
 
   !> NEKTON re2 element data (2d)
   type, public, extends(re2_t) :: re2_xy_t    
-     real(kind=sp), dimension(8) :: x
-     real(kind=sp), dimension(8) :: y
+     real(kind=sp), dimension(4) :: x
+     real(kind=sp), dimension(4) :: y
   end type re2_xy_t
 
 end module re2
