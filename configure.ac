@@ -19,6 +19,14 @@ AC_PROG_FC(,90)
 AX_COARRAY
 AX_DTYPE_IO
 
+# Test for a working MPI compiler
+AX_MPI([have_mpi=yes], [have_mpi=no])
+if test "x${have_mpi}" != xno; then
+   FC="$MPIFC"
+   LIBS="$MPILIBS $LIBS"
+else
+   AC_MSG_ERROR([Can't find a suitable MPI compiler])   
+fi
 
 # Checks for Doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
