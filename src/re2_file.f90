@@ -136,12 +136,10 @@ contains
     write(*, '(A,A)') " Writing data as a binary NEKTON file ", this%fname
     write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, msh%nelv, msh%gdim,&
          msh%nelv, RE2_HDR_STR
-    write(*,*) 'Done'
-
     close(9)
 
     call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
-         MPI_MODE_WRONLY + MPI_MODE_APPEND, MPI_INFO_NULL, fh, ierr)
+         MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
     
     call MPI_File_write_at(fh, mpi_offset, RE2_ENDIAN_TEST, 1, MPI_REAL, status, ierr)
@@ -182,6 +180,7 @@ contains
     end if
         
     call MPI_FILE_close(fh, ierr)
+    write(*,*) 'Done'
 
     !> @todo Add support for curved side data
     
