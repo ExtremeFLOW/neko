@@ -6,6 +6,9 @@ module re2
   !> NEKTON re2 header size
   integer, parameter :: RE2_HDR_SIZE = 80
 
+  !> NEKTION re2 endian test
+  real(kind=sp), parameter :: RE2_ENDIAN_TEST = 6.54321
+
   !> NEKTON re2 element data
   type :: re2_t
      real(kind=sp) :: rgroup

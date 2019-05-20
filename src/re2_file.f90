@@ -72,6 +72,10 @@ contains
     call MPI_File_read_at(fh, mpi_offset, test, 1, MPI_REAL, status, ierr)
     mpi_offset = mpi_offset + rsize
     
+    if (abs(RE2_ENDIAN_TEST - test) .gt. 1e-4) then
+       call neko_error('Invalid endian of re2 file, byte swap not implemented yet')
+    end if
+    
     pt_idx = 1
     el_idx = 1
     if (ndim .eq. 2) then
