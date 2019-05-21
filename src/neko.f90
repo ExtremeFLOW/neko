@@ -14,7 +14,8 @@ module neko
   use quad
   use hex
   use mesh
-  use rea
+  use rea_file
+  use re2_file
   use vtk_file
   use file
   use field

@@ -1,7 +1,7 @@
 module file
   use utils
   use generic_file
-  use rea, only:rea_file_t
+  use rea_file
   use re2_file
   use vtk_file
   implicit none
