@@ -13,6 +13,7 @@ module rea
   type, public :: rea_t
      type(mesh_t) :: msh                     !< Mesh (rep. as a Neko mesh)
      real(kind=dp), allocatable :: params(:) !< Parameters
+     character(len=3), allocatable :: cbc(:,:)
   end type rea_t
 
   
