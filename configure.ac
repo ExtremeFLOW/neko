@@ -24,9 +24,22 @@ AX_MPI([have_mpi=yes], [have_mpi=no])
 if test "x${have_mpi}" != xno; then
    FC="$MPIFC"
    LIBS="$MPILIBS $LIBS"
+   AC_LANG(C)
+   AX_MPI([have_mpi=yes],[have_mpi=no])
+   if  test "x${have_mpi}" != xno; then
+       CC="$MPICC"
+   else
+       AC_MSG_ERROR([Can't find a suitable C MPI compiler])
+   fi
+   AC_LANG(Fortran)
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
 fi
+
+AX_PARMETIS
+if test "${PARMETIS_LIBS}"; then
+   LIBS="$PARMETIS_LIBS $LIBS"
+fi			
 
 # Checks for Doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
