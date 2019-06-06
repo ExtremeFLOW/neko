@@ -14,13 +14,13 @@ libneko_a_SOURCES = \
 	hex.f90\
 	htable.f90\
 	mesh.f90\
+	field.f90\
 	rea.f90\
 	generic_file.f90\
 	re2_file.f90\
 	rea_file.f90\
 	vtk_file.f90\
 	file.f90\
-	field.f90\
 	neko.f90
 
 
