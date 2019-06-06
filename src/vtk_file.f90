@@ -6,6 +6,7 @@ module vtk_file
   use generic_file
   use utils
   use mesh
+  use field
   implicit none
   private
   
@@ -23,11 +24,16 @@ contains
     class(vtk_file_t), intent(in) :: this
     class(*), target, intent(in) :: data
     type(mesh_t), pointer :: msh
+    type(field_t), pointer :: fld
     integer :: i, j, vtk_type
 
     select type(data)
     type is (mesh_t)
        msh => data
+       nullify(fld)
+    type is(field_t)
+       msh => data%msh
+       fld => data
     class default
        call neko_error('Invalid data')
     end select
@@ -60,6 +66,11 @@ contains
     do i = 1, msh%nelv
        write(9, fmt='(I2)') vtk_type
     end do
+
+    if (associated(fld)) then
+       !> @todo dump field data (scalar/vector etc)
+    end if
+    
     close(9)
   end subroutine vtk_file_write
 
