@@ -14,6 +14,7 @@ libneko_a_SOURCES = \
 	hex.f90\
 	htable.f90\
 	mesh.f90\
+	mesh_field.f90\
 	field.f90\
 	rea.f90\
 	generic_file.f90\

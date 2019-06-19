@@ -14,13 +14,14 @@ module neko
   use quad
   use hex
   use mesh
+  use mesh_field
   use re2
   use rea
   use rea_file
   use re2_file
   use vtk_file
   use file
-  use field
+  use field  
   use mpi
   use mpi_types
 contains
