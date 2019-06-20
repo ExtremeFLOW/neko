@@ -136,22 +136,38 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5), parameter :: RE2_HDR_VER = '#v001'
     character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
-    integer :: i, j, k, fh, ierr, el_idx, pt_idx
+    integer :: i, j, k, fh, ierr, el_idx, pt_idx, nelgv
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
-    real(kind=dp) :: apa
+    integer :: element_offset
+    integer :: re2_data_xy_size
+    integer :: re2_data_xyz_size
+    integer :: pe_rank
     
     select type(data)
     type is (mesh_t)
        msh => data
+    class default
+       call neko_error('Invalid output data')
     end select
 
-    open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
-    write(*, '(A,A)') " Writing data as a binary NEKTON file ", this%fname
-    write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, msh%nelv, msh%gdim,&
-         msh%nelv, RE2_HDR_STR
-    close(9)
+    call MPI_Comm_rank(MPI_COMM_WORLD, pe_rank, ierr)
+    call MPI_Type_size(MPI_RE2_DATA_XY, re2_data_xy_size, ierr)
+    call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
+    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+    element_offset = 0
+    call MPI_Exscan(msh%nelv, element_offset, 1, &
+         MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD, ierr)
 
+    if (pe_rank .eq. 0) then
+       open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
+       write(*, '(A,A)') " Writing data as a binary NEKTON file ", this%fname
+       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
+            nelgv, RE2_HDR_STR
+       close(9)
+    end if
+
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
     call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
@@ -168,7 +184,7 @@ contains
              re2_data_xy(i)%y(j) = real(msh%elements(i)%e%pts(j)%p%x(2))
           end do
        end do
-
+       mpi_offset = mpi_offset + element_offset * re2_data_xy_size
        call MPI_File_write_at(fh, mpi_offset, &
             re2_data_xy, msh%nelv, MPI_RE2_DATA_XY, status, ierr)
 
@@ -184,7 +200,7 @@ contains
              re2_data_xyz(i)%z(j) = real(msh%elements(i)%e%pts(j)%p%x(3))
           end do
        end do
-
+       mpi_offset = mpi_offset + element_offset * re2_data_xyz_size
        call MPI_File_write_at(fh, mpi_offset, &
             re2_data_xyz, msh%nelv, MPI_RE2_DATA_XYZ, status, ierr)
        
