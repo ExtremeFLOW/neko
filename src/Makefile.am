@@ -3,6 +3,7 @@ libneko_a_SOURCES = \
 	num_types.f90 \
 	re2.f90\
 	mpi_types.f90 \
+	datadist.f90 \
 	utils.f90\
 	speclib.f90 \
 	math.f90\
