@@ -8,6 +8,8 @@ module rea_file
   use point 
   use rea
   use re2_file
+  use mpi
+  use datadist
   implicit none
   private
 
@@ -36,6 +38,8 @@ contains
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     character(len=80) :: re2_fname
+    integer :: start_el, end_el, nel
+    type(linear_dist_t) :: dist
 
     select type(data)
     type is (rea_t)
@@ -96,8 +100,15 @@ contains
     else       
        write(*,1) ndim, nelgv
 1      format(1x,'ndim = ', i1, ', nelements =', i7)
-       call mesh_init(msh, ndim, nelgv)
-       
+
+       ! Use a load-balanced linear distribution
+       dist = linear_dist_t(nelgv, MPI_COMM_WORLD)
+       nel = dist%num_local()
+       start_el = dist%start_idx() + 1
+       end_el = dist%end_idx() + 1
+
+       call mesh_init(msh, ndim, nel)
+
        el_idx = 1
        pt_idx = 1
        do i = 1, nelgv
@@ -105,11 +116,13 @@ contains
           if (ndim .eq. 2) then
              read(9, *) (xc(j),j=1,4)
              read(9, *) (yc(j),j=1,4)
-             do j = 1, 4
-                p(j) = point_t(xc(j), yc(j), 0d0, pt_idx)
-                pt_idx = pt_idx
-             end do
-             call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
+             if (i .ge. start_el .and. i .le. end_el) then
+                do j = 1, 4
+                   p(j) = point_t(xc(j), yc(j), 0d0, pt_idx)
+                   pt_idx = pt_idx
+                end do
+                call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
+             end if
           else if (ndim .eq. 3) then
              read(9, *) (xc(j),j=1,4)
              read(9, *) (yc(j),j=1,4)
@@ -117,14 +130,18 @@ contains
              read(9, *) (xc(j),j=5,8)
              read(9, *) (yc(j),j=5,8)
              read(9, *) (zc(j),j=5,8)
-             do j = 1, 8
-                p(j) = point_t(xc(j), yc(j), zc(j), pt_idx)
-                pt_idx = pt_idx + 1
-             end do
-             call mesh_add_element(msh, el_idx, &
-                  p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+             if (i .ge. start_el .and. i .le. end_el) then
+                do j = 1, 8
+                   p(j) = point_t(xc(j), yc(j), zc(j), pt_idx)
+                   pt_idx = pt_idx + 1
+                end do
+                call mesh_add_element(msh, el_idx, &
+                     p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+             end if
           end if
-          el_idx = el_idx + 1
+          if (i .ge. start_el .and. i .le. end_el) then
+             el_idx = el_idx + 1
+          end if
        end do
 
        

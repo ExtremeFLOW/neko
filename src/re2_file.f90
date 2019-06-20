@@ -8,6 +8,7 @@ module re2_file
   use point
   use mpi
   use mpi_types
+  use datadist
   use re2
   implicit none
   private
@@ -36,12 +37,21 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp) :: test
     type(point_t) :: p(8)
+    type(linear_dist_t) :: dist
+    integer :: element_offset
+    integer :: re2_data_xy_size
+    integer :: re2_data_xyz_size
 
     select type(data)
     type is (mesh_t)
        msh => data
+    class default
+       call neko_error('Invalid output data')
     end select
 
+
+    call MPI_Type_size(MPI_RE2_DATA_XY, re2_data_xy_size, ierr)
+    call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
     
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
@@ -50,14 +60,16 @@ contains
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
-
     call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     
     if (ierr .ne. 0) then
        call neko_error("Can't open binary NEKTON file ")
     end if
-    
+    dist = linear_dist_t(nelv, MPI_COMM_WORLD)
+    nelv = dist%num_local()
+    element_offset = dist%start_idx()
+
     call mesh_init(msh, ndim, nelv)
    
     ! Set offset (header)
@@ -74,6 +86,7 @@ contains
     el_idx = 1
     if (ndim .eq. 2) then
        allocate(re2_data_xy(nelv))
+       mpi_offset = mpi_offset + element_offset * re2_data_xy_size
        call MPI_File_read_at(fh, mpi_offset, &
             re2_data_xy, nelv, MPI_RE2_DATA_XY, status, ierr)
        do i = 1, nelv
@@ -89,6 +102,7 @@ contains
        deallocate(re2_data_xy)
     else if (ndim .eq. 3) then
        allocate(re2_data_xyz(nelv))
+       mpi_offset = mpi_offset + element_offset * re2_data_xyz_size
        call MPI_File_read_at(fh, mpi_offset, &
             re2_data_xyz, nelv, MPI_RE2_DATA_XYZ, status, ierr)
        do i = 1, nelv
