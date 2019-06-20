@@ -7,6 +7,8 @@ module vtk_file
   use utils
   use mesh
   use field
+  use mesh_field
+  use mpi
   implicit none
   private
   
@@ -25,20 +27,40 @@ contains
     class(*), target, intent(in) :: data
     type(mesh_t), pointer :: msh
     type(field_t), pointer :: fld
+    type(mesh_fld_t), pointer :: mfld
     integer :: i, j, vtk_type
+    integer :: nid, np, ierr
+    character(len=80) :: suffix,fname
+    character(len=10) :: id_str
+    integer:: suffix_pos
 
+    call MPI_Comm_rank(MPI_COMM_WORLD, nid, ierr)
+    call MPI_Comm_size(MPI_COMM_WORLD, np, ierr)
+    
     select type(data)
     type is (mesh_t)
        msh => data
        nullify(fld)
+       nullify(mfld)
     type is(field_t)
        msh => data%msh
        fld => data
+       nullify(mfld)
+    type is(mesh_fld_t)
+       msh => data%msh
+       mfld => data
+       nullify(fld)
     class default
        call neko_error('Invalid data')
     end select
 
-    open(unit=9, file=trim(this%fname))
+    if (np .gt. 1) then
+       write(id_str,'(i10.10)') nid
+       suffix_pos = scan(trim(this%fname), '.', back=.true.)
+       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//id_str//'.vtk')
+    else
+       open(unit=9, file=trim(this%fname))
+    end if
 
     ! Write legacy header
     write(9, fmt='(A)') '# vtk DataFile Version 2.0'
@@ -67,7 +89,14 @@ contains
        write(9, fmt='(I2)') vtk_type
     end do
 
-    if (associated(fld)) then
+    if (associated(mfld)) then
+       write(9, fmt='(A,I8)') 'CELL_DATA', msh%nelv
+       write(9, fmt='(A,A,A,I8)') 'SCALARS ', 'mfld ', 'int', 1
+       write(9, fmt='(A)') 'LOOKUP_TABLE default'
+       do i = 1, msh%nelv
+          write(9, fmt='(I8)') mfld%data(i)
+       end do
+    else if (associated(fld)) then
        !> @todo dump field data (scalar/vector etc)
     end if
     
