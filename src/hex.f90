@@ -14,6 +14,7 @@ module hex
    contains
      procedure, pass(this) :: init => hex_init
      procedure, pass(this) :: diameter => hex_diameter
+     procedure, pass(this) :: centroid => hex_centroid
      procedure, pass(this) :: equal => hex_equal
      generic :: operator(.eq.) => equal
   end type hex_t
@@ -68,6 +69,29 @@ contains
     res = sqrt(max(max(d1, d2), max(d3, d4)))
 
   end function hex_diameter
+
+  function hex_centroid(this) result(res)
+    class(hex_t), intent(in) :: this
+    type(point_t) :: res
+    type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
+    integer :: i
+
+    p1 => this%p(1)
+    p2 => this%p(2)
+    p3 => this%p(3)
+    p4 => this%p(4)
+    p5 => this%p(5)
+    p6 => this%p(6)
+    p7 => this%p(7)
+    p8 => this%p(8)
+    res%x = 0d0
+
+    do i = 1, this%gdim
+       res%x(i) = 0.125 * (p1%x(i) + p2%x(i) + p3%x(i) + p4%x(i) + &
+            p5%x(i) + p6%x(i) + p7%x(i) + p8%x(i))
+    end do
+    
+  end function hex_centroid
 
   pure function hex_equal(this, other) result(res)
     class(hex_t), intent(in) :: this

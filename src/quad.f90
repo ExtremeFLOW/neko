@@ -14,6 +14,7 @@ module quad
    contains
      procedure, pass(this) :: init => quad_init
      procedure, pass(this) :: diameter => quad_diameter
+     procedure, pass(this) :: centroid => quad_centroid
      procedure, pass(this) :: equal => quad_equal
      generic :: operator(.eq.) => equal
   end type quad_t
@@ -56,6 +57,23 @@ contains
     res = sqrt(max(d1, d2))
 
   end function quad_diameter
+
+  function quad_centroid(this) result(res)
+    class(quad_t), intent(in) :: this
+    type(point_t) :: res
+    type(point_t), pointer :: p1, p2, p3, p4
+    integer :: i
+
+    p1 => this%p(1)
+    p2 => this%p(2)
+    p3 => this%p(3)
+    p4 => this%p(4)
+    res%x = 0d0
+
+    do i = 1, this%gdim
+       res%x(i) = 0.25d0 * p1%x(i) + p2%x(i) + p3%x(i) + p4%x(i)
+    end do
+  end function quad_centroid
 
   pure function quad_equal(this, other) result(res)
     class(quad_t), intent(in) :: this

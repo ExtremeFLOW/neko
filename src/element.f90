@@ -21,6 +21,7 @@ module element
      procedure, pass(this), non_overridable :: element_point
      procedure(element_equal), pass(this), deferred :: equal
      procedure(element_diameter), pass(this), deferred :: diameter
+     procedure(element_centroid), pass(this), deferred :: centroid
   end type element_t
 
   abstract interface
@@ -30,6 +31,15 @@ module element
        class(element_t), intent(in) :: this
        real(kind=dp) :: res
      end function element_diameter
+  end interface
+
+  abstract interface
+     function element_centroid(this) result(res)
+       import :: element_t
+       import :: point_t
+       class(element_t), intent(in) :: this
+       type(point_t) :: res
+     end function element_centroid
   end interface
 
   abstract interface
