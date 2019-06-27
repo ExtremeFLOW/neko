@@ -1,5 +1,6 @@
 !> MPI dervied types
 module mpi_types
+  use comm
   use mpi
   use re2
   implicit none
@@ -31,6 +32,8 @@ contains
     ! Check sizes of MPI types
     call MPI_Type_size(MPI_REAL, MPI_REAL_SIZE, ierr)
     call MPI_Type_size(MPI_CHARACTER, MPI_CHARACTER_SIZE, ierr)
+
+    call MPI_Barrier(NEKO_COMM, ierr)
 
   end subroutine mpi_types_init
 

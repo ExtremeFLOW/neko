@@ -2,6 +2,7 @@
 !
 module neko
   use num_types
+  use comm
   use utils
   use math
   use speclib
@@ -22,25 +23,17 @@ module neko
   use vtk_file
   use file
   use field  
-  use mpi
   use mpi_types
 contains
 
   subroutine neko_init
-    integer :: ierr
-
-    call MPI_Init(ierr)
-
+    call comm_init
     call mpi_types_init
-
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
   end subroutine neko_init
 
   subroutine neko_finalize
-    integer :: ierr
-
-    call mpi_types_Free
-    call MPI_Finalize(ierr)    
+    call mpi_types_free
+    call comm_free
   end subroutine neko_finalize
 
 end module neko

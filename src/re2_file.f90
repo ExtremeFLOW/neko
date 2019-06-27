@@ -6,6 +6,7 @@ module re2_file
   use utils
   use mesh
   use point
+  use comm
   use mpi
   use mpi_types
   use datadist
@@ -60,13 +61,13 @@ contains
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
-    call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
+    call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     
     if (ierr .ne. 0) then
        call neko_error("Can't open binary NEKTON file ")
     end if
-    dist = linear_dist_t(nelv, MPI_COMM_WORLD)
+    dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
@@ -151,13 +152,13 @@ contains
        call neko_error('Invalid output data')
     end select
 
-    call MPI_Comm_rank(MPI_COMM_WORLD, pe_rank, ierr)
+    call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Type_size(MPI_RE2_DATA_XY, re2_data_xy_size, ierr)
     call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
-    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
     element_offset = 0
     call MPI_Exscan(msh%nelv, element_offset, 1, &
-         MPI_INTEGER, MPI_SUM, MPI_COMM_WORLD, ierr)
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     if (pe_rank .eq. 0) then
        open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
@@ -167,8 +168,8 @@ contains
        close(9)
     end if
 
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    call MPI_File_open(MPI_COMM_WORLD, trim(this%fname), &
+    call MPI_Barrier(NEKO_COMM, ierr)
+    call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
     

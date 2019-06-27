@@ -4,10 +4,10 @@ module datadist
   private
 
   type dist_t
-     integer :: comm
-     integer :: pe_rank
-     integer :: pe_size
-     integer :: L
+     integer :: comm            !< Communicator on which the dist. is defined
+     integer :: pe_rank         !< Pe's rank in the given distribution
+     integer :: pe_size         !< Size of communicator in the given dist.
+     integer :: L               
      integer :: R
      integer :: M
      integer :: Ip
@@ -29,16 +29,18 @@ module datadist
 
 contains
   
-  function linear_dist_init(n, comm) result(this)
+  function linear_dist_init(n, rank, size, comm) result(this)
     integer, intent(in) :: n    !< Total size
+    integer :: rank             !< PE's rank to define the dist. over
+    integer :: size             !< Size of comm where the dist. is def. on
     integer :: comm             !< comm. to define the dist. over
     type(linear_dist_t), target :: this
     integer :: ierr
 
     this%M = n
     this%comm = comm
-    call MPI_Comm_size(this%comm, this%pe_size, ierr)
-    call MPI_Comm_rank(this%comm, this%pe_rank, ierr)
+    this%pe_rank = rank
+    this%pe_size = size
     
     this%L = floor(dble(this%M) / dble(this%pe_size))
     this%R = modulo(this%M, this%pe_size)

@@ -8,7 +8,7 @@ module rea_file
   use point 
   use rea
   use re2_file
-  use mpi
+  use comm
   use datadist
   implicit none
   private
@@ -102,7 +102,7 @@ contains
 1      format(1x,'ndim = ', i1, ', nelements =', i7)
 
        ! Use a load-balanced linear distribution
-       dist = linear_dist_t(nelgv, MPI_COMM_WORLD)
+       dist = linear_dist_t(nelgv, pe_rank, pe_size, NEKO_COMM)
        nel = dist%num_local()
        start_el = dist%start_idx() + 1
        end_el = dist%end_idx() + 1
