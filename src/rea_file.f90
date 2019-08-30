@@ -22,7 +22,7 @@ module rea_file
 
 contains
 
-    !> Load NEKTON session data from an ascii file
+  !> Load NEKTON session data from an ascii file
   subroutine rea_file_read(this, data)
     class(rea_file_t) :: this
     class(*), target, intent(inout) :: data
@@ -94,7 +94,8 @@ contains
     read(9, *)
     read(9, *) nelgs,ndim, nelgv
     if (nelgs .lt. 0) then
-       re2_fname = trim(this%fname(1:scan(trim(this%fname), '.', back=.true.)))//'re2' 
+       re2_fname = trim(this%fname(1:scan(trim(this%fname), &
+            '.', back=.true.)))//'re2' 
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
     else       
