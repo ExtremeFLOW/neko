@@ -86,7 +86,7 @@ contains
     p8 => this%p(8)
     res%x = 0d0
 
-    do i = 1, this%gdim
+    do i = 1, this%gdim()
        res%x(i) = 0.125 * (p1%x(i) + p2%x(i) + p3%x(i) + p4%x(i) + &
             p5%x(i) + p6%x(i) + p7%x(i) + p8%x(i))
     end do

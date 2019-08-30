@@ -50,19 +50,19 @@ contains
 
   pure function linear_dist_Ip(this) result(n)
     class(linear_dist_t), intent(in) :: this
-    integer, intent(out) :: n
+    integer :: n
     n = this%Ip
   end function linear_dist_Ip
 
   pure function linear_dist_start(this) result(start)
     class(linear_dist_t), intent(in) :: this
-    integer, intent(out) :: start
+    integer :: start
     start = this%pe_rank * this%L + min(this%pe_rank, this%R)
   end function linear_dist_start
 
   function linear_dist_end(this) result(end)
     class(linear_dist_t), intent(inout) :: this
-    integer, intent(out) :: end
+    integer :: end
     end = linear_dist_start(this) + (this%Ip - 1)
   end function linear_dist_end
 end module datadist
