@@ -13,6 +13,7 @@ module field
      
      type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh !< Mesh
+     character(len=80) :: name
   end type field_t
 
   interface assignment(=)
@@ -26,10 +27,11 @@ module field
 contains
 
   !> Initialize a field @a f on the mesh @a msh
-  subroutine field_init(f, msh, space)
+  subroutine field_init(f, msh, space, fld_name)
     type(field_t), intent(inout) :: f       !< Field to be initialized
-    type(mesh_t), target, intent(in) :: msh !< Underlying mesh of the field
+    type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
+    character(len=*), optional :: fld_name     !< Name of the field
     integer :: ierr
     integer :: lx, ly, lz, nelv, ndim
 
@@ -47,6 +49,12 @@ contains
     if (.not. allocated(f%x)) then
        allocate(f%x(lx, ly, lz, nelv, ndim), stat = ierr)        
        f%x = 0d0
+    end if
+
+    if (present(fld_name)) then
+       f%name = fld_name
+    else
+       f%name = "Field"
     end if
     
   end subroutine field_init

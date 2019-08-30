@@ -91,7 +91,7 @@ contains
 
     if (associated(mfld)) then
        write(9, fmt='(A,I8)') 'CELL_DATA', msh%nelv
-       write(9, fmt='(A,A,A,I8)') 'SCALARS ', 'mfld ', 'int', 1
+       write(9, fmt='(A,A,A,I8)') 'SCALARS ', trim(mfld%name), ' int', 1
        write(9, fmt='(A)') 'LOOKUP_TABLE default'
        do i = 1, msh%nelv
           write(9, fmt='(I8)') mfld%data(i)

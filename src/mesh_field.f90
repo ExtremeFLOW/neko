@@ -9,19 +9,27 @@ module mesh_field
   type mesh_fld_t
      integer, allocatable :: data(:) !< Data
      type(mesh_t), pointer :: msh !< Mesh
+     character(len=80) :: name
   end type mesh_fld_t
 
 contains
   
-  subroutine mesh_field_init(fld, msh)
+  subroutine mesh_field_init(fld, msh, fld_name)
     type(mesh_fld_t), intent(inout) :: fld
     type(mesh_t), target, intent(in) :: msh
+    character(len=*), optional :: fld_name 
 
     call mesh_field_free(fld)
 
     fld%msh => msh
     if (.not. allocated(fld%data)) then
        allocate(fld%data(msh%nelv))
+    end if
+
+    if (present(fld_name)) then
+       fld%name = fld_name
+    else
+       fld%name = 'MeshField'
     end if
 
     fld%data = 0
