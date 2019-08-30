@@ -76,7 +76,7 @@ contains
     ! Set offset (header)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
 
-    call MPI_File_read_at(fh, mpi_offset, test, 1, MPI_REAL, status, ierr)
+    call MPI_File_read_at_all(fh, mpi_offset, test, 1, MPI_REAL, status, ierr)
     mpi_offset = mpi_offset + MPI_REAL_SIZE
     
     if (abs(RE2_ENDIAN_TEST - test) .gt. 1e-4) then
@@ -88,7 +88,7 @@ contains
     if (ndim .eq. 2) then
        allocate(re2_data_xy(nelv))
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size
-       call MPI_File_read_at(fh, mpi_offset, &
+       call MPI_File_read_at_all(fh, mpi_offset, &
             re2_data_xy, nelv, MPI_RE2_DATA_XY, status, ierr)
        do i = 1, nelv
           do j = 1, 4             
@@ -104,7 +104,7 @@ contains
     else if (ndim .eq. 3) then
        allocate(re2_data_xyz(nelv))
        mpi_offset = mpi_offset + element_offset * re2_data_xyz_size
-       call MPI_File_read_at(fh, mpi_offset, &
+       call MPI_File_read_at_all(fh, mpi_offset, &
             re2_data_xyz, nelv, MPI_RE2_DATA_XYZ, status, ierr)
        do i = 1, nelv
           do j = 1, 8             
