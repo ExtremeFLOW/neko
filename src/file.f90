@@ -1,6 +1,7 @@
 module file
   use utils
   use generic_file
+  use map_file
   use rea_file
   use re2_file
   use vtk_file
@@ -42,6 +43,8 @@ contains
        allocate(rea_file_t::this%file_type)
     else if (suffix .eq. "re2") then
        allocate(re2_file_t::this%file_type)
+    else if (suffix .eq. "map") then
+       allocate(map_File_t::this%file_type)
     else if (suffix .eq. "vtk") then
        allocate(vtk_file_t::this%file_type)
     else
