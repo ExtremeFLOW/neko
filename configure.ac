@@ -41,6 +41,12 @@ if test "${PARMETIS_LIBS}"; then
    LIBS="$PARMETIS_LIBS $LIBS"
 fi			
 
+AX_GSLIB
+if test "${GSLIB_LIBS}"; then
+   LIBS="$GSLIB_LIBS $LIBS"
+fi			
+
+
 # Checks for Doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
 if test -n "$DOXYGEN"; then
