@@ -44,6 +44,8 @@ fi
 AX_GSLIB
 if test "${GSLIB_LIBS}"; then
    LIBS="$GSLIB_LIBS $LIBS"
+else
+   AC_MSG_ERROR([Can't find a suitable Gather-Scatter library])
 fi			
 
 
@@ -53,6 +55,11 @@ if test -n "$DOXYGEN"; then
   AC_CHECK_PROGS([DOXYGEN_DEPS], [dot])
 fi
 AM_CONDITIONAL([ENABLE_DOXYGEN], [test -n "$DOXYGEN_DEPS"])
+
+# Checks for makedepf90
+AC_CHECK_PROGS([MAKEDEPF90], [makedepf90])
+AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
+
 
 AC_CONFIG_FILES([Makefile src/Makefile neko.pc])
 

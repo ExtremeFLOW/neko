@@ -32,3 +32,10 @@ libneko_a_SOURCES = \
 pkginclude_HEADERS =  $(wildcard *.mod)
 
 CLEANFILES =*.mod
+
+if ENABLE_MAKEDEPF90
+depend:
+	$(MAKEDEPF90) $(libneko_a_SOURCES) > .depends
+endif
+
+include	.depends
