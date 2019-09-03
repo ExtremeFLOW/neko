@@ -1,6 +1,6 @@
 num_types.o : num_types.f90 
 re2.o : re2.f90 num_types.o 
-map.o : map.f90 
+map.o : map.f90 mesh.o 
 comm.o : comm.f90 
 mpi_types.o : mpi_types.f90 re2.o comm.o 
 datadist.o : datadist.f90 
