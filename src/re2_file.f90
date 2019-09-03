@@ -11,6 +11,8 @@ module re2_file
   use mpi_types
   use datadist
   use re2
+  use map
+  use map_file
   implicit none
   private
   
@@ -39,6 +41,10 @@ contains
     real(kind=sp) :: test
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
+    type(map_t) :: nm
+    type(map_file_t) :: map_file
+    character(len=80) :: map_fname
+    logical :: read_map
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
@@ -60,6 +66,17 @@ contains
     write(*,1) ndim, nelv
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
+
+    map_fname = trim(this%fname(1:scan(trim(this%fname), &
+         '.', back=.true.)))//'map' 
+    inquire(file=map_fname, exist=read_map)
+    if (read_map) then
+       call map_init(nm, nelv, ndim**2)
+       call map_file%init(map_fname)
+       call map_file%read(nm)
+    else
+       call neko_warning('No NEKTON map file found')
+    end if
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)

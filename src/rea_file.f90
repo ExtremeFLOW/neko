@@ -6,8 +6,10 @@ module rea_file
   use utils
   use mesh
   use point 
+  use map
   use rea
   use re2_file
+  use map_file
   use comm
   use datadist
   implicit none
@@ -33,13 +35,15 @@ contains
     integer :: ndim, nparam, nskip, nlogic, nbcs
     integer :: nelgs, nelgv, i, j, ierr
     integer :: el_idx, pt_idx
-    logical :: read_param, read_bcs
+    logical :: read_param, read_bcs, read_map
     real(kind=dp) :: xc(8), yc(8), zc(8)
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
-    character(len=80) :: re2_fname
+    type(map_file_t) :: map_file
+    character(len=80) :: re2_fname, map_fname
     integer :: start_el, end_el, nel
     type(linear_dist_t) :: dist
+    type(map_t) :: nm
 
     select type(data)
     type is (rea_t)
@@ -101,6 +105,17 @@ contains
     else       
        write(*,1) ndim, nelgv
 1      format(1x,'ndim = ', i1, ', nelements =', i7)
+
+       map_fname = trim(this%fname(1:scan(trim(this%fname), &
+            '.', back=.true.)))//'map' 
+       inquire(file=map_fname, exist=read_map)
+       if (read_map) then
+          call map_init(nm, nelgv, ndim**2)
+          call map_file%init(map_fname)
+          call map_file%read(nm)
+       else
+          call neko_warning('No NEKTON map file found')
+       end if
 
        ! Use a load-balanced linear distribution
        dist = linear_dist_t(nelgv, pe_rank, pe_size, NEKO_COMM)
