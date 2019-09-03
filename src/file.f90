@@ -44,7 +44,7 @@ contains
     else if (suffix .eq. "re2") then
        allocate(re2_file_t::this%file_type)
     else if (suffix .eq. "map") then
-       allocate(map_File_t::this%file_type)
+       allocate(map_file_t::this%file_type)
     else if (suffix .eq. "vtk") then
        allocate(vtk_file_t::this%file_type)
     else
