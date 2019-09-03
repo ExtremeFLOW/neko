@@ -30,18 +30,18 @@ contains
        call neko_error("Invalid output data")
     end select
 
-    open(unit=9, file=trim(this%fname), status='old', iostat=ierr)
+    open(unit=10, file=trim(this%fname), status='old', iostat=ierr)
     write(*, '(A,A)') " Reading NEKTON map file ", this%fname
 
-    read(9, *) neli, nnzi
+    read(10, *) neli, nnzi
 
     !> @todo Check if neli matches map%nel
     
     do j = 1, nm%nel
-       read(9, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)
+       read(10, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)
     end do
     
-    close(unit=9)
+    close(unit=10)
     
   end subroutine map_file_read
 
