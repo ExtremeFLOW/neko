@@ -1,6 +1,5 @@
 !> Utilities
 !! @details Various utility functions
-!
 module utils
   implicit none
 
@@ -31,5 +30,10 @@ contains
     write(*,*) '*** ERROR: ', error_msg,' ***'
     stop 
   end subroutine neko_error_msg
+
+  subroutine neko_warning(warning_msg)
+    character(len=*) :: warning_msg
+    write(*,*) '*** WARNING: ', warning_msg,' ***'
+  end subroutine neko_warning
     
 end module utils
