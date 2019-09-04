@@ -1,6 +1,7 @@
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	num_types.f90\
+	nmsh.f90\
 	re2.f90\
 	map.f90\
 	comm.f90\

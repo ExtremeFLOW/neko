@@ -1,8 +1,9 @@
 num_types.o : num_types.f90 
+nmsh.o : nmsh.f90 num_types.o 
 re2.o : re2.f90 num_types.o 
 map.o : map.f90 mesh.o 
 comm.o : comm.f90 
-mpi_types.o : mpi_types.f90 re2.o comm.o 
+mpi_types.o : mpi_types.f90 nmsh.o re2.o comm.o 
 datadist.o : datadist.f90 
 utils.o : utils.f90 
 speclib.o : speclib.f90 utils.o 

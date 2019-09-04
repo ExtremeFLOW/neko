@@ -3,18 +3,25 @@ module mpi_types
   use comm
   use mpi
   use re2
+  use nmsh
   implicit none
   private
 
-  integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data 
+  integer :: MPI_NMSH_HEX    !< MPI dervied type for 3D Neko nmsh data
+  integer :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
 
-  integer :: MPI_REAL_SIZE      !< Size of MPI type real
-  integer :: MPI_CHARACTER_SIZE !< Size of MPI type character
+  integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
+  integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+
+  integer :: MPI_REAL_SIZE             !< Size of MPI type real
+  integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
+  integer :: MPI_CHARACTER_SIZE        !< Size of MPI type character
 
   ! Public dervied types and size definitions
-  public :: MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
-       MPI_REAL_SIZE, MPI_CHARACTER_SIZE
+  public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, &
+       MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
+       MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
+       MPI_CHARACTER_SIZE
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -26,17 +33,95 @@ contains
     integer :: ierr
 
     ! Define derived types
+    call mpi_type_nmsh_hex_init
+    call mpi_type_nmsh_quad_init
+
     call mpi_type_re2_xyz_init
     call mpi_type_re2_xy_init
 
     ! Check sizes of MPI types
     call MPI_Type_size(MPI_REAL, MPI_REAL_SIZE, ierr)
+    call MPI_Type_size(MPI_DOUBLE_PRECISION, MPI_DOUBLE_PRECISION_SIZE, ierr)
     call MPI_Type_size(MPI_CHARACTER, MPI_CHARACTER_SIZE, ierr)
 
     call MPI_Barrier(NEKO_COMM, ierr)
 
   end subroutine mpi_types_init
 
+  !> Define a MPI dervied type for a 3d nmsh hex
+  subroutine mpi_type_nmsh_hex_init
+    type(nmsh_hex_t) :: nmsh_hex
+    integer(kind=MPI_ADDRESS_KIND) :: disp(17), base
+    integer :: type(17), len(17), i, ierr
+
+    call MPI_Get_address(nmsh_hex%el_idx, disp(1), ierr)
+    call MPI_Get_address(nmsh_hex%v(1)%v_idx, disp(2), ierr)
+    call MPI_Get_address(nmsh_hex%v(1)%v_xyz, disp(3), ierr)
+    call MPI_Get_address(nmsh_hex%v(2)%v_idx, disp(4), ierr)
+    call MPI_Get_address(nmsh_hex%v(2)%v_xyz, disp(5), ierr)
+    call MPI_Get_address(nmsh_hex%v(3)%v_idx, disp(6), ierr)
+    call MPI_Get_address(nmsh_hex%v(3)%v_xyz, disp(7), ierr)
+    call MPI_Get_address(nmsh_hex%v(4)%v_idx, disp(8), ierr)
+    call MPI_Get_address(nmsh_hex%v(4)%v_xyz, disp(9), ierr)
+    call MPI_Get_address(nmsh_hex%v(5)%v_idx, disp(10), ierr)
+    call MPI_Get_address(nmsh_hex%v(5)%v_xyz, disp(11), ierr)
+    call MPI_Get_address(nmsh_hex%v(6)%v_idx, disp(12), ierr)
+    call MPI_Get_address(nmsh_hex%v(6)%v_xyz, disp(13), ierr)
+    call MPI_Get_address(nmsh_hex%v(7)%v_idx, disp(14), ierr)
+    call MPI_Get_address(nmsh_hex%v(7)%v_xyz, disp(15), ierr)
+    call MPI_Get_address(nmsh_hex%v(8)%v_idx, disp(16), ierr)
+    call MPI_Get_address(nmsh_hex%v(8)%v_xyz, disp(17), ierr)
+    
+
+    base = disp(1)
+    do i = 1, 17
+       disp(i) = disp(i) - base
+    end do
+
+    len(1) = 1
+    len(2:2:16) = 1
+    len(3:2:17) = 3
+
+    type(1) = MPI_INTEGER
+    type(2:2:16) = MPI_INTEGER
+    type(3:2:17) = MPI_DOUBLE_PRECISION
+    call MPI_Type_create_struct(17, len, disp, type, MPI_NMSH_HEX, ierr)
+    call MPI_Type_commit(MPI_NMSH_HEX, ierr)    
+  end subroutine mpi_type_nmsh_hex_init
+
+    !> Define a MPI dervied type for a 2d nmsh quad
+  subroutine mpi_type_nmsh_quad_init
+    type(nmsh_hex_t) :: nmsh_quad
+    integer(kind=MPI_ADDRESS_KIND) :: disp(9), base
+    integer :: type(9), len(9), i, ierr
+
+    call MPI_Get_address(nmsh_quad%el_idx, disp(1), ierr)
+    call MPI_Get_address(nmsh_quad%v(1)%v_idx, disp(2), ierr)
+    call MPI_Get_address(nmsh_quad%v(1)%v_xyz, disp(3), ierr)
+    call MPI_Get_address(nmsh_quad%v(2)%v_idx, disp(4), ierr)
+    call MPI_Get_address(nmsh_quad%v(2)%v_xyz, disp(5), ierr)
+    call MPI_Get_address(nmsh_quad%v(3)%v_idx, disp(6), ierr)
+    call MPI_Get_address(nmsh_quad%v(3)%v_xyz, disp(7), ierr)
+    call MPI_Get_address(nmsh_quad%v(4)%v_idx, disp(8), ierr)
+    call MPI_Get_address(nmsh_quad%v(4)%v_xyz, disp(9), ierr)
+    
+
+    base = disp(1)
+    do i = 1, 9
+       disp(i) = disp(i) - base
+    end do
+
+    len(1) = 1
+    len(2:2:8) = 1
+    len(3:2:9) = 3
+
+    type(1) = MPI_INTEGER
+    type(2:2:8) = MPI_INTEGER
+    type(3:2:9) = MPI_DOUBLE_PRECISION
+    call MPI_Type_create_struct(9, len, disp, type, MPI_NMSH_QUAD, ierr)
+    call MPI_Type_commit(MPI_NMSH_QUAD, ierr)    
+  end subroutine mpi_type_nmsh_quad_init
+  
   !> Define a MPI derived type for a 3d re2 data
   subroutine mpi_type_re2_xyz_init
     type(re2_xyz_t) :: re2_data
@@ -63,7 +148,7 @@ contains
 
   end subroutine mpi_type_re2_xyz_init
 
-    !> Define a MPI derived type for a 2d re2 data
+  !> Define a MPI derived type for a 2d re2 data
   subroutine mpi_type_re2_xy_init
     type(re2_xy_t) :: re2_data
     integer(kind=MPI_ADDRESS_KIND) :: disp(3), base    
@@ -89,10 +174,24 @@ contains
 
   !> Deallocate all dervied MPI types
   subroutine mpi_types_free
+    call mpi_type_nmsh_hex_free
+    call mpi_Type_nmsh_quad_free
     call mpi_type_re2_xyz_free
     call mpi_type_re2_xy_free
   end subroutine mpi_types_free
 
+  !> Deallocate nmsh hex derived MPI type
+  subroutine mpi_type_nmsh_hex_free
+    integer ierr
+    call MPI_Type_free(MPI_NMSH_HEX, ierr)
+  end subroutine mpi_type_nmsh_hex_free
+
+    !> Deallocate nmsh quad derived MPI type
+  subroutine mpi_type_nmsh_quad_free
+    integer ierr
+    call MPI_Type_free(MPI_NMSH_QUAD, ierr)
+  end subroutine mpi_type_nmsh_quad_free
+  
   !> Deallocate re2 xyz dervied MPI type
   subroutine mpi_type_re2_xyz_free
     integer ierr
