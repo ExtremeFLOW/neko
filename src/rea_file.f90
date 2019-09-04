@@ -110,7 +110,7 @@ contains
             '.', back=.true.)))//'map' 
        inquire(file=map_fname, exist=read_map)
        if (read_map) then
-          call map_init(nm, nelgv, ndim**2)
+          call map_init(nm, nelgv, 2**ndim)
           call map_file%init(map_fname)
           call map_file%read(nm)
        else
