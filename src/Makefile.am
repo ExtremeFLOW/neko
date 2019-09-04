@@ -26,6 +26,7 @@ libneko_a_SOURCES = \
 	re2_file.f90\
 	rea_file.f90\
 	vtk_file.f90\
+	nmsh_file.f90\
 	file.f90\
 	neko.f90
 

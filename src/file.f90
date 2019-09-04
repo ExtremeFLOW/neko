@@ -1,6 +1,7 @@
 module file
   use utils
   use generic_file
+  use nmsh_file
   use map_file
   use rea_file
   use re2_file
@@ -47,6 +48,8 @@ contains
        allocate(map_file_t::this%file_type)
     else if (suffix .eq. "vtk") then
        allocate(vtk_file_t::this%file_type)
+    else if (suffix .eq. "nmsh") then
+       allocate(nmsh_file_t::this%file_type)       
     else
        call neko_error('Unknown file format')
     end if
