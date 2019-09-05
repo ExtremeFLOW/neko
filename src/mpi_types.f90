@@ -16,12 +16,13 @@ module mpi_types
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
   integer :: MPI_CHARACTER_SIZE        !< Size of MPI type character
+  integer :: MPI_INTEGER_SIZE          !< size of MPI type integer
 
   ! Public dervied types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, &
        MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
        MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
-       MPI_CHARACTER_SIZE
+       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -43,6 +44,7 @@ contains
     call MPI_Type_size(MPI_REAL, MPI_REAL_SIZE, ierr)
     call MPI_Type_size(MPI_DOUBLE_PRECISION, MPI_DOUBLE_PRECISION_SIZE, ierr)
     call MPI_Type_size(MPI_CHARACTER, MPI_CHARACTER_SIZE, ierr)
+    call MPI_Type_size(MPI_INTEGER, MPI_INTEGER_SIZE, ierr)
 
     call MPI_Barrier(NEKO_COMM, ierr)
 
