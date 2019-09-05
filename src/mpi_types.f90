@@ -79,12 +79,12 @@ contains
     end do
 
     len(1) = 1
-    len(2:2:16) = 1
-    len(3:2:17) = 3
+    len(2:16:2) = 1
+    len(3:17:2) = 3
 
     type(1) = MPI_INTEGER
-    type(2:2:16) = MPI_INTEGER
-    type(3:2:17) = MPI_DOUBLE_PRECISION
+    type(2:16:2) = MPI_INTEGER
+    type(3:17:2) = MPI_DOUBLE_PRECISION
     call MPI_Type_create_struct(17, len, disp, type, MPI_NMSH_HEX, ierr)
     call MPI_Type_commit(MPI_NMSH_HEX, ierr)    
   end subroutine mpi_type_nmsh_hex_init
@@ -112,12 +112,12 @@ contains
     end do
 
     len(1) = 1
-    len(2:2:8) = 1
-    len(3:2:9) = 3
+    len(2:8:2) = 1
+    len(3:9:2) = 3
 
     type(1) = MPI_INTEGER
-    type(2:2:8) = MPI_INTEGER
-    type(3:2:9) = MPI_DOUBLE_PRECISION
+    type(2:8:2) = MPI_INTEGER
+    type(3:9:2) = MPI_DOUBLE_PRECISION
     call MPI_Type_create_struct(9, len, disp, type, MPI_NMSH_QUAD, ierr)
     call MPI_Type_commit(MPI_NMSH_QUAD, ierr)    
   end subroutine mpi_type_nmsh_quad_init
