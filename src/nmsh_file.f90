@@ -45,24 +45,28 @@ contains
 
     write(*, '(A,A)') " Reading a binary Neko file ", this%fname
 
+    call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
-    call MPI_Type_size(MPI_NMSH_QUAD, nmsh_hex_size, ierr)
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
 
+    write(*,1) gdim, nelv
+1   format(1x,'gdim = ', i1, ', nelements =', i7)
+       
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
     nelv = dist%num_local()
     element_offset = dist%start_idx()
     
     call mesh_init(msh, gdim, nelv)
+   
 
     if (msh%gdim .eq. 2) then
        allocate(nmsh_quad(msh%nelv))
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
-       call MPI_File_write_at_all(fh, mpi_offset, &
+       call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
        do i = 1, nelv
           do j = 1, 4
@@ -113,8 +117,10 @@ contains
     end select
 
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
-    call MPI_Type_size(MPI_NMSH_QUAD, nmsh_hex_size, ierr)
-    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+    call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
+
+    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, &
+         MPI_SUM, 0, NEKO_COMM, ierr)
     element_offset = 0
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -137,11 +143,9 @@ contains
              nmsh_quad(i)%v(j)%v_xyz = ep%pts(j)%p%x
           end do
        end do
-       write(*, *) nmsh_quad
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
-
        deallocate(nmsh_quad)
     else if (msh%gdim .eq. 3) then
        allocate(nmsh_hex(msh%nelv))       
@@ -153,9 +157,7 @@ contains
              nmsh_hex(i)%v(j)%v_xyz = ep%pts(j)%p%x
           end do
        end do
-
-       write(*, *) nmsh_hex
-       mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_HEX_size
+       mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_hex_size
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_HEX, msh%nelv, MPI_NMSH_HEX, status, ierr)
 
