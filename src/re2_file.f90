@@ -160,8 +160,7 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
-    integer :: pe_rank
-    
+        
     select type(data)
     type is (mesh_t)
        msh => data
@@ -169,7 +168,6 @@ contains
        call neko_error('Invalid output data')
     end select
 
-    call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Type_size(MPI_RE2_DATA_XY, re2_data_xy_size, ierr)
     call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
     call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
