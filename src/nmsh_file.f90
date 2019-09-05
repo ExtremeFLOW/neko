@@ -131,9 +131,9 @@ contains
        allocate(nmsh_quad(msh%nelv))       
        do i = 1, msh%nelv
           ep => msh%elements(i)%e
-          nmsh_quad(i)%el_idx = ep%id
+          nmsh_quad(i)%el_idx = ep%id()
           do j = 1, 4
-             nmsh_quad(i)%v(j)%v_idx = ep%pts(j)%p%id
+             nmsh_quad(i)%v(j)%v_idx = ep%pts(j)%p%id()
              nmsh_quad(i)%v(j)%v_xyz = ep%pts(j)%p%x
           end do
        end do
@@ -147,9 +147,9 @@ contains
        allocate(nmsh_hex(msh%nelv))       
        do i = 1, msh%nelv
           ep => msh%elements(i)%e
-          nmsh_hex(i)%el_idx = ep%id
+          nmsh_hex(i)%el_idx = ep%id()
           do j = 1, 8
-             nmsh_hex(i)%v(j)%v_idx = ep%pts(j)%p%id
+             nmsh_hex(i)%v(j)%v_idx = ep%pts(j)%p%id()
              nmsh_hex(i)%v(j)%v_xyz = ep%pts(j)%p%x
           end do
        end do
