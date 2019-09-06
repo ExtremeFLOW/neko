@@ -35,7 +35,7 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    integer :: i, j, k, fh, nel, ndim, nelv, ierr, el_idx, pt_idx
+    integer :: i, j, k, fh, nel, ndim, nelv, ierr, pt_idx
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp) :: test
@@ -101,7 +101,6 @@ contains
     end if
     
     pt_idx = 1
-    el_idx = 1
     if (ndim .eq. 2) then
        allocate(re2_data_xy(nelv))
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size
@@ -114,8 +113,7 @@ contains
              pt_idx = pt_idx + 1
           end do
 
-          call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
-          el_idx = el_idx + 1
+          call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
        end do
        deallocate(re2_data_xy)
     else if (ndim .eq. 3) then
@@ -131,9 +129,8 @@ contains
              pt_idx = pt_idx + 1
           end do
 
-          call mesh_add_element(msh, el_idx, &
+          call mesh_add_element(msh, i, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
-          el_idx = el_idx + 1
        end do
        deallocate(re2_data_xyz)
     end if
@@ -154,7 +151,7 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5), parameter :: RE2_HDR_VER = '#v001'
     character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
-    integer :: i, j, k, fh, ierr, el_idx, pt_idx, nelgv
+    integer :: i, j, k, fh, ierr, pt_idx, nelgv
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer :: element_offset
