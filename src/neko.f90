@@ -17,12 +17,14 @@ module neko
   use mesh
   use mesh_field
   use map
+  use nmsh
   use re2
   use rea
   use rea_file
   use re2_file
   use map_file
   use vtk_file
+  use nmsh_file
   use file
   use field  
   use mpi_types
