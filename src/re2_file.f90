@@ -67,8 +67,8 @@ contains
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
-    map_fname = trim(this%fname(1:scan(trim(this%fname), &
-         '.', back=.true.)))//'map' 
+    call filename_chsuffix(this%fname, map_fname,'map')
+
     inquire(file=map_fname, exist=read_map)
     if (read_map) then
        call map_init(nm, nelv, 2**ndim)

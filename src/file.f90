@@ -27,14 +27,10 @@ contains
   function file_init(fname) result(this)
     character(len=*) :: fname
     type(file_t), target :: this
-    integer :: fname_len
     character(len=80) :: suffix
-    integer suffix_pos
     class(generic_file_t), pointer :: q
     
-    fname_len = len_trim(fname)
-    suffix_pos = scan(trim(fname), '.', back=.true.)
-    suffix = trim(fname(suffix_pos + 1:fname_len))
+    call filename_suffix(fname, suffix)
     
     if (allocated(this%file_type)) then
        deallocate(this%file_type)
