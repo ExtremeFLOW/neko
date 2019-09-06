@@ -5,8 +5,12 @@ program rea2nbin
   character(len=NEKO_FNAME_LEN) :: fname, output
   type(mesh_t) :: msh
   type(file_t) :: rea_file, nmsh_file
+  integer :: argc
+  character(len=80) :: suffix
   
-  if (command_argument_count() .lt. 2) then
+  argc = command_argument_count()
+
+  if ((argc .lt. 1) .or. (argc .gt. 2)) then
      write(*,*) 'Usage: ./rea2nbin <reafile> <neko mesh>'
      stop
   end if
@@ -14,7 +18,18 @@ program rea2nbin
   call neko_init 
   
   call get_command_argument(1, fname) 
-  call get_command_argument(2, output)
+
+  if (argc .eq. 2) then
+     call get_command_argument(2, output)
+     call filename_suffix(output, suffix)
+
+     if (suffix .ne. "nmsh") then
+        call neko_error("Invalid output format")
+     end if
+  else
+     call filename_chsuffix(fname, output, 'nmsh')
+  end if
+     
   
   rea_file = file_t(fname)
   
