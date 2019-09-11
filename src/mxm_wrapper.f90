@@ -1,10 +1,11 @@
+!> Wrapper for all matrix-matrix product implementations
 module mxm_wrapper
   use num_types
   implicit none
 
 contains
 
-  !> Compute matrix-matrix product \f$ C = A*B \f$
+  !> Compute matrix-matrix product \f$ C = A \cdot B \f$
   !! for contiguously packed matrices A,B, and C.
   subroutine mxm(a,n1,b,n2,c,n3)
     real(kind=dp), intent(inout) :: a(n1, n2)
