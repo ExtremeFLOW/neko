@@ -8,6 +8,8 @@ libneko_a_SOURCES = \
 	mpi_types.f90 \
 	datadist.f90 \
 	utils.f90\
+	mxm_wrapper.f90\
+	mxm_std.f90\
 	speclib.f90 \
 	math.f90\
 	space.f90\

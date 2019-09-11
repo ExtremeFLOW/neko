@@ -20,6 +20,7 @@ module neko
   use nmsh
   use re2
   use rea
+  use mxm_wrapper
   use rea_file
   use re2_file
   use map_file
