@@ -73,34 +73,35 @@ contains
   end subroutine field_free
 
   !> Assignment \f$ F = G \f$
-  !! @note @F will be initialized if i) it has a different size than
+  !! @note @F will be initialized if it has a different size than
   !! @G or it's not allocated
-  subroutine field_assign_field(this_f, f)
-    type(field_t), intent(inout) :: this_f
-    type(field_t), intent(in) :: f
+  subroutine field_assign_field(f, g)
+    type(field_t), intent(inout) :: f
+    type(field_t), intent(in) :: g
     integer :: n
 
-    if (allocated(this_f%x) .and. &
-         (this_f%Xh%lx .ne. f%Xh%lx) .or. &
-         (this_f%Xh%lx .ne. f%Xh%lx) .or. &
-         (this_f%Xh%lx .ne. f%Xh%lx) .or. &
-         (this_f%Xh%ndim .ne. f%Xh%ndim)) then
-       call field_free(this_f)
-    else       
-       
-       this_f%Xh =>f%Xh
-       this_f%msh => f%msh
-       
-       
-       this_f%Xh%lx = f%Xh%lx
-       this_f%Xh%ly = f%Xh%ly
-       this_f%Xh%lz = f%Xh%lz
-       
-       allocate(this_f%x(f%Xh%lx, f%Xh%lx, f%Xh%lx, f%msh%nelv, f%Xh%ndim))
+    if (allocated(f%x) .and. &
+         (f%Xh%lx .ne. g%Xh%lx) .or. &
+         (f%Xh%ly .ne. g%Xh%ly) .or. &
+         (f%Xh%lz .ne. g%Xh%lz) .or. &
+         (f%Xh%ndim .ne. g%Xh%ndim)) then
+       call field_free(f)
+    end if
+    
+    f%Xh =>g%Xh
+    f%msh => g%msh
+    
+    
+    f%Xh%lx = g%Xh%lx
+    f%Xh%ly = g%Xh%ly
+    f%Xh%lz = g%Xh%lz
+    
+    if (.not. allocated(f%x)) then
+       allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv, f%Xh%ndim))
     end if
     
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz * f%Xh%ndim
-    call copy(this_f%x, f%x, n)
+    call copy(f%x, g%x, n)
     
   end subroutine field_assign_field
 
