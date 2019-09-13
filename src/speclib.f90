@@ -666,11 +666,12 @@ contains
          ZD(I) = Z(I)
  100  CONTINUE
       CALL DGJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
-      DO 200 I=1,NZ
-      DO 200 J=1,NZ
+      DO I=1,NZ
+      DO J=1,NZ
          D(I,J)  = DD(I,J)
          DT(I,J) = DTD(I,J)
- 200  CONTINUE
+      END DO
+      END DO
       RETURN
       END
 
@@ -700,15 +701,16 @@ contains
          call neko_error
       ENDIF
 
-      DO 200 I=1,NZ
-      DO 200 J=1,NZ
+      DO I=1,NZ
+      DO J=1,NZ
          CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(I))
          CALL JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,NZ,ALPHA,BETA,Z(J))
          IF (I.NE.J) D(I,J) = PDI/(PDJ*(Z(I)-Z(J)))
          IF (I.EQ.J) D(I,J) = ((ALPHA+BETA+TWO)*Z(I)+ALPHA-BETA)/ &
               (TWO*(ONE-Z(I)**2))
          DT(J,I) = D(I,J)
- 200  CONTINUE
+      END DO
+      END DO
       RETURN
       END
 
@@ -747,11 +749,12 @@ contains
          ZD(I) = Z(I)
  100  CONTINUE
       CALL DGLJD (DD,DTD,ZD,NZ,NZDD,ALPHAD,BETAD)
-      DO 200 I=1,NZ
-      DO 200 J=1,NZ
+      DO I=1,NZ
+      DO J=1,NZ
          D(I,J)  = DD(I,J)
          DT(I,J) = DTD(I,J)
- 200  CONTINUE
+      END DO
+      END DO
       RETURN
       END
 
@@ -782,8 +785,8 @@ contains
          call neko_error
       ENDIF
 
-      DO 200 I=1,NZ
-      DO 200 J=1,NZ
+      DO I=1,NZ
+      DO J=1,NZ
          CALL JACOBF (PI,PDI,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(I))
          CALL JACOBF (PJ,PDJ,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z(J))
          CI = EIGVAL*PI-(BETA*(ONE-Z(I))-ALPHA*(ONE+Z(I)))*PDI
@@ -797,7 +800,8 @@ contains
          IF ((I.EQ.J).AND.(I.EQ.NZ)) &
               D(I,J) = -(EIGVAL+BETA)/(TWO*(ALPHA+TWO)) 
          DT(J,I) = D(I,J)
- 200  CONTINUE
+      END DO
+      END DO
       RETURN
       END
 
@@ -824,15 +828,16 @@ contains
       ENDIF
       FN = (N)
       d0 = FN*(FN+1.)/4.
-      DO 200 I=1,NZ
-      DO 200 J=1,NZ
+      DO I=1,NZ
+      DO J=1,NZ
          D(I,J) = 0.
          IF  (I.NE.J) D(I,J) = PNLEG(Z(I),N)/ &
                              (PNLEG(Z(J),N)*(Z(I)-Z(J)))
          IF ((I.EQ.J).AND.(I.EQ.1))  D(I,J) = -d0
          IF ((I.EQ.J).AND.(I.EQ.NZ)) D(I,J) =  d0
          DT(J,I) = D(I,J)
- 200  CONTINUE
+      END DO
+      END DO
       RETURN
       END
 
@@ -955,8 +960,8 @@ contains
       ENDIF
       EPS = 1.E-6
       NM1 = NZM1-1
-      DO 10 IP = 1, NZM2
-         DO 10 JQ = 1, NZM1
+      DO IP = 1, NZM2
+         DO JQ = 1, NZM1
             ZP = ZM2(IP)
             ZQ = ZM1(JQ)
             IF ((ABS(ZP) .LT. EPS).AND.(ABS(ZQ) .LT. EPS)) THEN
@@ -966,7 +971,8 @@ contains
                      -IM12(IP,JQ))/(ZP-ZQ)
             ENDIF
             DT(JQ,IP) = D(IP,JQ)
- 10   CONTINUE
+         END DO
+      END DO
       RETURN
       END
 
@@ -1007,20 +1013,22 @@ contains
 
       ALPHAD = ALPHA
       BETAD  = BETA
-      DO 100 I=1,NPG
+      DO I=1,NPG
          ZGD(I) = ZG(I)
-         DO 100 J=1,NPGL
+         DO J=1,NPGL
             IGLGD(I,J) = IGLG(I,J)
- 100  CONTINUE
+         END DO
+      END DO
       DO 200 I=1,NPGL
          ZGLD(I) = ZGL(I)
  200  CONTINUE
       CALL DGLJGJD (DD,DTD,ZGLD,ZGD,IGLGD,NPGL,NPG,NDD,NDD,ALPHAD,BETAD)
-      DO 300 I=1,NPG
-      DO 300 J=1,NPGL
+      DO I=1,NPG
+      DO J=1,NPGL
          D(I,J)  = DD(I,J)
          DT(J,I) = DTD(J,I)
- 300  CONTINUE
+      END DO
+      END DO
       RETURN
       END
 
@@ -1057,8 +1065,8 @@ contains
       DN     = ((NGL))
       EIGVAL = -DN*(DN+ALPHA+BETA+ONE)
 
-      DO 100 I=1,NPG
-      DO 100 J=1,NPGL
+      DO I=1,NPG
+      DO J=1,NPGL
          DZ = ABS(ZG(I)-ZGL(J))
          IF (DZ.LT.EPS) THEN
             D(I,J) = (ALPHA*(ONE+ZG(I))-BETA*(ONE-ZG(I)))/ &
@@ -1073,7 +1081,8 @@ contains
                  -(ONE-ZG(I)**2)*PDI)/(CONST*(ZG(I)-ZGL(J))**2)
          ENDIF
          DT(J,I) = D(I,J)
- 100  CONTINUE
+      END DO
+      END DO
       RETURN
       END
 
@@ -1093,12 +1102,13 @@ contains
          IT12(1,1) = 1.
          RETURN
       ENDIF
-      DO 10 I=1,NZ2
+      DO I=1,NZ2
          ZI = Z2(I)
-         DO 10 J=1,NZ1
+         DO J=1,NZ1
             I12 (I,J) = HGL(J,ZI,Z1,NZ1)
             IT12(J,I) = I12(I,J)
- 10   CONTINUE
+         END DO
+      END DO
       RETURN
       END
 
@@ -1118,12 +1128,13 @@ contains
          IT12(1,1) = 1.
          RETURN
       ENDIF
-      DO 10 I=1,NZ2
+      DO I=1,NZ2
          ZI = Z2(I)
-         DO 10 J=1,NZ1
+         DO J=1,NZ1
             I12 (I,J) = HGLL(J,ZI,Z1,NZ1)
             IT12(J,I) = I12(I,J)
- 10   CONTINUE
+         END DO
+      END DO
       RETURN
       END
 
@@ -1144,12 +1155,13 @@ contains
          IT12(1,1) = 1.
          RETURN
       ENDIF
-      DO 10 I=1,NZ2
+      DO I=1,NZ2
          ZI = Z2(I)
-         DO 10 J=1,NZ1
+         DO J=1,NZ1
             I12 (I,J) = HGJ(J,ZI,Z1,NZ1,ALPHA,BETA)
             IT12(J,I) = I12(I,J)
- 10   CONTINUE
+         END DO
+      END DO
       RETURN
       END
 
@@ -1170,12 +1182,13 @@ contains
          IT12(1,1) = 1.
          RETURN
       ENDIF
-      DO 10 I=1,NZ2
+      DO I=1,NZ2
          ZI = Z2(I)
-         DO 10 J=1,NZ1
+         DO J=1,NZ1
             I12 (I,J) = HGLJ(J,ZI,Z1,NZ1,ALPHA,BETA)
             IT12(J,I) = I12(I,J)
- 10   CONTINUE
+         END DO
+      END DO
       RETURN
       END
 end module
