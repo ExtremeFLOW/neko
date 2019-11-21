@@ -43,7 +43,9 @@ contains
        call neko_error('Invalid output data')
     end select
 
-    write(*, '(A,A)') " Reading a binary Neko file ", this%fname
+    if (pe_rank .eq. 0) then
+       write(*, '(A,A)') " Reading a binary Neko file ", this%fname
+    end if
 
     call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
@@ -53,8 +55,10 @@ contains
     call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
 
-    write(*,1) gdim, nelv
-1   format(1x,'gdim = ', i1, ', nelements =', i7)
+    if (pe_rank .eq. 0) then
+       write(*,1) gdim, nelv
+1      format(1x,'gdim = ', i1, ', nelements =', i7)
+    end if
        
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
     nelv = dist%num_local()
@@ -88,12 +92,12 @@ contains
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
        end do
        deallocate(nmsh_hex)
-    else 
-       call neko_error('Invalid dimension of mesh')
+    else        
+       if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
     end if
 
     call MPI_File_close(fh, ierr)
-    write(*,*) 'Done'
+    if (pe_rank .eq. 0) write(*,*) 'Done'
        
   end subroutine nmsh_file_read
 
