@@ -31,7 +31,8 @@ module mesh
   interface mesh_add_element
      module procedure mesh_add_quad, mesh_add_hex
   end interface mesh_add_element
-  
+
+  private :: mesh_add_quad, mesh_add_hex
 
 contains 
 
