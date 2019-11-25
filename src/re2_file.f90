@@ -13,6 +13,7 @@ module re2_file
   use re2
   use map
   use map_file
+  use htable
   implicit none
   private
   
@@ -48,6 +49,7 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
+    type(htable_pt_t) :: htp
 
     select type(data)
     type is (mesh_t)
@@ -89,6 +91,8 @@ contains
     element_offset = dist%start_idx()
 
     call mesh_init(msh, ndim, nelv)
+
+    call htp%init((2*ndim) * nel, ndim)
    
     ! Set offset (header)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
@@ -100,7 +104,7 @@ contains
        call neko_error('Invalid endian of re2 file, byte swap not implemented yet')
     end if
     
-    pt_idx = 1
+    pt_idx = 0
     if (ndim .eq. 2) then
        allocate(re2_data_xy(nelv))
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size
@@ -109,8 +113,8 @@ contains
        do i = 1, nelv
           do j = 1, 4             
              p(j) = point_t(dble(re2_data_xy(i)%x(j)), &
-                  dble(re2_data_xy(i)%y(j)), 0d0, pt_idx)
-             pt_idx = pt_idx + 1
+                  dble(re2_data_xy(i)%y(j)), 0d0)
+             call re2_file_add_point(htp, p(j), pt_idx)
           end do
 
           call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
@@ -125,8 +129,8 @@ contains
           do j = 1, 8             
              p(j) = point_t(dble(re2_data_xyz(i)%x(j)), &
                   dble(re2_data_xyz(i)%y(j)),&
-                  dble(re2_data_xyz(i)%z(j)), pt_idx)
-             pt_idx = pt_idx + 1
+                  dble(re2_data_xyz(i)%z(j)))
+             call re2_file_add_point(htp, p(j), pt_idx)
           end do
 
           call mesh_add_element(msh, i, &
@@ -134,8 +138,14 @@ contains
        end do
        deallocate(re2_data_xyz)
     end if
+
+    call htp%free()
+    
+
     call MPI_FILE_close(fh, ierr)
     write(*,*) 'Done'
+
+
 
     !> @todo Add support for curved side data
 
@@ -229,4 +239,20 @@ contains
     
   end subroutine re2_file_write
 
+  subroutine re2_file_add_point(htp, p, idx)
+    type(htable_pt_t), intent(inout) :: htp
+    type(point_t), intent(inout) :: p
+    integer, intent(inout) :: idx
+    integer :: tmp
+    
+    if (htp%get(p, tmp) .gt. 0) then
+       idx = idx + 1
+       call htp%set(p, idx)
+       call p%set_id(idx)
+    else
+       call p%set_id(tmp)
+    end if
+    
+  end subroutine re2_file_add_point
+  
 end module re2_file
