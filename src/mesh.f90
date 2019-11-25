@@ -24,7 +24,7 @@ module mesh
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      
      !> @todo flush this table once mesh is finalized
-     type(htable_pt_t) :: htp   !< Table of unique points
+     type(htable_i4_t) :: htp   !< Table of unique points
   end type mesh_t
 
   !> Add an element to the mesh
@@ -144,14 +144,20 @@ contains
   subroutine mesh_add_point(m, p, idx)
     type(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p
-    integer :: idx
+    integer, intent(inout) :: idx
+    integer :: tmp
+   
+    tmp = p%id()
+    
+    if (tmp .le. 0) then
+       call neko_error("Invalid point id")
+    end if
 
-    if (m%htp%get(p, idx) .gt. 0) then
+    if (m%htp%get(tmp, idx) .gt. 0) then
        m%mpts = m%mpts + 1
-       call m%htp%set(p, m%mpts)
-       idx = m%mpts 
-       call p%set_id(m%mpts)
-       m%points(idx) = p
+       call m%htp%set(tmp, m%mpts)
+       m%points(m%mpts) = p
+       idx = m%mpts
     end if
     
   end subroutine mesh_add_point
