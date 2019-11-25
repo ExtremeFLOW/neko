@@ -64,7 +64,9 @@ contains
     end select
 
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    write(*, '(A,A)') " Reading NEKTON file ", this%fname
+    if (pe_rank .eq. 0) then
+       write(*, '(A,A)') " Reading NEKTON file ", this%fname
+    end if
     
     read(9, *)
     read(9, *)
@@ -105,7 +107,7 @@ contains
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
     else       
-       write(*,1) ndim, nelgv
+       if (pe_rank .eq. 0) write(*,1) ndim, nelgv
 1      format(1x,'ndim = ', i1, ', nelements =', i7)
 
        call filename_chsuffix(this%fname, map_fname, 'map')
@@ -115,7 +117,7 @@ contains
           call map_file%init(map_fname)
           call map_file%read(nm)
        else
-          call neko_warning('No NEKTON map file found')
+          if (pe_rank .eq. 0) call neko_warning('No NEKTON map file found')
        end if
 
        ! Use a load-balanced linear distribution
@@ -188,7 +190,7 @@ contains
           end do
        end if
 
-       write(*,*) 'Done'       
+       if (pe_rank .eq. 0) write(*,*) 'Done'       
        close(9)
     endif
     

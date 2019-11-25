@@ -3,6 +3,7 @@
 module map_file
   use generic_File
   use utils
+  use comm
   use map
   implicit none
   private
@@ -31,7 +32,9 @@ contains
     end select
 
     open(unit=10, file=trim(this%fname), status='old', iostat=ierr)
-    write(*, '(A,A)') " Reading NEKTON map file ", this%fname
+    if (pe_rank .eq. 0) then
+       write(*, '(A,A)') " Reading NEKTON map file ", this%fname
+    end if
 
     read(10, *) neli, nnzi
 

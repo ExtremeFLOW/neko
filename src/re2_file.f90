@@ -63,9 +63,11 @@ contains
     call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
     
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
+    if (pe_rank .eq. 0) then
+       write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
+    end if
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    write(*,1) ndim, nelv
+    if (pe_rank .eq. 0) write(*,1) ndim, nelv
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
@@ -77,7 +79,7 @@ contains
        call map_file%init(map_fname)
        call map_file%read(nm)
     else
-       call neko_warning('No NEKTON map file found')
+       if (pe_rank .eq. 0) call neko_warning('No NEKTON map file found')
     end if
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
@@ -143,7 +145,7 @@ contains
     
 
     call MPI_FILE_close(fh, ierr)
-    write(*,*) 'Done'
+    if (pe_rank .eq. 0) write(*,*) 'Done'
 
 
 
