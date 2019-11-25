@@ -36,10 +36,14 @@ contains
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates
   function point_init(x, id) result(this)
     real(kind=dp), dimension(3), intent(in) :: x
-    integer, intent(inout) :: id
+    integer, optional, intent(inout) :: id
     type(point_t) :: this
 
-    call this%set_id(id)
+    if (present(id)) then
+       call this%set_id(id)
+    else
+       call this%set_id(-1)
+    end if
     
     this%x = x
 
@@ -50,10 +54,14 @@ contains
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
     real(kind=dp), intent(in) :: z
-    integer, intent(inout) :: id
+    integer, optional, intent(inout) :: id
     type(point_t) :: this
 
-    call this%set_id(id)
+    if (present(id)) then
+       call this%set_id(id)
+    else
+       call this%set_id(-1)
+    end if
 
     this%x(1) = x
     this%x(2) = y
