@@ -1,5 +1,5 @@
 !> Implements a dynamic stack ADT
-!! @details a stack storing values @a data of a arbitrary type
+!! @details a stack storing values @a data of an arbitrary type
 module stack
   use num_types
   use utils
@@ -7,47 +7,57 @@ module stack
   implicit none
   private
 
+  integer, parameter :: NEKO_STACK_SIZE_T = 32
+
   !> Base type for a stack
-  type, private :: stack_t
+  type, abstract, private :: stack_t
      class(*), allocatable :: data(:)
      integer :: top_
      integer :: size_
    contains
-     procedure, pass(this) :: stack_init
-     procedure, public, pass(this) :: free => stack_free
-     procedure, public, pass(this) :: clear => stack_clear
-     procedure, public, pass(this) :: size => stack_size
+     procedure, non_overridable, pass(this) :: init => stack_init
+     procedure, non_overridable, pass(this) :: free => stack_free
+     procedure, non_overridable, pass(this) :: clear => stack_clear
+     procedure, non_overridable, pass(this) :: size => stack_size
+     procedure, non_overridable, pass(this) :: push => stack_push
+     procedure, non_overridable, pass(this) :: stack_pop
   end type stack_t
 
   !> Integer based stack
   type, public, extends(stack_t) :: stack_i4_t
    contains
-     procedure, pass(this) :: init => stack_i4_init
+     procedure, public, pass(this) :: pop => stack_i4_pop     
   end type stack_i4_t
 
   !> Double precision based stack
   type, public, extends(stack_t) :: stack_r8_t
    contains
-     procedure, pass(this) :: init => stack_r8_init
+     procedure, public, pass(this) :: pop => stack_r8_pop     
   end type stack_r8_t
-  
+
 contains
 
-  !> Initialize a stack of type @a data
-  subroutine stack_init(this, size, data)
+  !> Initialize a stack of arbitrary type 
+  subroutine stack_init(this, size)
     class(stack_t), intent(inout) :: this 
-    integer, value :: size       !< Initial size of the stack
-    class(*), intent(in) :: data !< Type of data
+    integer, value, optional :: size !< Initial size of the stack
+    integer :: size_t
 
-
-    if (size .lt. 4) then
-       size =4
+    if (present(size)) then
+       size_t = size
+    else
+       size_t = NEKO_STACK_SIZE_T
     end if
 
-    this%size_ = ishft(4, ceiling(log(dble(size)) / NEKO_M_LN2))
+    this%size_ = ishft(1, ceiling(log(dble(size_t)) / NEKO_M_LN2))
     this%top_ = 0
-
-    allocate(this%data(this%size_), source=data)
+    write(*,*) size_t, NEKO_STACK_SIZE_T, this%size_
+    select type(this)
+    class is(stack_i4_t)
+       allocate(integer::this%data(this%size_))
+    class is (stack_r8_t)
+       allocate(double precision::this%data(this%size_))
+    end select
 
   end subroutine stack_init
   
@@ -73,36 +83,66 @@ contains
   pure function stack_size(this) result(size)
     class(stack_t), intent(in) :: this
     integer :: size
-    size = this%size_
+    size = this%top_
   end function stack_size
 
-  !> Initialize an integer based stack
-  subroutine stack_i4_init(this, size)
-    class(stack_i4_t), intent(inout) :: this
-    integer, value, optional :: size
+  subroutine stack_push(this, data)
+    class(stack_t), target, intent(inout) :: this
+    class(*), intent(inout) :: data
+    class(*), allocatable :: tmp(:)
+
+    if (this%top_ .eq. this%size_) then
+       this%size_ = ishft(this%size_, 1)
+       select type(data)
+       type is(integer)
+          allocate(integer::tmp(this%size_))
+       type is(double precision)          
+          allocate(double precision::tmp(this%size_))          
+       end select
+       tmp(1:this%top_) = this%data
+       call move_alloc(tmp, this%data)
+    end if
+
+    this%top_ = this%top_ + 1
+
+    select type(data)
+    type is (integer)
+       this%data(this%top_) = data
+    type is (double precision)
+       this%data(this%top_) = data
+    end select
+  end subroutine stack_push
+
+  function stack_pop(this)
+    class(stack_t), target, intent(inout) :: this
+    class(*), pointer :: stack_pop
+    stack_pop => this%data(this%top_)    
+  end function stack_pop
+  
+  function stack_i4_pop(this) result(data)
+    class(stack_i4_t), target, intent(inout) :: this
+    class(*), pointer :: sp
     integer :: data
 
-    if (present(size)) then
-       call stack_init(this, size, data)
-    else
-       call stack_init(this, 32, data)
-    end if
+    sp => this%stack_pop()
+    select type (sp)
+    type is (integer)       
+       data = sp
+    end select
 
-  end subroutine stack_i4_init
+  end function stack_i4_pop
 
-  !> Initialize a double precision based stack
-  subroutine stack_r8_init(this, size)
-    class(stack_r8_t), intent(inout) :: this
-    integer, value, optional :: size
+    function stack_r8_pop(this) result(data)
+    class(stack_r8_t), target, intent(inout) :: this
+    class(*), pointer :: sp
     real(kind=dp) :: data
 
-    if (present(size)) then
-       call stack_init(this, size, data)
-    else
-       call stack_init(this, 32, data)
-    end if
+    sp => this%stack_pop()
+    select type (sp)
+    type is (double precision)       
+       data = sp
+    end select
 
-  end subroutine stack_r8_init
+  end function stack_r8_pop
 
-  
 end module stack
