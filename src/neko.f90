@@ -14,6 +14,8 @@ module neko
   use element
   use quad
   use hex
+  use uset
+  use stack
   use mesh
   use mesh_field
   use map
@@ -27,7 +29,7 @@ module neko
   use vtk_file
   use nmsh_file
   use file
-  use field  
+  use field
   use mpi_types
 contains
 
