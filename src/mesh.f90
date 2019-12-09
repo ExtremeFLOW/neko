@@ -89,7 +89,7 @@ contains
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)
     type(mesh_t), target, intent(inout) :: m
-    integer, intent(inout) :: el
+    integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
     integer :: p(4)
@@ -113,7 +113,7 @@ contains
   !> Add a hexahedral element to the mesh @a m
   subroutine mesh_add_hex(m, el, p1, p2, p3, p4, p5, p6, p7, p8)
     type(mesh_t), target, intent(inout) :: m
-    integer, intent(inout) :: el
+    integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
     integer :: p(8)
