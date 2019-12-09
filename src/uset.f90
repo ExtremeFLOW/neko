@@ -90,7 +90,7 @@ module uset
      subroutine uset_add(this, key)
        import uset_t
        class(uset_t), intent(inout) :: this
-       class(*) :: key
+       class(*), intent(inout) :: key
      end subroutine uset_add
  end interface
 
@@ -136,20 +136,27 @@ contains
   !> Check if an integer @a key is an element of the set
   function uset_i4_element(this, key) result(res)
     class(uset_i4_t), intent(inout) :: this
-    integer, intent(inout) :: key
+    class(*), intent(inout) :: key
     integer :: data
     logical :: res
 
-    res = (this%t%get(key, data) .eq. 0)
-    
+    select type(key)
+    type is (integer)
+       res = (this%t%get(key, data) .eq. 0)
+    end select    
   end function uset_i4_element
   
   !> Add an integer @a key to the set
   subroutine uset_i4_add(this, key)
     class(uset_i4_t), intent(inout) :: this
-    integer :: key
+    class(*), intent(inout) :: key
+    integer :: data
+    data = 1
 
-    call this%t%set(key, 1)
+    select type(key)
+    type is (integer)
+       call this%t%set(key, data)
+    end select
   end subroutine uset_i4_add
 
   !> Initialize an empty double precision based unordered set
@@ -191,20 +198,29 @@ contains
   !> Check if a double precision @a key is an element of the set
   function uset_r8_element(this, key) result(res)
     class(uset_r8_t), intent(inout) :: this
-    real(kind=dp), intent(inout) :: key
-    integer :: data
+    class(*), intent(inout) :: key
     logical :: res
+    integer :: data
 
-    res = (this%t%get(key, data) .eq. 0)
+
+    select type(key)
+    type is (double precision)
+       res = (this%t%get(key, data) .eq. 0)
+    end select
     
   end function uset_r8_element
 
     !> Add a double precision @a key to the set
   subroutine uset_r8_add(this, key)
     class(uset_r8_t), intent(inout) :: this
-    real(kind=dp) :: key
+    class(*), intent(inout) :: key
+    integer :: data
+    data = 1
 
-    call this%t%set(key, 1)
+    select type(key)
+    type is (double precision)
+       call this%t%set(key, data)
+    end select
   end subroutine uset_r8_add
 
 
