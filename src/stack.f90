@@ -11,7 +11,7 @@ module stack
 
   !> Base type for a stack
   type, abstract, private :: stack_t
-     class(*), allocatable :: data(:)
+     class(*),  allocatable :: data(:)
      integer :: top_
      integer :: size_
    contains
@@ -90,6 +90,7 @@ contains
     class(stack_t), target, intent(inout) :: this
     class(*), intent(inout) :: data
     class(*), allocatable :: tmp(:)
+    class(*), pointer :: dp(:)
 
     if (this%top_ .eq. this%size_) then
        this%size_ = ishft(this%size_, 1)
@@ -99,22 +100,41 @@ contains
        type is(double precision)          
           allocate(double precision::tmp(this%size_))          
        end select
-       tmp(1:this%top_) = this%data
+       dp => this%data
+       select type(tmp)
+       type is (integer)
+          select type(dp)
+          type is (integer)
+             tmp(1:this%top_) = dp
+          end select
+       type is (double precision)
+          select type(dp)
+          type is (double precision)
+             tmp(1:this%top_) = dp
+          end select
+       end select
        call move_alloc(tmp, this%data)
     end if
-
+    
     this%top_ = this%top_ + 1
 
+    dp => this%data
     select type(data)
     type is (integer)
-       this%data(this%top_) = data
+       select type(dp)
+       type is (integer)
+          dp(this%top_) = data
+       end select
     type is (double precision)
-       this%data(this%top_) = data
+       select type(dp)
+       type is (double precision)
+          dp(this%top_) = data
+       end select
     end select
   end subroutine stack_push
 
   function stack_pop(this)
-    class(stack_t), target, intent(inout) :: this
+    class(stack_t), target, intent(in) :: this
     class(*), pointer :: stack_pop
     stack_pop => this%data(this%top_)    
   end function stack_pop
@@ -132,17 +152,17 @@ contains
 
   end function stack_i4_pop
 
-    function stack_r8_pop(this) result(data)
+  function stack_r8_pop(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
     class(*), pointer :: sp
     real(kind=dp) :: data
-
+    
     sp => this%stack_pop()
     select type (sp)
     type is (double precision)       
        data = sp
     end select
-
+    
   end function stack_r8_pop
-
+  
 end module stack
