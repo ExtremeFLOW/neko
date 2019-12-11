@@ -51,7 +51,6 @@ contains
 
     this%size_ = ishft(1, ceiling(log(dble(size_t)) / NEKO_M_LN2))
     this%top_ = 0
-    write(*,*) size_t, NEKO_STACK_SIZE_T, this%size_
     select type(this)
     class is(stack_i4_t)
        allocate(integer::this%data(this%size_))
@@ -134,9 +133,10 @@ contains
   end subroutine stack_push
 
   function stack_pop(this)
-    class(stack_t), target, intent(in) :: this
+    class(stack_t), target, intent(inout) :: this
     class(*), pointer :: stack_pop
-    stack_pop => this%data(this%top_)    
+    stack_pop => this%data(this%top_)
+    this%top_ = this%top_ - 1
   end function stack_pop
   
   function stack_i4_pop(this) result(data)
