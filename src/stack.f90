@@ -89,7 +89,6 @@ contains
     class(stack_t), target, intent(inout) :: this
     class(*), intent(inout) :: data
     class(*), allocatable :: tmp(:)
-    class(*), pointer :: dp(:)
 
     if (this%top_ .eq. this%size_) then
        this%size_ = ishft(this%size_, 1)
@@ -99,17 +98,16 @@ contains
        type is(double precision)          
           allocate(double precision::tmp(this%size_))          
        end select
-       dp => this%data
        select type(tmp)
        type is (integer)
-          select type(dp)
+          select type(sdp=>this%data)
           type is (integer)
-             tmp(1:this%top_) = dp
+             tmp(1:this%top_) = sdp
           end select
        type is (double precision)
-          select type(dp)
+          select type(sdp=>this%data)
           type is (double precision)
-             tmp(1:this%top_) = dp
+             tmp(1:this%top_) = sdp
           end select
        end select
        call move_alloc(tmp, this%data)
@@ -117,17 +115,16 @@ contains
     
     this%top_ = this%top_ + 1
 
-    dp => this%data
-    select type(data)
+    select type(sdp=>this%data(this%top_))
     type is (integer)
-       select type(dp)
+       select type(data)
        type is (integer)
-          dp(this%top_) = data
+          sdp = data
        end select
     type is (double precision)
-       select type(dp)
+       select type(data)
        type is (double precision)
-          dp(this%top_) = data
+          sdp = data
        end select
     end select
   end subroutine stack_push
@@ -141,26 +138,22 @@ contains
   
   function stack_i4_pop(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
-    class(*), pointer :: sp
     integer :: data
 
-    sp => this%stack_pop()
-    select type (sp)
+    select type (sdp=>this%stack_pop())
     type is (integer)       
-       data = sp
+       data = sdp
     end select
 
   end function stack_i4_pop
 
   function stack_r8_pop(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
-    class(*), pointer :: sp
     real(kind=dp) :: data
     
-    sp => this%stack_pop()
-    select type (sp)
+    select type (sdp=>this%stack_pop())
     type is (double precision)       
-       data = sp
+       data = sdp
     end select
     
   end function stack_r8_pop
