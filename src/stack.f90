@@ -40,7 +40,7 @@ contains
   !> Initialize a stack of arbitrary type 
   subroutine stack_init(this, size)
     class(stack_t), intent(inout) :: this 
-    integer, value, optional :: size !< Initial size of the stack
+    integer, optional :: size !< Initial size of the stack
     integer :: size_t
 
     if (present(size)) then

@@ -46,7 +46,7 @@ module uset
      subroutine uset_init(this, n) 
        import uset_t
        class(uset_t), intent(inout) :: this
-       integer, value, optional :: n
+       integer, optional :: n
      end subroutine uset_init
   end interface
 
@@ -99,7 +99,7 @@ contains
   !> Initialize an empty integer based unordered set
   subroutine uset_i4_init(this, n)
     class(uset_i4_t), intent(inout) :: this
-    integer, value, optional :: n
+    integer, optional :: n
     integer :: key
 
     if (present(n)) then
@@ -162,7 +162,7 @@ contains
   !> Initialize an empty double precision based unordered set
   subroutine uset_r8_init(this, n)
     class(uset_r8_t), intent(inout) :: this
-    integer, value, optional :: n
+    integer, optional :: n
     integer :: data
     if (present(n)) then
        call this%t%init(n, data)
