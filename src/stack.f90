@@ -140,7 +140,7 @@ contains
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
 
-    select type (sdp=>this%stack_pop())
+    select type (sdp=>stack_pop(this))
     type is (integer)       
        data = sdp
     end select
@@ -151,7 +151,7 @@ contains
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp) :: data
     
-    select type (sdp=>this%stack_pop())
+    select type (sdp=>stack_pop(this))
     type is (double precision)       
        data = sdp
     end select
