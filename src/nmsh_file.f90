@@ -30,7 +30,8 @@ contains
     type(mesh_t), pointer :: msh
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
-    integer :: i, j, ierr, fh, nelgv, element_offset, nmsh_quad_size, nmsh_hex_size
+    integer :: i, j, ierr, fh, nelgv, element_offset
+    integer :: nmsh_quad_size, nmsh_hex_size
     class(element_t), pointer :: ep
     integer nelv, gdim
     type(point_t) :: p(8)

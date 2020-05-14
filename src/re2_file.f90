@@ -179,7 +179,8 @@ contains
 
     call MPI_Type_size(MPI_RE2_DATA_XY, re2_data_xy_size, ierr)
     call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
-    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+    call MPI_Reduce(msh%nelv, nelgv, 1, &
+         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
     element_offset = 0
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -197,7 +198,8 @@ contains
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
     
-    call MPI_File_write_at(fh, mpi_offset, RE2_ENDIAN_TEST, 1, MPI_REAL, status, ierr)
+    call MPI_File_write_at(fh, mpi_offset, RE2_ENDIAN_TEST, 1, &
+         MPI_REAL, status, ierr)
     mpi_offset = mpi_offset + MPI_REAL_SIZE
 
     if (msh%gdim .eq. 2) then
