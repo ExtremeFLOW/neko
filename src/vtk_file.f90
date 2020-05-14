@@ -86,24 +86,25 @@ contains
     integer :: i, j, vtk_type
 
     ! Dump coordinates
-    write(9, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
+    write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
     do i = 1, msh%mpts
-       write(9, fmt='(F15.8,F15.8,F15.8)') msh%points(i)%x
+       write(unit, fmt='(F15.8,F15.8,F15.8)') msh%points(i)%x
     end do
 
     ! Dump cells
-    write(9, fmt='(A,I8,I8)')  'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
+    write(unit, fmt='(A,I8,I8)')  'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
     j = 0
     do i = 1, msh%nelv
-       write(9, *) msh%npts,(msh%elements(i)%e%pts(j)%p%id() - 1, j=1, msh%npts)
+       write(unit, *) msh%npts, &
+            (msh%elements(i)%e%pts(j)%p%id() - 1, j=1, msh%npts)
     end do
 
     ! Dump cell type for each element
-    write(9, fmt='(A,I8)') 'CELL_TYPES', msh%nelv
+    write(unit, fmt='(A,I8)') 'CELL_TYPES', msh%nelv
     vtk_type = 9
     if (msh%gdim .eq. 3) vtk_type = 12
     do i = 1, msh%nelv
-       write(9, fmt='(I2)') vtk_type
+       write(unit, fmt='(I2)') vtk_type
     end do
 
   end subroutine vtk_file_write_mesh
