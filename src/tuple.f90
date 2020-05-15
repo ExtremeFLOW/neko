@@ -17,7 +17,7 @@ module tuple
 
   !> Integer based 2-tuple 
   type, extends(tuple_t), public :: tuple_i4_t
-     integer :: x(2)
+     integer :: x(2) = (/0, 0/)
    contains
      procedure, pass(this) :: assign_tuple => tuple_i4_assign_tuple
      procedure, pass(this) :: assign_vector => tuple_i4_assign_vector
@@ -26,7 +26,7 @@ module tuple
 
     !> Integer based 4-tuple 
   type, extends(tuple_t), public :: tuple4_i4_t
-     integer :: x(4)
+     integer :: x(4) = (/0, 0, 0, 0/)
    contains
      procedure, pass(this) :: assign_tuple => tuple4_i4_assign_tuple
      procedure, pass(this) :: assign_vector => tuple4_i4_assign_vector
@@ -35,7 +35,7 @@ module tuple
 
   !> Double precision based 2-tuple 
   type, extends(tuple_t), public :: tuple_r8_t
-     real(kind=dp) :: x(2)
+     real(kind=dp) :: x(2) = (/0d0, 0d0/)
    contains
      procedure, pass(this) :: assign_tuple => tuple_r8_assign_tuple
      procedure, pass(this) :: assign_vector => tuple_r8_assign_vector
