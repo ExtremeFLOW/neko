@@ -43,6 +43,7 @@ contains
   subroutine comm_free
     integer :: ierr
 
+    call MPI_Barrier(NEKO_COMM, ierr)
     call MPI_Comm_free(NEKO_COMM, ierr)
     call MPI_Finalize(ierr)
 
