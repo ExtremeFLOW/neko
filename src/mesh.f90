@@ -20,11 +20,14 @@ module mesh
      integer :: gdim            !< Geometric dimension
      integer :: mpts            !< Number of (unique) points in the mesh
 
-     type(point_t), allocatable :: points(:) !< List of points
+     type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      
      !> @todo flush this table once mesh is finalized
      type(htable_i4_t) :: htp   !< Table of unique points
+
+     logical :: lconn           !< Valid connectivity
+     
   end type mesh_t
 
   !> Add an element to the mesh
@@ -67,6 +70,8 @@ contains
 
     call m%htp%init(m%npts*m%nelv, i)
     m%mpts = 0
+
+    m%lconn = .false.
     
   end subroutine mesh_init
   
@@ -94,6 +99,9 @@ contains
     class(element_t), pointer :: ep
     integer :: p(4)
 
+    ! Connectivity invalidated if a new element is added        
+    m%lconn = .false.           
+
     call mesh_add_point(m, p1, p(1))
     call mesh_add_point(m, p2, p(2))
     call mesh_add_point(m, p3, p(3))
@@ -107,7 +115,7 @@ contains
     class default
        call neko_error('Invalid element type')
     end select
-    
+        
   end subroutine mesh_add_quad
 
   !> Add a hexahedral element to the mesh @a m
@@ -118,6 +126,9 @@ contains
     class(element_t), pointer :: ep
     integer :: p(8)
 
+    ! Connectivity invalidated if a new element is added        
+    m%lconn = .false.
+    
     call mesh_add_point(m, p1, p(1))
     call mesh_add_point(m, p2, p(2))
     call mesh_add_point(m, p3, p(3))
@@ -137,7 +148,7 @@ contains
     class default
        call neko_error('Invalid element type')
     end select
-    
+
   end subroutine mesh_add_hex
 
   !> Add a unique point to the mesh
