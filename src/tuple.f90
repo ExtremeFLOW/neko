@@ -1,4 +1,4 @@
-!> Implements a tuple
+!> Implements a n-tuple
 module tuple
   use math  
   use num_types
@@ -8,38 +8,50 @@ module tuple
   !> Base type for an n-tuple 
   type, private, abstract :: tuple_t
    contains
-     procedure(tuple_assign), pass(this), deferred :: assign !< Assignment intf.
-     procedure(tuple_equal), pass(this) , deferred :: equal  !< Equal operator
+     procedure(tuple_assign_tuple), pass(this), deferred :: assign_tuple
+     procedure(tuple_assign_vector), pass(this), deferred :: assign_vector
+     procedure(tuple_equal), pass(this) , deferred :: equal
+     generic :: operator(.eq.) => equal
+     generic :: assignment(=) => assign_tuple, assign_vector
   end type tuple_t
 
-  !> Integer based tuple 
+  !> Integer based 2-tuple 
   type, extends(tuple_t), public :: tuple_i4_t
-     integer :: i, j
+     integer :: x(2)
    contains
-     procedure, pass(this) :: assign => tuple_i4_assign
+     procedure, pass(this) :: assign_tuple => tuple_i4_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple_i4_assign_vector
      procedure, pass(this) :: equal => tuple_i4_equal
-     generic :: operator(.eq.) => equal
-     generic :: assignment(=) => assign
   end type tuple_i4_t
 
-  !> Double precision based tuple 
+  !> Double precision based 2-tuple 
   type, extends(tuple_t), public :: tuple_r8_t
-     real(kind=dp) :: i, j
+     real(kind=dp) :: x(2)
    contains
-     procedure, pass(this) :: assign => tuple_r8_assign
+     procedure, pass(this) :: assign_tuple => tuple_r8_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple_r8_assign_vector
      procedure, pass(this) :: equal => tuple_r8_equal
-     generic :: operator(.eq.) => equal
-     generic :: assignment(=) => assign
   end type tuple_r8_t
 
+  !> Abstract intf. for assigning a tuple to a tuple
   abstract interface
-     subroutine tuple_assign(this, other)
+     subroutine tuple_assign_tuple(this, other)
        import :: tuple_t
        class(tuple_t), intent(inout) :: this
        class(tuple_t), intent(in) :: other
-     end subroutine tuple_assign
+     end subroutine tuple_assign_tuple
+  end interface
+
+  !> Abstract intf. for assigning a vector to a n-tuple
+  abstract interface
+     subroutine tuple_assign_vector(this, x)
+       import :: tuple_t
+       class(tuple_t), intent(inout) :: this
+       class(*), dimension(:), intent(in) :: x
+     end subroutine tuple_assign_vector
   end interface
   
+  !> Abstract intf. for tuple comparison
   abstract interface
      pure function tuple_equal(this, other) result(res)
        import :: tuple_t
@@ -50,55 +62,65 @@ module tuple
   end interface
 
 contains
-
-  subroutine tuple_i4_assign(this, other)
+  
+  !> Assign an integer 2-tuple to a tuple
+  pure subroutine tuple_i4_assign_tuple(this, other)
     class(tuple_i4_t), intent(inout) :: this
     type(tuple_i4_t), intent(in) :: other
+    this%x = other%x
+  end subroutine tuple_i4_assign_tuple
 
-    this%i = other%i
-    this%j = other%j
-    
-  end subroutine tuple_i4_assign
+  !> Assign an integer vector to a tuple
+  pure subroutine tuple_i4_assign_vector(this, x)
+    class(tuple_i4_t), intent(inout) :: this
+    class(*), dimension(2), intent(in) :: x
+    select type(x)
+    type is (integer)
+       this%x = x
+    end select    
+  end subroutine tuple_i4_assign_vector
 
   !> Check if two integer based tuples are equal
   pure function tuple_i4_equal(this, other) result(res)
     class(tuple_i4_t), intent(in) :: this
     type(tuple_i4_t), intent(in) :: other
-    logical :: res
-
-    if ((this%i .eq. other%i) .and. &
-         (this%j .eq. other%j)) then
+    logical :: res    
+    if ((this%x(1) .eq. other%x(1)) .and. &
+         (this%x(2) .eq. other%x(2))) then
        res = .true.
     else
        res = .false.
-    end if
-    
+    end if    
   end function tuple_i4_equal
 
-  subroutine tuple_r8_assign(this, other)
+  !> Assign a double precision 2-tuple to a tuple
+  pure subroutine tuple_r8_assign_tuple(this, other)
     class(tuple_r8_t), intent(inout) :: this
     type(tuple_r8_t), intent(in) :: other
+    this%x = other%x
+  end subroutine tuple_r8_assign_tuple
 
-    this%i = other%i
-    this%j = other%j
-    
-  end subroutine tuple_r8_assign
+  !> Assign a double precision vector to a tuple
+  pure subroutine tuple_r8_assign_vector(this, x)
+    class(tuple_r8_t), intent(inout) :: this
+    class(*), dimension(2), intent(in) :: x
+    select type(x)
+    type is (double precision)
+       this%x = x
+    end select    
+  end subroutine tuple_r8_assign_vector
 
   !> Check if two double precision tuples are equal
   pure function tuple_r8_equal(this, other) result(res)
     class(tuple_r8_t), intent(in) :: this
     type(tuple_r8_t), intent(in) :: other
     logical :: res
-
-    if (abscmp(this%i, other%i) .and. &
-         abscmp(this%j, other%j)) then
+    if (abscmp(this%x(1), other%x(1)) .and. &
+         abscmp(this%x(2), other%x(2))) then
        res = .true.
     else
        res = .false.
-    end if
-    
+    end if    
   end function tuple_r8_equal
-
-  
-  
+   
 end module tuple
