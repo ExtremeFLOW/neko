@@ -8,7 +8,7 @@ module mesh_field
   !> @todo Add support for different data types
   type mesh_fld_t
      integer, allocatable :: data(:) !< Data
-     type(mesh_t), pointer :: msh !< Mesh
+     type(mesh_t), pointer :: msh    !< Mesh
      character(len=80) :: name
   end type mesh_fld_t
 
