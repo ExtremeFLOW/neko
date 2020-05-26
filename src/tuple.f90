@@ -44,7 +44,7 @@ module tuple
 
   !> Abstract intf. for assigning a tuple to a tuple
   abstract interface
-     subroutine tuple_assign_tuple(this, other)
+     pure subroutine tuple_assign_tuple(this, other)
        import :: tuple_t
        class(tuple_t), intent(inout) :: this
        class(tuple_t), intent(in) :: other
@@ -75,14 +75,19 @@ contains
   !> Assign an integer 2-tuple to a tuple
   pure subroutine tuple_i4_assign_tuple(this, other)
     class(tuple_i4_t), intent(inout) :: this
-    type(tuple_i4_t), intent(in) :: other
-    this%x = other%x
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is (tuple_i4_t)
+       this%x = other%x
+    end select
   end subroutine tuple_i4_assign_tuple
 
   !> Assign an integer vector to a tuple
   pure subroutine tuple_i4_assign_vector(this, x)
     class(tuple_i4_t), intent(inout) :: this
-    class(*), dimension(2), intent(in) :: x
+    class(*), dimension(:), intent(in) :: x
+
     select type(x)
     type is (integer)
        this%x = x
@@ -92,27 +97,35 @@ contains
   !> Check if two integer based tuples are equal
   pure function tuple_i4_equal(this, other) result(res)
     class(tuple_i4_t), intent(in) :: this
-    type(tuple_i4_t), intent(in) :: other
-    logical :: res    
-    if ((this%x(1) .eq. other%x(1)) .and. &
-         (this%x(2) .eq. other%x(2))) then
-       res = .true.
-    else
-       res = .false.
-    end if    
+    class(tuple_t), intent(in) :: other
+    logical :: res
+
+    res = .false.
+    select type(other)
+    type is(tuple_i4_t) 
+       if ((this%x(1) .eq. other%x(1)) .and. &
+            (this%x(2) .eq. other%x(2))) then
+          res = .true.
+       end if
+    end select
   end function tuple_i4_equal
 
     !> Assign an integer 4-tuple to a tuple
   pure subroutine tuple4_i4_assign_tuple(this, other)
     class(tuple4_i4_t), intent(inout) :: this
-    type(tuple4_i4_t), intent(in) :: other
-    this%x = other%x
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is(tuple4_i4_t)
+       this%x = other%x
+    end select
   end subroutine tuple4_i4_assign_tuple
 
   !> Assign an integer vector to a tuple
   pure subroutine tuple4_i4_assign_vector(this, x)
     class(tuple4_i4_t), intent(inout) :: this
-    class(*), dimension(4), intent(in) :: x
+    class(*), dimension(:), intent(in) :: x
+
     select type(x)
     type is (integer)
        this%x = x
@@ -122,29 +135,37 @@ contains
   !> Check if two integer based tuples are equal
   pure function tuple4_i4_equal(this, other) result(res)
     class(tuple4_i4_t), intent(in) :: this
-    type(tuple4_i4_t), intent(in) :: other
+    class(tuple_t), intent(in) :: other
     logical :: res    
-    if ((this%x(1) .eq. other%x(1)) .and. &
-         (this%x(2) .eq. other%x(2)) .and. &
-         (this%x(3) .eq. other%x(3)) .and. &
-         (this%x(4) .eq. other%x(4))) then
-       res = .true.
-    else
-       res = .false.
-    end if    
+
+    res = .false.
+    select type(other)
+    type is(tuple4_i4_t)
+       if ((this%x(1) .eq. other%x(1)) .and. &
+            (this%x(2) .eq. other%x(2)) .and. &
+            (this%x(3) .eq. other%x(3)) .and. &
+            (this%x(4) .eq. other%x(4))) then
+          res = .true.
+       end if
+    end select
   end function tuple4_i4_equal
 
   !> Assign a double precision 2-tuple to a tuple
   pure subroutine tuple_r8_assign_tuple(this, other)
     class(tuple_r8_t), intent(inout) :: this
-    type(tuple_r8_t), intent(in) :: other
-    this%x = other%x
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is(tuple_r8_t)       
+       this%x = other%x
+    end select
   end subroutine tuple_r8_assign_tuple
 
   !> Assign a double precision vector to a tuple
   pure subroutine tuple_r8_assign_vector(this, x)
     class(tuple_r8_t), intent(inout) :: this
-    class(*), dimension(2), intent(in) :: x
+    class(*), dimension(:), intent(in) :: x
+
     select type(x)
     type is (double precision)
        this%x = x
@@ -154,14 +175,17 @@ contains
   !> Check if two double precision tuples are equal
   pure function tuple_r8_equal(this, other) result(res)
     class(tuple_r8_t), intent(in) :: this
-    type(tuple_r8_t), intent(in) :: other
+    class(tuple_t), intent(in) :: other
     logical :: res
-    if (abscmp(this%x(1), other%x(1)) .and. &
-         abscmp(this%x(2), other%x(2))) then
-       res = .true.
-    else
-       res = .false.
-    end if    
+
+    res = .false.
+    select type(other)
+    type is(tuple_r8_t)
+       if (abscmp(this%x(1), other%x(1)) .and. &
+            abscmp(this%x(2), other%x(2))) then
+          res = .true.          
+       end if
+    end select
   end function tuple_r8_equal
    
 end module tuple
