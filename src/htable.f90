@@ -361,9 +361,22 @@ contains
     class(htable_i4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: hash
+    integer, parameter :: M1 = Z'7ed55d15'
+    integer, parameter :: M2 = Z'c761c23c'
+    integer, parameter :: M3 = Z'165667b1'
+    integer, parameter :: M4 = Z'd3a2646c'
+    integer, parameter :: M5 = Z'fd7046c5'
+    integer, parameter :: M6 = Z'b55a4f09'
+
     select type(k)
     type is (integer)
-       hash = modulo(k * (k + 3), this%size)
+       hash = (k + M1) + ishft(k, 12)
+       hash = ieor(ieor(hash, M2), ishft(hash, -19))
+       hash = (hash + M3) + ishft(hash, 5)
+       hash = ieor((hash + M4), ishft(hash, 9))
+       hash = (hash + M5) + ishft(hash, 3)
+       hash = ieor(ieor(hash, M6), ishft(hash, -16))
+       hash = modulo(hash, this%size)
     class default
        hash = -1
     end select
