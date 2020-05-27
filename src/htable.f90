@@ -199,7 +199,10 @@ contains
     i = this%size - 1
     
     do while (i .ge. 0)
-       if ((this%t(index)%valid) .and. &
+       if (.not. this%t(index)%valid) then
+          rcode = 1
+          return          
+       else if ((this%t(index)%valid) .and. &
             htable_eq_key(this, index, key)) then
           call htable_get_data(this, index, data)
           rcode = 0
