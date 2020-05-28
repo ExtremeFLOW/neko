@@ -7,6 +7,8 @@ module mesh
   use quad
   use utils
   use htable
+  use mpi
+  use datadist
   implicit none
 
   type, private :: mesh_element_t
@@ -20,30 +22,37 @@ module mesh
      integer :: gdim            !< Geometric dimension
      integer :: mpts            !< Number of (unique) points in the mesh
 
+     integer :: glb_nelv        !< Global number of elements
+
      type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      
      !> @todo flush this table once mesh is finalized
      type(htable_i4_t) :: htp   !< Table of unique points
 
-     logical :: lconn           !< Valid connectivity
-     
+     logical :: lconn = .false.     !< valid connectivity
+     logical :: finalized = .false. !< Valid mesh
   end type mesh_t
 
+  !> Initialise a mesh
+  interface mesh_init
+     module procedure mesh_init_nelv, mesh_init_dist
+  end interface mesh_init
+  
   !> Add an element to the mesh
   interface mesh_add_element
      module procedure mesh_add_quad, mesh_add_hex
   end interface mesh_add_element
 
-  private :: mesh_add_quad, mesh_add_hex
+  private :: mesh_init_common, mesh_add_quad, mesh_add_hex
 
 contains 
 
-  !> Initialise a mesh @a m
-  subroutine mesh_init(m, gdim, nelv)
-    type(mesh_t), intent(inout) :: m
-    integer, intent(in) :: gdim
-    integer, intent(in) :: nelv
+  !> Initialise a mesh @a m with @a nelv elements
+  subroutine mesh_init_nelv(m, gdim, nelv)
+    type(mesh_t), intent(inout) :: m !< Mesh
+    integer, intent(in) :: gdim      !< Geometric dimension
+    integer, intent(in) :: nelv      !< Local number of elements
     integer :: i
     
     call mesh_free(m)
@@ -51,14 +60,38 @@ contains
     m%nelv = nelv
     m%gdim = gdim
 
-    allocate(m%elements(nelv))
-    if (gdim .eq. 3) then
-       do i = 1, nelv
+    call mesh_init_common(m)
+    
+  end subroutine mesh_init_nelv
+
+  !> Initialise a mesh @a m based on a distribution @a dist
+  subroutine mesh_init_dist(m, gdim, dist)
+    type(mesh_t), intent(inout) :: m        !< Mesh
+    integer, intent(in) :: gdim             !< Geometric dimension
+    type(linear_dist_t), intent(in) :: dist !< Data distribution
+
+    call mesh_free(m)
+    
+    m%nelv = dist%num_local()
+    m%glb_nelv = dist%num_global()    
+    m%gdim = gdim
+
+    call mesh_init_common(m)
+    
+  end subroutine mesh_init_dist
+
+  subroutine mesh_init_common(m)
+    type(mesh_t), intent(inout) :: m
+    integer :: i
+
+    allocate(m%elements(m%nelv))
+    if (m%gdim .eq. 3) then
+       do i = 1, m%nelv
           allocate(hex_t::m%elements(i)%e)
        end do
        m%npts = NEKO_HEX_NPTS
-    else if (gdim .eq. 2) then
-       do i = 1, nelv
+    else if (m%gdim .eq. 2) then
+       do i = 1, m%nelv
           allocate(quad_t::m%elements(i)%e)
        end do
        m%npts = NEKO_QUAD_NPTS
@@ -69,11 +102,9 @@ contains
     allocate(m%points(m%npts*m%nelv))
 
     call m%htp%init(m%npts*m%nelv, i)
-    m%mpts = 0
+    m%mpts = 0    
 
-    m%lconn = .false.
-    
-  end subroutine mesh_init
+  end subroutine mesh_init_common
   
   subroutine mesh_free(m)
     type(mesh_t), intent(inout) :: m
@@ -91,6 +122,7 @@ contains
 
   end subroutine mesh_free
 
+  
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)
     type(mesh_t), target, intent(inout) :: m
