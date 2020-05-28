@@ -184,6 +184,7 @@ contains
   end subroutine mesh_add_hex
 
   !> Add a unique point to the mesh
+  !! @todo remove hash table is only necessary for legacy formats
   subroutine mesh_add_point(m, p, idx)
     type(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p
