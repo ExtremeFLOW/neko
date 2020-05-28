@@ -8,6 +8,7 @@ module mesh
   use utils
   use htable
   use mpi
+  use comm
   use datadist
   implicit none
 
@@ -23,7 +24,8 @@ module mesh
      integer :: mpts            !< Number of (unique) points in the mesh
 
      integer :: glb_nelv        !< Global number of elements
-
+     integer :: offset_el       !< Element offset
+     
      type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      
@@ -53,12 +55,19 @@ contains
     type(mesh_t), intent(inout) :: m !< Mesh
     integer, intent(in) :: gdim      !< Geometric dimension
     integer, intent(in) :: nelv      !< Local number of elements
-    integer :: i
+    integer :: ierr
     
     call mesh_free(m)
 
     m%nelv = nelv
     m%gdim = gdim
+
+    call MPI_Allreduce(m%nelv, m%glb_nelv, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    m%offset_el = 0
+    call MPI_Exscan(m%nelv, m%offset_el, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call mesh_init_common(m)
     
@@ -73,7 +82,8 @@ contains
     call mesh_free(m)
     
     m%nelv = dist%num_local()
-    m%glb_nelv = dist%num_global()    
+    m%glb_nelv = dist%num_global()
+    m%offset_el = dist%start_idx()
     m%gdim = gdim
 
     call mesh_init_common(m)
