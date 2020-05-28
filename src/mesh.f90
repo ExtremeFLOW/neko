@@ -152,7 +152,8 @@ contains
     ep => m%elements(el)%e
     select type(ep)
     type is (quad_t)
-       call ep%init(el, m%points(p(1)), m%points(p(2)), &
+       call ep%init(el + m%offset_el, &
+            m%points(p(1)), m%points(p(2)), &
             m%points(p(3)), m%points(p(4)))
     class default
        call neko_error('Invalid element type')
@@ -183,7 +184,8 @@ contains
     ep => m%elements(el)%e
     select type(ep)
     type is (hex_t)
-       call ep%init(el, m%points(p(1)), m%points(p(2)), &
+       call ep%init(el + m%offset_el, &
+            m%points(p(1)), m%points(p(2)), &
             m%points(p(3)), m%points(p(4)), &
             m%points(p(5)), m%points(p(6)), &
             m%points(p(7)), m%points(p(8)))
