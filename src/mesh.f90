@@ -125,6 +125,8 @@ contains
     type(mesh_t), intent(inout) :: m
     integer :: i
     
+    call m%htp%free()
+
     if (allocated(m%points)) then
        deallocate(m%points)
     end if
