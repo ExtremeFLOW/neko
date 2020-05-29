@@ -29,8 +29,7 @@ module mesh
      type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      
-     !> @todo flush this table once mesh is finalized
-     type(htable_i4_t) :: htp   !< Table of unique points
+     type(htable_i4_t) :: htp   !< Table of unique points (global->local)
 
      logical :: lconn = .false.     !< valid connectivity
      logical :: finalized = .false. !< Valid mesh
@@ -45,6 +44,12 @@ module mesh
   interface mesh_add_element
      module procedure mesh_add_quad, mesh_add_hex
   end interface mesh_add_element
+
+  !> Get local id for a mesh entity
+  !! @todo Add similar mappings for element ids
+  interface mesh_get_local
+     module procedure mesh_get_local_point
+  end interface mesh_get_local
 
   private :: mesh_init_common, mesh_add_quad, mesh_add_hex
 
@@ -198,7 +203,6 @@ contains
   end subroutine mesh_add_hex
 
   !> Add a unique point to the mesh
-  !! @todo remove hash table is only necessary for legacy formats
   subroutine mesh_add_point(m, p, idx)
     type(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p
@@ -219,6 +223,22 @@ contains
     end if
     
   end subroutine mesh_add_point
+
+
+  function mesh_get_local_point(m, p) result(local_id)
+    type(mesh_t), intent(inout) :: m
+    type(point_t), intent(inout) :: p
+    integer, intent(inout) :: local_id
+    integer :: tmp
+
+    !> @todo why do we still need to do this?
+    tmp = p%id()
+
+    if (m%htp%get(tmp, local_id) .gt. 0) then
+       call neko_error('Invalid global id')
+    end if
+    
+  end function mesh_get_local_point
 
 
 end module mesh
