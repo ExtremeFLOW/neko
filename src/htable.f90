@@ -73,6 +73,15 @@ module htable
      procedure, pass(this) :: get => htable_i4t2_get
      procedure, pass(this) :: hash => htable_i4t2_hash
   end type htable_i4t2_t
+
+  !> Integer 4-tuple based hash table
+  type, public, extends(htable_t) :: htable_i4t4_t
+   contains
+     procedure, pass(this) :: init => htable_i4t4_init
+     procedure, pass(this) :: set => htable_i4t4_set
+     procedure, pass(this) :: get => htable_i4t4_get
+     procedure, pass(this) :: hash => htable_i4t4_hash
+  end type htable_i4t4_t
  
 contains
 
@@ -179,6 +188,8 @@ contains
        allocate(htable_pt_t::tmp)
     type is (tuple_i4_t)
        allocate(htable_i4t2_t::tmp)
+    type is (tuple4_i4_t)
+       allocate(htable_i4t4_t::tmp)
     end select
 
     call htable_init(tmp, ishft(this%size, 1), key, data)
@@ -255,6 +266,11 @@ contains
        type is (tuple_i4_t)
           hdp = data
        end select
+    type is (tuple4_i4_t)
+       select type(hdp)
+       type is (tuple4_i4_t)
+          hdp = data
+       end select
     end select
   end subroutine htable_set_data
 
@@ -285,7 +301,12 @@ contains
        type is (tuple_i4_t)
           data = hdp
        end select
-    end select    
+    type is (tuple4_i4_t)
+       select type(data)
+       type is (tuple4_i4_t)
+          data = hdp
+       end select
+    end select
   end subroutine htable_get_data
 
   !> Compare key at @a idx to @a key
@@ -315,6 +336,11 @@ contains
     type is (tuple_i4_t)
        select type (key)
        type is (tuple_i4_t)
+          res = (kp .eq. key)
+       end select
+    type is (tuple4_i4_t)
+       select type (key)
+       type is (tuple4_i4_t)
           res = (kp .eq. key)
        end select
     end select
@@ -347,6 +373,11 @@ contains
     type is (tuple_i4_t)
        select type(kp)
        type is (tuple_i4_t)
+          kp = key
+       end select
+    type is (tuple4_i4_t)
+       select type(kp)
+       type is (tuple4_i4_t)
           kp = key
        end select
     end select
@@ -593,5 +624,78 @@ contains
        hash = -1
     end select
   end function htable_i4t2_hash
+
+  !
+  ! Integer 4-tuple based implementation
+  !
+  !> Initialize an integer 4-tuple  hash table
+  subroutine htable_i4t4_init(this, size, data)
+    class(htable_i4t4_t), intent(inout) :: this
+    integer, value :: size                    !< Initial size of the table
+    class(*), intent(inout), optional :: data !< Data to associate with @a key
+    type(tuple4_i4_t) :: key
+
+    if (present(data)) then
+       call htable_init(this, size, key, data)
+    else
+       call htable_init(this, size, key)
+    end if
+    
+  end subroutine htable_i4t4_init
+
+  !> Insert an integer 4-tuple into the hash table
+  subroutine htable_i4t4_set(this, key, data) 
+    class(htable_i4t4_t), target, intent(inout) :: this
+    type(tuple4_i4_t), intent(inout) :: key   !< Table key
+    class(*), intent(inout) :: data !< Data associated with @a key
+
+    call htable_set(this, key, data)
+
+  end subroutine htable_i4t4_set
+
+  !> Retrive an integer 4-tuple with key @a key from the hash table
+  function htable_i4t4_get(this, key, data) result(rcode)
+    class(htable_i4t4_t), target, intent(inout) :: this
+    type(tuple4_i4_t), intent(inout) :: key   !< Key to retrieve
+    class(*), intent(inout) :: data !< Retrieved data
+    integer :: rcode
+
+    rcode = htable_get(this, key, data)
+
+  end function htable_i4t4_get
+
+  !> Hash function for an integer 4-tuple hash table
+  pure function htable_i4t4_hash(this, k) result(hash)
+    class(htable_i4t4_t), intent(in) :: this
+    class(*), intent(in) :: k
+    integer :: i, tmp, mult, hash
+    integer, parameter :: M1 = Z'7ed55d15'
+    integer, parameter :: M2 = Z'c761c23c'
+    integer, parameter :: M3 = Z'165667b1'
+    integer, parameter :: M4 = Z'd3a2646c'
+    integer, parameter :: M5 = Z'fd7046c5'
+    integer, parameter :: M6 = Z'b55a4f09'
+
+    select type(k)
+    type is (tuple4_i4_t)
+       mult = 1000003
+       hash = Z'345678'
+       do i = 1, 4
+          tmp = k%x(i)
+          tmp = (tmp + M1) + ishft(tmp, 12)
+          tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
+          tmp = (tmp + M3) + ishft(tmp, 5)
+          tmp = ieor((tmp + M4), ishft(tmp, 9))
+          tmp = (tmp + M5) + ishft(tmp, 3)
+          tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
+          hash = ieor(hash, tmp) * mult
+          mult = mult + 82520 + 8
+       end do
+       hash = hash + 97531
+       hash = modulo(hash, this%size)
+    class default
+       hash = -1
+    end select
+  end function htable_i4t4_hash
   
 end module htable
