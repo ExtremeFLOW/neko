@@ -22,12 +22,6 @@ module htable
      integer, private :: entries
      type(h_tuple_t), private, allocatable :: t(:)
    contains
-     procedure, pass(this) :: htable_init
-     procedure, pass(this) :: htable_set
-     procedure, pass(this) :: eq_key => htable_eq_key
-     procedure, pass(this) :: set_key => htable_set_key
-     procedure, pass(this) :: set_data => htable_set_data
-     procedure, pass(this) :: get_data => htable_get_data
      procedure(htable_hash), pass(this), deferred :: hash
      procedure, public, pass(this) :: clear => htable_clear
      procedure, public, pass(this) :: free => htable_free
@@ -82,7 +76,7 @@ contains
     integer :: i
     
 
-    call this%free()
+    call htable_free(this)
     
     if (size .lt. 4) then
        size = 4
@@ -152,9 +146,10 @@ contains
     i = this%size - 1
     
     do while (i .ge. 0)
-       if ((.not. this%t(index)%valid) .or. this%eq_key(index, key)) then
-          call this%set_key(index, key)
-          call this%set_data(index, data)
+       if ((.not. this%t(index)%valid) .or. &
+            htable_eq_key(this, index, key)) then
+          call htable_set_key(this, index, key)
+          call htable_set_data(this, index, data)
           if (.not. this%t(index)%valid) then
              this%entries = this%entries + 1
           end if
@@ -204,8 +199,12 @@ contains
     i = this%size - 1
     
     do while (i .ge. 0)
-       if ((this%t(index)%valid) .and. this%eq_key(index, key)) then
-          call this%get_data(index, data)          
+       if (.not. this%t(index)%valid) then
+          rcode = 1
+          return          
+       else if ((this%t(index)%valid) .and. &
+            htable_eq_key(this, index, key)) then
+          call htable_get_data(this, index, data)
           rcode = 0
           return
        end if
@@ -220,24 +219,24 @@ contains
     class(htable_t), target, intent(inout) :: this
     integer, intent(in) :: idx   !< Table index
     class(*), intent(in) :: data !< Data to set at @a idx
-    class(*), pointer :: dp
+    class(*), pointer :: hdp
 
-    dp => this%t(idx)%data
+    hdp => this%t(idx)%data
     select type (data)
     type is (integer)
-       select type(dp)
+       select type(hdp)
        type is (integer)
-          dp = data
+          hdp = data
        end select
     type is (double precision)
-       select type(dp)
+       select type(hdp)
        type is (double precision)
-          dp = data
+          hdp = data
        end select
     type is (point_t)
-       select type(dp)
+       select type(hdp)
        type is (point_t)
-          dp = data
+          hdp = data
        end select
     end select
   end subroutine htable_set_data
@@ -247,39 +246,35 @@ contains
     class(htable_t), target, intent(in) :: this
     integer, intent(in) :: idx      !< Table index
     class(*), intent(inout) :: data !< Data to retrieve
-    class(*), pointer :: dp
 
-    dp => this%t(idx)%data
-    select type (dp)
+    select type (hdp=>this%t(idx)%data)
     type is (integer)
        select type(data)
        type is (integer)
-          data = dp
+          data = hdp
        end select
     type is (double precision)
        select type(data)
        type is (double precision)
-          data = dp
+          data = hdp
        end select
     type is (point_t)
        select type(data)
        type is (point_t)
-          data = dp
+          data = hdp
        end select
     end select    
   end subroutine htable_get_data
 
   !> Compare key at @a idx to @a key
-  function htable_eq_key(this, idx, key) result(res)
+  pure function htable_eq_key(this, idx, key) result(res)
     class(htable_t), target, intent(in) :: this
     integer, intent(in) :: idx  !< Table index
     class(*), intent(in) :: key !< Key to compare against the key at @a idx
-    class(*), pointer :: kp
     logical :: res
 
-    kp => this%t(idx)%key
     res = .true.
-    select type(kp)
+    select type (kp=>this%t(idx)%key)
     type is (integer)
        select type(key)
        type is (integer)
@@ -369,9 +364,22 @@ contains
     class(htable_i4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: hash
+    integer, parameter :: M1 = Z'7ed55d15'
+    integer, parameter :: M2 = Z'c761c23c'
+    integer, parameter :: M3 = Z'165667b1'
+    integer, parameter :: M4 = Z'd3a2646c'
+    integer, parameter :: M5 = Z'fd7046c5'
+    integer, parameter :: M6 = Z'b55a4f09'
+
     select type(k)
     type is (integer)
-       hash = modulo(k * (k + 3), this%size)
+       hash = (k + M1) + ishft(k, 12)
+       hash = ieor(ieor(hash, M2), ishft(hash, -19))
+       hash = (hash + M3) + ishft(hash, 5)
+       hash = ieor((hash + M4), ishft(hash, 9))
+       hash = (hash + M5) + ishft(hash, 3)
+       hash = ieor(ieor(hash, M6), ishft(hash, -16))
+       hash = modulo(hash, this%size)
     class default
        hash = -1
     end select

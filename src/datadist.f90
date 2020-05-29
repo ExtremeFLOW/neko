@@ -17,6 +17,7 @@ module datadist
   type, extends(dist_t) :: linear_dist_t
    contains 
      procedure :: num_local => linear_dist_Ip
+     procedure :: num_global => linear_dist_M
      procedure :: start_idx => linear_dist_start
      procedure :: end_idx => linear_dist_end
   end type linear_dist_t
@@ -53,6 +54,12 @@ contains
     integer :: n
     n = this%Ip
   end function linear_dist_Ip
+
+  pure function linear_dist_M(this) result(M)
+    class(linear_dist_t), intent(in) :: this
+    integer :: M
+    M = this%M
+  end function linear_dist_M
 
   pure function linear_dist_start(this) result(start)
     class(linear_dist_t), intent(in) :: this

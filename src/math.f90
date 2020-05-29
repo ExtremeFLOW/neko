@@ -80,7 +80,7 @@ contains
 
 
   !> Compute a cross product \f$ u = v \times w \f$
-  !! @detailed assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
+  !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vcross(u1, u2, u3,  v1, v2, v3, w1, w2, w3, n)
     real(kind=dp), dimension(n), intent(in) :: v1, v2, v3
     real(kind=dp), dimension(n), intent(in) :: w1, w2, w3

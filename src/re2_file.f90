@@ -13,6 +13,7 @@ module re2_file
   use re2
   use map
   use map_file
+  use htable
   implicit none
   private
   
@@ -48,6 +49,7 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
+    type(htable_pt_t) :: htp
 
     select type(data)
     type is (mesh_t)
@@ -61,9 +63,11 @@ contains
     call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
     
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
+    if (pe_rank .eq. 0) then
+       write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
+    end if
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    write(*,1) ndim, nelv
+    if (pe_rank .eq. 0) write(*,1) ndim, nelv
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
 
@@ -75,7 +79,7 @@ contains
        call map_file%init(map_fname)
        call map_file%read(nm)
     else
-       call neko_warning('No NEKTON map file found')
+       if (pe_rank .eq. 0) call neko_warning('No NEKTON map file found')
     end if
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
@@ -88,7 +92,9 @@ contains
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
-    call mesh_init(msh, ndim, nelv)
+    call mesh_init(msh, ndim, dist)
+
+    call htp%init((2*ndim) * nel, ndim)
    
     ! Set offset (header)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
@@ -100,7 +106,7 @@ contains
        call neko_error('Invalid endian of re2 file, byte swap not implemented yet')
     end if
     
-    pt_idx = 1
+    pt_idx = 0
     if (ndim .eq. 2) then
        allocate(re2_data_xy(nelv))
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size
@@ -109,8 +115,8 @@ contains
        do i = 1, nelv
           do j = 1, 4             
              p(j) = point_t(dble(re2_data_xy(i)%x(j)), &
-                  dble(re2_data_xy(i)%y(j)), 0d0, pt_idx)
-             pt_idx = pt_idx + 1
+                  dble(re2_data_xy(i)%y(j)), 0d0)
+             call re2_file_add_point(htp, p(j), pt_idx)
           end do
 
           call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
@@ -125,8 +131,8 @@ contains
           do j = 1, 8             
              p(j) = point_t(dble(re2_data_xyz(i)%x(j)), &
                   dble(re2_data_xyz(i)%y(j)),&
-                  dble(re2_data_xyz(i)%z(j)), pt_idx)
-             pt_idx = pt_idx + 1
+                  dble(re2_data_xyz(i)%z(j)))
+             call re2_file_add_point(htp, p(j), pt_idx)
           end do
 
           call mesh_add_element(msh, i, &
@@ -134,8 +140,14 @@ contains
        end do
        deallocate(re2_data_xyz)
     end if
+
+    call htp%free()
+    
+
     call MPI_FILE_close(fh, ierr)
-    write(*,*) 'Done'
+    if (pe_rank .eq. 0) write(*,*) 'Done'
+
+
 
     !> @todo Add support for curved side data
 
@@ -167,7 +179,8 @@ contains
 
     call MPI_Type_size(MPI_RE2_DATA_XY, re2_data_xy_size, ierr)
     call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
-    call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+    call MPI_Reduce(msh%nelv, nelgv, 1, &
+         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
     element_offset = 0
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -185,7 +198,8 @@ contains
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
     
-    call MPI_File_write_at(fh, mpi_offset, RE2_ENDIAN_TEST, 1, MPI_REAL, status, ierr)
+    call MPI_File_write_at(fh, mpi_offset, RE2_ENDIAN_TEST, 1, &
+         MPI_REAL, status, ierr)
     mpi_offset = mpi_offset + MPI_REAL_SIZE
 
     if (msh%gdim .eq. 2) then
@@ -229,4 +243,20 @@ contains
     
   end subroutine re2_file_write
 
+  subroutine re2_file_add_point(htp, p, idx)
+    type(htable_pt_t), intent(inout) :: htp
+    type(point_t), intent(inout) :: p
+    integer, intent(inout) :: idx
+    integer :: tmp
+    
+    if (htp%get(p, tmp) .gt. 0) then
+       idx = idx + 1
+       call htp%set(p, idx)
+       call p%set_id(idx)
+    else
+       call p%set_id(tmp)
+    end if
+    
+  end subroutine re2_file_add_point
+  
 end module re2_file

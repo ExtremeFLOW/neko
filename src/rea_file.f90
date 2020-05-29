@@ -12,6 +12,7 @@ module rea_file
   use map_file
   use comm
   use datadist
+  use htable
   implicit none
   private
 
@@ -44,6 +45,7 @@ contains
     integer :: start_el, end_el, nel
     type(linear_dist_t) :: dist
     type(map_t) :: nm
+    type(htable_pt_t) :: htp 
 
     select type(data)
     type is (rea_t)
@@ -62,7 +64,9 @@ contains
     end select
 
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    write(*, '(A,A)') " Reading NEKTON file ", this%fname
+    if (pe_rank .eq. 0) then
+       write(*, '(A,A)') " Reading NEKTON file ", this%fname
+    end if
     
     read(9, *)
     read(9, *)
@@ -103,7 +107,7 @@ contains
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
     else       
-       write(*,1) ndim, nelgv
+       if (pe_rank .eq. 0) write(*,1) ndim, nelgv
 1      format(1x,'ndim = ', i1, ', nelements =', i7)
 
        call filename_chsuffix(this%fname, map_fname, 'map')
@@ -113,7 +117,7 @@ contains
           call map_file%init(map_fname)
           call map_file%read(nm)
        else
-          call neko_warning('No NEKTON map file found')
+          if (pe_rank .eq. 0) call neko_warning('No NEKTON map file found')
        end if
 
        ! Use a load-balanced linear distribution
@@ -122,10 +126,12 @@ contains
        start_el = dist%start_idx() + 1
        end_el = dist%end_idx() + 1
 
-       call mesh_init(msh, ndim, nel)
+       call mesh_init(msh, ndim, dist)
+
+       call htp%init((2**ndim) * nel, ndim)
 
        el_idx = 1
-       pt_idx = 1
+       pt_idx = 0
        do i = 1, nelgv
           read(9, *)
           if (ndim .eq. 2) then
@@ -133,8 +139,8 @@ contains
              read(9, *) (yc(j),j=1,4)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
-                   p(j) = point_t(xc(j), yc(j), 0d0, pt_idx)
-                   pt_idx = pt_idx
+                   p(j) = point_t(xc(j), yc(j), 0d0)
+                   call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
              end if
@@ -147,8 +153,8 @@ contains
              read(9, *) (zc(j),j=5,8)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
-                   p(j) = point_t(xc(j), yc(j), zc(j), pt_idx)
-                   pt_idx = pt_idx + 1
+                   p(j) = point_t(xc(j), yc(j), zc(j))
+                   call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 call mesh_add_element(msh, el_idx, &
                      p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
@@ -159,6 +165,7 @@ contains
           end if
        end do
 
+       call htp%free()
        
        !> @todo Add support for curved side data
        read(9, *) 
@@ -183,7 +190,7 @@ contains
           end do
        end if
 
-       write(*,*) 'Done'       
+       if (pe_rank .eq. 0) write(*,*) 'Done'       
        close(9)
     endif
     
@@ -193,5 +200,21 @@ contains
     class(rea_file_t), intent(in) :: this
     class(*), target, intent(in) :: data
   end subroutine rea_file_write
+
+  subroutine rea_file_add_point(htp, p, idx)
+    type(htable_pt_t), intent(inout) :: htp
+    type(point_t), intent(inout) :: p
+    integer, intent(inout) :: idx
+    integer :: tmp
+    
+    if (htp%get(p, tmp) .gt. 0) then
+       idx = idx + 1
+       call htp%set(p, idx)
+       call p%set_id(idx)
+    else
+       call p%set_id(tmp)
+    end if
+    
+  end subroutine rea_file_add_point
 
 end module rea_file
