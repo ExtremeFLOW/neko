@@ -585,7 +585,7 @@ contains
           tmp = (tmp + M5) + ishft(tmp, 3)
           tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
           hash = ieor(hash, tmp) * mult
-          mult = mult + 82520 + 2
+          mult = mult + 82520 + 4
        end do
        hash = hash + 97531
        hash = modulo(hash, this%size)
