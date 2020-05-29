@@ -230,7 +230,7 @@ contains
   function mesh_get_local_point(m, p) result(local_id)
     type(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p
-    integer, intent(inout) :: local_id
+    integer :: local_id
     integer :: tmp
 
     !> @todo why do we still need to do this?
