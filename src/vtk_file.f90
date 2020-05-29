@@ -82,7 +82,7 @@ contains
   !> Write a mesh in legacy VTK format
   subroutine vtk_file_write_mesh(unit, msh)
     integer :: unit
-    type(mesh_t), intent(in) :: msh
+    type(mesh_t), intent(inout) :: msh
     integer :: i, j, vtk_type
 
     ! Dump coordinates
@@ -96,7 +96,8 @@ contains
     j = 0
     do i = 1, msh%nelv
        write(unit, *) msh%npts, &
-            (msh%elements(i)%e%pts(j)%p%id() - 1, j=1, msh%npts)
+            (mesh_get_local_point(msh, msh%elements(i)%e%pts(j)%p) - 1, &
+            j=1, msh%npts)
     end do
 
     ! Dump cell type for each element
@@ -130,7 +131,7 @@ contains
   !! to the low-order mesh
   subroutine vtk_file_write_point_data(unit, fld)
     integer :: unit
-    type(field_t), intent(in) :: fld
+    type(field_t), intent(inout) :: fld
     type(point_t), target :: p1, p2, p3, p4
     real(kind=dp), allocatable :: point_data(:)
     integer :: i, j, lx, ly, lz, id(8)
@@ -154,7 +155,7 @@ contains
     
     do i = 1, fld%msh%nelv
        do j = 1, fld%msh%npts
-          id = fld%msh%elements(i)%e%pts(j)%p%id()
+          id(j) = mesh_get_local(fld%msh, fld%msh%elements(i)%e%pts(j)%p)
        end do
 
        point_data(id(1)) = fld%x(1,1,1,i,1)
