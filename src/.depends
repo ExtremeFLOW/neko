@@ -16,7 +16,7 @@ point.o : point.f90 entity.o math.o num_types.o
 element.o : element.f90 point.o entity.o num_types.o 
 quad.o : quad.f90 point.o element.o num_types.o 
 hex.o : hex.f90 point.o element.o num_types.o 
-htable.o : htable.f90 math.o point.o utils.o num_types.o 
+htable.o : htable.f90 math.o tuple.o point.o utils.o num_types.o 
 uset.o : uset.f90 htable.o num_types.o 
 stack.o : stack.f90 math.o utils.o num_types.o 
 tuple.o : tuple.f90 num_types.o math.o 
