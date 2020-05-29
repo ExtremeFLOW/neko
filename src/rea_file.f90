@@ -126,7 +126,7 @@ contains
        start_el = dist%start_idx() + 1
        end_el = dist%end_idx() + 1
 
-       call mesh_init(msh, ndim, nel)
+       call mesh_init(msh, ndim, dist)
 
        call htp%init((2**ndim) * nel, ndim)
 

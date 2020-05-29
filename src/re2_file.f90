@@ -92,7 +92,7 @@ contains
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
-    call mesh_init(msh, ndim, nelv)
+    call mesh_init(msh, ndim, dist)
 
     call htp%init((2*ndim) * nel, ndim)
    
