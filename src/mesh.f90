@@ -139,7 +139,7 @@ contains
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
-    integer :: p(4)
+    integer :: p(4), el_glb_idx
 
     ! Connectivity invalidated if a new element is added        
     m%lconn = .false.           
@@ -150,9 +150,10 @@ contains
     call mesh_add_point(m, p4, p(4))
 
     ep => m%elements(el)%e
+    el_glb_idx = el + m%offset_el
     select type(ep)
     type is (quad_t)
-       call ep%init(el + m%offset_el, &
+       call ep%init(el_glb_idx, &
             m%points(p(1)), m%points(p(2)), &
             m%points(p(3)), m%points(p(4)))
     class default
@@ -167,7 +168,7 @@ contains
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
-    integer :: p(8)
+    integer :: p(8), el_glb_idx
 
     ! Connectivity invalidated if a new element is added        
     m%lconn = .false.
@@ -182,9 +183,10 @@ contains
     call mesh_add_point(m, p8, p(8))
 
     ep => m%elements(el)%e
+    el_glb_idx = el + m%offset_el
     select type(ep)
     type is (hex_t)
-       call ep%init(el + m%offset_el, &
+       call ep%init(el_glb_idx, &
             m%points(p(1)), m%points(p(2)), &
             m%points(p(3)), m%points(p(4)), &
             m%points(p(5)), m%points(p(6)), &
