@@ -1,8 +1,8 @@
 !> Defines a quadrilateral element
-!
 module quad
   use num_types
   use element
+  use tuple
   use point
   implicit none
   private
@@ -10,17 +10,49 @@ module quad
   integer, public, parameter :: NEKO_QUAD_NPTS = 4 !< Number of points
   integer, public, parameter :: NEKO_QUAD_GDIM = 2 !< Geometric dimension
 
+  !> Quadrilateral element
+  !! @details
+  !! 2D element composed of 4 points
+  !! @verbatim
+  !! Node numbering (NEKTON preprocessor notation)
+  !!
+  !!      4+-----+3    ^ s                 
+  !!       |     |     |                   
+  !!       |     |     |                   
+  !!      1+-----+2    +----> r            
+  !!
+  !! @endverbatim
   type, public, extends(element_t) :: quad_t
    contains
      procedure, pass(this) :: init => quad_init
+     procedure, pass(this) :: facet_id => quad_facet_id
      procedure, pass(this) :: diameter => quad_diameter
      procedure, pass(this) :: centroid => quad_centroid
      procedure, pass(this) :: equal => quad_equal
      generic :: operator(.eq.) => equal
   end type quad_t
 
-contains
+  !> Edge node ids
+  !! @details
+  !! @verbatim
+  !! Edge numbering (similar to NEKTON symmetric notation)
+  !!          4
+  !!       +------+      ^ s                 
+  !!       |      |      |
+  !!     1 |      | 2    |
+  !!       |      |      |                   
+  !!       +------+      +-----> r            
+  !!          3
+  !! @endverbatim
+  integer, parameter, dimension(2, 4) :: edge_nodes = reshape((/1,4,&
+                                                                2,3,&
+                                                                1,2,&
+                                                                4,3 /),&
+                                                                (/2,4/))
   
+contains
+
+  !> Create a quadrilateral element based upon four points
   subroutine quad_init(this, id, p1, p2, p3, p4)
     class(quad_t), intent(inout) :: this
     integer, intent(inout) :: id
@@ -35,6 +67,21 @@ contains
 
   end subroutine quad_init
 
+  !> Return the edge id for face @a i as a 2-tuple @a t
+  subroutine quad_facet_id(this, t, side)
+    class(quad_t), intent(in) :: this
+    type(tuple_i4_t), intent(inout) :: t
+    integer, intent(in) :: side
+    type(point_t), pointer :: p1, p2
+
+    p1 => this%p(edge_nodes(1, side))
+    p1 => this%p(edge_nodes(2, side))
+
+    t = (/ p1%id(), p2%id() /)
+    
+  end subroutine quad_facet_id
+
+  !> Compute the diameter of a quadrilateral element
   function quad_diameter(this) result(res)
     class(quad_t), intent(in) :: this
     real(kind=dp) :: d1, d2, res
@@ -58,6 +105,7 @@ contains
 
   end function quad_diameter
 
+  !> Compute the centroid of a quadrilateral element
   function quad_centroid(this) result(res)
     class(quad_t), intent(in) :: this
     type(point_t) :: res
@@ -75,6 +123,8 @@ contains
     end do
   end function quad_centroid
 
+  !> Check if two quad elements are equal
+  !! @note Based on coordinates not global ids
   pure function quad_equal(this, other) result(res)
     class(quad_t), intent(in) :: this
     class(element_t), intent(in) :: other
