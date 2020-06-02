@@ -75,7 +75,7 @@ contains
     type(point_t), pointer :: p1, p2
 
     p1 => this%p(edge_nodes(1, side))
-    p1 => this%p(edge_nodes(2, side))
+    p2 => this%p(edge_nodes(2, side))
 
     t = (/ p1%id(), p2%id() /)
     
