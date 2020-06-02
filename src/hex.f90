@@ -86,7 +86,7 @@ contains
   !> Return the facet id for face @a i as a 4-tuple @a t
   subroutine hex_facet_id(this, t, side) 
     class(hex_t), intent(in) :: this
-    type(tuple4_i4_t), intent(inout) :: t
+    class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
     type(point_t), pointer :: p1,p2,p3,p4
 
@@ -95,7 +95,10 @@ contains
     p3 => this%p(face_nodes(3, side))
     p4 => this%p(face_nodes(4, side))
 
-    t = (/ p1%id(), p2%id(), p3%id(), p4%id() /) 
+    select type(t)
+    type is(tuple4_i4_t)
+       t = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
+    end select
 
   end subroutine hex_facet_id
   

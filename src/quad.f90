@@ -70,14 +70,17 @@ contains
   !> Return the edge id for face @a i as a 2-tuple @a t
   subroutine quad_facet_id(this, t, side)
     class(quad_t), intent(in) :: this
-    type(tuple_i4_t), intent(inout) :: t
+    class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
     type(point_t), pointer :: p1, p2
 
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    t = (/ p1%id(), p2%id() /)
+    select type(t)
+    type is(tuple_i4_t)
+       t = (/ p1%id(), p2%id() /)
+    end select
     
   end subroutine quad_facet_id
 
