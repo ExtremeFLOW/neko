@@ -6,7 +6,7 @@ module tuple
   private
 
   !> Base type for an n-tuple 
-  type, private, abstract :: tuple_t
+  type, public, abstract :: tuple_t
    contains
      procedure(tuple_assign_tuple), pass(this), deferred :: assign_tuple
      procedure(tuple_assign_vector), pass(this), deferred :: assign_vector

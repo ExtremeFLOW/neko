@@ -9,6 +9,8 @@ module mesh
   use htable
   use mpi
   use comm
+  use tuple
+  use htable
   use datadist
   implicit none
 
@@ -31,6 +33,11 @@ module mesh
      
      type(htable_i4_t) :: htp   !< Table of unique points (global->local)
 
+     integer, allocatable :: facet_neigh(:,:)  !< Facet to neigh. element table
+     class(htable_t), allocatable :: facet_map !< Facet to element's id tuple 
+                                               !! \f$ t=(odd, even) \f$
+
+     
      logical :: lconn = .false.     !< valid connectivity
      logical :: finalized = .false. !< Valid mesh
   end type mesh_t
@@ -98,6 +105,7 @@ contains
   subroutine mesh_init_common(m)
     type(mesh_t), intent(inout) :: m
     integer :: i
+    type(tuple_i4_t) :: facet_data
 
     allocate(m%elements(m%nelv))
     if (m%gdim .eq. 3) then
@@ -105,11 +113,27 @@ contains
           allocate(hex_t::m%elements(i)%e)
        end do
        m%npts = NEKO_HEX_NPTS
+
+       allocate(htable_i4t4_t::m%facet_map)
+       select type (fmp => m%facet_map)
+       type is(htable_i4t4_t)
+          call fmp%init(m%nelv, facet_data)
+       end select
+
+       allocate(m%facet_neigh(6, m%nelv))
     else if (m%gdim .eq. 2) then
        do i = 1, m%nelv
           allocate(quad_t::m%elements(i)%e)
        end do
        m%npts = NEKO_QUAD_NPTS
+
+       allocate(htable_i4t2_t::m%facet_map)       
+       select type (fmp => m%facet_map)
+       type is(htable_i4t2_t)
+          call fmp%init(m%nelv, facet_data)
+       end select
+
+       allocate(m%facet_neigh(4, m%nelv))
     else
        call neko_error("Invalid dimension")
     end if
@@ -117,6 +141,7 @@ contains
     allocate(m%points(m%npts*m%nelv))
 
     call m%htp%init(m%npts*m%nelv, i)
+    
     m%mpts = 0    
 
   end subroutine mesh_init_common
@@ -137,8 +162,105 @@ contains
        end do
     end if
 
+    if (allocated(m%facet_map)) then
+       select type (fmp => m%facet_map)
+       type is(htable_i4t2_t)
+          call fmp%free()
+       type is(htable_i4t4_t)
+          call fmp%free()
+       end select
+       deallocate(m%facet_map)
+    end if
+
+    if (allocated(m%facet_neigh)) then
+       deallocate(m%facet_neigh)
+    end if
+
   end subroutine mesh_free
 
+  !> Generate element-to-element connectivity
+  subroutine mesh_generate_conn(m)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t) :: edge, facet_key
+    type(tuple4_i4_t) :: face
+    integer :: i, j, k, el_glb_idx
+
+    if (m%lconn) return
+
+    !> @note We have to sweep through the facet map twice to make sure
+    !! that both odd and even sides are marked
+    !! @todo These loop nests needs a lot of love...
+    select type (fmp => m%facet_map)
+    type is(htable_i4t2_t)
+       do k = 1, 2              
+          do i = 1, m%nelv
+             do j = 1, 4
+                call m%elements(i)%e%facet_id(edge, j)
+                
+                ! Assume that all facets are on the exterior
+                facet_key = (/ 0, 0 /)
+                
+                if (fmp%get(edge, facet_key) .gt. 0) then
+                   if (mod(j, 2) .gt. 0) then
+                      facet_key%x(1) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(2)
+                   else
+                      facet_key%x(2) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(1)
+                   end if
+                   call fmp%set(edge, facet_key)
+                else
+                   if (mod(j, 2) .gt. 0) then
+                      facet_key%x(1) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(2)
+                   else
+                      facet_key%x(2) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(1)
+                   end if
+                   call fmp%set(edge, facet_key)
+                end if
+             end do
+          end do
+       end do
+    type is(htable_i4t4_t)
+       do k = 1, 2
+          do i = 1, m%nelv
+             el_glb_idx = i + m%offset_el
+             do j = 1, 6
+                call m%elements(i)%e%facet_id(face, j)
+                
+                ! Assume that all facets are on the exterior
+                facet_key = (/ 0, 0 /)
+                
+                if (fmp%get(face, facet_key) .gt. 0) then
+                   if (mod(j, 2) .gt. 0) then
+                      facet_key%x(1) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(2)
+                   else
+                      facet_key%x(2) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(1)
+                   end if
+                   call fmp%set(face, facet_key)
+                else
+                   if (mod(j, 2) .gt. 0) then
+                      facet_key%x(1) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(2)
+                   else
+                      facet_key%x(2) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_key%x(1)
+                   end if
+                   call fmp%set(face, facet_key)
+                end if
+          end do
+       end do
+    end do
+    class default
+       call neko_error('Invalid facet map')
+    end select
+
+    m%lconn = .false.
+    
+  end subroutine mesh_generate_conn
   
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)

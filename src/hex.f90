@@ -1,8 +1,8 @@
 !> Defines a hexahedron element
-!
 module hex
   use num_types
   use element
+  use tuple
   use point
   implicit none
   private
@@ -10,17 +10,61 @@ module hex
   integer, public, parameter :: NEKO_HEX_NPTS = 8 !< Number of points
   integer, public, parameter :: NEKO_HEX_GDIM = 3 !< Geometric dimension
 
+
+  !> Hexahedron element
+  !! @details
+  !! 3D element composed of 8 points
+  !! @verbatim
+  !! Node numbering (NEKTON preprocessor notation)
+  !!
+  !!          4+-----+3    ^ s                 
+  !!          /     /|     |                   
+  !!         /     / |     |                   
+  !!       8+-----+7 +2    +----> r            
+  !!        |     | /     /                    
+  !!        |     |/     /                     
+  !!       5+-----+6    t
+  !!
+  !! @endverbatim
   type, public, extends(element_t) :: hex_t
    contains
      procedure, pass(this) :: init => hex_init
+     procedure, pass(this) :: facet_id => hex_facet_id     
      procedure, pass(this) :: diameter => hex_diameter
      procedure, pass(this) :: centroid => hex_centroid
      procedure, pass(this) :: equal => hex_equal
      generic :: operator(.eq.) => equal
   end type hex_t
 
+  !> Face node ids
+  !! @details
+  !! @verbatim
+  !! Face numbering (NEKTON symmetric notation)
+  !!                     
+  !!          +--------+     ^ S
+  !!         /        /|     |
+  !!        /    4   / |     |
+  !!  1--> /        /  |     |
+  !!      +--------+ 2 +     +----> R
+  !!      |        |  /     /
+  !!      |    6   | /     /
+  !!      |        |/     /
+  !!      +--------+     T
+  !!          3
+  !!
+  !! @endverbatim
+  !! @note Local node numbering (points)
+  integer, parameter, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
+                                                                2,6,7,3,&
+                                                                1,2,6,5,&
+                                                                4,3,7,8,&
+                                                                1,2,3,4,&
+                                                                5,6,7,8/),&
+                                                                (/4,6/))
+  
 contains
   
+  !> Create a hexahedron element based upon eight points
   subroutine hex_init(this, id, p1, p2, p3, p4, p5, p6, p7, p8)
     class(hex_t), intent(inout) :: this
     integer, intent(inout) :: id
@@ -39,6 +83,23 @@ contains
 
   end subroutine hex_init
 
+  !> Return the facet id for face @a i as a 4-tuple @a t
+  subroutine hex_facet_id(this, t, side) 
+    class(hex_t), intent(in) :: this
+    type(tuple4_i4_t), intent(inout) :: t
+    integer, intent(in) :: side
+    type(point_t), pointer :: p1,p2,p3,p4
+
+    p1 => this%p(face_nodes(1, side))
+    p2 => this%p(face_nodes(2, side))
+    p3 => this%p(face_nodes(3, side))
+    p4 => this%p(face_nodes(4, side))
+
+    t = (/ p1%id(), p2%id(), p3%id(), p4%id() /) 
+
+  end subroutine hex_facet_id
+  
+  !> Compute the diameter of a hexahedron element
   function hex_diameter(this) result(res)
     class(hex_t), intent(in) :: this
     real(kind=dp) :: d1, d2, d3, d4, res
@@ -70,6 +131,7 @@ contains
 
   end function hex_diameter
 
+  !> Compute the centroid of a hexahedron element
   function hex_centroid(this) result(res)
     class(hex_t), intent(in) :: this
     type(point_t) :: res
@@ -93,6 +155,8 @@ contains
     
   end function hex_centroid
 
+  !> Check if two hex elements are equal
+  !! @note Based on coordinates not global ids
   pure function hex_equal(this, other) result(res)
     class(hex_t), intent(in) :: this
     class(element_t), intent(in) :: other

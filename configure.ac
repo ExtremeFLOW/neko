@@ -19,34 +19,36 @@ AC_PROG_FC(,90)
 AX_COARRAY
 AX_DTYPE_IO
 
+AX_BLAS
+
 # Test for a working MPI compiler
 AX_MPI([have_mpi=yes], [have_mpi=no])
 if test "x${have_mpi}" != xno; then
    FC="$MPIFC"
    LIBS="$MPILIBS $LIBS"
-   AC_LANG(C)
-   AX_MPI([have_mpi=yes],[have_mpi=no])
-   if  test "x${have_mpi}" != xno; then
-       CC="$MPICC"
-   else
-       AC_MSG_ERROR([Can't find a suitable C MPI compiler])
-   fi
+#   AC_LANG(C)
+#   AX_MPI([have_mpi=yes],[have_mpi=no])
+#   if  test "x${have_mpi}" != xno; then
+#       CC="$MPICC"
+#   else
+#       AC_MSG_ERROR([Can't find a suitable C MPI compiler])
+#   fi
    AC_LANG(Fortran)
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
 fi
 
-AX_PARMETIS
-if test "${PARMETIS_LIBS}"; then
-   LIBS="$PARMETIS_LIBS $LIBS"
-fi			
+#AX_PARMETIS
+#if test "${PARMETIS_LIBS}"; then
+#   LIBS="$PARMETIS_LIBS $LIBS"
+#fi			
 
-AX_GSLIB
-if test "${GSLIB_LIBS}"; then
-   LIBS="$GSLIB_LIBS $LIBS"
-else
-   AC_MSG_ERROR([Can't find a suitable Gather-Scatter library])
-fi			
+#AX_GSLIB
+#if test "${GSLIB_LIBS}"; then
+#   LIBS="$GSLIB_LIBS $LIBS"
+#else
+#   AC_MSG_ERROR([Can't find a suitable Gather-Scatter library])
+#fi			
 
 
 # Checks for Doxygen

@@ -1,6 +1,7 @@
 module element
   use num_types
   use entity
+  use tuple
   use point
   implicit none
   private 
@@ -22,6 +23,7 @@ module element
      procedure(element_equal), pass(this), deferred :: equal
      procedure(element_diameter), pass(this), deferred :: diameter
      procedure(element_centroid), pass(this), deferred :: centroid
+     procedure(element_facet_id), pass(this), deferred :: facet_id
   end type element_t
 
   abstract interface
@@ -49,6 +51,16 @@ module element
        class(element_t), intent(in) :: other
        logical :: res
      end function element_equal
+  end interface
+
+  abstract interface
+     subroutine element_facet_id(this, t, side) 
+       import :: element_t
+       import :: tuple_t
+       class(element_t), intent(in) :: this
+       class(tuple_t), intent(inout) :: t
+       integer, intent(in) :: side
+     end subroutine element_facet_id
   end interface
 
 contains
