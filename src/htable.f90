@@ -18,7 +18,7 @@ module htable
   end type h_tuple_t
 
   !> Base type for a hash table
-  type, private, abstract :: htable_t
+  type, public, abstract :: htable_t
      integer, private :: size
      integer, private :: entries
      type(h_tuple_t), private, allocatable :: t(:)
