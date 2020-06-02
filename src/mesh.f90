@@ -194,6 +194,7 @@ contains
     type is(htable_i4t2_t)
        do k = 1, 2              
           do i = 1, m%nelv
+             el_glb_idx = i + m%offset_el
              do j = 1, 4
                 call m%elements(i)%e%facet_id(edge, j)
                 
