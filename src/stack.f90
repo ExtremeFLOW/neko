@@ -114,16 +114,16 @@ contains
     
     this%top_ = this%top_ + 1
 
-    select type(sdp=>this%data(this%top_))
+    select type(sdp=>this%data)
     type is (integer)
        select type(data)
        type is (integer)
-          sdp = data
+          sdp(this%top_) = data
        end select
     type is (double precision)
        select type(data)
        type is (double precision)
-          sdp = data
+          sdp(this%top_) = data
        end select
     end select
   end subroutine stack_push
@@ -132,9 +132,9 @@ contains
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
 
-    select type(sdp=>this%data(this%top_))
+    select type(sdp=>this%data)
     type is (integer)       
-       data = sdp
+       data = sdp(this%top_)
     end select
     this%top_ = this%top_ - 1
   end function stack_i4_pop
