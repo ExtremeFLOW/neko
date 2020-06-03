@@ -20,7 +20,6 @@ module stack
      procedure, non_overridable, pass(this) :: clear => stack_clear
      procedure, non_overridable, pass(this) :: size => stack_size
      procedure, non_overridable, pass(this) :: push => stack_push
-     procedure, non_overridable, pass(this) :: stack_pop
   end type stack_t
 
   !> Integer based stack
@@ -129,33 +128,26 @@ contains
     end select
   end subroutine stack_push
 
-  function stack_pop(this)
-    class(stack_t), target, intent(inout) :: this
-    class(*), pointer :: stack_pop
-    stack_pop => this%data(this%top_)
-    this%top_ = this%top_ - 1
-  end function stack_pop
-  
   function stack_i4_pop(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
 
-    select type (sdp=>stack_pop(this))
+    select type(sdp=>this%data(this%top_))
     type is (integer)       
        data = sdp
     end select
-
+    this%top_ = this%top_ - 1
   end function stack_i4_pop
 
   function stack_r8_pop(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp) :: data
     
-    select type (sdp=>stack_pop(this))
+    select type (sdp=>this%data)
     type is (double precision)       
-       data = sdp
+       data = sdp(this%top_)
     end select
-    
+    this%top_ = this%top_ -1
   end function stack_r8_pop
   
 end module stack
