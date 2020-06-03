@@ -25,13 +25,15 @@ module stack
   !> Integer based stack
   type, public, extends(stack_t) :: stack_i4_t
    contains
-     procedure, public, pass(this) :: pop => stack_i4_pop     
+     procedure, public, pass(this) :: pop => stack_i4_pop
+     procedure, public, pass(this) :: array => stack_i4_data
   end type stack_i4_t
 
   !> Double precision based stack
   type, public, extends(stack_t) :: stack_r8_t
    contains
-     procedure, public, pass(this) :: pop => stack_r8_pop     
+     procedure, public, pass(this) :: pop => stack_r8_pop
+     procedure, public, pass(this) :: array => stack_r8_data
   end type stack_r8_t
 
 contains
@@ -139,6 +141,16 @@ contains
     this%top_ = this%top_ - 1
   end function stack_i4_pop
 
+  function stack_i4_data(this) result(data)
+    class(stack_i4_t), target, intent(inout) :: this
+    integer, pointer :: data(:)
+
+    select type(sdp=>this%data)
+    type is (integer)       
+       data => sdp
+    end select
+  end function stack_i4_data
+
   function stack_r8_pop(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp) :: data
@@ -149,5 +161,15 @@ contains
     end select
     this%top_ = this%top_ -1
   end function stack_r8_pop
+
+    function stack_r8_data(this) result(data)
+    class(stack_r8_t), target, intent(inout) :: this
+    real(kind=dp), pointer :: data(:)
+
+    select type(sdp=>this%data)
+    type is (double precision)       
+       data => sdp
+    end select
+  end function stack_r8_data
   
 end module stack
