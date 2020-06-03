@@ -20,19 +20,20 @@ module stack
      procedure, non_overridable, pass(this) :: clear => stack_clear
      procedure, non_overridable, pass(this) :: size => stack_size
      procedure, non_overridable, pass(this) :: push => stack_push
-     procedure, non_overridable, pass(this) :: stack_pop
   end type stack_t
 
   !> Integer based stack
   type, public, extends(stack_t) :: stack_i4_t
    contains
-     procedure, public, pass(this) :: pop => stack_i4_pop     
+     procedure, public, pass(this) :: pop => stack_i4_pop
+     procedure, public, pass(this) :: array => stack_i4_data
   end type stack_i4_t
 
   !> Double precision based stack
   type, public, extends(stack_t) :: stack_r8_t
    contains
-     procedure, public, pass(this) :: pop => stack_r8_pop     
+     procedure, public, pass(this) :: pop => stack_r8_pop
+     procedure, public, pass(this) :: array => stack_r8_data
   end type stack_r8_t
 
 contains
@@ -115,47 +116,60 @@ contains
     
     this%top_ = this%top_ + 1
 
-    select type(sdp=>this%data(this%top_))
+    select type(sdp=>this%data)
     type is (integer)
        select type(data)
        type is (integer)
-          sdp = data
+          sdp(this%top_) = data
        end select
     type is (double precision)
        select type(data)
        type is (double precision)
-          sdp = data
+          sdp(this%top_) = data
        end select
     end select
   end subroutine stack_push
 
-  function stack_pop(this)
-    class(stack_t), target, intent(inout) :: this
-    class(*), pointer :: stack_pop
-    stack_pop => this%data(this%top_)
-    this%top_ = this%top_ - 1
-  end function stack_pop
-  
   function stack_i4_pop(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
 
-    select type (sdp=>stack_pop(this))
+    select type(sdp=>this%data)
     type is (integer)       
-       data = sdp
+       data = sdp(this%top_)
     end select
-
+    this%top_ = this%top_ - 1
   end function stack_i4_pop
+
+  function stack_i4_data(this) result(data)
+    class(stack_i4_t), target, intent(inout) :: this
+    integer, pointer :: data(:)
+
+    select type(sdp=>this%data)
+    type is (integer)       
+       data => sdp
+    end select
+  end function stack_i4_data
 
   function stack_r8_pop(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp) :: data
     
-    select type (sdp=>stack_pop(this))
+    select type (sdp=>this%data)
     type is (double precision)       
-       data = sdp
+       data = sdp(this%top_)
     end select
-    
+    this%top_ = this%top_ -1
   end function stack_r8_pop
+
+    function stack_r8_data(this) result(data)
+    class(stack_r8_t), target, intent(inout) :: this
+    real(kind=dp), pointer :: data(:)
+
+    select type(sdp=>this%data)
+    type is (double precision)       
+       data => sdp
+    end select
+  end function stack_r8_data
   
 end module stack
