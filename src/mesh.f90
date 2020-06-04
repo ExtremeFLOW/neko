@@ -9,6 +9,7 @@ module mesh
   use htable
   use mpi
   use comm
+  use stack
   use tuple
   use htable
   use datadist
@@ -183,10 +184,24 @@ contains
     type(mesh_t), intent(inout) :: m
     type(tuple_i4_t) :: edge, facet_key
     type(tuple4_i4_t) :: face
-    integer :: i, j, k, el_glb_idx
+    type(stack_i4_t) :: buffer
+    integer, allocatable :: recv_buffer(:), send_buffer(:)
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes
+    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
+    integer :: status(MPI_STATUS_SIZE)
 
     if (m%lconn) return
 
+    if (m%gdim .eq. 2) then
+       n_sides = 4
+       n_nodes = 2
+    else
+       n_sides = 6
+       n_nodes = 4
+    end if
+
+    ! Find all boundaries
+    
     !> @note We have to sweep through the facet map twice to make sure
     !! that both odd and even sides are marked
     !! @todo These loop nests needs a lot of love...
@@ -195,7 +210,7 @@ contains
        do k = 1, 2              
           do i = 1, m%nelv
              el_glb_idx = i + m%offset_el
-             do j = 1, 4
+             do j = 1, n_sides
                 call m%elements(i)%e%facet_id(edge, j)
                 
                 ! Assume that all facets are on the exterior
@@ -227,30 +242,31 @@ contains
        do k = 1, 2
           do i = 1, m%nelv
              el_glb_idx = i + m%offset_el
-             do j = 1, 6
+             do j = 1, n_sides
                 call m%elements(i)%e%facet_id(face, j)
                 
                 ! Assume that all facets are on the exterior
                 facet_key = (/ 0, 0 /)
                 
                 if (fmp%get(face, facet_key) .gt. 0) then
-                   if (mod(j, 2) .gt. 0) then
+                   if(mod(j, 2) .gt. 0) then
                       facet_key%x(1) = el_glb_idx
                       m%facet_neigh(j, i) = facet_key%x(2)
-                   else
+                   else 
                       facet_key%x(2) = el_glb_idx
                       m%facet_neigh(j, i) = facet_key%x(1)
+
                    end if
-                   call fmp%set(face, facet_key)
+                   call fmp%set(face, facet_key)                             
                 else
-                   if (mod(j, 2) .gt. 0) then
+                   if(mod(j, 2) .gt. 0) then
                       facet_key%x(1) = el_glb_idx
                       m%facet_neigh(j, i) = facet_key%x(2)
                    else
                       facet_key%x(2) = el_glb_idx
                       m%facet_neigh(j, i) = facet_key%x(1)
                    end if
-                   call fmp%set(face, facet_key)
+                   call fmp%set(face, facet_key)               
                 end if
           end do
        end do
@@ -259,9 +275,108 @@ contains
        call neko_error('Invalid facet map')
     end select
 
-    m%lconn = .false.
+    call buffer%init()
+
+    ! Find internal boundary
+    !
+    ! Build send buffers containing
+    ! [el_glb_idx, side number, facet data (global ids of points)]
+    do i = 1, m%nelv
+       el_glb_idx = i + m%offset_el
+       do j = 1, n_sides
+          if (m%facet_neigh(j, i) .eq. 0) then
+             if (n_nodes .eq. 2) then
+                call m%elements(i)%e%facet_id(edge, j)                
+                call buffer%push(el_glb_idx)
+                call buffer%push(j)
+                do k = 1, n_nodes
+                   call buffer%push(edge%x(k))
+                end do
+             else
+                call m%elements(i)%e%facet_id(face, j)
+                call buffer%push(el_glb_idx)
+                call buffer%push(j)
+                do k = 1, n_nodes
+                   call buffer%push(face%x(k))
+                end do
+             end if
+          end if
+       end do
+    end do
+
+
+    call MPI_Allreduce(buffer%size(), max_recv, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+    allocate(recv_buffer(max_recv))
+    allocate(send_buffer(max_recv))
+    
+    do i = 1, pe_size - 1
+       src = modulo(pe_rank - i + pe_size, pe_size)
+       dst = modulo(pe_rank + i, pe_size)
+
+       call MPI_Sendrecv(buffer%array(), buffer%size(), MPI_INTEGER, dst, 0, &
+            recv_buffer, max_recv, MPI_INTEGER, src, 0, NEKO_COMM, status, ierr)
+
+       call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+
+       select type (fmp => m%facet_map)
+       type is(htable_i4t2_t)
+          do j = 1, n_recv, n_nodes + 2
+             neigh_el = recv_buffer(j)
+             recv_side = recv_buffer(j+1)
+
+             edge = (/ recv_buffer(j+2), recv_buffer(j+3) /)
+             
+             facet_key = (/ 0 , 0 /)
+             !Check if the face is present on this PE
+             if (fmp%get(edge, facet_key) .eq. 0) then
+                ! Determine opposite side and update neighbor
+                if (mod(recv_side, 2) .eq. 1) then
+                   m%facet_neigh(recv_side + 1, &
+                        facet_key%x(2) - m%offset_el) = -neigh_el
+                else  if (mod(recv_side, 2) .eq. 0) then
+                   m%facet_neigh(recv_side - 1, &
+                        facet_key%x(1) - m%offset_el) = -neigh_el
+                end if
+             end if
+             
+          end do
+       type is(htable_i4t4_t)
+          do j = 1, n_recv, n_nodes + 2
+             neigh_el = recv_buffer(j)
+             recv_side = recv_buffer(j+1)
+
+             face = (/ recv_buffer(j+2), recv_buffer(j+3), &
+                  recv_buffer(j+4), recv_buffer(j+5) /)
+             
+             facet_key = (/ 0 , 0 /)
+             !Check if the face is present on this PE
+             if (fmp%get(face, facet_key) .eq. 0) then
+                ! Determine opposite side and update neighbor
+                if (mod(recv_side, 2) .eq. 1) then
+                   m%facet_neigh(recv_side + 1, &
+                        facet_key%x(2) - m%offset_el) = -neigh_el
+                else  if (mod(recv_side, 2) .eq. 0) then
+                   m%facet_neigh(recv_side - 1, &
+                        facet_key%x(1) - m%offset_el) = -neigh_el
+                end if
+             end if
+             
+          end do
+       end select
+
+    end do
+
+    deallocate(send_buffer)
+    deallocate(recv_buffer)
+
+    call buffer%free()
+    
+    m%lconn = .true.
     
   end subroutine mesh_generate_conn
+
   
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)
