@@ -44,6 +44,13 @@ module stack
      procedure, public, pass(this) :: array => stack_i4t2_data
   end type stack_i4t2_t
 
+  !> Integer 4-tuple based stack
+  type, public, extends(stack_t) :: stack_i4t4_t
+   contains
+     procedure, public, pass(this) :: pop => stack_i4t4_pop
+     procedure, public, pass(this) :: array => stack_i4t4_data
+  end type stack_i4t4_t
+
 contains
 
   !> Initialize a stack of arbitrary type 
@@ -96,9 +103,10 @@ contains
     size = this%top_
   end function stack_size
 
+  !> Push data onto the stack
   subroutine stack_push(this, data)
     class(stack_t), target, intent(inout) :: this
-    class(*), intent(inout) :: data
+    class(*), intent(inout) :: data !< Arbitrary typed data (same type as stack)
     class(*), allocatable :: tmp(:)
 
     if (this%top_ .eq. this%size_) then
@@ -152,6 +160,7 @@ contains
     end select
   end subroutine stack_push
 
+  !> Pop an integer of the stack
   function stack_i4_pop(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
@@ -163,6 +172,7 @@ contains
     this%top_ = this%top_ - 1
   end function stack_i4_pop
 
+  !> Return a pointer to the internal integer array
   function stack_i4_data(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
     integer, pointer :: data(:)
@@ -173,6 +183,7 @@ contains
     end select
   end function stack_i4_data
 
+  !> Pop a double precision value of the stack
   function stack_r8_pop(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp) :: data
@@ -184,6 +195,7 @@ contains
     this%top_ = this%top_ -1
   end function stack_r8_pop
 
+  !> Return a pointer to the internal double precision array 
   function stack_r8_data(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp), pointer :: data(:)
@@ -194,6 +206,7 @@ contains
     end select
   end function stack_r8_data
 
+  !> Pop an integer 2-tuple of the stack
   function stack_i4t2_pop(this) result(data)
     class(stack_i4t2_t), target, intent(inout) :: this
     type(tuple_i4_t) :: data
@@ -205,6 +218,7 @@ contains
     this%top_ = this%top_ -1
   end function stack_i4t2_pop
 
+  !> Return a pointer to the interal 2-tuple array
   function stack_i4t2_data(this) result(data)
     class(stack_i4t2_t), target, intent(inout) :: this
     type(tuple_i4_t), pointer :: data(:)
@@ -214,5 +228,28 @@ contains
        data => sdp
     end select
   end function stack_i4t2_data
+
+  !> Pop an integer 4-tuple of the stack
+  function stack_i4t4_pop(this) result(data)
+    class(stack_i4t4_t), target, intent(inout) :: this
+    type(tuple4_i4_t) :: data
+    
+    select type (sdp=>this%data)
+    type is (tuple4_i4_t)       
+       data = sdp(this%top_)
+    end select
+    this%top_ = this%top_ -1
+  end function stack_i4t4_pop
+
+  !> Return a pointer to the internal 4-tuple array
+  function stack_i4t4_data(this) result(data)
+    class(stack_i4t4_t), target, intent(inout) :: this
+    type(tuple4_i4_t), pointer :: data(:)
+
+    select type(sdp=>this%data)
+    type is (tuple4_i4_t)       
+       data => sdp
+    end select
+  end function stack_i4t4_data
   
 end module stack
