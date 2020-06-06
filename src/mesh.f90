@@ -13,6 +13,7 @@ module mesh
   use tuple
   use htable
   use datadist
+  use distdata
   implicit none
 
   type, private :: mesh_element_t
@@ -38,8 +39,10 @@ module mesh
      class(htable_t), allocatable :: facet_map !< Facet to element's id tuple 
                                                !! \f$ t=(odd, even) \f$
 
-     
-     logical :: lconn = .false.     !< valid connectivity
+     type(distdata_t) :: distdata              !< Mesh distributed data
+
+     logical :: lconn = .false.                !< valid connectivity
+     logical :: ldist = .false.                !< valid distributed data
 
   end type mesh_t
 
@@ -142,6 +145,8 @@ contains
     allocate(m%points(m%npts*m%nelv))
 
     call m%htp%init(m%npts*m%nelv, i)
+
+    call distdata_init(m%distdata)
     
     m%mpts = 0    
 
@@ -187,7 +192,7 @@ contains
     type(tuple4_i4_t) :: face
     type(stack_i4_t) :: buffer
     integer, allocatable :: recv_buffer(:), send_buffer(:)
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
     integer :: status(MPI_STATUS_SIZE)
 
@@ -285,18 +290,19 @@ contains
     do i = 1, m%nelv
        el_glb_idx = i + m%offset_el
        do j = 1, n_sides
+          facet = j             ! Adhere to standards...
           if (m%facet_neigh(j, i) .eq. 0) then
              if (n_nodes .eq. 2) then
                 call m%elements(i)%e%facet_id(edge, j)                
                 call buffer%push(el_glb_idx)
-                call buffer%push(j)
+                call buffer%push(facet)
                 do k = 1, n_nodes
                    call buffer%push(edge%x(k))
                 end do
              else
                 call m%elements(i)%e%facet_id(face, j)
                 call buffer%push(el_glb_idx)
-                call buffer%push(j)
+                call buffer%push(facet)
                 do k = 1, n_nodes
                    call buffer%push(face%x(k))
                 end do
@@ -356,12 +362,15 @@ contains
              if (fmp%get(face, facet_key) .eq. 0) then
                 ! Determine opposite side and update neighbor
                 if (mod(recv_side, 2) .eq. 1) then
-                   m%facet_neigh(recv_side + 1, &
-                        facet_key%x(2) - m%offset_el) = -neigh_el
+                   element = facet_key%x(2) - m%offset_el
+                   facet = recv_side + 1
+                   m%facet_neigh(facet, element) = -neigh_el
                 else  if (mod(recv_side, 2) .eq. 0) then
-                   m%facet_neigh(recv_side - 1, &
-                        facet_key%x(1) - m%offset_el) = -neigh_el
+                   element = facet_key%x(1) - m%offset_el
+                   facet  = recv_side - 1
+                   m%facet_neigh(facet, element) = -neigh_el
                 end if
+                call distdata_set_shared(m%distdata, element, facet)       
              end if
              
           end do
@@ -377,7 +386,6 @@ contains
     m%lconn = .true.
     
   end subroutine mesh_generate_conn
-
   
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)
