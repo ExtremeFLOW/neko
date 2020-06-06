@@ -18,7 +18,7 @@ quad.o : quad.f90 point.o tuple.o element.o num_types.o
 hex.o : hex.f90 point.o tuple.o element.o num_types.o 
 htable.o : htable.f90 math.o tuple.o point.o utils.o num_types.o 
 uset.o : uset.f90 htable.o num_types.o 
-stack.o : stack.f90 math.o utils.o num_types.o 
+stack.o : stack.f90 math.o utils.o tuple.o num_types.o 
 tuple.o : tuple.f90 num_types.o math.o 
 mesh.o : mesh.f90 datadist.o tuple.o stack.o comm.o htable.o utils.o quad.o hex.o element.o point.o num_types.o 
 mesh_field.o : mesh_field.f90 mesh.o num_types.o 

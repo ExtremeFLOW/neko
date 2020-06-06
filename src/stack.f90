@@ -2,6 +2,7 @@
 !! @details a stack storing values @a data of an arbitrary type
 module stack
   use num_types
+  use tuple
   use utils
   use math, only : NEKO_M_LN2
   implicit none
@@ -36,6 +37,13 @@ module stack
      procedure, public, pass(this) :: array => stack_r8_data
   end type stack_r8_t
 
+  !> Integer 2-tuple based stack
+  type, public, extends(stack_t) :: stack_i4t2_t
+   contains
+     procedure, public, pass(this) :: pop => stack_i4t2_pop
+     procedure, public, pass(this) :: array => stack_i4t2_data
+  end type stack_i4t2_t
+
 contains
 
   !> Initialize a stack of arbitrary type 
@@ -57,6 +65,8 @@ contains
        allocate(integer::this%data(this%size_))
     class is (stack_r8_t)
        allocate(double precision::this%data(this%size_))
+    class is (stack_i4t2_t)
+       allocate(tuple_i4_t::this%data(this%size_))
     end select
 
   end subroutine stack_init
@@ -97,7 +107,9 @@ contains
        type is(integer)
           allocate(integer::tmp(this%size_))
        type is(double precision)          
-          allocate(double precision::tmp(this%size_))          
+          allocate(double precision::tmp(this%size_))
+       type is(tuple_i4_t)
+          allocate(tuple_i4_t::tmp(this%size_))
        end select
        select type(tmp)
        type is (integer)
@@ -108,6 +120,11 @@ contains
        type is (double precision)
           select type(sdp=>this%data)
           type is (double precision)
+             tmp(1:this%top_) = sdp
+          end select
+       type is (tuple_i4_t)
+          select type(sdp=>this%data)
+          type is (tuple_i4_t)
              tmp(1:this%top_) = sdp
           end select
        end select
@@ -125,6 +142,11 @@ contains
     type is (double precision)
        select type(data)
        type is (double precision)
+          sdp(this%top_) = data
+       end select
+    type is (tuple_i4_t)
+       select type(data)
+       type is (tuple_i4_t)
           sdp(this%top_) = data
        end select
     end select
@@ -162,7 +184,7 @@ contains
     this%top_ = this%top_ -1
   end function stack_r8_pop
 
-    function stack_r8_data(this) result(data)
+  function stack_r8_data(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp), pointer :: data(:)
 
@@ -171,5 +193,26 @@ contains
        data => sdp
     end select
   end function stack_r8_data
+
+  function stack_i4t2_pop(this) result(data)
+    class(stack_i4t2_t), target, intent(inout) :: this
+    type(tuple_i4_t) :: data
+    
+    select type (sdp=>this%data)
+    type is (tuple_i4_t)       
+       data = sdp(this%top_)
+    end select
+    this%top_ = this%top_ -1
+  end function stack_i4t2_pop
+
+  function stack_i4t2_data(this) result(data)
+    class(stack_i4t2_t), target, intent(inout) :: this
+    type(tuple_i4_t), pointer :: data(:)
+
+    select type(sdp=>this%data)
+    type is (tuple_i4_t)       
+       data => sdp
+    end select
+  end function stack_i4t2_data
   
 end module stack
