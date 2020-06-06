@@ -40,7 +40,7 @@ module mesh
 
      
      logical :: lconn = .false.     !< valid connectivity
-     logical :: finalized = .false. !< Valid mesh
+
   end type mesh_t
 
   !> Initialise a mesh
@@ -147,6 +147,7 @@ contains
 
   end subroutine mesh_init_common
   
+  !> Deallocate a mesh %a m
   subroutine mesh_free(m)
     type(mesh_t), intent(inout) :: m
     integer :: i
@@ -464,7 +465,7 @@ contains
     
   end subroutine mesh_add_point
 
-
+  !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)
     type(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p

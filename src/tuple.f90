@@ -110,7 +110,7 @@ contains
     end select
   end function tuple_i4_equal
 
-    !> Assign an integer 4-tuple to a tuple
+  !> Assign an integer 4-tuple to a tuple
   pure subroutine tuple4_i4_assign_tuple(this, other)
     class(tuple4_i4_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
