@@ -64,7 +64,8 @@ module mesh
      module procedure mesh_get_local_point
   end interface mesh_get_local
 
-  private :: mesh_init_common, mesh_add_quad, mesh_add_hex
+  private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
+       mesh_generate_external_facet
 
 contains 
 
@@ -200,11 +201,7 @@ contains
     type(mesh_t), intent(inout) :: m
     type(tuple_i4_t) :: edge, facet_key
     type(tuple4_i4_t) :: face
-    type(stack_i4_t) :: buffer
-    integer, allocatable :: recv_buffer(:), send_buffer(:)
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
-    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
-    integer :: status(MPI_STATUS_SIZE)
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes
 
     if (m%lconn) return
 
@@ -291,10 +288,34 @@ contains
        call neko_error('Invalid facet map')
     end select
 
-    call buffer%init()
+    !> Generate element-element connectivity via facets between PEs
+    call mesh_generate_external_facet(m)
+    
+    m%lconn = .true.
+    
+  end subroutine mesh_generate_conn
+ 
+  !> Find internal boundaries between PEs
+  subroutine mesh_generate_external_facet(m)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t) :: edge, facet_key
+    type(tuple4_i4_t) :: face
+    type(stack_i4_t) :: buffer
+    integer, allocatable :: recv_buffer(:), send_buffer(:)
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
+    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
+    integer :: status(MPI_STATUS_SIZE)
 
-    ! Find internal boundary
-    !
+    if (m%gdim .eq. 2) then
+       n_sides = 4
+       n_nodes = 2
+    else
+       n_sides = 6
+       n_nodes = 4
+    end if
+
+    call buffer%init()
+        
     ! Build send buffers containing
     ! [el_glb_idx, side number, facet data (global ids of points)]
     do i = 1, m%nelv
@@ -393,9 +414,8 @@ contains
 
     call buffer%free()
     
-    m%lconn = .true.
     
-  end subroutine mesh_generate_conn
+  end subroutine mesh_generate_external_facet
   
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)
