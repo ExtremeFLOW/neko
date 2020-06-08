@@ -316,7 +316,7 @@ contains
     type(tuple_i4_t) :: edge, facet_key
     type(tuple4_i4_t) :: face
     type(stack_i4_t) :: buffer
-    integer, allocatable :: recv_buffer(:), send_buffer(:)
+    integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
     integer :: status(MPI_STATUS_SIZE)
@@ -362,7 +362,6 @@ contains
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
     allocate(recv_buffer(max_recv))
-    allocate(send_buffer(max_recv))
     
     do i = 1, pe_size - 1
        src = modulo(pe_rank - i + pe_size, pe_size)
@@ -424,12 +423,10 @@ contains
 
     end do
 
-    deallocate(send_buffer)
     deallocate(recv_buffer)
 
     call buffer%free()
-    
-    
+
   end subroutine mesh_generate_external_facet_conn
 
   !> Generate element-element connectivity via points between PEs
