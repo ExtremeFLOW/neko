@@ -13,6 +13,7 @@ module mesh
   use tuple
   use htable
   use datadist
+  use distdata
   implicit none
 
   type, private :: mesh_element_t
@@ -38,9 +39,13 @@ module mesh
      class(htable_t), allocatable :: facet_map !< Facet to element's id tuple 
                                                !! \f$ t=(odd, even) \f$
 
-     
-     logical :: lconn = .false.     !< valid connectivity
-     logical :: finalized = .false. !< Valid mesh
+     type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
+
+     type(distdata_t) :: distdata              !< Mesh distributed data
+
+     logical :: lconn = .false.                !< valid connectivity
+     logical :: ldist = .false.                !< valid distributed data
+
   end type mesh_t
 
   !> Initialise a mesh
@@ -59,7 +64,9 @@ module mesh
      module procedure mesh_get_local_point
   end interface mesh_get_local
 
-  private :: mesh_init_common, mesh_add_quad, mesh_add_hex
+  private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
+       mesh_generate_external_facet_conn, mesh_generate_external_point_conn
+  
 
 contains 
 
@@ -139,14 +146,24 @@ contains
        call neko_error("Invalid dimension")
     end if
 
+    !> @todo resize onces final size is known
     allocate(m%points(m%npts*m%nelv))
 
+    !> @todo resize onces final size is known
+    allocate(m%point_neigh(m%npts*m%nelv))
+    do i = 1, m%npts*m%nelv
+       call m%point_neigh(i)%init()
+    end do
+    
     call m%htp%init(m%npts*m%nelv, i)
+   
+    call distdata_init(m%distdata)
     
     m%mpts = 0    
 
   end subroutine mesh_init_common
   
+  !> Deallocate a mesh %a m
   subroutine mesh_free(m)
     type(mesh_t), intent(inout) :: m
     integer :: i
@@ -177,6 +194,13 @@ contains
        deallocate(m%facet_neigh)
     end if
 
+    if (allocated(m%point_neigh)) then
+       do i = 1, m%npts * m%nelv
+          call m%point_neigh(i)%free()
+       end do
+       deallocate(m%point_neigh)
+    end if
+
   end subroutine mesh_free
 
   !> Generate element-to-element connectivity
@@ -184,11 +208,7 @@ contains
     type(mesh_t), intent(inout) :: m
     type(tuple_i4_t) :: edge, facet_key
     type(tuple4_i4_t) :: face
-    type(stack_i4_t) :: buffer
-    integer, allocatable :: recv_buffer(:), send_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes
-    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
-    integer :: status(MPI_STATUS_SIZE)
 
     if (m%lconn) return
 
@@ -200,7 +220,9 @@ contains
        n_nodes = 4
     end if
 
-    ! Find all boundaries
+    !
+    ! Find all (local) boundaries
+    !
     
     !> @note We have to sweep through the facet map twice to make sure
     !! that both odd and even sides are marked
@@ -275,27 +297,58 @@ contains
        call neko_error('Invalid facet map')
     end select
 
-    call buffer%init()
-
-    ! Find internal boundary
     !
+    ! Find all external (between PEs) boundaries
+    !
+    if (pe_size .gt. 1) then
+       call mesh_generate_external_facet_conn(m)
+
+       call mesh_generate_external_point_conn(m)
+    end if
+    
+    m%lconn = .true.
+    
+  end subroutine mesh_generate_conn
+ 
+  !> Generate element-element connectivity via facets between PEs
+  subroutine mesh_generate_external_facet_conn(m)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t) :: edge, facet_key
+    type(tuple4_i4_t) :: face
+    type(stack_i4_t) :: buffer
+    integer, allocatable :: recv_buffer(:)
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
+    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
+    integer :: status(MPI_STATUS_SIZE)
+
+    if (m%gdim .eq. 2) then
+       n_sides = 4
+       n_nodes = 2
+    else
+       n_sides = 6
+       n_nodes = 4
+    end if
+
+    call buffer%init()
+        
     ! Build send buffers containing
     ! [el_glb_idx, side number, facet data (global ids of points)]
     do i = 1, m%nelv
        el_glb_idx = i + m%offset_el
        do j = 1, n_sides
+          facet = j             ! Adhere to standards...
           if (m%facet_neigh(j, i) .eq. 0) then
              if (n_nodes .eq. 2) then
                 call m%elements(i)%e%facet_id(edge, j)                
                 call buffer%push(el_glb_idx)
-                call buffer%push(j)
+                call buffer%push(facet)
                 do k = 1, n_nodes
                    call buffer%push(edge%x(k))
                 end do
              else
                 call m%elements(i)%e%facet_id(face, j)
                 call buffer%push(el_glb_idx)
-                call buffer%push(j)
+                call buffer%push(facet)
                 do k = 1, n_nodes
                    call buffer%push(face%x(k))
                 end do
@@ -309,7 +362,6 @@ contains
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
     allocate(recv_buffer(max_recv))
-    allocate(send_buffer(max_recv))
     
     do i = 1, pe_size - 1
        src = modulo(pe_rank - i + pe_size, pe_size)
@@ -355,12 +407,15 @@ contains
              if (fmp%get(face, facet_key) .eq. 0) then
                 ! Determine opposite side and update neighbor
                 if (mod(recv_side, 2) .eq. 1) then
-                   m%facet_neigh(recv_side + 1, &
-                        facet_key%x(2) - m%offset_el) = -neigh_el
+                   element = facet_key%x(2) - m%offset_el
+                   facet = recv_side + 1
+                   m%facet_neigh(facet, element) = -neigh_el
                 else  if (mod(recv_side, 2) .eq. 0) then
-                   m%facet_neigh(recv_side - 1, &
-                        facet_key%x(1) - m%offset_el) = -neigh_el
+                   element = facet_key%x(1) - m%offset_el
+                   facet  = recv_side - 1
+                   m%facet_neigh(facet, element) = -neigh_el
                 end if
+                call distdata_set_shared(m%distdata, element, facet)       
              end if
              
           end do
@@ -368,15 +423,79 @@ contains
 
     end do
 
-    deallocate(send_buffer)
     deallocate(recv_buffer)
 
     call buffer%free()
-    
-    m%lconn = .true.
-    
-  end subroutine mesh_generate_conn
 
+  end subroutine mesh_generate_external_facet_conn
+
+  !> Generate element-element connectivity via points between PEs
+  subroutine mesh_generate_external_point_conn(m)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t) :: edge, facet_key
+    type(tuple4_i4_t) :: face
+    type(stack_i4_t) :: send_buffer
+    integer, allocatable :: recv_buffer(:)
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
+    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
+    integer :: pt_glb_idx, pt_loc_idx, num_neigh
+    integer, pointer :: neighs(:)
+    integer :: status(MPI_STATUS_SIZE)
+
+    
+    call send_buffer%init()
+    
+    ! Build send buffers containing
+    ! [pt_glb_idx, #neigh, neigh id_1 ....neigh_id_n] 
+    do i = 1, m%mpts
+       pt_glb_idx = m%points(i)%id() ! Adhere to standards...
+       num_neigh = m%point_neigh(i)%size()
+       call send_buffer%push(pt_glb_idx)
+       call send_buffer%push(num_neigh)
+
+       neighs => m%point_neigh(i)%array()
+       do j = 1, m%point_neigh(i)%size()
+          call send_buffer%push(neighs(j))
+       end do
+    end do
+
+    call MPI_Allreduce(send_buffer%size(), max_recv, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+    allocate(recv_buffer(max_recv))
+       
+    do i = 1, pe_size - 1
+       src = modulo(pe_rank - i + pe_size, pe_size)
+       dst = modulo(pe_rank + i, pe_size)
+
+       call MPI_Sendrecv(send_buffer%array(), send_buffer%size(), &
+            MPI_INTEGER, dst, 0, recv_buffer, max_recv, MPI_INTEGER, src, 0, &
+            NEKO_COMM, status, ierr)
+
+       call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+
+       j = 1
+       do while (j .le. n_recv)
+          pt_glb_idx = recv_buffer(j)
+          num_neigh = recv_buffer(j + 1)
+          ! Check if the point is present on this PE
+          pt_loc_idx = mesh_have_point_glb_idx(m, pt_glb_idx)
+          if (pt_loc_idx .gt. 0) then
+             do k = 1, num_neigh
+                neigh_el = -recv_buffer(j + 2 + k)
+                !> @todo Store shared points in distdata
+                call m%point_neigh(pt_loc_idx)%push(neigh_el)
+             end do
+          end if
+          j = j + (2 + num_neigh)          
+       end do
+       
+    end do
+
+    deallocate(recv_buffer)
+    call send_buffer%free()
+    
+  end subroutine mesh_generate_external_point_conn
+  
   
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)
@@ -384,7 +503,7 @@ contains
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
-    integer :: p(4), el_glb_idx
+    integer :: p(4), el_glb_idx, i, p_local_idx
 
     ! Connectivity invalidated if a new element is added        
     m%lconn = .false.           
@@ -396,6 +515,12 @@ contains
 
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
+
+    do i = 1,4
+       p_local_idx = mesh_get_local(m, m%points(p(i)))
+       call m%point_neigh(p_local_idx)%push(el_glb_idx)
+    end do
+    
     select type(ep)
     type is (quad_t)
        call ep%init(el_glb_idx, &
@@ -413,7 +538,7 @@ contains
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
-    integer :: p(8), el_glb_idx
+    integer :: p(8), el_glb_idx, i, p_local_idx
 
     ! Connectivity invalidated if a new element is added        
     m%lconn = .false.
@@ -429,6 +554,12 @@ contains
 
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
+
+    do i = 1,8
+       p_local_idx = mesh_get_local(m, m%points(p(i)))
+       call m%point_neigh(p_local_idx)%push(el_glb_idx)
+    end do
+    
     select type(ep)
     type is (hex_t)
        call ep%init(el_glb_idx, &
@@ -464,7 +595,7 @@ contains
     
   end subroutine mesh_add_point
 
-
+  !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)
     type(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p
@@ -480,5 +611,18 @@ contains
     
   end function mesh_get_local_point
 
+  !> Check if the mesh has a point given its global index
+  !! @return The local id of the point (if present) otherwise -1
+  !! @todo Consider moving this to distdata
+  function mesh_have_point_glb_idx(m, index) result(local_id)
+    type(mesh_t), intent(inout) :: m 
+    integer, intent(inout) :: index  !< Global index
+    integer :: local_id
+
+    if (m%htp%get(index, local_id) .eq. 1) then
+       local_id = -1
+    end if
+        
+  end function mesh_have_point_glb_idx
 
 end module mesh

@@ -210,7 +210,7 @@ contains
     
   end function uset_r8_element
 
-    !> Add a double precision @a key to the set
+  !> Add a double precision @a key to the set
   subroutine uset_r8_add(this, key)
     class(uset_r8_t), intent(inout) :: this
     class(*), intent(inout) :: key

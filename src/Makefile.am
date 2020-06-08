@@ -7,6 +7,7 @@ libneko_a_SOURCES = \
 	comm.f90\
 	mpi_types.f90 \
 	datadist.f90 \
+	distdata.f90 \
 	utils.f90\
 	mxm_wrapper.f90\
 	mxm_std.f90\
