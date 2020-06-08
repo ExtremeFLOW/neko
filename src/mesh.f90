@@ -511,4 +511,20 @@ contains
     
   end function mesh_get_local_point
 
+  !> Check if the mesh has a point given its global index
+  !! @todo Consider moving this to distdata
+  function mesh_have_point_glb_idx(m, index) result(rcode)
+    type(mesh_t), intent(inout) :: m 
+    integer, intent(inout) :: index  !< Global index
+    logical :: rcode
+    integer :: tmp
+
+    if (m%htp%get(tmp, index) .eq. 1) then
+       rcode = .false.
+    else
+       rcode = .true.
+    end if
+        
+  end function mesh_have_point_glb_idx
+
 end module mesh
