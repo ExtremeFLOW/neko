@@ -39,6 +39,8 @@ module mesh
      class(htable_t), allocatable :: facet_map !< Facet to element's id tuple 
                                                !! \f$ t=(odd, even) \f$
 
+     type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
+
      type(distdata_t) :: distdata              !< Mesh distributed data
 
      logical :: lconn = .false.                !< valid connectivity
@@ -142,10 +144,14 @@ contains
        call neko_error("Invalid dimension")
     end if
 
+    !> @todo resize onces final size is known
     allocate(m%points(m%npts*m%nelv))
 
+    !> @todo resize onces final size is known
+    allocate(m%point_neigh(m%npts*m%nelv))
+    
     call m%htp%init(m%npts*m%nelv, i)
-
+   
     call distdata_init(m%distdata)
     
     m%mpts = 0    
@@ -181,6 +187,10 @@ contains
 
     if (allocated(m%facet_neigh)) then
        deallocate(m%facet_neigh)
+    end if
+
+    if (allocated(m%point_neigh)) then
+       deallocate(m%point_neigh)
     end if
 
   end subroutine mesh_free
@@ -393,7 +403,7 @@ contains
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
-    integer :: p(4), el_glb_idx
+    integer :: p(4), el_glb_idx, i, p_local_idx
 
     ! Connectivity invalidated if a new element is added        
     m%lconn = .false.           
@@ -405,6 +415,12 @@ contains
 
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
+
+    do i = 1,4
+       p_local_idx = mesh_get_local(m, m%points(p(i)))
+       call m%point_neigh(p_local_idx)%push(el_glb_idx)
+    end do
+    
     select type(ep)
     type is (quad_t)
        call ep%init(el_glb_idx, &
@@ -422,7 +438,7 @@ contains
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
-    integer :: p(8), el_glb_idx
+    integer :: p(8), el_glb_idx, i, p_local_idx
 
     ! Connectivity invalidated if a new element is added        
     m%lconn = .false.
@@ -438,6 +454,12 @@ contains
 
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
+
+    do i = 1,4
+       p_local_idx = mesh_get_local(m, m%points(p(i)))
+       call m%point_neigh(p_local_idx)%push(el_glb_idx)
+    end do
+    
     select type(ep)
     type is (hex_t)
        call ep%init(el_glb_idx, &
@@ -488,6 +510,5 @@ contains
     end if
     
   end function mesh_get_local_point
-
 
 end module mesh
