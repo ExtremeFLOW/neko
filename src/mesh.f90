@@ -415,7 +415,7 @@ contains
                    facet  = recv_side - 1
                    m%facet_neigh(facet, element) = -neigh_el
                 end if
-                call distdata_set_shared(m%distdata, element, facet)       
+                call distdata_set_shared_facet(m%distdata, element, facet)
              end if
              
           end do
@@ -482,8 +482,8 @@ contains
           if (pt_loc_idx .gt. 0) then
              do k = 1, num_neigh
                 neigh_el = -recv_buffer(j + 2 + k)
-                !> @todo Store shared points in distdata
                 call m%point_neigh(pt_loc_idx)%push(neigh_el)
+                call distdata_set_shared_point(m%distdata, pt_loc_idx)
              end do
           end if
           j = j + (2 + num_neigh)          
