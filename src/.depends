@@ -5,7 +5,7 @@ map.o : map.f90 mesh.o
 comm.o : comm.f90 
 mpi_types.o : mpi_types.f90 nmsh.o re2.o comm.o 
 datadist.o : datadist.f90 
-distdata.o : distdata.f90 tuple.o stack.o 
+distdata.o : distdata.f90 uset.o tuple.o stack.o 
 utils.o : utils.f90 
 mxm_wrapper.o : mxm_wrapper.f90 num_types.o 
 mxm_std.o : mxm_std.f90 num_types.o 
