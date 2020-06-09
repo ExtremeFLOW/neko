@@ -29,9 +29,10 @@ module hex
   type, public, extends(element_t) :: hex_t
    contains
      procedure, pass(this) :: init => hex_init
-     procedure, pass(this) :: facet_id => hex_facet_id     
+     procedure, pass(this) :: facet_id => hex_facet_id
      procedure, pass(this) :: diameter => hex_diameter
      procedure, pass(this) :: centroid => hex_centroid
+     procedure, pass(this) :: edge_id => hex_edge_id          
      procedure, pass(this) :: equal => hex_equal
      generic :: operator(.eq.) => equal
   end type hex_t
@@ -61,6 +62,38 @@ module hex
                                                                 1,2,3,4,&
                                                                 5,6,7,8/),&
                                                                 (/4,6/))
+  
+  !> Edge node ids
+  !! @details
+  !! @verbatim
+  !! Edge numbering (similar to NEKTON symmetric notation)
+  !!
+  !!              2      
+  !!          +--------+        ^ S
+  !!         /        /|        |
+  !!  11--> /   12-->/ | <--6   |
+  !!       /   4    /  |        |
+  !!      +--------+   +        +----> R
+  !!      |        |  /        /
+  !!  7-->|    8-->| /<--10   /
+  !!      |        |/        /
+  !!      +--------+        T
+  !!           3
+  !!
+  !! @endverbatim
+  integer, parameter, dimension(2, 12) :: edge_nodes = reshape((/1,2,&
+                                                                4,3,&
+                                                                5,6,&
+                                                                8,7,&
+                                                                1,4,&
+                                                                2,3,&
+                                                                5,8,&
+                                                                6,7,&
+                                                                1,5,&
+                                                                2,6,&
+                                                                4,8,&
+                                                                3,7/),&
+                                                                (/2,12/))
   
 contains
   
@@ -101,6 +134,23 @@ contains
     end select
 
   end subroutine hex_facet_id
+
+  !> Return the edge id for an edge @a i as a 2-tuple @a t
+  subroutine hex_edge_id(this, t, side) 
+    class(hex_t), intent(in) :: this
+    class(tuple_t), intent(inout) :: t
+    integer, intent(in) :: side
+    type(point_t), pointer :: p1,p2,p3,p4
+
+    p1 => this%p(edge_nodes(1, side))
+    p2 => this%p(edge_nodes(2, side))
+
+    select type(t)
+    type is(tuple_i4_t)
+       t = (/ p1%id(), p2%id() /)
+    end select
+
+  end subroutine hex_edge_id
   
   !> Compute the diameter of a hexahedron element
   function hex_diameter(this) result(res)
