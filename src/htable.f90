@@ -427,12 +427,12 @@ contains
     class(htable_i4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: hash
-    integer, parameter :: M1 = Z'7ed55d15'
-    integer, parameter :: M2 = Z'c761c23c'
-    integer, parameter :: M3 = Z'165667b1'
-    integer, parameter :: M4 = Z'd3a2646c'
-    integer, parameter :: M5 = Z'fd7046c5'
-    integer, parameter :: M6 = Z'b55a4f09'
+    integer, parameter :: M1 = Z'7ed55d1'
+    integer, parameter :: M2 = Z'c761c23'
+    integer, parameter :: M3 = Z'165667b'
+    integer, parameter :: M4 = Z'd3a2646'
+    integer, parameter :: M5 = Z'fd7046c'
+    integer, parameter :: M6 = Z'b55a4f0'
 
     select type(k)
     type is (integer)
@@ -596,12 +596,12 @@ contains
     class(htable_i4t2_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = Z'7ed55d15'
-    integer, parameter :: M2 = Z'c761c23c'
-    integer, parameter :: M3 = Z'165667b1'
-    integer, parameter :: M4 = Z'd3a2646c'
-    integer, parameter :: M5 = Z'fd7046c5'
-    integer, parameter :: M6 = Z'b55a4f09'
+    integer, parameter :: M1 = Z'7ed55d1'
+    integer, parameter :: M2 = Z'c761c23'
+    integer, parameter :: M3 = Z'165667b'
+    integer, parameter :: M4 = Z'd3a2646'
+    integer, parameter :: M5 = Z'fd7046c'
+    integer, parameter :: M6 = Z'b55a4f0'
 
     select type(k)
     type is (tuple_i4_t)
@@ -669,12 +669,12 @@ contains
     class(htable_i4t4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = Z'7ed55d15'
-    integer, parameter :: M2 = Z'c761c23c'
-    integer, parameter :: M3 = Z'165667b1'
-    integer, parameter :: M4 = Z'd3a2646c'
-    integer, parameter :: M5 = Z'fd7046c5'
-    integer, parameter :: M6 = Z'b55a4f09'
+    integer, parameter :: M1 = Z'7ed55d1'
+    integer, parameter :: M2 = Z'c761c23'
+    integer, parameter :: M3 = Z'165667b'
+    integer, parameter :: M4 = Z'd3a2646'
+    integer, parameter :: M5 = Z'fd7046c'
+    integer, parameter :: M6 = Z'b55a4f0'
 
     select type(k)
     type is (tuple4_i4_t)
