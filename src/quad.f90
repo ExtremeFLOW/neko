@@ -8,6 +8,7 @@ module quad
   private
 
   integer, public, parameter :: NEKO_QUAD_NPTS = 4 !< Number of points
+  integer, public, parameter :: NEKO_QUAD_NEDS = 4 !< Number of edges
   integer, public, parameter :: NEKO_QUAD_GDIM = 2 !< Geometric dimension
 
   !> Quadrilateral element

@@ -7,8 +7,10 @@ module hex
   implicit none
   private
 
-  integer, public, parameter :: NEKO_HEX_NPTS = 8 !< Number of points
-  integer, public, parameter :: NEKO_HEX_GDIM = 3 !< Geometric dimension
+  integer, public, parameter :: NEKO_HEX_NPTS = 8  !< Number of points
+  integer, public, parameter :: NEKO_HEX_NFCS = 6  !< Number of faces
+  integer, public, parameter :: NEKO_HEX_NEDS = 12 !< Number of edges
+  integer, public, parameter :: NEKO_HEX_GDIM = 3  !< Geometric dimension
 
 
   !> Hexahedron element
