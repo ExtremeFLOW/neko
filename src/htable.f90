@@ -540,9 +540,11 @@ contains
   !> Return the current value of the integer based hash table iterator
   function htable_iter_i4_value(this) result(value)
     class(htable_iter_i4_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
     integer, pointer :: value
 
-    select type (hdp=>this%t%t(this%n)%data)
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
     type is (integer)
        value => hdp
     end select
@@ -552,11 +554,13 @@ contains
   !> Return the current key of the integer based hash table iterator
   function htable_iter_i4_key(this) result(key)
     class(htable_iter_i4_t), target, intent(inout) :: this
+    class(*), pointer :: kp
     integer, pointer :: key
 
-    select type (hdp=>this%t%t(this%n)%key)
+    kp => this%t%t(this%n)%key
+    select type (kp)
     type is (integer)
-       key => hdp
+       key => kp
     end select
     
   end function htable_iter_i4_key
@@ -627,9 +631,11 @@ contains
   !> Return the current value of the double precision based hash table iterator
   function htable_iter_r8_value(this) result(value)
     class(htable_iter_r8_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
     real(kind=dp), pointer :: value
 
-    select type (hdp=>this%t%t(this%n)%data)
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
     type is (double precision)
        value => hdp
     end select
@@ -639,11 +645,13 @@ contains
   !> Return the current key of the double precision based hash table iterator
   function htable_iter_r8_key(this) result(key)
     class(htable_iter_r8_t), target, intent(inout) :: this
+    class(*), pointer :: kp
     real(kind=dp), pointer :: key
 
-    select type (hdp=>this%t%t(this%n)%data)
+    kp => this%t%t(this%n)%data
+    select type (kp)
     type is (double precision)
-       key => hdp
+       key => kp
     end select
     
   end function htable_iter_r8_key
@@ -713,9 +721,11 @@ contains
   !> Return the current value of the point based hash table iterator
   function htable_iter_pt_value(this) result(value)
     class(htable_iter_pt_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
     type(point_t), pointer :: value
 
-    select type (hdp=>this%t%t(this%n)%data)
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
     type is (point_t)
        value => hdp
     end select
@@ -725,11 +735,13 @@ contains
   !> Return the current key of the point based hash table iterator
   function htable_iter_pt_key(this) result(key)
     class(htable_iter_pt_t), target, intent(inout) :: this
+    class(*), pointer :: kp
     type(point_t), pointer :: key
 
-    select type (hdp=>this%t%t(this%n)%key)
+    kp => this%t%t(this%n)%key
+    select type (kp)
     type is (point_t)
-       key => hdp
+       key => kp
     end select
     
   end function htable_iter_pt_key
@@ -820,9 +832,11 @@ contains
   !> Return the current value of integer based 2-tuple hash table iterator
   function htable_iter_i4t2_value(this) result(value)
     class(htable_iter_i4t2_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
     type(tuple_i4_t), pointer :: value
 
-    select type (hdp=>this%t%t(this%n)%data)
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
     type is (tuple_i4_t)
        value => hdp
     end select
@@ -832,11 +846,13 @@ contains
   !> Return the current key of integer based 2-tuple hash table iterator
   function htable_iter_i4t2_key(this) result(key)
     class(htable_iter_i4t2_t), target, intent(inout) :: this
+    class(*), pointer :: kp
     type(tuple_i4_t), pointer :: key
 
-    select type (hdp=>this%t%t(this%n)%key)
+    kp => this%t%t(this%n)%key
+    select type (kp)
     type is (tuple_i4_t)
-       key => hdp
+       key => kp
     end select
     
   end function htable_iter_i4t2_key
@@ -927,9 +943,11 @@ contains
   !> Return the current value of integer based 4-tuple hash table iterator
   function htable_iter_i4t4_value(this) result(value)
     class(htable_iter_i4t4_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
     type(tuple4_i4_t), pointer :: value
 
-    select type (hdp=>this%t%t(this%n)%data)
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
     type is (tuple4_i4_t)
        value => hdp
     end select
@@ -939,11 +957,13 @@ contains
   !> Return the current key of integer based 4-tuple hash table iterator
   function htable_iter_i4t4_key(this) result(key)
     class(htable_iter_i4t4_t), target, intent(inout) :: this
+    class(*), pointer :: kp
     type(tuple4_i4_t), pointer :: key
 
-    select type (hdp=>this%t%t(this%n)%key)
+    kp => this%t%t(this%n)%key
+    select type (kp)
     type is (tuple4_i4_t)
-       key => hdp
+       key => kp
     end select
     
   end function htable_iter_i4t4_key
