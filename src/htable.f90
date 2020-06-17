@@ -547,6 +547,8 @@ contains
     select type (hdp)
     type is (integer)
        value => hdp
+    class default
+       call neko_error('Key and data of different kind')
     end select
     
   end function htable_iter_i4_value
@@ -638,6 +640,8 @@ contains
     select type (hdp)
     type is (double precision)
        value => hdp
+    class default
+       call neko_error('Key and data of different kind')
     end select
     
   end function htable_iter_r8_value
@@ -728,6 +732,8 @@ contains
     select type (hdp)
     type is (point_t)
        value => hdp
+    class default
+       call neko_error('Key and data of different kind')
     end select
     
   end function htable_iter_pt_value
@@ -839,6 +845,8 @@ contains
     select type (hdp)
     type is (tuple_i4_t)
        value => hdp
+    class default
+       call neko_error('Key and data of different kind')
     end select
     
   end function htable_iter_i4t2_value
@@ -950,6 +958,8 @@ contains
     select type (hdp)
     type is (tuple4_i4_t)
        value => hdp
+    class default
+       call neko_error('Key and data of different kind')
     end select
     
   end function htable_iter_i4t4_value
