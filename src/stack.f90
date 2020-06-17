@@ -175,9 +175,11 @@ contains
   !> Return a pointer to the internal integer array
   function stack_i4_data(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
+    class(*), pointer :: sdp(:)
     integer, pointer :: data(:)
 
-    select type(sdp=>this%data)
+    sdp=>this%data
+    select type(sdp)
     type is (integer)       
        data => sdp
     end select
@@ -198,9 +200,11 @@ contains
   !> Return a pointer to the internal double precision array 
   function stack_r8_data(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
+    class(*), pointer :: sdp(:)
     real(kind=dp), pointer :: data(:)
 
-    select type(sdp=>this%data)
+    sdp=>this%data
+    select type(sdp)
     type is (double precision)       
        data => sdp
     end select
@@ -221,9 +225,11 @@ contains
   !> Return a pointer to the interal 2-tuple array
   function stack_i4t2_data(this) result(data)
     class(stack_i4t2_t), target, intent(inout) :: this
+    class(*), pointer :: sdp(:)
     type(tuple_i4_t), pointer :: data(:)
 
-    select type(sdp=>this%data)
+    sdp=>this%data
+    select type(sdp)
     type is (tuple_i4_t)       
        data => sdp
     end select
@@ -244,9 +250,11 @@ contains
   !> Return a pointer to the internal 4-tuple array
   function stack_i4t4_data(this) result(data)
     class(stack_i4t4_t), target, intent(inout) :: this
+    class(*), pointer :: sdp(:)
     type(tuple4_i4_t), pointer :: data(:)
 
-    select type(sdp=>this%data)
+    sdp=>this%data
+    select type(sdp)
     type is (tuple4_i4_t)       
        data => sdp
     end select
