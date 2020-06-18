@@ -36,8 +36,8 @@ module mesh
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      
      type(htable_i4_t) :: htp   !< Table of unique points (global->local)
-     type(htable_i4t4_t) :: htf !< Table of unique faces (global->local)
-     type(htable_i4t2_t) :: hte !< Table of unique edges (global->local)
+     type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
+     type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
 
      integer, allocatable :: facet_neigh(:,:)  !< Facet to neigh. element table
      class(htable_t), allocatable :: facet_map !< Facet to element's id tuple 
@@ -164,7 +164,7 @@ contains
     do i = 1, m%npts*m%nelv
        call m%point_neigh(i)%init()
     end do
-    
+
     call m%htp%init(m%npts*m%nelv, i)
    
     call distdata_init(m%distdata)
@@ -311,6 +311,7 @@ contains
        call neko_error('Invalid facet map')
     end select
 
+
     !
     ! Find all external (between PEs) boundaries
     !
@@ -319,6 +320,16 @@ contains
 
        call mesh_generate_external_point_conn(m)
     end if
+
+    !
+    ! Find all internal/extenral edge connections
+    ! (Note it needs to be called after external point connections has
+    ! been established)
+    !
+    if (m%gdim .eq. 3) then
+       call mesh_generate_edge_conn(m)
+    end if
+    
     
     m%lconn = .true.
     
@@ -509,6 +520,97 @@ contains
     call send_buffer%free()
     
   end subroutine mesh_generate_external_point_conn
+
+  !> Generate element-element connectivity via edges
+  !! both between internal and between PEs
+  !! @attention only for elements where facet .ne. edges
+  subroutine mesh_generate_edge_conn(m)
+    type(mesh_t), target, intent(inout) :: m
+    type(htable_iter_i4t2_t), target :: it
+    type(tuple_i4_t), pointer :: edge
+    type(uset_i8_t) :: edge_idx
+    integer, pointer :: p1(:), p2(:), ns_id(:)
+    integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
+    integer(kind=8) :: C, glb_max, glb_id
+    logical :: shared_edge
+    type(stack_i4_t) :: non_shared_edges
+
+    !>@todo move this into distdata
+    allocate(m%distdata%local_to_global_edge(m%meds))
+
+    call edge_idx%init()
+
+    !
+    ! Determine/ constants used to generate unique global edge numbers
+    ! for shared edges 
+    !
+    C = int(m%glb_nelv, 8) * int(NEKO_HEX_NEDS,8)
+
+    num_edge_glb = m%meds
+    call MPI_Allreduce(MPI_IN_PLACE, num_edge_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM,  ierr)
+
+    glb_max = int(num_edge_glb, 8)
+
+    call non_shared_edges%init(m%hte%num_entries())
+    
+    call it%init(m%hte)
+    do while(it%next())       
+       edge => it%key()
+       call it%data(id)
+
+       i = mesh_have_point_glb_idx(m, edge%x(1))
+       j = mesh_have_point_glb_idx(m, edge%x(2))
+       p1 => m%point_neigh(i)%array()
+       p2 => m%point_neigh(j)%array()
+
+       shared_edge = .false.
+       
+       ! Find edge neighbor from point neighbors 
+       do i = 1, m%point_neigh(edge%x(1))%size()
+          do j = 1, m%point_neigh(edge%x(2))%size()
+             if (p1(i) .eq. p2(j) .and. &
+                  p1(i) .lt. 0 .and. p2(j) .lt. 0) then
+                call distdata_set_shared_edge(m%distdata, id)
+                shared_edge = .true.
+             end if
+          end do
+       end do
+
+       ! Generate a unique id for the shared edge as,
+       ! ((e1 * C) + e2 )) + glb_max if e1 > e2
+       ! ((e2 * C) + e1 )) + glb_max if e2 > e1     
+       if (shared_edge) then
+          if (edge%x(1) .gt. edge%x(2)) then
+             glb_id = ((int(edge%x(1), 8)) * C + int(edge%x(2), 8)) + glb_max
+          else
+             glb_id = ((int(edge%x(2), 8)) * C + int(edge%x(1), 8)) + glb_max
+          end if
+
+          call edge_idx%add(glb_id)
+       else
+          call non_shared_edges%push(id)
+       end if
+    end do
+
+
+    ! Determine start offset for global numbering of locally owned edges
+    edge_offset = 0
+    num_edge_loc = m%meds - non_shared_edges%size()
+    call MPI_Exscan(num_edge_loc, edge_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    edge_offset = edge_offset + 1
+    
+    ! Construct global numbering of locally owned edges
+    ns_id => non_shared_edges%array()
+    do i = 1, non_shared_edges%size()
+       call distdata_set_local_to_global_edge(m%distdata, ns_id(i), edge_offset)
+       edge_offset = edge_offset + 1          
+    end do
+
+    !> @todo Renumber shared edges into integer range
+    
+  end subroutine mesh_generate_edge_conn
   
   
   !> Add a quadrilateral element to the mesh @a m
