@@ -627,7 +627,7 @@ contains
     
   end subroutine htable_r8_init
 
-  !> Insert an integer @a key (with @a data) into the hash table
+  !> Insert a double precision @a key (with @a data) into the hash table
   subroutine htable_r8_set(this, key, data) 
     class(htable_r8_t), target, intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Table key
@@ -637,7 +637,7 @@ contains
 
   end subroutine htable_r8_set
 
-  !> Retrive an integer with key @a key from the hash table
+  !> Retrive a double precision float with key @a key from the hash table
   function htable_r8_get(this, key, data) result(rcode)
     class(htable_r8_t), target, intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Key to retrieve
@@ -704,6 +704,7 @@ contains
   !
   ! Point based implementation
   !
+  !> Initialize a point based hash table
   subroutine htable_pt_init(this, size, data)
     class(htable_pt_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
@@ -718,6 +719,7 @@ contains
     
   end subroutine htable_pt_init
 
+  !> Insert a point @a key (with @a data) into the hash table
   subroutine htable_pt_set(this, key, data) 
     class(htable_pt_t), target, intent(inout) :: this
     type(point_t), intent(inout) :: key !< Table key
@@ -727,6 +729,7 @@ contains
 
   end subroutine htable_pt_set
 
+  !> Retrive a point with key @a key from the hash table
   function htable_pt_get(this, key, data) result(rcode)
     class(htable_pt_t), target, intent(inout) :: this
     type(point_t), intent(inout) :: key !< Key to retrieve
@@ -796,7 +799,7 @@ contains
   !
   ! Integer 2-tuple based implementation
   !
-  !> Initialize an integer 2-tuple  hash table
+  !> Initialize an integer 2-tuple hash table
   subroutine htable_i4t2_init(this, size, data)
     class(htable_i4t2_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
