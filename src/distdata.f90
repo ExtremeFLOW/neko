@@ -7,9 +7,8 @@ module distdata
   
   type, public :: distdata_t
      type(stack_i4t2_t) :: shared_facet !< Elemenets with shared facets
-     type(stack_i4t2_t) :: shared_edge  !< Elements with shared edges
+     type(uset_i4_t) :: shared_edge     !< List shared edges
      type(uset_i4_t) :: shared_point    !< List of shared points
-
   end type distdata_t
 
 contains
@@ -48,14 +47,11 @@ contains
 
   !> Mark an element's edge as shared
   !! @attention only defined for elements where facet .ne. edges
-  subroutine distdata_set_shared_edge(distdata, element, edge)
+  subroutine distdata_set_shared_edge(distdata, edge)
     type(distdata_t), intent(inout) :: distdata
-    integer, intent(in), value :: element !< Element index (local numbering)
-    integer, intent(in), value :: edge    !< Edge index
-    type(tuple_i4_t) :: t
+    integer, value :: edge      !< Edge index (local numbering) 
 
-    t = (/ element, edge /)
-    call distdata%shared_edge%push(t)
+    call distdata%shared_edge%add(edge)
     
   end subroutine distdata_set_shared_edge
 
