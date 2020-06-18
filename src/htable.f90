@@ -98,6 +98,7 @@ module htable
    contains
      procedure, public, pass(this) :: next => htable_iter_next
      procedure, public, pass(this) :: reset => htable_iter_reset
+     procedure, public, pass(this) :: data => htable_iter_data
   end type htable_iter_t
 
   !> Iterator for an integer based hash table
@@ -461,6 +462,46 @@ contains
     class(htable_iter_t), intent(inout) :: this
     this%n = -1
   end subroutine htable_iter_reset
+
+  !> Return the data at the current iterator position
+  !! @attention this will make a deep copy of the data...
+  !! @todo Remove once we figure out how to do this with value()
+  !! for arbitrary data types
+  subroutine htable_iter_data(this, data)
+    class(htable_iter_t), target, intent(inout) :: this
+    class(*), intent(inout) :: data !< Data to retrieve
+    class(*), pointer :: hdp
+
+    hdp => this%t%t(this%n)%data
+    select type(hdp)
+    type is (integer)
+       select type (data)
+       type is (integer)
+          data = hdp
+       end select
+    type is (double precision)
+       select type(data)
+       type is (double precision)
+          data = hdp
+       end select
+    type is (point_t)
+       select type (data)
+       type is (point_t)
+          data = hdp
+       end select
+    type is (tuple_i4_t)
+       select type (data)
+       type is (tuple_i4_t)
+          data = hdp
+       end select
+    type is (tuple4_i4_t)
+       select type (data)
+       type is (tuple4_i4_t)
+          data = hdp
+       end select
+    end select
+    
+  end subroutine htable_iter_data
   
   !
   ! Integer based implementation
