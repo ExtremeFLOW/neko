@@ -26,6 +26,8 @@ module mesh
      integer :: npts            !< Number of points per element
      integer :: gdim            !< Geometric dimension
      integer :: mpts            !< Number of (unique) points in the mesh
+     integer :: mfcs            !< Number of (unique) faces in the mesh
+     integer :: meds            !< Number of (unique) edges in the mesh
 
      integer :: glb_nelv        !< Global number of elements
      integer :: offset_el       !< Element offset
@@ -34,6 +36,8 @@ module mesh
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
      
      type(htable_i4_t) :: htp   !< Table of unique points (global->local)
+     type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
+     type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
 
      integer, allocatable :: facet_neigh(:,:)  !< Facet to neigh. element table
      class(htable_t), allocatable :: facet_map !< Facet to element's id tuple 
@@ -45,6 +49,7 @@ module mesh
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
+     logical :: lnumr = .false.                !< valid numbering
 
   end type mesh_t
 
@@ -128,7 +133,10 @@ contains
           call fmp%init(m%nelv, facet_data)
        end select
 
-       allocate(m%facet_neigh(6, m%nelv))
+       allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
+
+       call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
+       call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
     else if (m%gdim .eq. 2) then
        do i = 1, m%nelv
           allocate(quad_t::m%elements(i)%e)
@@ -141,7 +149,9 @@ contains
           call fmp%init(m%nelv, facet_data)
        end select
 
-       allocate(m%facet_neigh(4, m%nelv))
+       allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
+
+       call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
     else
        call neko_error("Invalid dimension")
     end if
@@ -154,12 +164,14 @@ contains
     do i = 1, m%npts*m%nelv
        call m%point_neigh(i)%init()
     end do
-    
+
     call m%htp%init(m%npts*m%nelv, i)
    
     call distdata_init(m%distdata)
     
-    m%mpts = 0    
+    m%mpts = 0
+    m%mfcs = 0
+    m%meds = 0
 
   end subroutine mesh_init_common
   
@@ -169,6 +181,8 @@ contains
     integer :: i
     
     call m%htp%free()
+    call m%htf%free()
+    call m%hte%free()
 
     if (allocated(m%points)) then
        deallocate(m%points)
@@ -297,6 +311,7 @@ contains
        call neko_error('Invalid facet map')
     end select
 
+
     !
     ! Find all external (between PEs) boundaries
     !
@@ -305,6 +320,16 @@ contains
 
        call mesh_generate_external_point_conn(m)
     end if
+
+    !
+    ! Find all internal/extenral edge connections
+    ! (Note it needs to be called after external point connections has
+    ! been established)
+    !
+    if (m%gdim .eq. 3) then
+       call mesh_generate_edge_conn(m)
+    end if
+    
     
     m%lconn = .true.
     
@@ -495,6 +520,97 @@ contains
     call send_buffer%free()
     
   end subroutine mesh_generate_external_point_conn
+
+  !> Generate element-element connectivity via edges
+  !! both between internal and between PEs
+  !! @attention only for elements where facet .ne. edges
+  subroutine mesh_generate_edge_conn(m)
+    type(mesh_t), target, intent(inout) :: m
+    type(htable_iter_i4t2_t), target :: it
+    type(tuple_i4_t), pointer :: edge
+    type(uset_i8_t) :: edge_idx
+    integer, pointer :: p1(:), p2(:), ns_id(:)
+    integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
+    integer(kind=8) :: C, glb_max, glb_id
+    logical :: shared_edge
+    type(stack_i4_t) :: non_shared_edges
+
+    !>@todo move this into distdata
+    allocate(m%distdata%local_to_global_edge(m%meds))
+
+    call edge_idx%init()
+
+    !
+    ! Determine/ constants used to generate unique global edge numbers
+    ! for shared edges 
+    !
+    C = int(m%glb_nelv, 8) * int(NEKO_HEX_NEDS,8)
+
+    num_edge_glb = m%meds
+    call MPI_Allreduce(MPI_IN_PLACE, num_edge_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM,  ierr)
+
+    glb_max = int(num_edge_glb, 8)
+
+    call non_shared_edges%init(m%hte%num_entries())
+    
+    call it%init(m%hte)
+    do while(it%next())       
+       edge => it%key()
+       call it%data(id)
+
+       i = mesh_have_point_glb_idx(m, edge%x(1))
+       j = mesh_have_point_glb_idx(m, edge%x(2))
+       p1 => m%point_neigh(i)%array()
+       p2 => m%point_neigh(j)%array()
+
+       shared_edge = .false.
+       
+       ! Find edge neighbor from point neighbors 
+       do i = 1, m%point_neigh(edge%x(1))%size()
+          do j = 1, m%point_neigh(edge%x(2))%size()
+             if (p1(i) .eq. p2(j) .and. &
+                  p1(i) .lt. 0 .and. p2(j) .lt. 0) then
+                call distdata_set_shared_edge(m%distdata, id)
+                shared_edge = .true.
+             end if
+          end do
+       end do
+
+       ! Generate a unique id for the shared edge as,
+       ! ((e1 * C) + e2 )) + glb_max if e1 > e2
+       ! ((e2 * C) + e1 )) + glb_max if e2 > e1     
+       if (shared_edge) then
+          if (edge%x(1) .gt. edge%x(2)) then
+             glb_id = ((int(edge%x(1), 8)) * C + int(edge%x(2), 8)) + glb_max
+          else
+             glb_id = ((int(edge%x(2), 8)) * C + int(edge%x(1), 8)) + glb_max
+          end if
+
+          call edge_idx%add(glb_id)
+       else
+          call non_shared_edges%push(id)
+       end if
+    end do
+
+
+    ! Determine start offset for global numbering of locally owned edges
+    edge_offset = 0
+    num_edge_loc = m%meds - non_shared_edges%size()
+    call MPI_Exscan(num_edge_loc, edge_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    edge_offset = edge_offset + 1
+    
+    ! Construct global numbering of locally owned edges
+    ns_id => non_shared_edges%array()
+    do i = 1, non_shared_edges%size()
+       call distdata_set_local_to_global_edge(m%distdata, ns_id(i), edge_offset)
+       edge_offset = edge_offset + 1          
+    end do
+
+    !> @todo Renumber shared edges into integer range
+    
+  end subroutine mesh_generate_edge_conn
   
   
   !> Add a quadrilateral element to the mesh @a m
@@ -504,10 +620,14 @@ contains
     type(point_t), intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
     integer :: p(4), el_glb_idx, i, p_local_idx
+    type(tuple_i4_t) :: e
 
     ! Connectivity invalidated if a new element is added        
-    m%lconn = .false.           
+    m%lconn = .false.
 
+    ! Numbering invalidated if a new element is added
+    m%lnumr = .false.
+    
     call mesh_add_point(m, p1, p(1))
     call mesh_add_point(m, p2, p(2))
     call mesh_add_point(m, p3, p(3))
@@ -516,7 +636,7 @@ contains
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
 
-    do i = 1,4
+    do i = 1, NEKO_QUAD_NPTS
        p_local_idx = mesh_get_local(m, m%points(p(i)))
        call m%point_neigh(p_local_idx)%push(el_glb_idx)
     end do
@@ -526,6 +646,12 @@ contains
        call ep%init(el_glb_idx, &
             m%points(p(1)), m%points(p(2)), &
             m%points(p(3)), m%points(p(4)))
+
+       do i = 1, NEKO_QUAD_NEDS
+          call ep%facet_id(e, i)
+          call mesh_add_edge(m, e)
+       end do
+
     class default
        call neko_error('Invalid element type')
     end select
@@ -539,9 +665,14 @@ contains
     type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
     integer :: p(8), el_glb_idx, i, p_local_idx
+    type(tuple4_i4_t) :: f
+    type(tuple_i4_t) :: e
 
     ! Connectivity invalidated if a new element is added        
     m%lconn = .false.
+
+    ! Numbering invalidated if a new element is added
+    m%lnumr = .false.
     
     call mesh_add_point(m, p1, p(1))
     call mesh_add_point(m, p2, p(2))
@@ -555,7 +686,7 @@ contains
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
 
-    do i = 1,8
+    do i = 1, NEKO_HEX_NPTS
        p_local_idx = mesh_get_local(m, m%points(p(i)))
        call m%point_neigh(p_local_idx)%push(el_glb_idx)
     end do
@@ -567,6 +698,17 @@ contains
             m%points(p(3)), m%points(p(4)), &
             m%points(p(5)), m%points(p(6)), &
             m%points(p(7)), m%points(p(8)))
+
+       do i = 1, NEKO_HEX_NFCS
+          call ep%facet_id(f, i)
+          call mesh_add_face(m, f)
+       end do
+
+       do i = 1, NEKO_HEX_NEDS
+          call ep%edge_id(e, i)
+          call mesh_add_edge(m, e)
+       end do
+       
     class default
        call neko_error('Invalid element type')
     end select
@@ -594,6 +736,32 @@ contains
     end if
     
   end subroutine mesh_add_point
+
+  !> Add a unique face represented as a 4-tuple to the mesh
+  subroutine mesh_add_face(m, f)
+    type(mesh_t), intent(inout) :: m
+    type(tuple4_i4_t), intent(inout) :: f
+    integer :: idx
+
+    if (m%htf%get(f, idx) .gt. 0) then
+       m%mfcs = m%mfcs + 1
+       call m%htf%set(f, m%mfcs)
+    end if
+    
+  end subroutine mesh_add_face
+  
+  !> Add a unique edge represented as a 2-tuple to the mesh
+  subroutine mesh_add_edge(m, e)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t), intent(inout) :: e
+    integer :: idx
+
+    if (m%hte%get(e, idx) .gt. 0) then
+       m%meds = m%meds + 1
+       call m%hte%set(e, m%meds)
+    end if
+    
+  end subroutine mesh_add_edge
 
   !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)

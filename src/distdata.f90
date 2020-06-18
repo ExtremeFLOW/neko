@@ -7,7 +7,11 @@ module distdata
   
   type, public :: distdata_t
      type(stack_i4t2_t) :: shared_facet !< Elemenets with shared facets
-     type(uset_i4_t) :: shared_point   !< List of shared points
+     type(uset_i4_t) :: shared_edge     !< List shared edges
+     type(uset_i4_t) :: shared_point    !< List of shared points
+     
+     integer, allocatable :: local_to_global_edge(:) !< Local to global (edges)
+     
   end type distdata_t
 
 contains
@@ -17,6 +21,7 @@ contains
     type(distdata_t), intent(inout) :: distdata
 
     call distdata%shared_facet%init()
+    call distdata%shared_edge%init()   
     call distdata%shared_point%init()
     
   end subroutine distdata_init
@@ -26,7 +31,12 @@ contains
     type(distdata_t), intent(inout) :: distdata
 
     call distdata%shared_facet%free()
+    call distdata%shared_edge%free()
     call distdata%shared_point%free()
+
+    if (allocated(distdata%local_to_global_edge)) then
+       deallocate(distdata%local_to_global_edge)
+    end if
     
   end subroutine distdata_free
 
@@ -42,6 +52,16 @@ contains
     
   end subroutine distdata_set_shared_facet
 
+  !> Mark an element's edge as shared
+  !! @attention only defined for elements where facet .ne. edges
+  subroutine distdata_set_shared_edge(distdata, edge)
+    type(distdata_t), intent(inout) :: distdata
+    integer, value :: edge      !< Edge index (local numbering) 
+
+    call distdata%shared_edge%add(edge)
+    
+  end subroutine distdata_set_shared_edge
+
   !> Mark a point as shared
   subroutine distdata_set_shared_point(distdata, point)
     type(distdata_t), intent(inout) :: distdata
@@ -50,5 +70,15 @@ contains
     call distdata%shared_point%add(point)
     
   end subroutine distdata_set_shared_point
+
+  !> Set local to global mapping (edges)
+  subroutine distdata_set_local_to_global_edge(distdata, local, global)
+    type(distdata_t), intent(inout) :: distdata
+    integer, intent(in) , value :: local  !< Local edge index
+    integer, intent(in) , value :: global !< Global edge index
+
+    distdata%local_to_global_edge(local) = global
+    
+  end subroutine distdata_set_local_to_global_edge
   
 end module distdata

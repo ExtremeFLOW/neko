@@ -38,6 +38,10 @@ module htable
      end function htable_hash
   end interface
 
+  !
+  ! Implementations
+  !
+
   !> Integer based hash table
   type, public, extends(htable_t) :: htable_i4_t
    contains
@@ -46,6 +50,15 @@ module htable
      procedure, pass(this) :: get => htable_i4_get
      procedure, pass(this) :: hash => htable_i4_hash
   end type htable_i4_t
+
+  !> Integer*8 based hash table
+  type, public, extends(htable_t) :: htable_i8_t
+   contains
+     procedure, pass(this) :: init => htable_i8_init
+     procedure, pass(this) :: set => htable_i8_set
+     procedure, pass(this) :: get => htable_i8_get
+     procedure, pass(this) :: hash => htable_i8_hash
+  end type htable_i8_t
 
   !> Double precision based hash table
   type, public, extends(htable_t) :: htable_r8_t
@@ -82,7 +95,69 @@ module htable
      procedure, pass(this) :: get => htable_i4t4_get
      procedure, pass(this) :: hash => htable_i4t4_hash
   end type htable_i4t4_t
- 
+
+  !
+  ! Iterators
+  !
+
+  !> Base type for a hash table iterator
+  type, public, abstract :: htable_iter_t
+     integer, private :: n
+     class(htable_t), pointer :: t
+   contains
+     procedure, public, pass(this) :: next => htable_iter_next
+     procedure, public, pass(this) :: reset => htable_iter_reset
+     procedure, public, pass(this) :: data => htable_iter_data
+  end type htable_iter_t
+
+  !> Iterator for an integer based hash table
+  type, public, extends(htable_iter_t) :: htable_iter_i4_t
+   contains
+     procedure, pass(this) :: init => htable_iter_i4_init
+     procedure, pass(this) :: value => htable_iter_i4_value
+     procedure, pass(this) :: key => htable_iter_i4_key
+  end type htable_iter_i4_t
+
+  !> Iterator for an integer*8 based hash table
+  type, public, extends(htable_iter_t) :: htable_iter_i8_t
+   contains
+     procedure, pass(this) :: init => htable_iter_i8_init
+     procedure, pass(this) :: value => htable_iter_i8_value
+     procedure, pass(this) :: key => htable_iter_i8_key
+  end type htable_iter_i8_t
+
+  !> Iterator for a double precision based hash table
+  type, public, extends(htable_iter_t) :: htable_iter_r8_t
+   contains
+     procedure, pass(this) :: init => htable_iter_r8_init
+     procedure, pass(this) :: value => htable_iter_r8_value
+     procedure, pass(this) :: key => htable_iter_r8_key
+  end type htable_iter_r8_t
+
+  !> Iterator for a point based hash table
+  type, public, extends(htable_iter_t) :: htable_iter_pt_t
+   contains
+     procedure, pass(this) :: init => htable_iter_pt_init
+     procedure, pass(this) :: value => htable_iter_pt_value
+     procedure, pass(this) :: key => htable_iter_pt_key
+  end type htable_iter_pt_t
+
+  !> Iterator for an integer based 2-tuple hash table
+  type, public, extends(htable_iter_t) :: htable_iter_i4t2_t
+   contains
+     procedure, pass(this) :: init => htable_iter_i4t2_init
+     procedure, pass(this) :: value => htable_iter_i4t2_value
+     procedure, pass(this) :: key => htable_iter_i4t2_key
+  end type htable_iter_i4t2_t
+
+  !> Iterator for an integer based 4-tuple hash table
+  type, public, extends(htable_iter_t) :: htable_iter_i4t4_t
+   contains
+     procedure, pass(this) :: init => htable_iter_i4t4_init
+     procedure, pass(this) :: value => htable_iter_i4t4_value
+     procedure, pass(this) :: key => htable_iter_i4t4_key
+  end type htable_iter_i4t4_t
+
 contains
 
   !> Initialize a hash table of type @a data
@@ -182,6 +257,8 @@ contains
     select type(key)
     type is (integer)
        allocate(htable_i4_t::tmp)
+    type is (integer(8))
+       allocate(htable_i8_t::tmp)
     type is (double precision)
        allocate(htable_r8_t::tmp)
     type is (point_t)
@@ -251,6 +328,11 @@ contains
        type is (integer)
           hdp = data
        end select
+    type is (integer(8))
+       select type(hdp)
+       type is (integer(8))
+          hdp = data
+       end select
     type is (double precision)
        select type(hdp)
        type is (double precision)
@@ -284,6 +366,11 @@ contains
     type is (integer)
        select type(data)
        type is (integer)
+          data = hdp
+       end select
+    type is (integer(8))
+       select type(data)
+       type is (integer(8))
           data = hdp
        end select
     type is (double precision)
@@ -323,6 +410,11 @@ contains
        type is (integer)
           res = (kp .eq. key)
        end select
+    type is (integer(8))
+       select type(key)
+       type is (integer(8))
+          res = (kp .eq. key)
+       end select
     type is (double precision)
        select type(key)
        type is (double precision)
@@ -360,6 +452,11 @@ contains
        type is (integer)
           kp = key
        end select
+    type is (integer(8))
+       select type(kp)
+       type is (integer(8))
+          kp = key
+       end select
     type is (double precision)
        select type(kp)
        type is (double precision)
@@ -383,6 +480,73 @@ contains
     end select
   end subroutine htable_set_key
 
+  !> Advance the iterator to the next valid table entry
+  function htable_iter_next(this) result(valid)
+    class(htable_iter_t), intent(inout) :: this
+    logical :: valid
+    integer index, i
+
+    this%n = this%n + 1
+    do while ((.not. this%t%t(this%n)%valid) .and. (this%n .lt. this%t%size))
+       this%n = this%n + 1
+    end do
+
+    valid = (this%n .lt. this%t%size)
+    if (.not. valid) this%n = -1
+    
+  end function htable_iter_next
+
+  !> Reset an iterator
+  subroutine htable_iter_reset(this)
+    class(htable_iter_t), intent(inout) :: this
+    this%n = -1
+  end subroutine htable_iter_reset
+
+  !> Return the data at the current iterator position
+  !! @attention this will make a deep copy of the data...
+  !! @todo Remove once we figure out how to do this with value()
+  !! for arbitrary data types
+  subroutine htable_iter_data(this, data)
+    class(htable_iter_t), target, intent(inout) :: this
+    class(*), intent(inout) :: data !< Data to retrieve
+    class(*), pointer :: hdp
+
+    hdp => this%t%t(this%n)%data
+    select type(hdp)
+    type is (integer)
+       select type (data)
+       type is (integer)
+          data = hdp
+       end select
+    type is (integer(8))
+       select type (data)
+       type is (integer(8))
+          data = hdp
+       end select
+    type is (double precision)
+       select type(data)
+       type is (double precision)
+          data = hdp
+       end select
+    type is (point_t)
+       select type (data)
+       type is (point_t)
+          data = hdp
+       end select
+    type is (tuple_i4_t)
+       select type (data)
+       type is (tuple_i4_t)
+          data = hdp
+       end select
+    type is (tuple4_i4_t)
+       select type (data)
+       type is (tuple4_i4_t)
+          data = hdp
+       end select
+    end select
+    
+  end subroutine htable_iter_data
+  
   !
   ! Integer based implementation
   !
@@ -427,12 +591,12 @@ contains
     class(htable_i4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: hash
-    integer, parameter :: M1 = Z'7ed55d15'
-    integer, parameter :: M2 = Z'c761c23c'
-    integer, parameter :: M3 = Z'165667b1'
-    integer, parameter :: M4 = Z'd3a2646c'
-    integer, parameter :: M5 = Z'fd7046c5'
-    integer, parameter :: M6 = Z'b55a4f09'
+    integer, parameter :: M1 = Z'7ed55d1'
+    integer, parameter :: M2 = Z'c761c23'
+    integer, parameter :: M3 = Z'165667b'
+    integer, parameter :: M4 = Z'd3a2646'
+    integer, parameter :: M5 = Z'fd7046c'
+    integer, parameter :: M6 = Z'b55a4f0'
 
     select type(k)
     type is (integer)
@@ -447,6 +611,153 @@ contains
        hash = -1
     end select
   end function htable_i4_hash
+
+  !> Initialize an integer based hash table iterator
+  subroutine htable_iter_i4_init(this, t)
+    class(htable_iter_i4_t), intent(inout) :: this
+    type(htable_i4_t), target, intent(inout) :: t
+
+    this%t => t
+    this%n = -1    
+
+  end subroutine htable_iter_i4_init
+
+  !> Return the current value of the integer based hash table iterator
+  function htable_iter_i4_value(this) result(value)
+    class(htable_iter_i4_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
+    integer, pointer :: value
+
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
+    type is (integer)
+       value => hdp
+    class default
+       call neko_error('Key and data of different kind')
+    end select
+    
+  end function htable_iter_i4_value
+
+  !> Return the current key of the integer based hash table iterator
+  function htable_iter_i4_key(this) result(key)
+    class(htable_iter_i4_t), target, intent(inout) :: this
+    class(*), pointer :: kp
+    integer, pointer :: key
+
+    kp => this%t%t(this%n)%key
+    select type (kp)
+    type is (integer)
+       key => kp
+    end select
+    
+  end function htable_iter_i4_key
+
+  !
+  ! Integer*8 based implementation
+  !
+  !> Initialize an integer*8 based hash table
+  subroutine htable_i8_init(this, size, data)
+    class(htable_i8_t), intent(inout) :: this
+    integer, value :: size                    !< Initial size of the table
+    class(*), intent(inout), optional :: data !< Data to associate with @a key
+    integer(kind=8) :: key
+
+    if (present(data)) then
+       call htable_init(this, size, key, data)
+    else
+       call htable_init(this, size, key)
+    end if
+    
+  end subroutine htable_i8_init
+
+  !> Insert an integer*8 into the hash table
+  subroutine htable_i8_set(this, key, data) 
+    class(htable_i8_t), target, intent(inout) :: this
+    integer(kind=8), intent(inout) :: key   !< Table key
+    class(*), intent(inout) :: data !< Data associated with @a key
+
+    call htable_set(this, key, data)
+
+  end subroutine htable_i8_set
+
+  !> Retrive an integer*8 with key @a key from the hash table
+  function htable_i8_get(this, key, data) result(rcode)
+    class(htable_i8_t), target, intent(inout) :: this
+    integer(kind=8), intent(inout) :: key   !< Key to retrieve
+    class(*), intent(inout) :: data !< Retrieved data
+    integer :: rcode
+
+    rcode = htable_get(this, key, data)
+
+  end function htable_i8_get
+
+  !> Hash function for an integer*8 based hash table
+  pure function htable_i8_hash(this, k) result(hash)
+    class(htable_i8_t), intent(in) :: this
+    class(*), intent(in) :: k
+    integer :: hash
+    integer(kind=8) :: tmp
+    integer(kind=8), parameter :: M1 = Z'7ed55d15'
+    integer(kind=8), parameter :: M2 = Z'c761c23c'
+    integer(kind=8), parameter :: M3 = Z'165667b1'
+    integer(kind=8), parameter :: M4 = Z'd3a2646c'
+    integer(kind=8), parameter :: M5 = Z'fd7046c5'
+    integer(kind=8), parameter :: M6 = Z'b55a4f09'
+
+    select type(k)
+    type is (integer(8))
+       tmp = (k + M1) + ishft(k, 12)
+       tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
+       tmp = (tmp + M3) + ishft(tmp, 5)
+       tmp = ieor((tmp + M4), ishft(tmp, 9))
+       tmp = (tmp + M5) + ishft(tmp, 3)
+       tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
+       hash = int(modulo(hash, this%size), 4)
+    class default
+       hash = -1
+    end select
+  end function htable_i8_hash
+
+  !> Initialize an integer*8 based hash table iterator
+  subroutine htable_iter_i8_init(this, t)
+    class(htable_iter_i8_t), intent(inout) :: this
+    type(htable_i8_t), target, intent(inout) :: t
+
+    this%t => t
+    this%n = -1    
+
+  end subroutine htable_iter_i8_init
+
+  !> Return the current value of the integer*8 based hash table iterator
+  function htable_iter_i8_value(this) result(value)
+    class(htable_iter_i8_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
+    integer(kind=8), pointer :: value
+
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
+    type is (integer(8))
+       value => hdp
+    class default
+       call neko_error('Key and data of different kind')
+    end select
+    
+  end function htable_iter_i8_value
+
+  !> Return the current key of the integer*8 based hash table iterator
+  function htable_iter_i8_key(this) result(key)
+    class(htable_iter_i8_t), target, intent(inout) :: this
+    class(*), pointer :: kp
+    integer(kind=8), pointer :: key
+
+    kp => this%t%t(this%n)%key
+    select type (kp)
+    type is (integer(8))
+       key => kp
+    end select
+    
+  end function htable_iter_i8_key
+  
 
   !
   ! Double precision based implementation
@@ -466,7 +777,7 @@ contains
     
   end subroutine htable_r8_init
 
-  !> Insert an integer @a key (with @a data) into the hash table
+  !> Insert a double precision @a key (with @a data) into the hash table
   subroutine htable_r8_set(this, key, data) 
     class(htable_r8_t), target, intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Table key
@@ -476,7 +787,7 @@ contains
 
   end subroutine htable_r8_set
 
-  !> Retrive an integer with key @a key from the hash table
+  !> Retrive a double precision float with key @a key from the hash table
   function htable_r8_get(this, key, data) result(rcode)
     class(htable_r8_t), target, intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Key to retrieve
@@ -500,9 +811,50 @@ contains
     end select
   end function htable_r8_hash
 
+  !> Initialize a double precision based hash table iterator
+  subroutine htable_iter_r8_init(this, t)
+    class(htable_iter_r8_t), intent(inout) :: this
+    type(htable_r8_t), target, intent(inout) :: t
+
+    this%t => t
+    this%n = -1    
+
+  end subroutine htable_iter_r8_init
+
+  !> Return the current value of the double precision based hash table iterator
+  function htable_iter_r8_value(this) result(value)
+    class(htable_iter_r8_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
+    real(kind=dp), pointer :: value
+
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
+    type is (double precision)
+       value => hdp
+    class default
+       call neko_error('Key and data of different kind')
+    end select
+    
+  end function htable_iter_r8_value
+
+  !> Return the current key of the double precision based hash table iterator
+  function htable_iter_r8_key(this) result(key)
+    class(htable_iter_r8_t), target, intent(inout) :: this
+    class(*), pointer :: kp
+    real(kind=dp), pointer :: key
+
+    kp => this%t%t(this%n)%data
+    select type (kp)
+    type is (double precision)
+       key => kp
+    end select
+    
+  end function htable_iter_r8_key
+  
   !
   ! Point based implementation
   !
+  !> Initialize a point based hash table
   subroutine htable_pt_init(this, size, data)
     class(htable_pt_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
@@ -517,6 +869,7 @@ contains
     
   end subroutine htable_pt_init
 
+  !> Insert a point @a key (with @a data) into the hash table
   subroutine htable_pt_set(this, key, data) 
     class(htable_pt_t), target, intent(inout) :: this
     type(point_t), intent(inout) :: key !< Table key
@@ -526,6 +879,7 @@ contains
 
   end subroutine htable_pt_set
 
+  !> Retrive a point with key @a key from the hash table
   function htable_pt_get(this, key, data) result(rcode)
     class(htable_pt_t), target, intent(inout) :: this
     type(point_t), intent(inout) :: key !< Key to retrieve
@@ -552,10 +906,50 @@ contains
 
   end function htable_pt_hash
 
+  !> Initialize a point based hash table iterator
+  subroutine htable_iter_pt_init(this, t)
+    class(htable_iter_pt_t), intent(inout) :: this
+    type(htable_pt_t), target, intent(inout) :: t
+
+    this%t => t
+    this%n = -1    
+
+  end subroutine htable_iter_pt_init
+
+  !> Return the current value of the point based hash table iterator
+  function htable_iter_pt_value(this) result(value)
+    class(htable_iter_pt_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
+    type(point_t), pointer :: value
+
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
+    type is (point_t)
+       value => hdp
+    class default
+       call neko_error('Key and data of different kind')
+    end select
+    
+  end function htable_iter_pt_value
+
+  !> Return the current key of the point based hash table iterator
+  function htable_iter_pt_key(this) result(key)
+    class(htable_iter_pt_t), target, intent(inout) :: this
+    class(*), pointer :: kp
+    type(point_t), pointer :: key
+
+    kp => this%t%t(this%n)%key
+    select type (kp)
+    type is (point_t)
+       key => kp
+    end select
+    
+  end function htable_iter_pt_key
+
   !
   ! Integer 2-tuple based implementation
   !
-  !> Initialize an integer 2-tuple  hash table
+  !> Initialize an integer 2-tuple hash table
   subroutine htable_i4t2_init(this, size, data)
     class(htable_i4t2_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
@@ -596,12 +990,12 @@ contains
     class(htable_i4t2_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = Z'7ed55d15'
-    integer, parameter :: M2 = Z'c761c23c'
-    integer, parameter :: M3 = Z'165667b1'
-    integer, parameter :: M4 = Z'd3a2646c'
-    integer, parameter :: M5 = Z'fd7046c5'
-    integer, parameter :: M6 = Z'b55a4f09'
+    integer, parameter :: M1 = Z'7ed55d1'
+    integer, parameter :: M2 = Z'c761c23'
+    integer, parameter :: M3 = Z'165667b'
+    integer, parameter :: M4 = Z'd3a2646'
+    integer, parameter :: M5 = Z'fd7046c'
+    integer, parameter :: M6 = Z'b55a4f0'
 
     select type(k)
     type is (tuple_i4_t)
@@ -624,6 +1018,46 @@ contains
        hash = -1
     end select
   end function htable_i4t2_hash
+
+  !> Initialize an integer 2-tuple based hash table iterator
+  subroutine htable_iter_i4t2_init(this, t)
+    class(htable_iter_i4t2_t), intent(inout) :: this
+    type(htable_i4t2_t), target, intent(inout) :: t
+
+    this%t => t
+    this%n = -1    
+
+  end subroutine htable_iter_i4t2_init
+
+  !> Return the current value of integer based 2-tuple hash table iterator
+  function htable_iter_i4t2_value(this) result(value)
+    class(htable_iter_i4t2_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
+    type(tuple_i4_t), pointer :: value
+
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
+    type is (tuple_i4_t)
+       value => hdp
+    class default
+       call neko_error('Key and data of different kind')
+    end select
+    
+  end function htable_iter_i4t2_value
+
+  !> Return the current key of integer based 2-tuple hash table iterator
+  function htable_iter_i4t2_key(this) result(key)
+    class(htable_iter_i4t2_t), target, intent(inout) :: this
+    class(*), pointer :: kp
+    type(tuple_i4_t), pointer :: key
+
+    kp => this%t%t(this%n)%key
+    select type (kp)
+    type is (tuple_i4_t)
+       key => kp
+    end select
+    
+  end function htable_iter_i4t2_key
 
   !
   ! Integer 4-tuple based implementation
@@ -669,12 +1103,12 @@ contains
     class(htable_i4t4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = Z'7ed55d15'
-    integer, parameter :: M2 = Z'c761c23c'
-    integer, parameter :: M3 = Z'165667b1'
-    integer, parameter :: M4 = Z'd3a2646c'
-    integer, parameter :: M5 = Z'fd7046c5'
-    integer, parameter :: M6 = Z'b55a4f09'
+    integer, parameter :: M1 = Z'7ed55d1'
+    integer, parameter :: M2 = Z'c761c23'
+    integer, parameter :: M3 = Z'165667b'
+    integer, parameter :: M4 = Z'd3a2646'
+    integer, parameter :: M5 = Z'fd7046c'
+    integer, parameter :: M6 = Z'b55a4f0'
 
     select type(k)
     type is (tuple4_i4_t)
@@ -697,5 +1131,45 @@ contains
        hash = -1
     end select
   end function htable_i4t4_hash
-  
+
+  !> Initialize an integer 4-tuple based hash table iterator
+  subroutine htable_iter_i4t4_init(this, t)
+    class(htable_iter_i4t4_t), intent(inout) :: this
+    type(htable_i4t4_t), target, intent(inout) :: t
+
+    this%t => t
+    this%n = -1    
+
+  end subroutine htable_iter_i4t4_init
+
+  !> Return the current value of integer based 4-tuple hash table iterator
+  function htable_iter_i4t4_value(this) result(value)
+    class(htable_iter_i4t4_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
+    type(tuple4_i4_t), pointer :: value
+
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
+    type is (tuple4_i4_t)
+       value => hdp
+    class default
+       call neko_error('Key and data of different kind')
+    end select
+    
+  end function htable_iter_i4t4_value
+
+  !> Return the current key of integer based 4-tuple hash table iterator
+  function htable_iter_i4t4_key(this) result(key)
+    class(htable_iter_i4t4_t), target, intent(inout) :: this
+    class(*), pointer :: kp
+    type(tuple4_i4_t), pointer :: key
+
+    kp => this%t%t(this%n)%key
+    select type (kp)
+    type is (tuple4_i4_t)
+       key => kp
+    end select
+    
+  end function htable_iter_i4t4_key
+
 end module htable
