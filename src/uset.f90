@@ -29,6 +29,18 @@ module uset
      procedure, pass(this) :: add => uset_i4_add
   end type uset_i4_t
 
+  !> Integer*8 based unordered set
+  type, extends(uset_t), public :: uset_i8_t
+     type(htable_i8_t) :: t
+   contains
+     procedure, pass(this) :: init => uset_i8_init
+     procedure, pass(this) :: free => uset_i8_free
+     procedure, pass(this) :: size => uset_i8_size
+     procedure, pass(this) :: clear => uset_i8_clear
+     procedure, pass(this) :: element => uset_i8_element
+     procedure, pass(this) :: add => uset_i8_add
+  end type uset_i8_t
+
   !> Double precision unordered set
   type, extends(uset_t), public :: uset_r8_t
      type(htable_r8_t) :: t
@@ -158,6 +170,69 @@ contains
        call this%t%set(key, data)
     end select
   end subroutine uset_i4_add
+
+    !> Initialize an empty integer*8 based unordered set
+  subroutine uset_i8_init(this, n)
+    class(uset_i8_t), intent(inout) :: this
+    integer, optional :: n
+    integer :: key
+
+    if (present(n)) then
+       call this%t%init(n)
+    else
+       call this%t%init(64)
+    end if    
+  end subroutine uset_i8_init
+  
+  !> Destroy an integer*8 based unordered set
+  subroutine uset_i8_free(this)
+    class(uset_i8_t), intent(inout) :: this
+
+    call this%t%free()
+    
+  end subroutine uset_i8_free
+
+  !> Return the cardinality of an integer*8 based unordered set
+  pure function uset_i8_size(this) result(entries)
+    class(uset_i8_t), intent(in) :: this
+    integer :: entries
+
+    entries = this%t%num_entries()
+    
+  end function uset_i8_size
+
+  !> Clear an integer*8 based unordered set
+  subroutine uset_i8_clear(this)
+    class(uset_i8_t), intent(inout) :: this
+
+    call this%t%clear()
+  end subroutine uset_i8_clear
+
+  !> Check if an integer*8 @a key is an element of the set
+  function uset_i8_element(this, key) result(res)
+    class(uset_i8_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+    integer :: data
+    logical :: res
+
+    select type(key)
+    type is (integer(8))
+       res = (this%t%get(key, data) .eq. 0)
+    end select    
+  end function uset_i8_element
+  
+  !> Add an integer*8 @a key to the set
+  subroutine uset_i8_add(this, key)
+    class(uset_i8_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+    integer(kind=8) :: data
+    data = 1
+
+    select type(key)
+    type is (integer(8))
+       call this%t%set(key, data)
+    end select
+  end subroutine uset_i8_add
 
   !> Initialize an empty double precision based unordered set
   subroutine uset_r8_init(this, n)
