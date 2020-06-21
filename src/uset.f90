@@ -3,6 +3,7 @@
 module uset
   use num_types
   use htable
+  use utils
   implicit none
   private
 
@@ -155,6 +156,8 @@ contains
     select type(key)
     type is (integer)
        res = (this%t%get(key, data) .eq. 0)
+    class default
+       res = .false.
     end select    
   end function uset_i4_element
   
@@ -168,6 +171,8 @@ contains
     select type(key)
     type is (integer)
        call this%t%set(key, data)
+    class default
+       call neko_error("Invalid key")
     end select
   end subroutine uset_i4_add
 
@@ -175,7 +180,6 @@ contains
   subroutine uset_i8_init(this, n)
     class(uset_i8_t), intent(inout) :: this
     integer, optional :: n
-    integer :: key
 
     if (present(n)) then
        call this%t%init(n)
@@ -212,12 +216,14 @@ contains
   function uset_i8_element(this, key) result(res)
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
-    integer :: data
+    integer(kind=8) :: data
     logical :: res
 
     select type(key)
     type is (integer(8))
        res = (this%t%get(key, data) .eq. 0)
+    class default
+       res = .false.
     end select    
   end function uset_i8_element
   
@@ -231,6 +237,8 @@ contains
     select type(key)
     type is (integer(8))
        call this%t%set(key, data)
+    class default
+       call neko_error("Invalid key")
     end select
   end subroutine uset_i8_add
 
@@ -281,6 +289,8 @@ contains
     select type(key)
     type is (double precision)
        res = (this%t%get(key, data) .eq. 0)
+    class default
+       res = .false.
     end select
     
   end function uset_r8_element
@@ -295,6 +305,8 @@ contains
     select type(key)
     type is (double precision)
        call this%t%set(key, data)
+    class default
+       call neko_error("Invalid key")
     end select
   end subroutine uset_r8_add
 
