@@ -77,6 +77,8 @@ contains
     select type(this)
     class is(stack_i4_t)
        allocate(integer::this%data(this%size_))
+    class is(stack_i8_t)
+       allocate(integer(8)::this%data(this%size_))
     class is (stack_r8_t)
        allocate(double precision::this%data(this%size_))
     class is (stack_i4t2_t)
