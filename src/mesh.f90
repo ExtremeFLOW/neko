@@ -506,7 +506,7 @@ contains
           pt_loc_idx = mesh_have_point_glb_idx(m, pt_glb_idx)
           if (pt_loc_idx .gt. 0) then
              do k = 1, num_neigh
-                neigh_el = -recv_buffer(j + 2 + k)
+                neigh_el = -recv_buffer(j + 1 + k)
                 call m%point_neigh(pt_loc_idx)%push(neigh_el)
                 call distdata_set_shared_point(m%distdata, pt_loc_idx)
              end do
