@@ -16,6 +16,7 @@ module uset
      procedure(uset_clear), pass(this), deferred :: clear
      procedure(uset_element), pass(this), deferred :: element
      procedure(uset_add), pass(this), deferred :: add
+     procedure(uset_remove), pass(this), deferred :: remove
   end type uset_t
 
   !> Integer based unordered set
@@ -28,6 +29,7 @@ module uset
      procedure, pass(this) :: clear => uset_i4_clear
      procedure, pass(this) :: element => uset_i4_element
      procedure, pass(this) :: add => uset_i4_add
+     procedure, pass(this) :: remove => uset_i4_remove
   end type uset_i4_t
 
   !> Integer*8 based unordered set
@@ -40,6 +42,7 @@ module uset
      procedure, pass(this) :: clear => uset_i8_clear
      procedure, pass(this) :: element => uset_i8_element
      procedure, pass(this) :: add => uset_i8_add
+     procedure, pass(this) :: remove => uset_i8_remove
   end type uset_i8_t
 
   !> Double precision unordered set
@@ -52,6 +55,7 @@ module uset
      procedure, pass(this) :: clear => uset_r8_clear
      procedure, pass(this) :: element => uset_r8_element
      procedure, pass(this) :: add => uset_r8_add
+     procedure, pass(this) :: remove => uset_r8_remove
   end type uset_r8_t
 
   !> Interface for initializing an unordered set
@@ -105,6 +109,15 @@ module uset
        class(uset_t), intent(inout) :: this
        class(*), intent(inout) :: key
      end subroutine uset_add
+  end interface
+
+  !> Inteface for removing @a key in an unorderd set
+  abstract interface     
+     subroutine uset_remove(this, key)
+       import uset_t
+       class(uset_t), intent(inout) :: this
+       class(*), intent(inout) :: key
+     end subroutine uset_remove
  end interface
 
 contains
@@ -176,6 +189,19 @@ contains
     end select
   end subroutine uset_i4_add
 
+  !> Remove an integer @a key from the set
+  subroutine uset_i4_remove(this, key)
+    class(uset_i4_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+
+    select type(key)
+    type is (integer)
+       call this%t%remove(key)
+    class default
+       call neko_error("Invalid key")
+    end select
+  end subroutine uset_i4_remove
+
     !> Initialize an empty integer*8 based unordered set
   subroutine uset_i8_init(this, n)
     class(uset_i8_t), intent(inout) :: this
@@ -241,6 +267,19 @@ contains
        call neko_error("Invalid key")
     end select
   end subroutine uset_i8_add
+
+  !> Remove an integer*8 @a key from the set
+  subroutine uset_i8_remove(this, key)
+    class(uset_i8_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+
+    select type(key)
+    type is (integer(8))
+       call this%t%remove(key)
+    class default
+       call neko_error("Invalid key")
+    end select
+  end subroutine uset_i8_remove
 
   !> Initialize an empty double precision based unordered set
   subroutine uset_r8_init(this, n)
@@ -309,6 +348,19 @@ contains
        call neko_error("Invalid key")
     end select
   end subroutine uset_r8_add
+
+  !> Remove a double precision @a key from the set
+  subroutine uset_r8_remove(this, key)
+    class(uset_r8_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+
+    select type(key)
+    type is (double precision)
+       call this%t%remove(key)
+    class default
+       call neko_error("Invalid key")
+    end select
+  end subroutine uset_r8_remove
 
 
 end module uset

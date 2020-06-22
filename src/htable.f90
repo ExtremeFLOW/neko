@@ -49,6 +49,7 @@ module htable
      procedure, pass(this) :: set => htable_i4_set
      procedure, pass(this) :: get => htable_i4_get
      procedure, pass(this) :: hash => htable_i4_hash
+     procedure, pass(this) :: remove => htable_i4_remove
   end type htable_i4_t
 
   !> Integer*8 based hash table
@@ -58,6 +59,7 @@ module htable
      procedure, pass(this) :: set => htable_i8_set
      procedure, pass(this) :: get => htable_i8_get
      procedure, pass(this) :: hash => htable_i8_hash
+     procedure, pass(this) :: remove => htable_i8_remove
   end type htable_i8_t
 
   !> Double precision based hash table
@@ -67,6 +69,7 @@ module htable
      procedure, pass(this) :: set => htable_r8_set
      procedure, pass(this) :: get => htable_r8_get
      procedure, pass(this) :: hash => htable_r8_hash
+     procedure, pass(this) :: remove => htable_r8_remove
   end type htable_r8_t
 
   !> Point based hash table
@@ -76,6 +79,7 @@ module htable
      procedure, pass(this) :: set => htable_pt_set
      procedure, pass(this) :: get => htable_pt_get
      procedure, pass(this) :: hash => htable_pt_hash
+     procedure, pass(this) :: remove => htable_pt_remove
   end type htable_pt_t
 
   !> Integer 2-tuple based hash table
@@ -85,6 +89,7 @@ module htable
      procedure, pass(this) :: set => htable_i4t2_set
      procedure, pass(this) :: get => htable_i4t2_get
      procedure, pass(this) :: hash => htable_i4t2_hash
+     procedure, pass(this) :: remove => htable_i4t2_remove
   end type htable_i4t2_t
 
   !> Integer 4-tuple based hash table
@@ -94,6 +99,7 @@ module htable
      procedure, pass(this) :: set => htable_i4t4_set
      procedure, pass(this) :: get => htable_i4t4_get
      procedure, pass(this) :: hash => htable_i4t4_hash
+     procedure, pass(this) :: remove => htable_i4t4_remove          
   end type htable_i4t4_t
 
   !
@@ -313,6 +319,31 @@ contains
     end do
     rcode = 1
   end function htable_get
+
+  !> Remove a @a key from the hash table
+  subroutine htable_remove(this, key)
+    class(htable_t), target, intent(inout) :: this
+    class(*), intent(inout) :: key  !< Key to remove
+    integer :: index, i
+
+    index = this%hash(key)
+    if (index .lt. 0) then
+       call neko_error("Invalid hash generated")
+    end if
+
+    i = this%size - 1
+    
+    do while (i .ge. 0)
+       if ((this%t(index)%valid) .and. &
+            htable_eq_key(this, index, key)) then
+          this%t(index)%valid = .false.
+          this%entries = this%entries - 1
+          return
+       end if
+       index = modulo((index + 1), this%size)
+       i = i - 1 
+    end do
+  end subroutine htable_remove
 
   !> Set data at @a idx to @a value
   subroutine htable_set_data(this, idx, data)
@@ -612,6 +643,15 @@ contains
     end select
   end function htable_i4_hash
 
+  !> Remove an integer with key @a key from the hash table
+  subroutine htable_i4_remove(this, key) 
+    class(htable_i4_t), target, intent(inout) :: this
+    integer, intent(inout) :: key   !< Table key
+
+    call htable_remove(this, key)
+
+  end subroutine htable_i4_remove
+
   !> Initialize an integer based hash table iterator
   subroutine htable_iter_i4_init(this, t)
     class(htable_iter_i4_t), intent(inout) :: this
@@ -718,6 +758,15 @@ contains
     end select
   end function htable_i8_hash
 
+  !> Remove an integer*8 with key @a key from the hash table
+  subroutine htable_i8_remove(this, key) 
+    class(htable_i8_t), target, intent(inout) :: this
+    integer(kind=8), intent(inout) :: key   !< Table key
+
+    call htable_remove(this, key)
+
+  end subroutine htable_i8_remove
+
   !> Initialize an integer*8 based hash table iterator
   subroutine htable_iter_i8_init(this, t)
     class(htable_iter_i8_t), intent(inout) :: this
@@ -810,6 +859,16 @@ contains
        hash = -1
     end select
   end function htable_r8_hash
+
+  !> Remove a double precision key @a key from the hash table
+  subroutine htable_r8_remove(this, key) 
+    class(htable_r8_t), target, intent(inout) :: this
+    real(kind=dp), intent(inout) :: key   !< Table key
+
+    call htable_remove(this, key)
+
+  end subroutine htable_r8_remove
+  
 
   !> Initialize a double precision based hash table iterator
   subroutine htable_iter_r8_init(this, t)
@@ -905,6 +964,16 @@ contains
     end select
 
   end function htable_pt_hash
+
+  !> Remove a point with key @a key from the hash table
+  subroutine htable_pt_remove(this, key) 
+    class(htable_pt_t), target, intent(inout) :: this
+    type(point_t), intent(inout) :: key   !< Table key
+
+    call htable_remove(this, key)
+
+  end subroutine htable_pt_remove
+
 
   !> Initialize a point based hash table iterator
   subroutine htable_iter_pt_init(this, t)
@@ -1019,6 +1088,15 @@ contains
     end select
   end function htable_i4t2_hash
 
+  !> Remove an integer 2-tuple with key @a key from the hash table
+  subroutine htable_i4t2_remove(this, key) 
+    class(htable_i4t2_t), target, intent(inout) :: this
+    type(tuple_i4_t), intent(inout) :: key   !< Table key
+
+    call htable_remove(this, key)
+
+  end subroutine htable_i4t2_remove
+  
   !> Initialize an integer 2-tuple based hash table iterator
   subroutine htable_iter_i4t2_init(this, t)
     class(htable_iter_i4t2_t), intent(inout) :: this
@@ -1131,6 +1209,15 @@ contains
        hash = -1
     end select
   end function htable_i4t4_hash
+
+  !> Remove an integer 4-tuple with key @a key from the hash table
+  subroutine htable_i4t4_remove(this, key) 
+    class(htable_i4t4_t), target, intent(inout) :: this
+    type(tuple4_i4_t), intent(inout) :: key   !< Table key
+
+    call htable_remove(this, key)
+
+  end subroutine htable_i4t4_remove
 
   !> Initialize an integer 4-tuple based hash table iterator
   subroutine htable_iter_i4t4_init(this, t)
