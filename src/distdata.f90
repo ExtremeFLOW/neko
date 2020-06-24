@@ -10,6 +10,7 @@ module distdata
      type(uset_i4_t) :: shared_edge     !< List shared edges
      type(uset_i4_t) :: shared_point    !< List of shared points
      
+     integer, allocatable :: local_to_global_facet(:)!< Local to global (facets)
      integer, allocatable :: local_to_global_edge(:) !< Local to global (edges)
      
   end type distdata_t
@@ -34,6 +35,10 @@ contains
     call distdata%shared_edge%free()
     call distdata%shared_point%free()
 
+    if (allocated(distdata%local_to_global_facet)) then
+       deallocate(distdata%local_to_global_facet)
+    end if
+    
     if (allocated(distdata%local_to_global_edge)) then
        deallocate(distdata%local_to_global_edge)
     end if
@@ -71,6 +76,15 @@ contains
     
   end subroutine distdata_set_shared_point
 
+  !> Set local to global mapping (facets)
+  subroutine distdata_set_local_to_global_facet(distdata, local, global)
+    type(distdata_t), intent(inout) :: distdata
+    integer, intent(in), value :: local  !< Local facet index
+    integer, intent(in), value :: global !< Global facet index
+
+    distdata%local_to_global_facet(local) = global
+    
+  end subroutine distdata_set_local_to_global_facet
   !> Set local to global mapping (edges)
   subroutine distdata_set_local_to_global_edge(distdata, local, global)
     type(distdata_t), intent(inout) :: distdata
