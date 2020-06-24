@@ -70,9 +70,9 @@ module mesh
   end interface mesh_get_local
 
   private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
-       mesh_generate_external_facet_conn, mesh_generate_external_point_conn
-  
-
+       mesh_generate_external_facet_conn, mesh_generate_external_point_conn, &
+       mesh_generate_edge_conn
+ 
 contains 
 
   !> Initialise a mesh @a m with @a nelv elements
