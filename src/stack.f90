@@ -30,6 +30,13 @@ module stack
      procedure, public, pass(this) :: array => stack_i4_data
   end type stack_i4_t
 
+  !> Integer*8 based stack
+  type, public, extends(stack_t) :: stack_i8_t
+   contains
+     procedure, public, pass(this) :: pop => stack_i8_pop
+     procedure, public, pass(this) :: array => stack_i8_data
+  end type stack_i8_t
+
   !> Double precision based stack
   type, public, extends(stack_t) :: stack_r8_t
    contains
@@ -70,6 +77,8 @@ contains
     select type(this)
     class is(stack_i4_t)
        allocate(integer::this%data(this%size_))
+    class is(stack_i8_t)
+       allocate(integer(8)::this%data(this%size_))
     class is (stack_r8_t)
        allocate(double precision::this%data(this%size_))
     class is (stack_i4t2_t)
@@ -114,6 +123,8 @@ contains
        select type(data)
        type is(integer)
           allocate(integer::tmp(this%size_))
+       type is(integer(8))
+          allocate(integer(8)::tmp(this%size_))
        type is(double precision)          
           allocate(double precision::tmp(this%size_))
        type is(tuple_i4_t)
@@ -123,6 +134,11 @@ contains
        type is (integer)
           select type(sdp=>this%data)
           type is (integer)
+             tmp(1:this%top_) = sdp
+          end select
+       type is (integer(8))
+          select type(sdp=>this%data)
+          type is (integer(8))
              tmp(1:this%top_) = sdp
           end select
        type is (double precision)
@@ -145,6 +161,11 @@ contains
     type is (integer)
        select type(data)
        type is (integer)
+          sdp(this%top_) = data
+       end select
+    type is (integer(8))
+       select type(data)
+       type is (integer(8))
           sdp(this%top_) = data
        end select
     type is (double precision)
@@ -184,6 +205,31 @@ contains
        data => sdp
     end select
   end function stack_i4_data
+
+  !> Pop an integer*8 of the stack
+  function stack_i8_pop(this) result(data)
+    class(stack_i8_t), target, intent(inout) :: this
+    integer(kind=8) :: data
+
+    select type(sdp=>this%data)
+    type is (integer(8))       
+       data = sdp(this%top_)
+    end select
+    this%top_ = this%top_ - 1
+  end function stack_i8_pop
+
+  !> Return a pointer to the internal integer*8 array
+  function stack_i8_data(this) result(data)
+    class(stack_i8_t), target, intent(inout) :: this
+    class(*), pointer :: sdp(:)
+    integer(kind=8), pointer :: data(:)
+
+    sdp=>this%data
+    select type(sdp)
+    type is (integer(8))       
+       data => sdp
+    end select
+  end function stack_i8_data
 
   !> Pop a double precision value of the stack
   function stack_r8_pop(this) result(data)

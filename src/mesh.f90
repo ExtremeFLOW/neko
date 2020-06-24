@@ -506,7 +506,7 @@ contains
           pt_loc_idx = mesh_have_point_glb_idx(m, pt_glb_idx)
           if (pt_loc_idx .gt. 0) then
              do k = 1, num_neigh
-                neigh_el = -recv_buffer(j + 2 + k)
+                neigh_el = -recv_buffer(j + 1 + k)
                 call m%point_neigh(pt_loc_idx)%push(neigh_el)
                 call distdata_set_shared_point(m%distdata, pt_loc_idx)
              end do
@@ -528,17 +528,28 @@ contains
     type(mesh_t), target, intent(inout) :: m
     type(htable_iter_i4t2_t), target :: it
     type(tuple_i4_t), pointer :: edge
-    type(uset_i8_t) :: edge_idx
+    type(uset_i8_t) :: edge_idx, ghost, owner
+    type(stack_i8_t) :: send_buff
+    type(htable_i8_t) :: glb_to_loc
     integer, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
+    integer :: k, l , shared_offset, glb_nshared, n_glb_id
     integer(kind=8) :: C, glb_max, glb_id
+    integer(kind=8), pointer :: glb_ptr
+    integer(kind=8), allocatable :: recv_buff(:)
     logical :: shared_edge
     type(stack_i4_t) :: non_shared_edges
+    integer :: max_recv, src, dst, n_recv
+    integer :: status(MPI_STATUS_SIZE)
 
     !>@todo move this into distdata
     allocate(m%distdata%local_to_global_edge(m%meds))
 
     call edge_idx%init()
+    call send_buff%init()
+    call owner%init()
+
+    call glb_to_loc%init(32, i)
 
     !
     ! Determine/ constants used to generate unique global edge numbers
@@ -546,31 +557,31 @@ contains
     !
     C = int(m%glb_nelv, 8) * int(NEKO_HEX_NEDS,8)
 
-    num_edge_glb = m%meds
+    num_edge_glb = 2* m%meds
     call MPI_Allreduce(MPI_IN_PLACE, num_edge_glb, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM,  ierr)
 
     glb_max = int(num_edge_glb, 8)
 
     call non_shared_edges%init(m%hte%num_entries())
-    
+
     call it%init(m%hte)
     do while(it%next())       
        edge => it%key()
        call it%data(id)
 
-       i = mesh_have_point_glb_idx(m, edge%x(1))
-       j = mesh_have_point_glb_idx(m, edge%x(2))
-       p1 => m%point_neigh(i)%array()
-       p2 => m%point_neigh(j)%array()
+       k = mesh_have_point_glb_idx(m, edge%x(1))
+       l = mesh_have_point_glb_idx(m, edge%x(2))
+       p1 => m%point_neigh(k)%array()
+       p2 => m%point_neigh(l)%array()
 
        shared_edge = .false.
        
        ! Find edge neighbor from point neighbors 
-       do i = 1, m%point_neigh(edge%x(1))%size()
-          do j = 1, m%point_neigh(edge%x(2))%size()
-             if (p1(i) .eq. p2(j) .and. &
-                  p1(i) .lt. 0 .and. p2(j) .lt. 0) then
+       do i = 1, m%point_neigh(k)%size()
+          do j = 1, m%point_neigh(l)%size()
+             if ((p1(i) .eq. p2(j)) .and. &
+                  (p1(i) .lt. 0) .and. (p2(j) .lt. 0)) then
                 call distdata_set_shared_edge(m%distdata, id)
                 shared_edge = .true.
              end if
@@ -582,25 +593,27 @@ contains
        ! ((e2 * C) + e1 )) + glb_max if e2 > e1     
        if (shared_edge) then
           if (edge%x(1) .gt. edge%x(2)) then
-             glb_id = ((int(edge%x(1), 8)) * C + int(edge%x(2), 8)) + glb_max
+             glb_id = ((int(edge%x(1), 8) * C) + int(edge%x(2), 8)) + glb_max
           else
-             glb_id = ((int(edge%x(2), 8)) * C + int(edge%x(1), 8)) + glb_max
+             glb_id = ((int(edge%x(2), 8) * C) + int(edge%x(1), 8)) + glb_max
           end if
-
+          call glb_to_loc%set(glb_id, id)
           call edge_idx%add(glb_id)
+          call owner%add(glb_id) ! Always assume the PE is the owner
+          call send_buff%push(glb_id)
        else
           call non_shared_edges%push(id)
        end if
     end do
 
-
     ! Determine start offset for global numbering of locally owned edges
     edge_offset = 0
-    num_edge_loc = m%meds - non_shared_edges%size()
+    num_edge_loc = non_shared_edges%size()
+
     call MPI_Exscan(num_edge_loc, edge_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     edge_offset = edge_offset + 1
-    
+
     ! Construct global numbering of locally owned edges
     ns_id => non_shared_edges%array()
     do i = 1, non_shared_edges%size()
@@ -608,7 +621,108 @@ contains
        edge_offset = edge_offset + 1          
     end do
 
-    !> @todo Renumber shared edges into integer range
+    !
+    ! Renumber shared edges into integer range
+    !
+    
+    call MPI_Allreduce(send_buff%size(), max_recv, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+    call ghost%init()
+
+    allocate(recv_buff(max_recv))
+
+    do i = 1, pe_size - 1
+       src = modulo(pe_rank - i + pe_size, pe_size)
+       dst = modulo(pe_rank + i, pe_size)
+
+       call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
+            MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
+            NEKO_COMM, status, ierr)
+
+       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+
+       do j = 1, n_recv
+          if ((edge_idx%element(recv_buff(j))) .and. (src .lt. pe_rank)) then
+             call ghost%add(recv_buff(j))
+             call owner%remove(recv_buff(j))
+          end if
+       end do       
+    end do
+
+   
+    ! Determine start offset for global numbering of shared edges
+    glb_nshared = num_edge_loc
+    call MPI_Allreduce(MPI_IN_PLACE, glb_nshared, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    shared_offset = 0
+    call MPI_Exscan(owner%size(), shared_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    shared_offset = shared_offset + glb_nshared
+    
+    ! Renumber locally owned set of shared edges
+    call send_buff%clear()
+    call owner%iter_init()
+    do while (owner%iter_next())
+       glb_ptr => owner%iter_value()
+       if (glb_to_loc%get(glb_ptr, id) .eq. 0) then
+          call distdata_set_local_to_global_edge(m%distdata, id, shared_offset)
+
+          ! Add new number to send data as [old_glb_id new_glb_id] for each edge
+          call send_buff%push(glb_ptr)   ! Old glb_id integer*8
+          glb_id = int(shared_offset, 8) ! Waste some space here...
+          call send_buff%push(glb_id)    ! New glb_id integer*4
+
+          shared_offset = shared_offset + 1
+       else
+          call neko_error('Invalid edge id')
+       end if
+    end do
+
+    !
+    ! Update ghosted edges with new global id
+    !
+
+    if (send_buff%size() .gt. max_recv) then
+       
+       call MPI_Allreduce(send_buff%size(), max_recv, 1, &
+            MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+       deallocate(recv_buff)
+       allocate(recv_buff(max_recv))
+
+    end if
+
+    do i = 1, pe_size - 1
+       src = modulo(pe_rank - i + pe_size, pe_size)
+       dst = modulo(pe_rank + i, pe_size)
+
+       call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
+            MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
+            NEKO_COMM, status, ierr)
+
+       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+
+       do j = 1, n_recv, 2
+          if (ghost%element(recv_buff(j))) then
+             if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
+                n_glb_id = int(recv_buff(j + 1 ), 4)
+                call distdata_set_local_to_global_edge(m%distdata, id, n_glb_id)
+             else
+                call neko_error('Invalid edge id')
+             end if
+          end if
+       end do       
+    end do
+
+    deallocate(recv_buff)
+    call glb_to_loc%free()
+    call send_buff%free()
+    call edge_idx%free()
+    call non_shared_edges%free()
+    call ghost%free()
+    call owner%free()
     
   end subroutine mesh_generate_edge_conn
   

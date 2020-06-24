@@ -3,6 +3,7 @@
 module uset
   use num_types
   use htable
+  use utils
   implicit none
   private
 
@@ -15,11 +16,13 @@ module uset
      procedure(uset_clear), pass(this), deferred :: clear
      procedure(uset_element), pass(this), deferred :: element
      procedure(uset_add), pass(this), deferred :: add
+     procedure(uset_remove), pass(this), deferred :: remove
   end type uset_t
 
   !> Integer based unordered set
   type, extends(uset_t), public :: uset_i4_t
      type(htable_i4_t) :: t
+     type(htable_iter_i4_t) :: it
    contains
      procedure, pass(this) :: init => uset_i4_init
      procedure, pass(this) :: free => uset_i4_free
@@ -27,11 +30,16 @@ module uset
      procedure, pass(this) :: clear => uset_i4_clear
      procedure, pass(this) :: element => uset_i4_element
      procedure, pass(this) :: add => uset_i4_add
+     procedure, pass(this) :: remove => uset_i4_remove
+     procedure, pass(this) :: iter_init => uset_i4_iter_init     
+     procedure, pass(this) :: iter_next => uset_i4_iter_next
+     procedure, pass(this) :: iter_value => uset_i4_iter_value
   end type uset_i4_t
 
   !> Integer*8 based unordered set
   type, extends(uset_t), public :: uset_i8_t
      type(htable_i8_t) :: t
+     type(htable_iter_i8_t) :: it
    contains
      procedure, pass(this) :: init => uset_i8_init
      procedure, pass(this) :: free => uset_i8_free
@@ -39,11 +47,16 @@ module uset
      procedure, pass(this) :: clear => uset_i8_clear
      procedure, pass(this) :: element => uset_i8_element
      procedure, pass(this) :: add => uset_i8_add
+     procedure, pass(this) :: remove => uset_i8_remove
+     procedure, pass(this) :: iter_init => uset_i8_iter_init     
+     procedure, pass(this) :: iter_next => uset_i8_iter_next
+     procedure, pass(this) :: iter_value => uset_i8_iter_value
   end type uset_i8_t
 
   !> Double precision unordered set
   type, extends(uset_t), public :: uset_r8_t
      type(htable_r8_t) :: t
+     type(htable_iter_r8_t) :: it
    contains
      procedure, pass(this) :: init => uset_r8_init
      procedure, pass(this) :: free => uset_r8_free
@@ -51,6 +64,10 @@ module uset
      procedure, pass(this) :: clear => uset_r8_clear
      procedure, pass(this) :: element => uset_r8_element
      procedure, pass(this) :: add => uset_r8_add
+     procedure, pass(this) :: remove => uset_r8_remove
+     procedure, pass(this) :: iter_init => uset_r8_iter_init     
+     procedure, pass(this) :: iter_next => uset_r8_iter_next
+     procedure, pass(this) :: iter_value => uset_r8_iter_value
   end type uset_r8_t
 
   !> Interface for initializing an unordered set
@@ -104,6 +121,15 @@ module uset
        class(uset_t), intent(inout) :: this
        class(*), intent(inout) :: key
      end subroutine uset_add
+  end interface
+
+  !> Inteface for removing @a key in an unorderd set
+  abstract interface     
+     subroutine uset_remove(this, key)
+       import uset_t
+       class(uset_t), intent(inout) :: this
+       class(*), intent(inout) :: key
+     end subroutine uset_remove
  end interface
 
 contains
@@ -155,6 +181,8 @@ contains
     select type(key)
     type is (integer)
        res = (this%t%get(key, data) .eq. 0)
+    class default
+       res = .false.
     end select    
   end function uset_i4_element
   
@@ -168,14 +196,48 @@ contains
     select type(key)
     type is (integer)
        call this%t%set(key, data)
+    class default
+       call neko_error("Invalid key")
     end select
   end subroutine uset_i4_add
 
-    !> Initialize an empty integer*8 based unordered set
+  !> Remove an integer @a key from the set
+  subroutine uset_i4_remove(this, key)
+    class(uset_i4_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+
+    select type(key)
+    type is (integer)
+       call this%t%remove(key)
+    class default
+       call neko_error("Invalid key")
+    end select
+  end subroutine uset_i4_remove
+
+  !> Initialise an integer based set iterator
+  subroutine uset_i4_iter_init(this)
+    class(uset_i4_t), intent(inout) :: this
+    call this%it%init(this%t)    
+  end subroutine uset_i4_iter_init
+
+  !> Advance an integer based set iterator
+  function uset_i4_iter_next(this) result(valid)
+    class(uset_i4_t), intent(inout) :: this
+    logical :: valid
+    valid = this%it%next()
+  end function uset_i4_iter_next
+
+  !> Return the current value of an integer based set iterator
+  function uset_i4_iter_value(this) result(value)
+    class(uset_i4_t), target, intent(inout) :: this
+    integer, pointer :: value
+    value => this%it%value()    
+  end function uset_i4_iter_value
+
+  !> Initialize an empty integer*8 based unordered set
   subroutine uset_i8_init(this, n)
     class(uset_i8_t), intent(inout) :: this
     integer, optional :: n
-    integer :: key
 
     if (present(n)) then
        call this%t%init(n)
@@ -212,12 +274,14 @@ contains
   function uset_i8_element(this, key) result(res)
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
-    integer :: data
+    integer(kind=8) :: data
     logical :: res
 
     select type(key)
     type is (integer(8))
        res = (this%t%get(key, data) .eq. 0)
+    class default
+       res = .false.
     end select    
   end function uset_i8_element
   
@@ -226,23 +290,58 @@ contains
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
     integer(kind=8) :: data
-    data = 1
 
     select type(key)
     type is (integer(8))
+       data = key 
        call this%t%set(key, data)
+    class default
+       call neko_error("Invalid key")
     end select
   end subroutine uset_i8_add
 
+  !> Remove an integer*8 @a key from the set
+  subroutine uset_i8_remove(this, key)
+    class(uset_i8_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+
+    select type(key)
+    type is (integer(8))
+       call this%t%remove(key)
+    class default
+       call neko_error("Invalid key")
+    end select
+  end subroutine uset_i8_remove
+
+  !> Initialise an integer based set iterator*8
+  subroutine uset_i8_iter_init(this)
+    class(uset_i8_t), intent(inout) :: this
+    call this%it%init(this%t)    
+  end subroutine uset_i8_iter_init
+
+  !> Advance an integer*8 based set iterator
+  function uset_i8_iter_next(this) result(valid)
+    class(uset_i8_t), intent(inout) :: this
+    logical :: valid
+    valid = this%it%next()
+  end function uset_i8_iter_next
+
+  !> Return the current value of an integer*8 based set iterator
+  function uset_i8_iter_value(this) result(value)
+    class(uset_i8_t), target, intent(inout) :: this
+    integer(kind=8), pointer :: value
+    value => this%it%value()    
+  end function uset_i8_iter_value
+  
   !> Initialize an empty double precision based unordered set
   subroutine uset_r8_init(this, n)
     class(uset_r8_t), intent(inout) :: this
     integer, optional :: n
-    integer :: data
+
     if (present(n)) then
-       call this%t%init(n, data)
+       call this%t%init(n)
     else
-       call this%t%init(64, data)
+       call this%t%init(64)
     end if
   end subroutine uset_r8_init
   
@@ -275,12 +374,13 @@ contains
     class(uset_r8_t), intent(inout) :: this
     class(*), intent(inout) :: key
     logical :: res
-    integer :: data
-
+    real(kind=dp) :: data
 
     select type(key)
     type is (double precision)
        res = (this%t%get(key, data) .eq. 0)
+    class default
+       res = .false.
     end select
     
   end function uset_r8_element
@@ -289,14 +389,49 @@ contains
   subroutine uset_r8_add(this, key)
     class(uset_r8_t), intent(inout) :: this
     class(*), intent(inout) :: key
-    integer :: data
-    data = 1
+    real(kind=dp) :: data
 
     select type(key)
     type is (double precision)
+       data = key
        call this%t%set(key, data)
+    class default
+       call neko_error("Invalid key")
     end select
   end subroutine uset_r8_add
+
+  !> Remove a double precision @a key from the set
+  subroutine uset_r8_remove(this, key)
+    class(uset_r8_t), intent(inout) :: this
+    class(*), intent(inout) :: key
+
+    select type(key)
+    type is (double precision)
+       call this%t%remove(key)
+    class default
+       call neko_error("Invalid key")
+    end select
+  end subroutine uset_r8_remove
+
+  !> Initialise a double precision based set iterator
+  subroutine uset_r8_iter_init(this)
+    class(uset_r8_t), intent(inout) :: this
+    call this%it%init(this%t)    
+  end subroutine uset_r8_iter_init
+
+  !> Advance a double precision based set iterator
+  function uset_r8_iter_next(this) result(valid)
+    class(uset_r8_t), intent(inout) :: this
+    logical :: valid
+    valid = this%it%next()
+  end function uset_r8_iter_next
+
+  !> Return the current value of a double precision based set iterator
+  function uset_r8_iter_value(this) result(value)
+    class(uset_r8_t), target, intent(inout) :: this
+    real(kind=dp), pointer :: value
+    value => this%it%value()    
+  end function uset_r8_iter_value
 
 
 end module uset
