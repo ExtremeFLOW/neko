@@ -63,6 +63,15 @@ contains
     
   end subroutine distdata_set_shared_el_facet
 
+  !> Mark a facet as shared
+  subroutine distdata_set_shared_facet(distdata, facet)
+    type(distdata_t), intent(inout) :: distdata
+    integer, value :: facet     !< Facet index (local numbering)
+
+    call distdata%shared_facet%add(facet)
+    
+  end subroutine distdata_set_shared_facet
+  
   !> Mark an element's edge as shared
   !! @attention only defined for elements where facet .ne. edges
   subroutine distdata_set_shared_edge(distdata, edge)
@@ -91,6 +100,7 @@ contains
     distdata%local_to_global_facet(local) = global
     
   end subroutine distdata_set_local_to_global_facet
+
   !> Set local to global mapping (edges)
   subroutine distdata_set_local_to_global_edge(distdata, local, global)
     type(distdata_t), intent(inout) :: distdata
