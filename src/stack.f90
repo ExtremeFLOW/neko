@@ -83,6 +83,8 @@ contains
        allocate(double precision::this%data(this%size_))
     class is (stack_i4t2_t)
        allocate(tuple_i4_t::this%data(this%size_))
+    class is (stack_i4t4_t)
+       allocate(tuple4_i4_t::this%data(this%size_))
     end select
 
   end subroutine stack_init
@@ -151,6 +153,11 @@ contains
           type is (tuple_i4_t)
              tmp(1:this%top_) = sdp
           end select
+       type is (tuple4_i4_t)
+          select type(sdp=>this%data)
+          type is (tuple4_i4_t)
+             tmp(1:this%top_) = sdp
+          end select
        end select
        call move_alloc(tmp, this%data)
     end if
@@ -176,6 +183,11 @@ contains
     type is (tuple_i4_t)
        select type(data)
        type is (tuple_i4_t)
+          sdp(this%top_) = data
+       end select
+    type is (tuple4_i4_t)
+       select type(data)
+       type is (tuple4_i4_t)
           sdp(this%top_) = data
        end select
     end select
