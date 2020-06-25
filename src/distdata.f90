@@ -6,8 +6,10 @@ module distdata
   implicit none
   
   type, public :: distdata_t
-     type(stack_i4t2_t) :: shared_facet !< Elemenets with shared facets
-     type(uset_i4_t) :: shared_edge     !< List shared edges
+     type(stack_i4t2_t) :: shared_el_facet !< Elemenets with shared facets
+     
+     type(uset_i4_t) :: shared_facet    !< List of shared facets
+     type(uset_i4_t) :: shared_edge     !< List of shared edges
      type(uset_i4_t) :: shared_point    !< List of shared points
      
      integer, allocatable :: local_to_global_facet(:)!< Local to global (facets)
@@ -21,6 +23,8 @@ contains
   subroutine distdata_init(distdata)
     type(distdata_t), intent(inout) :: distdata
 
+    call distdata%shared_el_facet%init()
+
     call distdata%shared_facet%init()
     call distdata%shared_edge%init()   
     call distdata%shared_point%init()
@@ -31,6 +35,8 @@ contains
   subroutine distdata_free(distdata)
     type(distdata_t), intent(inout) :: distdata
 
+    call distdata%shared_el_facet%free()
+    
     call distdata%shared_facet%free()
     call distdata%shared_edge%free()
     call distdata%shared_point%free()
@@ -46,16 +52,16 @@ contains
   end subroutine distdata_free
 
   !> Mark an element's facet as shared
-  subroutine distdata_set_shared_facet(distdata, element, side)
+  subroutine distdata_set_shared_el_facet(distdata, element, side)
     type(distdata_t), intent(inout) :: distdata
     integer, intent(in), value :: element !< Element index (local numbering)
     integer, intent(in), value :: side    !< Facet index
     type(tuple_i4_t) :: t
 
     t = (/ element, side /)
-    call distdata%shared_facet%push(t)
+    call distdata%shared_el_facet%push(t)
     
-  end subroutine distdata_set_shared_facet
+  end subroutine distdata_set_shared_el_facet
 
   !> Mark an element's edge as shared
   !! @attention only defined for elements where facet .ne. edges

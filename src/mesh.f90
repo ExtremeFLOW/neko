@@ -410,12 +410,15 @@ contains
              if (fmp%get(edge, facet_key) .eq. 0) then
                 ! Determine opposite side and update neighbor
                 if (mod(recv_side, 2) .eq. 1) then
-                   m%facet_neigh(recv_side + 1, &
-                        facet_key%x(2) - m%offset_el) = -neigh_el
+                   element = facet_key%x(2) - m%offset_el
+                   facet = recv_side + 1
+                   m%facet_neigh(facet, element) = -neigh_el                  
                 else  if (mod(recv_side, 2) .eq. 0) then
-                   m%facet_neigh(recv_side - 1, &
-                        facet_key%x(1) - m%offset_el) = -neigh_el
+                   element = facet_key%x(1) - m%offset_el
+                   facet  = recv_side - 1
+                   m%facet_neigh(facet, element) = -neigh_el
                 end if
+                call distdata_set_shared_el_facet(m%distdata, element, facet)
              end if
              
           end do
@@ -440,7 +443,7 @@ contains
                    facet  = recv_side - 1
                    m%facet_neigh(facet, element) = -neigh_el
                 end if
-                call distdata_set_shared_facet(m%distdata, element, facet)
+                call distdata_set_shared_el_facet(m%distdata, element, facet)
              end if
              
           end do
