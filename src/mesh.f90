@@ -684,15 +684,12 @@ contains
     ! Update ghosted edges with new global id
     !
 
-    if (send_buff%size() .gt. max_recv) then
-       
-       call MPI_Allreduce(send_buff%size(), max_recv, 1, &
-            MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+    call MPI_Allreduce(send_buff%size(), max_recv, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
-       deallocate(recv_buff)
-       allocate(recv_buff(max_recv))
+    deallocate(recv_buff)
+    allocate(recv_buff(max_recv))
 
-    end if
 
     do i = 1, pe_size - 1
        src = modulo(pe_rank - i + pe_size, pe_size)
