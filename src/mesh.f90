@@ -691,7 +691,7 @@ contains
     shared_offset = 0
     call MPI_Exscan(owner%size(), shared_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    shared_offset = shared_offset + glb_nshared
+    shared_offset = shared_offset + glb_nshared + 1
     
     ! Renumber locally owned set of shared edges
     call send_buff%clear()
