@@ -6,6 +6,7 @@ module neko
   use utils
   use math
   use speclib
+  use dofmap
   use space
   use htable
   use generic_file

@@ -1071,6 +1071,19 @@ contains
     
   end function mesh_get_local_point
 
+  !> Return the local id of an edge @a e
+  !! @attention only defined for gdim .ne. 2
+  function mesh_get_local_edge(m, e) result(local_id)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t), intent(inout) :: e
+    integer :: local_id
+
+    if (m%hte%get(e, local_id) .gt. 0) then
+       call neko_error('Invalid global id')
+    end if
+    
+  end function mesh_get_local_edge
+
   !> Check if the mesh has a point given its global index
   !! @return The local id of the point (if present) otherwise -1
   !! @todo Consider moving this to distdata
