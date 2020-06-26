@@ -131,6 +131,8 @@ contains
           allocate(double precision::tmp(this%size_))
        type is(tuple_i4_t)
           allocate(tuple_i4_t::tmp(this%size_))
+       type is(tuple4_i4_t)
+          allocate(tuple4_i4_t::tmp(this%size_))
        end select
        select type(tmp)
        type is (integer)
