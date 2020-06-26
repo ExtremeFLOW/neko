@@ -71,7 +71,7 @@ module mesh
 
   private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
        mesh_generate_external_facet_conn, mesh_generate_external_point_conn, &
-       mesh_generate_edge_conn
+       mesh_generate_edge_conn, mesh_generate_facet_numbering
  
 contains 
 
@@ -330,6 +330,8 @@ contains
        call mesh_generate_edge_conn(m)
     end if
     
+
+    call mesh_generate_facet_numbering(m)
     
     m%lconn = .true.
     
@@ -410,12 +412,28 @@ contains
              if (fmp%get(edge, facet_key) .eq. 0) then
                 ! Determine opposite side and update neighbor
                 if (mod(recv_side, 2) .eq. 1) then
-                   m%facet_neigh(recv_side + 1, &
-                        facet_key%x(2) - m%offset_el) = -neigh_el
+                   element = facet_key%x(2) - m%offset_el
+                   facet = recv_side + 1
+                   m%facet_neigh(facet, element) = -neigh_el
+                   facet_key%x(1) = -neigh_el                   
                 else  if (mod(recv_side, 2) .eq. 0) then
-                   m%facet_neigh(recv_side - 1, &
-                        facet_key%x(1) - m%offset_el) = -neigh_el
+                   element = facet_key%x(1) - m%offset_el
+                   facet  = recv_side - 1
+                   m%facet_neigh(facet, element) = -neigh_el
+                   facet_key%x(2) = -neigh_el
                 end if
+
+		 ! Update facet map
+		 call fmp%set(edge, facet_key)
+
+                call distdata_set_shared_el_facet(m%distdata, element, facet)
+
+                if (m%hte%get(edge, facet) .eq. 0) then
+                   call distdata_set_shared_facet(m%distdata, facet)
+                else
+                   call neko_error("Invalid shared edge")
+                end if
+                
              end if
              
           end do
@@ -435,12 +453,26 @@ contains
                    element = facet_key%x(2) - m%offset_el
                    facet = recv_side + 1
                    m%facet_neigh(facet, element) = -neigh_el
+                   facet_key%x(1) = -neigh_el                   
                 else  if (mod(recv_side, 2) .eq. 0) then
                    element = facet_key%x(1) - m%offset_el
                    facet  = recv_side - 1
                    m%facet_neigh(facet, element) = -neigh_el
+                   facet_key%x(2) = -neigh_el                   
                 end if
-                call distdata_set_shared_facet(m%distdata, element, facet)
+
+                ! Update facet map
+                call fmp%set(face, facet_key)
+                
+                call distdata_set_shared_el_facet(m%distdata, element, facet)
+                
+                if (m%htf%get(face, facet) .eq. 0) then
+                   call distdata_set_shared_facet(m%distdata, facet)
+                else
+                   call neko_error("Invalid shared face")
+                end if
+                
+
              end if
              
           end do
@@ -720,8 +752,157 @@ contains
     call non_shared_edges%free()
     call ghost%free()
     call owner%free()
-    
+
   end subroutine mesh_generate_edge_conn
+
+  !> Generate a unique facet numbering
+  subroutine mesh_generate_facet_numbering(m)
+    type(mesh_t), intent(inout) :: m
+    type(htable_iter_i4t4_t), target :: face_it
+    type(tuple4_i4_t), pointer :: face, fd(:)
+    type(tuple_i4_t) :: facet_key
+    type(tuple4_i4_t) :: recv_face
+    type(stack_i4t4_t) :: face_owner
+    type(htable_i4t4_t) :: face_ghost
+    type(stack_i4_t) :: send_buff
+    integer, allocatable :: recv_buff(:)
+    integer :: non_shared_facets, shared_facets, facet_offset    
+    integer :: id, glb_nshared, shared_offset, owned_facets
+    integer :: i, j, ierr, max_recv, src, dst, n_recv
+    integer :: status(MPI_STATUS_SIZE)
+
+    !>@todo move this into distdata
+    if (m%gdim .eq. 2) then
+       allocate(m%distdata%local_to_global_facet(m%meds))
+    else
+       allocate(m%distdata%local_to_global_facet(m%mfcs))
+       call face_owner%init()
+       call face_ghost%init(64, i)       
+    end if
+    
+    !> @todo Move this into distdata as a method...
+    shared_facets = m%distdata%shared_facet%size()
+    
+    non_shared_facets = m%htf%num_entries() - shared_facets
+    facet_offset = 0
+    call MPI_Exscan(non_shared_facets, facet_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    facet_offset = facet_offset + 1
+    
+    ! Determine ownership of shared facets
+    if (m%gdim .eq. 2) then
+       !>@todo Add facet (edge) numbering for 2d case
+    else
+       call face_it%init(m%htf)
+       do while (face_it%next())
+          call face_it%data(id)
+          face => face_it%key()
+          if (.not. m%distdata%shared_facet%element(id)) then       
+             call distdata_set_local_to_global_facet(m%distdata, &
+                  id, facet_offset)
+             facet_offset = facet_offset + 1
+          else
+             select type(fmp => m%facet_map)
+             type is(htable_i4t4_t)
+                if (fmp%get(face, facet_key) .eq. 0) then
+                   if (facet_key%x(1) .lt. 0) then
+                      if (abs(facet_key%x(1)) .lt. (m%offset_el + 1)) then
+                         call face_ghost%set(face, id)
+                      else
+                         call face_owner%push(face)
+                      end if
+                   else if (facet_key%x(2) .lt. 0) then
+                      if (abs(facet_key%x(2)) .lt. (m%offset_el + 1)) then
+                         call face_ghost%set(face, id)
+                      else
+                         call face_owner%push(face)
+                      end if
+                   else
+                      call neko_error("Invalid facet neigh.")
+                   end if
+                end if
+             end select
+          end if
+       end do
+
+       owned_facets = face_owner%size()
+
+    end if
+
+    ! Determine start offset for global numbering of shared facets
+    glb_nshared = non_shared_facets
+    call MPI_Allreduce(MPI_IN_PLACE, glb_nshared, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    
+    shared_offset = 0
+    call MPI_Exscan(owned_facets, shared_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    shared_offset = shared_offset + glb_nshared + 1
+
+    call send_buff%init()
+    
+    !> @todo Add quad case
+    fd => face_owner%array()
+    do i = 1, face_owner%size()
+       if (m%htf%get(fd(i), id) .eq. 0) then
+          call distdata_set_local_to_global_facet(m%distdata, id, shared_offset)
+
+          ! Add new number to send buffer
+          ! [facet id1 ... facet idn new_glb_id]
+          do j = 1, 4
+             call send_buff%push(fd(i)%x(j))
+          end do
+          call send_buff%push(shared_offset)
+
+          shared_offset = shared_offset + 1
+       end if
+    end do
+
+
+    !
+    ! Update ghosted facets with new global id
+    !
+    
+    call MPI_Allreduce(send_buff%size(), max_recv, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+    allocate(recv_buff(max_recv))    
+
+    !> @todo Since we now the neigh. we can actually do p2p here...
+    do i = 1, pe_size - 1
+       src = modulo(pe_rank - i + pe_size, pe_size)
+       dst = modulo(pe_rank + i, pe_size)
+
+       call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
+            MPI_INTEGER, dst, 0, recv_buff, max_recv, MPI_INTEGER, src, 0,&
+            NEKO_COMM, status, ierr)
+
+       call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+
+       do j = 1, n_recv, 5
+
+          recv_face = (/recv_buff(j), recv_buff(j+1), &
+               recv_buff(j+2), recv_buff(j+3) /)
+
+          ! Check if the PE has the shared face
+          if (face_ghost%get(recv_face, id) .eq. 0) then
+             call distdata_set_local_to_global_facet(m%distdata, &
+                  id, recv_buff(j+4))
+          end if
+       end do
+    end do
+
+    
+    if (m%gdim .eq. 2) then
+    else
+       call face_owner%free()
+       call face_ghost%free()
+    end if
+    
+    call send_buff%free()
+    deallocate(recv_buff)
+       
+  end subroutine mesh_generate_facet_numbering
   
   
   !> Add a quadrilateral element to the mesh @a m

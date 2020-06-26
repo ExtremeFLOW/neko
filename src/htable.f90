@@ -752,7 +752,7 @@ contains
        tmp = ieor((tmp + M4), ishft(tmp, 9))
        tmp = (tmp + M5) + ishft(tmp, 3)
        tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
-       hash = int(modulo(hash, this%size), 4)
+       hash = int(modulo(tmp, int(this%size, 8)), 4)
     class default
        hash = -1
     end select
