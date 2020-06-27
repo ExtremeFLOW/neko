@@ -1084,6 +1084,18 @@ contains
     
   end function mesh_get_local_edge
 
+  !> Return the local id of a face @a f
+  function mesh_get_local_facet(m, f) result(local_id)
+    type(mesh_t), intent(inout) :: m
+    type(tuple4_i4_t), intent(inout) :: f
+    integer :: local_id
+
+    if (m%htf%get(f, local_id) .gt. 0) then
+       call neko_error('Invalid global id')
+    end if
+    
+  end function mesh_get_local_facet
+
   !> Check if the mesh has a point given its global index
   !! @return The local id of the point (if present) otherwise -1
   !! @todo Consider moving this to distdata
