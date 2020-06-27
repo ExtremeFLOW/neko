@@ -1,3 +1,5 @@
+!> Defines a mapping of the degrees of freedom
+!! @details A mapping defined based on a function space and a mesh
 module dofmap
   use mesh
   use space
@@ -24,9 +26,9 @@ contains
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face
     integer :: i,j,k,l
-    integer :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
-    integer :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)
-    integer :: local_id
+    integer(kind=8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
+    integer(kind=8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)
+    integer :: global_id
     integer(kind=8) :: edge_id, edge_offset, facet_offset, facet_id
     
     call dofmap_free(this)
@@ -63,12 +65,12 @@ contains
     !
 
     ! Number of dofs on an edge excluding end-points
-    num_dofs_edges(1) =  Xh%lx - 2
-    num_dofs_edges(2) =  Xh%ly - 2
-    num_dofs_edges(3) =  Xh%lz - 2
+    num_dofs_edges(1) =  int(Xh%lx - 2, 8)
+    num_dofs_edges(2) =  int(Xh%ly - 2, 8)
+    num_dofs_edges(3) =  int(Xh%lz - 2, 8)
 
-    edge_offset = int(msh%mpts, 8) + int(1, 8) !< @todo Only serial for now...
-    
+    edge_offset = int(msh%glb_mpts, 8) + int(1, 8)
+
     do i = 1, msh%nelv
        
        select type(ep=>msh%elements(i)%e)
@@ -78,32 +80,32 @@ contains
           ! Number edges in x-direction
           ! 
           call ep%edge_id(edge, 1)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(1)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, 1, 1, i) = edge_id
              edge_id = edge_id + 1
           end do
           
           call ep%edge_id(edge, 3)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(1)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, 1, Xh%lz, i) = edge_id
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 2)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(1)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, 1, i) = edge_id
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 4)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(1)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, Xh%lz, i) = edge_id
              edge_id = edge_id + 1
@@ -114,32 +116,32 @@ contains
           ! Number edges in y-direction
           ! 
           call ep%edge_id(edge, 5)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(2)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(1, j, 1, i) = edge_id
              edge_id = edge_id + 1
           end do
           
           call ep%edge_id(edge, 7)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(2)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(1, j, Xh%lz, i) = edge_id
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 6)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(2)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, 1, i) = edge_id
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 8)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(2)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, Xh%lz, i) = edge_id
              edge_id = edge_id + 1
@@ -149,32 +151,32 @@ contains
           ! Number edges in z-direction
           ! 
           call ep%edge_id(edge, 9)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(3)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(1, 1, j, i) = edge_id
              edge_id = edge_id + 1
           end do
           
           call ep%edge_id(edge, 10)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(3)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(Xh%lx, 1, j, i) = edge_id
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 11)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(3)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(1, Xh%ly, j, i) = edge_id
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 12)
-          local_id = mesh_get_local_edge(msh, edge)
-          edge_id = edge_offset + int((local_id - 1), 8) * num_dofs_edges(3)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(Xh%lx, Xh%ly, j, i) = edge_id
              edge_id = edge_id + 1
@@ -184,26 +186,25 @@ contains
        
     end do
 
-
     ! Assign numbers to dofs on facets
 
     !> @todo don't assume lx = ly = lz
-    facet_offset = int(msh%mpts, 8) + int(msh%meds, 8) * int(Xh%lx-2, 8) + 1
+    facet_offset = int(msh%glb_mpts, 8) + &
+         int(msh%glb_meds, 8) * int(Xh%lx-2, 8)
 
     ! Number of dofs on an edge excluding end-points
-    num_dofs_faces(1) =  (Xh%ly - 2) * (Xh%lz - 2)
-    num_dofs_faces(2) =  (Xh%lx - 2) * (Xh%lz - 2)
-    num_dofs_faces(3) =  (Xh%lx - 2) * (Xh%ly - 2)
+    num_dofs_faces(1) =  int((Xh%ly - 2) * (Xh%lz - 2), 8)
+    num_dofs_faces(2) =  int((Xh%lx - 2) * (Xh%lz - 2), 8)
+    num_dofs_faces(3) =  int((Xh%lx - 2) * (Xh%ly - 2), 8)
 
-    
     do i = 1, msh%nelv
        
        !
        ! Number facets in x-direction (s, t)-plane
        !
        call msh%elements(i)%e%facet_id(face, 1)
-       local_id = mesh_get_local_facet(msh, face)
-       facet_id = facet_offset + int((local_id - 1), 8) * num_dofs_edges(1)
+       global_id = mesh_get_global(msh, face)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(1, j, k, i) = facet_id
@@ -212,8 +213,8 @@ contains
        end do
        
        call msh%elements(i)%e%facet_id(face, 2)
-       local_id = mesh_get_local_facet(msh, face)
-       facet_id = facet_offset + int((local_id - 1), 8) * num_dofs_edges(1)
+       global_id = mesh_get_global(msh, face)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, k, i) = facet_id
@@ -226,8 +227,8 @@ contains
        ! Number facets in y-direction (r, t)-plane
        !
        call msh%elements(i)%e%facet_id(face, 3)
-       local_id = mesh_get_local_facet(msh, face)
-       facet_id = facet_offset + int((local_id - 1), 8) * num_dofs_edges(2)
+       global_id = mesh_get_global(msh, face)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, 1, k, i) = facet_id
@@ -236,8 +237,8 @@ contains
        end do
        
        call msh%elements(i)%e%facet_id(face, 4)
-       local_id = mesh_get_local_facet(msh, face)
-       facet_id = facet_offset + int((local_id - 1), 8) * num_dofs_edges(2)
+       global_id = mesh_get_global(msh, face)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, k, i) = facet_id
@@ -250,8 +251,8 @@ contains
        ! Number facets in z-direction (r, s)-plane
        !
        call msh%elements(i)%e%facet_id(face, 5)
-       local_id = mesh_get_local_facet(msh, face)
-       facet_id = facet_offset + int((local_id - 1), 8) * num_dofs_edges(3)
+       global_id = mesh_get_global(msh, face)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, 1, i) = facet_id
@@ -260,8 +261,8 @@ contains
        end do
        
        call msh%elements(i)%e%facet_id(face, 6)
-       local_id = mesh_get_local_facet(msh, face)
-       facet_id = facet_offset + int((local_id - 1), 8) * num_dofs_edges(3)
+       global_id = mesh_get_global(msh, face)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(3)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, Xh%lz, i) = facet_id
@@ -269,7 +270,7 @@ contains
           end do
        end do
     end do
-    
+
   end function dofmap_init
 
 
