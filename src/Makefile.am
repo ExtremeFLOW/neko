@@ -14,6 +14,7 @@ libneko_a_SOURCES = \
 	speclib.f90 \
 	math.f90\
 	space.f90\
+	dofmap.f90\
 	entity.f90\
 	point.f90\
 	element.f90\

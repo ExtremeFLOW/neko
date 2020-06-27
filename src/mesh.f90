@@ -30,7 +30,12 @@ module mesh
      integer :: meds            !< Number of (unique) edges in the mesh
 
      integer :: glb_nelv        !< Global number of elements
+     integer :: glb_mpts        !< Global number of unique points
+     integer :: glb_mfcs        !< Global number of unique faces
+     integer :: glb_meds        !< Global number of unique edges
+     
      integer :: offset_el       !< Element offset
+     integer :: max_pts_id      !< Max local point id
      
      type(point_t), allocatable :: points(:) !< list of points
      type(mesh_element_t), allocatable :: elements(:) !< List of elements
@@ -51,6 +56,8 @@ module mesh
      logical :: ldist = .false.                !< valid distributed data
      logical :: lnumr = .false.                !< valid numbering
 
+     
+
   end type mesh_t
 
   !> Initialise a mesh
@@ -66,8 +73,15 @@ module mesh
   !> Get local id for a mesh entity
   !! @todo Add similar mappings for element ids
   interface mesh_get_local
-     module procedure mesh_get_local_point
+     module procedure mesh_get_local_point, mesh_get_local_edge, &
+          mesh_get_local_facet
   end interface mesh_get_local
+
+  !> Get global id for a mesh entity
+  !! @todo Add similar mappings for element ids
+  interface mesh_get_global
+     module procedure mesh_get_global_edge, mesh_get_global_facet
+  end interface mesh_get_global
 
   private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
        mesh_generate_external_facet_conn, mesh_generate_external_point_conn, &
@@ -120,6 +134,8 @@ contains
     integer :: i
     type(tuple_i4_t) :: facet_data
 
+    m%max_pts_id = 0
+    
     allocate(m%elements(m%nelv))
     if (m%gdim .eq. 3) then
        do i = 1, m%nelv
@@ -222,7 +238,7 @@ contains
     type(mesh_t), intent(inout) :: m
     type(tuple_i4_t) :: edge, facet_key
     type(tuple4_i4_t) :: face
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes
+    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
 
     if (m%lconn) return
 
@@ -233,6 +249,11 @@ contains
        n_sides = 6
        n_nodes = 4
     end if
+
+    ! Compute global number of unique points
+    call MPI_Allreduce(m%max_pts_id, m%glb_mpts, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+    
 
     !
     ! Find all (local) boundaries
@@ -712,6 +733,12 @@ contains
        end if
     end do
 
+    ! Determine total number of unique edges in the mesh
+    ! (This can probably be done in a clever way...)
+    m%glb_meds = shared_offset - 1
+    call MPI_Allreduce(MPI_IN_PLACE, m%glb_meds, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, IERR)    
+
     !
     ! Update ghosted edges with new global id
     !
@@ -858,6 +885,11 @@ contains
        end if
     end do
 
+    ! Determine total number of unique facets in the mesh
+    ! (This can probably be done in a clever way...)
+    m%glb_mfcs = shared_offset - 1
+    call MPI_Allreduce(MPI_IN_PLACE, m%glb_mfcs, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, IERR)    
 
     !
     ! Update ghosted facets with new global id
@@ -1015,6 +1047,8 @@ contains
     integer :: tmp
    
     tmp = p%id()
+
+    m%max_pts_id = max(m%max_pts_id, tmp)
     
     if (tmp .le. 0) then
        call neko_error("Invalid point id")
@@ -1071,6 +1105,61 @@ contains
     
   end function mesh_get_local_point
 
+  !> Return the local id of an edge @a e
+  !! @attention only defined for gdim .ne. 2
+  function mesh_get_local_edge(m, e) result(local_id)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t), intent(inout) :: e
+    integer :: local_id
+
+    if (m%hte%get(e, local_id) .gt. 0) then
+       call neko_error('Invalid global id')
+    end if
+    
+  end function mesh_get_local_edge
+
+  !> Return the local id of a face @a f
+  function mesh_get_local_facet(m, f) result(local_id)
+    type(mesh_t), intent(inout) :: m
+    type(tuple4_i4_t), intent(inout) :: f
+    integer :: local_id
+
+    if (m%htf%get(f, local_id) .gt. 0) then
+       call neko_error('Invalid global id')
+    end if
+    
+  end function mesh_get_local_facet
+
+  !> Return the global id of an edge @a e
+  !! @attention only defined for gdim .ne. 2
+  function mesh_get_global_edge(m, e) result(global_id)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t), intent(inout) :: e
+    integer :: global_id
+
+    global_id = mesh_Get_local_edge(m, e)
+
+    if (pe_size .gt. 1) then
+       global_id = m%distdata%local_to_global_edge(global_id)
+    end if
+
+  end function mesh_get_global_edge
+
+  !> Return the local id of a face @a f
+  function mesh_get_global_facet(m, f) result(global_id)
+    type(mesh_t), intent(inout) :: m
+    type(tuple4_i4_t), intent(inout) :: f
+    integer :: global_id
+
+    global_id = mesh_get_local_facet(m, f)
+
+    if (pe_size .gt. 1) then
+       global_id = m%distdata%local_to_global_facet(global_id)
+    end if
+    
+  end function mesh_get_global_facet
+
+  
   !> Check if the mesh has a point given its global index
   !! @return The local id of the point (if present) otherwise -1
   !! @todo Consider moving this to distdata
