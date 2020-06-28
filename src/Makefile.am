@@ -15,6 +15,7 @@ libneko_a_SOURCES = \
 	math.f90\
 	space.f90\
 	dofmap.f90\
+	gather_scatter.f90\
 	entity.f90\
 	point.f90\
 	element.f90\

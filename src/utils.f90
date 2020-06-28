@@ -37,6 +37,15 @@ contains
 
   end subroutine filename_chsuffix
 
+  !> Compute the address of a (i,j,k,l) array
+  !! with sizes (1:lx, 1:ly, 1:lz, :)
+  pure function linear_index(i,j,k,l,lx,ly,lz) result(index)
+    integer, intent(in) :: i, j, k, l, lx, ly, lz
+    integer :: index
+    
+    index = (i + lx * ((j - 1) + ly * ((k - 1) + lz * ((l - 1)))))
+  end function linear_index
+
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
     integer :: code
