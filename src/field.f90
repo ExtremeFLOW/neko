@@ -9,7 +9,7 @@ module field
   
   type field_t
      !> @todo Is x really a good name for a field?
-     real(kind=dp), allocatable :: x(:,:,:,:,:)
+     real(kind=dp), allocatable :: x(:,:,:,:)
      
      type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh !< Mesh
@@ -33,7 +33,7 @@ contains
     type(space_t), target, intent(in) :: space !< Function space for the field
     character(len=*), optional :: fld_name     !< Name of the field
     integer :: ierr
-    integer :: lx, ly, lz, nelv, ndim
+    integer :: lx, ly, lz, nelv
 
     call field_free(f)
 
@@ -44,10 +44,9 @@ contains
     ly = f%Xh%ly
     lz = f%Xh%lz
     nelv = f%msh%nelv
-    ndim = f%Xh%ndim
     
     if (.not. allocated(f%x)) then
-       allocate(f%x(lx, ly, lz, nelv, ndim), stat = ierr)        
+       allocate(f%x(lx, ly, lz, nelv), stat = ierr)        
        f%x = 0d0
     end if
 
@@ -97,10 +96,10 @@ contains
     f%Xh%lz = g%Xh%lz
     
     if (.not. allocated(f%x)) then
-       allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv, f%Xh%ndim))
+       allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv))
     end if
     
-    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz * f%Xh%ndim
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     call copy(f%x, g%x, n)
     
   end subroutine field_assign_field
@@ -113,7 +112,7 @@ contains
     type(field_t), intent(inout) :: g
     integer :: n
 
-    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz * f%Xh%ndim    
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     call add2(f%x, g%x, n)
 
   end subroutine field_add_field
@@ -126,7 +125,7 @@ contains
     real(kind=dp), intent(inout) :: a
     integer :: n
 
-    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz * f%Xh%ndim    
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     call cadd(f%x, a, n)
 
   end subroutine field_add_scalar

@@ -158,16 +158,16 @@ contains
           id(j) = mesh_get_local(fld%msh, fld%msh%elements(i)%e%pts(j)%p)
        end do
 
-       point_data(id(1)) = fld%x(1,1,1,i,1)
-       point_data(id(2)) = fld%x(lx,1,1,i,1)
-       point_data(id(4)) = fld%x(1,ly,1,i,1)
-       point_data(id(3)) = fld%x(lx,ly,1,i,1)       
+       point_data(id(1)) = fld%x(1,1,1,i)
+       point_data(id(2)) = fld%x(lx,1,1,i)
+       point_data(id(4)) = fld%x(1,ly,1,i)
+       point_data(id(3)) = fld%x(lx,ly,1,i)       
 
        if (fld%msh%gdim .eq. 3) then
-          point_data(id(5)) = fld%x(1,1,lz,i,1)
-          point_data(id(6)) = fld%x(lx,1,lz,i,1)
-          point_data(id(8)) = fld%x(1,ly,lz,i,1)
-          point_data(id(7)) = fld%x(lx,ly,lz,i,1)       
+          point_data(id(5)) = fld%x(1,1,lz,i)
+          point_data(id(6)) = fld%x(lx,1,lz,i)
+          point_data(id(8)) = fld%x(1,ly,lz,i)
+          point_data(id(7)) = fld%x(lx,ly,lz,i)       
        end if
 
     end do
