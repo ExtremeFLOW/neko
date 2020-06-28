@@ -9,6 +9,8 @@ module dofmap
 
   type, public :: dofmap_t
      integer(kind=8), allocatable :: dof(:,:,:,:)
+     type(mesh_t), pointer :: msh
+     type(space_t), pointer :: Xh
    contains
      final :: dofmap_free
   end type dofmap_t
@@ -20,8 +22,8 @@ module dofmap
 contains
 
   function dofmap_init(msh, Xh) result(this)
-    type(mesh_t), intent(inout) :: msh !< Mesh
-    type(space_t), intent(in) :: Xh !< Function space \f$ X_h \f$
+    type(mesh_t), target, intent(inout) :: msh !< Mesh
+    type(space_t), target, intent(in) :: Xh !< Function space \f$ X_h \f$
     type(dofmap_t) :: this
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face
@@ -33,6 +35,9 @@ contains
     
     call dofmap_free(this)
 
+    this%msh => msh
+    this%Xh => Xh
+        
     allocate(this%dof(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
 
     this%dof = 0
@@ -47,7 +52,7 @@ contains
             int(msh%elements(i)%e%pts(2)%p%id(), 8)
        this%dof(1, Xh%ly, 1, i) = &
             int(msh%elements(i)%e%pts(4)%p%id(), 8)
-       this%dof(Xh%lz, Xh%ly, 1, i) = &
+       this%dof(Xh%lx, Xh%ly, 1, i) = &
             int(msh%elements(i)%e%pts(3)%p%id(), 8)
 
        this%dof(1, 1, Xh%lz, i) = &
@@ -56,7 +61,7 @@ contains
             int(msh%elements(i)%e%pts(6)%p%id(), 8)
        this%dof(1, Xh%ly, Xh%lz, i) = &
             int(msh%elements(i)%e%pts(8)%p%id(), 8)
-       this%dof(Xh%lz, Xh%ly, Xh%lz, i) = &
+       this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
             int(msh%elements(i)%e%pts(7)%p%id(), 8)
     end do
     
@@ -280,6 +285,9 @@ contains
     if (allocated(this%dof)) then
        deallocate(this%dof)
     end if
+
+    nullify(this%msh)
+    nullify(this%Xh)
     
   end subroutine dofmap_free
   
