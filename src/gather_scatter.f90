@@ -16,8 +16,13 @@ module gather_scatter
      real(kind=dp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:)          !< Local gs to dof mapping
+     real(kind=dp), allocatable :: shared_gs(:)       !< Buffer for shared gs-op
+     integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
+     integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
      type(dofmap_t), pointer ::dofmap                 !< Dofmap for gs-ops
+     type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
+     integer :: nshared                               !< Shared gs-ops
   end type gs_t
 
   private :: gs_init_mapping
@@ -55,24 +60,42 @@ contains
        deallocate(gs%local_gs_dof)
     end if
 
-    gs%nlocal = 0
+    if (allocated(gs%shared_gs)) then
+       deallocate(gs%shared_gs)
+    end if
+    
+    if (allocated(gs%shared_dof_gs)) then
+       deallocate(gs%shared_dof_gs)
+    end if
+
+    if (allocated(gs%shared_gs_dof)) then
+       deallocate(gs%shared_gs_dof)
+    end if
+
+    gs%nlocal =0
+    gs%nshared = 0
+
+    call gs%shared_dofs%free()
     
   end subroutine gs_free
 
   !> Setup mapping of dofs to gather-scatter operations
   subroutine gs_init_mapping(gs)
-    type(gs_t), intent(inout) :: gs
+    type(gs_t), target, intent(inout) :: gs
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dofmap
-    type(stack_i4_t) :: local_dof, dof_local
-    integer :: i, j, k, l, lx, ly, lz, max_id, id
+    type(stack_i4_t) :: local_dof, dof_local, shared_dof, dof_shared
+    integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid
     integer, pointer :: sp(:)
     type(htable_i8_t) :: dm
+    type(htable_i8_t), pointer :: sdm
 
     dofmap => gs%dofmap
     msh => dofmap%msh
+    sdm => gs%shared_dofs
 
     call dm%init(msh%nelv, i)
+    call sdm%init(msh%nelv, i)
     
     lx = dofmap%Xh%lx
     ly = dofmap%Xh%ly
@@ -82,51 +105,104 @@ contains
     call local_dof%init()
     call dof_local%init()
 
+    call shared_dof%init()
+    call dof_shared%init()
+    
+
     !
     ! Setup mapping for dofs points
     !
     
     max_id = 0
+    max_sid = 0
     do i = 1, msh%nelv
-       id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, 1, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(1, 1, 1, i, lx, ly, lz)
-       call dof_local%push(id)
+       lid = linear_index(1, 1, 1, i, lx, ly, lz)
+       if (dofmap%shared_dof(1, 1, 1, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(1, 1, 1, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, 1, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
 
-       id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, 1, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(lx, 1, 1, i, lx, ly, lz)
-       call dof_local%push(id)
-              
-       id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, 1, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(1, ly, 1, i, lx, ly, lz)
-       call dof_local%push(id)
-       
-       id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, 1, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(lx, ly, 1, i, lx, ly, lz)
-       call dof_local%push(id)
-       
-       id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, lz, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(1, 1, lz, i, lx, ly, lz)
-       call dof_local%push(id)
-       
-       id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, lz, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(lx, 1, lz, i, lx, ly, lz)
-       call dof_local%push(id)
-       
-       id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, lz, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(1, ly, lz, i, lx, ly, lz)
-       call dof_local%push(id)
-             
-       id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, lz, i), max_id)
-       call local_dof%push(id)
-       id = linear_index(lx, ly, lz, i, lx, ly, lz)
-       call dof_local%push(id)
+       lid = linear_index(lx, 1, 1, i, lx, ly, lz)
+       if (dofmap%shared_dof(lx, 1, 1, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(lx, 1, 1, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, 1, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
+
+       lid = linear_index(1, ly, 1, i, lx, ly, lz)
+       if (dofmap%shared_dof(1, ly, 1, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(1, ly, 1, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, 1, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
+
+       lid = linear_index(lx, ly, 1, i, lx, ly, lz)
+       if (dofmap%shared_dof(lx, ly, 1, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(lx, ly, 1, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, 1, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
+
+       lid = linear_index(1, 1, lz, i, lx, ly, lz)
+       if (dofmap%shared_dof(1, 1, lz, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(1, 1, lz, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, lz, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
+
+       lid = linear_index(lx, 1, lz, i, lx, ly, lz)
+       if (dofmap%shared_dof(lx, 1, lz, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(lx, 1, lz, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, lz, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
+
+       lid = linear_index(1, ly, lz, i, lx, ly, lz)
+       if (dofmap%shared_dof(1, ly, lz, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(1, ly, lz, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, lz, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
+
+       lid = linear_index(lx, ly, lz, i, lx, ly, lz)
+       if (dofmap%shared_dof(lx, ly, lz, i)) then
+          id = gs_mapping_add_dof(sdm, dofmap%dof(lx, ly, lz, i), max_sid)
+          call shared_dof%push(id)
+          call dof_shared%push(lid)
+       else
+          id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, lz, i), max_id)
+          call local_dof%push(id)
+          call dof_local%push(lid)
+       end if
 
     end do
 
@@ -138,96 +214,204 @@ contains
        !
        ! dofs on edges in x-direction
        !
-       do j = 2, lx - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, 1, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(j, 1, 1, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(2, 1, 1, i)) then
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, 1, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(j, 1, 1, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, 1, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(j, 1, 1, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
-       do j = 2, lx - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, lz, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(j, 1, lz, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(2, 1, lz, i)) then
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, lz, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(j, 1, lz, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, lz, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(j, 1, lz, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
-       do j = 2, lx - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(j, ly, 1, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(2, ly, 1, i)) then
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, 1, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(j, ly, 1, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+          
+       else
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, 1, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(j, ly, 1, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
-       do j = 2, lx - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, lz, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(j, ly, lz, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(2, ly, lz, i)) then
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, lz, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(j, ly, lz, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do j = 2, lx - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, lz, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(j, ly, lz, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
        !
        ! dofs on edges in y-direction
        !
-       do k = 2, ly - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(1, k, 1, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(1, k, 1, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(1, 2, 1, i)) then
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, 1, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(1, k, 1, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(1, k, 1, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(1, k, 1, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
        
-       do k = 2, ly - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(1, k, lz, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(1, k, lz, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(1, 2, lz, i)) then
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, lz, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(1, k, lz, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(1, k, lz, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(1, k, lz, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
-       do k = 2, ly - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, lz, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(lx, k, 1, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(lx, 2, 1, i)) then
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, 1, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(lx, k, 1, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, 1, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(lx, k, 1, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
-       do k = 2, ly - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, lz, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(lx, k, lz, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(lx, 2, lz, i)) then
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, lz, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(lx, k, lz, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do k = 2, ly - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, lz, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(lx, k, lz, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
        !
        ! dofs on edges in z-direction
        !
-       do l = 2, lz - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, l, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(1, 1, l, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(1, 1, 2, i)) then
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(1, 1, l, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(1, 1, l, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else          
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, l, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(1, 1, l, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
     
-       do l = 2, lz - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, l, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(lx, 1, l, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
+       if (dofmap%shared_dof(lx, 1, 2, i)) then
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(lx, 1, l, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(lx, 1, l, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(lx, 1, l, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(lx, 1, l, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
 
-       do l = 2, lz - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, l, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(1, ly, l, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
-
-       do l = 2, lz - 1
-          id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, l, i), max_id)
-          call local_dof%push(id)
-          id = linear_index(lx, ly, l, i, lx, ly, lz)
-          call dof_local%push(id)
-       end do
-
+       if (dofmap%shared_dof(1, ly, 2, i)) then
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(1, ly, l, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(1, ly, l, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do
+       else
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(1, ly, l, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(1, ly, l, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
+       
+       if (dofmap%shared_dof(lx, ly, 2, i)) then
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(sdm, dofmap%dof(lx, ly, l, i), max_sid)
+             call shared_dof%push(id)
+             id = linear_index(lx, ly, l, i, lx, ly, lz)
+             call dof_shared%push(id)
+          end do       
+       else
+          do l = 2, lz - 1
+             id = gs_mapping_add_dof(dm, dofmap%dof(lx, ly, l, i), max_id)
+             call local_dof%push(id)
+             id = linear_index(lx, ly, l, i, lx, ly, lz)
+             call dof_local%push(id)
+          end do
+       end if
     end do
 
     !
@@ -236,63 +420,130 @@ contains
     do i = 1, msh%nelv
 
        ! Facets in x-direction (s, t)-plane
-       do l = 2, lz - 1
-          do k = 2, ly - 1
-             id = gs_mapping_add_dof(dm, dofmap%dof(1, k, l,  i), max_id)
-             call local_dof%push(id)
-             id = linear_index(1, k, l, i, lx, ly, lz)
-             call dof_local%push(id)
+       if (dofmap%shared_dof(1, 2, 2, i)) then
+          do l = 2, lz - 1
+             do k = 2, ly - 1
+                id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, l, i), max_sid)
+                call shared_dof%push(id)
+                id = linear_index(1, k, l, i, lx, ly, lz)
+                call dof_shared%push(id)
+             end do
           end do
-       end do
-
-       do l = 2, lz - 1
-          do k = 2, ly - 1
-             id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, l,  i), max_id)
-             call local_dof%push(id)
-             id = linear_index(lx, k, l, i, lx, ly, lz)
-             call dof_local%push(id)
+       else
+          do l = 2, lz - 1
+             do k = 2, ly - 1
+                id = gs_mapping_add_dof(dm, dofmap%dof(1, k, l, i), max_id)
+                call local_dof%push(id)
+                id = linear_index(1, k, l, i, lx, ly, lz)
+                call dof_local%push(id)
+             end do
           end do
-       end do
+       end if
        
+       if (dofmap%shared_dof(lx, 2, 2, i)) then
+          do l = 2, lz - 1
+             do k = 2, ly - 1
+                id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, l,  i), max_sid)
+                call shared_dof%push(id)
+                id = linear_index(lx, k, l, i, lx, ly, lz)
+                call dof_shared%push(id)
+             end do
+          end do
+       else
+          do l = 2, lz - 1
+             do k = 2, ly - 1
+                id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, l,  i), max_id)
+                call local_dof%push(id)
+                id = linear_index(lx, k, l, i, lx, ly, lz)
+                call dof_local%push(id)
+             end do
+          end do
+       end if
+          
        ! Facets in y-direction (r, t)-plane
-       do l = 2, lz - 1
-          do j = 2, lx - 1
-             id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, l, i), max_id)
-             call local_dof%push(id)
-             id = linear_index(j, 1, l, i, lx, ly, lz)
-             call dof_local%push(id)
+       if (dofmap%shared_dof(2, 1, 2, i)) then
+          do l = 2, lz - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, l, i), max_sid)
+                call shared_dof%push(id)
+                id = linear_index(j, 1, l, i, lx, ly, lz)
+                call dof_shared%push(id)
+             end do
           end do
-       end do
-
-       do l = 2, lz - 1
-          do j = 2, lx - 1
-             id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, l, i), max_id)
-             call local_dof%push(id)
-             id = linear_index(j, ly, l, i, lx, ly, lz)
-             call dof_local%push(id)
+       else
+          do l = 2, lz - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, l, i), max_id)
+                call local_dof%push(id)
+                id = linear_index(j, 1, l, i, lx, ly, lz)
+                call dof_local%push(id)
+             end do
           end do
-       end do
+       end if
 
+       if (dofmap%shared_dof(2, ly, 2, i)) then
+          do l = 2, lz - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, l, i), max_sid)
+                call shared_dof%push(id)
+                id = linear_index(j, ly, l, i, lx, ly, lz)
+                call dof_shared%push(id)
+             end do
+          end do
+       else
+          do l = 2, lz - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, l, i), max_id)
+                call local_dof%push(id)
+                id = linear_index(j, ly, l, i, lx, ly, lz)
+                call dof_local%push(id)
+             end do
+          end do
+       end if
+          
        ! Facets in z-direction (r, s)-plane
-       do k = 2, ly - 1
-          do j = 2, lx - 1
-             id = gs_mapping_add_dof(dm, dofmap%dof(j, k, 1, i), max_id)
-             call local_dof%push(id)
-             id = linear_index(j, k, 1, i, lx, ly, lz)
-             call dof_local%push(id)
+       if (dofmap%shared_dof(2, 2, 1, i)) then
+          do k = 2, ly - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, 1, i), max_sid)
+                call shared_dof%push(id)
+                id = linear_index(j, k, 1, i, lx, ly, lz)
+                call dof_shared%push(id)
+             end do
           end do
-       end do
-
-       do k = 2, ly - 1
-          do j = 2, lx - 1
-             id = gs_mapping_add_dof(dm, dofmap%dof(j, k, lz, i), max_id)
-             call local_dof%push(id)
-             id = linear_index(j, k, lz, i, lx, ly, lz)
-             call dof_local%push(id)
+       else
+          do k = 2, ly - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(dm, dofmap%dof(j, k, 1, i), max_id)
+                call local_dof%push(id)
+                id = linear_index(j, k, 1, i, lx, ly, lz)
+                call dof_local%push(id)
+             end do
           end do
-       end do
+       end if
+          
+       if (dofmap%shared_dof(2, 2, lz, i)) then
+          do k = 2, ly - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, lz, i), max_sid)
+                call shared_dof%push(id)
+                id = linear_index(j, k, lz, i, lx, ly, lz)
+                call dof_shared%push(id)
+             end do
+          end do
+       else
+          do k = 2, ly - 1
+             do j = 2, lx - 1
+                id = gs_mapping_add_dof(dm, dofmap%dof(j, k, lz, i), max_id)
+                call local_dof%push(id)
+                id = linear_index(j, k, lz, i, lx, ly, lz)
+                call dof_local%push(id)
+             end do
+          end do
+       end if
     end do
 
+       
 
     call dm%free()
     
@@ -316,6 +567,27 @@ contains
 
     ! Allocate buffer for local gs-ops
     allocate(gs%local_gs(gs%nlocal))
+
+    gs%nshared = shared_dof%size()
+
+    ! Finalize shared dof to gather-scatter index
+    allocate(gs%shared_dof_gs(gs%nshared))
+    sp => shared_dof%array()
+    do i = 1, shared_dof%size()
+       gs%shared_dof_gs(i) = sp(i)
+    end do
+    call shared_dof%free()
+
+    ! Finalize shared gather-scatter index to dof
+    allocate(gs%shared_gs_dof(gs%nshared))
+    sp => dof_shared%array()
+    do i = 1, dof_shared%size()
+       gs%shared_gs_dof(i) = sp(i)
+    end do
+    call dof_shared%free()
+
+    ! Allocate buffer for shared gs-ops
+    allocate(gs%shared_gs(gs%nlocal))
 
   contains
     
