@@ -8,7 +8,8 @@ module dofmap
   private
 
   type, public :: dofmap_t
-     integer(kind=8), allocatable :: dof(:,:,:,:)
+     integer(kind=8), allocatable :: dof(:,:,:,:) !< Mapping to unique dof
+     logical, allocatable :: shared_dof(:,:,:,:)  !< True if the dof is shared
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
    contains
@@ -32,6 +33,7 @@ contains
     integer(kind=8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)
     integer :: global_id
     integer(kind=8) :: edge_id, edge_offset, facet_offset, facet_id
+    logical :: shared_dof
     
     call dofmap_free(this)
 
@@ -39,8 +41,10 @@ contains
     this%Xh => Xh
         
     allocate(this%dof(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
+    allocate(this%shared_dof(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
 
     this%dof = 0
+    this%shared_dof = .false.
 
     !> @todo implement for 2d elements
 
@@ -63,6 +67,31 @@ contains
             int(msh%elements(i)%e%pts(8)%p%id(), 8)
        this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
             int(msh%elements(i)%e%pts(7)%p%id(), 8)
+
+       this%shared_dof(1, 1, 1, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
+       
+       this%shared_dof(Xh%lx, 1, 1, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
+
+       this%shared_dof(1, Xh%ly, 1, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
+       
+       this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
+
+       this%shared_dof(1, 1, Xh%lz, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(5)%p)
+       
+       this%shared_dof(Xh%lx, 1, Xh%lz, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(6)%p)
+
+       this%shared_dof(1, Xh%ly, Xh%lz, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(8)%p)
+       
+       this%shared_dof(Xh%lx, Xh%ly, Xh%lz, i) = &
+            mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
+       
     end do
     
     !
@@ -85,34 +114,42 @@ contains
           ! Number edges in x-direction
           ! 
           call ep%edge_id(edge, 1)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, 1, 1, i) = edge_id
+             this%shared_dof(j, 1, 1, i) = shared_dof
              edge_id = edge_id + 1
           end do
           
           call ep%edge_id(edge, 3)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, 1, Xh%lz, i) = edge_id
+             this%shared_dof(j, 1, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 2)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, 1, i) = edge_id
+             this%shared_dof(j, Xh%ly, 1, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 4)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, Xh%lz, i) = edge_id
+             this%shared_dof(j, Xh%ly, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
@@ -121,34 +158,42 @@ contains
           ! Number edges in y-direction
           ! 
           call ep%edge_id(edge, 5)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(1, j, 1, i) = edge_id
+             this%shared_dof(1, j, 1, i) = shared_dof
              edge_id = edge_id + 1
           end do
           
           call ep%edge_id(edge, 7)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(1, j, Xh%lz, i) = edge_id
+             this%shared_dof(1, j, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 6)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, 1, i) = edge_id
+             this%shared_dof(Xh%lx, j, 1, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 8)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, Xh%lz, i) = edge_id
+             this%shared_dof(Xh%lx, j, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
@@ -156,34 +201,42 @@ contains
           ! Number edges in z-direction
           ! 
           call ep%edge_id(edge, 9)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(1, 1, j, i) = edge_id
+             this%shared_dof(1, 1, j, i) = shared_dof
              edge_id = edge_id + 1
           end do
           
           call ep%edge_id(edge, 10)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(Xh%lx, 1, j, i) = edge_id
+             this%shared_dof(Xh%lx, 1, j, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 11)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(1, Xh%ly, j, i) = edge_id
+             this%shared_dof(1, Xh%ly, j, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
           call ep%edge_id(edge, 12)
+          shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
           edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              this%dof(Xh%lx, Xh%ly, j, i) = edge_id
+             this%shared_dof(Xh%lx, Xh%ly, j, i) = shared_dof
              edge_id = edge_id + 1
           end do
           
@@ -208,21 +261,25 @@ contains
        ! Number facets in x-direction (s, t)-plane
        !
        call msh%elements(i)%e%facet_id(face, 1)
+       shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(1, j, k, i) = facet_id
+             this%shared_dof(1, j, k, i) = shared_dof
              facet_id = facet_id + 1
           end do
        end do
        
        call msh%elements(i)%e%facet_id(face, 2)
+       shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, k, i) = facet_id
+             this%shared_dof(Xh%lx, j, k, i) = shared_dof
              facet_id = facet_id + 1
           end do
        end do
@@ -232,21 +289,25 @@ contains
        ! Number facets in y-direction (r, t)-plane
        !
        call msh%elements(i)%e%facet_id(face, 3)
+       shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, 1, k, i) = facet_id
+             this%shared_dof(j, 1, k, i) = shared_dof
              facet_id = facet_id + 1
           end do
        end do
        
        call msh%elements(i)%e%facet_id(face, 4)
+       shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, k, i) = facet_id
+             this%shared_dof(j, Xh%ly, k, i) = shared_dof
              facet_id = facet_id + 1
           end do
        end do
@@ -256,21 +317,25 @@ contains
        ! Number facets in z-direction (r, s)-plane
        !
        call msh%elements(i)%e%facet_id(face, 5)
+       shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, 1, i) = facet_id
+             this%shared_dof(j, k, 1, i) = shared_dof
              facet_id = facet_id + 1
           end do
        end do
        
        call msh%elements(i)%e%facet_id(face, 6)
+       shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(3)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, Xh%lz, i) = facet_id
+             this%shared_dof(j, k, Xh%lz, i) = shared_dof
              facet_id = facet_id + 1
           end do
        end do
@@ -284,6 +349,10 @@ contains
 
     if (allocated(this%dof)) then
        deallocate(this%dof)
+    end if
+
+    if (allocated(this%shared_dof)) then
+       deallocate(this%shared_dof)
     end if
 
     nullify(this%msh)
