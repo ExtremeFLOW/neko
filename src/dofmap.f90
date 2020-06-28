@@ -33,11 +33,11 @@ contains
     integer :: global_id
     integer(kind=8) :: edge_id, edge_offset, facet_offset, facet_id
     
-    this%msh => msh
-    this%Xh => Xh
-
     call dofmap_free(this)
 
+    this%msh => msh
+    this%Xh => Xh
+        
     allocate(this%dof(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
 
     this%dof = 0
