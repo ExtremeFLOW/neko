@@ -7,6 +7,7 @@ module gather_scatter
   use htable
   use stack
   use utils
+  use mpi
   implicit none
 
   integer, parameter :: GS_OP_ADD = 1, GS_OP_MUL = 2, &
@@ -19,11 +20,23 @@ module gather_scatter
      real(kind=dp), allocatable :: shared_gs(:)       !< Buffer for shared gs-op
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
+     integer, allocatable :: send_pe(:)               !< Send order
+     integer, allocatable :: recv_pe(:)               !< Recv order
+     type(stack_i4_t), allocatable :: send_dof(:)     !< Send dof to shared-gs
+     type(stack_i4_t), allocatable :: recv_dof(:)     !< Recv dof to shared-gs
+     type(gs_comm_t), allocatable :: send_buf(:)      !< Comm. buffers
+     type(gs_comm_t), allocatable :: recv_buf(:)      !< Comm. buffers
      type(dofmap_t), pointer ::dofmap                 !< Dofmap for gs-ops
      type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
      integer :: nshared                               !< Shared gs-ops
   end type gs_t
+
+  type, private :: gs_comm_t
+     integer :: status(MPI_STATUS_SIZE)
+     integer :: request
+     real(kind=dp), allocatable :: data(:)
+  end type gs_comm_t
 
   private :: gs_init_mapping
 
@@ -33,18 +46,30 @@ contains
   subroutine gs_init(gs, dofmap)
     type(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
+    integer :: i
 
     call gs_free(gs)
 
     gs%dofmap => dofmap
+    
+    allocate(gs%send_dof(0:pe_size-1))
+    allocate(gs%recv_dof(0:pe_size-1))
+
+    do i = 0, pe_size -1
+       call gs%send_dof(i)%init()
+       call gs%recv_dof(i)%init()
+    end do
 
     call gs_init_mapping(gs)
+
+    call gs_schedule(gs)
     
   end subroutine gs_init
 
   !> Deallocate a gather-scatter kernel
   subroutine gs_free(gs)
     type(gs_t), intent(inout) :: gs
+    integer :: i
 
     nullify(gs%dofmap)
 
@@ -72,11 +97,51 @@ contains
        deallocate(gs%shared_gs_dof)
     end if
 
-    gs%nlocal =0
+    gs%nlocal = 0
     gs%nshared = 0
 
     call gs%shared_dofs%free()
-    
+
+    if (allocated(gs%send_dof)) then
+       do i = 0, pe_size - 1
+          call gs%send_dof(i)%free()
+       end do
+       deallocate(gs%send_dof)
+    end if
+
+    if (allocated(gs%recv_dof)) then
+       do i = 0, pe_size - 1
+          call gs%recv_dof(i)%free()
+       end do
+       deallocate(gs%recv_dof)
+    end if
+
+    if (allocated(gs%send_pe)) then
+       deallocate(gs%send_pe)
+    end if
+
+    if (allocated(gs%recv_pe)) then
+       deallocate(gs%recv_pe)
+    end if
+
+    if (allocated(gs%send_buf)) then
+       do i = 1, size(gs%send_buf)
+          if (allocated(gs%send_buf(i)%data)) then
+             deallocate(gs%send_buf(i)%data)
+          end if
+       end do
+       deallocate(gs%send_buf)
+    end if
+
+
+    if (allocated(gs%recv_buf)) then
+       do i = 1, size(gs%recv_buf)
+          if (allocated(gs%recv_buf(i)%data)) then
+             deallocate(gs%recv_buf(i)%data)
+          end if
+       end do
+       deallocate(gs%recv_buf)
+    end if
   end subroutine gs_free
 
   !> Setup mapping of dofs to gather-scatter operations
@@ -100,7 +165,6 @@ contains
     lx = dofmap%Xh%lx
     ly = dofmap%Xh%ly
     lz = dofmap%Xh%lz
-
 
     call local_dof%init()
     call dof_local%init()
@@ -607,109 +671,339 @@ contains
     
   end subroutine gs_init_mapping
 
+  !> Schedule shared gather-scatter operations
+  subroutine gs_schedule(gs)
+    type(gs_t), intent(inout) :: gs
+    integer(kind=8), allocatable :: send_buf(:), recv_buf(:)
+    integer(kind=2), allocatable :: shared_flg(:), recv_flg(:)
+    type(htable_iter_i8_t) :: it
+    type(stack_i4_t) :: send_pe, recv_pe
+    integer :: i, j, max_recv, src, dst, ierr, n_recv
+    integer :: shared_id, tmp, shared_gs_id
+    integer :: status(MPI_STATUS_SIZE)
+    integer :: nshared_unique
+    integer, pointer :: sp(:), rp(:)
+
+
+    nshared_unique = gs%shared_dofs%num_entries()
+    
+    call it%init(gs%shared_dofs)
+    allocate(send_buf(nshared_unique))
+    i = 1
+    do while(it%next())
+       send_buf(i) = it%key()
+       i = i + 1
+    end do
+
+    call send_pe%init()
+    call recv_pe%init()
+    
+
+    !
+    ! Schedule exchange of shared dofs
+    !
+
+    call MPI_Allreduce(nshared_unique, max_recv, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+    allocate(recv_buf(max_recv))
+    allocate(shared_flg(max_recv))
+    allocate(recv_flg(max_recv))
+
+    !> @todo Consider switching to a crystal router...
+    do i = 1, pe_size - 1
+       src = modulo(pe_rank - i + pe_size, pe_size)
+       dst = modulo(pe_rank + i, pe_size)
+
+       call MPI_Sendrecv(send_buf, nshared_unique, MPI_INTEGER8, dst, 0, &
+            recv_buf, max_recv, MPI_INTEGER8, src, 0, NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+
+       do j = 1, n_recv
+          shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
+          if (shared_flg(j) .eq. 0) then
+             call gs%recv_dof(src)%push(shared_gs_id)
+          end if
+       end do
+
+       if (gs%recv_dof(src)%size() .gt. 0) then
+          call recv_pe%push(src)
+       end if
+
+       call MPI_Sendrecv(shared_flg, n_recv, MPI_INTEGER2, src, 1, &
+            recv_flg, max_recv, MPI_INTEGER2, dst, 1, NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
+
+       do j = 1, n_recv
+          if (recv_flg(j) .eq. 0) then
+             tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
+             call gs%send_dof(dst)%push(shared_gs_id)
+          end if
+       end do
+
+       if (gs%send_dof(dst)%size() .gt. 0) then
+          call send_pe%push(dst)
+       end if
+       
+    end do
+
+    allocate(gs%send_pe(send_pe%size()))
+    allocate(gs%send_buf(send_pe%size()))
+    
+    sp => send_pe%array()
+    do i = 1, send_pe%size()
+       gs%send_pe(i) = sp(i)
+       allocate(gs%send_buf(i)%data(gs%send_dof(sp(i))%size()))
+    end do
+
+    allocate(gs%recv_pe(recv_pe%size()))
+    allocate(gs%recv_buf(recv_pe%size()))
+    
+    rp => recv_pe%array()
+    do i = 1, recv_pe%size()
+       gs%recv_pe(i) = rp(i)
+       allocate(gs%recv_buf(i)%data(gs%recv_dof(rp(i))%size()))
+    end do
+    
+    call send_pe%free()
+    call recv_pe%free()
+
+    deallocate(send_buf)
+    deallocate(recv_flg)
+    deallocate(shared_flg)
+
+  end subroutine gs_schedule
+
   !> Gather-scatter operation with op @a op
   subroutine gs_op(gs, u, op)
     type(gs_t), intent(inout) :: gs
     type(field_t), intent(inout) :: u
-    integer :: op
-
-    call gs_gather(gs, u, op)
-    call gs_scatter(gs, u)
+    integer :: n, m, l, op
     
+    n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
+    m = gs%nlocal
+    l = gs%nshared
+
+    ! Gather shared dofs
+    if (pe_size .gt. 1) then
+
+       call gs_nbrecv(gs)
+       
+       call gs_gather(gs%shared_gs, l, gs%shared_dof_gs, &
+            u%x, n, gs%shared_gs_dof, op)
+
+       call gs_nbsend(gs, gs%shared_gs, l)
+       
+    end if
+    
+    ! Gather-scatter local dofs
+    call gs_gather(gs%local_gs, m, gs%local_dof_gs, &
+         u%x, n, gs%local_gs_dof, op)
+    call gs_scatter(gs%local_gs, m, gs%local_dof_gs, &
+         u%x, n, gs%local_gs_dof)
+
+    ! Scatter shared dofs
+    if (pe_size .gt. 1) then
+
+       call gs_nbwait(gs, gs%shared_gs, l, op)
+       
+       call gs_scatter(gs%shared_gs, l, gs%shared_dof_gs, &
+            u%x, n, gs%shared_gs_dof)
+    end if
+       
   end subroutine gs_op
   
   !> Gather kernel
-  subroutine gs_gather(gs, u, op)
-    type(gs_t), intent(inout) :: gs
-    type(field_t), intent(inout) :: u
-    integer, intent(in) :: op
-    integer :: n
-    
-    n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
+  subroutine gs_gather(v, m, dg, u, n, gd, op)
+    real(kind=dp), dimension(m), intent(inout) :: v
+    integer, dimension(m), intent(inout) :: dg
+    real(kind=dp), dimension(n), intent(inout) :: u
+    integer, dimension(m), intent(inout) :: gd
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer :: op
     
     select case(op)
     case (GS_OP_ADD)
-       call gs_gather_local_add(gs, u%x, n)
+       call gs_gather_kernel_add(v, m, dg, u, n, gd)
     case (GS_OP_MUL)
-       call gs_gather_local_mul(gs, u%x, n)
+       call gs_gather_kernel_mul(v, m, dg, u, n, gd)
     case (GS_OP_MIN)
-       call gs_gather_local_min(gs, u%x, n)
+       call gs_gather_kernel_min(v, m, dg, u, n, gd)
     case (GS_OP_MAX)
-       call gs_gather_local_max(gs, u%x, n)
+       call gs_gather_kernel_max(v, m, dg, u, n, gd)
     end select
     
   end subroutine gs_gather
-
-  !> Gather kernel for addition of local data
-  subroutine gs_gather_local_add(gs, u, n)
-    type(gs_t), intent(inout) :: gs
+ 
+  !> Gather kernel for addition of data
+  !! \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
+  subroutine gs_gather_kernel_add(v, m, dg, u, n, gd)
+    real(kind=dp), dimension(m), intent(inout) :: v
+    integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
-    integer, intent(inout) :: n
+    integer, dimension(m), intent(inout) :: gd
+    integer, intent(in) :: m
+    integer, intent(in) :: n
     integer :: i
-    gs%local_gs = 0d0
-    do i = 1, gs%nlocal
-       gs%local_gs(gs%local_dof_gs(i)) = &
-            gs%local_gs(gs%local_dof_gs(i)) + u(gs%local_gs_dof(i))
+    v = 0d0
+    do i = 1, m
+       v(dg(i)) = v(dg(i)) + u(gd(i))
     end do
-  end subroutine gs_gather_local_add
+  end subroutine gs_gather_kernel_add
 
-  !> Gather kernel for multiplication of local data
-  subroutine gs_gather_local_mul(gs, u, n)
-    type(gs_t), intent(inout) :: gs
+  !> Gather kernel for multiplication of data
+  !! \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
+  subroutine gs_gather_kernel_mul(v, m, dg, u, n, gd)
+    real(kind=dp), dimension(m), intent(inout) :: v
+    integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
-    integer, intent(inout) :: n
+    integer, dimension(m), intent(inout) :: gd
+    integer, intent(in) :: m
+    integer, intent(in) :: n
     integer :: i
-    do i = 1, gs%nlocal
-       gs%local_gs(gs%local_dof_gs(i)) = &
-            gs%local_gs(gs%local_dof_gs(i)) * u(gs%local_gs_dof(i))
+    do i = 1, m
+       v(dg(i)) = v(dg(i)) * u(gd(i))
     end do
-  end subroutine gs_gather_local_mul
+  end subroutine gs_gather_kernel_mul
   
-  !> Gather kernel for minimum of local data
-  subroutine gs_gather_local_min(gs, u, n)
-    type(gs_t), intent(inout) :: gs
+  !> Gather kernel for minimum of data
+  !! \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
+  subroutine gs_gather_kernel_min(v, m, dg, u, n, gd)
+    real(kind=dp), dimension(m), intent(inout) :: v
+    integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
-    integer, intent(inout) :: n
+    integer, dimension(m), intent(inout) :: gd
+    integer, intent(in) :: m
+    integer, intent(in) :: n
     integer :: i
-    do i = 1, gs%nlocal
-       gs%local_gs(gs%local_dof_gs(i)) = &
-            min(gs%local_gs(gs%local_dof_gs(i)), u(gs%local_gs_dof(i)))
+    v = 1e24
+    do i = 1, m
+       v(dg(i)) = min(v(dg(i)), u(gd(i)))
     end do
-  end subroutine gs_gather_local_min
+  end subroutine gs_gather_kernel_min
 
-    !> Gather kernel for maximum of local data
-  subroutine gs_gather_local_max(gs, u, n)
-    type(gs_t), intent(inout) :: gs
+  !> Gather kernel for maximum of data
+  !! \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
+  subroutine gs_gather_kernel_max(v, m, dg, u, n, gd)
+    real(kind=dp), dimension(m), intent(inout) :: v
+    integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
-    integer, intent(inout) :: n
+    integer, dimension(m), intent(inout) :: gd
+    integer, intent(in) :: m
+    integer, intent(in) :: n
     integer :: i
-    do i = 1, gs%nlocal
-       gs%local_gs(gs%local_dof_gs(i)) = &
-            max(gs%local_gs(gs%local_dof_gs(i)), u(gs%local_gs_dof(i)))
+    v = -1e24
+    do i = 1, m
+       v(dg(i)) = max(v(dg(i)), u(gd(i)))
     end do
-  end subroutine gs_gather_local_max
+  end subroutine gs_gather_kernel_max
 
-  !> Scatter kernel
-  subroutine gs_scatter(gs, u)
-    type(gs_t), intent(inout) :: gs
-    type(field_t), intent(inout) :: u
-    integer :: n
-    
-    n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
-    call gs_scatter_local(gs, u%x, n)
+  !> Scatter kernel  @todo Make the kernel abstract
+  subroutine gs_scatter(v, m, dg, u, n, gd)
+    real(kind=dp), dimension(m), intent(inout) :: v
+    integer, dimension(m), intent(inout) :: dg
+    real(kind=dp), dimension(n), intent(inout) :: u
+    integer, dimension(m), intent(inout) :: gd
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+        
+    call gs_scatter_kernel(v, m, dg, u, n, gd)
 
   end subroutine gs_scatter
 
-  !> Scatter kernel for local data
-  subroutine gs_scatter_local(gs, u, n)
+  !> Scatter kernel \f$ u(gd(i) = v(dg(i)) \f$
+  subroutine gs_scatter_kernel(v, m, dg, u, n, gd)
+    real(kind=dp), dimension(m), intent(inout) :: v
+    integer, dimension(m), intent(inout) :: dg
+    real(kind=dp), dimension(n), intent(inout) :: u
+    integer, dimension(m), intent(inout) :: gd
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer :: i
+    do i = 1, m
+       u(gd(i)) = v(dg(i))
+    end do
+  end subroutine gs_scatter_kernel
+
+
+  !> Post non-blocking receive operations
+  subroutine gs_nbrecv(gs)
+    type(gs_t), intent(inout) :: gs
+    integer :: i, ierr
+
+    do i = 1, size(gs%recv_pe)
+       call MPI_IRecv(gs%recv_buf(i)%data, size(gs%recv_buf(i)%data), &
+            MPI_DOUBLE_PRECISION, gs%recv_pe(i), 0, &
+            NEKO_COMM, gs%recv_buf(i)%request, ierr)
+    end do
+    
+  end subroutine gs_nbrecv
+
+  !> Post non-blocking send operations
+  subroutine gs_nbsend(gs, u, n)
     type(gs_t), intent(inout) :: gs
     real(kind=dp), dimension(n), intent(inout) :: u
-    integer :: n
-    integer :: i
-    do i = 1, gs%nlocal
-       u(gs%local_gs_dof(i)) = gs%local_gs(gs%local_dof_gs(i))
-    end do
-  end subroutine gs_scatter_local
+    integer, intent(in) :: n
+    integer ::  i, j, ierr, dst
+    integer , pointer :: dp(:)
 
+    do i = 1, size(gs%send_pe)
+       dst = gs%send_pe(i)
+       dp => gs%send_dof(dst)%array()
+       do j = 1, gs%send_dof(dst)%size()
+          gs%send_buf(i)%data(j) = u(dp(j))
+       end do
+
+       call MPI_Isend(gs%send_buf(i)%data, size(gs%send_buf(i)%data), &
+            MPI_DOUBLE_PRECISION, gs%send_pe(i), 0, &
+            NEKO_COMM, gs%send_buf(i)%request, ierr)
+       
+    end do
+    
+  end subroutine gs_nbsend
+
+  !> Wait for non-blocking operations
+  !! @todo process requests as soon as possible
+  !! @todo implement all the different operators
+  subroutine gs_nbwait(gs, u, n, op)
+    type(gs_t), intent(inout) ::gs
+    real(kind=dp), dimension(n), intent(inout) :: u
+    integer, intent(in) :: n
+    integer :: i, j, src, ierr
+    integer :: op
+    integer , pointer :: dp(:)
+
+    do i = 1, size(gs%send_pe)
+       call MPI_Wait(gs%send_buf(i)%request, MPI_STATUS_IGNORE, ierr)     
+    end do
+
+    do i = 1, size(gs%recv_pe)
+       call MPI_Wait(gs%recv_buf(i)%request, gs%recv_buf(i)%status, ierr)
+       !> @todo Check size etc against status
+       src = gs%recv_pe(i)
+       dp => gs%recv_dof(src)%array()
+       select case(op)
+       case (GS_OP_ADD)
+          do j = 1, gs%send_dof(src)%size()
+             u(dp(j)) = u(dp(j)) + gs%recv_buf(i)%data(j)
+          end do
+       case (GS_OP_MUL)
+          do j = 1, gs%send_dof(src)%size()
+             u(dp(j)) = u(dp(j)) * gs%recv_buf(i)%data(j)
+          end do
+       case (GS_OP_MIN)
+          do j = 1, gs%send_dof(src)%size()
+             u(dp(j)) = min(u(dp(j)), gs%recv_buf(i)%data(j))
+          end do
+       case (GS_OP_MAX)
+          do j = 1, gs%send_dof(src)%size()
+             u(dp(j)) = max(u(dp(j)), gs%recv_buf(i)%data(j))
+          end do
+       end select
+    end do
+
+    
+  end subroutine gs_nbwait
   
 end module gather_scatter
