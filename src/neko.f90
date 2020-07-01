@@ -33,6 +33,7 @@ module neko
   use file
   use field
   use mpi_types
+  use gather_scatter
 contains
 
   subroutine neko_init

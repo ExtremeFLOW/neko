@@ -83,6 +83,12 @@ module mesh
      module procedure mesh_get_global_edge, mesh_get_global_facet
   end interface mesh_get_global
 
+  !> Check if a mesh entitiy is shared
+  interface mesh_is_shared
+     module procedure mesh_is_shared_point, mesh_is_shared_edge, &
+          mesh_is_shared_facet
+  end interface mesh_is_shared
+
   private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
        mesh_generate_external_facet_conn, mesh_generate_external_point_conn, &
        mesh_generate_edge_conn, mesh_generate_facet_numbering
@@ -1173,5 +1179,44 @@ contains
     end if
         
   end function mesh_have_point_glb_idx
+
+
+  !> Check if a point is shared
+  function mesh_is_shared_point(m, p) result(shared)
+    type(mesh_t), intent(inout) :: m
+    type(point_t), intent(inout) :: p
+    integer :: local_index
+    logical shared
+
+    local_index = mesh_get_local(m, p)
+    shared = m%distdata%shared_point%element(local_index)
+    
+  end function mesh_is_shared_point
+  
+
+  !> Check if an edge is shared
+  !! @attention only defined for gdim .ne. 2
+  function mesh_is_shared_edge(m, e) result(shared)
+    type(mesh_t), intent(inout) :: m
+    type(tuple_i4_t), intent(inout) :: e
+    integer :: local_index
+    logical shared
+
+    local_index = mesh_get_local(m, e)
+    shared = m%distdata%shared_edge%element(local_index)
+    
+  end function mesh_is_shared_edge
+
+  !> Check if a facet is shared
+  function mesh_is_shared_facet(m, f) result(shared)
+    type(mesh_t), intent(inout) :: m
+    type(tuple4_i4_t), intent(inout) :: f
+    integer :: local_index
+    logical shared
+
+    local_index = mesh_get_local(m, f)
+    shared = m%distdata%shared_facet%element(local_index)
+    
+  end function mesh_is_shared_facet
 
 end module mesh
