@@ -948,13 +948,13 @@ contains
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, intent(in) :: n
     integer ::  i, j, ierr, dst
-    integer , pointer :: dp(:)
+    integer , pointer :: sp(:)
 
     do i = 1, size(gs%send_pe)
        dst = gs%send_pe(i)
-       dp => gs%send_dof(dst)%array()
+       sp => gs%send_dof(dst)%array()
        do j = 1, gs%send_dof(dst)%size()
-          gs%send_buf(i)%data(j) = u(dp(j))
+          gs%send_buf(i)%data(j) = u(sp(j))
        end do
 
        call MPI_Isend(gs%send_buf(i)%data, size(gs%send_buf(i)%data), &
@@ -972,7 +972,7 @@ contains
     integer, intent(in) :: n
     integer :: i, j, src, ierr
     integer :: op
-    integer , pointer :: dp(:)
+    integer , pointer :: sp(:)
     integer :: nreqs, ndone
 
     nreqs = size(gs%recv_pe)
@@ -986,23 +986,23 @@ contains
                 nreqs = nreqs - 1
                 !> @todo Check size etc against status
                 src = gs%recv_pe(i)
-                dp => gs%recv_dof(src)%array()
+                sp => gs%recv_dof(src)%array()
                 select case(op)
                 case (GS_OP_ADD)
                    do j = 1, gs%send_dof(src)%size()
-                      u(dp(j)) = u(dp(j)) + gs%recv_buf(i)%data(j)
+                      u(sp(j)) = u(sp(j)) + gs%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
                    do j = 1, gs%send_dof(src)%size()
-                      u(dp(j)) = u(dp(j)) * gs%recv_buf(i)%data(j)
+                      u(sp(j)) = u(sp(j)) * gs%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MIN)
                    do j = 1, gs%send_dof(src)%size()
-                      u(dp(j)) = min(u(dp(j)), gs%recv_buf(i)%data(j))
+                      u(sp(j)) = min(u(sp(j)), gs%recv_buf(i)%data(j))
                    end do
                 case (GS_OP_MAX)
                    do j = 1, gs%send_dof(src)%size()
-                      u(dp(j)) = max(u(dp(j)), gs%recv_buf(i)%data(j))
+                      u(sp(j)) = max(u(sp(j)), gs%recv_buf(i)%data(j))
                    end do
                 end select
              end if
