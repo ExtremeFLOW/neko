@@ -1,5 +1,6 @@
 module math
   use num_types
+  use comm
   implicit none
 
   !> Machine epsilon \f$ \epsilon \f$
@@ -203,14 +204,17 @@ contains
     real(kind=dp), dimension(n), intent(in) :: b
     real(kind=dp), dimension(n), intent(in) :: c
     integer, intent(in) :: n
-    real(kind=dp) :: glsc3
-    integer :: i
+    real(kind=dp) :: glsc3, tmp
+    integer :: i, ierr
 
-    glsc3 = 0d0
+    tmp = 0d0
     do i = 1, n
-       glsc3 = glsc3 + a(i) * b(i) * c(i)
+       tmp = tmp + a(i) * b(i) * c(i)
     end do
-    !> @todo add global reduction
+    
+    call MPI_Allreduce(tmp, glsc3, 1, &
+         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
   end function glsc3
   
 end module math
