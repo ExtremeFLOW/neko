@@ -35,6 +35,7 @@ module gather_scatter
   type, private :: gs_comm_t
      integer :: status(MPI_STATUS_SIZE)
      integer :: request
+     logical :: flag
      real(kind=dp), allocatable :: data(:)
   end type gs_comm_t
 
@@ -936,6 +937,7 @@ contains
        call MPI_IRecv(gs%recv_buf(i)%data, size(gs%recv_buf(i)%data), &
             MPI_DOUBLE_PRECISION, gs%recv_pe(i), 0, &
             NEKO_COMM, gs%recv_buf(i)%request, ierr)
+       gs%recv_buf(i)%flag = .false.
     end do
     
   end subroutine gs_nbrecv
@@ -958,14 +960,12 @@ contains
        call MPI_Isend(gs%send_buf(i)%data, size(gs%send_buf(i)%data), &
             MPI_DOUBLE_PRECISION, gs%send_pe(i), 0, &
             NEKO_COMM, gs%send_buf(i)%request, ierr)
-       
+       gs%send_buf(i)%flag = .false.
     end do
     
   end subroutine gs_nbsend
 
   !> Wait for non-blocking operations
-  !! @todo process requests as soon as possible
-  !! @todo implement all the different operators
   subroutine gs_nbwait(gs, u, n, op)
     type(gs_t), intent(inout) ::gs
     real(kind=dp), dimension(n), intent(inout) :: u
@@ -973,36 +973,53 @@ contains
     integer :: i, j, src, ierr
     integer :: op
     integer , pointer :: dp(:)
+    integer :: nreqs, ndone
 
-    do i = 1, size(gs%send_pe)
-       call MPI_Wait(gs%send_buf(i)%request, MPI_STATUS_IGNORE, ierr)     
+    nreqs = size(gs%recv_pe)
+
+    do while (nreqs .gt. 0) 
+       do i = 1, size(gs%recv_pe)
+          if (.not. gs%recv_buf(i)%flag) then
+             call MPI_Test(gs%recv_buf(i)%request, gs%recv_buf(i)%flag, &
+                  gs%recv_buf(i)%status, ierr)
+             if (gs%recv_buf(i)%flag) then
+                nreqs = nreqs - 1
+                !> @todo Check size etc against status
+                src = gs%recv_pe(i)
+                dp => gs%recv_dof(src)%array()
+                select case(op)
+                case (GS_OP_ADD)
+                   do j = 1, gs%send_dof(src)%size()
+                      u(dp(j)) = u(dp(j)) + gs%recv_buf(i)%data(j)
+                   end do
+                case (GS_OP_MUL)
+                   do j = 1, gs%send_dof(src)%size()
+                      u(dp(j)) = u(dp(j)) * gs%recv_buf(i)%data(j)
+                   end do
+                case (GS_OP_MIN)
+                   do j = 1, gs%send_dof(src)%size()
+                      u(dp(j)) = min(u(dp(j)), gs%recv_buf(i)%data(j))
+                   end do
+                case (GS_OP_MAX)
+                   do j = 1, gs%send_dof(src)%size()
+                      u(dp(j)) = max(u(dp(j)), gs%recv_buf(i)%data(j))
+                   end do
+                end select
+             end if
+          end if
+       end do
     end do
 
-    do i = 1, size(gs%recv_pe)
-       call MPI_Wait(gs%recv_buf(i)%request, gs%recv_buf(i)%status, ierr)
-       !> @todo Check size etc against status
-       src = gs%recv_pe(i)
-       dp => gs%recv_dof(src)%array()
-       select case(op)
-       case (GS_OP_ADD)
-          do j = 1, gs%send_dof(src)%size()
-             u(dp(j)) = u(dp(j)) + gs%recv_buf(i)%data(j)
-          end do
-       case (GS_OP_MUL)
-          do j = 1, gs%send_dof(src)%size()
-             u(dp(j)) = u(dp(j)) * gs%recv_buf(i)%data(j)
-          end do
-       case (GS_OP_MIN)
-          do j = 1, gs%send_dof(src)%size()
-             u(dp(j)) = min(u(dp(j)), gs%recv_buf(i)%data(j))
-          end do
-       case (GS_OP_MAX)
-          do j = 1, gs%send_dof(src)%size()
-             u(dp(j)) = max(u(dp(j)), gs%recv_buf(i)%data(j))
-          end do
-       end select
+    nreqs = size(gs%send_pe)
+    do while (nreqs .gt. 0) 
+       do i = 1, size(gs%send_pe)
+          if (.not. gs%send_buf(i)%flag) then
+             call MPI_Test(gs%send_buf(i)%request, gs%send_buf(i)%flag, &
+                  MPI_STATUS_IGNORE, ierr)
+             if (gs%send_buf(i)%flag) nreqs = nreqs - 1
+          end if
+       end do
     end do
-
     
   end subroutine gs_nbwait
   
