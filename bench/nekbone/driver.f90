@@ -11,7 +11,7 @@ program nekobone
   type(field_t) :: x, msk
   integer :: argc, lx, n
   character(len=80) :: suffix
-  real(kind=dp), allocatable :: f(:), c(:)
+  real(kind=dp), allocatable :: f(:), c(:), g(:,:,:,:,:)
   
   argc = command_argument_count()
 
@@ -42,14 +42,16 @@ program nekobone
   
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
   allocate(f(n), c(n))
-
   call set_multiplicity(c, n, gs_h)
   call set_f(f, c, n, gs_h)
+  
+  allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
+  call setup_g(g, Xh%wx, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
 
   !! Add cg loop here
   
-  deallocate(f, c)
+  deallocate(f, c, g)
   call space_free(Xh)
   call field_free(x)
   call field_free(msk)
