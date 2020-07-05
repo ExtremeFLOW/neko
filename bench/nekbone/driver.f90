@@ -8,10 +8,12 @@ program nekobone
   type(space_t) :: Xh
   type(dofmap_t) :: dm
   type(gs_t) :: gs_h
-  type(field_t) :: x, msk
-  integer :: argc, lx, n
+  type(field_t) :: x, w, msk
+  integer :: argc, lx, n, niter, ierr
   character(len=80) :: suffix
-  real(kind=dp), allocatable :: f(:), c(:), g(:,:,:,:,:)
+  real(kind=dp), allocatable :: f(:), c(:), r(:), p(:), z(:)
+  real(kind=dp), allocatable :: g(:, :, :, :, :)
+  real(kind=sp), allocatable :: wk(:)
   
   argc = command_argument_count()
 
@@ -31,27 +33,35 @@ program nekobone
   call mesh_generate_conn(msh)
 
   call space_init(Xh, 1, GLL, lx, lx, lx)
+  allocate(wk(lx*lx))
+  call semhat(wk, Xh%dx, Xh%zg, lx - 1)
+
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)
-
+  
   call field_init(x, msh, Xh, "x")
+  call field_init(w, msh, Xh, "work")
   call field_init(msk, msh, Xh, "mask")
 
   msk = 1d0
   call set_mask(msk)
+
+  allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
+  call setup_g(g, Xh%wx, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
   
+  niter = 100
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
-  allocate(f(n), c(n))
+  allocate(f(n), c(n), r(n), p(n), z(n))
   call set_multiplicity(c, n, gs_h)
   call set_f(f, c, n, gs_h)
   
-  allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
-  call setup_g(g, Xh%wx, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+  call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
 
+  call MPI_Barrier(NEKO_COMM, ierr)
 
   !! Add cg loop here
   
-  deallocate(f, c, g)
+  deallocate(f, c, g, r, p, z, wk)
   call space_free(Xh)
   call field_free(x)
   call field_free(msk)
