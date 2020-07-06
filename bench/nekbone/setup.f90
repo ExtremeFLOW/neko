@@ -134,12 +134,13 @@ subroutine setup_g(g, w, lx, ly, lz, n)
 
 end subroutine setup_g
   
-subroutine semhat(w, d, z, n)
+subroutine semhat(w, d, dt, z, n)
   use num_types
   implicit none
   
   real(kind=sp), intent(inout), dimension(0:2*n) :: w
   real(kind=sp), intent(inout), dimension(0:n,0:n) :: d
+  real(kind=sp), intent(inout), dimension(0:n,0:n) :: dt
   real(kind=sp), intent(inout), dimension(0:n) :: z
   integer, intent(inout) :: n
   integer :: i, j, np
@@ -152,6 +153,12 @@ subroutine semhat(w, d, z, n)
      call fd_weights_full(z(i), z, n, 1, w)
      do j = 0, n
         d(i, j) = w(j+np)  
+     end do
+  end do
+
+  do j = 0, n
+     do i = 0, n
+        dt(j, i) = d(i, j)
      end do
   end do
 

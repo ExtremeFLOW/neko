@@ -34,7 +34,7 @@ program nekobone
 
   call space_init(Xh, 1, GLL, lx, lx, lx)
   allocate(wk(lx*lx))
-  call semhat(wk, Xh%dx, Xh%zg, lx - 1)
+  call semhat(wk, Xh%dx, Xh%dxt, Xh%zg, lx - 1)
 
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)
