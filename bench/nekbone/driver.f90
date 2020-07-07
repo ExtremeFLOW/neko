@@ -14,7 +14,7 @@ program nekobone
   real(kind=dp), allocatable :: f(:), c(:), r(:), p(:), z(:)
   real(kind=dp), allocatable :: g(:, :, :, :, :)
   real(kind=sp), allocatable :: wk(:)
-  
+
   argc = command_argument_count()
 
   if ((argc .lt. 2) .or. (argc .gt. 2)) then
@@ -59,7 +59,9 @@ program nekobone
 
   call MPI_Barrier(NEKO_COMM, ierr)
 
-  !! Add cg loop here
+  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx)
+  call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
+  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx)
   
   deallocate(f, c, g, r, p, z, wk)
   call space_free(Xh)
@@ -71,5 +73,38 @@ program nekobone
 
 end program nekobone
 
+subroutine set_timer_flop_cnt(iset, nelt, nx1)
+  use comm
+  use num_types
+  implicit none
+
+  integer :: iset
+  integer, intent(inout) :: nelt
+  integer, intent(inout) :: nx1
+  real(kind=dp), save :: time0, time1, mflops, flop_a, flop_cg
+  
+  
+  if (iset .eq. 0) then
+     flop_a  = 0
+     flop_cg = 0
+     time0 = MPI_Wtime()
+  else
+     time1 = MPI_Wtime()
+     time1 = time1-time0
+     if (time1 .gt. 0) mflops = (flop_a+flop_cg)/(1.d6*time1)
+     if (pe_rank .eq. 0) then
+        write(6,*)
+        write(6,1) nelt,pe_size,nx1
+        write(6,2) mflops*pe_size, mflops
+        write(6,3) flop_a,flop_cg
+        write(6,4) time1
+     endif
+1    format('nelt = ',i7, ', np = ', i9,', nx1 = ', i7)
+2    format('Tot MFlops = ', 1pe12.4, ', MFlops      = ', e12.4)
+3    format('Setup Flop = ', 1pe12.4, ', Solver Flop = ', e12.4)
+4    format('Solve Time = ', e12.4)
+  endif
+
+end subroutine set_timer_flop_cnt
 
 
