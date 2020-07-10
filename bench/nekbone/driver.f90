@@ -59,9 +59,9 @@ program nekobone
 
   call MPI_Barrier(NEKO_COMM, ierr)
 
-  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx)
+  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n)
   call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
-  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx)
+  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n)
   
   deallocate(f, c, g, r, p, z, wk)
   call space_free(Xh)
@@ -73,7 +73,7 @@ program nekobone
 
 end program nekobone
 
-subroutine set_timer_flop_cnt(iset, nelt, nx1)
+subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
   use comm
   use num_types
   implicit none
@@ -81,21 +81,25 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1)
   integer :: iset
   integer, intent(inout) :: nelt
   integer, intent(inout) :: nx1
+  integer, intent(inout) :: niter
+  integer, intent(inout) :: n
   real(kind=dp), save :: time0, time1, mflops, flop_a, flop_cg
-  
-  
+  real(kind=dp) :: nxyz, nx
+
+  nx = dble(nx1)
+  nxyz = dble(nx1 * nx1 * nx1)
   if (iset .eq. 0) then
-     flop_a  = 0
-     flop_cg = 0
      time0 = MPI_Wtime()
   else
+     flop_a = (19d0 * nxyz + 12d0 * nx * nxyz) * dble(nelt) * dble(niter)
+     flop_cg = dble(niter) * 15d0 * dble(n)
      time1 = MPI_Wtime()
      time1 = time1-time0
      if (time1 .gt. 0) mflops = (flop_a+flop_cg)/(1.d6*time1)
      if (pe_rank .eq. 0) then
         write(6,*)
         write(6,1) nelt,pe_size,nx1
-        write(6,2) mflops*pe_size, mflops
+        write(6,2) mflops, mflops/pe_size
         write(6,3) flop_a,flop_cg
         write(6,4) time1
      endif
