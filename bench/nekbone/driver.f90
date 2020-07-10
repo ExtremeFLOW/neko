@@ -9,7 +9,7 @@ program nekobone
   type(dofmap_t) :: dm
   type(gs_t) :: gs_h
   type(field_t) :: x, w, msk
-  integer :: argc, lx, n, niter, ierr
+  integer :: argc, lx, n, n_glb, niter, ierr
   character(len=80) :: suffix
   real(kind=dp), allocatable :: f(:), c(:), r(:), p(:), z(:)
   real(kind=dp), allocatable :: g(:, :, :, :, :)
@@ -57,11 +57,13 @@ program nekobone
   
   call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
 
+  n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
+  
   call MPI_Barrier(NEKO_COMM, ierr)
 
-  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n)
+  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
   call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
-  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n)
+  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
   
   deallocate(f, c, g, r, p, z, wk)
   call space_free(Xh)
@@ -92,7 +94,7 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
      time0 = MPI_Wtime()
   else
      flop_a = (19d0 * nxyz + 12d0 * nx * nxyz) * dble(nelt) * dble(niter)
-     flop_cg = dble(niter) * 15d0 * dble(n)
+     flop_cg = dble(niter+1) * 15d0 * dble(n)
      time1 = MPI_Wtime()
      time1 = time1-time0
      if (time1 .gt. 0) mflops = (flop_a+flop_cg)/(1.d6*time1)
