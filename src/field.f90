@@ -17,7 +17,7 @@ module field
   end type field_t
 
   interface assignment(=)
-     module procedure field_assign_field
+     module procedure field_assign_field, field_assign_scalar
   end interface assignment(=)
 
   interface field_add
@@ -104,6 +104,25 @@ contains
     
   end subroutine field_assign_field
 
+  !> Assignment \f$ F = a \f$
+  subroutine field_assign_scalar(f, a)
+    type(field_t), intent(inout) :: f
+    real(kind=dp), intent(in) :: a
+    integer :: n, i, j, k, l
+
+    n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
+    do i = 1, f%msh%nelv
+       do l = 1, f%Xh%lz
+          do k = 1, f%Xh%ly
+             do j = 1, f%Xh%lx
+                f%x(j, k, l, i) = a
+             end do
+          end do
+       end do
+    end do
+
+  end subroutine field_assign_scalar
+  
   !> Add \f$ F(u_1, u_2, ... , u_n) =
   !! F(u_1, u_2, ... , u_n) + G(u_1, u_2, ... , u_n) \f$
   !! @note Component wise

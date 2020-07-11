@@ -198,6 +198,19 @@ contains
     
   end subroutine add2s2
 
+  !> Vector multiplication \f$ a = a \cdot b \f$
+  subroutine col2(a, b, n)
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    integer, intent(in) :: n
+    integer :: i
+
+    do i = 1, n
+       a(i) = a(i) * b(i)
+    end do
+    
+  end subroutine col2
+
   !> Weighted inner product \f$ a^T b c \f$
   function glsc3(a, b, c, n)
     real(kind=dp), dimension(n), intent(in) :: a

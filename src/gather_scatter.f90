@@ -41,6 +41,10 @@ module gather_scatter
 
   private :: gs_init_mapping
 
+  interface gs_op
+     module procedure gs_op_fld, gs_op_vector
+  end interface gs_op
+
 contains
 
   !> Initialize a gather-scatter kernel
@@ -775,13 +779,24 @@ contains
 
   end subroutine gs_schedule
 
-  !> Gather-scatter operation with op @a op
-  subroutine gs_op(gs, u, op)
+  !> Gather-scatter operation on a field @a u with op @a op
+  subroutine gs_op_fld(gs, u, op)
     type(gs_t), intent(inout) :: gs
     type(field_t), intent(inout) :: u
-    integer :: n, m, l, op
+    integer :: n, op
     
     n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
+    call gs_op_vector(gs, u%x, n, op)
+    
+  end subroutine gs_op_fld
+  
+  !> Gather-scatter operation on a vector @a u with op @a op
+  subroutine gs_op_vector(gs, u, n, op)
+    type(gs_t), intent(inout) :: gs
+    real(kind=dp), dimension(n), intent(inout) :: u
+    integer, intent(inout) :: n
+    integer :: m, l, op
+    
     m = gs%nlocal
     l = gs%nshared
 
@@ -791,7 +806,7 @@ contains
        call gs_nbrecv(gs)
        
        call gs_gather(gs%shared_gs, l, gs%shared_dof_gs, &
-            u%x, n, gs%shared_gs_dof, op)
+            u, n, gs%shared_gs_dof, op)
 
        call gs_nbsend(gs, gs%shared_gs, l)
        
@@ -799,9 +814,9 @@ contains
     
     ! Gather-scatter local dofs
     call gs_gather(gs%local_gs, m, gs%local_dof_gs, &
-         u%x, n, gs%local_gs_dof, op)
+         u, n, gs%local_gs_dof, op)
     call gs_scatter(gs%local_gs, m, gs%local_dof_gs, &
-         u%x, n, gs%local_gs_dof)
+         u, n, gs%local_gs_dof)
 
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
@@ -809,10 +824,10 @@ contains
        call gs_nbwait(gs, gs%shared_gs, l, op)
        
        call gs_scatter(gs%shared_gs, l, gs%shared_dof_gs, &
-            u%x, n, gs%shared_gs_dof)
+            u, n, gs%shared_gs_dof)
     end if
        
-  end subroutine gs_op
+  end subroutine gs_op_vector
   
   !> Gather kernel
   subroutine gs_gather(v, m, dg, u, n, gd, op)
