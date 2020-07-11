@@ -39,7 +39,7 @@ module gather_scatter
      real(kind=dp), allocatable :: data(:)
   end type gs_comm_t
 
-  private :: gs_init_mapping
+  private :: gs_init_mapping, gs_schedule
 
   interface gs_op
      module procedure gs_op_fld, gs_op_vector
