@@ -69,11 +69,11 @@ contains
     allocate(s%dzt(lz, lz))
     
     !>@todo add 2d case
-    if (t .eq. GL) then
+    if (t .eq. GLL) then
        call zwgll(s%zg(1,1), s%wx, lx)
        call zwgll(s%zg(1,2), s%wy, ly)
        call zwgll(s%zg(1,3), s%wz, lz)
-    else if (t .eq. GLL) then
+    else if (t .eq. GL) then
        call zwgl(s%zg(1,1), s%wx, lx)
        call zwgl(s%zg(1,2), s%wy, ly)
        call zwgl(s%zg(1,3), s%wz, lz)
