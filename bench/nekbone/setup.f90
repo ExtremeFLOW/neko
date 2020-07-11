@@ -114,7 +114,7 @@ subroutine setup_g(g, w, lx, ly, lz, n)
   implicit none
   
   real(kind=dp), intent(inout), dimension(6, lx, ly, lz, n) :: g
-  real(kind=sp), intent(inout), dimension(lx) :: w
+  real(kind=dp), intent(inout), dimension(lx) :: w
   integer, intent(in) :: lx, ly, lz, n
   integer :: i, j, k, l
 
@@ -124,9 +124,9 @@ subroutine setup_g(g, w, lx, ly, lz, n)
      do l = 1, lz
         do k = 1, ly
            do j = 1, lx
-              g(1, j, k, l, i) = dble(w(j) * w(k) * w(l))
-              g(4, j, k, l, i) = dble(w(j) * w(k) * w(l))
-              g(6, j, k, l, i) = dble(w(j) * w(k) * w(l))
+              g(1, j, k, l, i) = w(j) * w(k) * w(l)
+              g(4, j, k, l, i) = w(j) * w(k) * w(l)
+              g(6, j, k, l, i) = w(j) * w(k) * w(l)
            end do
         end do
      end do
@@ -134,14 +134,14 @@ subroutine setup_g(g, w, lx, ly, lz, n)
 
 end subroutine setup_g
   
-subroutine semhat(w, d, dt, z, n)
+subroutine semhat(d, dt, z, n)
   use num_types
   implicit none
-  
-  real(kind=sp), intent(inout), dimension(0:2*n) :: w
-  real(kind=sp), intent(inout), dimension(0:n,0:n) :: d
-  real(kind=sp), intent(inout), dimension(0:n,0:n) :: dt
-  real(kind=sp), intent(inout), dimension(0:n) :: z
+
+  real(kind=dp), intent(inout), dimension(0:n,0:n) :: d
+  real(kind=dp), intent(inout), dimension(0:n,0:n) :: dt
+  real(kind=dp), intent(inout), dimension(0:n) :: z
+  real(kind=dp), dimension(0:2*n) :: w
   integer, intent(inout) :: n
   integer :: i, j, np
 
@@ -190,12 +190,12 @@ subroutine fd_weights_full(xx,x,n,m,c)
 !             stencil extending over x(0),x(1),...x(n).
 !
 !
-  real(kind=sp), intent(inout) :: xx
-  real(kind=sp), intent(inout) :: x(0:n)
-  real(kind=sp), intent(inout) :: c(0:n, 0:m)
+  real(kind=dp), intent(inout) :: xx
+  real(kind=dp), intent(inout) :: x(0:n)
+  real(kind=dp), intent(inout) :: c(0:n, 0:m)
   integer, intent(inout) :: n
   integer :: m
-  real(kind=sp) :: c1, c2, c3, c4, c5
+  real(kind=dp) :: c1, c2, c3, c4, c5
   integer :: mn, i, j, k
 
   c1       = 1.

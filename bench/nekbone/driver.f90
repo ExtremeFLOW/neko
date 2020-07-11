@@ -13,7 +13,6 @@ program nekobone
   character(len=80) :: suffix
   real(kind=dp), allocatable :: f(:), c(:), r(:), p(:), z(:)
   real(kind=dp), allocatable :: g(:, :, :, :, :)
-  real(kind=sp), allocatable :: wk(:)
 
   argc = command_argument_count()
 
@@ -33,8 +32,7 @@ program nekobone
   call mesh_generate_conn(msh)
 
   call space_init(Xh, 1, GLL, lx, lx, lx)
-  allocate(wk(lx*lx))
-  call semhat(wk, Xh%dx, Xh%dxt, Xh%zg, lx - 1)
+  call semhat(Xh%dx, Xh%dxt, Xh%zg, lx - 1)
 
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)
@@ -65,7 +63,7 @@ program nekobone
   call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
   
-  deallocate(f, c, g, r, p, z, wk)
+  deallocate(f, c, g, r, p, z)
   call space_free(Xh)
   call field_free(x)
   call field_free(msk)

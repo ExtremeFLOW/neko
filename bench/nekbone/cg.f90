@@ -18,17 +18,16 @@ subroutine cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
   integer, intent(inout) :: niter
   type(gs_t), intent(inout) :: gs_h
 
-  real(kind=dp), dimension(x%Xh%lx, x%Xh%lx) :: D, Dt
   real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1, beta, pap, alpha, alphm, eps
   integer :: iter
 
   real(kind=dp) :: ur(x%Xh%lx**3), us(x%Xh%lx**3)
   real(kind=dp) :: ut(x%Xh%lx**3), wk(x%Xh%lx**3)
-
-  D = dble(w%Xh%dx)             ! Need to bump space to dp...
-  Dt = dble(w%Xh%dxt)
   
-  
+  ur = 0d0
+  us = 0d0
+  ut = 0d0
+  wk = 0d0
   eps = 1d-20
   pap = 0d0
   rtz1 = 1d0
@@ -51,7 +50,7 @@ subroutine cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
      if (iter .eq. 1) beta = 0d0
      call add2s1(p, z, beta, n)
      
-     call ax(w, p, g, ur, us, ut, wk, n, msk, D, Dt, gs_h)
+     call ax(w, p, g, ur, us, ut, wk, n, msk, gs_h)
      pap = glsc3(w%x, c, p, n)
 
      alpha = rtz1/pap
@@ -81,7 +80,7 @@ subroutine solveM(z, r, n)
   
 end subroutine solveM
 
-subroutine ax(w, u, gxyz, ur, us, ut, wk, n, msk, D, Dt, gs_h)
+subroutine ax(w, u, gxyz, ur, us, ut, wk, n, msk, gs_h)
   use num_types
   use gather_scatter
   use field
@@ -94,16 +93,14 @@ subroutine ax(w, u, gxyz, ur, us, ut, wk, n, msk, D, Dt, gs_h)
   real(kind=dp), intent(inout) :: ut(w%Xh%lx**3)
   real(kind=dp), intent(inout) :: wk(w%Xh%lx**3)
   real(kind=dp), intent(inout) :: gxyz(6, w%Xh%lx**3, w%msh%nelv)
-  real(kind=dp), intent(inout) :: D(w%Xh%lx, w%Xh%lx)
-  real(kind=dp), intent(inout) :: Dt(w%Xh%lx, w%Xh%lx)
   integer, intent(inout) :: n
   type(gs_t), intent(inout) :: gs_h
   type(field_t), intent(inout) :: msk
   integer :: e
 
   do e = 1, w%msh%nelv
-     call ax_e(w%x(1,1,1,e), u(1, e), gxyz(1, 1, e), &
-          ur, us, ut, wk, w%Xh%lx, D, Dt)
+     call ax_e(w%x(1,1,1,e), u(1,e), gxyz(1,1,e), &
+          ur, us, ut, wk, w%Xh%lx, w%Xh%dx, w%Xh%dxt)
   end do
 
   call gs_op(gs_h, w, GS_OP_ADD)
@@ -132,7 +129,7 @@ subroutine ax_e(w, u, g, ur, us, ut, wk, lx, D, Dt)
 
   n = lx - 1
   call local_grad3(ur, us, ut, u, n, D, Dt)
-  
+
   do i=1, lx**3
      wr = g(1,i)*ur(i) + g(2,i)*us(i) + g(3,i)*ut(i)
      ws = g(2,i)*ur(i) + g(4,i)*us(i) + g(5,i)*ut(i)
@@ -143,7 +140,7 @@ subroutine ax_e(w, u, g, ur, us, ut, wk, lx, D, Dt)
   enddo
 
   call local_grad3_t(w, ur, us, ut, n, D, Dt, wk)
-  
+
 end subroutine ax_e
 
 subroutine local_grad3(ur, us, ut, u, n, D, Dt)
