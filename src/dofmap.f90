@@ -263,7 +263,7 @@ contains
        call msh%elements(i)%e%facet_id(face, 1)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(1, j, k, i) = facet_id
@@ -275,7 +275,7 @@ contains
        call msh%elements(i)%e%facet_id(face, 2)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, k, i) = facet_id
@@ -291,7 +291,7 @@ contains
        call msh%elements(i)%e%facet_id(face, 3)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, 1, k, i) = facet_id
@@ -303,7 +303,7 @@ contains
        call msh%elements(i)%e%facet_id(face, 4)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, k, i) = facet_id
@@ -319,7 +319,7 @@ contains
        call msh%elements(i)%e%facet_id(face, 5)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(3)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, 1, i) = facet_id
@@ -331,7 +331,7 @@ contains
        call msh%elements(i)%e%facet_id(face, 6)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_edges(3)
+       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(3)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, Xh%lz, i) = facet_id
