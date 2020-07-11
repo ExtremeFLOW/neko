@@ -14,21 +14,21 @@ module space
 
      integer :: ndim            !< Number of components
      
-     real(kind=sp), allocatable :: zg(:,:) !< Quadrature points
+     real(kind=dp), allocatable :: zg(:,:) !< Quadrature points
 
-     real(kind=sp), allocatable :: wx(:)   !< Quadrature weights
-     real(kind=sp), allocatable :: wy(:)   !< Quadrature weights
-     real(kind=sp), allocatable :: wz(:)   !< Quadrature weights
+     real(kind=dp), allocatable :: wx(:)   !< Quadrature weights
+     real(kind=dp), allocatable :: wy(:)   !< Quadrature weights
+     real(kind=dp), allocatable :: wz(:)   !< Quadrature weights
 
-     real(kind=sp), allocatable :: w3(:,:,:)
+     real(kind=dp), allocatable :: w3(:,:,:)
 
-     real(kind=sp), allocatable :: dx(:,:) !< Derivative operator
-     real(kind=sp), allocatable :: dy(:,:) !< Derivative operator
-     real(kind=sp), allocatable :: dz(:,:) !< Derivative operator
+     real(kind=dp), allocatable :: dx(:,:) !< Derivative operator
+     real(kind=dp), allocatable :: dy(:,:) !< Derivative operator
+     real(kind=dp), allocatable :: dz(:,:) !< Derivative operator
 
-     real(kind=sp), allocatable :: dxt(:,:) !< Derivative operator
-     real(kind=sp), allocatable :: dyt(:,:) !< Derivative operator
-     real(kind=sp), allocatable :: dzt(:,:) !< Derivative operator
+     real(kind=dp), allocatable :: dxt(:,:) !< Derivative operator
+     real(kind=dp), allocatable :: dyt(:,:) !< Derivative operator
+     real(kind=dp), allocatable :: dzt(:,:) !< Derivative operator
 
      !> @todo Store gll points etc in the space
   end type space_t
