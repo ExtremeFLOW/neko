@@ -102,7 +102,7 @@ contains
 !     operations are done in double precision.
 !
 !--------------------------------------------------------------------
-      REAL Z(1),W(1)
+      REAL*8 Z(1),W(1), ALPHA, BETA
       ALPHA = 0.
       BETA  = 0.
       CALL ZWGJ (Z,W,NP,ALPHA,BETA)
@@ -119,7 +119,7 @@ contains
 !     operations are done in double precision.
 !
 !--------------------------------------------------------------------
-      REAL Z(1),W(1)
+      REAL*8 Z(1),W(1), ALPHA, BETA
       ALPHA = 0.
       BETA  = 0.
       CALL ZWGLJ (Z,W,NP,ALPHA,BETA)
@@ -138,7 +138,7 @@ contains
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
       REAL*8  ZD(NZD),WD(NZD),ALPHAD,BETAD
-      REAL Z(1),W(1),ALPHA,BETA
+      REAL*8 Z(1),W(1),ALPHA,BETA
 
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
@@ -221,7 +221,7 @@ contains
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
       REAL*8  ZD(NZD),WD(NZD),ALPHAD,BETAD
-      REAL Z(1),W(1),ALPHA,BETA
+      REAL*8 Z(1),W(1),ALPHA,BETA
 
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
@@ -521,7 +521,7 @@ contains
       RETURN
       END
 
-      REAL FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
+      REAL*8 FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJ through
@@ -531,8 +531,8 @@ contains
 !---------------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
-      REAL*8  ZD,ZGJD(NZD),HGJD,ALPHAD,BETAD
-      REAL Z,ZGJ(1),ALPHA,BETA
+      REAL*8  ZD,ZGJD(NZD),ALPHAD,BETAD
+      REAL*8  Z,ZGJ(1),ALPHA,BETA
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
          WRITE (6,*) 'Too large polynomial degree in HGJ'
@@ -574,7 +574,7 @@ contains
       RETURN
       END
 
-      REAL FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
+      REAL*8 FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJ through
@@ -584,8 +584,8 @@ contains
 !---------------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
-      REAL*8  ZD,ZGLJD(NZD),HGLJD,ALPHAD,BETAD
-      REAL Z,ZGLJ(1),ALPHA,BETA
+      REAL*8  ZD,ZGLJD(NZD),ALPHAD,BETAD
+      REAL*8  Z,ZGLJ(1),ALPHA,BETA
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
          WRITE (6,*) 'Too large polynomial degree in HGLJ'
@@ -644,7 +644,7 @@ contains
       PARAMETER (NMAX=84)
       PARAMETER (NZDD = NMAX)
       REAL*8  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-      REAL D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+      REAL*8 D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
       IF (NZ.LE.0) THEN
          WRITE (6,*) 'DGJ: Minimum number of Gauss points is 1'
@@ -727,7 +727,7 @@ contains
       PARAMETER (NMAX=84)
       PARAMETER (NZDD = NMAX)
       REAL*8  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-      REAL D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+      REAL*8 D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
       IF (NZ.LE.1) THEN
        WRITE (6,*) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
@@ -815,7 +815,7 @@ contains
 !
 !-----------------------------------------------------------------
       PARAMETER (NMAX=84)
-      REAL D(NZD,NZD),DT(NZD,NZD),Z(1)
+      REAL*8 D(NZD,NZD),DT(NZD,NZD),Z(1)
       N  = NZ-1
       IF (NZ .GT. NMAX) THEN
          WRITE (6,*) 'Subroutine DGLL'
@@ -841,14 +841,14 @@ contains
       RETURN
       END
 
-      REAL FUNCTION HGLL (I,Z,ZGLL,NZ)
+      REAL*8 FUNCTION HGLL (I,Z,ZGLL,NZ)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant L through
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
-      REAL ZGLL(1)
+      REAL*8 ZGLL(1), EPS, DZ, Z
       EPS = 1.E-5
       DZ = Z - ZGLL(I)
       IF (ABS(DZ) .LT. EPS) THEN
@@ -862,14 +862,14 @@ contains
       RETURN
       END
 
-      REAL FUNCTION HGL (I,Z,ZGL,NZ)
+      REAL*8 FUNCTION HGL (I,Z,ZGL,NZ)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGL through
 !     the NZ Gauss Legendre points ZGL at the point Z.
 !
 !---------------------------------------------------------------------
-      REAL ZGL(1)
+      REAL*8 ZGL(1), Z, EPS, DZ
       EPS = 1.E-5
       DZ = Z - ZGL(I)
       IF (ABS(DZ) .LT. EPS) THEN
@@ -881,7 +881,7 @@ contains
       RETURN
       END
 
-      REAL FUNCTION PNLEG (Z,N)
+      REAL*8 FUNCTION PNLEG (Z,N)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Nth order Legendre polynomial at Z.
@@ -893,7 +893,9 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.  
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
+      REAL*8 Z, P1, P2, P3
       IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
+
 
       P1   = 1.
       IF (N.EQ.0) THEN
@@ -913,7 +915,7 @@ contains
       RETURN
       END
 
-      REAL FUNCTION PNDLEG (Z,N)
+      REAL*8 FUNCTION PNDLEG (Z,N)
 !----------------------------------------------------------------------
 !
 !     Compute the derivative of the Nth order Legendre polynomial at Z.
@@ -921,6 +923,7 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
+      REAL*8 P1, P2, P1D, P2D, P3D, Z
       P1   = 1.
       P2   = Z
       P1D  = 0.
@@ -952,7 +955,8 @@ contains
 !     Note: D and DT are rectangular matrices.
 !
 !-----------------------------------------------------------------------
-      REAL D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
+      REAL*8 D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
+      REAL*8 EPS, ZP, ZQ  
       IF (NZM1.EQ.1) THEN
         D (1,1) = 0.
         DT(1,1) = 0.
@@ -989,7 +993,7 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------------
-      REAL D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
+      REAL*8 D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
       PARAMETER (NMAX=84)
       PARAMETER (NDD = NMAX)
       REAL*8  DD(NDD,NDD), DTD(NDD,NDD)
@@ -1096,7 +1100,7 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-      REAL I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2)
+      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
@@ -1122,7 +1126,7 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-      REAL I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2)
+      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
@@ -1149,7 +1153,7 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-      REAL I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2)
+      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
@@ -1176,7 +1180,7 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-      REAL I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2)
+      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
