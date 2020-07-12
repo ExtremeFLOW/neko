@@ -656,7 +656,7 @@ contains
     call dof_shared%free()
 
     ! Allocate buffer for shared gs-ops
-    allocate(gs%shared_gs(gs%nlocal))
+    allocate(gs%shared_gs(gs%nshared))
 
   contains
     
