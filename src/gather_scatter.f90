@@ -13,6 +13,13 @@ module gather_scatter
   integer, parameter :: GS_OP_ADD = 1, GS_OP_MUL = 2, &
        GS_OP_MIN = 3, GS_OP_MAX = 4
   
+  type, private :: gs_comm_t
+     integer :: status(MPI_STATUS_SIZE)
+     integer :: request
+     logical :: flag
+     real(kind=dp), allocatable :: data(:)
+  end type gs_comm_t
+  
   type gs_t
      real(kind=dp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
@@ -30,14 +37,9 @@ module gather_scatter
      type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
      integer :: nshared                               !< Shared gs-ops
+     integer :: local_facet_offset                    !< offset for loc. facets
+     integer :: shared_facet_offset                   !< offset for shr. facets
   end type gs_t
-
-  type, private :: gs_comm_t
-     integer :: status(MPI_STATUS_SIZE)
-     integer :: request
-     logical :: flag
-     real(kind=dp), allocatable :: data(:)
-  end type gs_comm_t
 
   private :: gs_init_mapping, gs_schedule
 
@@ -155,6 +157,8 @@ contains
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dofmap
     type(stack_i4_t) :: local_dof, dof_local, shared_dof, dof_shared
+    type(stack_i4_t) :: local_face_dof, face_dof_local
+    type(stack_i4_t) :: shared_face_dof, face_dof_shared
     integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid
     integer, pointer :: sp(:)
     type(htable_i8_t) :: dm
@@ -174,9 +178,14 @@ contains
     call local_dof%init()
     call dof_local%init()
 
+    call local_face_dof%init()
+    call face_dof_local%init()   
+    
     call shared_dof%init()
     call dof_shared%init()
     
+    call shared_face_dof%init()
+    call face_dof_shared%init()   
 
     !
     ! Setup mapping for dofs points
@@ -489,177 +498,236 @@ contains
     do i = 1, msh%nelv
 
        ! Facets in x-direction (s, t)-plane
-       if (dofmap%shared_dof(1, 2, 2, i)) then
-          do l = 2, lz - 1
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, l, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(1, k, l, i, lx, ly, lz)
-                call dof_shared%push(id)
+       if (msh%facet_neigh(1, i) .ne. 0) then
+          if (dofmap%shared_dof(1, 2, 2, i)) then
+             do l = 2, lz - 1
+                do k = 2, ly - 1
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(1, k, l, i), max_sid)
+                   call shared_face_dof%push(id)
+                   id = linear_index(1, k, l, i, lx, ly, lz)
+                   call face_dof_shared%push(id)
+                end do
              end do
-          end do
-       else
-          do l = 2, lz - 1
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(1, k, l, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(1, k, l, i, lx, ly, lz)
-                call dof_local%push(id)
+          else
+             do l = 2, lz - 1
+                do k = 2, ly - 1
+                   id = gs_mapping_add_dof(dm, dofmap%dof(1, k, l, i), max_id)
+                   call local_face_dof%push(id)
+                   id = linear_index(1, k, l, i, lx, ly, lz)
+                   call face_dof_local%push(id)
+                end do
              end do
-          end do
+          end if
        end if
-       
-       if (dofmap%shared_dof(lx, 2, 2, i)) then
-          do l = 2, lz - 1
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, l,  i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(lx, k, l, i, lx, ly, lz)
-                call dof_shared%push(id)
+
+       if (msh%facet_neigh(2, i) .ne. 0) then
+          if (dofmap%shared_dof(lx, 2, 2, i)) then
+             do l = 2, lz - 1
+                do k = 2, ly - 1
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(lx, k, l,  i), max_sid)
+                   call shared_face_dof%push(id)
+                   id = linear_index(lx, k, l, i, lx, ly, lz)
+                   call face_dof_shared%push(id)
+                end do
              end do
-          end do
-       else
-          do l = 2, lz - 1
-             do k = 2, ly - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, l,  i), max_id)
-                call local_dof%push(id)
-                id = linear_index(lx, k, l, i, lx, ly, lz)
-                call dof_local%push(id)
+          else
+             do l = 2, lz - 1
+                do k = 2, ly - 1
+                   id = gs_mapping_add_dof(dm, dofmap%dof(lx, k, l,  i), max_id)
+                   call local_face_dof%push(id)
+                   id = linear_index(lx, k, l, i, lx, ly, lz)
+                   call face_dof_local%push(id)
+                end do
              end do
-          end do
+          end if
        end if
           
        ! Facets in y-direction (r, t)-plane
-       if (dofmap%shared_dof(2, 1, 2, i)) then
-          do l = 2, lz - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, l, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, 1, l, i, lx, ly, lz)
-                call dof_shared%push(id)
+       if (msh%facet_neigh(3, i) .ne. 0) then
+          if (dofmap%shared_dof(2, 1, 2, i)) then
+             do l = 2, lz - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, 1, l, i), max_sid)
+                   call shared_face_dof%push(id)
+                   id = linear_index(j, 1, l, i, lx, ly, lz)
+                   call face_dof_shared%push(id)
+                end do
              end do
-          end do
-       else
-          do l = 2, lz - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, l, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, 1, l, i, lx, ly, lz)
-                call dof_local%push(id)
+          else
+             do l = 2, lz - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(dm, dofmap%dof(j, 1, l, i), max_id)
+                   call local_face_dof%push(id)
+                   id = linear_index(j, 1, l, i, lx, ly, lz)
+                   call face_dof_local%push(id)
+                end do
              end do
-          end do
+          end if
        end if
 
-       if (dofmap%shared_dof(2, ly, 2, i)) then
-          do l = 2, lz - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, l, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, ly, l, i, lx, ly, lz)
-                call dof_shared%push(id)
+       if (msh%facet_neigh(4, i) .ne. 0) then
+          if (dofmap%shared_dof(2, ly, 2, i)) then
+             do l = 2, lz - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, ly, l, i), max_sid)
+                   call shared_face_dof%push(id)
+                   id = linear_index(j, ly, l, i, lx, ly, lz)
+                   call face_dof_shared%push(id)
+                end do
              end do
-          end do
-       else
-          do l = 2, lz - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, l, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, ly, l, i, lx, ly, lz)
-                call dof_local%push(id)
+          else
+             do l = 2, lz - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(dm, dofmap%dof(j, ly, l, i), max_id)
+                   call local_face_dof%push(id)
+                   id = linear_index(j, ly, l, i, lx, ly, lz)
+                   call face_dof_local%push(id)
+                end do
              end do
-          end do
+          end if
        end if
-          
+       
        ! Facets in z-direction (r, s)-plane
-       if (dofmap%shared_dof(2, 2, 1, i)) then
-          do k = 2, ly - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, 1, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, k, 1, i, lx, ly, lz)
-                call dof_shared%push(id)
+       if (msh%facet_neigh(5, i) .ne. 0) then
+          if (dofmap%shared_dof(2, 2, 1, i)) then
+             do k = 2, ly - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, 1, i), max_sid)
+                   call shared_face_dof%push(id)
+                   id = linear_index(j, k, 1, i, lx, ly, lz)
+                   call face_dof_shared%push(id)
+                end do
              end do
-          end do
-       else
-          do k = 2, ly - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, k, 1, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, k, 1, i, lx, ly, lz)
-                call dof_local%push(id)
+          else
+             do k = 2, ly - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(dm, dofmap%dof(j, k, 1, i), max_id)
+                   call local_face_dof%push(id)
+                   id = linear_index(j, k, 1, i, lx, ly, lz)
+                   call face_dof_local%push(id)
+                end do
              end do
-          end do
+          end if
        end if
-          
-       if (dofmap%shared_dof(2, 2, lz, i)) then
-          do k = 2, ly - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, lz, i), max_sid)
-                call shared_dof%push(id)
-                id = linear_index(j, k, lz, i, lx, ly, lz)
-                call dof_shared%push(id)
+
+       if (msh%facet_neigh(6, i) .ne. 0) then
+          if (dofmap%shared_dof(2, 2, lz, i)) then
+             do k = 2, ly - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(sdm, dofmap%dof(j, k, lz, i), max_sid)
+                   call shared_face_dof%push(id)
+                   id = linear_index(j, k, lz, i, lx, ly, lz)
+                   call face_dof_shared%push(id)
+                end do
              end do
-          end do
-       else
-          do k = 2, ly - 1
-             do j = 2, lx - 1
-                id = gs_mapping_add_dof(dm, dofmap%dof(j, k, lz, i), max_id)
-                call local_dof%push(id)
-                id = linear_index(j, k, lz, i, lx, ly, lz)
-                call dof_local%push(id)
+          else
+             do k = 2, ly - 1
+                do j = 2, lx - 1
+                   id = gs_mapping_add_dof(dm, dofmap%dof(j, k, lz, i), max_id)
+                   call local_face_dof%push(id)
+                   id = linear_index(j, k, lz, i, lx, ly, lz)
+                   call face_dof_local%push(id)
+                end do
              end do
-          end do
+          end if
        end if
     end do
-
+    
        
 
     call dm%free()
     
-    gs%nlocal = local_dof%size()
-
+    gs%nlocal = local_dof%size() + local_face_dof%size()
+    gs%local_facet_offset = local_dof%size() + 1
+    
     ! Finalize local dof to gather-scatter index
     allocate(gs%local_dof_gs(gs%nlocal))
+
+    ! Add dofs on points and edges
     sp => local_dof%array()
-    do i = 1, local_dof%size()
+    j = local_dof%size()
+    do i = 1, j
        gs%local_dof_gs(i) = sp(i)
     end do
     call local_dof%free()
 
+    ! Add dofs on faces
+    sp => local_face_dof%array()
+    do i = 1, local_face_dof%size()
+       gs%local_dof_gs(i + j) = sp(i)
+    end do
+    call local_face_dof%free()
+
     ! Finalize local gather-scatter index to dof
     allocate(gs%local_gs_dof(gs%nlocal))
+
+    ! Add gather-scatter index on points and edges
     sp => dof_local%array()
-    do i = 1, dof_local%size()
+    j = dof_local%size()
+    do i = 1, j
        gs%local_gs_dof(i) = sp(i)
     end do
     call dof_local%free()
 
+    sp => face_dof_local%array()
+    do i = 1, face_dof_local%size()
+       gs%local_gs_dof(i+j) = sp(i)
+    end do
+    call face_dof_local%free()
+       
+    call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
+         gs%nlocal, 1, gs%nlocal)
+    
     ! Allocate buffer for local gs-ops
-    allocate(gs%local_gs(gs%nlocal))
+    allocate(gs%local_gs(gs%nlocal))   
 
-    gs%nshared = shared_dof%size()
+    gs%nshared = shared_dof%size() + shared_face_dof%size()
+    gs%shared_facet_offset = shared_dof%size() + 1
 
     ! Finalize shared dof to gather-scatter index
     allocate(gs%shared_dof_gs(gs%nshared))
+
+    ! Add shared dofs on points and edges
     sp => shared_dof%array()
-    do i = 1, shared_dof%size()
+    j =  shared_dof%size()
+    do i = 1, j
        gs%shared_dof_gs(i) = sp(i)
     end do
     call shared_dof%free()
 
+    ! Add shared dofs on faces
+    sp => shared_face_dof%array()
+    do i = 1, shared_face_dof%size()
+       gs%shared_dof_gs(i + j) = sp(i)
+    end do
+    call shared_face_dof%free()
+    
     ! Finalize shared gather-scatter index to dof
     allocate(gs%shared_gs_dof(gs%nshared))
+
+    ! Add dofs on points and edges 
     sp => dof_shared%array()
-    do i = 1, dof_shared%size()
+    j = dof_shared%size()
+    do i = 1, j
        gs%shared_gs_dof(i) = sp(i)
     end do
     call dof_shared%free()
 
+    sp => face_dof_shared%array()
+    do i = 1, face_dof_shared%size()
+       gs%shared_gs_dof(i + j) = sp(i)
+    end do
+    call face_dof_shared%free()
+
     ! Allocate buffer for shared gs-ops
     allocate(gs%shared_gs(gs%nshared))
 
+    call gs_qsort_dofmap(gs%shared_dof_gs, gs%shared_gs_dof, &
+         gs%nshared, 1, gs%nshared)
+
   contains
     
+    !> Register a unique dof
     function gs_mapping_add_dof(map_, dof, max_id) result(id)
       type(htable_i8_t), intent(inout) :: map_
       integer(kind=8), intent(inout) :: dof
@@ -673,7 +741,48 @@ contains
       end if
       
     end function gs_mapping_add_dof
-    
+
+    !> Sort the dof lists based on the dof to gather-scatter list
+    recursive subroutine gs_qsort_dofmap(dg, gd, n, lo, hi)
+      integer, dimension(n), intent(inout) :: dg
+      integer, dimension(n), intent(inout) :: gd
+      integer :: n, lo, hi
+      integer :: tmp, i, j, pivot
+
+      i = lo - 1
+      j = hi + 1
+      pivot = dg((lo + hi) / 2)
+      do
+         do 
+            i = i + 1
+            if (dg(i) .ge. pivot) exit
+         end do
+         
+         do 
+            j = j - 1
+            if (dg(j) .le. pivot) exit
+         end do
+         
+         if (i .lt. j) then
+            tmp = dg(i)
+            dg(i) = dg(j)
+            dg(j) = tmp
+
+            tmp = gd(i)
+            gd(i) = gd(j)
+            gd(j) = tmp
+         else if (i .eq. j) then
+            i = i + 1
+            exit
+         else
+            exit
+         end if
+      end do      
+      if (lo .lt. j) call gs_qsort_dofmap(dg, gd, n, lo, j)
+      if (i .lt. hi) call gs_qsort_dofmap(dg, gd, n, i, hi)
+      
+    end subroutine gs_qsort_dofmap
+
   end subroutine gs_init_mapping
 
   !> Schedule shared gather-scatter operations
@@ -795,8 +904,10 @@ contains
     type(gs_t), intent(inout) :: gs
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, intent(inout) :: n
-    integer :: m, l, op
+    integer :: m, l, op, lo, so
     
+    lo = gs%local_facet_offset
+    so = -gs%shared_facet_offset
     m = gs%nlocal
     l = gs%nshared
 
@@ -804,8 +915,8 @@ contains
     if (pe_size .gt. 1) then
 
        call gs_nbrecv(gs)
-       
-       call gs_gather(gs%shared_gs, l, gs%shared_dof_gs, &
+
+       call gs_gather(gs%shared_gs, l, so, gs%shared_dof_gs, &
             u, n, gs%shared_gs_dof, op)
 
        call gs_nbsend(gs, gs%shared_gs, l)
@@ -813,7 +924,8 @@ contains
     end if
     
     ! Gather-scatter local dofs
-    call gs_gather(gs%local_gs, m, gs%local_dof_gs, &
+
+    call gs_gather(gs%local_gs, m, lo, gs%local_dof_gs, &
          u, n, gs%local_gs_dof, op)
     call gs_scatter(gs%local_gs, m, gs%local_dof_gs, &
          u, n, gs%local_gs_dof)
@@ -822,7 +934,7 @@ contains
     if (pe_size .gt. 1) then
 
        call gs_nbwait(gs, gs%shared_gs, l, op)
-       
+
        call gs_scatter(gs%shared_gs, l, gs%shared_dof_gs, &
             u, n, gs%shared_gs_dof)
     end if
@@ -830,67 +942,120 @@ contains
   end subroutine gs_op_vector
   
   !> Gather kernel
-  subroutine gs_gather(v, m, dg, u, n, gd, op)
+  subroutine gs_gather(v, m, o, dg, u, n, gd, op)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, intent(in) :: m
+    integer, intent(in) :: o
     integer, intent(in) :: n
     integer :: op
     
     select case(op)
     case (GS_OP_ADD)
-       call gs_gather_kernel_add(v, m, dg, u, n, gd)
+       call gs_gather_kernel_add(v, m, o, dg, u, n, gd)
     case (GS_OP_MUL)
-       call gs_gather_kernel_mul(v, m, dg, u, n, gd)
+       call gs_gather_kernel_mul(v, m, o, dg, u, n, gd)
     case (GS_OP_MIN)
-       call gs_gather_kernel_min(v, m, dg, u, n, gd)
+       call gs_gather_kernel_min(v, m, o, dg, u, n, gd)
     case (GS_OP_MAX)
-       call gs_gather_kernel_max(v, m, dg, u, n, gd)
+       call gs_gather_kernel_max(v, m, o, dg, u, n, gd)
     end select
     
   end subroutine gs_gather
  
   !> Gather kernel for addition of data
   !! \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
-  subroutine gs_gather_kernel_add(v, m, dg, u, n, gd)
+  subroutine gs_gather_kernel_add(v, m, o, dg, u, n, gd)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, intent(in) :: m
+    integer, intent(in) :: o
     integer, intent(in) :: n
-    integer :: i
+    integer :: i, no
+    real(kind=dp) :: tmp
+
     v = 0d0
-    do i = 1, m
-       v(dg(i)) = v(dg(i)) + u(gd(i))
-    end do
+
+    if (o .lt. 0) then
+
+       no = abs(o)
+
+       do i = 1, no - 1
+          v(dg(i)) = v(dg(i)) + u(gd(i))
+       end do
+       
+       do i = no, m
+          v(dg(i)) = u(gd(i))
+       end do
+       
+    else
+
+       do i = 1, o - 1
+          v(dg(i)) = v(dg(i)) + u(gd(i))
+       end do
+
+       do i = o, m, 2
+          tmp  = u(gd(i)) + u(gd(i+1))
+          v(dg(i)) = tmp
+          v(dg(i+1)) = tmp
+       end do
+       
+    end if
   end subroutine gs_gather_kernel_add
 
   !> Gather kernel for multiplication of data
   !! \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
-  subroutine gs_gather_kernel_mul(v, m, dg, u, n, gd)
+  subroutine gs_gather_kernel_mul(v, m, o, dg, u, n, gd)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, intent(in) :: m
+    integer, intent(in) :: o
     integer, intent(in) :: n
-    integer :: i
-    do i = 1, m
-       v(dg(i)) = v(dg(i)) * u(gd(i))
-    end do
+    integer :: i, no
+    real(kind=dp) :: tmp
+
+    if (o .lt. 0) then
+
+       no = abs(o)
+       
+       do i = 1, no - 1
+          v(dg(i)) = v(dg(i)) * u(gd(i))
+       end do
+       
+       do i = no, m
+          v(dg(i)) = u(gd(i))
+       end do
+       
+    else
+
+       do i = 1, o - 1
+          v(dg(i)) = v(dg(i)) * u(gd(i))
+       end do
+
+       do i = o, m, 2
+          tmp  = u(gd(i)) * u(gd(i+1))
+          v(dg(i)) = tmp
+          v(dg(i+1)) = tmp          
+       end do
+       
+    end if
   end subroutine gs_gather_kernel_mul
   
   !> Gather kernel for minimum of data
   !! \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
-  subroutine gs_gather_kernel_min(v, m, dg, u, n, gd)
+  subroutine gs_gather_kernel_min(v, m, o, dg, u, n, gd)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, intent(in) :: m
+    integer, intent(in) :: o
     integer, intent(in) :: n
     integer :: i
     v = 1e24
@@ -901,12 +1066,13 @@ contains
 
   !> Gather kernel for maximum of data
   !! \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
-  subroutine gs_gather_kernel_max(v, m, dg, u, n, gd)
+  subroutine gs_gather_kernel_max(v, m, o, dg, u, n, gd)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, intent(in) :: m
+    integer, intent(in) :: o
     integer, intent(in) :: n
     integer :: i
     v = -1e24
