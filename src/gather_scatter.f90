@@ -13,6 +13,13 @@ module gather_scatter
   integer, parameter :: GS_OP_ADD = 1, GS_OP_MUL = 2, &
        GS_OP_MIN = 3, GS_OP_MAX = 4
   
+  type, private :: gs_comm_t
+     integer :: status(MPI_STATUS_SIZE)
+     integer :: request
+     logical :: flag
+     real(kind=dp), allocatable :: data(:)
+  end type gs_comm_t
+  
   type gs_t
      real(kind=dp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
@@ -33,13 +40,6 @@ module gather_scatter
      integer :: local_facet_offset                    !< offset for loc. facets
      integer :: shared_facet_offset                   !< offset for shr. facets
   end type gs_t
-
-  type, private :: gs_comm_t
-     integer :: status(MPI_STATUS_SIZE)
-     integer :: request
-     logical :: flag
-     real(kind=dp), allocatable :: data(:)
-  end type gs_comm_t
 
   private :: gs_init_mapping, gs_schedule
 
