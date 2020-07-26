@@ -7,13 +7,13 @@ subroutine cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
 
   type(field_t), intent(inout) :: x
   type(field_t), intent(inout) :: w
-  type(field_t), intent(inout) :: msk
   real(kind=dp), intent(inout) :: g(6, x%Xh%lx, x%Xh%ly, x%Xh%lz, x%msh%nelv)
   real(kind=dp), intent(inout), dimension(n) :: f
   real(kind=dp), intent(inout), dimension(n) :: c
   real(kind=dp), intent(inout), dimension(n) :: r
   real(kind=dp), intent(inout), dimension(n) :: p
   real(kind=dp), intent(inout), dimension(n) :: z
+  integer, intent(inout), dimension(0:n) :: msk
   integer, intent(inout) :: n
   integer, intent(inout) :: niter
   type(gs_t), intent(inout) :: gs_h
@@ -34,7 +34,7 @@ subroutine cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
   
   call rzero(x%x, n)
   call copy(r, f, n)
-  call col2(r, msk%x, n)
+  call maskit(r, msk, n)
   
   rnorm = sqrt(glsc3(r, c, r, n))
   iter = 0
@@ -95,7 +95,7 @@ subroutine ax(w, u, gxyz, ur, us, ut, wk, n, msk, gs_h)
   real(kind=dp), intent(inout) :: gxyz(6, w%Xh%lx**3, w%msh%nelv)
   integer, intent(inout) :: n
   type(gs_t), intent(inout) :: gs_h
-  type(field_t), intent(inout) :: msk
+  integer, intent(inout) :: msk(0:n)
   integer :: e
 
   do e = 1, w%msh%nelv
@@ -105,10 +105,9 @@ subroutine ax(w, u, gxyz, ur, us, ut, wk, n, msk, gs_h)
 
   call gs_op(gs_h, w, GS_OP_ADD)
   call add2s2(w%x, u, 1d-1, n)
-  call col2(w%x, msk%x, n)
+  call maskit(w%x, msk, n)
   
 end subroutine ax
-
 
 subroutine ax_e(w, u, g, ur, us, ut, wk, lx, D, Dt)
   use num_types
@@ -199,3 +198,20 @@ subroutine local_grad3_t(u,ur,us,ut,N,D,Dt,w)
   call add2(u,w,m3)
   
 end subroutine local_grad3_t
+
+subroutine maskit(w, msk, n)
+  use num_types
+  implicit none
+
+  real(kind=dp), intent(inout) :: w(n)
+  integer, intent(in) :: msk(0:n)
+  integer, intent(in) :: n
+  integer :: i, k, m
+
+  m = msk(0)
+  do i = 1, m
+     k = msk(i)
+     w(k) = 0d0
+  end do
+  
+end subroutine maskit

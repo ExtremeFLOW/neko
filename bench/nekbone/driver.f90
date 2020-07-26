@@ -4,13 +4,14 @@ program nekobone
 
   character(len=NEKO_FNAME_LEN) :: fname, lxchar
   type(mesh_t) :: msh
-  type(file_t) :: nmsh_file
+  type(file_t) :: nmsh_file, mf
   type(space_t) :: Xh
   type(dofmap_t) :: dm
   type(gs_t) :: gs_h
-  type(field_t) :: x, w, msk
+  type(field_t) :: x, w
   integer :: argc, lx, n, n_glb, niter, ierr
   character(len=80) :: suffix
+  integer, allocatable :: msk(:)
   real(kind=dp), allocatable :: f(:), c(:), r(:), p(:), z(:)
   real(kind=dp), allocatable :: g(:, :, :, :, :)
 
@@ -32,23 +33,21 @@ program nekobone
   call mesh_generate_conn(msh)
 
   call space_init(Xh, 1, GLL, lx, lx, lx)
-  call semhat(Xh%dx, Xh%dxt, Xh%zg, lx - 1)
 
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)
   
   call field_init(x, msh, Xh, "x")
   call field_init(w, msh, Xh, "work")
-  call field_init(msk, msh, Xh, "mask")
 
-  msk = 1d0
-  call set_mask(msk)
+  n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
+  allocate(msk(0:n))
+  call set_mask(msk, msh, Xh%lx, Xh%ly, Xh%lz, n)
 
   allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
   call setup_g(g, Xh%wx, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
   
   niter = 100
-  n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
   allocate(f(n), c(n), r(n), p(n), z(n))
   call set_multiplicity(c, n, gs_h)
   call set_f(f, c, n, gs_h)
@@ -62,11 +61,10 @@ program nekobone
   call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
   call cg(x, f, g, c, r, w, p, z, n, msk, niter, gs_h)
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
-  
-  deallocate(f, c, g, r, p, z)
+
+  deallocate(f, c, g, r, p, z, msk)
   call space_free(Xh)
   call field_free(x)
-  call field_free(msk)
   call mesh_free(msh)
   
   call neko_finalize
