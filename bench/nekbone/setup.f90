@@ -1,23 +1,24 @@
 ! Set mask for Dirichlet conditions
-subroutine set_mask(msk)
-  use field
+subroutine set_mask(msk, msh, lx, ly, lz, n)
+  use utils
   use mesh
   implicit none
   
-  type(field_t), target, intent(inout) :: msk
-  type(mesh_t), pointer :: msh
-  integer :: i, j, k, l
-  integer :: lx, ly, lz
-  msh => msk%msh
-  lx = msk%Xh%lx
-  ly = msk%Xh%ly
-  lz = msk%Xh%lz
+  integer, intent(inout) :: msk(0:n)
+  type(mesh_t), intent(in) :: msh
+  integer, intent(in) :: lx
+  integer, intent(in) :: ly
+  integer, intent(in) :: lz
+  integer, intent(in) :: n
+  integer :: i, j, k, l, msk_c
 
+  msk_c = 0
   do i = 1, msh%nelv
      if (msh%facet_neigh(1, i) .eq. 0) then
         do l = 1, lz
            do k = 1, ly
-              msk%x(1, k, l, i) = 0d0
+              msk_c = msk_c + 1
+              msk(msk_c) = linear_index(1,k,l,i,lx,ly,lz)
            end do
         end do
      end if
@@ -25,7 +26,8 @@ subroutine set_mask(msk)
      if (msh%facet_neigh(2, i) .eq. 0) then
         do l = 1, lz
            do k = 1, ly
-              msk%x(lx, k, l, i) = 0d0
+              msk_c = msk_c + 1
+              msk(msk_c) = linear_index(lx,k,l,i,lx,ly,lz)
            end do
         end do
      end if
@@ -33,7 +35,8 @@ subroutine set_mask(msk)
      if (msh%facet_neigh(3, i) .eq. 0) then
         do l = 1, lz
            do j = 1, lx
-              msk%x(j, 1, l, i) = 0d0
+              msk_c = msk_c + 1
+              msk(msk_c) = linear_index(j,1,l,i,lx,ly,lz)
            end do
         end do
      end if
@@ -41,7 +44,8 @@ subroutine set_mask(msk)
      if (msh%facet_neigh(4, i) .eq. 0) then
         do l = 1, lz
            do j = 1, lx
-              msk%x(j, ly, l, i) = 0d0
+              msk_c = msk_c + 1
+              msk(msk_c) = linear_index(j,ly,l,i,lx,ly,lz)
            end do
         end do
      end if
@@ -49,7 +53,8 @@ subroutine set_mask(msk)
      if (msh%facet_neigh(5, i) .eq. 0) then
         do k = 1, ly
            do j = 1, lx
-              msk%x(j, k, 1, i) = 0d0
+              msk_c = msk_c + 1
+              msk(msk_c) = linear_index(j,k,1,i,lx,ly,lz)
            end do
         end do
      end if
@@ -57,12 +62,13 @@ subroutine set_mask(msk)
      if (msh%facet_neigh(6, i) .eq. 0) then
         do k = 1, ly
            do j = 1, lx
-              msk%x(j, k, lz, i) = 0d0
+              msk_c = msk_c + 1
+              msk(msk_c) = linear_index(j,k,lz,i,lx,ly,lz)
            end do
         end do
      end if
   end do
-
+  msk(0) = msk_c
 end subroutine set_mask
 
 ! Inverse of counting matrix
