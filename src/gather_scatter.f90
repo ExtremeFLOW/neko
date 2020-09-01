@@ -39,6 +39,8 @@ module gather_scatter
      type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
      integer :: nshared                               !< Shared gs-ops
+     integer :: nlocal_blks                           !< Number of local blks
+     integer :: nshared_blks                          !< Number of shared blks
      integer :: local_facet_offset                    !< offset for loc. facets
      integer :: shared_facet_offset                   !< offset for shr. facets
   end type gs_t
@@ -116,6 +118,8 @@ contains
 
     gs%nlocal = 0
     gs%nshared = 0
+    gs%nlocal_blks = 0
+    gs%nshared_blks = 0
 
     call gs%shared_dofs%free()
 
@@ -689,7 +693,7 @@ contains
          gs%nlocal, 1, gs%nlocal)
     
     call gs_find_blks(gs%local_dof_gs, gs%local_blk_len, &
-         gs%nlocal, gs%local_facet_offset)
+         gs%nlocal_blks, gs%nlocal, gs%local_facet_offset)
     
     ! Allocate buffer for local gs-ops
     allocate(gs%local_gs(gs%nlocal))   
@@ -739,7 +743,7 @@ contains
          gs%nshared, 1, gs%nshared)
 
     call gs_find_blks(gs%shared_dof_gs, gs%shared_blk_len, &
-         gs%nshared, gs%shared_facet_offset)
+         gs%nshared_blks, gs%nshared, gs%shared_facet_offset)
 
   contains
     
@@ -800,9 +804,10 @@ contains
     end subroutine gs_qsort_dofmap
 
     !> Find blocks sharing dofs in non-facet data
-    subroutine gs_find_blks(dg, blk_len, n, m)
-      integer, dimension(n), intent(in) :: dg
+    subroutine gs_find_blks(dg, blk_len, nblks, n, m)
+      integer, dimension(n), intent(inout) :: dg
       integer, allocatable, intent(inout) :: blk_len(:)
+      integer, intent(inout) :: nblks
       integer, intent(in) :: n
       integer, intent(in) :: m
       integer :: i, j
@@ -825,7 +830,8 @@ contains
          i = j
       end do
 
-      allocate(blk_len(blks%size()))
+      nblks = blks%size()
+      allocate(blk_len(nblks))
       bp => blks%array()
       do i = 1, blks%size()
          blk_len(i) = bp(i)
