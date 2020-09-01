@@ -24,9 +24,11 @@ module gather_scatter
      real(kind=dp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:)          !< Local gs to dof mapping
+     integer, allocatable :: local_blk_len(:)         !< Local non-facet blocks
      real(kind=dp), allocatable :: shared_gs(:)       !< Buffer for shared gs-op
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
+     integer, allocatable :: shared_blk_len(:)        !< Shared non-facet blocks
      integer, allocatable :: send_pe(:)               !< Send order
      integer, allocatable :: recv_pe(:)               !< Recv order
      type(stack_i4_t), allocatable :: send_dof(:)     !< Send dof to shared-gs
@@ -92,6 +94,10 @@ contains
        deallocate(gs%local_gs_dof)
     end if
 
+    if (allocated(gs%local_blk_len)) then
+       deallocate(gs%local_blk_len)
+    end if
+
     if (allocated(gs%shared_gs)) then
        deallocate(gs%shared_gs)
     end if
@@ -102,6 +108,10 @@ contains
 
     if (allocated(gs%shared_gs_dof)) then
        deallocate(gs%shared_gs_dof)
+    end if
+
+    if (allocated(gs%shared_blk_len)) then
+       deallocate(gs%shared_blk_len)
     end if
 
     gs%nlocal = 0
@@ -678,6 +688,9 @@ contains
     call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
          gs%nlocal, 1, gs%nlocal)
     
+    call gs_find_blks(gs%local_dof_gs, gs%local_blk_len, &
+         gs%nlocal, gs%local_facet_offset)
+    
     ! Allocate buffer for local gs-ops
     allocate(gs%local_gs(gs%nlocal))   
 
@@ -724,6 +737,9 @@ contains
 
     call gs_qsort_dofmap(gs%shared_dof_gs, gs%shared_gs_dof, &
          gs%nshared, 1, gs%nshared)
+
+    call gs_find_blks(gs%shared_dof_gs, gs%shared_blk_len, &
+         gs%nshared, gs%shared_facet_offset)
 
   contains
     
@@ -782,6 +798,42 @@ contains
       if (i .lt. hi) call gs_qsort_dofmap(dg, gd, n, i, hi)
       
     end subroutine gs_qsort_dofmap
+
+    !> Find blocks sharing dofs in non-facet data
+    subroutine gs_find_blks(dg, blk_len, n, m)
+      integer, dimension(n), intent(in) :: dg
+      integer, allocatable, intent(inout) :: blk_len(:)
+      integer, intent(in) :: n
+      integer, intent(in) :: m
+      integer :: i, j
+      integer :: id, count, len
+      type(stack_i4_t) :: blks
+      integer, pointer :: bp(:)
+      
+      call blks%init()
+
+      i = 1
+      do while( i .lt. m)
+         id = dg(i)
+         count = 1
+         j = i + 1
+         do while (dg(j) .eq. id)
+            j = j + 1
+            count = count + 1
+         end do
+         call blks%push(count)
+         i = j
+      end do
+
+      allocate(blk_len(blks%size()))
+      bp => blks%array()
+      do i = 1, blks%size()
+         blk_len(i) = bp(i)
+      end do      
+
+      call blks%free()
+      
+    end subroutine gs_find_blks
 
   end subroutine gs_init_mapping
 
