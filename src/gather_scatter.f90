@@ -1046,7 +1046,7 @@ contains
     do i = 1, q
        blk_len = b(i)
        tmp = u(gd(k + 1))
-       do j = 1, blk_len
+       do j = 2, blk_len
           tmp = tmp + u(gd(k + j))
        end do
        v(dg(k + 1)) = tmp
