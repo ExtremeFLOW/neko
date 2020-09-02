@@ -1061,7 +1061,6 @@ contains
        do i = o, m, 2
           tmp  = u(gd(i)) + u(gd(i+1))
           v(dg(i)) = tmp
-          v(dg(i+1)) = tmp
        end do
     end if
     
@@ -1101,7 +1100,6 @@ contains
        do i = o, m, 2
           tmp  = u(gd(i)) * u(gd(i+1))
           v(dg(i)) = tmp
-          v(dg(i+1)) = tmp          
        end do
     end if
     
@@ -1141,7 +1139,6 @@ contains
        do i = o, m, 2
           tmp  = min(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
-          v(dg(i+1)) = tmp          
        end do
     end if
     
@@ -1181,7 +1178,6 @@ contains
        do i = o, m, 2
           tmp  = max(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
-          v(dg(i+1)) = tmp          
        end do
     end if
     
