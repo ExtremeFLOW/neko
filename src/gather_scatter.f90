@@ -739,12 +739,14 @@ contains
     ! Allocate buffer for shared gs-ops
     allocate(gs%shared_gs(gs%nshared))
 
-    call gs_qsort_dofmap(gs%shared_dof_gs, gs%shared_gs_dof, &
-         gs%nshared, 1, gs%nshared)
+    if (gs%nshared .gt. 0) then
+       call gs_qsort_dofmap(gs%shared_dof_gs, gs%shared_gs_dof, &
+            gs%nshared, 1, gs%nshared)
 
-    call gs_find_blks(gs%shared_dof_gs, gs%shared_blk_len, &
-         gs%nshared_blks, gs%nshared, gs%shared_facet_offset)
-
+       call gs_find_blks(gs%shared_dof_gs, gs%shared_blk_len, &
+            gs%nshared_blks, gs%nshared, gs%shared_facet_offset)
+    end if
+    
   contains
     
     !> Register a unique dof
