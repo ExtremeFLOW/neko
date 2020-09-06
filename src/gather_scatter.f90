@@ -1002,48 +1002,48 @@ contains
   end subroutine gs_op_vector
   
   !> Gather kernel
-  subroutine gs_gather(v, m, o, dg, u, n, gd, q, b, op)
+  subroutine gs_gather(v, m, o, dg, u, n, gd, nb, b, op)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
-    integer, dimension(q), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: b
     integer, intent(inout) :: m
     integer, intent(inout) :: o
     integer, intent(inout) :: n
-    integer, intent(inout) :: q
+    integer, intent(inout) :: nb
     integer :: op
     
     select case(op)
     case (GS_OP_ADD)
-       call gs_gather_kernel_add(v, m, o, dg, u, n, gd, q, b)
+       call gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
     case (GS_OP_MUL)
-       call gs_gather_kernel_mul(v, m, o, dg, u, n, gd, q, b)
+       call gs_gather_kernel_mul(v, m, o, dg, u, n, gd, nb, b)
     case (GS_OP_MIN)
-       call gs_gather_kernel_min(v, m, o, dg, u, n, gd, q, b)
+       call gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b)
     case (GS_OP_MAX)
-       call gs_gather_kernel_max(v, m, o, dg, u, n, gd, q, b)
+       call gs_gather_kernel_max(v, m, o, dg, u, n, gd, nb, b)
     end select
     
   end subroutine gs_gather
  
   !> Gather kernel for addition of data
   !! \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
-  subroutine gs_gather_kernel_add(v, m, o, dg, u, n, gd, q, b)
+  subroutine gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
-    integer, dimension(q), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: o
     integer, intent(in) :: n
-    integer, intent(in) :: q
+    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
 
     k = 0
-    do i = 1, q
+    do i = 1, nb
        blk_len = b(i)
        tmp = u(gd(k + 1))
        do j = 2, blk_len
@@ -1068,21 +1068,21 @@ contains
 
   !> Gather kernel for multiplication of data
   !! \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
-  subroutine gs_gather_kernel_mul(v, m, o, dg, u, n, gd, q, b)
+  subroutine gs_gather_kernel_mul(v, m, o, dg, u, n, gd, nb, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
-    integer, dimension(q), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: o
     integer, intent(in) :: n
-    integer, intent(in) :: q
+    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
     
     k = 0
-    do i = 1, q
+    do i = 1, nb
        blk_len = b(i)
        tmp = u(gd(k + 1))              
        do j = 2, blk_len
@@ -1107,21 +1107,21 @@ contains
   
   !> Gather kernel for minimum of data
   !! \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
-  subroutine gs_gather_kernel_min(v, m, o, dg, u, n, gd, q, b)
+  subroutine gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
-    integer, dimension(q), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: o
     integer, intent(in) :: n
-    integer, intent(in) :: q
+    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
 
     k = 0
-    do i = 1, q
+    do i = 1, nb
        blk_len = b(i)
        tmp = u(gd(k + 1))
        do j = 2, blk_len
@@ -1146,21 +1146,21 @@ contains
 
   !> Gather kernel for maximum of data
   !! \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
-  subroutine gs_gather_kernel_max(v, m, o, dg, u, n, gd, q, b)
+  subroutine gs_gather_kernel_max(v, m, o, dg, u, n, gd, nb, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
-    integer, dimension(q), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: o
     integer, intent(in) :: n
-    integer, intent(in) :: q
+    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
 
     k = 0
-    do i = 1, q
+    do i = 1, nb
        blk_len = b(i)
        tmp = u(gd(k + 1))
        do j = 2, blk_len
@@ -1184,35 +1184,35 @@ contains
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter(v, m, dg, u, n, gd, q, b)
+  subroutine gs_scatter(v, m, dg, u, n, gd, nb, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
-    integer, dimension(q), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: n
-    integer, intent(in) :: q    
+    integer, intent(in) :: nb
         
-    call gs_scatter_kernel(v, m, dg, u, n, gd, q, b)
+    call gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
 
   end subroutine gs_scatter
 
   !> Scatter kernel \f$ u(gd(i) = v(dg(i)) \f$
-  subroutine gs_scatter_kernel(v, m, dg, u, n, gd, q, b)
+  subroutine gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
-    integer, dimension(q), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: n
-    integer, intent(in) :: q
+    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
     
     k = 0
-    do i = 1, q
+    do i = 1, nb
        blk_len = b(i)
        tmp = v(dg(k + 1))
        do j = 1, blk_len
