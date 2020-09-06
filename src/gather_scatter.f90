@@ -987,16 +987,16 @@ contains
 
     call gs_gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op)
-    call gs_scatter(gs%local_gs, m, gs%local_dof_gs, &
-         u, n, gs%local_gs_dof)
+    call gs_scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len)
 
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
 
        call gs_nbwait(gs, gs%shared_gs, l, op)
 
-       call gs_scatter(gs%shared_gs, l, gs%shared_dof_gs, &
-            u, n, gs%shared_gs_dof)
+       call gs_scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
     end if
        
   end subroutine gs_op_vector
@@ -1184,30 +1184,47 @@ contains
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter(v, m, dg, u, n, gd)
+  subroutine gs_scatter(v, m, dg, u, n, gd, q, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
+    integer, dimension(q), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: n
+    integer, intent(in) :: q    
         
-    call gs_scatter_kernel(v, m, dg, u, n, gd)
+    call gs_scatter_kernel(v, m, dg, u, n, gd, q, b)
 
   end subroutine gs_scatter
 
   !> Scatter kernel \f$ u(gd(i) = v(dg(i)) \f$
-  subroutine gs_scatter_kernel(v, m, dg, u, n, gd)
+  subroutine gs_scatter_kernel(v, m, dg, u, n, gd, q, b)
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
+    integer, dimension(q), intent(inout) :: b
     integer, intent(in) :: m
     integer, intent(in) :: n
-    integer :: i
-    do i = 1, m
+    integer, intent(in) :: q
+    integer :: i, j, k, blk_len
+    real(kind=dp) :: tmp
+    
+    k = 0
+    do i = 1, q
+       blk_len = b(i)
+       tmp = v(dg(k + 1))
+       do j = 1, blk_len
+          u(gd(k + j)) = tmp
+       end do
+       k = k + blk_len
+    end do
+
+    do i = k + 1, m
        u(gd(i)) = v(dg(i))
     end do
+
   end subroutine gs_scatter_kernel
 
 
