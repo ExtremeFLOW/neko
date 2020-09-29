@@ -69,7 +69,8 @@ AX_PFUNIT
 AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile neko.pc])
 
 # Config tests
-AC_CONFIG_FILES([tests/stack/Makefile])
+AC_CONFIG_FILES([tests/stack/Makefile\
+		 tests/tuple/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile

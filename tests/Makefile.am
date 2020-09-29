@@ -1,2 +1,4 @@
-SUBDIRS = stack
-TESTS = stack/stack_test
+SUBDIRS = tuple\
+	  stack
+TESTS = tuple/tuple_test\
+	stack/stack_test
