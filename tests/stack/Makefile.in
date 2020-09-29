@@ -9,7 +9,11 @@ FC = @FC@
 check: stack_test
 
 
-stack_test_TESTS := stack_i4.pf stack_i8.pf stack_r8.pf
+stack_test_TESTS := stack_i4.pf\
+		    stack_i8.pf\
+		    stack_r8.pf\
+		    stack_i4t2.pf\
+		    stack_i4t4.pf
 stack_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
 $(eval $(call make_pfunit_test,stack_test))
 
