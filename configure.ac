@@ -62,8 +62,15 @@ AM_CONDITIONAL([ENABLE_DOXYGEN], [test -n "$DOXYGEN_DEPS"])
 AC_CHECK_PROGS([MAKEDEPF90], [makedepf90])
 AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 
+# Checks for pFUnit
+AX_PFUNIT
 
-AC_CONFIG_FILES([Makefile src/Makefile neko.pc])
+
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile neko.pc])
+
+# Config tests
+AC_CONFIG_FILES([tests/stack/Makefile\
+		 tests/tuple/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile

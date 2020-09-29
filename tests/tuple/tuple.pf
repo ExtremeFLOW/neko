@@ -1,0 +1,90 @@
+@test
+subroutine test_tuple_i4
+  use pfunit
+  use tuple    
+  implicit none
+  type(tuple_i4_t) :: t1, t2
+  integer :: i
+  integer :: x(2) = (/2, 2/)
+  t1 = (/1, 2/)
+  t2 = (/1, 2/)
+
+  do i = 1, 2
+     @assertEqual(t1%x(i), t2%x(i))
+  end do
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2, 2/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = x
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2, 3/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = t2
+  @assertTrue(t1 .eq. t2)
+    
+end subroutine test_tuple_i4
+
+@test
+subroutine test_tuple4_i4
+  use pfunit
+  use tuple    
+  implicit none
+  type(tuple4_i4_t) :: t1, t2
+  integer :: i
+  integer :: x(4) = (/2, 2, 2, 2/)
+  t1 = (/1, 2, 3, 4/)
+  t2 = (/1, 2, 3, 4/)
+
+  do i = 1, 4
+     @assertEqual(t1%x(i), t2%x(i))
+  end do
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2, 2, 2, 2/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = x
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2, 3, 4, 5/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = t2
+  @assertTrue(t1 .eq. t2)
+    
+end subroutine test_tuple4_i4
+
+@test
+subroutine test_tuple_r8
+  use pfunit
+  use tuple
+  use num_types
+  implicit none
+  type(tuple_r8_t) :: t1, t2
+  integer :: i
+  real(kind=dp) :: x(2) = (/2d0, 2d0/)
+  t1 = (/1d0, 2d0/)
+  t2 = (/1d0, 2d0/)
+
+  do i = 1, 2
+     @assertEqual(t1%x(i), t2%x(i))
+  end do
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2d0, 2d0/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = x
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2d0, 3d0/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = t2
+  @assertTrue(t1 .eq. t2)
+    
+end subroutine test_tuple_r8
