@@ -72,7 +72,9 @@ AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile neko.pc])
 AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/tuple/Makefile\
 		 tests/uset/Makefile\
-		 tests/point/Makefile])
+		 tests/point/Makefile\
+		 tests/quad/Makefile\
+		 tests/hex/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile

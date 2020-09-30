@@ -1,0 +1,42 @@
+@test
+subroutine test_quad_init
+  use pfunit
+  use point
+  use quad
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  type(quad_t) :: q
+  integer :: i, id
+
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 4
+  p3 = point_t(c3, id)
+  
+  id = 3
+  p4 = point_t(c4, id)
+
+  id = 42
+  call q%init(id, p1, p2, p3, p4)
+  @assertEqual(q%id(), id)
+  @assertEqual(q%gdim(), NEKO_QUAD_GDIM)
+  @assertEqual(q%npts(), NEKO_QUAD_NPTS)
+
+  @assertTrue(q%p(1) .eq. p1)
+  @assertTrue(q%p(2) .eq. p2)
+  @assertTrue(q%p(3) .eq. p3)
+  @assertTrue(q%p(4) .eq. p4)
+
+
+end subroutine test_quad_init
+

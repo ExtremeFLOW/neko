@@ -1,0 +1,63 @@
+@test
+subroutine test_hex_init
+  use pfunit
+  use point
+  use hex
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c5(3) = (/0d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c6(3) = (/1d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
+  type(hex_t) :: h
+  integer :: i, id
+
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 4
+  p3 = point_t(c3, id)
+  
+  id = 3
+  p4 = point_t(c4, id)
+
+  id = 5
+  p1 = point_t(c1, id)
+
+  id = 6
+  p2 = point_t(c2, id)
+
+  id = 8
+  p3 = point_t(c3, id)
+  
+  id = 7
+  p4 = point_t(c4, id)
+
+  id = 42
+  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+  @assertEqual(h%id(), id)
+  @assertEqual(h%gdim(), NEKO_HEX_GDIM)
+  @assertEqual(h%npts(), NEKO_HEX_NPTS)
+
+  @assertTrue(h%p(1) .eq. p1)
+  @assertTrue(h%p(2) .eq. p2)
+  @assertTrue(h%p(3) .eq. p3)
+  @assertTrue(h%p(4) .eq. p4)
+
+  @assertTrue(h%p(5) .eq. p5)
+  @assertTrue(h%p(6) .eq. p6)
+  @assertTrue(h%p(7) .eq. p7)
+  @assertTrue(h%p(8) .eq. p8)
+
+
+end subroutine test_hex_init
+
