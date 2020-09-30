@@ -1,6 +1,8 @@
 SUBDIRS = tuple\
 	  stack\
-	  uset
+	  uset\
+	  point
 TESTS = tuple/tuple_test\
 	stack/stack_test\
-	uset/uset_test
+	uset/uset_test\
+	point/point_test
