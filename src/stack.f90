@@ -67,7 +67,12 @@ contains
     integer :: size_t
 
     if (present(size)) then
-       size_t = size
+       if (size .gt. 0) then
+          size_t = size
+       else
+          call neko_warning('Invalid stack size, using default')
+          size_t = NEKO_STACK_SIZE_T
+       end if
     else
        size_t = NEKO_STACK_SIZE_T
     end if
