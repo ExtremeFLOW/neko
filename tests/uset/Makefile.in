@@ -1,0 +1,22 @@
+include @PFUNIT_DIR@/include/PFUNIT.mk
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: uset_test
+
+
+uset_test_TESTS := uset_i4.pf uset_i8.pf uset_r8.pf
+uset_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+$(eval $(call make_pfunit_test,uset_test))
+
+
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 uset_test
+
+
+
+all:
