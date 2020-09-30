@@ -191,10 +191,10 @@ contains
     class(uset_i4_t), intent(inout) :: this
     class(*), intent(inout) :: key
     integer :: data
-    data = 1
 
     select type(key)
     type is (integer)
+       data = key           
        call this%t%set(key, data)
     class default
        call neko_error("Invalid key")
