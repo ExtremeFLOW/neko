@@ -13,6 +13,7 @@ module htable
   !> Hash table entry, tuple (key, data)
   type :: h_tuple_t
      logical :: valid = .false.
+     logical :: skip = .false.
      class(*), allocatable :: key      
      class(*), allocatable :: data
   end type h_tuple_t
@@ -254,6 +255,7 @@ contains
              this%entries = this%entries + 1
           end if
           this%t(index)%valid = .true.
+          this%t(index)%skip = .false.
           return
        end if
        index = modulo((index + 1), this%size)
@@ -305,7 +307,8 @@ contains
     i = this%size - 1
     
     do while (i .ge. 0)
-       if (.not. this%t(index)%valid) then
+       if (.not. this%t(index)%valid .and. &
+            .not. this%t(index)%skip) then
           rcode = 1
           return          
        else if ((this%t(index)%valid) .and. &
@@ -337,6 +340,7 @@ contains
        if ((this%t(index)%valid) .and. &
             htable_eq_key(this, index, key)) then
           this%t(index)%valid = .false.
+          this%t(index)%skip = .true.
           this%entries = this%entries - 1
           return
        end if
