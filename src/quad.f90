@@ -123,7 +123,7 @@ contains
     res%x = 0d0
 
     do i = 1, this%gdim()
-       res%x(i) = 0.25d0 * p1%x(i) + p2%x(i) + p3%x(i) + p4%x(i)
+       res%x(i) = 0.25d0 * (p1%x(i) + p2%x(i) + p3%x(i) + p4%x(i))
     end do
   end function quad_centroid
 
