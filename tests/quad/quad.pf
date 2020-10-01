@@ -40,3 +40,163 @@ subroutine test_quad_init
 
 end subroutine test_quad_init
 
+@test
+subroutine test_quad_centroid
+  use pfunit
+  use point
+  use quad
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: center(3) = (/0.5d0, 0.5d0, 0.0d0/)
+  type(quad_t) :: q
+  type(point_t) :: centroid
+  integer :: i, id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  p4 = point_t(c4)
+  id = 42
+  call q%init(id, p1, p2, p3, p4)
+
+  centroid =  q%centroid()
+  do i = 1, 3
+     @assertEqual(centroid%x(i), center(i))
+  end do
+
+end subroutine test_quad_centroid
+
+@test
+subroutine test_quad_diameter
+  use pfunit
+  use point
+  use quad
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: center(3) = (/0.5d0, 0.5d0, 0.0d0/)
+  type(quad_t) :: q
+  type(point_t) :: centroid
+  integer :: i, id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  p4 = point_t(c4)
+  id = 42
+  call q%init(id, p1, p2, p3, p4)
+
+  @assertEqual(q%diameter(), 1.414213562373095d0, tolerance=1d-14)
+  
+end subroutine test_quad_diameter
+
+@test
+subroutine test_quad_equal
+  use pfunit
+  use point
+  use quad
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: d1(3) = (/-1d0, -1d0, -1d0/)
+  real(kind=dp), parameter :: d2(3) = (/1d0, -1d0, -1d0/)
+  real(kind=dp), parameter :: d3(3) = (/-1d0, 1d0, -1d0/)
+  real(kind=dp), parameter :: d4(3) = (/1d0, 1d0, -1d0/)
+  type(quad_t) :: q1, q2, q3
+  integer :: i, id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  p4 = point_t(c4)
+  id = 42
+  call q1%init(id, p1, p2, p3, p4)
+
+  id = 43
+  call q2%init(id, p1, p2, p3, p4)
+
+  @assertTrue(q1 .eq. q2)
+  @assertFalse(q1%id() .eq. q2%id())
+
+  p5 = point_t(d1)
+  p6 = point_t(d2)
+  p7 = point_t(d3)
+  p8 = point_t(d4)
+  id = 44
+  call q3%init(id, p5, p6, p7, p8)
+  @assertFalse(q1 .eq. q3)
+
+  p5 = point_t(c1)
+  p6 = point_t(c2)
+  p7 = point_t(c3)
+  p8 = point_t(c4)
+  @assertTrue(q1 .eq. q3)
+  
+end subroutine test_quad_equal
+
+@test
+subroutine test_quad_facet_id
+  use pfunit
+  use point
+  use quad
+  use tuple
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  type(quad_t) :: q
+  integer :: i, id
+  type(tuple_i4_t) :: t
+
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 4
+  p3 = point_t(c3, id)
+  
+  id = 3
+  p4 = point_t(c4, id)
+
+  id = 42
+  call q%init(id, p1, p2, p3, p4)
+
+  call q%facet_id(t, 1)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p4%id())
+
+  call q%facet_id(t, 2)
+  @assertEqual(t%x(1), p2%id())
+  @assertEqual(t%x(2), p3%id())
+
+  call q%facet_id(t, 3)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p2%id())
+
+  call q%facet_id(t, 4)
+  @assertEqual(t%x(1), p4%id())
+  @assertEqual(t%x(2), p3%id())
+    
+end subroutine test_quad_facet_id
