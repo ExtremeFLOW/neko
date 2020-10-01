@@ -1,0 +1,399 @@
+@test
+subroutine test_hex_init
+  use pfunit
+  use point
+  use hex
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c5(3) = (/0d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c6(3) = (/1d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
+  type(hex_t) :: h
+  integer :: i, id
+
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 4
+  p3 = point_t(c3, id)
+  
+  id = 3
+  p4 = point_t(c4, id)
+
+  id = 5
+  p5 = point_t(c5, id)
+
+  id = 6
+  p6 = point_t(c6, id)
+
+  id = 8
+  p7 = point_t(c7, id)
+  
+  id = 7
+  p8 = point_t(c8, id)
+
+  id = 42
+  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+  @assertEqual(h%id(), id)
+  @assertEqual(h%gdim(), NEKO_HEX_GDIM)
+  @assertEqual(h%npts(), NEKO_HEX_NPTS)
+
+  @assertTrue(h%p(1) .eq. p1)
+  @assertTrue(h%p(2) .eq. p2)
+  @assertTrue(h%p(3) .eq. p3)
+  @assertTrue(h%p(4) .eq. p4)
+
+  @assertTrue(h%p(5) .eq. p5)
+  @assertTrue(h%p(6) .eq. p6)
+  @assertTrue(h%p(7) .eq. p7)
+  @assertTrue(h%p(8) .eq. p8)
+
+
+end subroutine test_hex_init
+
+@test
+subroutine test_hex_centroid
+  use pfunit
+  use point
+  use hex
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c5(3) = (/0d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c6(3) = (/1d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: center(3) = (/0.5d0, 0.5d0, 0.5d0/)
+  type(point_t) :: centroid
+  type(hex_t) :: h
+  integer :: i, id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  p4 = point_t(c4)
+  p5 = point_t(c5)
+  p6 = point_t(c6)
+  p7 = point_t(c7)
+  p8 = point_t(c8)
+
+  id = 42
+  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+
+  centroid = h%centroid()
+  do i = 1, 3
+     @assertEqual(centroid%x(i), center(i))
+  end do
+  
+end subroutine test_hex_centroid
+
+@test
+subroutine test_hex_diameter
+  use pfunit
+  use point
+  use hex
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c5(3) = (/0d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c6(3) = (/1d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
+  type(hex_t) :: h
+  integer :: id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  p4 = point_t(c4)
+  p5 = point_t(c5)
+  p6 = point_t(c6)
+  p7 = point_t(c7)
+  p8 = point_t(c8)
+
+  id = 42
+  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+  @assertEqual(h%diameter(), 1.414213562373095d0, tolerance=1d-14)
+  
+end subroutine test_hex_diameter
+
+@test
+subroutine test_hex_equal
+  use pfunit
+  use point
+  use hex
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  type(point_t) :: pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c5(3) = (/0d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c6(3) = (/1d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: d1(3) = (/-1d0, -1d0, -1d0/)
+  real(kind=dp), parameter :: d2(3) = (/1d0, -1d0, -1d0/)
+  real(kind=dp), parameter :: d3(3) = (/-1d0, 1d0, -1d0/)
+  real(kind=dp), parameter :: d4(3) = (/1d0, 1d0, -1d0/)
+  real(kind=dp), parameter :: d5(3) = (/-1d0, -1d0, 1d0/)
+  real(kind=dp), parameter :: d6(3) = (/1d0, -1d0, 1d0/)
+  real(kind=dp), parameter :: d7(3) = (/-1d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: d8(3) = (/1d0, 1d0, 1d0/)
+  type(hex_t) :: h1, h2, h3
+  integer :: id
+
+  p1 = point_t(c1, id)
+  p2 = point_t(c2, id)
+  p3 = point_t(c3, id)
+  p4 = point_t(c4, id)
+  p5 = point_t(c5, id)
+  p6 = point_t(c6, id)
+  p7 = point_t(c7, id)
+  p8 = point_t(c8, id)
+
+  id = 42
+  call h1%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+
+  id = 4711
+  call h2%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+
+  @assertTrue(h1 .eq. h2)
+  @assertFalse(h1%id() .eq. h2%id())
+
+  pp1 = point_t(d1, id)
+  pp2 = point_t(d2, id)
+  pp3 = point_t(d3, id)
+  pp4 = point_t(d4, id)
+  pp5 = point_t(d5, id)
+  pp6 = point_t(d6, id)
+  pp7 = point_t(d7, id)
+  pp8 = point_t(d8, id)
+
+  id = 42
+  call h3%init(id, pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8)
+  @assertFalse(h1 .eq. h3)
+
+  pp1 = point_t(c1, id)
+  pp2 = point_t(c2, id)
+  pp3 = point_t(c3, id)
+  pp4 = point_t(c4, id)
+  pp5 = point_t(c5, id)
+  pp6 = point_t(c6, id)
+  pp7 = point_t(c7, id)
+  pp8 = point_t(c8, id)
+ 
+  @assertTrue(h1 .eq. h3)
+  
+end subroutine test_hex_equal
+
+@test
+subroutine test_hex_facet_id
+  use pfunit
+  use point
+  use tuple
+  use hex
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c5(3) = (/0d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c6(3) = (/1d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
+  type(hex_t) :: h
+  type(tuple4_i4_t) :: t
+  integer :: id
+  
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 4
+  p3 = point_t(c3, id)
+  
+  id = 3
+  p4 = point_t(c4, id)
+
+  id = 5
+  p5 = point_t(c5, id)
+
+  id = 6
+  p6 = point_t(c6, id)
+
+  id = 8
+  p7 = point_t(c7, id)
+  
+  id = 7
+  p8 = point_t(c8, id)
+
+  id = 42
+  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+
+  call h%facet_id(t, 1)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p5%id())
+  @assertEqual(t%x(3), p8%id())
+  @assertEqual(t%x(4), p4%id())
+
+  call h%facet_id(t, 2)
+  @assertEqual(t%x(1), p2%id())
+  @assertEqual(t%x(2), p6%id())
+  @assertEqual(t%x(3), p7%id())
+  @assertEqual(t%x(4), p3%id())
+
+  call h%facet_id(t, 3)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p2%id())
+  @assertEqual(t%x(3), p6%id())
+  @assertEqual(t%x(4), p5%id())
+
+  call h%facet_id(t, 4)
+  @assertEqual(t%x(1), p4%id())
+  @assertEqual(t%x(2), p3%id())
+  @assertEqual(t%x(3), p7%id())
+  @assertEqual(t%x(4), p8%id())
+
+  call h%facet_id(t, 5)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p2%id())
+  @assertEqual(t%x(3), p3%id())
+  @assertEqual(t%x(4), p4%id())
+
+  call h%facet_id(t, 6)
+  @assertEqual(t%x(1), p5%id())
+  @assertEqual(t%x(2), p6%id())
+  @assertEqual(t%x(3), p7%id())
+  @assertEqual(t%x(4), p8%id())
+  
+  
+end subroutine test_hex_facet_id
+
+@test
+subroutine test_hex_edge_id
+  use pfunit
+  use point
+  use tuple
+  use hex
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c4(3) = (/1d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: c5(3) = (/0d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c6(3) = (/1d0, 0d0, 1d0/)
+  real(kind=dp), parameter :: c7(3) = (/0d0, 1d0, 1d0/)
+  real(kind=dp), parameter :: c8(3) = (/1d0, 1d0, 1d0/)
+  type(hex_t) :: h
+  type(tuple_i4_t) :: t
+  integer :: id
+  
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 4
+  p3 = point_t(c3, id)
+  
+  id = 3
+  p4 = point_t(c4, id)
+
+  id = 5
+  p5 = point_t(c5, id)
+
+  id = 6
+  p6 = point_t(c6, id)
+
+  id = 8
+  p7 = point_t(c7, id)
+  
+  id = 7
+  p8 = point_t(c8, id)
+
+  id = 42
+  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+
+  call h%edge_id(t, 1)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p2%id())
+
+  call h%edge_id(t, 2)
+  @assertEqual(t%x(1), p4%id())
+  @assertEqual(t%x(2), p3%id())
+
+  call h%edge_id(t, 3)
+  @assertEqual(t%x(1), p5%id())
+  @assertEqual(t%x(2), p6%id())
+  
+  call h%edge_id(t, 4)
+  @assertEqual(t%x(1), p8%id())
+  @assertEqual(t%x(2), p7%id())
+
+  call h%edge_id(t, 5)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p4%id())
+
+  call h%edge_id(t, 6)
+  @assertEqual(t%x(1), p2%id())
+  @assertEqual(t%x(2), p3%id())
+
+  call h%edge_id(t, 7)
+  @assertEqual(t%x(1), p5%id())
+  @assertEqual(t%x(2), p8%id())
+
+  call h%edge_id(t, 8)
+  @assertEqual(t%x(1), p6%id())
+  @assertEqual(t%x(2), p7%id())
+
+  call h%edge_id(t, 9)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p5%id())
+
+  call h%edge_id(t, 10)
+  @assertEqual(t%x(1), p2%id())
+  @assertEqual(t%x(2), p6%id())
+
+  call h%edge_id(t, 11)
+  @assertEqual(t%x(1), p4%id())
+  @assertEqual(t%x(2), p8%id())
+
+  call h%edge_id(t, 12)
+  @assertEqual(t%x(1), p3%id())
+  @assertEqual(t%x(2), p7%id())
+
+
+end subroutine test_hex_edge_id
