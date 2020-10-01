@@ -65,7 +65,7 @@ subroutine test_quad_centroid
   id = 42
   call q%init(id, p1, p2, p3, p4)
 
-  centroid =  q%centroid()
+  centroid = q%centroid()
   do i = 1, 3
      @assertEqual(centroid%x(i), center(i))
   end do
@@ -128,7 +128,7 @@ subroutine test_quad_equal
   id = 42
   call q1%init(id, p1, p2, p3, p4)
 
-  id = 43
+  id = 4711
   call q2%init(id, p1, p2, p3, p4)
 
   @assertTrue(q1 .eq. q2)
