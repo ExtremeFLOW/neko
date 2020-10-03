@@ -1,0 +1,391 @@
+@test
+subroutine test_htable_init_i4
+  use pfunit
+  use htable
+  use num_types
+  use point
+  use tuple
+  implicit none
+  type(htable_i4_t) :: h
+  integer :: data_i4
+  integer(kind=8) :: data_i8
+  real(kind=dp) :: data_r8
+  type(tuple_i4_t) :: data_ti4
+  type(tuple4_i4_t) :: data_t4i4
+  type(point_t) :: data_pt
+
+  call h%init(4, data_i4)
+  @assertEqual(h%num_entries(), 0)
+
+  call h%init(4, data_i8)
+  @assertEqual(h%num_entries(), 0)
+
+  call h%init(4, data_r8)
+  @assertEqual(h%num_entries(), 0)
+
+  call h%init(4, data_ti4)
+  @assertEqual(h%num_entries(), 0)
+
+  call h%init(4, data_t4i4)
+  @assertEqual(h%num_entries(), 0)
+
+  call h%init(4, data_pt)
+  @assertEqual(h%num_entries(), 0)
+  
+end subroutine test_htable_init_i4
+
+@test
+subroutine test_htable_add_i4
+  use pfunit
+  use htable
+  use num_types
+  use point
+  use tuple
+  implicit none
+  type(htable_i4_t) :: h1, h2, h3, h4, h5, h6
+  integer :: key, i
+  integer :: data_i4
+  integer(kind=8) :: data_i8
+  real(kind=dp) :: data_r8
+  type(tuple_i4_t) :: data_ti4
+  type(tuple4_i4_t) :: data_t4i4
+  type(point_t) :: data_pt
+
+  call h1%init(4, data=data_i4)
+  call h2%init(4, data=data_i8)
+  call h3%init(4, data=data_r8)
+  call h4%init(4, data=data_ti4)
+  call h5%init(4, data=data_t4i4)
+  call h6%init(4, data=data_pt)
+
+  do i = 1, 6
+     key = i
+     data_i4 = -i
+     data_i8 = int(-i, 8)
+     data_r8 = dble(-i)
+     data_ti4 = (/-i, i/)
+     data_t4i4 = (/-i, i, -i , i/)
+     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+
+     call h1%set(key, data_i4)
+     call h2%set(key, data_i8)
+     call h3%set(key, data_r8)
+     call h4%set(key, data_ti4)
+     call h5%set(key, data_t4i4)
+     call h6%set(key, data_pt)
+  end do
+
+  @assertEqual(h1%num_entries(), 6)
+  @assertEqual(h2%num_entries(), 6)
+  @assertEqual(h3%num_entries(), 6)
+  @assertEqual(h4%num_entries(), 6)
+  @assertEqual(h5%num_entries(), 6)
+  @assertEqual(h6%num_entries(), 6)
+
+  do i = 6, 8
+     key = i
+     data_i4 = -i
+     data_i8 = int(-i, 8)
+     data_r8 = dble(-i)
+     data_ti4 = (/-i, i/)
+     data_t4i4 = (/-i, i, -i , i/)
+     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+
+     call h1%set(key, data_i4)
+     call h2%set(key, data_i8)
+     call h3%set(key, data_r8)
+     call h4%set(key, data_ti4)
+     call h5%set(key, data_t4i4)
+     call h6%set(key, data_pt)
+  end do
+
+  @assertEqual(h1%num_entries(), 8)
+  @assertEqual(h2%num_entries(), 8)
+  @assertEqual(h3%num_entries(), 8)
+  @assertEqual(h4%num_entries(), 8)
+  @assertEqual(h5%num_entries(), 8)
+  @assertEqual(h6%num_entries(), 8)
+  
+end subroutine test_htable_add_i4
+
+@test
+subroutine test_htable_clear_i4
+  use pfunit
+  use htable
+  implicit none
+  type(htable_i4_t) :: h
+  integer :: key, data, i
+
+  call h%init(64)
+
+  do i = 1, 42
+     key = i
+     data = -i
+     call h%set(key, data)
+  end do
+  @assertEqual(h%num_entries(), 42)
+  call h%clear()
+  @assertEqual(h%num_entries(), 0)
+  
+end subroutine test_htable_clear_i4
+
+@test
+subroutine test_htable_free_i4
+  use pfunit
+  use htable
+  implicit none
+  type(htable_i4_t) :: h
+  integer :: key, data, i
+
+  call h%init(64)
+
+  do i = 1, 42
+     key = i
+     data = -i
+     call h%set(key, data)
+  end do
+  @assertEqual(h%num_entries(), 42)
+  call h%free()
+  @assertEqual(h%num_entries(), 0)
+  
+end subroutine test_htable_free_i4
+
+
+@test
+subroutine test_htable_get_i4
+  use pfunit
+  use htable
+  use num_types
+  use point
+  use tuple
+  implicit none
+  type(htable_i4_t) :: h1, h2, h3, h4, h5, h6
+  integer :: key, i
+  integer :: data_i4
+  integer(kind=8) :: data_i8
+  real(kind=dp) :: data_r8
+  type(tuple_i4_t) :: data_ti4, ti4
+  type(tuple4_i4_t) :: data_t4i4, t4i4
+  type(point_t) :: data_pt, pt
+
+  call h1%init(4, data=data_i4)
+  call h2%init(4, data=data_i8)
+  call h3%init(4, data=data_r8)
+  call h4%init(4, data=data_ti4)
+  call h5%init(4, data=data_t4i4)
+  call h6%init(4, data=data_pt)
+
+  do i = 1, 42
+     key = i
+     data_i4 = -i
+     data_i8 = int(-i, 8)
+     data_r8 = dble(-i)
+     data_ti4 = (/-i, i/)
+     data_t4i4 = (/-i, i, -i , i/)
+     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+
+     call h1%set(key, data_i4)
+     call h2%set(key, data_i8)
+     call h3%set(key, data_r8)
+     call h4%set(key, data_ti4)
+     call h5%set(key, data_t4i4)
+     call h6%set(key, data_pt)
+  end do
+
+  do i = 1, 42
+     key = i
+     @assertEqual(h1%get(key, data_i4), 0)
+     @assertEqual(h2%get(key, data_i8), 0)
+     @assertEqual(h3%get(key, data_r8), 0)
+     @assertEqual(h4%get(key, data_ti4), 0)
+     @assertEqual(h5%get(key, data_t4i4), 0)
+     @assertEqual(h6%get(key, data_pt), 0)
+
+     ti4 = (/-i, i/)
+     t4i4 = (/-i, i, -i, i/)
+     pt = point_t(dble(i), dble(-i), dble(i*i))
+     
+     @assertEqual(data_i4, -i)
+     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_r8, dble(-i))
+     @assertTrue(data_ti4 .eq. ti4)
+     @assertTrue(data_t4i4 .eq. t4i4)
+     @assertTrue(data_pt .eq. pt)
+  end do
+
+  do i = 42, 1, -1
+     key = i
+     @assertEqual(h1%get(key, data_i4), 0)
+     @assertEqual(h2%get(key, data_i8), 0)
+     @assertEqual(h3%get(key, data_r8), 0)
+     @assertEqual(h4%get(key, data_ti4), 0)
+     @assertEqual(h5%get(key, data_t4i4), 0)
+     @assertEqual(h6%get(key, data_pt), 0)
+
+     ti4 = (/-i, i/)
+     t4i4 = (/-i, i, -i, i/)
+     pt = point_t(dble(i), dble(-i), dble(i*i))
+     
+     @assertEqual(data_i4, -i)
+     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_r8, dble(-i))
+     @assertTrue(data_ti4 .eq. ti4)
+     @assertTrue(data_t4i4 .eq. t4i4)
+     @assertTrue(data_pt .eq. pt)
+  end do
+  
+  do i = 1, 42, 2
+     key = i
+     @assertEqual(h1%get(key, data_i4), 0)
+     @assertEqual(h2%get(key, data_i8), 0)
+     @assertEqual(h3%get(key, data_r8), 0)
+     @assertEqual(h4%get(key, data_ti4), 0)
+     @assertEqual(h5%get(key, data_t4i4), 0)
+     @assertEqual(h6%get(key, data_pt), 0)
+
+     ti4 = (/-i, i/)
+     t4i4 = (/-i, i, -i, i/)
+     pt = point_t(dble(i), dble(-i), dble(i*i))
+     
+     @assertEqual(data_i4, -i)
+     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_r8, dble(-i))
+     @assertTrue(data_ti4 .eq. ti4)
+     @assertTrue(data_t4i4 .eq. t4i4)
+     @assertTrue(data_pt .eq. pt)
+  end do
+  
+end subroutine test_htable_get_i4
+
+
+@test
+subroutine test_htable_remove_i4
+  use pfunit
+  use htable
+  use num_types
+  use point
+  use tuple
+  implicit none
+  type(htable_i4_t) :: h1, h2, h3, h4, h5, h6
+  integer :: key, i
+  integer :: data_i4
+  integer(kind=8) :: data_i8
+  real(kind=dp) :: data_r8
+  type(tuple_i4_t) :: data_ti4, ti4
+  type(tuple4_i4_t) :: data_t4i4, t4i4
+  type(point_t) :: data_pt, pt
+
+  call h1%init(4, data=data_i4)
+  call h2%init(4, data=data_i8)
+  call h3%init(4, data=data_r8)
+  call h4%init(4, data=data_ti4)
+  call h5%init(4, data=data_t4i4)
+  call h6%init(4, data=data_pt)
+
+  do i = 1, 42
+     key = i
+     data_i4 = -i
+     data_i8 = int(-i, 8)
+     data_r8 = dble(-i)
+     data_ti4 = (/-i, i/)
+     data_t4i4 = (/-i, i, -i , i/)
+     data_pt = point_t(dble(i), dble(-i), dble(i*i))
+
+     call h1%set(key, data_i4)
+     call h2%set(key, data_i8)
+     call h3%set(key, data_r8)
+     call h4%set(key, data_ti4)
+     call h5%set(key, data_t4i4)
+     call h6%set(key, data_pt)
+  end do
+
+  do i = 1, 42, 2
+     key = i
+     call h1%remove(key)
+     call h2%remove(key)
+     call h3%remove(key)
+     call h4%remove(key)
+     call h5%remove(key)
+     call h6%remove(key)
+  end do
+  @assertEqual(h1%num_entries(), 21)
+  @assertEqual(h2%num_entries(), 21)
+  @assertEqual(h3%num_entries(), 21)
+  @assertEqual(h4%num_entries(), 21)
+  @assertEqual(h5%num_entries(), 21)
+  @assertEqual(h6%num_entries(), 21)
+
+  do i = 2, 42, 2
+     key = i
+     @assertEqual(h1%get(key, data_i4), 0)
+     @assertEqual(h2%get(key, data_i8), 0)
+     @assertEqual(h3%get(key, data_r8), 0)
+     @assertEqual(h4%get(key, data_ti4), 0)
+     @assertEqual(h5%get(key, data_t4i4), 0)
+     @assertEqual(h6%get(key, data_pt), 0)
+
+     ti4 = (/-i, i/)
+     t4i4 = (/-i, i, -i, i/)
+     pt = point_t(dble(i), dble(-i), dble(i*i))
+     
+     @assertEqual(data_i4, -i)
+     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_r8, dble(-i))
+     @assertTrue(data_ti4 .eq. ti4)
+     @assertTrue(data_t4i4 .eq. t4i4)
+     @assertTrue(data_pt .eq. pt)
+  end do
+
+
+  do i = 1, 42, 2
+     key = i
+     @assertEqual(h1%get(key, data_i4), 1)
+     @assertEqual(h2%get(key, data_i8), 1)
+     @assertEqual(h3%get(key, data_r8), 1)
+     @assertEqual(h4%get(key, data_ti4), 1)
+     @assertEqual(h5%get(key, data_t4i4), 1)
+     @assertEqual(h6%get(key, data_pt), 1)
+  end do
+  
+end subroutine test_htable_remove_i4
+
+@test
+subroutine test_htable_iter_i4
+  use pfunit
+  use htable
+  use num_types
+  use point
+  use tuple
+  implicit none
+  type(htable_i4_t) :: h
+  type(htable_iter_i4_t) :: it
+  integer :: key, i, rcode
+  integer :: data_i4
+  integer, pointer :: kp, di4p
+
+  call h%init(4, data=data_i4)
+  
+  do i = 1, 42
+     key = i
+     data_i4 = -i
+     call h%set(key, data_i4)
+  end do
+
+  call it%init(h)
+  
+  i = 0
+  do while(it%next())
+     kp => it%key()
+     di4p=> it%value()     
+
+     data_i4 = -kp
+     @assertEqual(data_i4, di4p)
+
+     rcode = h%get(kp, data_i4)
+     @assertEqual(rcode, 0)
+     @assertEqual(data_i4, di4p)
+     if (rcode .eq. 0) i = i + 1
+  end do
+  @assertEqual(i, 42)
+  
+end subroutine test_htable_iter_i4
