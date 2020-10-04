@@ -213,6 +213,10 @@ contains
        end do
        deallocate(this%t)
     end if
+
+    this%size = 0
+    this%entries = 0
+    
   end subroutine htable_free
 
   !> Clear all entries in a hash table
