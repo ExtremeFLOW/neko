@@ -12,7 +12,9 @@ check: htable_test
 htable_test_TESTS := htable_i4.pf\
 		     htable_i8.pf\
 		     htable_r8.pf\
-		     htable_pt.pf
+		     htable_pt.pf\
+		     htable_i4t2.pf\
+		     htable_i4t4.pf
 htable_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
 $(eval $(call make_pfunit_test,htable_test))
 
