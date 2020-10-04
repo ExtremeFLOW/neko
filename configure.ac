@@ -75,7 +75,8 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/htable/Makefile\
 		 tests/uset/Makefile\
 		 tests/quad/Makefile\
-		 tests/hex/Makefile])
+		 tests/hex/Makefile\
+		 tests/math/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile
