@@ -910,7 +910,7 @@ contains
     class(*), pointer :: kp
     real(kind=dp), pointer :: key
 
-    kp => this%t%t(this%n)%data
+    kp => this%t%t(this%n)%key
     select type (kp)
     type is (double precision)
        key => kp
