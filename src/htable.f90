@@ -213,6 +213,10 @@ contains
        end do
        deallocate(this%t)
     end if
+
+    this%size = 0
+    this%entries = 0
+    
   end subroutine htable_free
 
   !> Clear all entries in a hash table
@@ -906,7 +910,7 @@ contains
     class(*), pointer :: kp
     real(kind=dp), pointer :: key
 
-    kp => this%t%t(this%n)%data
+    kp => this%t%t(this%n)%key
     select type (kp)
     type is (double precision)
        key => kp
