@@ -1,3 +1,4 @@
+USEMPI=YES
 include @PFUNIT_DIR@/include/PFUNIT.mk
 FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
 FC = @FC@
@@ -6,16 +7,16 @@ FC = @FC@
 	$(FC) -c $(FFLAGS) $<
 
 
-check: math_test
+check: math_suite
 
 
-math_test_TESTS := math.pf
-math_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
-$(eval $(call make_pfunit_test,math_test))
+math_suite_TESTS := math_parallel.pf
+math_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+$(eval $(call make_pfunit_test,math_suite))
 
 
 clean:
-	$(RM) *.o *.mod *.a  *.inc *.F90 math_test
+	$(RM) *.o *.mod *.a  *.inc *.F90 math_suite
 
 
 
