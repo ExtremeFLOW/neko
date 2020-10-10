@@ -205,7 +205,8 @@ contains
     call m%htp%free()
     call m%htf%free()
     call m%hte%free()
-
+    call distdata_free(m%distdata)
+    
     if (allocated(m%points)) then
        deallocate(m%points)
     end if
@@ -214,6 +215,7 @@ contains
        do i = 1, m%nelv
           deallocate(m%elements(i)%e)
        end do
+       deallocate(m%elements)
     end if
 
     if (allocated(m%facet_map)) then
@@ -236,7 +238,7 @@ contains
        end do
        deallocate(m%point_neigh)
     end if
-
+    
   end subroutine mesh_free
 
   !> Generate element-to-element connectivity
