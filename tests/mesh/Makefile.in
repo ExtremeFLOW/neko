@@ -1,0 +1,25 @@
+USEMPI=YES
+include @PFUNIT_DIR@/include/PFUNIT.mk
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: mesh_suite
+
+
+mesh_suite_TESTS := mesh_parallel.pf
+mesh_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+$(eval $(call make_pfunit_test,mesh_suite))
+
+
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 mesh_suite
+
+
+
+all:
+html:
+install:

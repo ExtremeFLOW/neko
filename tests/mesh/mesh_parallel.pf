@@ -1,0 +1,36 @@
+module mesh_parallel
+  use mpi
+  use pfunit
+  use mesh
+  use num_types
+  implicit none
+
+contains
+
+  @test(npes=[1,2])
+  subroutine test_mesh_init_nelv(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(mesh_t) :: m
+    integer :: ierr, gdim, nelv, expected
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+
+
+    do gdim = 2,2
+       nelv = 42
+
+       call mesh_init(m, gdim, nelv)
+       call mesh_init(m, gdim, nelv)
+
+       @assertEqual(m%nelv, nelv)
+       @assertEqual(m%gdim, gdim)
+    
+       expected = this%getNumProcesses() * nelv
+       @MPIassertEqual(expected, m%glb_nelv)
+
+       
+    end do
+
+  end subroutine test_mesh_init_nelv
+
+end module mesh_parallel

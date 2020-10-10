@@ -5,7 +5,8 @@ SUBDIRS = tuple\
 	  uset\
 	  quad\
 	  hex\
-	  math
+	  math\
+	  mesh
 TESTS = tuple/tuple_test\
 	stack/stack_test\
 	point/point_test\
@@ -13,4 +14,5 @@ TESTS = tuple/tuple_test\
 	uset/uset_test\
 	quad/quad_test\
 	hex/hex_test\
-	math/math_test
+	math/math_test\
+	mesh/mesh_test
