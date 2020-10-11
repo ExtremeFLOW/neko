@@ -6,6 +6,8 @@ module mesh_parallel
   use num_types
   use hex
   use quad
+  use point
+  use tuple
   implicit none
 
 contains
@@ -18,8 +20,7 @@ contains
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
 
-
-    do gdim = 2,3
+    do gdim = 2, 3
        nelv = 42
 
        call mesh_init(m, gdim, nelv)
@@ -31,7 +32,7 @@ contains
        else
           @assertEqual(NEKO_HEX_NPTS, m%npts)
        end if
-    
+
        expected = this%getNumProcesses() * nelv
        @MPIassertEqual(expected, m%glb_nelv)
     end do
@@ -50,20 +51,560 @@ contains
     dist = linear_dist_t(42, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    do gdim = 2,3
+    do gdim = 2, 3
        call mesh_init(m, gdim, dist)
 
-        @assertEqual(m%nelv, dist%num_local())
-        @assertEqual(m%gdim, gdim)
-        if (gdim .eq. 2) then
-           @assertEqual(NEKO_QUAD_NPTS, m%npts)
-        else
-           @assertEqual(NEKO_HEX_NPTS, m%npts)
-        end if
-    
-        @MPIassertEqual(dist%num_global(), m%glb_nelv)
-     end do
+       @assertEqual(m%nelv, dist%num_local())
+       @assertEqual(m%gdim, gdim)
+       if (gdim .eq. 2) then
+          @assertEqual(NEKO_QUAD_NPTS, m%npts)
+       else
+          @assertEqual(NEKO_HEX_NPTS, m%npts)
+       end if
+
+       @MPIassertEqual(dist%num_global(), m%glb_nelv)
+    end do
 
   end subroutine test_mesh_init_dist
+
+  @test(npes=[1,2])
+  subroutine test_mesh_add_element_quad(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(mesh_t) :: m
+    type(linear_dist_t) :: dist
+    type(point_t) :: p(6)
+    type(tuple_i4_t) :: t
+    integer :: ierr, i
+    integer, parameter :: gdim = 2
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+
+    call mesh_init(m, gdim, dist)
+    if (this%getNumProcesses() .eq. 1) then
+
+       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+
+       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4))
+
+       @assertEqual(6, m%htp%num_entries())
+
+       call m%elements(1)%e%facet_id(t, 1)
+       @assertEqual(t%x(1), p(1)%id())
+       @assertEqual(t%x(2), p(3)%id())
+
+       call m%elements(1)%e%facet_id(t, 2)
+       @assertEqual(t%x(1), p(2)%id())
+       @assertEqual(t%x(2), p(4)%id())
+
+       call m%elements(2)%e%facet_id(t, 1)
+       @assertEqual(t%x(1), p(2)%id())
+       @assertEqual(t%x(2), p(4)%id())
+
+       call m%elements(2)%e%facet_id(t, 2)
+       @assertEqual(t%x(1), p(5)%id())
+       @assertEqual(t%x(2), p(6)%id())
+
+    else   
+       if (this%getProcessRank() .eq. 0) then
+
+          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+
+          @assertEqual(4, m%htp%num_entries())
+
+          call m%elements(1)%e%facet_id(t, 1)
+          @assertEqual(t%x(1), p(1)%id())
+          @assertEqual(t%x(2), p(3)%id())
+
+          call m%elements(1)%e%facet_id(t, 2)
+          @assertEqual(t%x(1), p(2)%id())
+          @assertEqual(t%x(2), p(4)%id())
+
+       else
+
+          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4))
+
+          @assertEqual(4, m%htp%num_entries())
+
+          call m%elements(1)%e%facet_id(t, 1)
+          @assertEqual(t%x(1), p(2)%id())
+          @assertEqual(t%x(2), p(4)%id())
+
+          call m%elements(1)%e%facet_id(t, 2)
+          @assertEqual(t%x(1), p(5)%id())
+          @assertEqual(t%x(2), p(6)%id())
+
+       end if
+    end if
+
+  end subroutine test_mesh_add_element_quad
+
+  @test(npes=[1,2])
+  subroutine test_mesh_add_element_hex(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(mesh_t) :: m
+    type(linear_dist_t) :: dist
+    type(point_t) :: p(12)
+    type(tuple4_i4_t) :: t
+    integer :: ierr, i
+    integer, parameter :: gdim = 3
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+
+    call mesh_init(m, gdim, dist)
+    if (this%getNumProcesses() .eq. 1) then
+
+       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
+            p(7), p(8), p(9), p(10))
+
+
+       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4), &
+            p(8), p(11), p(12), p(9))
+
+       @assertEqual(12, m%htp%num_entries())
+
+       call m%elements(1)%e%facet_id(t, 1)
+       @assertEqual(t%x(1), p(1)%id())
+       @assertEqual(t%x(2), p(7)%id())
+       @assertEqual(t%x(3), p(10)%id())
+       @assertEqual(t%x(4), p(3)%id())
+
+       call m%elements(1)%e%facet_id(t, 2)
+       @assertEqual(t%x(1), p(2)%id())
+       @assertEqual(t%x(2), p(8)%id())
+       @assertEqual(t%x(3), p(9)%id())
+       @assertEqual(t%x(4), p(4)%id())
+
+       call m%elements(2)%e%facet_id(t, 1)
+       @assertEqual(t%x(1), p(2)%id())
+       @assertEqual(t%x(2), p(8)%id())
+       @assertEqual(t%x(3), p(9)%id())
+       @assertEqual(t%x(4), p(4)%id())
+
+       call m%elements(2)%e%facet_id(t, 2)
+       @assertEqual(t%x(1), p(5)%id())
+       @assertEqual(t%x(2), p(11)%id())
+       @assertEqual(t%x(3), p(12)%id())
+       @assertEqual(t%x(4), p(6)%id())
+
+    else   
+       if (this%getProcessRank() .eq. 0) then
+
+          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
+               p(7), p(8), p(9), p(10))
+
+          @assertEqual(8, m%htp%num_entries())
+
+          call m%elements(1)%e%facet_id(t, 1)
+          @assertEqual(t%x(1), p(1)%id())
+          @assertEqual(t%x(2), p(7)%id())
+          @assertEqual(t%x(3), p(10)%id())
+          @assertEqual(t%x(4), p(3)%id())
+
+          call m%elements(1)%e%facet_id(t, 2)
+          @assertEqual(t%x(1), p(2)%id())
+          @assertEqual(t%x(2), p(8)%id())
+          @assertEqual(t%x(3), p(9)%id())
+          @assertEqual(t%x(4), p(4)%id())
+
+       else
+
+          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4), &
+               p(8), p(11), p(12), p(9))
+
+          @assertEqual(8, m%htp%num_entries())
+
+          call m%elements(1)%e%facet_id(t, 1)
+          @assertEqual(t%x(1), p(2)%id())
+          @assertEqual(t%x(2), p(8)%id())
+          @assertEqual(t%x(3), p(9)%id())
+          @assertEqual(t%x(4), p(4)%id())
+
+          call m%elements(1)%e%facet_id(t, 2)
+          @assertEqual(t%x(1), p(5)%id())
+          @assertEqual(t%x(2), p(11)%id())
+          @assertEqual(t%x(3), p(12)%id())
+          @assertEqual(t%x(4), p(6)%id())          
+       end if
+    end if
+
+  end subroutine test_mesh_add_element_hex
+
+  @test(npes=[1,2])
+  subroutine test_mesh_quad_conn(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(mesh_t) :: m
+    type(linear_dist_t) :: dist
+    type(point_t) :: p(6)
+    type(tuple_i4_t) :: t
+    integer :: ierr, i, p_local_idx
+    integer, parameter :: gdim = 2
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+
+    call mesh_init(m, gdim, dist)
+    if (this%getNumProcesses() .eq. 1) then
+
+       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+
+       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4))
+
+       call mesh_generate_conn(m)
+
+       @assertEqual(7, m%hte%num_entries())
+
+
+       p_local_idx = mesh_get_local(m, m%points(p(1)%id()))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, m%points(p(3)%id()))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, m%points(p(6)%id()))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, m%points(p(5)%id()))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+
+       p_local_idx = mesh_get_local(m, m%points(p(4)%id()))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, m%points(p(2)%id()))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+       @assertEqual(0, m%facet_neigh(1, 1))
+       @assertEqual(2, m%facet_neigh(2, 1))
+       @assertEqual(0, m%facet_neigh(3, 1))
+       @assertEqual(0, m%facet_neigh(4, 1))
+       @assertEqual(1, m%facet_neigh(1, 2))
+       @assertEqual(0, m%facet_neigh(2, 2))
+       @assertEqual(0, m%facet_neigh(3, 2))
+       @assertEqual(0, m%facet_neigh(4, 2))
+
+    else   
+       if (this%getProcessRank() .eq. 0) then
+
+          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+
+          call mesh_generate_conn(m)
+
+          @assertEqual(4, m%hte%num_entries())
+          @MPIassertEqual(2, m%glb_nelv)
+       
+
+          p_local_idx = mesh_get_local(m, p(1))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(2))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(3))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(4))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+          @assertEqual(0, m%facet_neigh(1, 1))
+          @assertEqual(-2, m%facet_neigh(2, 1))
+          @assertEqual(0, m%facet_neigh(3, 1))
+          @assertEqual(0, m%facet_neigh(4, 1))
+       
+       else
+
+          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4))
+
+          call mesh_generate_conn(m)
+
+          @assertEqual(4, m%hte%num_entries())
+          @MPIassertEqual(2, m%glb_nelv)
+          
+          p_local_idx = mesh_get_local(m, p(2))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(5))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(6))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(4))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+          @assertEqual(-1, m%facet_neigh(1, 1))
+          @assertEqual(0, m%facet_neigh(2, 1))
+          @assertEqual(0, m%facet_neigh(3, 1))
+          @assertEqual(0, m%facet_neigh(4, 1))
+          
+       end if
+    end if
+
+  end subroutine test_mesh_quad_conn
+
+  @test(npes=[1,2])
+  subroutine test_mesh_hex_conn(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(mesh_t) :: m
+    type(linear_dist_t) :: dist
+    type(point_t) :: p(12)
+    type(tuple4_i4_t) :: t
+    integer :: ierr, i, p_local_idx
+    integer, parameter :: gdim = 3
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+
+    call mesh_init(m, gdim, dist)
+    if (this%getNumProcesses() .eq. 1) then
+
+       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
+            p(7), p(8), p(9), p(10))
+
+
+       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4), &
+            p(8), p(11), p(12), p(9))
+
+       call mesh_generate_conn(m)
+       @MPIassertEqual(2, m%glb_nelv)
+       @MPIassertEqual(11, m%glb_mfcs)
+       @MPIassertEqual(20, m%glb_meds)
+       
+       p_local_idx = mesh_get_local(m, p(1))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(2))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(3))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(4))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+       p_local_idx = mesh_get_local(m, p(7))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(8))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(9))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(10))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+
+       p_local_idx = mesh_get_local(m, p(2))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(5))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(6))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(4))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+       p_local_idx = mesh_get_local(m, p(8))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(11))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(12))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = mesh_get_local(m, p(9))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+       @assertEqual(11, m%htf%num_entries())
+
+       @assertEqual(0, m%facet_neigh(1, 1))
+       @assertEqual(2, m%facet_neigh(2, 1))
+       @assertEqual(0, m%facet_neigh(3, 1))
+       @assertEqual(0, m%facet_neigh(4, 1))
+       @assertEqual(0, m%facet_neigh(5, 1))
+       @assertEqual(0, m%facet_neigh(6, 1))
+
+       @assertEqual(1, m%facet_neigh(1, 2))
+       @assertEqual(0, m%facet_neigh(2, 2))
+       @assertEqual(0, m%facet_neigh(3, 2))
+       @assertEqual(0, m%facet_neigh(4, 2))
+       @assertEqual(0, m%facet_neigh(5, 2))
+       @assertEqual(0, m%facet_neigh(6, 2))
+
+       call m%elements(1)%e%facet_id(t, 1)
+       @assertFalse(mesh_is_shared(m, t))
+       call m%elements(1)%e%facet_id(t, 2)
+       @assertFalse(mesh_is_shared(m, t))
+       call m%elements(2)%e%facet_id(t, 1)
+       @assertFalse(mesh_is_shared(m, t))
+       call m%elements(2)%e%facet_id(t, 2)
+       @assertFalse(mesh_is_shared(m, t))
+       
+       
+    else   
+       if (this%getProcessRank() .eq. 0) then
+
+          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
+               p(7), p(8), p(9), p(10))
+
+          call mesh_generate_conn(m)
+
+          @assertEqual(6, m%htf%num_entries())
+          @MPIassertEqual(2, m%glb_nelv)
+          @MPIassertEqual(11, m%glb_mfcs)
+          @MPIassertEqual(20, m%glb_meds)
+          
+          p_local_idx = mesh_get_local(m, p(1))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(2))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(3))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(4))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+          p_local_idx = mesh_get_local(m, p(7))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(8))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(9))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(10))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+
+          @assertEqual(0, m%facet_neigh(1, 1))
+          @assertEqual(-2, m%facet_neigh(2, 1))
+          @assertEqual(0, m%facet_neigh(3, 1))
+          @assertEqual(0, m%facet_neigh(4, 1))
+          @assertEqual(0, m%facet_neigh(5, 1))
+          @assertEqual(0, m%facet_neigh(6, 1))
+
+          call m%elements(1)%e%facet_id(t, 1)
+          @assertFalse(mesh_is_shared(m, t))
+          call m%elements(1)%e%facet_id(t, 2)
+          @assertTrue(mesh_is_shared(m, t))
+
+       else
+
+          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4), &
+               p(8), p(11), p(12), p(9))
+
+          call mesh_generate_conn(m)
+
+          @assertEqual(6, m%htf%num_entries())
+          @MPIassertEqual(2, m%glb_nelv)
+          @MPIassertEqual(11, m%glb_mfcs)
+          @MPIassertEqual(20, m%glb_meds)
+                    
+          p_local_idx = mesh_get_local(m, p(2))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(5))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(6))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(4))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+          p_local_idx = mesh_get_local(m, p(8))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(11))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(12))
+          @assertEqual(1, m%point_neigh(p_local_idx)%size())
+          p_local_idx = mesh_get_local(m, p(9))
+          @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+          @assertEqual(-1, m%facet_neigh(1, 1))
+          @assertEqual(0, m%facet_neigh(2, 1))
+          @assertEqual(0, m%facet_neigh(3, 1))
+          @assertEqual(0, m%facet_neigh(4, 1))
+          @assertEqual(0, m%facet_neigh(5, 1))
+          @assertEqual(0, m%facet_neigh(6, 1))
+
+          call m%elements(1)%e%facet_id(t, 1)
+          @assertTrue(mesh_is_shared(m, t))
+          call m%elements(1)%e%facet_id(t, 2)
+          @assertFalse(mesh_is_shared(m, t))
+
+       end if
+    end if
+
+  end subroutine test_mesh_hex_conn
 
 end module mesh_parallel
