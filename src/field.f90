@@ -79,10 +79,7 @@ contains
     type(field_t), intent(in) :: g
     integer :: n
 
-    if (allocated(f%x) .and. &
-         (f%Xh%lx .ne. g%Xh%lx) .or. &
-         (f%Xh%ly .ne. g%Xh%ly) .or. &
-         (f%Xh%lz .ne. g%Xh%lz)) then
+    if (allocated(f%x) .and. (f%Xh .ne. g%Xh)) then
        call field_free(f)
     end if
     
