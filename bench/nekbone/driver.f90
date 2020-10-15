@@ -32,7 +32,7 @@ program nekobone
   call nmsh_file%read(msh)  
   call mesh_generate_conn(msh)
 
-  call space_init(Xh, 1, GLL, lx, lx, lx)
+  call space_init(Xh, GLL, lx, lx, lx)
 
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)

@@ -82,8 +82,7 @@ contains
     if (allocated(f%x) .and. &
          (f%Xh%lx .ne. g%Xh%lx) .or. &
          (f%Xh%ly .ne. g%Xh%ly) .or. &
-         (f%Xh%lz .ne. g%Xh%lz) .or. &
-         (f%Xh%ndim .ne. g%Xh%ndim)) then
+         (f%Xh%lz .ne. g%Xh%lz)) then
        call field_free(f)
     end if
     

@@ -11,8 +11,6 @@ module space
      integer :: lx              !< Polynomial dimension in x-direction
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
-
-     integer :: ndim            !< Number of components
      
      real(kind=dp), allocatable :: zg(:,:) !< Quadrature points
 
@@ -36,13 +34,12 @@ module space
 contains
 
   !> Initialize a function space @a s with given polynomial dimensions
-  subroutine space_init(s, d, t, lx, ly, lz)
+  subroutine space_init(s, t, lx, ly, lz)
     type(space_t), intent(inout) :: s
-    integer, intent(in) :: d    !< Dimension
     integer, intent(in) :: t    !< Quadrature type
-    integer, intent(in) :: lx    
-    integer, intent(in) :: ly
-    integer, intent(in) :: lz
+    integer, intent(in) :: lx   !< Polynomial dimension in x-direction
+    integer, intent(in) :: ly   !< Polynomial dimension in y-direction
+    integer, intent(in) :: lz   !< Polynomial dimension in z-direction
     integer ::ix, iy, iz
 
     call space_free(s)
@@ -50,7 +47,6 @@ contains
     s%lx = lx
     s%ly = ly
     s%lz = lz
-    s%ndim = d
 
     allocate(s%zg(lx, 3))
 

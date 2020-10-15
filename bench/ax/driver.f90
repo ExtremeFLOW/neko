@@ -31,7 +31,7 @@ program axbench
   nmsh_file = file_t(fname)
   call nmsh_file%read(msh)  
 
-  call space_init(Xh, 1, GLL, lx, lx, lx)
+  call space_init(Xh, GLL, lx, lx, lx)
   call field_init(w, msh, Xh, "w")
  
   allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
