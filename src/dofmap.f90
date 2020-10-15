@@ -343,7 +343,7 @@ contains
 
   end function dofmap_init
 
-
+  !> Deallocate the dofmap
   subroutine dofmap_free(this)
     type(dofmap_t), intent(inout) :: this
 
