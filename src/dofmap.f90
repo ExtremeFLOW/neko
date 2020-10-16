@@ -399,15 +399,76 @@ contains
   end subroutine dofmap_number_facets
 
   !> Generate x,y,z-coordinates for all dofs
+  !! @todo Add support for 2D quad elements
   subroutine dofmap_generate_xyz(this)
     type(dofmap_t), target :: this
     integer :: i,j,k,l
+    integer :: jx,ky,lz
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
+    real(kind=dp) :: H(3,3,2), xyzb(2,2,2,3)
 
     msh => this%msh
     Xh => this%Xh
+
+    do i = 1, Xh%lx
+       H(i, 1, 1) = 0.5d0 * dble(3 - i)
+       H(i, 1, 2) = 0.5d0 * dble(i - 1)
+    end do
+
+    do i = 1, Xh%ly
+       H(i, 2, 1) = 0.5d0 * dble(3 - i)
+       H(i, 2, 2) = 0.5d0 * dble(i - 1)
+    end do
+
+    do i = 1, Xh%lz
+       H(i, 3, 1) = 0.5d0 * dble(3 - i)
+       H(i, 3, 2) = 0.5d0 * dble(i - 1)
+    end do
+
+    this%x = 0d0
+    this%y = 0d0
+    this%z = 0d0
+
+    xyzb = 0d0
     
+    do i = 1, msh%nelv
+       do j = 1, msh%gdim
+          xyzb(1,1,1,j) = msh%elements(i)%e%pts(1)%p%x(j)
+          xyzb(2,1,1,j) = msh%elements(i)%e%pts(2)%p%x(j)
+          xyzb(1,2,1,j) = msh%elements(i)%e%pts(4)%p%x(j)
+          xyzb(2,2,1,j) = msh%elements(i)%e%pts(3)%p%x(j)
+
+          xyzb(1,1,2,j) = msh%elements(i)%e%pts(5)%p%x(j)
+          xyzb(2,1,2,j) = msh%elements(i)%e%pts(6)%p%x(j)
+          xyzb(1,2,2,j) = msh%elements(i)%e%pts(8)%p%x(j)
+          xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
+       end do
+
+       do lz = 1, msh%gdim - 1
+          do ky = 1, 2
+             do jx = 1, 2
+                do l = 1, Xh%lz
+                   do k = 1, Xh%ly
+                      do j = 1, Xh%lx
+                         this%x(j,k,l,i) = this%x(j,k,l,i) + &
+                              H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
+                              xyzb(jx,ky,lz,1)
+                         this%y(j,k,l,i) = this%y(j,k,l,i) + &
+                              H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
+                              xyzb(jx,ky,lz,2)
+                         this%z(j,k,l,i) = this%y(j,k,l,i) + &
+                              H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
+                              xyzb(jx,ky,lz,3)
+                      end do
+                   end do
+                end do
+             end do
+          end do
+       end do
+       
+    end do
+
   end subroutine dofmap_generate_xyz
 
   !> Deallocate the dofmap
