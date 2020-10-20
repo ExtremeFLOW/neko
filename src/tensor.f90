@@ -63,10 +63,10 @@ contains
     integer :: i, j
 
     do j = 1, n
-       do i = j+1, n
+       do i = j + 1, n
           tmp = a(i, j)
           a(i, j) = a(j, i)
-          a(j,i) = tmp
+          a(j, i) = tmp
        end do
     end do
     
