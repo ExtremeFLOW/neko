@@ -13,6 +13,7 @@ libneko_a_SOURCES = \
 	mxm_std.f90\
 	speclib.f90 \
 	math.f90\
+	tensor.f90\
 	space.f90\
 	dofmap.f90\
 	gather_scatter.f90\
