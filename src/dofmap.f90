@@ -68,6 +68,35 @@ contains
 
   end function dofmap_init
 
+  !> Deallocate the dofmap
+  subroutine dofmap_free(this)
+    type(dofmap_t), intent(inout) :: this
+
+    if (allocated(this%dof)) then
+       deallocate(this%dof)
+    end if
+
+    if (allocated(this%shared_dof)) then
+       deallocate(this%shared_dof)
+    end if
+
+    if (allocated(this%x)) then
+       deallocate(this%x)
+    end if
+
+    if (allocated(this%y)) then
+       deallocate(this%y)
+    end if
+
+    if (allocated(this%z)) then
+       deallocate(this%z)
+    end if
+
+    nullify(this%msh)
+    nullify(this%Xh)
+    
+  end subroutine dofmap_free
+
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
     type(dofmap_t), target :: this
@@ -406,22 +435,26 @@ contains
     integer :: jx,ky,lz
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
+    integer, parameter :: nx = 3
+    integer, parameter :: ny = 3
+    integer, parameter :: nz = 3
     real(kind=dp) :: H(3,3,2), xyzb(2,2,2,3)
+    
 
     msh => this%msh
     Xh => this%Xh
 
-    do i = 1, Xh%lx
+    do i = 1, nx
        H(i, 1, 1) = 0.5d0 * dble(3 - i)
        H(i, 1, 2) = 0.5d0 * dble(i - 1)
     end do
 
-    do i = 1, Xh%ly
+    do i = 1, ny
        H(i, 2, 1) = 0.5d0 * dble(3 - i)
        H(i, 2, 2) = 0.5d0 * dble(i - 1)
     end do
 
-    do i = 1, Xh%lz
+    do i = 1, nz
        H(i, 3, 1) = 0.5d0 * dble(3 - i)
        H(i, 3, 2) = 0.5d0 * dble(i - 1)
     end do
@@ -445,19 +478,19 @@ contains
           xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
        end do
 
-       do lz = 1, msh%gdim - 1
+       do lz = 1, 2
           do ky = 1, 2
              do jx = 1, 2
-                do l = 1, Xh%lz
-                   do k = 1, Xh%ly
-                      do j = 1, Xh%lx
+                do l = 1, nz
+                   do k = 1, ny
+                      do j = 1, nx
                          this%x(j,k,l,i) = this%x(j,k,l,i) + &
                               H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
                               xyzb(jx,ky,lz,1)
                          this%y(j,k,l,i) = this%y(j,k,l,i) + &
                               H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
                               xyzb(jx,ky,lz,2)
-                         this%z(j,k,l,i) = this%y(j,k,l,i) + &
+                         this%z(j,k,l,i) = this%z(j,k,l,i) + &
                               H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
                               xyzb(jx,ky,lz,3)
                       end do
@@ -471,33 +504,5 @@ contains
 
   end subroutine dofmap_generate_xyz
 
-  !> Deallocate the dofmap
-  subroutine dofmap_free(this)
-    type(dofmap_t), intent(inout) :: this
-
-    if (allocated(this%dof)) then
-       deallocate(this%dof)
-    end if
-
-    if (allocated(this%shared_dof)) then
-       deallocate(this%shared_dof)
-    end if
-
-    if (allocated(this%x)) then
-       deallocate(this%x)
-    end if
-
-    if (allocated(this%y)) then
-       deallocate(this%y)
-    end if
-
-    if (allocated(this%z)) then
-       deallocate(this%z)
-    end if
-
-    nullify(this%msh)
-    nullify(this%Xh)
-    
-  end subroutine dofmap_free
   
 end module dofmap
