@@ -1,0 +1,80 @@
+module dofmap_parallel
+  use mpi
+  use pfunit
+  use dofmap
+  use space
+  use mesh
+  use num_types
+  use hex
+  use point
+  use datadist
+  implicit none
+  
+contains
+
+  @test(npes=[1])
+  subroutine test_dofmap_genxyz(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr
+    integer, parameter :: gdim = 3
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call mesh_init(m, gdim, dist)
+
+    call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
+         p(7), p(8), p(9), p(10))
+
+    call mesh_add_element(m, 2, p(2), p(5), p(6), p(4), &
+         p(8), p(11), p(12), p(9))
+
+    Call space_init(Xh, GLL, 2, 2, 2)
+
+    d = dofmap_t(m, Xh)
+
+    @assertEqual(d%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
+    @assertEqual(d%x(2,1,1,1), p(2)%x(1), tolerance=1d-14)
+
+    @assertEqual(d%x(1,1,1,2), p(4)%x(1), tolerance=1d-14)
+    @assertEqual(d%x(2,1,1,2), p(5)%x(1), tolerance=1d-14)
+    
+  end subroutine test_dofmap_genxyz
+
+  
+end module dofmap_parallel
