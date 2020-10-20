@@ -11,8 +11,6 @@ module space
      integer :: lx              !< Polynomial dimension in x-direction
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
-
-     integer :: ndim            !< Number of components
      
      real(kind=dp), allocatable :: zg(:,:) !< Quadrature points
 
@@ -32,17 +30,24 @@ module space
 
      !> @todo Store gll points etc in the space
   end type space_t
+
+  interface operator(.eq.)
+     module procedure space_eq
+  end interface operator(.eq.)
+
+  interface operator(.ne.)
+     module procedure space_eq
+  end interface operator(.ne.)
   
 contains
 
   !> Initialize a function space @a s with given polynomial dimensions
-  subroutine space_init(s, d, t, lx, ly, lz)
+  subroutine space_init(s, t, lx, ly, lz)
     type(space_t), intent(inout) :: s
-    integer, intent(in) :: d    !< Dimension
     integer, intent(in) :: t    !< Quadrature type
-    integer, intent(in) :: lx    
-    integer, intent(in) :: ly
-    integer, intent(in) :: lz
+    integer, intent(in) :: lx   !< Polynomial dimension in x-direction
+    integer, intent(in) :: ly   !< Polynomial dimension in y-direction
+    integer, intent(in) :: lz   !< Polynomial dimension in z-direction
     integer ::ix, iy, iz
 
     call space_free(s)
@@ -50,7 +55,6 @@ contains
     s%lx = lx
     s%ly = ly
     s%lz = lz
-    s%ndim = d
 
     allocate(s%zg(lx, 3))
 
@@ -92,8 +96,9 @@ contains
     call dgll(s%dx, s%dxt, s%zg(1,1), lx, lx)
     call dgll(s%dy, s%dyt, s%zg(1,2), ly, ly)
     call dgll(s%dz, s%dzt, s%zg(1,3), lz, lz)
-   end subroutine space_init
-
+  end subroutine space_init
+   
+  !> Deallocate a space @a s
   subroutine space_free(s)
     type(space_t), intent(inout) :: s
     
@@ -142,6 +147,40 @@ contains
     end if
 
   end subroutine space_free
+
+  !> Check if \f$ X_h = Y_H \f$
+  !! @note this only checks the polynomial dimensions
+  pure function space_eq(Xh, Yh) result(res)
+    type(space_t), intent(in) :: Xh
+    type(space_t), intent(in) :: Yh
+    logical :: res
+
+    if ( (Xh%lx .eq. Xh%lx) .and. &
+         (Xh%ly .eq. Xh%ly) .and. &
+         (Xh%lz .eq. Xh%lz) ) then
+       res = .true.
+    else
+       res = .false.
+    end if
+    
+  end function space_eq
+
+  !> Check if \f$ X_h \ne Y_H \f$
+  !! @note this only checks the polynomial dimensions
+  pure function space_ne(Xh, Yh) result(res)
+    type(space_t), intent(in) :: Xh
+    type(space_t), intent(in) :: Yh
+    logical :: res
+
+    if ( (Xh%lx .eq. Xh%lx) .and. &
+         (Xh%ly .eq. Xh%ly) .and. &
+         (Xh%lz .eq. Xh%lz) ) then
+       res = .false.
+    else
+       res = .true.
+    end if
+    
+  end function space_ne
 
 
 end module space

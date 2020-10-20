@@ -4,12 +4,20 @@ module dofmap
   use mesh
   use space
   use tuple
+  use num_types
+  use utils
+  use fast3d
+  use tensor
+  use math
   implicit none
   private
 
   type, public :: dofmap_t
      integer(kind=8), allocatable :: dof(:,:,:,:) !< Mapping to unique dof
      logical, allocatable :: shared_dof(:,:,:,:)  !< True if the dof is shared
+     real(kind=dp), allocatable :: x(:,:,:,:)     !< Mapping to x-coordinates
+     real(kind=dp), allocatable :: y(:,:,:,:)     !< Mapping to y-coordinates
+     real(kind=dp), allocatable :: z(:,:,:,:)     !< Mapping to z-coordinates
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
    contains
@@ -26,20 +34,16 @@ contains
     type(mesh_t), target, intent(inout) :: msh !< Mesh
     type(space_t), target, intent(in) :: Xh !< Function space \f$ X_h \f$
     type(dofmap_t) :: this
-    type(tuple_i4_t) :: edge
-    type(tuple4_i4_t) :: face
-    integer :: i,j,k,l
-    integer(kind=8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
-    integer(kind=8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)
-    integer :: global_id
-    integer(kind=8) :: edge_id, edge_offset, facet_offset, facet_id
-    logical :: shared_dof
-    
+
     call dofmap_free(this)
 
     this%msh => msh
     this%Xh => Xh
         
+    !
+    ! Assign a unique id for all dofs
+    ! 
+    
     allocate(this%dof(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     allocate(this%shared_dof(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
 
@@ -47,8 +51,65 @@ contains
     this%shared_dof = .false.
 
     !> @todo implement for 2d elements
+    if (msh%gdim .eq. 3) then
+       call dofmap_number_points(this)
+       call dofmap_number_edges(this)
+       call dofmap_number_facets(this)
+    else
+       call neko_error('Dofmap not implemented for 2D (yet...)')
+    end if
 
-    ! Assign numbers to each dofs on points
+    !
+    ! Generate x,y,z-coordinates for all dofs
+    !
+    
+    allocate(this%x(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
+    allocate(this%y(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
+    allocate(this%z(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
+
+    call dofmap_generate_xyz(this)
+
+  end function dofmap_init
+
+  !> Deallocate the dofmap
+  subroutine dofmap_free(this)
+    type(dofmap_t), intent(inout) :: this
+
+    if (allocated(this%dof)) then
+       deallocate(this%dof)
+    end if
+
+    if (allocated(this%shared_dof)) then
+       deallocate(this%shared_dof)
+    end if
+
+    if (allocated(this%x)) then
+       deallocate(this%x)
+    end if
+
+    if (allocated(this%y)) then
+       deallocate(this%y)
+    end if
+
+    if (allocated(this%z)) then
+       deallocate(this%z)
+    end if
+
+    nullify(this%msh)
+    nullify(this%Xh)
+    
+  end subroutine dofmap_free
+
+  !> Assign numbers to each dofs on points
+  subroutine dofmap_number_points(this)
+    type(dofmap_t), target :: this
+    integer :: i,j,k,l
+    type(mesh_t), pointer :: msh
+    type(space_t), pointer :: Xh
+
+    msh => this%msh
+    Xh => this%Xh
+
     do i = 1, msh%nelv
        this%dof(1, 1, 1, i) = &
             int(msh%elements(i)%e%pts(1)%p%id(), 8)
@@ -93,11 +154,23 @@ contains
             mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
        
     end do
-    
-    !
-    ! Assign numbers to dofs on edges
-    !
+  end subroutine dofmap_number_points
 
+  !> Assing numbers to dofs on edges
+  subroutine dofmap_number_edges(this)
+    type(dofmap_t), target :: this
+    type(mesh_t), pointer :: msh
+    type(space_t), pointer :: Xh
+    integer :: i,j,k,l
+    integer :: global_id        
+    type(tuple_i4_t) :: edge
+    integer(kind=8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
+    integer(kind=8) :: edge_id, edge_offset
+    logical :: shared_dof
+        
+    msh => this%msh
+    Xh => this%Xh
+    
     ! Number of dofs on an edge excluding end-points
     num_dofs_edges(1) =  int(Xh%lx - 2, 8)
     num_dofs_edges(2) =  int(Xh%ly - 2, 8)
@@ -243,8 +316,22 @@ contains
        end select
        
     end do
+  end subroutine dofmap_number_edges
 
-    ! Assign numbers to dofs on facets
+  !> Assign numbers to dofs on facets
+  subroutine dofmap_number_facets(this)
+    type(dofmap_t), target :: this
+    type(mesh_t), pointer :: msh
+    type(space_t), pointer :: Xh    
+    integer :: i,j,k,l
+    integer :: global_id
+    type(tuple4_i4_t) :: face        
+    integer(kind=8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)        
+    integer(kind=8) :: facet_offset, facet_id
+    logical :: shared_dof        
+
+    msh => this%msh
+    Xh => this%Xh
 
     !> @todo don't assume lx = ly = lz
     facet_offset = int(msh%glb_mpts, 8) + &
@@ -341,23 +428,62 @@ contains
        end do
     end do
 
-  end function dofmap_init
+  end subroutine dofmap_number_facets
 
-
-  subroutine dofmap_free(this)
-    type(dofmap_t), intent(inout) :: this
-
-    if (allocated(this%dof)) then
-       deallocate(this%dof)
-    end if
-
-    if (allocated(this%shared_dof)) then
-       deallocate(this%shared_dof)
-    end if
-
-    nullify(this%msh)
-    nullify(this%Xh)
+  !> Generate x,y,z-coordinates for all dofs
+  !! @todo Add support for 2D quad elements
+  subroutine dofmap_generate_xyz(this)
+    type(dofmap_t), target :: this
+    integer :: i,j,k,l
+    type(mesh_t), pointer :: msh
+    type(space_t), pointer :: Xh
+    real(kind=dp) :: xyzb(2,2,2,3), zgml(this%Xh%lx, 3)
+    real(kind=dp) :: jx(this%Xh%lx*2), jy(this%Xh%lx*2), jz(this%Xh%lx*2)
+    real(kind=dp) :: jxt(this%Xh%lx*2), jyt(this%Xh%lx*2), jzt(this%Xh%lx*2)
+    real(kind=dp) :: w(4*this%Xh%lx*this%Xh%ly*this%Xh%lz)
+    real(kind=dp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
     
-  end subroutine dofmap_free
+
+    msh => this%msh
+    Xh => this%Xh
+
+    xyzb = 0d0
+    l = 1    
+    do i = 1, msh%nelv       
+       
+       call copy(zgml(1,1), Xh%zg(1,1), Xh%lx)                               
+       call copy(zgml(1,2), Xh%zg(1,2), Xh%ly)                              
+       call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
+
+       k = 1
+       do j = 1, Xh%lx
+          call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
+          call fd_weights_full(zgml(j,2),zlin,1,0,jyt(k))
+          call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
+          k = k + 2
+       end do
+       call trsp(jx, Xh%lx, jxt, 2)
+
+       
+       do j = 1, msh%gdim
+          xyzb(1,1,1,j) = msh%elements(i)%e%pts(1)%p%x(j)
+          xyzb(2,1,1,j) = msh%elements(i)%e%pts(2)%p%x(j)
+          xyzb(1,2,1,j) = msh%elements(i)%e%pts(4)%p%x(j)
+          xyzb(2,2,1,j) = msh%elements(i)%e%pts(3)%p%x(j)
+
+          xyzb(1,1,2,j) = msh%elements(i)%e%pts(5)%p%x(j)
+          xyzb(2,1,2,j) = msh%elements(i)%e%pts(6)%p%x(j)
+          xyzb(1,2,2,j) = msh%elements(i)%e%pts(8)%p%x(j)
+          xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
+       end do
+
+       call tensr3(this%x(1,1,1,i), Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
+       call tensr3(this%y(1,1,1,i), Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
+       call tensr3(this%z(1,1,1,i), Xh%lz, xyzb(1,1,1,3), 2, jx, jyt, jzt, w)
+       l = l + Xh%lx*Xh%ly*Xh%lz       
+    end do
+
+  end subroutine dofmap_generate_xyz
+
   
 end module dofmap
