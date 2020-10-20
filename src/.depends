@@ -11,6 +11,7 @@ mxm_wrapper.o : mxm_wrapper.f90 num_types.o
 mxm_std.o : mxm_std.f90 num_types.o 
 speclib.o : speclib.f90 utils.o 
 math.o : math.f90 comm.o num_types.o 
+fast3d.o : fast3d.f90 num_types.o 
 tensor.o : tensor.f90 mxm_wrapper.o num_types.o 
 space.o : space.f90 utils.o speclib.o num_types.o 
 dofmap.o : dofmap.f90 utils.o num_types.o tuple.o space.o mesh.o 
