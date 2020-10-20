@@ -18,8 +18,8 @@ contains
     real(kind=dp), intent(inout) :: A(nv, nu)
     real(kind=dp), intent(inout) :: Bt(nu, nv)
     real(kind=dp), intent(inout) :: Ct(nu, nv)
-    integer, intent(inout) :: nv
-    integer, intent(inout) :: nu
+    integer :: nv
+    integer :: nu
     integer :: j, k, l, nunu, nvnv, nunv
     
     nunu = nu**2

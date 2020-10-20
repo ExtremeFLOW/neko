@@ -6,6 +6,9 @@ module dofmap
   use tuple
   use num_types
   use utils
+  use fast3d
+  use tensor
+  use math
   implicit none
   private
 
@@ -432,40 +435,36 @@ contains
   subroutine dofmap_generate_xyz(this)
     type(dofmap_t), target :: this
     integer :: i,j,k,l
-    integer :: jx,ky,lz
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
-    integer, parameter :: nx = 3
-    integer, parameter :: ny = 3
-    integer, parameter :: nz = 3
-    real(kind=dp) :: H(3,3,2), xyzb(2,2,2,3)
+    real(kind=dp) :: xyzb(2,2,2,3), zgml(this%Xh%lx, 3)
+    real(kind=dp) :: jx(this%Xh%lx*2), jy(this%Xh%lx*2), jz(this%Xh%lx*2)
+    real(kind=dp) :: jxt(this%Xh%lx*2), jyt(this%Xh%lx*2), jzt(this%Xh%lx*2)
+    real(kind=dp) :: w(4*this%Xh%lx*this%Xh%ly*this%Xh%lz)
+    real(kind=dp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
     
 
     msh => this%msh
     Xh => this%Xh
 
-    do i = 1, nx
-       H(i, 1, 1) = 0.5d0 * dble(3 - i)
-       H(i, 1, 2) = 0.5d0 * dble(i - 1)
-    end do
-
-    do i = 1, ny
-       H(i, 2, 1) = 0.5d0 * dble(3 - i)
-       H(i, 2, 2) = 0.5d0 * dble(i - 1)
-    end do
-
-    do i = 1, nz
-       H(i, 3, 1) = 0.5d0 * dble(3 - i)
-       H(i, 3, 2) = 0.5d0 * dble(i - 1)
-    end do
-
-    this%x = 0d0
-    this%y = 0d0
-    this%z = 0d0
-
     xyzb = 0d0
-    
-    do i = 1, msh%nelv
+    l = 1    
+    do i = 1, msh%nelv       
+       
+       call copy(zgml(1,1), Xh%zg(1,1), Xh%lx)                               
+       call copy(zgml(1,2), Xh%zg(1,2), Xh%ly)                              
+       call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
+
+       k = 1
+       do j = 1, Xh%lx
+          call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
+          call fd_weights_full(zgml(j,2),zlin,1,0,jyt(k))
+          call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
+          k = k + 2
+       end do
+       call trsp(jx, Xh%lx, jxt, 2)
+
+       
        do j = 1, msh%gdim
           xyzb(1,1,1,j) = msh%elements(i)%e%pts(1)%p%x(j)
           xyzb(2,1,1,j) = msh%elements(i)%e%pts(2)%p%x(j)
@@ -478,28 +477,10 @@ contains
           xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
        end do
 
-       do lz = 1, 2
-          do ky = 1, 2
-             do jx = 1, 2
-                do l = 1, nz
-                   do k = 1, ny
-                      do j = 1, nx
-                         this%x(j,k,l,i) = this%x(j,k,l,i) + &
-                              H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
-                              xyzb(jx,ky,lz,1)
-                         this%y(j,k,l,i) = this%y(j,k,l,i) + &
-                              H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
-                              xyzb(jx,ky,lz,2)
-                         this%z(j,k,l,i) = this%z(j,k,l,i) + &
-                              H(j,1,jx) * H(k,2,ky) * H(l,3,lz) * &
-                              xyzb(jx,ky,lz,3)
-                      end do
-                   end do
-                end do
-             end do
-          end do
-       end do
-       
+       call tensr3(this%x(1,1,1,i), Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
+       call tensr3(this%y(1,1,1,i), Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
+       call tensr3(this%z(1,1,1,i), Xh%lz, xyzb(1,1,1,3), 2, jx, jyt, jzt, w)
+       l = l + Xh%lx*Xh%ly*Xh%lz       
     end do
 
   end subroutine dofmap_generate_xyz

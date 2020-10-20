@@ -14,7 +14,7 @@ math.o : math.f90 comm.o num_types.o
 fast3d.o : fast3d.f90 num_types.o 
 tensor.o : tensor.f90 mxm_wrapper.o num_types.o 
 space.o : space.f90 utils.o speclib.o num_types.o 
-dofmap.o : dofmap.f90 utils.o num_types.o tuple.o space.o mesh.o 
+dofmap.o : dofmap.f90 math.o tensor.o fast3d.o utils.o num_types.o tuple.o space.o mesh.o 
 gather_scatter.o : gather_scatter.f90 utils.o stack.o htable.o num_types.o field.o dofmap.o mesh.o 
 entity.o : entity.f90 
 point.o : point.f90 entity.o math.o num_types.o 
