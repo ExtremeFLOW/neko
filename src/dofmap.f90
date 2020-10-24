@@ -35,6 +35,12 @@ contains
     type(space_t), target, intent(inout) :: Xh !< Function space \f$ X_h \f$
     type(dofmap_t) :: this
 
+    if ((msh%gdim .eq. 3 .and. Xh%lz .eq. 1) .or. &
+         (msh%gdim .eq. 2 .and. Xh%lz .gt. 1)) then
+       call neko_error("Invalid dimension of function space for the given mesh")
+    end if
+
+
     call dofmap_free(this)
 
     this%msh => msh
