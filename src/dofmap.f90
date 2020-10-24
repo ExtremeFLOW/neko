@@ -32,7 +32,7 @@ contains
 
   function dofmap_init(msh, Xh) result(this)
     type(mesh_t), target, intent(inout) :: msh !< Mesh
-    type(space_t), target, intent(in) :: Xh !< Function space \f$ X_h \f$
+    type(space_t), target, intent(inout) :: Xh !< Function space \f$ X_h \f$
     type(dofmap_t) :: this
 
     call dofmap_free(this)
@@ -56,7 +56,7 @@ contains
        call dofmap_number_edges(this)
        call dofmap_number_facets(this)
     else
-       call neko_error('Dofmap not implemented for 2D (yet...)')
+       call neko_warning('Dofmap not implemented for 2D (yet...)')
     end if
 
     !
@@ -67,7 +67,11 @@ contains
     allocate(this%y(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     allocate(this%z(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
 
-    call dofmap_generate_xyz(this)
+    this%x = 0d0
+    this%y = 0d0
+    this%z = 0d0
+
+    call dofmap_generate_xyz(this)    
 
   end function dofmap_init
 
@@ -431,58 +435,70 @@ contains
   end subroutine dofmap_number_facets
 
   !> Generate x,y,z-coordinates for all dofs
-  !! @todo Add support for 2D quad elements
+  !! @note Assumes \f$ X_h_x = X_h_y = X_h_z \f$
   subroutine dofmap_generate_xyz(this)
     type(dofmap_t), target :: this
-    integer :: i,j,k,l
+    integer :: i,j,k
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
     real(kind=dp) :: xyzb(2,2,2,3), zgml(this%Xh%lx, 3)
     real(kind=dp) :: jx(this%Xh%lx*2), jy(this%Xh%lx*2), jz(this%Xh%lx*2)
     real(kind=dp) :: jxt(this%Xh%lx*2), jyt(this%Xh%lx*2), jzt(this%Xh%lx*2)
-    real(kind=dp) :: w(4*this%Xh%lx*this%Xh%ly*this%Xh%lz)
+    real(kind=dp) :: w(4*this%Xh%lx**3), tmp(this%Xh%lx, this%Xh%lx, this%Xh%lx)
     real(kind=dp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
     
 
     msh => this%msh
     Xh => this%Xh
-
+    zgml = 0d0
     xyzb = 0d0
-    l = 1    
     do i = 1, msh%nelv       
-       
+
+       w = 0d0
        call copy(zgml(1,1), Xh%zg(1,1), Xh%lx)                               
-       call copy(zgml(1,2), Xh%zg(1,2), Xh%ly)                              
-       call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
+       call copy(zgml(1,2), Xh%zg(1,2), Xh%ly)
+       if (msh%gdim .gt. 2) then
+          call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
+       end if
 
        k = 1
        do j = 1, Xh%lx
           call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
           call fd_weights_full(zgml(j,2),zlin,1,0,jyt(k))
-          call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
+          if (msh%gdim .gt. 2) then
+             call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
+          end if
           k = k + 2
        end do
        call trsp(jx, Xh%lx, jxt, 2)
 
-       
+       if (msh%gdim .eq. 2) then
+          jzt = 1d0
+       end if
+
        do j = 1, msh%gdim
           xyzb(1,1,1,j) = msh%elements(i)%e%pts(1)%p%x(j)
           xyzb(2,1,1,j) = msh%elements(i)%e%pts(2)%p%x(j)
           xyzb(1,2,1,j) = msh%elements(i)%e%pts(4)%p%x(j)
           xyzb(2,2,1,j) = msh%elements(i)%e%pts(3)%p%x(j)
 
-          xyzb(1,1,2,j) = msh%elements(i)%e%pts(5)%p%x(j)
-          xyzb(2,1,2,j) = msh%elements(i)%e%pts(6)%p%x(j)
-          xyzb(1,2,2,j) = msh%elements(i)%e%pts(8)%p%x(j)
-          xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
+          if (msh%gdim .gt. 2) then
+             xyzb(1,1,2,j) = msh%elements(i)%e%pts(5)%p%x(j)
+             xyzb(2,1,2,j) = msh%elements(i)%e%pts(6)%p%x(j)
+             xyzb(1,2,2,j) = msh%elements(i)%e%pts(8)%p%x(j)
+             xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
+          end if
        end do
 
-       call tensr3(this%x(1,1,1,i), Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
-       call tensr3(this%y(1,1,1,i), Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
-       call tensr3(this%z(1,1,1,i), Xh%lz, xyzb(1,1,1,3), 2, jx, jyt, jzt, w)
-       l = l + Xh%lx*Xh%ly*Xh%lz       
+       call tensr3(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
+       call copy(this%x(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
+       call tensr3(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
+       call copy(this%y(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
+       if (msh%gdim .gt. 2) then
+          call tensr3(tmp, Xh%lz, xyzb(1,1,1,3), 2, jx, jyt, jzt, w)
+          call copy(this%z(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
+       end if
     end do
-
   end subroutine dofmap_generate_xyz
 
   
