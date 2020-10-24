@@ -44,58 +44,82 @@ contains
   !> Initialize a function space @a s with given polynomial dimensions
   subroutine space_init(s, t, lx, ly, lz)
     type(space_t), intent(inout) :: s
-    integer, intent(in) :: t    !< Quadrature type
-    integer, intent(in) :: lx   !< Polynomial dimension in x-direction
-    integer, intent(in) :: ly   !< Polynomial dimension in y-direction
-    integer, intent(in) :: lz   !< Polynomial dimension in z-direction
-    integer ::ix, iy, iz
+    integer, intent(in) :: t            !< Quadrature type
+    integer, intent(in) :: lx           !< Polynomial dimension in x-direction
+    integer, intent(in) :: ly           !< Polynomial dimension in y-direction
+    integer, optional, intent(in) :: lz !< Polynomial dimension in z-direction
+    integer :: ix, iy, iz
 
     call space_free(s)
 
     s%lx = lx
     s%ly = ly
-    s%lz = lz
+    if (present(lz)) then
+       s%lz = lz
+       if (lx .ne. ly .or. lx .ne. lz) then
+          call neko_error("Unsupported polynomial dimension")
+       end if
+    else
+       if (lx .ne. ly) then
+          call neko_error("Unsupported polynomial dimension")
+       end if
+       s%lz = 1
+    end if
 
     allocate(s%zg(lx, 3))
 
-    allocate(s%wx(lx))
-    allocate(s%wy(ly))
-    allocate(s%wz(lz))
+    allocate(s%wx(s%lx))
+    allocate(s%wy(s%ly))
+    allocate(s%wz(s%lz))
 
-    allocate(s%w3(lx, ly, lz))
+    allocate(s%w3(s%lx, s%ly, s%lz))
 
-    allocate(s%dx(lx, lx))
-    allocate(s%dy(ly, ly))
-    allocate(s%dz(lz, lz))
+    allocate(s%dx(s%lx, s%lx))
+    allocate(s%dy(s%ly, s%ly))
+    allocate(s%dz(s%lz, s%lz))
 
-    allocate(s%dxt(lx, lx))
-    allocate(s%dyt(ly, ly))
-    allocate(s%dzt(lz, lz))
+    allocate(s%dxt(s%lx, s%lx))
+    allocate(s%dyt(s%ly, s%ly))
+    allocate(s%dzt(s%lz, s%lz))
     
-    !>@todo add 2d case
     if (t .eq. GLL) then
-       call zwgll(s%zg(1,1), s%wx, lx)
-       call zwgll(s%zg(1,2), s%wy, ly)
-       call zwgll(s%zg(1,3), s%wz, lz)
+       call zwgll(s%zg(1,1), s%wx, s%lx)
+       call zwgll(s%zg(1,2), s%wy, s%ly)
+       if (s%lz .gt. 1) then
+          call zwgll(s%zg(1,3), s%wz, s%lz)
+       else
+          s%zg(:,3) = 0d0
+          s%wz = 1d0
+       end if
     else if (t .eq. GL) then
-       call zwgl(s%zg(1,1), s%wx, lx)
-       call zwgl(s%zg(1,2), s%wy, ly)
-       call zwgl(s%zg(1,3), s%wz, lz)
+       call zwgl(s%zg(1,1), s%wx, s%lx)
+       call zwgl(s%zg(1,2), s%wy, s%ly)
+       if (s%lz .gt. 1) then
+          call zwgl(s%zg(1,3), s%wz, s%lz)
+       else
+          s%zg(:,3) = 0d0
+          s%wz = 1d0
+       end if
     else
        call neko_error("Invalid quadrature rule")
     end if
 
-    do iz = 1, lz
-       do iy = 1, ly
-          do ix = 1, lx
+    do iz = 1, s%lz
+       do iy = 1, s%ly
+          do ix = 1, s%lx
              s%w3(ix, iy, iz) = s%wx(ix) * s%wy(iy) * s%wz(iz)
           end do
        end do
     end do
 
-    call dgll(s%dx, s%dxt, s%zg(1,1), lx, lx)
-    call dgll(s%dy, s%dyt, s%zg(1,2), ly, ly)
-    call dgll(s%dz, s%dzt, s%zg(1,3), lz, lz)
+    call dgll(s%dx, s%dxt, s%zg(1,1), s%lx, s%lx)
+    call dgll(s%dy, s%dyt, s%zg(1,2), s%ly, s%ly)
+    if (s%lz .gt. 1) then
+       call dgll(s%dz, s%dzt, s%zg(1,3), s%lz, s%lz)
+    else
+       s%dz = 0d0
+       s%dzt = 0d0
+    end if
   end subroutine space_init
    
   !> Deallocate a space @a s
