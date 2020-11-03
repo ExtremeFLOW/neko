@@ -1,0 +1,30 @@
+@test
+subroutine test_krylov_init
+  use pfunit
+  use krylov
+  implicit none
+  type(ksp_t) :: ksp
+  integer :: i
+
+  call krylov_init(ksp, 17, 42)
+
+  @assertEqual(size(ksp%v), 17)
+  do i = 1, 17
+     @assertEqual(size(ksp%v(i)%x), 42)
+  end do
+
+end subroutine test_krylov_init
+
+@test
+subroutine test_krylov_free
+  use pfunit
+  use krylov
+  implicit none
+  type(ksp_t) :: ksp
+  integer :: i
+
+  call krylov_init(ksp, 17, 42)
+  call krylov_free(ksp)
+  @assertFalse(allocated(ksp%v))
+  
+end subroutine test_krylov_free

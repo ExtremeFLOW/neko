@@ -1,0 +1,24 @@
+include @PFUNIT_DIR@/include/PFUNIT.mk
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: krylov_test
+
+
+krylov_test_TESTS := krylov.pf
+krylov_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+$(eval $(call make_pfunit_test,krylov_test))
+
+
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 krylov_test
+
+
+
+all:
+html:
+install:
