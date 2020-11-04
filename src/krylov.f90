@@ -16,7 +16,7 @@ module krylov
 
   !> Defines a canonical Krylov solver
   type :: ksp_t
-     procedure(ksp_method), nopass, pointer :: solve
+     procedure(ksp_method), nopass, pointer :: solve => ksp_nop
      procedure(ksp_ax), nopass, pointer :: Ax
      type(pc_t) :: M
      type(ksp_vector_t), allocatable :: v(:)
