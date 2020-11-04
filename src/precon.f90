@@ -6,7 +6,7 @@ module precon
   
   !> Defines a canonical Krylov preconditioner
   type :: pc_t
-     procedure(pc_solve), nopass, pointer :: solve
+     procedure(pc_solve), nopass, pointer :: solve => pc_ident
   end type pc_t
 
   !> Abstract interface for solving \f$ M z = r \f$
@@ -25,7 +25,7 @@ module precon
 
 contains
 
-  !> The naive preconditioner \f$ I z = r \f$
+  !> The (default) naive preconditioner \f$ I z = r \f$
   subroutine pc_ident(z, r, n)
     real(kind=dp), dimension(n), intent(inout) :: z
     real(kind=dp), dimension(n), intent(inout) :: r
