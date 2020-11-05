@@ -9,34 +9,33 @@ module krylov
   use utils
   implicit none
 
-  !> Defines a scratch vectorfor a Krylov solver
-  type, private :: ksp_vector_t
-     real(kind=dp), allocatable :: x(:)
-  end type ksp_vector_t
-
-  !> Defines a canonical Krylov solver
-  type :: ksp_t
-     procedure(ksp_method), nopass, pointer :: solve => ksp_nop
-     procedure(ksp_ax), nopass, pointer :: Ax
-     type(pc_t) :: M
-     type(ksp_vector_t), allocatable :: v(:)
+  !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
+  type, abstract :: ksp_t
+     type(pc_t) :: M            !< Preconditioner
+     procedure(ksp_ax), nopass, pointer :: Ax     
+   contains
+     procedure, pass(this) :: ksp => krylov_init
+     procedure, pass(this) :: ksp_free => krylov_free
+     procedure(ksp_method), pass(this), deferred :: solve
   end type ksp_t
   
-  !> Abstract interface for a Krylov method, solving \f$ Ax = f \f$
+  !> Abstract interface for a Krylov method's solve routine
   !!
   !! @param x field to solve for
   !! @param f right hand side 
   !! @param n integer, size of vectors
-  !! @param iter iterations necessary to solve system
+  !! @param niter iteartion trip count
   abstract interface
-     subroutine ksp_method(x, f, n, iter)
-       import field_t
+     subroutine ksp_method(this, x, f, n, niter)
+       import :: field_t
+       import :: ksp_t
        import dp
        implicit none
-       type(field_t) :: x
+       class(ksp_t), intent(inout) :: this
+       type(field_t), intent(inout) :: x
        real(kind=dp), dimension(n), intent(inout) :: f
        integer, intent(inout) :: n
-       integer, intent(in) :: iter
+       integer, intent(in) :: niter
      end subroutine ksp_method
   end interface
 
@@ -69,51 +68,18 @@ module krylov
 contains
 
   !> Create a krylov solver with @a nvec of size @a n
-  subroutine krylov_init(this, nvec, n)    
-    type(ksp_t), intent(inout) :: this
-    integer, intent(in) :: nvec !< Number of scratch vectors
-    integer, intent(in) :: n    !< Size of each scratch vectors
+  subroutine krylov_init(this)    
+    class(ksp_t), intent(inout) :: this
     integer :: i
     
     call krylov_free(this)
 
-    allocate(this%v(nvec))
-    
-    do i = 1, nvec
-       allocate(this%v(i)%x(n))
-       this%v(i)%x = 0d0
-    end do
-    
   end subroutine krylov_init
   
   !> Deallocate a Krylov solver
   subroutine krylov_free(this)
-    type(ksp_t), intent(inout) :: this
-    integer :: i
+    class(ksp_t), intent(inout) :: this
 
-    if (allocated(this%v)) then
-       do i = 1, size(this%v)
-          if (allocated(this%v(i)%x)) then
-             deallocate(this%v(i)%x)
-          end if
-       end do
-       deallocate(this%v)
-    end if
-
-    this%solve => ksp_nop
-    
   end subroutine krylov_free
-
-
-  !> Dummy no-op krylov method
-  subroutine ksp_nop(x, f, n, iter)
-    type(field_t) :: x
-    real(kind=dp), dimension(n), intent(inout) :: f
-    integer, intent(inout) :: n
-    integer, intent(in) :: iter
-
-    call neko_error('No Krylov method defined')
-    
-  end subroutine ksp_nop
   
 end module krylov
