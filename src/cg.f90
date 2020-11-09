@@ -21,13 +21,23 @@ module cg
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this)
+  subroutine cg_init(this, rel_tol, abs_tol)
     class(cg_t), intent(inout) :: this
+    real(kind=dp), optional, intent(inout) :: rel_tol
+    real(kind=dp), optional, intent(inout) :: abs_tol
 
     call this%free()
-    
-    call this%ksp()
-       
+
+    if (present(rel_tol) .and. present(abs_tol)) then
+       call this%ksp_init(rel_tol, abs_tol)
+    else if (present(rel_tol)) then
+       call this%ksp_init(rel_tol=rel_tol)
+    else if (present(abs_tol)) then
+       call this%ksp_init(abs_tol=abs_tol)
+    else
+       call this%ksp_init()
+    end if
+          
   end subroutine cg_init
 
   !> Deallocate a standard PCG solver
@@ -59,7 +69,7 @@ contains
   end subroutine cg_free
   
   !> Standard PCG solve
-  subroutine cg_solve(this, Ax, x, f, n, niter)
+  function cg_solve(this, Ax, x, f, n, niter) result(iter)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
@@ -69,7 +79,8 @@ contains
     integer :: iter, max_iter
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=dp) :: beta, pap, alpha, alphm, eps
-
+    type(gs_t) :: dummy
+    
     if (present(niter)) then
        max_iter = niter
     else
@@ -81,7 +92,7 @@ contains
     !> @todo add masking call
 
     rnorm = sqrt(glsc3(this%r, this%c, this%r, n))
-    do iter = 1, niter
+    do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
 
        rtz2 = rtz1
@@ -104,7 +115,7 @@ contains
        rnorm = sqrt(rtr)       
     end do
     
-  end subroutine cg_solve
+  end function cg_solve
 
 end module cg
   
