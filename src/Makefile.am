@@ -21,6 +21,10 @@ libneko_a_SOURCES = \
 	entity.f90\
 	point.f90\
 	element.f90\
+	ax.f90\
+	precon.f90\
+	krylov.f90\
+	cg.f90\
 	quad.f90\
 	hex.f90\
 	htable.f90\

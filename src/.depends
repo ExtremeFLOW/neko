@@ -19,6 +19,10 @@ gather_scatter.o : gather_scatter.f90 utils.o stack.o htable.o num_types.o field
 entity.o : entity.f90 
 point.o : point.f90 entity.o math.o num_types.o 
 element.o : element.f90 point.o tuple.o entity.o num_types.o 
+ax.o : ax.f90 num_types.o mesh.o field.o space.o gather_scatter.o 
+precon.o : precon.f90 utils.o math.o 
+krylov.o : krylov.f90 utils.o field.o mesh.o precon.o num_types.o ax.o 
+cg.o : cg.f90 num_types.o math.o krylov.o 
 quad.o : quad.f90 point.o tuple.o element.o num_types.o 
 hex.o : hex.f90 point.o tuple.o element.o num_types.o 
 htable.o : htable.f90 math.o tuple.o point.o utils.o num_types.o 
