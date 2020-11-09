@@ -59,24 +59,29 @@ contains
   end subroutine cg_free
   
   !> Standard PCG solve
-  subroutine cg_solve(this, x, f, n, niter)
+  subroutine cg_solve(this, Ax, x, f, n, niter)
     class(cg_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
     real(kind=dp), dimension(n), intent(inout) :: f
     integer, intent(inout) :: n
-    integer, intent(in) :: niter
-    integer :: iter
-        
+    integer, optional, intent(in) :: niter
+    integer :: iter, max_iter
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=dp) :: beta, pap, alpha, alphm, eps
 
-
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = KSP_MAX_ITER
+    end if
+    
     call rzero(x%x, n)
     call copy(this%r, f, n)
     !> @todo add masking call
 
     rnorm = sqrt(glsc3(this%r, this%c, this%r, n))
-    do iter = 1, 100
+    do iter = 1, niter
        call this%M%solve(this%z, this%r, n)
 
        rtz2 = rtz1
@@ -86,7 +91,7 @@ contains
        if (iter .eq. 1) beta = 0d0
        call add2s1(this%p, this%z, beta, n)
 
-!       call this%Ax(this%w, this%z, 
+       !       call this%Ax(this%w, this%z, 
        pap = glsc3(this%w, this%c, this%p, n)
 
        alpha = rtz1 / pap
