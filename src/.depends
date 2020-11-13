@@ -31,7 +31,7 @@ stack.o : stack.f90 math.o utils.o tuple.o num_types.o
 tuple.o : tuple.f90 num_types.o math.o 
 mesh.o : mesh.f90 distdata.o datadist.o tuple.o stack.o comm.o htable.o utils.o quad.o hex.o element.o point.o num_types.o 
 mesh_field.o : mesh_field.f90 mesh.o num_types.o 
-field.o : field.f90 space.o mesh.o math.o num_types.o 
+field.o : field.f90 dofmap.o space.o mesh.o math.o num_types.o 
 rea.o : rea.f90 mesh.o num_types.o 
 generic_file.o : generic_file.f90 num_types.o 
 map_file.o : map_file.f90 map.o comm.o utils.o generic_file.o 
