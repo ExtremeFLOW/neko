@@ -5,17 +5,24 @@ module field
   use math
   use mesh
   use space
+  use dofmap
   implicit none
   
   type field_t
-     !> @todo Is x really a good name for a field?
-     real(kind=dp), allocatable :: x(:,:,:,:)
+     real(kind=dp), allocatable :: x(:,:,:,:) !< Field data
      
-     type(space_t), pointer :: Xh !< Function space \f$ X_h \f$
-     type(mesh_t), pointer :: msh !< Mesh
-     character(len=80) :: name
+     type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
+     type(mesh_t), pointer :: msh   !< Mesh
+     type(dofmap_t), pointer :: dof !< Dofmap
+
+     logical :: internal_dofmap = .false. !< Does the field have an own dofmap
+     character(len=80) :: name            !< Name of the field
   end type field_t
 
+  interface field_init
+     module procedure field_init_external_dof, field_init_internal_dof
+  end interface field_init
+  
   interface assignment(=)
      module procedure field_assign_field, field_assign_scalar
   end interface assignment(=)
@@ -26,19 +33,58 @@ module field
 
 contains
 
-  !> Initialize a field @a f on the mesh @a msh
-  subroutine field_init(f, msh, space, fld_name)
+  !> Initialize a field @a f on the mesh @a msh using an internal dofmap
+  subroutine field_init_internal_dof(f, msh, space, fld_name)
     type(field_t), intent(inout) :: f       !< Field to be initialized
     type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
     character(len=*), optional :: fld_name     !< Name of the field
-    integer :: ierr
-    integer :: lx, ly, lz, nelv
 
     call field_free(f)
 
     f%Xh => space
     f%msh => msh
+
+    allocate(f%dof)
+    f%dof = dofmap_t(f%msh, f%Xh)
+    f%internal_dofmap = .true.
+    
+    if (present(fld_name)) then
+       call field_init_common(f, fld_name)
+    else
+       call field_init_common(f)
+    end if
+    
+  end subroutine field_init_internal_dof
+
+  !> Initialize a field @a f on the mesh @a msh using an internal dofmap
+  subroutine field_init_external_dof(f, msh, space, dof, fld_name)
+    type(field_t), intent(inout) :: f       !< Field to be initialized
+    type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
+    type(space_t), target, intent(in) :: space !< Function space for the field
+    type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
+    character(len=*), optional :: fld_name     !< Name of the field
+
+    call field_free(f)
+
+    f%Xh => space
+    f%msh => msh
+    f%dof => dof
+
+    if (present(fld_name)) then
+       call field_init_common(f, fld_name)
+    else
+       call field_init_common(f)
+    end if
+    
+  end subroutine field_init_external_dof
+
+  !> Initialize a field @a f 
+  subroutine field_init_common(f, fld_name)
+    type(field_t), intent(inout) :: f       !< Field to be initialized
+    character(len=*), optional :: fld_name  !< Name of the field
+    integer :: ierr
+    integer :: lx, ly, lz, nelv
 
     lx = f%Xh%lx
     ly = f%Xh%ly
@@ -56,7 +102,7 @@ contains
        f%name = "Field"
     end if
     
-  end subroutine field_init
+  end subroutine field_init_common
 
   !> Deallocate a field @a f
   subroutine field_free(f)
@@ -66,8 +112,14 @@ contains
        deallocate(f%x)
     end if
 
+    if (f%internal_dofmap) then
+       deallocate(f%dof)
+       f%internal_dofmap = .false.
+    end if
+    
     nullify(f%msh)
     nullify(f%Xh)
+    nullify(f%dof)
 
   end subroutine field_free
 
@@ -85,6 +137,7 @@ contains
     
     f%Xh =>g%Xh
     f%msh => g%msh
+    f%dof => g%dof
     
     
     f%Xh%lx = g%Xh%lx
