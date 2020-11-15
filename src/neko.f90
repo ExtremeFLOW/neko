@@ -29,6 +29,7 @@ module neko
   use re2_file
   use map_file
   use vtk_file
+  use fld_file
   use nmsh_file
   use file
   use field

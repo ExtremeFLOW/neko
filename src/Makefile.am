@@ -39,6 +39,7 @@ libneko_a_SOURCES = \
 	map_file.f90\
 	re2_file.f90\
 	rea_file.f90\
+	fld_file.f90\
 	vtk_file.f90\
 	nmsh_file.f90\
 	file.f90\

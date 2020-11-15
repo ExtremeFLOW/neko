@@ -5,6 +5,7 @@ module file
   use map_file
   use rea_file
   use re2_file
+  use fld_file
   use vtk_file
   implicit none
   
@@ -45,7 +46,9 @@ contains
     else if (suffix .eq. "vtk") then
        allocate(vtk_file_t::this%file_type)
     else if (suffix .eq. "nmsh") then
-       allocate(nmsh_file_t::this%file_type)       
+       allocate(nmsh_file_t::this%file_type)
+    else if (suffix .eq. "fld") then
+       allocate(fld_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
