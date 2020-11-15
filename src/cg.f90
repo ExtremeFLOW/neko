@@ -86,7 +86,8 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
-    
+
+    rtz1 = 1d0
     call rzero(x%x, n)
     call copy(this%r, f, n)
     !> @todo add masking call

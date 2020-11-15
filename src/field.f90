@@ -58,17 +58,15 @@ contains
   end subroutine field_init_internal_dof
 
   !> Initialize a field @a f on the mesh @a msh using an internal dofmap
-  subroutine field_init_external_dof(f, msh, space, dof, fld_name)
+  subroutine field_init_external_dof(f, dof, fld_name)
     type(field_t), intent(inout) :: f       !< Field to be initialized
-    type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
-    type(space_t), target, intent(in) :: space !< Function space for the field
     type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
     character(len=*), optional :: fld_name     !< Name of the field
 
     call field_free(f)
 
-    f%Xh => space
-    f%msh => msh
+    f%Xh => dof%Xh
+    f%msh => dof%msh
     f%dof => dof
 
     if (present(fld_name)) then
