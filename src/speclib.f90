@@ -86,6 +86,7 @@
 !
 !==============================================================================
 module speclib
+  use num_types
   use utils
 
 
@@ -102,7 +103,7 @@ contains
 !     operations are done in double precision.
 !
 !--------------------------------------------------------------------
-      REAL*8 Z(1),W(1), ALPHA, BETA
+      REAL(KIND=DP) Z(1),W(1), ALPHA, BETA
       ALPHA = 0.
       BETA  = 0.
       CALL ZWGJ (Z,W,NP,ALPHA,BETA)
@@ -119,7 +120,7 @@ contains
 !     operations are done in double precision.
 !
 !--------------------------------------------------------------------
-      REAL*8 Z(1),W(1), ALPHA, BETA
+      REAL(KIND=DP) Z(1),W(1), ALPHA, BETA
       ALPHA = 0.
       BETA  = 0.
       CALL ZWGLJ (Z,W,NP,ALPHA,BETA)
@@ -137,8 +138,8 @@ contains
 !--------------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
-      REAL*8  ZD(NZD),WD(NZD),ALPHAD,BETAD
-      REAL*8 Z(1),W(1),ALPHA,BETA
+      REAL(KIND=DP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
+      REAL(KIND=DP) Z(1),W(1),ALPHA,BETA
 
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
@@ -166,8 +167,8 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  Z(1),W(1),ALPHA,BETA
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  Z(1),W(1),ALPHA,BETA
 
       N     = NP-1
       DN    = ((N))
@@ -220,8 +221,8 @@ contains
 !--------------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
-      REAL*8  ZD(NZD),WD(NZD),ALPHAD,BETAD
-      REAL*8 Z(1),W(1),ALPHA,BETA
+      REAL(KIND=DP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
+      REAL(KIND=DP) Z(1),W(1),ALPHA,BETA
 
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
@@ -249,8 +250,8 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  Z(NP),W(NP),ALPHA,BETA
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  Z(NP),W(NP),ALPHA,BETA
 
       N     = NP-1
       NM1   = N-1
@@ -285,9 +286,9 @@ contains
 !      RETURN
       END SUBROUTINE
 
-      REAL*8  FUNCTION ENDW1 (N,ALPHA,BETA)
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  ALPHA,BETA
+      REAL(KIND=DP)  FUNCTION ENDW1 (N,ALPHA,BETA)
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  ALPHA,BETA
       ZERO  = 0.
       ONE   = 1.
       TWO   = 2.
@@ -329,9 +330,9 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8  FUNCTION ENDW2 (N,ALPHA,BETA)
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  ALPHA,BETA
+      REAL(KIND=DP)  FUNCTION ENDW2 (N,ALPHA,BETA)
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  ALPHA,BETA
       ZERO  = 0.
       ONE   = 1.
       TWO   = 2.
@@ -373,9 +374,9 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8  FUNCTION GAMMAF (X)
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  X
+      REAL(KIND=DP)  FUNCTION GAMMAF (X)
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  X
       ZERO = 0.0
       HALF = 0.5
       ONE  = 1.0
@@ -397,9 +398,9 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8  FUNCTION PNORMJ (N,ALPHA,BETA)
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  ALPHA,BETA
+      REAL(KIND=DP)  FUNCTION PNORMJ (N,ALPHA,BETA)
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  ALPHA,BETA
       ONE   = 1.
       TWO   = 2.
       DN    = ((N))
@@ -434,8 +435,8 @@ contains
 !     ALPHA = BETA = -0.5  ->  Chebyshev points
 !
 !--------------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  XJAC(1)
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  XJAC(1)
       DATA KSTOP /10/
       DATA EPS/1.0e-12/
       N   = NP-1
@@ -488,7 +489,7 @@ contains
 !     of degree N at X.
 !
 !--------------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
       APB  = ALP+BET
       POLY = 1.
       PDER = 0.
@@ -521,7 +522,7 @@ contains
       RETURN
       END SUBROUTINE
 
-      REAL*8 FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
+      REAL(KIND=DP) FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJ through
@@ -531,8 +532,8 @@ contains
 !---------------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
-      REAL*8  ZD,ZGJD(NZD),ALPHAD,BETAD
-      REAL*8  Z,ZGJ(1),ALPHA,BETA
+      REAL(KIND=DP)  ZD,ZGJD(NZD),ALPHAD,BETAD
+      REAL(KIND=DP)  Z,ZGJ(1),ALPHA,BETA
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
          WRITE (6,*) 'Too large polynomial degree in HGJ'
@@ -550,7 +551,7 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8  FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
+      REAL(KIND=DP)  FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJD through
@@ -558,8 +559,8 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  Z,ZGJ(1),ALPHA,BETA
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  Z,ZGJ(1),ALPHA,BETA
       EPS = 1.e-5
       ONE = 1.
       ZI  = ZGJ(II)
@@ -574,7 +575,7 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8 FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
+      REAL(KIND=DP) FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJ through
@@ -584,8 +585,8 @@ contains
 !---------------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZD = NMAX)
-      REAL*8  ZD,ZGLJD(NZD),ALPHAD,BETAD
-      REAL*8  Z,ZGLJ(1),ALPHA,BETA
+      REAL(KIND=DP)  ZD,ZGLJD(NZD),ALPHAD,BETAD
+      REAL(KIND=DP)  Z,ZGLJ(1),ALPHA,BETA
       NPMAX = NZD
       IF (NP.GT.NPMAX) THEN
          WRITE (6,*) 'Too large polynomial degree in HGLJ'
@@ -603,7 +604,7 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8  FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
+      REAL(KIND=DP)  FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJD through
@@ -611,8 +612,8 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  Z,ZGLJ(1),ALPHA,BETA
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  Z,ZGLJ(1),ALPHA,BETA
       EPS = 1.e-5
       ONE = 1.
       ZI  = ZGLJ(I)
@@ -643,8 +644,8 @@ contains
 !-----------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZDD = NMAX)
-      REAL*8  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-      REAL*8 D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+      REAL(KIND=DP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
+      REAL(KIND=DP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
       IF (NZ.LE.0) THEN
          WRITE (6,*) 'DGJ: Minimum number of Gauss points is 1'
@@ -685,8 +686,8 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
       N    = NZ-1
       DN   = ((N))
       ONE  = 1.
@@ -726,8 +727,8 @@ contains
 !-----------------------------------------------------------------
       PARAMETER (NMAX=84)
       PARAMETER (NZDD = NMAX)
-      REAL*8  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-      REAL*8 D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+      REAL(KIND=DP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
+      REAL(KIND=DP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
       IF (NZ.LE.1) THEN
        WRITE (6,*) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
@@ -768,8 +769,8 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
       N    = NZ-1
       DN   = ((N))
       ONE  = 1.
@@ -815,7 +816,7 @@ contains
 !
 !-----------------------------------------------------------------
       PARAMETER (NMAX=84)
-      REAL*8 D(NZD,NZD),DT(NZD,NZD),Z(1)
+      REAL(KIND=DP) D(NZD,NZD),DT(NZD,NZD),Z(1)
       N  = NZ-1
       IF (NZ .GT. NMAX) THEN
          WRITE (6,*) 'Subroutine DGLL'
@@ -841,14 +842,14 @@ contains
       RETURN
       END SUBROUTINE
 
-      REAL*8 FUNCTION HGLL (I,Z,ZGLL,NZ)
+      REAL(KIND=DP) FUNCTION HGLL (I,Z,ZGLL,NZ)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant L through
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
-      REAL*8 ZGLL(1), EPS, DZ, Z
+      REAL(KIND=DP) ZGLL(1), EPS, DZ, Z
       EPS = 1.E-5
       DZ = Z - ZGLL(I)
       IF (ABS(DZ) .LT. EPS) THEN
@@ -862,14 +863,14 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8 FUNCTION HGL (I,Z,ZGL,NZ)
+      REAL(KIND=DP) FUNCTION HGL (I,Z,ZGL,NZ)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGL through
 !     the NZ Gauss Legendre points ZGL at the point Z.
 !
 !---------------------------------------------------------------------
-      REAL*8 ZGL(1), Z, EPS, DZ
+      REAL(KIND=DP) ZGL(1), Z, EPS, DZ
       EPS = 1.E-5
       DZ = Z - ZGL(I)
       IF (ABS(DZ) .LT. EPS) THEN
@@ -881,7 +882,7 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8 FUNCTION PNLEG (Z,N)
+      REAL(KIND=DP) FUNCTION PNLEG (Z,N)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Nth order Legendre polynomial at Z.
@@ -893,7 +894,7 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.  
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
-      REAL*8 Z, P1, P2, P3
+      REAL(KIND=DP) Z, P1, P2, P3
       IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
 
@@ -915,7 +916,7 @@ contains
       RETURN
       END FUNCTION
 
-      REAL*8 FUNCTION PNDLEG (Z,N)
+      REAL(KIND=DP) FUNCTION PNDLEG (Z,N)
 !----------------------------------------------------------------------
 !
 !     Compute the derivative of the Nth order Legendre polynomial at Z.
@@ -923,7 +924,7 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
-      REAL*8 P1, P2, P1D, P2D, P3D, Z
+      REAL(KIND=DP) P1, P2, P1D, P2D, P3D, Z
       P1   = 1.
       P2   = Z
       P1D  = 0.
@@ -955,8 +956,8 @@ contains
 !     Note: D and DT are rectangular matrices.
 !
 !-----------------------------------------------------------------------
-      REAL*8 D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
-      REAL*8 EPS, ZP, ZQ  
+      REAL(KIND=DP) D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
+      REAL(KIND=DP) EPS, ZP, ZQ  
       IF (NZM1.EQ.1) THEN
         D (1,1) = 0.
         DT(1,1) = 0.
@@ -993,12 +994,12 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------------
-      REAL*8 D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
+      REAL(KIND=DP) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
       PARAMETER (NMAX=84)
       PARAMETER (NDD = NMAX)
-      REAL*8  DD(NDD,NDD), DTD(NDD,NDD)
-      REAL*8  ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
-      REAL*8  ALPHAD, BETAD
+      REAL(KIND=DP)  DD(NDD,NDD), DTD(NDD,NDD)
+      REAL(KIND=DP)  ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
+      REAL(KIND=DP)  ALPHAD, BETAD
 
       IF (NPGL.LE.1) THEN
        WRITE(6,*) 'DGLJGJ: Minimum number of Gauss-Lobatto points is 2'
@@ -1049,9 +1050,9 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------------
-      IMPLICIT REAL*8  (A-H,O-Z)
-      REAL*8  D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
-      REAL*8  IGLG(ND2,ND1), ALPHA, BETA
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
+      REAL(KIND=DP)  D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
+      REAL(KIND=DP)  IGLG(ND2,ND1), ALPHA, BETA
 
       IF (NPGL.LE.1) THEN
        WRITE(6,*) 'DGLJGJD: Minimum number of Gauss-Lobatto points is 2'
@@ -1100,7 +1101,7 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
+      REAL(KIND=DP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
@@ -1126,7 +1127,7 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
+      REAL(KIND=DP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
@@ -1153,7 +1154,7 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
+      REAL(KIND=DP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
@@ -1180,7 +1181,7 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-      REAL*8 I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
+      REAL(KIND=DP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
       IF (NZ1 .EQ. 1) THEN
          I12 (1,1) = 1.
          IT12(1,1) = 1.
