@@ -766,9 +766,10 @@ contains
 
     !> Sort the dof lists based on the dof to gather-scatter list
     recursive subroutine gs_qsort_dofmap(dg, gd, n, lo, hi)
+      integer, intent(inout) :: n
       integer, dimension(n), intent(inout) :: dg
       integer, dimension(n), intent(inout) :: gd
-      integer :: n, lo, hi
+      integer :: lo, hi
       integer :: tmp, i, j, pivot
 
       i = lo - 1
@@ -807,11 +808,11 @@ contains
 
     !> Find blocks sharing dofs in non-facet data
     subroutine gs_find_blks(dg, blk_len, nblks, n, m)
+      integer, intent(in) :: n
+      integer, intent(in) :: m
       integer, dimension(n), intent(inout) :: dg
       integer, allocatable, intent(inout) :: blk_len(:)
       integer, intent(inout) :: nblks
-      integer, intent(in) :: n
-      integer, intent(in) :: m
       integer :: i, j
       integer :: id, count, len
       type(stack_i4_t) :: blks
@@ -962,8 +963,8 @@ contains
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op)
     type(gs_t), intent(inout) :: gs
-    real(kind=dp), dimension(n), intent(inout) :: u
     integer, intent(inout) :: n
+    real(kind=dp), dimension(n), intent(inout) :: u
     integer :: m, l, op, lo, so
     
     lo = gs%local_facet_offset
@@ -1003,15 +1004,15 @@ contains
   
   !> Gather kernel
   subroutine gs_gather(v, m, o, dg, u, n, gd, nb, b, op)
+    integer, intent(inout) :: m
+    integer, intent(inout) :: n
+    integer, intent(inout) :: nb        
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(inout) :: m
     integer, intent(inout) :: o
-    integer, intent(inout) :: n
-    integer, intent(inout) :: nb
     integer :: op
     
     select case(op)
@@ -1030,15 +1031,15 @@ contains
   !> Gather kernel for addition of data
   !! \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
   subroutine gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: m
     integer, intent(in) :: o
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
 
@@ -1069,15 +1070,15 @@ contains
   !> Gather kernel for multiplication of data
   !! \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
   subroutine gs_gather_kernel_mul(v, m, o, dg, u, n, gd, nb, b)
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: m
     integer, intent(in) :: o
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
     
@@ -1108,15 +1109,15 @@ contains
   !> Gather kernel for minimum of data
   !! \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
   subroutine gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b)
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: m
     integer, intent(in) :: o
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
 
@@ -1147,15 +1148,15 @@ contains
   !> Gather kernel for maximum of data
   !! \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
   subroutine gs_gather_kernel_max(v, m, o, dg, u, n, gd, nb, b)
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: m
     integer, intent(in) :: o
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
 
@@ -1185,14 +1186,14 @@ contains
 
   !> Scatter kernel  @todo Make the kernel abstract
   subroutine gs_scatter(v, m, dg, u, n, gd, nb, b)
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
         
     call gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
 
@@ -1200,14 +1201,14 @@ contains
 
   !> Scatter kernel \f$ u(gd(i) = v(dg(i)) \f$
   subroutine gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
     integer :: i, j, k, blk_len
     real(kind=dp) :: tmp
     
@@ -1245,8 +1246,8 @@ contains
   !> Post non-blocking send operations
   subroutine gs_nbsend(gs, u, n)
     type(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n        
     real(kind=dp), dimension(n), intent(inout) :: u
-    integer, intent(in) :: n
     integer ::  i, j, ierr, dst
     integer , pointer :: sp(:)
 
@@ -1268,8 +1269,8 @@ contains
   !> Wait for non-blocking operations
   subroutine gs_nbwait(gs, u, n, op)
     type(gs_t), intent(inout) ::gs
+    integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(inout) :: u
-    integer, intent(in) :: n
     integer :: i, j, src, ierr
     integer :: op
     integer , pointer :: sp(:)
