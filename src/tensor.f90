@@ -12,14 +12,14 @@ contains
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
   subroutine tensr3(v, nv, u, nu, A, Bt, Ct, w)
+    integer :: nv
+    integer :: nu
     real(kind=dp), intent(inout) :: v(nv, nv, nv)
     real(kind=dp), intent(inout) :: u(nv, nv, nv)
     real(kind=dp), intent(inout) :: w(nu*nu*nv)
     real(kind=dp), intent(inout) :: A(nv, nu)
     real(kind=dp), intent(inout) :: Bt(nu, nv)
     real(kind=dp), intent(inout) :: Ct(nu, nv)
-    integer :: nv
-    integer :: nu
     integer :: j, k, l, nunu, nvnv, nunv
     
     nunu = nu**2
@@ -41,10 +41,10 @@ contains
 
   !> Transpose of a rectangular tensor \f$ A = B^T \f$
   subroutine trsp(a, lda, b, ldb)
-    real(kind=dp), intent(inout) :: a(lda, ldb)
-    real(kind=dp), intent(in) :: b(ldb, lda)
     integer, intent(in) :: lda
     integer, intent(in) :: ldb
+    real(kind=dp), intent(inout) :: a(lda, ldb)
+    real(kind=dp), intent(in) :: b(ldb, lda)
     integer :: i, j
 
     do j = 1, ldb
@@ -57,8 +57,8 @@ contains
 
   !> In-place transpose of a square tensor
   subroutine trsp1(a, n)
-    real(kind=dp), intent(inout) :: a(n, n)
     integer, intent(in) :: n
+    real(kind=dp), intent(inout) :: a(n, n)
     real(kind=dp) :: tmp
     integer :: i, j
 
