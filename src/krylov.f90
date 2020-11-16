@@ -39,8 +39,8 @@ module krylov
        class(ksp_t), intent(inout) :: this
        class(ax_t), intent(inout) :: Ax
        type(field_t), intent(inout) :: x
-       real(kind=dp), dimension(n), intent(inout) :: f
        integer, intent(inout) :: n
+       real(kind=dp), dimension(n), intent(inout) :: f
        integer, optional, intent(in) :: niter
        integer :: iter
      end function ksp_method
