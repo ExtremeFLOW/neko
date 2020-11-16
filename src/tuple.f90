@@ -44,7 +44,7 @@ module tuple
 
   !> Abstract intf. for assigning a tuple to a tuple
   abstract interface
-     pure subroutine tuple_assign_tuple(this, other)
+     subroutine tuple_assign_tuple(this, other)
        import :: tuple_t
        class(tuple_t), intent(inout) :: this
        class(tuple_t), intent(in) :: other
@@ -73,7 +73,7 @@ module tuple
 contains
   
   !> Assign an integer 2-tuple to a tuple
-  pure subroutine tuple_i4_assign_tuple(this, other)
+  subroutine tuple_i4_assign_tuple(this, other)
     class(tuple_i4_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -84,7 +84,7 @@ contains
   end subroutine tuple_i4_assign_tuple
 
   !> Assign an integer vector to a tuple
-  pure subroutine tuple_i4_assign_vector(this, x)
+  subroutine tuple_i4_assign_vector(this, x)
     class(tuple_i4_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -111,7 +111,7 @@ contains
   end function tuple_i4_equal
 
   !> Assign an integer 4-tuple to a tuple
-  pure subroutine tuple4_i4_assign_tuple(this, other)
+  subroutine tuple4_i4_assign_tuple(this, other)
     class(tuple4_i4_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -122,7 +122,7 @@ contains
   end subroutine tuple4_i4_assign_tuple
 
   !> Assign an integer vector to a tuple
-  pure subroutine tuple4_i4_assign_vector(this, x)
+  subroutine tuple4_i4_assign_vector(this, x)
     class(tuple4_i4_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -151,7 +151,7 @@ contains
   end function tuple4_i4_equal
 
   !> Assign a double precision 2-tuple to a tuple
-  pure subroutine tuple_r8_assign_tuple(this, other)
+  subroutine tuple_r8_assign_tuple(this, other)
     class(tuple_r8_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -162,7 +162,7 @@ contains
   end subroutine tuple_r8_assign_tuple
 
   !> Assign a double precision vector to a tuple
-  pure subroutine tuple_r8_assign_vector(this, x)
+  subroutine tuple_r8_assign_vector(this, x)
     class(tuple_r8_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
