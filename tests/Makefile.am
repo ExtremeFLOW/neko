@@ -7,7 +7,8 @@ SUBDIRS = tuple\
 	  hex\
 	  math\
 	  mesh\
-	  dofmap
+	  dofmap\
+	  gather_scatter
 TESTS = tuple/tuple_test\
 	stack/stack_test\
 	point/point_test\
@@ -17,4 +18,5 @@ TESTS = tuple/tuple_test\
 	hex/hex_test\
 	math/math_test\
 	mesh/mesh_test\
-	dofmap/dofmap_test
+	dofmap/dofmap_test\
+	gather_scatter/gather_scatter_test
