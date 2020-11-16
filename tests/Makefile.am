@@ -8,7 +8,8 @@ SUBDIRS = tuple\
 	  math\
 	  mesh\
 	  dofmap\
-	  gather_scatter
+	  gather_scatter\
+	  krylov
 TESTS = tuple/tuple_test\
 	stack/stack_test\
 	point/point_test\
@@ -19,4 +20,5 @@ TESTS = tuple/tuple_test\
 	math/math_test\
 	mesh/mesh_test\
 	dofmap/dofmap_test\
-	gather_scatter/gather_scatter_test
+	gather_scatter/gather_scatter_test\
+	krylov/krylov_test

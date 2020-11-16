@@ -1,5 +1,5 @@
 !> Legacy VTK file format
-!! @details This modules defines interface to read/write legacy VTK file
+!! @details This module defines interface to read/write legacy VTK file
 module vtk_file
   use num_types
   use generic_file
@@ -50,7 +50,7 @@ contains
 
     if (pe_size .gt. 1) then
        write(id_str,'(i10.10)') pe_rank
-       suffix_pos = scan(trim(this%fname), '.', back=.true.)
+       suffix_pos = filename_suffix_pos(this%fname)
        open(unit=9, file=trim(this%fname(1:suffix_pos-1))//id_str//'.vtk')
     else
        open(unit=9, file=trim(this%fname))

@@ -19,6 +19,10 @@ gather_scatter.o : gather_scatter.f90 utils.o stack.o htable.o num_types.o field
 entity.o : entity.f90 
 point.o : point.f90 entity.o math.o num_types.o 
 element.o : element.f90 point.o tuple.o entity.o num_types.o 
+ax.o : ax.f90 num_types.o mesh.o field.o space.o gather_scatter.o 
+precon.o : precon.f90 utils.o math.o 
+krylov.o : krylov.f90 utils.o field.o mesh.o precon.o num_types.o ax.o 
+cg.o : cg.f90 num_types.o math.o krylov.o 
 quad.o : quad.f90 point.o tuple.o element.o num_types.o 
 hex.o : hex.f90 point.o tuple.o element.o num_types.o 
 htable.o : htable.f90 math.o tuple.o point.o utils.o num_types.o 
@@ -27,13 +31,14 @@ stack.o : stack.f90 math.o utils.o tuple.o num_types.o
 tuple.o : tuple.f90 num_types.o math.o 
 mesh.o : mesh.f90 distdata.o datadist.o tuple.o stack.o comm.o htable.o utils.o quad.o hex.o element.o point.o num_types.o 
 mesh_field.o : mesh_field.f90 mesh.o num_types.o 
-field.o : field.f90 space.o mesh.o math.o num_types.o 
+field.o : field.f90 dofmap.o space.o mesh.o math.o num_types.o 
 rea.o : rea.f90 mesh.o num_types.o 
 generic_file.o : generic_file.f90 num_types.o 
 map_file.o : map_file.f90 map.o comm.o utils.o generic_file.o 
 re2_file.o : re2_file.f90 htable.o map_file.o map.o re2.o datadist.o mpi_types.o comm.o point.o mesh.o utils.o num_types.o generic_file.o 
 rea_file.o : rea_file.f90 htable.o datadist.o comm.o map_file.o re2_file.o rea.o map.o point.o mesh.o utils.o num_types.o generic_file.o 
+fld_file.o : fld_file.f90 mpi_types.o comm.o utils.o mesh.o dofmap.o field.o generic_file.o 
 vtk_file.o : vtk_file.f90 comm.o mesh_field.o dofmap.o field.o mesh.o utils.o generic_file.o num_types.o 
 nmsh_file.o : nmsh_file.f90 mpi_types.o datadist.o nmsh.o utils.o mesh.o comm.o generic_file.o 
-file.o : file.f90 vtk_file.o re2_file.o rea_file.o map_file.o nmsh_file.o generic_file.o utils.o 
-neko.o : neko.f90 gather_scatter.o mpi_types.o field.o file.o nmsh_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o num_types.o 
+file.o : file.f90 vtk_file.o fld_file.o re2_file.o rea_file.o map_file.o nmsh_file.o generic_file.o utils.o 
+neko.o : neko.f90 gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o num_types.o 
