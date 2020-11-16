@@ -212,27 +212,27 @@ contains
 
        call m%elements(1)%e%facet_id(t, 1)
        @assertEqual(t%x(1), p(1)%id())
-       @assertEqual(t%x(2), p(7)%id())
-       @assertEqual(t%x(3), p(10)%id())
-       @assertEqual(t%x(4), p(3)%id())
+       @assertEqual(t%x(2), p(3)%id())
+       @assertEqual(t%x(3), p(7)%id())
+       @assertEqual(t%x(4), p(10)%id())
 
        call m%elements(1)%e%facet_id(t, 2)
        @assertEqual(t%x(1), p(2)%id())
-       @assertEqual(t%x(2), p(8)%id())
-       @assertEqual(t%x(3), p(9)%id())
-       @assertEqual(t%x(4), p(4)%id())
+       @assertEqual(t%x(2), p(4)%id())
+       @assertEqual(t%x(3), p(8)%id())
+       @assertEqual(t%x(4), p(9)%id())
 
        call m%elements(2)%e%facet_id(t, 1)
        @assertEqual(t%x(1), p(2)%id())
-       @assertEqual(t%x(2), p(8)%id())
-       @assertEqual(t%x(3), p(9)%id())
-       @assertEqual(t%x(4), p(4)%id())
+       @assertEqual(t%x(2), p(4)%id())
+       @assertEqual(t%x(3), p(8)%id())
+       @assertEqual(t%x(4), p(9)%id())
 
        call m%elements(2)%e%facet_id(t, 2)
        @assertEqual(t%x(1), p(5)%id())
-       @assertEqual(t%x(2), p(11)%id())
-       @assertEqual(t%x(3), p(12)%id())
-       @assertEqual(t%x(4), p(6)%id())
+       @assertEqual(t%x(2), p(6)%id())
+       @assertEqual(t%x(3), p(11)%id())
+       @assertEqual(t%x(4), p(12)%id())
 
     else   
        if (this%getProcessRank() .eq. 0) then
@@ -244,15 +244,15 @@ contains
 
           call m%elements(1)%e%facet_id(t, 1)
           @assertEqual(t%x(1), p(1)%id())
-          @assertEqual(t%x(2), p(7)%id())
-          @assertEqual(t%x(3), p(10)%id())
-          @assertEqual(t%x(4), p(3)%id())
+          @assertEqual(t%x(2), p(3)%id())
+          @assertEqual(t%x(3), p(7)%id())
+          @assertEqual(t%x(4), p(10)%id())
 
           call m%elements(1)%e%facet_id(t, 2)
           @assertEqual(t%x(1), p(2)%id())
-          @assertEqual(t%x(2), p(8)%id())
-          @assertEqual(t%x(3), p(9)%id())
-          @assertEqual(t%x(4), p(4)%id())
+          @assertEqual(t%x(2), p(4)%id())
+          @assertEqual(t%x(3), p(8)%id())
+          @assertEqual(t%x(4), p(9)%id())
 
        else
 
@@ -263,15 +263,15 @@ contains
 
           call m%elements(1)%e%facet_id(t, 1)
           @assertEqual(t%x(1), p(2)%id())
-          @assertEqual(t%x(2), p(8)%id())
-          @assertEqual(t%x(3), p(9)%id())
-          @assertEqual(t%x(4), p(4)%id())
+          @assertEqual(t%x(2), p(4)%id())
+          @assertEqual(t%x(3), p(8)%id())
+          @assertEqual(t%x(4), p(9)%id())
 
           call m%elements(1)%e%facet_id(t, 2)
           @assertEqual(t%x(1), p(5)%id())
-          @assertEqual(t%x(2), p(11)%id())
-          @assertEqual(t%x(3), p(12)%id())
-          @assertEqual(t%x(4), p(6)%id())          
+          @assertEqual(t%x(2), p(6)%id())
+          @assertEqual(t%x(3), p(11)%id())
+          @assertEqual(t%x(4), p(12)%id())          
        end if
     end if
 
