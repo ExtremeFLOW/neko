@@ -107,7 +107,7 @@ contains
       BETA  = 0.
       CALL ZWGJ (Z,W,NP,ALPHA,BETA)
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE ZWGLL (Z,W,NP)
 !--------------------------------------------------------------------
@@ -124,7 +124,7 @@ contains
       BETA  = 0.
       CALL ZWGLJ (Z,W,NP,ALPHA,BETA)
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE ZWGJ (Z,W,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
@@ -155,7 +155,7 @@ contains
          W(I) = WD(I)
  100  CONTINUE
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE ZWGJD (Z,W,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
@@ -207,7 +207,7 @@ contains
          W(I) = -RCOEF/(P*PDM1)
  100  CONTINUE
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE ZWGLJ (Z,W,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
@@ -238,7 +238,7 @@ contains
          W(I) = WD(I)
  100  CONTINUE
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE ZWGLJD (Z,W,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
@@ -283,7 +283,7 @@ contains
       W(NP) = ENDW2 (N,ALPHA,BETA)/(TWO*PD)
 
 !      RETURN
-      END
+      END SUBROUTINE
 
       REAL*8  FUNCTION ENDW1 (N,ALPHA,BETA)
       IMPLICIT REAL*8  (A-H,O-Z)
@@ -327,7 +327,7 @@ contains
  100  CONTINUE
       ENDW1  = F3
       RETURN
-      END
+      END FUNCTION
 
       REAL*8  FUNCTION ENDW2 (N,ALPHA,BETA)
       IMPLICIT REAL*8  (A-H,O-Z)
@@ -371,7 +371,7 @@ contains
  100  CONTINUE
       ENDW2  = F3
       RETURN
-      END
+      END FUNCTION
 
       REAL*8  FUNCTION GAMMAF (X)
       IMPLICIT REAL*8  (A-H,O-Z)
@@ -395,7 +395,7 @@ contains
       IF (X.EQ. 5. ) GAMMAF = 24.
       IF (X.EQ. 6. ) GAMMAF = 120.
       RETURN
-      END
+      END FUNCTION
 
       REAL*8  FUNCTION PNORMJ (N,ALPHA,BETA)
       IMPLICIT REAL*8  (A-H,O-Z)
@@ -421,7 +421,7 @@ contains
  100  CONTINUE
       PNORMJ = PROD * TWO**CONST/(TWO*DN+CONST)
       RETURN
-      END
+      END FUNCTION
 
       SUBROUTINE JACG (XJAC,NP,ALPHA,BETA)
 !--------------------------------------------------------------------
@@ -479,7 +479,7 @@ contains
          ENDIF
  200  CONTINUE
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE JACOBF (POLY,PDER,POLYM1,PDERM1,POLYM2,PDERM2,N,ALP,BET,X)
 !--------------------------------------------------------------------
@@ -519,7 +519,7 @@ contains
       POLYM2 = PSAVE
       PDERM2 = PDSAVE
       RETURN
-      END
+      END SUBROUTINE
 
       REAL*8 FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
@@ -548,7 +548,7 @@ contains
       BETAD  = BETA
       HGJ    = HGJD (II,ZD,ZGJD,NP,ALPHAD,BETAD)
       RETURN
-      END
+      END FUNCTION
 
       REAL*8  FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
@@ -572,7 +572,7 @@ contains
       CALL JACOBF (PZ,PDZ,PM1,PDM1,PM2,PDM2,NP,ALPHA,BETA,Z)
       HGJD  = PZ/(PDZI*(Z-ZI))
       RETURN
-      END
+      END FUNCTION
 
       REAL*8 FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
@@ -601,7 +601,7 @@ contains
       BETAD  = BETA
       HGLJ   = HGLJD (II,ZD,ZGLJD,NP,ALPHAD,BETAD)
       RETURN
-      END
+      END FUNCTION
 
       REAL*8  FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
@@ -629,7 +629,7 @@ contains
       CALL JACOBF (P,PD,PM1,PDM1,PM2,PDM2,N,ALPHA,BETA,Z)
       HGLJD  = (ONE-Z**2)*PD/(CONST*(Z-ZI))
       RETURN
-      END
+      END FUNCTION
 
       SUBROUTINE DGJ (D,DT,Z,NZ,NZD,ALPHA,BETA)
 !-----------------------------------------------------------------
@@ -673,7 +673,7 @@ contains
       END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE DGJD (D,DT,Z,NZ,NZD,ALPHA,BETA)
 !-----------------------------------------------------------------
@@ -712,7 +712,7 @@ contains
       END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE DGLJ (D,DT,Z,NZ,NZD,ALPHA,BETA)
 !-----------------------------------------------------------------
@@ -756,7 +756,7 @@ contains
       END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE DGLJD (D,DT,Z,NZ,NZD,ALPHA,BETA)
 !-----------------------------------------------------------------
@@ -803,7 +803,7 @@ contains
       END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE DGLL (D,DT,Z,NZ,NZD)
 !-----------------------------------------------------------------
@@ -839,7 +839,7 @@ contains
       END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       REAL*8 FUNCTION HGLL (I,Z,ZGLL,NZ)
 !---------------------------------------------------------------------
@@ -860,7 +860,7 @@ contains
       HGLL = - (1.-Z*Z)*PNDLEG(Z,N)/ &
            (ALFAN*PNLEG(ZGLL(I),N)*(Z-ZGLL(I)))
       RETURN
-      END
+      END FUNCTION
 
       REAL*8 FUNCTION HGL (I,Z,ZGL,NZ)
 !---------------------------------------------------------------------
@@ -879,7 +879,7 @@ contains
       N = NZ-1
       HGL = PNLEG(Z,NZ)/(PNDLEG(ZGL(I),NZ)*(Z-ZGL(I)))
       RETURN
-      END
+      END FUNCTION
 
       REAL*8 FUNCTION PNLEG (Z,N)
 !---------------------------------------------------------------------
@@ -913,7 +913,7 @@ contains
       PNLEG = P3
       if (n.eq.0) pnleg = 1.
       RETURN
-      END
+      END FUNCTION
 
       REAL*8 FUNCTION PNDLEG (Z,N)
 !----------------------------------------------------------------------
@@ -941,7 +941,7 @@ contains
       PNDLEG = P3D
       IF (N.eq.0) pndleg = 0.
       RETURN
-      END
+      END FUNCTION
 
       SUBROUTINE DGLLGL (D,DT,ZM1,ZM2,IM12,NZM1,NZM2,ND1,ND2)
 !-----------------------------------------------------------------------
@@ -978,7 +978,7 @@ contains
          END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE DGLJGJ (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
 !-----------------------------------------------------------------------
@@ -1034,7 +1034,7 @@ contains
       END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE DGLJGJD (D,DT,ZGL,ZG,IGLG,NPGL,NPG,ND1,ND2,ALPHA,BETA)
 !-----------------------------------------------------------------------
@@ -1088,7 +1088,7 @@ contains
       END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE IGLM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2)
 !----------------------------------------------------------------------
@@ -1114,7 +1114,7 @@ contains
          END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE IGLLM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2)
 !----------------------------------------------------------------------
@@ -1140,7 +1140,7 @@ contains
          END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE IGJM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2,ALPHA,BETA)
 !----------------------------------------------------------------------
@@ -1167,7 +1167,7 @@ contains
          END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 
       SUBROUTINE IGLJM (I12,IT12,Z1,Z2,NZ1,NZ2,ND1,ND2,ALPHA,BETA)
 !----------------------------------------------------------------------
@@ -1194,5 +1194,5 @@ contains
          END DO
       END DO
       RETURN
-      END
+      END SUBROUTINE
 end module
