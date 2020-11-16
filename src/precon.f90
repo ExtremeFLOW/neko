@@ -6,7 +6,7 @@ module precon
   
   !> Defines a canonical Krylov preconditioner
   type :: pc_t
-     procedure(pc_solve), nopass, pointer :: solve => pc_ident
+     procedure(pc_solve), nopass, pointer :: solve => null()
   end type pc_t
 
   !> Abstract interface for solving \f$ M z = r \f$
