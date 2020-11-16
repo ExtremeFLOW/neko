@@ -452,8 +452,8 @@ contains
                    facet_key%x(2) = -neigh_el
                 end if
 
-		 ! Update facet map
-		 call fmp%set(edge, facet_key)
+                ! Update facet map
+                call fmp%set(edge, facet_key)
 
                 call distdata_set_shared_el_facet(m%distdata, element, facet)
 
