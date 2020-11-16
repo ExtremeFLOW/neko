@@ -73,8 +73,8 @@ contains
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
-    real(kind=dp), dimension(n), intent(inout) :: f
     integer, intent(inout) :: n
+    real(kind=dp), dimension(n), intent(inout) :: f
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
@@ -86,6 +86,7 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
+
 
     rtz1 = 1d0
     call rzero(x%x, n)
