@@ -69,6 +69,10 @@ contains
        this%abs_tol = KSP_ABS_TOL
     end if
 
+    if (.not. associated(this%M%solve)) then
+       this%M%solve => pc_ident
+    end if
+
   end subroutine krylov_init
   
   !> Deallocate a Krylov solver
