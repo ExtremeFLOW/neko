@@ -77,7 +77,7 @@ contains
 
     ! Change to NEKTON's fld file format
     suffix_pos = filename_suffix_pos(this%fname)
-    write(id_str, '(ai5.5)') 'f', 1
+    write(id_str, '(a,i5.5)') 'f', 1
     fname = trim(this%fname(1:suffix_pos-1))//'0.'//id_str
     
     call MPI_File_open(NEKO_COMM, trim(fname), &
@@ -162,7 +162,7 @@ contains
     ! Write metadata file (dummy file for single field_t)
     if (pe_rank .eq. 0) then
        open(unit=9, file=trim(this%fname(1:suffix_pos-1))//'.nek5000')
-       write(9, fmt='(AAA)') 'filetemplate:	       ', &
+       write(9, fmt='(A,A,A)') 'filetemplate:         ', &
             this%fname(1:suffix_pos-1),'%01d.f%05d'
        write(9, fmt='(A)') 'firsttimestep: 1'
        write(9, fmt='(A)') 'numtimestep: 1'
