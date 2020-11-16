@@ -17,9 +17,9 @@ module precon
      subroutine pc_solve(z, r, n)
        import dp
        implicit none
+       integer, intent(inout) :: n
        real(kind=dp), dimension(n), intent(inout) :: z
        real(kind=dp), dimension(n), intent(inout) :: r
-       integer, intent(inout) :: n
      end subroutine pc_solve
   end interface
 
@@ -27,9 +27,9 @@ contains
 
   !> The (default) naive preconditioner \f$ I z = r \f$
   subroutine pc_ident(z, r, n)
+    integer, intent(inout) :: n    
     real(kind=dp), dimension(n), intent(inout) :: z
     real(kind=dp), dimension(n), intent(inout) :: r
-    integer, intent(inout) :: n    
     call copy(z, r, n)    
   end subroutine pc_ident
 
