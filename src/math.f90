@@ -23,8 +23,8 @@ contains
 
   !> Zero a real vector
   subroutine rzero(a, n)
-    real(kind=dp), dimension(n), intent(inout) :: a
     integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
     integer :: i
     
     do i = 1, n
@@ -34,8 +34,8 @@ contains
 
   !> Zero an integer vector
   subroutine izero(a, n)
-    integer, dimension(n), intent(inout) :: a
     integer, intent(in) :: n
+    integer, dimension(n), intent(inout) :: a
     integer :: i
     
     do i = 1, n
@@ -45,8 +45,8 @@ contains
 
   !> Set all elements to one
   subroutine rone(a, n)
-    real(kind=dp), dimension(n), intent(inout) :: a
     integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
     integer :: i
     
     do i = 1, n
@@ -56,9 +56,9 @@ contains
 
   !> Copy a vector \f$ a = b \f$
   subroutine copy(a, b, n)
+    integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(in) :: b
     real(kind=dp), dimension(n), intent(inout) :: a
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -69,9 +69,9 @@ contains
   
   !> Add a scalar to vector \f$ a = \sum a_i + s \f$
   subroutine cadd(a, s, n)
+    integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(inout) :: a
     real(kind=dp), intent(in) :: s
-    integer, intent(in) :: n
     integer :: i
     
     do i = 1, n
@@ -83,10 +83,10 @@ contains
   !> Compute a cross product \f$ u = v \times w \f$
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vcross(u1, u2, u3,  v1, v2, v3, w1, w2, w3, n)
+    integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(in) :: v1, v2, v3
     real(kind=dp), dimension(n), intent(in) :: w1, w2, w3
     real(kind=dp), dimension(n), intent(out) :: u1, u2, u3
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -100,10 +100,10 @@ contains
   !> Compute a dot product \f$ dot = u \cdot v \f$ (2-d version) 
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vdot2(dot, u1, u2, v1, v2, n)
+    integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(in) :: u1, u2
     real(kind=dp), dimension(n), intent(in) :: v1, v2
     real(kind=dp), dimension(n), intent(out) :: dot
-    integer, intent(in) :: n
     integer :: i
     do i = 1, n 
        dot(i) = u1(i)*v1(i) + u2(i)*v2(i)
@@ -114,10 +114,10 @@ contains
   !> Compute a dot product \f$ dot = u \cdot v \f$ (3-d version) 
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vdot3(dot, u1, u2, u3, v1, v2, v3, n)
+    integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(in) :: u1, u2, u3
     real(kind=dp), dimension(n), intent(in) :: v1, v2, v3
     real(kind=dp), dimension(n), intent(out) :: dot
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n 
@@ -128,9 +128,9 @@ contains
 
   !> Vector addition \f$ a = a + b \f$
   subroutine add2(a, b, n)
+    integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(inout) :: a
     real(kind=dp), dimension(n), intent(in) :: b
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -141,10 +141,10 @@ contains
 
   !> Vector addition \f$ a = b + c \f$
   subroutine add3(a, b, c, n)
+    integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(inout) :: c
     real(kind=dp), dimension(n), intent(inout) :: b
     real(kind=dp), dimension(n), intent(out) :: a
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -155,11 +155,11 @@ contains
 
   !> Vector addition \f$ a = b + c + d\f$
   subroutine add4(a, b, c, d, n)
+    integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(inout) :: d
     real(kind=dp), dimension(n), intent(inout) :: c
     real(kind=dp), dimension(n), intent(inout) :: b
     real(kind=dp), dimension(n), intent(out) :: a
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -171,10 +171,10 @@ contains
   !> Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
   !! (multiplication on first argument)
   subroutine add2s1(a, b, c1, n)
+    integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(inout) :: a
     real(kind=dp), dimension(n), intent(inout) :: b
     real(kind=dp), intent(in) :: c1
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -186,10 +186,10 @@ contains
   !> Vector addition with scalar multiplication  \f$ a = a + c_1 b \f$
   !! (multiplication on second argument)
   subroutine add2s2(a, b, c1, n)
+    integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(inout) :: a
     real(kind=dp), dimension(n), intent(inout) :: b
     real(kind=dp), intent(in) :: c1
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -200,9 +200,9 @@ contains
 
   !> Vector multiplication \f$ a = a \cdot b \f$
   subroutine col2(a, b, n)
+    integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(inout) :: a
     real(kind=dp), dimension(n), intent(in) :: b
-    integer, intent(in) :: n
     integer :: i
 
     do i = 1, n
@@ -213,10 +213,10 @@ contains
 
   !> Weighted inner product \f$ a^T b c \f$
   function glsc3(a, b, c, n)
+    integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(in) :: a
     real(kind=dp), dimension(n), intent(in) :: b
     real(kind=dp), dimension(n), intent(in) :: c
-    integer, intent(in) :: n
     real(kind=dp) :: glsc3, tmp
     integer :: i, ierr
 
