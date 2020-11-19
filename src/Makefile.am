@@ -44,6 +44,7 @@ libneko_a_SOURCES = \
 	nmsh_file.f90\
 	file.f90\
 	bc.f90\
+	dirichlet.f90\
 	neko.f90
 
 
