@@ -11,7 +11,7 @@ module bc
   
   !> Base type for a boundary condition
   type, public, abstract :: bc_t
-     integer(kind=8), allocatable :: msk(:)
+     integer, allocatable :: msk(:)
      type(dofmap_t), pointer :: dof
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
@@ -28,9 +28,9 @@ module bc
      subroutine bc_apply(this, x, n)
        import :: bc_t
        import :: dp
-       class(bc_t), intent(in) :: this
+       class(bc_t), intent(inout) :: this
        integer, intent(in) :: n
-       real(kind=dp), dimension(n) :: x
+       real(kind=dp), intent(inout), dimension(n) :: x
      end subroutine bc_apply
   end interface
 
