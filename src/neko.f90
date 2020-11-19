@@ -45,9 +45,17 @@ module neko
   use precon
   use ax_product
   use gmres
+  use neko_config
+
 contains
 
   subroutine neko_init
+    write(*,*) ''
+    write(*,*) 'N E K O'
+    write(*,*) '(version: ', trim(NEKO_VERSION),')'
+    write(*,*) trim(NEKO_BUILD_INFO)
+    write(*,*) ''
+    
     call comm_init
     call mpi_types_init
   end subroutine neko_init
