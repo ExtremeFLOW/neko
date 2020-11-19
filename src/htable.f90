@@ -745,12 +745,12 @@ contains
     class(*), intent(in) :: k
     integer :: hash
     integer(kind=8) :: tmp
-    integer(kind=8), parameter :: M1 = int(Z'7ed55d15')
-    integer(kind=8), parameter :: M2 = int(Z'c761c23c')
-    integer(kind=8), parameter :: M3 = int(Z'165667b1')
-    integer(kind=8), parameter :: M4 = int(Z'd3a2646c')
-    integer(kind=8), parameter :: M5 = int(Z'fd7046c5')
-    integer(kind=8), parameter :: M6 = int(Z'b55a4f09')
+    integer(kind=8), parameter :: M1 = int(Z'7ed55d15', 8)
+    integer(kind=8), parameter :: M2 = int(Z'c761c23c', 8)
+    integer(kind=8), parameter :: M3 = int(Z'165667b1', 8)
+    integer(kind=8), parameter :: M4 = int(Z'd3a2646c', 8)
+    integer(kind=8), parameter :: M5 = int(Z'fd7046c5', 8)
+    integer(kind=8), parameter :: M6 = int(Z'b55a4f09', 8)
 
     select type(k)
     type is (integer(8))
