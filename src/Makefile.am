@@ -43,6 +43,7 @@ libneko_a_SOURCES = \
 	vtk_file.f90\
 	nmsh_file.f90\
 	file.f90\
+	bc.f90\
 	neko.f90
 
 
