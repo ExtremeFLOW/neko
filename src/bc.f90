@@ -22,8 +22,9 @@ module bc
      procedure, pass(this) :: mark_facet => bc_mark_facet
      procedure, pass(this) :: finalize => bc_finalize
      procedure(bc_apply), pass(this), deferred :: apply
+     procedure(bc_apply_mult), pass(this), deferred :: apply_mult
   end type bc_t
-  
+    
   abstract interface
      subroutine bc_apply(this, x, n)
        import :: bc_t
@@ -32,6 +33,18 @@ module bc
        integer, intent(in) :: n
        real(kind=dp), intent(inout), dimension(n) :: x
      end subroutine bc_apply
+  end interface
+
+  abstract interface
+     subroutine bc_apply_mult(this, x, y, z, n)
+       import :: bc_t
+       import :: dp
+       class(bc_t), intent(inout) :: this
+       integer, intent(in) :: n
+       real(kind=dp), intent(inout), dimension(n) :: x
+       real(kind=dp), intent(inout), dimension(n) :: y
+       real(kind=dp), intent(inout), dimension(n) :: z
+     end subroutine bc_apply_mult
   end interface
 
 contains
