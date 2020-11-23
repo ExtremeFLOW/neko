@@ -388,7 +388,8 @@ contains
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
-             this%dof(1, j, k, i) = dofmap_facetidx(face_order,face,facet_id,j,k,Xh%lz,Xh%ly)
+             this%dof(1, j, k, i) = &
+                  dofmap_facetidx(face_order,face,facet_id,j,k,Xh%lz,Xh%ly)
              this%shared_dof(1, j, k, i) = shared_dof
           end do
        end do
@@ -400,7 +401,8 @@ contains
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
-             this%dof(Xh%lx, j, k, i) = dofmap_facetidx(face_order,face,facet_id,j,k,Xh%lz,Xh%ly)
+             this%dof(Xh%lx, j, k, i) = &
+                  dofmap_facetidx(face_order,face,facet_id,j,k,Xh%lz,Xh%ly)
              this%shared_dof(Xh%lx, j, k, i) = shared_dof
           end do
        end do
@@ -416,7 +418,8 @@ contains
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
-             this%dof(j, 1, k, i) = dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
+             this%dof(j, 1, k, i) = &
+                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
              this%shared_dof(j, 1, k, i) = shared_dof
           end do
        end do
@@ -428,7 +431,8 @@ contains
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
-             this%dof(j, Xh%ly, k, i) = dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
+             this%dof(j, Xh%ly, k, i) = &
+                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
              this%shared_dof(j, Xh%ly, k, i) = shared_dof
           end do
        end do
@@ -444,7 +448,8 @@ contains
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
-             this%dof(j, k, 1, i) = dofmap_facetidx(face_order,face,facet_id,k,j,Xh%ly,Xh%lx)
+             this%dof(j, k, 1, i) = &
+                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%ly,Xh%lx)
              this%shared_dof(j, k, 1, i) = shared_dof
           end do
        end do
@@ -456,7 +461,8 @@ contains
        facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
-             this%dof(j, k, Xh%lz, i) = dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
+             this%dof(j, k, Xh%lz, i) = &
+                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
              this%shared_dof(j, k, Xh%lz, i) = shared_dof
           end do
        end do
@@ -476,9 +482,11 @@ contains
      lk = lk1 - 2
      lj = lj1 - 2
 
-     ! Given the indexes k,j for a GLL point on the inner part of the face, we assign a unique number to it that depends on the corner with the
-     ! lowest id and its neighbour with the lowest id. The id is assigned in this way to be consistent regardless of how the faces
-     ! are rotated or mirrored.
+     ! Given the indexes k,j for a GLL point on the inner part of the
+     ! face, we assign a unique number to it that depends on the
+     ! corner with the lowest id and its neighbour with the lowest
+     ! id. The id is assigned in this way to be consistent regardless
+     ! of how the faces are rotated or mirrored.
      !
      !   4 -------- 3
      !     |      |      k

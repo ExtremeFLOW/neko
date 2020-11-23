@@ -62,7 +62,6 @@ contains
 
   end function nonlinear_index
 
-
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
     integer :: code

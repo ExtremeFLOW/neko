@@ -45,8 +45,11 @@ module mesh
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
 
      integer, allocatable :: facet_neigh(:,:)  !< Facet to neigh. element table
-     class(htable_t), allocatable :: facet_map !< Facet to element's id tuple and the mapping ofd the points between lower id element and higher
-                                               !! \f$ t=(low_id element, element with higher global id) \f$
+
+     !> Facet to element's id tuple and the mapping of the
+     !! points between lower id element and higher
+     !! \f$ t=(low_id element, element with higher global id) \f$
+     class(htable_t), allocatable :: facet_map 
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
      type(distdata_t) :: distdata              !< Mesh distributed data
@@ -146,7 +149,7 @@ contains
        do i = 1, m%nelv
           allocate(hex_t::m%elements(i)%e)
        end do
-       m%npts = neko_hex_npts
+       m%npts = NEKO_HEX_NPTS
 
        allocate(htable_i4t4_t::m%facet_map)
        select type (fmp => m%facet_map)
@@ -154,9 +157,9 @@ contains
           call fmp%init(m%nelv, facet_data)
        end select
 
-       allocate(m%facet_neigh(neko_hex_nfcs, m%nelv))
+       allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
 
-       call m%htf%init(m%nelv * neko_hex_nfcs, i)
+       call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
        call m%hte%init(m%nelv * neko_hex_neds, i)
     else if (m%gdim .eq. 2) then
        do i = 1, m%nelv
@@ -196,7 +199,7 @@ contains
 
   end subroutine mesh_init_common
   
-  !> deallocate a mesh %a m
+  !> Deallocate a mesh %a m
   subroutine mesh_free(m)
     type(mesh_t), intent(inout) :: m
     integer :: i
@@ -456,8 +459,8 @@ contains
                    facet_data%x(2) = -neigh_el
                 end if
 
-		        ! Update facet map
-		        call fmp%set(edge, facet_data)
+                ! Update facet map
+                call fmp%set(edge, facet_data)
 
                 call distdata_set_shared_el_facet(m%distdata, element, facet)
 

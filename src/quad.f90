@@ -69,7 +69,8 @@ contains
 
   end subroutine quad_init
 
-  !> Return the edge id for face @a i as a 2-tuple @a t TODO: sort this
+  !> Return the edge id for face @a i as a 2-tuple @a t
+  !! @todo sort this
   subroutine quad_facet_id(this, t, side)
     class(quad_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
