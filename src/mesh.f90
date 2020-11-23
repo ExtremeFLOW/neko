@@ -160,12 +160,12 @@ contains
        allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
 
        call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
-       call m%hte%init(m%nelv * neko_hex_neds, i)
+       call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
     else if (m%gdim .eq. 2) then
        do i = 1, m%nelv
           allocate(quad_t::m%elements(i)%e)
        end do
-       m%npts = neko_quad_npts
+       m%npts = NEKO_QUAD_NPTS
 
        allocate(htable_i4t2_t::m%facet_map)       
        select type (fmp => m%facet_map)
@@ -173,11 +173,11 @@ contains
           call fmp%init(m%nelv, facet_data)
        end select
 
-       allocate(m%facet_neigh(neko_quad_neds, m%nelv))
+       allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
 
-       call m%hte%init(m%nelv * neko_quad_neds, i)
+       call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
     else
-       call neko_error("invalid dimension")
+       call neko_error("Invalid dimension")
     end if
 
     !> @todo resize onces final size is known
@@ -280,7 +280,7 @@ contains
              el_glb_idx = i + m%offset_el
              do j = 1, n_sides
                 call m%elements(i)%e%facet_id(edge, j)
-
+                
                 ! Assume that all facets are on the exterior
                 facet_data = (/  0, 0/)
                 
