@@ -6,6 +6,7 @@ module bc
   use mesh
   use stack
   use tuple
+  use utils
   implicit none
   private
   
@@ -24,6 +25,18 @@ module bc
      procedure(bc_apply), pass(this), deferred :: apply
      procedure(bc_apply_mult), pass(this), deferred :: apply_mult
   end type bc_t
+
+  !> Pointer to boundary condtiion
+  type, private :: bcp_t
+     class(bc_t), pointer :: bcp
+  end type bcp_t
+  
+  !> A list of boundary conditions
+  type, public :: bc_list_t
+     type(bcp_t), allocatable :: bc(:)
+     integer :: n
+     integer :: size
+  end type bc_list_t
     
   abstract interface
      subroutine bc_apply(this, x, n)
@@ -47,6 +60,8 @@ module bc
      end subroutine bc_apply_mult
   end interface
 
+  public :: bc_list_init, bc_list_free, bc_list_add, bc_list_apply
+  
 contains
 
   !> Initialize a boundary condition type
@@ -167,5 +182,77 @@ contains
     this%msk(0) = msk_c
     
   end subroutine bc_finalize
+
+  !> Initialize a list of boundary conditions
+  subroutine bc_list_init(bclst, size)
+    type(bc_list_t), intent(inout), target :: bclst
+    integer, optional :: size
+    integer :: n, i
+
+    call bc_list_free(bclst)
+
+    if (present(size)) then
+       n = size
+    else
+       n = 1
+    end if
+
+    allocate(bclst%bc(n))
+
+    do i = 1, n
+       bclst%bc(i)%bcp => null()
+    end do
+
+    bclst%n = 0
+    bclst%size = n
+        
+  end subroutine bc_list_init
+
+  !> Deallocate a list of boundary conditions
+  !! @note This will only nullify all pointers, not deallocate any
+  !! conditions pointed to by the list
+  subroutine bc_list_free(bclst)
+    type(bc_list_t), intent(inout) :: bclst
+
+    if (allocated(bclst%bc)) then
+       deallocate(bclst%bc)
+    end if
+
+    bclst%n = 0
+    bclst%size = 0
+    
+  end subroutine bc_list_free
+
+  !> Add a condition to a list of boundary conditions
+  subroutine bc_list_add(bclst, bc)
+    type(bc_list_t), intent(inout) :: bclst
+    class(bc_t), intent(inout), pointer :: bc
+    type(bcp_t), allocatable :: tmp(:)
+    integer :: i 
+
+    if (bclst%n .ge. bclst%size) then
+       allocate(tmp(bclst%size * 2))
+       tmp(1:bclst%size) = bclst%bc
+       call move_alloc(tmp, bclst%bc)
+    end if
+
+    bclst%n = bclst%n + 1
+    bclst%bc(bclst%n)%bcp => bc
+    
+  end subroutine bc_list_add
+
+  !> Apply a list of boundary conditions
+  subroutine bc_list_apply(bclst, x, n)
+    type(bc_list_t), intent(inout) :: bclst
+    integer, intent(in) :: n
+    real(kind=dp), intent(inout),  dimension(n) :: x
+    integer :: i
+
+    do i = 1, bclst%n
+       call bclst%bc(i)%bcp%apply(x, n)
+    end do
+
+  end subroutine bc_list_apply
+   
   
 end module bc
