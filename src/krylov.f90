@@ -6,6 +6,7 @@ module krylov
   use mesh
   use field
   use utils
+  use bc
   implicit none
 
   integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
@@ -28,11 +29,15 @@ module krylov
   !! @param x field to solve for
   !! @param f right hand side 
   !! @param n integer, size of vectors
+  !! @param blst list of  boundary conditions
+  !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, niter) result(iter)
+     function ksp_method(this, Ax, x, f, n, blst, gs_h, niter) result(iter)
+       import :: bc_list_t       
        import :: field_t
        import :: ksp_t
+       import :: gs_t
        import :: ax_t
        import dp
        implicit none
@@ -41,7 +46,9 @@ module krylov
        type(field_t), intent(inout) :: x
        integer, intent(inout) :: n
        real(kind=dp), dimension(n), intent(inout) :: f
-       integer, optional, intent(in) :: niter
+       type(bc_list_t), intent(inout) :: blst
+       type(gs_t), intent(inout) :: gs_h              
+       integer, optional, intent(in) :: niter       
        integer :: iter
      end function ksp_method
   end interface
