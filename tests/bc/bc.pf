@@ -1,0 +1,17 @@
+! @test
+! subroutine test_bc_init
+!   use pfunit
+!   use dofmap
+!   use bc   
+!   implicit none
+!   type(bc_t) :: b
+!   type(dofmap_t) :: dof
+
+!   call b%init(dof)
+
+!   @assertTrue(associated(b%dof))
+!   @assertTrue(associated(b%msh))
+!   @assertTrue(associated(b%Xh))
+! end subroutine test_bc_init
+
+

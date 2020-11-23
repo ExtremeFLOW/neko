@@ -11,11 +11,11 @@ contains
   !! A Practical Guide to Pseudospectral Methods, B. Fornberg              
   !! Cambridge Univ. Press, 1996.
   subroutine fd_weights_full(xx, x, n, m, c)
+    integer, intent(in) :: n
+    integer, intent(in) :: m
     real(kind=dp), intent(in) :: x(0:n)
     real(kind=dp), intent(out) :: c(0:n,0:m)
     real(kind=dp), intent(in) :: xx
-    integer, intent(in) :: n
-    integer, intent(in) :: m
     real(kind=dp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 

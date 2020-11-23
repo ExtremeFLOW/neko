@@ -9,7 +9,9 @@ SUBDIRS = tuple\
 	  mesh\
 	  dofmap\
 	  gather_scatter\
-	  krylov
+	  krylov\
+	  bc
+
 TESTS = tuple/tuple_test\
 	stack/stack_test\
 	point/point_test\
@@ -21,4 +23,5 @@ TESTS = tuple/tuple_test\
 	mesh/mesh_test\
 	dofmap/dofmap_test\
 	gather_scatter/gather_scatter_test\
-	krylov/krylov_test
+	krylov/krylov_test\
+	bc/bc_test

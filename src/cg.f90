@@ -69,17 +69,18 @@ contains
   end subroutine cg_free
   
   !> Standard PCG solve
-  function cg_solve(this, Ax, x, f, n, niter) result(iter)
+  function cg_solve(this, Ax, x, f, n, blst, gs_h, niter) result(iter)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(inout) :: n
     real(kind=dp), dimension(n), intent(inout) :: f
+    type(bc_list_t), intent(inout) :: blst
+    type(gs_t), intent(inout) :: gs_h
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=dp) :: beta, pap, alpha, alphm, eps
-    type(gs_t) :: dummy
     
     if (present(niter)) then
        max_iter = niter
@@ -91,7 +92,7 @@ contains
     rtz1 = 1d0
     call rzero(x%x, n)
     call copy(this%r, f, n)
-    !> @todo add masking call
+    call bc_list_apply(blst, this%r, n)
 
     rnorm = sqrt(glsc3(this%r, this%c, this%r, n))
     do iter = 1, max_iter
@@ -103,8 +104,11 @@ contains
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = 0d0
        call add2s1(this%p, this%z, beta, n)
+       
+       call Ax%compute(this%w, this%z, x%msh, x%Xh, n)
+       call gs_op(gs_h, this%w, n, GS_OP_ADD)
+       call bc_list_apply(blst, this%w, n)
 
-       !       call this%Ax(this%w, this%z, 
        pap = glsc3(this%w, this%c, this%p, n)
 
        alpha = rtz1 / pap
