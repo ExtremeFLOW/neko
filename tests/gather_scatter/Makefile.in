@@ -1,0 +1,25 @@
+USEMPI=YES
+include @PFUNIT_DIR@/include/PFUNIT.mk
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: gather_scatter_suite
+
+
+gather_scatter_suite_TESTS := gather_scatter_parallel.pf
+gather_scatter_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,gather_scatter_suite))
+
+
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 gather_scatter_suite
+
+
+
+all:
+html:
+install:

@@ -79,6 +79,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/math/Makefile\
 		 tests/mesh/Makefile\
 		 tests/dofmap/Makefile\
+		 tests/gather_scatter/Makefile\
 		 tests/krylov/Makefile\
 		 tests/bc/Makefile])
 

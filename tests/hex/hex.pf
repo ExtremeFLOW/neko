@@ -238,10 +238,10 @@ subroutine test_hex_facet_id
   id = 2
   p2 = point_t(c2, id)
 
-  id = 4
+  id = 3
   p3 = point_t(c3, id)
   
-  id = 3
+  id = 4
   p4 = point_t(c4, id)
 
   id = 5
@@ -261,27 +261,27 @@ subroutine test_hex_facet_id
 
   call h%facet_id(t, 1)
   @assertEqual(t%x(1), p1%id())
-  @assertEqual(t%x(2), p5%id())
-  @assertEqual(t%x(3), p8%id())
-  @assertEqual(t%x(4), p4%id())
+  @assertEqual(t%x(2), p4%id())
+  @assertEqual(t%x(3), p5%id())
+  @assertEqual(t%x(4), p8%id())
 
   call h%facet_id(t, 2)
   @assertEqual(t%x(1), p2%id())
-  @assertEqual(t%x(2), p6%id())
-  @assertEqual(t%x(3), p7%id())
-  @assertEqual(t%x(4), p3%id())
+  @assertEqual(t%x(2), p3%id())
+  @assertEqual(t%x(3), p6%id())
+  @assertEqual(t%x(4), p7%id())
 
   call h%facet_id(t, 3)
   @assertEqual(t%x(1), p1%id())
   @assertEqual(t%x(2), p2%id())
-  @assertEqual(t%x(3), p6%id())
-  @assertEqual(t%x(4), p5%id())
+  @assertEqual(t%x(3), p5%id())
+  @assertEqual(t%x(4), p6%id())
 
   call h%facet_id(t, 4)
-  @assertEqual(t%x(1), p4%id())
-  @assertEqual(t%x(2), p3%id())
-  @assertEqual(t%x(3), p7%id())
-  @assertEqual(t%x(4), p8%id())
+  @assertEqual(t%x(1), p3%id())
+  @assertEqual(t%x(2), p4%id())
+  @assertEqual(t%x(3), p8%id())
+  @assertEqual(t%x(4), p7%id())
 
   call h%facet_id(t, 5)
   @assertEqual(t%x(1), p1%id())
@@ -292,8 +292,8 @@ subroutine test_hex_facet_id
   call h%facet_id(t, 6)
   @assertEqual(t%x(1), p5%id())
   @assertEqual(t%x(2), p6%id())
-  @assertEqual(t%x(3), p7%id())
-  @assertEqual(t%x(4), p8%id())
+  @assertEqual(t%x(3), p8%id())
+  @assertEqual(t%x(4), p7%id())
   
   
 end subroutine test_hex_facet_id

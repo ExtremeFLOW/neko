@@ -24,6 +24,7 @@ module element
      procedure(element_diameter), pass(this), deferred :: diameter
      procedure(element_centroid), pass(this), deferred :: centroid
      procedure(element_facet_id), pass(this), deferred :: facet_id
+     procedure(element_facet_order), pass(this), deferred :: facet_order
   end type element_t
 
   abstract interface
@@ -63,6 +64,15 @@ module element
      end subroutine element_facet_id
   end interface
 
+  abstract interface
+     subroutine element_facet_order(this, t, side) 
+       import :: element_t
+       import :: tuple_t
+       class(element_t), intent(in) :: this
+       class(tuple_t), intent(inout) :: t
+       integer, intent(in) :: side
+     end subroutine element_facet_order
+  end interface
 contains
 
   !> Create an element with @a npts

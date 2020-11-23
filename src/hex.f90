@@ -32,6 +32,7 @@ module hex
    contains
      procedure, pass(this) :: init => hex_init
      procedure, pass(this) :: facet_id => hex_facet_id
+     procedure, pass(this) :: facet_order => hex_facet_order
      procedure, pass(this) :: diameter => hex_diameter
      procedure, pass(this) :: centroid => hex_centroid
      procedure, pass(this) :: edge_id => hex_edge_id          
@@ -123,6 +124,36 @@ contains
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
+    integer :: i, j, temp
+    type(point_t), pointer :: p1,p2,p3,p4
+
+    p1 => this%p(face_nodes(1, side))
+    p2 => this%p(face_nodes(2, side))
+    p3 => this%p(face_nodes(3, side))
+    p4 => this%p(face_nodes(4, side))
+
+    select type(t)
+    type is(tuple4_i4_t)
+       t = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
+       do i = 1, 3 
+          do j = i+1,4
+             if(t%x(j) .lt. t%x(i)) then
+                temp = t%x(i)
+                t%x(i) = t%x(j)
+                t%x(j) = temp
+             endif
+          enddo
+       enddo
+    end select
+
+  end subroutine hex_facet_id
+
+  !> Return the ordered points for face @a i as a 4-tuple @a t
+  subroutine hex_facet_order(this, t, side) 
+    class(hex_t), intent(in) :: this
+    class(tuple_t), intent(inout) :: t
+    integer, intent(in) :: side
+    integer :: i, j, temp
     type(point_t), pointer :: p1,p2,p3,p4
 
     p1 => this%p(face_nodes(1, side))
@@ -135,7 +166,8 @@ contains
        t = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
     end select
 
-  end subroutine hex_facet_id
+  end subroutine hex_facet_order
+
 
   !> Return the edge id for an edge @a i as a 2-tuple @a t
   subroutine hex_edge_id(this, t, side) 
@@ -149,7 +181,12 @@ contains
 
     select type(t)
     type is(tuple_i4_t)
-       t = (/ p1%id(), p2%id() /)
+       if (p1%id() .lt. p2%id()) then
+          t = (/ p1%id(), p2%id() /)
+      else
+          t = (/ p2%id(), p1%id() /)
+      endif
+
     end select
 
   end subroutine hex_edge_id

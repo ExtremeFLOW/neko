@@ -1,4 +1,4 @@
-module dofmap_parallel
+module gather_scatter_parallel
   use mpi
   use pfunit
   use dofmap
@@ -8,84 +8,21 @@ module dofmap_parallel
   use hex
   use point
   use datadist
+  use gather_scatter
   implicit none
   
 contains
-
-  @test(npes=[1])
-  subroutine test_dofmap_genxyz(this)
-    class (MpiTestMethod), intent(inout) :: this
-    type(dofmap_t) :: d
-    type(mesh_t) :: m
-    type(linear_dist_t) :: dist
-    type(space_t) :: Xh
-    type(point_t) :: p(12)
-    integer :: ierr
-    integer, parameter :: gdim = 3
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
-    dist = linear_dist_t(2, this%getProcessRank(), &
-         this%getNumProcesses(), NEKO_COMM)
-
-    p(1) = point_t(0d0, 0d0, 0d0)
-    call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0)
-    call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0)
-    call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0)
-    call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0)
-    call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0)
-    call p(6)%set_id(6)
-    p(7) = point_t(0d0, 0d0, 1d0)
-    call p(7)%set_id(7)
-    p(8) = point_t(1d0, 0d0, 1d0)
-    call p(8)%set_id(8)
-    p(9) = point_t(1d0, 1d0, 1d0)
-    call p(9)%set_id(9)
-    p(10) = point_t(0d0, 1d0, 1d0)
-    call p(10)%set_id(10)
-    p(11) = point_t(2d0, 0d0, 1d0)
-    call p(11)%set_id(11)
-    p(12) = point_t(2d0, 1d0, 1d0)
-    call p(12)%set_id(12)
-
-    call mesh_init(m, gdim, dist)
-
-    call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
-         p(7), p(8), p(9), p(10))
-
-    call mesh_add_element(m, 2, p(2), p(5), p(6), p(4), &
-         p(8), p(11), p(12), p(9))
-
-    Call space_init(Xh, GLL, 2, 2, 2)
-
-    call mesh_generate_conn(m)
-    d = dofmap_t(m, Xh)
-
-    @assertEqual(d%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
-    @assertEqual(d%x(2,1,1,1), p(2)%x(1), tolerance=1d-14)
-
-    @assertEqual(d%x(1,1,1,2), p(4)%x(1), tolerance=1d-14)
-    @assertEqual(d%x(2,1,1,2), p(5)%x(1), tolerance=1d-14)
-    
-  end subroutine test_dofmap_genxyz
-
   @test(npes=[1])
   subroutine test_dofmap_face12(this)
     class (MpiTestMethod), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
     type(linear_dist_t) :: dist
     type(space_t) :: Xh
     type(point_t) :: p(12)
-    integer :: ierr, i,j, lx, i2, j2
+    integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
     
@@ -130,19 +67,20 @@ contains
 
     call mesh_add_element(m, 2, p(2), p(9), p(10), p(3), &
          p(6), p(11), p(12), p(7))
-    
-    call mesh_generate_conn(m) 
+
+    call mesh_generate_conn(m)
+
     d = dofmap_t(m, Xh)
+    call gs_init(gs_h, d)
+    call field_init(x,m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,8), n/2)
+    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+   
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(d%dof(lx,j,i,1), d%dof(1,j,i,2))
-      do i2 = 1,lx
-        do j2 = 1,lx
-          if( i .ne. i2 .AND. j .ne. j2) then
-            @assertFalse(d%dof(lx,j,i,1) .eq. d%dof(1,j2,i2,2))
-          endif
-         enddo
-        enddo
+      @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=1d-14)
       enddo
     enddo 
 
@@ -154,10 +92,12 @@ contains
     class (MpiTestMethod), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
     type(linear_dist_t) :: dist
     type(space_t) :: Xh
     type(point_t) :: p(12)
-    integer :: ierr, i,j, lx, i2, j2
+    integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
     
@@ -202,19 +142,19 @@ contains
          p(6), p(2), p(3), p(7))
     call mesh_add_element(m, 2, p(2), p(9), p(10), p(3), &
          p(6), p(11), p(12), p(7))
-
     call mesh_generate_conn(m)
+
     d = dofmap_t(m, Xh)
+    call gs_init(gs_h, d)
+    call field_init(x,m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,8), n/2)
+    call gs_op_vector(gs_h,x%x, n, GS_OP_ADD)
+    
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(d%dof(lx+1-i,j,lx,1), d%dof(1,j,i,2))
-      do i2 = 1,lx
-        do j2 = 1,lx
-          if( i .ne. i2 .AND. j .ne. j2) then
-            @assertFalse(d%dof(lx+1-i,j,lx,1) .eq. d%dof(1,j2,i2,2))
-          endif
-         enddo
-        enddo
+      @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2),tolerance=1d-14)
       enddo
     enddo 
 
@@ -225,10 +165,12 @@ contains
     class (MpiTestMethod), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
     type(linear_dist_t) :: dist
     type(space_t) :: Xh
     type(point_t) :: p(12)
-    integer :: ierr, i,j, lx, j2, i2
+    integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
     
@@ -273,18 +215,18 @@ contains
          p(3), p(4), p(1), p(2))
     call mesh_add_element(m, 2, p(2), p(9), p(10), p(3), &
          p(6), p(11), p(12), p(7))
+
     call mesh_generate_conn(m)
     d = dofmap_t(m, Xh)
+    call gs_init(gs_h, d)
+    call field_init(x,m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,8), n/2)
+    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(d%dof(1,lx+1-j,lx+1-i,1), d%dof(1,j,i,2))
-      do i2 = 1,lx
-        do j2 = 1,lx
-          if( i .ne. i2 .AND. j .ne. j2) then
-             @assertFalse(d%dof(1,lx+1-j,lx+1-i,1) .eq. d%dof(1,j2,i2,2))
-          endif
-         enddo
-        enddo
+      @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=1d-14)
       enddo
     enddo 
 
@@ -295,10 +237,12 @@ contains
     class (MpiTestMethod), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
     type(linear_dist_t) :: dist
     type(space_t) :: Xh
     type(point_t) :: p(12)
-    integer :: ierr, i,j, lx, i2, j2
+    integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
     
@@ -346,16 +290,15 @@ contains
 
     call mesh_generate_conn(m)
     d = dofmap_t(m, Xh)
+    call gs_init(gs_h, d)
+    call field_init(x,m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,8), n/2)
+    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(d%dof(1,j,lx+1-i,1), d%dof(1,j,i,2))
-      do i2 = 1,lx
-        do j2 = 1,lx
-          if( i .ne. i2 .AND. j .ne. j2) then
-            @assertFalse(d%dof(1,j,lx+1-i,1) .eq. d%dof(1,j2,i2,2))
-          endif
-         enddo
-        enddo
+      @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=1d-14)
       enddo
     enddo 
 
@@ -366,10 +309,12 @@ contains
     class (MpiTestMethod), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
     type(linear_dist_t) :: dist
     type(space_t) :: Xh
     type(point_t) :: p(12)
-    integer :: ierr, i,j, lx, i2, j2
+    integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
     
@@ -414,20 +359,19 @@ contains
          p(1), p(5), p(8), p(4))
     call mesh_add_element(m, 2, p(2), p(9), p(10), p(3), &
          p(6), p(11), p(12), p(7))
-    call mesh_generate_conn(m)
 
     call mesh_generate_conn(m)
     d = dofmap_t(m, Xh)
+    call gs_init(gs_h, d)
+    call field_init(x,m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    
+    call add2(x%x,real(d%dof,8), n/2)
+    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(d%dof(i,j,1,1), d%dof(1,j,i,2))
-      do i2 = 1,lx
-        do j2 = 1,lx
-          if( i .ne. i2 .AND. j .ne. j2) then
-            @assertFalse(d%dof(i,j,1,1) .eq. d%dof(1,j2,i2,2))
-          endif
-         enddo
-        enddo
+      @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=1d-14)
       enddo
     enddo 
 
@@ -438,10 +382,12 @@ contains
     class (MpiTestMethod), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
     type(linear_dist_t) :: dist
     type(space_t) :: Xh
     type(point_t) :: p(12)
-    integer :: ierr, i,j, lx, i2, j2
+    integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
     
@@ -489,16 +435,15 @@ contains
 
     call mesh_generate_conn(m)
     d = dofmap_t(m, Xh)
+    call gs_init(gs_h, d)
+    call field_init(x,m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,8), n/2)
+    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(d%dof(lx+1-j,lx,i,1), d%dof(1,j,i,2))
-      do i2 = 1,lx
-        do j2 = 1,lx
-          if( i .ne. i2 .AND. j .ne. j2) then
-            @assertFalse(d%dof(lx+1-j,lx,i,1) .eq. d%dof(1,j2,i2,2))
-          endif
-         enddo
-        enddo
+      @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=1d-14)
       enddo
     enddo 
 
@@ -509,10 +454,12 @@ contains
     class (MpiTestMethod), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
     type(linear_dist_t) :: dist
     type(space_t) :: Xh
     type(point_t) :: p(12)
-    integer :: ierr, i,j, lx, i2,j2
+    integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
     
@@ -560,16 +507,15 @@ contains
 
     call mesh_generate_conn(m)
     d = dofmap_t(m, Xh)
+    call gs_init(gs_h, d)
+    call field_init(x,m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,8), n/2)
+    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(d%dof(j,1,i,1), d%dof(1,j,i,2))
-      do i2 = 1,lx
-        do j2 = 1,lx
-          if( i .ne. i2 .AND. j .ne. j2) then
-            @assertFalse(d%dof(j,1,i,1) .eq. d%dof(1,j2,i2,2))
-          endif
-         enddo
-        enddo
+      @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=1d-14)
       enddo
     enddo 
 
@@ -580,4 +526,4 @@ contains
 
 
   
-end module dofmap_parallel
+end module gather_scatter_parallel

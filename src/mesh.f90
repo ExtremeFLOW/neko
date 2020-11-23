@@ -45,9 +45,11 @@ module mesh
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
 
      integer, allocatable :: facet_neigh(:,:)  !< Facet to neigh. element table
-     class(htable_t), allocatable :: facet_map !< Facet to element's id tuple 
-                                               !! \f$ t=(odd, even) \f$
 
+     !> Facet to element's id tuple and the mapping of the
+     !! points between lower id element and higher
+     !! \f$ t=(low_id element, element with higher global id) \f$
+     class(htable_t), allocatable :: facet_map 
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
      type(distdata_t) :: distdata              !< Mesh distributed data
@@ -244,9 +246,11 @@ contains
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(m)
     type(mesh_t), intent(inout) :: m
-    type(tuple_i4_t) :: edge, facet_key
-    type(tuple4_i4_t) :: face
-    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
+    type(tuple_i4_t) :: edge
+    type(tuple4_i4_t) :: face 
+    type(tuple_i4_t) :: facet_data
+
+    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, l, l2, temp
 
     if (m%lconn) return
 
@@ -261,7 +265,6 @@ contains
     ! Compute global number of unique points
     call MPI_Allreduce(m%max_pts_id, m%glb_mpts, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
-    
 
     !
     ! Find all (local) boundaries
@@ -279,59 +282,62 @@ contains
                 call m%elements(i)%e%facet_id(edge, j)
                 
                 ! Assume that all facets are on the exterior
-                facet_key = (/ 0, 0 /)
+                facet_data = (/  0, 0/)
                 
-                if (fmp%get(edge, facet_key) .gt. 0) then
+                if (fmp%get(edge, facet_data) .gt. 0) then
                    if (mod(j, 2) .gt. 0) then
-                      facet_key%x(1) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(2)
+                      facet_data%x(1) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_data%x(2)
                    else
-                      facet_key%x(2) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(1)
+                      facet_data%x(2) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_data%x(1)
                    end if
-                   call fmp%set(edge, facet_key)
+                   call fmp%set(edge, facet_data)
                 else
                    if (mod(j, 2) .gt. 0) then
-                      facet_key%x(1) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(2)
+                      facet_data%x(1) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_data%x(2)
                    else
-                      facet_key%x(2) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(1)
+                      facet_data%x(2) = el_glb_idx
+                      m%facet_neigh(j, i) = facet_data%x(1)
                    end if
-                   call fmp%set(edge, facet_key)
+                   call fmp%set(edge, facet_data)
                 end if
              end do
           end do
        end do
     type is(htable_i4t4_t)
-       do k = 1, 2
+        
+        do k = 1,2
           do i = 1, m%nelv
              el_glb_idx = i + m%offset_el
              do j = 1, n_sides
                 call m%elements(i)%e%facet_id(face, j)
-                
-                ! Assume that all facets are on the exterior
-                facet_key = (/ 0, 0 /)
-                
-                if (fmp%get(face, facet_key) .gt. 0) then
-                   if(mod(j, 2) .gt. 0) then
-                      facet_key%x(1) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(2)
-                   else 
-                      facet_key%x(2) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(1)
+               
+                facet_data = (/ 0, 0/)
 
-                   end if
-                   call fmp%set(face, facet_key)                             
+                !check it this face has shown up earlier
+                if (fmp%get(face, facet_data) .eq. 0) then
+                  !if element is already recognized on face
+                  if (facet_data%x(1) .eq. el_glb_idx ) then
+                    m%facet_neigh(j, i) = facet_data%x(2)
+                  else if( facet_data%x(2) .eq. el_glb_idx) then
+                    m%facet_neigh(j, i) = facet_data%x(1)
+                  !if this is the second element, arrange so low id is first
+                  else if(facet_data%x(1) .gt. el_glb_idx) then 
+                    facet_data%x(2) = facet_data%x(1)
+                    facet_data%x(1) = el_glb_idx
+                    m%facet_neigh(j, i) = facet_data%x(2)
+                    call fmp%set(face, facet_data)                             
+                  else if(facet_data%x(1) .lt. el_glb_idx) then 
+                    facet_data%x(2) = el_glb_idx
+                    m%facet_neigh(j, i) = facet_data%x(1)
+                    call fmp%set(face, facet_data)
+                  endif
                 else
-                   if(mod(j, 2) .gt. 0) then
-                      facet_key%x(1) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(2)
-                   else
-                      facet_key%x(2) = el_glb_idx
-                      m%facet_neigh(j, i) = facet_key%x(1)
-                   end if
-                   call fmp%set(face, facet_key)               
+                   facet_data%x(1) = el_glb_idx
+                   m%facet_neigh(j, i) = facet_data%x(2)
+                   call fmp%set(face, facet_data)               
                 end if
           end do
        end do
@@ -369,12 +375,13 @@ contains
   !> Generate element-element connectivity via facets between PEs
   subroutine mesh_generate_external_facet_conn(m)
     type(mesh_t), intent(inout) :: m
-    type(tuple_i4_t) :: edge, facet_key
-    type(tuple4_i4_t) :: face
+    type(tuple_i4_t) :: edge
+    type(tuple4_i4_t) :: face,  face2
+    type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: buffer
     integer, allocatable :: recv_buffer(:)
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
-    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l, l2
+    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el, temp
     integer :: status(MPI_STATUS_SIZE)
 
     if (m%gdim .eq. 2) then
@@ -388,7 +395,7 @@ contains
     call buffer%init()
         
     ! Build send buffers containing
-    ! [el_glb_idx, side number, facet data (global ids of points)]
+    ! [el_glb_idx, side number, facet_id (global ids of points)]
     do i = 1, m%nelv
        el_glb_idx = i + m%offset_el
        do j = 1, n_sides
@@ -436,24 +443,24 @@ contains
 
              edge = (/ recv_buffer(j+2), recv_buffer(j+3) /)
              
-             facet_key = (/ 0 , 0 /)
+             facet_data = (/ 0,0 /)
              !Check if the face is present on this PE
-             if (fmp%get(edge, facet_key) .eq. 0) then
+             if (fmp%get(edge, facet_data) .eq. 0) then
                 ! Determine opposite side and update neighbor
                 if (mod(recv_side, 2) .eq. 1) then
-                   element = facet_key%x(2) - m%offset_el
+                   element = facet_data%x(2) - m%offset_el
                    facet = recv_side + 1
                    m%facet_neigh(facet, element) = -neigh_el
-                   facet_key%x(1) = -neigh_el                   
+                   facet_data%x(1) = -neigh_el                   
                 else  if (mod(recv_side, 2) .eq. 0) then
-                   element = facet_key%x(1) - m%offset_el
+                   element = facet_data%x(1) - m%offset_el
                    facet  = recv_side - 1
                    m%facet_neigh(facet, element) = -neigh_el
-                   facet_key%x(2) = -neigh_el
+                   facet_data%x(2) = -neigh_el
                 end if
 
                 ! Update facet map
-                call fmp%set(edge, facet_key)
+                call fmp%set(edge, facet_data)
 
                 call distdata_set_shared_el_facet(m%distdata, element, facet)
 
@@ -474,24 +481,22 @@ contains
              face = (/ recv_buffer(j+2), recv_buffer(j+3), &
                   recv_buffer(j+4), recv_buffer(j+5) /)
              
-             facet_key = (/ 0 , 0 /)
+               
+             facet_data = (/ 0, 0 /)
+            
              !Check if the face is present on this PE
-             if (fmp%get(face, facet_key) .eq. 0) then
+             if (fmp%get(face, facet_data) .eq. 0) then
                 ! Determine opposite side and update neighbor
-                if (mod(recv_side, 2) .eq. 1) then
-                   element = facet_key%x(2) - m%offset_el
-                   facet = recv_side + 1
-                   m%facet_neigh(facet, element) = -neigh_el
-                   facet_key%x(1) = -neigh_el                   
-                else  if (mod(recv_side, 2) .eq. 0) then
-                   element = facet_key%x(1) - m%offset_el
-                   facet  = recv_side - 1
-                   m%facet_neigh(facet, element) = -neigh_el
-                   facet_key%x(2) = -neigh_el                   
-                end if
+                element = facet_data%x(1) - m%offset_el
+                do l = 1,6
+                   call m%elements(element)%e%facet_id(face2, l)
+                   if(face2 .eq. face) facet = l
+                enddo
+                m%facet_neigh(facet, element) = -neigh_el
+                facet_data%x(2) = -neigh_el                   
 
                 ! Update facet map
-                call fmp%set(face, facet_key)
+                call fmp%set(face, facet_data)
                 
                 call distdata_set_shared_el_facet(m%distdata, element, facet)
                 
@@ -518,8 +523,9 @@ contains
   !> Generate element-element connectivity via points between PEs
   subroutine mesh_generate_external_point_conn(m)
     type(mesh_t), intent(inout) :: m
-    type(tuple_i4_t) :: edge, facet_key
+    type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face
+    type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: send_buffer
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
@@ -653,11 +659,7 @@ contains
        ! ((e1 * C) + e2 )) + glb_max if e1 > e2
        ! ((e2 * C) + e1 )) + glb_max if e2 > e1     
        if (shared_edge) then
-          if (edge%x(1) .gt. edge%x(2)) then
-             glb_id = ((int(edge%x(1), 8) * C) + int(edge%x(2), 8)) + glb_max
-          else
-             glb_id = ((int(edge%x(2), 8) * C) + int(edge%x(1), 8)) + glb_max
-          end if
+          glb_id = ((int(edge%x(1), 8)) + int(edge%x(2), 8)*C) + glb_max
           call glb_to_loc%set(glb_id, id)
           call edge_idx%add(glb_id)
           call owner%add(glb_id) ! Always assume the PE is the owner
@@ -670,7 +672,6 @@ contains
     ! Determine start offset for global numbering of locally owned edges
     edge_offset = 0
     num_edge_loc = non_shared_edges%size()
-
     call MPI_Exscan(num_edge_loc, edge_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     edge_offset = edge_offset + 1
@@ -743,7 +744,7 @@ contains
 
     ! Determine total number of unique edges in the mesh
     ! (This can probably be done in a clever way...)
-    m%glb_meds = shared_offset - 1
+    m%glb_meds = shared_offset -1 
     call MPI_Allreduce(MPI_IN_PLACE, m%glb_meds, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, IERR)    
 
@@ -795,7 +796,7 @@ contains
     type(mesh_t), intent(inout) :: m
     type(htable_iter_i4t4_t), target :: face_it
     type(tuple4_i4_t), pointer :: face, fd(:)
-    type(tuple_i4_t) :: facet_key
+    type(tuple_i4_t) :: facet_data
     type(tuple4_i4_t) :: recv_face
     type(stack_i4t4_t) :: face_owner
     type(htable_i4t4_t) :: face_ghost
@@ -839,15 +840,9 @@ contains
           else
              select type(fmp => m%facet_map)
              type is(htable_i4t4_t)
-                if (fmp%get(face, facet_key) .eq. 0) then
-                   if (facet_key%x(1) .lt. 0) then
-                      if (abs(facet_key%x(1)) .lt. (m%offset_el + 1)) then
-                         call face_ghost%set(face, id)
-                      else
-                         call face_owner%push(face)
-                      end if
-                   else if (facet_key%x(2) .lt. 0) then
-                      if (abs(facet_key%x(2)) .lt. (m%offset_el + 1)) then
+                if (fmp%get(face, facet_data) .eq. 0) then
+                   if (facet_data%x(2) .lt. 0) then
+                      if (abs(facet_data%x(2)) .lt. (m%offset_el + 1)) then
                          call face_ghost%set(face, id)
                       else
                          call face_owner%push(face)
