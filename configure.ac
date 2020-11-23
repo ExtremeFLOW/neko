@@ -79,7 +79,8 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/math/Makefile\
 		 tests/mesh/Makefile\
 		 tests/dofmap/Makefile\
-		 tests/krylov/Makefile])
+		 tests/krylov/Makefile\
+		 tests/bc/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile
