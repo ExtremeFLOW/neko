@@ -35,6 +35,7 @@ module neko
   use field
   use mpi_types
   use gather_scatter
+  use coefs
   use bc
   use wall
   use dirichlet

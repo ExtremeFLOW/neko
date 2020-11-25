@@ -72,19 +72,17 @@ contains
   end subroutine cg_free
   
   !> Standard PCG solve
-  function cg_solve(this, Ax, x, f, n, blst, gs_h, niter) result(iter)
+  function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(iter)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(inout) :: n
     real(kind=dp), dimension(n), intent(inout) :: f
+    type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
-    type(space_t), pointer :: Xh
-    type(mesh_t), pointer :: msh
-    type(dofmap_t), pointer :: dof
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=dp) :: beta, pap, alpha, alphm, eps
     
@@ -99,28 +97,28 @@ contains
     call copy(this%r, f, n)
     call bc_list_apply(blst, this%r, n)
 
-    rnorm = sqrt(glsc3(this%r, gs_h%c, this%r, n))
+    rnorm = sqrt(glsc3(this%r, coef%mult, this%r, n))
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1
-       rtz1 = glsc3(this%r, gs_h%c, this%z, n)
+       rtz1 = glsc3(this%r, coef%mult, this%z, n)
 
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = 0d0
        call add2s1(this%p, this%z, beta, n)
        
-       call Ax%compute(this%w, this%p, x%dof%gxyz, x%msh, x%Xh)
+       call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_op(gs_h, this%w, n, GS_OP_ADD)
        call bc_list_apply(blst, this%w, n)
 
-       pap = glsc3(this%w, gs_h%c, this%p, n)
+       pap = glsc3(this%w, coef%mult, this%p, n)
 
        alpha = rtz1 / pap
        alphm = -alpha
        call add2s2(x%x, this%p, alpha, n)
        call add2s2(this%r, this%w, alphm, n)
 
-       rtr = glsc3(this%r,gs_h%c, this%r, n)
+       rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)       
     end do

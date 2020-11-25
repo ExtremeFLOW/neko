@@ -15,13 +15,14 @@ fast3d.o : fast3d.f90 num_types.o
 tensor.o : tensor.f90 mxm_wrapper.o num_types.o 
 space.o : space.f90 utils.o speclib.o num_types.o 
 dofmap.o : dofmap.f90 math.o tensor.o fast3d.o utils.o num_types.o tuple.o space.o mesh.o 
+coef.o : coef.f90 mesh.o math.o space.o num_types.o gather_scatter.o 
 gather_scatter.o : gather_scatter.f90 utils.o stack.o htable.o num_types.o field.o dofmap.o mesh.o 
 entity.o : entity.f90 
 point.o : point.f90 entity.o math.o num_types.o 
 element.o : element.f90 point.o tuple.o entity.o num_types.o 
-ax.o : ax.f90 bc.o mesh.o field.o space.o num_types.o gather_scatter.o 
+ax.o : ax.f90 mesh.o field.o space.o coef.o num_types.o mxm_wrapper.o 
 precon.o : precon.f90 utils.o math.o 
-krylov.o : krylov.f90 bc.o utils.o field.o mesh.o precon.o num_types.o ax.o 
+krylov.o : krylov.f90 bc.o utils.o field.o mesh.o coef.o precon.o num_types.o ax.o gather_scatter.o 
 cg.o : cg.f90 num_types.o math.o krylov.o 
 quad.o : quad.f90 point.o tuple.o element.o num_types.o 
 hex.o : hex.f90 point.o tuple.o element.o num_types.o 
@@ -44,4 +45,4 @@ file.o : file.f90 vtk_file.o fld_file.o re2_file.o rea_file.o map_file.o nmsh_fi
 bc.o : bc.f90 utils.o tuple.o stack.o mesh.o space.o dofmap.o num_types.o 
 dirichlet.o : dirichlet.f90 bc.o num_types.o 
 wall.o : wall.f90 dirichlet.o num_types.o 
-neko.o : neko.f90 ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o num_types.o 
+neko.o : neko.f90 ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o num_types.o 

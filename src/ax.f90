@@ -2,6 +2,7 @@
 module ax_product
   use mxm_wrapper
   use num_types
+  use coefs
   use space
   use field
   use mesh
@@ -17,19 +18,20 @@ module ax_product
   !!
   !! @param w vector of size @a (lx,ly,lz,nelv)
   !! @param z vector of size @a (lx,ly,lz,nelv)
-  !! @param g geometric factors
+  !! @param coef Coefficients
   !! @param msh mesh
   !! @param Xh function space \f$ X_h \f$
   abstract interface
-  subroutine ax_compute(w, u, g, msh, Xh)
+  subroutine ax_compute(w, u, coef, msh, Xh)
        import space_t
        import mesh_t
+       import coef_t
        import ax_t
        import dp
        implicit none
        type(space_t), intent(inout) :: Xh
        type(mesh_t), intent(inout) :: msh       
-       real(kind=dp), intent(inout) :: g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       type(coef_t), intent(inout) :: coef
        real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
        real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
      end subroutine ax_compute

@@ -9,10 +9,10 @@ module ax_poisson
 
 contains 
   
-  subroutine ax_poisson_compute(w, u, g, msh, Xh)
+  subroutine ax_poisson_compute(w, u, coef, msh, Xh)
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
-    real(kind=dp), intent(inout) :: g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv)        
+    type(coef_t), intent(inout) :: coef
     real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
   
@@ -23,20 +23,27 @@ contains
     integer :: e
   
     do e = 1, msh%nelv
-      call ax_e(w(1,1,1,e), u(1,1,1,e), g(1,1,1,1,e), &
+       call ax_e(w(1,1,1,e), u(1,1,1,e), &
+            coef%g1(1,1,1,e), coef%g2(1,1,1,e), coef%g3(1,1,1,e), &
+            coef%g4(1,1,1,e), coef%g5(1,1,1,e), coef%g6(1,1,1,e), &
             ur, us, ut, wk, Xh%lx, Xh%dx, Xh%dxt)
     end do
 
   end subroutine ax_poisson_compute
   
-  subroutine ax_e(w, u, g, ur, us, ut, wk, lx, D, Dt)
+  subroutine ax_e(w, u, g1, g2, g3, g4, g5, g6, ur, us, ut, wk, lx, D, Dt)
     real(kind=dp), intent(inout) :: w(lx**3)
     real(kind=dp), intent(inout) :: u(lx**3)
+    real(kind=dp), intent(inout) :: g1(lx**3)
+    real(kind=dp), intent(inout) :: g2(lx**3)
+    real(kind=dp), intent(inout) :: g3(lx**3)
+    real(kind=dp), intent(inout) :: g4(lx**3)
+    real(kind=dp), intent(inout) :: g5(lx**3)
+    real(kind=dp), intent(inout) :: g6(lx**3)
     real(kind=dp), intent(inout) :: ur(lx**3)
     real(kind=dp), intent(inout) :: us(lx**3)
     real(kind=dp), intent(inout) :: ut(lx**3)
     real(kind=dp), intent(inout) :: wk(lx**3)
-    real(kind=dp), intent(inout) :: g(6, lx**3)
     real(kind=dp), intent(inout) :: D(lx, lx)
     real(kind=dp), intent(inout) :: Dt(lx, lx)
     integer, intent(inout) :: lx
@@ -47,9 +54,9 @@ contains
     call local_grad3(ur, us, ut, u, n, D, Dt)
   
     do i=1, lx**3
-       wr = g(1,i)*ur(i) + g(2,i)*us(i) + g(3,i)*ut(i)
-       ws = g(2,i)*ur(i) + g(4,i)*us(i) + g(5,i)*ut(i)
-       wt = g(3,i)*ur(i) + g(5,i)*us(i) + g(6,i)*ut(i)
+       wr = g1(i)*ur(i) + g2(i)*us(i) + g3(i)*ut(i)
+       ws = g2(i)*ur(i) + g4(i)*us(i) + g5(i)*ut(i)
+       wt = g3(i)*ur(i) + g5(i)*us(i) + g6(i)*ut(i)
        ur(i) = wr
        us(i) = ws
        ut(i) = wt

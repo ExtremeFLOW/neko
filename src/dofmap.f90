@@ -18,10 +18,9 @@ module dofmap
      real(kind=dp), allocatable :: x(:,:,:,:)      !< Mapping to x-coordinates
      real(kind=dp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
      real(kind=dp), allocatable :: z(:,:,:,:)      !< Mapping to z-coordinates
-     real(kind=dp), allocatable :: gxyz(:,:,:,:,:) !< Geometric factors
 
      type(mesh_t), pointer :: msh
-     type(space_t), pointer :: Xh
+     type(space_t), pointer :: Xh     
    contains
      final :: dofmap_free
   end type dofmap_t
@@ -81,12 +80,6 @@ contains
 
     call dofmap_generate_xyz(this)    
     
-    allocate(this%gxyz(6,Xh%lx,Xh%ly,Xh%lz,msh%nelv))
-    
-    this%gxyz = 0d0
-
-    call dofmap_generate_gxyz(this)   
-
   end function dofmap_init
 
   !> Deallocate the dofmap
@@ -111,9 +104,6 @@ contains
 
     if (allocated(this%z)) then
        deallocate(this%z)
-    end if
-    if (allocated(this%gxyz)) then
-       deallocate(this%gxyz)
     end if
 
     nullify(this%msh)
@@ -602,35 +592,5 @@ contains
        end if
     end do
   end subroutine dofmap_generate_xyz
-
-  !> Generate geometric factors
-  !! @note Assumes \f$ X_h_x = X_h_y = X_h_z \f$
-  !! @todo Fix mapping for arbitrary elements
-  subroutine dofmap_generate_gxyz(this)
-    use num_types
-    implicit none
-    type(dofmap_t), target :: this
-    type(mesh_t), pointer :: msh
-    type(space_t), pointer :: Xh
-    integer :: i, j, k, l
-    
-    msh => this%msh
-    Xh => this%Xh
-    
-    do i = 1, msh%nelv
-       do l = 1, Xh%lz
-          do k = 1, Xh%ly
-             do j = 1, Xh%lx
-                this%gxyz(1, j, k, l, i) = Xh%wx(j) * Xh%wx(k) * Xh%wx(l)
-                this%gxyz(4, j, k, l, i) = Xh%wx(j) * Xh%wx(k) * Xh%wx(l)
-                this%gxyz(6, j, k, l, i) = Xh%wx(j) * Xh%wx(k) * Xh%wx(l)
-             end do
-          end do
-       end do
-    end do
-
-  end subroutine dofmap_generate_gxyz
-
-
   
 end module dofmap
