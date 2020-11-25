@@ -226,7 +226,7 @@ contains
   !> Add a condition to a list of boundary conditions
   subroutine bc_list_add(bclst, bc)
     type(bc_list_t), intent(inout) :: bclst
-    class(bc_t), intent(inout), pointer :: bc
+    class(bc_t), intent(inout), target :: bc
     type(bcp_t), allocatable :: tmp(:)
     integer :: i 
 
