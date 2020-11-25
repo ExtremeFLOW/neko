@@ -9,25 +9,26 @@ subroutine set_bc(bc, msh)
 
   do i = 1, msh%nelv
      if (msh%facet_neigh(1, i) .eq. 0) then
-       call bc%mark_facet(1,i) 
+       call bc%mark_facet(1, i) 
      end if
      if (msh%facet_neigh(2, i) .eq. 0) then
-       call bc%mark_facet(2,i) 
+       call bc%mark_facet(2, i) 
      end if
      if (msh%facet_neigh(3, i) .eq. 0) then
-       call bc%mark_facet(3,i) 
+       call bc%mark_facet(3, i) 
      end if
      if (msh%facet_neigh(4, i) .eq. 0) then
-       call bc%mark_facet(4,i) 
+       call bc%mark_facet(4, i) 
      end if
      if (msh%facet_neigh(5, i) .eq. 0) then
-       call bc%mark_facet(5,i) 
+       call bc%mark_facet(5, i) 
      end if
      if (msh%facet_neigh(6, i) .eq. 0) then
-       call bc%mark_facet(6,i) 
+       call bc%mark_facet(6, i) 
      end if
   enddo
 end subroutine set_bc
+
 ! Setup rhs
 subroutine set_f(f, c, dm, n, gs_h)
   use gather_scatter
@@ -44,11 +45,11 @@ subroutine set_f(f, c, dm, n, gs_h)
   integer :: i, idx(4)
 
   do i = 1, n
-     idx = nonlinear_index(i,8,8,8)
-     dx = dm%x(idx(1),idx(2),idx(3),idx(4)) - 4;
-     dy = dm%y(idx(1),idx(2),idx(3),idx(4)) - 4;
-     dz = dm%z(idx(1),idx(2),idx(3),idx(4)) - 4;
-     f(i) = 500.0*exp(-(dx*dx + dy*dy + dz*dz)/2);
+     idx = nonlinear_index(i, dm%Xh%lx, dm%Xh%ly, dm%Xh%lz)
+     dx = dm%x(idx(1), idx(2), idx(3), idx(4)) - 4;
+     dy = dm%y(idx(1), idx(2), idx(3), idx(4)) - 4;
+     dz = dm%z(idx(1), idx(2), idx(3), idx(4)) - 4;
+     f(i) = 500.0*exp(-(dx**2 + dy**2 + dz**2)/2);
   end do
 
   call gs_op(gs_h, f, n, GS_OP_ADD)
