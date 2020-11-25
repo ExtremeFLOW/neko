@@ -45,4 +45,4 @@ file.o : file.f90 vtk_file.o fld_file.o re2_file.o rea_file.o map_file.o nmsh_fi
 bc.o : bc.f90 utils.o tuple.o stack.o mesh.o space.o dofmap.o num_types.o 
 dirichlet.o : dirichlet.f90 bc.o num_types.o 
 wall.o : wall.f90 dirichlet.o num_types.o 
-neko.o : neko.f90 ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o num_types.o 
+neko.o : neko.f90 ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o num_types.o 
