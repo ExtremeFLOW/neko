@@ -42,6 +42,7 @@ module neko
   use cg
   use precon
   use ax_product
+  use ax_poisson
 contains
 
   subroutine neko_init
