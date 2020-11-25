@@ -95,8 +95,8 @@ contains
        deallocate(coef%mult)
     end if
 
-    coef%msh => null()
-    coef%Xh => null()
+    nullify(coef%msh)
+    nullify(coef%Xh)
     
   end subroutine coef_free
 

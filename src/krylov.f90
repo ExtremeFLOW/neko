@@ -4,6 +4,7 @@ module krylov
   use ax_product
   use num_types
   use precon
+  use coefs    
   use mesh
   use field
   use utils
@@ -30,14 +31,16 @@ module krylov
   !! @param x field to solve for
   !! @param f right hand side 
   !! @param n integer, size of vectors
+  !! @param coef Coefficients
   !! @param blst list of  boundary conditions
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, blst, gs_h, niter) result(iter)
+     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(iter)
        import :: bc_list_t       
        import :: field_t
        import :: ksp_t
+       import :: coef_t
        import :: gs_t
        import :: ax_t
        import dp
@@ -47,6 +50,7 @@ module krylov
        type(field_t), intent(inout) :: x
        integer, intent(inout) :: n
        real(kind=dp), dimension(n), intent(inout) :: f
+       type(coef_t), intent(inout) :: coef
        type(bc_list_t), intent(inout) :: blst
        type(gs_t), intent(inout) :: gs_h              
        integer, optional, intent(in) :: niter       
