@@ -20,12 +20,13 @@ module cg
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this,n, rel_tol, abs_tol)
+  subroutine cg_init(this, n, rel_tol, abs_tol)
     class(cg_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=dp), optional, intent(inout) :: rel_tol
     real(kind=dp), optional, intent(inout) :: abs_tol
 
+        
     call this%free()
     
     allocate(this%w(n))
@@ -81,6 +82,9 @@ contains
     type(gs_t), intent(inout) :: gs_h
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
+    type(space_t), pointer :: Xh
+    type(mesh_t), pointer :: msh
+    type(dofmap_t), pointer :: dof
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=dp) :: beta, pap, alpha, alphm, eps
     
@@ -105,7 +109,7 @@ contains
        if (iter .eq. 1) beta = 0d0
        call add2s1(this%p, this%z, beta, n)
        
-       call Ax%compute(this%w, this%p, x%dof, x%Xh, n)
+       call Ax%compute(this%w, this%p, x%dof%gxyz, x%msh, x%Xh)
        call gs_op(gs_h, this%w, n, GS_OP_ADD)
        call bc_list_apply(blst, this%w, n)
 

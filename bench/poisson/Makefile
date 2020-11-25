@@ -3,7 +3,7 @@ LIBS    = `pkg-config --libs neko`
 FC      = `pkg-config --variable=compiler neko`
 
 DEST    = poisson
-SRC	= setup.f90 driver.f90
+SRC	= ax_poisson.f90 setup.f90 driver.f90
 OBJ	= ${SRC:.f90=.o}
 
 all: $(DEST)

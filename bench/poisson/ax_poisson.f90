@@ -1,13 +1,7 @@
-!> Defines a Matrix-vector product
 module ax_poisson
-  use num_types
-  use space
-  use field
-  use mesh
   use ax_product
   implicit none
 
-  !> Base type for a matrix-vector product providing \f$ Ax \f$
   type, public, extends(ax_t) :: ax_poisson_t
   contains
      procedure, nopass :: compute => ax_poisson_compute
@@ -15,33 +9,27 @@ module ax_poisson
 
 contains 
   
-  subroutine ax_poisson_compute(w, u, dof, Xh, n)
-    use utils
-    implicit none
-    type(dofmap_t), intent(inout) :: dof
+  subroutine ax_poisson_compute(w, u, g, msh, Xh)
+    type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
-    integer, intent(inout) :: n
-    real(kind=dp), dimension(n), intent(inout) :: w
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=dp), intent(inout) :: g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv)        
+    real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
   
     real(kind=dp) :: ur(Xh%lx**3)
     real(kind=dp) :: us(Xh%lx**3)
     real(kind=dp) :: ut(Xh%lx**3)
     real(kind=dp) :: wk(Xh%lx**3)
-    integer :: e,ele
+    integer :: e
   
-    do e = 1, dof%msh%nelv
-      ele = linear_index(1,1,1,e, Xh%lx, Xh%lx, Xh%lx)
-      call ax_e(w(ele), u(ele), dof%gxyz(1,1,1,1,e), &
+    do e = 1, msh%nelv
+      call ax_e(w(1,1,1,e), u(1,1,1,e), g(1,1,1,1,e), &
             ur, us, ut, wk, Xh%lx, Xh%dx, Xh%dxt)
     end do
 
   end subroutine ax_poisson_compute
   
   subroutine ax_e(w, u, g, ur, us, ut, wk, lx, D, Dt)
-    use num_types
-    implicit none
-    
     real(kind=dp), intent(inout) :: w(lx**3)
     real(kind=dp), intent(inout) :: u(lx**3)
     real(kind=dp), intent(inout) :: ur(lx**3)
@@ -72,8 +60,6 @@ contains
   end subroutine ax_e
   
   subroutine local_grad3(ur, us, ut, u, n, D, Dt)
-    use num_types
-    use mxm_wrapper
     implicit none
     
     real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)

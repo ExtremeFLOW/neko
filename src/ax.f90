@@ -1,11 +1,10 @@
 !> Defines a Matrix-vector product
 module ax_product
-  use gather_scatter
+  use mxm_wrapper
   use num_types
   use space
   use field
   use mesh
-  use bc
   implicit none
 
   !> Base type for a matrix-vector product providing \f$ Ax \f$
@@ -16,26 +15,23 @@ module ax_product
 
   !> Abstract interface for computing\f$ Ax \f$ inside a Krylov method
   !!
-  !! @param w vector of length @a n
-  !! @param z vector of length @a n
+  !! @param w vector of size @a (lx,ly,lz,nelv)
+  !! @param z vector of size @a (lx,ly,lz,nelv)
   !! @param g geometric factors
   !! @param msh mesh
   !! @param Xh function space \f$ X_h \f$
-  !! @param n integer, size of vectors
   abstract interface
-  subroutine ax_compute(w, u, dof, Xh, n)
-       import bc_list_t
+  subroutine ax_compute(w, u, g, msh, Xh)
        import space_t
-       import dofmap_t
-       import gs_t
+       import mesh_t
        import ax_t
        import dp
        implicit none
-       type(dofmap_t), intent(inout) :: dof
        type(space_t), intent(inout) :: Xh
-       integer, intent(inout) :: n
-       real(kind=dp), dimension(n), intent(inout) :: w
-       real(kind=dp), dimension(n), intent(inout) :: u
+       type(mesh_t), intent(inout) :: msh       
+       real(kind=dp), intent(inout) :: g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
      end subroutine ax_compute
   end interface
   

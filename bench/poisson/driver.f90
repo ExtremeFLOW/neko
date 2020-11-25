@@ -1,5 +1,6 @@
 program poisson
   use neko
+  use ax_poisson
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: fname, lxchar
@@ -19,17 +20,17 @@ program poisson
 
   argc = command_argument_count()
 
-  if ((argc .lt. 2) .or. (argc .gt. 2)) then
-     write(*,*) 'Usage: ./nekobone <neko mesh> <N>'
+  if ((argc .lt. 1) .or. (argc .gt. 1)) then
+     write(*,*) 'Usage: ./poisson <N>'
      stop
   end if
   
   call neko_init 
   
-  call get_command_argument(1, fname)
-  call get_command_argument(2, lxchar)
+  call get_command_argument(1, lxchar)
   read(lxchar, *) lx
   
+  fname = '512.nmsh'
   nmsh_file = file_t(fname)
   call nmsh_file%read(msh)  
   call mesh_generate_conn(msh)
@@ -39,12 +40,12 @@ program poisson
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)
   
-  call field_init(x, msh, Xh, "x")
+  call field_init(x, dm, "x")
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
   call dir_bc%init(dm)
-  call dir_bc%set_g(real(0.0,kind=dp))
+  call dir_bc%set_g(0d0)
  
   !user specified
   call set_bc(dir_bc, msh)
@@ -70,7 +71,8 @@ program poisson
   it = solver%solve(ax,x,f, n, bclst, gs_h, niter)
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
 
-  mf =  file_t('out.fld')
+  fname = 'out.fld'
+  mf =  file_t(fname)
   call mf%write(x)
   deallocate(f)
   call solver%free()
