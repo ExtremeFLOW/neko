@@ -23,19 +23,19 @@ module ax_product
   !! @param Xh function space \f$ X_h \f$
   !! @param n integer, size of vectors
   abstract interface
-     subroutine ax_compute(w, z, msh, Xh, n)
+  subroutine ax_compute(w, u, dof, Xh, n)
        import bc_list_t
        import space_t
-       import mesh_t
+       import dofmap_t
        import gs_t
        import ax_t
        import dp
        implicit none
-       type(mesh_t), intent(inout) :: msh
+       type(dofmap_t), intent(inout) :: dof
        type(space_t), intent(inout) :: Xh
        integer, intent(inout) :: n
        real(kind=dp), dimension(n), intent(inout) :: w
-       real(kind=dp), dimension(n), intent(inout) :: z
+       real(kind=dp), dimension(n), intent(inout) :: u
      end subroutine ax_compute
   end interface
   
