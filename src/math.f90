@@ -79,6 +79,17 @@ contains
     end do
   end subroutine cadd
 
+  !> Invert a vector \f$ a = 1 / a \f$
+  subroutine invcol1(a, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
+    integer :: i
+
+    do i = 1, n
+       a(i) = 1d0 / a(i)
+    end do
+    
+  end subroutine invcol1
 
   !> Compute a cross product \f$ u = v \times w \f$
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
