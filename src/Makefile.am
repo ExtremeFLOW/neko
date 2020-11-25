@@ -15,8 +15,9 @@ libneko_a_SOURCES = \
 	math.f90\
 	fast3d.f90\
 	tensor.f90\
-	space.f90\
+        space.f90\
 	dofmap.f90\
+	coef.f90\
 	gather_scatter.f90\
 	entity.f90\
 	point.f90\
