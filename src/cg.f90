@@ -8,7 +8,6 @@ module cg
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_t
      real(kind=dp), allocatable :: w(:)
-     real(kind=dp), allocatable :: c(:)
      real(kind=dp), allocatable :: r(:)
      real(kind=dp), allocatable :: p(:)
      real(kind=dp), allocatable :: z(:)
@@ -21,12 +20,19 @@ module cg
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this, rel_tol, abs_tol)
+  subroutine cg_init(this,n, rel_tol, abs_tol)
     class(cg_t), intent(inout) :: this
+    integer, intent(in) :: n
     real(kind=dp), optional, intent(inout) :: rel_tol
     real(kind=dp), optional, intent(inout) :: abs_tol
 
     call this%free()
+    
+    allocate(this%w(n))
+    allocate(this%r(n))
+    allocate(this%p(n))
+    allocate(this%z(n))
+
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
@@ -48,10 +54,6 @@ contains
 
     if (allocated(this%w)) then
        deallocate(this%w)
-    end if
-
-    if (allocated(this%c)) then
-       deallocate(this%c)
     end if
 
     if (allocated(this%r)) then
@@ -88,39 +90,37 @@ contains
        max_iter = KSP_MAX_ITER
     end if
 
-
     rtz1 = 1d0
     call rzero(x%x, n)
     call copy(this%r, f, n)
     call bc_list_apply(blst, this%r, n)
 
-    rnorm = sqrt(glsc3(this%r, this%c, this%r, n))
+    rnorm = sqrt(glsc3(this%r, gs_h%c, this%r, n))
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
-
        rtz2 = rtz1
-       rtz1 = glsc3(this%r, this%c, this%z, n)
+       rtz1 = glsc3(this%r, gs_h%c, this%z, n)
 
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = 0d0
        call add2s1(this%p, this%z, beta, n)
        
-       call Ax%compute(this%w, this%z, x%msh, x%Xh, n)
+       call Ax%compute(this%w, this%p, x%dof, x%Xh, n)
        call gs_op(gs_h, this%w, n, GS_OP_ADD)
        call bc_list_apply(blst, this%w, n)
 
-       pap = glsc3(this%w, this%c, this%p, n)
+       pap = glsc3(this%w, gs_h%c, this%p, n)
 
        alpha = rtz1 / pap
        alphm = -alpha
        call add2s2(x%x, this%p, alpha, n)
        call add2s2(this%r, this%w, alphm, n)
 
-       rtr = glsc3(this%r, this%c, this%r, n)
+       rtr = glsc3(this%r,gs_h%c, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)       
     end do
-    
+    print *, rnorm
   end function cg_solve
 
 end module cg
