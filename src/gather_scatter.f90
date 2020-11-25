@@ -22,6 +22,7 @@ module gather_scatter
   
   type gs_t
      real(kind=dp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
+     real(kind=dp), allocatable :: c(:)        !> Inverse of counting matrix
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:)          !< Local gs to dof mapping
      integer, allocatable :: local_blk_len(:)         !< Local non-facet blocks
@@ -57,7 +58,7 @@ contains
   subroutine gs_init(gs, dofmap)
     type(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
-    integer :: i
+    integer :: i, n
 
     call gs_free(gs)
 
@@ -74,6 +75,9 @@ contains
     call gs_init_mapping(gs)
 
     call gs_schedule(gs)
+    n = dofmap%msh%nelv * dofmap%Xh%lx * dofmap%Xh%ly * dofmap%Xh%lz
+    allocate(gs%c(n))
+    call gs_set_multiplicity(gs,n)
     
   end subroutine gs_init
 
@@ -84,6 +88,9 @@ contains
 
     nullify(gs%dofmap)
 
+    if (allocated(gs%c)) then
+       deallocate(gs%c)
+    end if
     if (allocated(gs%local_gs)) then
        deallocate(gs%local_gs)
     end if
@@ -948,6 +955,23 @@ contains
     deallocate(shared_flg)
 
   end subroutine gs_schedule
+
+  !> Inverse of counting matrix
+  subroutine gs_set_multiplicity(gs_h, n)
+    use num_types
+    implicit none
+    
+    type(gs_t), intent(inout) :: gs_h
+    integer, intent(inout) :: n
+    integer :: i
+    call rone(gs_h%c, n)
+    call gs_op(gs_h, gs_h%c, n, GS_OP_ADD)
+  
+    do i = 1, n
+       gs_h%c(i) = 1d0 / gs_h%c(i)
+    end do
+  end subroutine gs_set_multiplicity
+
 
   !> Gather-scatter operation on a field @a u with op @a op
   subroutine gs_op_fld(gs, u, op)
