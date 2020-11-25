@@ -57,7 +57,7 @@ contains
   subroutine gs_init(gs, dofmap)
     type(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
-    integer :: i, n
+    integer :: i
 
     call gs_free(gs)
 
