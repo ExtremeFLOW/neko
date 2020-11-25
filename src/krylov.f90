@@ -1,5 +1,6 @@
 !> Krylov solver
 module krylov
+  use gather_scatter
   use ax_product
   use num_types
   use precon
@@ -55,7 +56,7 @@ module krylov
   
 contains
 
-  !> Create a krylov solver with @a nvec of size @a n
+  !> Create a krylov solver
   subroutine krylov_init(this, rel_tol, abs_tol)    
     class(ksp_t), intent(inout) :: this
     real(kind=dp), optional, intent(in) :: rel_tol
