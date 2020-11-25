@@ -35,6 +35,13 @@ module neko
   use field
   use mpi_types
   use gather_scatter
+  use bc
+  use wall
+  use dirichlet
+  use krylov
+  use cg
+  use precon
+  use ax_product
 contains
 
   subroutine neko_init
