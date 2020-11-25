@@ -13,12 +13,13 @@ module dofmap
   private
 
   type, public :: dofmap_t
-     integer(kind=8), allocatable :: dof(:,:,:,:) !< Mapping to unique dof
-     logical, allocatable :: shared_dof(:,:,:,:)  !< True if the dof is shared
-     real(kind=dp), allocatable :: x(:,:,:,:)     !< Mapping to x-coordinates
-     real(kind=dp), allocatable :: y(:,:,:,:)     !< Mapping to y-coordinates
-     real(kind=dp), allocatable :: z(:,:,:,:)     !< Mapping to z-coordinates
-     real(kind=dp), allocatable :: gxyz(:,:,:,:,:)        !< Geometric factors
+     integer(kind=8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
+     logical, allocatable :: shared_dof(:,:,:,:)   !< True if the dof is shared
+     real(kind=dp), allocatable :: x(:,:,:,:)      !< Mapping to x-coordinates
+     real(kind=dp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
+     real(kind=dp), allocatable :: z(:,:,:,:)      !< Mapping to z-coordinates
+     real(kind=dp), allocatable :: gxyz(:,:,:,:,:) !< Geometric factors
+
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
    contains
@@ -602,8 +603,9 @@ contains
     end do
   end subroutine dofmap_generate_xyz
 
-  !> Generate x,y,z-coordinates for all dofs
+  !> Generate geometric factors
   !! @note Assumes \f$ X_h_x = X_h_y = X_h_z \f$
+  !! @todo Fix mapping for arbitrary elements
   subroutine dofmap_generate_gxyz(this)
     use num_types
     implicit none
