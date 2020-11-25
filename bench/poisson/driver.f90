@@ -13,6 +13,7 @@ program poisson
   type(bc_list_t) :: bclst
   type(field_t) :: x
   type(ax_poisson_t) :: ax
+  type(coef_t) :: coef
   type(cg_t) :: solver
   integer :: argc, lx, n, n_glb, niter, ierr, it
   character(len=80) :: suffix
@@ -39,6 +40,8 @@ program poisson
 
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)
+
+  call coef_init(coef, gs_h)
   
   call field_init(x, dm, "x")
 
@@ -59,16 +62,16 @@ program poisson
   allocate(f(n))
 
   !user specified
-  call set_f(f, gs_h%c,dm, n, gs_h)
+  call set_f(f, coef%mult, dm, n, gs_h)
   
-  it = solver%solve(ax,x,f, n, bclst, gs_h, niter)
+  it = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
 
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
   
   call MPI_Barrier(NEKO_COMM, ierr)
 
   call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
-  it = solver%solve(ax,x,f, n, bclst, gs_h, niter)
+  it = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
 
   fname = 'out.fld'
