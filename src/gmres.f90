@@ -223,26 +223,28 @@ contains
             conv = .true.
             exit
           end if
-          temp = 1./alpha
-          call cmult2(this%v(1,j+1),this%w,temp,n) ! v    = w / alpha
+          if( j .lt. this%lgmres) then
+            temp = 1./alpha
+            call cmult2(this%v(1,j+1),this%w,temp,n) ! v    = w / alpha
                                                      !  j+1            
+          endif
        enddo
-    enddo
-    j = min(j, this%lgmres)
-    !back substitution
-    !     -1
-    !c = H   gamma
-    do k=j,1,-1
-       temp = this%gam(k)
-       do i=j,k+1,-1
-          temp = temp - this%h(k,i)*this%c(i)
+       j = min(j, this%lgmres)
+       !back substitution
+       !     -1
+       !c = H   gamma
+       do k=j,1,-1
+          temp = this%gam(k)
+          do i=j,k+1,-1
+             temp = temp - this%h(k,i)*this%c(i)
+          enddo
+          this%c(k) = temp/this%h(k,k)
        enddo
-       this%c(k) = temp/this%h(k,k)
+       !sum up Arnoldi vectors
+       do i=1,j
+          call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
+       enddo                                             !          i  i
     enddo
-    !sum up Arnoldi vectors
-    do i=1,j,this%lgmres
-       call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
-    enddo                                             !          i  i
     call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
     print *, "Residual:", rnorm
   end function gmres_solve
