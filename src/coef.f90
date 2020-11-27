@@ -20,6 +20,9 @@ module coefs
 
      real(kind=dp), allocatable :: mult(:,:,:,:) !< Multiplicity
      
+     real(kind=dp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
+     real(kind=dp) :: volume
+     
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
   end type coef_t
@@ -61,6 +64,9 @@ contains
     call gs_op_vector(gs_h, coef%mult, n, GS_OP_ADD)
     call invcol1(coef%mult, n)
     
+    allocate(coef%B(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    call coef_generate_mass(coef)
+    
   end subroutine coef_init
 
   !> Deallocate coefficients
@@ -94,6 +100,11 @@ contains
     if (allocated(coef%mult)) then
        deallocate(coef%mult)
     end if
+    
+    if (allocated(coef%B)) then
+       deallocate(coef%B)
+    end if
+
 
     nullify(coef%msh)
     nullify(coef%Xh)
@@ -122,6 +133,20 @@ contains
     end do
     
   end subroutine coef_generate_geom
+ 
+  !> Generate mass matrix B for the given mesh and space
+  !! @note This is also a stapleholder, we need to go through the coef class properly.
+  subroutine coef_generate_mass(c)
+    type(coef_t), intent(inout) :: c
+    integer :: e, j, k, l
+    c%B = 1d0 
+   ! do e = 1, c%msh%nelv
+   !   call col2(c%B(1,1,1,e),YM1(1,1,1,e),)
+   ! enddo
+    c%volume = c%msh%glb_nelv
+    
+  end subroutine coef_generate_mass
   
+   
   
 end module coefs
