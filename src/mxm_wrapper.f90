@@ -1,5 +1,6 @@
 !> Wrapper for all matrix-matrix product implementations
 module mxm_wrapper
+  use mxm_std
   use num_types
   implicit none
 

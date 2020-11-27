@@ -25,6 +25,7 @@ module neko
   use re2
   use rea
   use mxm_wrapper
+  use mxm_std
   use rea_file
   use re2_file
   use map_file
