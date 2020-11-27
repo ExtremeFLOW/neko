@@ -43,6 +43,7 @@ module neko
   use cg
   use precon
   use ax_product
+  use gmres
 contains
 
   subroutine neko_init
