@@ -47,6 +47,7 @@ libneko_a_SOURCES = \
 	bc.f90\
 	dirichlet.f90\
 	wall.f90\
+	gmres.f90\
 	neko.f90
 
 
