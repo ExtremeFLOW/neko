@@ -1,4 +1,4 @@
-!> Defines various Conjugate Gradient methods
+!> Defines various GMRES methods
 module gmres
   use krylov
   use comm
@@ -20,7 +20,6 @@ module gmres
      real(kind=dp), allocatable :: mu(:)
      real(kind=dp), allocatable :: gam(:)
      real(kind=dp), allocatable :: wk1(:)
-
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -36,7 +35,13 @@ contains
     real(kind=dp), optional, intent(inout) :: lgmres
     real(kind=dp), optional, intent(inout) :: rel_tol
     real(kind=dp), optional, intent(inout) :: abs_tol
-    this%lgmres = 30
+
+    if (present(lgmres)) then
+       this%lgmres = lgmres
+    else
+       this%lgmres = 30
+    end if
+
     call this%free()
 
     allocate(this%w(n))
@@ -54,8 +59,7 @@ contains
     
     allocate(this%h(this%lgmres,this%lgmres))
     
-    
-    
+       
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
     else if (present(rel_tol)) then
@@ -68,7 +72,7 @@ contains
           
   end subroutine gmres_init
 
-  !> Deallocate a standard PCG solver
+  !> Deallocate a standard GMRES solver
   subroutine gmres_free(this)
     class(gmres_t), intent(inout) :: this
 
@@ -85,32 +89,39 @@ contains
     if (allocated(this%r)) then
        deallocate(this%r)
     end if
-   !Why no work?
- !   if (allocated(this%z)) then
- !      deallocate(this%z)
- !   end if
+ 
+    if (allocated(this%z)) then
+       deallocate(this%z)
+    end if
 
     if (allocated(this%h)) then
        deallocate(this%h)
     end if
+    
     if (allocated(this%ml)) then
        deallocate(this%ml)
     end if
+    
     if (allocated(this%v)) then
        deallocate(this%v)
     end if
+    
     if (allocated(this%s)) then
        deallocate(this%s)
     end if
+    
     if (allocated(this%mu)) then
        deallocate(this%mu)
     end if
+    
     if (allocated(this%gam)) then
        deallocate(this%gam)
     end if
+    
     if (allocated(this%wk1)) then
        deallocate(this%wk1)
     end if
+    
   end subroutine gmres_free
  
   !> Standard PCG solve
@@ -143,10 +154,10 @@ contains
     tolpss = this%abs_tol
     call rzero(x%x,n)
     outer = 0
-    do while (.not. conv)
+    do while (.not. conv .and. iter .lt. niter)
        outer = outer+1
 
-       if(iter.eq.0) then                   !      -1
+       if(iter.eq.0) then               !      -1
           call col3(this%r,this%ml,f,n) ! r = L  res
        else
           !update residual
@@ -154,20 +165,19 @@ contains
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call add2s2(this%r,this%w,-1d0,n)   ! r = r - w
-
+          call add2s2(this%r,this%w,-1d0,n)  ! r = r - w
                                              !      -1
           call col2(this%r,this%ml,n)        ! r = L   r
        endif
-                                                          !            ______
+                                                            !            ______
        this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n)) ! gamma  = \/ (r,r) 
-                                                          !      1
+                                                            !      1
        if(iter.eq.0) then
           div0 = this%gam(1)*norm_fac
        endif
 
        rnorm = 0.
-       temp = 1./this%gam(1)
+       temp = 1d0 / this%gam(1)
        call cmult2(this%v(1,1),this%r,temp,n) ! v  = r / gamma
                                                 !  1            1
        do j=1,this%lgmres
@@ -177,7 +187,7 @@ contains
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
 
-          call ortho        (this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
+          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
@@ -185,15 +195,16 @@ contains
 
           do i=1,j
              this%h(i,j)=vlsc3(this%w,this%v(1,i),coef%mult,n) ! h    = (w,v )
-          enddo                                            !  i,j       i
+          enddo                                                !  i,j       i
          
           !Could prorbably be done inplace...
-          call MPI_Allreduce(this%h(1,j),this%wk1,n,MPI_DOUBLE_PRECISION,MPI_SUM,NEKO_COMM,ierr)
+          call MPI_Allreduce(this%h(1,j), this%wk1, n, &
+               MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, n) 
 
           do i=1,j
              call add2s2(this%w,this%v(1,i),-this%h(i,j),n) ! w = w - h    v
-          enddo                                                !          i,j  i
+          enddo                                             !          i,j  i
 
           !apply Givens rotations to new column
           do i=1,j-1
@@ -209,7 +220,7 @@ contains
             exit
           end if
           l = sqrt(this%h(j,j)*this%h(j,j)+alpha*alpha)
-          temp = 1./l
+          temp = 1d0 / l
           this%c(j) = this%h(j,j) * temp
           this%s(j) = alpha  * temp
           this%h(j,j) = l
@@ -217,14 +228,17 @@ contains
           this%gam(j)   =  this%c(j) * this%gam(j)
 
           rnorm = abs(this%gam(j+1))*norm_fac
-          ratio = rnorm/div0
+          ratio = rnorm / div0
           !Should maybe change so that we return that we havent converged if iter > niter
-          if (iter+1.gt.niter .or. rnorm .lt. tolpss) then 
-            conv = .true.
-            exit
+          if (rnorm .lt. tolpss) then 
+             conv = .true.
+             exit
           end if
+         
+          if (iter+1.gt.niter) exit
+          
           if( j .lt. this%lgmres) then
-            temp = 1./alpha
+            temp = 1d0 / alpha
             call cmult2(this%v(1,j+1),this%w,temp,n) ! v    = w / alpha
                                                      !  j+1            
           endif
@@ -238,21 +252,23 @@ contains
           do i=j,k+1,-1
              temp = temp - this%h(k,i)*this%c(i)
           enddo
-          this%c(k) = temp/this%h(k,k)
+          this%c(k) = temp / this%h(k,k)
        enddo
        !sum up Arnoldi vectors
        do i=1,j
           call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
-       enddo                                             !          i  i
+       enddo                                       !          i  i
     enddo
-    call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
+!    call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
     print *, "Residual:", rnorm
   end function gmres_solve
+
   !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
   !! @note Should probably be moved somewhere else.
   subroutine ortho(x,n ,glb_n)
-    integer, intent(in) :: n, glb_n
-    real(kind=dp), dimension(n) :: x
+    integer, intent(in) :: n
+    integer, intent(inout) :: glb_n
+    real(kind=dp), dimension(n), intent(inout) :: x
     real(kind=dp) :: rlam
 
     rlam = glsum(x,n)/glb_n
