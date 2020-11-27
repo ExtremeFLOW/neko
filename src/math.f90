@@ -154,11 +154,12 @@ contains
 
   !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$  
   function vlsc3(u, v, w, n) result(s)
-    integer :: n    
-    real(kind=dp), dimension(n) :: u, v, w
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(in) :: u, v, w
     real(kind=dp) :: s
     integer :: i
 
+    s = 0d0
     do i = 1, n 
       s = s + u(i)*v(i)*w(i)
     end do
