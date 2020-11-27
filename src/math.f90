@@ -79,6 +79,21 @@ contains
     end do
   end subroutine cadd
 
+  !>Sum a vector of length n 
+  function glsum(a, n) 
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n) :: a
+    real(kind=dp) :: tmp, glsum
+    integer :: i, ierr
+    tmp = 0d0
+    do i = 1, n
+       tmp = tmp + a(i)
+    end do
+    call MPI_Allreduce(tmp, glsum, 1, &
+         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    
+  end function glsum
+
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
     integer, intent(in) :: n
@@ -136,6 +151,19 @@ contains
     end do
 
   end subroutine vdot3
+
+  !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$  
+  function vlsc3(u, v, w, n) result(s)
+    integer :: n    
+    real(kind=dp), dimension(n) :: u, v, w
+    real(kind=dp) :: s
+    integer :: i
+
+    do i = 1, n 
+      s = s + u(i)*v(i)*w(i)
+    end do
+
+  end function vlsc3
 
   !> Vector addition \f$ a = a + b \f$
   subroutine add2(a, b, n)
@@ -208,6 +236,21 @@ contains
     end do
     
   end subroutine add2s2
+  
+  !>Multiplication by constant c \f$ a = c \cdot b \f$
+  subroutine cmult2(a, b, c, n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c * b(i)
+    end do
+    
+  end subroutine cmult2
+
 
   !> Vector multiplication \f$ a = a \cdot b \f$
   subroutine col2(a, b, n)
@@ -221,6 +264,21 @@ contains
     end do
     
   end subroutine col2
+
+  !> Vector multiplication with 3 vectors \f$ a = a \cdot b \cdot c \f$
+  subroutine col3(a, b, c, n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) =  b(i) * c(i)
+    end do
+    
+  end subroutine col3
+
 
   !> Weighted inner product \f$ a^T b c \f$
   function glsc3(a, b, c, n)
