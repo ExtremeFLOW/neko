@@ -32,7 +32,7 @@ contains
   subroutine gmres_init(this, n, lgmres, rel_tol, abs_tol)
     class(gmres_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), optional, intent(inout) :: lgmres
+    integer, optional, intent(inout) :: lgmres
     real(kind=dp), optional, intent(inout) :: rel_tol
     real(kind=dp), optional, intent(inout) :: abs_tol
 
@@ -137,8 +137,8 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, glb_n
     integer :: i, j, k, ierr 
-    real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=dp) :: beta, pap, alpha, alphm, eps, temp, l
+    real(kind=dp) :: rnorm 
+    real(kind=dp) ::  alpha, temp, l
     real(kind=dp) :: ratio, div0, norm_fac, tolpss
     logical :: conv
     integer outer
@@ -150,9 +150,14 @@ contains
     call rone(this%ml,n)
     call rone(this%mu ,n)
     norm_fac = 1./sqrt(coef%volume)
-
+    ! Should change when doing real problem
+    norm_fac = 1d0
     tolpss = this%abs_tol
     call rzero(x%x,n)
+    call rzero(this%gam,this%lgmres+1)
+    call rone(this%s,this%lgmres)
+    call rone(this%c,this%lgmres)
+    call rzero(this%h,this%lgmres*this%lgmres)
     outer = 0
     do while (.not. conv .and. iter .lt. niter)
        outer = outer+1
@@ -166,7 +171,6 @@ contains
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
           call add2s2(this%r,this%w,-1d0,n)  ! r = r - w
-                                             !      -1
           call col2(this%r,this%ml,n)        ! r = L   r
        endif
                                                             !            ______
@@ -179,7 +183,6 @@ contains
        rnorm = 0.
        temp = 1d0 / this%gam(1)
        call cmult2(this%v(1,1),this%r,temp,n) ! v  = r / gamma
-                                                !  1            1
        do j=1,this%lgmres
           iter = iter+1
           call col3(this%w,this%mu,this%v(1,j),n) ! w  = U   v
@@ -187,7 +190,7 @@ contains
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
 
-          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
+          !call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
@@ -198,9 +201,9 @@ contains
           enddo                                                !  i,j       i
          
           !Could prorbably be done inplace...
-          call MPI_Allreduce(this%h(1,j), this%wk1, n, &
+          call MPI_Allreduce(this%h(1,j), this%wk1, j, &
                MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-          call copy(this%h(1,j), this%wk1, n) 
+          call copy(this%h(1,j), this%wk1, j) 
 
           do i=1,j
              call add2s2(this%w,this%v(1,i),-this%h(i,j),n) ! w = w - h    v
@@ -259,8 +262,8 @@ contains
           call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
        enddo                                       !          i  i
     enddo
-!    call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
-    print *, "Residual:", rnorm
+    !call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
+    print *, "Residual:", rnorm, iter
   end function gmres_solve
 
   !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
