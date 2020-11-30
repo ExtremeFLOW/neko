@@ -50,14 +50,18 @@ module neko
 contains
 
   subroutine neko_init
-    write(*,*) ''
-    write(*,*) 'N E K O'
-    write(*,*) '(version: ', trim(NEKO_VERSION),')'
-    write(*,*) trim(NEKO_BUILD_INFO)
-    write(*,*) ''
-    
+
     call comm_init
     call mpi_types_init
+
+    if (pe_rank .eq. 0) then
+       write(*,*) ''
+       write(*,*) 'N E K O'
+       write(*,*) '(version: ', trim(NEKO_VERSION),')'
+       write(*,*) trim(NEKO_BUILD_INFO)
+       write(*,*) ''
+    end if
+    
   end subroutine neko_init
 
   subroutine neko_finalize
