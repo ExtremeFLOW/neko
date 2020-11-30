@@ -63,6 +63,7 @@ program poisson
 
   !user specified
   call set_f(f, coef%mult, dm, n, gs_h)
+  call bc_list_apply(bclst,f,n)
   
   it = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
 
