@@ -4,6 +4,7 @@ module mpi_types
   use mpi
   use re2
   use nmsh
+  use parameters
   implicit none
   private
 
@@ -12,6 +13,8 @@ module mpi_types
 
   integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
   integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+
+  integer :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
 
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
@@ -22,7 +25,8 @@ module mpi_types
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, &
        MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
        MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
-       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE
+       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, &
+       MPI_NEKO_PARAMS
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -39,6 +43,8 @@ contains
 
     call mpi_type_re2_xyz_init
     call mpi_type_re2_xy_init
+
+    call mpi_type_neko_params_init
 
     ! Check sizes of MPI types
     call MPI_Type_size(MPI_REAL, MPI_REAL_SIZE, ierr)
@@ -174,12 +180,36 @@ contains
 
   end subroutine mpi_type_re2_xy_init
 
+  !> Define a MPI derived type for parameters
+  subroutine mpi_type_neko_params_init
+    type(param_t) :: param_data
+    integer(kind=MPI_ADDRESS_KIND) :: disp(2), base    
+    integer :: type(2), len(2), ierr
+
+    call MPI_Get_address(param_data%dt, disp(1), ierr)
+    call MPI_Get_address(param_data%nsteps, disp(2), ierr)
+
+    base = disp(1)
+    disp(1) = disp(1) - base
+    disp(2) = disp(2) - base
+
+    len = 1
+
+    type(1) = MPI_DOUBLE_PRECISION
+    type(2) = MPI_INTEGER
+    
+    call MPI_Type_create_struct(2, len, disp, type, MPI_NEKO_PARAMS, ierr)
+    call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
+
+  end subroutine mpi_type_neko_params_init
+
   !> Deallocate all dervied MPI types
   subroutine mpi_types_free
     call mpi_type_nmsh_hex_free
     call mpi_Type_nmsh_quad_free
     call mpi_type_re2_xyz_free
     call mpi_type_re2_xy_free
+    call mpi_type_neko_params_free
   end subroutine mpi_types_free
 
   !> Deallocate nmsh hex derived MPI type
@@ -200,10 +230,16 @@ contains
     call MPI_Type_free(MPI_RE2_DATA_XYZ, ierr)
   end subroutine mpi_type_re2_xyz_free
 
-    !> Deallocate re2 xyz dervied MPI type
+  !> Deallocate re2 xyz dervied MPI type
   subroutine mpi_type_re2_xy_free
     integer ierr
     call MPI_Type_free(MPI_RE2_DATA_XY, ierr)
   end subroutine mpi_type_re2_xy_free
+
+  !> Deallocate parameters dervied MPI type
+  subroutine mpi_type_neko_params_free
+    integer ierr
+    call MPI_Type_free(MPI_NEKO_PARAMS, ierr)
+  end subroutine mpi_type_neko_params_free
   
 end module mpi_types
