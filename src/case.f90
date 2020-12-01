@@ -3,9 +3,11 @@ module case
   use num_types
   use fluid_schemes
   use parameters
+  use mpi_types
   use file
   use utils
   use mesh
+  use comm
   implicit none
 
   type :: case_t
@@ -32,12 +34,47 @@ contains
          solver_velocity, solver_pressure
 
 
+    integer :: ierr
     type(file_t) :: msh_file
-   
-    open(10, file=trim(case_file))
-    read(10, nml=NEKO_CASE)
-    close(10)
-        
+    integer, parameter :: nbytes = 2*NEKO_FNAME_LEN + 160 + 4
+    character buffer(nbytes)
+    integer :: pack_index
+    
+    if (pe_rank .eq. 0) then
+       open(10, file=trim(case_file))
+       read(10, nml=NEKO_CASE)
+       close(10)
+
+       pack_index = 1
+       call MPI_Pack(mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(fluid_scheme, NEKO_FNAME_LEN, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(solver_velocity, 80, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(solver_pressure, 80, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(lx, 1, MPI_INTEGER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
+       !> @todo bcast params
+    else
+       call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
+       pack_index = 1
+
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            fluid_scheme, NEKO_FNAME_LEN, MPI_CHARACTER, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            solver_velocity, 80, MPI_CHARACTER, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            solver_pressure, 80, MPI_CHARACTER, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            lx, 1, MPI_INTEGER, NEKO_COMM, ierr)
+
+    end if
+               
     msh_file = file_t(mesh_file)
     call msh_file%read(C%msh)
 
