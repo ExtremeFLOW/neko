@@ -7,6 +7,7 @@ module fluid_plan1
   type, extends(fluid_scheme_t) :: fluid_plan1_t
      type(space_t) :: Yh        !< Function space for pressure \f$ Xh - 2 \f$
      type(dofmap_t) :: dofp     !< Dofmap associated with \f$ Yh \f$
+     !>@todo Remaning plan1 related data, ax, precon etc
    contains
      procedure, pass(this) :: init => fluid_plan1_init
      procedure, pass(this) :: free => fluid_plan1_free
@@ -15,14 +16,16 @@ module fluid_plan1
 
 contains
 
-  subroutine fluid_plan1_init(this, msh, lx)
+  subroutine fluid_plan1_init(this, msh, lx, vel, prs)
     class(fluid_plan1_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    character(len=80), intent(inout) :: vel
+    character(len=80), intent(inout) :: prs
     integer :: lx2
 
     !> Setup velocity fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx)
+    call this%scheme_init(msh, lx, solver_vel=vel)
 
     !> Setup pressure field and related space \f$ Yh \f$
     lx2 = lx - 2
@@ -35,6 +38,8 @@ contains
     this%dofp = dofmap_t(msh, this%Yh)
         
     call field_init(this%p, this%dofp)
+
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dofp%size(), prs)
     
   end subroutine fluid_plan1_init
 

@@ -13,6 +13,7 @@ contains
     t = 0d0
     do i = 1, C%params%nsteps
        call C%fluid%step()
+       !> @todo Add call to sampler
        t = t + C%params%dt
     end do
     

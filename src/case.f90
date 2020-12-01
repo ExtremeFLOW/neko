@@ -16,15 +16,21 @@ module case
 
 contains
 
+  !> Initialize a case from an input file @a case_file
   subroutine case_init(C, case_file)
     type(case_t), intent(inout) :: C
     character(len=*), intent(in) :: case_file
 
+    ! Namelist for case description
     character(len=NEKO_FNAME_LEN) :: mesh_file = ''
     character(len=NEKO_FNAME_LEN) :: fluid_scheme  = ''
+    character(len=80) :: solver_velocity = ''
+    character(len=80) :: solver_pressure = ''
     integer :: lx = 0
     type(param_t) :: params
-    namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx, params
+    namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx, params, &
+         solver_velocity, solver_pressure
+
 
     type(file_t) :: msh_file
    
@@ -45,10 +51,11 @@ contains
        call neko_error('Invalid fluid scheme')
     end if
 
-    call C%fluid%init(C%msh, lx)
+    call C%fluid%init(C%msh, lx, solver_velocity, solver_pressure)
     
   end subroutine case_init
 
+  !> Deallocate a case 
   subroutine case_free(C)
     type(case_t), intent(inout) :: C
 

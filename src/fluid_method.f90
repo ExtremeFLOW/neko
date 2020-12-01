@@ -4,6 +4,8 @@ module fluid_method
   use space
   use dofmap
   use krylov
+  use cg
+  use gmres
   use mesh
   implicit none
   
@@ -18,21 +20,25 @@ module fluid_method
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
    contains
-     procedure, pass(this) :: scheme_init => fluid_scheme_init
+     procedure, pass(this) :: fluid_scheme_init_all
+     procedure, pass(this) :: fluid_scheme_init_uvw
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
+     generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_uvw
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_method_init(this, msh, lx)
+     subroutine fluid_method_init(this, msh, lx, vel, prs)
        import fluid_scheme_t
        import mesh_t
        class(fluid_scheme_t), intent(inout) :: this
        type(mesh_t), intent(inout) :: msh
        integer, intent(inout) :: lx
+       character(len=80), intent(inout) :: vel
+       character(len=80), intent(inout) :: prs
      end subroutine fluid_method_init
   end interface
 
@@ -54,10 +60,12 @@ module fluid_method
 
 contains
 
-  subroutine fluid_scheme_init(this, msh, lx)
+  !> Initialize all velocity related components of the current scheme
+  subroutine fluid_scheme_init_uvw(this, msh, lx, solver_vel)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    character(len=80), intent(inout) :: solver_vel
 
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -70,9 +78,38 @@ contains
     call field_init(this%u, this%dof)
     call field_init(this%v, this%dof)
     call field_init(this%w, this%dof)
-    
-  end subroutine fluid_scheme_init
 
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dof%size(), solver_vel)
+        
+  end subroutine fluid_scheme_init_uvw
+
+  !> Initialize all components of the current scheme
+  subroutine fluid_scheme_init_all(this, msh, lx, solver_vel, solver_prs)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(mesh_t), intent(inout) :: msh
+    integer, intent(inout) :: lx
+    character(len=80), intent(inout) :: solver_vel
+    character(len=80), intent(inout) :: solver_prs
+
+    if (msh%gdim .eq. 2) then
+       call space_init(this%Xh, GLL, lx, lx)
+    else
+       call space_init(this%Xh, GLL, lx, lx, lx)
+    end if
+
+    this%dof = dofmap_t(msh, this%Xh)
+
+    call field_init(this%u, this%dof)
+    call field_init(this%v, this%dof)
+    call field_init(this%w, this%dof)
+    call field_init(this%p, this%dof)
+
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dof%size(), solver_vel)
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dof%size(), solver_prs)
+    
+  end subroutine fluid_scheme_init_all
+
+  !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
 
@@ -94,5 +131,29 @@ contains
     end if
     
   end subroutine fluid_scheme_free
+
+  !> Initialize a linear solver
+  !! @note Currently only supporting Krylov solvers
+  subroutine fluid_scheme_solver_factory(ksp, n, solver)
+    class(ksp_t), allocatable, intent(inout) :: ksp
+    integer, intent(in), value :: n
+    character(len=80), intent(inout) :: solver
+
+    if (trim(solver) .eq. 'cg') then
+       allocate(cg_t::ksp)
+    else if (trim(solver) .eq. 'gmres') then
+       allocate(gmres_t::ksp)
+    else
+       call neko_error('Unknown linear solver')
+    end if
+
+    select type(kp => ksp)
+    type is(cg_t)
+       call kp%init(n)
+    type is(gmres_t)
+       call kp%init(n)
+    end select
+    
+  end subroutine fluid_scheme_solver_factory
   
 end module fluid_method

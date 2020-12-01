@@ -6,6 +6,7 @@ module fluid_plan4
   implicit none
 
   type, extends(fluid_scheme_t) :: fluid_plan4_t
+     !>@todo Add plan4 related data, ax, precon ect
    contains
      procedure, pass(this) :: init => fluid_plan4_init
      procedure, pass(this) :: free => fluid_plan4_free
@@ -14,13 +15,15 @@ module fluid_plan4
 
 contains
 
-  subroutine fluid_plan4_init(this, msh, lx)
+  subroutine fluid_plan4_init(this, msh, lx, vel, prs)
     class(fluid_plan4_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
-
+    character(len=80), intent(inout) :: vel
+    character(len=80), intent(inout) :: prs
+    
     !> Setup velocity and pressure fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx)
+    call this%scheme_init(msh, lx, solver_vel=vel, solver_prs=prs)
 
   end subroutine fluid_plan4_init
 
