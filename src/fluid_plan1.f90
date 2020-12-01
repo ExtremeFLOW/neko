@@ -1,0 +1,57 @@
+!> Classic NEKTON formulation
+!! Compute pressure and velocity using consistent approximation spaces.
+module fluid_plan1
+  use fluid_method
+  implicit none
+
+  type, extends(fluid_scheme_t) :: fluid_plan1_t
+     type(space_t) :: Yh        !< Function space for pressure \f$ Xh - 2 \f$
+     type(dofmap_t) :: dofp     !< Dofmap associated with \f$ Yh \f$
+   contains
+     procedure, pass(this) :: init => fluid_plan1_init
+     procedure, pass(this) :: free => fluid_plan1_free
+     procedure, pass(this) :: step => fluid_plan1_step
+  end type fluid_plan1_t
+
+contains
+
+  subroutine fluid_plan1_init(this, msh, lx)
+    class(fluid_plan1_t), intent(inout) :: this
+    type(mesh_t), intent(inout) :: msh
+    integer, intent(inout) :: lx
+    integer :: lx2
+
+    !> Setup velocity fields on the space \f$ Xh \f$
+    call this%scheme_init(msh, lx)
+
+    !> Setup pressure field and related space \f$ Yh \f$
+    lx2 = lx - 2
+    if (msh%gdim .eq. 2) then
+       call space_init(this%Yh, GLL, lx2, lx2)
+    else
+       call space_init(this%Yh, GLL, lx2, lx2, lx2)
+    end if
+
+    this%dofp = dofmap_t(msh, this%Yh)
+        
+    call field_init(this%p, this%dofp)
+    
+  end subroutine fluid_plan1_init
+
+  subroutine fluid_plan1_free(this)
+    class(fluid_plan1_t), intent(inout) :: this
+
+    ! Deallocate velocity and pressure fields
+    call this%scheme_free()
+
+    ! Deallocate Pressure dofmap and space
+    call space_free(this%Yh)
+    
+  end subroutine fluid_plan1_free
+
+  subroutine fluid_plan1_step(this)
+    class(fluid_plan1_t), intent(inout) :: this
+
+  end subroutine fluid_plan1_step
+  
+end module fluid_plan1

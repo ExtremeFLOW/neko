@@ -1,6 +1,7 @@
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	num_types.f90\
+	parameters.f90\
 	nmsh.f90\
 	re2.f90\
 	map.f90\
@@ -49,6 +50,12 @@ libneko_a_SOURCES = \
 	wall.f90\
 	gmres.f90\
 	neko_config.f90\
+	case.f90\
+	fluid_method.f90\
+	fluid_plan4.f90\
+	fluid_plan1.f90\
+	fluid_schemes.f90\
+	simulation.f90\
 	neko.f90
 
 bin_PROGRAMS = neko
