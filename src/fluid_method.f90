@@ -3,6 +3,7 @@ module fluid_method
   use field
   use space
   use dofmap
+  use krylov
   use mesh
   implicit none
   
@@ -14,6 +15,8 @@ module fluid_method
      type(field_t) :: p         !< Pressure
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dof      !< Dofmap assoicated with \f$ X_h \f$
+     class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
+     class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
    contains
      procedure, pass(this) :: scheme_init => fluid_scheme_init
      procedure, pass(this) :: scheme_free => fluid_scheme_free
@@ -79,6 +82,16 @@ contains
     call field_free(this%p)
 
     call space_free(this%Xh)
+
+    if (allocated(this%ksp_vel)) then
+       call this%ksp_vel%free()
+       deallocate(this%ksp_vel)
+    end if
+
+    if (allocated(this%ksp_prs)) then
+       call this%ksp_prs%free()
+       deallocate(this%ksp_prs)
+    end if
     
   end subroutine fluid_scheme_free
   
