@@ -25,7 +25,7 @@ contains
   !! @note currently limited to one scalar field (field_t) containing
   !! double precision data
   subroutine fld_file_write(this, data)
-    class(fld_file_t), intent(in) :: this
+    class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     type(field_t), pointer :: f
     type(mesh_t), pointer :: msh
@@ -41,6 +41,7 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     real(kind=dp), allocatable :: tmp(:)
     real(kind=sp), parameter :: test_pattern = 6.54321
+    logical :: write_mesh
    
     select type(data)
     type is (field_t)
@@ -56,12 +57,19 @@ contains
     !
     ! Create fld header for NEKTON's multifile output
     !
+
+    write_mesh = (this%counter .eq. 0)
     
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
     rdcode = ' '
-    rdcode(1) = 'X'
-    rdcode(2) = 'P'
+    i = 1
+    if (write_mesh) then
+       rdcode(i) = 'X'
+       i = i + 1
+    end if
+    rdcode(i) = 'P'
+
 
     !> @todo fix support for single precision output?
     write(hdr, 1) 8,Xh%lx, Xh%ly, Xh%lz,msh%glb_nelv,msh%glb_nelv,&
@@ -77,7 +85,7 @@ contains
 
     ! Change to NEKTON's fld file format
     suffix_pos = filename_suffix_pos(this%fname)
-    write(id_str, '(a,i5.5)') 'f', 1
+    write(id_str, '(a,i5.5)') 'f', this%counter
     fname = trim(this%fname(1:suffix_pos-1))//'0.'//id_str
     
     call MPI_File_open(NEKO_COMM, trim(fname), &
@@ -94,49 +102,51 @@ contains
     call MPI_File_write_at_all(fh, byte_offset, idx, msh%nelv, &
          MPI_INTEGER, status, ierr)
     mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * int(MPI_INTEGER_SIZE, 8)
-    
+
     deallocate(idx)
     
     n = 3*(Xh%lx * Xh%ly * Xh%lz * msh%nelv)
     allocate(tmp(n))
-    
-    i = 1
-    do el = 1, msh%nelv
-       do l = 1, Xh%lz
-          do k = 1, Xh%ly
-             do j = 1, Xh%lx
-                tmp(i) = dof%x(j,k,l,el)
-                i = i +1
+       
+    if (write_mesh) then
+       i = 1
+       do el = 1, msh%nelv
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp(i) = dof%x(j,k,l,el)
+                   i = i +1
+                end do
+             end do
+          end do
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp(i) = dof%y(j,k,l,el)
+                   i = i +1
+                end do
+             end do
+          end do
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp(i) = dof%z(j,k,l,el)
+                   i = i +1
+                end do
              end do
           end do
        end do
-       do l = 1, Xh%lz
-          do k = 1, Xh%ly
-             do j = 1, Xh%lx
-                tmp(i) = dof%y(j,k,l,el)
-                i = i +1
-             end do
-          end do
-       end do
-       do l = 1, Xh%lz
-          do k = 1, Xh%ly
-             do j = 1, Xh%lx
-                tmp(i) = dof%z(j,k,l,el)
-                i = i +1
-             end do
-          end do
-       end do
-    end do
-
-    byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-         (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-         int(MPI_DOUBLE_PRECISION_SIZE, 8))
-    call MPI_File_write_at_all(fh, byte_offset, tmp, n, &
-         MPI_DOUBLE_PRECISION, status, ierr)
-    mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
-         (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-         int(MPI_DOUBLE_PRECISION_SIZE, 8))
-    
+       
+       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
+            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            int(MPI_DOUBLE_PRECISION_SIZE, 8))
+       call MPI_File_write_at_all(fh, byte_offset, tmp, n, &
+            MPI_DOUBLE_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
+            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            int(MPI_DOUBLE_PRECISION_SIZE, 8))
+    end if
+ 
     i = 1
     do el = 1, msh%nelv
        do l = 1, Xh%lz
@@ -159,16 +169,19 @@ contains
     
     call MPI_File_close(fh, ierr)
 
-    ! Write metadata file (dummy file for single field_t)
+    ! Write metadata file 
     if (pe_rank .eq. 0) then
-       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//'.nek5000')
+       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//'.nek5000', &
+            status='replace')
        write(9, fmt='(A,A,A)') 'filetemplate:         ', &
             this%fname(1:suffix_pos-1),'%01d.f%05d'
-       write(9, fmt='(A)') 'firsttimestep: 1'
-       write(9, fmt='(A)') 'numtimestep: 1'
+       write(9, fmt='(A)') 'firsttimestep: 0'
+       write(9, fmt='(A,i5)') 'numtimesteps: ', this%counter + 1
        write(9, fmt='(A)') 'type: binary'
        close(9)
     end if
+
+    this%counter = this%counter + 1
     
   end subroutine fld_file_write
   
