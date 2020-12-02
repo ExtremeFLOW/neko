@@ -4,9 +4,10 @@ module fld_file
   use generic_file
   use field
   use dofmap
+  use fluid_method
   use mesh
   use utils
-  use comm
+  use comm  
   use mpi_types
   implicit none
   private
@@ -21,13 +22,12 @@ module fld_file
 
 contains
 
-  !> Write a field from a NEKTON fld file
-  !! @note currently limited to one scalar field (field_t) containing
-  !! double precision data
+  !> Write fields to a NEKTON fld file
+  !! @note currently limited to double precision data
   subroutine fld_file_write(this, data)
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    type(field_t), pointer :: f
+    type(field_t), pointer :: u, v, w, p
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
     type(dofmap_t), pointer :: dof
@@ -41,14 +41,27 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     real(kind=dp), allocatable :: tmp(:)
     real(kind=sp), parameter :: test_pattern = 6.54321
-    logical :: write_mesh
-   
+    logical :: write_mesh, write_velocity, write_pressure
+
+      
     select type(data)
     type is (field_t)
-       f => data
-       msh => f%msh
-       Xh => f%Xh
-       dof => f%dof
+       p => data
+       msh => p%msh
+       Xh => p%Xh
+       dof => p%dof
+       write_pressure = .true.
+       write_velocity = .false.
+    class is (fluid_scheme_t)
+       u => data%u
+       v => data%v
+       w => data%w
+       p => data%p
+       msh => p%msh              
+       Xh => p%Xh
+       dof => p%dof
+       write_pressure = .true.
+       write_velocity = .true.
     class default
        call neko_error('Invalid data')
     end select
@@ -68,7 +81,13 @@ contains
        rdcode(i) = 'X'
        i = i + 1
     end if
-    rdcode(i) = 'P'
+    if (write_velocity) then
+       rdcode(i) = 'U'
+       i = i + 1
+    end if
+    if (write_pressure) then
+       rdcode(i) = 'P'
+    end if
 
 
     !> @todo fix support for single precision output?
@@ -146,25 +165,66 @@ contains
             (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
             int(MPI_DOUBLE_PRECISION_SIZE, 8))
     end if
- 
-    i = 1
-    do el = 1, msh%nelv
-       do l = 1, Xh%lz
-          do k = 1, Xh%ly
-             do j = 1, Xh%lx
-                tmp(i) = real(f%x(j,k,l,el))
-                i = i + 1
+
+    if (write_velocity) then
+       i = 1
+       do el = 1, msh%nelv
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp(i) = u%x(j,k,l,el)
+                   i = i +1
+                end do
+             end do
+          end do
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp(i) = v%x(j,k,l,el)
+                   i = i +1
+                end do
+             end do
+          end do
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp(i) = w%x(j,k,l,el)
+                   i = i +1
+                end do
              end do
           end do
        end do
-    end do
-
-    byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-         (int((Xh%lx * Xh%ly * Xh%lz), 8) * &
-         int(MPI_DOUBLE_PRECISION_SIZE, 8))
-    call MPI_File_write_at_all(fh, byte_offset, f%x, n/3, &
-         MPI_DOUBLE_PRECISION, status, ierr)
-
+       
+       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
+            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            int(MPI_DOUBLE_PRECISION_SIZE, 8))
+       call MPI_File_write_at_all(fh, byte_offset, tmp, n, &
+            MPI_DOUBLE_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
+            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            int(MPI_DOUBLE_PRECISION_SIZE, 8))
+    end if
+ 
+    if (write_pressure) then
+       i = 1
+       do el = 1, msh%nelv
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp(i) = real(p%x(j,k,l,el))
+                   i = i + 1
+                end do
+             end do
+          end do
+       end do
+       
+       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
+            (int((Xh%lx * Xh%ly * Xh%lz), 8) * &
+            int(MPI_DOUBLE_PRECISION_SIZE, 8))
+       call MPI_File_write_at_all(fh, byte_offset, p%x, n/3, &
+            MPI_DOUBLE_PRECISION, status, ierr)
+    end if
+    
     deallocate(tmp)
     
     call MPI_File_close(fh, ierr)
