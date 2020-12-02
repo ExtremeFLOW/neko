@@ -100,8 +100,8 @@ contains
       end do
    end do
 
-   call gs_op_vector(gs_h, this%d, dof%n, GS_OP_ADD)
-   call invcol1(this%d,dof%n)
+   call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
+   call invcol1(this%d,dof%n_dofs)
 !      IF (IFDFRM(e)) THEN
 !            do 600 j=1,ly,ly-1
 !            do 600 k=1,lz,lz-1
