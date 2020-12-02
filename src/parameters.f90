@@ -5,21 +5,24 @@ module parameters
 
   type param_t
      real(kind=dp) :: dt        !< time-step size     
-     integer :: nsteps          !< Number of time-stpes
+     integer :: nsteps          !< Number of time-stpes     
+  end type param_t
+
+  type param_io_t
+     type(param_t) p
    contains
      procedure  :: param_read
      generic :: read(formatted) => param_read
-
-  end type param_t
+  end type param_io_t
 
   interface write(formatted)
      module procedure :: param_write
   end interface write(formatted)
   
 contains
-  
+
   subroutine param_read(param, unit, iotype, v_list, iostat, iomsg)
-    class(param_t), intent(inout) ::  param
+    class(param_io_t), intent(inout) ::  param
     integer(kind=4), intent(in) :: unit
     character(len=*), intent(in) :: iotype
     integer, intent(in) :: v_list(:)
@@ -31,13 +34,13 @@ contains
     namelist /NEKO_PARAMETERS/ dt, nsteps
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat)
-    param%dt = dt
-    param%nsteps = nsteps 
+    param%p%dt = dt
+    param%p%nsteps = nsteps 
         
   end subroutine param_read
 
     subroutine param_write(param, unit, iotype, v_list, iostat, iomsg)
-    class(param_t), intent(in) ::  param
+    class(param_io_t), intent(in) ::  param
     integer(kind=4), intent(in) :: unit
     character(len=*), intent(in) :: iotype
     integer, intent(in) :: v_list(:)
@@ -48,8 +51,8 @@ contains
     integer :: nsteps
     namelist /NEKO_PARAMETERS/ dt, nsteps
 
-    dt = param%dt
-    nsteps = param%nsteps
+    dt = param%p%dt
+    nsteps = param%p%nsteps
     write(unit, nml=NEKO_PARAMETERS)
 
         
@@ -57,3 +60,4 @@ contains
 
   
 end module parameters
+
