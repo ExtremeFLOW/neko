@@ -23,7 +23,7 @@ point.o : point.f90 entity.o math.o num_types.o
 element.o : element.f90 point.o tuple.o entity.o num_types.o 
 ax.o : ax.f90 mesh.o field.o space.o coef.o num_types.o mxm_wrapper.o 
 precon.o : precon.f90 utils.o math.o 
-krylov.o : krylov.f90 bc.o utils.o field.o mesh.o coef.o precon.o num_types.o ax.o gather_scatter.o 
+krylov.o : krylov.f90 pc_identity.o bc.o utils.o field.o mesh.o coef.o precon.o num_types.o ax.o gather_scatter.o 
 cg.o : cg.f90 num_types.o math.o krylov.o 
 quad.o : quad.f90 point.o tuple.o element.o num_types.o 
 hex.o : hex.f90 point.o tuple.o element.o num_types.o 
@@ -47,6 +47,8 @@ bc.o : bc.f90 utils.o tuple.o stack.o mesh.o space.o dofmap.o num_types.o
 dirichlet.o : dirichlet.f90 bc.o num_types.o 
 wall.o : wall.f90 dirichlet.o num_types.o 
 gmres.o : gmres.f90 num_types.o math.o comm.o krylov.o 
+pc_jacobi.o : pc_jacobi.f90 gather_scatter.o ax.o precon.o utils.o math.o 
+pc_identity.o : pc_identity.f90 ax.o precon.o utils.o math.o 
 neko_config.o : neko_config.f90 
 case.o : case.f90 comm.o mesh.o utils.o file.o mpi_types.o parameters.o fluid_schemes.o num_types.o 
 fluid_method.o : fluid_method.f90 mesh.o gmres.o cg.o coef.o krylov.o dofmap.o space.o field.o gather_scatter.o 
@@ -54,5 +56,5 @@ fluid_plan4.o : fluid_plan4.f90 fluid_method.o
 fluid_plan1.o : fluid_plan1.f90 fluid_method.o 
 fluid_schemes.o : fluid_schemes.f90 fluid_plan4.o fluid_plan1.o fluid_method.o 
 simulation.o : simulation.f90 case.o 
-neko.o : neko.f90 simulation.o case.o neko_config.o gmres.o ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o parameters.o num_types.o 
+neko.o : neko.f90 simulation.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o parameters.o num_types.o 
 driver.o : driver.f90 neko.o 

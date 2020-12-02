@@ -23,7 +23,6 @@ module dofmap
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
 
-
    contains
      procedure, pass(this) :: size => dofmap_size
      final :: dofmap_free
