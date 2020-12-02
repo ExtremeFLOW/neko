@@ -19,7 +19,7 @@ module dofmap
      real(kind=dp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
      real(kind=dp), allocatable :: z(:,:,:,:)      !< Mapping to z-coordinates
      integer :: n_dofs                             !< Total number of dofs
-     
+
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
 
@@ -79,7 +79,7 @@ contains
     allocate(this%x(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     allocate(this%y(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     allocate(this%z(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
-
+    
     this%x = 0d0
     this%y = 0d0
     this%z = 0d0
