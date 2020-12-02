@@ -23,7 +23,7 @@ contains
 
   !> Write data in legacy VTK
   subroutine vtk_file_write(this, data)
-    class(vtk_file_t), intent(in) :: this
+    class(vtk_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     type(mesh_t), pointer :: msh => null()
     type(field_t), pointer :: fld => null()

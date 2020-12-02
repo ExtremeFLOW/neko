@@ -197,7 +197,7 @@ contains
   end subroutine rea_file_read
 
   subroutine rea_file_write(this, data)
-    class(rea_file_t), intent(in) :: this
+    class(rea_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
   end subroutine rea_file_write
 

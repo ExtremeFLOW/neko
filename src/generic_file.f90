@@ -15,7 +15,7 @@ module generic_file
   abstract interface
      subroutine generic_file_write(this, data)
        import :: generic_file_t
-       class(generic_file_t), intent(in) :: this
+       class(generic_file_t), intent(inout) :: this
        class(*), target, intent(in) :: data
      end subroutine generic_file_write
   end interface

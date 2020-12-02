@@ -104,7 +104,7 @@ contains
 
     !> Load a mesh from a binary Neko nmsh file
   subroutine nmsh_file_write(this, data)
-    class(nmsh_file_t), intent(in) :: this
+    class(nmsh_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data  
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)

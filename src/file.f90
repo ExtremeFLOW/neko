@@ -70,7 +70,7 @@ contains
   !> Write @a data to a file
   !! @param data Data to be written
   subroutine file_write(this, data)
-    class(file_t), intent(in) :: this
+    class(file_t), intent(inout) :: this
     class(*), intent(inout) :: data
 
     call this%file_type%write(data)
