@@ -1,4 +1,4 @@
-!> Defines a simulation
+!> Defines a simulation case
 module case
   use num_types
   use fluid_schemes
