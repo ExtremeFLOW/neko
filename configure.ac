@@ -50,6 +50,12 @@ fi
 #   AC_MSG_ERROR([Can't find a suitable Gather-Scatter library])
 #fi			
 
+AC_FC_PP_SRCEXT([F90])
+AX_COMPILER_VENDOR
+
+# Store build information (date, host, FC)
+AC_SUBST(NEKO_BUILD_INFO,
+        ["(build: $(date +%Y-%m-%d) on $host using $ax_cv_fc_compiler_vendor)"], [])
 
 # Checks for Doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
@@ -66,7 +72,11 @@ AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 AX_PFUNIT
 
 
-AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile neko.pc])
+AC_CONFIG_FILES([Makefile\
+		 src/Makefile\
+		 tests/Makefile\
+	 	 src/neko_config.f90\
+		 neko.pc])
 
 # Config tests
 AC_CONFIG_FILES([tests/stack/Makefile\

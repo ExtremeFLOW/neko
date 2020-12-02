@@ -202,7 +202,7 @@ contains
 
   end subroutine mesh_init_common
   
-  !> Deallocate a mesh %a m
+  !> Deallocate a mesh @a m
   subroutine mesh_free(m)
     type(mesh_t), intent(inout) :: m
     integer :: i

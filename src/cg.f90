@@ -20,8 +20,9 @@ module cg
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this, n, rel_tol, abs_tol)
+  subroutine cg_init(this, n, M, rel_tol, abs_tol)
     class(cg_t), intent(inout) :: this
+    class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=dp), optional, intent(inout) :: rel_tol
     real(kind=dp), optional, intent(inout) :: abs_tol
@@ -33,7 +34,9 @@ contains
     allocate(this%r(n))
     allocate(this%p(n))
     allocate(this%z(n))
-
+    if (present(M)) then 
+       this%M => M
+    end if
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
@@ -69,6 +72,9 @@ contains
        deallocate(this%z)
     end if
 
+    nullify(this%M)
+
+
   end subroutine cg_free
   
   !> Standard PCG solve
@@ -95,7 +101,6 @@ contains
     rtz1 = 1d0
     call rzero(x%x, n)
     call copy(this%r, f, n)
-    call bc_list_apply(blst, this%r, n)
 
     rnorm = sqrt(glsc3(this%r, coef%mult, this%r, n))
     do iter = 1, max_iter
@@ -120,9 +125,9 @@ contains
 
        rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
-       rnorm = sqrt(rtr)       
+       rnorm = sqrt(rtr)    
     end do
-    print *, rnorm
+    print *,"Residual: ", rnorm
   end function cg_solve
 
 end module cg
