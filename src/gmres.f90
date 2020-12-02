@@ -29,9 +29,10 @@ module gmres
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_init(this, n, lgmres, rel_tol, abs_tol)
+  subroutine gmres_init(this, n, M, lgmres, rel_tol, abs_tol)
     class(gmres_t), intent(inout) :: this
     integer, intent(in) :: n
+    class(pc_t), optional, intent(inout), target :: M
     integer, optional, intent(inout) :: lgmres
     real(kind=dp), optional, intent(inout) :: rel_tol
     real(kind=dp), optional, intent(inout) :: abs_tol
@@ -41,8 +42,13 @@ contains
     else
        this%lgmres = 30
     end if
+    
 
     call this%free()
+    
+    if (present(M)) then 
+       this%M => M
+    end if
 
     allocate(this%w(n))
     allocate(this%r(n))
@@ -121,6 +127,8 @@ contains
     if (allocated(this%wk1)) then
        deallocate(this%wk1)
     end if
+    
+    nullify(this%M)
     
   end subroutine gmres_free
  
