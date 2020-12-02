@@ -2,6 +2,7 @@
 !
 module neko
   use num_types
+  use parameters    
   use comm
   use utils
   use math
@@ -45,14 +46,58 @@ module neko
   use precon
   use ax_product
   use gmres
+  use neko_config
+  use case
+  use simulation
 contains
 
-  subroutine neko_init
+  subroutine neko_init(C)
+    type(case_t), intent(inout), optional :: C
+    character(len=NEKO_FNAME_LEN) :: case_file
+    character(len=10) :: suffix
+    integer :: argc
+
     call comm_init
     call mpi_types_init
+
+    if (pe_rank .eq. 0) then
+       write(*,*) ''
+       write(*,*) 'N E K O'
+       write(*,*) '(version: ', trim(NEKO_VERSION),')'
+       write(*,*) trim(NEKO_BUILD_INFO)
+       write(*,*) ''
+    end if
+
+    if (present(C)) then
+
+       argc = command_argument_count()
+
+       if ((argc .lt. 1) .or. (argc .gt. 1)) then
+          write(*,*) 'Usage: ./neko <case file>'
+          stop
+       end if
+
+       call get_command_argument(1, case_file)
+
+       call filename_suffix(case_file, suffix)
+
+       if (trim(suffix) .ne. 'case') then
+          call neko_error('Invalid case file')
+       end if
+       
+       call case_init(C, case_file)
+       
+    end if
+    
   end subroutine neko_init
 
-  subroutine neko_finalize
+  subroutine neko_finalize(C)
+    type(case_t), intent(inout), optional :: C
+
+    if (present(C)) then
+       call case_free(C)
+    end if
+
     call mpi_types_free
     call comm_free
   end subroutine neko_finalize

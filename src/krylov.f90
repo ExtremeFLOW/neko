@@ -24,6 +24,7 @@ module krylov
      procedure, pass(this) :: ksp_init => krylov_init
      procedure, pass(this) :: ksp_free => krylov_free
      procedure(ksp_method), pass(this), deferred :: solve
+     procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
   
   !> Abstract interface for a Krylov method's solve routine
@@ -56,6 +57,14 @@ module krylov
        integer, optional, intent(in) :: niter       
        integer :: iter
      end function ksp_method
+  end interface
+
+  !> Abstract interface for deallocating a Krylov method
+  abstract interface
+     subroutine ksp_t_free(this)
+       import :: ksp_t
+       class(ksp_t), intent(inout) :: this
+     end subroutine ksp_t_free
   end interface
   
 contains
