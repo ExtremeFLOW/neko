@@ -29,14 +29,14 @@ contains
     character(len=80) :: solver_velocity = ''
     character(len=80) :: solver_pressure = ''
     integer :: lx = 0
-    type(param_t) :: params
+    type(param_io_t) :: params
     namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx, params, &
          solver_velocity, solver_pressure
 
 
     integer :: ierr
     type(file_t) :: msh_file
-    integer, parameter :: nbytes = 2*NEKO_FNAME_LEN + 160 + 4
+    integer, parameter :: nbytes = 2*NEKO_FNAME_LEN + 160 + 8
     character buffer(nbytes)
     integer :: pack_index
     
@@ -57,7 +57,7 @@ contains
        call MPI_Pack(lx, 1, MPI_INTEGER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
-       !> @todo bcast params
+       call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
     else
        call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
        pack_index = 1
@@ -72,13 +72,14 @@ contains
             solver_pressure, 80, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
             lx, 1, MPI_INTEGER, NEKO_COMM, ierr)
-
+       call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
     end if
-               
-    msh_file = file_t(mesh_file)
-    call msh_file%read(C%msh)
 
-    C%params = params
+    msh_file = file_t(trim(mesh_file))
+    call msh_file%read(C%msh)
+    call mesh_generate_conn(C%msh) 
+
+    C%params = params%p
 
     if (trim(fluid_scheme) .eq. 'plan1') then
        allocate(fluid_plan1_t::C%fluid)
