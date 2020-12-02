@@ -165,6 +165,20 @@ contains
     end do
 
   end function vlsc3
+  !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$  
+  function vlsc2(u, v, n) result(s)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(in) :: u, v
+    real(kind=dp) :: s
+    integer :: i
+
+    s = 0d0
+    do i = 1, n 
+      s = s + u(i)*v(i)
+    end do
+
+  end function vlsc2
+
 
   !> Vector addition \f$ a = a + b \f$
   subroutine add2(a, b, n)
