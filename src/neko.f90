@@ -46,6 +46,7 @@ module neko
   use precon
   use ax_product
   use gmres
+  use jacobi
   use neko_config
   use case
   use simulation

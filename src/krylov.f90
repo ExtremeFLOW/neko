@@ -9,6 +9,7 @@ module krylov
   use field
   use utils
   use bc
+  use identity
   implicit none
 
   integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
@@ -17,7 +18,7 @@ module krylov
 
   !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
   type, public, abstract :: ksp_t
-     type(pc_t) :: M            !< Preconditioner
+     class(pc_t), pointer :: M            !< Preconditioner
      real(kind=dp) :: rel_tol   !< Relative tolerance
      real(kind=dp) :: abs_tol   !< Absolute tolerance
    contains
@@ -75,6 +76,7 @@ contains
     real(kind=dp), optional, intent(in) :: rel_tol
     real(kind=dp), optional, intent(in) :: abs_tol
     integer :: i
+    type(ident_t), target :: M_ident
     
     call krylov_free(this)
 
@@ -90,8 +92,8 @@ contains
        this%abs_tol = KSP_ABS_TOL
     end if
 
-    if (.not. associated(this%M%solve)) then
-       this%M%solve => pc_ident
+    if (.not. associated(this%M)) then
+       this%M => M_ident
     end if
 
   end subroutine krylov_init

@@ -5,8 +5,9 @@ module precon
   implicit none
   
   !> Defines a canonical Krylov preconditioner
-  type :: pc_t
-     procedure(pc_solve), nopass, pointer :: solve => null()
+  type, public, abstract :: pc_t
+   contains
+     procedure(pc_solve), pass(this), deferred :: solve
   end type pc_t
 
   !> Abstract interface for solving \f$ M z = r \f$
@@ -14,23 +15,14 @@ module precon
   !! @param z vector of length @a n
   !! @param r vector of length @a n
   abstract interface
-     subroutine pc_solve(z, r, n)
+     subroutine pc_solve(this, z, r, n)
        import dp
+       import :: pc_t
        implicit none
        integer, intent(inout) :: n
+       class(pc_t), intent(inout) :: this
        real(kind=dp), dimension(n), intent(inout) :: z
        real(kind=dp), dimension(n), intent(inout) :: r
      end subroutine pc_solve
   end interface
-
-contains
-
-  !> The (default) naive preconditioner \f$ I z = r \f$
-  subroutine pc_ident(z, r, n)
-    integer, intent(inout) :: n    
-    real(kind=dp), dimension(n), intent(inout) :: z
-    real(kind=dp), dimension(n), intent(inout) :: r
-    call copy(z, r, n)    
-  end subroutine pc_ident
-
 end module precon
