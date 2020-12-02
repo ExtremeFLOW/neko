@@ -29,6 +29,7 @@ module fluid_method
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
      procedure, pass(this) :: scheme_free => fluid_scheme_free
+     procedure, pass(this) :: validate => fluid_scheme_validate
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -97,9 +98,9 @@ contains
 
     call fluid_scheme_init_common(this, msh, lx)
     
-    call field_init(this%u, this%dm_Xh)
-    call field_init(this%v, this%dm_Xh)
-    call field_init(this%w, this%dm_Xh)
+    call field_init(this%u, this%dm_Xh, 'u')
+    call field_init(this%v, this%dm_Xh, 'v')
+    call field_init(this%w, this%dm_Xh, 'w')
 
     call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
 
@@ -115,10 +116,10 @@ contains
 
     call fluid_scheme_init_common(this, msh, lx)
     
-    call field_init(this%u, this%dm_Xh)
-    call field_init(this%v, this%dm_Xh)
-    call field_init(this%w, this%dm_Xh)
-    call field_init(this%p, this%dm_Xh)
+    call field_init(this%u, this%dm_Xh, 'u')
+    call field_init(this%v, this%dm_Xh, 'v')
+    call field_init(this%w, this%dm_Xh, 'w')
+    call field_init(this%p, this%dm_Xh, 'p')
 
     call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_prs)
@@ -153,6 +154,32 @@ contains
     call source_free(this%f_Xh)
     
   end subroutine fluid_scheme_free
+
+  !> Validate that all fields, solvers etc necessary for
+  !! performing time-stepping are defined
+  subroutine fluid_scheme_validate(this)
+    class(fluid_scheme_t), intent(inout) :: this
+
+    if ( (.not. allocated(this%u%x)) .or. &
+         (.not. allocated(this%v%x)) .or. &
+         (.not. allocated(this%w%x)) .or. &
+         (.not. allocated(this%p%x))) then
+       call neko_error('Fields are not allocated')
+    end if
+
+    if (.not. allocated(this%ksp_vel)) then
+       call neko_error('No Krylov solver for velocity defined')
+    end if
+    
+    if (.not. allocated(this%ksp_prs)) then
+       call neko_error('No Krylov solver for pressure defined')
+    end if
+
+    if (.not. associated(this%f_Xh%eval)) then
+       call neko_error('No source term defined')
+    end if
+
+  end subroutine fluid_scheme_validate
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers

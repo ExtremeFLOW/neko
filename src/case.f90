@@ -86,6 +86,10 @@ contains
 
     C%params = params%p
 
+    !
+    ! Setup fluid scheme
+    !
+
     if (trim(fluid_scheme) .eq. 'plan1') then
        allocate(fluid_plan1_t::C%fluid)
     else if (trim(fluid_scheme) .eq. 'plan4') then
@@ -96,6 +100,10 @@ contains
   
     call C%fluid%init(C%msh, lx, solver_velocity, solver_pressure)
 
+    !
+    ! Setup source term
+    ! 
+    
     !> @todo We shouldn't really mess with other type's datatypes
     if (trim(source_term) .eq. 'noforce') then
        call source_set_type(C%fluid%f_Xh, source_eval_noforce)
@@ -107,7 +115,11 @@ contains
     else
        call neko_error('Invalid source term')
     end if
-       
+
+    !
+    ! Validate that the case is properly setup for time-stepping
+    !
+    call C%fluid%validate
     
   end subroutine case_init
 
