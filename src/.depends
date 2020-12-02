@@ -49,7 +49,7 @@ wall.o : wall.f90 dirichlet.o num_types.o
 gmres.o : gmres.f90 num_types.o math.o comm.o krylov.o 
 neko_config.o : neko_config.f90 
 case.o : case.f90 comm.o mesh.o utils.o file.o mpi_types.o parameters.o fluid_schemes.o num_types.o 
-fluid_method.o : fluid_method.f90 mesh.o gmres.o cg.o krylov.o dofmap.o space.o field.o 
+fluid_method.o : fluid_method.f90 mesh.o gmres.o cg.o coef.o krylov.o dofmap.o space.o field.o gather_scatter.o 
 fluid_plan4.o : fluid_plan4.f90 fluid_method.o 
 fluid_plan1.o : fluid_plan1.f90 fluid_method.o 
 fluid_schemes.o : fluid_schemes.f90 fluid_plan4.o fluid_plan1.o fluid_method.o 

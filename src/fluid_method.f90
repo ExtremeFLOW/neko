@@ -1,9 +1,11 @@
 !> Fluid formulations
 module fluid_method
+  use gather_scatter
   use field
   use space
   use dofmap
   use krylov
+  use coefs
   use cg
   use gmres
   use mesh
@@ -16,7 +18,9 @@ module fluid_method
      type(field_t) :: w         !< z-component of Velocity
      type(field_t) :: p         !< Pressure
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
-     type(dofmap_t) :: dof      !< Dofmap assoicated with \f$ X_h \f$
+     type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
+     type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
+     type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
    contains
@@ -60,12 +64,11 @@ module fluid_method
 
 contains
 
-  !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, solver_vel)
+  !> Initialize common data for the current scheme
+  subroutine fluid_scheme_init_common(this, msh, lx)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
-    character(len=80), intent(inout) :: solver_vel
 
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -73,14 +76,29 @@ contains
        call space_init(this%Xh, GLL, lx, lx, lx)
     end if
 
-    this%dof = dofmap_t(msh, this%Xh)
+    this%dm_Xh = dofmap_t(msh, this%Xh)
 
-    call field_init(this%u, this%dof)
-    call field_init(this%v, this%dof)
-    call field_init(this%w, this%dof)
+    call gs_init(this%gs_Xh, this%dm_Xh)
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dof%size(), solver_vel)
-        
+    call coef_init(this%c_Xh, this%gs_Xh)
+   
+  end subroutine fluid_scheme_init_common
+
+  !> Initialize all velocity related components of the current scheme
+  subroutine fluid_scheme_init_uvw(this, msh, lx, solver_vel)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(mesh_t), intent(inout) :: msh
+    integer, intent(inout) :: lx
+    character(len=80), intent(inout) :: solver_vel
+
+    call fluid_scheme_init_common(this, msh, lx)
+    
+    call field_init(this%u, this%dm_Xh)
+    call field_init(this%v, this%dm_Xh)
+    call field_init(this%w, this%dm_Xh)
+
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
+
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
@@ -91,22 +109,16 @@ contains
     character(len=80), intent(inout) :: solver_vel
     character(len=80), intent(inout) :: solver_prs
 
-    if (msh%gdim .eq. 2) then
-       call space_init(this%Xh, GLL, lx, lx)
-    else
-       call space_init(this%Xh, GLL, lx, lx, lx)
-    end if
-
-    this%dof = dofmap_t(msh, this%Xh)
-
-    call field_init(this%u, this%dof)
-    call field_init(this%v, this%dof)
-    call field_init(this%w, this%dof)
-    call field_init(this%p, this%dof)
-
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dof%size(), solver_vel)
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dof%size(), solver_prs)
+    call fluid_scheme_init_common(this, msh, lx)
     
+    call field_init(this%u, this%dm_Xh)
+    call field_init(this%v, this%dm_Xh)
+    call field_init(this%w, this%dm_Xh)
+    call field_init(this%p, this%dm_Xh)
+
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_prs)
+
   end subroutine fluid_scheme_init_all
 
   !> Deallocate a fluid formulation
@@ -129,6 +141,10 @@ contains
        call this%ksp_prs%free()
        deallocate(this%ksp_prs)
     end if
+
+    call gs_free(this%gs_Xh)
+
+    call coef_free(this%c_Xh)
     
   end subroutine fluid_scheme_free
 

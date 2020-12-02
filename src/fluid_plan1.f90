@@ -6,7 +6,9 @@ module fluid_plan1
 
   type, extends(fluid_scheme_t) :: fluid_plan1_t
      type(space_t) :: Yh        !< Function space for pressure \f$ Xh - 2 \f$
-     type(dofmap_t) :: dofp     !< Dofmap associated with \f$ Yh \f$
+     type(dofmap_t) :: dm_Yh    !< Dofmap associated with \f$ Yh \f$
+     type(gs_t) :: gs_Yh        !< Gather-scatter associated with \f$ Y_h \f$
+     type(coef_t) :: c_Yh       !< Coefficients associated with \f$ Y_h \f$
      !>@todo Remaning plan1 related data, ax, precon etc
    contains
      procedure, pass(this) :: init => fluid_plan1_init
@@ -35,11 +37,15 @@ contains
        call space_init(this%Yh, GLL, lx2, lx2, lx2)
     end if
 
-    this%dofp = dofmap_t(msh, this%Yh)
+    this%dm_Yh = dofmap_t(msh, this%Yh)
         
-    call field_init(this%p, this%dofp)
+    call field_init(this%p, this%dm_Yh)
 
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dofp%size(), prs)
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), prs)
+
+    call gs_init(this%gs_Yh, this%dm_Yh)
+
+    call coef_init(this%c_Yh, this%gs_Yh)
     
   end subroutine fluid_plan1_init
 
@@ -51,6 +57,10 @@ contains
 
     ! Deallocate Pressure dofmap and space
     call space_free(this%Yh)
+
+    call gs_free(this%gs_Yh)
+
+    call coef_free(this%c_Yh)
     
   end subroutine fluid_plan1_free
 
