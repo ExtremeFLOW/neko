@@ -156,7 +156,7 @@ contains
   end subroutine re2_file_read
 
   subroutine re2_file_write(this, data)
-    class(re2_file_t), intent(in) :: this
+    class(re2_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     type(re2_xy_t), allocatable :: re2_data_xy(:)
     type(re2_xyz_t), allocatable :: re2_data_xyz(:)
