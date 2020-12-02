@@ -1,6 +1,7 @@
 !> Fluid formulations
 module fluid_method
   use gather_scatter
+  use source
   use field
   use space
   use dofmap
@@ -21,6 +22,7 @@ module fluid_method
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
+     type(source_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
    contains
@@ -81,6 +83,8 @@ contains
     call gs_init(this%gs_Xh, this%dm_Xh)
 
     call coef_init(this%c_Xh, this%gs_Xh)
+
+    call source_init(this%f_Xh, this%dm_Xh)
    
   end subroutine fluid_scheme_init_common
 
@@ -145,6 +149,8 @@ contains
     call gs_free(this%gs_Xh)
 
     call coef_free(this%c_Xh)
+
+    call source_free(this%f_Xh)
     
   end subroutine fluid_scheme_free
 

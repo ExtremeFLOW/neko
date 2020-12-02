@@ -25,18 +25,19 @@ contains
 
     ! Namelist for case description
     character(len=NEKO_FNAME_LEN) :: mesh_file = ''
-    character(len=NEKO_FNAME_LEN) :: fluid_scheme  = ''
+    character(len=80) :: fluid_scheme  = ''
     character(len=80) :: solver_velocity = ''
     character(len=80) :: solver_pressure = ''
+    character(len=80) :: source_term = ''
     integer :: lx = 0
     type(param_io_t) :: params
     namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx, params, &
-         solver_velocity, solver_pressure
+         solver_velocity, solver_pressure, source_term
 
 
     integer :: ierr
     type(file_t) :: msh_file
-    integer, parameter :: nbytes = 2*NEKO_FNAME_LEN + 160 + 8
+    integer, parameter :: nbytes = NEKO_FNAME_LEN + 320 + 8
     character buffer(nbytes)
     integer :: pack_index
     
@@ -48,11 +49,13 @@ contains
        pack_index = 1
        call MPI_Pack(mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(fluid_scheme, NEKO_FNAME_LEN, MPI_CHARACTER, &
+       call MPI_Pack(fluid_scheme, 80, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(solver_velocity, 80, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(solver_pressure, 80, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(source_term, 80, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(lx, 1, MPI_INTEGER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
@@ -65,11 +68,13 @@ contains
        call MPI_Unpack(buffer, nbytes, pack_index, &
             mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
-            fluid_scheme, NEKO_FNAME_LEN, MPI_CHARACTER, NEKO_COMM, ierr)
+            fluid_scheme, 80, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
             solver_velocity, 80, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
             solver_pressure, 80, MPI_CHARACTER, NEKO_COMM, ierr)
+       call MPI_Pack(source_term, 80, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
             lx, 1, MPI_INTEGER, NEKO_COMM, ierr)
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
@@ -88,8 +93,21 @@ contains
     else
        call neko_error('Invalid fluid scheme')
     end if
-
+  
     call C%fluid%init(C%msh, lx, solver_velocity, solver_pressure)
+
+    !> @todo We shouldn't really mess with other type's datatypes
+    if (trim(source_term) .eq. 'noforce') then
+       call source_set_type(C%fluid%f_Xh, source_eval_noforce)
+    else if (trim(source_term) .eq. '') then
+       if (pe_rank .eq. 0) then
+          call neko_warning('No source term defined, using default (noforce)')
+       end if
+       call source_set_type(C%fluid%f_Xh, source_eval_noforce)
+    else
+       call neko_error('Invalid source term')
+    end if
+       
     
   end subroutine case_init
 
