@@ -54,9 +54,9 @@ contains
     call local_grad3(ur, us, ut, u, n, D, Dt)
   
     do i=1, lx**3
-       wr = g1(i)*ur(i) + g2(i)*us(i) + g3(i)*ut(i)
-       ws = g2(i)*ur(i) + g4(i)*us(i) + g5(i)*ut(i)
-       wt = g3(i)*ur(i) + g5(i)*us(i) + g6(i)*ut(i)
+       wr = g1(i)*ur(i) 
+       ws = g2(i)*us(i) 
+       wt = g3(i)*ut(i) 
        ur(i) = wr
        us(i) = ws
        ut(i) = wt
