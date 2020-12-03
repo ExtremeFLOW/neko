@@ -94,6 +94,18 @@ contains
     
   end function glsum
 
+  !> Change sign of vector \f$ a = -a \f$
+  subroutine chsign(a, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
+    integer :: i
+
+    do i = 1, n
+       a(i) = -a(i)
+    end do
+    
+  end subroutine chsign
+
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
     integer, intent(in) :: n
@@ -105,6 +117,20 @@ contains
     end do
     
   end subroutine invcol1
+  
+  !> Compute inverted vector \f$ a = 1 / b \f$
+  subroutine invers2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = 1d0 / b(i)
+    end do
+    
+  end subroutine invers2
+
 
   !> Compute a cross product \f$ u = v \times w \f$
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
@@ -294,6 +320,80 @@ contains
     
   end subroutine col3
 
+  !> Returns \f$ a = a - b*c \f$
+  subroutine subcol3(a,b,c,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) - b(i) * c(i) 
+    end do
+
+  end subroutine subcol3
+
+  !> Returns \f$ a = a - b*c*d \f$
+  subroutine subcol4(a,b,c,d,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=dp), dimension(n), intent(in) :: d
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) - b(i) * c(i) * d(i)
+    end do
+
+  end subroutine subcol4
+  !> Returns \f$ a = a + b*c \f$
+  subroutine addcol3(a,b,c,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) + b(i) * c(i) 
+    end do
+
+  end subroutine addcol3
+
+
+
+  !> Returns \f$ a = a + b*c*d \f$
+  subroutine addcol4(a,b,c,d,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=dp), dimension(n), intent(in) :: d
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) + b(i) * c(i) * d(i)
+    end do
+
+  end subroutine addcol4
+
+  !> Returns \f$ a = b \dot c - d \cdot e \f$
+  subroutine ascol5(a,b,c,d,e,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=dp), dimension(n), intent(in) :: d
+    real(kind=dp), dimension(n), intent(in) :: e
+    integer :: i
+
+    do i = 1,n
+       a(i) = b(i)*c(i)-d(i)*e(i)
+    end do
+
+  end subroutine ascol5
 
   !> Weighted inner product \f$ a^T b c \f$
   function glsc3(a, b, c, n)
