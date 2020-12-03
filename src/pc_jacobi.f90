@@ -40,7 +40,8 @@ contains
     end if
   end subroutine jacobi_free
 
-  !> The (default) naive preconditioner \f$ I z = r \f$
+  !> The jacobi preconditioner \f$ J z = r \f$
+  !! \f$ z = J^{-1}r\f$ where \f$ J^{-1} ~= 1/diag(A) \f$
   subroutine jacobi_solve(this, z, r, n)
     integer, intent(inout) :: n
     class(jacobi_t), intent(inout) :: this
@@ -69,7 +70,6 @@ contains
          do k=1,lz
             do j=1,ly
                do i=1,lx
-               ! In origin its G1
                   this%d(i,j,k,e) = this%d(i,j,k,e) + &
                                     coef%G1(l,j,k,e) * dof%Xh%dxt(i,l)**2
                end do
@@ -80,9 +80,8 @@ contains
          do k=1,lz
             do j=1,ly
                do i=1,lx
-               ! In origin its G2
                   this%d(i,j,k,e) = this%d(i,j,k,e) + &
-                                    coef%G4(i,l,k,e) * dof%Xh%dyt(j,l)**2
+                                    coef%G2(i,l,k,e) * dof%Xh%dyt(j,l)**2
                end do
             end do
          end do
@@ -91,47 +90,49 @@ contains
          do k=1,lz
             do j=1,ly
                do i=1,lx
-               ! In origin its G3
                   this%d(i,j,k,e) = this%d(i,j,k,e) + &
-                                    coef%G6(i,j,l,e) * dof%Xh%dzt(k,l)**2
+                                    coef%G3(i,j,l,e) * dof%Xh%dzt(k,l)**2
                end do
             end do
          end do
-      end do
-   end do
+     end do
 
+     if (dof%msh%dfrmd_el(e)) then
+        do j=1,ly,ly-1
+           do k=1,lz,lz-1
+              this%d(1,j,k,e) = this%d(1,j,k,e) &
+                              + coef%G4(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dyt(j,j) &
+                              + coef%G5(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dzt(k,k)
+              this%d(lx,j,k,e) = this%d(lx,j,k,e) &
+                               + coef%G4(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dyt(j,j) &
+                               + coef%G5(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dzt(k,k)
+           end do
+        end do
+
+        do i=1,lx,lx-1
+           do k=1,lz,lz-1
+              this%d(i,1,k,e) = this%d(i,1,k,e) &
+                              + coef%G4(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dxt(i,i) &
+                              + coef%G6(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dzt(k,k)
+              this%d(i,ly,k,e) = this%d(i,ly,k,e) &
+                               + coef%G4(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dxt(i,i) &
+                               + coef%G6(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dzt(k,k)
+           end do
+        end do
+        do i=1,lx,lx-1
+           do j=1,ly,ly-1
+              this%d(i,j,1,e) = this%d(i,j,1,e) &
+                              + coef%G5(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dxt(i,i) &
+                              + coef%G6(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dyt(j,j)
+              this%d(i,j,lz,e) = this%d(i,j,lz,e) &
+                               + coef%G5(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dxt(i,i) &
+                               + coef%G6(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dyt(j,j)
+           end do
+        end do
+     end if
+   end do 
    call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
    call invcol1(this%d,dof%n_dofs)
-!      IF (IFDFRM(e)) THEN
-!            do 600 j=1,ly,ly-1
-!            do 600 k=1,lz,lz-1
-!            this%d(1,j,k,e) = this%d(1,j,k,e)
-!                + coef%G4(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dyt(j,j)
-!                + coef%G5(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dzt(k,k)
-!            this%d(lx,j,k,e) = this%d(lx,j,k,e)
-!                + coef%G4(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dyt(j,j)
-!                + coef%G5(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dzt(k,k)
-!  60        CONTINUE
-!            do 700 i=1,lx,lx-1
-!            do 700 k=1,lz,lz-1
-!               this%d(i,1,k,e) = this%d(i,1,k,e)
-!                + coef%G4(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dxt(i,i)
-!                + coef%G6(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dzt(k,k)
-!               this%d(i,ly,k,e) = this%d(i,ly,k,e)
-!                + coef%G4(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dxt(i,i)
-!                + coef%G6(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dzt(k,k)
-!  70        CONTINUE
-!            do 800 i=1,lx,lx-1
-!            do 800 j=1,ly,ly-1
-!               this%d(i,j,1,e) = this%d(i,j,1,e)
-!                    + coef%G5(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dxt(i,i)
-!                    + coef%G6(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dyt(j,j)
-!               this%d(i,j,lz,e) = this%d(i,j,lz,e)
-!                    + coef%G5(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dxt(i,i)
-!                    + coef%G6(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dyt(j,j)
-!  80        CONTINUE
-!         ENDIF
-! 1000 CONTINUE
   end subroutine jacobi_set_d
   
  end module jacobi
