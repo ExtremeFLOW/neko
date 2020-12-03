@@ -131,7 +131,6 @@ contains
     
   end subroutine invers2
 
-
   !> Compute a cross product \f$ u = v \times w \f$
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vcross(u1, u2, u3,  v1, v2, v3, w1, w2, w3, n)
@@ -191,6 +190,7 @@ contains
     end do
 
   end function vlsc3
+  
   !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$  
   function vlsc2(u, v, n) result(s)
     integer, intent(in) :: n    
@@ -204,7 +204,6 @@ contains
     end do
 
   end function vlsc2
-
 
   !> Vector addition \f$ a = a + b \f$
   subroutine add2(a, b, n)
@@ -292,7 +291,6 @@ contains
     
   end subroutine cmult2
 
-
   !> Vector multiplication \f$ a = a \cdot b \f$
   subroutine col2(a, b, n)
     integer, intent(in) :: n    
@@ -348,6 +346,7 @@ contains
     end do
 
   end subroutine subcol4
+  
   !> Returns \f$ a = a + b*c \f$
   subroutine addcol3(a,b,c,n)
     integer, intent(in) :: n    
@@ -361,8 +360,6 @@ contains
     end do
 
   end subroutine addcol3
-
-
 
   !> Returns \f$ a = a + b*c*d \f$
   subroutine addcol4(a,b,c,d,n)
