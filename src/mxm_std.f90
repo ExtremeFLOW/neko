@@ -2119,11 +2119,9 @@ contains
     use num_types
     integer :: n1, n2, n3
     REAL(kind=dp) :: A(N1,N2),B(N2,N3),C(N1,N3)
-    REAL(kind=dp) :: ONE,ZERO,EPS
-
-    one=1.0
-    zero=0.0
-    call dgemm( 'N','N',n1,n3,n2,ONE,A,N1,B,N2,ZERO,C,N1)
+    
+    call mxm44(a,n1,b,n2,c,n3)
+    
   end subroutine mxmd
   !-----------------------------------------------------------------------
   subroutine mxmfb(a,n1,b,n2,c,n3)
@@ -2136,19 +2134,6 @@ contains
     use num_types
     integer :: n1, n2, n3
     REAL(kind=dp) :: A(N1,N2),B(N2,N3),C(N1,N3)
-
-    integer wdsize
-    save    wdsize
-    data    wdsize/0/
-    !
-    !     First call: determine word size for dgemm/sgemm discrimination, below.
-    !
-    if (wdsize.eq.0) then
-       one = 1.0
-       eps = 1.e-12
-       wdsize = 8
-       if (one+eps.eq.1.0) wdsize = 4
-    endif
 
     if (n2.le.8) then
        if (n2.eq.1) then
@@ -2205,15 +2190,7 @@ contains
           call mxmfb_24(a,n1,b,n2,c,n3)
        endif
     else
-
-       one=1.0
-       zero=0.0
-       if (wdsize.eq.4) then
-          call sgemm( 'N','N',n1,n3,n2,ONE,A,N1,B,N2,ZERO,C,N1)
-       else
-          call dgemm( 'N','N',n1,n3,n2,ONE,A,N1,B,N2,ZERO,C,N1)
-       endif
-
+       call mxm44_0(a,n1,b,n2,c,n3)
     endif
 
   end subroutine mxmfb
@@ -2792,19 +2769,6 @@ contains
     integer :: n1, n2, n3
     REAL(kind=dp) :: A(N1,N2),B(N2,N3),C(N1,N3)
 
-    integer wdsize
-    save    wdsize
-    data    wdsize/0/
-    !
-    !     First call: determine word size for dgemm/sgemm discrimination, below.
-    !
-    if (wdsize.eq.0) then
-       one = 1.0
-       eps = 1.e-12
-       wdsize = 8
-       if (one+eps.eq.1.0) wdsize = 4
-    endif
-
     if (n2.le.8) then
        if (n2.eq.1) then
           call mxmf3_1(a,n1,b,n2,c,n3)
@@ -2860,27 +2824,9 @@ contains
           call mxmf3_24(a,n1,b,n2,c,n3)
        endif
     else
-
-       one=1.0
-       zero=0.0
-       if (wdsize.eq.4) then
-          call sgemm( 'N','N',n1,n3,n2,ONE,A,N1,B,N2,ZERO,C,N1)
-       else
-          call dgemm( 'N','N',n1,n3,n2,ONE,A,N1,B,N2,ZERO,C,N1)
-       endif
-       !
-       !        N0=N1*N3
-       !        DO 10 I=1,N0
-       !           C(I,1)=0.
-       !  10    CONTINUE
-       !        DO 100 J=1,N3
-       !        DO 100 K=1,N2
-       !        BB=B(K,J)
-       !        DO 100 I=1,N1
-       !           C(I,J)=C(I,J)+A(I,K)*BB
-       ! 100    CONTINUE
-
+       call mxm44(a,n1,b,n2,c,n3)
     endif
+    
   end subroutine mxmf3
   !-----------------------------------------------------------------------
   subroutine mxmf3_1(a,n1,b,n2,c,n3)

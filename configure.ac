@@ -19,8 +19,6 @@ AC_PROG_FC(,90)
 AX_COARRAY
 AX_DTYPE_IO
 
-AX_BLAS
-
 # Test for a working MPI compiler
 AX_MPI([have_mpi=yes], [have_mpi=no])
 if test "x${have_mpi}" != xno; then
