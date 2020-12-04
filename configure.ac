@@ -2,22 +2,18 @@ AC_INIT([neko],[0.0.1])
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
+AC_CANONICAL_HOST
 AC_LANG(Fortran)
 AC_PROG_RANLIB
 AC_PROG_INSTALL
-
 
 AC_ARG_ENABLE(contrib,
               AC_HELP_STRING([--enable-contrib],
               [Compile various tools]), 
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
-AC_CANONICAL_HOST
-
 # Test for a sane fortran environment (^-^)
 AC_PROG_FC(,90)
-#AC_FC_MODULE_EXTENSION
-#AX_F90_MODULE_FLAG
 AX_COARRAY
 AX_DTYPE_IO
 
@@ -37,18 +33,6 @@ if test "x${have_mpi}" != xno; then
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
 fi
-
-#AX_PARMETIS
-#if test "${PARMETIS_LIBS}"; then
-#   LIBS="$PARMETIS_LIBS $LIBS"
-#fi			
-
-#AX_GSLIB
-#if test "${GSLIB_LIBS}"; then
-#   LIBS="$GSLIB_LIBS $LIBS"
-#else
-#   AC_MSG_ERROR([Can't find a suitable Gather-Scatter library])
-#fi			
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
