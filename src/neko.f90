@@ -50,6 +50,7 @@ module neko
   use neko_config
   use case
   use simulation
+  use ax_helm
 contains
 
   subroutine neko_init(C)
