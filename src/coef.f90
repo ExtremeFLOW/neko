@@ -34,6 +34,10 @@ module coefs
      real(kind=dp), allocatable :: dsdx(:,:,:,:), dsdy(:,:,:,:), dsdz(:,:,:,:)
      real(kind=dp), allocatable :: dtdx(:,:,:,:), dtdy(:,:,:,:), dtdz(:,:,:,:) 
      
+     real(kind=dp), allocatable :: h1(:,:,:,:) 
+     real(kind=dp), allocatable :: h2(:,:,:,:)
+     logical :: ifh2
+     
      real(kind=dp), allocatable :: jac(:,:,:,:) !< Jacobian
      real(kind=dp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
      real(kind=dp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
@@ -115,6 +119,14 @@ contains
     allocate(coef%B(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     call coef_generate_mass(coef)
     
+    allocate(coef%h1(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%h2(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    ! This is a placeholder, just for now
+    ! We can probably find a prettier solution
+    call rone(coef%h1,n)
+    call rone(coef%h2,n)
+    coef%ifh2 = .false.
+
   end subroutine coef_init
 
   !> Deallocate coefficients
@@ -173,6 +185,9 @@ contains
     
     if(allocated(coef%jac)) deallocate(coef%jac)
     if(allocated(coef%jacinv)) deallocate(coef%jacinv)
+    
+    if(allocated(coef%h1)) deallocate(coef%h1)
+    if(allocated(coef%h2)) deallocate(coef%h2)
     
 
     nullify(coef%msh)
