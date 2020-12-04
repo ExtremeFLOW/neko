@@ -12,6 +12,8 @@ AC_ARG_ENABLE(contrib,
               [Compile various tools]), 
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
+AC_CANONICAL_HOST
+
 # Test for a sane fortran environment (^-^)
 AC_PROG_FC(,90)
 #AC_FC_MODULE_EXTENSION
