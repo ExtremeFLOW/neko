@@ -47,6 +47,7 @@ if test "x$ax_dtype_io" = "xyes"; then
     AC_DEFINE([HAVE_DERIVED_TYPE_IO], [1], [Dervied type I/O support])
 else
     AC_MSG_RESULT([no])
+    AC_MSG_ERROR([Fortran compiler doesn't support dervied type I/O])
 fi
 
 ])
