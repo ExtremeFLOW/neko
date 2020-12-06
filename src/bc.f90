@@ -22,6 +22,8 @@ module bc
      procedure, pass(this) :: init => bc_init
      procedure, pass(this) :: free => bc_free
      procedure, pass(this) :: mark_facet => bc_mark_facet
+     procedure, pass(this) :: mark_facets => bc_mark_facets
+     procedure, pass(this) :: mark_zone => bc_mark_zone
      procedure, pass(this) :: finalize => bc_finalize
      procedure(bc_apply), pass(this), deferred :: apply
      procedure(bc_apply_mult), pass(this), deferred :: apply_mult
@@ -127,7 +129,7 @@ contains
     class(bc_t), intent(inout) :: this
     type(zone_t), intent(inout) :: bc_zone
     integer :: i
-
+    write(*,*) bc_zone%size
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
     end do
