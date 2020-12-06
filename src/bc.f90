@@ -129,7 +129,6 @@ contains
     class(bc_t), intent(inout) :: this
     type(zone_t), intent(inout) :: bc_zone
     integer :: i
-    write(*,*) bc_zone%size
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
     end do
