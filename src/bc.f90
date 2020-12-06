@@ -4,6 +4,7 @@ module bc
   use dofmap
   use space
   use mesh
+  use zone
   use stack
   use tuple
   use utils
@@ -106,6 +107,31 @@ contains
     call this%marked_facet%push(t)
     
   end subroutine bc_mark_facet
+
+  !> Mark all facets from a (facet, el) tuple list
+  subroutine bc_mark_facets(this, facet_list)
+    class(bc_t), intent(inout) :: this
+    type(stack_i4t2_t), intent(inout) :: facet_list
+    type(tuple_i4_t), pointer :: fp(:)
+    integer :: i
+
+    fp => facet_list%array()
+    do i = 1, facet_list%size()
+       call this%marked_facet%push(fp(i))
+    end do
+       
+  end subroutine bc_mark_facets
+
+  !> Mark all facets from a zone
+  subroutine bc_mark_zone(this, bc_zone)
+    class(bc_t), intent(inout) :: this
+    type(zone_t), intent(inout) :: bc_zone
+    integer :: i
+
+    do i = 1, bc_zone%size
+       call this%marked_facet%push(bc_zone%facet_el(i))
+    end do
+  end subroutine bc_mark_zone
 
   !> Finalize a boundary condition
   !! @details This will linearize the marked facet's indicies in msk
