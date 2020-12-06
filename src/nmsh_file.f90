@@ -98,6 +98,9 @@ contains
     end if
 
     call MPI_File_close(fh, ierr)
+
+    call mesh_finalize(msh)
+
     if (pe_rank .eq. 0) write(*,*) 'Done'
        
   end subroutine nmsh_file_read
