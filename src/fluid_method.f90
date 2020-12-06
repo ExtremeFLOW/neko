@@ -7,6 +7,7 @@ module fluid_method
   use dofmap
   use krylov
   use coefs
+  use wall
   use cg
   use gmres
   use mesh
@@ -25,6 +26,7 @@ module fluid_method
      type(source_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
+     type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -86,6 +88,10 @@ contains
     call coef_init(this%c_Xh, this%gs_Xh)
 
     call source_init(this%f_Xh, this%dm_Xh)
+
+    call this%bc_wall%init(this%dm_Xh)
+    call this%bc_wall%mark_zone(msh%wall)
+    call this%bc_wall%finalize()
    
   end subroutine fluid_scheme_init_common
 
