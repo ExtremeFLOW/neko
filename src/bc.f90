@@ -25,8 +25,8 @@ module bc
      procedure, pass(this) :: mark_facets => bc_mark_facets
      procedure, pass(this) :: mark_zone => bc_mark_zone
      procedure, pass(this) :: finalize => bc_finalize
-     procedure(bc_apply), pass(this), deferred :: apply
-     procedure(bc_apply_mult), pass(this), deferred :: apply_mult
+     procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
+     procedure(bc_apply_vector), pass(this), deferred :: apply_vector
   end type bc_t
 
   !> Pointer to boundary condtiion
@@ -42,17 +42,17 @@ module bc
   end type bc_list_t
     
   abstract interface
-     subroutine bc_apply(this, x, n)
+     subroutine bc_apply_scalar(this, x, n)
        import :: bc_t
        import :: dp
        class(bc_t), intent(inout) :: this
        integer, intent(in) :: n
        real(kind=dp), intent(inout), dimension(n) :: x
-     end subroutine bc_apply
+     end subroutine bc_apply_scalar
   end interface
 
   abstract interface
-     subroutine bc_apply_mult(this, x, y, z, n)
+     subroutine bc_apply_vector(this, x, y, z, n)
        import :: bc_t
        import :: dp
        class(bc_t), intent(inout) :: this
@@ -60,7 +60,7 @@ module bc
        real(kind=dp), intent(inout), dimension(n) :: x
        real(kind=dp), intent(inout), dimension(n) :: y
        real(kind=dp), intent(inout), dimension(n) :: z
-     end subroutine bc_apply_mult
+     end subroutine bc_apply_vector
   end interface
 
   public :: bc_list_init, bc_list_free, bc_list_add, bc_list_apply
@@ -276,7 +276,7 @@ contains
     integer :: i
 
     do i = 1, bclst%n
-       call bclst%bc(i)%bcp%apply(x, n)
+       call bclst%bc(i)%bcp%apply_scalar(x, n)
     end do
 
   end subroutine bc_list_apply

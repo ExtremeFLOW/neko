@@ -10,16 +10,16 @@ module dirichlet
   type, public, extends(bc_t) :: dirichlet_t
      real(kind=dp), private :: g
    contains
-     procedure, pass(this) :: apply => dirichlet_apply
-     procedure, pass(this) :: apply_mult => dirichlet_apply_mult
+     procedure, pass(this) :: apply_scalar => dirichlet_apply_scalar
+     procedure, pass(this) :: apply_vector => dirichlet_apply_vector
      procedure, pass(this) :: set_g => dirichlet_set_g
   end type dirichlet_t
-
+     
 contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x
-  subroutine dirichlet_apply(this, x, n)
+  subroutine dirichlet_apply_scalar(this, x, n)
     class(dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=dp), intent(inout),  dimension(n) :: x
@@ -30,11 +30,11 @@ contains
        k = this%msk(i)
        x(k) = this%g
     end do
-  end subroutine dirichlet_apply
+  end subroutine dirichlet_apply_scalar
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z
-  subroutine dirichlet_apply_mult(this, x, y, z, n)
+  subroutine dirichlet_apply_vector(this, x, y, z, n)
     class(dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=dp), intent(inout),  dimension(n) :: x
@@ -50,7 +50,7 @@ contains
        z(k) = this%g
     end do
     
-  end subroutine dirichlet_apply_mult
+  end subroutine dirichlet_apply_vector
 
   !> Set value of \f$ g \f$
   subroutine dirichlet_set_g(this, g)

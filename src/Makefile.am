@@ -49,6 +49,7 @@ libneko_a_SOURCES = \
 	bc.f90\
 	dirichlet.f90\
 	wall.f90\
+	inflow.f90\
 	gmres.f90\
 	pc_jacobi.f90\
 	pc_identity.f90\
