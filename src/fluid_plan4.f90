@@ -15,15 +15,18 @@ module fluid_plan4
 
 contains
 
-  subroutine fluid_plan4_init(this, msh, lx, vel, prs)
+  subroutine fluid_plan4_init(this, msh, lx, param, vel, prs)    
     class(fluid_plan4_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    type(param_t), intent(inout) :: param        
     character(len=80), intent(inout) :: vel
     character(len=80), intent(inout) :: prs
+
+    call this%free()
     
     !> Setup velocity and pressure fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, solver_vel=vel, solver_prs=prs)
+    call this%scheme_init(msh, lx, param, solver_vel=vel, solver_prs=prs)
 
   end subroutine fluid_plan4_init
 

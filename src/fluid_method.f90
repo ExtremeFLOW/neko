@@ -1,6 +1,7 @@
 !> Fluid formulations
 module fluid_method
   use gather_scatter
+  use parameters    
   use source
   use field
   use space
@@ -8,6 +9,8 @@ module fluid_method
   use krylov
   use coefs
   use wall
+  use inflow
+  use dirichlet
   use cg
   use gmres
   use mesh
@@ -27,6 +30,8 @@ module fluid_method
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
+     type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
+     type(param_t), pointer :: params          !< Parameters
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -40,12 +45,14 @@ module fluid_method
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_method_init(this, msh, lx, vel, prs)
+     subroutine fluid_method_init(this, msh, lx, param, vel, prs)
        import fluid_scheme_t
+       import param_t
        import mesh_t
        class(fluid_scheme_t), intent(inout) :: this
-       type(mesh_t), intent(inout) :: msh
+       type(mesh_t), intent(inout) :: msh       
        integer, intent(inout) :: lx
+       type(param_t), intent(inout) :: param              
        character(len=80), intent(inout) :: vel
        character(len=80), intent(inout) :: prs
      end subroutine fluid_method_init
@@ -70,11 +77,13 @@ module fluid_method
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx)
+  subroutine fluid_scheme_init_common(this, msh, lx, params)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    type(param_t), intent(inout), target :: params
 
+    
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
     else
@@ -82,6 +91,8 @@ contains
     end if
 
     this%dm_Xh = dofmap_t(msh, this%Xh)
+
+    this%params => params
 
     call gs_init(this%gs_Xh, this%dm_Xh)
 
@@ -92,17 +103,22 @@ contains
     call this%bc_wall%init(this%dm_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%finalize()
+
+    call this%bc_inflow%init(this%dm_Xh)
+    call this%bc_inflow%mark_zone(msh%inlet)
+    call this%bc_inflow%finalize()
    
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, solver_vel)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, solver_vel)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    type(param_t), intent(inout) :: params
     character(len=80), intent(inout) :: solver_vel
 
-    call fluid_scheme_init_common(this, msh, lx)
+    call fluid_scheme_init_common(this, msh, lx, params)
     
     call field_init(this%u, this%dm_Xh, 'u')
     call field_init(this%v, this%dm_Xh, 'v')
@@ -113,14 +129,15 @@ contains
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, solver_vel, solver_prs)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, solver_vel, solver_prs)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    type(param_t), intent(inout) :: params      
     character(len=80), intent(inout) :: solver_vel
     character(len=80), intent(inout) :: solver_prs
 
-    call fluid_scheme_init_common(this, msh, lx)
+    call fluid_scheme_init_common(this, msh, lx, params)
     
     call field_init(this%u, this%dm_Xh, 'u')
     call field_init(this%v, this%dm_Xh, 'v')
@@ -158,6 +175,8 @@ contains
     call coef_free(this%c_Xh)
 
     call source_free(this%f_Xh)
+
+    nullify(this%params)
     
   end subroutine fluid_scheme_free
 
@@ -183,6 +202,10 @@ contains
 
     if (.not. associated(this%f_Xh%eval)) then
        call neko_error('No source term defined')
+    end if
+
+    if (.not. associated(this%params)) then
+       call neko_error('No parameters defined')
     end if
 
   end subroutine fluid_scheme_validate
