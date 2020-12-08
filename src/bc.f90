@@ -67,7 +67,8 @@ module bc
      module procedure bc_list_apply_scalar, bc_list_apply_vector
   end interface bc_list_apply
   
-  public :: bc_list_init, bc_list_free, bc_list_add, bc_list_apply
+  public :: bc_list_init, bc_list_free, bc_list_add, &
+  bc_list_apply_scalar, bc_list_apply_vector, bc_list_apply
   
 contains
 

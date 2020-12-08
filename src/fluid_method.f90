@@ -12,6 +12,7 @@ module fluid_method
   use inflow
   use dirichlet
   use cg
+  use bc
   use gmres
   use mesh
   implicit none
@@ -31,6 +32,7 @@ module fluid_method
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
+     type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(param_t), pointer :: params          !< Parameters
      type(field_t) :: bdry                     !< Boundary markings
    contains
@@ -38,6 +40,7 @@ module fluid_method
      procedure, pass(this) :: fluid_scheme_init_uvw
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      procedure, pass(this) :: validate => fluid_scheme_validate
+     procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -108,6 +111,10 @@ contains
     call this%bc_inflow%init(this%dm_Xh)
     call this%bc_inflow%mark_zone(msh%inlet)
     call this%bc_inflow%finalize()
+
+    call bc_list_init(this%bclst_vel)
+    call bc_list_add(this%bclst_vel, this%bc_inflow)
+    call bc_list_add(this%bclst_vel, this%bc_wall)
 
     if (params%output_bdry) then
 
@@ -191,6 +198,9 @@ contains
     call field_free(this%p)
     call field_free(this%bdry)
 
+    call this%bc_inflow%free()
+    call this%bc_wall%free()
+
     call space_free(this%Xh)
 
     if (allocated(this%ksp_vel)) then
@@ -208,6 +218,8 @@ contains
     call coef_free(this%c_Xh)
 
     call source_free(this%f_Xh)
+
+    call bc_list_free(this%bclst_vel)
 
     nullify(this%params)
     
@@ -242,6 +254,15 @@ contains
     end if
 
   end subroutine fluid_scheme_validate
+
+  !> Apply all boundary conditions defined for velocity
+  !! @todo Why can't we call the interface here?
+  subroutine fluid_scheme_bc_apply_vel(this)
+    class(fluid_scheme_t), intent(inout) :: this
+    call bc_list_apply_vector(this%bclst_vel,&
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%n_dofs)
+  end subroutine fluid_scheme_bc_apply_vel
+  
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
