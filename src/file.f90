@@ -14,7 +14,7 @@ module file
    contains
      procedure :: write => file_write
      procedure :: read => file_read
-     procedure :: free => file_free
+     final :: file_free
   end type file_t
 
   interface file_t
@@ -59,7 +59,7 @@ contains
 
   !> File operation destructor
   subroutine file_free(this)
-    class(file_t), intent(inout) :: this
+    type(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
        deallocate(this%file_type)
