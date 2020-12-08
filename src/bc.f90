@@ -63,6 +63,10 @@ module bc
      end subroutine bc_apply_vector
   end interface
 
+  interface bc_list_apply
+     module procedure bc_list_apply_scalar, bc_list_apply_vector
+  end interface bc_list_apply
+  
   public :: bc_list_init, bc_list_free, bc_list_add, bc_list_apply
   
 contains
@@ -268,8 +272,8 @@ contains
     
   end subroutine bc_list_add
 
-  !> Apply a list of boundary conditions
-  subroutine bc_list_apply(bclst, x, n)
+  !> Apply a list of (scalar) boundary conditions
+  subroutine bc_list_apply_scalar(bclst, x, n)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
     real(kind=dp), intent(inout),  dimension(n) :: x
@@ -279,7 +283,22 @@ contains
        call bclst%bc(i)%bcp%apply_scalar(x, n)
     end do
 
-  end subroutine bc_list_apply
-   
+  end subroutine bc_list_apply_scalar
+
+  !> Apply a list of (scalar) boundary conditions
+  subroutine bc_list_apply_vector(bclst, x, y, z, n)
+    type(bc_list_t), intent(inout) :: bclst
+    integer, intent(in) :: n
+    real(kind=dp), intent(inout),  dimension(n) :: x
+    real(kind=dp), intent(inout),  dimension(n) :: y
+    real(kind=dp), intent(inout),  dimension(n) :: z
+    integer :: i
+
+    do i = 1, bclst%n
+       call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
+    end do
+
+  end subroutine bc_list_apply_vector
+  
   
 end module bc
