@@ -32,6 +32,7 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
      type(param_t), pointer :: params          !< Parameters
+     type(field_t) :: bdry                     !< Boundary markings
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -82,7 +83,7 @@ contains
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), intent(inout), target :: params
-
+    type(dirichlet_t) :: bdry_mask
     
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -107,7 +108,38 @@ contains
     call this%bc_inflow%init(this%dm_Xh)
     call this%bc_inflow%mark_zone(msh%inlet)
     call this%bc_inflow%finalize()
-   
+
+    if (params%output_bdry) then
+
+       if (pe_rank .eq. 0) then
+          write(*,*) 'Saving boundary markings'
+       end if
+       
+       call field_init(this%bdry, this%dm_Xh, 'bdry')
+       this%bdry = 0d0
+       
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%wall)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(1d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%inlet)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(2d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%outlet)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(3d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+    end if
+    
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
@@ -157,6 +189,7 @@ contains
     call field_free(this%v)
     call field_free(this%w)
     call field_free(this%p)
+    call field_free(this%bdry)
 
     call space_free(this%Xh)
 

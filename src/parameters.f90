@@ -9,6 +9,7 @@ module parameters
      real(kind=dp) :: rho       !< Density \f$ \rho \f$
      real(kind=dp) :: mu        !< Dynamic viscosity \f$ \mu \f$
      real(kind=dp), dimension(3) :: uinf !< Free-stream velocity \f$ u_\infty \f$
+     logical :: output_bdry              !< Output boundary markings
   end type param_t
 
   type param_io_t
@@ -37,7 +38,8 @@ contains
     real(kind=dp) :: rho = 1d0
     real(kind=dp) :: mu = 1d0
     real(kind=dp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
-    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf
+    logical :: output_bdry = .false.
+    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf, output_bdry
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat)
     param%p%dt = dt
@@ -45,6 +47,7 @@ contains
     param%p%rho = rho 
     param%p%mu = mu
     param%p%uinf = uinf
+    param%p%output_bdry = output_bdry
 
   end subroutine param_read
 
@@ -58,15 +61,17 @@ contains
 
     real(kind=dp) :: dt, rho, mu
     real(kind=dp), dimension(3) :: uinf
+    logical :: output_bdry
     integer :: nsteps
-    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf
+    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf, output_bdry
 
     dt = param%p%dt
     nsteps = param%p%nsteps
     rho = param%p%rho  
     mu = param%p%mu
     uinf = param%p%uinf
-
+    output_bdry = param%p%output_bdry
+    
     write(unit, nml=NEKO_PARAMETERS)
         
   end subroutine param_write

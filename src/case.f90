@@ -35,7 +35,7 @@ contains
          solver_velocity, solver_pressure, source_term
     
     integer :: ierr
-    type(file_t) :: msh_file
+    type(file_t) :: msh_file, bdry_file    
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 320 + 8
     character buffer(nbytes)
     integer :: pack_index
@@ -118,6 +118,15 @@ contains
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
+
+
+    !
+    ! Save boundary markings for fluid (if requested)
+    ! 
+    if (C%params%output_bdry) then
+       bdry_file = file_t('bdry.fld')
+       call bdry_file%write(C%fluid%bdry)
+    end if
 
   end subroutine case_init
 
