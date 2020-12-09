@@ -10,6 +10,9 @@ module fluid_method
   use cg
   use gmres
   use mesh
+  use math
+  use mathops
+  use operators
   implicit none
   
   !> Base type of all fluid formulations
@@ -25,6 +28,8 @@ module fluid_method
      type(source_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
+     type(mesh_t), pointer :: msh => null()        !< Pointer to underlying mesh
+     type(bc_list_t) :: bclst     !< Pointer to underlying mesh
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -70,7 +75,7 @@ contains
   !> Initialize common data for the current scheme
   subroutine fluid_scheme_init_common(this, msh, lx)
     class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    type(mesh_t), intent(inout), target :: msh
     integer, intent(inout) :: lx
 
     if (msh%gdim .eq. 2) then
@@ -86,6 +91,8 @@ contains
     call coef_init(this%c_Xh, this%gs_Xh)
 
     call source_init(this%f_Xh, this%dm_Xh)
+
+    this%msh => msh
    
   end subroutine fluid_scheme_init_common
 
