@@ -10,8 +10,7 @@ module coefs
   private
   
   !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple
-  type, public :: coef_t
-     
+  type, public :: coef_t     
      real(kind=dp), allocatable :: G1(:,:,:,:) !< Geometric data
      real(kind=dp), allocatable :: G2(:,:,:,:) !< Geometric data
      real(kind=dp), allocatable :: G3(:,:,:,:) !< Geometric data
@@ -169,35 +168,99 @@ contains
     if (allocated(coef%B)) then
        deallocate(coef%B)
     end if
+    
     if (allocated(coef%Binv)) then
        deallocate(coef%Binv)
     end if
-    if(allocated(coef%dxdr)) deallocate(coef%dxdr)
-    if(allocated(coef%dxds)) deallocate(coef%dxds)
-    if(allocated(coef%dxdt)) deallocate(coef%dxdt)
-    if(allocated(coef%dydr)) deallocate(coef%dydr)
-    if(allocated(coef%dyds)) deallocate(coef%dyds)
-    if(allocated(coef%dydt)) deallocate(coef%dydt)
-    if(allocated(coef%dzdr)) deallocate(coef%dzdr)
-    if(allocated(coef%dzds)) deallocate(coef%dzds)
-    if(allocated(coef%dzdt)) deallocate(coef%dzdt)
-    if(allocated(coef%drdx)) deallocate(coef%drdx)
-    if(allocated(coef%dsdx)) deallocate(coef%dsdx)
-    if(allocated(coef%dtdx)) deallocate(coef%dtdx)
-    if(allocated(coef%drdy)) deallocate(coef%drdy)
-    if(allocated(coef%dsdy)) deallocate(coef%dsdy)
-    if(allocated(coef%dtdy)) deallocate(coef%dtdy)
-    if(allocated(coef%drdz)) deallocate(coef%drdz)
-    if(allocated(coef%dsdz)) deallocate(coef%dsdz)
-    if(allocated(coef%dtdz)) deallocate(coef%dtdz)
     
-    if(allocated(coef%jac)) deallocate(coef%jac)
-    if(allocated(coef%jacinv)) deallocate(coef%jacinv)
+    if(allocated(coef%dxdr)) then
+       deallocate(coef%dxdr)
+    end if
     
-    if(allocated(coef%h1)) deallocate(coef%h1)
-    if(allocated(coef%h2)) deallocate(coef%h2)
+    if(allocated(coef%dxds)) then
+       deallocate(coef%dxds)
+    end if
     
-
+    if(allocated(coef%dxdt)) then
+       deallocate(coef%dxdt)
+    end if
+    
+    if(allocated(coef%dydr)) then
+       deallocate(coef%dydr)
+    end if
+    
+    if(allocated(coef%dyds)) then
+       deallocate(coef%dyds)
+    end if
+    
+    if(allocated(coef%dydt)) then
+       deallocate(coef%dydt)
+    end if
+    
+    if(allocated(coef%dzdr)) then
+       deallocate(coef%dzdr)
+    end if
+    
+    if(allocated(coef%dzds)) then
+       deallocate(coef%dzds)
+    end if
+    
+    if(allocated(coef%dzdt)) then
+       deallocate(coef%dzdt)
+    end if
+    
+    if(allocated(coef%drdx)) then
+       deallocate(coef%drdx)
+    end if
+    
+    if(allocated(coef%dsdx)) then
+       deallocate(coef%dsdx)
+    end if
+    
+    if(allocated(coef%dtdx)) then
+       deallocate(coef%dtdx)
+    end if
+    
+    if(allocated(coef%drdy)) then
+       deallocate(coef%drdy)
+    end if
+    
+    if(allocated(coef%dsdy)) then
+       deallocate(coef%dsdy)
+    end if
+    
+    if(allocated(coef%dtdy)) then
+       deallocate(coef%dtdy)
+    end if
+    
+    if(allocated(coef%drdz)) then
+       deallocate(coef%drdz)
+    end if
+    
+    if(allocated(coef%dsdz)) then
+       deallocate(coef%dsdz)
+    end if
+    
+    if(allocated(coef%dtdz)) then
+       deallocate(coef%dtdz)
+    end if
+    
+    if(allocated(coef%jac)) then
+       deallocate(coef%jac)
+    end if
+    
+    if(allocated(coef%jacinv)) then
+       deallocate(coef%jacinv)
+    end if
+    
+    if(allocated(coef%h1)) then
+       deallocate(coef%h1)
+    end if
+    
+    if(allocated(coef%h2)) then
+       deallocate(coef%h2)
+    end if
+   
     nullify(coef%msh)
     nullify(coef%Xh)
     nullify(coef%dof)
