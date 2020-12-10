@@ -105,12 +105,18 @@ contains
   subroutine source_eval_pw(f)
     class(source_t) :: f
     integer :: j, k, l, e
+    integer :: jj,kk,ll,ee
 
     do e = 1, f%dm%msh%nelv
+       ee = e
        do l = 1, f%dm%Xh%lz
+          ll = l
           do k = 1, f%dm%Xh%ly
+             kk = k
              do j = 1, f%dm%Xh%lx
-                call f%eval_pw(f%u(j,k,l,e),f%v(j,k,l,e),f%w(j,k,l,e), j,k,l,e)
+                jj =j
+                call f%eval_pw(f%u(j,k,l,e), f%v(j,k,l,e), f%w(j,k,l,e), &
+                     jj, kk, ll, ee)
              end do
           end do
        end do
