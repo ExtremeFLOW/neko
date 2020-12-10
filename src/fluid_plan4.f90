@@ -8,7 +8,9 @@ module fluid_plan4
 
   type, extends(fluid_scheme_t) :: fluid_plan4_t
      !>@todo Add plan4 related data, ax, precon ect
-     real(kind=dp), allocatable :: u_e(:,:,:,:), v_e(:,:,:,:), w_e(:,:,:,:) 
+     real(kind=dp), allocatable :: u_e(:,:,:,:)
+     real(kind=dp), allocatable :: v_e(:,:,:,:)
+     real(kind=dp), allocatable :: w_e(:,:,:,:)
      real(kind=dp), allocatable :: p_res(:,:)
      real(kind=dp), allocatable :: u_res(:,:,:,:)
      real(kind=dp), allocatable :: v_res(:,:,:,:)
@@ -37,13 +39,14 @@ module fluid_plan4
      real(kind=dp), allocatable :: ta4(:,:)
 
 
+     !> @todo move this to a scratch space
      real(kind=dp), allocatable :: work1(:,:,:,:)
      real(kind=dp), allocatable :: work2(:,:,:,:)
      
      real(kind=dp), allocatable :: vtrans(:,:,:,:) !< Inverted Mass matrix/volume matrix
      real(kind=dp), allocatable :: vdiff(:,:,:,:) !< Inverted Mass matrix/volume matrix
  
-     type(ax_helm_t) :: ax 
+     type(ax_helm_t) :: Ax 
 
      real(kind=dp) :: tpres
      integer :: ncalls = 0
@@ -51,8 +54,7 @@ module fluid_plan4
 
      !> Time variables
      real(kind=dp) :: ab(10), bd(10),dt_old(10)
-     real(kind=dp) :: dt = 1e-3
-     real(kind=dp) :: t = 0d0
+!     real(kind=dp) :: dt = 1e-3
      real(kind=dp) :: t_old
      integer :: nab, nbd
    contains
@@ -76,7 +78,7 @@ contains
     !> Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, solver_vel=vel, solver_prs=prs)
     
-    !> Initialize variables sepcific to this plan
+    !> Initialize variables specific to this plan
     allocate(this%u_e(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%v_e(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%w_e(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
@@ -126,43 +128,133 @@ contains
     call field_free(this%dv)
     call field_free(this%dw)
     call field_free(this%dp)
-    if (allocated(this%u_e)) deallocate(this%u_e)
-    if (allocated(this%v_e)) deallocate(this%v_e)
-    if (allocated(this%w_e)) deallocate(this%w_e)
-    if (allocated(this%p_res)) deallocate(this%p_res)
-    if (allocated(this%u_res)) deallocate(this%u_res)
-    if (allocated(this%v_res)) deallocate(this%v_res)
-    if (allocated(this%w_res)) deallocate(this%w_res)
-    if (allocated(this%p_res)) deallocate(this%p_res)
-    if (allocated(this%u_old)) deallocate(this%u_old)
-    if (allocated(this%v_old)) deallocate(this%v_old)
-    if (allocated(this%w_old)) deallocate(this%w_old)
-    if (allocated(this%p_old)) deallocate(this%p_old)
-    if (allocated(this%bfx)) deallocate(this%bfx)
-    if (allocated(this%bfy)) deallocate(this%bfy)
-    if (allocated(this%bfz)) deallocate(this%bfz)
-    if (allocated(this%w1)) deallocate(this%w1)
-    if (allocated(this%wa1)) deallocate(this%wa1)
-    if (allocated(this%wa2)) deallocate(this%wa2)
-    if (allocated(this%wa3)) deallocate(this%wa3)
-    if (allocated(this%ta1)) deallocate(this%ta1)
-    if (allocated(this%ta2)) deallocate(this%ta2)
-    if (allocated(this%ta3)) deallocate(this%ta3)
-    if (allocated(this%ta4)) deallocate(this%ta4)
-    if (allocated(this%work1)) deallocate(this%work1)
-    if (allocated(this%work2)) deallocate(this%work2)
-    if (allocated(this%vtrans)) deallocate(this%vtrans)
-    if (allocated(this%vdiff)) deallocate(this%vdiff)
+
+    if (allocated(this%u_e)) then
+       deallocate(this%u_e)
+    end if
+    
+    if (allocated(this%v_e)) then
+       deallocate(this%v_e)
+    end if
+    
+    if (allocated(this%w_e)) then
+       deallocate(this%w_e)
+    end if
+    
+    if (allocated(this%p_res)) then
+       deallocate(this%p_res)
+    end if
+    
+    if (allocated(this%u_res)) then
+       deallocate(this%u_res)
+    end if
+    
+    if (allocated(this%v_res)) then
+       deallocate(this%v_res)
+    end if
+    
+    if (allocated(this%w_res)) then
+       deallocate(this%w_res)
+    end if
+    
+    if (allocated(this%p_res)) then
+       deallocate(this%p_res)
+    end if
+    
+    if (allocated(this%u_old)) then
+       deallocate(this%u_old)
+    end if
+       
+    if (allocated(this%v_old)) then
+       deallocate(this%v_old)
+    end if
+    
+    if (allocated(this%w_old)) then
+       deallocate(this%w_old)
+    end if
+    
+    if (allocated(this%p_old)) then
+       deallocate(this%p_old)
+    end if
+    
+    if (allocated(this%bfx)) then
+       deallocate(this%bfx)
+    end if
+    
+    if (allocated(this%bfy)) then
+       deallocate(this%bfy)
+    end if
+
+    if (allocated(this%bfz)) then
+       deallocate(this%bfz)
+    end if
+    
+    if (allocated(this%w1)) then
+       deallocate(this%w1)
+    end if
+    
+    if (allocated(this%wa1)) then
+       deallocate(this%wa1)
+    end if
+    
+    if (allocated(this%wa2)) then
+       deallocate(this%wa2)
+    end if
+    
+    if (allocated(this%wa3)) then
+       deallocate(this%wa3)
+    end if
+    
+    if (allocated(this%ta1)) then
+       deallocate(this%ta1)
+    end if
+    
+    if (allocated(this%ta2)) then
+       deallocate(this%ta2)
+    end if
+    
+    if (allocated(this%ta3)) then
+       deallocate(this%ta3)
+    end if
+    
+    if (allocated(this%ta4)) then
+       deallocate(this%ta4)
+    end if
+    
+    if (allocated(this%work1)) then
+       deallocate(this%work1)
+    end if
+    
+    if (allocated(this%work2)) then
+       deallocate(this%work2)
+    end if
+    
+    if (allocated(this%vtrans)) then
+       deallocate(this%vtrans)
+    end if
+    
+    if (allocated(this%vdiff)) then
+       deallocate(this%vdiff)
+    end if
     
   end subroutine fluid_plan4_free
   
-  subroutine fluid_plan4_step(this)
+  subroutine fluid_plan4_step(this, t, tstep)
     class(fluid_plan4_t), intent(inout) :: this
+    real(kind=dp), intent(inout) :: t
+    integer, intent(inout) :: tstep
+
     integer :: n, iter
     n = this%dm_Xh%n_dofs
-    if (this%ncalls .eq. 0) this%tpres=0.0
+
+    if (this%ncalls .eq. 0) then
+       this%tpres=0.0
+    end if
+    
     this%ncalls = this%ncalls + 1
-    call settime(this)
+    call settime(t, this%params%dt, this%t_old, this%dt_old,&
+                 this%ab, this%bd, this%nab, this%nbd, tstep)
+    
     ! compute explicit contributions bfx,bfy,bfz 
     ! how should we handle this?A
     !It seems like mane of the operators are in navier1.f
@@ -170,7 +262,11 @@ contains
     call this%f_Xh%eval()
     call plan4_sumab(this%u_e,this%u%x,this%u_old,n,this%ab,this%nab)
     call plan4_sumab(this%v_e,this%v%x,this%v_old,n,this%ab,this%nab)
-    if (this%dm_Xh%msh%gdim .eq. 3) call plan4_sumab(this%w_e,this%w%x,this%w_old,n,this%ab,this%nab)
+
+    if (this%dm_Xh%msh%gdim .eq. 3) then
+       call plan4_sumab(this%w_e,this%w%x,this%w_old,n,this%ab,this%nab)
+    end if
+    
     !shopuld we have this or not?
     !if(iflomach) call opcolv(bfx,bfy,bfz,vtrans)
 
@@ -180,18 +276,18 @@ contains
     ! call add2 (qtl,usrdiv,ntot1)
     !lagvel, we keep several old velocity?
     !call lagvel
-    call copy(this%p_old,this%p%x,n)
-    call copy(this%u_old,this%u%x,n)
-    call copy(this%v_old,this%v%x,n)
-    call copy(this%w_old,this%w%x,n)
+    call copy(this%p_old, this%p%x, n)
+    call copy(this%u_old, this%u%x, n)
+    call copy(this%v_old, this%v%x, n)
+    call copy(this%w_old, this%w%x, n)
 
-    ! mask Dirichlet boundaries
-    ! Add our new boundry apply
-    !call bcdirvc(vx,vy,vz,v1mask,v2mask,v3mask) 
+    ! mask Dirichlet boundaries (velocity)
+    call this%bc_apply_vel()
 
     ! compute pressure
-    call plan4_pres_setup(this)
-    call plan4_pres_residual(this)
+    call plan4_pres_setup(this%c_Xh%h1, this%vtrans, &
+                          this%dm_Xh%n_dofs, this%c_Xh%ifh2)    
+    call plan4_pres_residual(this) !< @todo don't sumo pass the entire solver
     !Sets tolerances
     !call ctolspl  (tolspl,respr)
     !!OBSERVE we do not solve anything 
@@ -201,42 +297,76 @@ contains
     call add2(this%p%x,this%dp%x,n)
     call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     !We only need to update h2 once I think then use the flag to switch on/off
-    call plan4_vel_setup(this) 
-    call plan4_vel_residual(this)
+    call plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, this%vdiff, this%vtrans, &
+         this%bd(1), this%params%dt, this%dm_Xh%n_dofs, this%c_Xh%ifh2)
     
-    !iter = this%ksp_vel%solve(this%Ax,this%du, this%u_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
-    !iter = this%ksp_vel%solve(this%Ax,this%dv, this%v_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
-    !iter = this%ksp_vel%solve(this%Ax,this%dw, this%w_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
+    call plan4_vel_residual(this%Ax, this%u, this%v, this%w, &
+                            this%u_res, this%v_res, this%w_res, &
+                            this%bfx, this%bfy, this%bfz, this%c_Xh, &
+                            this%msh, this%Xh, this%dm_Xh%n_dofs)
+    
+    iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
+         this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
+    iter = this%ksp_vel%solve(this%Ax, this%dv, this%v_res, n, &
+         this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
+    iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
+         this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
+
     call opadd2cm(this%u%x,this%v%x,this%w%x,this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
 
   end subroutine fluid_plan4_step
   
-  subroutine plan4_pres_setup(this)
-    type(fluid_plan4_t) :: this
-    call invers2(this%c_Xh%h1,this%vtrans,this%dm_Xh%n_dofs)
-    this%c_Xh%ifh2 = .false.
-
+  subroutine plan4_pres_setup(h1, vtrans, n, ifh2)
+    integer, intent(inout) :: n
+    real(kind=dp), intent(inout) :: h1(n)
+    real(kind=dp), intent(inout) :: vtrans(n)
+    logical, intent(inout) :: ifh2
+    call invers2(h1, vtrans, n)
+    ifh2 = .false.
   end subroutine plan4_pres_setup
 
-  subroutine plan4_vel_setup(this)
-    type(fluid_plan4_t) :: this
-    real(kind=dp) :: dtbd
-    dtbd = this%bd(1)/this%dt
-    call copy(this%c_Xh%h1,this%vdiff(1,1,1,1),this%dm_Xh%n_dofs)
-    call cmult2(this%c_Xh%h2,this%vtrans(1,1,1,1),dtbd,this%dm_Xh%n_dofs)
-    this%c_Xh%ifh2 = .true.
+  subroutine plan4_vel_setup(h1, h2, vdiff, vtrans, bd, dt, n, ifh2)
+    integer, intent(inout) :: n
+    real(kind=dp), intent(inout) :: h1(n)
+    real(kind=dp), intent(inout) :: h2(n)
+    real(kind=dp), intent(inout) :: vdiff(n)
+    real(kind=dp), intent(inout) :: vtrans(n)
+    real(kind=dp), intent(inout) :: bd
+    real(kind=dp), intent(inout) :: dt
+    logical, intent(inout) :: ifh2
+    real(kind=dp) :: dtbd    
+    dtbd = bd / dt    
+    call copy(h1, vdiff, n)    
+    call cmult2(h2, vtrans, dtbd, n)
+    ifh2 = .true.
   end subroutine plan4_vel_setup
 
-  subroutine plan4_vel_residual(this) 
-    type(fluid_plan4_t) :: this
+  subroutine plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
+                                bfx, bfy, bfz, c_Xh, msh, Xh, n)
+    type(ax_helm_t), intent(in) :: Ax
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh    
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    real(kind=dp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: bfx(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: bfy(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: bfz(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    type(coef_t), intent(inout) :: c_Xh
+    integer, intent(inout) :: n
+
     real(kind=dp) :: scl
 
-    call this%Ax%compute(this%u_res,this%u%x,this%c_Xh,this%msh,this%Xh)
-    call this%Ax%compute(this%v_res,this%v%x,this%c_Xh,this%msh,this%Xh)
-    if (this%msh%gdim .eq. 3) then
-       call this%Ax%compute(this%w_res,this%w%x,this%c_Xh,this%msh,this%Xh)
+    call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
+    call Ax%compute(v_res, v%x, c_Xh, msh, Xh)
+    if (msh%gdim .eq. 3) then
+       call Ax%compute(w_res, w%x, c_Xh, msh, Xh)
     end if
-    call opchsign(this%u_res,this%v_res,this%w_res, this%msh%gdim, this%dm_Xh%n_dofs)
+    
+    call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
     !scl = -1./3.
 
@@ -249,7 +379,7 @@ contains
     !  !   CALL COL2 (TA3, OMASK,NTOT)
     !  !endif
     !call opsub2  (this%u_res,this%v_res,this%w_res,this%ta1,this%ta2,this%ta3)
-    call opadd2cm  (this%u_res,this%v_res,this%w_res,this%bfx,this%bfy,this%bfz,1d0,this%dm_Xh%n_dofs,this%msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, bfx, bfy, bfz, 1d0, n, msh%gdim)
 
 
   end subroutine plan4_vel_residual
@@ -421,39 +551,50 @@ call dudxyz(this%work1,u3,coef%drdy,coef%dsdy,coef%dtdy,coef)
 !>     Store old time steps and compute new time step, time and timef.
 !!     Set time-dependent coefficients in time-stepping schemes.
 !!     @note this really should be placed somewhere else. Right now dt, etc is hardcoded. 
-  subroutine settime(this)
-    type(fluid_plan4_t) :: this
+  subroutine settime(t, dt, t_old, dt_old, ab, bd, nab, nbd, tstep)
+    real(kind=dp), intent(inout) :: t
+    real(kind=dp), intent(inout) :: dt
+    real(kind=dp), intent(inout) :: t_old
+    real(kind=dp), dimension(10), intent(inout) :: dt_old
+    real(kind=dp), dimension(10), intent(inout) :: ab
+    real(kind=dp), dimension(10), intent(inout) :: bd
+    integer, intent(inout) :: nab
+    integer, intent(inout) :: nbd
+    integer, intent(in) :: tstep
     integer :: i
 
 
 !    Set time step.
       do i=10,2,-1
-         this%dt_old(i) = this%dt_old(i-1)
+         dt_old(i) = dt_old(i-1)
       end do
       ! SHOULD be implemented!
       !call setdt
-      this%dt_old(1) = this%dt
-      if (this%ncalls .eq. 1) this%dt_old(2) = this%dt
+      dt_old(1) = dt
+      if (tstep .eq. 1) then
+         dt_old(2) = dt
+      end if
+     
       !IF (ISTEP.EQ.1 .and. irst.le.0) DTLAG(2) = DT
 
       !Set time.
 
-      this%t_old = this%t
-      this%t = this%t+this%dt
+      t_old = t
+      t = t + dt
 
       !Set coefficients in AB/BD-schemes.
 
       !call SETORDBD
       !hardcoded for now
-      this%nbd = 1
-      call rzero (this%bd,10)
-      call setbd(this%bd,this%dt_old,this%nbd)
+      nbd = 1
+      call rzero (bd, 10)
+      call setbd(bd, dt_old, nbd)
       ! This can also be varied, hardcoded for now
-      this%nab = min(this%ncalls,3)
+      nab = min(tstep, 3)
       !dont know what irst is really
       !IF (ISTEP.lt.NAB.and.irst.le.0) NAB = ISTEP
-      call rzero(this%ab,10)
-      call setabbd(this%ab,this%dt_old,this%nab,this%nbd)
+      call rzero(ab, 10)
+      call setabbd(ab, dt_old, nab,nbd)
 
   end subroutine settime
 !>
