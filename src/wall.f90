@@ -8,15 +8,15 @@ module wall
   !> No-slip Wall boundary condition
   type, public, extends(dirichlet_t) :: no_slip_wall_t
    contains
-     procedure, pass(this) :: apply => no_slip_wall_apply
-     procedure, pass(this) :: apply_mult => no_slip_wall_apply_mult
+     procedure, pass(this) :: apply_scalar => no_slip_wall_apply_scalar
+     procedure, pass(this) :: apply_vector => no_slip_wall_apply_vector
   end type no_slip_wall_t
 
 contains
 
   !> Boundary condition apply for a no-slip wall condition
   !! to a vector @a x
-  subroutine no_slip_wall_apply(this, x, n)
+  subroutine no_slip_wall_apply_scalar(this, x, n)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=dp), intent(inout),  dimension(n) :: x
@@ -28,11 +28,11 @@ contains
        x(k) = 0d0
     end do
     
-  end subroutine no_slip_wall_apply
-
+  end subroutine no_slip_wall_apply_scalar
+  
   !> Boundary condition apply for a no-slip wall condition
   !! to vectors @a x, @a y and @a z
-  subroutine no_slip_wall_apply_mult(this, x, y, z, n)
+  subroutine no_slip_wall_apply_vector(this, x, y, z, n)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=dp), intent(inout),  dimension(n) :: x
@@ -48,6 +48,6 @@ contains
        z(k) = 0d0
     end do
     
-  end subroutine no_slip_wall_apply_mult
+  end subroutine no_slip_wall_apply_vector
   
 end module wall

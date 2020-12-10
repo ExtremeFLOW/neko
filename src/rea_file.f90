@@ -45,7 +45,9 @@ contains
     integer :: start_el, end_el, nel
     type(linear_dist_t) :: dist
     type(map_t) :: nm
-    type(htable_pt_t) :: htp 
+    type(htable_pt_t) :: htp
+    integer :: sym_facet
+    integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
 
     select type(data)
     type is (rea_t)
@@ -63,6 +65,11 @@ contains
        call neko_error('Invalid output data')
     end select
 
+    if (read_param .and. read_bcs .and. pe_size .gt. 1) then
+       call neko_error('Reading NEKTON session data only implemented in serial')
+    end if
+          
+    
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     if (pe_rank .eq. 0) then
        write(*, '(A,A)') " Reading NEKTON file ", this%fname
@@ -177,11 +184,27 @@ contains
        ! Read fluid boundary conditions
        read(9,*) 
        read(9,*) 
-       if (.not. read_bcs) then
+       if (.not. read_bcs) then ! Mark zones in the mesh
+          allocate(cbc(6,1))
           do i = 1, nelgv
-             read(9, *)
+             if (i .ge. start_el .and. i .le. end_el) then
+                el_idx = i - start_el + 1
+                do j = 1, 2*ndim
+                   read(9,'(a1, a3)') chtemp, cbc(j, 1)                                
+                   sym_facet = facet_map(j)
+                   select case(trim(cbc(j,1)))
+                   case ('W', 'SYM')
+                      call mesh_mark_wall_facet(msh, sym_facet, el_idx)
+                   case ('v', 'V')
+                      call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
+                   case ('O', 'o')
+                      call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+                   end select
+                end do
+             end if
           end do
-       else 
+          deallocate(cbc)
+       else  ! Store bcs in a NEKTON session structure
           allocate(cbc(6,nelgv))
           do i = 1, nelgv
              do j = 1, 2*ndim
@@ -190,6 +213,8 @@ contains
           end do
        end if
 
+       call mesh_finalize(msh)
+       
        if (pe_rank .eq. 0) write(*,*) 'Done'       
        close(9)
     endif

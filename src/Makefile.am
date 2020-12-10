@@ -34,6 +34,7 @@ libneko_a_SOURCES = \
 	uset.f90\
 	stack.f90\
 	tuple.f90\
+	zone.f90\
 	mesh.f90\
 	mesh_field.f90\
 	field.f90\
@@ -50,6 +51,7 @@ libneko_a_SOURCES = \
 	bc.f90\
 	dirichlet.f90\
 	wall.f90\
+	inflow.f90\
 	gmres.f90\
 	pc_jacobi.f90\
 	pc_identity.f90\

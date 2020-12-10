@@ -1,13 +1,18 @@
 !> Fluid formulations
 module fluid_method
   use gather_scatter
+  use parameters    
   use source
   use field
   use space
   use dofmap
   use krylov
   use coefs
+  use wall
+  use inflow
+  use dirichlet
   use cg
+  use bc
   use gmres
   use mesh
   use math
@@ -28,12 +33,18 @@ module fluid_method
      type(source_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
-     type(mesh_t), pointer :: msh => null()        !< Pointer to underlying mesh
+     type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
+     type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
+     type(bc_list_t) :: bclst_vel              !< List of velocity conditions
+     type(param_t), pointer :: params          !< Parameters
+     type(field_t) :: bdry                     !< Boundary markings
+     type(mesh_t), pointer :: msh => null()    !< Pointer to underlying mesh
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      procedure, pass(this) :: validate => fluid_scheme_validate
+     procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -42,12 +53,14 @@ module fluid_method
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_method_init(this, msh, lx, vel, prs)
+     subroutine fluid_method_init(this, msh, lx, param, vel, prs)
        import fluid_scheme_t
+       import param_t
        import mesh_t
        class(fluid_scheme_t), intent(inout) :: this
-       type(mesh_t), intent(inout) :: msh
+       type(mesh_t), intent(inout) :: msh       
        integer, intent(inout) :: lx
+       type(param_t), intent(inout) :: param              
        character(len=80), intent(inout) :: vel
        character(len=80), intent(inout) :: prs
      end subroutine fluid_method_init
@@ -72,11 +85,13 @@ module fluid_method
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx)
+  subroutine fluid_scheme_init_common(this, msh, lx, params)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout), target :: msh
     integer, intent(inout) :: lx
-
+    type(param_t), intent(inout), target :: params
+    type(dirichlet_t) :: bdry_mask
+    
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
     else
@@ -85,24 +100,70 @@ contains
 
     this%dm_Xh = dofmap_t(msh, this%Xh)
 
+    this%params => params
+
+    this%msh => msh
+
     call gs_init(this%gs_Xh, this%dm_Xh)
 
     call coef_init(this%c_Xh, this%gs_Xh)
 
     call source_init(this%f_Xh, this%dm_Xh)
 
-    this%msh => msh
-   
+    call this%bc_wall%init(this%dm_Xh)
+    call this%bc_wall%mark_zone(msh%wall)
+    call this%bc_wall%finalize()
+
+    call this%bc_inflow%init(this%dm_Xh)
+    call this%bc_inflow%mark_zone(msh%inlet)
+    call this%bc_inflow%finalize()
+
+    call bc_list_init(this%bclst_vel)
+    call bc_list_add(this%bclst_vel, this%bc_inflow)
+    call bc_list_add(this%bclst_vel, this%bc_wall)
+
+    if (params%output_bdry) then
+
+       if (pe_rank .eq. 0) then
+          write(*,*) 'Saving boundary markings'
+       end if
+       
+       call field_init(this%bdry, this%dm_Xh, 'bdry')
+       this%bdry = 0d0
+       
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%wall)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(1d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%inlet)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(2d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%outlet)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(3d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+    end if
+
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, solver_vel)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, solver_vel)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    type(param_t), intent(inout) :: params
     character(len=80), intent(inout) :: solver_vel
 
-    call fluid_scheme_init_common(this, msh, lx)
+    call fluid_scheme_init_common(this, msh, lx, params)
     
     call field_init(this%u, this%dm_Xh, 'u')
     call field_init(this%v, this%dm_Xh, 'v')
@@ -113,14 +174,15 @@ contains
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, solver_vel, solver_prs)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, solver_vel, solver_prs)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
+    type(param_t), intent(inout) :: params      
     character(len=80), intent(inout) :: solver_vel
     character(len=80), intent(inout) :: solver_prs
 
-    call fluid_scheme_init_common(this, msh, lx)
+    call fluid_scheme_init_common(this, msh, lx, params)
     
     call field_init(this%u, this%dm_Xh, 'u')
     call field_init(this%v, this%dm_Xh, 'v')
@@ -140,6 +202,10 @@ contains
     call field_free(this%v)
     call field_free(this%w)
     call field_free(this%p)
+    call field_free(this%bdry)
+
+    call this%bc_inflow%free()
+    call this%bc_wall%free()
 
     call space_free(this%Xh)
 
@@ -158,6 +224,10 @@ contains
     call coef_free(this%c_Xh)
 
     call source_free(this%f_Xh)
+
+    call bc_list_free(this%bclst_vel)
+
+    nullify(this%params)
     
   end subroutine fluid_scheme_free
 
@@ -185,7 +255,20 @@ contains
        call neko_error('No source term defined')
     end if
 
+    if (.not. associated(this%params)) then
+       call neko_error('No parameters defined')
+    end if
+
   end subroutine fluid_scheme_validate
+
+  !> Apply all boundary conditions defined for velocity
+  !! @todo Why can't we call the interface here?
+  subroutine fluid_scheme_bc_apply_vel(this)
+    class(fluid_scheme_t), intent(inout) :: this
+    call bc_list_apply_vector(this%bclst_vel,&
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%n_dofs)
+  end subroutine fluid_scheme_bc_apply_vel
+  
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers

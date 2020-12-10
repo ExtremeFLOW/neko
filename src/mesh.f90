@@ -14,6 +14,7 @@ module mesh
   use htable
   use datadist
   use distdata
+  use zone
   use math
   implicit none
 
@@ -55,6 +56,11 @@ module mesh
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
      type(distdata_t) :: distdata              !< Mesh distributed data
+
+     type(zone_t) :: wall                 !< Zone of wall facets
+     type(zone_t) :: inlet                !< Zone of inlet facets
+     type(zone_t) :: outlet               !< Zone of outlet facets
+
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
@@ -193,6 +199,10 @@ contains
     end do
 
     call m%htp%init(m%npts*m%nelv, i)
+
+    call zone_init(m%wall, m%nelv)
+    call zone_init(m%inlet, m%nelv)
+    call zone_init(m%outlet, m%nelv)
    
     call distdata_init(m%distdata)
     
@@ -246,6 +256,10 @@ contains
        end do
        deallocate(m%point_neigh)
     end if
+
+    call zone_free(m%wall)
+    call zone_free(m%inlet)
+    call zone_free(m%outlet)
     
   end subroutine mesh_free
 
@@ -253,6 +267,10 @@ contains
     type(mesh_t), intent(inout) :: m
     call mesh_generate_flags(m)
     call mesh_generate_conn(m)
+
+    call zone_finalize(m%wall)
+    call zone_finalize(m%inlet)
+    call zone_finalize(m%outlet)
 
   end subroutine mesh_finalize
 
@@ -1128,6 +1146,63 @@ contains
     end if
     
   end subroutine mesh_add_edge
+
+  !> Mark facet @a f in element @a e as a wall
+  subroutine mesh_mark_wall_facet(m, f, e)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+
+    call zone_add_facet(m%wall, f, e)
+    
+  end subroutine mesh_mark_wall_facet
+
+  !> Mark facet @a f in element @a e as an inlet
+  subroutine mesh_mark_inlet_facet(m, f, e)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+
+    call zone_add_facet(m%inlet, f, e)
+    
+  end subroutine mesh_mark_inlet_facet
+  
+  !> Mark facet @a f in element @a e as an outlet
+  subroutine mesh_mark_outlet_facet(m, f, e)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+
+    call zone_add_facet(m%outlet, f, e)
+    
+  end subroutine mesh_mark_outlet_facet
 
   !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)

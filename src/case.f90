@@ -33,10 +33,9 @@ contains
     type(param_io_t) :: params
     namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx, params, &
          solver_velocity, solver_pressure, source_term
-
-
+    
     integer :: ierr
-    type(file_t) :: msh_file
+    type(file_t) :: msh_file, bdry_file    
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 320 + 8
     character buffer(nbytes)
     integer :: pack_index
@@ -45,7 +44,7 @@ contains
        open(10, file=trim(case_file))
        read(10, nml=NEKO_CASE)
        close(10)
-
+       
        pack_index = 1
        call MPI_Pack(mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
@@ -82,7 +81,6 @@ contains
 
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
-    call mesh_generate_conn(C%msh) 
 
     C%params = params%p
 
@@ -98,7 +96,7 @@ contains
        call neko_error('Invalid fluid scheme')
     end if
   
-    call C%fluid%init(C%msh, lx, solver_velocity, solver_pressure)
+    call C%fluid%init(C%msh, lx, C%params, solver_velocity, solver_pressure)
 
     !
     ! Setup source term
@@ -120,7 +118,16 @@ contains
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
-    
+
+
+    !
+    ! Save boundary markings for fluid (if requested)
+    ! 
+    if (C%params%output_bdry) then
+       bdry_file = file_t('bdry.fld')
+       call bdry_file%write(C%fluid%bdry)
+    end if
+
   end subroutine case_init
 
   !> Deallocate a case 
