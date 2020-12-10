@@ -78,7 +78,7 @@ contains
     !> Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, solver_vel=vel, solver_prs=prs)
     
-    !> Initialize variables sepcific to this plan
+    !> Initialize variables specific to this plan
     allocate(this%u_e(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%v_e(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%w_e(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
@@ -276,14 +276,13 @@ contains
     ! call add2 (qtl,usrdiv,ntot1)
     !lagvel, we keep several old velocity?
     !call lagvel
-    call copy(this%p_old, this%p%x,n)
-    call copy(this%u_old, this%u%x,n)
-    call copy(this%v_old, this%v%x,n)
-    call copy(this%w_old, this%w%x,n)
+    call copy(this%p_old, this%p%x, n)
+    call copy(this%u_old, this%u%x, n)
+    call copy(this%v_old, this%v%x, n)
+    call copy(this%w_old, this%w%x, n)
 
-    ! mask Dirichlet boundaries
-    ! Add our new boundry apply
-    !call bcdirvc(vx,vy,vz,v1mask,v2mask,v3mask) 
+    ! mask Dirichlet boundaries (velocity)
+    call this%bc_apply_vel()
 
     ! compute pressure
     call plan4_pres_setup(this%c_Xh%h1, this%vtrans, &
