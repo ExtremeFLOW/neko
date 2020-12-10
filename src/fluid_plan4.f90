@@ -46,7 +46,7 @@ module fluid_plan4
      real(kind=dp), allocatable :: vtrans(:,:,:,:) !< Inverted Mass matrix/volume matrix
      real(kind=dp), allocatable :: vdiff(:,:,:,:) !< Inverted Mass matrix/volume matrix
  
-     type(ax_helm_t) :: ax 
+     type(ax_helm_t) :: Ax 
 
      real(kind=dp) :: tpres
      integer :: ncalls = 0
@@ -253,7 +253,7 @@ contains
     
     this%ncalls = this%ncalls + 1
     call settime(t, this%params%dt, this%t_old, this%dt_old,&
-         this%ab, this%bd, this%nab, this%nbd, tstep)
+                 this%ab, this%bd, this%nab, this%nbd, tstep)
     
     ! compute explicit contributions bfx,bfy,bfz 
     ! how should we handle this?A
@@ -276,18 +276,19 @@ contains
     ! call add2 (qtl,usrdiv,ntot1)
     !lagvel, we keep several old velocity?
     !call lagvel
-    call copy(this%p_old,this%p%x,n)
-    call copy(this%u_old,this%u%x,n)
-    call copy(this%v_old,this%v%x,n)
-    call copy(this%w_old,this%w%x,n)
+    call copy(this%p_old, this%p%x,n)
+    call copy(this%u_old, this%u%x,n)
+    call copy(this%v_old, this%v%x,n)
+    call copy(this%w_old, this%w%x,n)
 
     ! mask Dirichlet boundaries
     ! Add our new boundry apply
     !call bcdirvc(vx,vy,vz,v1mask,v2mask,v3mask) 
 
     ! compute pressure
-    call plan4_pres_setup(this)
-    call plan4_pres_residual(this)
+    call plan4_pres_setup(this%c_Xh%h1, this%vtrans, &
+                          this%dm_Xh%n_dofs, this%c_Xh%ifh2)    
+    call plan4_pres_residual(this) !< @todo don't sumo pass the entire solver
     !Sets tolerances
     !call ctolspl  (tolspl,respr)
     !!OBSERVE we do not solve anything 
@@ -297,47 +298,76 @@ contains
     call add2(this%p%x,this%dp%x,n)
     call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     !We only need to update h2 once I think then use the flag to switch on/off
-    call plan4_vel_setup(this) 
-    call plan4_vel_residual(this)
+    call plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, this%vdiff, this%vtrans, &
+         this%bd(1), this%params%dt, this%dm_Xh%n_dofs, this%c_Xh%ifh2)
     
-    iter = this%ksp_vel%solve(this%Ax,this%du, this%u_res, n, &
+    call plan4_vel_residual(this%Ax, this%u, this%v, this%w, &
+                            this%u_res, this%v_res, this%w_res, &
+                            this%bfx, this%bfy, this%bfz, this%c_Xh, &
+                            this%msh, this%Xh, this%dm_Xh%n_dofs)
+    
+    iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
          this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
-    iter = this%ksp_vel%solve(this%Ax,this%dv, this%v_res, n, &
+    iter = this%ksp_vel%solve(this%Ax, this%dv, this%v_res, n, &
          this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
-    iter = this%ksp_vel%solve(this%Ax,this%dw, this%w_res, n, &
+    iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
          this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
 
     call opadd2cm(this%u%x,this%v%x,this%w%x,this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
 
   end subroutine fluid_plan4_step
   
-  subroutine plan4_pres_setup(this)
-    type(fluid_plan4_t) :: this
-    call invers2(this%c_Xh%h1,this%vtrans,this%dm_Xh%n_dofs)
-    this%c_Xh%ifh2 = .false.
-
+  subroutine plan4_pres_setup(h1, vtrans, n, ifh2)
+    integer, intent(inout) :: n
+    real(kind=dp), intent(inout) :: h1(n)
+    real(kind=dp), intent(inout) :: vtrans(n)
+    logical, intent(inout) :: ifh2
+    call invers2(h1, vtrans, n)
+    ifh2 = .false.
   end subroutine plan4_pres_setup
 
-  subroutine plan4_vel_setup(this)
-    type(fluid_plan4_t) :: this
-    real(kind=dp) :: dtbd
-    dtbd = this%bd(1)/this%params%dt
-    call copy(this%c_Xh%h1,this%vdiff(1,1,1,1),this%dm_Xh%n_dofs)
-    call cmult2(this%c_Xh%h2,this%vtrans(1,1,1,1),dtbd,this%dm_Xh%n_dofs)
-    this%c_Xh%ifh2 = .true.
+  subroutine plan4_vel_setup(h1, h2, vdiff, vtrans, bd, dt, n, ifh2)
+    integer, intent(inout) :: n
+    real(kind=dp), intent(inout) :: h1(n)
+    real(kind=dp), intent(inout) :: h2(n)
+    real(kind=dp), intent(inout) :: vdiff(n)
+    real(kind=dp), intent(inout) :: vtrans(n)
+    real(kind=dp), intent(inout) :: bd
+    real(kind=dp), intent(inout) :: dt
+    logical, intent(inout) :: ifh2
+    real(kind=dp) :: dtbd    
+    dtbd = bd / dt    
+    call copy(h1, vdiff, n)    
+    call cmult2(h2, vtrans, dtbd, n)
+    ifh2 = .true.
   end subroutine plan4_vel_setup
 
-  subroutine plan4_vel_residual(this) 
-    type(fluid_plan4_t) :: this
+  subroutine plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
+                                bfx, bfy, bfz, c_Xh, msh, Xh, n)
+    type(ax_helm_t), intent(in) :: Ax
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh    
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    real(kind=dp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: bfx(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: bfy(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: bfz(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    type(coef_t), intent(inout) :: c_Xh
+    integer, intent(inout) :: n
+
     real(kind=dp) :: scl
 
-    call this%Ax%compute(this%u_res, this%u%x, this%c_Xh, this%msh, this%Xh)
-    call this%Ax%compute(this%v_res, this%v%x, this%c_Xh, this%msh, this%Xh)
-    if (this%msh%gdim .eq. 3) then
-       call this%Ax%compute(this%w_res, this%w%x, this%c_Xh, this%msh,t his%Xh)
+    call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
+    call Ax%compute(v_res, v%x, c_Xh, msh, Xh)
+    if (msh%gdim .eq. 3) then
+       call Ax%compute(w_res, w%x, c_Xh, msh, Xh)
     end if
-    call opchsign(this%u_res, this%v_res, this%w_res, &
-         this%msh%gdim, this%dm_Xh%n_dofs)
+    
+    call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
     !scl = -1./3.
 
@@ -350,8 +380,7 @@ contains
     !  !   CALL COL2 (TA3, OMASK,NTOT)
     !  !endif
     !call opsub2  (this%u_res,this%v_res,this%w_res,this%ta1,this%ta2,this%ta3)
-    call opadd2cm(this%u_res, this%v_res, this%w_res, this%bfx, &
-         this%bfy, this%bfz,1d0, this%dm_Xh%n_dofs, this%msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, bfx, bfy, bfz, 1d0, n, msh%gdim)
 
 
   end subroutine plan4_vel_residual
