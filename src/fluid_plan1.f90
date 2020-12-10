@@ -67,8 +67,10 @@ contains
     
   end subroutine fluid_plan1_free
 
-  subroutine fluid_plan1_step(this)
+  subroutine fluid_plan1_step(this, t, tstep)
     class(fluid_plan1_t), intent(inout) :: this
+    real(kind=dp), intent(inout) :: t
+    integer, intent(inout) :: tstep
 
   end subroutine fluid_plan1_step
   

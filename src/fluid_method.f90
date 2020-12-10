@@ -1,7 +1,8 @@
 !> Fluid formulations
 module fluid_method
   use gather_scatter
-  use parameters    
+  use parameters
+  use num_types
   use source
   use field
   use space
@@ -36,9 +37,9 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
-     type(param_t), pointer :: params          !< Parameters
      type(field_t) :: bdry                     !< Boundary markings
-     type(mesh_t), pointer :: msh => null()    !< Pointer to underlying mesh
+     type(param_t), pointer :: params          !< Parameters          
+     type(mesh_t), pointer :: msh => null()    !< Mesh
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -76,9 +77,12 @@ module fluid_method
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_method_step(this)
+     subroutine fluid_method_step(this, t, tstep)
        import fluid_scheme_t
+       import dp
        class(fluid_scheme_t), intent(inout) :: this
+       real(kind=dp), intent(inout) :: t
+       integer, intent(inout) :: tstep
      end subroutine fluid_method_step
   end interface
 
