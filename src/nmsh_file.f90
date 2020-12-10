@@ -120,35 +120,56 @@ contains
 
     end if
     
+
+    !>
+    !!@todo Fix the parallel reading in this part, let each rank read
+    !!a piece and pass the pieces around, filtering out matching zones
+    !!in the local mesh.
+    !!
+    
+
     allocate(nmsh_zones(2 * max(wall, inlet, outlet)))
 
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
-         element_offset * (2 * MPI_INTEGER_SIZE)
+    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE 
     call MPI_File_read_at_all(fh, mpi_offset, &
          nmsh_zones, 2 * wall, MPI_INTEGER, status, ierr)
+
     do i = 1, 2*wall, 2
-       call mesh_mark_wall_facet(msh, nmsh_zones(i), nmsh_zones(i+1))
+       el_idx = nmsh_zones(i+1)
+       if (el_idx .gt. msh%offset_el .and. &
+            el_idx .le. msh%offset_el + msh%nelv) then
+          el_idx = el_idx - msh%offset_el
+          call mesh_mark_wall_facet(msh, nmsh_zones(i), el_idx)
+       end if
     end do
 
     mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
-         2 * wall * MPI_INTEGER_SIZE + &
-         element_offset * (2 * MPI_INTEGER_SIZE)
+         2 * wall * MPI_INTEGER_SIZE
     call MPI_File_read_at_all(fh, mpi_offset, &
          nmsh_zones, 2 * inlet, MPI_INTEGER, status, ierr)
 
     do i = 1, 2*inlet, 2
-       call mesh_mark_inlet_facet(msh, nmsh_zones(i), nmsh_zones(i+1))
+       el_idx = nmsh_zones(i+1)
+       if (el_idx .gt. msh%offset_el .and. &
+            el_idx .le. msh%offset_el + msh%nelv) then
+          el_idx = el_idx - msh%offset_el
+          call mesh_mark_inlet_facet(msh, nmsh_zones(i), el_idx)
+       end if
     end do
 
     mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
          2 * wall * MPI_INTEGER_SIZE +&
-         2 * inlet * MPI_INTEGER_SIZE +&
-         element_offset * (2 * MPI_INTEGER_SIZE)
+         2 * inlet * MPI_INTEGER_SIZE
     call MPI_File_read_at_all(fh, mpi_offset, &
          nmsh_zones, 2 * outlet, MPI_INTEGER, status, ierr)
 
     do i = 1, 2*outlet, 2
-       call mesh_mark_outlet_facet(msh, nmsh_zones(i), nmsh_zones(i+1))
+       el_idx = nmsh_zones(i+1)
+       if (el_idx .gt. msh%offset_el .and. &
+            el_idx .le. msh%offset_el + msh%nelv) then
+          el_idx = el_idx - msh%offset_el
+          call mesh_mark_outlet_facet(msh, nmsh_zones(i), el_idx)
+       end if
     end do
     
     deallocate(nmsh_zones)
