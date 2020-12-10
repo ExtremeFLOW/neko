@@ -51,6 +51,8 @@ module neko
   use case
   use simulation
   use ax_helm
+  use operators
+  use mathops
 contains
 
   subroutine neko_init(C)

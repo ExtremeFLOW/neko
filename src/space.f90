@@ -11,6 +11,10 @@ module space
      integer :: lx              !< Polynomial dimension in x-direction
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
+     integer :: lxy             !< Number of points in xy-plane
+     integer :: lyz              !< Number of points in yz-plane
+     integer :: lxz              !< Number of points in xz-plane
+     integer :: lxyz              !< Number of points in xyz-block
      
      real(kind=dp), allocatable :: zg(:,:) !< Quadrature points
 
@@ -65,6 +69,10 @@ contains
        end if
        s%lz = 1
     end if
+    s%lxy = s%ly*s%lx
+    s%lyz = s%ly*s%lz
+    s%lxz = s%lx*s%lz
+    s%lxyz = s%lx*s%ly*s%lz
 
     allocate(s%zg(lx, 3))
 

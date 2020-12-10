@@ -3,6 +3,7 @@ module gmres
   use krylov
   use comm
   use math
+  use operators
   use num_types
   implicit none
 
@@ -273,19 +274,6 @@ contains
     !call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
     print *, "Residual:", rnorm, iter
   end function gmres_solve
-
-  !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
-  !! @note Should probably be moved somewhere else.
-  subroutine ortho(x,n ,glb_n)
-    integer, intent(in) :: n
-    integer, intent(inout) :: glb_n
-    real(kind=dp), dimension(n), intent(inout) :: x
-    real(kind=dp) :: rlam
-
-    rlam = glsum(x,n)/glb_n
-    call cadd(x,-rlam,n)
-
-  end subroutine ortho
 
 end module gmres
   
