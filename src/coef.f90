@@ -41,11 +41,14 @@ module coefs
      real(kind=dp), allocatable :: jac(:,:,:,:) !< Jacobian
      real(kind=dp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
      real(kind=dp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
+     real(kind=dp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
+     
      real(kind=dp) :: volume
      
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
      type(dofmap_t), pointer :: dof => null()
+     type(gs_t), pointer :: gs_h=> null()
   end type coef_t
 
   public :: coef_init, coef_free
@@ -63,6 +66,7 @@ contains
     coef%msh => gs_h%dofmap%msh
     coef%Xh => gs_h%dofmap%Xh
     coef%dof => gs_h%dofmap
+    coef%gs_h => gs_h
 
     !
     ! Allocate arrays for geometric data
@@ -117,6 +121,7 @@ contains
     call invcol1(coef%mult, n)
     
     allocate(coef%B(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%Binv(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     call coef_generate_mass(coef)
     
     allocate(coef%h1(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
@@ -163,6 +168,9 @@ contains
     
     if (allocated(coef%B)) then
        deallocate(coef%B)
+    end if
+    if (allocated(coef%Binv)) then
+       deallocate(coef%Binv)
     end if
     if(allocated(coef%dxdr)) deallocate(coef%dxdr)
     if(allocated(coef%dxds)) deallocate(coef%dxds)
@@ -317,6 +325,11 @@ contains
        ! Here we need to handle things differently for axis symmetric elements
        call col3(c%B(1,1,1,e),c%jac(1,1,1,e),c%Xh%w3,lxyz)
     end do
+    
+    call copy(c%Binv,c%B,c%dof%n_dofs)
+    call gs_op_vector(c%gs_h,c%Binv, c%dof%n_dofs,GS_OP_ADD)
+    call invcol1(c%Binv,c%dof%n_dofs)
+
     c%volume = glsum(c%B,c%dof%n_dofs)
   end subroutine coef_generate_mass
   

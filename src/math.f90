@@ -117,7 +117,20 @@ contains
     end do
     
   end subroutine invcol1
-  
+ 
+  !> Invert a vector \f$ a = 1 / a \f$
+  subroutine invcol3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b,c
+    integer :: i
+
+    do i = 1, n
+       a(i) = b(i) / c(i)
+    end do
+    
+  end subroutine invcol3
+   
   !> Compute inverted vector \f$ a = 1 / b \f$
   subroutine invers2(a, b, n)
     integer, intent(in) :: n
@@ -247,6 +260,21 @@ contains
 
   end subroutine add4
 
+  !> Vector subtraction \f$ a = b - c \f$
+  subroutine sub3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: c
+    real(kind=dp), dimension(n), intent(inout) :: b
+    real(kind=dp), dimension(n), intent(out) :: a
+    integer :: i
+
+    do i = 1, n
+       a(i) = b(i) - c(i)
+    end do
+
+  end subroutine sub3
+
+
   !> Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
   !! (multiplication on first argument)
   subroutine add2s1(a, b, c1, n)
@@ -291,6 +319,20 @@ contains
     
   end subroutine cmult2
 
+  !> Vector division \f$ a = a/ b \f$
+  subroutine invcol2(a, b, n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = a(i) /b(i)
+    end do
+    
+  end subroutine invcol2
+
+
   !> Vector multiplication \f$ a = a \cdot b \f$
   subroutine col2(a, b, n)
     integer, intent(in) :: n    
@@ -331,6 +373,22 @@ contains
     end do
 
   end subroutine subcol3
+
+  !> Returns \f$ a = c1 * b + c2 * c \f$
+  subroutine add3s2(a,b,c,c1,c2,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=dp), intent(in) :: c1, c2
+    integer :: i
+
+    do i = 1,n
+       a(i) = c1 * b(i) + c2 * c(i) 
+    end do
+
+  end subroutine add3s2
+
 
   !> Returns \f$ a = a - b*c*d \f$
   subroutine subcol4(a,b,c,d,n)

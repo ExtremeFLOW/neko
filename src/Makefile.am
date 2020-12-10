@@ -14,9 +14,10 @@ libneko_a_SOURCES = \
 	mxm_std.f90\
 	speclib.f90 \
 	math.f90\
+	mathops.f90\
 	fast3d.f90\
 	tensor.f90\
-        space.f90\
+	space.f90\
 	dofmap.f90\
 	coef.f90\
 	gather_scatter.f90\
@@ -38,6 +39,7 @@ libneko_a_SOURCES = \
 	mesh_field.f90\
 	field.f90\
 	rea.f90\
+	operators.f90\
 	generic_file.f90\
 	map_file.f90\
 	re2_file.f90\

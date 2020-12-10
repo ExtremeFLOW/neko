@@ -15,6 +15,9 @@ module fluid_method
   use bc
   use gmres
   use mesh
+  use math
+  use mathops
+  use operators
   implicit none
   
   !> Base type of all fluid formulations
@@ -35,6 +38,7 @@ module fluid_method
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(param_t), pointer :: params          !< Parameters
      type(field_t) :: bdry                     !< Boundary markings
+     type(mesh_t), pointer :: msh => null()    !< Pointer to underlying mesh
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -83,7 +87,7 @@ contains
   !> Initialize common data for the current scheme
   subroutine fluid_scheme_init_common(this, msh, lx, params)
     class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    type(mesh_t), intent(inout), target :: msh
     integer, intent(inout) :: lx
     type(param_t), intent(inout), target :: params
     type(dirichlet_t) :: bdry_mask
@@ -97,6 +101,8 @@ contains
     this%dm_Xh = dofmap_t(msh, this%Xh)
 
     this%params => params
+
+    this%msh => msh
 
     call gs_init(this%gs_Xh, this%dm_Xh)
 
@@ -146,7 +152,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
     end if
-    
+
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme

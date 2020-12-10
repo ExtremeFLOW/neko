@@ -41,7 +41,7 @@ contains
     logical :: output_bdry = .false.
     namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf, output_bdry
 
-    read(unit, nml=NEKO_PARAMETERS, iostat=iostat)
+    read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
     param%p%dt = dt
     param%p%nsteps = nsteps 
     param%p%rho = rho 
@@ -72,7 +72,8 @@ contains
     uinf = param%p%uinf
     output_bdry = param%p%output_bdry
     
-    write(unit, nml=NEKO_PARAMETERS)
+    write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
+
         
   end subroutine param_write
 
