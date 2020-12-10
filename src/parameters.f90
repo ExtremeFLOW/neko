@@ -37,7 +37,7 @@ contains
     real(kind=dp) :: mu = 1d0
     namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu
 
-    read(unit, nml=NEKO_PARAMETERS, iostat=iostat)
+    read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
     param%p%dt = dt
     param%p%nsteps = nsteps 
     param%p%rho = rho 
@@ -62,7 +62,7 @@ contains
     rho = param%p%rho  
     mu = param%p%mu 
 
-    write(unit, nml=NEKO_PARAMETERS)
+    write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
         
   end subroutine param_write
 
