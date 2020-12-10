@@ -29,7 +29,6 @@ module fluid_method
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      type(mesh_t), pointer :: msh => null()        !< Pointer to underlying mesh
-     type(bc_list_t) :: bclst     !< Pointer to underlying mesh
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw

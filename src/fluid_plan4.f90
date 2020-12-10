@@ -50,7 +50,10 @@ module fluid_plan4
      integer :: niter = 1000
 
      !> Time variables
-     real(kind=dp) :: ab(10), bd(10),dt_old(10), dt, t, t_old
+     real(kind=dp) :: ab(10), bd(10),dt_old(10)
+     real(kind=dp) :: dt = 1e-3
+     real(kind=dp) :: t = 0d0
+     real(kind=dp) :: t_old
      integer :: nab, nbd
    contains
      procedure, pass(this) :: init => fluid_plan4_init
@@ -154,13 +157,14 @@ contains
     class(fluid_plan4_t), intent(inout) :: this
     integer :: n, iter
     n = this%dm_Xh%n_dofs
+    if (this%ncalls .eq. 0) this%tpres=0.0
+    this%ncalls = this%ncalls + 1
     call settime(this)
     ! compute explicit contributions bfx,bfy,bfz 
     ! how should we handle this?A
     !It seems like mane of the operators are in navier1.f
     !Mybae time for a navier.f90? Or operators.f90
-    call source_eval_pw(this%f_Xh)
-
+    call this%f_Xh%eval()
     call plan4_sumab(this%u_e,this%u%x,this%u_old,n,this%ab,this%nab)
     call plan4_sumab(this%v_e,this%v%x,this%v_old,n,this%ab,this%nab)
     if (this%dm_Xh%msh%gdim .eq. 3) call plan4_sumab(this%w_e,this%w%x,this%w_old,n,this%ab,this%nab)
@@ -183,22 +187,23 @@ contains
     !call bcdirvc(vx,vy,vz,v1mask,v2mask,v3mask) 
 
     ! compute pressure
-    if (this%ncalls .eq. 0) this%tpres=0.0
-    this%ncalls = this%ncalls + 1
     call plan4_pres_setup(this)
     call plan4_pres_residual(this)
     !Sets tolerances
     !call ctolspl  (tolspl,respr)
-    iter = this%ksp_prs%solve(this%Ax,this%dp, this%p_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
+    !!OBSERVE we do not solve anything 
+    !!bclist is input to the krylov solver, when bcs are inplace uncomment all the solve
+    !statement!
+    !iter = this%ksp_prs%solve(this%Ax,this%dp, this%p_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
     call add2(this%p%x,this%dp%x,n)
     call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     !We only need to update h2 once I think then use the flag to switch on/off
     call plan4_vel_setup(this) 
     call plan4_vel_residual(this)
     
-    iter = this%ksp_vel%solve(this%Ax,this%du, this%u_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
-    iter = this%ksp_vel%solve(this%Ax,this%dv, this%v_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
-    iter = this%ksp_vel%solve(this%Ax,this%dw, this%w_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
+    !iter = this%ksp_vel%solve(this%Ax,this%du, this%u_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
+    !iter = this%ksp_vel%solve(this%Ax,this%dv, this%v_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
+    !iter = this%ksp_vel%solve(this%Ax,this%dw, this%w_res, n, this%c_Xh, this%bclst, this%gs_Xh, this%niter)
     call opadd2cm(this%u%x,this%v%x,this%w%x,this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
 
   end subroutine fluid_plan4_step
@@ -412,6 +417,7 @@ call dudxyz(this%work1,u3,coef%drdy,coef%dsdy,coef%dtdy,coef)
   end subroutine plan4_sumab
 !>     Store old time steps and compute new time step, time and timef.
 !!     Set time-dependent coefficients in time-stepping schemes.
+!!     @note this really should be placed somewhere else. Right now dt, etc is hardcoded. 
   subroutine settime(this)
     type(fluid_plan4_t) :: this
     integer :: i
@@ -430,7 +436,7 @@ call dudxyz(this%work1,u3,coef%drdy,coef%dsdy,coef%dtdy,coef)
       !Set time.
 
       this%t_old = this%t
-      this%dt = this%t+this%dt
+      this%t = this%t+this%dt
 
       !Set coefficients in AB/BD-schemes.
 
