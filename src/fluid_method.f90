@@ -51,6 +51,7 @@ module fluid_method
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
+     procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -296,6 +297,13 @@ contains
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%n_dofs)
   end subroutine fluid_scheme_bc_apply_vel
+  
+  !> Apply all boundary conditions defined for pressure
+  !! @todo Why can't we call the interface here?
+  subroutine fluid_scheme_bc_apply_prs(this)
+    class(fluid_scheme_t), intent(inout) :: this
+    call bc_list_apply_scalar(this%bclst_prs, this%p%x, this%p%dof%n_dofs)
+  end subroutine fluid_scheme_bc_apply_prs
   
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
