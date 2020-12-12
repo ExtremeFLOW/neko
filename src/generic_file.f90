@@ -34,7 +34,7 @@ contains
   !! @param fname Filename
   subroutine generic_file_init(this, fname)
     class(generic_file_t) :: this
-    character(len=80) :: fname
+    character(len=*) :: fname
     
     this%fname = fname
     this%counter = 0
