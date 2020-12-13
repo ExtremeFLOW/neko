@@ -8,6 +8,7 @@ module parameters
      integer :: nsteps          !< Number of time-stpes     
      real(kind=dp) :: rho       !< Density \f$ \rho \f$
      real(kind=dp) :: mu        !< Dynamic viscosity \f$ \mu \f$
+     real(kind=dp) :: Re        !< Reynolds number
      real(kind=dp), dimension(3) :: uinf !< Free-stream velocity \f$ u_\infty \f$
      logical :: output_bdry              !< Output boundary markings
   end type param_t
@@ -37,6 +38,7 @@ contains
     integer :: nsteps = 0
     real(kind=dp) :: rho = 1d0
     real(kind=dp) :: mu = 1d0
+    real(kind=dp) :: Re = 1d0
     real(kind=dp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
     logical :: output_bdry = .false.
     namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf, output_bdry
@@ -46,6 +48,7 @@ contains
     param%p%nsteps = nsteps 
     param%p%rho = rho 
     param%p%mu = mu
+    param%p%Re = Re
     param%p%uinf = uinf
     param%p%output_bdry = output_bdry
 
@@ -59,7 +62,7 @@ contains
     integer(kind=4), intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    real(kind=dp) :: dt, rho, mu
+    real(kind=dp) :: dt, rho, mu, Re
     real(kind=dp), dimension(3) :: uinf
     logical :: output_bdry
     integer :: nsteps
@@ -69,6 +72,7 @@ contains
     nsteps = param%p%nsteps
     rho = param%p%rho  
     mu = param%p%mu
+    Re = param%p%Re
     uinf = param%p%uinf
     output_bdry = param%p%output_bdry
     
