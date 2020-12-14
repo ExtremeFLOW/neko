@@ -41,7 +41,7 @@ contains
     real(kind=dp) :: Re = 1d0
     real(kind=dp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
     logical :: output_bdry = .false.
-    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf, output_bdry
+    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, Re, uinf, output_bdry
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
     param%p%dt = dt
@@ -66,7 +66,7 @@ contains
     real(kind=dp), dimension(3) :: uinf
     logical :: output_bdry
     integer :: nsteps
-    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, uinf, output_bdry
+    namelist /NEKO_PARAMETERS/ dt, nsteps, rho, mu, Re, uinf, output_bdry
 
     dt = param%p%dt
     nsteps = param%p%nsteps
