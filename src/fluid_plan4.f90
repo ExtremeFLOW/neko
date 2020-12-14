@@ -14,11 +14,10 @@ module fluid_plan4
      real(kind=dp), allocatable :: p_res(:)
      real(kind=dp), allocatable :: u_res(:,:,:,:)
      real(kind=dp), allocatable :: v_res(:,:,:,:)
-    real(kind=dp), allocatable :: w_res(:,:,:,:)
-     real(kind=dp), allocatable :: p_old(:,:,:,:)
-     real(kind=dp), allocatable :: u_old(:,:,:,:)
-     real(kind=dp), allocatable :: v_old(:,:,:,:)
-     real(kind=dp), allocatable :: w_old(:,:,:,:)
+     real(kind=dp), allocatable :: w_res(:,:,:,:)
+     real(kind=dp), allocatable :: ulag(:,:,:,:,:)
+     real(kind=dp), allocatable :: vlag(:,:,:,:,:)
+     real(kind=dp), allocatable :: wlag(:,:,:,:,:)
 
      type(field_t) :: dp
      type(field_t) :: du
@@ -77,10 +76,9 @@ contains
     allocate(this%v_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%w_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     
-    allocate(this%p_old(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%u_old(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%v_old(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%w_old(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
+    allocate(this%ulag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
+    allocate(this%vlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
+    allocate(this%wlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
             
     call field_init(this%u_e, this%dm_Xh, 'u_e')
     call field_init(this%v_e, this%dm_Xh, 'v_e')
@@ -148,52 +146,61 @@ contains
        deallocate(this%w_res)
     end if
     
-    if (allocated(this%u_old)) then
-       deallocate(this%u_old)
+    if (allocated(this%ulag)) then
+       deallocate(this%ulag)
     end if
        
-    if (allocated(this%v_old)) then
-       deallocate(this%v_old)
+    if (allocated(this%vlag)) then
+       deallocate(this%vlag)
     end if
     
-    if (allocated(this%w_old)) then
-       deallocate(this%w_old)
+    if (allocated(this%wlag)) then
+       deallocate(this%wlag)
     end if
     
-    if (allocated(this%p_old)) then
-       deallocate(this%p_old)
-    end if
-
   end subroutine fluid_plan4_free
   
   subroutine fluid_plan4_step(this, t, tstep)
     class(fluid_plan4_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: t
     integer, intent(inout) :: tstep
-
-    integer :: n, iter
+    integer tt
+    integer :: n, iter, i
     n = this%dm_Xh%n_dofs
 
     if (this%ncalls .eq. 0) then
        this%tpres=0.0
     end if
 
-    
+    tt = tstep
     this%ncalls = this%ncalls + 1
     call settime(t, this%params%dt, this%t_old, this%dt_old,&
-                 this%ab, this%bd, this%nab, this%nbd, tstep)
+                 this%ab, this%bd, this%nab, this%nbd, tt)
     
     ! compute explicit contributions bfx,bfy,bfz 
     ! how should we handle this?A
     !It seems like mane of the operators are in navier1.f
     !Mybae time for a navier.f90? Or operators.f90
     call this%f_Xh%eval()
-    call plan4_sumab(this%u_e%x,this%u%x,this%u_old,n,this%ab,this%nab)
-    call plan4_sumab(this%v_e%x,this%v%x,this%v_old,n,this%ab,this%nab)
+
+
+    
+    call plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,this%ab,this%nab)
+    call plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,this%ab,this%nab)
 
     if (this%dm_Xh%msh%gdim .eq. 3) then
-       call plan4_sumab(this%w_e%x,this%w%x,this%w_old,n,this%ab,this%nab)
+       call plan4_sumab(this%w_e%x,this%w%x,this%wlag,n,this%ab,this%nab)
     end if
+
+    do i = 3-1,2,-1
+       call copy(this%ulag(1,1,1,1,i), this%ulag(1,1,1,1,i-1), n)
+       call copy(this%vlag(1,1,1,1,i), this%vlag(1,1,1,1,i-1), n)
+       call copy(this%wlag(1,1,1,1,i), this%wlag(1,1,1,1,i-1), n)
+    end do
+    
+    call copy(this%ulag, this%u%x, n)
+    call copy(this%vlag, this%v%x, n)
+    call copy(this%wlag, this%w%x, n)
     
     !shopuld we have this or not?
     !if(iflomach) call opcolv(bfx,bfy,bfz,vtrans)
@@ -204,10 +211,7 @@ contains
     ! call add2 (qtl,usrdiv,ntot1)
     !lagvel, we keep several old velocity?
     !call lagvel
-    call copy(this%p_old, this%p%x, n)
-    call copy(this%u_old, this%u%x, n)
-    call copy(this%v_old, this%v%x, n)
-    call copy(this%w_old, this%w%x, n)
+
 
     ! mask Dirichlet boundaries (velocity)
     call this%bc_apply_vel()
@@ -231,8 +235,9 @@ contains
     call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
     call bc_list_apply_scalar(this%bclst_prs, this%p_res, this%p%dof%n_dofs)
 
+    write(*,*) "PRES"
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
-         this%c_Xh, this%bclst_prs, this%gs_Xh, this%niter)
+         this%c_Xh, this%bclst_prs, this%gs_Xh, this%niter)    
     call add2(this%p%x,this%dp%x,n)
     call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     !We only need to update h2 once I think then use the flag to switch on/off
@@ -251,10 +256,13 @@ contains
     call gs_op_vector(this%gs_Xh, this%w_res, n, GS_OP_ADD) 
     call bc_list_apply_vector(this%bclst_res,&
          this%u_res, this%v_res, this%w_res, this%dm_Xh%n_dofs)
+    write(*,*) 'U'
     iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
          this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
+    write(*,*) 'V'
     iter = this%ksp_vel%solve(this%Ax, this%dv, this%v_res, n, &
          this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
+    write(*,*) 'W'
     iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
          this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
 
@@ -512,9 +520,10 @@ contains
   end subroutine plan4_op_curl
   
   !> Sum up AB/BDF contributions 
-  subroutine plan4_sumab(v_e,v,v_old,n,ab,nab)
+  subroutine plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
-    real(kind=dp), dimension(n), intent(inout) :: v_e,v, v_old
+    real(kind=dp), dimension(n), intent(inout) :: v,vv
+    real(kind=dp), dimension(n,2), intent(inout) :: vvlag
     real(kind=dp), dimension(3), intent(in) :: ab
     real(kind=dp) :: ab0, ab1, ab2
 
@@ -522,9 +531,9 @@ contains
     ab1 = ab(2)
     ab2 = ab(3)
 
-    call add3s2(v_e,v,v_old,ab0,ab1,n)
+    call add3s2(v,vv,vvlag(1,1),ab0,ab1,n)
     !should we have this right now we only save one old velocity
-    !if(nab .eq. 3) call add2s2(v_e,v_old(1,2),ab2,n)
+    if(nab .eq. 3) call add2s2(v,vvlag(1,2),ab2,n)
   end subroutine plan4_sumab
 !>     Store old time steps and compute new time step, time and timef.
 !!     Set time-dependent coefficients in time-stepping schemes.
@@ -564,13 +573,17 @@ contains
 
       !call SETORDBD
       !hardcoded for now
-      nbd = 1
+      if ((tstep .eq. 0) .or. (tstep .eq. 1)) nbd = 1
+      if ((tstep .gt. 1) .and. (tstep .le. 2)) nbd = tstep
+      if (tstep.gt.2) nbd = 3
       call rzero (bd, 10)
       call setbd(bd, dt_old, nbd)
       ! This can also be varied, hardcoded for now
-      nab = min(tstep, 3)
+!      nab = min(tstep, 3)
       !dont know what irst is really
       !IF (ISTEP.lt.NAB.and.irst.le.0) NAB = ISTEP
+      if(tstep .lt. 3) NAB = tstep
+      if(tstep .ge. 3) NAB = 3
       call rzero(ab, 10)
       call setabbd(ab, dt_old, nab,nbd)
 
@@ -634,19 +647,20 @@ contains
     REAL(kind=dp) :: BDMAT(10,10),BDRHS(10), BDF
     INTEGER :: IR(10),IC(10)
     INTEGER :: IBD, ldim = 10
-    !  IF (NBD.EQ.1) THEN
+    integer :: I, NSYS
+    IF (NBD.EQ.1) THEN
          BD(1) = 1d0
          BDF   = 1d0
-    !  ELSEIF (NBD.GE.2) THEN
-    !     NSYS = NBD+1
-    !     CALL BDSYS (BDMAT,BDRHS,DTBD,NBD,ldim)
-    !     CALL LU    (BDMAT,NSYS,ldim,IR,IC)
-    !     CALL SOLVE (BDRHS,BDMAT,1,NSYS,ldim,IR,IC)
-    !     DO 30 I=1,NBD
-    !        BD(I) = BDRHS(I)
-    !     end do
-    !     BDF = BDRHS(NBD+1)
-    !  ENDIF
+      ELSEIF (NBD.GE.2) THEN
+         NSYS = NBD+1
+         CALL BDSYS (BDMAT,BDRHS,DTBD,NBD,ldim)
+         CALL LU    (BDMAT,NSYS,ldim,IR,IC)
+         CALL SOLVE (BDRHS,BDMAT,1,NSYS,ldim,IR,IC)
+         DO I=1,NBD
+            BD(I) = BDRHS(I)
+         end do
+         BDF = BDRHS(NBD+1)
+      ENDIF
     !Normalize
       DO IBD=NBD,1,-1
          BD(IBD+1) = BD(IBD)
@@ -655,5 +669,145 @@ contains
       DO IBD=1,NBD+1
          BD(IBD) = BD(IBD)/BDF
       end do
-  end subroutine setbd
+    end subroutine setbd
+
+
+    subroutine bdsys (a,b,dt,nbd,ldim)
+      real(kind=dp) ::  A(ldim,9),B(9),DT(9)
+      integer :: ldim, j, n, k, i, nsys, nbd
+      real(kind=dp) :: SUMDT
+      CALL RZERO (A,ldim**2)
+      N = NBD+1
+      DO  J=1,NBD
+         A(1,J) = 1.
+      end DO
+      A(1,NBD+1) = 0.
+      B(1) = 1.
+      DO J=1,NBD
+         SUMDT = 0.
+         DO  K=1,J
+            SUMDT = SUMDT+DT(K)
+         end DO
+         A(2,J) = SUMDT
+      end DO
+      A(2,NBD+1) = -DT(1)
+      B(2) = 0.
+      DO I=3,NBD+1
+         DO  J=1,NBD
+            SUMDT = 0.
+            DO  K=1,J
+               SUMDT = SUMDT+DT(K)
+            end DO
+            A(I,J) = SUMDT**(I-1)
+         end DO
+         A(I,NBD+1) = 0.
+         B(I) = 0.
+      end DO
+      
+    end subroutine bdsys
+
+    SUBROUTINE LU(A,N,ldim,IR,IC)
+      integer :: n, ldim, IR(10), IC(10)
+      real(kind=dp) :: A(ldim,10), xmax, ymax, B, Y, C
+      integer :: i, j, k, l, m, icm, irl, k1
+      DO I=1,N
+         IR(I)=I
+         IC(I)=I
+      end DO
+      K=1
+      L=K
+      M=K
+      XMAX=ABS(A(K,K))
+      DO 100 I=K,N
+         DO 100 J=K,N
+            Y=ABS(A(I,J))
+            IF(XMAX.GE.Y) GOTO 100
+      XMAX=Y
+      L=I
+      M=J
+100     CONTINUE
+      DO 1000 K=1,N
+      IRL=IR(L)
+      IR(L)=IR(K)
+      IR(K)=IRL
+      ICM=IC(M)
+      IC(M)=IC(K)
+      IC(K)=ICM
+      IF(L.EQ.K) GOTO 300
+      DO 200 J=1,N
+      B=A(K,J)
+      A(K,J)=A(L,J)
+      A(L,J)=B
+200     CONTINUE
+300     IF(M.EQ.K) GOTO 500
+      DO 400 I=1,N
+      B=A(I,K)
+      A(I,K)=A(I,M)
+       A(I,M)=B
+400    CONTINUE
+500     C=1./A(K,K)
+      A(K,K)=C
+      IF(K.EQ.N) GOTO 1000
+      K1=K+1
+      XMAX=ABS(A(K1,K1))
+      L=K1
+      M=K1
+      DO 600 I=K1,N
+       A(I,K)=C*A(I,K)
+600     CONTINUE
+      DO 800 I=K1,N
+      B=A(I,K)
+      DO 800 J=K1,N
+      A(I,J)=A(I,J)-B*A(K,J)
+      Y=ABS(A(I,J))
+      IF(XMAX.GE.Y) GOTO 800
+      XMAX=Y
+      L=I
+      M=J
+800    CONTINUE
+1000  CONTINUE
+    end subroutine lu
+   
+    SUBROUTINE SOLVE(F,A,K,N,ldim,IR,IC)
+      real(kind=dp) ::  A(ldim,10),F(ldim,10), G(2000), B, Y
+      integer :: IR(10),IC(10), N, N1, k, kk, i, j, ldim, ICM, URL, K1, ICI
+      integer :: I1, IRI,IRL, IT
+        
+
+!      IF (N.GT.2000) THEN
+!         write(6,*) 'Abort IN Subrtouine SOLVE: N>2000, N=',N
+!         call exitt
+!      ENDIF
+      N1=N+1
+      DO 1000 KK=1,K
+      DO 100 I=1,N
+      IRI=IR(I)
+        G(I)=F(IRI,KK)
+100     CONTINUE
+      DO 400 I=2,N
+      I1=I-1
+      B=G(I)
+      DO 300 J=1,I1
+        B=B-A(I,J)*G(J)
+300     CONTINUE
+        G(I)=B
+400     CONTINUE
+      DO 700 IT=1,N
+      I=N1-IT
+      I1=I+1
+      B=G(I)
+      IF(I.EQ.N) GOTO 701
+      DO 600 J=I1,N
+        B=B-A(I,J)*G(J)
+600     CONTINUE
+701     G(I)=B*A(I,I)
+700     CONTINUE
+      DO 900 I=1,N
+      ICI=IC(I)
+        F(ICI,KK)=G(I)
+900     CONTINUE
+1000    CONTINUE
+      RETURN
+      END
+    
 end module fluid_plan4
