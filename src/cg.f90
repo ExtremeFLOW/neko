@@ -103,6 +103,7 @@ contains
     call copy(this%r, f, n)
 
     rnorm = sqrt(glsc3(this%r, coef%mult, this%r, n))
+    if(rnorm .eq. 0d0) return
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1

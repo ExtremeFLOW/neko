@@ -200,7 +200,7 @@ contains
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
 
-          !call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
+          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
@@ -273,7 +273,7 @@ contains
        enddo                                       !          i  i
        print *, "current res", rnorm, iter
     enddo
-    !call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
+    call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
     print *, "Residual:", rnorm, iter
   end function gmres_solve
 
