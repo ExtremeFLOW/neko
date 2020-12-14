@@ -46,6 +46,8 @@ module fluid_plan4
 
      !> Time variables
      real(kind=dp) :: ab(10), bd(10),dt_old(10)
+     real(kind=dp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
+     real(kind=dp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
 !     real(kind=dp) :: dt = 1e-3
      real(kind=dp) :: t_old
      integer :: nab, nbd
@@ -79,6 +81,15 @@ contains
     allocate(this%ulag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
     allocate(this%vlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
     allocate(this%wlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
+    
+    
+    allocate(this%abx1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
+    allocate(this%aby1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
+    allocate(this%abz1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
+    
+    allocate(this%abx2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
+    allocate(this%aby2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
+    allocate(this%abz2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
             
     call field_init(this%u_e, this%dm_Xh, 'u_e')
     call field_init(this%v_e, this%dm_Xh, 'v_e')
@@ -158,6 +169,24 @@ contains
        deallocate(this%wlag)
     end if
     
+    if (allocated(this%abx1)) then
+       deallocate(this%abx1)
+    end if
+    if (allocated(this%aby1)) then
+       deallocate(this%aby1)
+    end if
+    if (allocated(this%abz1)) then
+       deallocate(this%abz1)
+    end if
+    if (allocated(this%abx2)) then
+       deallocate(this%abx2)
+    end if
+    if (allocated(this%aby2)) then
+       deallocate(this%aby2)
+    end if
+    if (allocated(this%abz2)) then
+       deallocate(this%abz2)
+    end if
   end subroutine fluid_plan4_free
   
   subroutine fluid_plan4_step(this, t, tstep)
@@ -183,6 +212,13 @@ contains
     !Mybae time for a navier.f90? Or operators.f90
     call this%f_Xh%eval()
 
+    call makeabf(this%ta1, this%ta2, this%ta3, this%abx1, this%aby1, this%abz1, this%abx2, this%aby2, this%abz2, &
+                    this%f_Xh%u, this%f_Xh%v, this%f_Xh%w, this%params%rho, this%ab, n, this%msh%gdim)
+    call makebdf(this%ta1, this%ta2, this%ta3, this%wa1%x, this%wa2%x, this%wa3%x, this%c_Xh%h2, this%ulag, this%vlag, this%wlag, &
+                    this%f_Xh%u, this%f_Xh%v, this%f_Xh%w, this%u, this%v, this%w,&
+         this%c_Xh%B, this%params%rho, this%params%dt,this%bd,&
+                this%nbd, n, &
+                this%msh%gdim)
 
     
     call plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,this%ab,this%nab)
@@ -810,4 +846,73 @@ contains
       RETURN
       END
     
+
+ subroutine makebdf(ta1, ta2, ta3, tb1, tb2, tb3, h2, ulag, vlag, wlag, &
+                    bfx, bfy, bfz, u, v, w, B, rho, dt,bd, nbd, n, gdim)
+!
+!     Add contributions to F from lagged BD terms.
+!
+    integer, intent(inout) :: n, nbd, gdim
+    type(field_t) :: ta1, ta2, ta3, u, v, w
+    real(kind=dp), intent(inout) :: TB1(n)
+    real(kind=dp), intent(inout) :: TB2(n)
+    real(kind=dp), intent(inout) :: TB3(n)
+    real(kind=dp), intent(inout) :: BFX(n)
+    real(kind=dp), intent(inout) :: BFY(n)
+    real(kind=dp), intent(inout) :: BFZ(n)
+    real(kind=dp), intent(inout) :: H2 (n), B(n)
+    real(kind=dp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
+    real(kind=dp), intent(inout) :: dt, rho, bd(10)
+    real(kind=dp) :: const
+    integer :: ilag
+    CONST = rho /DT
+    call rone(h2, n)
+    call cmult(h2,const,n)
+    CALL OPCOLV3c (TB1,TB2,TB3,u%x,v%x,w%x,B,bd(2),n,gdim)
+    DO ILAG=2,NBD
+       CALL OPCOLV3c(TA1%x,TA2%x,TA3%x,ulag (1,ILAG-1),&
+                                      vlag (1,ILAG-1),&
+                                      wlag (1,ILAG-1),&
+                                      B,bd(ilag+1),n,gdim)
+       CALL OPADD2cm  (TB1,TB2,TB3,TA1%x,TA2%x,TA3%x, 1d0, n, gdim)
+   ENDDO
+   CALL OPADD2col (BFX,BFY,BFZ,TB1,TB2,TB3,h2, n, gdim)
+  END subroutine makebdf
+ subroutine makeabf(ta1, ta2, ta3, abx1, aby1, abz1, abx2, aby2, abz2, &
+                    bfx, bfy, bfz, rho, ab, n, gdim)
+!-----------------------------------------------------------------------
+!
+!     Sum up contributions to kth order extrapolation scheme.
+!
+!-----------------------------------------------------------------------
+    type(field_t), intent(inout) :: ta1, ta2, ta3
+    real(kind=dp), intent(inout) :: rho, ab(10)
+     integer, intent(in) :: n, gdim
+    real(kind=dp), intent(inout) :: BFX(n)
+    real(kind=dp), intent(inout) :: BFY(n)
+    real(kind=dp), intent(inout) :: BFZ(n)
+    real(kind=dp), intent(inout) :: abx1(n), aby1(n), abz1(n)
+    real(kind=dp), intent(inout) :: abx2(n), aby2(n), abz2(n)
+    real(kind=dp) :: ab0, ab1, ab2
+      AB0 = AB(1)
+      AB1 = AB(2)
+      AB2 = AB(3)
+      CALL ADD3S2 (ta1%x,ABX1,ABX2,AB1,AB2,n)
+      CALL ADD3S2 (TA2%x,ABY1,ABY2,AB1,AB2,n)
+      CALL COPY   (ABX2,ABX1,n)
+      CALL COPY   (ABY2,ABY1,N)
+      CALL COPY   (ABX1,BFX,N)
+      CALL COPY   (ABY1,BFY,N)
+      CALL ADD2S1 (BFX,ta1%x,AB0,N)
+      CALL ADD2S1 (BFY,TA2%x,AB0,N)
+      CALL Cmult   (BFX,rho,N)          ! multiply by density
+      CALL Cmult   (BFY,rho,N)
+      IF (gdim.EQ.3) THEN
+         CALL ADD3S2 (TA3%x,ABZ1,ABZ2,AB1,AB2,N)
+         CALL COPY   (ABZ2,ABZ1,N)
+         CALL COPY   (ABZ1,BFZ,N)
+         CALL ADD2S1 (BFZ,TA3%x,AB0,N)
+         CALL cmult   (BFZ,rho,N)
+      ENDIF
+      END subroutine makeabf
 end module fluid_plan4
