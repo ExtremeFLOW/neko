@@ -41,7 +41,7 @@ contains
     if (present(lgmres)) then
        this%lgmres = lgmres
     else
-       this%lgmres = 30
+       this%lgmres = 50
     end if
     
 
@@ -160,7 +160,6 @@ contains
     call rone(this%mu ,n)
     norm_fac = 1./sqrt(coef%volume)
     ! Should change when doing real problem
-    norm_fac = 1d0
     tolpss = this%abs_tol
     call rzero(x%x,n)
     call rzero(this%gam,this%lgmres+1)
@@ -188,6 +187,8 @@ contains
        if(iter.eq.0) then
           div0 = this%gam(1)*norm_fac
        endif
+
+       if ( this%gam(1) .eq. 0) return
 
        rnorm = 0.
        temp = 1d0 / this%gam(1)
@@ -270,6 +271,7 @@ contains
        do i=1,j
           call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
        enddo                                       !          i  i
+       print *, "current res", rnorm, iter
     enddo
     !call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
     print *, "Residual:", rnorm, iter

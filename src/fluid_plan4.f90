@@ -11,7 +11,7 @@ module fluid_plan4
      type(field_t) :: v_e
      type(field_t) :: w_e
 
-     real(kind=dp), allocatable :: p_res(:,:)
+     real(kind=dp), allocatable :: p_res(:)
      real(kind=dp), allocatable :: u_res(:,:,:,:)
      real(kind=dp), allocatable :: v_res(:,:,:,:)
      real(kind=dp), allocatable :: w_res(:,:,:,:)
@@ -32,6 +32,7 @@ module fluid_plan4
      type(field_t) :: ta1
      type(field_t) :: ta2
      type(field_t) :: ta3
+     type(field_t) :: ta4
      
      !> @todo move this to a scratch space
      type(field_t) :: work1
@@ -71,7 +72,7 @@ contains
     call this%scheme_init(msh, lx, param, solver_vel=vel, solver_prs=prs)
     
     !> Initialize variables specific to this plan
-    allocate(this%p_res(this%Xh%lxyz,this%msh%nelv))
+    allocate(this%p_res(this%dm_Xh%n_dofs))
     allocate(this%u_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%v_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%w_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
@@ -92,6 +93,7 @@ contains
     call field_init(this%ta1, this%dm_Xh, 'ta1')
     call field_init(this%ta2, this%dm_Xh, 'ta2')
     call field_init(this%ta3, this%dm_Xh, 'ta3')
+    call field_init(this%ta4, this%dm_Xh, 'ta3')
     
     call field_init(this%du, this%dm_Xh, 'du')
     call field_init(this%dv, this%dm_Xh, 'dv')
@@ -120,6 +122,7 @@ contains
     call field_free(this%ta1)
     call field_free(this%ta2)
     call field_free(this%ta3)
+    call field_free(this%ta4)
 
     call field_free(this%du)
     call field_free(this%dv)
@@ -143,10 +146,6 @@ contains
     
     if (allocated(this%w_res)) then
        deallocate(this%w_res)
-    end if
-    
-    if (allocated(this%p_res)) then
-       deallocate(this%p_res)
     end if
     
     if (allocated(this%u_old)) then
@@ -212,15 +211,16 @@ contains
 
     ! mask Dirichlet boundaries (velocity)
     call this%bc_apply_vel()
-
+    call this%bc_apply_prs()
     ! compute pressure
     call plan4_pres_setup(this%c_Xh%h1, this%params%rho, &
                           this%dm_Xh%n_dofs, this%c_Xh%ifh2)    
-    call plan4_pres_residual(this%u_e, this%v_e, this%w_e, &
+    call plan4_pres_residual(this%p,this%p_res, this%u_e, this%v_e, this%w_e, &
                              this%ta1, this%ta2, this%ta3, &
                              this%wa1, this%wa2, this%wa3, &
                              this%work1, this%work2, this%f_Xh, &
-                             this%c_Xh, this%gs_Xh, &
+                             this%c_Xh, this%gs_Xh, this%bclst_prs, &
+                             this%Ax, &
                              this%params%Re, this%params%rho)
 
     !Sets tolerances
@@ -232,7 +232,7 @@ contains
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
          this%c_Xh, this%bclst_prs, this%gs_Xh, this%niter)
     call add2(this%p%x,this%dp%x,n)
-    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
+    !call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     !We only need to update h2 once I think then use the flag to switch on/off
     call plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, &
          this%params%Re, this%params%rho, this%bd(1), &
@@ -240,6 +240,7 @@ contains
     
     call plan4_vel_residual(this%Ax, this%u, this%v, this%w, &
                             this%u_res, this%v_res, this%w_res, &
+                            this%p, this%ta1%x, this%ta2%x, this%ta3%x, this%ta4%x, &
                             this%f_Xh, this%c_Xh, &
                             this%msh, this%Xh, this%dm_Xh%n_dofs)
     
@@ -280,16 +281,21 @@ contains
   end subroutine plan4_vel_setup
 
   subroutine plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
-                                f_Xh, c_Xh, msh, Xh, n)
+                                p, ta1, ta2, ta3, ta4, f_Xh, c_Xh, msh, Xh, n)
     type(ax_helm_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
     real(kind=dp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=dp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=dp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: ta1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: ta2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: ta3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=dp), intent(inout) :: ta4(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     integer, intent(inout) :: n
@@ -301,27 +307,30 @@ contains
     if (msh%gdim .eq. 3) then
        call Ax%compute(w_res, w%x, c_Xh, msh, Xh)
     end if
-    
+
     call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
-    !scl = -1./3.
+    scl = -1./3.
 
     !call col3    (this%ta4,this%vdiff,qtl,ntot)
-    !call rzero(this%ta4,this%dm_Xh%n_dofs)
-    !call add2s1  (this%ta4,this%p,scl,this%dm_Xh%n_dofs)
-    !call opgrad  (this%ta1,this%ta2,this%ta3,this%ta4,this%c_Xh)
+    call rzero(ta4,c_xh%dof%n_dofs)
+    call add2s1  (ta4,p%x,scl,c_Xh%dof%n_dofs)
+    call opgrad  (ta1,ta2,ta3,ta4,c_Xh)
     !if(IFAXIS) then
     !  !   CALL COL2 (TA2, OMASK,NTOT)
     !  !   CALL COL2 (TA3, OMASK,NTOT)
     !  !endif
-    !call opsub2  (this%u_res,this%v_res,this%w_res,this%ta1,this%ta2,this%ta3)
+    !call opsub2  (u_res,v_res,w_res,ta1,ta2,ta3)
+    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1d0, n, msh%gdim)
     call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, 1d0, n, msh%gdim)
 
 
   end subroutine plan4_vel_residual
 
-  subroutine plan4_pres_residual(u_e, v_e, w_e, ta1, ta2, ta3, &
-       wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, Re, rho)
+  subroutine plan4_pres_residual(p,p_res,u_e, v_e, w_e, ta1, ta2, ta3, &
+       wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, bclst_prs, Ax, Re, rho)
+    type(field_t), intent(inout) :: p
+    real(kind=dp), intent(inout) :: p_res(p%dof%n_dofs)
     type(field_t), intent(inout) :: u_e
     type(field_t), intent(inout) :: v_e
     type(field_t), intent(inout) :: w_e
@@ -336,6 +345,8 @@ contains
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
+    type(bc_list_t), intent(inout) :: bclst_prs
+    class(Ax_t), intent(inout) :: Ax
     real(kind=dp), intent(inout) :: Re
     real(kind=dp), intent(inout) :: rho
     real(kind=dp) :: scl
@@ -351,16 +362,15 @@ contains
      scl = -4d0 / 3d0
      call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
-     work1 = (1d0 / Re) / rho
+     work1%x = (1d0 / Re) / rho
      call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
 
      !BOUNDARY CONDITION, DIRICHLET PRESSURE!
      !call bcdirpr (pr)
-!!!     call this%bc_apply_prs()
 
      
-!!     call this%Ax%compute(this%p_res,this%p%x,this%c_Xh,this%msh,this%Xh)
-!!!     call chsign  (this%p_res,n)
+     call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)
+     call chsign  (p_res,n)
 
      do i=1,n
         ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho - wa1%x(i,1,1,1)
@@ -368,6 +378,7 @@ contains
         ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho - wa3%x(i,1,1,1)
      enddo
      
+     print *, sum(ta1%x)
      !Need to consider cyclic bcs here...
      call gs_op(gs_Xh, ta1, GS_OP_ADD) 
      call gs_op(gs_Xh, ta2, GS_OP_ADD) 
@@ -383,18 +394,17 @@ contains
          call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
          call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
          call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-!!         do i=1,n
-!!            this%p_res(i,1) = this%p_res(i,1)+this%wa1(i)+this%wa2(i)+this%wa3(i)
-!!         enddo
+         do i=1,n
+            p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)+wa3%x(i,1,1,1)
+         enddo
       else
          call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
          call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
 
-!!         do i=1,n
-!!            this%p_res(i,1) = this%p_res(i,1)+this%wa1(i)+this%wa2(i)
-!!         enddo
+         do i=1,n
+            p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)
+         enddo
       endif
-
 
     ! APPLY boundary conditions! 
      ! call bclist_apply(this%p_res,this%bclist)
