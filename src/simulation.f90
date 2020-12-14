@@ -19,7 +19,7 @@ contains
        call fileout%write(C%fluid)
 
        !> @todo Add call to sampler
-       ! t = t + C%params%dt !< @todo Re-enable once settime is fixed
+       t = t + C%params%dt !< @todo Re-enable once settime is fixed
     end do
 
     

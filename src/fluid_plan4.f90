@@ -14,7 +14,7 @@ module fluid_plan4
      real(kind=dp), allocatable :: p_res(:)
      real(kind=dp), allocatable :: u_res(:,:,:,:)
      real(kind=dp), allocatable :: v_res(:,:,:,:)
-     real(kind=dp), allocatable :: w_res(:,:,:,:)
+    real(kind=dp), allocatable :: w_res(:,:,:,:)
      real(kind=dp), allocatable :: p_old(:,:,:,:)
      real(kind=dp), allocatable :: u_old(:,:,:,:)
      real(kind=dp), allocatable :: v_old(:,:,:,:)
@@ -228,11 +228,13 @@ contains
     !!OBSERVE we do not solve anything 
     !!bclist is input to the krylov solver, when bcs are inplace uncomment all the solve
     !statement!
+    call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
+    call bc_list_apply_scalar(this%bclst_prs, this%p_res, this%p%dof%n_dofs)
 
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
          this%c_Xh, this%bclst_prs, this%gs_Xh, this%niter)
     call add2(this%p%x,this%dp%x,n)
-    !call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
+    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     !We only need to update h2 once I think then use the flag to switch on/off
     call plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, &
          this%params%Re, this%params%rho, this%bd(1), &
@@ -243,13 +245,18 @@ contains
                             this%p, this%ta1%x, this%ta2%x, this%ta3%x, this%ta4%x, &
                             this%f_Xh, this%c_Xh, &
                             this%msh, this%Xh, this%dm_Xh%n_dofs)
-    
+
+    call gs_op_vector(this%gs_Xh, this%u_res, n, GS_OP_ADD) 
+    call gs_op_vector(this%gs_Xh, this%v_res, n, GS_OP_ADD) 
+    call gs_op_vector(this%gs_Xh, this%w_res, n, GS_OP_ADD) 
+    call bc_list_apply_vector(this%bclst_res,&
+         this%u_res, this%v_res, this%w_res, this%dm_Xh%n_dofs)
     iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
-         this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
+         this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
     iter = this%ksp_vel%solve(this%Ax, this%dv, this%v_res, n, &
-         this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
+         this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
     iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
-         this%c_Xh, this%bclst_vel, this%gs_Xh, this%niter)
+         this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
 
     call opadd2cm(this%u%x,this%v%x,this%w%x,this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
 
@@ -260,6 +267,7 @@ contains
     real(kind=dp), intent(inout) :: h1(n)
     real(kind=dp), intent(inout) :: rho
     logical, intent(inout) :: ifh2
+    call rone(h1, n)
     call cmult(h1, 1d0 /rho, n)
     ifh2 = .false.
   end subroutine plan4_pres_setup
@@ -276,7 +284,7 @@ contains
     real(kind=dp) :: dtbd    
     dtbd = rho * (bd / dt)
     h1 = (1d0 / Re)
-    call cmult(h2, dtbd, n)
+    h2 = dtbd
     ifh2 = .true.
   end subroutine plan4_vel_setup
 
@@ -307,10 +315,10 @@ contains
     if (msh%gdim .eq. 3) then
        call Ax%compute(w_res, w%x, c_Xh, msh, Xh)
     end if
-
+    
     call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
-    scl = -1./3.
+    scl = -1d0/3d0
 
     !call col3    (this%ta4,this%vdiff,qtl,ntot)
     call rzero(ta4,c_xh%dof%n_dofs)
@@ -323,7 +331,6 @@ contains
     !call opsub2  (u_res,v_res,w_res,ta1,ta2,ta3)
     call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1d0, n, msh%gdim)
     call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, 1d0, n, msh%gdim)
-
 
   end subroutine plan4_vel_residual
 
@@ -351,15 +358,19 @@ contains
     real(kind=dp), intent(inout) :: rho
     real(kind=dp) :: scl
     integer :: i
-    integer :: n, gdim
+    integer :: n, gdim, glb_n
 
     n = c_Xh%dof%size()
     gdim = c_Xh%msh%gdim
+    glb_n = n / p%msh%nelv * p%msh%glb_nelv
     
      call plan4_op_curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
      call plan4_op_curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
      call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
      scl = -4d0 / 3d0
+     ta1 = 0d0
+     ta2 = 0d0
+     ta3 = 0d0
      call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
      work1%x = (1d0 / Re) / rho
@@ -378,7 +389,6 @@ contains
         ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho - wa3%x(i,1,1,1)
      enddo
      
-     print *, sum(ta1%x)
      !Need to consider cyclic bcs here...
      call gs_op(gs_Xh, ta1, GS_OP_ADD) 
      call gs_op(gs_Xh, ta2, GS_OP_ADD) 
@@ -406,6 +416,7 @@ contains
          enddo
       endif
 
+    call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
     ! APPLY boundary conditions! 
      ! call bclist_apply(this%p_res,this%bclist)
 
@@ -449,7 +460,6 @@ contains
 !     Assure that the residual is orthogonal to (1,1,...,1)T 
 !     (only if all Dirichlet b.c.)
 !     REALLY NOT sure when we shoudl do this. Results for poisson was not ecourgaging
-!      CALL ORTHO (RESPR)
 
 
   end subroutine plan4_pres_residual
@@ -491,19 +501,14 @@ contains
         call dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
         call dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
         call sub3(w3%x, work1%x, work2%x, n)
-        !!    BC dependent, how should we handle this? they do Avg at bndry
-!     if (ifavg .and. .not. ifcyclic) then
-!
-!         ifielt = ifield
-!         ifield = 1
-!       
-!         call opcolv  (w1,w2,w3,bm1)
-!         call opdssum (w1,w2,w3)
-!         call opcolv  (w1,w2,w3,binvm1)
-!
-!         ifield = ifielt
-!
-!      endif
+        !!    BC dependent, Needs to change if cyclic
+
+        call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
+        call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
+        call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
+        call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
+        call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+
   end subroutine plan4_op_curl
   
   !> Sum up AB/BDF contributions 

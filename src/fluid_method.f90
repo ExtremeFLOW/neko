@@ -40,8 +40,10 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(dirichlet_t) :: bc_res              !< Dirichlet pressure condition
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
+     type(bc_list_t) :: bclst_res              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
@@ -135,6 +137,15 @@ contains
     call bc_list_init(this%bclst_vel)
     call bc_list_add(this%bclst_vel, this%bc_inflow)
     call bc_list_add(this%bclst_vel, this%bc_wall)
+    
+    call bc_list_init(this%bclst_res)
+    call this%bc_res%init(this%dm_Xh)
+    call this%bc_res%mark_zone(msh%inlet)
+    call this%bc_res%mark_zone(msh%wall)
+    call this%bc_res%finalize()
+    call this%bc_res%set_g(0d0)
+    call bc_list_add(this%bclst_res, this%bc_res)
+
 
     if (params%output_bdry) then
 
