@@ -1,5 +1,5 @@
 &NEKO_CASE
-mesh_file= 'kalle.nmsh'
+mesh_file= 'hemi.nmsh'
 fluid_scheme='plan4'
 lx = 8
 solver_velocity = 'cg'
