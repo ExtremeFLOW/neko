@@ -39,11 +39,6 @@ module fluid_plan4
 
      type(ax_helm_t) :: Ax 
 
-     real(kind=dp) :: tpres
-     integer :: ncalls = 0
-     integer :: niter = 1000
-
-
      !> Time variables
      real(kind=dp) :: ab(10), bd(10),dt_old(10)
      real(kind=dp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
@@ -192,15 +187,11 @@ contains
     real(kind=dp), intent(inout) :: t
     integer, intent(inout) :: tstep
     integer tt
-    integer :: n, iter, i, nab, nbd
+    integer :: n, iter, i, nab, nbd, niter
     n = this%dm_Xh%n_dofs
-
-    if (this%ncalls .eq. 0) then
-       this%tpres=0.0
-    end if
-
     tt = tstep
-    this%ncalls = this%ncalls + 1
+    niter = 1000
+
     call settime(t, this%params%dt, this%t_old, this%dt_old,&
                  this%ab, this%bd, nab, nbd, tt)
     
@@ -262,7 +253,7 @@ contains
     end select
     write(*,*) "PRES"
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
-         this%c_Xh, this%bclst_prs, this%gs_Xh, this%niter)    
+         this%c_Xh, this%bclst_prs, this%gs_Xh, niter)    
     call add2(this%p%x,this%dp%x,n)
 !    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     
@@ -289,13 +280,13 @@ contains
 
     write(*,*) 'U'
     iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
-         this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
+         this%c_Xh, this%bclst_res, this%gs_Xh, niter)
     write(*,*) 'V'
     iter = this%ksp_vel%solve(this%Ax, this%dv, this%v_res, n, &
-         this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
+         this%c_Xh, this%bclst_res, this%gs_Xh, niter)
     write(*,*) 'W'
     iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
-         this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
+         this%c_Xh, this%bclst_res, this%gs_Xh, niter)
 
     call opadd2cm(this%u%x,this%v%x,this%w%x,this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
 
