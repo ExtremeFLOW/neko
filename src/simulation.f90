@@ -16,10 +16,13 @@ contains
     do i = 1, C%params%nsteps
        tstep = i
        call C%fluid%step(t, tstep)
-       call fileout%write(C%fluid)
+       if (mod(i, 3) .eq. 0) then
+          write(*,*) 'Save'
+          call fileout%write(C%fluid)
+       end if
 
        !> @todo Add call to sampler
-       t = t + C%params%dt !< @todo Re-enable once settime is fixed
+!       t = t + C%params%dt !< @todo Re-enable once settime is fixed
     end do
 
     
