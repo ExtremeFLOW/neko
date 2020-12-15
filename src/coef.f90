@@ -41,6 +41,8 @@ module coefs
      real(kind=dp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
      real(kind=dp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
      real(kind=dp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
+
+     real(kind=dp), allocatable :: area(:,:,:,:) !< Area
      
      real(kind=dp) :: volume
      
@@ -105,10 +107,14 @@ contains
     allocate(coef%jac(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     allocate(coef%jacinv(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     
+
+    allocate(coef%area(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
     
     call coef_generate_dxyzdrst(coef)
     
     call coef_generate_geo(coef)
+
+    call coef_generate_area(coef)
 
     !
     ! Set up multiplicity
@@ -395,5 +401,71 @@ contains
 
     c%volume = glsum(c%B,c%dof%n_dofs)
   end subroutine coef_generate_mass
+
+  subroutine coef_generate_area(coef)
+    type(coef_t), intent(inout) :: coef
+    real(kind=dp), allocatable :: a(:,:,:,:)
+    real(kind=dp), allocatable :: b(:,:,:,:)
+    real(kind=dp), allocatable :: c(:,:,:,:)
+    real(kind=dp), allocatable :: dot(:,:,:,:)
+    integer :: n, e, j, k, l, lx
+    real(kind=dp) :: weight
+    n = coef%dof%n_dofs
+    lx = coef%Xh%lx
+    
+    allocate(a(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    allocate(b(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    allocate(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    allocate(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+
+    call vcross(a,b,c, coef%dxds, coef%dyds, coef%dzds, &
+         coef%dxdt, coef%dydt, coef%dzdt, n)
+    call vdot3(dot, a, b, c, a, b, c, n)
+
+    do e = 1, coef%msh%nelv
+       do k = 1, coef%Xh%lx
+          do j = 1, coef%Xh%lx
+             weight = coef%Xh%wy(j) * coef%Xh%wz(k)
+             coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
+             coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
+          end do
+       end do
+    end do
+
+    call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
+         coef%dxdt, coef%dydt, coef%dzdt, n)
+    call vdot3(dot, a, b, c, a, b, c, n)
+    
+    do e = 1, coef%msh%nelv
+       do k = 1, coef%Xh%lx
+          do j = 1, coef%Xh%lx
+             weight = coef%Xh%wx(j) * coef%Xh%wz(k)
+             coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
+             coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
+          end do
+       end do
+    end do
+
+
+    call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
+         coef%dxds, coef%dyds, coef%dzds, n)
+    call vdot3(dot, a, b, c, a, b, c, n)
+    
+    do e = 1, coef%msh%nelv
+       do k = 1, coef%Xh%lx
+          do j = 1, coef%Xh%lx
+             weight = coef%Xh%wx(j) * coef%Xh%wy(k)
+             coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
+             coef%area(j, k, 6, e) = sqrt(dot(j, j, lx, e)) * weight
+          end do
+       end do
+    end do
+
+    deallocate(dot)
+    deallocate(c)
+    deallocate(b)
+    deallocate(a)
+    
+  end subroutine coef_generate_area
   
 end module coefs
