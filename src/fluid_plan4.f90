@@ -48,9 +48,7 @@ module fluid_plan4
      real(kind=dp) :: ab(10), bd(10),dt_old(10)
      real(kind=dp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
      real(kind=dp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
-!     real(kind=dp) :: dt = 1e-3
      real(kind=dp) :: t_old
-     integer :: nab, nbd
    contains
      procedure, pass(this) :: init => fluid_plan4_init
      procedure, pass(this) :: free => fluid_plan4_free
@@ -78,9 +76,9 @@ contains
     allocate(this%v_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%w_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     
-    allocate(this%ulag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,3))
-    allocate(this%vlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,3))
-    allocate(this%wlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,3))
+    allocate(this%ulag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
+    allocate(this%vlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
+    allocate(this%wlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
     
     
     allocate(this%abx1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
@@ -194,7 +192,7 @@ contains
     real(kind=dp), intent(inout) :: t
     integer, intent(inout) :: tstep
     integer tt
-    integer :: n, iter, i
+    integer :: n, iter, i, nab, nbd
     n = this%dm_Xh%n_dofs
 
     if (this%ncalls .eq. 0) then
@@ -204,14 +202,16 @@ contains
     tt = tstep
     this%ncalls = this%ncalls + 1
     call settime(t, this%params%dt, this%t_old, this%dt_old,&
-                 this%ab, this%bd, this%nab, this%nbd, tt)
+                 this%ab, this%bd, nab, nbd, tt)
     
-    ! compute explicit contributions bfx,bfy,bfz 
-    ! how should we handle this?A
-    !It seems like mane of the operators are in navier1.f
-    !Mybae time for a navier.f90? Or operators.f90
-    call this%f_Xh%eval()
+    call plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,this%ab,nab)
+    call plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,this%ab,nab)
+    if (this%dm_Xh%msh%gdim .eq. 3) then
+       call plan4_sumab(this%w_e%x,this%w%x,this%wlag,n,this%ab,nab)
+    end if
 
+    call this%f_Xh%eval()
+    
     call makeabf(this%ta1, this%ta2, this%ta3,&
                  this%abx1, this%aby1, this%abz1,&
                  this%abx2, this%aby2, this%abz2, &
@@ -223,17 +223,9 @@ contains
                  this%f_Xh%u, this%f_Xh%v, this%f_Xh%w,&
                  this%u, this%v, this%w,&
                  this%c_Xh%B, this%params%rho, this%params%dt, &
-                 this%bd, this%nbd, n, &
-                 this%msh%gdim)
+                 this%bd, nbd, n, this%msh%gdim)
 
     
-    call plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,this%ab,this%nab)
-    call plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,this%ab,this%nab)
-
-    if (this%dm_Xh%msh%gdim .eq. 3) then
-       call plan4_sumab(this%w_e%x,this%w%x,this%wlag,n,this%ab,this%nab)
-    end if
-
     do i = 3-1,2,-1
        call copy(this%ulag(1,1,1,1,i), this%ulag(1,1,1,1,i-1), n)
        call copy(this%vlag(1,1,1,1,i), this%vlag(1,1,1,1,i-1), n)
@@ -244,36 +236,24 @@ contains
     call copy(this%vlag, this%v%x, n)
     call copy(this%wlag, this%w%x, n)
     
-    !shopuld we have this or not?
-    !if(iflomach) call opcolv(bfx,bfy,bfz,vtrans)
-
-    ! add user defined divergence to qtl 
-    ! Where do we save usrdiv? Is this necessary?
-    ! Seems to be added for stabiity reasons in some cases.
-    ! call add2 (qtl,usrdiv,ntot1)
-    !lagvel, we keep several old velocity?
-    !call lagvel
-
 
     ! mask Dirichlet boundaries (velocity)
     call this%bc_apply_vel()
-    call this%bc_apply_prs()
+
     ! compute pressure
-    call plan4_pres_setup(this%c_Xh%h1, this%params%rho, &
+    call this%bc_apply_prs()
+    call plan4_pres_setup(this%c_Xh%h1, this%c_Xh%h2, this%params%rho, &
                           this%dm_Xh%n_dofs, this%c_Xh%ifh2)    
     call plan4_pres_residual(this%p,this%p_res, this%u_e, this%v_e, this%w_e, &
                              this%ta1, this%ta2, this%ta3, &
                              this%wa1, this%wa2, this%wa3, &
                              this%work1, this%work2, this%f_Xh, &
-                             this%c_Xh, this%gs_Xh, this%bclst_prs, &
-                             this%Ax, &
+                             this%c_Xh, this%gs_Xh, &
+                             this%bc_inflow, this%Ax,this%bd(1), this%params%dt, &
                              this%params%Re, this%params%rho)
 
     !Sets tolerances
     !call ctolspl  (tolspl,respr)
-    !!OBSERVE we do not solve anything 
-    !!bclist is input to the krylov solver, when bcs are inplace uncomment all the solve
-    !statement!
     call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
     call bc_list_apply_scalar(this%bclst_prs, this%p_res, this%p%dof%n_dofs)
     select type(pcp => this%pc_prs)
@@ -284,7 +264,8 @@ contains
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
          this%c_Xh, this%bclst_prs, this%gs_Xh, this%niter)    
     call add2(this%p%x,this%dp%x,n)
-    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
+!    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
+    
     !We only need to update h2 once I think then use the flag to switch on/off
     call plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, &
          this%params%Re, this%params%rho, this%bd(1), &
@@ -320,9 +301,10 @@ contains
 
   end subroutine fluid_plan4_step
   
-  subroutine plan4_pres_setup(h1, rho, n, ifh2)
+  subroutine plan4_pres_setup(h1, h2, rho, n, ifh2)
     integer, intent(inout) :: n
     real(kind=dp), intent(inout) :: h1(n)
+    real(kind=dp), intent(inout) :: h2(n)
     real(kind=dp), intent(inout) :: rho
     logical, intent(inout) :: ifh2
     call rone(h1, n)
@@ -379,22 +361,19 @@ contains
 
     scl = -1d0/3d0
 
-    !call col3    (this%ta4,this%vdiff,qtl,ntot)
     call rzero(ta4,c_xh%dof%n_dofs)
     call add2s1  (ta4,p%x,scl,c_Xh%dof%n_dofs)
     call opgrad  (ta1,ta2,ta3,ta4,c_Xh)
-    !if(IFAXIS) then
-    !  !   CALL COL2 (TA2, OMASK,NTOT)
-    !  !   CALL COL2 (TA3, OMASK,NTOT)
-    !  !endif
-    !call opsub2  (u_res,v_res,w_res,ta1,ta2,ta3)
+
     call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1d0, n, msh%gdim)
+
     call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, 1d0, n, msh%gdim)
 
   end subroutine plan4_vel_residual
 
   subroutine plan4_pres_residual(p,p_res,u_e, v_e, w_e, ta1, ta2, ta3, &
-       wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, bclst_prs, Ax, Re, rho)
+       wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, bc_inflow, &
+       Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p
     real(kind=dp), intent(inout) :: p_res(p%dof%n_dofs)
     type(field_t), intent(inout) :: u_e
@@ -411,13 +390,15 @@ contains
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(bc_list_t), intent(inout) :: bclst_prs
+    class(bc_t), intent(inout) :: bc_inflow
     class(Ax_t), intent(inout) :: Ax
+    real(kind=dp), intent(inout) :: bd
+    real(kind=dp), intent(inout) :: dt
     real(kind=dp), intent(inout) :: Re
     real(kind=dp), intent(inout) :: rho
-    real(kind=dp) :: scl
-    integer :: i
-    integer :: n, gdim, glb_n
+    real(kind=dp) :: scl, dtbd
+    integer :: i, idx(4)
+    integer :: n, gdim, glb_n,m, k
 
     n = c_Xh%dof%size()
     gdim = c_Xh%msh%gdim
@@ -435,10 +416,6 @@ contains
     work1%x = (1d0 / Re) / rho
     call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
 
-     !BOUNDARY CONDITION, DIRICHLET PRESSURE!
-     !call bcdirpr (pr)
-
-     
     call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)
     call chsign  (p_res,n)
 
@@ -475,51 +452,23 @@ contains
        enddo
     endif
 
-    call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
-    ! APPLY boundary conditions! 
-     ! call bclist_apply(this%p_res,this%bclist)
 
-!      DO 100 IEL=1,NELV
-!         DO 300 IFC=1,NFACES
-!            CALL RZERO  (W1(1,IEL),NXYZ1)
-!            CALL RZERO  (W2(1,IEL),NXYZ1)
-!            IF (ldim.EQ.3)
-!     $      CALL RZERO  (W3(1,IEL),NXYZ1)
-!            CB = CBC(IFC,IEL,IFIELD)
-!            IF (CB(1:1).EQ.'V'.OR.CB(1:1).EQ.'v'.or.
-!     $         cb.eq.'MV '.or.cb.eq.'mv '.or.cb.eq.'shl') then
-!               CALL FACCL3
-!     $         (W1(1,IEL),VX(1,1,1,IEL),UNX(1,1,IFC,IEL),IFC)
-!               CALL FACCL3
-!     $         (W2(1,IEL),VY(1,1,1,IEL),UNY(1,1,IFC,IEL),IFC)
-!               IF (ldim.EQ.3)
-!     $          CALL FACCL3
-!     $         (W3(1,IEL),VZ(1,1,1,IEL),UNZ(1,1,IFC,IEL),IFC)
-!            ELSE IF (CB(1:3).EQ.'SYM') THEN
-!               CALL FACCL3
-!     $         (W1(1,IEL),TA1(1,IEL),UNX(1,1,IFC,IEL),IFC)
-!               CALL FACCL3
-!     $         (W2(1,IEL),TA2(1,IEL),UNY(1,1,IFC,IEL),IFC)
-!               IF (ldim.EQ.3)
-!     $          CALL FACCL3
-!     $         (W3(1,IEL),TA3(1,IEL),UNZ(1,1,IFC,IEL),IFC)
-!            ENDIF
-!            CALL ADD2   (W1(1,IEL),W2(1,IEL),NXYZ1)
-!            IF (ldim.EQ.3)
-!     $      CALL ADD2   (W1(1,IEL),W3(1,IEL),NXYZ1)
-!            CALL FACCL2 (W1(1,IEL),AREA(1,1,IFC,IEL),IFC)
-!            IF (CB(1:1).EQ.'V'.OR.CB(1:1).EQ.'v'.or.
-!     $         cb.eq.'MV '.or.cb.eq.'mv ') then
-!              CALL CMULT(W1(1,IEL),dtbd,NXYZ1)
-!            endif
-!            CALL SUB2 (RESPR(1,IEL),W1(1,IEL),NXYZ1)
-!  300    CONTINUE
-!  100 CONTINUE
-
-!     Assure that the residual is orthogonal to (1,1,...,1)T 
-!     (only if all Dirichlet b.c.)
-!     REALLY NOT sure when we shoudl do this. Results for poisson was not ecourgaging
-
+    !
+    ! @note This is assuming an inflow along e(1,0,0)
+    !
+    dtbd = -bd/dt
+    call rzero(work1%x, n)
+    m = bc_inflow%msk(0)
+    do i = 1, m
+       k = bc_inflow%msk(i)
+       idx = nonlinear_index(k, c_Xh%Xh%lx, c_Xh%Xh%lx, c_Xh%Xh%lx)
+       work1%x(k, 1, 1, 1) = 1d0 * &
+            c_Xh%area(idx(2), idx(3), 1, idx(4))
+    end do
+    call cmult(work1%x, dtbd, n)
+    call sub2(p_res, work1%x, n)
+        
+!    call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
 
   end subroutine plan4_pres_residual
 
@@ -550,23 +499,23 @@ contains
     if (gdim .eq. 3) then
        call dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
        call dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-           call sub3(w2%x, work1%x, work2%x, n)
-        else
-           call rzero (work1%x, n)
-           call dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-           call sub3(w2%x, work1%x, work2%x, n)
-        endif
-        !     this%work1=dv/dx ; this%work2=du/dy
-        call dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-        call dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-        call sub3(w3%x, work1%x, work2%x, n)
-        !!    BC dependent, Needs to change if cyclic
+       call sub3(w2%x, work1%x, work2%x, n)
+    else
+       call rzero (work1%x, n)
+       call dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call sub3(w2%x, work1%x, work2%x, n)
+    endif
+    !     this%work1=dv/dx ; this%work2=du/dy
+    call dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+    call dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    call sub3(w3%x, work1%x, work2%x, n)
+    !!    BC dependent, Needs to change if cyclic
 
-        call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
-        call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
-        call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-        call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
-        call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+    call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
+    call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
+    call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
+    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
+    call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
 
   end subroutine plan4_op_curl
   
@@ -624,18 +573,19 @@ contains
 
       !call SETORDBD
       !hardcoded for now
-      if ((tstep .eq. 0) .or. (tstep .eq. 1)) nbd = 1
-      if ((tstep .gt. 1) .and. (tstep .le. 2)) nbd = tstep
-      if (tstep.gt.2) nbd = 3
-      call rzero (bd, 10)
+!      if ((tstep .eq. 0) .or. (tstep .eq. 1)) nbd = 1
+!      if ((tstep .gt. 1) .and. (tstep .le. 2)) nbd = tstep
+!      if (tstep.gt.2) nbd = 3
+      !      call rzero (bd, 10)
+      nbd = min(tstep, 3)
       call setbd(bd, dt_old, nbd)
       ! This can also be varied, hardcoded for now
-!      nab = min(tstep, 3)
+      nab = min(tstep, 3)
       !dont know what irst is really
       !IF (ISTEP.lt.NAB.and.irst.le.0) NAB = ISTEP
-      if(tstep .lt. 3) NAB = tstep
-      if(tstep .ge. 3) NAB = 3
-      call rzero(ab, 10)
+!      if(tstep .lt. 3) NAB = tstep
+!      if(tstep .ge. 3) NAB = 3
+ !     call rzero(ab, 10)
       call setabbd(ab, dt_old, nab,nbd)
 
   end subroutine settime
@@ -651,7 +601,7 @@ contains
 !!
   subroutine setabbd (ab,dtlag,nab,nbd)
     INTEGER, intent(in) :: nab, nbd
-    REAL(KIND=DP), intent(inout), dimension(NAB) :: AB(NAB),DTLAG(NAB)
+    REAL(KIND=DP), intent(inout), dimension(NAB) :: AB(10),DTLAG(10)
     REAL(KIND=DP) :: DT0, DT1, DT2, DTS, DTA, DTB, DTC, DTD, DTE
     DT0 = DTLAG(1)
     DT1 = DTLAG(2)
