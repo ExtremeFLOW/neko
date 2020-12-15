@@ -78,9 +78,9 @@ contains
     allocate(this%v_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%w_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     
-    allocate(this%ulag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
-    allocate(this%vlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
-    allocate(this%wlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
+    allocate(this%ulag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,3))
+    allocate(this%vlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,3))
+    allocate(this%wlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,3))
     
     
     allocate(this%abx1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
@@ -212,13 +212,19 @@ contains
     !Mybae time for a navier.f90? Or operators.f90
     call this%f_Xh%eval()
 
-    call makeabf(this%ta1, this%ta2, this%ta3, this%abx1, this%aby1, this%abz1, this%abx2, this%aby2, this%abz2, &
-                    this%f_Xh%u, this%f_Xh%v, this%f_Xh%w, this%params%rho, this%ab, n, this%msh%gdim)
-    call makebdf(this%ta1, this%ta2, this%ta3, this%wa1%x, this%wa2%x, this%wa3%x, this%c_Xh%h2, this%ulag, this%vlag, this%wlag, &
-                    this%f_Xh%u, this%f_Xh%v, this%f_Xh%w, this%u, this%v, this%w,&
-         this%c_Xh%B, this%params%rho, this%params%dt,this%bd,&
-                this%nbd, n, &
-                this%msh%gdim)
+    call makeabf(this%ta1, this%ta2, this%ta3,&
+                 this%abx1, this%aby1, this%abz1,&
+                 this%abx2, this%aby2, this%abz2, &
+                 this%f_Xh%u, this%f_Xh%v, this%f_Xh%w,&
+                 this%params%rho, this%ab, n, this%msh%gdim)
+    call makebdf(this%ta1, this%ta2, this%ta3,&
+                 this%wa1%x, this%wa2%x, this%wa3%x,&
+                 this%c_Xh%h2, this%ulag, this%vlag, this%wlag, &
+                 this%f_Xh%u, this%f_Xh%v, this%f_Xh%w,&
+                 this%u, this%v, this%w,&
+                 this%c_Xh%B, this%params%rho, this%params%dt, &
+                 this%bd, this%nbd, n, &
+                 this%msh%gdim)
 
     
     call plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,this%ab,this%nab)
