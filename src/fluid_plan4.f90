@@ -327,6 +327,7 @@ contains
     logical, intent(inout) :: ifh2
     call rone(h1, n)
     call cmult(h1, 1d0 /rho, n)
+    call rzero(h2, n)
     ifh2 = .false.
   end subroutine plan4_pres_setup
 
