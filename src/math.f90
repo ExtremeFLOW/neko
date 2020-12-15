@@ -272,6 +272,19 @@ contains
 
   end subroutine add4
 
+  !> Vector substraction \f$ a = a - b \f$
+  subroutine sub2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(inout) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = a(i) - b(i)
+    end do
+    
+  end subroutine sub2
+
   !> Vector subtraction \f$ a = b - c \f$
   subroutine sub3(a, b, c, n)
     integer, intent(in) :: n
