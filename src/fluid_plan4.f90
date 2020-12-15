@@ -276,7 +276,10 @@ contains
     !statement!
     call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
     call bc_list_apply_scalar(this%bclst_prs, this%p_res, this%p%dof%n_dofs)
-
+    select type(pcp => this%pc_prs)
+    type is(jacobi_t)
+       call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
+    end select
     write(*,*) "PRES"
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
          this%c_Xh, this%bclst_prs, this%gs_Xh, this%niter)    
@@ -298,6 +301,11 @@ contains
     call gs_op_vector(this%gs_Xh, this%w_res, n, GS_OP_ADD) 
     call bc_list_apply_vector(this%bclst_res,&
          this%u_res, this%v_res, this%w_res, this%dm_Xh%n_dofs)
+    select type(pcp =>this%pc_vel)
+    type is(jacobi_t)
+       call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
+    end select
+
     write(*,*) 'U'
     iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
          this%c_Xh, this%bclst_res, this%gs_Xh, this%niter)
@@ -414,57 +422,57 @@ contains
     gdim = c_Xh%msh%gdim
     glb_n = n / p%msh%nelv * p%msh%glb_nelv
     
-     call plan4_op_curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-     call plan4_op_curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
-     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
-     scl = -4d0 / 3d0
-     ta1 = 0d0
-     ta2 = 0d0
-     ta3 = 0d0
-     call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
+    call plan4_op_curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
+    call plan4_op_curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
+    scl = -4d0 / 3d0
+    ta1 = 0d0
+    ta2 = 0d0
+    ta3 = 0d0
+    call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
-     work1%x = (1d0 / Re) / rho
-     call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
+    work1%x = (1d0 / Re) / rho
+    call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
 
      !BOUNDARY CONDITION, DIRICHLET PRESSURE!
      !call bcdirpr (pr)
 
      
-     call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)
-     call chsign  (p_res,n)
+    call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)
+    call chsign  (p_res,n)
 
-     do i=1,n
-        ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho - wa1%x(i,1,1,1)
-        ta2%x(i,1,1,1) = f_Xh%v(i,1,1,1) / rho - wa2%x(i,1,1,1)
-        ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho - wa3%x(i,1,1,1)
-     enddo
+    do i=1,n
+       ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho - wa1%x(i,1,1,1)
+       ta2%x(i,1,1,1) = f_Xh%v(i,1,1,1) / rho - wa2%x(i,1,1,1)
+       ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho - wa3%x(i,1,1,1)
+    enddo
      
      !Need to consider cyclic bcs here...
-     call gs_op(gs_Xh, ta1, GS_OP_ADD) 
-     call gs_op(gs_Xh, ta2, GS_OP_ADD) 
-     call gs_op(gs_Xh, ta3, GS_OP_ADD) 
+    call gs_op(gs_Xh, ta1, GS_OP_ADD) 
+    call gs_op(gs_Xh, ta2, GS_OP_ADD) 
+    call gs_op(gs_Xh, ta3, GS_OP_ADD) 
 
-     do i=1,n
-        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
-        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
-        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
-     enddo
+    do i=1,n
+       ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
+       ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
+       ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
+    enddo
 
-     if (gdim .eq. 3) then
-         call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-         call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-         call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-         do i=1,n
-            p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)+wa3%x(i,1,1,1)
-         enddo
-      else
-         call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-         call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    if (gdim .eq. 3) then
+       call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+       call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+       do i=1,n
+          p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)+wa3%x(i,1,1,1)
+       enddo
+    else
+       call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
 
-         do i=1,n
-            p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)
-         enddo
-      endif
+       do i=1,n
+          p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)
+       enddo
+    endif
 
     call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
     ! APPLY boundary conditions! 

@@ -131,6 +131,8 @@ contains
         end do
      end if
    end do 
+   call col2(this%d,coef%h1,coef%dof%n_dofs)
+   call addcol3(this%d,coef%h2,coef%B,coef%dof%n_dofs)
    call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
    call invcol1(this%d,dof%n_dofs)
   end subroutine jacobi_set_d
