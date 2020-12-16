@@ -42,7 +42,10 @@ module coefs
      real(kind=dp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
      real(kind=dp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
 
-     real(kind=dp), allocatable :: area(:,:,:,:) !< Area
+     real(kind=dp), allocatable :: area(:,:,:,:) !< Facet area
+     real(kind=dp), allocatable :: nx(:,:,:,:)   !< x-direction of facet normal
+     real(kind=dp), allocatable :: ny(:,:,:,:)   !< y-direction of facet normal
+     real(kind=dp), allocatable :: nz(:,:,:,:)   !< z-direction of facet normal
      
      real(kind=dp) :: volume
      
@@ -109,12 +112,15 @@ contains
     
 
     allocate(coef%area(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
+    allocate(coef%nx(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
+    allocate(coef%ny(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
+    allocate(coef%nz(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
     
     call coef_generate_dxyzdrst(coef)
     
     call coef_generate_geo(coef)
 
-    call coef_generate_area(coef)
+    call coef_generate_area_and_normal(coef)
 
     !
     ! Set up multiplicity
@@ -266,7 +272,23 @@ contains
     if(allocated(coef%h2)) then
        deallocate(coef%h2)
     end if
-   
+
+    if (allocated(coef%area)) then
+       deallocate(coef%area)
+    end if
+
+    if (allocated(coef%nx)) then
+       deallocate(coef%nx)
+    end if
+
+    if (allocated(coef%ny)) then
+       deallocate(coef%ny)
+    end if
+
+    if (allocated(coef%nz)) then
+       deallocate(coef%nz)
+    end if
+    
     nullify(coef%msh)
     nullify(coef%Xh)
     nullify(coef%dof)
@@ -402,14 +424,14 @@ contains
     c%volume = glsum(c%B,c%dof%n_dofs)
   end subroutine coef_generate_mass
 
-  subroutine coef_generate_area(coef)
+  subroutine coef_generate_area_and_normal(coef)
     type(coef_t), intent(inout) :: coef
     real(kind=dp), allocatable :: a(:,:,:,:)
     real(kind=dp), allocatable :: b(:,:,:,:)
     real(kind=dp), allocatable :: c(:,:,:,:)
     real(kind=dp), allocatable :: dot(:,:,:,:)
     integer :: n, e, j, k, l, lx
-    real(kind=dp) :: weight
+    real(kind=dp) :: weight, len
     n = coef%dof%n_dofs
     lx = coef%Xh%lx
     
@@ -428,6 +450,12 @@ contains
              weight = coef%Xh%wy(j) * coef%Xh%wz(k)
              coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
              coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
+             coef%nx(j,k, 1, e) = -A(1, j, k, e)
+             coef%nx(j,k, 2, e) =  A(lx, j, k, e)
+             coef%ny(j,k, 1, e) = -B(1, j, k, e)
+             coef%ny(j,k, 2, e) =  B(lx, j, k, e)
+             coef%nz(j,k, 1, e) = -C(1, j, k, e)
+             coef%nz(j,k, 2, e) =  C(lx, j, k, e)
           end do
        end do
     end do
@@ -442,6 +470,12 @@ contains
              weight = coef%Xh%wx(j) * coef%Xh%wz(k)
              coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
              coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
+             coef%nx(j,k, 3, e) =  A(j, 1, k, e)
+             coef%nx(j,k, 4, e) = -A(j, lx, k, e)
+             coef%ny(j,k, 3, e) =  B(j, 1, k, e)
+             coef%ny(j,k, 4, e) = -B(j, lx, k, e)
+             coef%nz(j,k, 3, e) =  C(j, 1, k, e)
+             coef%nz(j,k, 4, e) = -C(j, lx, k, e)             
           end do
        end do
     end do
@@ -457,8 +491,26 @@ contains
              weight = coef%Xh%wx(j) * coef%Xh%wy(k)
              coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
              coef%area(j, k, 6, e) = sqrt(dot(j, j, lx, e)) * weight
+             coef%nx(j,k, 5, e) = -A(j, k, 1, e)
+             coef%nx(j,k, 6, e) =  A(j, k, lx, e)
+             coef%ny(j,k, 5, e) = -B(j, k, 1, e)
+             coef%ny(j,k, 6, e) =  B(j, k, lx, e)
+             coef%nz(j,k, 5, e) = -C(j, k, 1, e)
+             coef%nz(j,k, 6, e) =  C(j, k, lx, e)             
           end do
        end do
+    end do
+
+    ! Normalize
+    n = size(coef%nz)
+    do j = 1, n
+       len = sqrt(coef%nx(j,1,1,1)**2 + &
+            coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
+       if (len .gt. NEKO_EPS) then
+          coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len
+          coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len
+          coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len
+       end if
     end do
 
     deallocate(dot)
@@ -466,6 +518,6 @@ contains
     deallocate(b)
     deallocate(a)
     
-  end subroutine coef_generate_area
+  end subroutine coef_generate_area_and_normal
   
 end module coefs
