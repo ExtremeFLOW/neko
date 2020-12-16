@@ -128,11 +128,10 @@ contains
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)
        if (rnorm .lt. 1e-8) then
-          if (pe_rank .eq. 0) write(*,*) "Residual: ", rnorm
           exit
        end if
     end do
-    if (pe_rank .eq. 0) write(*,*) "Residual: ", rnorm
+    if (pe_rank .eq. 0) write(*,*) "Residual: ", rnorm, iter
   end function cg_solve
 
 end module cg
