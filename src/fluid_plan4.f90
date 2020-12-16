@@ -3,6 +3,7 @@
 !! Journal of Sci.Comp.,Vol. 12, No. 2, 1998
 module fluid_plan4
   use fluid_method
+  use facet_normal
   use ax_helm
   implicit none
 
@@ -37,7 +38,9 @@ module fluid_plan4
      type(field_t) :: work1
      type(field_t) :: work2
 
-     type(ax_helm_t) :: Ax 
+     type(ax_helm_t) :: Ax
+
+     type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
 
      !> Time variables
      real(kind=dp) :: ab(10), bd(10),dt_old(10)
@@ -62,10 +65,10 @@ contains
 
     call this%free()
     
-    !> Setup velocity and pressure fields on the space \f$ Xh \f$
+    ! Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, solver_vel=vel, solver_prs=prs)
     
-    !> Initialize variables specific to this plan
+    ! Initialize variables specific to this plan
     allocate(this%p_res(this%dm_Xh%n_dofs))
     allocate(this%u_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%v_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
@@ -105,6 +108,12 @@ contains
     call field_init(this%work1, this%dm_Xh, 'work1')
     call field_init(this%work2, this%dm_Xh, 'work2')
 
+    ! Initialize velocity surface terms in pressure rhs
+    call this%bc_prs_surface%init(this%dm_Xh)
+    call this%bc_prs_surface%mark_zone(msh%inlet)
+    call this%bc_prs_surface%finalize()
+    call this%bc_prs_surface%set_coef(this%c_Xh)
+    
   end subroutine fluid_plan4_init
 
   subroutine fluid_plan4_free(this)
@@ -235,12 +244,13 @@ contains
     call this%bc_apply_prs()
     call plan4_pres_setup(this%c_Xh%h1, this%c_Xh%h2, this%params%rho, &
                           this%dm_Xh%n_dofs, this%c_Xh%ifh2)    
-    call plan4_pres_residual(this%p,this%p_res, this%u_e, this%v_e, this%w_e, &
+    call plan4_pres_residual(this%p,this%p_res, this%u, this%v, this%w, &
+                             this%u_e, this%v_e, this%w_e, &
                              this%ta1, this%ta2, this%ta3, &
                              this%wa1, this%wa2, this%wa3, &
                              this%work1, this%work2, this%f_Xh, &
-                             this%c_Xh, this%gs_Xh, &
-                             this%bc_inflow, this%Ax,this%bd(1), this%params%dt, &
+                             this%c_Xh, this%gs_Xh, this%bc_prs_surface, &
+                             this%Ax,this%bd(1), this%params%dt, &
                              this%params%Re, this%params%rho)
 
     !Sets tolerances
@@ -362,11 +372,14 @@ contains
 
   end subroutine plan4_vel_residual
 
-  subroutine plan4_pres_residual(p,p_res,u_e, v_e, w_e, ta1, ta2, ta3, &
-       wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, bc_inflow, &
-       Ax, bd, dt, Re, rho)
+  subroutine plan4_pres_residual(p, p_res, u, v, w, u_e, v_e, w_e, &
+       ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, &
+       bc_prs_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p
     real(kind=dp), intent(inout) :: p_res(p%dof%n_dofs)
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: u_e
     type(field_t), intent(inout) :: v_e
     type(field_t), intent(inout) :: w_e
@@ -381,7 +394,7 @@ contains
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    class(bc_t), intent(inout) :: bc_inflow
+    type(facet_normal_t), intent(inout) :: bc_prs_surface
     class(Ax_t), intent(inout) :: Ax
     real(kind=dp), intent(inout) :: bd
     real(kind=dp), intent(inout) :: dt
@@ -445,19 +458,17 @@ contains
 
 
     !
-    ! @note This is assuming an inflow along e(1,0,0)
+    ! Surface velocity terms
     !
-    dtbd = -bd/dt
-    call rzero(work1%x, n)
-    m = bc_inflow%msk(0)
-    do i = 1, m
-       k = bc_inflow%msk(i)
-       idx = nonlinear_index(k, c_Xh%Xh%lx, c_Xh%Xh%lx, c_Xh%Xh%lx)
-       work1%x(k, 1, 1, 1) = 1d0 * &
-            c_Xh%area(idx(2), idx(3), 1, idx(4))
-    end do
-    call cmult(work1%x, dtbd, n)
-    call sub2(p_res, work1%x, n)
+    dtbd = bd/dt
+    call rzero(ta1%x, n)
+    call rzero(ta2%x, n)
+    call rzero(ta3%x, n)
+    call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
+    call add2(ta1%x, ta2%x, n)
+    call add2(ta1%x, ta3%x, n)    
+    call cmult(ta1%x, dtbd, n)
+    call sub2(p_res, ta1%x, n)
         
 !    call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
 
