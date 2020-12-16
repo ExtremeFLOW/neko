@@ -57,6 +57,7 @@ libneko_a_SOURCES = \
 	pc_jacobi.f90\
 	pc_identity.f90\
 	source.f90\
+	abbdf.f90\
 	neko_config.f90\
 	case.f90\
 	fluid_method.f90\

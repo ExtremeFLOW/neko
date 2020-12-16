@@ -5,6 +5,7 @@ module fluid_plan4
   use fluid_method
   use facet_normal
   use ax_helm
+  use abbdf
   implicit none
 
   type, extends(fluid_scheme_t) :: fluid_plan4_t
@@ -41,12 +42,12 @@ module fluid_plan4
      type(ax_helm_t) :: Ax
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
+     type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
+     type(bc_list_t) :: bclst_vel_residual  
 
      !> Time variables
-     real(kind=dp) :: ab(10), bd(10),dt_old(10)
      real(kind=dp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
      real(kind=dp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
-     real(kind=dp) :: t_old
    contains
      procedure, pass(this) :: init => fluid_plan4_init
      procedure, pass(this) :: free => fluid_plan4_free
@@ -113,6 +114,16 @@ contains
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
+
+    ! Initialize boundary condition for velocity residual
+    call this%bc_vel_residual%init(this%dm_Xh)
+    call this%bc_vel_residual%mark_zone(msh%inlet)
+    call this%bc_vel_residual%mark_zone(msh%wall)
+    call this%bc_vel_residual%finalize()
+    call this%bc_vel_residual%set_g(0d0)
+    call bc_list_init(this%bclst_vel_residual)
+    call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
+
     
   end subroutine fluid_plan4_init
 
@@ -122,6 +133,9 @@ contains
     !Deallocate velocity and pressure fields
     call this%scheme_free()
 
+    call this%bc_prs_surface%free()  
+    call bc_list_free(this%bclst_vel_residual)
+   
     call field_free(this%u_e)
     call field_free(this%v_e)
     call field_free(this%w_e)
@@ -191,23 +205,20 @@ contains
     end if
   end subroutine fluid_plan4_free
   
-  subroutine fluid_plan4_step(this, t, tstep)
+  subroutine fluid_plan4_step(this, t, tstep, ab_bdf)
     class(fluid_plan4_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: t
+    type(abbdf_t), intent(inout) :: ab_bdf
     integer, intent(inout) :: tstep
     integer tt
-    integer :: n, iter, i, nab, nbd, niter
+    integer :: n, iter, i, niter
     n = this%dm_Xh%n_dofs
-    tt = tstep
     niter = 1000
 
-    call settime(t, this%params%dt, this%t_old, this%dt_old,&
-                 this%ab, this%bd, nab, nbd, tt)
-    
-    call plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,this%ab,nab)
-    call plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,this%ab,nab)
+    call fluid_plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,ab_bdf%ab,ab_bdf%nab)
+    call fluid_plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,ab_bdf%ab,ab_bdf%nab)
     if (this%dm_Xh%msh%gdim .eq. 3) then
-       call plan4_sumab(this%w_e%x,this%w%x,this%wlag,n,this%ab,nab)
+       call fluid_plan4_sumab(this%w_e%x,this%w%x,this%wlag,n,ab_bdf%ab,ab_bdf%nab)
     end if
 
     call this%f_Xh%eval()
@@ -216,14 +227,14 @@ contains
                  this%abx1, this%aby1, this%abz1,&
                  this%abx2, this%aby2, this%abz2, &
                  this%f_Xh%u, this%f_Xh%v, this%f_Xh%w,&
-                 this%params%rho, this%ab, n, this%msh%gdim)
+                 this%params%rho, ab_bdf%ab, n, this%msh%gdim)
     call makebdf(this%ta1, this%ta2, this%ta3,&
                  this%wa1%x, this%wa2%x, this%wa3%x,&
                  this%c_Xh%h2, this%ulag, this%vlag, this%wlag, &
                  this%f_Xh%u, this%f_Xh%v, this%f_Xh%w,&
                  this%u, this%v, this%w,&
                  this%c_Xh%B, this%params%rho, this%params%dt, &
-                 this%bd, nbd, n, this%msh%gdim)
+                 ab_bdf%bd, ab_bdf%nbd, n, this%msh%gdim)
 
     
     do i = 3-1,2,-1
@@ -242,16 +253,16 @@ contains
 
     ! compute pressure
     call this%bc_apply_prs()
-    call plan4_pres_setup(this%c_Xh%h1, this%c_Xh%h2, this%params%rho, &
+    call fluid_plan4_pres_setup(this%c_Xh%h1, this%c_Xh%h2, this%params%rho, &
                           this%dm_Xh%n_dofs, this%c_Xh%ifh2)    
-    call plan4_pres_residual(this%p,this%p_res, this%u, this%v, this%w, &
-                             this%u_e, this%v_e, this%w_e, &
-                             this%ta1, this%ta2, this%ta3, &
-                             this%wa1, this%wa2, this%wa3, &
-                             this%work1, this%work2, this%f_Xh, &
-                             this%c_Xh, this%gs_Xh, this%bc_prs_surface, &
-                             this%Ax,this%bd(1), this%params%dt, &
-                             this%params%Re, this%params%rho)
+    call fluid_plan4_pres_residual(this%p,this%p_res, this%u, this%v, this%w, &
+                                   this%u_e, this%v_e, this%w_e, &
+                                   this%ta1, this%ta2, this%ta3, &
+                                   this%wa1, this%wa2, this%wa3, &
+                                   this%work1, this%work2, this%f_Xh, &
+                                   this%c_Xh, this%gs_Xh, this%bc_prs_surface, &
+                                   this%Ax, ab_bdf%bd(1), this%params%dt, &
+                                   this%params%Re, this%params%rho)
 
     !Sets tolerances
     !call ctolspl  (tolspl,respr)
@@ -261,18 +272,18 @@ contains
     type is(jacobi_t)
        call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
     end select
-    write(*,*) "PRES"
+    if (pe_rank .eq. 0) write(*,*) "PRES"
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
          this%c_Xh, this%bclst_prs, this%gs_Xh, niter)    
     call add2(this%p%x,this%dp%x,n)
 !    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     
     !We only need to update h2 once I think then use the flag to switch on/off
-    call plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, &
-         this%params%Re, this%params%rho, this%bd(1), &
+    call fluid_plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, &
+         this%params%Re, this%params%rho, ab_bdf%bd(1), &
          this%params%dt, this%dm_Xh%n_dofs, this%c_Xh%ifh2)
     
-    call plan4_vel_residual(this%Ax, this%u, this%v, this%w, &
+    call fluid_plan4_vel_residual(this%Ax, this%u, this%v, this%w, &
                             this%u_res, this%v_res, this%w_res, &
                             this%p, this%ta1%x, this%ta2%x, this%ta3%x, this%ta4%x, &
                             this%f_Xh, this%c_Xh, &
@@ -281,28 +292,30 @@ contains
     call gs_op_vector(this%gs_Xh, this%u_res, n, GS_OP_ADD) 
     call gs_op_vector(this%gs_Xh, this%v_res, n, GS_OP_ADD) 
     call gs_op_vector(this%gs_Xh, this%w_res, n, GS_OP_ADD) 
-    call bc_list_apply_vector(this%bclst_res,&
+
+    call bc_list_apply_vector(this%bclst_vel_residual,&
          this%u_res, this%v_res, this%w_res, this%dm_Xh%n_dofs)
+
     select type(pcp =>this%pc_vel)
     type is(jacobi_t)
        call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
     end select
 
-    write(*,*) 'U'
+    if (pe_rank .eq. 0) write(*,*) 'U'
     iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
-         this%c_Xh, this%bclst_res, this%gs_Xh, niter)
-    write(*,*) 'V'
+         this%c_Xh, this%bclst_vel_residual, this%gs_Xh, niter)
+    if (pe_rank .eq. 0) write(*,*) 'V'
     iter = this%ksp_vel%solve(this%Ax, this%dv, this%v_res, n, &
-         this%c_Xh, this%bclst_res, this%gs_Xh, niter)
-    write(*,*) 'W'
+         this%c_Xh, this%bclst_vel_residual, this%gs_Xh, niter)
+    if (pe_rank .eq. 0) write(*,*) 'W'
     iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
-         this%c_Xh, this%bclst_res, this%gs_Xh, niter)
+         this%c_Xh, this%bclst_vel_residual, this%gs_Xh, niter)
 
     call opadd2cm(this%u%x,this%v%x,this%w%x,this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
 
   end subroutine fluid_plan4_step
   
-  subroutine plan4_pres_setup(h1, h2, rho, n, ifh2)
+  subroutine fluid_plan4_pres_setup(h1, h2, rho, n, ifh2)
     integer, intent(inout) :: n
     real(kind=dp), intent(inout) :: h1(n)
     real(kind=dp), intent(inout) :: h2(n)
@@ -312,9 +325,9 @@ contains
     call cmult(h1, 1d0 /rho, n)
     call rzero(h2, n)
     ifh2 = .false.
-  end subroutine plan4_pres_setup
+  end subroutine fluid_plan4_pres_setup
 
-  subroutine plan4_vel_setup(h1, h2, Re, rho, bd, dt, n, ifh2)
+  subroutine fluid_plan4_vel_setup(h1, h2, Re, rho, bd, dt, n, ifh2)
     integer, intent(inout) :: n
     real(kind=dp), intent(inout) :: h1(n)
     real(kind=dp), intent(inout) :: h2(n)
@@ -328,10 +341,10 @@ contains
     h1 = (1d0 / Re)
     h2 = dtbd
     ifh2 = .true.
-  end subroutine plan4_vel_setup
+  end subroutine fluid_plan4_vel_setup
 
-  subroutine plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
-                                p, ta1, ta2, ta3, ta4, f_Xh, c_Xh, msh, Xh, n)
+  subroutine fluid_plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
+       p, ta1, ta2, ta3, ta4, f_Xh, c_Xh, msh, Xh, n)
     type(ax_helm_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
@@ -370,9 +383,9 @@ contains
 
     call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, 1d0, n, msh%gdim)
 
-  end subroutine plan4_vel_residual
+  end subroutine fluid_plan4_vel_residual
 
-  subroutine plan4_pres_residual(p, p_res, u, v, w, u_e, v_e, w_e, &
+  subroutine fluid_plan4_pres_residual(p, p_res, u, v, w, u_e, v_e, w_e, &
        ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, &
        bc_prs_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p
@@ -408,8 +421,8 @@ contains
     gdim = c_Xh%msh%gdim
     glb_n = n / p%msh%nelv * p%msh%glb_nelv
     
-    call plan4_op_curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call plan4_op_curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call fluid_plan4_op_curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
+    call fluid_plan4_op_curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
     scl = -4d0 / 3d0
     ta1 = 0d0
@@ -472,9 +485,9 @@ contains
         
 !    call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
 
-  end subroutine plan4_pres_residual
+  end subroutine fluid_plan4_pres_residual
 
-  subroutine plan4_op_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+  subroutine fluid_plan4_op_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
@@ -519,10 +532,10 @@ contains
     call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
     call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
 
-  end subroutine plan4_op_curl
+  end subroutine fluid_plan4_op_curl
   
   !> Sum up AB/BDF contributions 
-  subroutine plan4_sumab(v,vv,vvlag,n,ab,nab)
+  subroutine fluid_plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
     real(kind=dp), dimension(n), intent(inout) :: v,vv
     real(kind=dp), dimension(n,2), intent(inout) :: vvlag
@@ -534,288 +547,11 @@ contains
     ab2 = ab(3)
 
     call add3s2(v,vv,vvlag(1,1),ab0,ab1,n)
-    !should we have this right now we only save one old velocity
     if(nab .eq. 3) call add2s2(v,vvlag(1,2),ab2,n)
-  end subroutine plan4_sumab
-!>     Store old time steps and compute new time step, time and timef.
-!!     Set time-dependent coefficients in time-stepping schemes.
-!!     @note this really should be placed somewhere else. Right now dt, etc is hardcoded. 
-  subroutine settime(t, dt, t_old, dt_old, ab, bd, nab, nbd, tstep)
-    real(kind=dp), intent(inout) :: t
-    real(kind=dp), intent(inout) :: dt
-    real(kind=dp), intent(inout) :: t_old
-    real(kind=dp), dimension(10), intent(inout) :: dt_old
-    real(kind=dp), dimension(10), intent(inout) :: ab
-    real(kind=dp), dimension(10), intent(inout) :: bd
-    integer, intent(inout) :: nab
-    integer, intent(inout) :: nbd
-    integer, intent(in) :: tstep
-    integer :: i
-
-
-!    Set time step.
-      do i=10,2,-1
-         dt_old(i) = dt_old(i-1)
-      end do
-      ! SHOULD be implemented!
-      !call setdt
-      dt_old(1) = dt
-      if (tstep .eq. 1) then
-         dt_old(2) = dt
-      end if
-     
-      !IF (ISTEP.EQ.1 .and. irst.le.0) DTLAG(2) = DT
-
-      !Set time.
-
-      t_old = t
-      t = t + dt
-
-      !Set coefficients in AB/BD-schemes.
-
-      !call SETORDBD
-      !hardcoded for now
-!      if ((tstep .eq. 0) .or. (tstep .eq. 1)) nbd = 1
-!      if ((tstep .gt. 1) .and. (tstep .le. 2)) nbd = tstep
-!      if (tstep.gt.2) nbd = 3
-      !      call rzero (bd, 10)
-      nbd = min(tstep, 3)
-      call setbd(bd, dt_old, nbd)
-      ! This can also be varied, hardcoded for now
-      nab = min(tstep, 3)
-      !dont know what irst is really
-      !IF (ISTEP.lt.NAB.and.irst.le.0) NAB = ISTEP
-!      if(tstep .lt. 3) NAB = tstep
-!      if(tstep .ge. 3) NAB = 3
- !     call rzero(ab, 10)
-      call setabbd(ab, dt_old, nab,nbd)
-
-  end subroutine settime
-!>
-!!     Compute Adams-Bashforth coefficients (order NAB, less or equal to 3)
-!!     
-!!     NBD .EQ. 1
-!!     Standard Adams-Bashforth coefficients 
-!!
-!!     NBD .GT. 1
-!!     Modified Adams-Bashforth coefficients to be used in con-
-!!     junction with Backward Differentiation schemes (order NBD)
-!!
-  subroutine setabbd (ab,dtlag,nab,nbd)
-    INTEGER, intent(in) :: nab, nbd
-    REAL(KIND=DP), intent(inout), dimension(NAB) :: AB(10),DTLAG(10)
-    REAL(KIND=DP) :: DT0, DT1, DT2, DTS, DTA, DTB, DTC, DTD, DTE
-    DT0 = DTLAG(1)
-    DT1 = DTLAG(2)
-    DT2 = DTLAG(3)
-    IF ( NAB.EQ.1 ) THEN
-        AB(1) = 1.0
-    ELSEIF ( NAB.EQ.2 ) THEN
-        DTA =  DT0/DT1
-        IF ( NBD.EQ.1 ) THEN
-        AB(2) = -0.5*DTA
-        AB(1) =  1.0 - AB(2)
-        ELSEIF ( NBD.EQ.2 ) THEN
-        AB(2) = -DTA
-        AB(1) =  1.0 - AB(2)
-        ENDIF
-    ELSEIF ( NAB.EQ.3 ) THEN
-        DTS =  DT1 + DT2
-        DTA =  DT0 / DT1
-        DTB =  DT1 / DT2
-        DTC =  DT0 / DT2
-        DTD =  DTS / DT1
-        DTE =  DT0 / DTS
-        IF ( NBD.EQ.1 ) THEN
-        AB(3) =  DTE*( 0.5*DTB + DTC/3. )
-        AB(2) = -0.5*DTA - AB(3)*DTD
-        AB(1) =  1.0 - AB(2) - AB(3)
-        ELSEIF ( NBD.EQ.2 ) THEN
-        AB(3) =  2./3.*DTC*(1./DTD + DTE)
-        AB(2) = -DTA - AB(3)*DTD
-        AB(1) =  1.0 - AB(2) - AB(3)
-        ELSEIF ( NBD.EQ.3 ) THEN
-        AB(3) =  DTE*(DTB + DTC)
-        AB(2) = -DTA*(1.0 + DTB + DTC)
-        AB(1) =  1.0 - AB(2) - AB(3)
-        ENDIF
-    ENDIF
-  end subroutine setabbd
-
-!>Compute bacward-differentiation coefficients of order NBD
-! @note this need to be fixed as well...
-  subroutine setbd (bd,dtbd,nbd)
-    REAL(kind=dp), intent(inout), dimension(10) :: bd, dtbd
-    INTEGER, intent(in) :: nbd
-    REAL(kind=dp) :: BDMAT(10,10),BDRHS(10), BDF
-    INTEGER :: IR(10),IC(10)
-    INTEGER :: IBD, ldim = 10
-    integer :: I, NSYS
-    IF (NBD.EQ.1) THEN
-         BD(1) = 1d0
-         BDF   = 1d0
-      ELSEIF (NBD.GE.2) THEN
-         NSYS = NBD+1
-         CALL BDSYS (BDMAT,BDRHS,DTBD,NBD,ldim)
-         CALL LU    (BDMAT,NSYS,ldim,IR,IC)
-         CALL SOLVE (BDRHS,BDMAT,1,NSYS,ldim,IR,IC)
-         DO I=1,NBD
-            BD(I) = BDRHS(I)
-         end do
-         BDF = BDRHS(NBD+1)
-      ENDIF
-    !Normalize
-      DO IBD=NBD,1,-1
-         BD(IBD+1) = BD(IBD)
-      end do
-      BD(1) = 1d0
-      DO IBD=1,NBD+1
-         BD(IBD) = BD(IBD)/BDF
-      end do
-    end subroutine setbd
-
-
-    subroutine bdsys (a,b,dt,nbd,ldim)
-      real(kind=dp) ::  A(ldim,9),B(9),DT(9)
-      integer :: ldim, j, n, k, i, nsys, nbd
-      real(kind=dp) :: SUMDT
-      CALL RZERO (A,ldim**2)
-      N = NBD+1
-      DO  J=1,NBD
-         A(1,J) = 1.
-      end DO
-      A(1,NBD+1) = 0.
-      B(1) = 1.
-      DO J=1,NBD
-         SUMDT = 0.
-         DO  K=1,J
-            SUMDT = SUMDT+DT(K)
-         end DO
-         A(2,J) = SUMDT
-      end DO
-      A(2,NBD+1) = -DT(1)
-      B(2) = 0.
-      DO I=3,NBD+1
-         DO  J=1,NBD
-            SUMDT = 0.
-            DO  K=1,J
-               SUMDT = SUMDT+DT(K)
-            end DO
-            A(I,J) = SUMDT**(I-1)
-         end DO
-         A(I,NBD+1) = 0.
-         B(I) = 0.
-      end DO
-      
-    end subroutine bdsys
-
-    SUBROUTINE LU(A,N,ldim,IR,IC)
-      integer :: n, ldim, IR(10), IC(10)
-      real(kind=dp) :: A(ldim,10), xmax, ymax, B, Y, C
-      integer :: i, j, k, l, m, icm, irl, k1
-      DO I=1,N
-         IR(I)=I
-         IC(I)=I
-      end DO
-      K=1
-      L=K
-      M=K
-      XMAX=ABS(A(K,K))
-      DO 100 I=K,N
-         DO 100 J=K,N
-            Y=ABS(A(I,J))
-            IF(XMAX.GE.Y) GOTO 100
-      XMAX=Y
-      L=I
-      M=J
-100     CONTINUE
-      DO 1000 K=1,N
-      IRL=IR(L)
-      IR(L)=IR(K)
-      IR(K)=IRL
-      ICM=IC(M)
-      IC(M)=IC(K)
-      IC(K)=ICM
-      IF(L.EQ.K) GOTO 300
-      DO 200 J=1,N
-      B=A(K,J)
-      A(K,J)=A(L,J)
-      A(L,J)=B
-200     CONTINUE
-300     IF(M.EQ.K) GOTO 500
-      DO 400 I=1,N
-      B=A(I,K)
-      A(I,K)=A(I,M)
-       A(I,M)=B
-400    CONTINUE
-500     C=1./A(K,K)
-      A(K,K)=C
-      IF(K.EQ.N) GOTO 1000
-      K1=K+1
-      XMAX=ABS(A(K1,K1))
-      L=K1
-      M=K1
-      DO 600 I=K1,N
-       A(I,K)=C*A(I,K)
-600     CONTINUE
-      DO 800 I=K1,N
-      B=A(I,K)
-      DO 800 J=K1,N
-      A(I,J)=A(I,J)-B*A(K,J)
-      Y=ABS(A(I,J))
-      IF(XMAX.GE.Y) GOTO 800
-      XMAX=Y
-      L=I
-      M=J
-800    CONTINUE
-1000  CONTINUE
-    end subroutine lu
-   
-    SUBROUTINE SOLVE(F,A,K,N,ldim,IR,IC)
-      real(kind=dp) ::  A(ldim,10),F(ldim,10), G(2000), B, Y
-      integer :: IR(10),IC(10), N, N1, k, kk, i, j, ldim, ICM, URL, K1, ICI
-      integer :: I1, IRI,IRL, IT
-        
-
-!      IF (N.GT.2000) THEN
-!         write(6,*) 'Abort IN Subrtouine SOLVE: N>2000, N=',N
-!         call exitt
-!      ENDIF
-      N1=N+1
-      DO 1000 KK=1,K
-      DO 100 I=1,N
-      IRI=IR(I)
-        G(I)=F(IRI,KK)
-100     CONTINUE
-      DO 400 I=2,N
-      I1=I-1
-      B=G(I)
-      DO 300 J=1,I1
-        B=B-A(I,J)*G(J)
-300     CONTINUE
-        G(I)=B
-400     CONTINUE
-      DO 700 IT=1,N
-      I=N1-IT
-      I1=I+1
-      B=G(I)
-      IF(I.EQ.N) GOTO 701
-      DO 600 J=I1,N
-        B=B-A(I,J)*G(J)
-600     CONTINUE
-701     G(I)=B*A(I,I)
-700     CONTINUE
-      DO 900 I=1,N
-      ICI=IC(I)
-        F(ICI,KK)=G(I)
-900     CONTINUE
-1000    CONTINUE
-      RETURN
-      END
-    
-
- subroutine makebdf(ta1, ta2, ta3, tb1, tb2, tb3, h2, ulag, vlag, wlag, &
-                    bfx, bfy, bfz, u, v, w, B, rho, dt,bd, nbd, n, gdim)
+  end subroutine fluid_plan4_sumab
+  
+  subroutine makebdf(ta1, ta2, ta3, tb1, tb2, tb3, h2, ulag, vlag, wlag, &
+                     bfx, bfy, bfz, u, v, w, B, rho, dt,bd, nbd, n, gdim)
 !
 !     Add contributions to F from lagged BD terms.
 !

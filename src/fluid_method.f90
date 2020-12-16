@@ -18,6 +18,7 @@ module fluid_method
   use gmres
   use mesh
   use math
+  use abbdf
   use mathops
   use operators
   implicit none
@@ -40,10 +41,8 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
-     type(dirichlet_t) :: bc_res              !< Dirichlet pressure condition
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     type(bc_list_t) :: bclst_res              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
@@ -85,12 +84,14 @@ module fluid_method
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_method_step(this, t, tstep)
+     subroutine fluid_method_step(this, t, tstep, ab_bdf)
        import fluid_scheme_t
+       import abbdf_t
        import dp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=dp), intent(inout) :: t
        integer, intent(inout) :: tstep
+       type(abbdf_t), intent(inout) :: ab_bdf
      end subroutine fluid_method_step
   end interface
 
@@ -138,15 +139,6 @@ contains
     call bc_list_add(this%bclst_vel, this%bc_inflow)
     call bc_list_add(this%bclst_vel, this%bc_wall)
     
-    call bc_list_init(this%bclst_res)
-    call this%bc_res%init(this%dm_Xh)
-    call this%bc_res%mark_zone(msh%inlet)
-    call this%bc_res%mark_zone(msh%wall)
-    call this%bc_res%finalize()
-    call this%bc_res%set_g(0d0)
-    call bc_list_add(this%bclst_res, this%bc_res)
-
-
     if (params%output_bdry) then
 
        if (pe_rank .eq. 0) then

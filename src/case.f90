@@ -8,11 +8,15 @@ module case
   use utils
   use mesh
   use comm
+  use abbdf
   implicit none
 
   type :: case_t
      type(mesh_t) :: msh
      type(param_t) :: params
+     type(abbdf_t) :: ab_bdf
+     real(kind=dp), dimension(10) :: tlag
+     real(kind=dp), dimension(10) :: dtlag
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
 
