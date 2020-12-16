@@ -14,6 +14,7 @@ module bc
   !> Base type for a boundary condition
   type, public, abstract :: bc_t
      integer, allocatable :: msk(:)
+     integer, allocatable :: facet(:)
      type(dofmap_t), pointer :: dof
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
@@ -100,6 +101,10 @@ contains
     if (allocated(this%msk)) then
        deallocate(this%msk)
     end if
+
+    if (allocated(this%facet)) then
+       deallocate(this%facet)
+    end if
     
   end subroutine bc_free
 
@@ -158,6 +163,7 @@ contains
     ! Note we assume that lx = ly = lz
     facet_size = lx**2
     allocate(this%msk(0:facet_size * this%marked_facet%size()))
+    allocate(this%facet(0:facet_size * this%marked_facet%size()))
 
     msk_c = 0
     bfp => this%marked_facet%array()
@@ -171,6 +177,7 @@ contains
              do k = 1, ly
                 msk_c = msk_c + 1
                 this%msk(msk_c) = linear_index(1,k,l,el,lx,ly,lz)
+                this%facet(msk_c) = 1
              end do
           end do
        case (2)
@@ -178,6 +185,7 @@ contains
              do k = 1, ly
                 msk_c = msk_c + 1
                 this%msk(msk_c) = linear_index(lx,k,l,el,lx,ly,lz)
+                this%facet(msk_c) = 2
              end do
           end do
        case(3)
@@ -185,6 +193,7 @@ contains
              do j = 1, lx
                 msk_c = msk_c + 1
                 this%msk(msk_c) = linear_index(j,1,l,el,lx,ly,lz)
+                this%facet(msk_c) = 3
              end do
           end do
        case(4)
@@ -192,6 +201,7 @@ contains
              do j = 1, lx
                 msk_c = msk_c + 1
                 this%msk(msk_c) = linear_index(j,ly,l,el,lx,ly,lz)
+                this%facet(msk_c) = 4
              end do
           end do
        case(5)
@@ -199,6 +209,7 @@ contains
              do j = 1, lx
                 msk_c = msk_c + 1
                 this%msk(msk_c) = linear_index(j,k,1,el,lx,ly,lz)
+                this%facet(msk_c) = 5
              end do
           end do
        case(6)
@@ -206,12 +217,14 @@ contains
              do j = 1, lx
                 msk_c = msk_c + 1
                 this%msk(msk_c) = linear_index(j,k,lz,el,lx,ly,lz)
+                this%facet(msk_c) = 6
              end do
           end do
        end select
     end do
 
     this%msk(0) = msk_c
+    this%facet(0) = msk_c
     
   end subroutine bc_finalize
 

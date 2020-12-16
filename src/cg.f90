@@ -103,6 +103,7 @@ contains
     call copy(this%r, f, n)
 
     rnorm = sqrt(glsc3(this%r, coef%mult, this%r, n))
+    if(rnorm .eq. 0d0) return
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1
@@ -125,9 +126,12 @@ contains
 
        rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
-       rnorm = sqrt(rtr)    
+       rnorm = sqrt(rtr)
+       if (rnorm .lt. 1e-8) then
+          exit
+       end if
     end do
-    print *,"Residual: ", rnorm
+    if (pe_rank .eq. 0) write(*,*) "Residual: ", rnorm, iter
   end function cg_solve
 
 end module cg

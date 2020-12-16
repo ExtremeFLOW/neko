@@ -203,7 +203,7 @@ contains
     disp(6) = disp(6) - base
     disp(7) = disp(7) - base
 
-    len(1:4) = 1
+    len(1:5) = 1
     len(6) = 3
     len(7) = 1
     
@@ -215,7 +215,7 @@ contains
     type(6) = MPI_DOUBLE_PRECISION
     type(7) = MPI_LOGICAL
     
-    call MPI_Type_create_struct(6, len, disp, type, MPI_NEKO_PARAMS, ierr)
+    call MPI_Type_create_struct(7, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
 
   end subroutine mpi_type_neko_params_init
