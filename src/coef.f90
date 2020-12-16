@@ -424,6 +424,7 @@ contains
     c%volume = glsum(c%B,c%dof%n_dofs)
   end subroutine coef_generate_mass
 
+  !> Generate facet area and surface normals
   subroutine coef_generate_area_and_normal(coef)
     type(coef_t), intent(inout) :: coef
     real(kind=dp), allocatable :: a(:,:,:,:)
