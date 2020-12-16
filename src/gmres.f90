@@ -160,7 +160,7 @@ contains
     call rone(this%mu ,n)
     norm_fac = 1./sqrt(coef%volume)
     ! Should change when doing real problem
-    tolpss = this%abs_tol
+    tolpss = 1d-8
     call rzero(x%x,n)
     call rzero(this%gam,this%lgmres+1)
     call rone(this%s,this%lgmres)
@@ -200,7 +200,7 @@ contains
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
 
-          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
+!          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
@@ -271,10 +271,10 @@ contains
        do i=1,j
           call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
        enddo                                       !          i  i
-       print *, "current res", rnorm, iter
+       if (pe_rank .eq. 0) write(*,*) "current res", rnorm, iter
     enddo
-    call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
-    print *, "Residual:", rnorm, iter
+!    call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
+    if (pe_rank .eq. 0) write(*,*) "Residual:", rnorm, iter
   end function gmres_solve
 
 end module gmres

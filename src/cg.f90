@@ -126,9 +126,13 @@ contains
 
        rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
-       rnorm = sqrt(rtr)    
+       rnorm = sqrt(rtr)
+       if (rnorm .lt. 1e-8) then
+          if (pe_rank .eq. 0) write(*,*) "Residual: ", rnorm
+          exit
+       end if
     end do
-    print *,"Residual: ", rnorm
+    if (pe_rank .eq. 0) write(*,*) "Residual: ", rnorm
   end function cg_solve
 
 end module cg
