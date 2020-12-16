@@ -1,0 +1,18 @@
+&NEKO_CASE
+mesh_file= 'hemi.nmsh'
+fluid_scheme='plan4'
+lx = 8
+solver_velocity = 'cg'
+solver_pressure = 'cg'	
+source_term = 'noforce'
+params=
+&NEKO_PARAMETERS
+dt = 1e-5
+nsteps=2
+uinf= 1.0,0.0,0.0
+output_bdry = .true.
+rho = 1
+mu = 1.81
+Re = 100
+/
+/

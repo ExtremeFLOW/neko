@@ -1,4 +1,4 @@
-  !> Defines inflow dirichlet conditions
+!> Defines inflow dirichlet conditions
 module inflow
   use num_types
   use dirichlet
@@ -18,7 +18,7 @@ contains
 
   !> No-op scalar apply
   subroutine inflow_apply_scalar(this, x, n)
-    class(inflow_t) , intent(inout) :: this
+    class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=dp), intent(inout),  dimension(n) :: x
   end subroutine inflow_apply_scalar

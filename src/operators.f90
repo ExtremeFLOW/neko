@@ -1,5 +1,4 @@
 module operators
-  use gather_scatter
   use num_types
   use space  
   use math
@@ -16,34 +15,34 @@ contains
 !     dr  - dr/dx or dr/dy or dr/dz  
 !     ds  - ds/dx or ds/dy or ds/dz
 !     dt  - dt/dx or dt/dy or dt/dz
-     type(coef_t), intent(in), target :: coef
-real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
-real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  u, dr, ds, dt
-      real(kind=dp) :: drst(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
-     type(space_t), pointer :: Xh 
-     type(mesh_t), pointer :: msh
+    type(coef_t), intent(in), target :: coef
+    real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
+    real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  u, dr, ds, dt
+    real(kind=dp) :: drst(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
+    type(space_t), pointer :: Xh 
+    type(mesh_t), pointer :: msh
      integer :: e, k, lxy, lyz, lxyz
-      Xh => coef%Xh
-      msh => coef%msh 
-      lxy  = Xh%lx*Xh%ly
-      lyz  = Xh%ly*Xh%lz
-      lxyz = Xh%lx*Xh%ly*Xh%lz
+     Xh => coef%Xh
+     msh => coef%msh 
+     lxy  = Xh%lx*Xh%ly
+     lyz  = Xh%ly*Xh%lz
+     lxyz = Xh%lx*Xh%ly*Xh%lz
       
-      do e=1,msh%nelv
+     do e=1,msh%nelv
       if (msh%nelv .eq. 2) then
-            call mxm     (Xh%dx,Xh%lx,u(1,1,1,e),Xh%lx,du(1,1,1,e),lyz)
-            call col2    (du(1,1,1,e),dr(1,1,1,e),lxyz)
-            call mxm     (U(1,1,1,e),Xh%lx,Xh%dyt,Xh%ly,drst,Xh%ly)
-            call addcol3 (du(1,1,1,e),drst,ds(1,1,1,e),lxyz)
-        else
-            call mxm   (Xh%dx,Xh%lx,U(1,1,1,e),Xh%lx,du(1,1,1,e),lyz)
-            call col2  (du(1,1,1,e),dr(1,1,1,e),lxyz)
-            do k=1,Xh%lz
-               call mxm  (u(1,1,k,e),Xh%lx,Xh%dyt,Xh%ly,drst(1,1,k),Xh%ly)
-            end do
-            call addcol3 (du(1,1,1,e),drst,ds(1,1,1,e),lxyz)
-            call mxm     (U(1,1,1,e),lxy,Xh%dzt,Xh%lz,drst,Xh%lz)
-            call addcol3 (du(1,1,1,e),drst,dt(1,1,1,e),lxyz)
+         call mxm     (Xh%dx,Xh%lx,u(1,1,1,e),Xh%lx,du(1,1,1,e),lyz)
+         call col2    (du(1,1,1,e),dr(1,1,1,e),lxyz)
+         call mxm     (U(1,1,1,e),Xh%lx,Xh%dyt,Xh%ly,drst,Xh%ly)
+         call addcol3 (du(1,1,1,e),drst,ds(1,1,1,e),lxyz)
+      else
+         call mxm   (Xh%dx,Xh%lx,U(1,1,1,e),Xh%lx,du(1,1,1,e),lyz)
+         call col2  (du(1,1,1,e),dr(1,1,1,e),lxyz)
+         do k=1,Xh%lz
+            call mxm  (u(1,1,k,e),Xh%lx,Xh%dyt,Xh%ly,drst(1,1,k),Xh%ly)
+         end do
+         call addcol3 (du(1,1,1,e),drst,ds(1,1,1,e),lxyz)
+         call mxm     (U(1,1,1,e),lxy,Xh%dzt,Xh%lz,drst,Xh%lz)
+         call addcol3 (du(1,1,1,e),drst,dt(1,1,1,e),lxyz)
       end if
    end do
    call col2 (du,coef%jacinv,coef%dof%n_dofs)

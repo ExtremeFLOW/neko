@@ -67,6 +67,18 @@ contains
 
   end subroutine copy
   
+  !> Multiplication by constant c \f$ a = c \cdot a \f$
+  subroutine cmult(a, c, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c * a(i)
+    end do
+  end subroutine cmult
+  
   !> Add a scalar to vector \f$ a = \sum a_i + s \f$
   subroutine cadd(a, s, n)
     integer, intent(in) :: n
@@ -118,7 +130,7 @@ contains
     
   end subroutine invcol1
  
-  !> Invert a vector \f$ a = 1 / a \f$
+  !> Invert a vector \f$ a = b / a \f$
   subroutine invcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=dp), dimension(n), intent(inout) :: a
@@ -260,6 +272,19 @@ contains
 
   end subroutine add4
 
+  !> Vector substraction \f$ a = a - b \f$
+  subroutine sub2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(inout) :: b
+    integer :: i
+
+    do i = 1, n
+       a(i) = a(i) - b(i)
+    end do
+    
+  end subroutine sub2
+
   !> Vector subtraction \f$ a = b - c \f$
   subroutine sub3(a, b, c, n)
     integer, intent(in) :: n
@@ -300,12 +325,12 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) =a(i) + c1 * b(i)
+       a(i) = a(i) + c1 * b(i)
     end do
     
   end subroutine add2s2
   
-  !>Multiplication by constant c \f$ a = c \cdot b \f$
+  !> Multiplication by constant c \f$ a = c \cdot b \f$
   subroutine cmult2(a, b, c, n)
     integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(inout) :: a
@@ -319,7 +344,7 @@ contains
     
   end subroutine cmult2
 
-  !> Vector division \f$ a = a/ b \f$
+  !> Vector division \f$ a = a / b \f$
   subroutine invcol2(a, b, n)
     integer, intent(in) :: n    
     real(kind=dp), dimension(n), intent(inout) :: a

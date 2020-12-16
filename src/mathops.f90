@@ -39,7 +39,26 @@ contains
        end do
     end if
   end subroutine opcolv
-  subroutine opadd2cm (a1,a2,a3,b1,b2,b3,c,n,gdim)
+  subroutine opcolv3c (a1,a2,a3,b1,b2,b3,c,d,n,gdim)
+    integer, intent(in) :: n, gdim
+    real(kind=dp), dimension(n), intent(inout) :: a1,a2,a3
+    real(kind=dp), dimension(n), intent(in) :: b1, b2, b3
+    real(kind=dp), intent(in) :: c(n), d
+    integer :: i
+    if (gdim .eq. 3) then
+       do i=1,n
+          a1(i) = b1(i)*c(i)*d
+          a2(i) = b2(i)*c(i)*d
+          a3(i) = b3(i)*c(i)*d
+       enddo
+    else
+       do i=1,n
+          a1(i) =  b1(i)*c(i)*d
+          a2(i) =  b2(i)*c(i)*d
+       enddo
+    endif
+  end subroutine opcolv3c
+ subroutine opadd2cm (a1,a2,a3,b1,b2,b3,c,n,gdim)
     integer, intent(in) :: n, gdim
     real(kind=dp), dimension(n), intent(inout) :: a1,a2,a3
     real(kind=dp), dimension(n), intent(in) :: b1, b2, b3
@@ -58,4 +77,23 @@ contains
        enddo
     endif
   end subroutine opadd2cm
+ subroutine opadd2col (a1,a2,a3,b1,b2,b3,c,n,gdim)
+    integer, intent(in) :: n, gdim
+    real(kind=dp), dimension(n), intent(inout) :: a1,a2,a3
+    real(kind=dp), dimension(n), intent(in) :: b1, b2, b3
+    real(kind=dp), intent(in) :: c(n)
+    integer :: i
+    if (gdim .eq. 3) then
+       do i=1,n
+          a1(i) = a1(i) + b1(i)*c(i)
+          a2(i) = a2(i) + b2(i)*c(i)
+          a3(i) = a3(i) + b3(i)*c(i)
+       enddo
+    else
+       do i=1,n
+          a1(i) = a1(i) + b1(i)*c(i)
+          a2(i) = a2(i) + b2(i)*c(i)
+       enddo
+    endif
+  end subroutine opadd2col
 end module mathops
