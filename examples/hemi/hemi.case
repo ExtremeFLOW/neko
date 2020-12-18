@@ -5,7 +5,7 @@ lx = 8
 solver_velocity = 'cg'
 solver_pressure = 'cg'	
 source_term = 'noforce'
-params=
+/
 &NEKO_PARAMETERS
 dt = 1e-5
 nsteps=2
@@ -15,4 +15,4 @@ rho = 1
 mu = 1.81
 Re = 100
 /
-/
+
