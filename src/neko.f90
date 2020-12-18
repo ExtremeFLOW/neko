@@ -56,6 +56,7 @@ module neko
   use ax_helm
   use operators
   use mathops
+  use projection
 contains
 
   subroutine neko_init(C)
