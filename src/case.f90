@@ -35,7 +35,7 @@ contains
     character(len=80) :: source_term = ''
     integer :: lx = 0
     type(param_io_t) :: params
-    namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx, params, &
+    namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx,  &
          solver_velocity, solver_pressure, source_term
     
     integer :: ierr
@@ -47,6 +47,7 @@ contains
     if (pe_rank .eq. 0) then
        open(10, file=trim(case_file))
        read(10, nml=NEKO_CASE)
+       read(10, *) params
        close(10)
        
        pack_index = 1
