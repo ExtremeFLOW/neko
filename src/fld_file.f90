@@ -15,9 +15,11 @@ module fld_file
 
   !> Interface for NEKTON fld files
   type, public, extends(generic_file_t) :: fld_file_t
+     logical :: dp_precision = .false. !< Precision of output data
    contains
      procedure :: read => fld_file_read
      procedure :: write => fld_file_write
+     procedure :: set_precision => fld_file_set_precision
   end type fld_file_t
 
 contains
@@ -39,9 +41,11 @@ contains
     integer :: i, ierr, fh, n, j,k,l,el, suffix_pos
     integer, allocatable :: idx(:)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
-    real(kind=dp), allocatable :: tmp(:)
+    real(kind=dp), allocatable :: tmp_dp(:)
+    real(kind=sp), allocatable :: tmp_sp(:)
     real(kind=sp), parameter :: test_pattern = 6.54321
     logical :: write_mesh, write_velocity, write_pressure
+    integer :: FLD_DATA_SIZE
 
       
     select type(data)
@@ -65,6 +69,12 @@ contains
     class default
        call neko_error('Invalid data')
     end select
+
+    if (this%dp_precision) then
+       FLD_DATA_SIZE = MPI_DOUBLE_PRECISION_SIZE
+    else
+       FLD_DATA_SIZE = MPI_REAL_SIZE
+    end if
 
     
     !
@@ -91,7 +101,7 @@ contains
 
 
     !> @todo fix support for single precision output?
-    write(hdr, 1) 8,Xh%lx, Xh%ly, Xh%lz,msh%glb_nelv,msh%glb_nelv,&
+    write(hdr, 1) FLD_DATA_SIZE, Xh%lx, Xh%ly, Xh%lz,msh%glb_nelv,msh%glb_nelv,&
          0d0,1,1,1,(rdcode(i),i=1,10)
 1   format('#std',1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
          1x,i9,1x,i6,1x,i6,1x,10a)
@@ -125,107 +135,201 @@ contains
     deallocate(idx)
     
     n = 3*(Xh%lx * Xh%ly * Xh%lz * msh%nelv)
-    allocate(tmp(n))
+
+    if (this%dp_precision) then
+       allocate(tmp_dp(n))
+    else
+       allocate(tmp_sp(n))
+    end if
        
     if (write_mesh) then
-       i = 1
-       do el = 1, msh%nelv
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp(i) = dof%x(j,k,l,el)
-                   i = i +1
-                end do
-             end do
-          end do
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp(i) = dof%y(j,k,l,el)
-                   i = i +1
-                end do
-             end do
-          end do
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp(i) = dof%z(j,k,l,el)
-                   i = i +1
-                end do
-             end do
-          end do
-       end do
-       
+
        byte_offset = mpi_offset + int(msh%offset_el, 8) * &
             (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(MPI_DOUBLE_PRECISION_SIZE, 8))
-       call MPI_File_write_at_all(fh, byte_offset, tmp, n, &
-            MPI_DOUBLE_PRECISION, status, ierr)
+            int(FLD_DATA_SIZE, 8))
+       
+       if (this%dp_precision) then
+          i = 1
+          do el = 1, msh%nelv
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_dp(i) = dof%x(j,k,l,el)
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_dp(i) = dof%y(j,k,l,el)
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_dp(i) = dof%z(j,k,l,el)
+                      i = i +1
+                   end do
+                end do
+             end do
+          end do
+          
+          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
+               MPI_DOUBLE_PRECISION, status, ierr)
+          
+       else
+          i = 1
+          do el = 1, msh%nelv
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_sp(i) = real(dof%x(j,k,l,el))
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_sp(i) = real(dof%y(j,k,l,el))
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_sp(i) = real(dof%z(j,k,l,el))
+                      i = i +1
+                   end do
+                end do
+             end do
+          end do
+          
+          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
+               MPI_REAL, status, ierr)
+          
+       end if
+
        mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
             (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(MPI_DOUBLE_PRECISION_SIZE, 8))
+            int(FLD_DATA_SIZE, 8))
     end if
 
     if (write_velocity) then
-       i = 1
-       do el = 1, msh%nelv
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp(i) = u%x(j,k,l,el)
-                   i = i +1
-                end do
-             end do
-          end do
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp(i) = v%x(j,k,l,el)
-                   i = i +1
-                end do
-             end do
-          end do
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp(i) = w%x(j,k,l,el)
-                   i = i +1
-                end do
-             end do
-          end do
-       end do
-       
        byte_offset = mpi_offset + int(msh%offset_el, 8) * &
             (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(MPI_DOUBLE_PRECISION_SIZE, 8))
-       call MPI_File_write_at_all(fh, byte_offset, tmp, n, &
-            MPI_DOUBLE_PRECISION, status, ierr)
+            int(FLD_DATA_SIZE, 8))
+
+       if (this%dp_precision) then
+          i = 1
+          do el = 1, msh%nelv
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_dp(i) = u%x(j,k,l,el)
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_dp(i) = v%x(j,k,l,el)
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_dp(i) = w%x(j,k,l,el)
+                      i = i +1
+                   end do
+                end do
+             end do
+          end do
+          
+          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
+               MPI_DOUBLE_PRECISION, status, ierr)
+          
+       else
+          i = 1
+          do el = 1, msh%nelv
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_sp(i) = real(u%x(j,k,l,el))
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_sp(i) = real(v%x(j,k,l,el))
+                      i = i +1
+                   end do
+                end do
+             end do
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_sp(i) = real(w%x(j,k,l,el))
+                      i = i +1
+                   end do
+                end do
+             end do
+          end do
+
+          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
+               MPI_REAL, status, ierr)
+
+       end if
+       
        mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
             (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(MPI_DOUBLE_PRECISION_SIZE, 8))
+            int(FLD_DATA_SIZE, 8))
+       
     end if
  
     if (write_pressure) then
-       i = 1
-       do el = 1, msh%nelv
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp(i) = real(p%x(j,k,l,el))
-                   i = i + 1
+       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
+            (int((Xh%lx * Xh%ly * Xh%lz), 8) * &
+            int(FLD_DATA_SIZE, 8))
+      
+       if (.not. this%dp_precision) then
+
+          i = 1
+          do el = 1, msh%nelv
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_sp(i) = real(p%x(j,k,l,el))
+                      i = i + 1
+                   end do
                 end do
              end do
           end do
-       end do
-       
-       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-            (int((Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(MPI_DOUBLE_PRECISION_SIZE, 8))
-       call MPI_File_write_at_all(fh, byte_offset, p%x, n/3, &
-            MPI_DOUBLE_PRECISION, status, ierr)
+          
+          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n/3, &
+               MPI_REAL, status, ierr)
+       else
+          call MPI_File_write_at_all(fh, byte_offset, p%x, n/3, &
+               MPI_DOUBLE_PRECISION, status, ierr)
+       end if
     end if
     
-    deallocate(tmp)
+    if (allocated(tmp_dp)) then
+       deallocate(tmp_dp)
+    end if
+
+    if (allocated(tmp_sp)) then
+       deallocate(tmp_sp)
+    end if
     
     call MPI_File_close(fh, ierr)
 
@@ -254,6 +358,20 @@ contains
     
   end subroutine fld_file_read
 
+
+  subroutine fld_file_set_precision(this, precision)
+    class(fld_file_t) :: this
+    integer, intent(inout) :: precision
+
+    if (precision .eq. dp) then
+       this%dp_precision = .true.
+    else if (precision .eq. sp) then
+       this%dp_precision = .false.
+    else
+       call neko_error('Invalid precision')
+    end if
+    
+  end subroutine fld_file_set_precision
 
   
 end module fld_file
