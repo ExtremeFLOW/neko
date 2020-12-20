@@ -15,6 +15,7 @@ module element
      type(point_ptr), allocatable :: pts(:) !< Points of an element 
    contains
      procedure, pass(this) :: element => element_init
+     procedure, pass(this) :: free => element_free
      procedure, pass(this) :: gdim => element_gdim
      procedure, pass(this) :: npts => element_npts
      procedure, pass(this) :: p => element_point 
@@ -82,18 +83,26 @@ contains
     integer, intent(in) :: gdim
     integer, intent(in) :: npts
 
+    call this%free()
+
     call this%set_id(id)
     
-    if (allocated(this%pts)) then
-       deallocate(this%pts)
-    end if
-
     this%gdim_ = gdim
     this%npts_ = npts
 
     allocate(this%pts(this%npts_))
 
   end subroutine element_init
+
+  !> Deallocate an element
+  subroutine element_free(this)
+    class(element_t), intent(inout) :: this
+
+    if (allocated(this%pts)) then
+       deallocate(this%pts)
+    end if
+    
+  end subroutine element_free
   
   !> Get the geometric dimension of an element
   pure function element_gdim(this) result(gdim)
