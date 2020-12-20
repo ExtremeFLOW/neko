@@ -231,6 +231,7 @@ contains
 
     if (allocated(m%elements)) then
        do i = 1, m%nelv
+          call m%elements(i)%e%free()
           deallocate(m%elements(i)%e)
        end do
        deallocate(m%elements)
