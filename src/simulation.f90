@@ -13,18 +13,15 @@ contains
   subroutine neko_solve(C)
     type(case_t), intent(inout) :: C
     real(kind=dp) :: t
-    integer :: i, tstep
-    type(file_t) :: fileout
+    integer :: tstep
 
     t = 0d0
-    fileout = file_t("oufluid.fld")
-    do i = 1, C%params%nsteps
-       tstep = i
+    tstep = 0
+    do while (t .lt. C%params%T_end)
+       tstep = tstep + 1
        call simulation_settime(t, C%params%dt, C%ab_bdf, C%tlag, C%dtlag, tstep)
        call C%fluid%step(t, tstep, C%ab_bdf)
-       if (pe_rank .eq. 0) write(*,*) 'Save'
-       call fileout%write(C%fluid)
-       !> @todo Add call to sampler
+       call C%s%sample(t)
     end do
     
   end subroutine neko_solve

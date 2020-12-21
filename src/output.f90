@@ -1,6 +1,6 @@
 !> Defines an output
 module output
-  use file
+  use file, only : file_t
   implicit none
 
   !> Abstract type defining an output type
