@@ -1,6 +1,7 @@
 
 !> Project x onto X, the space of old solutions and back again
-!! @Note In this code we assume that the matrix project for the pressure Ax does not vary in time.
+!! @Note In this code we assume that the matrix project for the
+!! pressure Ax does not vary in time.
 
 module projection
   use num_types
@@ -66,7 +67,7 @@ contains
 
   end subroutine projection_free
 
-  subroutine project1(this,b,Ax,coef, bclst, gs_h, n)
+  subroutine project1(this, b, Ax, coef, bclst, gs_h, n)
     class(projection_t) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax    
