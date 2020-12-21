@@ -6,6 +6,7 @@ module fluid_plan4
   use facet_normal
   use ax_helm
   use abbdf
+  use projection
   implicit none
 
   type, extends(fluid_scheme_t) :: fluid_plan4_t
@@ -40,6 +41,8 @@ module fluid_plan4
      type(field_t) :: work2
 
      type(ax_helm_t) :: Ax
+     
+     type(projection_t) :: proj
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
@@ -124,6 +127,9 @@ contains
     call bc_list_init(this%bclst_vel_residual)
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
 
+    !Intialize projection space thingy
+    call this%proj%init(this%dm_Xh%n_dofs)
+
     
   end subroutine fluid_plan4_init
 
@@ -135,6 +141,7 @@ contains
 
     call this%bc_prs_surface%free()  
     call bc_list_free(this%bclst_vel_residual)
+    call projection_free(this%proj)
    
     call field_free(this%u_e)
     call field_free(this%v_e)
@@ -213,7 +220,7 @@ contains
     integer tt
     integer :: n, iter, i, niter
     n = this%dm_Xh%n_dofs
-    niter = 1000
+    niter = 10000
 
     call fluid_plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,ab_bdf%ab,ab_bdf%nab)
     call fluid_plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,ab_bdf%ab,ab_bdf%nab)
@@ -268,6 +275,8 @@ contains
     !call ctolspl  (tolspl,respr)
     call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
     call bc_list_apply_scalar(this%bclst_prs, this%p_res, this%p%dof%n_dofs)
+    call this%proj%project_on(this%p_res, this%Ax, this%c_Xh, &
+                              this%bclst_prs, this%gs_Xh, n)
     select type(pcp => this%pc_prs)
     type is(jacobi_t)
        call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
@@ -275,6 +284,8 @@ contains
     if (pe_rank .eq. 0) write(*,*) "PRES"
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
          this%c_Xh, this%bclst_prs, this%gs_Xh, niter)    
+    call this%proj%project_back(this%dp%x, this%Ax, this%c_Xh, &
+                              this%bclst_prs, this%gs_Xh, n)
     call add2(this%p%x,this%dp%x,n)
 !    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     

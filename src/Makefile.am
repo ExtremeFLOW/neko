@@ -69,6 +69,7 @@ libneko_a_SOURCES = \
 	fluid_schemes.f90\
 	simulation.f90\
 	ax_helm.f90\
+	projection.f90\
 	neko.f90
 
 bin_PROGRAMS = neko
