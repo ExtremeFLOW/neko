@@ -183,16 +183,18 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer(kind=MPI_ADDRESS_KIND) :: disp(7), base    
-    integer :: type(7), len(7), ierr
+    integer(kind=MPI_ADDRESS_KIND) :: disp(8), base    
+    integer :: type(8), len(8), ierr
 
-    call MPI_Get_address(param_data%dt, disp(1), ierr)
-    call MPI_Get_address(param_data%nsteps, disp(2), ierr)
-    call MPI_Get_address(param_data%rho, disp(3), ierr)
-    call MPI_Get_address(param_data%mu, disp(4), ierr)
-    call MPI_Get_address(param_data%Re, disp(5), ierr)
-    call MPI_Get_address(param_data%uinf, disp(6), ierr)
-    call MPI_Get_address(param_data%output_bdry, disp(7), ierr)
+    call MPI_Get_address(param_data%nsamples, disp(1), ierr)
+    call MPI_Get_address(param_data%output_bdry, disp(2), ierr)
+    call MPI_Get_address(param_data%dt, disp(3), ierr)
+    call MPI_Get_address(param_data%T_end, disp(4), ierr)
+    call MPI_Get_address(param_data%rho, disp(5), ierr)
+    call MPI_Get_address(param_data%mu, disp(6), ierr)
+    call MPI_Get_address(param_data%Re, disp(7), ierr)
+    call MPI_Get_address(param_data%uinf, disp(8), ierr)
+
 
     base = disp(1)
     disp(1) = disp(1) - base
@@ -202,20 +204,21 @@ contains
     disp(5) = disp(5) - base
     disp(6) = disp(6) - base
     disp(7) = disp(7) - base
+    disp(8) = disp(8) - base
 
-    len(1:5) = 1
-    len(6) = 3
-    len(7) = 1
+    len(1:7) = 1
+    len(8) = 3
     
-    type(1) = MPI_DOUBLE_PRECISION
-    type(2) = MPI_INTEGER
+    type(1) = MPI_INTEGER
+    type(2) = MPI_LOGICAL
     type(3) = MPI_DOUBLE_PRECISION
     type(4) = MPI_DOUBLE_PRECISION
     type(5) = MPI_DOUBLE_PRECISION
     type(6) = MPI_DOUBLE_PRECISION
-    type(7) = MPI_LOGICAL
+    type(7) = MPI_DOUBLE_PRECISION
+    type(8) = MPI_DOUBLE_PRECISION
     
-    call MPI_Type_create_struct(7, len, disp, type, MPI_NEKO_PARAMS, ierr)
+    call MPI_Type_create_struct(8, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
 
   end subroutine mpi_type_neko_params_init

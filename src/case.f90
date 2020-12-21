@@ -2,8 +2,11 @@
 module case
   use num_types
   use fluid_schemes
+  use fluid_output
   use parameters
   use mpi_types
+  use sampler
+
   use file
   use utils
   use mesh
@@ -17,6 +20,8 @@ module case
      type(abbdf_t) :: ab_bdf
      real(kind=dp), dimension(10) :: tlag
      real(kind=dp), dimension(10) :: dtlag
+     type(sampler_t) :: s
+     type(fluid_output_t) :: f_out
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
 
@@ -133,6 +138,14 @@ contains
        call bdry_file%write(C%fluid%bdry)
     end if
 
+
+    !
+    ! Setup sampler
+    !
+    call C%s%init(C%params%nsamples, C%params%T_end)
+    C%f_out = fluid_output_t(C%fluid)
+    call C%s%add(C%f_out)
+    
   end subroutine case_init
 
   !> Deallocate a case 
@@ -145,6 +158,8 @@ contains
     end if
 
     call mesh_free(C%msh)
+
+    call C%s%free()
     
   end subroutine case_free
   

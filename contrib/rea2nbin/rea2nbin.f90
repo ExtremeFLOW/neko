@@ -2,7 +2,7 @@ program rea2nbin
   use neko
   implicit none
 
-  character(len=NEKO_FNAME_LEN) :: fname, output
+  character(len=NEKO_FNAME_LEN) :: fname, output_
   type(mesh_t) :: msh
   type(file_t) :: rea_file, nmsh_file
   integer :: argc
@@ -20,14 +20,14 @@ program rea2nbin
   call get_command_argument(1, fname) 
 
   if (argc .eq. 2) then
-     call get_command_argument(2, output)
-     call filename_suffix(output, suffix)
+     call get_command_argument(2, output_)
+     call filename_suffix(output_, suffix)
 
      if (suffix .ne. "nmsh") then
         call neko_error("Invalid output format")
      end if
   else
-     call filename_chsuffix(fname, output, 'nmsh')
+     call filename_chsuffix(fname, output_, 'nmsh')
   end if
      
   
@@ -35,7 +35,7 @@ program rea2nbin
   
   call rea_file%read(msh)
   
-  nmsh_file = file_t(output)
+  nmsh_file = file_t(output_)
   
   call nmsh_file%write(msh)
   
