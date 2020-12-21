@@ -26,7 +26,7 @@ contains
     if (present(name)) then
        fname = trim(name) // '.fld'
     else       
-       fname = 'fluid.fld'
+       fname = 'field.fld'
     end if
     
     call output_init(this, fname)    
