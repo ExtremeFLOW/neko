@@ -1,6 +1,6 @@
 
 !> Project x onto X, the space of old solutions and back again
-
+!! @Note In this code we assume that the matrix project for the pressure Ax does not vary in time.
 
 module projection
   use num_types
@@ -15,8 +15,8 @@ module projection
      real(kind=dp), allocatable :: xx(:,:)
      real(kind=dp), allocatable :: bb(:,:)
      real(kind=dp), allocatable :: xbar(:), bbar(:)
-     real(kind=dp), allocatable :: h1old(:), h2old(:)
      integer :: m, L
+     real(kind=dp) :: tol = 1d-7
    contains
      procedure, pass(this) :: project_on => project1
      procedure, pass(this) :: project_back => project2
@@ -79,12 +79,6 @@ contains
     associate(xbar => this%xbar, xx => this%xx, &
               bbar => this%bbar, bb => this%bb)
     
-    !Check if h1, h2 has changed, if so reorthogonalize
-    !For pressure we never change this atm, realised it a bit late so commented it now.
-!    newh1h2 = check_h1h2(this, coef) 
-!    if (newh1h2) call reorthogonalize(this,this%xx,this%bb, Ax, coef, bclst, gs_h, n)
-    
-    !call project1_a(this%bb, this%xx, b, this%X, this%B, n, this%m, coef%mult)
       if (this%m.le.0) return
 
       !First round of CGS
@@ -92,7 +86,6 @@ contains
          alpha(k) = vlsc3(xx(1,k),coef%mult,b,n)
       enddo
       !First one outside loop to avoid zeroing xbar and bbar
-      !call gop(alpha,work,'+  ',this%m)
       !Could prorbably be done inplace...
       call MPI_Allreduce(alpha, work, this%m, &
            MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -144,7 +137,7 @@ contains
     integer, intent(inout) :: n
     real(kind=dp), dimension(n,this%L), intent(inout) :: xx, bb
     real(kind=dp), dimension(n), intent(inout) :: w
-    real(kind=dp) :: tol, nrm, scl1, scl2, c, s
+    real(kind=dp) :: nrm, scl1, scl2, c, s
     real(kind=dp) :: work(this%L), alpha(this%L), beta(this%L)
     integer :: i, j, k, h, ierr
     associate(m => this%m)
@@ -157,7 +150,6 @@ contains
        alpha(k) = 0.5*(vlsc3(xx(1,k),w,bb(1,m),n) &
                 + vlsc3(bb(1,k),w,xx(1,m),n))
     enddo
-    !call gop(alpha,work,'+  ',m)
     call MPI_Allreduce(alpha, work, this%m, &
          MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     call copy(alpha, work, this%m) 
@@ -171,7 +163,6 @@ contains
        beta(k) = 0.5*(vlsc3(xx(1,k),w,bb(1,m),n) &
                + vlsc3(bb(1,k),w,xx(1,m),n))
     enddo
-    !call gop(beta,work,'+  ',m-1)
     call MPI_Allreduce(beta, work, this%m-1, &
          MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     call copy(beta, work, this%m) 
@@ -188,9 +179,8 @@ contains
     alpha(m) = sqrt(alpha(m))
     !dx and db now stored in last column of xx and bb
 
-    tol = 1.e-7
 
-    if(alpha(m).gt.tol*nrm) then !New vector is linearly independent    
+    if(alpha(m).gt.this%tol*nrm) then !New vector is linearly independent    
        !Normalize dx and db
        scl1 = 1.0/alpha(m) 
        call cmult(xx(1,m), scl1, n)   
@@ -216,7 +206,7 @@ contains
 
     else !New vector is not linearly independent, forget about it
        k = m !location of rank deficient column
-       print *, "New vector not linearly independent!" 
+       if( pe_rank .eq. 0) write(*,*) "New vector not linearly independent!" 
        m = m - 1 !Remove column
     endif   
     end associate
@@ -239,67 +229,5 @@ contains
       
     return
   end subroutine givens_rotation
-  
-!  subroutine reorthogonalize(this,xx,bb, Ax, coef, bclst, gs_h, n)
-!    class(projection_t) :: this
-!    integer, intent(inout) :: n
-!    class(Ax_t), intent(inout) :: Ax    
-!    class(coef_t), intent(inout) :: coef   
-!    class(bc_list_t), intent(inout) :: bclst
-!    type(gs_t), intent(inout) :: gs_h
-!    real(kind=dp), dimension(n,this%L) :: xx, bb
-!    integer :: i, j, k, flag(this%mxprev)
-!    real(kind=dp) :: normk, tol, normp
-!
-!    do k = 1, this%m
-!       call Ax%compute(bb(1,l), xx(1,l), coef, coef%msh, coef%Xh)
-!       call gs_op(gs_h, bb(1,l), GS_OP_ADD)
-!       call bc_list_apply_scalar(bclst, bb(1,l), n)
-!    end do
-!    if (this%m.le.0) return
-!    tol = 1.e-7
-!    
-!    do i = 1, 2 !Do this twice for CGS2
-!       do k = this%m, 1, -1
-!          do j = this%m, k, -1
-!             alpha(j) = 0.0
-!             alpha(j) = .5*(vlsc3(xx(1,j),w,bb(1,k),n) &
-!                      + vlsc3(bb(1,j),w,xx(1,k),n))
-!          enddo
-!          call gop(alpha(k), work,'+  ',(m - k) + 1)
-!          do j = m, k+1, -1
-!             call add2s2(xx(1,k),xx(1,j),-alpha(j),n)
-!             call add2s2(bb(1,k),bb(1,j),-alpha(j),n)
-!          enddo
-!          normp = sqrt(alpha(k))
-!          normk = glsc3(xx(1,k),w,bb(1,k),n)
-!          normk = sqrt(normk)
-!          if(normk.gt.tol*normp) then
-!             scl1 = 1.0/normk
-!             call cmult(xx(1,k), scl1, n)
-!             call cmult(bb(1,k), scl1, n)
-!             flag(k) = 1
-!          else
-!             flag(k) = 0
-!          endif
-!       enddo
-!    enddo
-!
-!    k=0
-!    do j=1,this%m
-!       if (flag(j).eq.1) then
-!          k=k+1
-!          if (k.lt.j) then
-!             call copy(xx(1,k),xx(1,j),n)
-!             call copy(bb(1,k),bb(1,j),n)
-!          endif
-!       endif
-!    enddo
-!    m = k
-!
-!    
-!
-!  end subroutine reorthogonalize
-
 
 end module projection
