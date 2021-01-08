@@ -9,7 +9,7 @@ contains
   !> Compute matrix-matrix product \f$ C = A \cdot B \f$
   !! for contiguously packed matrices A,B, and C.
   subroutine mxm(a,n1,b,n2,c,n3)
-    integer, intent(inout) :: n1, n2, n3
+    integer, intent(in) :: n1, n2, n3
     real(kind=dp), intent(inout) :: a(n1, n2)
     real(kind=dp), intent(inout) :: b(n2, n3)
     real(kind=dp), intent(inout) :: c(n1, n3)
