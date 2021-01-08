@@ -280,10 +280,12 @@ contains
     select type(pcp => this%pc_prs)
     type is(jacobi_t)
        call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
+    type is(hsmg_t)
+       call hsmg_set_h(pcp)
     end select
     if (pe_rank .eq. 0) write(*,*) "PRES"
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
-         this%c_Xh, this%bclst_prs, this%gs_Xh, niter)    
+         this%c_Xh, this%bclst_prs, this%gs_Xh, 400)    
     call this%proj%project_back(this%dp%x, this%Ax, this%c_Xh, &
                               this%bclst_prs, this%gs_Xh, n)
     call add2(this%p%x,this%dp%x,n)
