@@ -41,7 +41,7 @@ contains
     if (present(lgmres)) then
        this%lgmres = lgmres
     else
-       this%lgmres = 50
+       this%lgmres = 30
     end if
     
 
