@@ -70,9 +70,13 @@ libneko_a_SOURCES = \
 	simulation.f90\
 	ax_helm.f90\
 	projection.f90\
+	pc_hsmg.f90\
+	fdm.f90\
+	schwarz.f90\
 	neko.f90
 
 bin_PROGRAMS = neko
+neko_LDADD = $(BLAS_LIBS) $(LAPACK_LIBS)
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
 pkginclude_HEADERS =  $(wildcard *.mod)
