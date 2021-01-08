@@ -55,6 +55,13 @@ AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 # Checks for pFUnit
 AX_PFUNIT
 
+#check for blas and lapack
+AX_BLAS
+AX_LAPACK
+
+#LDFLAGS="$BLAS_LIBS $LDFLAGS"
+#LDFLAGS="$LAPACK_LIBS $LDFLAGS"
+
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
