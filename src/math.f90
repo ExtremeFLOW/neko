@@ -20,7 +20,17 @@ contains
     abscmp = abs(x - y) .lt. NEKO_EPS
 
   end function abscmp
-
+  !> store transpose of b into a.
+  subroutine transpose(a,lda,b,ldb)
+    integer, intent(in) :: lda, ldb
+    real(kind=dp), intent(inout) ::  a(lda,ldb),b(ldb,lda)
+    integer :: i, j
+    do j=1,ldb
+       do i=1,lda
+          a(i,j) = b(j,i)
+       enddo
+    enddo
+  end
   !> Zero a real vector
   subroutine rzero(a, n)
     integer, intent(in) :: n
@@ -42,6 +52,16 @@ contains
        a(i) = 0d0
     end do
   end subroutine izero
+
+ !> Sets row e to 0 in matrix a
+  subroutine row_zero(a,m,n,e)
+    integer, intent(in) :: m,n,e
+    real(kind=dp), intent(inout) :: a(m,n)
+    integer :: j
+    do j=1,n
+       a(e,j)=0.
+    enddo
+  end subroutine row_zero
 
   !> Set all elements to one
   subroutine rone(a, n)
@@ -117,7 +137,15 @@ contains
     end do
     
   end subroutine chsign
-
+  
+  function vlmax(vec,n) result(tmax)
+      integer :: n, i
+      real(kind=dp) :: vec(n), tmax
+      tmax =-99d20
+      do i=1,n
+         tmax = max(tmax,vec(i))
+      enddo
+  end function vlmax
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
     integer, intent(in) :: n
