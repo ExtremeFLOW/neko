@@ -60,6 +60,7 @@ module mesh
      type(zone_t) :: wall                 !< Zone of wall facets
      type(zone_t) :: inlet                !< Zone of inlet facets
      type(zone_t) :: outlet               !< Zone of outlet facets
+     type(zone_t) :: sympln               !< Zone of symmetry plane facets
 
 
      logical :: lconn = .false.                !< valid connectivity
@@ -203,6 +204,7 @@ contains
     call zone_init(m%wall, m%nelv)
     call zone_init(m%inlet, m%nelv)
     call zone_init(m%outlet, m%nelv)
+    call zone_init(m%sympln, m%nelv)
    
     call distdata_init(m%distdata)
     
@@ -261,6 +263,7 @@ contains
     call zone_free(m%wall)
     call zone_free(m%inlet)
     call zone_free(m%outlet)
+    call zone_free(m%sympln)
     
   end subroutine mesh_free
 
@@ -272,6 +275,7 @@ contains
     call zone_finalize(m%wall)
     call zone_finalize(m%inlet)
     call zone_finalize(m%outlet)
+    call zone_finalize(m%sympln)
 
   end subroutine mesh_finalize
 
@@ -1204,6 +1208,25 @@ contains
     call zone_add_facet(m%outlet, f, e)
     
   end subroutine mesh_mark_outlet_facet
+
+  !> Mark facet @a f in element @a e as a symmetry plane
+  subroutine mesh_mark_sympln_facet(m, f, e)
+  type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+
+    call zone_add_facet(m%sympln, f, e)
+    
+  end subroutine mesh_mark_sympln_facet
 
   !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)
