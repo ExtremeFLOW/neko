@@ -6,6 +6,7 @@ module symmetry
   use math
   use utils
   use stack
+  use htable
   implicit none
   private
 
@@ -28,52 +29,88 @@ contains
     class(symmetry_t), intent(inout) :: this
     type(coef_t), intent(in) :: c
     type(stack_i4_t) :: xmsk, ymsk, zmsk
-    integer :: i, m, k, idx(4), facet
+    type(htable_i4_t) :: algnf 
+    integer :: i, m, j, k, idx(4), facet, ntype
+    real(kind=dp) :: sx,sy,sz
+    real(kind=dp), parameter :: TOL = 1d-3
     
     call symmetry_free(this)
+
 
     call xmsk%init()
     call ymsk%init()
     call zmsk%init()
+    call algnf%init(this%msk(0))
     
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
       m = this%msk(0)
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
-         idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
-         select case(facet)
-         case(1,2)          
-            if (abs(nx(idx(2), idx(3), facet, idx(4)) - 1d0) .lt. 1d-12) then
+
+         if (algnf%get(facet, ntype) .eq. 0) then         
+            idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
+            sx = 0d0
+            sy = 0d0
+            sz = 0d0
+            select case (facet)               
+            case(1,2)
+               do k = 1, c%Xh%lx
+                  do j = 1, c%Xh%lx
+                     sx = sx + abs(abs(nx(idx(2), idx(3), facet, idx(4))) - 1d0)
+                     sy = sy + abs(abs(ny(idx(2), idx(3), facet, idx(4))) - 1d0)
+                     sz = sz + abs(abs(nz(idx(2), idx(3), facet, idx(4))) - 1d0)
+                  end do
+               end do
+            case(3,4)
+               do k = 1, c%Xh%lx
+                  do j = 1, c%Xh%lx
+                     sx = sx + abs(abs(nx(idx(1), idx(3), facet, idx(4))) - 1d0)
+                     sy = sy + abs(abs(ny(idx(1), idx(3), facet, idx(4))) - 1d0)
+                     sz = sz + abs(abs(nz(idx(1), idx(3), facet, idx(4))) - 1d0)
+                  end do
+               end do
+            case(5,6)
+               do k = 1, c%Xh%lx
+                  do j = 1, c%Xh%lx
+                     sx = sx + abs(abs(nx(idx(1), idx(2), facet, idx(4))) - 1d0)
+                     sy = sy + abs(abs(ny(idx(1), idx(2), facet, idx(4))) - 1d0)
+                     sz = sz + abs(abs(nz(idx(1), idx(2), facet, idx(4))) - 1d0)
+                  end do
+               end do               
+            end select
+            sx = sx / c%Xh%lx
+            sy = sy / c%Xh%lx
+            sz = sz / c%Xh%lx
+
+            ntype = 0
+            if (sx .lt. TOL) then
+               ntype = iand(ntype, 1)
                call xmsk%push(k)
             end if
-            if (abs(ny(idx(2), idx(3), facet, idx(4)) - 1d0) .lt. 1d-12) then
+
+            if (sy .lt. TOL) then
+               ntype = iand(ntype, 2)
                call ymsk%push(k)
             end if
-            if (abs(nz(idx(2), idx(3), facet, idx(4)) - 1d0) .lt. 1d-12) then
-               call zmsk%push(k)               
+
+            if (sz .lt. TOL) then
+               ntype = iand(ntype, 4)
+               call zmsk%push(k)
             end if
-         case(3,4)
-            if (abs(nx(idx(1), idx(3), facet, idx(4)) - 1d0) .lt. 1d-12) then
+
+            call algnf%set(facet, ntype)
+         else
+            if (iand(ntype, 1)) then
                call xmsk%push(k)
             end if
-            if (abs(ny(idx(1), idx(3), facet, idx(4)) - 1d0) .lt. 1d-12) then
+            if (iand(ntype, 2)) then
                call ymsk%push(k)
             end if
-            if (abs(nz(idx(1), idx(3), facet, idx(4)) - 1d0) .lt. 1d-12) then
-               call zmsk%push(k)               
+            if (iand(ntype, 4)) then
+               call zmsk%push(k)
             end if
-         case(5,6)
-            if (abs(nx(idx(1), idx(2), facet, idx(4)) - 1d0) .lt. 1d-12) then
-               call xmsk%push(k)
-            end if
-            if (abs(ny(idx(1), idx(2), facet, idx(4)) - 1d0) .lt. 1d-12) then
-               call ymsk%push(k)
-            end if
-            if (abs(nz(idx(1), idx(2), facet, idx(4)) - 1d0) .lt. 1d-12) then
-               call zmsk%push(k)               
-            end if
-         end select
+         end if
       end do
     end associate
 
@@ -107,6 +144,7 @@ contains
     call xmsk%free()
     call ymsk%free()
     call zmsk%free()
+    call algnf%free()
     
   end subroutine symmetry_init_msk
   
