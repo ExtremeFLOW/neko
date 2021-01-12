@@ -1,3 +1,4 @@
+!> Overlapping schwarz solves
 module schwarz
   use num_types
   use speclib
@@ -14,13 +15,10 @@ module schwarz
     real(kind=dp), allocatable :: work1(:)
     real(kind=dp), allocatable :: work2(:)
     real(kind=dp), allocatable :: wt(:,:,:,:,:)
-
-    type(space_t) :: Xh_schwarz
-    type(gs_t) :: gs_schwarz
-    type(dofmap_t) :: dm_schwarz
-
+    type(space_t) :: Xh_schwarz !< needed to init gs
+    type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
+    type(dofmap_t) :: dm_schwarz !< needed to init gs
     type(fdm_t) :: fdm
-   
     type(space_t), pointer :: Xh
     type(bc_list_t), pointer :: bclst
     type(dofmap_t), pointer :: dm
@@ -39,11 +37,8 @@ contains
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
     type(bc_list_t), target, intent(inout):: bclst
-    !This is not eneiterly correct, but since we only appear to need ah, bh lets go
     integer :: nl, n
-    
     call this%free()
-    
     
     call space_init(this%Xh_schwarz, GLL, Xh%lx+2, Xh%lx+2, Xh%lx+2)
     this%dm_schwarz = dofmap_t(msh, this%Xh_schwarz) 
@@ -76,6 +71,7 @@ contains
     
     call space_free(this%Xh_schwarz)
     call gs_free(this%gs_schwarz)
+    !why cant I do this?
     !call dofmap_free(this%dm_schwarz)
     call this%fdm%free()
 
@@ -85,7 +81,7 @@ contains
     nullify(this%gs_h)
     nullify(this%msh)
   end subroutine schwarz_free
-  
+  !> setup weights 
   subroutine schwarz_setup_wt(this)
     class(schwarz_t), intent(inout) :: this
     integer :: enx,eny,enz, n, ie, k, ns
@@ -101,6 +97,7 @@ contains
     call rone(this%work2,ns)
  
 !   Sum overlap region (border excluded)
+!   Cred to PFF for this, very clever
     call schwarz_extrude(work1,0,0d0,work2,0,1d0 ,enx,eny,enz, this%msh%nelv)
     call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
     call schwarz_extrude(work2,0,1d0 ,work1,0,-1d0,enx,eny,enz, this%msh%nelv)
@@ -123,11 +120,11 @@ contains
     end associate
   end subroutine schwarz_setup_wt
 
+  !>Setup schwarz weights, 2d, second step
   subroutine schwarz_setup_schwarz_wt2d_2(wt,ie,n,work, nelv)
     integer, intent(in) :: n, nelv
     real(kind=dp), intent(inout) :: wt(n,4,2,nelv)
     real(kind=dp), intent(inout) :: work(n,n)
-    
     integer :: ie,i,j
     do j=1,n
        wt(j,1,1,ie)=1.0/work(1,j)
@@ -145,6 +142,7 @@ contains
     return
   end subroutine schwarz_setup_schwarz_wt2d_2
 
+  !>Setup schwarz weights, 3d, second step
   subroutine schwarz_setup_schwarz_wt3d_2(wt,ie,n,work, nelv)
       integer, intent(in) ::n, nelv, ie
       real(kind=dp), intent(inout) :: wt(n,n,4,3,nelv)
@@ -179,6 +177,7 @@ contains
       enddo
   end subroutine schwarz_setup_schwarz_wt3d_2
 
+  !> convert array a from extended size to regular
   subroutine schwarz_toreg3d(b,a,n, nelv)
     integer, intent(in) :: n, nelv
     real (kind=dp), intent(inout) :: a(0:n+1,0:n+1,0:n+1,nelv),b(n,n,n,nelv)
@@ -194,6 +193,8 @@ contains
     enddo
     return
   end subroutine schwarz_toreg3d
+
+  !> convert array a from original size to size extended array with border
   subroutine schwarz_toext3d(a,b,n, nelv)
     integer, intent(in) :: n, nelv
     real (kind=dp), intent(inout) :: a(0:n+1,0:n+1,0:n+1,nelv),b(n,n,n,nelv)
@@ -211,6 +212,9 @@ contains
     enddo
   end subroutine schwarz_toext3d
 
+  !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1. 
+  !! Helps us avoid complicated communcation to get neighbor values.
+  !! Simply copy interesting values to the boundary and then do gs_op on extended array.
   subroutine schwarz_extrude(arr1,l1,f1,arr2,l2,f2,nx,ny,nz, nelv)
     integer, intent(in) :: l1,l2,nx,ny,nz, nelv
     real(kind=dp), intent(inout) :: arr1(nx,ny,nz,nelv),arr2(nx,ny,nz,nelv)
@@ -292,8 +296,8 @@ contains
    call schwarz_extrude(work1,0,1d0 ,work1,2,-1d0,enx,eny,enz, this%msh%nelv)
    
    call this%fdm%compute(work2, work1) ! do local solves
-   !call copy(work2, work1, ns)
-!   Sum overlap region (border excluded)
+
+   !   Sum overlap region (border excluded)
     call schwarz_extrude(work1,0,0d0,work2,0,1d0 ,enx,eny,enz, this%msh%nelv)
     call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
     call schwarz_extrude(work2,0,1d0 ,work1,0,-1d0,enx,eny,enz, this%msh%nelv)
@@ -316,6 +320,7 @@ contains
   end associate
   end subroutine schwarz_compute
 
+  !Apply schwarz weights along the boundary of each element.
   subroutine schwarz_wt3d(e,wt,n, nelv)
     integer, intent(in) :: n, nelv
     real(kind=dp), intent(inout) :: e(n,n,n,nelv)

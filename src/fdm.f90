@@ -1,3 +1,4 @@
+!> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
 module fdm
   use num_types
   use speclib
@@ -9,6 +10,7 @@ module fdm
   use gather_scatter
   use fast3d
   use mxm_wrapper
+  use tensor
   implicit none  
   type, public :: fdm_t
     real(kind=dp), allocatable :: s(:,:,:,:)
@@ -17,7 +19,6 @@ module fdm
     real(kind=dp), allocatable :: len_mr(:),len_ms(:),len_mt(:)
     real(kind=dp), allocatable :: len_rr(:),len_rs(:),len_rt(:)
     real(kind=dp), allocatable :: swplen(:,:,:,:)
-
     type(space_t), pointer :: Xh
     type(bc_list_t), pointer :: bclst
     type(dofmap_t), pointer :: dof
@@ -35,11 +36,11 @@ contains
     type(dofmap_t), target, intent(inout) :: dm
     type(gs_t), target, intent(inout) :: gs_h
     type(bc_list_t), target, intent(inout):: bclst
-    !This is not eneiterly correct, but since we only appear to need ah, bh lets go
+    !We only really use ah, bh
     real(kind=dp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, wh
     integer :: nl, n, nelv
     n = Xh%lx -1 !Polynomnial degree
-    nl = Xh%lx + 2 !Why? just to be safe?
+    nl = Xh%lx + 2 !Schwarz!
     nelv = dm%msh%nelv
     call fdm_free(this) 
     allocate(this%s(nl*nl,2,dm%msh%gdim, dm%msh%nelv))
@@ -124,10 +125,9 @@ contains
     end associate
   end subroutine swap_lengths
 
+!>    Here, spacing is based on harmonic mean.  pff 2/10/07
+!!    We no longer base this on the finest grid, but rather the dofmap we are working with, Karp 210112
   subroutine plane_space(lr,ls,lt,i1,i2,w,x,y,z,nx,nxn,nz0,nzn, nelv, gdim)
-!
-!!    Here, spacing is based on harmonic mean.  pff 2/10/07
-!
     integer, intent(in) :: nxn, nzn, i1, i2, nelv, gdim, nx, nz0
     real(kind=dp), intent(inout) :: lr(nelv),ls(nelv),lt(nelv)
     real(kind=dp), intent(inout) :: w(nx)
@@ -136,15 +136,13 @@ contains
     real(kind=dp), intent(in) :: z(0:nxn,0:nxn,nz0:nzn,nelv)
     real(kind=dp) ::  lr2, ls2, lt2, weight, wsum
     integer :: ny, nz, j1, k1, j2, k2, i, j, k, ie
-!                                  __ __ __
-!   Now, for each element, compute lr,ls,lt between specified planes
-!
     ny = nx
     nz = nx
     j1 = i1
     k1 = i1
     j2 = i2
     k2 = i2
+!   Now, for each element, compute lr,ls,lt between specified planes
     do ie=1,nelv
        if (gdim .eq. 3) then
           lr2  = 0d0
@@ -217,6 +215,7 @@ contains
     ie = 1014
   end subroutine plane_space
 
+  !> Setup the arrays s, d needed for the fast evaluation of the system
   subroutine fdm_setup_fast(this, ah, bh, nl, n)
     integer, intent(in) :: nl, n
     type(fdm_t), intent(inout) :: this
@@ -232,9 +231,6 @@ contains
               lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
               lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
     do ie=1,this%dof%msh%nelv
-    !print *, ie, lmr(ie), lms(ie), lmt(ie)
-    !print *, ie, llr(ie), lls(ie), llt(ie)
-    !print *, ie, lrr(ie), lrs(ie), lrt(ie)
     call get_fast_bc(lbr,rbr,lbs,rbs,lbt,rbt,ie,this%bclst, this%dof%msh%gdim)
        nr=nl
        ns=nl
@@ -288,9 +284,7 @@ contains
     lx1 = n + 1
     lxm = lx1+2
      
-    !print *,'before, niput', sum(s), lbc, rbc, ll, lm, lr, sum(ah), n
     call fdm_setup_fast1d_a(s,lbc,rbc,ll,lm,lr,ah,n)
-    !print *,'after', sum(s)
     call fdm_setup_fast1d_b(b,lbc,rbc,ll,lm,lr,bh,n)
     call generalev(s,b,lam,nl,lx1,w)
     if(lbc.gt.0 .or. ll .eq. 0d0) call row_zero(s,nl,nl,1)
@@ -298,21 +292,13 @@ contains
     if(rbc.gt.0 .or. lr .eq. 0d0) call row_zero(s,nl,nl,nl)
     if(rbc.eq.1) call row_zero(s,nl,nl,nl-1)
     
-    call transpose(s(1,1,2),nl,s,nl)
+    call trsp(s(1,1,2),nl,s,nl)
   end subroutine fdm_setup_fast1d
 
-
+!>     Solve the generalized eigenvalue problem /$ A x = lam B x/$
+!!     A -- symm.
+!!     B -- symm., pos. definite
   subroutine generalev(a,b,lam,n,lx,w)
-!
-!     Solve the generalized eigenvalue problem  A x = lam B x
-!
-!     A -- symm.
-!     B -- symm., pos. definite
-!
-!     "SIZE" is included here only to deduce WDSIZE, the working
-!     precision, in bytes, so as to know whether dsygv or ssygv
-!     should be called.
-!
       integer, intent(in) :: n, lx
       real(kind=dp), intent(inout) :: a(n,n),b(n,n),lam(n),w(n,n)
       !Work array, in nek this one is huge, but I dont think that is necessary
@@ -325,7 +311,6 @@ contains
       call dsygv(1,'V','U',n,a,n,b,n,lam,bw,lbw,info)
 
   end subroutine generalev
-
 
   subroutine fdm_setup_fast1d_a(a,lbc,rbc,ll,lm,lr,ah,n)
     integer, intent(in) ::lbc,rbc,n
@@ -340,7 +325,6 @@ contains
     
     call rzero(a,(n+3)*(n+3))
     fac = 2d0/lm
-    !print *,'fac', fac
     a(1,1)=1d0
     a(n+1,n+1)=1d0
     do j=i0,i1
@@ -407,15 +391,19 @@ contains
     endif
   end subroutine fdm_setup_fast1d_b
 
+  !> Get what type of boundary conditions we have in a specific direction.
+  !! Can be grouped into three cases:
+  !! ibc = 0  <==>  Dirichlet
+  !! ibc = 1  <==>  Dirichlet, outflow (no extension)
+  !! ibc = 2  <==>  Neumann,   
+  !! @note this description does not really make sense, need to be revised
+
   subroutine get_fast_bc(lbr,rbr,lbs,rbs,lbt,rbt,e,bclst, gdim)
     integer, intent(inout) :: lbr,rbr,lbs,rbs,lbt,rbt
     integer, intent(in) :: e, gdim
     type(bc_list_t), intent(inout) :: bclst
     type(tuple_i4_t), pointer :: bfp(:)
     integer :: fbc(6), ibc, iface, i, j
-!   ibc = 0  <==>  Dirichlet
-!   ibc = 1  <==>  Dirichlet, outflow (no extension)
-!   ibc = 2  <==>  Neumann,   
     !This got to be one of the ugliest hacks I have done. 
     do iface=1,2*gdim
        fbc(iface) = 0
@@ -423,9 +411,7 @@ contains
           bfp => bclst%bc(i)%bcp%marked_facet%array()
           do j = 1, bclst%bc(i)%bcp%marked_facet%size()
              if( bfp(j)%x(1) .eq. iface .and. bfp(j)%x(2) .eq. e) then
-                 !We cannot have type selct here for some reason
                  fbc(iface) = 1
-                 print *,'dirichlet', bfp(j)%x
              end if
           end do
        end do
@@ -438,9 +424,9 @@ contains
     lbt = fbc(5)
     rbt = fbc(6)
   end subroutine get_fast_bc
+
   subroutine fdm_free(this)
     class(fdm_t), intent(inout) :: this
-
     if(allocated(this%s)) then
       deallocate(this%s)
     end if
@@ -455,6 +441,11 @@ contains
     if(allocated(this%len_rs)) deallocate(this%len_rs)
     if(allocated(this%len_rt)) deallocate(this%len_rt)
     if(allocated(this%swplen)) deallocate(this%swplen)
+    nullify(this%Xh)
+    nullify(this%bclst)
+    nullify(this%dof)
+    nullify(this%gs_h)
+    nullify(this%msh)
 
   end subroutine fdm_free
 
@@ -475,47 +466,20 @@ contains
     nn=nl**ldim
     if(.not. ldim .eq. 3) then
        do ie=1,nelv
-          call hsmg_tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie))
+          call tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie))
           do i=1,nn
              r(i,ie)=d(i,ie)*e(i,ie)
           enddo
-          call hsmg_tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie))
+          call tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie))
        enddo
     else
        do ie=1,nelv
-          call hsmg_tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie),s(1,1,3,ie))
+          call tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie),s(1,1,3,ie))
           do i=1,nn
              r(i,ie)=d(i,ie)*e(i,ie)
           enddo
-          call hsmg_tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie),s(1,2,3,ie))
+          call tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie),s(1,2,3,ie))
        enddo
     endif
   end subroutine fdm_do_fast
-!      computes
-!              T
-!     v = A u B
-  subroutine hsmg_tnsr2d_el(v,nv,u,nu,A,Bt)
-    integer, intent(in) :: nv,nu
-    real(kind=dp), intent(inout) :: v(nv*nv),u(nu*nu),A(nv,nu),Bt(nu,nv)
-    real(kind=dp) :: work(0:nu*nv*nu)
-
-    call mxm(A,nv,u,nu,work,nu)
-    call mxm(work,nv,Bt,nu,v,nv)
-  end subroutine hsmg_tnsr2d_el
-
-
-  subroutine hsmg_tnsr3d_el(v,nv,u,nu,A,Bt,Ct)
-    integer, intent(in) :: nv,nu
-    real(kind=dp), intent(inout) :: v(nv*nv*nv),u(nu*nu*nu),A(nv,nu),Bt(nu, nv),Ct(nu,nv)
-    real(kind=dp) :: work(0:(nu+nv)**3),work2(0:(nv*nv*nu))
-    integer :: i, nunu, nvnu, nvnv
-    nvnu = nv * nu
-    nunu = nu * nu 
-    nvnv = nv * nv
-    call mxm(A,nv,u(1),nu,work,nunu)
-    do i=0,nu-1
-       call mxm(work(nvnu*i),nv,Bt,nu,work2(nv*nv*i),nv)
-    enddo
-    call mxm(work2,nvnv,Ct,nu,v(1),nv)
-  end subroutine hsmg_tnsr3d_el
 end module fdm
