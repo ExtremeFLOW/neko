@@ -20,17 +20,7 @@ contains
     abscmp = abs(x - y) .lt. NEKO_EPS
 
   end function abscmp
-  !> store transpose of b into a.
-  subroutine transpose(a,lda,b,ldb)
-    integer, intent(in) :: lda, ldb
-    real(kind=dp), intent(inout) ::  a(lda,ldb),b(ldb,lda)
-    integer :: i, j
-    do j=1,ldb
-       do i=1,lda
-          a(i,j) = b(j,i)
-       enddo
-    enddo
-  end
+
   !> Zero a real vector
   subroutine rzero(a, n)
     integer, intent(in) :: n
