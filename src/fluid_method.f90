@@ -143,9 +143,9 @@ contains
     call this%bc_sym%init_msk(this%c_Xh)    
 
     call bc_list_init(this%bclst_vel, 3)
+    call bc_list_add(this%bclst_vel, this%bc_sym)
     call bc_list_add(this%bclst_vel, this%bc_inflow)
     call bc_list_add(this%bclst_vel, this%bc_wall)
-    call bc_list_add(this%bclst_vel, this%bc_sym)
     
     if (params%output_bdry) then
 
