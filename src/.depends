@@ -46,6 +46,9 @@ fld_file.o : fld_file.f90 mpi_types.o comm.o utils.o mesh.o fluid_method.o dofma
 vtk_file.o : vtk_file.f90 comm.o mesh_field.o dofmap.o field.o mesh.o utils.o generic_file.o num_types.o 
 nmsh_file.o : nmsh_file.f90 mpi_types.o datadist.o nmsh.o utils.o mesh.o comm.o generic_file.o 
 file.o : file.f90 vtk_file.o fld_file.o re2_file.o rea_file.o map_file.o nmsh_file.o generic_file.o utils.o 
+output.o : output.f90 file.o 
+fluid_output.o : fluid_output.f90 output.o fluid_method.o 
+sampler.o : sampler.f90 comm.o output.o num_types.o 
 bc.o : bc.f90 utils.o tuple.o stack.o zone.o mesh.o space.o dofmap.o num_types.o 
 dirichlet.o : dirichlet.f90 bc.o num_types.o 
 wall.o : wall.f90 dirichlet.o num_types.o 
@@ -57,17 +60,16 @@ pc_identity.o : pc_identity.f90 ax.o precon.o utils.o math.o
 source.o : source.f90 num_types.o dofmap.o 
 abbdf.o : abbdf.f90 math.o num_types.o 
 neko_config.o : neko_config.f90 
-case.o : case.f90 abbdf.o comm.o mesh.o utils.o file.o mpi_types.o parameters.o fluid_output.o fluid_schemes.o num_types.o 
+case.o : case.f90 abbdf.o comm.o mesh.o utils.o file.o sampler.o mpi_types.o parameters.o fluid_output.o fluid_schemes.o num_types.o 
 fluid_method.o : fluid_method.f90 pc_hsmg.o operators.o mathops.o abbdf.o math.o mesh.o gmres.o pc_jacobi.o bc.o cg.o dirichlet.o inflow.o wall.o coef.o krylov.o dofmap.o space.o field.o source.o num_types.o parameters.o gather_scatter.o 
 fluid_plan4.o : fluid_plan4.f90 projection.o abbdf.o ax_helm.o facet_normal.o fluid_method.o 
 fluid_plan1.o : fluid_plan1.f90 fluid_method.o 
 fluid_schemes.o : fluid_schemes.f90 fluid_plan4.o fluid_plan1.o fluid_method.o 
-fluid_output.o : fluid_output.f90 fluid_method.o 
 simulation.o : simulation.f90 abbdf.o case.o 
 ax_helm.o : ax_helm.f90 ax.o 
 projection.o : projection.f90 gather_scatter.o bc.o ax.o coef.o math.o num_types.o 
-pc_hsmg.o : pc_hsmg.f90 gmres.o ax_helm.o schwarz.o fdm.o dirichlet.o cg.o bc.o fast3d.o gather_scatter.o ax.o precon.o utils.o math.o 
-fdm.o : fdm.f90 mxm_wrapper.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o 
+pc_hsmg.o : pc_hsmg.f90 pc_jacobi.o tensor.o gmres.o ax_helm.o schwarz.o fdm.o dirichlet.o cg.o bc.o fast3d.o gather_scatter.o ax.o precon.o utils.o math.o 
+fdm.o : fdm.f90 tensor.o mxm_wrapper.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o 
 schwarz.o : schwarz.f90 fdm.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o 
-neko.o : neko.f90 projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o parameters.o num_types.o 
+neko.o : neko.f90 projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o utils.o comm.o parameters.o num_types.o 
 driver.o : driver.f90 neko.o 
