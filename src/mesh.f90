@@ -302,11 +302,9 @@ contains
   subroutine mesh_all_deformed(m)
     type(mesh_t), intent(inout) :: m
     integer :: e
-    do e = 1,m%nelv
-       m%dfrmd_el = .true.
-    end do
-
+    m%dfrmd_el = .true.
   end subroutine mesh_all_deformed
+  
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(m)
     type(mesh_t), intent(inout) :: m
