@@ -34,7 +34,7 @@ contains
     integer :: nmsh_quad_size, nmsh_hex_size
     class(element_t), pointer :: ep
     integer :: nelv, gdim, nread
-    integer :: wall, inlet, outlet, el_idx
+    integer :: wall, inlet, outlet, sympln, el_idx
     integer, allocatable :: nmsh_zones(:)
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
@@ -112,11 +112,15 @@ contains
     mpi_offset = mpi_el_offset + 2 * MPI_INTEGER_SIZE 
     call MPI_File_read_at_all(fh, mpi_offset, &
          outlet, 1, MPI_INTEGER, status, ierr)
+    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE 
+    call MPI_File_read_at_all(fh, mpi_offset, &
+         sympln, 1, MPI_INTEGER, status, ierr)
 
     if (pe_rank .eq. 0) then
        write(*,fmt='(/,1x,A)') 'Zones'
-       write(*,2) wall, inlet, outlet
-2      format(1x,'wall = ', i7, ', inlet =', i7,', outlet =', i7)
+       write(*,2) wall, inlet, outlet, sympln
+2      format(1x,'wall = ', i7, ', inlet =', i7,&
+            ', outlet =', i7,', sympln =', i7)
 
     end if
     
@@ -128,9 +132,9 @@ contains
     !!
     
 
-    allocate(nmsh_zones(2 * max(wall, inlet, outlet)))
+    allocate(nmsh_zones(2 * max(wall, inlet, outlet, sympln)))
 
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE 
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE 
     call MPI_File_read_at_all(fh, mpi_offset, &
          nmsh_zones, 2 * wall, MPI_INTEGER, status, ierr)
 
@@ -143,7 +147,7 @@ contains
        end if
     end do
 
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
          2 * wall * MPI_INTEGER_SIZE
     call MPI_File_read_at_all(fh, mpi_offset, &
          nmsh_zones, 2 * inlet, MPI_INTEGER, status, ierr)
@@ -157,7 +161,7 @@ contains
        end if
     end do
 
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
          2 * wall * MPI_INTEGER_SIZE +&
          2 * inlet * MPI_INTEGER_SIZE
     call MPI_File_read_at_all(fh, mpi_offset, &
@@ -169,6 +173,22 @@ contains
             el_idx .le. msh%offset_el + msh%nelv) then
           el_idx = el_idx - msh%offset_el
           call mesh_mark_outlet_facet(msh, nmsh_zones(i), el_idx)
+       end if
+    end do
+
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
+         2 * wall * MPI_INTEGER_SIZE +&
+         2 * inlet * MPI_INTEGER_SIZE +&
+         2 * outlet * MPI_INTEGER_SIZE
+    call MPI_File_read_at_all(fh, mpi_offset, &
+         nmsh_zones, 2 * sympln, MPI_INTEGER, status, ierr)
+
+    do i = 1, 2*sympln, 2
+       el_idx = nmsh_zones(i+1)
+       if (el_idx .gt. msh%offset_el .and. &
+            el_idx .le. msh%offset_el + msh%nelv) then
+          el_idx = el_idx - msh%offset_el
+          call mesh_mark_sympln_facet(msh, nmsh_zones(i), el_idx)
        end if
     end do
     
@@ -257,7 +277,8 @@ contains
        call neko_error('Invalid dimension of mesh')
     end if
     
-    allocate(nmsh_zones(2* max(msh%wall%size, msh%inlet%size, msh%outlet%size)))
+    allocate(nmsh_zones(2* max(msh%wall%size, msh%inlet%size, &
+         msh%outlet%size, msh%sympln%size)))
 
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
@@ -268,6 +289,10 @@ contains
     mpi_offset = mpi_el_offset + 2 * MPI_INTEGER_SIZE 
     call MPI_File_write_at_all(fh, mpi_offset, &
          msh%outlet%size, 1, MPI_INTEGER, status, ierr)
+    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE 
+    call MPI_File_write_at_all(fh, mpi_offset, &
+         msh%sympln%size, 1, MPI_INTEGER, status, ierr)
+    
     
     j = 1
     do i = 1, 2*msh%wall%size, 2
@@ -276,7 +301,7 @@ contains
        j = j + 1
     end do
 
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
          element_offset * (2 * MPI_INTEGER_SIZE)
     call MPI_File_write_at_all(fh, mpi_offset, &
          nmsh_zones, 2 * msh%wall%size, MPI_INTEGER, status, ierr)
@@ -288,7 +313,7 @@ contains
        j = j + 1
     end do
 
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
          2 * msh%wall%size * MPI_INTEGER_SIZE + &
          element_offset * (2 * MPI_INTEGER_SIZE)
     call MPI_File_write_at_all(fh, mpi_offset, &
@@ -301,12 +326,27 @@ contains
        j = j + 1
     end do
     
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE + &
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
          2 * msh%wall%size * MPI_INTEGER_SIZE +&
          2 * msh%inlet%size * MPI_INTEGER_SIZE +&
          element_offset * (2 * MPI_INTEGER_SIZE)
     call MPI_File_write_at_all(fh, mpi_offset, &
          nmsh_zones, 2 * msh%outlet%size, MPI_INTEGER, status, ierr)
+
+    j = 1
+    do i = 1, 2*msh%sympln%size, 2
+       nmsh_zones(i) = msh%sympln%facet_el(j)%x(1)
+       nmsh_zones(i+1) = msh%sympln%facet_el(j)%x(2)
+       j = j + 1
+    end do
+    
+    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
+         2 * msh%wall%size * MPI_INTEGER_SIZE +&
+         2 * msh%inlet%size * MPI_INTEGER_SIZE +&
+         2 * msh%outlet%size * MPI_INTEGER_SIZE +&
+         element_offset * (2 * MPI_INTEGER_SIZE)
+    call MPI_File_write_at_all(fh, mpi_offset, &
+         nmsh_zones, 2 * msh%sympln%size, MPI_INTEGER, status, ierr)
 
     deallocate(nmsh_zones)
     

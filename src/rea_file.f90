@@ -190,15 +190,17 @@ contains
              if (i .ge. start_el .and. i .le. end_el) then
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
-                   read(9,'(a1, a3)') chtemp, cbc(j, 1)                                
+                   read(9,'(a1, a3)') chtemp, cbc(j, 1)
                    sym_facet = facet_map(j)
                    select case(trim(cbc(j,1)))
-                   case ('W', 'SYM')
+                   case ('W')
                       call mesh_mark_wall_facet(msh, sym_facet, el_idx)
                    case ('v', 'V')
                       call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
                    case ('O', 'o')
                       call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+                   case ('SYM')
+                      call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
                    end select
                 end do
              end if
