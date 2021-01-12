@@ -76,7 +76,6 @@ libneko_a_SOURCES = \
 	neko.f90
 
 bin_PROGRAMS = neko
-neko_LDADD = $(BLAS_LIBS) $(LAPACK_LIBS)
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
 pkginclude_HEADERS =  $(wildcard *.mod)
