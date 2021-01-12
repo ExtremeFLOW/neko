@@ -74,7 +74,7 @@ contains
     else if (present(abs_tol)) then
        call this%ksp_init(abs_tol=abs_tol)
     else
-       call this%ksp_init()
+       call this%ksp_init(abs_tol=1d-8)
     end if
           
   end subroutine gmres_init
@@ -160,7 +160,6 @@ contains
     call rone(this%mu ,n)
     norm_fac = 1./sqrt(coef%volume)
     ! Should change when doing real problem
-    tolpss = 1d-8
     call rzero(x%x,n)
     call rzero(this%gam,this%lgmres+1)
     call rone(this%s,this%lgmres)
@@ -243,7 +242,7 @@ contains
           rnorm = abs(this%gam(j+1))*norm_fac
           ratio = rnorm / div0
           !Should maybe change so that we return that we havent converged if iter > niter
-          if (rnorm .lt. tolpss) then 
+          if (rnorm .lt. this%abs_tol) then 
              conv = .true.
              exit
           end if
