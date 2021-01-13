@@ -222,111 +222,118 @@ contains
     n = this%dm_Xh%n_dofs
     niter = 1000
 
-    call fluid_plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,ab_bdf%ab,ab_bdf%nab)
-    call fluid_plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,ab_bdf%ab,ab_bdf%nab)
-    if (this%dm_Xh%msh%gdim .eq. 3) then
-       call fluid_plan4_sumab(this%w_e%x,this%w%x,this%wlag,n,ab_bdf%ab,ab_bdf%nab)
-    end if
+    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+         du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
+         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
+         ta1 => this%ta1, ta2 => this%ta2, ta3 => this%ta3, ta4 => this%ta4, &
+         u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
+         p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
+         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         params => this%params, msh => this%msh)
 
-    call this%f_Xh%eval()
+      call fluid_plan4_sumab(u_e%x, u%x,this%ulag,n,ab_bdf%ab,ab_bdf%nab)
+      call fluid_plan4_sumab(v_e%x, v%x,this%vlag,n,ab_bdf%ab,ab_bdf%nab)
+      if (msh%gdim .eq. 3) then
+         call fluid_plan4_sumab(w_e%x, w%x,this%wlag,n,ab_bdf%ab,ab_bdf%nab)
+      end if
+
+      call f_Xh%eval()
     
-    call makeabf(this%ta1, this%ta2, this%ta3,&
-                 this%abx1, this%aby1, this%abz1,&
-                 this%abx2, this%aby2, this%abz2, &
-                 this%f_Xh%u, this%f_Xh%v, this%f_Xh%w,&
-                 this%params%rho, ab_bdf%ab, n, this%msh%gdim)
-    call makebdf(this%ta1, this%ta2, this%ta3,&
-                 this%wa1%x, this%wa2%x, this%wa3%x,&
-                 this%c_Xh%h2, this%ulag, this%vlag, this%wlag, &
-                 this%f_Xh%u, this%f_Xh%v, this%f_Xh%w,&
-                 this%u, this%v, this%w,&
-                 this%c_Xh%B, this%params%rho, this%params%dt, &
-                 ab_bdf%bd, ab_bdf%nbd, n, this%msh%gdim)
+      call makeabf(ta1, ta2, ta3,&
+                  this%abx1, this%aby1, this%abz1,&
+                  this%abx2, this%aby2, this%abz2, &
+                  f_Xh%u, f_Xh%v, f_Xh%w,&
+                  params%rho, ab_bdf%ab, n, msh%gdim)
+      call makebdf(ta1, ta2, ta3,&
+                   this%wa1%x, this%wa2%x, this%wa3%x,&
+                   c_Xh%h2, this%ulag, this%vlag, this%wlag, &
+                   f_Xh%u, f_Xh%v, f_Xh%w, u, v, w,&
+                   c_Xh%B, params%rho, params%dt, &
+                   ab_bdf%bd, ab_bdf%nbd, n, msh%gdim)
 
     
-    do i = 3-1,2,-1
-       call copy(this%ulag(1,1,1,1,i), this%ulag(1,1,1,1,i-1), n)
-       call copy(this%vlag(1,1,1,1,i), this%vlag(1,1,1,1,i-1), n)
-       call copy(this%wlag(1,1,1,1,i), this%wlag(1,1,1,1,i-1), n)
-    end do
+      do i = 3-1,2,-1
+         call copy(this%ulag(1,1,1,1,i), this%ulag(1,1,1,1,i-1), n)
+         call copy(this%vlag(1,1,1,1,i), this%vlag(1,1,1,1,i-1), n)
+         call copy(this%wlag(1,1,1,1,i), this%wlag(1,1,1,1,i-1), n)
+      end do
     
-    call copy(this%ulag, this%u%x, n)
-    call copy(this%vlag, this%v%x, n)
-    call copy(this%wlag, this%w%x, n)
+      call copy(this%ulag, u%x, n)
+      call copy(this%vlag, v%x, n)
+      call copy(this%wlag, w%x, n)
+      
+
+      ! mask Dirichlet boundaries (velocity)
+      call this%bc_apply_vel()
+      
+      ! compute pressure
+      call this%bc_apply_prs()
+      call fluid_plan4_pres_setup(c_Xh%h1, c_Xh%h2, params%rho, &
+                                  dm_Xh%n_dofs, c_Xh%ifh2)    
+      call fluid_plan4_pres_residual(p, p_res, u, v, w, &
+                                     u_e, v_e, w_e, &
+                                     ta1, ta2, ta3, &
+                                     this%wa1, this%wa2, this%wa3, &
+                                     this%work1, this%work2, f_Xh, &
+                                     c_Xh, gs_Xh, this%bc_prs_surface, &
+                                     Ax, ab_bdf%bd(1), params%dt, &
+                                     params%Re, params%rho)
+
+      !Sets tolerances
+      !call ctolspl  (tolspl,respr)
+      call gs_op_vector(gs_Xh, p_res, n, GS_OP_ADD) 
+      call bc_list_apply_scalar(this%bclst_prs, p_res, p%dof%n_dofs)
+
+      call this%proj%project_on(p_res, Ax, c_Xh, &
+                                this%bclst_prs, gs_Xh, n)
+      select type(pcp => this%pc_prs)
+      type is(jacobi_t)
+         call jacobi_set_d(pcp, c_Xh, dm_Xh, gs_Xh)
+      type is(hsmg_t)
+         call hsmg_set_h(pcp)
+      end select
+      if (pe_rank .eq. 0) write(*,*) "PRES"
+      iter = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
+                                this%bclst_prs, gs_Xh, niter)    
+      call this%proj%project_back(dp%x, Ax, c_Xh, &
+                                  this%bclst_prs, gs_Xh, n)
+      call add2(p%x, dp%x,n)
+      !    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
     
-
-    ! mask Dirichlet boundaries (velocity)
-    call this%bc_apply_vel()
-
-    ! compute pressure
-    call this%bc_apply_prs()
-    call fluid_plan4_pres_setup(this%c_Xh%h1, this%c_Xh%h2, this%params%rho, &
-                          this%dm_Xh%n_dofs, this%c_Xh%ifh2)    
-    call fluid_plan4_pres_residual(this%p,this%p_res, this%u, this%v, this%w, &
-                                   this%u_e, this%v_e, this%w_e, &
-                                   this%ta1, this%ta2, this%ta3, &
-                                   this%wa1, this%wa2, this%wa3, &
-                                   this%work1, this%work2, this%f_Xh, &
-                                   this%c_Xh, this%gs_Xh, this%bc_prs_surface, &
-                                   this%Ax, ab_bdf%bd(1), this%params%dt, &
-                                   this%params%Re, this%params%rho)
-
-    !Sets tolerances
-    !call ctolspl  (tolspl,respr)
-    call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
-    call bc_list_apply_scalar(this%bclst_prs, this%p_res, this%p%dof%n_dofs)
-    call this%proj%project_on(this%p_res, this%Ax, this%c_Xh, &
-                              this%bclst_prs, this%gs_Xh, n)
-    select type(pcp => this%pc_prs)
-    type is(jacobi_t)
-       call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
-    type is(hsmg_t)
-       call hsmg_set_h(pcp)
-    end select
-    if (pe_rank .eq. 0) write(*,*) "PRES"
-    iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
-         this%c_Xh, this%bclst_prs, this%gs_Xh, niter)    
-    call this%proj%project_back(this%dp%x, this%Ax, this%c_Xh, &
-                              this%bclst_prs, this%gs_Xh, n)
-    call add2(this%p%x,this%dp%x,n)
-!    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
+      !We only need to update h2 once I think then use the flag to switch on/off
+      call fluid_plan4_vel_setup(c_Xh%h1, c_Xh%h2, &
+                                 params%Re, params%rho, ab_bdf%bd(1), &
+                                 params%dt, dm_Xh%n_dofs, c_Xh%ifh2)
     
-    !We only need to update h2 once I think then use the flag to switch on/off
-    call fluid_plan4_vel_setup(this%c_Xh%h1, this%c_Xh%h2, &
-         this%params%Re, this%params%rho, ab_bdf%bd(1), &
-         this%params%dt, this%dm_Xh%n_dofs, this%c_Xh%ifh2)
-    
-    call fluid_plan4_vel_residual(this%Ax, this%u, this%v, this%w, &
-                            this%u_res, this%v_res, this%w_res, &
-                            this%p, this%ta1%x, this%ta2%x, this%ta3%x, this%ta4%x, &
-                            this%f_Xh, this%c_Xh, &
-                            this%msh, this%Xh, this%dm_Xh%n_dofs)
+      call fluid_plan4_vel_residual(Ax, u, v, w, &
+                                    u_res, v_res, w_res, &
+                                    p, ta1%x, ta2%x, ta3%x, ta4%x, &
+                                    f_Xh, c_Xh, msh, Xh, dm_Xh%n_dofs)
 
-    call gs_op_vector(this%gs_Xh, this%u_res, n, GS_OP_ADD) 
-    call gs_op_vector(this%gs_Xh, this%v_res, n, GS_OP_ADD) 
-    call gs_op_vector(this%gs_Xh, this%w_res, n, GS_OP_ADD) 
+      call gs_op_vector(gs_Xh, u_res, n, GS_OP_ADD) 
+      call gs_op_vector(gs_Xh, v_res, n, GS_OP_ADD) 
+      call gs_op_vector(gs_Xh, w_res, n, GS_OP_ADD) 
 
-    call bc_list_apply_vector(this%bclst_vel_residual,&
-         this%u_res, this%v_res, this%w_res, this%dm_Xh%n_dofs)
+      call bc_list_apply_vector(this%bclst_vel_residual,&
+                                u_res, v_res, w_res, dm_Xh%n_dofs)
 
-    select type(pcp =>this%pc_vel)
-    type is(jacobi_t)
-       call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
-    end select
+      select type(pcp =>this%pc_vel)
+      type is(jacobi_t)
+         call jacobi_set_d(pcp, c_Xh, dm_Xh, gs_Xh)
+      end select
 
-    if (pe_rank .eq. 0) write(*,*) 'U'
-    iter = this%ksp_vel%solve(this%Ax, this%du, this%u_res, n, &
-         this%c_Xh, this%bclst_vel_residual, this%gs_Xh, niter)
-    if (pe_rank .eq. 0) write(*,*) 'V'
-    iter = this%ksp_vel%solve(this%Ax, this%dv, this%v_res, n, &
-         this%c_Xh, this%bclst_vel_residual, this%gs_Xh, niter)
-    if (pe_rank .eq. 0) write(*,*) 'W'
-    iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
-         this%c_Xh, this%bclst_vel_residual, this%gs_Xh, niter)
-
-    call opadd2cm(this%u%x,this%v%x,this%w%x, &
-         this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
-
+      if (pe_rank .eq. 0) write(*,*) 'U'
+      iter = this%ksp_vel%solve(Ax, du, u_res, n, &
+           c_Xh, this%bclst_vel_residual, gs_Xh, niter)
+      if (pe_rank .eq. 0) write(*,*) 'V'
+      iter = this%ksp_vel%solve(Ax, dv, v_res, n, &
+           c_Xh, this%bclst_vel_residual, gs_Xh, niter)
+      if (pe_rank .eq. 0) write(*,*) 'W'
+      iter = this%ksp_vel%solve(Ax, dw, w_res, n, &
+           c_Xh, this%bclst_vel_residual, gs_Xh, niter)
+      
+      call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x,1d0,n,msh%gdim)
+    end associate
   end subroutine fluid_plan4_step
   
   subroutine fluid_plan4_pres_setup(h1, h2, rho, n, ifh2)
