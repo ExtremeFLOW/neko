@@ -94,13 +94,13 @@ contains
     use mxm_wrapper
     implicit none
     
+    integer, intent(inout) :: n
     real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)
     real(kind=dp), intent(inout) :: us(0:n, 0:n, 0:n)
     real(kind=dp), intent(inout) :: ut(0:n, 0:n, 0:n)
     real(kind=dp), intent(inout) :: u(0:n, 0:n, 0:n)
     real(kind=dp), intent(inout) :: D(0:n, 0:n)
     real(kind=dp), intent(inout) :: Dt(0:n, 0:n)
-    integer, intent(inout) :: n
     integer :: m1, m2, k
   
     m1 = n + 1

@@ -101,13 +101,13 @@ contains
 
             call algnf%set(facet, ntype)
          else
-            if (iand(ntype, 1)) then
+            if (iand(ntype, 1) .eq. 1) then
                call xmsk%push(k)
             end if
-            if (iand(ntype, 2)) then
+            if (iand(ntype, 2) .eq. 2) then
                call ymsk%push(k)
             end if
-            if (iand(ntype, 4)) then
+            if (iand(ntype, 4) .eq. 4) then
                call zmsk%push(k)
             end if
          end if
