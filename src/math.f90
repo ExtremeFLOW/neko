@@ -43,6 +43,16 @@ contains
     end do
   end subroutine izero
 
+ !> Sets row e to 0 in matrix a
+  subroutine row_zero(a,m,n,e)
+    integer, intent(in) :: m,n,e
+    real(kind=dp), intent(inout) :: a(m,n)
+    integer :: j
+    do j=1,n
+       a(e,j)=0.
+    enddo
+  end subroutine row_zero
+
   !> Set all elements to one
   subroutine rone(a, n)
     integer, intent(in) :: n
@@ -117,7 +127,15 @@ contains
     end do
     
   end subroutine chsign
-
+  
+  function vlmax(vec,n) result(tmax)
+      integer :: n, i
+      real(kind=dp) :: vec(n), tmax
+      tmax =-99d20
+      do i=1,n
+         tmax = max(tmax,vec(i))
+      enddo
+  end function vlmax
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
     integer, intent(in) :: n

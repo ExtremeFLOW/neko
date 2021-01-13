@@ -90,13 +90,14 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=dp) :: beta, pap, alpha, alphm, eps
+    real(kind=dp) :: beta, pap, alpha, alphm, eps, norm_fac
     
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = KSP_MAX_ITER
     end if
+    norm_fac = 1./sqrt(coef%volume)
 
     rtz1 = 1d0
     call rzero(x%x, n)
@@ -126,7 +127,7 @@ contains
 
        rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
-       rnorm = sqrt(rtr)
+       rnorm = sqrt(rtr)*norm_fac
        if (rnorm .lt. 1e-8) then
           exit
        end if

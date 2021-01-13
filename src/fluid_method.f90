@@ -22,6 +22,7 @@ module fluid_method
   use abbdf
   use mathops
   use operators
+  use hsmg
   implicit none
   
   !> Base type of all fluid formulations
@@ -233,11 +234,13 @@ contains
 
     call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
     call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, 'jacobi')
 
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_prs)
     call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, 'hsmg')
+!    call fluid_scheme_hsmg_factory(this%pc_prs, this%ksp_prs, &
+!         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs)
 
   end subroutine fluid_scheme_init_all
 
@@ -349,23 +352,32 @@ contains
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  !! @note Currently hardcoded to jacobi
-  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs)
+  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
     class(pc_t), allocatable, intent(inout), target :: pc
     class(ksp_t), allocatable, intent(inout) :: ksp
     type(coef_t), intent(inout) :: coef
     type(dofmap_t), intent(inout) :: dof
     type(gs_t), intent(inout) :: gs
-
-    allocate(jacobi_t::pc)
+    type(bc_list_t), intent(inout) :: bclst
+    character(len=*) :: pctype
+    
+    if (trim(pctype) .eq. 'jacobi') then
+       allocate(jacobi_t::pc)
+    else if (trim(pctype) .eq. 'hsmg') then
+       allocate(hsmg_t::pc)
+    else
+       call neko_error('Unknown preconditioner')
+    end if
 
     select type(pcp => pc)
     type is(jacobi_t)
        call pcp%init(coef, dof, gs)
+    type is(hsmg_t)
+       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
     end select
 
     ksp%M => pc
     
   end subroutine fluid_scheme_precon_factory
-  
+     
 end module fluid_method

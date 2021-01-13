@@ -220,7 +220,7 @@ contains
     integer tt
     integer :: n, iter, i, niter
     n = this%dm_Xh%n_dofs
-    niter = 10000
+    niter = 1000
 
     call fluid_plan4_sumab(this%u_e%x,this%u%x,this%ulag,n,ab_bdf%ab,ab_bdf%nab)
     call fluid_plan4_sumab(this%v_e%x,this%v%x,this%vlag,n,ab_bdf%ab,ab_bdf%nab)
@@ -280,6 +280,8 @@ contains
     select type(pcp => this%pc_prs)
     type is(jacobi_t)
        call jacobi_set_d(pcp,this%c_Xh, this%dm_Xh, this%gs_Xh)
+    type is(hsmg_t)
+       call hsmg_set_h(pcp)
     end select
     if (pe_rank .eq. 0) write(*,*) "PRES"
     iter = this%ksp_prs%solve(this%Ax, this%dp, this%p_res, n, &
@@ -322,7 +324,8 @@ contains
     iter = this%ksp_vel%solve(this%Ax, this%dw, this%w_res, n, &
          this%c_Xh, this%bclst_vel_residual, this%gs_Xh, niter)
 
-    call opadd2cm(this%u%x,this%v%x,this%w%x,this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
+    call opadd2cm(this%u%x,this%v%x,this%w%x, &
+         this%du%x,this%dv%x,this%dw%x,1d0,n,this%msh%gdim)
 
   end subroutine fluid_plan4_step
   

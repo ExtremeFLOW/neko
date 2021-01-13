@@ -300,9 +300,15 @@ contains
        temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
        if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
     end do
-
   end subroutine mesh_generate_flags
 
+  !> Set all elements as if they are deformed
+  subroutine mesh_all_deformed(m)
+    type(mesh_t), intent(inout) :: m
+    integer :: e
+    m%dfrmd_el = .true.
+  end subroutine mesh_all_deformed
+  
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(m)
     type(mesh_t), intent(inout) :: m

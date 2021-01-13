@@ -13,6 +13,7 @@ AC_ARG_ENABLE(contrib,
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
 # Test for a sane fortran environment (^-^)
+AC_LANG(Fortran)
 AC_PROG_FC(,90)
 AX_COARRAY
 AX_DTYPE_IO
@@ -54,6 +55,14 @@ AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 
 # Checks for pFUnit
 AX_PFUNIT
+
+# Check for blas and lapack
+AX_LAPACK
+if test "x${ax_lapack_ok}" != xno; then
+   LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS"
+else
+   AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
+fi
 
 
 AC_CONFIG_FILES([Makefile\
