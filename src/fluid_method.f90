@@ -12,6 +12,7 @@ module fluid_method
   use wall
   use inflow
   use dirichlet
+  use symmetry
   use cg
   use bc
   use jacobi
@@ -42,6 +43,7 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings
@@ -136,7 +138,13 @@ contains
     call this%bc_inflow%finalize()
     call this%bc_inflow%set_inflow(params%uinf)
 
-    call bc_list_init(this%bclst_vel)
+    call this%bc_sym%init(this%dm_Xh)
+    call this%bc_sym%mark_zone(msh%sympln)
+    call this%bc_sym%finalize()
+    call this%bc_sym%init_msk(this%c_Xh)    
+
+    call bc_list_init(this%bclst_vel, 3)
+    call bc_list_add(this%bclst_vel, this%bc_sym)
     call bc_list_add(this%bclst_vel, this%bc_inflow)
     call bc_list_add(this%bclst_vel, this%bc_wall)
     
@@ -167,6 +175,13 @@ contains
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%finalize()
        call bdry_mask%set_g(3d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%sympln)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(4d0)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
     end if
@@ -241,6 +256,7 @@ contains
 
     call this%bc_inflow%free()
     call this%bc_wall%free()
+    call this%bc_sym%free()
 
     call space_free(this%Xh)
 

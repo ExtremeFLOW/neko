@@ -276,8 +276,9 @@ contains
     integer :: i 
 
     if (bclst%n .ge. bclst%size) then
-       allocate(tmp(bclst%size * 2))
-       tmp(1:bclst%size) = bclst%bc
+       bclst%size = bclst%size * 2
+       allocate(tmp(bclst%size))
+       tmp(1:bclst%n) = bclst%bc
        call move_alloc(tmp, bclst%bc)
     end if
 
