@@ -62,7 +62,7 @@ source.o : source.f90 num_types.o dofmap.o
 abbdf.o : abbdf.f90 math.o num_types.o 
 neko_config.o : neko_config.f90 
 case.o : case.f90 abbdf.o comm.o mesh.o utils.o file.o sampler.o mpi_types.o parameters.o fluid_output.o fluid_schemes.o num_types.o 
-fluid_method.o : fluid_method.f90 operators.o mathops.o abbdf.o math.o mesh.o gmres.o pc_jacobi.o bc.o cg.o symmetry.o dirichlet.o inflow.o wall.o coef.o krylov.o dofmap.o space.o field.o source.o num_types.o parameters.o gather_scatter.o 
+fluid_method.o : fluid_method.f90 pc_hsmg.o operators.o mathops.o abbdf.o math.o mesh.o gmres.o pc_jacobi.o bc.o cg.o symmetry.o dirichlet.o inflow.o wall.o coef.o krylov.o dofmap.o space.o field.o source.o num_types.o parameters.o gather_scatter.o 
 fluid_plan4.o : fluid_plan4.f90 projection.o abbdf.o ax_helm.o facet_normal.o fluid_method.o 
 fluid_plan1.o : fluid_plan1.f90 fluid_method.o 
 fluid_schemes.o : fluid_schemes.f90 fluid_plan4.o fluid_plan1.o fluid_method.o 
