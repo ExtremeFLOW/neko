@@ -74,7 +74,7 @@ contains
     else if (present(abs_tol)) then
        call this%ksp_init(abs_tol=abs_tol)
     else
-       call this%ksp_init(abs_tol=1d-8)
+       call this%ksp_init(abs_tol)
     end if
           
   end subroutine gmres_init

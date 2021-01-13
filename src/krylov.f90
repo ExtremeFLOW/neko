@@ -13,8 +13,8 @@ module krylov
   implicit none
 
   integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
-  real(kind=dp), public, parameter :: KSP_ABS_TOL = 1d-20 !< Absolut tolerance
-  real(kind=dp), public, parameter :: KSP_REL_TOL = 1d-10 !< Relative tolerance
+  real(kind=dp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
+  real(kind=dp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
   !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
   type, public, abstract :: ksp_t
