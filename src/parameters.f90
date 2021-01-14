@@ -6,6 +6,7 @@ module parameters
   type param_t
      integer :: nsamples        !< Number of samples
      logical :: output_bdry     !< Output boundary markings
+     logical :: output_part     !< Output partitions
      real(kind=dp) :: dt        !< time-step size               
      real(kind=dp) :: T_end     !< Final time
      real(kind=dp) :: rho       !< Density \f$ \rho \f$
@@ -37,6 +38,7 @@ contains
 
     integer :: nsamples = 0
     logical :: output_bdry = .false.
+    logical :: output_part = .false.
     real(kind=dp) :: dt = 0d0
     real(kind=dp) :: T_end = 0d0
     real(kind=dp) :: rho = 1d0
@@ -44,12 +46,13 @@ contains
     real(kind=dp) :: Re = 1d0
     real(kind=dp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
 
-    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, dt, T_end, rho, mu, &
-         Re, uinf
+    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
+         T_end, rho, mu, Re, uinf
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
     param%p%output_bdry = output_bdry
+    param%p%output_part = output_part
     param%p%nsamples = nsamples
     param%p%dt = dt
     param%p%T_end = T_end
@@ -71,13 +74,15 @@ contains
 
     real(kind=dp) :: dt, T_End, rho, mu, Re
     real(kind=dp), dimension(3) :: uinf
+    logical :: output_part
     logical :: output_bdry
     integer :: nsamples
-    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, dt, T_end, rho, mu, &
-         Re, uinf
+    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
+         T_end, rho, mu, Re, uinf
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
+    output_part = param%p%output_part
     dt = param%p%dt
     T_end = param%p%T_end
     rho = param%p%rho  
