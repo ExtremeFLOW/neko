@@ -106,7 +106,7 @@ contains
     write(unit, fmt='(A,I8,I8)')  'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
     j = 0
     do i = 1, msh%nelv
-       write(unit, *) msh%npts, &
+       write(unit, fmt='(I8,8I8)') msh%npts, &
             (mesh_get_local_point(msh, msh%elements(i)%e%pts(j)%p) - 1, &
             j=1, msh%npts)
     end do
