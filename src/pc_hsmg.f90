@@ -16,7 +16,18 @@ module hsmg
   use tensor
   use jacobi
   implicit none
-  
+
+  !Struct to arrange our multigridlevels
+  type, private :: multigrid_t
+     type(dofmap_t), pointer :: dof
+     type(gs_t), pointer  :: gs_h
+     type(space_t), pointer :: Xh
+     type(coef_t), pointer :: coef
+     type(bc_list_t), pointer :: bclst
+     type(schwarz_t), pointer :: schwarz
+     type(field_t), pointer :: e
+  end type multigrid_t
+ 
   type, public, extends(pc_t) :: hsmg_t
      type(mesh_t), pointer :: msh
      integer :: nlvls !< Number of levels in the multigrid
@@ -44,17 +55,6 @@ module hsmg
      procedure, pass(this) :: solve => hsmg_solve
      procedure, pass(this) :: update => hsmg_set_h
   end type hsmg_t
-
-  !Struct to arrange our multigridlevels
-  type, private :: multigrid_t
-    type(dofmap_t), pointer :: dof
-    type(gs_t), pointer  :: gs_h
-    type(space_t), pointer :: Xh
-    type(coef_t), pointer :: coef
-    type(bc_list_t), pointer :: bclst
-    type(schwarz_t), pointer :: schwarz
-    type(field_t), pointer :: e
-  end type multigrid_t 
   
   !> Abstract interface for solving \f$ M z = r \f$
   !!
