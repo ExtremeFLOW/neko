@@ -183,12 +183,12 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer(kind=MPI_ADDRESS_KIND) :: disp(8), base    
-    integer :: type(8), len(8), ierr
+    integer(kind=MPI_ADDRESS_KIND) :: disp(9), base    
+    integer :: type(9), len(9), ierr
 
     call MPI_Get_address(param_data%nsamples, disp(1), ierr)
     call MPI_Get_address(param_data%output_bdry, disp(2), ierr)
-    call MPI_Get_address(param_data%output_bdry, disp(3), ierr)
+    call MPI_Get_address(param_data%output_part, disp(3), ierr)
     call MPI_Get_address(param_data%dt, disp(4), ierr)
     call MPI_Get_address(param_data%T_end, disp(5), ierr)
     call MPI_Get_address(param_data%rho, disp(6), ierr)
