@@ -129,25 +129,31 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-    call this%bc_wall%init(this%dm_Xh)
-    call this%bc_wall%mark_zone(msh%wall)
-    call this%bc_wall%finalize()
+    call bc_list_init(this%bclst_vel)
 
-    call this%bc_inflow%init(this%dm_Xh)
-    call this%bc_inflow%mark_zone(msh%inlet)
-    call this%bc_inflow%finalize()
-    call this%bc_inflow%set_inflow(params%uinf)
+    if (msh%sympln%size .gt. 0) then
+       call this%bc_sym%init(this%dm_Xh)
+       call this%bc_sym%mark_zone(msh%sympln)
+       call this%bc_sym%finalize()
+       call this%bc_sym%init_msk(this%c_Xh)    
+       call bc_list_add(this%bclst_vel, this%bc_sym)
+    end if
 
-    call this%bc_sym%init(this%dm_Xh)
-    call this%bc_sym%mark_zone(msh%sympln)
-    call this%bc_sym%finalize()
-    call this%bc_sym%init_msk(this%c_Xh)    
-
-    call bc_list_init(this%bclst_vel, 3)
-    call bc_list_add(this%bclst_vel, this%bc_sym)
-    call bc_list_add(this%bclst_vel, this%bc_inflow)
-    call bc_list_add(this%bclst_vel, this%bc_wall)
+    if (msh%inlet%size .gt. 0) then
+       call this%bc_inflow%init(this%dm_Xh)
+       call this%bc_inflow%mark_zone(msh%inlet)
+       call this%bc_inflow%finalize()
+       call this%bc_inflow%set_inflow(params%uinf)
+       call bc_list_add(this%bclst_vel, this%bc_inflow)
+    end if
     
+    if (msh%wall%size .gt. 0 ) then
+       call this%bc_wall%init(this%dm_Xh)
+       call this%bc_wall%mark_zone(msh%wall)
+       call this%bc_wall%finalize()
+       call bc_list_add(this%bclst_vel, this%bc_wall)
+    end if
+       
     if (params%output_bdry) then
 
        if (pe_rank .eq. 0) then
@@ -225,12 +231,14 @@ contains
     !
     ! Setup pressure boundary conditions
     !
-    call this%bc_prs%init(this%dm_Xh)
-    call this%bc_prs%mark_zone(msh%outlet)
-    call this%bc_prs%finalize()
-    call this%bc_prs%set_g(0d0)
     call bc_list_init(this%bclst_prs)
-    call bc_list_add(this%bclst_prs, this%bc_prs)
+    if (msh%outlet%size .gt. 0) then
+       call this%bc_prs%init(this%dm_Xh)
+       call this%bc_prs%mark_zone(msh%outlet)
+       call this%bc_prs%finalize()
+       call this%bc_prs%set_g(0d0)
+       call bc_list_add(this%bclst_prs, this%bc_prs)
+    end if
 
     call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
     call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
@@ -239,8 +247,6 @@ contains
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_prs)
     call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, 'hsmg')
-!    call fluid_scheme_hsmg_factory(this%pc_prs, this%ksp_prs, &
-!         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs)
 
   end subroutine fluid_scheme_init_all
 

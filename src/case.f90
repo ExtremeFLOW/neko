@@ -5,8 +5,8 @@ module case
   use fluid_output
   use parameters
   use mpi_types
+  use mesh_field
   use sampler
-
   use file
   use utils
   use mesh
@@ -44,7 +44,8 @@ contains
          solver_velocity, solver_pressure, source_term
     
     integer :: ierr
-    type(file_t) :: msh_file, bdry_file    
+    type(file_t) :: msh_file, bdry_file, part_file
+    type(mesh_fld_t) :: msh_part
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 320 + 8
     character buffer(nbytes)
     integer :: pack_index
@@ -138,6 +139,16 @@ contains
        call bdry_file%write(C%fluid%bdry)
     end if
 
+    !
+    ! Save mesh partitions (if requested)
+    !
+    if (C%params%output_part) then
+       call mesh_field_init(msh_part, C%msh, 'MPI_Rank')
+       msh_part%data = pe_rank
+       part_file = file_t('partitions.vtk')
+       call part_file%write(msh_part)
+       call mesh_field_free(msh_part)
+    end if
 
     !
     ! Setup sampler

@@ -183,17 +183,18 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer(kind=MPI_ADDRESS_KIND) :: disp(8), base    
-    integer :: type(8), len(8), ierr
+    integer(kind=MPI_ADDRESS_KIND) :: disp(9), base    
+    integer :: type(9), len(9), ierr
 
     call MPI_Get_address(param_data%nsamples, disp(1), ierr)
     call MPI_Get_address(param_data%output_bdry, disp(2), ierr)
-    call MPI_Get_address(param_data%dt, disp(3), ierr)
-    call MPI_Get_address(param_data%T_end, disp(4), ierr)
-    call MPI_Get_address(param_data%rho, disp(5), ierr)
-    call MPI_Get_address(param_data%mu, disp(6), ierr)
-    call MPI_Get_address(param_data%Re, disp(7), ierr)
-    call MPI_Get_address(param_data%uinf, disp(8), ierr)
+    call MPI_Get_address(param_data%output_part, disp(3), ierr)
+    call MPI_Get_address(param_data%dt, disp(4), ierr)
+    call MPI_Get_address(param_data%T_end, disp(5), ierr)
+    call MPI_Get_address(param_data%rho, disp(6), ierr)
+    call MPI_Get_address(param_data%mu, disp(7), ierr)
+    call MPI_Get_address(param_data%Re, disp(8), ierr)
+    call MPI_Get_address(param_data%uinf, disp(9), ierr)
 
 
     base = disp(1)
@@ -205,20 +206,22 @@ contains
     disp(6) = disp(6) - base
     disp(7) = disp(7) - base
     disp(8) = disp(8) - base
+    disp(9) = disp(9) - base
 
-    len(1:7) = 1
-    len(8) = 3
+    len(1:8) = 1
+    len(9) = 3
     
     type(1) = MPI_INTEGER
     type(2) = MPI_LOGICAL
-    type(3) = MPI_DOUBLE_PRECISION
+    type(3) = MPI_LOGICAL
     type(4) = MPI_DOUBLE_PRECISION
     type(5) = MPI_DOUBLE_PRECISION
     type(6) = MPI_DOUBLE_PRECISION
     type(7) = MPI_DOUBLE_PRECISION
     type(8) = MPI_DOUBLE_PRECISION
+    type(9) = MPI_DOUBLE_PRECISION
     
-    call MPI_Type_create_struct(8, len, disp, type, MPI_NEKO_PARAMS, ierr)
+    call MPI_Type_create_struct(9, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
 
   end subroutine mpi_type_neko_params_init
