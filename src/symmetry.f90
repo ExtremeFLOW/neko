@@ -36,11 +36,10 @@ contains
     
     call symmetry_free(this)
 
-
     call xmsk%init()
     call ymsk%init()
     call zmsk%init()
-    call algnf%init(this%msk(0))
+    call algnf%init(128)
     
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
       m = this%msk(0)
@@ -55,8 +54,8 @@ contains
             sz = 0d0
             select case (facet)               
             case(1,2)
-               do k = 1, c%Xh%lx
-                  do j = 1, c%Xh%lx
+               do k = 2, c%Xh%lx - 1
+                  do j = 2, c%Xh%lx -1
                      sx = sx + abs(abs(nx(idx(2), idx(3), facet, idx(4))) - 1d0)
                      sy = sy + abs(abs(ny(idx(2), idx(3), facet, idx(4))) - 1d0)
                      sz = sz + abs(abs(nz(idx(2), idx(3), facet, idx(4))) - 1d0)
@@ -79,9 +78,9 @@ contains
                   end do
                end do               
             end select
-            sx = sx / c%Xh%lx
-            sy = sy / c%Xh%lx
-            sz = sz / c%Xh%lx
+            sx = sx / (c%Xh%lx - 2)**2
+            sy = sy / (c%Xh%lx - 2)**2
+            sz = sz / (c%Xh%lx - 2)**2
 
             ntype = 0
             if (sx .lt. TOL) then
