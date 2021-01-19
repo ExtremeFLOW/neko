@@ -130,7 +130,6 @@ contains
     !Intialize projection space thingy
     call this%proj%init(this%dm_Xh%n_dofs)
 
-    
   end subroutine fluid_plan4_init
 
   subroutine fluid_plan4_free(this)
@@ -238,7 +237,12 @@ contains
       end if
 
       call f_Xh%eval()
-    
+      call advab(ta1, ta2, ta3, &
+                 this%u, this%v, this%w, &
+                 f_Xh%u, f_Xh%v, f_Xh%w, &
+                 Xh, this%c_Xh, msh%nelv, &
+                 dm_Xh%n_dofs, msh%gdim)
+   
       call makeabf(ta1, ta2, ta3,&
                   this%abx1, this%aby1, this%abz1,&
                   this%abx2, this%aby2, this%abz2, &
@@ -602,7 +606,7 @@ contains
    ENDDO
    CALL OPADD2col (BFX,BFY,BFZ,TB1,TB2,TB3,h2, n, gdim)
   END subroutine makebdf
- subroutine makeabf(ta1, ta2, ta3, abx1, aby1, abz1, abx2, aby2, abz2, &
+  subroutine makeabf(ta1, ta2, ta3, abx1, aby1, abz1, abx2, aby2, abz2, &
                     bfx, bfy, bfz, rho, ab, n, gdim)
 !-----------------------------------------------------------------------
 !
@@ -618,25 +622,54 @@ contains
     real(kind=dp), intent(inout) :: abx1(n), aby1(n), abz1(n)
     real(kind=dp), intent(inout) :: abx2(n), aby2(n), abz2(n)
     real(kind=dp) :: ab0, ab1, ab2
-      AB0 = AB(1)
-      AB1 = AB(2)
-      AB2 = AB(3)
-      CALL ADD3S2 (ta1%x,ABX1,ABX2,AB1,AB2,n)
-      CALL ADD3S2 (TA2%x,ABY1,ABY2,AB1,AB2,n)
-      CALL COPY   (ABX2,ABX1,n)
-      CALL COPY   (ABY2,ABY1,N)
-      CALL COPY   (ABX1,BFX,N)
-      CALL COPY   (ABY1,BFY,N)
-      CALL ADD2S1 (BFX,ta1%x,AB0,N)
-      CALL ADD2S1 (BFY,TA2%x,AB0,N)
-      CALL Cmult   (BFX,rho,N)          ! multiply by density
-      CALL Cmult   (BFY,rho,N)
-      IF (gdim.EQ.3) THEN
-         CALL ADD3S2 (TA3%x,ABZ1,ABZ2,AB1,AB2,N)
-         CALL COPY   (ABZ2,ABZ1,N)
-         CALL COPY   (ABZ1,BFZ,N)
-         CALL ADD2S1 (BFZ,TA3%x,AB0,N)
-         CALL cmult   (BFZ,rho,N)
-      ENDIF
-      END subroutine makeabf
+    AB0 = AB(1)
+    AB1 = AB(2)
+    AB2 = AB(3)
+    CALL ADD3S2 (ta1%x,ABX1,ABX2,AB1,AB2,n)
+    CALL ADD3S2 (TA2%x,ABY1,ABY2,AB1,AB2,n)
+    CALL COPY   (ABX2,ABX1,n)
+    CALL COPY   (ABY2,ABY1,N)
+    CALL COPY   (ABX1,BFX,N)
+    CALL COPY   (ABY1,BFY,N)
+    CALL ADD2S1 (BFX,ta1%x,AB0,N)
+    CALL ADD2S1 (BFY,TA2%x,AB0,N)
+    CALL Cmult   (BFX,rho,N)          ! multiply by density
+    CALL Cmult   (BFY,rho,N)
+    IF (gdim.EQ.3) THEN
+       CALL ADD3S2 (TA3%x,ABZ1,ABZ2,AB1,AB2,N)
+       CALL COPY   (ABZ2,ABZ1,N)
+       CALL COPY   (ABZ1,BFZ,N)
+       CALL ADD2S1 (BFZ,TA3%x,AB0,N)
+       CALL cmult   (BFZ,rho,N)
+    ENDIF
+  END subroutine makeabf
+
+  subroutine advab(ta1, ta2, ta3, vx, vy, vz, bfx, bfy, bfz, Xh, coef, nelv, n, gdim)
+!---------------------------------------------------------------
+!
+!     Eulerian scheme, add convection term to forcing function 
+!     at current time step.
+!
+!---------------------------------------------------------------
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: ta1, ta2, ta3, vx, vy, vz
+    integer, intent(inout) :: nelv, n, gdim
+    real(kind=dp), intent(inout), dimension(n) :: bfx, bfy, bfz
+    call rzero  (ta1%x,n)
+    call rzero  (ta2%x,n)
+    call rzero  (ta3%x,n)
+    CALL CONV1  (TA1%x,vx%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
+    CALL CONV1  (TA2%x,vy%x, vy%X, vy%x, vz%x, Xh, coef, nelv, gdim)
+    CALL SUBCOL3 (BFX,coef%B,TA1%x,N)
+    CALL SUBCOL3 (BFY,coef%B,TA2%x,N)
+    IF (gdim.EQ.2) THEN
+       CALL RZERO (TA3%x,N)
+    ELSE
+       CALL CONV1  (TA3%x,vz%x, vy%X, vy%x, vz%x, Xh, coef, nelv, gdim)
+       CALL SUBCOL3 (BFZ,coef%B,TA3%x,N)
+    ENDIF
+  END subroutine advab
+
+
 end module fluid_plan4
