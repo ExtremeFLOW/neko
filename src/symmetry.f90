@@ -30,7 +30,7 @@ contains
     type(coef_t), intent(in) :: c
     type(stack_i4_t) :: xmsk, ymsk, zmsk
     type(htable_i4_t) :: algnf 
-    integer :: i, m, j, k, idx(4), facet, ntype
+    integer :: i, m, j, k, idx(4), facet, ntype, temp
     real(kind=dp) :: sx,sy,sz
     real(kind=dp), parameter :: TOL = 1d-3
     
@@ -123,7 +123,9 @@ contains
     end if
 
     if (ymsk%size() .gt. 0) then
-       allocate(this%yaxis_msk(0:ymsk%size()))
+       !this fixes my runtime errors with gfortran
+       temp = ymsk%size()
+       allocate(this%yaxis_msk(0:temp))
        this%yaxis_msk(0) = ymsk%size()
        this%yaxis_msk(1:ymsk%size()) = ymsk%array()
     else
