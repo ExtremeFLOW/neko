@@ -660,13 +660,13 @@ contains
     call rzero  (ta2%x,n)
     call rzero  (ta3%x,n)
     CALL CONV1  (TA1%x,vx%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
-    CALL CONV1  (TA2%x,vy%x, vy%X, vy%x, vz%x, Xh, coef, nelv, gdim)
+    CALL CONV1  (TA2%x,vy%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
     CALL SUBCOL3 (BFX,coef%B,TA1%x,N)
     CALL SUBCOL3 (BFY,coef%B,TA2%x,N)
     IF (gdim.EQ.2) THEN
        CALL RZERO (TA3%x,N)
     ELSE
-       CALL CONV1  (TA3%x,vz%x, vy%X, vy%x, vz%x, Xh, coef, nelv, gdim)
+       CALL CONV1  (TA3%x,vz%x, vx%X, vy%x, vz%x, Xh, coef, nelv, gdim)
        CALL SUBCOL3 (BFZ,coef%B,TA3%x,N)
     ENDIF
   END subroutine advab
