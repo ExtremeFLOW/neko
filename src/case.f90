@@ -38,17 +38,24 @@ contains
     character(len=80) :: solver_velocity = ''
     character(len=80) :: solver_pressure = ''
     character(len=80) :: source_term = ''
+    character(len=80) :: initial_condition = ''
     integer :: lx = 0
     type(param_io_t) :: params
     namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx,  &
-         solver_velocity, solver_pressure, source_term
+         solver_velocity, solver_pressure, source_term, &
+         initial_condition
     
     integer :: ierr
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part
-    integer, parameter :: nbytes = NEKO_FNAME_LEN + 320 + 8
+    integer, parameter :: nbytes = NEKO_FNAME_LEN + 400 + 8
     character buffer(nbytes)
     integer :: pack_index
+    
+
+    !
+    ! Read case description
+    !
     
     if (pe_rank .eq. 0) then
        open(10, file=trim(case_file))
@@ -67,6 +74,8 @@ contains
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(source_term, 80, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(initial_condition, 80, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(lx, 1, MPI_INTEGER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
@@ -84,6 +93,8 @@ contains
        call MPI_Unpack(buffer, nbytes, pack_index, &
             solver_pressure, 80, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Pack(source_term, 80, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(initial_condition, 80, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
             lx, 1, MPI_INTEGER, NEKO_COMM, ierr)
@@ -124,6 +135,22 @@ contains
     else
        call neko_error('Invalid source term')
     end if
+
+    !
+    ! Setup initial conditions
+    ! 
+    
+    !> @todo We shouldn't really mess with other type's datatypes
+    if (len_trim(initial_condition) .gt. 0) then
+       if (trim(initial_condition) .eq. 'uniform') then
+          C%fluid%u = C%params%uinf(1)
+          C%fluid%v = C%params%uinf(2)
+          C%fluid%w = C%params%uinf(3)
+       else
+          call neko_error('Invalid initial condition')
+       end if
+    end if
+    
 
     !
     ! Validate that the case is properly setup for time-stepping

@@ -1,19 +1,19 @@
 &NEKO_CASE
 mesh_file= 'hemi.nmsh'
 fluid_scheme='plan4'
-lx = 8
+lx = 6
 solver_velocity = 'cg'
-solver_pressure = 'cg'	
+solver_pressure = 'gmres'	
 source_term = 'noforce'
+initial_condition = 'uniform'
 /
 &NEKO_PARAMETERS
-dt = 1e-3
-T_end = 2e-3
-nsamples = 2
+dt = 5d-3
+T_end = 2.0
+nsamples = 100
 uinf= 1.0,0.0,0.0
 output_bdry = .true.
 rho = 1
-mu = 1.81
-Re = 100
+Re = 1400
 /
 
