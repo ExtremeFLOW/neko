@@ -61,6 +61,7 @@ module hsmg
   !! @param z vector of length @a n
   !! @param r vector of length @a n
 contains
+  !> @note I do not think we actually use the same grids as they do in the original!
   subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst)
     class(hsmg_t), intent(inout) :: this
     type(mesh_t), intent(inout), target :: msh
@@ -72,6 +73,9 @@ contains
     integer :: lx, n
     
     call this%free()
+    if(Xh%lx .lt. 5) then
+       call neko_error('Insufficient number of GLL points for hsmg precon. Minimum degree 4 and 5 GLL points required.')
+    end if
     this%nlvls = 3 
     this%msh => msh
     allocate(this%grids(this%nlvls))
