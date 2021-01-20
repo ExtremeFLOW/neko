@@ -204,9 +204,10 @@ contains
   end subroutine nmsh_file_read
 
     !> Load a mesh from a binary Neko nmsh file
-  subroutine nmsh_file_write(this, data)
+  subroutine nmsh_file_write(this, data, t)
     class(nmsh_file_t), intent(inout) :: this
-    class(*), target, intent(in) :: data  
+    class(*), target, intent(in) :: data
+    real(kind=dp), intent(in), optional :: t
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(mesh_t), pointer :: msh

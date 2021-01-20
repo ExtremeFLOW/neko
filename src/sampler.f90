@@ -91,7 +91,7 @@ contains
   !> Sample all outputs in the sampler
   subroutine sampler_sample(this, t)
     class(sampler_t), intent(inout) :: this
-    real(kind=dp), intent(inout) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
 
     if (t .ge. (this%nsample * this%T)) then
@@ -101,7 +101,7 @@ contains
        end if
        
        do i = 1, this%n
-          call this%output_list(i)%outp%sample()
+          call this%output_list(i)%outp%sample(t)
        end do
        this%nsample = this%nsample + 1
     end if

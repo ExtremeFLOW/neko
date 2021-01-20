@@ -26,13 +26,15 @@ contains
 
   !> Write fields to a NEKTON fld file
   !! @note currently limited to double precision data
-  subroutine fld_file_write(this, data)
+  subroutine fld_file_write(this, data, t)
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
+    real(kind=dp), intent(in), optional :: t
     type(field_t), pointer :: u, v, w, p
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
     type(dofmap_t), pointer :: dof
+    real(kind=dp) :: time
     integer :: status(MPI_STATUS_SIZE)
     character(len=132) :: hdr
     character :: rdcode(10)
@@ -47,7 +49,12 @@ contains
     logical :: write_mesh, write_velocity, write_pressure
     integer :: FLD_DATA_SIZE
 
-      
+    if (present(t)) then
+       time = t
+    else
+       time = 0d0
+    end if
+    
     select type(data)
     type is (field_t)
        p => data
@@ -102,7 +109,7 @@ contains
 
     !> @todo fix support for single precision output?
     write(hdr, 1) FLD_DATA_SIZE, Xh%lx, Xh%ly, Xh%lz,msh%glb_nelv,msh%glb_nelv,&
-         0d0,1,1,1,(rdcode(i),i=1,10)
+         time, 1, 1, 1, (rdcode(i),i=1,10)
 1   format('#std',1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
          1x,i9,1x,i6,1x,i6,1x,10a)
 

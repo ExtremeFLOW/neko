@@ -1,4 +1,4 @@
-  !> Defines an output for a fluid
+!> Defines an output for a fluid
 module fluid_output
   use fluid_method
   use output
@@ -33,9 +33,13 @@ contains
     this%fluid => fluid
   end function fluid_output_init
 
-  subroutine fluid_output_sample(this)
+  !> Sample a fluid solution at time @a t
+  subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
-    call this%file_%write(this%fluid)
+    real(kind=dp), intent(in) :: t
+    
+    call this%file_%write(this%fluid, t)
+
   end subroutine fluid_output_sample
   
 end module fluid_output

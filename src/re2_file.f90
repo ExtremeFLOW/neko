@@ -155,9 +155,10 @@ contains
     
   end subroutine re2_file_read
 
-  subroutine re2_file_write(this, data)
+  subroutine re2_file_write(this, data, t)
     class(re2_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
+    real(kind=dp), intent(in), optional :: t
     type(re2_xy_t), allocatable :: re2_data_xy(:)
     type(re2_xyz_t), allocatable :: re2_data_xyz(:)
     type(mesh_t), pointer :: msh
