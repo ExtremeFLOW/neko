@@ -176,5 +176,53 @@ contains
        call add2 (dtx(1,e),ta2,Xh%lxyz)
     enddo
   end subroutine cdtp
-
+   
+  subroutine conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  ! used to be conv1n
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    integer, intent(in) :: nelv, gdim
+    real(kind=dp), intent(inout) ::  du(Xh%lxyz,nelv)
+    real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, vx, vy, vz
+!   Store the inverse jacobian to speed this operation up
+    real(kind=dp), dimension(Xh%lx,Xh%ly,Xh%lz) :: dudr, duds, dudt
+    integer :: ie, iz, i
+!   Compute vel.grad(u)
+    do ie=1,nelv
+      if (gdim .eq. 3) then
+         call mxm   (Xh%dx,Xh%lx,u(1,1,1,ie),Xh%lx,dudr,Xh%lxy)
+         do iz=1,Xh%lz
+           call mxm (u(1,1,iz,ie),Xh%lx,Xh%dyt,Xh%ly,duds(1,1,iz),Xh%ly)
+         enddo
+         call mxm   (u(1,1,1,ie),Xh%lxy,Xh%dzt,Xh%lz,dudt,Xh%lz)
+         do i=1,Xh%lxyz
+            du(i,ie) = coef%jacinv(i,1,1,ie)*( &
+                       vx(i,1,1,ie)*( &
+                       coef%drdx(i,1,1,ie)*dudr(i,1,1) &
+                     + coef%dsdx(i,1,1,ie)*duds(i,1,1) &
+                     + coef%dtdx(i,1,1,ie)*dudt(i,1,1)) &
+                     + vy(i,1,1,ie)*( &
+                       coef%drdy(i,1,1,ie)*dudr(i,1,1) &
+                     + coef%dsdy(i,1,1,ie)*duds(i,1,1) &
+                     + coef%dtdy(i,1,1,ie)*dudt(i,1,1)) &
+                     + vz(i,1,1,ie)*( &
+                       coef%drdz(i,1,1,ie)*dudr(i,1,1) &
+                     + coef%dsdz(i,1,1,ie)*duds(i,1,1) &
+                     + coef%dtdz(i,1,1,ie)*dudt(i,1,1)))
+         enddo
+       else
+!        2D
+         call mxm (Xh%dx,Xh%lx,u(1,1,1,ie),Xh%lx,dudr,Xh%lyz)
+         call mxm (u(1,1,1,ie),Xh%lx,Xh%dyt,Xh%ly,duds,Xh%ly)
+         do i=1,Xh%lxyz
+            du(i,ie) = coef%jacinv(i,1,1,ie)*( &
+                       vx(i,1,1,ie)*( &
+                       coef%drdx(i,1,1,ie)*dudr(i,1,1) &
+                     + coef%dsdx(i,1,1,ie)*duds(i,1,1)) &
+                     + vy(i,1,1,ie)*( &
+                       coef%drdy(i,1,1,ie)*dudr(i,1,1) &
+                     + coef%dsdy(i,1,1,ie)*duds(i,1,1)))
+          enddo
+        endif
+     enddo
+  end subroutine conv1
 end module operators

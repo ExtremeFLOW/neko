@@ -30,7 +30,7 @@ contains
     type(coef_t), intent(in) :: c
     type(stack_i4_t) :: xmsk, ymsk, zmsk
     type(htable_i4_t) :: algnf 
-    integer :: i, m, j, k, idx(4), facet, ntype
+    integer :: i, m, j, k, idx(4), facet, ntype, msk_size
     real(kind=dp) :: sx,sy,sz
     real(kind=dp), parameter :: TOL = 1d-3
     
@@ -113,28 +113,33 @@ contains
       end do
     end associate
 
-    if (xmsk%size() .gt. 0) then
-       allocate(this%xaxis_msk(0:xmsk%size()))
-       this%xaxis_msk(0) = xmsk%size()
-       this%xaxis_msk(1:xmsk%size()) = xmsk%array()
+    !> @note This is to prevent runtime issues with Cray ftn, gfortran and
+    !! msk:size() in the allocate call
+    msk_size = xmsk%size()
+    if (msk_size .gt. 0) then
+       allocate(this%xaxis_msk(0:msk_size))
+       this%xaxis_msk(0) = msk_size
+       this%xaxis_msk(1:msk_size) = xmsk%array()
     else
        allocate(this%xaxis_msk(0:1))
        this%xaxis_msk(0) = 0
     end if
 
-    if (ymsk%size() .gt. 0) then
-       allocate(this%yaxis_msk(0:ymsk%size()))
-       this%yaxis_msk(0) = ymsk%size()
-       this%yaxis_msk(1:ymsk%size()) = ymsk%array()
+    msk_size = ymsk%size()
+    if (msk_size .gt. 0) then
+       allocate(this%yaxis_msk(0:msk_size))
+       this%yaxis_msk(0) = msk_size
+       this%yaxis_msk(1:msk_size) = ymsk%array()
     else
        allocate(this%yaxis_msk(0:1))
        this%yaxis_msk(0) = 0
     end if
 
-    if (zmsk%size() .gt. 0) then
-       allocate(this%zaxis_msk(0:zmsk%size()))
-       this%zaxis_msk(0) = zmsk%size()
-       this%zaxis_msk(1:zmsk%size()) = zmsk%array()
+    msk_size = zmsk%size()
+    if (msk_size .gt. 0) then
+       allocate(this%zaxis_msk(0:msk_size))
+       this%zaxis_msk(0) = msk_size
+       this%zaxis_msk(1:msk_size) = zmsk%array()
     else
        allocate(this%zaxis_msk(0:1))
        this%zaxis_msk(0) = 0
