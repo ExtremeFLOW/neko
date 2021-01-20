@@ -92,10 +92,10 @@ contains
             solver_velocity, 80, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
             solver_pressure, 80, MPI_CHARACTER, NEKO_COMM, ierr)
-       call MPI_Pack(source_term, 80, MPI_CHARACTER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(initial_condition, 80, MPI_CHARACTER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            source_term, 80, MPI_CHARACTER, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            initial_condition, 80, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
             lx, 1, MPI_INTEGER, NEKO_COMM, ierr)
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
