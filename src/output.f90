@@ -1,5 +1,6 @@
 !> Defines an output
 module output
+  use num_types
   use file, only : file_t
   implicit none
 
@@ -11,10 +12,13 @@ module output
      procedure(output_sample), pass(this), deferred :: sample
   end type output_t
 
+  !> Abstract interface for sampling an output type at time @a t
   abstract interface
-     subroutine output_sample(this)
+     subroutine output_sample(this, t)
        import :: output_t
+       import dp
        class(output_t), intent(inout) :: this
+       real(kind=dp), intent(in) :: t
      end subroutine output_sample
   end interface
 

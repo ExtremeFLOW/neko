@@ -69,11 +69,16 @@ contains
 
   !> Write @a data to a file
   !! @param data Data to be written
-  subroutine file_write(this, data)
+  subroutine file_write(this, data, t)
     class(file_t), intent(inout) :: this
     class(*), intent(inout) :: data
+    real(kind=dp), intent(in), optional :: t
 
-    call this%file_type%write(data)
+    if (present(t)) then
+       call this%file_type%write(data, t)
+    else
+       call this%file_type%write(data)
+    end if
     
   end subroutine file_write
    

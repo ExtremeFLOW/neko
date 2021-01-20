@@ -22,9 +22,10 @@ module vtk_file
 contains
 
   !> Write data in legacy VTK
-  subroutine vtk_file_write(this, data)
+  subroutine vtk_file_write(this, data, t)
     class(vtk_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
+    real(kind=dp), intent(in), optional :: t
     type(mesh_t), pointer :: msh => null()
     type(field_t), pointer :: fld => null()
     type(mesh_fld_t), pointer :: mfld => null()

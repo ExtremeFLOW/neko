@@ -13,10 +13,12 @@ module generic_file
   end type generic_file_t
 
   abstract interface
-     subroutine generic_file_write(this, data)
+     subroutine generic_file_write(this, data, t)
        import :: generic_file_t
+       import :: dp
        class(generic_file_t), intent(inout) :: this
        class(*), target, intent(in) :: data
+       real(kind=dp), intent(in), optional :: t
      end subroutine generic_file_write
   end interface
   

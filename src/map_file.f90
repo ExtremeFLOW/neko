@@ -48,9 +48,10 @@ contains
     
   end subroutine map_file_read
 
-  subroutine map_file_write(this, data)
+  subroutine map_file_write(this, data, t)
     class(map_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
+    real(kind=dp), intent(in), optional :: t
     call neko_error("Not implemented yet!")
   end subroutine map_file_write
   

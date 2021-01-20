@@ -223,9 +223,10 @@ contains
     
   end subroutine rea_file_read
 
-  subroutine rea_file_write(this, data)
+  subroutine rea_file_write(this, data, t)
     class(rea_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
+    real(kind=dp), intent(in), optional :: t
   end subroutine rea_file_write
 
   subroutine rea_file_add_point(htp, p, idx)
