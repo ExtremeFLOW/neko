@@ -44,7 +44,7 @@ contains
         
     call field_init(this%p, this%dm_Yh)
 
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), prs)
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), prs, param%abstol_prs)
 
     call gs_init(this%gs_Yh, this%dm_Yh)
 

@@ -13,6 +13,10 @@ module parameters
      real(kind=dp) :: mu        !< Dynamic viscosity \f$ \mu \f$
      real(kind=dp) :: Re        !< Reynolds number
      real(kind=dp), dimension(3) :: uinf !< Free-stream velocity \f$ u_\infty \f$
+     real(kind=dp) :: abstol_vel!< Tolerance for velocity solver
+     real(kind=dp) :: abstol_prs!< Tolerance for pressure solver
+     character(len=20) :: pc_vel    !< Precon for velocity solver
+     character(len=20) :: pc_prs    !< Precon for pressure solver
   end type param_t
 
   type param_io_t
@@ -45,9 +49,13 @@ contains
     real(kind=dp) :: mu = 1d0
     real(kind=dp) :: Re = 1d0
     real(kind=dp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
+    real(kind=dp) :: abstol_vel = 1d-9
+    real(kind=dp) :: abstol_prs = 1d-9
+    character(len=20) :: pc_vel = 'jacobi'
+    character(len=20) :: pc_prs = 'hsmg'
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
-         T_end, rho, mu, Re, uinf
+         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, pc_vel, pc_prs
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -60,7 +68,10 @@ contains
     param%p%mu = mu
     param%p%Re = Re
     param%p%uinf = uinf
-
+    param%p%abstol_vel = abstol_vel
+    param%p%abstol_prs = abstol_prs
+    param%p%pc_vel = pc_vel
+    param%p%pc_prs = pc_prs
 
   end subroutine param_read
 
@@ -72,13 +83,14 @@ contains
     integer(kind=4), intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    real(kind=dp) :: dt, T_End, rho, mu, Re
+    real(kind=dp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs
+    character(len=20) :: pc_vel, pc_prs
     real(kind=dp), dimension(3) :: uinf
     logical :: output_part
     logical :: output_bdry
     integer :: nsamples
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
-         T_end, rho, mu, Re, uinf
+         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, pc_vel, pc_prs
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -89,7 +101,10 @@ contains
     mu = param%p%mu
     Re = param%p%Re
     uinf = param%p%uinf
-
+    abstol_vel = param%p%abstol_vel
+    abstol_prs = param%p%abstol_prs
+    pc_vel = param%p%pc_vel
+    pc_prs = param%p%pc_prs
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 

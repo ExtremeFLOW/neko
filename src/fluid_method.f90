@@ -208,7 +208,7 @@ contains
     call field_init(this%v, this%dm_Xh, 'v')
     call field_init(this%w, this%dm_Xh, 'w')
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel, params%abstol_vel)
 
   end subroutine fluid_scheme_init_uvw
 
@@ -240,13 +240,13 @@ contains
        call bc_list_add(this%bclst_prs, this%bc_prs)
     end if
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel)
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel, params%abstol_vel)
     call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, 'jacobi')
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
 
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_prs)
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_prs, params%abstol_prs)
     call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, 'hsmg')
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
 
   end subroutine fluid_scheme_init_all
 
@@ -335,10 +335,11 @@ contains
   
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver)
+  subroutine fluid_scheme_solver_factory(ksp, n, solver,abstol)
     class(ksp_t), allocatable, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=80), intent(inout) :: solver
+    real(kind=dp) :: abstol
 
     if (trim(solver) .eq. 'cg') then
        allocate(cg_t::ksp)
@@ -350,9 +351,9 @@ contains
 
     select type(kp => ksp)
     type is(cg_t)
-       call kp%init(n)
+       call kp%init(n, abs_tol = abstol)
     type is(gmres_t)
-       call kp%init(n)
+       call kp%init(n, abs_tol = abstol)
     end select
     
   end subroutine fluid_scheme_solver_factory
