@@ -13,6 +13,8 @@ module mpi_types
 
   integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
   integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  integer :: MPI_RE2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
+  integer :: MPI_RE2_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
 
   integer :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
 
@@ -24,9 +26,9 @@ module mpi_types
   ! Public dervied types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, &
        MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
-       MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
-       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, &
-       MPI_NEKO_PARAMS
+       MPI_RE2_DATA_CV, MPI_RE2_DATA_BC, MPI_REAL_SIZE, &
+       MPI_DOUBLE_PRECISION_SIZE, MPI_CHARACTER_SIZE, &
+       MPI_INTEGER_SIZE, MPI_NEKO_PARAMS
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -43,6 +45,8 @@ contains
 
     call mpi_type_re2_xyz_init
     call mpi_type_re2_xy_init
+    call mpi_type_re2_cv_init
+    call mpi_type_re2_bc_init
 
     call mpi_type_neko_params_init
 
@@ -180,6 +184,64 @@ contains
 
   end subroutine mpi_type_re2_xy_init
 
+  !> Define a MPI dervied type for re2 cv data
+  subroutine mpi_type_re2_cv_init
+    type(re2_curve_t) :: re2_data
+    integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
+    integer :: type(4), len(4), ierr
+
+    call MPI_Get_address(re2_data%elem, disp(1), ierr)
+    call MPI_Get_address(re2_data%face, disp(2), ierr)
+    call MPI_Get_address(re2_data%point, disp(3), ierr)
+    call MPI_Get_address(re2_data%type, disp(4), ierr)
+
+    base = disp(1)
+    disp(1) = disp(1) - base
+    disp(2) = disp(2) - base
+    disp(3) = disp(3) - base
+    disp(4) = disp(4) - base
+
+    len(1:2) = 1
+    len(3) = 5
+    len(4) = 4
+    type(1:2) = MPI_INTEGER
+    type(3) = MPI_REAL
+    type(4) = MPI_CHARACTER
+
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2_DATA_CV, ierr)
+    call MPI_Type_commit(MPI_RE2_DATA_CV, ierr)
+    
+  end subroutine mpi_type_re2_cv_init
+  
+  !> Define a MPI dervied type for re2 bc data
+  subroutine mpi_type_re2_bc_init
+    type(re2_bc_t) :: re2_data
+    integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
+    integer :: type(4), len(4), ierr
+
+    call MPI_Get_address(re2_data%elem, disp(1), ierr)
+    call MPI_Get_address(re2_data%face, disp(2), ierr)
+    call MPI_Get_address(re2_data%bc_data, disp(3), ierr)
+    call MPI_Get_address(re2_data%type, disp(4), ierr)
+
+    base = disp(1)
+    disp(1) = disp(1) - base
+    disp(2) = disp(2) - base
+    disp(3) = disp(3) - base
+    disp(4) = disp(4) - base
+
+    len(1:2) = 1
+    len(3) = 5
+    len(4) = 3
+    type(1:2) = MPI_INTEGER
+    type(3) = MPI_REAL
+    type(4) = MPI_CHARACTER
+
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2_DATA_BC, ierr)
+    call MPI_Type_commit(MPI_RE2_DATA_BC, ierr)
+    
+  end subroutine mpi_type_re2_bc_init
+
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
@@ -232,6 +294,7 @@ contains
     call mpi_Type_nmsh_quad_free
     call mpi_type_re2_xyz_free
     call mpi_type_re2_xy_free
+    call mpi_type_re2_bc_free
     call mpi_type_neko_params_free
   end subroutine mpi_types_free
 
@@ -258,6 +321,18 @@ contains
     integer ierr
     call MPI_Type_free(MPI_RE2_DATA_XY, ierr)
   end subroutine mpi_type_re2_xy_free
+
+  !> Deallocate re2 cv dervied MPI type
+  subroutine mpi_type_re2_cv_free
+    integer ierr
+    call MPI_Type_free(MPI_RE2_DATA_CV, ierr)
+  end subroutine mpi_type_re2_cv_free
+  
+  !> Deallocate re2 bc dervied MPI type
+  subroutine mpi_type_re2_bc_free
+    integer ierr
+    call MPI_Type_free(MPI_RE2_DATA_BC, ierr)
+  end subroutine mpi_type_re2_bc_free
 
   !> Deallocate parameters dervied MPI type
   subroutine mpi_type_neko_params_free

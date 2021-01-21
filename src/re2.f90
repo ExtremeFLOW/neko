@@ -27,4 +27,20 @@ module re2
      real(kind=sp), dimension(4) :: y
   end type re2_xy_t
 
+  !> NEKTON re2 curve data
+  type, public :: re2_curve_t
+     integer :: elem
+     integer :: face
+     real(kind=sp), dimension(5) :: point
+     character(len=4) :: type
+  end type re2_curve_t
+  
+  !> NEKTON re2 bc data
+  type, public :: re2_bc_t
+     integer :: elem
+     integer :: face
+     real(kind=sp), dimension(5) :: bc_data
+     character(len=3) :: type
+  end type re2_bc_t
+
 end module re2
