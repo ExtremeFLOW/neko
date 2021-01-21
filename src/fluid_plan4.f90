@@ -218,6 +218,7 @@ contains
     integer, intent(inout) :: tstep
     integer tt
     integer :: n, iter, i, niter
+    type(ksp_monitor_t) :: ksp_results(4)
     n = this%dm_Xh%n_dofs
     niter = 1000
 
@@ -291,8 +292,7 @@ contains
       call this%proj%project_on(p_res, Ax, c_Xh, &
                                 this%bclst_prs, gs_Xh, n)
       call this%pc_prs%update()
-      if (pe_rank .eq. 0) write(*,*) "PRES"
-      iter = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
+      ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
       call this%proj%project_back(dp%x, Ax, c_Xh, &
                                   this%bclst_prs, gs_Xh, n)
@@ -317,17 +317,16 @@ contains
                                 u_res, v_res, w_res, dm_Xh%n_dofs)
       call this%pc_vel%update()
 
-      if (pe_rank .eq. 0) write(*,*) 'U'
-      iter = this%ksp_vel%solve(Ax, du, u_res, n, &
+      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
-      if (pe_rank .eq. 0) write(*,*) 'V'
-      iter = this%ksp_vel%solve(Ax, dv, v_res, n, &
+      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
-      if (pe_rank .eq. 0) write(*,*) 'W'
-      iter = this%ksp_vel%solve(Ax, dw, w_res, n, &
+      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       
       call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x,1d0,n,msh%gdim)
+
+      call fluid_step_info(tstep, t, params%dt, ksp_results)
     end associate
   end subroutine fluid_plan4_step
   
@@ -661,6 +660,30 @@ contains
        CALL SUBCOL3 (BFZ,coef%B,TA3%x,N)
     ENDIF
   END subroutine advab
+  !> Prints for prs, velx, vely, velz the following:
+  !> Number of iterations, start residual, end residual 
+  subroutine fluid_step_info(step, t, dt, ksp_results)
+    type(ksp_monitor_t), intent(in) :: ksp_results(4)
+    integer, intent(in) :: step
+    real(kind=dp), intent(in) :: t, dt
 
+    if (pe_rank .eq. 0) write(*,*) "Step: ", step, "Time: ", t, "dt: ", dt
+    if (pe_rank .eq. 0) write(*,*) "Pressure"
+    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
+    if (pe_rank .eq. 0) write(*,*) ksp_results(1)%iter, ksp_results(1)%res_start, ksp_results(1)%res_final
+
+    if (pe_rank .eq. 0) write(*,*) "X-Velocity"
+    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
+    if (pe_rank .eq. 0) write(*,*) ksp_results(2)%iter, ksp_results(2)%res_start, ksp_results(2)%res_final
+
+    if (pe_rank .eq. 0) write(*,*) "Y-Velocity"
+    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
+    if (pe_rank .eq. 0) write(*,*) ksp_results(3)%iter, ksp_results(3)%res_start, ksp_results(3)%res_final
+
+    if (pe_rank .eq. 0) write(*,*) "Z-Velocity"
+    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
+    if (pe_rank .eq. 0) write(*,*) ksp_results(4)%iter, ksp_results(4)%res_start, ksp_results(4)%res_final
+
+  end subroutine fluid_step_info
 
 end module fluid_plan4
