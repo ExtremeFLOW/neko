@@ -21,6 +21,7 @@ module gmres
      real(kind=dp), allocatable :: mu(:)
      real(kind=dp), allocatable :: gam(:)
      real(kind=dp), allocatable :: wk1(:)
+     real(kind=dp) :: rnorm
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -134,7 +135,7 @@ contains
   end subroutine gmres_free
  
   !> Standard PCG solve
-  function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(iter)
+  function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(gmres_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
@@ -143,6 +144,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, glb_n
     integer :: i, j, k, ierr 
@@ -182,6 +184,7 @@ contains
        this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n))
        if(iter.eq.0) then
           div0 = this%gam(1)*norm_fac
+          ksp_results%res_start = div0
        endif
 
        if ( this%gam(1) .eq. 0) return
@@ -261,10 +264,10 @@ contains
        do i=1,j
           call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
        enddo                                       !          i  i
-       if (pe_rank .eq. 0) write(*,*) "current res", rnorm, iter
     enddo
 !    call ortho   (x%x, n, glb_n)
-    if (pe_rank .eq. 0) write(*,*) "Residual:", rnorm, iter
+    ksp_results%res_final = rnorm
+    ksp_results%iter = iter
   end function gmres_solve
 
 end module gmres

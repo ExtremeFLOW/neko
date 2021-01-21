@@ -78,7 +78,7 @@ contains
   end subroutine cg_free
   
   !> Standard PCG solve
-  function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(iter)
+  function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
@@ -87,6 +87,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
     real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
@@ -103,7 +104,9 @@ contains
     call rzero(x%x, n)
     call copy(this%r, f, n)
 
-    rnorm = sqrt(glsc3(this%r, coef%mult, this%r, n))
+    rtr = sqrt(glsc3(this%r, coef%mult, this%r, n))
+    rnorm = sqrt(rtr)*norm_fac
+    ksp_results%res_start = rnorm
     if(rnorm .eq. 0d0) return
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
@@ -132,7 +135,8 @@ contains
           exit
        end if
     end do
-    if (pe_rank .eq. 0) write(*,*) "Residual: ", rnorm, iter
+    ksp_results%res_final = rnorm
+    ksp_results%iter = iter
   end function cg_solve
 
 end module cg

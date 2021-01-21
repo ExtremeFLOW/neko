@@ -16,6 +16,12 @@ module krylov
   real(kind=dp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=dp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
+  type, public :: ksp_monitor_t
+    integer :: iter
+    real(kind=dp) :: res_start
+    real(kind=dp) :: res_final
+  end type ksp_monitor_t
+
   !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M            !< Preconditioner
@@ -27,6 +33,7 @@ module krylov
      procedure(ksp_method), pass(this), deferred :: solve
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
+
   
   !> Abstract interface for a Krylov method's solve routine
   !!
@@ -38,13 +45,14 @@ module krylov
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(iter)
+     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
        import :: bc_list_t       
        import :: field_t
        import :: ksp_t
        import :: coef_t
        import :: gs_t
        import :: ax_t
+       import :: ksp_monitor_t
        import dp
        implicit none
        class(ksp_t), intent(inout) :: this
@@ -56,7 +64,7 @@ module krylov
        type(bc_list_t), intent(inout) :: blst
        type(gs_t), intent(inout) :: gs_h              
        integer, optional, intent(in) :: niter       
-       integer :: iter
+       type(ksp_monitor_t) :: ksp_results
      end function ksp_method
   end interface
 
