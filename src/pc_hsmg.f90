@@ -232,7 +232,8 @@ contains
     class(hsmg_t), intent(inout) :: this
     real(kind=dp), dimension(n), intent(inout) :: z
     real(kind=dp), dimension(n), intent(inout) :: r
-    integer :: i, l, iter
+    integer :: i, l
+    type(ksp_monitor_t) :: crs_info
 
 
     !OVERLAPPING Schwarz exchange and solve
@@ -262,7 +263,7 @@ contains
                       this%grids(1)%dof%n_dofs, GS_OP_ADD)
     call bc_list_apply_scalar(this%grids(1)%bclst, r, &
                               this%grids(1)%dof%n_dofs)
-    iter = this%crs_solver%solve(this%Ax, this%grids(1)%e, r, &
+    crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, r, &
                                  this%grids(1)%dof%n_dofs, &
                                  this%grids(1)%coef, &
                                  this%grids(1)%bclst, &
