@@ -101,7 +101,7 @@ contains
   subroutine mpi_type_nmsh_quad_init
     type(nmsh_hex_t) :: nmsh_quad
     integer(kind=MPI_ADDRESS_KIND) :: disp(9), base
-    integer :: type(9), len(9), i, ierr
+    integer :: type(11), len(11), i, ierr
 
     call MPI_Get_address(nmsh_quad%el_idx, disp(1), ierr)
     call MPI_Get_address(nmsh_quad%v(1)%v_idx, disp(2), ierr)
@@ -183,8 +183,8 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer(kind=MPI_ADDRESS_KIND) :: disp(9), base    
-    integer :: type(9), len(9), ierr
+    integer(kind=MPI_ADDRESS_KIND) :: disp(13), base    
+    integer :: type(13), len(13), ierr
 
     call MPI_Get_address(param_data%nsamples, disp(1), ierr)
     call MPI_Get_address(param_data%output_bdry, disp(2), ierr)
@@ -195,6 +195,10 @@ contains
     call MPI_Get_address(param_data%mu, disp(7), ierr)
     call MPI_Get_address(param_data%Re, disp(8), ierr)
     call MPI_Get_address(param_data%uinf, disp(9), ierr)
+    call MPI_Get_address(param_data%abstol_vel, disp(10), ierr)
+    call MPI_Get_address(param_data%abstol_prs, disp(11), ierr)
+    call MPI_Get_address(param_data%pc_vel, disp(12), ierr)
+    call MPI_Get_address(param_data%pc_prs, disp(13), ierr)
 
 
     base = disp(1)
@@ -207,9 +211,15 @@ contains
     disp(7) = disp(7) - base
     disp(8) = disp(8) - base
     disp(9) = disp(9) - base
+    disp(10) = disp(10) - base
+    disp(11) = disp(11) - base
+    disp(12) = disp(12) - base
+    disp(13) = disp(13) - base
 
     len(1:8) = 1
     len(9) = 3
+    len(10:11) = 1
+    len(12:13) = 20
     
     type(1) = MPI_INTEGER
     type(2) = MPI_LOGICAL
@@ -220,8 +230,12 @@ contains
     type(7) = MPI_DOUBLE_PRECISION
     type(8) = MPI_DOUBLE_PRECISION
     type(9) = MPI_DOUBLE_PRECISION
+    type(10) = MPI_DOUBLE_PRECISION
+    type(11) = MPI_DOUBLE_PRECISION
+    type(12) = MPI_CHARACTER
+    type(13) = MPI_CHARACTER
     
-    call MPI_Type_create_struct(9, len, disp, type, MPI_NEKO_PARAMS, ierr)
+    call MPI_Type_create_struct(13, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
 
   end subroutine mpi_type_neko_params_init
