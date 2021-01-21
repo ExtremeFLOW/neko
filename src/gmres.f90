@@ -160,6 +160,7 @@ contains
     call rone(this%mu ,n)
     norm_fac = 1./sqrt(coef%volume)
     ! Should change when doing real problem
+    print *, sum(f)
     call rzero(x%x,n)
     call rzero(this%gam,this%lgmres+1)
     call rone(this%s,this%lgmres)
@@ -206,17 +207,19 @@ contains
           call col2(this%w,this%ml,n)           ! w = L   w
 
           do i=1,j
-             this%h(i,j)=vlsc3(this%w,this%v(1,i),coef%mult,n) ! h    = (w,v )
-          enddo                                                !  i,j       i
-         
+             !h_j = (w,v_i)
+             this%h(i,j)=vlsc3(this%w,this%v(1,i),coef%mult,n) 
+          enddo
           !Could prorbably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
                MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, j) 
 
           do i=1,j
-             call add2s2(this%w,this%v(1,i),-this%h(i,j),n) ! w = w - h    v
-          enddo                                             !          i,j  i
+             ! w = w - h    v
+             !          i,j  i
+             call add2s2(this%w,this%v(1,i),-this%h(i,j),n)
+          enddo                                            
 
           !apply Givens rotations to new column
           do i=1,j-1
@@ -224,10 +227,9 @@ contains
              this%h(i  ,j)=  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
              this%h(i+1,j)= -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           enddo
-                                                         !            ______
-          alpha = sqrt(glsc3(this%w,this%w,coef%mult,n)) ! alpha =  \/ (w,w)
+          alpha = sqrt(glsc3(this%w,this%w,coef%mult,n))   
           rnorm = 0.
-          if(alpha.eq.0.) then 
+          if(alpha .eq. 0d0) then 
             conv = .true.
             exit
           end if
@@ -241,7 +243,6 @@ contains
 
           rnorm = abs(this%gam(j+1))*norm_fac
           ratio = rnorm / div0
-          !Should maybe change so that we return that we havent converged if iter > niter
           if (rnorm .lt. this%abs_tol) then 
              conv = .true.
              exit
