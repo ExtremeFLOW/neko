@@ -128,7 +128,7 @@ contains
        rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)*norm_fac
-       if (rnorm .lt. 1e-8) then
+       if (rnorm .lt. this%abs_tol) then
           exit
        end if
     end do
