@@ -10,10 +10,14 @@ module jacobi
   !> Defines a canonical Krylov preconditioner
   type, public, extends(pc_t) :: jacobi_t
      real(kind=dp), allocatable :: d(:,:,:,:)
+     type(gs_t), pointer :: gs_h
+     type(dofmap_t), pointer :: dof
+     type(coef_t), pointer :: coef
   contains
      procedure, pass(this) :: init => jacobi_init
      procedure, pass(this) :: free => jacobi_free
      procedure, pass(this) :: solve => jacobi_solve
+     procedure, pass(this) :: update => jacobi_update
   end type jacobi_t
 
   !> Abstract interface for solving \f$ M z = r \f$
@@ -28,8 +32,11 @@ contains
     type(gs_t), intent(inout), target :: gs_h
     
     call this%free()
+    this%gs_h => gs_h
+    this%dof => dof
+    this%coef => coef
     allocate(this%d(dof%Xh%lx,dof%Xh%ly,dof%Xh%lz, dof%msh%nelv))
-    call jacobi_set_d(this, coef, dof, gs_h)
+    call jacobi_update(this)
 
   end subroutine jacobi_init
 
@@ -38,6 +45,9 @@ contains
     if (allocated(this%d)) then
       deallocate(this%d)
     end if
+    nullify(this%dof)
+    nullify(this%gs_h)
+    nullify(this%coef)
   end subroutine jacobi_free
 
   !> The jacobi preconditioner \f$ J z = r \f$
@@ -52,12 +62,10 @@ contains
 
 
 
-  subroutine jacobi_set_d(this, coef, dof, gs_h)
-    type(jacobi_t) :: this
-    type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
-    type(gs_t), intent(inout) :: gs_h
+  subroutine jacobi_update(this)
+    class(jacobi_t), intent(inout) :: this
     integer :: i, j, k, l, e, lz, ly, lx
+    associate(dof => this%dof, coef => this%coef, gs_h => this%gs_h)
 
     lx = dof%Xh%lx
     ly = dof%Xh%ly
@@ -132,9 +140,11 @@ contains
      end if
    end do 
    call col2(this%d,coef%h1,coef%dof%n_dofs)
-   call addcol3(this%d,coef%h2,coef%B,coef%dof%n_dofs)
+   if (coef%ifh2) call addcol3(this%d,coef%h2,coef%B,coef%dof%n_dofs)
    call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
+   if (.not. coef%ifh2) call col2(this%d, coef%mult, coef%dof%n_dofs)
    call invcol1(this%d,dof%n_dofs)
-  end subroutine jacobi_set_d
+   end associate
+  end subroutine jacobi_update
   
  end module jacobi
