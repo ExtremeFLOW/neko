@@ -168,20 +168,18 @@ contains
     do while (.not. conv .and. iter .lt. niter)
        outer = outer+1
 
-       if(iter.eq.0) then               !      -1
-          call col3(this%r,this%ml,f,n) ! r = L  res
+       if(iter.eq.0) then               
+          call col3(this%r,this%ml,f,n) 
        else
           !update residual
-          call copy  (this%r,f,n)           ! r = f
+          call copy  (this%r,f,n)      
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call add2s2(this%r,this%w,-1d0,n)  ! r = r - w
-          call col2(this%r,this%ml,n)        ! r = L   r
+          call add2s2(this%r,this%w,-1d0,n) 
+          call col2(this%r,this%ml,n)       
        endif
-                                                            !            ______
-       this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n)) ! gamma  = \/ (r,r) 
-                                                            !      1
+       this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n))
        if(iter.eq.0) then
           div0 = this%gam(1)*norm_fac
        endif
@@ -190,10 +188,10 @@ contains
 
        rnorm = 0.
        temp = 1d0 / this%gam(1)
-       call cmult2(this%v(1,1),this%r,temp,n) ! v  = r / gamma
+       call cmult2(this%v(1,1),this%r,temp,n) 
        do j=1,this%lgmres
           iter = iter+1
-          call col3(this%w,this%mu,this%v(1,j),n) ! w  = U   v
+          call col3(this%w,this%mu,this%v(1,j),n)
 
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
@@ -202,20 +200,17 @@ contains
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call col2(this%w,this%ml,n)           ! w = L   w
+          call col2(this%w,this%ml,n)       
 
           do i=1,j
-             !h_j = (w,v_i)
              this%h(i,j)=vlsc3(this%w,this%v(1,i),coef%mult,n) 
           enddo
-          !Could prorbably be done inplace...
+          !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
                MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, j) 
 
           do i=1,j
-             ! w = w - h    v
-             !          i,j  i
              call add2s2(this%w,this%v(1,i),-this%h(i,j),n)
           enddo                                            
 
@@ -250,14 +245,11 @@ contains
           
           if( j .lt. this%lgmres) then
             temp = 1d0 / alpha
-            call cmult2(this%v(1,j+1),this%w,temp,n) ! v    = w / alpha
-                                                     !  j+1            
+            call cmult2(this%v(1,j+1),this%w,temp,n)
           endif
        enddo
        j = min(j, this%lgmres)
        !back substitution
-       !     -1
-       !c = H   gamma
        do k=j,1,-1
           temp = this%gam(k)
           do i=j,k+1,-1
@@ -271,7 +263,7 @@ contains
        enddo                                       !          i  i
        if (pe_rank .eq. 0) write(*,*) "current res", rnorm, iter
     enddo
-!    call ortho   (x%x, n, glb_n) ! Orthogonalize wrt null space, if present
+!    call ortho   (x%x, n, glb_n)
     if (pe_rank .eq. 0) write(*,*) "Residual:", rnorm, iter
   end function gmres_solve
 
