@@ -33,6 +33,7 @@ contains
     class(*), target, intent(inout) :: data
     type(re2_xy_t), allocatable :: re2_data_xy(:)
     type(re2_xyz_t), allocatable :: re2_data_xyz(:)
+    type(re2_bc_t), allocatable :: re2_data_bc(:)
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
@@ -40,7 +41,9 @@ contains
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp) :: test
+    real(kind=dp) :: t2
     type(point_t) :: p(8)
+    integer :: ncurv, nbcs
     type(linear_dist_t) :: dist
     type(map_t) :: nm
     type(map_file_t) :: map_file
@@ -49,6 +52,8 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
+    integer :: re2_data_cv_size
+    integer :: re2_data_bc_size
     type(htable_pt_t) :: htp
 
     select type(data)
@@ -61,12 +66,18 @@ contains
 
     call MPI_Type_size(MPI_RE2_DATA_XY, re2_data_xy_size, ierr)
     call MPI_Type_size(MPI_RE2_DATA_XYZ, re2_data_xyz_size, ierr)
+    call MPI_Type_size(MPI_RE2_DATA_CV, re2_data_cv_size, ierr)
+    call MPI_Type_size(MPI_RE2_DATA_BC, re2_data_bc_size, ierr)
     
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
     if (pe_rank .eq. 0) then
        write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
     end if
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
+    if (hdr_ver .eq. '#v002') then
+       call neko_error("Double precision re2 files not supported yet")
+    end if
+
     if (pe_rank .eq. 0) write(*,1) ndim, nelv
 1   format(1x,'ndim = ', i1, ', nelements =', i7)
     close(9)
@@ -142,15 +153,35 @@ contains
     end if
 
     call htp%free()
-    
+
+
+    ! Set offset to start of curved side data
+    mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE + MPI_REAL_SIZE
+    if (ndim .eq. 2) then
+       mpi_offset = mpi_offset + dist%num_global() * re2_data_xy_size
+    else
+       mpi_offset = mpi_offset + dist%num_global() * re2_data_xyz_size
+    end if
+
+    !> @todo Add support for curved side data
+    !! Skip curved side data
+    call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
+    mpi_offset = mpi_offset + MPI_INTEGER_SIZE + ncurv * RE2_DATA_CV_SIZE
+
+    call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
+    mpi_offset = mpi_offset + MPI_INTEGER_SIZE
+
+    allocate(re2_data_bc(nbcs))
+
+    call MPI_File_read_at_all(fh, mpi_offset, re2_data_bc, nbcs, &
+         MPI_RE2_DATA_BC, status, ierr)
+
+ 
+    !>@ todo process bc data here 
+    deallocate(re2_data_bc)
 
     call MPI_FILE_close(fh, ierr)
     if (pe_rank .eq. 0) write(*,*) 'Done'
-
-
-
-    !> @todo Add support for curved side data
-
 
     
   end subroutine re2_file_read
