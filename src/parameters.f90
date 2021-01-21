@@ -13,10 +13,10 @@ module parameters
      real(kind=dp) :: mu        !< Dynamic viscosity \f$ \mu \f$
      real(kind=dp) :: Re        !< Reynolds number
      real(kind=dp), dimension(3) :: uinf !< Free-stream velocity \f$ u_\infty \f$
-     real(kind=dp) :: abstol_vel!< Tolerance for velocity solver
-     real(kind=dp) :: abstol_prs!< Tolerance for pressure solver
-     character(len=20) :: pc_vel    !< Precon for velocity solver
-     character(len=20) :: pc_prs    !< Precon for pressure solver
+     real(kind=dp) :: abstol_vel !< Tolerance for velocity solver
+     real(kind=dp) :: abstol_prs !< Tolerance for pressure solver
+     character(len=20) :: pc_vel !< Precon for velocity solver
+     character(len=20) :: pc_prs !< Precon for pressure solver
   end type param_t
 
   type param_io_t
