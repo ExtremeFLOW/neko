@@ -290,12 +290,7 @@ contains
 
       call this%proj%project_on(p_res, Ax, c_Xh, &
                                 this%bclst_prs, gs_Xh, n)
-      select type(pcp => this%pc_prs)
-      type is(jacobi_t)
-         call jacobi_set_d(pcp, c_Xh, dm_Xh, gs_Xh)
-      type is(hsmg_t)
-         call hsmg_set_h(pcp)
-      end select
+      call this%pc_prs%update()
       if (pe_rank .eq. 0) write(*,*) "PRES"
       iter = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
@@ -320,11 +315,7 @@ contains
 
       call bc_list_apply_vector(this%bclst_vel_residual,&
                                 u_res, v_res, w_res, dm_Xh%n_dofs)
-
-      select type(pcp =>this%pc_vel)
-      type is(jacobi_t)
-         call jacobi_set_d(pcp, c_Xh, dm_Xh, gs_Xh)
-      end select
+      call this%pc_vel%update()
 
       if (pe_rank .eq. 0) write(*,*) 'U'
       iter = this%ksp_vel%solve(Ax, du, u_res, n, &

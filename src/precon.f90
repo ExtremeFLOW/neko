@@ -8,6 +8,7 @@ module precon
   type, public, abstract :: pc_t
    contains
      procedure(pc_solve), pass(this), deferred :: solve
+     procedure(pc_update), pass(this), deferred :: update
   end type pc_t
 
   !> Abstract interface for solving \f$ M z = r \f$
@@ -24,5 +25,11 @@ module precon
        real(kind=dp), dimension(n), intent(inout) :: z
        real(kind=dp), dimension(n), intent(inout) :: r
      end subroutine pc_solve
+     subroutine pc_update(this)
+       import dp
+       import :: pc_t
+       implicit none
+       class(pc_t), intent(inout) :: this
+     end subroutine pc_update
   end interface
 end module precon
