@@ -159,8 +159,6 @@ contains
     call rone(this%ml,n)
     call rone(this%mu ,n)
     norm_fac = 1./sqrt(coef%volume)
-    ! Should change when doing real problem
-    print *, sum(f)
     call rzero(x%x,n)
     call rzero(this%gam,this%lgmres+1)
     call rone(this%s,this%lgmres)
