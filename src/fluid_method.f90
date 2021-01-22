@@ -190,6 +190,13 @@ contains
        call bdry_mask%set_g(4d0)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%periodic)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(5d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
     end if
 
   end subroutine fluid_scheme_init_common
@@ -208,7 +215,8 @@ contains
     call field_init(this%v, this%dm_Xh, 'v')
     call field_init(this%w, this%dm_Xh, 'w')
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel, params%abstol_vel)
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+         solver_vel, params%abstol_vel)
 
   end subroutine fluid_scheme_init_uvw
 
@@ -240,11 +248,13 @@ contains
        call bc_list_add(this%bclst_prs, this%bc_prs)
     end if
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), solver_vel, params%abstol_vel)
+    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+         solver_vel, params%abstol_vel)
     call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
 
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_prs, params%abstol_prs)
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
+         solver_prs, params%abstol_prs)
     call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
 

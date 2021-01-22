@@ -10,6 +10,7 @@ module mpi_types
 
   integer :: MPI_NMSH_HEX    !< MPI dervied type for 3D Neko nmsh data
   integer :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
+  integer :: MPI_NMSH_ZONE   !< MPI dervied type for Neko nmsh zone data
 
   integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
   integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
@@ -24,7 +25,7 @@ module mpi_types
   integer :: MPI_INTEGER_SIZE          !< size of MPI type integer
 
   ! Public dervied types and size definitions
-  public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, &
+  public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
        MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
        MPI_RE2_DATA_CV, MPI_RE2_DATA_BC, MPI_REAL_SIZE, &
        MPI_DOUBLE_PRECISION_SIZE, MPI_CHARACTER_SIZE, &
@@ -42,6 +43,7 @@ contains
     ! Define derived types
     call mpi_type_nmsh_hex_init
     call mpi_type_nmsh_quad_init
+    call mpi_type_nmsh_zone_init
 
     call mpi_type_re2_xyz_init
     call mpi_type_re2_xy_init
@@ -101,7 +103,7 @@ contains
     call MPI_Type_commit(MPI_NMSH_HEX, ierr)    
   end subroutine mpi_type_nmsh_hex_init
 
-    !> Define a MPI dervied type for a 2d nmsh quad
+  !> Define a MPI dervied type for a 2d nmsh quad
   subroutine mpi_type_nmsh_quad_init
     type(nmsh_hex_t) :: nmsh_quad
     integer(kind=MPI_ADDRESS_KIND) :: disp(9), base
@@ -133,6 +135,31 @@ contains
     call MPI_Type_create_struct(9, len, disp, type, MPI_NMSH_QUAD, ierr)
     call MPI_Type_commit(MPI_NMSH_QUAD, ierr)    
   end subroutine mpi_type_nmsh_quad_init
+
+  !> Define a MPI derived type for a nmsh zone
+  subroutine mpi_type_nmsh_zone_init
+    type(nmsh_zone_t) :: nmsh_zone
+    integer(kind=MPI_ADDRESS_KIND) :: disp(5), base
+    integer :: type(5), len(5), i, ierr
+
+    call MPI_Get_address(nmsh_zone%e, disp(1), ierr)
+    call MPI_Get_address(nmsh_zone%f, disp(2), ierr)
+    call MPI_Get_address(nmsh_zone%p_e, disp(3), ierr)
+    call MPI_Get_address(nmsh_zone%p_f, disp(4), ierr)
+    call MPI_Get_address(nmsh_zone%type, disp(5), ierr)
+
+    base = disp(1)
+    do i = 1, 5
+       disp(i) = disp(i) - base
+    end do
+
+    len = 1
+    type = MPI_INTEGER
+
+    call MPI_Type_create_struct(5, len, disp, type, MPI_NMSH_ZONE, ierr)
+    call MPI_Type_commit(MPI_NMSH_ZONE, ierr)
+    
+  end subroutine mpi_type_nmsh_zone_init
   
   !> Define a MPI derived type for a 3d re2 data
   subroutine mpi_type_re2_xyz_init
@@ -306,6 +333,7 @@ contains
   subroutine mpi_types_free
     call mpi_type_nmsh_hex_free
     call mpi_Type_nmsh_quad_free
+    call mpi_Type_nmsh_zone_free
     call mpi_type_re2_xyz_free
     call mpi_type_re2_xy_free
     call mpi_type_re2_bc_free
@@ -318,11 +346,17 @@ contains
     call MPI_Type_free(MPI_NMSH_HEX, ierr)
   end subroutine mpi_type_nmsh_hex_free
 
-    !> Deallocate nmsh quad derived MPI type
+  !> Deallocate nmsh quad derived MPI type
   subroutine mpi_type_nmsh_quad_free
     integer ierr
     call MPI_Type_free(MPI_NMSH_QUAD, ierr)
   end subroutine mpi_type_nmsh_quad_free
+
+  !> Deallocate nmsh zone derived MPI type
+  subroutine mpi_type_nmsh_zone_free
+    integer ierr
+    call MPI_Type_free(MPI_NMSH_ZONE, ierr)
+  end subroutine mpi_type_nmsh_zone_free
   
   !> Deallocate re2 xyz dervied MPI type
   subroutine mpi_type_re2_xyz_free

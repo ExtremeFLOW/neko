@@ -137,7 +137,7 @@ contains
   !> Mark all facets from a zone
   subroutine bc_mark_zone(this, bc_zone)
     class(bc_t), intent(inout) :: this
-    type(zone_t), intent(inout) :: bc_zone
+    class(zone_t), intent(inout) :: bc_zone
     integer :: i
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))

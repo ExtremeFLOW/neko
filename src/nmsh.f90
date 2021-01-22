@@ -24,6 +24,16 @@ module nmsh
   type, public, extends(nmsh_t) :: nmsh_hex_t
      type(nmsh_vertex_t), dimension(8) :: v !< List of vertices
   end type nmsh_hex_t
+
+  !> Neko zone data
+  type, public :: nmsh_zone_t
+     integer :: e               !< Element id (global)
+     integer :: f               !< Facet number
+     integer :: p_e             !< Periodic connection (element)     
+     integer :: p_f             !< Periodic connection (facet)
+     integer :: type            !< Zone type
+  end type nmsh_zone_t
   
 
 end module nmsh
+
