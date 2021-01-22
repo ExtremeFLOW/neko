@@ -1,15 +1,15 @@
 &NEKO_CASE
 mesh_file= 'hemi.nmsh'
 fluid_scheme='plan4'
-lx = 8
+lx = 6
 solver_velocity = 'cg'
 solver_pressure = 'gmres'	
 source_term = 'noforce'
 initial_condition = 'uniform'
 /
 &NEKO_PARAMETERS
-dt = 2d-3
-T_end = 50.0
+dt = 5d-3
+T_end = 2.0
 nsamples = 100
 uinf= 1.0,0.0,0.0
 output_bdry = .true.
