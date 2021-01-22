@@ -232,7 +232,7 @@ contains
 
     len(1:2) = 1
     len(3) = 5
-    len(4) = 3
+    len(4) = 4
     type(1:2) = MPI_INTEGER
     type(3) = MPI_REAL
     type(4) = MPI_CHARACTER

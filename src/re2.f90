@@ -40,7 +40,7 @@ module re2
      integer :: elem
      integer :: face
      real(kind=sp), dimension(5) :: bc_data
-     character(len=3) :: type
+     character(len=4) :: type
   end type re2_bc_t
 
 end module re2
