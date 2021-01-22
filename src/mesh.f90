@@ -61,6 +61,7 @@ module mesh
      type(zone_t) :: inlet                !< Zone of inlet facets
      type(zone_t) :: outlet               !< Zone of outlet facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
+     type(zone_periodic_t) :: periodic    !< Zone of periodic facets
 
 
      logical :: lconn = .false.                !< valid connectivity
@@ -201,10 +202,11 @@ contains
 
     call m%htp%init(m%npts*m%nelv, i)
 
-    call zone_init(m%wall, m%nelv)
-    call zone_init(m%inlet, m%nelv)
-    call zone_init(m%outlet, m%nelv)
-    call zone_init(m%sympln, m%nelv)
+    call m%wall%init(m%nelv)
+    call m%inlet%init(m%nelv)
+    call m%outlet%init(m%nelv)
+    call m%sympln%init(m%nelv)
+    call m%periodic%init(m%nelv)
    
     call distdata_init(m%distdata)
     
@@ -260,10 +262,11 @@ contains
        deallocate(m%point_neigh)
     end if
 
-    call zone_free(m%wall)
-    call zone_free(m%inlet)
-    call zone_free(m%outlet)
-    call zone_free(m%sympln)
+    call m%wall%free()
+    call m%inlet%free()
+    call m%outlet%free()
+    call m%sympln%free()
+    call m%periodic%free()
     
   end subroutine mesh_free
 
@@ -272,10 +275,11 @@ contains
     call mesh_generate_flags(m)
     call mesh_generate_conn(m)
 
-    call zone_finalize(m%wall)
-    call zone_finalize(m%inlet)
-    call zone_finalize(m%outlet)
-    call zone_finalize(m%sympln)
+    call m%wall%finalize()
+    call m%inlet%finalize()
+    call m%outlet%finalize()
+    call m%sympln%finalize()
+    call m%periodic%finalize()
 
   end subroutine mesh_finalize
 
@@ -1172,8 +1176,8 @@ contains
          (m%gdim .eq. 3 .and. f .gt. 6)) then
        call neko_error('Invalid facet index')
     end if
-
-    call zone_add_facet(m%wall, f, e)
+    
+    call m%wall%add_facet(f, e)
     
   end subroutine mesh_mark_wall_facet
 
@@ -1192,7 +1196,7 @@ contains
        call neko_error('Invalid facet index')
     end if
 
-    call zone_add_facet(m%inlet, f, e)
+    call m%inlet%add_facet(f, e)
     
   end subroutine mesh_mark_inlet_facet
   
@@ -1211,13 +1215,13 @@ contains
        call neko_error('Invalid facet index')
     end if
 
-    call zone_add_facet(m%outlet, f, e)
+    call m%outlet%add_facet(f, e)
     
   end subroutine mesh_mark_outlet_facet
 
   !> Mark facet @a f in element @a e as a symmetry plane
   subroutine mesh_mark_sympln_facet(m, f, e)
-  type(mesh_t), intent(inout) :: m
+    type(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
     integer, intent(inout) :: e
 
@@ -1230,9 +1234,21 @@ contains
        call neko_error('Invalid facet index')
     end if
 
-    call zone_add_facet(m%sympln, f, e)
+    call m%sympln%add_facet(f, e)
     
   end subroutine mesh_mark_sympln_facet
+
+  !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
+  subroutine mesh_mark_periodic_facet(m, f, e, pf, pe)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+    integer, intent(inout) :: pf
+    integer, intent(inout) :: pe
+
+    call m%periodic%add_periodic_facet(f, e, pf, pe)
+    
+  end subroutine mesh_mark_periodic_facet
 
   !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)
