@@ -1,0 +1,23 @@
+&NEKO_CASE
+mesh_file= 'turbChannel.nmsh'
+fluid_scheme='plan4'
+lx = 6
+solver_velocity = 'cg'
+solver_pressure = 'gmres'	
+source_term = 'noforce'
+initial_condition = 'uniform'
+/
+&NEKO_PARAMETERS
+dt = 2d-2
+T_end = 200.0
+nsamples = 100
+uinf= 1.0,0.0,0.0
+output_bdry = .true.
+rho = 1
+Re = 10935
+abstol_vel = 1d-9
+abstol_prs = 1d-9
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+/
+
