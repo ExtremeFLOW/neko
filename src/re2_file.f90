@@ -37,7 +37,7 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    integer :: i, j, k, fh, nel, ndim, nelv, ierr, pt_idx
+    integer :: i, j, k, fh, nel, ndim, nelv, ierr, pt_idx, el_idx
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp) :: test
@@ -55,7 +55,10 @@ contains
     integer :: re2_data_cv_size
     integer :: re2_data_bc_size
     type(htable_pt_t) :: htp
+    integer :: sym_facet
+    integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
 
+    
     select type(data)
     type is (mesh_t)
        msh => data
@@ -176,11 +179,30 @@ contains
     call MPI_File_read_at_all(fh, mpi_offset, re2_data_bc, nbcs, &
          MPI_RE2_DATA_BC, status, ierr)
 
+    !> @todo Use element offset in parallel
+    do i = 1, nbcs
+       el_idx = re2_data_bc(i)%elem - dist%start_idx()
+       sym_facet = facet_map(re2_data_bc(i)%face)
+       select case(trim(re2_data_bc(i)%type))
+       case ('W')
+          call mesh_mark_wall_facet(msh, sym_facet, el_idx)
+       case ('v', 'V')
+          call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
+       case ('O', 'o')
+          call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+       case ('SYM')
+          call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
+       end select
+    end do
+    
  
     !>@ todo process bc data here 
     deallocate(re2_data_bc)
 
     call MPI_FILE_close(fh, ierr)
+
+    call mesh_finalize(msh)
+    
     if (pe_rank .eq. 0) write(*,*) 'Done'
 
     
