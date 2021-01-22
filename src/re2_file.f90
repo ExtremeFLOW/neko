@@ -57,6 +57,7 @@ contains
     type(htable_pt_t) :: htp
     integer :: sym_facet
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
+    integer :: p_el_idx, p_facet
 
     
     select type(data)
@@ -192,6 +193,11 @@ contains
           call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
        case ('SYM')
           call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
+       case ('P')
+          p_el_idx = int(re2_data_bc(i)%bc_data(1))
+          p_facet = facet_map(int(re2_data_bc(i)%bc_data(2)))
+          call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
+              p_el_idx, p_facet)
        end select
     end do
     
@@ -202,7 +208,7 @@ contains
     call MPI_FILE_close(fh, ierr)
 
     call mesh_finalize(msh)
-    
+
     if (pe_rank .eq. 0) write(*,*) 'Done'
 
     
