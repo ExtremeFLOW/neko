@@ -201,6 +201,8 @@ contains
                       call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
                    case ('SYM')
                       call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
+                   case ('P')
+                      call neko_error('Not implemented yet')
                    end select
                 end do
              end if
