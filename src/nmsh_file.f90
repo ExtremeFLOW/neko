@@ -27,15 +27,15 @@ contains
     class(*), target, intent(inout) :: data    
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
+    type(nmsh_zone_t), allocatable :: nmsh_zone(:)
     type(mesh_t), pointer :: msh
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
     integer :: i, j, ierr, fh, nelgv, element_offset
     integer :: nmsh_quad_size, nmsh_hex_size
     class(element_t), pointer :: ep
-    integer :: nelv, gdim, nread
-    integer :: wall, inlet, outlet, sympln, el_idx
-    integer, allocatable :: nmsh_zones(:)
+    integer :: nelv, gdim, nread, nzones
+    integer :: el_idx
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
 
@@ -104,96 +104,40 @@ contains
 
     mpi_offset = mpi_el_offset
     call MPI_File_read_at_all(fh, mpi_offset, &
-         wall, 1, MPI_INTEGER, status, ierr)
-    call MPI_Get_count(status, MPI_INTEGER, nread, ierr)
-    mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE 
-    call MPI_File_read_at_all(fh, mpi_offset, &
-         inlet, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_el_offset + 2 * MPI_INTEGER_SIZE 
-    call MPI_File_read_at_all(fh, mpi_offset, &
-         outlet, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE 
-    call MPI_File_read_at_all(fh, mpi_offset, &
-         sympln, 1, MPI_INTEGER, status, ierr)
+         nzones, 1, MPI_INTEGER, status, ierr)
+    if (nzones .gt. 0) then
+       allocate(nmsh_zone(nzones))
 
-    if (pe_rank .eq. 0) then
-       write(*,fmt='(/,1x,A)') 'Zones'
-       write(*,2) wall, inlet, outlet, sympln
-2      format(1x,'wall = ', i7, ', inlet =', i7,&
-            ', outlet =', i7,', sympln =', i7)
+       !>
+       !!@todo Fix the parallel reading in this part, let each rank read
+       !!a piece and pass the pieces around, filtering out matching zones
+       !!in the local mesh.
+       !!       
+       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       call MPI_File_read_at_all(fh, mpi_offset, &
+            nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
+       
+       do i = 1, nzones
+          el_idx = nmsh_zone(i)%e
+          if (el_idx .gt. msh%offset_el .and. &
+               el_idx .le. msh%offset_el + msh%nelv) then             
+             el_idx = el_idx - msh%offset_el
+             select case(nmsh_zone(i)%type)
+             case(1)
+                call mesh_mark_wall_facet(msh, nmsh_zone(i)%f, el_idx)
+             case(2)
+                call mesh_mark_inlet_facet(msh, nmsh_zone(i)%f, el_idx)
+             case(3)
+                call mesh_mark_outlet_facet(msh, nmsh_zone(i)%f, el_idx)
+             case(4)
+                call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
+             end select
+          end if
+       end do
 
+       deallocate(nmsh_zone)
     end if
-    
 
-    !>
-    !!@todo Fix the parallel reading in this part, let each rank read
-    !!a piece and pass the pieces around, filtering out matching zones
-    !!in the local mesh.
-    !!
-    
-
-    allocate(nmsh_zones(2 * max(wall, inlet, outlet, sympln)))
-
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE 
-    call MPI_File_read_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * wall, MPI_INTEGER, status, ierr)
-
-    do i = 1, 2*wall, 2
-       el_idx = nmsh_zones(i+1)
-       if (el_idx .gt. msh%offset_el .and. &
-            el_idx .le. msh%offset_el + msh%nelv) then
-          el_idx = el_idx - msh%offset_el
-          call mesh_mark_wall_facet(msh, nmsh_zones(i), el_idx)
-       end if
-    end do
-
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
-         2 * wall * MPI_INTEGER_SIZE
-    call MPI_File_read_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * inlet, MPI_INTEGER, status, ierr)
-
-    do i = 1, 2*inlet, 2
-       el_idx = nmsh_zones(i+1)
-       if (el_idx .gt. msh%offset_el .and. &
-            el_idx .le. msh%offset_el + msh%nelv) then
-          el_idx = el_idx - msh%offset_el
-          call mesh_mark_inlet_facet(msh, nmsh_zones(i), el_idx)
-       end if
-    end do
-
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
-         2 * wall * MPI_INTEGER_SIZE +&
-         2 * inlet * MPI_INTEGER_SIZE
-    call MPI_File_read_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * outlet, MPI_INTEGER, status, ierr)
-
-    do i = 1, 2*outlet, 2
-       el_idx = nmsh_zones(i+1)
-       if (el_idx .gt. msh%offset_el .and. &
-            el_idx .le. msh%offset_el + msh%nelv) then
-          el_idx = el_idx - msh%offset_el
-          call mesh_mark_outlet_facet(msh, nmsh_zones(i), el_idx)
-       end if
-    end do
-
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
-         2 * wall * MPI_INTEGER_SIZE +&
-         2 * inlet * MPI_INTEGER_SIZE +&
-         2 * outlet * MPI_INTEGER_SIZE
-    call MPI_File_read_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * sympln, MPI_INTEGER, status, ierr)
-
-    do i = 1, 2*sympln, 2
-       el_idx = nmsh_zones(i+1)
-       if (el_idx .gt. msh%offset_el .and. &
-            el_idx .le. msh%offset_el + msh%nelv) then
-          el_idx = el_idx - msh%offset_el
-          call mesh_mark_sympln_facet(msh, nmsh_zones(i), el_idx)
-       end if
-    end do
-    
-    deallocate(nmsh_zones)
-    
     call MPI_File_close(fh, ierr)
 
     call mesh_finalize(msh)
@@ -203,19 +147,20 @@ contains
        
   end subroutine nmsh_file_read
 
-    !> Load a mesh from a binary Neko nmsh file
+  !> Load a mesh from a binary Neko nmsh file
   subroutine nmsh_file_write(this, data, t)
     class(nmsh_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     real(kind=dp), intent(in), optional :: t
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
+    type(nmsh_zone_t), allocatable :: nmsh_zone(:)
     type(mesh_t), pointer :: msh
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
     integer :: i, j, ierr, fh, nelgv, element_offset
-    integer :: nmsh_quad_size, nmsh_hex_size
-    integer, allocatable :: nmsh_zones(:)
+    integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
+    integer :: nzones    
     class(element_t), pointer :: ep
 
     select type(data)
@@ -227,6 +172,7 @@ contains
 
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
     call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
+    call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
 
     call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, &
          MPI_SUM, 0, NEKO_COMM, ierr)
@@ -277,79 +223,62 @@ contains
     else 
        call neko_error('Invalid dimension of mesh')
     end if
-    
-    allocate(nmsh_zones(2* max(msh%wall%size, msh%inlet%size, &
-         msh%outlet%size, msh%sympln%size)))
+
+    nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + msh%sympln%size
 
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
-         msh%wall%size, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE 
-    call MPI_File_write_at_all(fh, mpi_offset, &
-         msh%inlet%size, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_el_offset + 2 * MPI_INTEGER_SIZE 
-    call MPI_File_write_at_all(fh, mpi_offset, &
-         msh%outlet%size, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_el_offset + 3 * MPI_INTEGER_SIZE 
-    call MPI_File_write_at_all(fh, mpi_offset, &
-         msh%sympln%size, 1, MPI_INTEGER, status, ierr)
-    
-    
-    j = 1
-    do i = 1, 2*msh%wall%size, 2
-       nmsh_zones(i) = msh%wall%facet_el(j)%x(1)
-       nmsh_zones(i+1) = msh%wall%facet_el(j)%x(2)
-       j = j + 1
-    end do
+         nzones, 1, MPI_INTEGER, status, ierr)
 
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
-         element_offset * (2 * MPI_INTEGER_SIZE)
-    call MPI_File_write_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * msh%wall%size, MPI_INTEGER, status, ierr)
-    
-    j = 1
-    do i = 1, 2*msh%inlet%size, 2
-       nmsh_zones(i) = msh%inlet%facet_el(j)%x(1)
-       nmsh_zones(i+1) = msh%inlet%facet_el(j)%x(2)
-       j = j + 1
-    end do
+    if (nzones .gt. 0) then
+       allocate(nmsh_zone(nzones))
+       
+       nmsh_zone(:)%type = 0
+       
+       j = 1
+       do i = 1, msh%wall%size
+          nmsh_zone(j)%e = msh%wall%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone(j)%f = msh%wall%facet_el(i)%x(1)
+          nmsh_zone(j)%type = 1
+          j = j + 1
+       end do
 
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
-         2 * msh%wall%size * MPI_INTEGER_SIZE + &
-         element_offset * (2 * MPI_INTEGER_SIZE)
-    call MPI_File_write_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * msh%inlet%size, MPI_INTEGER, status, ierr)
-            
-    j = 1
-    do i = 1, 2*msh%outlet%size, 2
-       nmsh_zones(i) = msh%outlet%facet_el(j)%x(1)
-       nmsh_zones(i+1) = msh%outlet%facet_el(j)%x(2)
-       j = j + 1
-    end do
-    
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
-         2 * msh%wall%size * MPI_INTEGER_SIZE +&
-         2 * msh%inlet%size * MPI_INTEGER_SIZE +&
-         element_offset * (2 * MPI_INTEGER_SIZE)
-    call MPI_File_write_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * msh%outlet%size, MPI_INTEGER, status, ierr)
+       do i = 1, msh%inlet%size
+          nmsh_zone(j)%e = msh%inlet%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone(j)%f = msh%inlet%facet_el(i)%x(1)
+          nmsh_zone(j)%type = 2
+          j = j + 1
+       end do
 
-    j = 1
-    do i = 1, 2*msh%sympln%size, 2
-       nmsh_zones(i) = msh%sympln%facet_el(j)%x(1)
-       nmsh_zones(i+1) = msh%sympln%facet_el(j)%x(2)
-       j = j + 1
-    end do
-    
-    mpi_offset = mpi_el_offset + 4 * MPI_INTEGER_SIZE + &
-         2 * msh%wall%size * MPI_INTEGER_SIZE +&
-         2 * msh%inlet%size * MPI_INTEGER_SIZE +&
-         2 * msh%outlet%size * MPI_INTEGER_SIZE +&
-         element_offset * (2 * MPI_INTEGER_SIZE)
-    call MPI_File_write_at_all(fh, mpi_offset, &
-         nmsh_zones, 2 * msh%sympln%size, MPI_INTEGER, status, ierr)
+       do i = 1, msh%outlet%size
+          nmsh_zone(j)%e = msh%outlet%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone(j)%f = msh%outlet%facet_el(i)%x(1)
+          nmsh_zone(j)%type = 3
+          j = j + 1
+       end do
 
-    deallocate(nmsh_zones)
+       do i = 1, msh%sympln%size
+          nmsh_zone(j)%e = msh%sympln%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone(j)%f = msh%sympln%facet_el(i)%x(1)
+          nmsh_zone(j)%type = 4
+          j = j + 1
+       end do
+
+       do i = 1, msh%periodic%size
+          nmsh_zone(j)%e = msh%periodic%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone(j)%f = msh%periodic%facet_el(i)%x(1)
+          nmsh_zone(j)%p_e = msh%periodic%facet_el(i)%x(2)
+          nmsh_zone(j)%p_f = msh%periodic%facet_el(i)%x(1)
+          nmsh_zone(j)%type = 5
+          j = j + 1
+       end do
+
+       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       call MPI_File_write_at_all(fh, mpi_offset, &
+            nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
+       
+       deallocate(nmsh_zone)
+    end if
     
     call MPI_File_close(fh, ierr)
     if (pe_rank .eq. 0) write(*,*) 'Done'
