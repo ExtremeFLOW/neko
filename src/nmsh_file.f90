@@ -131,6 +131,9 @@ contains
                 call mesh_mark_outlet_facet(msh, nmsh_zone(i)%f, el_idx)
              case(4)
                 call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
+             case(5)
+                call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                     nmsh_zone(i)%p_e, nmsh_zone(i)%p_f)
              end select
           end if
        end do
@@ -224,7 +227,8 @@ contains
        call neko_error('Invalid dimension of mesh')
     end if
 
-    nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + msh%sympln%size
+    nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + &
+         msh%sympln%size + msh%periodic%size
 
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
@@ -267,8 +271,8 @@ contains
        do i = 1, msh%periodic%size
           nmsh_zone(j)%e = msh%periodic%facet_el(i)%x(2) + msh%offset_el
           nmsh_zone(j)%f = msh%periodic%facet_el(i)%x(1)
-          nmsh_zone(j)%p_e = msh%periodic%facet_el(i)%x(2)
-          nmsh_zone(j)%p_f = msh%periodic%facet_el(i)%x(1)
+          nmsh_zone(j)%p_e = msh%periodic%p_facet_el(i)%x(2)
+          nmsh_zone(j)%p_f = msh%periodic%p_facet_el(i)%x(1)
           nmsh_zone(j)%type = 5
           j = j + 1
        end do

@@ -190,6 +190,13 @@ contains
        call bdry_mask%set_g(4d0)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%periodic)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(5d0)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
     end if
 
   end subroutine fluid_scheme_init_common
