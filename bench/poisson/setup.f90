@@ -1,30 +1,30 @@
 ! Set Dirichlet conditions
-subroutine set_bc(bc, msh)
+subroutine set_bc(bc_, msh)
   use neko
   implicit none
   
   type(mesh_t), intent(in) :: msh
-  type(dirichlet_t), intent(inout) :: bc
+  type(dirichlet_t), intent(inout) :: bc_
   integer :: i
 
   do i = 1, msh%nelv
      if (msh%facet_neigh(1, i) .eq. 0) then
-       call bc%mark_facet(1, i) 
+       call bc_%mark_facet(1, i) 
      end if
      if (msh%facet_neigh(2, i) .eq. 0) then
-       call bc%mark_facet(2, i) 
+       call bc_%mark_facet(2, i) 
      end if
      if (msh%facet_neigh(3, i) .eq. 0) then
-       call bc%mark_facet(3, i) 
+       call bc_%mark_facet(3, i) 
      end if
      if (msh%facet_neigh(4, i) .eq. 0) then
-       call bc%mark_facet(4, i) 
+       call bc_%mark_facet(4, i) 
      end if
      if (msh%facet_neigh(5, i) .eq. 0) then
-       call bc%mark_facet(5, i) 
+       call bc_%mark_facet(5, i) 
      end if
      if (msh%facet_neigh(6, i) .eq. 0) then
-       call bc%mark_facet(6, i) 
+       call bc_%mark_facet(6, i) 
      end if
   enddo
 end subroutine set_bc
