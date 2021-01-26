@@ -1,0 +1,13 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+includedir_pkg=${prefix}/include/neko
+FC=@FC@
+FCFLAGS='@FCFLAGS@'
+
+echo 'N E K O build tool, Version @PACKAGE_VERSION@'
+echo '@NEKO_BUILD_INFO@'
+
