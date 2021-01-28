@@ -35,7 +35,7 @@ contains
     integer :: nmsh_quad_size, nmsh_hex_size
     class(element_t), pointer :: ep
     integer :: nelv, gdim, nread, nzones
-    integer :: el_idx
+    integer :: el_idx, ids(4)
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
 
@@ -132,8 +132,8 @@ contains
              case(4)
                 call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
              case(5)
-                call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
-                     nmsh_zone(i)%p_e, nmsh_zone(i)%p_f)
+                call mesh_apply_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                     nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              end select
           end if
        end do
@@ -150,7 +150,7 @@ contains
        
   end subroutine nmsh_file_read
 
-  !> Load a mesh from a binary Neko nmsh file
+  !> Write a mesh from to a binary Neko nmsh file
   subroutine nmsh_file_write(this, data, t)
     class(nmsh_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
@@ -192,6 +192,8 @@ contains
 
     call MPI_File_write_all(fh, msh%nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, msh%gdim, 1, MPI_INTEGER, status, ierr)
+
+    call mesh_reset_periodic_ids(msh)
 
     if (msh%gdim .eq. 2) then
        allocate(nmsh_quad(msh%nelv))       
@@ -273,6 +275,7 @@ contains
           nmsh_zone(j)%f = msh%periodic%facet_el(i)%x(1)
           nmsh_zone(j)%p_e = msh%periodic%p_facet_el(i)%x(2)
           nmsh_zone(j)%p_f = msh%periodic%p_facet_el(i)%x(1)
+          nmsh_zone(j)%glb_pt_ids = msh%periodic%p_ids(i)%x
           nmsh_zone(j)%type = 5
           j = j + 1
        end do

@@ -54,6 +54,7 @@ contains
     integer :: re2_data_xyz_size
     integer :: re2_data_cv_size
     integer :: re2_data_bc_size
+    integer :: pids(4)
     type(htable_pt_t) :: htp
     integer :: sym_facet
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
@@ -196,11 +197,48 @@ contains
        case ('P')
           p_el_idx = int(re2_data_bc(i)%bc_data(1))
           p_facet = facet_map(int(re2_data_bc(i)%bc_data(2)))
+          call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
+                                     p_facet, p_el_idx, pids)
           call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
-              p_el_idx, p_facet)
+                                        p_facet, p_el_idx, pids)
        end select
     end do
-    
+    !> @todo Use element offset in parallel
+    do i = 1, nbcs
+       el_idx = re2_data_bc(i)%elem - dist%start_idx()
+       sym_facet = facet_map(re2_data_bc(i)%face)
+       select case(trim(re2_data_bc(i)%type))
+       case ('P')
+          p_el_idx = int(re2_data_bc(i)%bc_data(1))
+          p_facet = facet_map(int(re2_data_bc(i)%bc_data(2)))
+          call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+              p_facet, p_el_idx) 
+       end select
+    end do
+    !> @todo Use element offset in parallel
+    do i = 1, nbcs
+       el_idx = re2_data_bc(i)%elem - dist%start_idx()
+       sym_facet = facet_map(re2_data_bc(i)%face)
+       select case(trim(re2_data_bc(i)%type))
+       case ('P')
+          p_el_idx = int(re2_data_bc(i)%bc_data(1))
+          p_facet = facet_map(int(re2_data_bc(i)%bc_data(2)))
+          call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+              p_facet, p_el_idx) 
+       end select
+    end do   
+    !> @todo Use element offset in parallel
+    do i = 1, nbcs
+       el_idx = re2_data_bc(i)%elem - dist%start_idx()
+       sym_facet = facet_map(re2_data_bc(i)%face)
+       select case(trim(re2_data_bc(i)%type))
+       case ('P')
+          p_el_idx = int(re2_data_bc(i)%bc_data(1))
+          p_facet = facet_map(int(re2_data_bc(i)%bc_data(2)))
+          call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+              p_facet, p_el_idx) 
+       end select
+    end do   
  
     !>@ todo process bc data here 
     deallocate(re2_data_bc)

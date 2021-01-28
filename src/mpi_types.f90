@@ -139,24 +139,27 @@ contains
   !> Define a MPI derived type for a nmsh zone
   subroutine mpi_type_nmsh_zone_init
     type(nmsh_zone_t) :: nmsh_zone
-    integer(kind=MPI_ADDRESS_KIND) :: disp(5), base
-    integer :: type(5), len(5), i, ierr
+    integer(kind=MPI_ADDRESS_KIND) :: disp(6), base
+    integer :: type(6), len(6), i, ierr
 
     call MPI_Get_address(nmsh_zone%e, disp(1), ierr)
     call MPI_Get_address(nmsh_zone%f, disp(2), ierr)
     call MPI_Get_address(nmsh_zone%p_e, disp(3), ierr)
     call MPI_Get_address(nmsh_zone%p_f, disp(4), ierr)
-    call MPI_Get_address(nmsh_zone%type, disp(5), ierr)
+    call MPI_Get_address(nmsh_zone%glb_pt_ids, disp(5), ierr)
+    call MPI_Get_address(nmsh_zone%type, disp(6), ierr)
 
     base = disp(1)
-    do i = 1, 5
+    do i = 1, 6
        disp(i) = disp(i) - base
     end do
 
-    len = 1
+    len(1:4) = 1
+    len(5) = 4
+    len(6) = 1
     type = MPI_INTEGER
 
-    call MPI_Type_create_struct(5, len, disp, type, MPI_NMSH_ZONE, ierr)
+    call MPI_Type_create_struct(6, len, disp, type, MPI_NMSH_ZONE, ierr)
     call MPI_Type_commit(MPI_NMSH_ZONE, ierr)
     
   end subroutine mpi_type_nmsh_zone_init

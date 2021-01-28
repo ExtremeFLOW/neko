@@ -51,6 +51,7 @@ contains
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 400 + 8
     character buffer(nbytes)
     integer :: pack_index
+    real(kind=dp) :: eps
     
 
     !
@@ -103,7 +104,7 @@ contains
 
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
-
+    print *, 'mesh created'
     C%params = params%p
 
     !
@@ -119,7 +120,7 @@ contains
     end if
   
     call C%fluid%init(C%msh, lx, C%params, solver_velocity, solver_pressure)
-
+    print *, 'dofmap etc created'
     !
     ! Setup source term
     ! 
@@ -150,10 +151,30 @@ contains
           call neko_error('Invalid initial condition')
        end if
     end if
-    
 
-    !
-    ! Validate that the case is properly setup for time-stepping
+    eps = 5d-2 
+    !C%fluid%u%x = 5*(1.-C%fluid%dm_Xh%y**4)/4d0 + eps*r 
+    !C%fluid%u%y = 5*(1.-C%fluid%dm_Xh%y**4)/4d0 + eps*r 
+    call random_number(C%fluid%u%x) 
+    call random_number(C%fluid%v%x) 
+    call random_number(C%fluid%w%x) 
+    C%fluid%u%x = eps * C%fluid%u%x + 5d0*(1d0-C%fluid%dm_Xh%y**4)/4d0
+    C%fluid%v%x = eps * C%fluid%v%x
+    C%fluid%w%x = eps * C%fluid%w%x
+    !C%fluid%u%x = 1d0/8d0 * (C%fluid%dm_Xh%x)
+    !C%fluid%u%x = 1d0
+    call gs_op_vector(C%fluid%gs_Xh,C%fluid%u%x,C%fluid%dm_Xh%n_dofs,GS_OP_ADD)
+    call col2(C%fluid%u%x,C%Fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs)
+    call gs_op_vector(C%fluid%gs_Xh,C%fluid%v%x,C%fluid%dm_Xh%n_dofs,GS_OP_ADD)
+    call col2(C%fluid%v%x,C%Fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs)
+    call gs_op_vector(C%fluid%gs_Xh,C%fluid%w%x,C%fluid%dm_Xh%n_dofs,GS_OP_ADD)
+    call col2(C%fluid%w%x,C%Fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs)
+
+    
+    ! = .05                                                                                                                                     
+    !ux  = 5*(1.-y**4)/4.  + eps*(ran1(idum)-.5)                                                                                                   
+     !uy  =  eps*(ran1(idum)-.5)                                                                                                   
+    !uz = eps*(ran1(idum)-.5)  
     !
     call C%fluid%validate
 
