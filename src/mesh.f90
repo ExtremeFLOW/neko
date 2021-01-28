@@ -272,6 +272,8 @@ contains
 
   subroutine mesh_finalize(m)
     type(mesh_t), intent(inout) :: m
+
+
     call mesh_generate_flags(m)
     call mesh_generate_conn(m)
 
@@ -1239,16 +1241,203 @@ contains
   end subroutine mesh_mark_sympln_facet
 
   !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
-  subroutine mesh_mark_periodic_facet(m, f, e, pf, pe)
+  subroutine mesh_mark_periodic_facet(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
     integer, intent(inout) :: e
     integer, intent(inout) :: pf
     integer, intent(inout) :: pe
+    integer, intent(inout) :: pids(4)
 
-    call m%periodic%add_periodic_facet(f, e, pf, pe)
-    
+    call m%periodic%add_periodic_facet(f, e, pf, pe, pids)
   end subroutine mesh_mark_periodic_facet
+
+  !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
+  subroutine mesh_get_periodic_ids(m, f, e, pf, pe, pids)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+    integer, intent(inout) :: pf
+    integer, intent(inout) :: pe
+    integer, intent(inout) :: pids(4)
+    type(point_t), pointer :: pi
+    integer :: i
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
+                                                       2,6,7,3,&
+                                                       1,2,6,5,&
+                                                       4,3,7,8,&
+                                                       1,2,3,4,&
+                                                       5,6,7,8/),&
+                                                       (/4,6/))
+  
+    select type(ele => m%elements(e)%e)
+    type is(hex_t)
+       do i = 1, 4
+          pi => ele%pts(face_nodes(i,f))%p
+          pids(i) = pi%id()
+       end do
+    end select
+  end subroutine mesh_get_periodic_ids
+
+  subroutine mesh_reset_periodic_ids(m)
+    type(mesh_t), intent(inout) :: m
+    integer :: i,j, id_temp
+    integer :: f
+    integer :: e
+    integer :: pf
+    integer :: pe
+    integer :: pids(4), pids_org(4)
+    type(point_t), pointer :: pi
+    integer, allocatable :: temp_ids(:,:)
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
+                                                       2,6,7,3,&
+                                                       1,2,6,5,&
+                                                       4,3,7,8,&
+                                                       1,2,3,4,&
+                                                       5,6,7,8/),&
+                                                       (/4,6/))
+    allocate(temp_ids(4,m%periodic%size))
+    do i = 1, m%periodic%size
+       e = m%periodic%facet_el(i)%x(2) 
+       f = m%periodic%facet_el(i)%x(1)
+       pe = m%periodic%p_facet_el(i)%x(2)
+       pf = m%periodic%p_facet_el(i)%x(1)
+       pids = m%periodic%p_ids(i)%x
+       select type(ele => m%elements(e)%e)
+       type is(hex_t)
+       do j = 1, 4
+          pi => ele%pts(face_nodes(j,f))%p
+          temp_ids(j,i) = pids(j)
+          pids(j) = pi%id()
+       end do
+       end select
+       m%periodic%p_ids(i)%x = pids
+    end do
+    do i = 1, m%periodic%size
+       e = m%periodic%facet_el(i)%x(2) 
+       f = m%periodic%facet_el(i)%x(1)
+       pe = m%periodic%p_facet_el(i)%x(2)
+       pf = m%periodic%p_facet_el(i)%x(1)
+       pids = m%periodic%p_ids(i)%x
+       select type(ele => m%elements(e)%e)
+       type is(hex_t)
+       do j = 1, 4
+          pi => ele%pts(face_nodes(j,f))%p
+          call pi%set_id(temp_ids(j,i))
+       end do
+       end select
+    end do
+    deallocate(temp_ids)
+  end subroutine mesh_reset_periodic_ids
+
+  subroutine mesh_create_periodic_ids(m, f, e, pf, pe)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+    integer, intent(inout) :: pf
+    integer, intent(inout) :: pe
+    type(point_t), pointer :: pi, pj
+    real(kind=dp) :: L(3)
+    integer :: i, j, id, p_local_idx
+    type(tuple4_i4_t) :: ft
+    type(tuple_i4_t) :: et
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
+                                                       2,6,7,3,&
+                                                       1,2,6,5,&
+                                                       4,3,7,8,&
+                                                       1,2,3,4,&
+                                                       5,6,7,8/),&
+                                                       (/4,6/))
+  
+    select type(ele => m%elements(e)%e)
+    type is(hex_t)
+    select type(elp => m%elements(pe)%e)
+    type is(hex_t)
+       L = 0d0
+       do i = 1, 4
+          L = L + ele%pts(face_nodes(i,f))%p%x(1:3) - elp%pts(face_nodes(i,pf))%p%x(1:3)
+       end do
+       L = L/4
+       do i = 1, 4
+          pi => ele%pts(face_nodes(i,f))%p
+          do j = 1, 4
+             pj => elp%pts(face_nodes(j,pf))%p
+             if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
+                id = min(pi%id(), pj%id())
+                call pi%set_id(id)
+                call pj%set_id(id)
+                p_local_idx = mesh_get_local(m, m%points(id))
+                id = ele%id()
+                call m%point_neigh(p_local_idx)%push(id)
+                id = elp%id()
+                call m%point_neigh(p_local_idx)%push(id)
+             end if
+          end do
+       end do
+
+       do i = 1, NEKO_HEX_NFCS
+          call ele%facet_id(ft, i)
+          call mesh_add_face(m, ft)
+          call elp%facet_id(ft, i)
+          call mesh_add_face(m, ft)
+       end do
+
+       do i = 1, NEKO_HEX_NEDS
+          call ele%edge_id(et, i)
+          call mesh_add_edge(m, et)
+          call elp%edge_id(et, i)
+          call mesh_add_edge(m, et)
+       end do
+    end select
+    end select
+  end subroutine mesh_create_periodic_ids
+
+  subroutine mesh_apply_periodic_facet(m, f, e, pf, pe, pids)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+    integer, intent(inout) :: pf
+    integer, intent(inout) :: pe
+    integer, intent(inout) :: pids(4)
+    type(point_t), pointer :: pi
+    integer :: i, id, p_local_idx, temp_id
+    type(tuple4_i4_t) :: ft
+    type(tuple_i4_t) :: et
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
+                                                       2,6,7,3,&
+                                                       1,2,6,5,&
+                                                       4,3,7,8,&
+                                                       1,2,3,4,&
+                                                       5,6,7,8/),&
+                                                       (/4,6/))
+  
+    select type(ele => m%elements(e)%e)
+    type is(hex_t)
+       do i = 1, 4
+          pi => ele%pts(face_nodes(i,f))%p
+          temp_id = pids(i)
+          call pi%set_id(pids(i))
+          pids(i) = temp_id 
+          call mesh_add_point(m,pi,id)
+          p_local_idx = mesh_get_local(m, m%points(id))
+          id = ele%id()
+          call m%point_neigh(p_local_idx)%push(id)
+       end do
+
+       do i = 1, NEKO_HEX_NFCS
+          call ele%facet_id(ft, i)
+          call mesh_add_face(m, ft)
+       end do
+
+       do i = 1, NEKO_HEX_NEDS
+          call ele%edge_id(et, i)
+          call mesh_add_edge(m, et)
+       end do
+    end select
+
+    call mesh_mark_periodic_facet(m, f, e, pf, pe, pids)
+  end subroutine mesh_apply_periodic_facet
+
 
   !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)
@@ -1261,6 +1450,7 @@ contains
     tmp = p%id()
 
     if (m%htp%get(tmp, local_id) .gt. 0) then
+       print *, tmp
        call neko_error('Invalid global id')
     end if
     
@@ -1274,6 +1464,7 @@ contains
     integer :: local_id
 
     if (m%hte%get(e, local_id) .gt. 0) then
+       print *, e
        call neko_error('Invalid global id')
     end if
     
@@ -1286,6 +1477,7 @@ contains
     integer :: local_id
 
     if (m%htf%get(f, local_id) .gt. 0) then
+       print *, f
        call neko_error('Invalid global id')
     end if
     
@@ -1313,7 +1505,7 @@ contains
     integer :: global_id
 
     global_id = mesh_get_local_facet(m, f)
-
+    
     if (pe_size .gt. 1) then
        global_id = m%distdata%local_to_global_facet(global_id)
     end if
@@ -1356,7 +1548,6 @@ contains
     type(tuple_i4_t), intent(inout) :: e
     integer :: local_index
     logical shared
-
     local_index = mesh_get_local(m, e)
     shared = m%distdata%shared_edge%element(local_index)
     
