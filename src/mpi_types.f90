@@ -291,10 +291,10 @@ contains
     call MPI_Get_address(param_data%abstol_prs, disp(11), ierr)
     call MPI_Get_address(param_data%pc_vel, disp(12), ierr)
     call MPI_Get_address(param_data%pc_prs, disp(13), ierr)
-    call MPI_Get_address(param_data%flow_dir, disp(14), ierr)
+    call MPI_Get_address(param_data%vol_flow_dir, disp(14), ierr)
     call MPI_Get_address(param_data%avflow, disp(15), ierr)
     call MPI_Get_address(param_data%flow_rate, disp(16), ierr)
-    call MPI_Get_address(param_data%flow_rate, disp(17), ierr)
+    call MPI_Get_address(param_data%proj_dim, disp(17), ierr)
 
 
     base = disp(1)
