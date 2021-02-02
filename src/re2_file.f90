@@ -110,7 +110,7 @@ contains
 
     call mesh_init(msh, ndim, dist)
 
-    call htp%init((2*ndim) * nel, ndim)
+    call htp%init((2**(2*ndim)) * nel, ndim)
    
     ! Set offset (header)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
@@ -180,6 +180,7 @@ contains
 
     call MPI_File_read_at_all(fh, mpi_offset, re2_data_bc, nbcs, &
          MPI_RE2_DATA_BC, status, ierr)
+
 
     !> @todo Use element offset in parallel
     do i = 1, nbcs
