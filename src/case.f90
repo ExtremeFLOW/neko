@@ -104,7 +104,6 @@ contains
 
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
-    print *, 'mesh created'
     C%params = params%p
 
     !
