@@ -173,7 +173,7 @@ contains
     type(stack_i4_t) :: local_dof, dof_local, shared_dof, dof_shared
     type(stack_i4_t) :: local_face_dof, face_dof_local
     type(stack_i4_t) :: shared_face_dof, face_dof_shared
-    integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid
+    integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid, dm_size
     integer, pointer :: sp(:)
     type(htable_i8_t) :: dm
     type(htable_i8_t), pointer :: sdm
@@ -182,8 +182,10 @@ contains
     msh => dofmap%msh
     sdm => gs%shared_dofs
 
-    call dm%init(msh%nelv, i)
-    call sdm%init(msh%nelv, i)
+    dm_size = dofmap%n_dofs/4
+
+    call dm%init(dm_size, i)
+    call sdm%init(dm_size, i)
     
     lx = dofmap%Xh%lx
     ly = dofmap%Xh%ly
