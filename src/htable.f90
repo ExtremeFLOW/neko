@@ -761,6 +761,9 @@ contains
        tmp = (tmp + M5) + ishft(tmp, 3)
        tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
        hash = int(modulo(tmp, int(this%size, 8)), 4)
+       !> @note I think this hash might be better
+       hash = int(modulo(k * 2654435761_8, int(this%size, 8)), 4)
+
     class default
        hash = -1
     end select
