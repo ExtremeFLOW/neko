@@ -17,6 +17,10 @@ module parameters
      real(kind=dp) :: abstol_prs !< Tolerance for pressure solver
      character(len=20) :: pc_vel !< Precon for velocity solver
      character(len=20) :: pc_prs !< Precon for pressure solver
+     integer :: flow_dir         !< Direction of forced volume flow x=1, y=2, z=3
+     logical :: avflow           !< If we should use the averaged flow for vol_flow
+     real(kind=dp) :: flow_rate  !< Volume flow speed
+     integer :: proj_dim         !< Projection space for pressure solution
   end type param_t
 
   type param_io_t
@@ -53,9 +57,14 @@ contains
     real(kind=dp) :: abstol_prs = 1d-9
     character(len=20) :: pc_vel = 'jacobi'
     character(len=20) :: pc_prs = 'hsmg'
+    integer :: flow_dir = 0
+    logical :: avflow = .true.
+    real(kind=dp) :: flow_rate = 0d0
+    integer :: proj_dim = 20
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
-         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, pc_vel, pc_prs
+         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, pc_vel, pc_prs, &
+         flow_dir, avflow, flow_rate, proj_dim
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -72,6 +81,10 @@ contains
     param%p%abstol_prs = abstol_prs
     param%p%pc_vel = pc_vel
     param%p%pc_prs = pc_prs
+    param%p%flow_dir = flow_dir
+    param%p%avflow = avflow
+    param%p%flow_rate = flow_rate
+    param%p%proj_dim = proj_dim
 
   end subroutine param_read
 
