@@ -173,8 +173,9 @@ contains
     type(bc_list_t), target, intent(in) :: bclst
     type(schwarz_t), target, intent(in) :: schwarz
     type(field_t), target, intent(in) :: e
-    type(multigrid_t), intent(inout), dimension(l) :: grids
     integer, intent(in) :: l
+    type(multigrid_t), intent(inout), dimension(l) :: grids
+
 
     grids(l)%dof => dof
     grids(l)%gs_h => gs_h
