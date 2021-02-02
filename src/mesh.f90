@@ -1252,7 +1252,7 @@ contains
     call m%periodic%add_periodic_facet(f, e, pf, pe, pids)
   end subroutine mesh_mark_periodic_facet
 
-  !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
+  !> Get original ids of periodic points
   subroutine mesh_get_periodic_ids(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
@@ -1278,7 +1278,7 @@ contains
        end do
     end select
   end subroutine mesh_get_periodic_ids
-
+  !> Reset ids of periodic points to their original ids
   subroutine mesh_reset_periodic_ids(m)
     type(mesh_t), intent(inout) :: m
     integer :: i,j, id_temp
@@ -1329,7 +1329,7 @@ contains
     end do
     deallocate(temp_ids)
   end subroutine mesh_reset_periodic_ids
-
+  !> Creates common ids for matching periodic points.
   subroutine mesh_create_periodic_ids(m, f, e, pf, pe)
     type(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
@@ -1392,6 +1392,7 @@ contains
     end select
   end subroutine mesh_create_periodic_ids
 
+  !> Replaces the periodic point's id with a common id for matching periodic points
   subroutine mesh_apply_periodic_facet(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
@@ -1415,7 +1416,7 @@ contains
     type is(hex_t)
        do i = 1, 4
           pi => ele%pts(face_nodes(i,f))%p
-          temp_id = pids(i)
+          temp_id = pi%id()
           call pi%set_id(pids(i))
           pids(i) = temp_id 
           call mesh_add_point(m,pi,id)
