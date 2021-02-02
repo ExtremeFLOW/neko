@@ -12,6 +12,7 @@ module case
   use mesh
   use comm
   use abbdf
+  use user_intf  
   implicit none
 
   type :: case_t
@@ -22,6 +23,7 @@ module case
      real(kind=dp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
+     type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
 
@@ -107,6 +109,11 @@ contains
     C%params = params%p
 
     !
+    ! Setup user defined functions
+    !
+    C%usr = user_t()
+    
+    !
     ! Setup fluid scheme
     !
 
@@ -156,7 +163,7 @@ contains
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
-
+    
 
     !
     ! Save boundary markings for fluid (if requested)

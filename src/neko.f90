@@ -57,6 +57,7 @@ module neko
   use operators
   use mathops
   use projection
+  use user_intf
 contains
 
   subroutine neko_init(C)
