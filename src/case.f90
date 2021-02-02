@@ -120,7 +120,7 @@ contains
     end if
   
     call C%fluid%init(C%msh, lx, C%params, solver_velocity, solver_pressure)
-    print *, 'dofmap etc created'
+    if(pe_rank .eq. 0) write(*,*) 'Fluid scheme initialized successfully'
     !
     ! Setup source term
     ! 
@@ -152,41 +152,6 @@ contains
        end if
     end if
 
-    eps = 5d-2 
-    !C%fluid%u%x = 5*(1.-C%fluid%dm_Xh%y**4)/4d0 + eps*r 
-    !C%fluid%u%y = 5*(1.-C%fluid%dm_Xh%y**4)/4d0 + eps*r 
-    temp = 1
-    call random_seed(temp)
-    !call random_seed(put=(/pe_rank/))
-    call random_number(C%fluid%u%x) 
-    call random_number(C%fluid%v%x) 
-    call random_number(C%fluid%w%x) 
-    !C%fluid%u%x = eps * C%fluid%u%x + 5d0*(1d0-C%fluid%dm_Xh%y**4)/4d0
-    !C%fluid%u%x = eps * C%fluid%u%x 
-    !C%fluid%v%x = eps * C%fluid%v%x
-    !C%fluid%w%x = eps * C%fluid%w%x +6d0*(1d0-(C%fluid%dm_Xh%y**2+C%fluid%dm_Xh%x**2)**2)/5d0
-    !C%fluid%u%x = 1d0/8d0 * (C%fluid%dm_Xh%x)
-    !C%fluid%u%x = 1d0
-    do i = 1, C%fluid%dm_Xh%n_dofs
-       uvw = pipe_ic(C%fluid%dm_Xh%x(i,1,1,1), C%fluid%dm_Xh%y(i,1,1,1),C%fluid%dm_Xh%z(i,1,1,1))
-       C%fluid%u%x(i,1,1,1) = uvw(1)
-       C%fluid%v%x(i,1,1,1) = uvw(2)
-       C%fluid%w%x(i,1,1,1) = uvw(3)
-    end do
-
-    call gs_op_vector(C%fluid%gs_Xh,C%fluid%u%x,C%fluid%dm_Xh%n_dofs,GS_OP_ADD)
-    call col2(C%fluid%u%x,C%Fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs)
-    call gs_op_vector(C%fluid%gs_Xh,C%fluid%v%x,C%fluid%dm_Xh%n_dofs,GS_OP_ADD)
-    call col2(C%fluid%v%x,C%Fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs)
-    call gs_op_vector(C%fluid%gs_Xh,C%fluid%w%x,C%fluid%dm_Xh%n_dofs,GS_OP_ADD)
-    call col2(C%fluid%w%x,C%Fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs)
-
-    
-    ! = .05                                                                                                                                     
-    !ux  = 5*(1.-y**4)/4.  + eps*(ran1(idum)-.5)                                                                                                   
-     !uy  =  eps*(ran1(idum)-.5)                                                                                                   
-    !uz = eps*(ran1(idum)-.5)  
-    !
     call C%fluid%validate
 
 
@@ -219,49 +184,49 @@ contains
   end subroutine case_init
 
   function pipe_ic(x, y, z) result(uvw)
-      real(kind=dp) :: x, y, z
-      real(kind=dp) :: uvw(3)
-      real(kind=dp) :: rand, ux, uy, uz, xr, yr, rr, zo
-      real(kind=dp) :: amp_z, freq_z, freq_t, amp_tht, amp_clip, blt
-      real(kind=dp) :: phase_z, arg_tht, amp_sin, pi, th
+    real(kind=dp) :: x, y, z
+    real(kind=dp) :: uvw(3)
+    real(kind=dp) :: rand, ux, uy, uz, xr, yr, rr, zo
+    real(kind=dp) :: amp_z, freq_z, freq_t, amp_tht, amp_clip, blt
+    real(kind=dp) :: phase_z, arg_tht, amp_sin, pi, th
 
-      pi = 4d0 * atan(1d0)
-      xr = x
-      yr = y
-      rr = xr*xr + yr*yr
-      if (rr.gt.0) rr=sqrt(rr)
-      th = atan2(y,x)
-      zo = 2*pi*z/25d0
+    pi = 4d0 * atan(1d0)
+    xr = x
+    yr = y
+    rr = xr*xr + yr*yr
+    if (rr.gt.0) rr=sqrt(rr)
+    th = atan2(y,x)
+    zo = 2*pi*z/25d0
 
-      uz = 6d0*(1d0-rr**6d0)/5d0
+    uz = 6d0*(1d0-rr**6d0)/5d0
 
-      ! Assign a wiggly shear layer near the wall
-      amp_z    = 35d-2  ! Fraction of 2pi for z-based phase modification
-      freq_z   = 4d0     ! Number of wiggles in axial- (z-) direction
-      freq_t   = 9d0     ! Frequency of wiggles in azimuthal-direction
+    ! Assign a wiggly shear layer near the wall
+    amp_z    = 35d-2  ! Fraction of 2pi for z-based phase modification
+    freq_z   = 4d0     ! Number of wiggles in axial- (z-) direction
+    freq_t   = 9d0     ! Frequency of wiggles in azimuthal-direction
 
-      amp_tht  = 5d0     ! Amplification factor for clipped sine function
-      amp_clip = 2d-1   ! Clipped amplitude
+    amp_tht  = 5d0     ! Amplification factor for clipped sine function
+    amp_clip = 2d-1   ! Clipped amplitude
 
-      blt      = 7d-2  ! Fraction of boundary layer with momentum deficit
+    blt      = 7d-2  ! Fraction of boundary layer with momentum deficit
 
-      phase_z = amp_z*(2d0*pi)*sin(freq_z*zo)
+    phase_z = amp_z*(2d0*pi)*sin(freq_z*zo)
 
-      arg_tht = freq_t*th + phase_z
-      amp_sin = 5d0*sin(arg_tht)
-      if (amp_sin.gt. amp_clip) amp_sin =  amp_clip
-      if (amp_sin.lt.-amp_clip) amp_sin = -amp_clip
+    arg_tht = freq_t*th + phase_z
+    amp_sin = 5d0*sin(arg_tht)
+    if (amp_sin.gt. amp_clip) amp_sin =  amp_clip
+    if (amp_sin.lt.-amp_clip) amp_sin = -amp_clip
 
-      if (rr.gt.(1-blt)) uz = uz + amp_sin
-      call random_number(rand)
+    if (rr.gt.(1-blt)) uz = uz + amp_sin
+    call random_number(rand)
 
-      ux   = 5d-2*rand*rand
-      uy   = 1d-1*rand*rand*rand
-      uz   = uz + 1d-2*rand
-      
-      uvw(1) = ux
-      uvw(2) = uy
-      uvw(3) = uz
+    ux   = 5d-2*rand*rand
+    uy   = 1d-1*rand*rand*rand
+    uz   = uz + 1d-2*rand
+    
+    uvw(1) = ux
+    uvw(2) = uy
+    uvw(3) = uz
 
   end function pipe_ic
 
