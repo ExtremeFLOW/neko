@@ -54,10 +54,11 @@ module fluid_plan4
 
      !> all the shit for vol_flow
      
-     integer :: flow_dir = 3 !> these two should be moved to params
-     logical :: avflow = .true.
-     real(kind=dp) :: flow_rate = 1d0
-     real(kind=dp) :: dtlag, bdlag !> Really quite pointless since we do not vary the timestep
+     integer :: flow_dir !> these two should be moved to params
+     logical :: avflow 
+     real(kind=dp) :: flow_rate 
+     real(kind=dp) :: dtlag = 0d0
+     real(kind=dp) :: bdlag = 0d0!> Really quite pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=dp) :: domain_length, base_flow
 
@@ -121,10 +122,6 @@ contains
     call field_init(this%dw, this%dm_Xh, 'dw')
     call field_init(this%dp, this%dm_Xh, 'dp')
     
-    call field_init(this%u_vol, this%dm_Xh, 'u_vol')
-    call field_init(this%v_vol, this%dm_Xh, 'v_vol')
-    call field_init(this%w_vol, this%dm_Xh, 'w_vol')
-    call field_init(this%p_vol, this%dm_Xh, 'p_vol')
 
     call field_init(this%work1, this%dm_Xh, 'work1')
     call field_init(this%work2, this%dm_Xh, 'work2')
@@ -145,7 +142,17 @@ contains
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
 
     !Intialize projection space thingy
-    call this%proj%init(this%dm_Xh%n_dofs)
+    call this%proj%init(this%dm_Xh%n_dofs, param%proj_dim)
+
+    !Initialize vol_flow (if there is a forced voume flow)
+    this%flow_dir = param%vol_flow_dir
+    this%avflow = param%avflow
+    this%flow_rate = param%flow_rate
+    
+    call field_init(this%u_vol, this%dm_Xh, 'u_vol')
+    call field_init(this%v_vol, this%dm_Xh, 'v_vol')
+    call field_init(this%w_vol, this%dm_Xh, 'w_vol')
+    call field_init(this%p_vol, this%dm_Xh, 'p_vol')
 
   end subroutine fluid_plan4_init
 
@@ -348,7 +355,7 @@ contains
       
       call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x,1d0,n,msh%gdim)
      
-      call plan4_vol_flow(this, ab_bdf)
+      if (this%flow_dir .ne. 0) call plan4_vol_flow(this, ab_bdf)
       call fluid_step_info(tstep, t, params%dt, ksp_results)
     end associate
   end subroutine fluid_plan4_step
@@ -788,6 +795,7 @@ contains
     if (this%flow_dir.eq.1) this%base_flow = glsc2(this%u_vol%x,c%B,n)/this%domain_length
     if (this%flow_dir.eq.2) this%base_flow = glsc2(this%v_vol%x,c%B,n)/this%domain_length
     if (this%flow_dir.eq.3) this%base_flow = glsc2(this%w_vol%x,c%B,n)/this%domain_length
+    print *, glsc2(this%w_vol%x,this%w_vol%x,n)
   end associate
   end subroutine  plan4_compute_vol_flow
 
