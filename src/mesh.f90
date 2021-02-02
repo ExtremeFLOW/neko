@@ -1451,7 +1451,6 @@ contains
     tmp = p%id()
 
     if (m%htp%get(tmp, local_id) .gt. 0) then
-       print *, tmp
        call neko_error('Invalid global id')
     end if
     
@@ -1465,7 +1464,6 @@ contains
     integer :: local_id
 
     if (m%hte%get(e, local_id) .gt. 0) then
-       print *, e
        call neko_error('Invalid global id')
     end if
     
@@ -1478,7 +1476,6 @@ contains
     integer :: local_id
 
     if (m%htf%get(f, local_id) .gt. 0) then
-       print *, f
        call neko_error('Invalid global id')
     end if
     
