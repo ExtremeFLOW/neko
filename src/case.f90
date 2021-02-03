@@ -12,6 +12,7 @@ module case
   use mesh
   use comm
   use abbdf
+  use user_intf  
   implicit none
 
   type :: case_t
@@ -22,6 +23,7 @@ module case
      real(kind=dp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
+     type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
 
@@ -107,6 +109,11 @@ contains
     C%params = params%p
 
     !
+    ! Setup user defined functions
+    !
+    call C%usr%init()
+
+    !
     ! Setup fluid scheme
     !
 
@@ -146,13 +153,16 @@ contains
           C%fluid%u = C%params%uinf(1)
           C%fluid%v = C%params%uinf(2)
           C%fluid%w = C%params%uinf(3)
+       else if (trim(initial_condition) .eq. 'user') then
+          call C%usr%fluid_usr_ic(C%fluid%u, C%fluid%v, &
+               C%fluid%w, C%fluid%p, C%params)
        else
           call neko_error('Invalid initial condition')
        end if
     end if
 
     call C%fluid%validate
-
+    
 
     !
     ! Save boundary markings for fluid (if requested)
@@ -243,5 +253,5 @@ contains
     call C%s%free()
     
   end subroutine case_free
-  
+
 end module case

@@ -64,6 +64,7 @@ libneko_a_SOURCES = \
 	abbdf.f90\
 	neko_config.f90\
 	case.f90\
+	user_intf.f90\
 	fluid_method.f90\
 	fluid_plan4.f90\
 	fluid_plan1.f90\
