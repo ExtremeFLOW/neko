@@ -111,8 +111,8 @@ contains
     !
     ! Setup user defined functions
     !
-    C%usr = user_t()
-    
+    call C%usr%init()
+
     !
     ! Setup fluid scheme
     !
@@ -153,6 +153,9 @@ contains
           C%fluid%u = C%params%uinf(1)
           C%fluid%v = C%params%uinf(2)
           C%fluid%w = C%params%uinf(3)
+       else if (trim(initial_condition) .eq. 'user') then
+          call C%usr%fluid_usr_ic(C%fluid%u, C%fluid%v, &
+               C%fluid%w, C%fluid%p, C%params)
        else
           call neko_error('Invalid initial condition')
        end if
@@ -207,5 +210,5 @@ contains
     call C%s%free()
     
   end subroutine case_free
-  
+
 end module case
