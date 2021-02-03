@@ -126,8 +126,8 @@ contains
 
   
   subroutine bdsys (a,b,dt,nbd,ldim)
-    real(kind=dp) ::  A(ldim,9),B(9),DT(9)
     integer :: ldim, j, n, k, i, nsys, nbd
+    real(kind=dp) ::  A(ldim,9),B(9),DT(9)
     real(kind=dp) :: SUMDT
     CALL RZERO (A,ldim**2)
     N = NBD+1
@@ -223,9 +223,10 @@ contains
     end subroutine lu
    
     SUBROUTINE SOLVE(F,A,K,N,ldim,IR,IC)
-      real(kind=dp) ::  A(ldim,10),F(ldim,10), G(2000), B, Y
       integer :: IR(10),IC(10), N, N1, k, kk, i, j, ldim, ICM, URL, K1, ICI
       integer :: I1, IRI,IRL, IT
+      real(kind=dp) ::  A(ldim,10),F(ldim,10), G(2000), B, Y
+
         
 
 !      IF (N.GT.2000) THEN

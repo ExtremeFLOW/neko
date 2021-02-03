@@ -15,7 +15,8 @@ program poisson
   type(ax_poisson_t) :: ax
   type(coef_t) :: coef
   type(cg_t) :: solver
-  integer :: argc, lx, n, n_glb, niter, ierr, it
+  type(ksp_monitor_t) :: ksp_mon
+  integer :: argc, lx, n, n_glb, niter, ierr
   character(len=80) :: suffix
   real(kind=dp), allocatable :: f(:)
 
@@ -34,7 +35,6 @@ program poisson
   fname = '512.nmsh'
   nmsh_file = file_t(fname)
   call nmsh_file%read(msh)  
-  call mesh_generate_conn(msh)
 
   call space_init(Xh, GLL, lx, lx, lx)
 
@@ -65,14 +65,13 @@ program poisson
   call set_f(f, coef%mult, dm, n, gs_h)
   call bc_list_apply(bclst,f,n)
   
-  it = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
-
+  ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
   
   call MPI_Barrier(NEKO_COMM, ierr)
 
   call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
-  it = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
+  ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
 
   fname = 'out.fld'

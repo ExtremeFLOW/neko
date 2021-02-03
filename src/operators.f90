@@ -90,10 +90,6 @@ contains
   end subroutine opgrad
   
   subroutine local_grad3(ur, us, ut, u, n, D, Dt)
-    use num_types
-    use mxm_wrapper
-    implicit none
-    
     integer, intent(inout) :: n
     real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)
     real(kind=dp), intent(inout) :: us(0:n, 0:n, 0:n)
@@ -115,12 +111,12 @@ contains
   end subroutine local_grad3
 
   subroutine local_grad2(ur, us, u, n, D, Dt)
+    integer, intent(inout) :: n    
     real(kind=dp), intent(inout) :: ur(0:n, 0:n)
     real(kind=dp), intent(inout) :: us(0:n, 0:n)
     real(kind=dp), intent(inout) :: u(0:n, 0:n)
     real(kind=dp), intent(inout) :: D(0:n, 0:n)
     real(kind=dp), intent(inout) :: Dt(0:n, 0:n)
-    integer, intent(inout) :: n
     integer :: m1, m2, k
   
     m1 = n + 1
