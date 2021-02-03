@@ -1,0 +1,39 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=${exec_prefix}/lib
+includedir_pkg=${prefix}/include/neko
+FC=@FC@
+FCFLAGS='@FCFLAGS@'
+
+echo '\nN E K O build tool, Version @PACKAGE_VERSION@'
+echo '@NEKO_BUILD_INFO@\n'
+
+
+if [ -z "$1" ]
+  then
+      echo "No user file provided"
+      exit 1
+fi
+printf '%s' "Building user NEKO ..."
+rm -f usr_driver.f90
+cat >> usr_driver.f90 << _ACEOF
+program usrneko
+  use neko
+  use user
+  type(case_t) :: C
+  
+  call user_setup(C%usr)
+  call neko_init(C)
+  call neko_solve(C)
+  call neko_finalize(C)
+
+
+end program usrneko
+_ACEOF
+
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $1 usr_driver.f90\
+    -lneko @LDFLAGS@ @LIBS@ -o neko
+
+echo ' done!'

@@ -13,3 +13,5 @@ endif
 
 
 dist_data_DATA = regen.sh
+bin_SCRIPTS = makenek
+EXTRA_DIST = makenek.in
