@@ -17,6 +17,7 @@ contains
 
     t = 0d0
     tstep = 0
+    if(pe_rank .eq. 0) write(*,*) 'Everything initialized, started simulation'
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end)
        tstep = tstep + 1
@@ -24,8 +25,9 @@ contains
        call simulation_settime(t, C%params%dt, C%ab_bdf, C%tlag, C%dtlag, tstep)
        call C%fluid%step(t, tstep, C%ab_bdf)
        end_time = MPI_WTIME()
-       if(pe_rank .eq. 0) write(*,*) 'STEP FINISHED:', tstep, 'Elapsed time (s)',&
+       if(pe_rank .eq. 0) write(*,*) 'Step finished:', tstep, 'Elapsed time (s)',&
           end_time-start_time_org, 'Step time:', end_time-start_time
+       call C%usr%usr_chk(t, C%params%dt, tstep, C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
        call C%s%sample(t)
     end do
     
