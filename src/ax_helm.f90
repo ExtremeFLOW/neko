@@ -32,7 +32,6 @@ contains
     lyz = Xh%ly*Xh%lz
     lxyz = Xh%lx*Xh%ly*Xh%lz
 
-    call rzero(w,coef%dof%n_dofs)
   
     do e = 1, msh%nelv
        if(msh%gdim .eq. 2) then
@@ -48,8 +47,7 @@ contains
          call col2 (tmp2,coef%h1(1,1,1,e),lxyz)
          call mxm  (Xh%dxt,Xh%lx,tmp1,Xh%lx,tm1,lyz)
          call mxm  (tmp2,Xh%lx,Xh%dy,Xh%ly,tm2,Xh%ly)
-         call add2 (w(1,1,1,e),tm1,lxyz)
-         call add2 (w(1,1,1,e),tm2,lxyz)
+         call add3 (w(1,1,1,e),tm1,tm2,lxyz)
 
        ! 3D evaluation!
        else
@@ -77,9 +75,7 @@ contains
             call mxm(tmp2(1,1,k),Xh%lx,Xh%dy,Xh%ly,tm2(1,1,k),Xh%ly)
          end do
          call mxm  (tmp3,lxy,Xh%dz,Xh%lz,tm3,Xh%lz)
-         call add2 (w(1,1,1,e),tm1,lxyz)
-         call add2 (w(1,1,1,e),tm2,lxyz)
-         call add2 (w(1,1,1,e),tm3,lxyz)
+         call add4(w(1,1,1,e),tm1,tm2,tm3,lxyz)
        end if 
     end do
     
