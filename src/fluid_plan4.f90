@@ -318,12 +318,12 @@ contains
       call gs_op_vector(gs_Xh, p_res, n, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_prs, p_res, p%dof%n_dofs)
 
-      call this%proj%project_on(p_res, Ax, c_Xh, &
+      if( tstep .gt. 5) call this%proj%project_on(p_res, Ax, c_Xh, &
                                 this%bclst_prs, gs_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
-      call this%proj%project_back(dp%x, Ax, c_Xh, &
+      if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
                                   this%bclst_prs, gs_Xh, n)
       call add2(p%x, dp%x,n)
       !    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
@@ -466,8 +466,8 @@ contains
     gdim = c_Xh%msh%gdim
     glb_n = n / p%msh%nelv * p%msh%glb_nelv
     
-    call fluid_plan4_op_curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call fluid_plan4_op_curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
+    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
     scl = -4d0 / 3d0
     ta1 = 0d0
@@ -533,53 +533,6 @@ contains
 
   end subroutine fluid_plan4_pres_residual
 
-  subroutine fluid_plan4_op_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
-    type(field_t), intent(inout) :: w1
-    type(field_t), intent(inout) :: w2
-    type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
-    type(field_t), intent(inout) :: work1
-    type(field_t), intent(inout) :: work2
-    type(coef_t), intent(inout)  :: c_Xh 
-    integer :: gdim, n
-
-    n = w1%dof%size()
-    gdim = c_Xh%msh%gdim
-
-    !     this%work1=dw/dy ; this%work2=dv/dz
-    call dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    if (gdim .eq. 3) then
-       call dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
-    else
-       call copy(w1%x, work1%x, n)
-    endif
-    !     this%work1=du/dz ; this%work2=dw/dx
-    if (gdim .eq. 3) then
-       call dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
-    else
-       call rzero (work1%x, n)
-       call dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
-    endif
-    !     this%work1=dv/dx ; this%work2=du/dy
-    call dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
-    !!    BC dependent, Needs to change if cyclic
-
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
-    call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
-    call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
-
-  end subroutine fluid_plan4_op_curl
-  
   !> Sum up AB/BDF contributions 
   subroutine fluid_plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
