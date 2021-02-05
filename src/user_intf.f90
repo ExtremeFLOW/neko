@@ -108,7 +108,6 @@ contains
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(msh)
     type(mesh_t), intent(inout) :: msh
-    call neko_error('Dummy user defined mesh setup')    
   end subroutine dummy_user_mesh_setup
   
   !> Dummy user check
@@ -120,7 +119,6 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    call neko_error('Dummy user defined user check')    
   end subroutine dummy_user_check
 
 
