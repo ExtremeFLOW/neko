@@ -174,8 +174,11 @@ contains
        end if
     end if
 
+    !
+    ! Validate that the case is properly setup for time-stepping
+    !
     call C%fluid%validate
-    
+
 
     !
     ! Save boundary markings for fluid (if requested)
@@ -218,5 +221,5 @@ contains
     call C%s%free()
     
   end subroutine case_free
-
+  
 end module case
