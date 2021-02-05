@@ -17,8 +17,8 @@ module parameters
      real(kind=dp) :: abstol_prs !< Tolerance for pressure solver
      character(len=20) :: pc_vel !< Precon for velocity solver
      character(len=20) :: pc_prs !< Precon for pressure solver
-     integer :: vol_flow_dir         !< Direction of forced volume flow x=1, y=2, z=3
-     logical :: avflow           !< If we should use the averaged flow for vol_flow
+     integer :: vol_flow_dir !< Direction of forced volume flow x=1, y=2, z=3
+     logical :: avflow       !< If we should use the averaged flow for vol_flow
      real(kind=dp) :: flow_rate  !< Volume flow speed
      integer :: proj_dim         !< Projection space for pressure solution
   end type param_t
