@@ -136,7 +136,7 @@ contains
     
   end subroutine zone_periodic_free
 
-  !> Finalize a zone list2
+  !> Finalize a periodic zone list
   !! @details Create a static list of (facet,el) tuples
   subroutine zone_periodic_finalize(z)
     class(zone_periodic_t), intent(inout) :: z

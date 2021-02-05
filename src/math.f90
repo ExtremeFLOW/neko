@@ -158,14 +158,17 @@ contains
     
   end subroutine chsign
   
+  !> Maximum value of a vector of length @a n
   function vlmax(vec,n) result(tmax)
-      integer :: n, i
-      real(kind=dp) :: vec(n), tmax
-      tmax =-99d20
-      do i=1,n
-         tmax = max(tmax,vec(i))
-      enddo
+    integer :: n, i
+    real(kind=dp), intent(in) :: vec(n)
+    real(kind=dp) :: tmax
+    tmax =-99d20
+    do i=1,n
+       tmax = max(tmax,vec(i))
+    enddo
   end function vlmax
+  
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
     integer, intent(in) :: n

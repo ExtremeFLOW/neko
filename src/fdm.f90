@@ -230,48 +230,53 @@ contains
               llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
               lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
               lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
-    do ie=1,this%dof%msh%nelv
-    call get_fast_bc(lbr,rbr,lbs,rbs,lbt,rbt,ie,this%bclst, this%dof%msh%gdim)
-       nr=nl
-       ns=nl
-       nt=nl
-       call fdm_setup_fast1d(s(1,1,1,ie),lr,nr,lbr,rbr, &
-                              llr(ie),lmr(ie),lrr(ie),ah,bh,n,ie)
-       call fdm_setup_fast1d(s(1,1,2,ie),ls,ns,lbs,rbs, &
-                              lls(ie),lms(ie),lrs(ie),ah,bh,n,ie)
-       if(this%dof%msh%gdim .eq. 3) call fdm_setup_fast1d(s(1,1,3,ie),lt,nt,lbt,rbt, &
-                                       llt(ie),lmt(ie),lrt(ie),ah,bh,n,ie)
-       il=1
-       if(.not.this%dof%msh%gdim .eq. 3) then
-          eps = 1d-5*(vlmax(lr(2),nr-2) + vlmax(ls(2),ns-2))
-          do j=1,ns
-          do i=1,nr
-             diag = lr(i)+ls(j)
-             if (diag.gt.eps) then
-                d(il,ie) = 1d0/diag
-             else
-                d(il,ie) = 0d0
-             endif
-             il=il+1
-          enddo
-          enddo
-       else
-          eps = 1d-5 * (vlmax(lr(2),nr-2) + vlmax(ls(2),ns-2) + vlmax(lt(2),nt-2))
-          do k=1,nt
-          do j=1,ns
-          do i=1,nr
-             diag = lr(i)+ls(j)+lt(k)
-             if (diag.gt.eps) then
-                d(il,ie) = 1d0/diag
-             else
-                d(il,ie) = 0d0
-             endif
-             il=il+1
-          enddo
-          enddo
-          enddo
-       endif
-    enddo
+      do ie=1,this%dof%msh%nelv
+         call get_fast_bc(lbr,rbr,lbs,rbs,lbt,rbt,ie,&
+              this%bclst, this%dof%msh%gdim)
+         nr=nl
+         ns=nl
+         nt=nl
+         call fdm_setup_fast1d(s(1,1,1,ie),lr,nr,lbr,rbr, &
+              llr(ie),lmr(ie),lrr(ie),ah,bh,n,ie)
+         call fdm_setup_fast1d(s(1,1,2,ie),ls,ns,lbs,rbs, &
+              lls(ie),lms(ie),lrs(ie),ah,bh,n,ie)
+         if(this%dof%msh%gdim .eq. 3) then
+            call fdm_setup_fast1d(s(1,1,3,ie),lt,nt,lbt,rbt, &
+                 llt(ie),lmt(ie),lrt(ie),ah,bh,n,ie)
+         end if
+
+         il=1
+         if(.not.this%dof%msh%gdim .eq. 3) then
+            eps = 1d-5*(vlmax(lr(2),nr-2) + vlmax(ls(2),ns-2))
+            do j=1,ns
+               do i=1,nr
+                  diag = lr(i)+ls(j)
+                  if (diag.gt.eps) then
+                     d(il,ie) = 1d0/diag
+                  else
+                     d(il,ie) = 0d0
+                  endif
+                  il=il+1
+               enddo
+            enddo
+         else
+            eps = 1d-5 * (vlmax(lr(2),nr-2) + &
+                 vlmax(ls(2),ns-2) + vlmax(lt(2),nt-2))
+            do k=1,nt
+               do j=1,ns
+                  do i=1,nr
+                     diag = lr(i)+ls(j)+lt(k)
+                     if (diag.gt.eps) then
+                        d(il,ie) = 1d0/diag
+                     else
+                        d(il,ie) = 0d0
+                     endif
+                     il=il+1
+                  enddo
+               enddo
+            enddo
+         endif
+      enddo
     end associate
   end subroutine fdm_setup_fast
   
