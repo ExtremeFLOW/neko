@@ -84,11 +84,11 @@ contains
       dt2 = dtlag(3)
       
       if (nab .eq. 1) then
-         ab(1) = 1.0
+         ab(1) = 1d0
       else if (nab .eq. 2) then
          dta =  dt0/dt1
          if (nbd .eq. 1) then
-            ab(2) = -0.5 * dta
+            ab(2) = -0.5d0 * dta
             ab(1) =  1d0 - ab(2)
          else if (nbd .eq. 2) then
             ab(2) = -dta
@@ -102,17 +102,17 @@ contains
          dtd =  dts / dt1
          dte =  dt0 / dts
          if (nbd .eq. 1) then
-            ab(3) =  dte*( 0.5*dtb + dtc/3. )
-            ab(2) = -0.5*dta - ab(3)*dtd
-            ab(1) =  1.0 - ab(2) - ab(3)
+            ab(3) =  dte*( 0.5d0*dtb + dtc/3d0 )
+            ab(2) = -0.5d0*dta - ab(3)*dtd
+            ab(1) =  1.0d0 - ab(2) - ab(3)
          elseif (nbd .eq. 2) then
-            ab(3) =  2./3.*dtc*(1./dtd + dte)
+            ab(3) =  2d0/3d0 * dtc*(1d0/dtd + dte)
             ab(2) = -dta - ab(3)*dtd
-            ab(1) =  1.0 - ab(2) - ab(3)
+            ab(1) =  1d0 - ab(2) - ab(3)
          elseif (nbd .eq. 3) then
             ab(3) =  dte * (dtb + dtc)
-            ab(2) = -dta * (1.0 + dtb + dtc)
-            ab(1) =  1.0 - ab(2) - ab(3)
+            ab(2) = -dta * (1d0 + dtb + dtc)
+            ab(1) =  1d0 - ab(2) - ab(3)
          endif
       endif
     end associate

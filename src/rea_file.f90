@@ -197,7 +197,6 @@ contains
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
                    read(9, *) cbc(j, i), (bc_data(l,j,i),l=1,6)
-                   write(*,*) cbc(j, i), (bc_data(l,j,i),l=1,6)
                    sym_facet = facet_map(j)
                    select case(trim(cbc(j,i)))
                    case ('W')
