@@ -137,7 +137,7 @@ contains
 
        call mesh_init(msh, ndim, dist)
 
-       call htp%init((2**ndim) * nel, ndim)
+       call htp%init((3*2**(2*ndim)) * nel, ndim)
 
        el_idx = 1
        pt_idx = 0
@@ -167,6 +167,7 @@ contains
                 end do
                 call mesh_add_element(msh, el_idx, &
                      p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+                if( mod(i, 100) .eq. 0) write(*,*) i
              end if
           end if
           if (i .ge. start_el .and. i .le. end_el) then
@@ -189,7 +190,7 @@ contains
        if (.not. read_bcs) then ! Mark zones in the mesh
           allocate(cbc(6,nelgv))
           allocate(bc_data(6,2*ndim,nelgv))
-          off = 1
+          off = 0
           if (nelgv .lt. 1000) off = 1
           do i = 1, nelgv
              if (i .ge. start_el .and. i .le. end_el) then
