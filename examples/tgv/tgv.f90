@@ -15,30 +15,18 @@ contains
   subroutine user_mesh_scale(msh)
     type(mesh_t), intent(inout) :: msh
     type(point_t), pointer :: pt
-    integer :: e, p
+    integer :: i, p, npts
     real(kind=dp) :: pi, d
-    real(kind=dp), allocatable :: coords(:,:,:)
-    pi = 4*atan(1d0)
+    pi = 4d0*atan(1d0)
     d = 4d0
 
-    allocate(coords(3,msh%npts, msh%nelv))
-    do e = 1, msh%nelv
-       do p = 1, msh%npts
-          pt => msh%elements(e)%e%pts(p)%p
-          coords(1,p,e) = (pt%x(1)-d)/d*pi
-          coords(2,p,e) = (pt%x(2)-d)/d*pi
-          coords(3,p,e) = (pt%x(3)-d)/d*pi
-       end do
+    npts = size(msh%points)
+    do i = 1, npts
+       msh%points(i)%x(1) = (msh%points(i)%x(1) - d) / d * pi
+       msh%points(i)%x(2) = (msh%points(i)%x(2) - d) / d * pi
+       msh%points(i)%x(3) = (msh%points(i)%x(3) - d) / d * pi
     end do
-    do e = 1, msh%nelv
-       do p = 1, msh%npts
-          pt => msh%elements(e)%e%pts(p)%p
-          pt%x(1) = coords(1,p,e)
-          pt%x(2) = coords(2,p,e)
-          pt%x(3) = coords(3,p,e)
-       end do
-    end do
-    deallocate(coords)
+    
   end subroutine user_mesh_scale
 
 
