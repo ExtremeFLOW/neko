@@ -562,5 +562,23 @@ contains
          MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc3
+  function glsc4(a, b, c,d, n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(in) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=dp), dimension(n), intent(in) :: d
+    real(kind=dp) :: glsc4, tmp
+    integer :: i, ierr
+
+    tmp = 0d0
+    do i = 1, n
+       tmp = tmp + a(i) * b(i) * c(i) * d(i)
+    end do
+    
+    call MPI_Allreduce(tmp, glsc4, 1, &
+         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
+  end function glsc4
   
 end module math
