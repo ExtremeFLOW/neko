@@ -761,6 +761,9 @@ contains
        tmp = (tmp + M5) + ishft(tmp, 3)
        tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
        hash = int(modulo(tmp, int(this%size, 8)), 4)
+       !> @note I think this hash might be better
+       hash = int(modulo(k * 2654435761_8, int(this%size, 8)), 4)
+
     class default
        hash = -1
     end select
@@ -965,7 +968,7 @@ contains
     select type(k)
     type is (point_t)
        hash = modulo(floor((2d0 * &
-            abs(fraction(k%x(1) * k%x(2) * k%x(3))) - 1d0) * 2**16), &
+            abs(fraction(k%x(1) + k%x(2) + k%x(3))) - 1d0) * 2**30), &
             this%size) 
     class default
        hash = -1

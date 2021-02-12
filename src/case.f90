@@ -52,7 +52,8 @@ contains
     type(mesh_fld_t) :: msh_part
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 400 + 8
     character buffer(nbytes)
-    integer :: pack_index
+    integer :: pack_index, temp, i
+    real(kind=dp) :: eps, uvw(3)
     
 
     !
@@ -105,13 +106,13 @@ contains
 
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
-
     C%params = params%p
 
     !
     ! Setup user defined functions
     !
     call C%usr%init()
+    call C%usr%usr_msh_setup(C%msh)
 
     !
     ! Setup fluid scheme
@@ -126,7 +127,7 @@ contains
     end if
   
     call C%fluid%init(C%msh, lx, C%params, solver_velocity, solver_pressure)
-
+    if(pe_rank .eq. 0) write(*,*) 'Fluid scheme initialized successfully'
     !
     ! Setup source term
     ! 
@@ -160,13 +161,28 @@ contains
           call neko_error('Invalid initial condition')
        end if
     end if
-    
+
+    ! Ensure continuity across elements for initial conditions
+    call gs_op_vector(C%fluid%gs_Xh, C%fluid%u%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
+    call col2(C%fluid%u%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
+    call gs_op_vector(C%fluid%gs_Xh, C%fluid%v%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
+    call col2(C%fluid%v%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
+    call gs_op_vector(C%fluid%gs_Xh, C%fluid%w%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
+    call col2(C%fluid%w%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
+
+    ! Add initial conditions to BDF scheme (if present)
+    select type(f => C%fluid)
+    type is(fluid_plan4_t)
+       call copy(f%ulag, C%fluid%u%x, C%fluid%dm_Xh%n_dofs)
+       call copy(f%vlag, C%fluid%v%x, C%fluid%dm_Xh%n_dofs)
+       call copy(f%wlag, C%fluid%w%x, C%fluid%dm_Xh%n_dofs)
+    end select
 
     !
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
-    
+
 
     !
     ! Save boundary markings for fluid (if requested)
@@ -195,7 +211,6 @@ contains
     call C%s%add(C%f_out)
     
   end subroutine case_init
-
   !> Deallocate a case 
   subroutine case_free(C)
     type(case_t), intent(inout) :: C
@@ -210,5 +225,5 @@ contains
     call C%s%free()
     
   end subroutine case_free
-
+  
 end module case

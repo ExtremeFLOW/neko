@@ -41,7 +41,7 @@ module hsmg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(cg_t) :: crs_solver !< Solver for course problem
-     integer :: niter = 30 !< Number of iter of crs sovlve
+     integer :: niter = 10 !< Number of iter of crs sovlve
      type(jacobi_t) :: pc_crs !< Some basic precon for crs
      type(ax_helm_t) :: ax !< Matrix for crs solve
      real(kind=dp), allocatable :: jh(:,:) !< Interpolator crs -> fine

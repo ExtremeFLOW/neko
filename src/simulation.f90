@@ -12,15 +12,22 @@ contains
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
     type(case_t), intent(inout) :: C
-    real(kind=dp) :: t
+    real(kind=dp) :: t, start_time_org, start_time, end_time
     integer :: tstep
 
     t = 0d0
     tstep = 0
+    if(pe_rank .eq. 0) write(*,*) 'Everything initialized, started simulation'
+    start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end)
        tstep = tstep + 1
+       start_time = MPI_WTIME()
        call simulation_settime(t, C%params%dt, C%ab_bdf, C%tlag, C%dtlag, tstep)
        call C%fluid%step(t, tstep, C%ab_bdf)
+       end_time = MPI_WTIME()
+       if(pe_rank .eq. 0) write(*,*) 'Step finished:', tstep, 'Elapsed time (s)',&
+          end_time-start_time_org, 'Step time:', end_time-start_time
+       call C%usr%usr_chk(t, C%params%dt, tstep, C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
        call C%s%sample(t)
     end do
     

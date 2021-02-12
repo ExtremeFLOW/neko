@@ -1,0 +1,23 @@
+&NEKO_CASE
+mesh_file= '512.nmsh'
+fluid_scheme='plan4'
+lx = 12
+solver_velocity = 'cg'
+solver_pressure = 'gmres'	
+source_term = 'noforce'
+initial_condition = 'user'
+/
+&NEKO_PARAMETERS
+dt = 1d-3
+T_end = 20
+nsamples = 20
+uinf= 0.0,0.0,0.0
+output_bdry = .true.
+rho = 1
+Re = 360
+abstol_vel = 1d-7
+abstol_prs = 1d-7
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+proj_dim = 20
+/

@@ -2,7 +2,9 @@
 module user_intf
   use field
   use source
+  use coefs
   use parameters
+  use num_types
   implicit none
 
   !> Abstract interface for user defined initial conditions
@@ -18,8 +20,34 @@ module user_intf
      end subroutine useric
   end interface
 
+  !> Abstract interface for user defined mesh deformation functions
+  abstract interface
+     subroutine usermsh(msh)
+       import mesh_t
+       type(mesh_t), intent(inout) :: msh
+     end subroutine usermsh
+  end interface
+
+  !> Abstract interface for user defined check functions
+  abstract interface
+     subroutine usercheck(t, dt, tstep, u, v, w, p, coef)
+       import field_t
+       import coef_t
+       import dp
+       real(kind=dp), intent(in) :: t, dt
+       integer, intent(in) :: tstep
+       type(coef_t), intent(inout) :: coef
+       type(field_t), intent(inout) :: u
+       type(field_t), intent(inout) :: v
+       type(field_t), intent(inout) :: w
+       type(field_t), intent(inout) :: p
+     end subroutine usercheck
+  end interface
+
   type :: user_t
      procedure(useric), nopass, pointer :: fluid_usr_ic => null()
+     procedure(usermsh), nopass, pointer :: usr_msh_setup => null()
+     procedure(usercheck), nopass, pointer :: usr_chk => null()
      procedure(source_term_pw), nopass, pointer :: fluid_usr_f => null()
    contains
      procedure, pass(u) :: init => user_intf_init
@@ -37,6 +65,14 @@ contains
 
     if (.not. associated(u%fluid_usr_f)) then
        u%fluid_usr_f => dummy_user_f
+    end if
+
+    if (.not. associated(u%usr_msh_setup)) then
+       u%usr_msh_setup => dummy_user_mesh_setup
+    end if
+
+    if (.not. associated(u%usr_chk)) then
+       u%usr_chk => dummy_user_check
     end if
     
   end subroutine user_intf_init
@@ -68,5 +104,22 @@ contains
     integer, intent(inout) :: e
     call neko_error('Dummy user defined forcing set')    
   end subroutine dummy_user_f
+ 
+  !> Dummy user mesh apply
+  subroutine dummy_user_mesh_setup(msh)
+    type(mesh_t), intent(inout) :: msh
+  end subroutine dummy_user_mesh_setup
   
+  !> Dummy user check
+  subroutine dummy_user_check( t, dt, tstep,u, v, w, p, coef)
+    real(kind=dp), intent(in) :: t, dt
+    integer, intent(in) :: tstep
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+  end subroutine dummy_user_check
+
+
 end module user_intf

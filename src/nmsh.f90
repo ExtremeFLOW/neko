@@ -31,6 +31,7 @@ module nmsh
      integer :: f               !< Facet number
      integer :: p_e             !< Periodic connection (element)     
      integer :: p_f             !< Periodic connection (facet)
+     integer, dimension(4) :: glb_pt_ids !< Global point ids
      integer :: type            !< Zone type
   end type nmsh_zone_t
   

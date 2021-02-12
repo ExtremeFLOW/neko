@@ -34,10 +34,11 @@ contains
     character(len=3), pointer :: cbc(:,:)
     character(len=1) :: chtemp
     integer :: ndim, nparam, nskip, nlogic, nbcs
-    integer :: nelgs, nelgv, i, j, ierr
+    integer :: nelgs, nelgv, i, j, ierr, l
     integer :: el_idx, pt_idx
     logical :: read_param, read_bcs, read_map
     real(kind=dp) :: xc(8), yc(8), zc(8)
+    real(kind=dp), allocatable :: bc_data(:,:,:)
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     type(map_file_t) :: map_file
@@ -46,7 +47,8 @@ contains
     type(linear_dist_t) :: dist
     type(map_t) :: nm
     type(htable_pt_t) :: htp
-    integer :: sym_facet
+    integer :: sym_facet, pids(4), p_el_idx, p_facet
+    integer :: off
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
 
     select type(data)
@@ -135,7 +137,7 @@ contains
 
        call mesh_init(msh, ndim, dist)
 
-       call htp%init((2**ndim) * nel, ndim)
+       call htp%init((3*2**(2*ndim)) * nel, ndim)
 
        el_idx = 1
        pt_idx = 0
@@ -185,14 +187,17 @@ contains
        read(9,*) 
        read(9,*) 
        if (.not. read_bcs) then ! Mark zones in the mesh
-          allocate(cbc(6,1))
+          allocate(cbc(6,nelgv))
+          allocate(bc_data(6,2*ndim,nelgv))
+          off = 0
+          if (nelgv .lt. 1000) off = 1
           do i = 1, nelgv
              if (i .ge. start_el .and. i .le. end_el) then
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
-                   read(9,'(a1, a3)') chtemp, cbc(j, 1)
+                   read(9, *) cbc(j, i), (bc_data(l,j,i),l=1,6)
                    sym_facet = facet_map(j)
-                   select case(trim(cbc(j,1)))
+                   select case(trim(cbc(j,i)))
                    case ('W')
                       call mesh_mark_wall_facet(msh, sym_facet, el_idx)
                    case ('v', 'V')
@@ -202,12 +207,63 @@ contains
                    case ('SYM')
                       call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
                    case ('P')
-                      call neko_error('Not implemented yet')
+                      p_el_idx = int(bc_data(2+off,j,i))
+                      p_facet = facet_map(int(bc_data(3+off,j,i)))
+                      call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
+                                                 p_facet, p_el_idx, pids)
+                      call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
+                                        p_facet, p_el_idx, pids)
+                   end select
+                end do
+             end if
+          end do
+          do i = 1, nelgv
+             if (i .ge. start_el .and. i .le. end_el) then
+                el_idx = i - start_el + 1
+                do j = 1, 2*ndim
+                   sym_facet = facet_map(j)
+                   select case(trim(cbc(j,i)))
+                   case ('P')
+                      p_el_idx = int(bc_data(2+off,j,i))
+                      p_facet = facet_map(int(bc_data(3+off,j,i)))
+                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+                                                    p_facet, p_el_idx) 
+                   end select
+                end do
+             end if
+          end do
+          do i = 1, nelgv
+             if (i .ge. start_el .and. i .le. end_el) then
+                el_idx = i - start_el + 1
+                do j = 1, 2*ndim
+                   sym_facet = facet_map(j)
+                   select case(trim(cbc(j,i)))
+                   case ('P')
+                      p_el_idx = int(bc_data(2+off,j,i))
+                      p_facet = facet_map(int(bc_data(3+off,j,i)))
+                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+                                                    p_facet, p_el_idx) 
+                   end select
+                end do
+             end if
+          end do
+          do i = 1, nelgv
+             if (i .ge. start_el .and. i .le. end_el) then
+                el_idx = i - start_el + 1
+                do j = 1, 2*ndim
+                   sym_facet = facet_map(j)
+                   select case(trim(cbc(j,i)))
+                   case ('P')
+                      p_el_idx = int(bc_data(2+off,j,i))
+                      p_facet = facet_map(int(bc_data(3+off,j,i)))
+                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
+                                                    p_facet, p_el_idx) 
                    end select
                 end do
              end if
           end do
           deallocate(cbc)
+          deallocate(bc_data)
        else  ! Store bcs in a NEKTON session structure
           allocate(cbc(6,nelgv))
           do i = 1, nelgv

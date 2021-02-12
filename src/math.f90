@@ -115,6 +115,36 @@ contains
          MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     
   end function glsum
+  
+  !>Max of a vector of length n 
+  function glmax(a, n) 
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n) :: a
+    real(kind=dp) :: tmp, glmax
+    integer :: i, ierr
+    tmp = a(1)
+    do i = 2, n
+       tmp =  max(tmp,a(i))
+    end do
+    call MPI_Allreduce(tmp, glmax, 1, &
+         MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+  end function glmax
+  
+  !>Min of a vector of length n 
+  function glmin(a, n) 
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n) :: a
+    real(kind=dp) :: tmp, glmin
+    integer :: i, ierr
+    tmp = a(1)
+    do i = 2, n
+       tmp =  min(tmp,a(i))
+    end do
+    call MPI_Allreduce(tmp, glmin, 1, &
+         MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+  end function glmin
+
+
 
   !> Change sign of vector \f$ a = -a \f$
   subroutine chsign(a, n)
@@ -128,14 +158,17 @@ contains
     
   end subroutine chsign
   
+  !> Maximum value of a vector of length @a n
   function vlmax(vec,n) result(tmax)
-      integer :: n, i
-      real(kind=dp) :: vec(n), tmax
-      tmax =-99d20
-      do i=1,n
-         tmax = max(tmax,vec(i))
-      enddo
+    integer :: n, i
+    real(kind=dp), intent(in) :: vec(n)
+    real(kind=dp) :: tmax
+    tmax =-99d20
+    do i=1,n
+       tmax = max(tmax,vec(i))
+    enddo
   end function vlmax
+  
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
     integer, intent(in) :: n
@@ -493,6 +526,24 @@ contains
 
   end subroutine ascol5
 
+  !> Weighted inner product \f$ a^T b c \f$
+  function glsc2(a, b,  n)
+    integer, intent(in) :: n
+    real(kind=dp), dimension(n), intent(in) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp) :: glsc2, tmp
+    integer :: i, ierr
+
+    tmp = 0d0
+    do i = 1, n
+       tmp = tmp + a(i) * b(i) 
+    end do
+    
+    call MPI_Allreduce(tmp, glsc2, 1, &
+         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
+  end function glsc2
+  
   !> Weighted inner product \f$ a^T b c \f$
   function glsc3(a, b, c, n)
     integer, intent(in) :: n

@@ -7,8 +7,8 @@ includedir_pkg=${prefix}/include/neko
 FC=@FC@
 FCFLAGS='@FCFLAGS@'
 
-echo '\nN E K O build tool, Version @PACKAGE_VERSION@'
-echo '@NEKO_BUILD_INFO@\n'
+printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
+printf "%s\n" '@NEKO_BUILD_INFO@'
 
 
 if [ -z "$1" ]
@@ -16,7 +16,7 @@ if [ -z "$1" ]
       echo "No user file provided"
       exit 1
 fi
-printf '%s' "Building user NEKO ..."
+printf '\n%s' "Building user NEKO ..."
 rm -f usr_driver.f90
 cat >> usr_driver.f90 << _ACEOF
 program usrneko
@@ -36,4 +36,6 @@ _ACEOF
 $FC $FCFLAGS -I$includedir_pkg -L$libdir $1 usr_driver.f90\
     -lneko @LDFLAGS@ @LIBS@ -o neko
 
-echo ' done!'
+rm -f usr_driver.f90
+
+printf "%s\n" ' done!'

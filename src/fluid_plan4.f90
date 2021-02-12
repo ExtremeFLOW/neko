@@ -51,6 +51,19 @@ module fluid_plan4
      !> Time variables
      real(kind=dp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
      real(kind=dp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
+
+     !> all the shit for vol_flow
+     
+     integer :: flow_dir !> these two should be moved to params
+     logical :: avflow 
+     real(kind=dp) :: flow_rate 
+     real(kind=dp) :: dtlag = 0d0
+     real(kind=dp) :: bdlag = 0d0!> Really quite pointless since we do not vary the timestep
+     type(field_t) :: u_vol, v_vol, w_vol, p_vol
+     real(kind=dp) :: domain_length, base_flow
+
+     integer :: niter = 1000
+
    contains
      procedure, pass(this) :: init => fluid_plan4_init
      procedure, pass(this) :: free => fluid_plan4_free
@@ -108,6 +121,7 @@ contains
     call field_init(this%dv, this%dm_Xh, 'dv')
     call field_init(this%dw, this%dm_Xh, 'dw')
     call field_init(this%dp, this%dm_Xh, 'dp')
+    
 
     call field_init(this%work1, this%dm_Xh, 'work1')
     call field_init(this%work2, this%dm_Xh, 'work2')
@@ -128,7 +142,17 @@ contains
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
 
     !Intialize projection space thingy
-    call this%proj%init(this%dm_Xh%n_dofs)
+    call this%proj%init(this%dm_Xh%n_dofs, param%proj_dim)
+
+    !Initialize vol_flow (if there is a forced voume flow)
+    this%flow_dir = param%vol_flow_dir
+    this%avflow = param%avflow
+    this%flow_rate = param%flow_rate
+    
+    call field_init(this%u_vol, this%dm_Xh, 'u_vol')
+    call field_init(this%v_vol, this%dm_Xh, 'v_vol')
+    call field_init(this%w_vol, this%dm_Xh, 'w_vol')
+    call field_init(this%p_vol, this%dm_Xh, 'p_vol')
 
   end subroutine fluid_plan4_init
 
@@ -159,6 +183,11 @@ contains
     call field_free(this%dv)
     call field_free(this%dw)
     call field_free(this%dp)
+    
+    call field_free(this%u_vol)
+    call field_free(this%v_vol)
+    call field_free(this%w_vol)
+    call field_free(this%p_vol)
 
     call field_free(this%work1)
     call field_free(this%work2)
@@ -289,12 +318,12 @@ contains
       call gs_op_vector(gs_Xh, p_res, n, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_prs, p_res, p%dof%n_dofs)
 
-      call this%proj%project_on(p_res, Ax, c_Xh, &
+      if( tstep .gt. 5) call this%proj%project_on(p_res, Ax, c_Xh, &
                                 this%bclst_prs, gs_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
-      call this%proj%project_back(dp%x, Ax, c_Xh, &
+      if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
                                   this%bclst_prs, gs_Xh, n)
       call add2(p%x, dp%x,n)
       !    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
@@ -325,7 +354,8 @@ contains
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       
       call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x,1d0,n,msh%gdim)
-
+     
+      if (this%flow_dir .ne. 0) call plan4_vol_flow(this, ab_bdf)
       call fluid_step_info(tstep, t, params%dt, ksp_results)
     end associate
   end subroutine fluid_plan4_step
@@ -436,8 +466,8 @@ contains
     gdim = c_Xh%msh%gdim
     glb_n = n / p%msh%nelv * p%msh%glb_nelv
     
-    call fluid_plan4_op_curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call fluid_plan4_op_curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
+    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
     scl = -4d0 / 3d0
     ta1 = 0d0
@@ -497,58 +527,12 @@ contains
     call add2(ta1%x, ta3%x, n)    
     call cmult(ta1%x, dtbd, n)
     call sub2(p_res, ta1%x, n)
+
         
 !    call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
 
   end subroutine fluid_plan4_pres_residual
 
-  subroutine fluid_plan4_op_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
-    type(field_t), intent(inout) :: w1
-    type(field_t), intent(inout) :: w2
-    type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
-    type(field_t), intent(inout) :: work1
-    type(field_t), intent(inout) :: work2
-    type(coef_t), intent(inout)  :: c_Xh 
-    integer :: gdim, n
-
-    n = w1%dof%size()
-    gdim = c_Xh%msh%gdim
-
-    !     this%work1=dw/dy ; this%work2=dv/dz
-    call dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    if (gdim .eq. 3) then
-       call dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
-    else
-       call copy(w1%x, work1%x, n)
-    endif
-    !     this%work1=du/dz ; this%work2=dw/dx
-    if (gdim .eq. 3) then
-       call dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
-    else
-       call rzero (work1%x, n)
-       call dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
-    endif
-    !     this%work1=dv/dx ; this%work2=du/dy
-    call dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
-    !!    BC dependent, Needs to change if cyclic
-
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
-    call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
-    call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
-
-  end subroutine fluid_plan4_op_curl
-  
   !> Sum up AB/BDF contributions 
   subroutine fluid_plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
@@ -686,4 +670,135 @@ contains
 
   end subroutine fluid_step_info
 
+  subroutine plan4_compute_vol_flow(this, ab_bdf)
+
+!     Compute pressure and velocity using fractional step method.
+!     (Tombo splitting scheme).
+
+    type(fluid_plan4_t), intent(inout) :: this
+    type(abbdf_t), intent(inout) :: ab_bdf
+    integer :: n
+    real(kind=dp) :: xlmin, xlmax
+    real(kind=dp) :: ylmin, ylmax
+    real(kind=dp) :: zlmin, zlmax
+    type(ksp_monitor_t) :: ksp_result
+
+
+    associate(c => this%c_Xh) 
+    n = this%dm_Xh%size()
+    xlmin = glmin(this%dm_Xh%x,n)
+    xlmax = glmax(this%dm_Xh%x,n)
+    ylmin = glmin(this%dm_Xh%y,n)          !  for Y!
+    ylmax = glmax(this%dm_Xh%y,n)
+    zlmin = glmin(this%dm_Xh%z,n)          !  for Z!
+    zlmax = glmax(this%dm_Xh%z,n)
+    if (this%flow_dir.eq.1) this%domain_length = xlmax - xlmin
+    if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
+    if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
+
+    call fluid_plan4_pres_setup(c%h1, c%h2, this%params%rho, n, c%ifh2)
+!   Compute pressure 
+
+    if (this%flow_dir .eq. 1) call cdtp(this%p_res,c%h1,c%drdx,c%dsdx,c%dtdx,c)
+    if (this%flow_dir .eq. 2) call cdtp(this%p_res,c%h1,c%drdy,c%dsdy,c%dtdy,c)
+    if (this%flow_dir .eq. 3) call cdtp(this%p_res,c%h1,c%drdz,c%dsdz,c%dtdz,c)
+
+    !call ortho    (respr)
+
+    call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
+    call bc_list_apply_scalar(this%bclst_prs, this%p_res, n)
+    call this%pc_prs%update()
+    ksp_result = this%ksp_prs%solve(this%Ax, this%p_vol, this%p_res, n, c, &
+                              this%bclst_prs, this%gs_Xh, this%niter)    
+
+!   Compute velocity
+
+    call opgrad(this%u_res,this%v_res,this%w_res,this%p_vol%x,c)
+    call opchsign(this%u_res,this%v_res,this%w_res, this%msh%gdim, n)
+    call copy(this%ta1%x, c%B, n)
+    call copy(this%ta2%x, c%B, n)
+    call copy(this%ta3%x, c%B, n)
+    call bc_list_apply_vector(this%bclst_vel,&
+                              this%ta1%x, this%ta2%x, this%ta3%x,n)
+
+    if (this%flow_dir.eq.1) call add2(this%u_res,this%ta1%x,n) ! add forcing
+    if (this%flow_dir.eq.2) call add2(this%v_res,this%ta2%x,n)
+    if (this%flow_dir.eq.3) call add2(this%w_res,this%ta3%x,n)
+
+
+    call fluid_plan4_vel_setup(c%h1, c%h2, &
+                               this%params%Re, this%params%rho,&
+                               ab_bdf%bd(1), &
+                               this%params%dt, n, c%ifh2)
+    call gs_op_vector(this%gs_Xh, this%u_res, n, GS_OP_ADD) 
+    call gs_op_vector(this%gs_Xh, this%v_res, n, GS_OP_ADD) 
+    call gs_op_vector(this%gs_Xh, this%w_res, n, GS_OP_ADD) 
+
+    call bc_list_apply_vector(this%bclst_vel,&
+                              this%u_res, this%v_res, this%w_res, this%dm_Xh%n_dofs)
+    call this%pc_vel%update()
+
+    ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, this%u_res, n, &
+         c, this%bclst_vel_residual, this%gs_Xh, this%niter)
+    ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, this%v_res, n, &
+         c, this%bclst_vel_residual, this%gs_Xh, this%niter)
+    ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, this%w_res, n, &
+         c, this%bclst_vel_residual, this%gs_Xh, this%niter)
+      
+    if (this%flow_dir.eq.1) this%base_flow = glsc2(this%u_vol%x,c%B,n)/this%domain_length
+    if (this%flow_dir.eq.2) this%base_flow = glsc2(this%v_vol%x,c%B,n)/this%domain_length
+    if (this%flow_dir.eq.3) this%base_flow = glsc2(this%w_vol%x,c%B,n)/this%domain_length
+    print *, glsc2(this%w_vol%x,this%w_vol%x,n)
+  end associate
+  end subroutine  plan4_compute_vol_flow
+
+  subroutine plan4_vol_flow(this, ab_bdf)
+!     Adust flow volume at end of time step to keep flow rate fixed by
+!     adding an appropriate multiple of the linear solution to the Stokes
+!     problem arising from a unit forcing in the X-direction.  This assumes
+!     that the flow rate in the X-direction is to be fixed (as opposed to Y-
+!     or Z-) *and* that the periodic boundary conditions in the X-direction
+!     occur at the extreme left and right ends of the mesh.
+!
+!     pff 6/28/98
+      type(fluid_plan4_t), intent(inout) :: this
+      type(abbdf_t), intent(inout) :: ab_bdf
+      real(kind=dp) :: ifcomp(1), flow_rate, xsec
+      real(kind=dp) :: current_flow, delta_flow, base_flow, scale
+      integer :: n
+
+      n = this%dm_Xh%n_dofs
+
+!     If either dt or the backwards difference coefficient change,
+!     then recompute base flow solution corresponding to unit forcing:
+
+      ifcomp(1) = 0d0
+      if (this%params%dt .ne. this%dtlag .or. ab_bdf%bd(1) .ne. this%bdlag) ifcomp= (/1d0/)
+      this%dtlag = this%params%dt
+      this%bdlag = ab_bdf%bd(1)
+
+      if (glsum(ifcomp,1) .gt. 0d0) call plan4_compute_vol_flow(this, ab_bdf)
+
+      if (this%flow_dir .eq. 1) current_flow=glsc2(this%u%x,this%c_Xh%B,n)/this%domain_length  ! for X
+      if (this%flow_dir .eq. 2) current_flow=glsc2(this%v%x,this%c_Xh%B,n)/this%domain_length  ! for Y
+      if (this%flow_dir .eq. 3) current_flow=glsc2(this%w%x,this%c_Xh%B,n)/this%domain_length  ! for Z
+
+      if (this%avflow) then
+         xsec = this%c_Xh%volume / this%domain_length
+         flow_rate = this%flow_rate*xsec
+      endif  
+
+      delta_flow = flow_rate-current_flow
+
+!     Note, this scale factor corresponds to FFX, provided FFX has
+!     not also been specified in userf.   If ffx is also specified
+!     in userf then the true FFX is given by ffx_userf + scale.
+
+      scale = delta_flow/this%base_flow
+
+      call add2s2(this%u%x,this%u_vol%x,scale,n)
+      call add2s2(this%v%x,this%v_vol%x,scale,n)
+      call add2s2(this%w%x,this%w_vol%x,scale,n)
+      call add2s2(this%p%x,this%p_vol%x,scale,n)
+  end subroutine plan4_vol_flow
 end module fluid_plan4
