@@ -112,7 +112,7 @@ if test $ax_lapack_ok = no; then
 fi
 
 # Generic LAPACK library?
-for lapack in lapack lapack_rs6k; do
+for lapack in lapack lapack_rs6k flame; do
         if test $ax_lapack_ok = no; then
                 save_LIBS="$LIBS"; LIBS="$BLAS_LIBS $LIBS"
                 AC_CHECK_LIB($lapack, cheev,
