@@ -222,7 +222,6 @@ contains
                 el_idx = i - start_el + 1
                 do j = 1, 2*ndim
                    sym_facet = facet_map(j)
-                   write(*,*) cbc(j, i), (bc_data(l,j,i),l=1,6)
                    select case(trim(cbc(j,i)))
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))

@@ -1278,6 +1278,7 @@ contains
        end do
     end select
   end subroutine mesh_get_periodic_ids
+  
   !> Reset ids of periodic points to their original ids
   subroutine mesh_reset_periodic_ids(m)
     type(mesh_t), intent(inout) :: m
@@ -1329,6 +1330,7 @@ contains
     end do
     deallocate(temp_ids)
   end subroutine mesh_reset_periodic_ids
+  
   !> Creates common ids for matching periodic points.
   subroutine mesh_create_periodic_ids(m, f, e, pf, pe)
     type(mesh_t), intent(inout) :: m
@@ -1355,7 +1357,8 @@ contains
     type is(hex_t)
        L = 0d0
        do i = 1, 4
-          L = L + ele%pts(face_nodes(i,f))%p%x(1:3) - elp%pts(face_nodes(i,pf))%p%x(1:3)
+          L = L + ele%pts(face_nodes(i,f))%p%x(1:3) - &
+               elp%pts(face_nodes(i,pf))%p%x(1:3)
        end do
        L = L/4
        do i = 1, 4
@@ -1392,7 +1395,8 @@ contains
     end select
   end subroutine mesh_create_periodic_ids
 
-  !> Replaces the periodic point's id with a common id for matching periodic points
+  !> Replaces the periodic point's id with a common id for matching
+  !! periodic points
   subroutine mesh_apply_periodic_facet(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
@@ -1438,7 +1442,6 @@ contains
 
     call mesh_mark_periodic_facet(m, f, e, pf, pe, pids)
   end subroutine mesh_apply_periodic_facet
-
 
   !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)
