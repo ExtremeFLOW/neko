@@ -178,7 +178,7 @@ contains
     integer, intent(in) :: el      !< Element  in the zone
     integer, intent(in) :: p_facet !< Facet at periodic length
     integer, intent(in) :: p_el    !< Element at periodic length
-    integer, intent(in) :: pids(4)    !< Element at periodic length
+    integer, intent(in) :: pids(4) !< Element at periodic length ids
     type(tuple_i4_t) :: t
     type(tuple4_i4_t) :: t2
 
