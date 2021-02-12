@@ -27,3 +27,4 @@ clean:
 all:
 html:
 install:
+distdir:
