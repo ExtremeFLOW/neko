@@ -167,7 +167,6 @@ contains
                 end do
                 call mesh_add_element(msh, el_idx, &
                      p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-                if( mod(i, 100) .eq. 0) write(*,*) i
              end if
           end if
           if (i .ge. start_el .and. i .le. end_el) then
