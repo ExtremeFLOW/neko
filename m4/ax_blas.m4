@@ -217,6 +217,11 @@ if test $ax_blas_ok = no; then
 			[], [-lblas])])
 fi
 
+# BLAS in AMD Blis?
+if test $ax_blas_ok = no; then
+	AC_CHECK_LIB(blis, sgemm, [ax_blas_ok=yes; BLAS_LIBS="-lblis"])
+fi
+
 # Generic BLAS library?
 if test $ax_blas_ok = no; then
 	AC_CHECK_LIB(blas, sgemm, [ax_blas_ok=yes; BLAS_LIBS="-lblas"])
