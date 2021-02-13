@@ -10,14 +10,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
         compiler: [gfortran-10]
         mpi: [mpich, openmpi]
         include:
-        - os: ubuntu-latest
+        - os: ubuntu-20.04
           mpi: mpich
           setup-env: sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-10 30 && sudo apt install -y mpich libmpich-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake && git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit .. && make -j$(nproc) && make install && cd ../../
-        - os: ubuntu-latest
+        - os: ubuntu-20.04
           mpi: openmpi
           setup-env: sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-10 30 && sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates && git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit .. && make -j$(nproc) && make install && cd ../../
     env:
