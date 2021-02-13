@@ -12,10 +12,15 @@ module mpi_types
   integer :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
   integer :: MPI_NMSH_ZONE   !< MPI dervied type for Neko nmsh zone data
 
-  integer :: MPI_RE2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  integer :: MPI_RE2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
-  integer :: MPI_RE2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  integer :: MPI_RE2_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+  integer :: MPI_RE2V1_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
+  integer :: MPI_RE2V1_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  integer :: MPI_RE2V1_DATA_CV  !< MPI derived type for NEKTON re2 cv data
+  integer :: MPI_RE2V1_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+
+  integer :: MPI_RE2V2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
+  integer :: MPI_RE2V2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  integer :: MPI_RE2V2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
+  integer :: MPI_RE2V2_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
 
   integer :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
 
@@ -26,10 +31,12 @@ module mpi_types
 
   ! Public dervied types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
-       MPI_RE2_DATA_XYZ, MPI_RE2_DATA_XY, &
-       MPI_RE2_DATA_CV, MPI_RE2_DATA_BC, MPI_REAL_SIZE, &
-       MPI_DOUBLE_PRECISION_SIZE, MPI_CHARACTER_SIZE, &
-       MPI_INTEGER_SIZE, MPI_NEKO_PARAMS
+       MPI_RE2V1_DATA_XYZ, MPI_RE2V1_DATA_XY, &
+       MPI_RE2V1_DATA_CV, MPI_RE2V1_DATA_BC, &
+       MPI_RE2V2_DATA_XYZ, MPI_RE2V2_DATA_XY, &
+       MPI_RE2V2_DATA_CV, MPI_RE2V2_DATA_BC, &
+       MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
+       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, MPI_NEKO_PARAMS
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -166,14 +173,19 @@ contains
   
   !> Define a MPI derived type for a 3d re2 data
   subroutine mpi_type_re2_xyz_init
-    type(re2_xyz_t) :: re2_data
+    type(re2v1_xyz_t) :: re2v1_data
+    type(re2v2_xyz_t) :: re2v2_data
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base    
     integer :: type(4), len(4), ierr
 
-    call MPI_Get_address(re2_data%rgroup, disp(1), ierr)
-    call MPI_Get_address(re2_data%x, disp(2), ierr)
-    call MPI_Get_address(re2_data%y, disp(3), ierr)
-    call MPI_Get_address(re2_data%z, disp(4), ierr)
+    !
+    ! Setup version 1
+    !
+    
+    call MPI_Get_address(re2v1_data%rgroup, disp(1), ierr)
+    call MPI_Get_address(re2v1_data%x, disp(2), ierr)
+    call MPI_Get_address(re2v1_data%y, disp(3), ierr)
+    call MPI_Get_address(re2v1_data%z, disp(4), ierr)
 
     base = disp(1)
     disp(1) = disp(1) - base
@@ -185,20 +197,47 @@ contains
     len(1) = 1
     type = MPI_REAL
 
-    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2_DATA_XYZ, ierr)
-    call MPI_Type_commit(MPI_RE2_DATA_XYZ, ierr)
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2V1_DATA_XYZ, ierr)
+    call MPI_Type_commit(MPI_RE2V1_DATA_XYZ, ierr)
+
+    !
+    ! Setup version 2
+    !
+    
+    call MPI_Get_address(re2v2_data%rgroup, disp(1), ierr)
+    call MPI_Get_address(re2v2_data%x, disp(2), ierr)
+    call MPI_Get_address(re2v2_data%y, disp(3), ierr)
+    call MPI_Get_address(re2v2_data%z, disp(4), ierr)
+
+    base = disp(1)
+    disp(1) = disp(1) - base
+    disp(2) = disp(2) - base
+    disp(3) = disp(3) - base
+    disp(4) = disp(4) - base
+
+    len = 8
+    len(1) = 1
+    type = MPI_DOUBLE_PRECISION
+
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2V2_DATA_XYZ, ierr)
+    call MPI_Type_commit(MPI_RE2V2_DATA_XYZ, ierr)
 
   end subroutine mpi_type_re2_xyz_init
 
   !> Define a MPI derived type for a 2d re2 data
   subroutine mpi_type_re2_xy_init
-    type(re2_xy_t) :: re2_data
+    type(re2v1_xy_t) :: re2v1_data
+    type(re2v2_xy_t) :: re2v2_data
     integer(kind=MPI_ADDRESS_KIND) :: disp(3), base    
     integer :: type(3), len(3), ierr
 
-    call MPI_Get_address(re2_data%rgroup, disp(1), ierr)
-    call MPI_Get_address(re2_data%x, disp(2), ierr)
-    call MPI_Get_address(re2_data%y, disp(3), ierr)
+    !
+    ! Setup version 1
+    !
+
+    call MPI_Get_address(re2v1_data%rgroup, disp(1), ierr)
+    call MPI_Get_address(re2v1_data%x, disp(2), ierr)
+    call MPI_Get_address(re2v1_data%y, disp(3), ierr)
 
     base = disp(1)
     disp(1) = disp(1) - base
@@ -209,21 +248,46 @@ contains
     len(1) = 1
     type = MPI_REAL
 
-    call MPI_Type_create_struct(3, len, disp, type, MPI_RE2_DATA_XY, ierr)
-    call MPI_Type_commit(MPI_RE2_DATA_XY, ierr)
+    call MPI_Type_create_struct(3, len, disp, type, MPI_RE2V1_DATA_XY, ierr)
+    call MPI_Type_commit(MPI_RE2V1_DATA_XY, ierr)
+    
+    !
+    ! Setup version 2
+    !
+
+    call MPI_Get_address(re2v2_data%rgroup, disp(1), ierr)
+    call MPI_Get_address(re2v2_data%x, disp(2), ierr)
+    call MPI_Get_address(re2v2_data%y, disp(3), ierr)
+
+    base = disp(1)
+    disp(1) = disp(1) - base
+    disp(2) = disp(2) - base
+    disp(3) = disp(3) - base
+
+    len = 4
+    len(1) = 1
+    type = MPI_DOUBLE_PRECISION
+
+    call MPI_Type_create_struct(3, len, disp, type, MPI_RE2V2_DATA_XY, ierr)
+    call MPI_Type_commit(MPI_RE2V2_DATA_XY, ierr)
 
   end subroutine mpi_type_re2_xy_init
 
   !> Define a MPI dervied type for re2 cv data
   subroutine mpi_type_re2_cv_init
-    type(re2_curve_t) :: re2_data
+    type(re2v1_curve_t) :: re2v1_data
+    type(re2v2_curve_t) :: re2v2_data
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
     integer :: type(4), len(4), ierr
 
-    call MPI_Get_address(re2_data%elem, disp(1), ierr)
-    call MPI_Get_address(re2_data%face, disp(2), ierr)
-    call MPI_Get_address(re2_data%point, disp(3), ierr)
-    call MPI_Get_address(re2_data%type, disp(4), ierr)
+    !
+    ! Setup version 1
+    !
+    
+    call MPI_Get_address(re2v1_data%elem, disp(1), ierr)
+    call MPI_Get_address(re2v1_data%face, disp(2), ierr)
+    call MPI_Get_address(re2v1_data%point, disp(3), ierr)
+    call MPI_Get_address(re2v1_data%type, disp(4), ierr)
 
     base = disp(1)
     disp(1) = disp(1) - base
@@ -238,21 +302,51 @@ contains
     type(3) = MPI_REAL
     type(4) = MPI_CHARACTER
 
-    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2_DATA_CV, ierr)
-    call MPI_Type_commit(MPI_RE2_DATA_CV, ierr)
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2V1_DATA_CV, ierr)
+    call MPI_Type_commit(MPI_RE2V1_DATA_CV, ierr)
+
+    !
+    ! Setup version 2
+    !
+    
+    call MPI_Get_address(re2v2_data%elem, disp(1), ierr)
+    call MPI_Get_address(re2v2_data%face, disp(2), ierr)
+    call MPI_Get_address(re2v2_data%point, disp(3), ierr)
+    call MPI_Get_address(re2v2_data%type, disp(4), ierr)
+
+    base = disp(1)
+    disp(1) = disp(1) - base
+    disp(2) = disp(2) - base
+    disp(3) = disp(3) - base
+    disp(4) = disp(4) - base
+
+    len(1:2) = 1
+    len(3) = 5
+    len(4) = 4
+    type(1:2) = MPI_INTEGER
+    type(3) = MPI_DOUBLE_PRECISION
+    type(4) = MPI_CHARACTER
+
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2V2_DATA_CV, ierr)
+    call MPI_Type_commit(MPI_RE2V2_DATA_CV, ierr)
     
   end subroutine mpi_type_re2_cv_init
   
   !> Define a MPI dervied type for re2 bc data
   subroutine mpi_type_re2_bc_init
-    type(re2_bc_t) :: re2_data
+    type(re2v1_bc_t) :: re2v1_data
+    type(re2v2_bc_t) :: re2v2_data
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
     integer :: type(4), len(4), ierr
 
-    call MPI_Get_address(re2_data%elem, disp(1), ierr)
-    call MPI_Get_address(re2_data%face, disp(2), ierr)
-    call MPI_Get_address(re2_data%bc_data, disp(3), ierr)
-    call MPI_Get_address(re2_data%type, disp(4), ierr)
+    !
+    ! Setup version 1
+    !
+
+    call MPI_Get_address(re2v1_data%elem, disp(1), ierr)
+    call MPI_Get_address(re2v1_data%face, disp(2), ierr)
+    call MPI_Get_address(re2v1_data%bc_data, disp(3), ierr)
+    call MPI_Get_address(re2v1_data%type, disp(4), ierr)
 
     base = disp(1)
     disp(1) = disp(1) - base
@@ -267,8 +361,33 @@ contains
     type(3) = MPI_REAL
     type(4) = MPI_CHARACTER
 
-    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2_DATA_BC, ierr)
-    call MPI_Type_commit(MPI_RE2_DATA_BC, ierr)
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2V1_DATA_BC, ierr)
+    call MPI_Type_commit(MPI_RE2V1_DATA_BC, ierr)
+
+    !
+    ! Setup version 2
+    !
+
+    call MPI_Get_address(re2v2_data%elem, disp(1), ierr)
+    call MPI_Get_address(re2v2_data%face, disp(2), ierr)
+    call MPI_Get_address(re2v2_data%bc_data, disp(3), ierr)
+    call MPI_Get_address(re2v2_data%type, disp(4), ierr)
+
+    base = disp(1)
+    disp(1) = disp(1) - base
+    disp(2) = disp(2) - base
+    disp(3) = disp(3) - base
+    disp(4) = disp(4) - base
+
+    len(1:2) = 1
+    len(3) = 5
+    len(4) = 4
+    type(1:2) = MPI_INTEGER
+    type(3) = MPI_DOUBLE_PRECISIOn
+    type(4) = MPI_CHARACTER
+
+    call MPI_Type_create_struct(4, len, disp, type, MPI_RE2V2_DATA_BC, ierr)
+    call MPI_Type_commit(MPI_RE2V2_DATA_BC, ierr)
     
   end subroutine mpi_type_re2_bc_init
 
@@ -377,25 +496,29 @@ contains
   !> Deallocate re2 xyz dervied MPI type
   subroutine mpi_type_re2_xyz_free
     integer ierr
-    call MPI_Type_free(MPI_RE2_DATA_XYZ, ierr)
+    call MPI_Type_free(MPI_RE2V1_DATA_XYZ, ierr)
+    call MPI_Type_free(MPI_RE2V2_DATA_XYZ, ierr)
   end subroutine mpi_type_re2_xyz_free
 
   !> Deallocate re2 xyz dervied MPI type
   subroutine mpi_type_re2_xy_free
     integer ierr
-    call MPI_Type_free(MPI_RE2_DATA_XY, ierr)
+    call MPI_Type_free(MPI_RE2V1_DATA_XY, ierr)
+    call MPI_Type_free(MPI_RE2V2_DATA_XY, ierr)
   end subroutine mpi_type_re2_xy_free
 
   !> Deallocate re2 cv dervied MPI type
   subroutine mpi_type_re2_cv_free
     integer ierr
-    call MPI_Type_free(MPI_RE2_DATA_CV, ierr)
+    call MPI_Type_free(MPI_RE2V1_DATA_CV, ierr)
+    call MPI_Type_free(MPI_RE2V2_DATA_CV, ierr)
   end subroutine mpi_type_re2_cv_free
   
   !> Deallocate re2 bc dervied MPI type
   subroutine mpi_type_re2_bc_free
     integer ierr
-    call MPI_Type_free(MPI_RE2_DATA_BC, ierr)
+    call MPI_Type_free(MPI_RE2V1_DATA_BC, ierr)
+    call MPI_Type_free(MPI_RE2V2_DATA_BC, ierr)
   end subroutine mpi_type_re2_bc_free
 
   !> Deallocate parameters dervied MPI type
