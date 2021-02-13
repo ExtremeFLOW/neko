@@ -1,17 +1,20 @@
-# Template C++ Application
 
-# This template allows you to validate your C++ application.
-# The workflow allows running tests and code linting on the default branch.
-
-
-image: gcc:10.2
+image: debian:testing
 
 
 pipelines:
-  default:
+  pull-requests:
+   '**':
     - parallel:
         - step:
-            name: Build and Run
+            name: Build
             script:
-              - ./configure 
-              - make
+              - apt-get update
+              - apt-get install -y --no-install-recommends gfortran autoconf automake autotools-dev libmpich-dev mpich cmake libopenblas-dev make git m4 python3 ca-certificates
+              - update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+              - git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/opt/pfunit .. && make -j 4 && make install && cd ../../
+              - ./regen.sh
+              - ./configure --with-pfunit=/opt/pfunit/PFUNIT-4.2
+              - make -j 4
+              - make check
+              - make dist
