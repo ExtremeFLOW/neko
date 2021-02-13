@@ -1,7 +1,11 @@
 name: CI
 
 # Controls when the action will run. 
-on: [pull_request]
+on:
+  push:
+     branches: [master]
+  pull_request:
+     branches: [master]
 
 jobs:
   GNU:
@@ -11,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        compiler: [gfortran-9]
-        mpi: [mpich, openmpi]
+        compiler: [gfortran-10]
+        mpi: [openmpi]
         include:
         - os: ubuntu-20.04
           mpi: mpich
@@ -40,7 +44,7 @@ jobs:
           make -j$(nproc)
       - name: Check
         run: |
-          make check
+          make -j$(nproc) check
 
   Intel:
     runs-on: ubuntu-latest
