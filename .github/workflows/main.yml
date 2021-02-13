@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
      FC: ifort
-
+     CC: icc
     name: Intel Fortran
     steps:
       - name: Setup env.
@@ -55,11 +55,14 @@ jobs:
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-          sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel
+          sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
           source /opt/intel/oneapi/setvars.sh
           sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
           printenv >> $GITHUB_ENV
-          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit .. && make -j$(nproc) && make install && cd ../../
+          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+          cd pFUnit && mkdir b && cd b
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
+          make -j$(nproc) && make install && cd ../../
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -71,5 +74,5 @@ jobs:
           make -j$(nproc)
       - name: Check
         run: |
-          make -j$(nproc) check
+          make check
   
