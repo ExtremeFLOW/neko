@@ -12,10 +12,14 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         compiler: [gfortran-10]
+        mpi: [mpich, openmpi]
         include:
         - os: ubuntu-latest
+          mpi: mpich
+          setup-env: sudo apt install -y mpich libmpich-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates
+        - os: ubuntu-latest
+          mpi: mpich
           setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates
-
     env:
       FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
@@ -33,7 +37,7 @@ jobs:
         run: |
           ./regen.sh
           ./configure FC=${FC}
-          make -j 4
+          make -j$(nproc)
 
   Intel:
     runs-on: ubuntu-latest
@@ -45,12 +49,12 @@ jobs:
     steps:
       - name: Setup env.
         run: |
+          cd /tmp
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-          sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi \
-            intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-mpi-devel
+          sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel
           source /opt/intel/oneapi/setvars.sh
           sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates
           printenv >> $GITHUB_ENV
@@ -62,5 +66,5 @@ jobs:
         run: |
           ./regen.sh
           ./configure FC=${FC}
-          make -j 4
+          make -j$(nproc)
   
