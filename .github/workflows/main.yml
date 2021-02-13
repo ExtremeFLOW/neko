@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        compiler: [gfortran-10]
+        compiler: [gfortran-8, gfortran-9, gfortran-10]
         include:
         - os: ubuntu-20.04
           setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates && git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit .. && make -j$(nproc) && make install && cd ../../
@@ -59,10 +59,10 @@ jobs:
           source /opt/intel/oneapi/setvars.sh
           sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
           printenv >> $GITHUB_ENV
-          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
-          cd pFUnit && mkdir b && cd b
-          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
-          make -j$(nproc) && make install && cd ../../
+#          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+#          cd pFUnit && mkdir b && cd b
+#          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
+#          make -j$(nproc) && make install && cd ../../
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -70,9 +70,9 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} --with-pfunit=/tmp/pfunit/PFUNIT-4.2
+          ./configure FC=${FC}
           make -j$(nproc)
-      - name: Check
-        run: |
-          make check
+#      - name: Check
+#        run: |
+#          make check
   
