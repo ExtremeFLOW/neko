@@ -45,7 +45,6 @@ jobs:
     runs-on: ubuntu-20.04
     env:
      FC: ifort
-     CC: icc
 
     name: Intel Fortran
     steps:
