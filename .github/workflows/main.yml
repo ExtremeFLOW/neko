@@ -18,7 +18,7 @@ jobs:
           mpi: mpich
           setup-env: sudo apt install -y mpich libmpich-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
         - os: ubuntu-latest
-          mpi: mpich
+          mpi: openmpi
           setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates
     env:
       FC: ${{ matrix.compiler }}
