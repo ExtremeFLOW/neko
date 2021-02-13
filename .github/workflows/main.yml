@@ -69,4 +69,7 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} --with-pfunit=/tmp/pfunit/PFUNIT-4.2
           make -j$(nproc)
+      - name: Check
+        run: |
+          make -j$(nproc) check
   
