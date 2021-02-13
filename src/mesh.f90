@@ -16,6 +16,7 @@ module mesh
   use distdata
   use zone
   use math
+  use uset
   implicit none
 
   type, private :: mesh_element_t
