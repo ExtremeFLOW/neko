@@ -16,10 +16,10 @@ jobs:
         include:
         - os: ubuntu-latest
           mpi: mpich
-          setup-env: sudo apt install -y mpich libmpich-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
+          setup-env: sudo apt install -y mpich libmpich-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake && git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit .. && make -j$(nproc) && make install && cd ../../
         - os: ubuntu-latest
           mpi: openmpi
-          setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates
+          setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates && git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit .. && make -j$(nproc) && make install && cd ../../
     env:
       FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
@@ -36,8 +36,11 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC}
+          ./configure FC=${FC} --with-pfunit=/tmp/pfunit/PFUNIT-4.2
           make -j$(nproc)
+      - name: Check
+        run: |
+          make check
 
   Intel:
     runs-on: ubuntu-latest
