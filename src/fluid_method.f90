@@ -41,7 +41,7 @@ module fluid_method
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
+     class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
@@ -138,6 +138,9 @@ contains
     end if
 
     if (msh%inlet%size .gt. 0) then
+
+       allocate(inflow_t::this%bc_inflow)
+       
        call this%bc_inflow%init(this%dm_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%finalize()
@@ -276,11 +279,14 @@ contains
     call field_free(this%p)
     call field_free(this%bdry)
 
-    call this%bc_inflow%free()
+    if (allocated(this%bc_inflow)) then
+       call this%bc_inflow%free()
+    end if
+
     call this%bc_wall%free()
     call this%bc_sym%free()
 
-    call space_free(this%Xh)
+    call space_free(this%Xh)    
 
     if (allocated(this%ksp_vel)) then
        call this%ksp_vel%free()
