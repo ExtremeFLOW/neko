@@ -18,22 +18,20 @@ module fluid_plan1
 
 contains
 
-  subroutine fluid_plan1_init(this, msh, lx, param, vel, prs)
+  subroutine fluid_plan1_init(this, msh, lx, param)
     class(fluid_plan1_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), intent(inout) :: param        
-    character(len=80), intent(inout) :: vel
-    character(len=80), intent(inout) :: prs
     integer :: lx2
 
     call this%free()
     
     !> Setup velocity fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, param, solver_vel=vel)
+    call this%scheme_init(msh, lx, param, kspv_init=.true.)
 
     !> Setup pressure field and related space \f$ Yh \f$
-    lx2 = lx - 2
+    lx2 = lx - 2        
     if (msh%gdim .eq. 2) then
        call space_init(this%Yh, GLL, lx2, lx2)
     else
@@ -44,11 +42,15 @@ contains
         
     call field_init(this%p, this%dm_Yh)
 
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), prs, param%abstol_prs)
-
     call gs_init(this%gs_Yh, this%dm_Yh)
 
     call coef_init(this%c_Yh, this%gs_Yh)
+    
+    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), &
+         param%ksp_prs, param%abstol_prs)
+    call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
+         this%c_Yh, this%dm_Yh, this%gs_Yh, this%bclst_prs, param%pc_prs)
+    
     
   end subroutine fluid_plan1_init
 

@@ -64,7 +64,7 @@ module fluid_method
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_method_init(this, msh, lx, param, vel, prs)
+     subroutine fluid_method_init(this, msh, lx, param)
        import fluid_scheme_t
        import param_t
        import mesh_t
@@ -72,8 +72,6 @@ module fluid_method
        type(mesh_t), intent(inout) :: msh       
        integer, intent(inout) :: lx
        type(param_t), intent(inout) :: param              
-       character(len=80), intent(inout) :: vel
-       character(len=80), intent(inout) :: prs
      end subroutine fluid_method_init
   end interface
 
@@ -202,12 +200,12 @@ contains
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, params, solver_vel)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), intent(inout) :: params
-    character(len=80), intent(inout) :: solver_vel
+    logical :: kspv_init
 
     call fluid_scheme_init_common(this, msh, lx, params)
     
@@ -215,19 +213,23 @@ contains
     call field_init(this%v, this%dm_Xh, 'v')
     call field_init(this%w, this%dm_Xh, 'w')
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-         solver_vel, params%abstol_vel)
+    if (kspv_init) then
+       call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+            params%ksp_vel, params%abstol_vel)
+       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+    end if
 
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, solver_vel, solver_prs)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: params      
-    character(len=80), intent(inout) :: solver_vel
-    character(len=80), intent(inout) :: solver_prs
+    type(param_t), intent(inout) :: params
+    logical :: kspv_init
+    logical :: kspp_init
 
     call fluid_scheme_init_common(this, msh, lx, params)
     
@@ -248,15 +250,19 @@ contains
        call bc_list_add(this%bclst_prs, this%bc_prs)
     end if
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-         solver_vel, params%abstol_vel)
-    call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+    if (kspv_init) then
+       call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+            params%ksp_vel, params%abstol_vel)
+       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+    end if
 
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_prs, params%abstol_prs)
-    call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
+    if (kspp_init) then
+       call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
+            params%ksp_prs, params%abstol_prs)
+       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
+    end if
 
   end subroutine fluid_scheme_init_all
 
@@ -348,7 +354,7 @@ contains
   subroutine fluid_scheme_solver_factory(ksp, n, solver,abstol)
     class(ksp_t), allocatable, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=80), intent(inout) :: solver
+    character(len=20), intent(inout) :: solver
     real(kind=dp) :: abstol
 
     if (trim(solver) .eq. 'cg') then
@@ -376,7 +382,7 @@ contains
     type(dofmap_t), intent(inout) :: dof
     type(gs_t), intent(inout) :: gs
     type(bc_list_t), intent(inout) :: bclst
-    character(len=*) :: pctype
+    character(len=20) :: pctype
     
     if (trim(pctype) .eq. 'jacobi') then
        allocate(jacobi_t::pc)

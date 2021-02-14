@@ -126,7 +126,7 @@ contains
        call neko_error('Invalid fluid scheme')
     end if
   
-    call C%fluid%init(C%msh, lx, C%params, solver_velocity, solver_pressure)
+    call C%fluid%init(C%msh, lx, C%params)
     if(pe_rank .eq. 0) write(*,*) 'Fluid scheme initialized successfully'
     !
     ! Setup source term
