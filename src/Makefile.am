@@ -55,6 +55,7 @@ libneko_a_SOURCES = \
 	dirichlet.f90\
 	wall.f90\
 	inflow.f90\
+	usr_inflow.f90\
 	facet_normal.f90\
 	symmetry.f90\
 	gmres.f90\
