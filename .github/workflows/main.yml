@@ -41,6 +41,13 @@ jobs:
       - name: Check
         run: |
           make -j$(nproc) check
+      - name: Dist
+        run: |
+          make dist
+          tar xf neko-0.0.1.tar.gz
+          cd neko-0.0.1
+          ./configure FC=${FC}
+          make -j $(nproc)
 
   Intel:
     runs-on: ubuntu-20.04
@@ -76,4 +83,10 @@ jobs:
 #      - name: Check
 #        run: |
 #          make check
-  
+      - name: Dist
+        run: |
+          make dist
+          tar xf neko-0.0.1.tar.gz
+          cd neko-0.0.1
+          ./configure FC=${FC}
+          make -j $(nproc)
