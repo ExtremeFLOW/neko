@@ -394,8 +394,9 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer(kind=MPI_ADDRESS_KIND) :: disp(17), base    
-    integer :: type(17), len(17), ierr
+    integer(kind=MPI_ADDRESS_KIND) :: disp(19), base    
+    integer :: type(19), len(19), ierr
+    integer :: i
 
     call MPI_Get_address(param_data%nsamples, disp(1), ierr)
     call MPI_Get_address(param_data%output_bdry, disp(2), ierr)
@@ -408,58 +409,38 @@ contains
     call MPI_Get_address(param_data%uinf, disp(9), ierr)
     call MPI_Get_address(param_data%abstol_vel, disp(10), ierr)
     call MPI_Get_address(param_data%abstol_prs, disp(11), ierr)
-    call MPI_Get_address(param_data%pc_vel, disp(12), ierr)
-    call MPI_Get_address(param_data%pc_prs, disp(13), ierr)
-    call MPI_Get_address(param_data%vol_flow_dir, disp(14), ierr)
-    call MPI_Get_address(param_data%avflow, disp(15), ierr)
-    call MPI_Get_address(param_data%flow_rate, disp(16), ierr)
-    call MPI_Get_address(param_data%proj_dim, disp(17), ierr)
+    call MPI_Get_address(param_data%ksp_vel, disp(12), ierr)
+    call MPI_Get_address(param_data%ksp_prs, disp(13), ierr)
+    call MPI_Get_address(param_data%pc_vel, disp(14), ierr)
+    call MPI_Get_address(param_data%pc_prs, disp(15), ierr)
+    call MPI_Get_address(param_data%vol_flow_dir, disp(16), ierr)
+    call MPI_Get_address(param_data%avflow, disp(17), ierr)
+    call MPI_Get_address(param_data%flow_rate, disp(18), ierr)
+    call MPI_Get_address(param_data%proj_dim, disp(19), ierr)
 
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
-    disp(4) = disp(4) - base
-    disp(5) = disp(5) - base
-    disp(6) = disp(6) - base
-    disp(7) = disp(7) - base
-    disp(8) = disp(8) - base
-    disp(9) = disp(9) - base
-    disp(10) = disp(10) - base
-    disp(11) = disp(11) - base
-    disp(12) = disp(12) - base
-    disp(13) = disp(13) - base
-    disp(14) = disp(14) - base
-    disp(15) = disp(15) - base
-    disp(16) = disp(16) - base
-    disp(17) = disp(17) - base
+    do i = 1, 19
+       disp(i) = disp(i) - base
+    end do
+
 
     len(1:8) = 1
     len(9) = 3
     len(10:11) = 1
-    len(12:13) = 20
-    len(14:17) = 1
+    len(12:15) = 20
+    len(16:19) = 1
     
     type(1) = MPI_INTEGER
-    type(2) = MPI_LOGICAL
-    type(3) = MPI_LOGICAL
-    type(4) = MPI_DOUBLE_PRECISION
-    type(5) = MPI_DOUBLE_PRECISION
-    type(6) = MPI_DOUBLE_PRECISION
-    type(7) = MPI_DOUBLE_PRECISION
-    type(8) = MPI_DOUBLE_PRECISION
-    type(9) = MPI_DOUBLE_PRECISION
-    type(10) = MPI_DOUBLE_PRECISION
-    type(11) = MPI_DOUBLE_PRECISION
-    type(12) = MPI_CHARACTER
-    type(13) = MPI_CHARACTER
-    type(14) = MPI_INTEGER
-    type(15) = MPI_LOGICAL
-    type(16) = MPI_DOUBLE_PRECISION
-    type(17) = MPI_INTEGER
+    type(2:3) = MPI_LOGICAL
+    type(4:11) = MPI_DOUBLE_PRECISION
+    type(12:15) = MPI_CHARACTER
+    type(16) = MPI_INTEGER
+    type(17) = MPI_LOGICAL
+    type(18) = MPI_DOUBLE_PRECISION
+    type(19) = MPI_INTEGER
     
-    call MPI_Type_create_struct(17, len, disp, type, MPI_NEKO_PARAMS, ierr)
+    call MPI_Type_create_struct(19, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
 
   end subroutine mpi_type_neko_params_init
