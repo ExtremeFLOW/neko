@@ -2,8 +2,6 @@
 mesh_file= 'turbChannel.nmsh'
 fluid_scheme='plan4'
 lx = 6
-solver_velocity = 'cg'
-solver_pressure = 'gmres'	
 source_term = 'noforce'
 initial_condition = 'uniform'
 /

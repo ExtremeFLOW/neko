@@ -2,8 +2,6 @@
 mesh_file= 'hemi.nmsh'
 fluid_scheme='plan4'
 lx = 6
-solver_velocity = 'cg'
-solver_pressure = 'gmres'	
 source_term = 'noforce'
 initial_condition = 'uniform'
 /
@@ -17,6 +15,8 @@ rho = 1
 Re = 1400
 abstol_vel = 1d-9
 abstol_prs = 1d-9
+ksp_vel = 'cg'
+ksp_prs = 'gmres'
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
 /
