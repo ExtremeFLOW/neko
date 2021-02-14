@@ -1,5 +1,7 @@
 USEMPI=YES
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
 include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
 FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
 FC = @FC@
 
