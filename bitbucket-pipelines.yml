@@ -18,3 +18,7 @@ pipelines:
               - make -j 4
               - make check
               - make dist
+              - tar xf neko-0.0.1.tar.gz
+              - cd neko-0.0.1
+              - ./configure FC=${FC}
+              - make -j 4

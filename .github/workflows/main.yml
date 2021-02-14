@@ -2,8 +2,6 @@ name: CI
 
 # Controls when the action will run. 
 on:
-  push:
-     branches: [master]
   pull_request:
      branches: [master]
   workflow_dispatch:
@@ -19,7 +17,7 @@ jobs:
         compiler: [gfortran-8, gfortran-9, gfortran-10]
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates && git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git && cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit .. && make -j$(nproc) && make install && cd ../../
+          setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates
     env:
       FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
@@ -29,6 +27,19 @@ jobs:
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
+      - name: Cache pFUnit
+        id: cache-pfunit
+        uses: actions/cache@v2
+        with:
+          path: ~/pkg/pfunit
+          key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
+      - name: Build pFUnit
+        if: steps.cache-pfunit.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+          cd pFUnit && mkdir b && cd b
+          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
+          make -j$(nproc) && make install && cd ../../
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -36,7 +47,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} --with-pfunit=/tmp/pfunit/PFUNIT-4.2
+          ./configure FC=${FC} --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
           make -j$(nproc)
       - name: Check
         run: |
