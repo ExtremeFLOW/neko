@@ -101,3 +101,37 @@ jobs:
           cd neko-0.0.1
           ./configure FC=${FC}
           make -j $(nproc)
+          
+  Nvidia:
+    runs-on: ubuntu-20.04
+    container: nvcr.io/nvidia/nvhpc:20.11-devel-cuda11.1-ubuntu20.04
+    env:
+     FC: nvfortran
+     CC: nvcc
+    name: Nvidia HPC
+    steps:
+#      - name: Setup env.
+#       run: |
+#          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+#          cd pFUnit && mkdir b && cd b
+#          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
+#          make -j$(nproc) && make install && cd ../../
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+           fetch-depth: 1
+      - name: Build
+        run: |
+          ./regen.sh
+          ./configure FC=${FC}
+          make -j$(nproc)
+#      - name: Check
+#        run: |
+#          make check
+      - name: Dist
+        run: |
+          make dist
+          tar xf neko-0.0.1.tar.gz
+          cd neko-0.0.1
+          ./configure FC=${FC}
+          make -j $(nproc)
