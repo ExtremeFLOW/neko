@@ -3,6 +3,7 @@ module user_intf
   use field
   use source
   use coefs
+  use usr_inflow
   use parameters
   use num_types
   implicit none
@@ -49,6 +50,7 @@ module user_intf
      procedure(usermsh), nopass, pointer :: usr_msh_setup => null()
      procedure(usercheck), nopass, pointer :: usr_chk => null()
      procedure(source_term_pw), nopass, pointer :: fluid_usr_f => null()
+     procedure(usr_inflow_eval), nopass, pointer :: fluid_usr_if => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t

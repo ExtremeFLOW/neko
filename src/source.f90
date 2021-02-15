@@ -22,7 +22,7 @@ module source
      end subroutine source_term
   end interface
 
-  !> Abstract interface defning how to compute a source term pointwise
+  !> Abstract interface defining how to compute a source term pointwise
   abstract interface
      subroutine source_term_pw(u, v, w, j, k, l, e)
        import dp

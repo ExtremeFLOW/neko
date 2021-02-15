@@ -2,8 +2,6 @@
 mesh_file= '512.nmsh'
 fluid_scheme='plan4'
 lx = 12
-solver_velocity = 'cg'
-solver_pressure = 'gmres'	
 source_term = 'noforce'
 initial_condition = 'user'
 /

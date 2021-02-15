@@ -11,6 +11,7 @@ module fluid_method
   use coefs
   use wall
   use inflow
+  use usr_inflow
   use dirichlet
   use symmetry
   use cg
@@ -41,7 +42,7 @@ module fluid_method
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     type(inflow_t) :: bc_inflow               !< Dirichlet inflow for velocity
+     class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
@@ -56,6 +57,7 @@ module fluid_method
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
+     procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -64,7 +66,7 @@ module fluid_method
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_method_init(this, msh, lx, param, vel, prs)
+     subroutine fluid_method_init(this, msh, lx, param)
        import fluid_scheme_t
        import param_t
        import mesh_t
@@ -72,8 +74,6 @@ module fluid_method
        type(mesh_t), intent(inout) :: msh       
        integer, intent(inout) :: lx
        type(param_t), intent(inout) :: param              
-       character(len=80), intent(inout) :: vel
-       character(len=80), intent(inout) :: prs
      end subroutine fluid_method_init
   end interface
 
@@ -140,11 +140,27 @@ contains
     end if
 
     if (msh%inlet%size .gt. 0) then
+
+       if (trim(params%fluid_inflow) .eq. "default") then
+          allocate(inflow_t::this%bc_inflow)
+       else if (trim(params%fluid_inflow) .eq. "user") then
+          allocate(usr_inflow_t::this%bc_inflow)
+       else
+          call neko_error('Invalid Inflow condition')
+       end if
+       
        call this%bc_inflow%init(this%dm_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%finalize()
        call this%bc_inflow%set_inflow(params%uinf)
        call bc_list_add(this%bclst_vel, this%bc_inflow)
+
+       if (trim(params%fluid_inflow) .eq. "user") then
+          select type(bc_if => this%bc_inflow)
+          type is(usr_inflow_t)
+             call bc_if%set_coef(this%C_Xh)
+          end select
+       end if
     end if
     
     if (msh%wall%size .gt. 0 ) then
@@ -202,12 +218,12 @@ contains
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, params, solver_vel)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), intent(inout) :: params
-    character(len=80), intent(inout) :: solver_vel
+    logical :: kspv_init
 
     call fluid_scheme_init_common(this, msh, lx, params)
     
@@ -215,19 +231,23 @@ contains
     call field_init(this%v, this%dm_Xh, 'v')
     call field_init(this%w, this%dm_Xh, 'w')
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-         solver_vel, params%abstol_vel)
+    if (kspv_init) then
+       call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+            params%ksp_vel, params%abstol_vel)
+       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+    end if
 
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, solver_vel, solver_prs)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init)
     class(fluid_scheme_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: params      
-    character(len=80), intent(inout) :: solver_vel
-    character(len=80), intent(inout) :: solver_prs
+    type(param_t), intent(inout) :: params
+    logical :: kspv_init
+    logical :: kspp_init
 
     call fluid_scheme_init_common(this, msh, lx, params)
     
@@ -248,15 +268,19 @@ contains
        call bc_list_add(this%bclst_prs, this%bc_prs)
     end if
 
-    call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-         solver_vel, params%abstol_vel)
-    call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+    if (kspv_init) then
+       call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+            params%ksp_vel, params%abstol_vel)
+       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+    end if
 
-    call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_prs, params%abstol_prs)
-    call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
+    if (kspp_init) then
+       call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
+            params%ksp_prs, params%abstol_prs)
+       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
+    end if
 
   end subroutine fluid_scheme_init_all
 
@@ -270,11 +294,14 @@ contains
     call field_free(this%p)
     call field_free(this%bdry)
 
-    call this%bc_inflow%free()
+    if (allocated(this%bc_inflow)) then
+       call this%bc_inflow%free()
+    end if
+
     call this%bc_wall%free()
     call this%bc_sym%free()
 
-    call space_free(this%Xh)
+    call space_free(this%Xh)    
 
     if (allocated(this%ksp_vel)) then
        call this%ksp_vel%free()
@@ -326,6 +353,11 @@ contains
        call neko_error('No parameters defined')
     end if
 
+    select type(ip => this%bc_inflow)
+    type is(usr_inflow_t)
+       call ip%validate
+    end select
+
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
@@ -348,7 +380,7 @@ contains
   subroutine fluid_scheme_solver_factory(ksp, n, solver,abstol)
     class(ksp_t), allocatable, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=80), intent(inout) :: solver
+    character(len=20), intent(inout) :: solver
     real(kind=dp) :: abstol
 
     if (trim(solver) .eq. 'cg') then
@@ -376,7 +408,7 @@ contains
     type(dofmap_t), intent(inout) :: dof
     type(gs_t), intent(inout) :: gs
     type(bc_list_t), intent(inout) :: bclst
-    character(len=*) :: pctype
+    character(len=20) :: pctype
     
     if (trim(pctype) .eq. 'jacobi') then
        allocate(jacobi_t::pc)
@@ -396,5 +428,17 @@ contains
     ksp%M => pc
     
   end subroutine fluid_scheme_precon_factory
+
+  subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
+    class(fluid_scheme_t), intent(inout) :: this
+    procedure(usr_inflow_eval) :: usr_eval
+    select type(bc_if => this%bc_inflow)
+    type is(usr_inflow_t)
+       call bc_if%set_eval(usr_eval)
+    class default
+       call neko_error("Not a user defined inflow condition")
+    end select
+    
+  end subroutine fluid_scheme_set_usr_inflow
      
 end module fluid_method
