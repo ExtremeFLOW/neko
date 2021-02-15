@@ -377,7 +377,7 @@ contains
   
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver,abstol)
+  subroutine fluid_scheme_solver_factory(ksp, n, solver, abstol)
     class(ksp_t), allocatable, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=20), intent(inout) :: solver
@@ -425,7 +425,7 @@ contains
        call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
     end select
 
-    ksp%M => pc
+    call ksp%set_pc(pc)
     
   end subroutine fluid_scheme_precon_factory
 
