@@ -30,7 +30,7 @@ module krylov
    contains
      procedure, pass(this) :: ksp_init => krylov_init
      procedure, pass(this) :: ksp_free => krylov_free
-     procedure, pass(this) :: ksp_set_pc => krylov_set_pc
+     procedure, pass(this) :: set_pc => krylov_set_pc
      procedure(ksp_method), pass(this), deferred :: solve
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
@@ -126,7 +126,11 @@ contains
     class(pc_t), optional, target, intent(in) :: M
 
     if (associated(this%M)) then
-       call neko_error('Preconditioner already defined')
+       select type(pc => this%M)
+       type is (ident_t)
+       class default
+          call neko_error('Preconditioner already defined')
+       end select
     end if
     
     this%M => M
