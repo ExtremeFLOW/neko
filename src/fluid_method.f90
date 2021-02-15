@@ -11,6 +11,7 @@ module fluid_method
   use coefs
   use wall
   use inflow
+  use usr_inflow
   use dirichlet
   use symmetry
   use cg
@@ -56,6 +57,7 @@ module fluid_method
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
+     procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -139,13 +141,26 @@ contains
 
     if (msh%inlet%size .gt. 0) then
 
-       allocate(inflow_t::this%bc_inflow)
+       if (trim(params%fluid_inflow) .eq. "default") then
+          allocate(inflow_t::this%bc_inflow)
+       else if (trim(params%fluid_inflow) .eq. "user") then
+          allocate(usr_inflow_t::this%bc_inflow)
+       else
+          call neko_error('Invalid Inflow condition')
+       end if
        
        call this%bc_inflow%init(this%dm_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%finalize()
        call this%bc_inflow%set_inflow(params%uinf)
        call bc_list_add(this%bclst_vel, this%bc_inflow)
+
+       if (trim(params%fluid_inflow) .eq. "user") then
+          select type(bc_if => this%bc_inflow)
+          type is(usr_inflow_t)
+             call bc_if%set_coef(this%C_Xh)
+          end select
+       end if
     end if
     
     if (msh%wall%size .gt. 0 ) then
@@ -338,6 +353,11 @@ contains
        call neko_error('No parameters defined')
     end if
 
+    select type(ip => this%bc_inflow)
+    type is(usr_inflow_t)
+       call ip%validate
+    end select
+
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
@@ -408,5 +428,17 @@ contains
     ksp%M => pc
     
   end subroutine fluid_scheme_precon_factory
+
+  subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
+    class(fluid_scheme_t), intent(inout) :: this
+    procedure(usr_inflow_eval) :: usr_eval
+    select type(bc_if => this%bc_inflow)
+    type is(usr_inflow_t)
+       call bc_if%set_eval(usr_eval)
+    class default
+       call neko_error("Not a user defined inflow condition")
+    end select
+    
+  end subroutine fluid_scheme_set_usr_inflow
      
 end module fluid_method

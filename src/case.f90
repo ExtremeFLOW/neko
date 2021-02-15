@@ -102,7 +102,7 @@ contains
     !
     call C%usr%init()
     call C%usr%usr_msh_setup(C%msh)
-
+    
     !
     ! Setup fluid scheme
     !
@@ -117,6 +117,14 @@ contains
   
     call C%fluid%init(C%msh, lx, C%params)
     if(pe_rank .eq. 0) write(*,*) 'Fluid scheme initialized successfully'
+
+    !
+    ! Setup user defined conditions    
+    !
+    if (trim(C%params%fluid_inflow) .eq. 'user') then
+       call C%fluid%set_usr_inflow(C%usr%fluid_usr_if)
+    end if
+    
     !
     ! Setup source term
     ! 
