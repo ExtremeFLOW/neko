@@ -30,6 +30,7 @@ module krylov
    contains
      procedure, pass(this) :: ksp_init => krylov_init
      procedure, pass(this) :: ksp_free => krylov_free
+     procedure, pass(this) :: set_pc => krylov_set_pc
      procedure(ksp_method), pass(this), deferred :: solve
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
@@ -79,10 +80,11 @@ module krylov
 contains
 
   !> Create a krylov solver
-  subroutine krylov_init(this, rel_tol, abs_tol)    
+  subroutine krylov_init(this, rel_tol, abs_tol, M)    
     class(ksp_t), intent(inout) :: this
     real(kind=dp), optional, intent(in) :: rel_tol
     real(kind=dp), optional, intent(in) :: abs_tol
+    class(pc_t), optional, target, intent(in) :: M
     integer :: i
     type(ident_t), target :: M_ident
     
@@ -100,8 +102,12 @@ contains
        this%abs_tol = KSP_ABS_TOL
     end if
 
-    if (.not. associated(this%M)) then
-       this%M => M_ident
+    if (present(M)) then
+       this%M => M
+    else
+       if (.not. associated(this%M)) then
+          this%M => M_ident
+       end if
     end if
 
   end subroutine krylov_init
@@ -113,5 +119,22 @@ contains
     !> @todo add calls to destroy precon. if necessary
 
   end subroutine krylov_free
+
+  !> Setup a Krylov solvers preconditioners
+  subroutine krylov_set_pc(this, M)
+    class(ksp_t), intent(inout) :: this
+    class(pc_t), optional, target, intent(in) :: M
+
+    if (associated(this%M)) then
+       select type(pc => this%M)
+       type is (ident_t)
+       class default
+          call neko_error('Preconditioner already defined')
+       end select
+    end if
+    
+    this%M => M
+    
+  end subroutine krylov_set_pc
   
 end module krylov
