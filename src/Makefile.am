@@ -73,10 +73,15 @@ libneko_a_SOURCES = \
 	simulation.f90\
 	ax_helm.f90\
 	projection.f90\
+	parmetis.f90\
 	pc_hsmg.f90\
 	fdm.f90\
 	schwarz.f90\
 	neko.f90
+
+if ENABLE_PARMETIS
+libneko_a_SOURCES += parmetis_wrappers.c
+endif
 
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
