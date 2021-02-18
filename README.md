@@ -1,5 +1,5 @@
 # Neko
-
+![CI](https://github.com/ExtremeFLOW/neko/workflows/CI/badge.svg)
 ## Cloning the project
 
 ```bash
