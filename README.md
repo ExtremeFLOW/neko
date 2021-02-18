@@ -8,7 +8,7 @@ git clone https://github.com/ExtremeFLOW/neko
 
 ## Building the project
 To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation and BLAS/lapack.
-We use automake to build the project. These instructions should work in general, but as the project is quickly devloping things might change.
+We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change.
 
 ```bash
 cd neko
@@ -26,7 +26,7 @@ mpirun -np 4 ./neko tgv.case
 ```
 
 ## Testing the Code
-Assuming you configured with pfuint you should be able to test the code with
+Assuming you configured with pFUnit you should be able to test the code with
 ```bash
 make check
 ```
