@@ -1,6 +1,6 @@
 
 !> Project x onto X, the space of old solutions and back again
-!! @Note In this code we assume that the matrix project for the
+!! @note In this code we assume that the matrix project for the
 !! pressure Ax does not vary in time.
 
 module projection
