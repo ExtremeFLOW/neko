@@ -543,7 +543,7 @@ contains
 
 
   !> Generate x,y,z-coordinates for all dofs
-  !! @note Assumes \f$ X_h_x = X_h_y = X_h_z \f$
+  !! @note Assumes \f$ X_{h_x} = X_{h_y} = X_{h_z} \f$
   subroutine dofmap_generate_xyz(this)
     type(dofmap_t), target :: this
     integer :: i,j,k
