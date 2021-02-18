@@ -30,3 +30,9 @@ Assuming you configured with pFUnit you should be able to test the code with
 ```bash
 make check
 ```
+
+## Documentation
+To generate the documentation, you need to have both doxygen and dot installed (they will be picked up by configure). Once installed, you should be able to generate the documentation with
+```bash
+make html
+```
