@@ -20,7 +20,7 @@ After the project has been built
 
 ```bash
 cd examples/tgv
-/path/to/neko_install/bin/makenek tgv.f90
+/path/to/neko_install/bin/makeneko tgv.f90
 mpirun -np 4 ./neko tgv.case
 ```
 
