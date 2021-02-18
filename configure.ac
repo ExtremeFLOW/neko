@@ -69,7 +69,7 @@ AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
 	 	 src/neko_config.f90\
-		 makenek\
+		 makeneko\
 		 neko.pc])
 
 # Config tests
