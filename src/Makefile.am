@@ -80,7 +80,7 @@ libneko_a_SOURCES = \
 	neko.f90
 
 if ENABLE_PARMETIS
-libneko_a_SOURCES += parmetis_wrappers.c
+libneko_a_SOURCES += parmetis_wrapper.c
 endif
 
 bin_PROGRAMS = neko
