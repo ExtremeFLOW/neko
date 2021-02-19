@@ -53,6 +53,9 @@ AM_CONDITIONAL([ENABLE_DOXYGEN], [test -n "$DOXYGEN_DEPS"])
 AC_CHECK_PROGS([MAKEDEPF90], [makedepf90])
 AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 
+
+AX_CRAY
+
 # Checks for pFUnit
 AX_PFUNIT
 
@@ -64,14 +67,31 @@ else
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
+found_domain_decomp="no"
+
 # Checks for ParMetis
-AX_PARMETIS
-if test "${PARMETIS_LIBS}"; then     
-   LIBS="$PARMETIS_LIBS $LIBS"
-else
+if test "x${is_cray}" = xyes; then
+   AX_CRAY_PARMETIS
+   if test "x${have_cray_parmetis}" = xyes; then
+      found_domain_decomp="yes"
+   fi
+fi
+
+if test "x${found_domain_decomp}" != xyes; then
+   AX_PARMETIS
+   if test "${PARMETIS_LIBS}"; then
+       LIBS="$PARMETIS_LIBS $LIBS"
+       found_domain_decomp="yes"
+   fi
+fi	 
+
+if test "x${found_domain_decomp}" != xyes; then
    AC_MSG_ERROR([Required library ParMetis not found])
 fi
-AM_CONDITIONAL([ENABLE_PARMETIS], [test -n "$PARMETIS_LIBS"])
+AM_CONDITIONAL([ENABLE_PARMETIS], [test -n $HAVE_PARMETIS])
+
+
+
 
 
 AC_CONFIG_FILES([Makefile\
