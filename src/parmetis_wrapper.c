@@ -10,17 +10,12 @@
 #include <mpi.h>
 #include <parmetis.h>
 
-#ifdef HAVE_PARMETIS
-#if REALTYPEWIDTH == 64
-#error "ParMETIS built with 64bit support"
-#endif
-#endif
 
 /*!
   Fortran wrapper for ParMETIS PartGeom
 */
-int ParMETIS_V3_PartGeom_wrapper(int *vtxdist, int *ndims,
-				 float *xyz, int *part)
+int ParMETIS_V3_PartGeom_wrapper(idx_t *vtxdist, idx_t *ndims,
+				 real_t *xyz, idx_t *part)
 {
   int rcode;
   MPI_Comm comm;
@@ -41,11 +36,12 @@ int ParMETIS_V3_PartGeom_wrapper(int *vtxdist, int *ndims,
 /*!
   Fortran wrapper for ParMETIS PartMeshKway
 */
-int ParMETIS_V3_PartMeshKway_wrapper(int *elmdist, int *eptr, int *eind,
-				     int *elmwgt, int *wgtflag, int *numflag,
-				     int *ncon, int *ncommonnodes, int *nparts,
-				     float *tpwgts, float *ubvec, int *options,
-				     int *edgecut, int *part)
+int ParMETIS_V3_PartMeshKway_wrapper(idx_t *elmdist, idx_t *eptr, idx_t *eind,
+				     idx_t *elmwgt, idx_t *wgtflag,
+				     idx_t *numflag, idx_t *ncon,
+				     idx_t *ncommonnodes, idx_t *nparts,
+				     real_t *tpwgts, real_t *ubvec,
+				     idx_t *options, idx_t *edgecut, idx_t *part)
 {
 
   int rcode;

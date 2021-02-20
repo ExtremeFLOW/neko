@@ -3,6 +3,7 @@ module parmetis
   use comm
   use point
   use utils
+  use num_types
   use mesh_field 
   use mesh, only : mesh_t
   use, intrinsic :: iso_c_binding
@@ -41,19 +42,47 @@ module parmetis
      end function parmetis_v3_partgeom
   end interface
 
+!
+! Define data types depending on ParMETIS' configuration
+!
+! parmetis_real converts between NEKO and ParMETIS' real representation
+!
+! parmetis_idx converts between NEKO and ParMETIS' integer representation
+! neko_idx converts between ParMETIS and NEKO's integer representation
+!
+
+#ifdef HAVE_PARMETIS
+#ifdef HAVE_PARMETIS_REAL64
+#define M_REAL c_double
+#define parmetis_real(i) real((i), 8)
+#else
+#define M_REAL c_float
+#define parmetis_real(i) real((i), 4)
+#endif
+#ifdef HAVE_PARMETIS_INT64
+#define M_INT c_int64_t
+#define parmetis_idx(i) int((i), 8)
+#define neko_idx(i) int((i), 4)
+#else
+#define M_INT c_int32_t
+#define parmetis_idx(i) (i)
+#define neko_idx(i) (i)
+#endif
+#endif
+  
 contains
 
 #ifdef HAVE_PARMETIS
-  
+
   !> Compute a k-way partitioning of a mesh @a msh 
   subroutine parmetis_partmeshkway(msh, parts, weights)
     type(mesh_t), intent(inout) :: msh                !< Mesh
     type(mesh_fld_t), intent(inout) :: parts          !< Partitions
     type(mesh_fld_t), intent(in), optional :: weights !< Weights
-    integer(kind=c_int), target :: wgtflag, numflag, ncon, ncommonnodes
-    integer(kind=c_int), target :: nparts, options(3), edgecut, rcode
-    real(kind=c_float), allocatable, target, dimension(:) :: tpwgts, ubvec
-    integer(kind=c_int), allocatable, target, dimension(:) :: &
+    integer(kind=M_INT), target :: wgtflag, numflag, ncon, ncommonnodes
+    integer(kind=M_INT), target :: nparts, options(3), edgecut, rcode
+    real(kind=M_REAL), allocatable, target, dimension(:) :: tpwgts, ubvec
+    integer(kind=M_INT), allocatable, target, dimension(:) :: &
          elmdist, eptr, eind, elmwgt, part
     integer :: i, j, k, ierr
 
@@ -66,7 +95,7 @@ contains
     ncommonnodes = 2**(msh%gdim - 1)
     options(1) = 1
     options(2) = 1
-    options(3) = 15 * pe_rank
+    options(3) = 15
     wgtflag = 2
     
     allocate(elmdist(0:pe_size), eptr(0:msh%nelv))
@@ -83,13 +112,13 @@ contains
 
     eptr(0) = 0
     do i = 1, msh%nelv
-       eptr(i) = eptr(i - 1) + msh%npts
+       eptr(i) = parmetis_idx(eptr(i - 1) + msh%npts)
     end do
 
     k = 0
     do i = 1, msh%nelv
        do j = 1, msh%npts
-          eind(k) = msh%elements(i)%e%pts(j)%p%id() - 1
+          eind(k) = parmetis_idx(msh%elements(i)%e%pts(j)%p%id() - 1)
           k = k + 1
        end do
     end do
@@ -114,11 +143,11 @@ contains
   subroutine parmetis_partgeom(msh, parts)
     type(mesh_t), intent(inout) :: msh       !< Mesh
     type(mesh_fld_t), intent(inout) :: parts !< Partitions
-    integer(kind=c_int), target :: ndims, rcode
-    real(kind=c_float), allocatable, target, dimension(:) :: xyz
-    integer(kind=c_int), allocatable, target, dimension(:) :: vtxdist, part
+    integer(kind=M_INT), target :: ndims
+    real(kind=M_REAL), allocatable, target, dimension(:) :: xyz
+    integer(kind=M_INT), allocatable, target, dimension(:) :: vtxdist, part
     type(point_t) :: c
-    integer :: i, j, ierr
+    integer :: i, j, ierr, rcode
 
     ndims = msh%gdim
 
@@ -130,9 +159,9 @@ contains
     i = 1
     do j = 1, msh%nelv
        c = msh%elements(j)%e%centroid()
-       xyz(i) = c%x(1)
-       xyz(i + 1) = c%x(2)
-       xyz(i + 2) = c%x(3)
+       xyz(i) = parmetis_real(c%x(1))
+       xyz(i + 1) = parmetis_real(c%x(2))
+       xyz(i + 2) = parmetis_real(c%x(3))
        i = i + 3
     end do
     
@@ -153,13 +182,13 @@ contains
   subroutine parmetis_mark_parts(parts, msh, part)
     type(mesh_fld_t), intent(inout) :: parts
     type(mesh_t), intent(in) :: msh
-    integer(kind=c_int), allocatable, intent(in) :: part(:)
+    integer(kind=M_INT), allocatable, intent(in) :: part(:)
     integer :: i
 
     call mesh_field_init(parts, msh, 'partitions')
 
     do i = 1, msh%nelv
-       parts%data(i) = part(i)
+       parts%data(i) = neko_idx(part(i))
     end do
     
   end subroutine parmetis_mark_parts
@@ -167,38 +196,39 @@ contains
   !> Setup weights and balance constraints for the dual graph
   subroutine parmetis_wgt(msh, wgt, tpwgts, ubvec, nparts, ncon, weight)
     type(mesh_t), intent(in) :: msh
-    integer(kind=c_int), allocatable, intent(inout) :: wgt(:)
-    real(kind=c_float), allocatable, intent(inout) :: tpwgts(:)
-    real(kind=c_float), allocatable, intent(inout) :: ubvec(:)
+    integer(kind=M_INT), allocatable, intent(inout) :: wgt(:)
+    real(kind=M_REAL), allocatable, intent(inout) :: tpwgts(:)
+    real(kind=M_REAL), allocatable, intent(inout) :: ubvec(:)
     integer, intent(in) :: nparts, ncon
     type(mesh_fld_t), intent(in), optional :: weight
     integer :: i
     
     if (present(weight)) then
        do i = 1, msh%nelv
-          wgt(i) = weight%data(i)
+          wgt(i) = parmetis_idx(weight%data(i))
        end do
     else
-       wgt = 1.0
+       wgt = parmetis_idx(1)
     end if
     
-    do i = 1, nparts
-       tpwgts(i) = 1.0e0 / real(nparts)
+    do i = 1, (ncon * nparts)
+       tpwgts(i) = parmetis_real(1) / parmetis_real(nparts)
     end do
 
     do i = 1, ncon
-       ubvec(i) = 1.05e0
+       ubvec(i) = parmetis_real(1.05d0)
     end do
 
   end subroutine parmetis_wgt
   
   !> Compute the (parallel) vertex distribution of the dual graph
   subroutine parmetis_dist(dist, nelv)
-    integer(kind=c_int), intent(inout) :: dist(0:pe_size)
+    integer(kind=M_INT), intent(inout) :: dist(0:pe_size)
     integer, intent(in) :: nelv
-    integer :: i, ierr, tmp, sum
+    integer(kind=M_INT) :: tmp, sum
+    integer :: i, ierr
 
-    dist(pe_rank) = nelv
+    dist(pe_rank) = parmetis_idx(nelv)
 
     call MPI_Allgather(nelv, 1, MPI_INTEGER, dist, 1, &
          MPI_INTEGER, NEKO_COMM, ierr)
