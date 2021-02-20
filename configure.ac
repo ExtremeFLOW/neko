@@ -23,13 +23,13 @@ AX_MPI([have_mpi=yes], [have_mpi=no])
 if test "x${have_mpi}" != xno; then
    FC="$MPIFC"
    LIBS="$MPILIBS $LIBS"
-#   AC_LANG(C)
-#   AX_MPI([have_mpi=yes],[have_mpi=no])
-#   if  test "x${have_mpi}" != xno; then
-#       CC="$MPICC"
-#   else
-#       AC_MSG_ERROR([Can't find a suitable C MPI compiler])
-#   fi
+   AC_LANG(C)
+   AX_MPI([have_mpi=yes],[have_mpi=no])
+   if  test "x${have_mpi}" != xno; then
+       CC="$MPICC"
+   else
+       AC_MSG_ERROR([Can't find a suitable C MPI compiler])
+   fi
    AC_LANG(Fortran)
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
@@ -53,6 +53,9 @@ AM_CONDITIONAL([ENABLE_DOXYGEN], [test -n "$DOXYGEN_DEPS"])
 AC_CHECK_PROGS([MAKEDEPF90], [makedepf90])
 AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 
+
+AX_CRAY
+
 # Checks for pFUnit
 AX_PFUNIT
 
@@ -63,6 +66,29 @@ if test "x${ax_lapack_ok}" != xno; then
 else
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
+
+found_domain_decomp="no"
+
+# Checks for ParMetis
+if test "x${is_cray}" = xyes; then
+   AX_CRAY_PARMETIS
+   if test "x${have_cray_parmetis}" = xyes; then
+      found_domain_decomp="yes"
+   fi
+fi
+
+if test "x${found_domain_decomp}" != xyes; then
+   AX_PARMETIS
+   if test "${PARMETIS_LIBS}"; then
+       LIBS="$PARMETIS_LIBS $LIBS"
+       found_domain_decomp="yes"
+   fi
+fi	 
+
+AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
+
+
+
 
 
 AC_CONFIG_FILES([Makefile\

@@ -57,9 +57,9 @@ AC_DEFUN([AX_PARMETIS],[
 	if test x"${have_parmetis}" = xyes; then
 	   AC_DEFINE(HAVE_PARMETIS,1,[Define if you have the ParMETIS library.])
 	else
-		if test -d "$ac_parmetis_path"; then	
-		   LDFLAGS="$LDFLAGS_SAVED"
-		fi
+	   if test -d "$ac_parmetis_path"; then	
+	      LDFLAGS="$LDFLAGS_SAVED"
+	   fi
 	fi
 
 ])

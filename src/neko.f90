@@ -58,6 +58,7 @@ module neko
   use mathops
   use projection
   use user_intf
+  use parmetis
 contains
 
   subroutine neko_init(C)
