@@ -231,6 +231,6 @@ contains
     call neko_error('NEKO needs to be built with ParMETIS support')
   end subroutine parmetis_partgeom
   
-#endif ! HAVE_PARMETIS
+#endif
   
 end module parmetis
