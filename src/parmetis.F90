@@ -2,6 +2,7 @@
 module parmetis
   use comm
   use point
+  use utils
   use mesh_field 
   use mesh, only : mesh_t
   use, intrinsic :: iso_c_binding
@@ -42,6 +43,8 @@ module parmetis
 
 contains
 
+#ifdef HAVE_PARMETIS
+  
   !> Compute a k-way partitioning of a mesh @a msh 
   subroutine parmetis_partmeshkway(msh, parts, weights)
     type(mesh_t), intent(inout) :: msh                !< Mesh
@@ -209,5 +212,25 @@ contains
     end do
 
   end subroutine parmetis_dist
+
+#else
+
+  !> Compute a k-way partitioning of a mesh @a msh 
+  subroutine parmetis_partmeshkway(msh, parts, weights)
+    type(mesh_t), intent(inout) :: msh                !< Mesh
+    type(mesh_fld_t), intent(inout) :: parts          !< Partitions
+    type(mesh_fld_t), intent(in), optional :: weights !< Weights
+    call neko_error('NEKO needs to be built with ParMETIS support')
+  end subroutine parmetis_partmeshkway
+
+  !> Compute a k-way partitioning of a mesh @a msh using
+  !! a coordinated-based space-filing curves method
+  subroutine parmetis_partgeom(msh, parts)
+    type(mesh_t), intent(inout) :: msh       !< Mesh
+    type(mesh_fld_t), intent(inout) :: parts !< Partitions
+    call neko_error('NEKO needs to be built with ParMETIS support')
+  end subroutine parmetis_partgeom
+  
+#endif ! HAVE_PARMETIS
   
 end module parmetis

@@ -85,10 +85,7 @@ if test "x${found_domain_decomp}" != xyes; then
    fi
 fi	 
 
-if test "x${found_domain_decomp}" != xyes; then
-   AC_MSG_ERROR([Required library ParMetis not found])
-fi
-AM_CONDITIONAL([ENABLE_PARMETIS], [test -n $HAVE_PARMETIS])
+AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 
 
 
