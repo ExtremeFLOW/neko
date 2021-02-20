@@ -3,6 +3,7 @@ module parmetis
   use comm
   use point
   use utils
+  use num_types
   use mesh_field 
   use mesh, only : mesh_t
   use, intrinsic :: iso_c_binding
@@ -49,15 +50,16 @@ module parmetis
 ! parmetis_idx converts between NEKO and ParMETIS' integer representation
 ! neko_idx converts between ParMETIS and NEKO's integer representation
 !
+
 #ifdef HAVE_PARMETIS
-#if REALTYPEWIDTH == 64
+#ifdef HAVE_PARMETIS_REAL64
 #define M_REAL c_double
 #define parmetis_real(i) real((i), 8)
 #else
 #define M_REAL c_float
 #define parmetis_real(i) real((i), 4)
 #endif
-#if IDXTYPEWIDTH == 64
+#ifdef HAVE_PARMETIS_INT64
 #define M_INT c_int64_t
 #define parmetis_idx(i) int((i), 8)
 #define neko_idx(i) int((i), 4)
@@ -93,7 +95,7 @@ contains
     ncommonnodes = 2**(msh%gdim - 1)
     options(1) = 1
     options(2) = 1
-    options(3) = 15 * pe_rank
+    options(3) = 15
     wgtflag = 2
     
     allocate(elmdist(0:pe_size), eptr(0:msh%nelv))
@@ -141,11 +143,11 @@ contains
   subroutine parmetis_partgeom(msh, parts)
     type(mesh_t), intent(inout) :: msh       !< Mesh
     type(mesh_fld_t), intent(inout) :: parts !< Partitions
-    integer(kind=M_INT), target :: ndims, rcode
+    integer(kind=M_INT), target :: ndims
     real(kind=M_REAL), allocatable, target, dimension(:) :: xyz
     integer(kind=M_INT), allocatable, target, dimension(:) :: vtxdist, part
     type(point_t) :: c
-    integer :: i, j, ierr
+    integer :: i, j, ierr, rcode
 
     ndims = msh%gdim
 
@@ -206,15 +208,15 @@ contains
           wgt(i) = parmetis_idx(weight%data(i))
        end do
     else
-       wgt = 1.0
+       wgt = parmetis_idx(1)
     end if
     
-    do i = 1, nparts
-       tpwgts(i) = parmetis_real(1.0e0 / real(nparts))
+    do i = 1, (ncon * nparts)
+       tpwgts(i) = parmetis_real(1) / parmetis_real(nparts)
     end do
 
     do i = 1, ncon
-       ubvec(i) = parmetis_real(1.05e0)
+       ubvec(i) = parmetis_real(1.05d0)
     end do
 
   end subroutine parmetis_wgt
