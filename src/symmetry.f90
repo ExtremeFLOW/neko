@@ -31,6 +31,7 @@ contains
     type(stack_i4_t) :: xmsk, ymsk, zmsk
     type(htable_i4_t) :: algnf 
     integer :: i, m, j, k, idx(4), facet, ntype, msk_size
+    integer, pointer :: sp(:)        
     real(kind=dp) :: sx,sy,sz
     real(kind=dp), parameter :: TOL = 1d-3
     
@@ -119,7 +120,10 @@ contains
     if (msk_size .gt. 0) then
        allocate(this%xaxis_msk(0:msk_size))
        this%xaxis_msk(0) = msk_size
-       this%xaxis_msk(1:msk_size) = xmsk%array()
+       sp => xmsk%array()
+       do i = 1, msk_size
+          this%xaxis_msk(i) = sp(i)
+       end do
     else
        allocate(this%xaxis_msk(0:1))
        this%xaxis_msk(0) = 0
@@ -129,7 +133,10 @@ contains
     if (msk_size .gt. 0) then
        allocate(this%yaxis_msk(0:msk_size))
        this%yaxis_msk(0) = msk_size
-       this%yaxis_msk(1:msk_size) = ymsk%array()
+       sp => ymsk%array()
+       do i = 1, msk_size
+          this%yaxis_msk(i) = sp(i)
+       end do
     else
        allocate(this%yaxis_msk(0:1))
        this%yaxis_msk(0) = 0
@@ -139,7 +146,10 @@ contains
     if (msk_size .gt. 0) then
        allocate(this%zaxis_msk(0:msk_size))
        this%zaxis_msk(0) = msk_size
-       this%zaxis_msk(1:msk_size) = zmsk%array()
+       sp => zmsk%array()
+       do i = 1, msk_size
+          this%zaxis_msk(i) = sp(i)
+       end do
     else
        allocate(this%zaxis_msk(0:1))
        this%zaxis_msk(0) = 0
