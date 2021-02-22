@@ -76,7 +76,9 @@ contains
 
     call gs_schedule(gs)
 
+    ! Setup Gather-scatter backend
     allocate(gs_cpu_t::gs%backend)
+    call gs%backend%init(gs%nlocal, gs%nshared)
     
   end subroutine gs_init
 

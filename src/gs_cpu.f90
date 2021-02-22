@@ -8,12 +8,19 @@ module gs_cpu
   
   type, public, extends(gs_backend_t) :: gs_cpu_t
    contains
+     procedure, nopass :: init => gs_cpu_init
      procedure, nopass :: gather => gs_gather_cpu
      procedure, nopass :: scatter => gs_scatter_cpu
   end type gs_cpu_t
   
 contains
   
+  !> Dummy backend initialisation
+  subroutine gs_cpu_init(nlocal, nshared)
+    integer, intent(in) :: nlocal
+    integer, intent(in) :: nshared
+  end subroutine gs_cpu_init
+
   !> Gather kernel
   subroutine gs_gather_cpu(v, m, o, dg, u, n, gd, nb, b, op)
     integer, intent(inout) :: m
