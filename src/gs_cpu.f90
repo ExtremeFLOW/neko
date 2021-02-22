@@ -8,24 +8,26 @@ module gs_cpu
   
   type, public, extends(gs_backend_t) :: gs_cpu_t
    contains
-     procedure, nopass :: init => gs_cpu_init
-     procedure, nopass :: gather => gs_gather_cpu
-     procedure, nopass :: scatter => gs_scatter_cpu
+     procedure, pass :: init => gs_cpu_init
+     procedure, pass :: gather => gs_gather_cpu
+     procedure, pass :: scatter => gs_scatter_cpu
   end type gs_cpu_t
   
 contains
   
   !> Dummy backend initialisation
-  subroutine gs_cpu_init(nlocal, nshared)
+  subroutine gs_cpu_init(this, nlocal, nshared)
+    class(gs_cpu_t), intent(inout) :: this
     integer, intent(in) :: nlocal
     integer, intent(in) :: nshared
   end subroutine gs_cpu_init
 
   !> Gather kernel
-  subroutine gs_gather_cpu(v, m, o, dg, u, n, gd, nb, b, op)
+  subroutine gs_gather_cpu(this, v, m, o, dg, u, n, gd, nb, b, op)
     integer, intent(inout) :: m
     integer, intent(inout) :: n
-    integer, intent(inout) :: nb        
+    integer, intent(inout) :: nb
+    class(gs_cpu_t), intent(in) :: this
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
@@ -204,10 +206,11 @@ contains
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter_cpu(v, m, dg, u, n, gd, nb, b)
+  subroutine gs_scatter_cpu(this, v, m, dg, u, n, gd, nb, b)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
+    class(gs_cpu_t), intent(in) :: this
     real(kind=dp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=dp), dimension(n), intent(inout) :: u
