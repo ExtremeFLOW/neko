@@ -3,6 +3,7 @@ module gather_scatter
   use gs_bcknd
   use gs_cpu
   use gs_ops
+  use gs_sx
   use mesh
   use dofmap
   use field
@@ -55,10 +56,11 @@ module gather_scatter
 contains
 
   !> Initialize a gather-scatter kernel
-  subroutine gs_init(gs, dofmap)
+  subroutine gs_init(gs, dofmap, bcknd)
     type(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
-    integer :: i
+    integer, optional :: bcknd
+    integer :: i, bcknd_
 
     call gs_free(gs)
 
@@ -76,8 +78,22 @@ contains
 
     call gs_schedule(gs)
 
+    if (present(bcknd)) then
+       bcknd_ = bcknd
+    else
+       bcknd_ = GS_BCKND_CPU ! Select this from neko_config
+    end if
+
     ! Setup Gather-scatter backend
-    allocate(gs_cpu_t::gs%bcknd)
+    select case(bcknd_)
+    case(GS_BCKND_CPU)
+       allocate(gs_cpu_t::gs%bcknd)
+    case(GS_BCKND_SX)
+       allocate(gs_sx_t::gs%bcknd)
+    case default
+       call neko_error('Unknown Gather-scatter backend')
+    end select
+       
     call gs%bcknd%init(gs%nlocal, gs%nshared)
     
   end subroutine gs_init
