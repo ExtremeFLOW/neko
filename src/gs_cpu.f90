@@ -1,16 +1,18 @@
-!> Gather-scatter backend for CPUs
+!> Generic Gather-scatter backend for CPUs
 module gs_cpu
   use num_types
-  use gs_backend
+  use gs_bcknd
   use gs_ops
   implicit none
   private
-  
-  type, public, extends(gs_backend_t) :: gs_cpu_t
+
+  !> Gather-scatter backend for CPUs
+  type, public, extends(gs_bcknd_t) :: gs_cpu_t
    contains
-     procedure, pass :: init => gs_cpu_init
-     procedure, pass :: gather => gs_gather_cpu
-     procedure, pass :: scatter => gs_scatter_cpu
+     procedure, pass(this) :: init => gs_cpu_init
+     procedure, pass(this) :: free => gs_cpu_free
+     procedure, pass(this) :: gather => gs_gather_cpu
+     procedure, pass(this) :: scatter => gs_scatter_cpu
   end type gs_cpu_t
   
 contains
@@ -21,6 +23,11 @@ contains
     integer, intent(in) :: nlocal
     integer, intent(in) :: nshared
   end subroutine gs_cpu_init
+
+  !> Dummy backend deallocation
+  subroutine gs_cpu_free(this)
+    class(gs_cpu_t), intent(inout) :: this
+  end subroutine gs_cpu_free
 
   !> Gather kernel
   subroutine gs_gather_cpu(this, v, m, o, dg, u, n, gd, nb, b, op)

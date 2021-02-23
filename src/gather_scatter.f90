@@ -1,6 +1,6 @@
 !> Gather-scatter
 module gather_scatter
-  use gs_backend
+  use gs_bcknd
   use gs_cpu
   use gs_ops
   use mesh
@@ -43,7 +43,7 @@ module gather_scatter
      integer :: nshared_blks                          !< Number of shared blks
      integer :: local_facet_offset                    !< offset for loc. facets
      integer :: shared_facet_offset                   !< offset for shr. facets
-     class(gs_backend_t), allocatable :: backend      !< Gather-scatter backend
+     class(gs_bcknd_t), allocatable :: bcknd          !< Gather-scatter backend
   end type gs_t
 
   private :: gs_init_mapping, gs_schedule
@@ -77,8 +77,8 @@ contains
     call gs_schedule(gs)
 
     ! Setup Gather-scatter backend
-    allocate(gs_cpu_t::gs%backend)
-    call gs%backend%init(gs%nlocal, gs%nshared)
+    allocate(gs_cpu_t::gs%bcknd)
+    call gs%bcknd%init(gs%nlocal, gs%nshared)
     
   end subroutine gs_init
 
@@ -169,8 +169,9 @@ contains
        deallocate(gs%recv_buf)
     end if
 
-    if (allocated(gs%backend)) then
-       deallocate(gs%backend)
+    if (allocated(gs%bcknd)) then
+       call gs%bcknd%free()
+       deallocate(gs%bcknd)
     end if
     
   end subroutine gs_free
@@ -989,7 +990,7 @@ contains
 
        call gs_nbrecv(gs)
 
-       call gs%backend%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
+       call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
 
        call gs_nbsend(gs, gs%shared_gs, l)
@@ -998,9 +999,9 @@ contains
     
     ! Gather-scatter local dofs
 
-    call gs%backend%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
+    call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op)
-    call gs%backend%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
+    call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len)
 
     ! Scatter shared dofs
@@ -1008,7 +1009,7 @@ contains
 
        call gs_nbwait(gs, gs%shared_gs, l, op)
 
-       call gs%backend%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
+       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
     end if
        

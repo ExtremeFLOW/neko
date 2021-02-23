@@ -20,7 +20,7 @@ libneko_a_SOURCES = \
 	space.f90\
 	dofmap.f90\
 	coef.f90\
-	gs_backend.f90\
+	gs_bcknd.f90\
 	gs_cpu.f90\
 	gs_ops.f90\
 	gather_scatter.f90\
