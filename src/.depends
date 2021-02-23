@@ -20,8 +20,9 @@ dofmap.o : dofmap.f90 math.o tensor.o fast3d.o utils.o num_types.o tuple.o space
 coef.o : coef.f90 mxm_wrapper.o mesh.o math.o space.o num_types.o gather_scatter.o 
 gs_bcknd.o : gs_bcknd.f90 num_types.o 
 gs_cpu.o : gs_cpu.f90 gs_ops.o gs_bcknd.o num_types.o 
+gs_sx.o : gs_sx.f90 gs_ops.o gs_bcknd.o num_types.o 
 gs_ops.o : gs_ops.f90 
-gather_scatter.o : gather_scatter.f90 utils.o stack.o htable.o num_types.o field.o dofmap.o mesh.o gs_ops.o gs_cpu.o gs_bcknd.o 
+gather_scatter.o : gather_scatter.f90 utils.o stack.o htable.o num_types.o field.o dofmap.o mesh.o gs_sx.o gs_ops.o gs_cpu.o gs_bcknd.o 
 entity.o : entity.f90 
 point.o : point.f90 entity.o math.o num_types.o 
 element.o : element.f90 point.o tuple.o entity.o num_types.o 

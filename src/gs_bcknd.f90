@@ -3,7 +3,7 @@ module gs_bcknd
   use num_types
   implicit none
 
-  integer, public, parameter :: GS_BCKND_CPU = 1
+  integer, public, parameter :: GS_BCKND_CPU = 1, GS_BCKND_SX = 2
   
   !> Gather-scatter backend
   type, public, abstract :: gs_bcknd_t
@@ -41,7 +41,7 @@ module gs_bcknd
        integer, intent(inout) :: m
        integer, intent(inout) :: n
        integer, intent(inout) :: nb
-       class(gs_bcknd_t), intent(in) :: this
+       class(gs_bcknd_t), intent(inout) :: this
        real(kind=dp), dimension(m), intent(inout) :: v
        integer, dimension(m), intent(inout) :: dg
        real(kind=dp), dimension(n), intent(inout) :: u
@@ -62,7 +62,7 @@ module gs_bcknd
        integer, intent(in) :: m
        integer, intent(in) :: n
        integer, intent(in) :: nb
-       class(gs_bcknd_t), intent(in) :: this              
+       class(gs_bcknd_t), intent(inout) :: this              
        real(kind=dp), dimension(m), intent(inout) :: v
        integer, dimension(m), intent(inout) :: dg
        real(kind=dp), dimension(n), intent(inout) :: u
