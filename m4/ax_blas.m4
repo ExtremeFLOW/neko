@@ -217,6 +217,11 @@ if test $ax_blas_ok = no; then
 			[], [-lblas])])
 fi
 
+# BLAS in NEC Numerical Library Collection (sequential)
+if test $ax_blas_ok = no; then
+	AC_CHECK_LIB(blas_sequential, sgemm, [ax_blas_ok=yes; BLAS_LIBS="-lblas_sequential"])
+fi
+
 # BLAS in AMD Blis?
 if test $ax_blas_ok = no; then
 	AC_CHECK_LIB(blis, sgemm, [ax_blas_ok=yes; BLAS_LIBS="-lblis"])
