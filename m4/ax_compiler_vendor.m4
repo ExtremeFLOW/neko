@@ -78,6 +78,7 @@ AC_DEFUN([AX_COMPILER_VENDOR], [dnl
 		fujitsu:	__FUJITSU
 		sdcc:		SDCC,__SDCC
 		sx:		_SX
+		sx-aurora:	__ve__
 		portland:	__PGI
 		gnu:		__GNUC__
 		sun:		__SUNPRO_C,__SUNPRO_CC,__SUNPRO_F90,__SUNPRO_F95

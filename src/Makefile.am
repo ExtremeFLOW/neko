@@ -22,6 +22,7 @@ libneko_a_SOURCES = \
 	coef.f90\
 	gs_bcknd.f90\
 	gs_cpu.f90\
+	gs_sx.f90\
 	gs_ops.f90\
 	gather_scatter.f90\
 	entity.f90\
