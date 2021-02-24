@@ -193,11 +193,11 @@ contains
     end if
 
     !> @todo resize onces final size is known
-    allocate(m%points(m%npts*m%nelv))
+    allocate(m%points(m%gdim*m%npts*m%nelv))
 
     !> @todo resize onces final size is known
-    allocate(m%point_neigh(m%npts*m%nelv))
-    do i = 1, m%npts*m%nelv
+    allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
+    do i = 1, m%gdim*m%npts*m%nelv
        call m%point_neigh(i)%init()
     end do
 
