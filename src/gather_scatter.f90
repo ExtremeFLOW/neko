@@ -977,6 +977,8 @@ contains
     deallocate(send_buf)
     deallocate(recv_flg)
     deallocate(shared_flg)
+    !This arrays seems to take massive amounts of memory... 
+    call gs%shared_dofs%free()
 
   end subroutine gs_schedule
 
