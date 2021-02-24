@@ -209,14 +209,16 @@ contains
     msh => dofmap%msh
     sdm => gs%shared_dofs
 
-    dm_size = dofmap%n_dofs/4
-
-    call dm%init(dm_size, i)
-    call sdm%init(dm_size, i)
-    
     lx = dofmap%Xh%lx
     ly = dofmap%Xh%ly
     lz = dofmap%Xh%lz
+    dm_size = dofmap%n_dofs/lx
+
+    call dm%init(dm_size, i)
+    !>@note this might be a bit overkill,
+    !!but having many collisions makes the init take too long.
+    call sdm%init(dofmap%n_dofs, i)
+    
 
     call local_dof%init()
     call dof_local%init()
