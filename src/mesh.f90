@@ -257,7 +257,7 @@ contains
     end if
 
     if (allocated(m%point_neigh)) then
-       do i = 1, m%npts * m%nelv
+       do i = 1, m%gdim * m%npts * m%nelv
           call m%point_neigh(i)%free()
        end do
        deallocate(m%point_neigh)
