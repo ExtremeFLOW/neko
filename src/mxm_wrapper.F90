@@ -2,6 +2,9 @@
 module mxm_wrapper
   use mxm_std
   use num_types
+#ifdef HAVE_LIBXSMM
+  use libxsmm, libxsmm_mmcall => libxsmm_dmmcall_abc
+#endif
   implicit none
 
 contains
@@ -13,18 +16,18 @@ contains
     real(kind=dp), intent(inout) :: a(n1, n2)
     real(kind=dp), intent(inout) :: b(n2, n3)
     real(kind=dp), intent(inout) :: c(n1, n3)
+#ifdef HAVE_LIBXSMM
+    type(libxsmm_dmmfunction) :: xmm
+    
+    call libxsmm_dispatch(xmm, n1, n3, n2, &
+         alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH)
+    if (libxsmm_available(xmm)) then
+       call libxsmm_mmcall(xmm, a, b, c)
+       return
+    end if
+#endif
 
-
-! #ifdef XSMM
-!       if ((n1*n2*n3)**(1./3) .gt. 6) then
-!          call libxsmm_dgemm('N','N',n1,n3,n2,1.0,a,n1,b,n2,0.0,c,n1)
-!          goto 111
-!       else
-!          goto 101
-!       endif
-! #endif
-
-! #ifdef BLAS_MXM
+    ! #ifdef BLAS_MXM
 !       call dgemm('N','N',n1,n3,n2,1.0,a,n1,b,n2,0.0,c,n1)
 !       goto 111
 ! #endif
