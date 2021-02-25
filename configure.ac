@@ -67,6 +67,10 @@ else
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
+# Checks for libxsmm
+AX_LIBXSMM
+
+
 found_domain_decomp="no"
 
 # Checks for ParMetis

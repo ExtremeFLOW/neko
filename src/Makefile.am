@@ -10,7 +10,7 @@ libneko_a_SOURCES = \
 	datadist.f90 \
 	distdata.f90 \
 	utils.f90\
-	mxm_wrapper.f90\
+	mxm_wrapper.F90\
 	mxm_std.f90\
 	speclib.f90 \
 	math.f90\
