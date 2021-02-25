@@ -12,7 +12,7 @@ contains
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
     type(case_t), intent(inout) :: C
-    real(kind=dp) :: t, start_time_org, start_time, end_time
+    real(kind=dp) :: t, start_time_org, start_time, end_time, cfl
     integer :: tstep
 
     t = 0d0
@@ -22,6 +22,8 @@ contains
     do while (t .lt. C%params%T_end)
        tstep = tstep + 1
        start_time = MPI_WTIME()
+       cfl = C%fluid%compute_cfl(C%params%dt)
+       if(pe_rank .eq. 0) write(*,*) 'Starting step:',tstep,' CFL:', cfl
        call simulation_settime(t, C%params%dt, C%ab_bdf, C%tlag, C%dtlag, tstep)
        call C%fluid%step(t, tstep, C%ab_bdf)
        end_time = MPI_WTIME()

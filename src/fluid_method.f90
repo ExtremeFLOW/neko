@@ -50,6 +50,7 @@ module fluid_method
      type(field_t) :: bdry                     !< Boundary markings
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
+
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -58,6 +59,7 @@ module fluid_method
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
+     procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -440,5 +442,12 @@ contains
     end select
     
   end subroutine fluid_scheme_set_usr_inflow
+  function fluid_compute_cfl(this, dt) result(c)
+    class(fluid_scheme_t) :: this
+    real(kind=dp) :: dt
+    real(kind=dp) :: c
+
+    c = cfl(dt, this%u%x, this%v%x, this%w%x, this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim) 
+  end function fluid_compute_cfl
      
 end module fluid_method
