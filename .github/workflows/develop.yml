@@ -78,16 +78,14 @@ jobs:
           source /opt/intel/oneapi/setvars.sh
           sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
           printenv >> $GITHUB_ENV
-#          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
-#          cd pFUnit && mkdir b && cd b
-#          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
-#          make -j$(nproc) && make install && cd ../../
       - name: Checkout
         uses: actions/checkout@v2
         with:
            fetch-depth: 1
       - name: Build
         run: |
+          which mpif90
+          which mpicc
           ./regen.sh
           ./configure FC=${FC}
           make FCFLAGS="-O2 -stand f08" -j$(nproc)
