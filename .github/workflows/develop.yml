@@ -89,7 +89,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -stand f08"
-          make -j$(nproc)
+          ./configure FC=${FC}
+          make FCFLAGS="-O2 -stand f08" -j$(nproc)
 
  
