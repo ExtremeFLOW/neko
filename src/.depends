@@ -8,7 +8,7 @@ mpi_types.o : mpi_types.f90 parameters.o nmsh.o re2.o comm.o
 datadist.o : datadist.f90 
 distdata.o : distdata.f90 uset.o tuple.o stack.o 
 utils.o : utils.f90 
-mxm_wrapper.o : mxm_wrapper.f90 num_types.o mxm_std.o 
+mxm_wrapper.o : mxm_wrapper.F90 num_types.o mxm_std.o 
 mxm_std.o : mxm_std.f90 num_types.o 
 speclib.o : speclib.f90 utils.o num_types.o 
 math.o : math.f90 comm.o num_types.o 
