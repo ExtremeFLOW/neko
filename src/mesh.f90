@@ -56,7 +56,7 @@ module mesh
      class(htable_t), allocatable :: facet_map 
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
-     type(distdata_t) :: distdata              !< Mesh distributed data
+     type(distdata_t) :: ddata            !< Mesh distributed data
 
      type(zone_t) :: wall                 !< Zone of wall facets
      type(zone_t) :: inlet                !< Zone of inlet facets
@@ -209,7 +209,7 @@ contains
     call m%sympln%init(m%nelv)
     call m%periodic%init(m%nelv)
    
-    call distdata_init(m%distdata)
+    call distdata_init(m%ddata)
     
     m%mpts = 0
     m%mfcs = 0
@@ -225,7 +225,7 @@ contains
     call m%htp%free()
     call m%htf%free()
     call m%hte%free()
-    call distdata_free(m%distdata)
+    call distdata_free(m%ddata)
     
     if (allocated(m%points)) then
        deallocate(m%points)
@@ -535,10 +535,10 @@ contains
                 ! Update facet map
                 call fmp%set(edge, facet_data)
 
-                call distdata_set_shared_el_facet(m%distdata, element, facet)
+                call distdata_set_shared_el_facet(m%ddata, element, facet)
 
                 if (m%hte%get(edge, facet) .eq. 0) then
-                   call distdata_set_shared_facet(m%distdata, facet)
+                   call distdata_set_shared_facet(m%ddata, facet)
                 else
                    call neko_error("Invalid shared edge")
                 end if
@@ -571,10 +571,10 @@ contains
                 ! Update facet map
                 call fmp%set(face, facet_data)
                 
-                call distdata_set_shared_el_facet(m%distdata, element, facet)
+                call distdata_set_shared_el_facet(m%ddata, element, facet)
                 
                 if (m%htf%get(face, facet) .eq. 0) then
-                   call distdata_set_shared_facet(m%distdata, facet)
+                   call distdata_set_shared_facet(m%ddata, facet)
                 else
                    call neko_error("Invalid shared face")
                 end if
@@ -648,7 +648,7 @@ contains
              do k = 1, num_neigh
                 neigh_el = -recv_buffer(j + 1 + k)
                 call m%point_neigh(pt_loc_idx)%push(neigh_el)
-                call distdata_set_shared_point(m%distdata, pt_loc_idx)
+                call distdata_set_shared_point(m%ddata, pt_loc_idx)
              end do
           end if
           j = j + (2 + num_neigh)          
@@ -683,7 +683,7 @@ contains
     integer :: status(MPI_STATUS_SIZE)
 
     !>@todo move this into distdata
-    allocate(m%distdata%local_to_global_edge(m%meds))
+    allocate(m%ddata%local_to_global_edge(m%meds))
 
     call edge_idx%init()
     call send_buff%init()
@@ -722,7 +722,7 @@ contains
           do j = 1, m%point_neigh(l)%size()
              if ((p1(i) .eq. p2(j)) .and. &
                   (p1(i) .lt. 0) .and. (p2(j) .lt. 0)) then
-                call distdata_set_shared_edge(m%distdata, id)
+                call distdata_set_shared_edge(m%ddata, id)
                 shared_edge = .true.
              end if
           end do
@@ -752,7 +752,7 @@ contains
     ! Construct global numbering of locally owned edges
     ns_id => non_shared_edges%array()
     do i = 1, non_shared_edges%size()
-       call distdata_set_local_to_global_edge(m%distdata, ns_id(i), edge_offset)
+       call distdata_set_local_to_global_edge(m%ddata, ns_id(i), edge_offset)
        edge_offset = edge_offset + 1          
     end do
 
@@ -802,7 +802,7 @@ contains
     do while (owner%iter_next())
        glb_ptr => owner%iter_value()
        if (glb_to_loc%get(glb_ptr, id) .eq. 0) then
-          call distdata_set_local_to_global_edge(m%distdata, id, shared_offset)
+          call distdata_set_local_to_global_edge(m%ddata, id, shared_offset)
 
           ! Add new number to send data as [old_glb_id new_glb_id] for each edge
           call send_buff%push(glb_ptr)   ! Old glb_id integer*8
@@ -846,7 +846,7 @@ contains
           if (ghost%element(recv_buff(j))) then
              if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
                 n_glb_id = int(recv_buff(j + 1 ), 4)
-                call distdata_set_local_to_global_edge(m%distdata, id, n_glb_id)
+                call distdata_set_local_to_global_edge(m%ddata, id, n_glb_id)
              else
                 call neko_error('Invalid edge id')
              end if
@@ -882,15 +882,15 @@ contains
 
     !>@todo move this into distdata
     if (m%gdim .eq. 2) then
-       allocate(m%distdata%local_to_global_facet(m%meds))
+       allocate(m%ddata%local_to_global_facet(m%meds))
     else
-       allocate(m%distdata%local_to_global_facet(m%mfcs))
+       allocate(m%ddata%local_to_global_facet(m%mfcs))
        call face_owner%init()
        call face_ghost%init(64, i)       
     end if
     
     !> @todo Move this into distdata as a method...
-    shared_facets = m%distdata%shared_facet%size()
+    shared_facets = m%ddata%shared_facet%size()
     
     non_shared_facets = m%htf%num_entries() - shared_facets
     facet_offset = 0
@@ -906,8 +906,8 @@ contains
        do while (face_it%next())
           call face_it%data(id)
           face => face_it%key()
-          if (.not. m%distdata%shared_facet%element(id)) then       
-             call distdata_set_local_to_global_facet(m%distdata, &
+          if (.not. m%ddata%shared_facet%element(id)) then       
+             call distdata_set_local_to_global_facet(m%ddata, &
                   id, facet_offset)
              facet_offset = facet_offset + 1
           else
@@ -948,7 +948,7 @@ contains
     fd => face_owner%array()
     do i = 1, face_owner%size()
        if (m%htf%get(fd(i), id) .eq. 0) then
-          call distdata_set_local_to_global_facet(m%distdata, id, shared_offset)
+          call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
 
           ! Add new number to send buffer
           ! [facet id1 ... facet idn new_glb_id]
@@ -994,7 +994,7 @@ contains
 
           ! Check if the PE has the shared face
           if (face_ghost%get(recv_face, id) .eq. 0) then
-             call distdata_set_local_to_global_facet(m%distdata, &
+             call distdata_set_local_to_global_facet(m%ddata, &
                   id, recv_buff(j+4))
           end if
        end do
@@ -1495,7 +1495,7 @@ contains
     global_id = mesh_Get_local_edge(m, e)
 
     if (pe_size .gt. 1) then
-       global_id = m%distdata%local_to_global_edge(global_id)
+       global_id = m%ddata%local_to_global_edge(global_id)
     end if
 
   end function mesh_get_global_edge
@@ -1509,7 +1509,7 @@ contains
     global_id = mesh_get_local_facet(m, f)
     
     if (pe_size .gt. 1) then
-       global_id = m%distdata%local_to_global_facet(global_id)
+       global_id = m%ddata%local_to_global_facet(global_id)
     end if
     
   end function mesh_get_global_facet
@@ -1538,7 +1538,7 @@ contains
     logical shared
 
     local_index = mesh_get_local(m, p)
-    shared = m%distdata%shared_point%element(local_index)
+    shared = m%ddata%shared_point%element(local_index)
     
   end function mesh_is_shared_point
   
@@ -1551,7 +1551,7 @@ contains
     integer :: local_index
     logical shared
     local_index = mesh_get_local(m, e)
-    shared = m%distdata%shared_edge%element(local_index)
+    shared = m%ddata%shared_edge%element(local_index)
     
   end function mesh_is_shared_edge
 
@@ -1563,7 +1563,7 @@ contains
     logical shared
 
     local_index = mesh_get_local(m, f)
-    shared = m%distdata%shared_facet%element(local_index)
+    shared = m%ddata%shared_facet%element(local_index)
     
   end function mesh_is_shared_facet
 

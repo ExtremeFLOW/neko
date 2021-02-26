@@ -130,7 +130,7 @@ module uset
        class(uset_t), intent(inout) :: this
        class(*), intent(inout) :: key
      end subroutine uset_remove
- end interface
+  end interface
 
 contains
 
@@ -138,7 +138,6 @@ contains
   subroutine uset_i4_init(this, n)
     class(uset_i4_t), intent(inout) :: this
     integer, optional :: n
-    integer :: key
 
     if (present(n)) then
        call this%t%init(n)
