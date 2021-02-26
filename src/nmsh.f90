@@ -34,6 +34,12 @@ module nmsh
      integer, dimension(4) :: glb_pt_ids !< Global point ids
      integer :: type            !< Zone type
   end type nmsh_zone_t
+   !> Neko curve data
+  type, public :: nmsh_curve_el_t
+     integer :: e               !< Element id (global)
+     real(kind=dp), dimension(6,12) :: curve_data !< Save 6 values for each edge
+     integer, dimension(12) :: type !< type of curve for each edge
+  end type nmsh_curve_el_t
   
 
 end module nmsh

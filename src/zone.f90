@@ -3,6 +3,7 @@ module zone
   use tuple
   use stack
   use utils
+  use structs
   implicit none
   
   type :: zone_t
@@ -28,6 +29,19 @@ module zone
      procedure, pass(z) :: finalize => zone_periodic_finalize
      procedure, pass(z) :: add_periodic_facet => zone_periodic_add_facet
   end type zone_periodic_t
+ 
+  ! Maybe should be moved somewhere else
+  type :: zone_curve_t
+     type(struct_curve_t), allocatable :: curve_el(:)
+     type(stack_curve_t), private :: scratch
+     integer :: size = 0
+     logical, private :: finalized = .false.
+   contains
+     procedure, pass(z) :: init => zone_curve_element_init
+     procedure, pass(z) :: free => zone_curve_element_free
+     procedure, pass(z) :: finalize => zone_curve_element_finalize
+     procedure, pass(z) :: add_element => zone_curve_element_add
+  end type zone_curve_t
   
 contains
 
@@ -194,5 +208,78 @@ contains
     call z%p_id_scratch%push(t2)
     
   end subroutine zone_periodic_add_facet
-  
+ 
+  !> Initialize a zone
+  subroutine zone_curve_element_init(z, size)
+    class(zone_curve_t), intent(inout) :: z
+    integer, optional :: size
+
+    call zone_curve_element_free(z)
+
+    if (present(size)) then
+       call z%scratch%init(size)
+    else
+       call z%scratch%init()
+    end if
+    
+  end subroutine zone_curve_element_init
+
+  !> Deallocate a zone
+  subroutine zone_curve_element_free(z)
+    class(zone_curve_t), intent(inout) :: z
+    if (allocated(z%curve_el)) then
+       deallocate(z%curve_el)
+    end if
+
+    z%finalized = .false.
+    z%size = 0
+
+    call z%scratch%free()
+    
+  end subroutine zone_curve_element_free
+
+  !> Finalize a zone list
+  !! @details Create a static list of (facet,el) tuples
+  subroutine zone_curve_element_finalize(z)
+    class(zone_curve_t), intent(inout) :: z
+    type(struct_curve_t), pointer :: tp(:)
+    integer :: i
+    
+    if (.not. z%finalized) then
+
+       allocate(z%curve_el(z%scratch%size()))
+       
+       tp => z%scratch%array()
+       do i = 1, z%scratch%size()
+          z%curve_el(i) = tp(i)
+       end do
+
+       z%size = z%scratch%size()
+
+       call z%scratch%clear()
+
+       z%finalized = .true.
+       
+    end if
+    
+  end subroutine zone_curve_element_finalize
+
+  !> Add a (facet, el) tuple to an unfinalized zone
+  subroutine zone_curve_element_add(z, el_idx, curve_data, curve_type )
+    class(zone_curve_t), intent(inout) :: z
+    real(kind=dp), dimension(6,12), intent(inout) :: curve_data
+    integer, dimension(12), intent(inout) :: curve_type
+    integer, intent(inout) :: el_idx
+    type(struct_curve_t) :: c_el
+
+    if (z%finalized) then
+       call neko_error('Zone already finalized')
+    end if
+    c_el%curve_data = curve_data
+    c_el%curve_type = curve_type
+    c_el%el_idx = el_idx
+    call z%scratch%push(c_el)
+  end subroutine zone_curve_element_add
+
+ 
 end module zone

@@ -28,13 +28,14 @@ contains
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_zone_t), allocatable :: nmsh_zone(:)
+    type(nmsh_curve_el_t), allocatable :: nmsh_curve(:)
     type(mesh_t), pointer :: msh
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
     integer :: i, j, ierr, fh, nelgv, element_offset
     integer :: nmsh_quad_size, nmsh_hex_size
     class(element_t), pointer :: ep
-    integer :: nelv, gdim, nread, nzones
+    integer :: nelv, gdim, nread, nzones, ncurves
     integer :: el_idx, ids(4)
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
@@ -141,6 +142,28 @@ contains
        deallocate(nmsh_zone)
     end if
 
+    mpi_offset = mpi_el_offset
+    call MPI_File_read_at_all(fh, mpi_offset, &
+         ncurves, 1, MPI_INTEGER, status, ierr)
+
+    if (ncurves .gt. 0) then
+       
+       allocate(nmsh_curve(ncurves))
+       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       call MPI_File_read_at_all(fh, mpi_offset, &
+            nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
+       
+       do i = 1, ncurves 
+          el_idx = nmsh_curve(i)%e - msh%offset_el
+          if (el_idx .gt. msh%offset_el .and. &
+              el_idx .le. msh%offset_el + msh%nelv) then             
+             call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
+          end if
+       end do
+       
+       deallocate(nmsh_curve)
+    end if
+
     call MPI_File_close(fh, ierr)
 
     call mesh_finalize(msh)
@@ -158,12 +181,13 @@ contains
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_zone_t), allocatable :: nmsh_zone(:)
+    type(nmsh_curve_el_t), allocatable :: nmsh_curve(:)
     type(mesh_t), pointer :: msh
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
     integer :: i, j, ierr, fh, nelgv, element_offset
-    integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
-    integer :: nzones    
+    integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
+    integer :: nzones, ncurves 
     class(element_t), pointer :: ep
 
     select type(data)
@@ -176,6 +200,7 @@ contains
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
     call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
     call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
+    call MPI_Type_size(MPI_NMSH_CURVE, nmsh_curve_size, ierr)
 
     call MPI_Reduce(msh%nelv, nelgv, 1, MPI_INTEGER, &
          MPI_SUM, 0, NEKO_COMM, ierr)
@@ -230,7 +255,7 @@ contains
     end if
 
     nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + &
-         msh%sympln%size + msh%periodic%size
+         msh%sympln%size + msh%periodic%size 
 
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
@@ -279,14 +304,38 @@ contains
           nmsh_zone(j)%type = 5
           j = j + 1
        end do
-
+       
        mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
        
        deallocate(nmsh_zone)
     end if
-    
+ 
+    mpi_offset = mpi_el_offset
+    ncurves = msh%curve%size 
+
+    call MPI_File_write_at_all(fh, mpi_offset, &
+         ncurves, 1, MPI_INTEGER, status, ierr)
+
+    if (ncurves .gt. 0) then
+       allocate(nmsh_curve(ncurves))
+       do i = 1, ncurves
+          nmsh_curve(i)%type = 0
+       end do
+       
+       do i = 1, msh%curve%size
+          nmsh_curve(i)%e = msh%curve%curve_el(i)%el_idx + msh%offset_el
+          nmsh_curve(i)%curve_data = msh%curve%curve_el(i)%curve_data
+          nmsh_curve(i)%type = msh%curve%curve_el(i)%curve_type
+       end do
+       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       call MPI_File_write_at_all(fh, mpi_offset, &
+            nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
+       
+       deallocate(nmsh_curve)
+    end if
+   
     call MPI_File_close(fh, ierr)
     if (pe_rank .eq. 0) write(*,*) 'Done'
 

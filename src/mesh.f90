@@ -63,7 +63,7 @@ module mesh
      type(zone_t) :: outlet               !< Zone of outlet facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
      type(zone_periodic_t) :: periodic    !< Zone of periodic facets
-
+     type(zone_curve_t) :: curve  !< Zone/volume of curved elements
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
@@ -208,6 +208,7 @@ contains
     call m%outlet%init(m%nelv)
     call m%sympln%init(m%nelv)
     call m%periodic%init(m%nelv)
+    call m%curve%init(m%nelv)
    
     call distdata_init(m%distdata)
     
@@ -283,6 +284,7 @@ contains
     call m%outlet%finalize()
     call m%sympln%finalize()
     call m%periodic%finalize()
+    call m%curve%finalize()
 
   end subroutine mesh_finalize
 
@@ -1183,6 +1185,24 @@ contains
     call m%wall%add_facet(f, e)
     
   end subroutine mesh_mark_wall_facet
+
+  !> Mark element @a e as a curve element
+  subroutine mesh_mark_curve_element(m, e, curve_data, curve_type)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: e
+    real(kind=dp), dimension(6,12), intent(inout) :: curve_data 
+    integer, dimension(12), intent(inout) :: curve_type 
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+    if ((m%gdim .eq. 2 .and. sum(curve_type(5:12)) .gt. 0) ) then
+       call neko_error('Invalid curve element')
+    end if
+    call m%curve%add_element(e, curve_data, curve_type)
+    
+  end subroutine mesh_mark_curve_element
+
 
   !> Mark facet @a f in element @a e as an inlet
   subroutine mesh_mark_inlet_facet(m, f, e)

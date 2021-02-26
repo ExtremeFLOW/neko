@@ -59,6 +59,7 @@ module neko
   use projection
   use user_intf
   use parmetis
+  use structs
 contains
 
   subroutine neko_init(C)

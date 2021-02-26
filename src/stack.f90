@@ -4,6 +4,7 @@ module stack
   use num_types
   use tuple
   use utils
+  use structs
   use math, only : NEKO_M_LN2
   implicit none
   private
@@ -57,6 +58,13 @@ module stack
      procedure, public, pass(this) :: pop => stack_i4t4_pop
      procedure, public, pass(this) :: array => stack_i4t4_data
   end type stack_i4t4_t
+  
+  !> Curved element stack
+  type, public, extends(stack_t) :: stack_curve_t
+   contains
+     procedure, public, pass(this) :: pop => stack_curve_element_pop
+     procedure, public, pass(this) :: array => stack_curve_element_data
+  end type stack_curve_t
 
 contains
 
@@ -90,6 +98,9 @@ contains
        allocate(tuple_i4_t::this%data(this%size_))
     class is (stack_i4t4_t)
        allocate(tuple4_i4_t::this%data(this%size_))
+    class is (stack_curve_t)
+       print *, 'here we are'
+       allocate(struct_curve_t::this%data(this%size_))
     end select
 
   end subroutine stack_init
@@ -138,6 +149,8 @@ contains
           allocate(tuple_i4_t::tmp(this%size_))
        type is(tuple4_i4_t)
           allocate(tuple4_i4_t::tmp(this%size_))
+       type is(struct_curve_t)
+          allocate(struct_curve_t::tmp(this%size_))
        end select
        select type(tmp)
        type is (integer)
@@ -163,6 +176,11 @@ contains
        type is (tuple4_i4_t)
           select type(sdp=>this%data)
           type is (tuple4_i4_t)
+             tmp(1:this%top_) = sdp
+          end select
+       type is (struct_curve_t)
+          select type(sdp=>this%data)
+          type is (struct_curve_t)
              tmp(1:this%top_) = sdp
           end select
        end select
@@ -195,6 +213,11 @@ contains
     type is (tuple4_i4_t)
        select type(data)
        type is (tuple4_i4_t)
+          sdp(this%top_) = data
+       end select
+    type is (struct_curve_t)
+       select type(data)
+       type is (struct_curve_t)
           sdp(this%top_) = data
        end select
     end select
@@ -324,5 +347,29 @@ contains
        data => sdp
     end select
   end function stack_i4t4_data
-  
+ 
+  !> Pop a curve element of the stack
+  function stack_curve_element_pop(this) result(data)
+    class(stack_curve_t), target, intent(inout) :: this
+    type(struct_curve_t) :: data
+    
+    select type (sdp=>this%data)
+    type is (struct_curve_t)       
+       data = sdp(this%top_)
+    end select
+    this%top_ = this%top_ -1
+  end function stack_curve_element_pop
+
+  !> Return a pointer to the internal curve element array
+  function stack_curve_element_data(this) result(data)
+    class(stack_curve_t), target, intent(inout) :: this
+    class(*), pointer :: sdp(:)
+    type(struct_curve_t), pointer :: data(:)
+
+    sdp=>this%data
+    select type(sdp)
+    type is (struct_curve_t)       
+       data => sdp
+    end select
+  end function stack_curve_element_data
 end module stack
