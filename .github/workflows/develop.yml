@@ -87,7 +87,7 @@ jobs:
           which mpif90
           which mpicc
           ./regen.sh
-          ./configure FC=${FC}
+          ./configure FC=${FC} MPIFC=`which mpif90`
           make FCFLAGS="-O2 -stand f08" -j$(nproc)
 
  
