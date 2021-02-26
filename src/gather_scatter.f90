@@ -59,11 +59,16 @@ contains
   subroutine gs_init(gs, dofmap, bcknd)
     type(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
+    character(len=10) :: bcknd_str
     integer, optional :: bcknd
-    integer :: i, bcknd_
+    integer :: i, ierr, bcknd_, glb_nshared, glb_nlocal
 
     call gs_free(gs)
 
+    if (pe_rank .eq. 0) then
+       write(*,'(/xA)') 'Setup gather-scatter'
+    end if
+    
     gs%dofmap => dofmap
     
     allocate(gs%send_dof(0:pe_size-1))
@@ -78,6 +83,17 @@ contains
 
     call gs_schedule(gs)
 
+    call MPI_Reduce(gs%nlocal, glb_nlocal, 1, &
+         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+
+    call MPI_Reduce(gs%nshared, glb_nshared, 1, &
+         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+
+    if (pe_rank .eq. 0) then
+       write(*,'(xxxA,I)') 'Avg. internal: ', glb_nlocal/pe_size
+       write(*,'(xxxA,I)') 'Avg. external: ', glb_nshared/pe_size
+       write(*,'(xxxA)', advance='no') 'Backend: '
+    end if
     if (present(bcknd)) then
        bcknd_ = bcknd
     else
@@ -88,11 +104,18 @@ contains
     select case(bcknd_)
     case(GS_BCKND_CPU)
        allocate(gs_cpu_t::gs%bcknd)
+       bcknd_str = 'std'
     case(GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
+       bcknd_str = 'sx'
     case default
        call neko_error('Unknown Gather-scatter backend')
     end select
+
+    if (pe_rank .eq. 0) then
+       write(*,'(A)') trim(bcknd_str)
+       write(*,*) 'Done'
+    end if
        
     call gs%bcknd%init(gs%nlocal, gs%nshared)
     
