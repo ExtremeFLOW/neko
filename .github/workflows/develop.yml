@@ -84,10 +84,11 @@ jobs:
            fetch-depth: 1
       - name: Build
         run: |
+          env
           which mpif90
           which mpicc
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=`which mpifort`
+          ./configure FC=${FC} CC=${CC} MPIFC=mpifort
           make FCFLAGS="-O2 -stand f08" -j$(nproc)
 
  
