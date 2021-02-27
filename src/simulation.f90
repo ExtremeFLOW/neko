@@ -20,9 +20,9 @@ contains
     t = 0d0
     tstep = 0
     call neko_log%section('Simulation')
-    write(log_buf,'(A, E15.7)') 'dt :  ', C%params%dt
-    call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%params%T_end,')'
+    call neko_log%message(log_buf)
+    write(log_buf,'(A, E15.7)') 'dt :  ', C%params%dt
     call neko_log%message(log_buf)
     call neko_log%newline()
     
@@ -32,7 +32,7 @@ contains
        start_time = MPI_WTIME()
        cfl = C%fluid%compute_cfl(C%params%dt)
        call neko_log%status(t, c%params%T_end)
-       write(log_buf, '(A,I)') 'Time-step: ', tstep
+       write(log_buf, '(A,I6)') 'Time-step: ', tstep
        call neko_log%message(log_buf)
        call neko_log%begin()
 
