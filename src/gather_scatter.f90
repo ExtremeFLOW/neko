@@ -61,7 +61,7 @@ contains
     type(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
     character(len=LOG_SIZE) :: log_buf
-    character(len=10) :: bcknd_str
+    character(len=20) :: bcknd_str
     integer, optional :: bcknd
     integer :: i, ierr, bcknd_, glb_nshared, glb_nlocal
 
@@ -89,9 +89,9 @@ contains
     call MPI_Reduce(gs%nshared, glb_nshared, 1, &
          MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
 
-    write(log_buf, '(A,I)') 'Avg. internal: ', glb_nlocal/pe_size
+    write(log_buf, '(A,I12)') 'Avg. internal: ', glb_nlocal/pe_size
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I)') 'Avg. external: ', glb_nshared/pe_size
+    write(log_buf, '(A,I12)') 'Avg. external: ', glb_nshared/pe_size
     call neko_log%message(log_buf)
     
     if (present(bcknd)) then
@@ -104,10 +104,10 @@ contains
     select case(bcknd_)
     case(GS_BCKND_CPU)
        allocate(gs_cpu_t::gs%bcknd)
-       bcknd_str = 'std'
+       bcknd_str = '         std'
     case(GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
-       bcknd_str = 'sx'
+       bcknd_str = '          sx'
     case default
        call neko_error('Unknown Gather-scatter backend')
     end select
