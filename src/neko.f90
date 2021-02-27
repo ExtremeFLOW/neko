@@ -5,6 +5,7 @@ module neko
   use parameters    
   use comm
   use utils
+  use log
   use math
   use speclib
   use dofmap
@@ -70,9 +71,15 @@ contains
     call comm_init
     call mpi_types_init
 
+    call neko_log%init()
+
     if (pe_rank .eq. 0) then
        write(*,*) ''
-       write(*,*) 'N E K O'
+       write(*,*) '   _  __  ____  __ __  ____ '
+       write(*,*) '  / |/ / / __/ / //_/ / __ \'
+       write(*,*) ' /    / / _/  / ,<   / /_/ /'
+       write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
+       write(*,*) ''
        write(*,*) '(version: ', trim(NEKO_VERSION),')'
        write(*,*) trim(NEKO_BUILD_INFO)
        write(*,*) ''

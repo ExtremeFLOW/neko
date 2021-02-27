@@ -12,6 +12,7 @@ module case
   use mesh
   use comm
   use abbdf
+  use log    
   use user_intf  
   implicit none
 
@@ -52,7 +53,9 @@ contains
     integer :: pack_index, temp, i
     real(kind=dp) :: eps, uvw(3)
     
-
+    call neko_log%section('Case')
+    call neko_log%message('Reading case file ' // trim(case_file))
+    
     !
     ! Read case description
     !
@@ -116,7 +119,6 @@ contains
     end if
   
     call C%fluid%init(C%msh, lx, C%params)
-    if(pe_rank .eq. 0) write(*,*) 'Fluid scheme initialized successfully'
 
     !
     ! Setup user defined conditions    
@@ -208,6 +210,8 @@ contains
     call C%s%init(C%params%nsamples, C%params%T_end)
     C%f_out = fluid_output_t(C%fluid)
     call C%s%add(C%f_out)
+
+    call neko_log%end_section()
     
   end subroutine case_init
   !> Deallocate a case 

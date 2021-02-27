@@ -5,6 +5,7 @@ libneko_a_SOURCES = \
 	nmsh.f90\
 	re2.f90\
 	map.f90\
+	log.f90\
 	comm.f90\
 	mpi_types.f90 \
 	datadist.f90 \

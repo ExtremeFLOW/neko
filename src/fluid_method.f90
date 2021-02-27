@@ -24,6 +24,7 @@ module fluid_method
   use mathops
   use operators
   use hsmg
+  use log
   implicit none
   
   !> Base type of all fluid formulations
@@ -110,6 +111,12 @@ contains
     type(param_t), intent(inout), target :: params
     type(dirichlet_t) :: bdry_mask
     
+    call neko_log%section('Fluid')
+    call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
+         ', ' // trim(params%pc_vel) // ')')
+    call neko_log%message('Ksp prs. : ('// trim(params%ksp_prs) // &
+         ', ' // trim(params%pc_prs) // ')')
+    
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
     else
@@ -174,9 +181,7 @@ contains
        
     if (params%output_bdry) then
 
-       if (pe_rank .eq. 0) then
-          write(*,*) 'Saving boundary markings'
-       end if
+       call neko_log%message('Saving boundary markings')
        
        call field_init(this%bdry, this%dm_Xh, 'bdry')
        this%bdry = 0d0
@@ -240,6 +245,7 @@ contains
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
     end if
 
+    call neko_log%end_section()
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
@@ -284,6 +290,9 @@ contains
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
     end if
 
+
+    call neko_log%end_section()
+    
   end subroutine fluid_scheme_init_all
 
   !> Deallocate a fluid formulation
