@@ -1,5 +1,7 @@
+!> Logging routines
 module log
   use comm
+  use num_types
   implicit none
 
   integer, parameter :: LOG_SIZE = 80
@@ -9,33 +11,62 @@ module log
      integer :: section_id_
    contains
      procedure, pass(this) :: init => log_init
+     procedure, pass(this) :: begin => log_begin
+     procedure, pass(this) :: end => log_end
      procedure, pass(this) :: indent => log_indent
      procedure, pass(this) :: newline => log_newline          
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
+     procedure, pass(this) :: status => log_status
      procedure, pass(this) :: end_section => log_end_section
   end type log_t
   
+  !> Global log stream
   type(log_t), public :: neko_log
   
 contains
 
+  !> Initialize a log
   subroutine log_init(this)
     class(log_t), intent(inout) :: this
     this%indent_ = 1
     this%section_id_ = 0
   end subroutine log_init
 
+  !> Increase indention level
+  subroutine log_begin(this)
+    class(log_t), intent(inout) :: this
+
+    if (pe_rank .eq. 0) then
+       this%indent_ = this%indent_ + 1
+    end if
+    
+  end subroutine log_begin
+
+  !> Decrease indention level
+  subroutine log_end(this)
+    class(log_t), intent(inout) :: this
+
+    if (pe_rank .eq. 0) then
+       this%indent_ = this%indent_ - 1
+    end if
+    
+  end subroutine log_end
+    
+  !> Indent a log 
   subroutine log_indent(this)
     class(log_t), intent(in) :: this
     integer :: i
 
-    do i = 1, this%indent_
-       write(*,'(A)', advance='no') ' '        
-    end do
+    if (pe_rank .eq. 0) then
+       do i = 1, this%indent_
+          write(*,'(A)', advance='no') ' '        
+       end do
+    end if
     
   end subroutine log_indent
-  
+
+  !> Write a new line to a log
   subroutine log_newline(this)
     class(log_t), intent(in) :: this
     integer :: i
@@ -46,6 +77,7 @@ contains
     
   end subroutine log_newline
 
+  !> Write a message to a log
   subroutine log_message(this, msg)
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: msg
@@ -57,6 +89,7 @@ contains
     
   end subroutine log_message
 
+  !> Begin a new log section
   subroutine log_section(this, msg)
     class(log_t), intent(inout) :: this
     character(len=*), intent(in) :: msg
@@ -84,6 +117,7 @@ contains
     
   end subroutine log_section
 
+  !> End a log section
   subroutine log_end_section(this, msg)
     class(log_t), intent(inout) :: this
     character(len=*), intent(in), optional :: msg
@@ -92,10 +126,30 @@ contains
        call this%message(msg)
     end if
     
-    this%section_id_ = this%section_id_ - 1
-    this%indent_ = this%indent_ - this%section_id_
+    if (pe_rank .eq. 0) then
+       this%section_id_ = this%section_id_ - 1
+       this%indent_ = this%indent_ - this%section_id_
+    end if
     
   end subroutine log_end_Section
   
+  !> Write status banner
+  !! @todo move to a future Time module
+  subroutine log_status(this, t, T_end)
+    class(log_t), intent(in) :: this
+    real(kind=dp), intent(in) :: t
+    real(kind=dp), intent(in) :: T_end
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=dp) :: t_prog
+
+     t_prog = 100d0 * t / T_end
+
+    call this%message('----------------------------------------------------------------')
+    write(log_buf, '(A,E15.7,A,F6.2,A)') 't = ', t,&
+         '                                  [ ',t_prog,'% ]'
+
+    call this%message(log_buf)
+    call this%message('----------------------------------------------------------------')
+  end subroutine log_status
   
 end module log
