@@ -46,6 +46,8 @@ dist_data_DATA = \
 	stack/stack_i4.pf\
 	stack/stack_i4t2.pf\
 	stack/stack_i8.pf\
+	stack/stack_nq.pf\
+	stack/stack_nh.pf\
 	htable/htable_i4t2.pf\
 	htable/htable_i8.pf\
 	htable/htable_pt.pf\
