@@ -77,6 +77,8 @@ contains
        call mesh_add_element(msh, i, &
             p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     end do
+
+    call mesh_finalize(msh)
     
   end subroutine redist_mesh
 
