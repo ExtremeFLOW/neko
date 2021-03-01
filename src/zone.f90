@@ -166,6 +166,8 @@ contains
 
        call z%p_scratch%clear()
        call z%p_id_scratch%clear()
+
+       z%finalized = .true.
        
     end if
     
