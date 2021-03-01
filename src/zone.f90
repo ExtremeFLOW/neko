@@ -126,9 +126,13 @@ contains
     class(zone_periodic_t), intent(inout) :: z
 
     call zone_free(z)
-    
+
     if (allocated(z%p_facet_el)) then
        deallocate(z%p_facet_el)
+    end if
+
+    if (allocated(z%p_ids)) then
+       deallocate(z%p_ids)
     end if
 
     call z%p_scratch%free()
@@ -167,8 +171,6 @@ contains
        call z%p_scratch%clear()
        call z%p_id_scratch%clear()
 
-       z%finalized = .true.
-       
     end if
     
   end subroutine zone_periodic_finalize
