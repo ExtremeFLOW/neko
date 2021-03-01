@@ -6,6 +6,8 @@ module case
   use parameters
   use mpi_types
   use mesh_field
+  use parmetis
+  use redist
   use sampler
   use file
   use utils
@@ -51,6 +53,7 @@ contains
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 240 + 8
     character buffer(nbytes)
     integer :: pack_index, temp, i
+    type(mesh_fld_t) :: parts
     real(kind=dp) :: eps, uvw(3)
     
     call neko_log%section('Case')
@@ -99,6 +102,17 @@ contains
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
     C%params = params%p
+
+    !
+    ! Load Balancing
+    !
+    if (pe_size .gt. 1 .and. C%params%loadb) then
+       call neko_log%section('Load Balancing')
+       call parmetis_partmeshkway(C%msh, parts)
+       call redist_mesh(C%msh, parts)
+       call neko_log%end_section()       
+    end if
+
 
     !
     ! Setup user defined functions
