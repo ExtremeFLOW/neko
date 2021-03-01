@@ -79,6 +79,7 @@ libneko_a_SOURCES = \
 	ax_helm.f90\
 	projection.f90\
 	parmetis.F90\
+	redist.f90\
 	pc_hsmg.f90\
 	fdm.f90\
 	schwarz.f90\
