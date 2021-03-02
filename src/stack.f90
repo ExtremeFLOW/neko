@@ -73,6 +73,13 @@ module stack
      procedure, public, pass(this) :: array => stack_nh_data
   end type stack_nh_t
 
+  !> Neko zone based stack
+  type, public, extends(stack_t) :: stack_nz_t
+   contains
+     procedure, public, pass(this) :: pop => stack_nz_pop
+     procedure, public, pass(this) :: array => stack_nz_data
+  end type stack_nz_t
+
 contains
 
   !> Initialize a stack of arbitrary type 
@@ -109,6 +116,8 @@ contains
        allocate(nmsh_quad_t::this%data(this%size_))
     class is (stack_nh_t)
        allocate(nmsh_hex_t::this%data(this%size_))
+    class is (stack_nz_t)
+       allocate(nmsh_zone_t::this%data(this%size_))
     end select
 
   end subroutine stack_init
@@ -161,6 +170,8 @@ contains
           allocate(nmsh_quad_t::tmp(this%size_))
        type is (nmsh_hex_t)
           allocate(nmsh_hex_t::tmp(this%size_))
+       type is (nmsh_zone_t)
+          allocate(nmsh_zone_t::tmp(this%size_))
        end select
        select type(tmp)
        type is (integer)
@@ -196,6 +207,11 @@ contains
        type is (nmsh_hex_t)
           select type(sdp=>this%data)
           type is(nmsh_hex_t)
+             tmp(1:this%top_) = sdp
+          end select
+       type is (nmsh_zone_t)
+          select type(sdp=>this%data)
+          type is(nmsh_zone_t)
              tmp(1:this%top_) = sdp
           end select
        end select
@@ -238,6 +254,11 @@ contains
     type is (nmsh_hex_t)
        select type(data)
        type is (nmsh_hex_t)
+          sdp(this%top_) = data
+       end select
+    type is (nmsh_zone_t)
+       select type(data)
+       type is (nmsh_zone_t)
           sdp(this%top_) = data
        end select
     end select
@@ -417,5 +438,30 @@ contains
        data => sdp
     end select
   end function stack_nh_data
+
+  !> Pop a Neko zone of the stack
+  function stack_nz_pop(this) result(data)
+    class(stack_nz_t), target, intent(inout) :: this
+    type(nmsh_zone_t) :: data
+
+    select type (sdp=>this%data)
+    type is (nmsh_zone_t)       
+       data = sdp(this%top_)
+    end select
+    this%top_ = this%top_ -1
+  end function stack_nz_pop
+
+  !> Return a pointer to the internal Neko zone array
+  function stack_nz_data(this) result(data)
+    class(stack_nz_t), target, intent(inout) :: this
+    class(*), pointer :: sdp(:)
+    type(nmsh_zone_t), pointer :: data(:)
+
+    sdp=>this%data
+    select type(sdp)
+    type is (nmsh_zone_t)       
+       data => sdp
+    end select
+  end function stack_nz_data
   
 end module stack
