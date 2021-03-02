@@ -7,6 +7,7 @@ module fluid_plan4
   use ax_helm
   use abbdf
   use projection
+  use log
   implicit none
 
   type, extends(fluid_scheme_t) :: fluid_plan4_t
@@ -648,23 +649,41 @@ contains
     type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
     real(kind=dp), intent(in) :: t, dt
+    character(len=LOG_SIZE) :: log_buf
 
-    if (pe_rank .eq. 0) write(*,*) "Step: ", step, "Time: ", t, "dt: ", dt
-    if (pe_rank .eq. 0) write(*,*) "Pressure"
-    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
-    if (pe_rank .eq. 0) write(*,*) ksp_results(1)%iter, ksp_results(1)%res_start, ksp_results(1)%res_final
 
-    if (pe_rank .eq. 0) write(*,*) "X-Velocity"
-    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
-    if (pe_rank .eq. 0) write(*,*) ksp_results(2)%iter, ksp_results(2)%res_start, ksp_results(2)%res_final
+    call neko_log%message('Pressure')
 
-    if (pe_rank .eq. 0) write(*,*) "Y-Velocity"
-    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
-    if (pe_rank .eq. 0) write(*,*) ksp_results(3)%iter, ksp_results(3)%res_start, ksp_results(3)%res_final
+    write(log_buf, '(A,A,A)') 'Iterations:   ',&
+         'Start residual:     ', 'Final residual:'
+    call neko_log%message(log_buf)
+    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(1)%iter, &
+         ksp_results(1)%res_start, ksp_results(1)%res_final
+    call neko_log%message(log_buf)
 
-    if (pe_rank .eq. 0) write(*,*) "Z-Velocity"
-    if (pe_rank .eq. 0) write(*,*) "Iterations:   ", "Start residual:           ", "Final residual:"
-    if (pe_rank .eq. 0) write(*,*) ksp_results(4)%iter, ksp_results(4)%res_start, ksp_results(4)%res_final
+    call neko_log%message('X-Velocity')
+    write(log_buf, '(A,A,A)') 'Iterations:   ',&
+         'Start residual:     ', 'Final residual:'
+    call neko_log%message(log_buf)
+    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(2)%iter, &
+         ksp_results(2)%res_start, ksp_results(2)%res_final
+    call neko_log%message(log_buf)
+
+    call neko_log%message('Y-Velocity')
+    write(log_buf, '(A,A,A)') 'Iterations:   ',&
+         'Start residual:     ', 'Final residual:'
+    call neko_log%message(log_buf)
+    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(3)%iter, &
+         ksp_results(3)%res_start, ksp_results(3)%res_final
+    call neko_log%message(log_buf)
+
+    call neko_log%message('Z-Velocity')
+    write(log_buf, '(A,A,A)') 'Iterations:   ', &
+         'Start residual:     ', 'Final residual:'
+    call neko_log%message(log_buf)
+    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(4)%iter, &
+         ksp_results(4)%res_start, ksp_results(4)%res_final
+    call neko_log%message(log_buf)
 
   end subroutine fluid_step_info
 

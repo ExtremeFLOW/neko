@@ -47,7 +47,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
           make -j$(nproc)
       - name: Check
         run: |
@@ -60,3 +60,32 @@ jobs:
           ./configure FC=${FC}
           make -j $(nproc)
 
+  Intel:
+    runs-on: ubuntu-20.04
+    env:
+     FC: ifort
+     CC: icc
+    name: Intel Fortran
+    steps:
+      - name: Setup env.
+        run: |
+          cd /tmp
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+          sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
+          source /opt/intel/oneapi/setvars.sh
+          sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
+          printenv >> $GITHUB_ENV
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+           fetch-depth: 1
+      - name: Build
+        run: |
+          ./regen.sh
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
+          make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
+
+ 

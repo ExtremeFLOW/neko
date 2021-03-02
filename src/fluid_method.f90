@@ -24,6 +24,7 @@ module fluid_method
   use mathops
   use operators
   use hsmg
+  use log
   implicit none
   
   !> Base type of all fluid formulations
@@ -50,6 +51,7 @@ module fluid_method
      type(field_t) :: bdry                     !< Boundary markings
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
+
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -58,6 +60,7 @@ module fluid_method
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
+     procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      procedure(fluid_method_init), pass(this), deferred :: init
      procedure(fluid_method_free), pass(this), deferred :: free
      procedure(fluid_method_step), pass(this), deferred :: step
@@ -107,6 +110,12 @@ contains
     integer, intent(inout) :: lx
     type(param_t), intent(inout), target :: params
     type(dirichlet_t) :: bdry_mask
+    
+    call neko_log%section('Fluid')
+    call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
+         ', ' // trim(params%pc_vel) // ')')
+    call neko_log%message('Ksp prs. : ('// trim(params%ksp_prs) // &
+         ', ' // trim(params%pc_prs) // ')')
     
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -172,9 +181,7 @@ contains
        
     if (params%output_bdry) then
 
-       if (pe_rank .eq. 0) then
-          write(*,*) 'Saving boundary markings'
-       end if
+       call neko_log%message('Saving boundary markings')
        
        call field_init(this%bdry, this%dm_Xh, 'bdry')
        this%bdry = 0d0
@@ -238,6 +245,7 @@ contains
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
     end if
 
+    call neko_log%end_section()
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
@@ -282,6 +290,9 @@ contains
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
     end if
 
+
+    call neko_log%end_section()
+    
   end subroutine fluid_scheme_init_all
 
   !> Deallocate a fluid formulation
@@ -440,5 +451,12 @@ contains
     end select
     
   end subroutine fluid_scheme_set_usr_inflow
+  function fluid_compute_cfl(this, dt) result(c)
+    class(fluid_scheme_t) :: this
+    real(kind=dp) :: dt
+    real(kind=dp) :: c
+
+    c = cfl(dt, this%u%x, this%v%x, this%w%x, this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim) 
+  end function fluid_compute_cfl
      
 end module fluid_method

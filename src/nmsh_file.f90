@@ -7,6 +7,7 @@ module nmsh_file
   use nmsh
   use datadist
   use mpi_types
+  use log
   use mpi
   implicit none
   
@@ -39,6 +40,7 @@ contains
     integer :: el_idx, ids(4)
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
+    character(len=LOG_SIZE) :: log_buf
 
     select type(data)
     type is(mesh_t)
@@ -47,9 +49,9 @@ contains
        call neko_error('Invalid output data')
     end select
 
-    if (pe_rank .eq. 0) then
-       write(*, '(1x,A,A)') "Reading a binary Neko file ", this%fname
-    end if
+
+    call neko_log%section("Mesh")
+    call neko_log%message('Reading a binary Neko file ' // this%fname)
 
     call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
@@ -59,12 +61,10 @@ contains
     call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
 
-    if (pe_rank .eq. 0) then
-       write(*, fmt='(1x,A)') 'Mesh'
-       write(*,1) gdim, nelv
-1      format(1x,'gdim = ', i1, ', nelements =', i7)
-    end if
-       
+    write(log_buf,1) gdim, nelv
+1      format('gdim = ', i1, ', nelements =', i7)
+    call neko_log%message(log_buf)
+    
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
     nelv = dist%num_local()
     element_offset = dist%start_idx()
@@ -167,9 +167,8 @@ contains
     call MPI_File_close(fh, ierr)
 
     call mesh_finalize(msh)
-
     
-    if (pe_rank .eq. 0) write(*,*) 'Done'
+    call neko_log%end_section()
        
   end subroutine nmsh_file_read
 

@@ -2,6 +2,7 @@
 module simulation
   use case
   use abbdf
+  use log
   implicit none
   private
 
@@ -12,25 +13,47 @@ contains
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
     type(case_t), intent(inout) :: C
-    real(kind=dp) :: t, start_time_org, start_time, end_time
+    real(kind=dp) :: t, start_time_org, start_time, end_time, cfl
+    character(len=LOG_SIZE) :: log_buf    
     integer :: tstep
 
     t = 0d0
     tstep = 0
-    if(pe_rank .eq. 0) write(*,*) 'Everything initialized, started simulation'
+    call neko_log%section('Simulation')
+    write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%params%T_end,')'
+    call neko_log%message(log_buf)
+    write(log_buf,'(A, E15.7)') 'dt :  ', C%params%dt
+    call neko_log%message(log_buf)
+    call neko_log%newline()
+    
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end)
        tstep = tstep + 1
        start_time = MPI_WTIME()
+       cfl = C%fluid%compute_cfl(C%params%dt)
+       call neko_log%status(t, c%params%T_end)
+       write(log_buf, '(A,I6)') 'Time-step: ', tstep
+       call neko_log%message(log_buf)
+       call neko_log%begin()
+
+       write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%params%dt
+       call neko_log%message(log_buf)
+
+       
        call simulation_settime(t, C%params%dt, C%ab_bdf, C%tlag, C%dtlag, tstep)
+       call neko_log%section('Fluid')       
        call C%fluid%step(t, tstep, C%ab_bdf)
        end_time = MPI_WTIME()
-       if(pe_rank .eq. 0) write(*,*) 'Step finished:', tstep, 'Elapsed time (s)',&
-          end_time-start_time_org, 'Step time:', end_time-start_time
-       call C%usr%usr_chk(t, C%params%dt, tstep, C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
+       write(log_buf, '(A,E15.7,A,E15.7)') &
+            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+            end_time-start_time
+       call neko_log%end_section(log_buf)
+       call C%usr%usr_chk(t, C%params%dt, tstep,&
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
+       call neko_log%end()
        call C%s%sample(t)
     end do
-    
+    call neko_log%end_section('normal end.')
   end subroutine neko_solve
 
   subroutine simulation_settime(t, dt, ab_bdf, tlag, dtlag, step)
