@@ -52,6 +52,7 @@ contains
     integer :: sym_facet, pids(4), p_el_idx, p_facet
     integer :: off
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
+    logical :: curve_skip = .false.
 
     select type(data)
     type is (rea_t)
@@ -169,6 +170,7 @@ contains
                 end do
                 call mesh_add_element(msh, el_idx, &
                      p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+                print *, i
              end if
           end if
           if (i .ge. start_el .and. i .le. end_el) then
@@ -196,21 +198,25 @@ contains
        do i = 1, nskip
           read(9, *) edge, el_idx, (curve_data(j,edge,el_idx),j=1,5), chtemp
           curve_element(el_idx) = .true. 
-          !This might need to be extended
           select case(trim(chtemp))
           case ('s')
             curve_type(edge,el_idx) = 1
+            curve_skip = .true.
           case ('e')
             curve_type(edge,el_idx) = 2
+            curve_skip = .true.
           case ('C')
             curve_type(edge,el_idx) = 3
           end select
        end do
-       do el_idx = 1, nelgv
-          if (curve_element(el_idx)) then
-             call mesh_mark_curve_element(msh, el_idx, curve_data(1,1,el_idx), curve_type(1,el_idx))
-          end if
-       end do 
+       if (curve_skip) call neko_warning('Curve type: s, e are not supported, treating mesh as non-curved.') 
+       if (.not. curve_skip) then
+          do el_idx = 1, nelgv
+             if (curve_element(el_idx)) then
+                call mesh_mark_curve_element(msh, el_idx, curve_data(1,1,el_idx), curve_type(1,el_idx))
+             end if
+          end do 
+       end if
        deallocate(curve_data)
        deallocate(curve_element)
        deallocate(curve_type)
