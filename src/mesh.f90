@@ -17,6 +17,7 @@ module mesh
   use zone
   use math
   use uset
+  use curve
   implicit none
 
   type, private :: mesh_element_t
@@ -63,7 +64,7 @@ module mesh
      type(zone_t) :: outlet               !< Zone of outlet facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
      type(zone_periodic_t) :: periodic    !< Zone of periodic facets
-     type(zone_curve_t) :: curve  !< Zone/volume of curved elements
+     type(curve_t) :: curve               !< Set of curved elements
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
@@ -1189,7 +1190,7 @@ contains
   !> Mark element @a e as a curve element
   subroutine mesh_mark_curve_element(m, e, curve_data, curve_type)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: e
+    integer, intent(in) :: e
     real(kind=dp), dimension(6,12), intent(inout) :: curve_data 
     integer, dimension(12), intent(inout) :: curve_type 
 

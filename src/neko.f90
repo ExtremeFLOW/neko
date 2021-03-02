@@ -60,6 +60,7 @@ module neko
   use user_intf
   use parmetis
   use structs
+  use curve
 contains
 
   subroutine neko_init(C)

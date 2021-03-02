@@ -190,8 +190,8 @@ contains
     end do
 
     len(1) = 1
-    len(2) = 6*12
-    len(3) = 12
+    len(2) = 5*8
+    len(3) = 8
     type(1) = MPI_INTEGER
     type(2) = MPI_DOUBLE_PRECISION
     type(3) = MPI_INTEGER

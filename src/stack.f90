@@ -99,7 +99,6 @@ contains
     class is (stack_i4t4_t)
        allocate(tuple4_i4_t::this%data(this%size_))
     class is (stack_curve_t)
-       print *, 'here we are'
        allocate(struct_curve_t::this%data(this%size_))
     end select
 

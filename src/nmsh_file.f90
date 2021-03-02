@@ -155,8 +155,8 @@ contains
        
        do i = 1, ncurves 
           el_idx = nmsh_curve(i)%e - msh%offset_el
-          if (el_idx .gt. msh%offset_el .and. &
-              el_idx .le. msh%offset_el + msh%nelv) then             
+          if (el_idx .gt. 0 .and. &
+              el_idx .le. msh%nelv) then             
              call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
           end if
        end do
