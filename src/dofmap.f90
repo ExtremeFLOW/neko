@@ -614,7 +614,7 @@ contains
     integer, intent(in) :: isid, gdim
     type(space_t), intent(in) :: Xh
     class(element_t) :: element
-    real(kind=dp), dimension(6), intent(in) :: curve_data
+    real(kind=dp), dimension(5), intent(in) :: curve_data
     real(kind=dp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z 
     real(kind=dp) :: pt1x, pt1y, pt2x, pt2y, pt12x, pt12y
     real(kind=dp) :: radius, gap, xz, yz, xyz, dtheta, r, xys 

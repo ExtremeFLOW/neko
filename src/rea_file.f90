@@ -183,14 +183,14 @@ contains
        !> @todo Add support for curved side data
        read(9, *) 
        read(9, *) nskip
-       allocate(curve_data(6,12,nelgv))
+       allocate(curve_data(5,8,nelgv))
        allocate(curve_element(nelgv))
-       allocate(curve_type(12,nelgv))
+       allocate(curve_type(8,nelgv))
        do i = 1, nelgv
           curve_element(i) = .false.
-          do j = 1, 12
+          do j = 1, 8
              curve_type(j,i) = 0
-             do l = 1, 6
+             do l = 1, 5
                 curve_data(l,j,i) = 0d0
              end do
           end do
