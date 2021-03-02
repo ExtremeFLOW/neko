@@ -65,7 +65,6 @@ contains
        write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
     end if
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    print *, hdr_ver, nel, ndim, nelv, hdr_str
     if (hdr_ver .eq. '#v002') then
        v2_format = .true.
        call MPI_Type_size(MPI_RE2V2_DATA_XY, re2_data_xy_size, ierr)
@@ -262,7 +261,7 @@ contains
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
-    call htp%init((2**(2*ndim)) * nel, ndim)
+    call htp%init(2**ndim * nel, ndim)
 
     pt_idx = 0
     if (ndim .eq. 2) then
@@ -396,7 +395,6 @@ contains
        
        curve_element(el_idx) = .true. 
        !This might need to be extended
-       print *, chtemp
        select case(trim(chtemp))
        case ('s')
          curve_type(id,el_idx) = 1

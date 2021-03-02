@@ -140,7 +140,7 @@ contains
 
        call mesh_init(msh, ndim, dist)
 
-       call htp%init((3*2**(2*ndim)) * nel, ndim)
+       call htp%init(2**ndim * nel, ndim)
 
        el_idx = 1
        pt_idx = 0
