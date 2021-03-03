@@ -15,6 +15,7 @@ module fluid_method
   use dirichlet
   use symmetry
   use cg
+  use bicgstab
   use bc
   use jacobi
   use gmres
@@ -393,11 +394,12 @@ contains
     integer, intent(in), value :: n
     character(len=20), intent(inout) :: solver
     real(kind=dp) :: abstol
-
     if (trim(solver) .eq. 'cg') then
        allocate(cg_t::ksp)
     else if (trim(solver) .eq. 'gmres') then
        allocate(gmres_t::ksp)
+    else if (trim(solver) .eq. 'bicgstab') then
+       allocate(bicgstab_t::ksp)
     else
        call neko_error('Unknown linear solver')
     end if
@@ -406,6 +408,8 @@ contains
     type is(cg_t)
        call kp%init(n, abs_tol = abstol)
     type is(gmres_t)
+       call kp%init(n, abs_tol = abstol)
+    type is(bicgstab_t)
        call kp%init(n, abs_tol = abstol)
     end select
     

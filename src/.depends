@@ -33,6 +33,7 @@ ax.o : ax.f90 mesh.o field.o space.o coef.o num_types.o mxm_wrapper.o
 precon.o : precon.f90 utils.o math.o 
 krylov.o : krylov.f90 pc_identity.o bc.o utils.o field.o mesh.o coef.o precon.o num_types.o ax.o gather_scatter.o 
 cg.o : cg.f90 num_types.o math.o krylov.o 
+ksp_bicgstab.o : ksp_bicgstab.f90 num_types.o math.o krylov.o 
 quad.o : quad.f90 point.o tuple.o element.o num_types.o 
 hex.o : hex.f90 point.o tuple.o element.o num_types.o 
 htable.o : htable.f90 math.o tuple.o point.o utils.o num_types.o 
@@ -83,6 +84,10 @@ redist.o : redist.f90 zone.o nmsh.o mesh.o comm.o stack.o point.o htable.o mpi_t
 pc_hsmg.o : pc_hsmg.f90 pc_jacobi.o tensor.o gmres.o ax_helm.o schwarz.o fdm.o dirichlet.o cg.o bc.o fast3d.o gather_scatter.o ax.o precon.o utils.o math.o 
 fdm.o : fdm.f90 tensor.o mxm_wrapper.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o 
 schwarz.o : schwarz.f90 fdm.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o 
+<<<<<<< HEAD
 neko.o : neko.f90 curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
 parmetis_wrapper.o : parmetis_wrapper.c 
+=======
+neko.o : neko.f90 curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
+>>>>>>> 2dd3b4e (Bi-CGSTAB)
 driver.o : driver.f90 neko.o 
