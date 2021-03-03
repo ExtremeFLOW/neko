@@ -122,7 +122,7 @@ contains
     call copy(this%r, f, n)
 
     rtr = sqrt(glsc3(this%r,coef%mult, this%r, n))
-    rnorm = sqrt(rtr)*norm_fac
+    rnorm = rtr*norm_fac
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
