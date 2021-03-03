@@ -642,7 +642,6 @@ contains
     end if
 !   find slope of perpendicular
     radius=curve_data(1)
-
     gap=sqrt( (pt1x-pt2x)**2 + (pt1y-pt2y)**2 )
     if (abs(2.0*radius).le.gap*1.00001) then
        call neko_error('Radius to small for arced element surface')
