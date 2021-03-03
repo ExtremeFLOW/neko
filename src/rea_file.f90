@@ -170,7 +170,6 @@ contains
                 end do
                 call mesh_add_element(msh, el_idx, &
                      p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-                print *, i
              end if
           end if
           if (i .ge. start_el .and. i .le. end_el) then
@@ -180,7 +179,6 @@ contains
 
        call htp%free()
        
-       !> @todo Add support for curved side data
        read(9, *) 
        read(9, *) nskip
        allocate(curve_data(5,8,nelgv))
@@ -209,11 +207,13 @@ contains
             curve_type(edge,el_idx) = 3
           end select
        end do
-       if (curve_skip) call neko_warning('Curve type: s, e are not supported, treating mesh as non-curved.') 
-       if (.not. curve_skip) then
+       if (curve_skip) then
+          call neko_warning('Curve type: s, e are not supported, treating mesh as non-curved.')
+       else
           do el_idx = 1, nelgv
              if (curve_element(el_idx)) then
-                call mesh_mark_curve_element(msh, el_idx, curve_data(1,1,el_idx), curve_type(1,el_idx))
+                call mesh_mark_curve_element(msh, el_idx, &
+                     curve_data(1,1,el_idx), curve_type(1,el_idx))
              end if
           end do 
        end if
