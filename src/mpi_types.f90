@@ -11,6 +11,7 @@ module mpi_types
   integer :: MPI_NMSH_HEX    !< MPI dervied type for 3D Neko nmsh data
   integer :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
   integer :: MPI_NMSH_ZONE   !< MPI dervied type for Neko nmsh zone data
+  integer :: MPI_NMSH_CURVE   !< MPI dervied type for Neko nmsh curved elements
 
   integer :: MPI_RE2V1_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
   integer :: MPI_RE2V1_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
@@ -31,6 +32,7 @@ module mpi_types
 
   ! Public dervied types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
+       MPI_NMSH_CURVE, &
        MPI_RE2V1_DATA_XYZ, MPI_RE2V1_DATA_XY, &
        MPI_RE2V1_DATA_CV, MPI_RE2V1_DATA_BC, &
        MPI_RE2V2_DATA_XYZ, MPI_RE2V2_DATA_XY, &
@@ -51,6 +53,7 @@ contains
     call mpi_type_nmsh_hex_init
     call mpi_type_nmsh_quad_init
     call mpi_type_nmsh_zone_init
+    call mpi_type_nmsh_curve_init
 
     call mpi_type_re2_xyz_init
     call mpi_type_re2_xy_init
@@ -170,7 +173,35 @@ contains
     call MPI_Type_commit(MPI_NMSH_ZONE, ierr)
     
   end subroutine mpi_type_nmsh_zone_init
+ 
+  !> Define a MPI derived type for a nmsh curved element
+  subroutine mpi_type_nmsh_curve_init
+    type(nmsh_curve_el_t) :: nmsh_curve_el
+    integer(kind=MPI_ADDRESS_KIND) :: disp(3), base
+    integer :: type(3), len(3), i, ierr
+
+    call MPI_Get_address(nmsh_curve_el%e, disp(1), ierr)
+    call MPI_Get_address(nmsh_curve_el%curve_data, disp(2), ierr)
+    call MPI_Get_address(nmsh_curve_el%type, disp(3), ierr)
+
+    base = disp(1)
+    do i = 1, 3
+       disp(i) = disp(i) - base
+    end do
+
+    len(1) = 1
+    len(2) = 5*8
+    len(3) = 8
+    type(1) = MPI_INTEGER
+    type(2) = MPI_DOUBLE_PRECISION
+    type(3) = MPI_INTEGER
+
+    call MPI_Type_create_struct(3, len, disp, type, MPI_NMSH_CURVE, ierr)
+    call MPI_Type_commit(MPI_NMSH_CURVE, ierr)
+    
+  end subroutine mpi_type_nmsh_curve_init
   
+ 
   !> Define a MPI derived type for a 3d re2 data
   subroutine mpi_type_re2_xyz_init
     type(re2v1_xyz_t) :: re2v1_data
@@ -452,6 +483,7 @@ contains
     call mpi_type_nmsh_hex_free
     call mpi_Type_nmsh_quad_free
     call mpi_Type_nmsh_zone_free
+    call mpi_Type_nmsh_curve_free
     call mpi_type_re2_xyz_free
     call mpi_type_re2_xy_free
     call mpi_type_re2_bc_free
@@ -475,6 +507,12 @@ contains
     integer ierr
     call MPI_Type_free(MPI_NMSH_ZONE, ierr)
   end subroutine mpi_type_nmsh_zone_free
+  
+  !> Deallocate nmsh curve derived MPI type
+  subroutine mpi_type_nmsh_curve_free
+    integer ierr
+    call MPI_Type_free(MPI_NMSH_CURVE, ierr)
+  end subroutine mpi_type_nmsh_curve_free
   
   !> Deallocate re2 xyz dervied MPI type
   subroutine mpi_type_re2_xyz_free

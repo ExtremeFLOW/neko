@@ -1,12 +1,14 @@
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	num_types.f90\
+        structs.f90\
 	parameters.f90\
 	nmsh.f90\
 	re2.f90\
 	map.f90\
 	log.f90\
 	comm.f90\
+        curve.f90\
 	mpi_types.f90 \
 	datadist.f90 \
 	distdata.f90 \

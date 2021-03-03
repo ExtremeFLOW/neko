@@ -116,7 +116,7 @@ contains
     call re2_file_read_points(msh, ndim, nel, dist, fh, &
          mpi_offset, re2_data_xy_size, re2_data_xyz_size, v2_format)
     
-
+          
     ! Set offset to start of curved side data
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE + MPI_REAL_SIZE
     if (ndim .eq. 2) then
@@ -128,7 +128,9 @@ contains
     !> @todo Add support for curved side data
     !! Skip curved side data
     call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_offset + MPI_INTEGER_SIZE + ncurv * RE2_DATA_CV_SIZE
+    mpi_offset = mpi_offset + MPI_INTEGER_SIZE 
+    call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+    mpi_offset = mpi_offset + ncurv * re2_data_cv_size
 
     call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
     mpi_offset = mpi_offset + MPI_INTEGER_SIZE
@@ -136,8 +138,8 @@ contains
     call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
 
     call MPI_FILE_close(fh, ierr)
-
     call mesh_finalize(msh)
+
 
     if (pe_rank .eq. 0) write(*,*) 'Done'
 
@@ -259,7 +261,7 @@ contains
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
-    call htp%init((2**(2*ndim)) * nel, ndim)
+    call htp%init(2**ndim * nel, ndim)
 
     pt_idx = 0
     if (ndim .eq. 2) then
@@ -331,8 +333,102 @@ contains
     end if
 
     call htp%free()
-    
   end subroutine re2_file_read_points
+
+  subroutine re2_file_read_curve(msh, ncurve, dist, fh, mpi_offset, v2_format)
+    type(mesh_t), intent(inout) :: msh
+    integer (kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer, intent(inout) :: ncurve
+    type(linear_dist_t) :: dist
+    integer, intent(inout) :: fh
+    logical, intent(in) :: v2_format
+    integer :: status(MPI_STATUS_SIZE)
+    integer :: p_el_idx, p_facet
+    integer :: i, j, l, ierr, pt_idx, el_idx, id
+    type(re2v1_curve_t), allocatable :: re2v1_data_curve(:)
+    type(re2v2_curve_t), allocatable :: re2v2_data_curve(:)    
+    real(kind=dp), allocatable :: curve_data(:,:,:)
+    integer, allocatable :: curve_type(:,:)
+    logical, allocatable :: curve_element(:)
+    character(len=4) :: chtemp
+    logical :: curve_skip = .false.
+ 
+    allocate(curve_data(5,8,msh%nelv))
+    allocate(curve_element(msh%nelv))
+    allocate(curve_type(8,msh%nelv))
+    do i = 1, msh%nelv
+       curve_element(i) = .false.
+       do j = 1, 8
+          curve_type(j,i) = 0
+          do l = 1, 5
+             curve_data(l,j,i) = 0d0
+          end do
+       end do
+    end do
+  
+    if (.not. v2_format) then
+       allocate(re2v1_data_curve(ncurve))
+       call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_curve, ncurve, &
+            MPI_RE2V1_DATA_CV, status, ierr)
+    else
+       allocate(re2v2_data_curve(ncurve))
+       call MPI_File_read_at_all(fh, mpi_offset, re2v2_data_curve, ncurve, &
+            MPI_RE2V2_DATA_CV, status, ierr)
+    end if
+    !This can probably be made nicer...
+    do i = 1, ncurve
+       if(v2_format) then
+          el_idx = re2v2_data_curve(i)%elem - dist%start_idx()
+          id = re2v2_data_curve(i)%face
+          chtemp = re2v2_data_curve(i)%type
+          do j = 1, 5 
+             curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j) 
+          enddo
+       else 
+          el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
+          id = re2v1_data_curve(i)%face
+          chtemp = re2v1_data_curve(i)%type
+          do j = 1, 5 
+             curve_data(j,id, el_idx) = dble(re2v1_data_curve(i)%point(j)) 
+          enddo
+       end if
+       
+       curve_element(el_idx) = .true. 
+       !This might need to be extended
+       select case(trim(chtemp))
+       case ('s')
+         curve_type(id,el_idx) = 1
+         call neko_warning('curve type s not supported, treating mesh as non-curved')
+         curve_skip = .true.
+         exit
+       case ('e')
+         curve_type(id,el_idx) = 2
+         call neko_warning('curve type e not supported, treating mesh as non-curved')
+         curve_skip = .true.
+         exit
+       case ('C')
+         curve_type(id,el_idx) = 3
+       end select
+    end do
+
+    if( v2_format) then
+       deallocate(re2v2_data_curve)
+    else
+       deallocate(re2v1_data_curve)
+    end if
+    if (.not. curve_skip) then
+       do el_idx = 1, msh%nelv
+          if (curve_element(el_idx)) then
+             call mesh_mark_curve_element(msh, el_idx, curve_data(1,1,el_idx), curve_type(1,el_idx))
+          end if
+       end do 
+     end if
+
+    deallocate(curve_data)
+    deallocate(curve_element)
+    deallocate(curve_type)
+  end subroutine re2_file_read_curve
+
 
   subroutine re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
     type(mesh_t), intent(inout) :: msh
