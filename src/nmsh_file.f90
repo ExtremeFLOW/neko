@@ -34,7 +34,7 @@ contains
     integer :: status(MPI_STATUS_SIZE)
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
     integer :: i, j, ierr, fh, nelgv, element_offset
-    integer :: nmsh_quad_size, nmsh_hex_size
+    integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     class(element_t), pointer :: ep
     integer :: nelv, gdim, nread, nzones, ncurves
     integer :: el_idx, ids(4)
@@ -55,6 +55,7 @@ contains
 
     call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
     call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
+    call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
@@ -142,14 +143,14 @@ contains
        deallocate(nmsh_zone)
     end if
 
-    mpi_offset = mpi_el_offset
+    mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE + nzones*nmsh_zone_size
     call MPI_File_read_at_all(fh, mpi_offset, &
          ncurves, 1, MPI_INTEGER, status, ierr)
 
     if (ncurves .gt. 0) then
        
        allocate(nmsh_curve(ncurves))
-       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       mpi_offset = mpi_el_offset + 2*MPI_INTEGER_SIZE + nzones*nmsh_zone_size
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
@@ -311,8 +312,8 @@ contains
        deallocate(nmsh_zone)
     end if
  
-    mpi_offset = mpi_el_offset
     ncurves = msh%curve%size 
+    mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE + nzones*nmsh_zone_size
 
     call MPI_File_write_at_all(fh, mpi_offset, &
          ncurves, 1, MPI_INTEGER, status, ierr)
@@ -323,12 +324,12 @@ contains
           nmsh_curve(i)%type = 0
        end do
        
-       do i = 1, msh%curve%size
+       do i = 1, ncurves
           nmsh_curve(i)%e = msh%curve%curve_el(i)%el_idx + msh%offset_el
           nmsh_curve(i)%curve_data = msh%curve%curve_el(i)%curve_data
           nmsh_curve(i)%type = msh%curve%curve_el(i)%curve_type
        end do
-       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       mpi_offset = mpi_el_offset + 2*MPI_INTEGER_SIZE + nzones*nmsh_zone_size
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
