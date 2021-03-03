@@ -765,7 +765,6 @@ contains
     if (this%flow_dir.eq.1) this%base_flow = glsc2(this%u_vol%x,c%B,n)/this%domain_length
     if (this%flow_dir.eq.2) this%base_flow = glsc2(this%v_vol%x,c%B,n)/this%domain_length
     if (this%flow_dir.eq.3) this%base_flow = glsc2(this%w_vol%x,c%B,n)/this%domain_length
-    print *, glsc2(this%w_vol%x,this%w_vol%x,n)
   end associate
   end subroutine  plan4_compute_vol_flow
 

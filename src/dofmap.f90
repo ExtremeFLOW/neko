@@ -560,12 +560,18 @@ contains
     do i = 1, msh%nelv       
 
        w = 0d0
+       call copy(zgml(1,1), Xh%zg(1,1), Xh%lx)                               
+       call copy(zgml(1,2), Xh%zg(1,2), Xh%ly)
+       if (msh%gdim .gt. 2) then
+          call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
+       end if
+       
        k = 1
        do j = 1, Xh%lx
-          call fd_weights_full(Xh%zg(j,1),zlin,1,0,jxt(k))
-          call fd_weights_full(Xh%zg(j,2),zlin,1,0,jyt(k))
+          call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
+          call fd_weights_full(zgml(j,2),zlin,1,0,jyt(k))
           if (msh%gdim .gt. 2) then
-             call fd_weights_full(Xh%zg(j,3),zlin,1,0,jzt(k))
+             call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
           end if
           k = k + 2
        end do
@@ -636,7 +642,7 @@ contains
     end if
 !   find slope of perpendicular
     radius=curve_data(1)
-    print *, radius
+
     gap=sqrt( (pt1x-pt2x)**2 + (pt1y-pt2y)**2 )
     if (abs(2.0*radius).le.gap*1.00001) then
        call neko_error('Radius to small for arced element surface')
