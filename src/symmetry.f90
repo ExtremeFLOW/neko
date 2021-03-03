@@ -63,16 +63,16 @@ contains
                   end do
                end do
             case(3,4)
-               do k = 1, c%Xh%lx
-                  do j = 1, c%Xh%lx
+               do k = 2, c%Xh%lx - 1
+                  do j = 2, c%Xh%lx - 1
                      sx = sx + abs(abs(nx(idx(1), idx(3), facet, idx(4))) - 1d0)
                      sy = sy + abs(abs(ny(idx(1), idx(3), facet, idx(4))) - 1d0)
                      sz = sz + abs(abs(nz(idx(1), idx(3), facet, idx(4))) - 1d0)
                   end do
                end do
             case(5,6)
-               do k = 1, c%Xh%lx
-                  do j = 1, c%Xh%lx
+               do k = 2, c%Xh%lx - 1
+                  do j = 2, c%Xh%lx - 1
                      sx = sx + abs(abs(nx(idx(1), idx(2), facet, idx(4))) - 1d0)
                      sy = sy + abs(abs(ny(idx(1), idx(2), facet, idx(4))) - 1d0)
                      sz = sz + abs(abs(nz(idx(1), idx(2), facet, idx(4))) - 1d0)
