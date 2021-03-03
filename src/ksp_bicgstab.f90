@@ -1,11 +1,11 @@
-!> Defines various Conjugate Gradient methods
+!> Defines various Bi-Conjugate Gradient Stabilized methods
 module bicgstab
   use krylov
   use math
   use num_types
   implicit none
 
-  !> Standard preconditioned conjugate gradient method
+  !> Standard preconditioned Bi-Conjugate Gradient Stabilized method
   type, public, extends(ksp_t) :: bicgstab_t
      real(kind=dp), allocatable :: p(:)
      real(kind=dp), allocatable :: p_hat(:)
@@ -22,7 +22,7 @@ module bicgstab
 
 contains
 
-  !> Initialise a standard PCG solver
+  !> Initialise a standard BiCGSTAB solver
   subroutine bicgstab_init(this, n, M, rel_tol, abs_tol)
     class(bicgstab_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
@@ -56,7 +56,7 @@ contains
           
   end subroutine bicgstab_init
 
-  !> Deallocate a standard PCG solver
+  !> Deallocate a standard BiCGSTAB solver
   subroutine bicgstab_free(this)
     class(bicgstab_t), intent(inout) :: this
 
