@@ -108,7 +108,7 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
-    real(kind=dp) :: rnorm, rtr, norm_fac
+    real(kind=dp) :: rnorm, rtr, norm_fac, gamma
     real(kind=dp) :: beta, alpha, omega, rho_1, rho_2
     
     if (present(niter)) then
@@ -123,6 +123,7 @@ contains
 
     rtr = sqrt(glsc3(this%r,coef%mult, this%r, n))
     rnorm = rtr*norm_fac
+    gamma = rnorm * this%rel_tol
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
@@ -131,12 +132,12 @@ contains
    
        rho_1 = glsc3(this%r,coef%mult,f,n)
    
-       if (rho_1 .eq. 0d0) call neko_warning('Bi-CGStab rho failure')
+       if (abs(rho_1) .lt. 1d-14) call neko_warning('Bi-CGStab rho failure')
    
        if (iter .eq. 1) then
           call copy(this%p, this%r, n) 
        else
-          beta = rho_1 / rho_2 * alpha / omega
+          beta = (rho_1 / rho_2) * (alpha / omega)
           call p_update(this%p, this%r, this%v, beta, omega, n)
        end if
        
@@ -145,10 +146,11 @@ contains
        call gs_op(gs_h, this%v, n, GS_OP_ADD)
        call bc_list_apply(blst, this%v, n)
        alpha = rho_1 / glsc3(f,coef%mult,this%v,n)
-       call add3s2(this%s, this%r, this%v, 1d0, -1d0*alpha, n)
+       call copy(this%s, this%r, n)
+       call add2s2(this%s, this%v, -alpha, n)
        rtr = glsc3(this%s, coef%mult, this%s, n)
        rnorm = sqrt(rtr)*norm_fac
-       if (rnorm .lt. this%abs_tol) then 
+       if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
           call add2s2(x%x, this%p_hat, alpha,n)
           exit
        end if
@@ -160,11 +162,12 @@ contains
        omega = glsc3(this%t,coef%mult,this%s, n) &
              / glsc3(this%t, coef%mult, this%t, n)
        call x_update(x%x, this%p_hat, this%s_hat, alpha, omega, n)
-       call add3s2(this%r, this%s, this%t, 1d0, -1d0*omega, n)
+       call copy(this%r, this%s, n)
+       call add2s2(this%r, this%t, -omega, n)
       
        rtr = glsc3(this%r, coef%mult, this%r, n)
        rnorm = sqrt(rtr)*norm_fac
-       if (rnorm .lt. this%abs_tol) then
+       if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
           exit
        end if 
     
