@@ -104,7 +104,7 @@ contains
     call rzero(x%x, n)
     call copy(this%r, f, n)
 
-    rtr = sqrt(glsc4(this%r, coef%Binv,coef%mult, this%r, n))
+    rtr = glsc4(this%r, coef%Binv,coef%mult, this%r, n)
     rnorm = sqrt(rtr)*norm_fac
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
