@@ -115,7 +115,7 @@ contains
 
   !> Define a MPI dervied type for a 2d nmsh quad
   subroutine mpi_type_nmsh_quad_init
-    type(nmsh_hex_t) :: nmsh_quad
+    type(nmsh_quad_t) :: nmsh_quad
     integer(kind=MPI_ADDRESS_KIND) :: disp(9), base
     integer :: type(9), len(9), i, ierr
 
