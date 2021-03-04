@@ -22,6 +22,7 @@ module parameters
      character(len=20) :: fluid_inflow !< Fluid inflow condition
      integer :: vol_flow_dir !< Direction of forced volume flow x=1, y=2, z=3
      logical :: avflow       !< If we should use the averaged flow for vol_flow
+     logical :: loadb        !< Load-balancing
      real(kind=dp) :: flow_rate !< Volume flow speed
      integer :: proj_dim     !< Projection space for pressure solution
 
@@ -66,12 +67,14 @@ contains
     character(len=20) :: fluid_inflow = 'default'
     integer :: vol_flow_dir = 0
     logical :: avflow = .true.
+    logical :: loadb = .false.
     real(kind=dp) :: flow_rate = 0d0
     integer :: proj_dim = 20
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
          T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
-         pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, flow_rate, proj_dim
+         pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
+         proj_dim
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -93,6 +96,7 @@ contains
     param%p%fluid_inflow = fluid_inflow
     param%p%vol_flow_dir = vol_flow_dir
     param%p%avflow = avflow
+    param%p%loadb = loadb
     param%p%flow_rate = flow_rate
     param%p%proj_dim = proj_dim
 
@@ -110,11 +114,12 @@ contains
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
     real(kind=dp), dimension(3) :: uinf
     logical :: output_part, avflow
-    logical :: output_bdry
+    logical :: output_bdry, loadb
     integer :: nsamples, vol_flow_dir, proj_dim
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
          T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
-         pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, flow_rate, proj_dim
+         pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
+         proj_dim
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -134,6 +139,7 @@ contains
     fluid_inflow = param%p%fluid_inflow
     vol_flow_dir = param%p%vol_flow_dir
     avflow = param%p%avflow
+    loadb = param%p%loadb
     flow_rate = param%p%flow_rate
     proj_dim = param%p%proj_dim
     
