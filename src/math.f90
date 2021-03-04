@@ -526,6 +526,36 @@ contains
 
   end subroutine ascol5
 
+  !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
+  subroutine p_update(a,b,c,c1,c2,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=dp), intent(in) :: c1, c2
+    integer :: i
+
+    do i = 1,n
+       a(i) = b(i) + c1*(a(i)-c2*c(i))
+    end do
+
+  end subroutine p_update
+
+  !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
+  subroutine x_update(a,b,c,c1,c2,n)
+    integer, intent(in) :: n    
+    real(kind=dp), dimension(n), intent(inout) :: a
+    real(kind=dp), dimension(n), intent(in) :: b
+    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=dp), intent(in) :: c1, c2
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) + c1*b(i)+c2*c(i)
+    end do
+
+  end subroutine x_update
+
   !> Weighted inner product \f$ a^T b c \f$
   function glsc2(a, b,  n)
     integer, intent(in) :: n
