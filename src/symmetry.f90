@@ -30,7 +30,7 @@ contains
     type(coef_t), intent(in) :: c
     type(stack_i4_t) :: xmsk, ymsk, zmsk
     type(htable_i4_t) :: algnf 
-    integer :: i, m, j, k, idx(4), facet, ntype, msk_size
+    integer :: i, m, j, k, l, idx(4), facet, ntype, msk_size
     integer, pointer :: sp(:)        
     real(kind=dp) :: sx,sy,sz
     real(kind=dp), parameter :: TOL = 1d-3
@@ -48,14 +48,14 @@ contains
          k = this%msk(i)
          facet = this%facet(i)
 
-         if (algnf%get(facet, ntype) .eq. 0) then         
+         if (algnf%get(facet, ntype) .gt. 0) then         
             idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
             sx = 0d0
             sy = 0d0
             sz = 0d0
             select case (facet)               
             case(1,2)
-               do k = 2, c%Xh%lx - 1
+               do l = 2, c%Xh%lx - 1
                   do j = 2, c%Xh%lx -1
                      sx = sx + abs(abs(nx(idx(2), idx(3), facet, idx(4))) - 1d0)
                      sy = sy + abs(abs(ny(idx(2), idx(3), facet, idx(4))) - 1d0)
@@ -63,7 +63,7 @@ contains
                   end do
                end do
             case(3,4)
-               do k = 2, c%Xh%lx - 1
+               do l = 2, c%Xh%lx - 1
                   do j = 2, c%Xh%lx - 1
                      sx = sx + abs(abs(nx(idx(1), idx(3), facet, idx(4))) - 1d0)
                      sy = sy + abs(abs(ny(idx(1), idx(3), facet, idx(4))) - 1d0)
@@ -71,7 +71,7 @@ contains
                   end do
                end do
             case(5,6)
-               do k = 2, c%Xh%lx - 1
+               do l = 2, c%Xh%lx - 1
                   do j = 2, c%Xh%lx - 1
                      sx = sx + abs(abs(nx(idx(1), idx(2), facet, idx(4))) - 1d0)
                      sy = sy + abs(abs(ny(idx(1), idx(2), facet, idx(4))) - 1d0)
