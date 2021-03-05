@@ -1,9 +1,9 @@
 module comm
-  use mpi
+  use mpi_f08
   implicit none
   
   !> MPI communicator
-  integer :: NEKO_COMM
+  type(MPI_Comm) :: NEKO_COMM
 
   !> MPI rank
   integer :: pe_rank
@@ -16,8 +16,10 @@ module comm
 
 contains
   subroutine comm_init
-    integer :: ierr, neko_group
+    integer :: ierr
     logical :: initialized
+    type(MPI_Group) :: neko_group
+        
 
     pe_rank = -1
     pe_size = 0

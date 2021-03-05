@@ -1,13 +1,13 @@
 !> Defines a mesh
 module mesh
   use num_types
+  use mpi_f08
   use point
   use element
   use hex
   use quad
   use utils
   use htable
-  use mpi
   use comm
   use stack
   use tuple
@@ -455,10 +455,11 @@ contains
     type(tuple4_i4_t) :: face,  face2
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: buffer
+    type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l, l2
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el, temp
-    integer :: status(MPI_STATUS_SIZE)
+
 
     if (m%gdim .eq. 2) then
        n_sides = 4
@@ -603,12 +604,12 @@ contains
     type(tuple4_i4_t) :: face
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: send_buffer
+    type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
     integer, pointer :: neighs(:)
-    integer :: status(MPI_STATUS_SIZE)
 
     
     call send_buffer%init()
@@ -674,6 +675,7 @@ contains
     type(uset_i8_t) :: edge_idx, ghost, owner
     type(stack_i8_t) :: send_buff
     type(htable_i8_t) :: glb_to_loc
+    type(MPI_Status) :: status
     integer, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
@@ -683,7 +685,7 @@ contains
     logical :: shared_edge
     type(stack_i4_t) :: non_shared_edges
     integer :: max_recv, src, dst, n_recv
-    integer :: status(MPI_STATUS_SIZE)
+
 
     !>@todo move this into distdata
     allocate(m%ddata%local_to_global_edge(m%meds))
@@ -877,11 +879,12 @@ contains
     type(stack_i4t4_t) :: face_owner
     type(htable_i4t4_t) :: face_ghost
     type(stack_i4_t) :: send_buff
+    type(MPI_Status) :: status
     integer, allocatable :: recv_buff(:)
     integer :: non_shared_facets, shared_facets, facet_offset    
     integer :: id, glb_nshared, shared_offset, owned_facets
     integer :: i, j, ierr, max_recv, src, dst, n_recv
-    integer :: status(MPI_STATUS_SIZE)
+
 
     !>@todo move this into distdata
     if (m%gdim .eq. 2) then
