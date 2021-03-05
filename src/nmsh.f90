@@ -11,7 +11,7 @@ module nmsh
 
   !> Neko binary mesh vertex data
   type, private :: nmsh_vertex_t
-     integer :: v_idx           !< Vertex id (global)
+     integer :: v_idx                     !< Vertex id (global)
      real(kind=dp), dimension(3) :: v_xyz ! Vertex coordinates
   end type nmsh_vertex_t
   
@@ -27,18 +27,19 @@ module nmsh
 
   !> Neko zone data
   type, public :: nmsh_zone_t
-     integer :: e               !< Element id (global)
-     integer :: f               !< Facet number
-     integer :: p_e             !< Periodic connection (element)     
-     integer :: p_f             !< Periodic connection (facet)
+     integer :: e                        !< Element id (global)
+     integer :: f                        !< Facet number
+     integer :: p_e                      !< Perio dic connection (element)     
+     integer :: p_f                      !< Periodic connection (facet)
      integer, dimension(4) :: glb_pt_ids !< Global point ids
-     integer :: type            !< Zone type
+     integer :: type                     !< Zone type
   end type nmsh_zone_t
+  
    !> Neko curve data
   type, public :: nmsh_curve_el_t
-     integer :: e               !< Element id (global)
+     integer :: e                                !< Element id (global)
      real(kind=dp), dimension(5,8) :: curve_data !< Save 6 values for each edge
-     integer, dimension(8) :: type !< type of curve for each edge
+     integer, dimension(8) :: type               !< type of curve for each edge
   end type nmsh_curve_el_t
   
 
