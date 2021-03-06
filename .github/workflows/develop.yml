@@ -17,7 +17,7 @@ jobs:
         compiler: [gfortran-10]
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates
+          setup-env: sudo apt-get update && apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake ca-certificates
     env:
       FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
