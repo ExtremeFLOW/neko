@@ -18,7 +18,7 @@ contains
     type(mesh_t) :: m
     integer :: ierr, gdim, nelv, expected
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     do gdim = 2, 3
        nelv = 42
@@ -46,7 +46,7 @@ contains
     type(linear_dist_t) :: dist
     integer :: ierr, gdim
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     dist = linear_dist_t(42, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -77,7 +77,7 @@ contains
     integer :: ierr, i
     integer, parameter :: gdim = 2
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -167,7 +167,7 @@ contains
     integer :: ierr, i
     integer, parameter :: gdim = 3
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -287,7 +287,7 @@ contains
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 2
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -406,7 +406,7 @@ contains
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 3
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
