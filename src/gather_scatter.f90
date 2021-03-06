@@ -8,16 +8,16 @@ module gather_scatter
   use dofmap
   use field
   use num_types
+  use mpi_f08
   use htable
   use stack
   use utils
-  use mpi
   use log    
   implicit none
 
   type, private :: gs_comm_t
-     integer :: status(MPI_STATUS_SIZE)
-     integer :: request
+     type(MPI_Status) :: status
+     type(MPI_Request) :: request
      logical :: flag
      real(kind=dp), allocatable :: data(:)
   end type gs_comm_t
@@ -907,9 +907,9 @@ contains
     integer(kind=2), allocatable :: shared_flg(:), recv_flg(:)
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
+    type(MPI_Status) :: status
     integer :: i, j, max_recv, src, dst, ierr, n_recv
     integer :: shared_id, tmp, shared_gs_id
-    integer :: status(MPI_STATUS_SIZE)
     integer :: nshared_unique
     integer, pointer :: sp(:), rp(:)
 

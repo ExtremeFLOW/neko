@@ -7,7 +7,7 @@ module re2_file
   use mesh
   use point
   use comm
-  use mpi
+  use mpi_f08
   use mpi_types
   use datadist
   use re2
@@ -34,8 +34,9 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    integer :: i, j, k, fh, nel, ndim, nelv, ierr, pt_idx, el_idx
-    integer :: status(MPI_STATUS_SIZE)
+    integer :: i, j, k, nel, ndim, nelv, ierr, pt_idx, el_idx
+    type(MPI_Status) :: status
+    type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     real(kind=sp) :: test
     real(kind=dp) :: t2
@@ -155,8 +156,9 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5), parameter :: RE2_HDR_VER = '#v001'
     character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
-    integer :: i, j, k, fh, ierr, pt_idx, nelgv
-    integer :: status(MPI_STATUS_SIZE)
+    integer :: i, j, k, ierr, pt_idx, nelgv
+    type(MPI_Status) :: status
+    type(MPI_File) :: fh    
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer :: element_offset
     integer :: re2_data_xy_size
@@ -241,7 +243,7 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: ndim
     integer, intent(inout) :: nel
-    integer, intent(inout) :: fh
+    type(MPI_File), intent(inout) :: fh
     integer, intent(in) :: re2_data_xy_size
     integer, intent(in) :: re2_data_xyz_size
     logical, intent(in) :: v2_format
@@ -251,7 +253,7 @@ contains
     type(re2v1_xyz_t), allocatable :: re2v1_data_xyz(:)
     type(re2v2_xy_t), allocatable :: re2v2_data_xy(:)
     type(re2v2_xyz_t), allocatable :: re2v2_data_xyz(:)
-    integer :: status(MPI_STATUS_SIZE)
+    type(MPI_Status) :: status
     type(htable_pt_t) :: htp
     type(point_t) :: p(8)
     integer :: pt_idx, nelv
@@ -340,9 +342,9 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: ncurve
     type(linear_dist_t) :: dist
-    integer, intent(inout) :: fh
+    type(MPI_File), intent(inout) :: fh
     logical, intent(in) :: v2_format
-    integer :: status(MPI_STATUS_SIZE)
+    type(MPI_Status) :: status
     integer :: p_el_idx, p_facet
     integer :: i, j, l, ierr, pt_idx, el_idx, id
     type(re2v1_curve_t), allocatable :: re2v1_data_curve(:)
@@ -435,9 +437,9 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
     integer, intent(inout) :: nbcs
     type(linear_dist_t) :: dist
-    integer, intent(inout) :: fh
+    type(MPI_File), intent(inout) :: fh
     logical, intent(in) :: v2_format
-    integer :: status(MPI_STATUS_SIZE)
+    type(MPI_Status) :: status
     integer :: pids(4)
     integer :: sym_facet
     integer :: p_el_idx, p_facet

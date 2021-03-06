@@ -7,8 +7,8 @@ module nmsh_file
   use nmsh
   use datadist
   use mpi_types
+  use mpi_f08
   use log
-  use mpi
   implicit none
   
   private
@@ -31,9 +31,10 @@ contains
     type(nmsh_zone_t), allocatable :: nmsh_zone(:)
     type(nmsh_curve_el_t), allocatable :: nmsh_curve(:)
     type(mesh_t), pointer :: msh
-    integer :: status(MPI_STATUS_SIZE)
+    type(MPI_Status) :: status
+    type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
-    integer :: i, j, ierr, fh, nelgv, element_offset
+    integer :: i, j, ierr, nelgv, element_offset
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     class(element_t), pointer :: ep
     integer :: nelv, gdim, nread, nzones, ncurves
@@ -183,9 +184,10 @@ contains
     type(nmsh_zone_t), allocatable :: nmsh_zone(:)
     type(nmsh_curve_el_t), allocatable :: nmsh_curve(:)
     type(mesh_t), pointer :: msh
-    integer :: status(MPI_STATUS_SIZE)
+    type(MPI_Status) :: status
+    type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
-    integer :: i, j, ierr, fh, nelgv, element_offset
+    integer :: i, j, ierr, nelgv, element_offset
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
     integer :: nzones, ncurves 
     class(element_t), pointer :: ep

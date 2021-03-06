@@ -7,8 +7,9 @@ module fld_file
   use fluid_method
   use mesh
   use utils
-  use comm  
+  use comm
   use mpi_types
+  use mpi_f08    
   implicit none
   private
 
@@ -35,13 +36,14 @@ contains
     type(space_t), pointer :: Xh
     type(dofmap_t), pointer :: dof
     real(kind=dp) :: time
-    integer :: status(MPI_STATUS_SIZE)
     character(len=132) :: hdr
     character :: rdcode(10)
     character(len=6) :: id_str
     character(len=80) :: fname
-    integer :: i, ierr, fh, n, j,k,l,el, suffix_pos
+    integer :: i, ierr, n, j,k,l,el, suffix_pos
     integer, allocatable :: idx(:)
+    type(MPI_Status) :: status
+    type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     real(kind=dp), allocatable :: tmp_dp(:)
     real(kind=sp), allocatable :: tmp_sp(:)
