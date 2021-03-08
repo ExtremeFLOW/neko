@@ -112,8 +112,8 @@ jobs:
     name: Nvidia HPC
     steps:
       - name: Setup env.
-       run: |
-        sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make pkg-config
+        run: |
+          sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make pkg-config
 #          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
 #          cd pFUnit && mkdir b && cd b
 #          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
