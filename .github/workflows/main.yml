@@ -89,8 +89,8 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC}
-          make -j$(nproc)
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
+          make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 #      - name: Check
 #        run: |
 #          make check
@@ -99,7 +99,7 @@ jobs:
           make dist
           tar xf neko-0.0.1.tar.gz
           cd neko-0.0.1
-          ./configure FC=${FC}
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
           make -j $(nproc)
           
   Nvidia:
