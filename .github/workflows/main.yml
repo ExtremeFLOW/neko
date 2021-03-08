@@ -48,7 +48,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
           make -j$(nproc)
       - name: Check
         run: |
@@ -56,8 +56,8 @@ jobs:
       - name: Dist
         run: |
           make dist
-          tar xf neko-0.0.1.tar.gz
-          cd neko-0.0.1
+          tar xf neko-0.1.0.tar.gz
+          cd neko-0.1.0
           ./configure FC=${FC}
           make -j $(nproc)
 
@@ -98,8 +98,8 @@ jobs:
       - name: Dist
         run: |
           make dist
-          tar xf neko-0.0.1.tar.gz
-          cd neko-0.0.1
+          tar xf neko-0.1.0.tar.gz
+          cd neko-0.1.0
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
           make -j $(nproc)
           
@@ -111,8 +111,9 @@ jobs:
      CC: nvcc
     name: Nvidia HPC
     steps:
-#      - name: Setup env.
-#       run: |
+      - name: Setup env.
+       run: |
+        sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make pkg-config
 #          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
 #          cd pFUnit && mkdir b && cd b
 #          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
@@ -132,7 +133,7 @@ jobs:
       - name: Dist
         run: |
           make dist
-          tar xf neko-0.0.1.tar.gz
-          cd neko-0.0.1
+          tar xf neko-0.1.0.tar.gz
+          cd neko-0.1.0
           ./configure FC=${FC}
           make -j $(nproc)
