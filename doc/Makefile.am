@@ -1,4 +1,4 @@
-dist_data_DATA = neko-logo.png
+EXTRA_DIST = neko-logo.png
 
 doxygen.stamp: Doxyfile
 	$(DOXYGEN) $<
