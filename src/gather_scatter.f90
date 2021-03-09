@@ -1,21 +1,23 @@
 !> Gather-scatter
 module gather_scatter
+  use gs_bcknd
+  use gs_cpu
+  use gs_ops
+  use gs_sx
   use mesh
   use dofmap
   use field
   use num_types
+  use mpi_f08
   use htable
   use stack
   use utils
-  use mpi
+  use log    
   implicit none
 
-  integer, parameter :: GS_OP_ADD = 1, GS_OP_MUL = 2, &
-       GS_OP_MIN = 3, GS_OP_MAX = 4
-  
   type, private :: gs_comm_t
-     integer :: status(MPI_STATUS_SIZE)
-     integer :: request
+     type(MPI_Status) :: status
+     type(MPI_Request) :: request
      logical :: flag
      real(kind=dp), allocatable :: data(:)
   end type gs_comm_t
@@ -43,10 +45,11 @@ module gather_scatter
      integer :: nshared_blks                          !< Number of shared blks
      integer :: local_facet_offset                    !< offset for loc. facets
      integer :: shared_facet_offset                   !< offset for shr. facets
+     class(gs_bcknd_t), allocatable :: bcknd          !< Gather-scatter backend
   end type gs_t
 
   private :: gs_init_mapping, gs_schedule
-
+  
   interface gs_op
      module procedure gs_op_fld, gs_op_vector
   end interface gs_op
@@ -54,13 +57,18 @@ module gather_scatter
 contains
 
   !> Initialize a gather-scatter kernel
-  subroutine gs_init(gs, dofmap)
+  subroutine gs_init(gs, dofmap, bcknd)
     type(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
-    integer :: i
+    character(len=LOG_SIZE) :: log_buf
+    character(len=20) :: bcknd_str
+    integer, optional :: bcknd
+    integer :: i, ierr, bcknd_, glb_nshared, glb_nlocal
 
     call gs_free(gs)
 
+    call neko_log%section('Gather-Scatter')
+    
     gs%dofmap => dofmap
     
     allocate(gs%send_dof(0:pe_size-1))
@@ -74,6 +82,42 @@ contains
     call gs_init_mapping(gs)
 
     call gs_schedule(gs)
+
+    call MPI_Reduce(gs%nlocal, glb_nlocal, 1, &
+         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+
+    call MPI_Reduce(gs%nshared, glb_nshared, 1, &
+         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+
+    write(log_buf, '(A,I12)') 'Avg. internal: ', glb_nlocal/pe_size
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,I12)') 'Avg. external: ', glb_nshared/pe_size
+    call neko_log%message(log_buf)
+    
+    if (present(bcknd)) then
+       bcknd_ = bcknd
+    else
+       bcknd_ = GS_BCKND_CPU ! Select this from neko_config
+    end if
+
+    ! Setup Gather-scatter backend
+    select case(bcknd_)
+    case(GS_BCKND_CPU)
+       allocate(gs_cpu_t::gs%bcknd)
+       bcknd_str = '         std'
+    case(GS_BCKND_SX)
+       allocate(gs_sx_t::gs%bcknd)
+       bcknd_str = '          sx'
+    case default
+       call neko_error('Unknown Gather-scatter backend')
+    end select
+
+    write(log_buf, '(A)') 'Backend      : ' // trim(bcknd_str)
+    call neko_log%message(log_buf)
+    
+    call neko_log%end_section()
+
+    call gs%bcknd%init(gs%nlocal, gs%nshared)
     
   end subroutine gs_init
 
@@ -163,6 +207,12 @@ contains
        end do
        deallocate(gs%recv_buf)
     end if
+
+    if (allocated(gs%bcknd)) then
+       call gs%bcknd%free()
+       deallocate(gs%bcknd)
+    end if
+    
   end subroutine gs_free
 
   !> Setup mapping of dofs to gather-scatter operations
@@ -182,14 +232,16 @@ contains
     msh => dofmap%msh
     sdm => gs%shared_dofs
 
-    dm_size = dofmap%n_dofs/4
-
-    call dm%init(dm_size, i)
-    call sdm%init(dm_size, i)
-    
     lx = dofmap%Xh%lx
     ly = dofmap%Xh%ly
     lz = dofmap%Xh%lz
+    dm_size = dofmap%n_dofs/lx
+
+    call dm%init(dm_size, i)
+    !>@note this might be a bit overkill,
+    !!but having many collisions makes the init take too long.
+    call sdm%init(dofmap%n_dofs, i)
+    
 
     call local_dof%init()
     call dof_local%init()
@@ -855,9 +907,9 @@ contains
     integer(kind=2), allocatable :: shared_flg(:), recv_flg(:)
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
+    type(MPI_Status) :: status
     integer :: i, j, max_recv, src, dst, ierr, n_recv
     integer :: shared_id, tmp, shared_gs_id
-    integer :: status(MPI_STATUS_SIZE)
     integer :: nshared_unique
     integer, pointer :: sp(:), rp(:)
 
@@ -948,6 +1000,8 @@ contains
     deallocate(send_buf)
     deallocate(recv_flg)
     deallocate(shared_flg)
+    !This arrays seems to take massive amounts of memory... 
+    call gs%shared_dofs%free()
 
   end subroutine gs_schedule
 
@@ -979,7 +1033,7 @@ contains
 
        call gs_nbrecv(gs)
 
-       call gs_gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
+       call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
 
        call gs_nbsend(gs, gs%shared_gs, l)
@@ -988,9 +1042,9 @@ contains
     
     ! Gather-scatter local dofs
 
-    call gs_gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
+    call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op)
-    call gs_scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
+    call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len)
 
     ! Scatter shared dofs
@@ -998,239 +1052,12 @@ contains
 
        call gs_nbwait(gs, gs%shared_gs, l, op)
 
-       call gs_scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
+       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
     end if
        
   end subroutine gs_op_vector
   
-  !> Gather kernel
-  subroutine gs_gather(v, m, o, dg, u, n, gd, nb, b, op)
-    integer, intent(inout) :: m
-    integer, intent(inout) :: n
-    integer, intent(inout) :: nb        
-    real(kind=dp), dimension(m), intent(inout) :: v
-    integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
-    integer, dimension(m), intent(inout) :: gd
-    integer, dimension(nb), intent(inout) :: b
-    integer, intent(inout) :: o
-    integer :: op
-    
-    select case(op)
-    case (GS_OP_ADD)
-       call gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
-    case (GS_OP_MUL)
-       call gs_gather_kernel_mul(v, m, o, dg, u, n, gd, nb, b)
-    case (GS_OP_MIN)
-       call gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b)
-    case (GS_OP_MAX)
-       call gs_gather_kernel_max(v, m, o, dg, u, n, gd, nb, b)
-    end select
-    
-  end subroutine gs_gather
- 
-  !> Gather kernel for addition of data
-  !! \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
-  subroutine gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b)
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
-    integer, dimension(m), intent(inout) :: gd
-    integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: o
-    integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
-
-    k = 0
-    do i = 1, nb
-       blk_len = b(i)
-       tmp = u(gd(k + 1))
-       do j = 2, blk_len
-          tmp = tmp + u(gd(k + j))
-       end do
-       v(dg(k + 1)) = tmp
-       k = k + blk_len        
-    end do
-    
-    if (o .lt. 0) then
-       do i = abs(o), m
-          v(dg(i)) = u(gd(i))
-       end do
-    else
-       do i = o, m, 2
-          tmp  = u(gd(i)) + u(gd(i+1))
-          v(dg(i)) = tmp
-       end do
-    end if
-    
-  end subroutine gs_gather_kernel_add
-
-  !> Gather kernel for multiplication of data
-  !! \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
-  subroutine gs_gather_kernel_mul(v, m, o, dg, u, n, gd, nb, b)
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
-    integer, dimension(m), intent(inout) :: gd
-    integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: o
-    integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
-    
-    k = 0
-    do i = 1, nb
-       blk_len = b(i)
-       tmp = u(gd(k + 1))              
-       do j = 2, blk_len
-          tmp = tmp * u(gd(k + j))
-       end do
-       v(dg(k + 1)) = tmp
-       k = k + blk_len        
-    end do
-       
-    if (o .lt. 0) then
-       do i = abs(o), m
-          v(dg(i)) = u(gd(i))
-       end do
-    else
-       do i = o, m, 2
-          tmp  = u(gd(i)) * u(gd(i+1))
-          v(dg(i)) = tmp
-       end do
-    end if
-    
-  end subroutine gs_gather_kernel_mul
-  
-  !> Gather kernel for minimum of data
-  !! \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
-  subroutine gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b)
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
-    integer, dimension(m), intent(inout) :: gd
-    integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: o
-    integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
-
-    k = 0
-    do i = 1, nb
-       blk_len = b(i)
-       tmp = u(gd(k + 1))
-       do j = 2, blk_len
-          tmp = min(tmp, u(gd(k + j)))
-       end do
-       v(dg(k + 1)) = tmp
-       k = k + blk_len        
-    end do
-       
-    if (o .lt. 0) then
-       do i = abs(o), m
-          v(dg(i)) = u(gd(i))
-       end do
-    else
-       do i = o, m, 2
-          tmp  = min(u(gd(i)), u(gd(i+1)))
-          v(dg(i)) = tmp
-       end do
-    end if
-    
-  end subroutine gs_gather_kernel_min
-
-  !> Gather kernel for maximum of data
-  !! \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
-  subroutine gs_gather_kernel_max(v, m, o, dg, u, n, gd, nb, b)
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
-    integer, dimension(m), intent(inout) :: gd
-    integer, dimension(nb), intent(inout) :: b
-    integer, intent(in) :: o
-    integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
-
-    k = 0
-    do i = 1, nb
-       blk_len = b(i)
-       tmp = u(gd(k + 1))
-       do j = 2, blk_len
-          tmp = max(tmp, u(gd(k + j)))
-       end do
-       v(dg(k + 1)) = tmp
-       k = k + blk_len        
-    end do
-       
-    if (o .lt. 0) then
-       do i = abs(o), m
-          v(dg(i)) = u(gd(i))
-       end do
-    else
-       do i = o, m, 2
-          tmp  = max(u(gd(i)), u(gd(i+1)))
-          v(dg(i)) = tmp
-       end do
-    end if
-    
-  end subroutine gs_gather_kernel_max
-
-  !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter(v, m, dg, u, n, gd, nb, b)
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
-    integer, dimension(m), intent(inout) :: gd
-    integer, dimension(nb), intent(inout) :: b
-        
-    call gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
-
-  end subroutine gs_scatter
-
-  !> Scatter kernel \f$ u(gd(i) = v(dg(i)) \f$
-  subroutine gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
-    integer, intent(in) :: m
-    integer, intent(in) :: n
-    integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
-    integer, dimension(m), intent(inout) :: gd
-    integer, dimension(nb), intent(inout) :: b
-    integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
-    
-    k = 0
-    do i = 1, nb
-       blk_len = b(i)
-       tmp = v(dg(k + 1))
-       do j = 1, blk_len
-          u(gd(k + j)) = tmp
-       end do
-       k = k + blk_len
-    end do
-
-    do i = k + 1, m
-       u(gd(i)) = v(dg(i))
-    end do
-
-  end subroutine gs_scatter_kernel
-
-
   !> Post non-blocking receive operations
   subroutine gs_nbrecv(gs)
     type(gs_t), intent(inout) :: gs

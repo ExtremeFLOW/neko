@@ -3,6 +3,7 @@ module zone
   use tuple
   use stack
   use utils
+  use structs
   implicit none
   
   type :: zone_t
@@ -28,7 +29,7 @@ module zone
      procedure, pass(z) :: finalize => zone_periodic_finalize
      procedure, pass(z) :: add_periodic_facet => zone_periodic_add_facet
   end type zone_periodic_t
-  
+ 
 contains
 
   !> Initialize a zone
@@ -126,9 +127,13 @@ contains
     class(zone_periodic_t), intent(inout) :: z
 
     call zone_free(z)
-    
+
     if (allocated(z%p_facet_el)) then
        deallocate(z%p_facet_el)
+    end if
+
+    if (allocated(z%p_ids)) then
+       deallocate(z%p_ids)
     end if
 
     call z%p_scratch%free()
@@ -166,7 +171,7 @@ contains
 
        call z%p_scratch%clear()
        call z%p_id_scratch%clear()
-       
+
     end if
     
   end subroutine zone_periodic_finalize
@@ -194,5 +199,5 @@ contains
     call z%p_id_scratch%push(t2)
     
   end subroutine zone_periodic_add_facet
-  
+
 end module zone

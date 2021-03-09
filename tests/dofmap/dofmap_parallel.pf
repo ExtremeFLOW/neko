@@ -23,7 +23,7 @@ contains
     integer :: ierr
     integer, parameter :: gdim = 3
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -89,7 +89,7 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -161,7 +161,7 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -232,7 +232,7 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -302,7 +302,7 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -373,7 +373,7 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -445,7 +445,7 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
@@ -516,7 +516,7 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()

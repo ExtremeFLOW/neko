@@ -55,11 +55,36 @@ AC_DEFUN([AX_PARMETIS],[
 			       [have_parmetis=no],[-lmetis])
 	AC_SUBST(PARMETIS_LIBS)
 	if test x"${have_parmetis}" = xyes; then
+	   AC_LANG_PUSH([C])
+  	   have_parmetis_real64=no
+	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+	   #include <parmetis.h>
+	   ],[
+	   #if REALTYPEWIDTH != 64
+	   #error 'Not 64'
+	   #endif
+	   ])], [have_parmetis_real64=yes])
+	   if test "x${have_parmetis_real64}" = xyes; then
+	      AC_DEFINE(HAVE_PARMETIS_REAL64,1, [ParMETIS real_t is 64bit])
+	   fi
+
+  	   have_parmetis_int64=no
+	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+	   #include <parmetis.h>
+	   ],[
+	   #if IDXTYPEWIDTH != 64
+	   #error 'Not 64'
+	   #endif
+	   ])], [have_parmetis_int64=yes])
+	   if test "x${have_parmetis_int64}" = xyes; then
+	      AC_DEFINE(HAVE_PARMETIS_INT64, 1, [ParMETIS idx_t is 64bit])
+	   fi
+	   AC_LANG_POP([C])
 	   AC_DEFINE(HAVE_PARMETIS,1,[Define if you have the ParMETIS library.])
 	else
-		if test -d "$ac_parmetis_path"; then	
-		   LDFLAGS="$LDFLAGS_SAVED"
-		fi
+	   if test -d "$ac_parmetis_path"; then	
+	      LDFLAGS="$LDFLAGS_SAVED"
+	   fi
 	fi
 
 ])

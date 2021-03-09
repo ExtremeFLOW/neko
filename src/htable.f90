@@ -968,7 +968,7 @@ contains
     select type(k)
     type is (point_t)
        hash = modulo(floor((2d0 * &
-            abs(fraction(k%x(1) + k%x(2) + k%x(3))) - 1d0) * 2**30), &
+            abs(fraction(k%x(1)*1d-1 + k%x(2)*1d-2 + k%x(3)*1d-3)) - 1d0) * 2**30), &
             this%size) 
     class default
        hash = -1

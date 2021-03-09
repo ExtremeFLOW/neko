@@ -1,13 +1,13 @@
 !> Defines a mesh
 module mesh
   use num_types
+  use mpi_f08
   use point
   use element
   use hex
   use quad
   use utils
   use htable
-  use mpi
   use comm
   use stack
   use tuple
@@ -17,6 +17,7 @@ module mesh
   use zone
   use math
   use uset
+  use curve
   implicit none
 
   type, private :: mesh_element_t
@@ -56,14 +57,14 @@ module mesh
      class(htable_t), allocatable :: facet_map 
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
-     type(distdata_t) :: distdata              !< Mesh distributed data
+     type(distdata_t) :: ddata            !< Mesh distributed data
 
      type(zone_t) :: wall                 !< Zone of wall facets
      type(zone_t) :: inlet                !< Zone of inlet facets
      type(zone_t) :: outlet               !< Zone of outlet facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
      type(zone_periodic_t) :: periodic    !< Zone of periodic facets
-
+     type(curve_t) :: curve               !< Set of curved elements
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
@@ -193,11 +194,11 @@ contains
     end if
 
     !> @todo resize onces final size is known
-    allocate(m%points(m%npts*m%nelv))
+    allocate(m%points(m%gdim*m%npts*m%nelv))
 
     !> @todo resize onces final size is known
-    allocate(m%point_neigh(m%npts*m%nelv))
-    do i = 1, m%npts*m%nelv
+    allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
+    do i = 1, m%gdim*m%npts*m%nelv
        call m%point_neigh(i)%init()
     end do
 
@@ -208,8 +209,9 @@ contains
     call m%outlet%init(m%nelv)
     call m%sympln%init(m%nelv)
     call m%periodic%init(m%nelv)
+    call m%curve%init(m%nelv)
    
-    call distdata_init(m%distdata)
+    call distdata_init(m%ddata)
     
     m%mpts = 0
     m%mfcs = 0
@@ -225,7 +227,7 @@ contains
     call m%htp%free()
     call m%htf%free()
     call m%hte%free()
-    call distdata_free(m%distdata)
+    call distdata_free(m%ddata)
     
     if (allocated(m%points)) then
        deallocate(m%points)
@@ -257,7 +259,7 @@ contains
     end if
 
     if (allocated(m%point_neigh)) then
-       do i = 1, m%npts * m%nelv
+       do i = 1, m%gdim * m%npts * m%nelv
           call m%point_neigh(i)%free()
        end do
        deallocate(m%point_neigh)
@@ -283,6 +285,7 @@ contains
     call m%outlet%finalize()
     call m%sympln%finalize()
     call m%periodic%finalize()
+    call m%curve%finalize()
 
   end subroutine mesh_finalize
 
@@ -452,10 +455,11 @@ contains
     type(tuple4_i4_t) :: face,  face2
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: buffer
+    type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l, l2
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el, temp
-    integer :: status(MPI_STATUS_SIZE)
+
 
     if (m%gdim .eq. 2) then
        n_sides = 4
@@ -535,10 +539,10 @@ contains
                 ! Update facet map
                 call fmp%set(edge, facet_data)
 
-                call distdata_set_shared_el_facet(m%distdata, element, facet)
+                call distdata_set_shared_el_facet(m%ddata, element, facet)
 
                 if (m%hte%get(edge, facet) .eq. 0) then
-                   call distdata_set_shared_facet(m%distdata, facet)
+                   call distdata_set_shared_facet(m%ddata, facet)
                 else
                    call neko_error("Invalid shared edge")
                 end if
@@ -571,10 +575,10 @@ contains
                 ! Update facet map
                 call fmp%set(face, facet_data)
                 
-                call distdata_set_shared_el_facet(m%distdata, element, facet)
+                call distdata_set_shared_el_facet(m%ddata, element, facet)
                 
                 if (m%htf%get(face, facet) .eq. 0) then
-                   call distdata_set_shared_facet(m%distdata, facet)
+                   call distdata_set_shared_facet(m%ddata, facet)
                 else
                    call neko_error("Invalid shared face")
                 end if
@@ -600,12 +604,12 @@ contains
     type(tuple4_i4_t) :: face
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: send_buffer
+    type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
     integer, pointer :: neighs(:)
-    integer :: status(MPI_STATUS_SIZE)
 
     
     call send_buffer%init()
@@ -648,7 +652,7 @@ contains
              do k = 1, num_neigh
                 neigh_el = -recv_buffer(j + 1 + k)
                 call m%point_neigh(pt_loc_idx)%push(neigh_el)
-                call distdata_set_shared_point(m%distdata, pt_loc_idx)
+                call distdata_set_shared_point(m%ddata, pt_loc_idx)
              end do
           end if
           j = j + (2 + num_neigh)          
@@ -671,6 +675,7 @@ contains
     type(uset_i8_t) :: edge_idx, ghost, owner
     type(stack_i8_t) :: send_buff
     type(htable_i8_t) :: glb_to_loc
+    type(MPI_Status) :: status
     integer, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
@@ -680,10 +685,10 @@ contains
     logical :: shared_edge
     type(stack_i4_t) :: non_shared_edges
     integer :: max_recv, src, dst, n_recv
-    integer :: status(MPI_STATUS_SIZE)
+
 
     !>@todo move this into distdata
-    allocate(m%distdata%local_to_global_edge(m%meds))
+    allocate(m%ddata%local_to_global_edge(m%meds))
 
     call edge_idx%init()
     call send_buff%init()
@@ -722,7 +727,7 @@ contains
           do j = 1, m%point_neigh(l)%size()
              if ((p1(i) .eq. p2(j)) .and. &
                   (p1(i) .lt. 0) .and. (p2(j) .lt. 0)) then
-                call distdata_set_shared_edge(m%distdata, id)
+                call distdata_set_shared_edge(m%ddata, id)
                 shared_edge = .true.
              end if
           end do
@@ -752,7 +757,7 @@ contains
     ! Construct global numbering of locally owned edges
     ns_id => non_shared_edges%array()
     do i = 1, non_shared_edges%size()
-       call distdata_set_local_to_global_edge(m%distdata, ns_id(i), edge_offset)
+       call distdata_set_local_to_global_edge(m%ddata, ns_id(i), edge_offset)
        edge_offset = edge_offset + 1          
     end do
 
@@ -802,7 +807,7 @@ contains
     do while (owner%iter_next())
        glb_ptr => owner%iter_value()
        if (glb_to_loc%get(glb_ptr, id) .eq. 0) then
-          call distdata_set_local_to_global_edge(m%distdata, id, shared_offset)
+          call distdata_set_local_to_global_edge(m%ddata, id, shared_offset)
 
           ! Add new number to send data as [old_glb_id new_glb_id] for each edge
           call send_buff%push(glb_ptr)   ! Old glb_id integer*8
@@ -846,7 +851,7 @@ contains
           if (ghost%element(recv_buff(j))) then
              if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
                 n_glb_id = int(recv_buff(j + 1 ), 4)
-                call distdata_set_local_to_global_edge(m%distdata, id, n_glb_id)
+                call distdata_set_local_to_global_edge(m%ddata, id, n_glb_id)
              else
                 call neko_error('Invalid edge id')
              end if
@@ -874,23 +879,24 @@ contains
     type(stack_i4t4_t) :: face_owner
     type(htable_i4t4_t) :: face_ghost
     type(stack_i4_t) :: send_buff
+    type(MPI_Status) :: status
     integer, allocatable :: recv_buff(:)
     integer :: non_shared_facets, shared_facets, facet_offset    
     integer :: id, glb_nshared, shared_offset, owned_facets
     integer :: i, j, ierr, max_recv, src, dst, n_recv
-    integer :: status(MPI_STATUS_SIZE)
+
 
     !>@todo move this into distdata
     if (m%gdim .eq. 2) then
-       allocate(m%distdata%local_to_global_facet(m%meds))
+       allocate(m%ddata%local_to_global_facet(m%meds))
     else
-       allocate(m%distdata%local_to_global_facet(m%mfcs))
+       allocate(m%ddata%local_to_global_facet(m%mfcs))
        call face_owner%init()
        call face_ghost%init(64, i)       
     end if
     
     !> @todo Move this into distdata as a method...
-    shared_facets = m%distdata%shared_facet%size()
+    shared_facets = m%ddata%shared_facet%size()
     
     non_shared_facets = m%htf%num_entries() - shared_facets
     facet_offset = 0
@@ -906,8 +912,8 @@ contains
        do while (face_it%next())
           call face_it%data(id)
           face => face_it%key()
-          if (.not. m%distdata%shared_facet%element(id)) then       
-             call distdata_set_local_to_global_facet(m%distdata, &
+          if (.not. m%ddata%shared_facet%element(id)) then       
+             call distdata_set_local_to_global_facet(m%ddata, &
                   id, facet_offset)
              facet_offset = facet_offset + 1
           else
@@ -948,7 +954,7 @@ contains
     fd => face_owner%array()
     do i = 1, face_owner%size()
        if (m%htf%get(fd(i), id) .eq. 0) then
-          call distdata_set_local_to_global_facet(m%distdata, id, shared_offset)
+          call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
 
           ! Add new number to send buffer
           ! [facet id1 ... facet idn new_glb_id]
@@ -994,7 +1000,7 @@ contains
 
           ! Check if the PE has the shared face
           if (face_ghost%get(recv_face, id) .eq. 0) then
-             call distdata_set_local_to_global_facet(m%distdata, &
+             call distdata_set_local_to_global_facet(m%ddata, &
                   id, recv_buff(j+4))
           end if
        end do
@@ -1183,6 +1189,24 @@ contains
     call m%wall%add_facet(f, e)
     
   end subroutine mesh_mark_wall_facet
+
+  !> Mark element @a e as a curve element
+  subroutine mesh_mark_curve_element(m, e, curve_data, curve_type)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(in) :: e
+    real(kind=dp), dimension(5,8), intent(inout) :: curve_data 
+    integer, dimension(8), intent(inout) :: curve_type 
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+    if ((m%gdim .eq. 2 .and. sum(curve_type(5:12)) .gt. 0) ) then
+       call neko_error('Invalid curve element')
+    end if
+    call m%curve%add_element(e, curve_data, curve_type)
+    
+  end subroutine mesh_mark_curve_element
+
 
   !> Mark facet @a f in element @a e as an inlet
   subroutine mesh_mark_inlet_facet(m, f, e)
@@ -1495,7 +1519,7 @@ contains
     global_id = mesh_Get_local_edge(m, e)
 
     if (pe_size .gt. 1) then
-       global_id = m%distdata%local_to_global_edge(global_id)
+       global_id = m%ddata%local_to_global_edge(global_id)
     end if
 
   end function mesh_get_global_edge
@@ -1509,7 +1533,7 @@ contains
     global_id = mesh_get_local_facet(m, f)
     
     if (pe_size .gt. 1) then
-       global_id = m%distdata%local_to_global_facet(global_id)
+       global_id = m%ddata%local_to_global_facet(global_id)
     end if
     
   end function mesh_get_global_facet
@@ -1538,7 +1562,7 @@ contains
     logical shared
 
     local_index = mesh_get_local(m, p)
-    shared = m%distdata%shared_point%element(local_index)
+    shared = m%ddata%shared_point%element(local_index)
     
   end function mesh_is_shared_point
   
@@ -1551,7 +1575,7 @@ contains
     integer :: local_index
     logical shared
     local_index = mesh_get_local(m, e)
-    shared = m%distdata%shared_edge%element(local_index)
+    shared = m%ddata%shared_edge%element(local_index)
     
   end function mesh_is_shared_edge
 
@@ -1563,7 +1587,7 @@ contains
     logical shared
 
     local_index = mesh_get_local(m, f)
-    shared = m%distdata%shared_facet%element(local_index)
+    shared = m%ddata%shared_facet%element(local_index)
     
   end function mesh_is_shared_facet
 

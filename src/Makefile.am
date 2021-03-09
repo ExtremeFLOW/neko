@@ -1,16 +1,19 @@
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	num_types.f90\
+        structs.f90\
 	parameters.f90\
 	nmsh.f90\
 	re2.f90\
 	map.f90\
+	log.f90\
 	comm.f90\
+        curve.f90\
 	mpi_types.f90 \
 	datadist.f90 \
 	distdata.f90 \
 	utils.f90\
-	mxm_wrapper.f90\
+	mxm_wrapper.F90\
 	mxm_std.f90\
 	speclib.f90 \
 	math.f90\
@@ -20,6 +23,10 @@ libneko_a_SOURCES = \
 	space.f90\
 	dofmap.f90\
 	coef.f90\
+	gs_bcknd.f90\
+	gs_cpu.f90\
+	gs_sx.f90\
+	gs_ops.f90\
 	gather_scatter.f90\
 	entity.f90\
 	point.f90\
@@ -28,6 +35,7 @@ libneko_a_SOURCES = \
 	precon.f90\
 	krylov.f90\
 	cg.f90\
+        ksp_bicgstab.f90\
 	quad.f90\
 	hex.f90\
 	htable.f90\
@@ -73,10 +81,16 @@ libneko_a_SOURCES = \
 	simulation.f90\
 	ax_helm.f90\
 	projection.f90\
+	parmetis.F90\
+	redist.f90\
 	pc_hsmg.f90\
 	fdm.f90\
 	schwarz.f90\
 	neko.f90
+
+if ENABLE_PARMETIS
+libneko_a_SOURCES += parmetis_wrapper.c
+endif
 
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90

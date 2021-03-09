@@ -172,15 +172,16 @@ contains
       L=K
       M=K
       XMAX=ABS(A(K,K))
-      DO 100 I=K,N
-         DO 100 J=K,N
+      DO I=K,N
+         DO J=K,N
             Y=ABS(A(I,J))
             IF(XMAX.GE.Y) GOTO 100
             XMAX=Y
             L=I
             M=J
-100   CONTINUE
-      DO 1000 K=1,N
+100      END DO
+      END DO
+      DO K=1,N
          IRL=IR(L)
          IR(L)=IR(K)
          IR(K)=IRL
@@ -188,17 +189,17 @@ contains
          IC(M)=IC(K)
          IC(K)=ICM
          IF(L.EQ.K) GOTO 300
-         DO 200 J=1,N
+         DO J=1,N
             B=A(K,J)
             A(K,J)=A(L,J)
             A(L,J)=B
-200      CONTINUE
+         END DO
 300      IF(M.EQ.K) GOTO 500
-         DO 400 I=1,N
+         DO I=1,N
             B=A(I,K)
             A(I,K)=A(I,M)
             A(I,M)=B
-400      CONTINUE
+         END DO
 500      C=1d0/A(K,K)
          A(K,K)=C
          IF(K.EQ.N) GOTO 1000
@@ -206,20 +207,21 @@ contains
          XMAX=ABS(A(K1,K1))
          L=K1
          M=K1
-         DO 600 I=K1,N
+         DO I=K1,N
             A(I,K)=C*A(I,K)
-600      CONTINUE
-         DO 800 I=K1,N
+         END DO
+         DO I=K1,N
             B=A(I,K)
-            DO 800 J=K1,N
+            DO J=K1,N
                A(I,J)=A(I,J)-B*A(K,J)
                Y=ABS(A(I,J))
                IF(XMAX.GE.Y) GOTO 800
                XMAX=Y
                L=I
                M=J
-800     CONTINUE
-1000  CONTINUE
+800         END DO
+         END DO
+1000  END DO
     end subroutine lu
    
     SUBROUTINE SOLVE(F,A,K,N,ldim,IR,IC)
@@ -234,36 +236,35 @@ contains
 !         call exitt
 !      ENDIF
       N1=N+1
-      DO 1000 KK=1,K
-         DO 100 I=1,N
+      DO KK=1,K
+         DO I=1,N
             IRI=IR(I)
             G(I)=F(IRI,KK)
-100      CONTINUE
-         DO 400 I=2,N
+         END DO
+         DO I=2,N
             I1=I-1
             B=G(I)
-            DO 300 J=1,I1
+            DO J=1,I1
                B=B-A(I,J)*G(J)
-300         CONTINUE
+            END DO
             G(I)=B
-400      CONTINUE
-         DO 700 IT=1,N
+         END DO
+         DO IT=1,N
             I=N1-IT
             I1=I+1
             B=G(I)
             IF(I.EQ.N) GOTO 701
-            DO 600 J=I1,N
+            DO J=I1,N
                B=B-A(I,J)*G(J)
-600         CONTINUE
+            END DO
 701         G(I)=B*A(I,I)
-700      CONTINUE
-         DO 900 I=1,N
+         END DO
+         DO I=1,N
             ICI=IC(I)
             F(ICI,KK)=G(I)
-900      CONTINUE
-1000  CONTINUE
-      RETURN
-      END
+         END DO
+      END DO
+    END SUBROUTINE SOLVE
 
   
 

@@ -12,6 +12,17 @@ SUBDIRS += doc
 endif
 
 
-dist_data_DATA = regen.sh
 bin_SCRIPTS = makeneko
-EXTRA_DIST = makeneko.in
+EXTRA_DIST = \
+	makeneko.in\
+	regen.sh\
+	examples/hemi/hemi.case\
+	examples/hemi/hemi.nmsh\
+	examples/tgv/tgv.case\
+	examples/tgv/tgv.f90\
+	examples/tgv/512.nmsh\
+	examples/poisson/512.nmsh\
+	examples/poisson/Makefile\
+	examples/poisson/ax_poisson.f90\
+	examples/poisson/driver.f90\
+	examples/poisson/setup.f90

@@ -3,6 +3,7 @@ module sampler
   use num_types
   use output
   use comm
+  use log
   implicit none
 
   !> Pointer to an arbitrary output
@@ -92,13 +93,13 @@ contains
   subroutine sampler_sample(this, t)
     class(sampler_t), intent(inout) :: this
     real(kind=dp), intent(in) :: t
+    character(len=LOG_SIZE) :: log_buf
     integer :: i
 
     if (t .ge. (this%nsample * this%T)) then
 
-       if (pe_rank .eq. 0) then
-          write(*,'(1x,a23,1x,e15.7)') 'Sampling fields at time:', t
-       end if
+       write(log_buf,'(a23,1x,e15.7)') 'Sampling fields at time:', t
+       call neko_log%message(log_buf)
        
        do i = 1, this%n
           call this%output_list(i)%outp%sample(t)

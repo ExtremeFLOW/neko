@@ -5,6 +5,7 @@ module neko
   use parameters    
   use comm
   use utils
+  use log
   use math
   use speclib
   use dofmap
@@ -43,6 +44,7 @@ module neko
   use dirichlet
   use krylov
   use cg
+  use bicgstab
   use precon
   use ax_product
   use gmres
@@ -58,6 +60,9 @@ module neko
   use mathops
   use projection
   use user_intf
+  use parmetis
+  use structs
+  use curve
 contains
 
   subroutine neko_init(C)
@@ -69,9 +74,15 @@ contains
     call comm_init
     call mpi_types_init
 
+    call neko_log%init()
+
     if (pe_rank .eq. 0) then
        write(*,*) ''
-       write(*,*) 'N E K O'
+       write(*,*) '   _  __  ____  __ __  ____ '
+       write(*,*) '  / |/ / / __/ / //_/ / __ \'
+       write(*,*) ' /    / / _/  / ,<   / /_/ /'
+       write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
+       write(*,*) ''
        write(*,*) '(version: ', trim(NEKO_VERSION),')'
        write(*,*) trim(NEKO_BUILD_INFO)
        write(*,*) ''

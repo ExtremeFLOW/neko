@@ -6,12 +6,15 @@ module case
   use parameters
   use mpi_types
   use mesh_field
+  use parmetis
+  use redist
   use sampler
   use file
   use utils
   use mesh
   use comm
   use abbdf
+  use log    
   use user_intf  
   implicit none
 
@@ -50,9 +53,12 @@ contains
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 240 + 8
     character buffer(nbytes)
     integer :: pack_index, temp, i
+    type(mesh_fld_t) :: parts
     real(kind=dp) :: eps, uvw(3)
     
-
+    call neko_log%section('Case')
+    call neko_log%message('Reading case file ' // trim(case_file))
+    
     !
     ! Read case description
     !
@@ -98,6 +104,17 @@ contains
     C%params = params%p
 
     !
+    ! Load Balancing
+    !
+    if (pe_size .gt. 1 .and. C%params%loadb) then
+       call neko_log%section('Load Balancing')
+       call parmetis_partmeshkway(C%msh, parts)
+       call redist_mesh(C%msh, parts)
+       call neko_log%end_section()       
+    end if
+
+
+    !
     ! Setup user defined functions
     !
     call C%usr%init()
@@ -116,7 +133,6 @@ contains
     end if
   
     call C%fluid%init(C%msh, lx, C%params)
-    if(pe_rank .eq. 0) write(*,*) 'Fluid scheme initialized successfully'
 
     !
     ! Setup user defined conditions    
@@ -208,6 +224,8 @@ contains
     call C%s%init(C%params%nsamples, C%params%T_end)
     C%f_out = fluid_output_t(C%fluid)
     call C%s%add(C%f_out)
+
+    call neko_log%end_section()
     
   end subroutine case_init
   !> Deallocate a case 

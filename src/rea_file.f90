@@ -32,24 +32,27 @@ contains
     type(mesh_t), pointer :: msh
     real(kind=dp), pointer :: params(:)
     character(len=3), pointer :: cbc(:,:)
+    integer, allocatable :: curve_type(:,:)
+    logical, allocatable :: curve_element(:)
     character(len=1) :: chtemp
     integer :: ndim, nparam, nskip, nlogic, nbcs
     integer :: nelgs, nelgv, i, j, ierr, l
     integer :: el_idx, pt_idx
     logical :: read_param, read_bcs, read_map
-    real(kind=dp) :: xc(8), yc(8), zc(8)
-    real(kind=dp), allocatable :: bc_data(:,:,:)
+    real(kind=dp) :: xc(8), yc(8), zc(8), curve(5)
+    real(kind=dp), allocatable :: bc_data(:,:,:), curve_data(:,:,:)
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     type(map_file_t) :: map_file
-    character(len=80) :: re2_fname, map_fname
-    integer :: start_el, end_el, nel
+    character(len=80) :: re2_fname, map_fname, s
+    integer :: start_el, end_el, nel, edge
     type(linear_dist_t) :: dist
     type(map_t) :: nm
     type(htable_pt_t) :: htp
     integer :: sym_facet, pids(4), p_el_idx, p_facet
     integer :: off
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
+    logical :: curve_skip = .false.
 
     select type(data)
     type is (rea_t)
@@ -137,7 +140,7 @@ contains
 
        call mesh_init(msh, ndim, dist)
 
-       call htp%init((3*2**(2*ndim)) * nel, ndim)
+       call htp%init(2**ndim * nel, ndim)
 
        el_idx = 1
        pt_idx = 0
@@ -176,12 +179,47 @@ contains
 
        call htp%free()
        
-       !> @todo Add support for curved side data
        read(9, *) 
        read(9, *) nskip
-       do i = 1, nskip
-          read(9, *)
+       allocate(curve_data(5,8,nelgv))
+       allocate(curve_element(nelgv))
+       allocate(curve_type(8,nelgv))
+       do i = 1, nelgv
+          curve_element(i) = .false.
+          do j = 1, 8
+             curve_type(j,i) = 0
+             do l = 1, 5
+                curve_data(l,j,i) = 0d0
+             end do
+          end do
        end do
+       do i = 1, nskip
+          read(9, *) edge, el_idx, (curve_data(j,edge,el_idx),j=1,5), chtemp
+          curve_element(el_idx) = .true. 
+          select case(trim(chtemp))
+          case ('s')
+            curve_type(edge,el_idx) = 1
+            curve_skip = .true.
+          case ('e')
+            curve_type(edge,el_idx) = 2
+            curve_skip = .true.
+          case ('C')
+            curve_type(edge,el_idx) = 3
+          end select
+       end do
+       if (curve_skip) then
+          call neko_warning('Curve type: s, e are not supported, treating mesh as non-curved.')
+       else
+          do el_idx = 1, nelgv
+             if (curve_element(el_idx)) then
+                call mesh_mark_curve_element(msh, el_idx, &
+                     curve_data(1,1,el_idx), curve_type(1,el_idx))
+             end if
+          end do 
+       end if
+       deallocate(curve_data)
+       deallocate(curve_element)
+       deallocate(curve_type)
 
        ! Read fluid boundary conditions
        read(9,*) 
@@ -190,6 +228,7 @@ contains
           allocate(cbc(6,nelgv))
           allocate(bc_data(6,2*ndim,nelgv))
           off = 0
+          !Fix for different horrible .rea periodic bc formats.
           if (nelgv .lt. 1000) off = 1
           do i = 1, nelgv
              if (i .ge. start_el .and. i .le. end_el) then

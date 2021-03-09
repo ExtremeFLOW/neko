@@ -77,7 +77,7 @@ contains
   subroutine tnsr2d_el(v,nv,u,nu,A,Bt)
     integer, intent(in) :: nv,nu
     real(kind=dp), intent(inout) :: v(nv*nv),u(nu*nu),A(nv,nu),Bt(nu,nv)
-    real(kind=dp) :: work(0:nu*nv*nu)
+    real(kind=dp) :: work(0:nu**2*nv)
 
     call mxm(A,nv,u,nu,work,nu)
     call mxm(work,nv,Bt,nu,v,nv)
@@ -87,7 +87,7 @@ contains
   subroutine tnsr3d_el(v,nv,u,nu,A,Bt,Ct)
     integer, intent(in) :: nv,nu
     real(kind=dp), intent(inout) :: v(nv*nv*nv),u(nu*nu*nu),A(nv,nu),Bt(nu, nv),Ct(nu,nv)
-    real(kind=dp) :: work(0:(nu+nv)**3),work2(0:(nv*nv*nu))
+    real(kind=dp) :: work(0:nu**2*nv),work2(0:nu*nv**2)
     integer :: i, nunu, nvnu, nvnv
     nvnu = nv * nu
     nunu = nu * nu 
@@ -102,7 +102,7 @@ contains
   subroutine tnsr3d(v,nv,u,nu,A,Bt,Ct, nelv)
     integer, intent(inout) :: nv,nu, nelv
     real(kind=dp), intent(inout) :: v(nv*nv*nv,nelv),u(nu*nu*nu,nelv),A(nv,nu),Bt(nu, nv),Ct(nu,nv)
-    real(kind=dp) :: work(0:(nu+nv)**3),work2(0:nu*nv*nv)
+    real(kind=dp) :: work(0:nu**2*nv),work2(0:nu*nv**2)
     integer :: ie, i, nunu, nvnu, nvnv
     nvnu = nv * nu
     nunu = nu * nu 
@@ -119,7 +119,7 @@ contains
   subroutine tnsr1_3d(v,nv,nu,A,Bt,Ct, nelv) ! v = [C (x) B (x) A] u
     integer, intent(in) :: nv,nu, nelv
     real(kind=dp), intent(inout) :: v(nv*nv*nv*nelv),A(nv,nu),Bt(nu, nv),Ct(nu,nv)
-    real(kind=dp) :: work(0:(nu+nv)**3),work2(0:(nu+nv)**3)
+    real(kind=dp) :: work(0:nu**2*nv),work2(0:nu*nv**2)
     integer :: e,e0,ee,es, iu, iv, i, nu3, nv3
     e0=1
     es=1
@@ -143,6 +143,24 @@ contains
        enddo
        call mxm(work2,nv*nv,Ct,nu,v(iv),nv)
     enddo
-    end subroutine tnsr1_3d
+  end subroutine tnsr1_3d
+  subroutine addtnsr(s,h1,h2,h3,nx,ny,nz)
 
+    !Map and add to S a tensor product form of the three functions H1,H2,H3.
+    !This is a single element routine used for deforming geometry.
+    integer, intent(in) :: nx, ny, nz
+    real(kind=dp), intent(in) :: h1(nx), h2(ny), h3(nz) 
+    real(kind=dp), intent(inout) ::  s(nx, ny, nz)
+    real(kind=dp) :: hh
+    integer :: ix, iy, iz
+  
+    do iz=1,nz
+       do iy=1,ny
+          hh = h2(iy)*h3(iz)
+          do ix=1,nx
+             s(ix,iy,iz)=s(ix,iy,iz)+hh*h1(ix)
+          end do
+       end do
+    end do
+  end subroutine addtnsr
 end module tensor

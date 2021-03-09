@@ -321,7 +321,7 @@ contains
     real(kind=dp) :: res, expected
     integer :: i, ierr
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     
     do i = 1, n
        a(i) = 1d0

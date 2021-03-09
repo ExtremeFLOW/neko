@@ -3,6 +3,7 @@ module space
   use num_types
   use speclib
   use utils
+  use math
   implicit none
 
   integer, parameter :: GL = 0, GLL = 1, GJ = 2
@@ -17,6 +18,10 @@ module space
      integer :: lxyz              !< Number of points in xyz-block
      
      real(kind=dp), allocatable :: zg(:,:) !< Quadrature points
+     
+     real(kind=dp), allocatable :: dr_inv(:) !< 1/dist quadrature points
+     real(kind=dp), allocatable :: ds_inv(:) !< 1/dist quadrature points
+     real(kind=dp), allocatable :: dt_inv(:) !< 1/dist quadrature points
 
      real(kind=dp), allocatable :: wx(:)   !< Quadrature weights
      real(kind=dp), allocatable :: wy(:)   !< Quadrature weights
@@ -79,6 +84,10 @@ contains
     allocate(s%wx(s%lx))
     allocate(s%wy(s%ly))
     allocate(s%wz(s%lz))
+    
+    allocate(s%dr_inv(s%lx))
+    allocate(s%ds_inv(s%ly))
+    allocate(s%dt_inv(s%lz))
 
     allocate(s%w3(s%lx, s%ly, s%lz))
 
@@ -128,6 +137,10 @@ contains
        s%dz = 0d0
        s%dzt = 0d0
     end if
+    
+    call space_compute_dist(s%dr_inv, s%zg(1,1), lx)
+    call space_compute_dist(s%ds_inv, s%zg(1,2), ly)
+    call space_compute_dist(s%dt_inv, s%zg(1,3), lz)
   end subroutine space_init
    
   !> Deallocate a space @a s
@@ -177,6 +190,19 @@ contains
     if (allocated(s%dzt)) then
        deallocate(s%dzt)
     end if
+    
+    if (allocated(s%dr_inv)) then
+       deallocate(s%dr_inv)
+    end if
+    
+    if (allocated(s%ds_inv)) then
+       deallocate(s%ds_inv)
+    end if
+    
+    if (allocated(s%dt_inv)) then
+       deallocate(s%dt_inv)
+    end if
+    
 
   end subroutine space_free
 
@@ -213,6 +239,17 @@ contains
     end if
     
   end function space_ne
-
+  
+  subroutine space_compute_dist(dx, x, lx)
+    integer, intent(in) :: lx
+    real(kind=dp), intent(inout) :: dx(lx), x(lx)
+    integer :: i
+    dx(1) = x(2) - x(1)
+    do i = 2, lx -1
+       dx(i) = 0.5*(x(i+1) - x(i-1))
+    enddo
+    dx(lx) = x(lx) - x(lx-1)
+    call invcol1(dx, lx)
+  end subroutine space_compute_dist
 
 end module space

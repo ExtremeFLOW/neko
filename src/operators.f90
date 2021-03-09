@@ -271,5 +271,64 @@ contains
     call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
 
   end subroutine curl
+
+  function cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    integer :: nelv, gdim
+    real(kind=dp) :: dt
+    real(kind=dp) ::  du(Xh%lxyz,nelv)
+    real(kind=dp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=dp) :: cflr, cfls, cflt, cflm, cfl_temp(1)
+    real(kind=dp) :: ur, us, ut
+    real(kind=dp) :: cfl
+    integer :: i,j,k,e
+    cfl_temp(1) = 0d0
+    if (gdim .eq. 3) then
+       do e=1,nelv
+          do k=1,Xh%lz
+          do j=1,Xh%ly
+          do i=1,Xh%lx
+             ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
+                +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
+                +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+             us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &
+                +   v(i,j,k,e)*coef%dsdy(i,j,k,e) &
+                +   w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+             ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
+                +   v(i,j,k,e)*coef%dtdy(i,j,k,e) &
+                +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+ 
+             cflr = abs(dt*ur*Xh%dr_inv(i))
+             cfls = abs(dt*us*Xh%ds_inv(j))
+             cflt = abs(dt*ut*Xh%dt_inv(k))
+ 
+             cflm = cflr + cfls + cflt
+             cfl_temp(1)  = max(cfl_temp(1),cflm)
+          enddo
+          enddo
+          enddo
+       enddo
+    else
+       do e=1,nelv
+          do j=1,Xh%ly
+          do i=1,Xh%lx
+             ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
+                +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
+             us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
+                +   v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
+
+             cflr = abs(dt*ur*Xh%dr_inv(i))
+             cfls = abs(dt*us*Xh%ds_inv(j))
+
+             cflm = cflr + cfls
+             cfl_temp(1)  = max(cfl_temp(1),cflm)
+
+          enddo
+          enddo
+       enddo
+    endif
+    cfl = glmax(cfl_temp,1)
+  end function cfl
   
 end module operators

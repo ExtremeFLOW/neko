@@ -18,7 +18,6 @@ module dofmap
      real(kind=dp), allocatable :: x(:,:,:,:)      !< Mapping to x-coordinates
      real(kind=dp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
      real(kind=dp), allocatable :: z(:,:,:,:)      !< Mapping to z-coordinates
-     real(kind=dp), allocatable :: yinv(:,:,:,:)   !< Needed for axissymmetric case
      integer :: n_dofs                             !< Total number of dofs
 
      type(mesh_t), pointer :: msh
@@ -79,13 +78,11 @@ contains
     allocate(this%x(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     allocate(this%y(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     allocate(this%z(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
-    allocate(this%yinv(Xh%lx, Xh%ly, Xh%lz, msh%nelv))
     
     this%x = 0d0
     this%y = 0d0
     this%z = 0d0
     !> @note should be intialised differently in acissymmetric case
-    this%yinv = 1d0
 
     call dofmap_generate_xyz(this)    
     
@@ -546,7 +543,7 @@ contains
   !! @note Assumes \f$ X_{h_x} = X_{h_y} = X_{h_z} \f$
   subroutine dofmap_generate_xyz(this)
     type(dofmap_t), target :: this
-    integer :: i,j,k
+    integer :: i,j,k, el_idx
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
     real(kind=dp) :: xyzb(2,2,2,3), zgml(this%Xh%lx, 3)
@@ -568,7 +565,7 @@ contains
        if (msh%gdim .gt. 2) then
           call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
        end if
-
+       
        k = 1
        do j = 1, Xh%lx
           call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
@@ -607,6 +604,127 @@ contains
           call copy(this%z(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
        end if
     end do
+    do i =1, msh%curve%size 
+       el_idx = msh%curve%curve_el(i)%el_idx
+       do j = 1, 8
+       if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
+          call arc_surface(j, msh%curve%curve_el(i)%curve_data(:,j), &
+                           this%x(1,1,1,el_idx), this%y(1,1,1,el_idx), this%z(1,1,1, el_idx), &
+                           Xh, msh%elements(el_idx)%e, msh%gdim) 
+       end if
+       end do
+    enddo
   end subroutine dofmap_generate_xyz
-  
+ 
+  subroutine arc_surface(isid,curve_data,x,y,z, Xh, element, gdim)
+    integer, intent(in) :: isid, gdim
+    type(space_t), intent(in) :: Xh
+    class(element_t) :: element
+    real(kind=dp), dimension(5), intent(in) :: curve_data
+    real(kind=dp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z 
+    real(kind=dp) :: pt1x, pt1y, pt2x, pt2y, pt12x, pt12y
+    real(kind=dp) :: radius, gap, xz, yz, xyz, dtheta, r, xys 
+    real(kind=dp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
+    real(kind=dp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
+    integer :: isid1, ixt, iyt, izt, ix, isidt
+
+    pt1x  = element%pts(isid)%p%x(1)
+    pt1y  = element%pts(isid)%p%x(2)
+    if(isid.eq.4) then
+       pt2x  = element%pts(1)%p%x(1)
+       pt2y  = element%pts(1)%p%x(2)
+    else if(isid.eq.8) then
+       pt2x  = element%pts(5)%p%x(1)
+       pt2y  = element%pts(5)%p%x(2)
+    else
+       pt2x  = element%pts(isid+1)%p%x(1)
+       pt2y  = element%pts(isid+1)%p%x(2)
+    end if
+!   find slope of perpendicular
+    radius=curve_data(1)
+    gap=sqrt( (pt1x-pt2x)**2 + (pt1y-pt2y)**2 )
+    if (abs(2.0*radius).le.gap*1.00001) then
+       call neko_error('Radius to small for arced element surface')
+    end if
+    xs = pt2y-pt1y
+    ys = pt1x-pt2x
+!   make length radius
+    xys=sqrt(xs**2+ys**2)
+!   find center
+    dtheta = abs(asin(0.5*gap/radius))
+    pt12x  = (pt1x + pt2x)/2.0
+    pt12y  = (pt1y + pt2y)/2.0
+    xcenn  = pt12x - xs/xys * radius*cos(dtheta)
+    ycenn  = pt12y - ys/xys * radius*cos(dtheta)
+    theta0 = atan2((pt12y-ycenn),(pt12x-xcenn))
+!   compute perturbation of geometry
+    isid1 = mod(isid+4-1, 4)+1
+    call compute_h(h, Xh%zg, gdim, Xh%lx) 
+    do ix=1,Xh%lx
+       ixt=ix
+       if (isid1.gt.2) ixt=Xh%lx+1-ix
+       r=Xh%zg(ix,1)
+       if (radius.lt.0.0) r=-r
+       xcrved(ixt) = xcenn + abs(radius) * cos(theta0 + r*dtheta) &
+                           - ( h(ix,1,1)*pt1x + h(ix,1,2)*pt2x )
+       ycrved(ixt) = ycenn + abs(radius) * sin(theta0 + r*dtheta) &
+                           - ( h(ix,1,1)*pt1y + h(ix,1,2)*pt2y )
+    end do
+!   points all set, add perturbation to current mesh.
+!   LEGACY WARNING
+!   I dont want to dive in this again, Martin Karp 2/3 - 2021
+    isidt = isid1
+    select case(isidt)
+    case (1)
+       isid1 = 3
+    case (2)
+       isid1 = 2
+    case (3)
+       isid1 = 4
+    case (4)
+       isid1 = 1
+    case (5)
+       isid1 = 5
+    case (6)
+       isid1 = 6
+    end select
+    izt = (isid-1)/4+1
+    iyt = isid1-2
+    ixt = isid1
+    if (isid1.le.2) then
+       call addtnsr(x,h(1,1,ixt),xcrved,h(1,3,izt) &
+                   ,Xh%lx,Xh%ly,Xh%lz)
+       call addtnsr(y,h(1,1,ixt),ycrved,h(1,3,izt) &
+                   ,Xh%lx,Xh%ly,Xh%lz)
+    else
+       call addtnsr(x,xcrved,h(1,2,iyt),h(1,3,izt) &
+                   ,Xh%lx,Xh%ly,Xh%lz)
+       call addtnsr(y,ycrved,h(1,2,iyt),h(1,3,izt) &
+                   ,Xh%lx,Xh%ly,Xh%lz)
+    endif
+  end subroutine arc_surface
+
+  subroutine compute_h(h, zgml, gdim, lx)
+    integer, intent(in) :: lx, gdim
+    real(kind=dp), intent(inout) ::  h(lx, 3, 2)
+    real(kind=dp), intent(in) :: zgml(lx, 3)
+    integer :: ix, iy, iz 
+    do ix = 1, lx
+       h(ix,1,1)=(1.0-zgml(ix,1))*0.5
+       h(ix,1,2)=(1.0+zgml(ix,1))*0.5
+    end do
+    do iy = 1, lx
+       h(iy,2,1)=(1.0-zgml(iy,2))*0.5
+       h(iy,2,2)=(1.0+zgml(iy,2))*0.5
+    end do
+    if (gdim .eq. 3) then
+       do iz = 1, lx
+          h(iz,3,1)=(1.0-zgml(iz,3))*0.5
+          h(iz,3,2)=(1.0+zgml(iz,3))*0.5
+       end do
+    else
+       call rone(h(1,3,1),lx)
+       call rone(h(1,3,2),lx)
+    endif
+  end subroutine compute_h
 end module dofmap
