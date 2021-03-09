@@ -6,7 +6,7 @@ source_term = 'noforce'
 initial_condition = 'uniform'
 /
 &NEKO_PARAMETERS
-dt = 5d-3
+dt = 1d-3
 T_end = 2.0
 nsamples = 100
 uinf= 1.0,0.0,0.0

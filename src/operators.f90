@@ -314,9 +314,9 @@ contains
           do j=1,Xh%ly
           do i=1,Xh%lx
              ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
-                +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,k,e)
+                +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
              us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
-                +   v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,k,e)
+                +   v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
 
              cflr = abs(dt*ur*Xh%dr_inv(i))
              cfls = abs(dt*us*Xh%ds_inv(j))

@@ -27,7 +27,7 @@ TESTS = tuple/tuple_test\
 	bc/bc_test
 
 # Note we need to list .pf and runner scripts manually
-dist_data_DATA = \
+EXTRA_DIST = \
 	mesh/mesh_parallel.pf\
 	quad/quad.pf\
 	gather_scatter/gather_scatter_parallel.pf\
