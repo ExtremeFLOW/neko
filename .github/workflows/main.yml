@@ -48,8 +48,8 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
-          make -j$(nproc)
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --prefix=/tmp/pkg
+          make -j$(nproc) install
       - name: Check
         run: |
           make -j$(nproc) check
@@ -90,7 +90,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --prefix=/tmp/pkg
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 #      - name: Check
 #        run: |
@@ -103,37 +103,37 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
           make -j $(nproc)
           
-  Nvidia:
-    runs-on: ubuntu-20.04
-    container: nvcr.io/nvidia/nvhpc:20.11-devel-cuda11.1-ubuntu20.04
-    env:
-     FC: nvfortran
-     CC: nvcc
-    name: Nvidia HPC
-    steps:
-      - name: Setup env.
-        run: |
-          apt-get update && apt-get install -y autoconf automake autotools-dev make pkg-config
-#          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
-#          cd pFUnit && mkdir b && cd b
-#          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
-#          make -j$(nproc) && make install && cd ../../
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-           fetch-depth: 1
-      - name: Build
-        run: |
-          ./regen.sh
-          ./configure FC=${FC}
-          make -j$(nproc)
-#      - name: Check
+#  Nvidia:
+#    runs-on: ubuntu-20.04
+#    container: nvcr.io/nvidia/nvhpc:20.11-devel-cuda11.1-ubuntu20.04
+#    env:
+#     FC: nvfortran
+#     CC: nvcc
+#    name: Nvidia HPC
+#    steps:
+#      - name: Setup env.
 #        run: |
-#          make check
-      - name: Dist
-        run: |
-          make dist
-          tar xf neko-0.1.0.tar.gz
-          cd neko-0.1.0
-          ./configure FC=${FC}
-          make -j $(nproc)
+#          apt-get update && apt-get install -y autoconf automake autotools-dev make pkg-config
+##          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+##          cd pFUnit && mkdir b && cd b
+##          cmake -DCMAKE_INSTALL_PREFIX=/tmp/pfunit ..
+##          make -j$(nproc) && make install && cd ../../
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#        with:
+#           fetch-depth: 1
+#      - name: Build
+#        run: |
+#          ./regen.sh
+#          ./configure FC=${FC}
+#          make -j$(nproc)
+##      - name: Check
+##        run: |
+##          make check
+#      - name: Dist
+#        run: |
+#          make dist
+#          tar xf neko-0.1.0.tar.gz
+#          cd neko-0.1.0
+#          ./configure FC=${FC}
+#          make -j $(nproc)
