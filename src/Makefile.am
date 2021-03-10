@@ -47,8 +47,10 @@ libneko_a_SOURCES = \
 	mesh_field.f90\
 	field.f90\
 	rea.f90\
+	sx_dudxyz.f90\
 	operators.f90\
 	opr_cpu.f90\
+	opr_sx.f90\
 	generic_file.f90\
 	map_file.f90\
 	re2_file.f90\

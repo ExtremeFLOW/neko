@@ -1,6 +1,7 @@
 module operators
   use num_types  
   use opr_cpu
+  use opr_sx
   use space  
   use coefs
   use field
@@ -21,8 +22,11 @@ contains
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  u, dr, ds, dt
 
-
-    call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
+    if (1 .eq. 1) then !! TODO check this in neko_config
+       call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
+    else
+       call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
+    end if
     
   end subroutine dudxyz
 

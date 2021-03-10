@@ -45,8 +45,10 @@ mesh.o : mesh.f90 curve.o uset.o math.o zone.o distdata.o datadist.o tuple.o sta
 mesh_field.o : mesh_field.f90 mesh.o num_types.o 
 field.o : field.f90 dofmap.o space.o mesh.o math.o num_types.o 
 rea.o : rea.f90 mesh.o num_types.o 
-operators.o : operators.f90 opr_cpu.o field.o coef.o math.o space.o num_types.o 
+sx_dudxyz.o : sx_dudxyz.f90 math.o field.o coef.o space.o num_types.o 
+operators.o : operators.f90 math.o field.o coef.o space.o opr_sx.o opr_cpu.o num_types.o 
 opr_cpu.o : opr_cpu.f90 mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o mxm_wrapper.o num_types.o 
+opr_sx.o : opr_sx.f90 mathops.o field.o mesh.o math.o coef.o space.o num_types.o gather_scatter.o sx_dudxyz.o 
 generic_file.o : generic_file.f90 num_types.o 
 map_file.o : map_file.f90 map.o comm.o utils.o generic_file.o 
 re2_file.o : re2_file.f90 htable.o map_file.o map.o re2.o datadist.o mpi_types.o comm.o point.o mesh.o utils.o num_types.o generic_file.o 
