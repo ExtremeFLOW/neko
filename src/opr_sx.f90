@@ -1,6 +1,7 @@
 !> Operators SX-Aurora backend
 module opr_sx
   use sx_dudxyz
+  use sx_opgrad
   use gather_scatter
   use num_types
   use space
@@ -43,6 +44,25 @@ contains
      real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
      real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: u
 
+     associate(Xh => coef%Xh, msh => coef%msh)
+       select case(Xh%lx)
+       case(12)
+          call sx_opgrad_lx12(ux, uy, uz, u, &
+               Xh%dx, Xh%dy, Xh%dz, &
+               coef%drdx, coef%dsdx, coef%dtdx, &
+               coef%drdx, coef%dsdx, coef%dtdx, &
+               coef%drdx, coef%dsdx, coef%dtdx, &
+               Xh%w3, msh%nelv)
+       case(8)
+          call sx_opgrad_lx8(ux, uy, uz, u, &
+               Xh%dx, Xh%dy, Xh%dz, &
+               coef%drdx, coef%dsdx, coef%dtdx, &
+               coef%drdx, coef%dsdx, coef%dtdx, &
+               coef%drdx, coef%dsdx, coef%dtdx, &
+               Xh%w3, msh%nelv)
+       end select
+     end associate
+     
   end subroutine opr_sx_opgrad
 
   subroutine opr_sx_cdtp(dtx,x,dr,ds,dt, coef)

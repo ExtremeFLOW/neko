@@ -41,7 +41,11 @@ contains
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: u
 
-    call opr_cpu_opgrad(ux, uy, uz, u, coef)
+    if (1 .eq. 1) then !! TODO check this in neko_config
+       call opr_cpu_opgrad(ux, uy, uz, u, coef)
+    else
+       call opr_sx_opgrad(ux, uy, uz, u, coef)
+    end if
     
   end subroutine opgrad
   
