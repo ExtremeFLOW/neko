@@ -55,8 +55,8 @@ jobs:
       - name: Dist
         run: |
           make dist
-          tar xf neko-0.0.1.tar.gz
-          cd neko-0.0.1
+          tar xf neko-0.1.0.tar.gz
+          cd neko-0.1.0
           ./configure FC=${FC}
           make -j $(nproc)
 
