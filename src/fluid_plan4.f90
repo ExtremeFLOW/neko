@@ -266,6 +266,7 @@ contains
       end if
 
       call f_Xh%eval()
+      call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       call advab(ta1, ta2, ta3, &
                  this%u, this%v, this%w, &
                  f_Xh%u, f_Xh%v, f_Xh%w, &
