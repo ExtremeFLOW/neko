@@ -2,6 +2,7 @@
 module opr_sx
   use sx_dudxyz
   use sx_opgrad
+  use sx_conv1
   use sx_cdtp
   use gather_scatter
   use num_types
@@ -95,6 +96,15 @@ contains
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
 
+    select case(Xh%lx)
+    case(8)
+       call sx_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%jacinv, nelv, gdim)
+    end select
+    
    end subroutine opr_sx_conv1
 
    subroutine opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)

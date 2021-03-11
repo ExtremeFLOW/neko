@@ -48,6 +48,7 @@ libneko_a_SOURCES = \
 	field.f90\
 	rea.f90\
 	sx_cdtp.f90\
+	sx_conv1.f90\
 	sx_dudxyz.f90\
 	sx_opgrad.f90\
 	operators.f90\
