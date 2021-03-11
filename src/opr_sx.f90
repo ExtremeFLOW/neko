@@ -2,6 +2,7 @@
 module opr_sx
   use sx_dudxyz
   use sx_opgrad
+  use sx_cdtp
   use gather_scatter
   use num_types
   use space
@@ -72,6 +73,15 @@ contains
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dr
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ds
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dt
+
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+      select case(Xh%lx)
+      case(8)
+         call sx_cdtp_lx8(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      end select
+    end associate
 
   end subroutine opr_sx_cdtp
 

@@ -71,7 +71,11 @@ contains
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ds
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dt
 
-    call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
+    if (1 .eq. 1) then !! TODO check this in neko_config
+       call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
+    else
+       call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
+    end if
     
   end subroutine cdtp
    
