@@ -1,4 +1,5 @@
 module operators
+  use neko_config
   use num_types  
   use opr_cpu
   use opr_sx
@@ -22,10 +23,10 @@ contains
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  u, dr, ds, dt
 
-    if (1 .eq. 1) then !! TODO check this in neko_config
-       call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
-    else
+    if (NEKO_BCKND_SX) then !! TODO check this in neko_config
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
+    else
+       call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     end if
     
   end subroutine dudxyz
@@ -41,10 +42,10 @@ contains
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: u
 
-    if (1 .eq. 1) then !! TODO check this in neko_config
-       call opr_cpu_opgrad(ux, uy, uz, u, coef)
-    else
+    if (NEKO_BCKND_SX) then 
        call opr_sx_opgrad(ux, uy, uz, u, coef)
+    else
+       call opr_cpu_opgrad(ux, uy, uz, u, coef)
     end if
     
   end subroutine opgrad
@@ -71,10 +72,10 @@ contains
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ds
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dt
 
-    if (1 .eq. 1) then !! TODO check this in neko_config
-       call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
-    else
+    if (NEKO_BCKND_SX) then 
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
+    else
+       call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     end if
     
   end subroutine cdtp
@@ -89,7 +90,11 @@ contains
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
 
-    call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+    if (NEKO_BCKND_SX) then 
+       call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+    else
+       call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+    end if
 
   end subroutine conv1
 
@@ -104,7 +109,11 @@ contains
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(inout)  :: c_Xh
 
-    call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+    if (NEKO_BCKND_SX) then
+       call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+    else
+       call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+    end if
 
   end subroutine curl
 
