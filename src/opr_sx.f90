@@ -21,21 +21,31 @@ contains
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  u, dr, ds, dt
 
-
-    select case(coef%Xh%lx)
-    case(12)
-       call sx_dudxyz_lx12(du, u, dr, ds, dt, coef)
-    case(11)
-       call sx_dudxyz_lx11(du, u, dr, ds, dt, coef)
-    case(10)
-       call sx_dudxyz_lx10(du, u, dr, ds, dt, coef)
-    case(9)
-       call sx_dudxyz_lx9(du, u, dr, ds, dt, coef)
-    case(8)
-       call sx_dudxyz_lx8(du, u, dr, ds, dt, coef)
-    case(6)
-       call sx_dudxyz_lx6(du, u, dr, ds, dt, coef)
-    end select
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+      select case(coef%Xh%lx)
+      case(12)
+         call sx_dudxyz_lx12(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(11)
+         call sx_dudxyz_lx11(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(10)
+         call sx_dudxyz_lx10(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(9)
+         call sx_dudxyz_lx9(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(8)
+         call sx_dudxyz_lx8(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(7)
+         call sx_dudxyz_lx7(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(6)
+         call sx_dudxyz_lx6(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      end select
+    end associate
     
    end subroutine opr_sx_dudxyz
 

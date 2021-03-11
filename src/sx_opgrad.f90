@@ -10,7 +10,7 @@ contains
     integer, parameter :: lx = 12
     integer, intent(in) :: n
     real(kind=dp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz, u
-    real(kind=dp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=dp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
     real(kind=dp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=dp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
