@@ -73,6 +73,7 @@ contains
     end do
 
     call addcol3(du, drst, dt, coef%dof%n_dofs)
+    call col2 (du,coef%jacinv,coef%dof%n_dofs)
   end subroutine sx_dudxyz_lx12
 
   subroutine sx_dudxyz_lx11(du, u, dr, ds, dt, coef)
@@ -139,6 +140,7 @@ contains
     end do
 
     call addcol3(du, drst, dt, coef%dof%n_dofs)
+    call col2 (du,coef%jacinv,coef%dof%n_dofs)
   end subroutine sx_dudxyz_lx11
 
   subroutine sx_dudxyz_lx10(du, u, dr, ds, dt, coef)
@@ -205,6 +207,7 @@ contains
     end do
 
     call addcol3(du, drst, dt, coef%dof%n_dofs)
+    call col2 (du,coef%jacinv,coef%dof%n_dofs)
   end subroutine sx_dudxyz_lx10
 
   subroutine sx_dudxyz_lx9(du, u, dr, ds, dt, coef)
@@ -271,6 +274,7 @@ contains
     end do
 
     call addcol3(du, drst, dt, coef%dof%n_dofs)
+    call col2 (du,coef%jacinv,coef%dof%n_dofs)
   end subroutine sx_dudxyz_lx9
 
   subroutine sx_dudxyz_lx8(du, u, dr, ds, dt, coef)
@@ -337,6 +341,7 @@ contains
     end do
 
     call addcol3(du, drst, dt, coef%dof%n_dofs)
+    call col2 (du,coef%jacinv,coef%dof%n_dofs)
   end subroutine sx_dudxyz_lx8
 
   subroutine sx_dudxyz_lx6(du, u, dr, ds, dt, coef)
@@ -403,6 +408,7 @@ contains
     end do
 
     call addcol3(du, drst, dt, coef%dof%n_dofs)
+    call col2 (du,coef%jacinv,coef%dof%n_dofs)
   end subroutine sx_dudxyz_lx6
 
 end module sx_dudxyz
