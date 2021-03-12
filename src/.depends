@@ -47,9 +47,9 @@ field.o : field.f90 dofmap.o space.o mesh.o math.o num_types.o
 rea.o : rea.f90 mesh.o num_types.o 
 sx_cdtp.o : sx_cdtp.f90 math.o num_types.o 
 sx_conv1.o : sx_conv1.f90 num_types.o 
-sx_dudxyz.o : sx_dudxyz.f90 math.o field.o coef.o space.o num_types.o 
+sx_dudxyz.o : sx_dudxyz.f90 math.o num_types.o 
 sx_opgrad.o : sx_opgrad.f90 num_types.o 
-operators.o : operators.f90 math.o field.o coef.o space.o opr_sx.o opr_cpu.o num_types.o 
+operators.o : operators.f90 math.o field.o coef.o space.o opr_sx.o opr_cpu.o num_types.o neko_config.o 
 opr_cpu.o : opr_cpu.f90 mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o mxm_wrapper.o num_types.o 
 opr_sx.o : opr_sx.f90 mathops.o field.o mesh.o math.o coef.o space.o num_types.o gather_scatter.o sx_cdtp.o sx_conv1.o sx_opgrad.o sx_dudxyz.o 
 generic_file.o : generic_file.f90 num_types.o 
