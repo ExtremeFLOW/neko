@@ -321,15 +321,13 @@ contains
     real(kind=dp) :: uur(lx,lx,lx,n)
     real(kind=dp) :: uus(lx,lx,lx,n)
     real(kind=dp) :: uut(lx,lx,lx,n)
-    real(kind=dp) :: wr
 
     do i=1,lx
        do jj = 1, lx * lx * n
-          wr = 0d0
-          do kk=1,lx
-             wr = wr + Dx(i,kk)*u(kk,jj,1,1)
-          end do
-          ur(i,jj,1,1) = wr
+          ur(i,jj,1,1) = Dx(i,1)*u(1,jj,1,1) &
+                       + Dx(i,2)*u(2,jj,1,1) &
+                       + Dx(i,3)*u(3,jj,1,1) &
+                       + Dx(i,4)*u(4,jj,1,1) 
        end do
     end do
 
@@ -381,11 +379,10 @@ contains
 
     do i=1,lx
        do jj = 1, lx * lx * n
-          wr = 0d0
-          do kk=1,lx
-             wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
-          end do
-          w(i,jj,1,1) = wr
+          w(i,jj,1,1) = Dxt(i,1) * uur(1,jj,1,1) &
+                      + Dxt(i,2) * uur(2,jj,1,1) &
+                      + Dxt(i,3) * uur(3,jj,1,1) &
+                      + Dxt(i,4) * uur(4,jj,1,1) 
        end do
     end do
 
@@ -444,15 +441,11 @@ contains
     real(kind=dp) :: uur(lx,lx,lx,n)
     real(kind=dp) :: uus(lx,lx,lx,n)
     real(kind=dp) :: uut(lx,lx,lx,n)
-    real(kind=dp) :: wr
 
     do i=1,lx
        do jj = 1, lx * lx * n
-          wr = 0d0
-          do kk=1,lx
-             wr = wr + Dx(i,kk) * u(kk,jj,1,1)
-          end do
-          ur(i,jj,1,1) = wr
+          ur(i,jj,1,1) = Dx(i,1) * u(1,jj,1,1) &
+                       + Dx(i,2) * u(2,jj,1,1)
        end do
     end do
 
@@ -497,11 +490,8 @@ contains
 
     do i=1,lx
        do jj = 1, lx * lx * n
-          wr = 0d0
-          do kk=1,lx
-             wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
-          end do
-          w(i,jj,1,1) = wr
+          w(i,jj,1,1) = Dxt(i,1) * uur(1,jj,1,1) &
+                      + Dxt(i,2) * uur(2,jj,1,1)
        end do
     end do
 
