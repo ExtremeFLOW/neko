@@ -89,7 +89,7 @@ contains
     allocate(this%w(dof%n_dofs))
     allocate(this%r(dof%n_dofs))
 
-    if (NEKO_BCKND_SX) then
+    if (NEKO_BCKND_SX .eq. 1) then
        allocate(ax_helm_sx_t::this%ax)
     else
        allocate(ax_helm_t::this%ax)

@@ -86,7 +86,7 @@ contains
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., .true.)
 
-    if (NEKO_BCKND_SX) then
+    if (NEKO_BCKND_SX .eq. 1) then
        allocate(ax_helm_sx_t::this%Ax)
     else
        allocate(ax_helm_t::this%Ax)

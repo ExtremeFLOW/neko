@@ -23,7 +23,7 @@ contains
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  u, dr, ds, dt
 
-    if (NEKO_BCKND_SX) then !! TODO check this in neko_config
+    if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
@@ -42,7 +42,7 @@ contains
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: u
 
-    if (NEKO_BCKND_SX) then 
+    if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_opgrad(ux, uy, uz, u, coef)
     else
        call opr_cpu_opgrad(ux, uy, uz, u, coef)
@@ -72,7 +72,7 @@ contains
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ds
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dt
 
-    if (NEKO_BCKND_SX) then 
+    if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
     else
        call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
@@ -90,7 +90,7 @@ contains
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
 
-    if (NEKO_BCKND_SX) then 
+    if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
     else
        call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
@@ -109,7 +109,7 @@ contains
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(inout)  :: c_Xh
 
-    if (NEKO_BCKND_SX) then
+    if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     else
        call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)

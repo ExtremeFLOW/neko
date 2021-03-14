@@ -98,7 +98,7 @@ contains
     if (present(bcknd)) then
        bcknd_ = bcknd
     else
-       if (NEKO_BCKND_SX) then
+       if (NEKO_BCKND_SX .eq. 1) then
           bcknd_ = GS_BCKND_SX
        else
           bcknd_ = GS_BCKND_CPU
