@@ -86,6 +86,7 @@ libneko_a_SOURCES = \
 	fluid_schemes.f90\
 	simulation.f90\
 	ax_helm.f90\
+	ax_helm_sx.f90\
 	projection.f90\
 	parmetis.F90\
 	redist.f90\

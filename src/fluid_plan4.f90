@@ -1,9 +1,11 @@
 !> Classic Nek5000 PN/PN formulation for fluids
 !! Splitting scheme A.G. Tomboulides et al.
 !! Journal of Sci.Comp.,Vol. 12, No. 2, 1998
-module fluid_plan4
+module fluid_plan4  
   use fluid_method
   use facet_normal
+  use neko_config
+  use ax_helm_sx
   use ax_helm
   use abbdf
   use projection
@@ -41,7 +43,7 @@ module fluid_plan4
      type(field_t) :: work1
      type(field_t) :: work2
 
-     type(ax_helm_t) :: Ax
+     class(ax_t), allocatable :: Ax
      
      type(projection_t) :: proj
 
@@ -83,6 +85,12 @@ contains
     
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., .true.)
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(ax_helm_sx_t::this%Ax)
+    else
+       allocate(ax_helm_t::this%Ax)
+    end if
     
     ! Initialize variables specific to this plan
     allocate(this%p_res(this%dm_Xh%n_dofs))
@@ -190,6 +198,10 @@ contains
 
     call field_free(this%work1)
     call field_free(this%work2)
+
+    if (allocated(this%Ax)) then
+       deallocate(this%Ax)
+    end if
 
     if (allocated(this%p_res)) then
        deallocate(this%p_res)
@@ -390,7 +402,7 @@ contains
 
   subroutine fluid_plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
        p, ta1, ta2, ta3, ta4, f_Xh, c_Xh, msh, Xh, n)
-    type(ax_helm_t), intent(in) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: u

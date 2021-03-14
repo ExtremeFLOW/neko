@@ -1,5 +1,6 @@
 !> Gather-scatter
 module gather_scatter
+  use neko_config
   use gs_bcknd
   use gs_cpu
   use gs_ops
@@ -97,7 +98,11 @@ contains
     if (present(bcknd)) then
        bcknd_ = bcknd
     else
-       bcknd_ = GS_BCKND_CPU ! Select this from neko_config
+       if (NEKO_BCKND_SX .eq. 1) then
+          bcknd_ = GS_BCKND_SX
+       else
+          bcknd_ = GS_BCKND_CPU
+       end if
     end if
 
     ! Setup Gather-scatter backend
@@ -1119,18 +1124,22 @@ contains
                 sp => gs%recv_dof(src)%array()
                 select case(op)
                 case (GS_OP_ADD)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = u(sp(j)) + gs%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = u(sp(j)) * gs%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MIN)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = min(u(sp(j)), gs%recv_buf(i)%data(j))
                    end do
                 case (GS_OP_MAX)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = max(u(sp(j)), gs%recv_buf(i)%data(j))
                    end do

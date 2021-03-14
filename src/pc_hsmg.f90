@@ -1,5 +1,6 @@
 !> Krylov preconditioner
 module hsmg
+  use neko_config
   use math
   use utils
   use precon
@@ -12,6 +13,7 @@ module hsmg
   use fdm
   use schwarz
   use ax_helm
+  use ax_helm_sx
   use gmres
   use tensor
   use jacobi
@@ -43,7 +45,7 @@ module hsmg
      type(cg_t) :: crs_solver !< Solver for course problem
      integer :: niter = 10 !< Number of iter of crs sovlve
      type(jacobi_t) :: pc_crs !< Some basic precon for crs
-     type(ax_helm_t) :: ax !< Matrix for crs solve
+     class(ax_t), allocatable :: ax !< Matrix for crs solve
      real(kind=dp), allocatable :: jh(:,:) !< Interpolator crs -> fine
      real(kind=dp), allocatable :: jht(:,:)!< Interpolator crs -> fine, transpose
      real(kind=dp), allocatable :: r(:)!< Residual work array
@@ -87,6 +89,13 @@ contains
     allocate(this%w(dof%n_dofs))
     allocate(this%r(dof%n_dofs))
 
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(ax_helm_sx_t::this%ax)
+    else
+       allocate(ax_helm_t::this%ax)
+    end if
+
+    
     ! Compute all elements as if they are deformed
     call mesh_all_deformed(msh)
 
@@ -226,6 +235,7 @@ contains
   end subroutine hsmg_setup_intpm
   subroutine hsmg_free(this)
     class(hsmg_t), intent(inout) :: this
+    if (allocated(this%ax)) deallocate(this%ax)
     if (allocated(this%grids)) deallocate(this%grids)
     if (allocated(this%jh)) deallocate(this%jh)
     if (allocated(this%jht)) deallocate(this%jht)

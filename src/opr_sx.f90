@@ -62,15 +62,22 @@ contains
           call sx_opgrad_lx12(ux, uy, uz, u, &
                Xh%dx, Xh%dy, Xh%dz, &
                coef%drdx, coef%dsdx, coef%dtdx, &
+               coef%drdy, coef%dsdy, coef%dtdy, &
+               coef%drdz, coef%dsdz, coef%dtdz, &
+               Xh%w3, msh%nelv)
+       case(10)
+          call sx_opgrad_lx10(ux, uy, uz, u, &
+               Xh%dx, Xh%dy, Xh%dz, &
                coef%drdx, coef%dsdx, coef%dtdx, &
-               coef%drdx, coef%dsdx, coef%dtdx, &
+               coef%drdy, coef%dsdy, coef%dtdy, &
+               coef%drdz, coef%dsdz, coef%dtdz, &
                Xh%w3, msh%nelv)
        case(8)
           call sx_opgrad_lx8(ux, uy, uz, u, &
                Xh%dx, Xh%dy, Xh%dz, &
                coef%drdx, coef%dsdx, coef%dtdx, &
-               coef%drdx, coef%dsdx, coef%dtdx, &
-               coef%drdx, coef%dsdx, coef%dtdx, &
+               coef%drdy, coef%dsdy, coef%dtdy, &
+               coef%drdz, coef%dsdz, coef%dtdz, &
                Xh%w3, msh%nelv)
        end select
      end associate
@@ -87,6 +94,10 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(Xh%lx)
+      case(10)
+         call sx_cdtp_lx10(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
       case(8)
          call sx_cdtp_lx8(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
@@ -107,11 +118,17 @@ contains
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
 
     select case(Xh%lx)
+    case(10)
+       call sx_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
     case(8)
        call sx_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     end select
     
