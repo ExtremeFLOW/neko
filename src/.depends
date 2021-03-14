@@ -25,7 +25,7 @@ gs_bcknd.o : gs_bcknd.f90 num_types.o
 gs_cpu.o : gs_cpu.f90 gs_ops.o gs_bcknd.o num_types.o 
 gs_sx.o : gs_sx.f90 gs_ops.o gs_bcknd.o num_types.o 
 gs_ops.o : gs_ops.f90 
-gather_scatter.o : gather_scatter.f90 log.o utils.o stack.o htable.o num_types.o field.o dofmap.o mesh.o gs_sx.o gs_ops.o gs_cpu.o gs_bcknd.o 
+gather_scatter.o : gather_scatter.f90 log.o utils.o stack.o htable.o num_types.o field.o dofmap.o mesh.o gs_sx.o gs_ops.o gs_cpu.o gs_bcknd.o neko_config.o 
 entity.o : entity.f90 
 point.o : point.f90 entity.o math.o num_types.o 
 element.o : element.f90 point.o tuple.o entity.o num_types.o 

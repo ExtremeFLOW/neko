@@ -1,5 +1,6 @@
 !> Gather-scatter
 module gather_scatter
+  use neko_config
   use gs_bcknd
   use gs_cpu
   use gs_ops
@@ -97,7 +98,11 @@ contains
     if (present(bcknd)) then
        bcknd_ = bcknd
     else
-       bcknd_ = GS_BCKND_CPU ! Select this from neko_config
+       if (NEKO_BCKND_SX) then
+          bcknd_ = GS_BCKND_SX
+       else
+          bcknd_ = GS_BCKND_CPU
+       end if
     end if
 
     ! Setup Gather-scatter backend
