@@ -42,12 +42,16 @@ contains
     type(htable_i4_t) :: el_map, glb_map
     type(stack_i4_t) :: pe_lst
 
+
+    !
+    ! Reset possible periodic ids
+    !
+    call mesh_reset_periodic_ids(msh)
+    
     !
     ! Extract new zone distributions
     !     
 
-    call pe_lst%init()
-    
     allocate(new_zone_dist(0:pe_size - 1))
     do i = 0, pe_size - 1
        call new_zone_dist(i)%init()
@@ -57,7 +61,7 @@ contains
     call redist_zone(msh, msh%inlet, 2, parts, new_zone_dist)
     call redist_zone(msh, msh%outlet, 3, parts, new_zone_dist)
     call redist_zone(msh, msh%sympln, 4, parts, new_zone_dist)
-    call redist_zone(msh, msh%periodic, 5, parts, new_zone_dist, pe_lst)
+    call redist_zone(msh, msh%periodic, 5, parts, new_zone_dist)
 
     !
     ! Extract new curve info. distributions
@@ -183,6 +187,15 @@ contains
     !
     ! Figure out new mesh distribution (necessary for periodic zones)
     !
+    call pe_lst%init()
+    
+    zp => new_zone_dist(pe_rank)%array()
+    do i = 1, new_zone_dist(pe_rank)%size()
+       if (zp(i)%type .eq. 5) then
+          call pe_lst%push(zp(i)%p_e)
+       end if
+    end do
+    
     max_recv_idx = 2 * pe_lst%size()
     call MPI_Allreduce(MPI_IN_PLACE, max_recv_idx, 1, MPI_INTEGER, &
          MPI_MAX, NEKO_COMM, ierr)
@@ -266,13 +279,12 @@ contains
   end subroutine redist_mesh
 
   !> Fill redistribution list for zone data
-  subroutine redist_zone(msh, z, type, parts, new_dist, pel)
+  subroutine redist_zone(msh, z, type, parts, new_dist)
     type(mesh_t), intent(inout) :: msh
     class(zone_t), intent(in) :: z
     integer, intent(in) :: type
     type(mesh_fld_t), intent(in) :: parts
     type(stack_nz_t), intent(inout), allocatable :: new_dist(:)
-    type(stack_i4_t), intent(inout), optional :: pel
     type(nmsh_zone_t) :: nmsh_zone
     integer :: i, j, zone_el
 
@@ -287,7 +299,6 @@ contains
           nmsh_zone%glb_pt_ids = zp%p_ids(i)%x          
           nmsh_zone%type = type          
           call new_dist(parts%data(zone_el))%push(nmsh_zone)
-          call pel%push(nmsh_zone%p_e)
        end do
     type is (zone_t)
        do i = 1, zp%size
