@@ -42,6 +42,12 @@ contains
     type(htable_i4_t) :: el_map, glb_map
     type(stack_i4_t) :: pe_lst
 
+
+    !
+    ! Reset possible periodic ids
+    !
+    call mesh_reset_periodic_ids(msh)
+    
     !
     ! Extract new zone distributions
     !     
