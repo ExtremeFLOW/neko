@@ -13,8 +13,8 @@ contains
   !! for contiguously packed matrices A,B, and C.
   subroutine mxm(a,n1,b,n2,c,n3)
     integer, intent(in) :: n1, n2, n3
-    real(kind=dp), intent(inout) :: a(n1, n2)
-    real(kind=dp), intent(inout) :: b(n2, n3)
+    real(kind=dp), intent(in) :: a(n1, n2)
+    real(kind=dp), intent(in) :: b(n2, n3)
     real(kind=dp), intent(inout) :: c(n1, n3)
 #ifdef HAVE_LIBXSMM
     type(libxsmm_dmmfunction) :: xmm

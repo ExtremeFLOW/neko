@@ -15,7 +15,7 @@ contains
   subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
     real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
-    real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  u, dr, ds, dt
+    real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
     real(kind=dp) :: drst(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
     type(space_t), pointer :: Xh 
     type(mesh_t), pointer :: msh
@@ -51,7 +51,7 @@ contains
      real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
      real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
      real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: u
+     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
      real(kind=dp) :: ur(coef%Xh%lxyz)
      real(kind=dp) :: us(coef%Xh%lxyz)
      real(kind=dp) :: ut(coef%Xh%lxyz)
@@ -87,13 +87,13 @@ contains
   end subroutine opr_cpu_opgrad
 
   subroutine local_grad3(ur, us, ut, u, n, D, Dt)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)
     real(kind=dp), intent(inout) :: us(0:n, 0:n, 0:n)
     real(kind=dp), intent(inout) :: ut(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: u(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: D(0:n, 0:n)
-    real(kind=dp), intent(inout) :: Dt(0:n, 0:n)
+    real(kind=dp), intent(in) :: u(0:n, 0:n, 0:n)
+    real(kind=dp), intent(in) :: D(0:n, 0:n)
+    real(kind=dp), intent(in) :: Dt(0:n, 0:n)
     integer :: m1, m2, k
   
     m1 = n + 1
@@ -108,12 +108,12 @@ contains
   end subroutine local_grad3
 
   subroutine local_grad2(ur, us, u, n, D, Dt)
-    integer, intent(inout) :: n    
+    integer, intent(in) :: n    
     real(kind=dp), intent(inout) :: ur(0:n, 0:n)
     real(kind=dp), intent(inout) :: us(0:n, 0:n)
-    real(kind=dp), intent(inout) :: u(0:n, 0:n)
-    real(kind=dp), intent(inout) :: D(0:n, 0:n)
-    real(kind=dp), intent(inout) :: Dt(0:n, 0:n)
+    real(kind=dp), intent(in) :: u(0:n, 0:n)
+    real(kind=dp), intent(in) :: D(0:n, 0:n)
+    real(kind=dp), intent(in) :: Dt(0:n, 0:n)
     integer :: m1, m2, k
   
     m1 = n + 1
@@ -127,9 +127,9 @@ contains
     type(coef_t), intent(in) :: coef
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
     real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dr
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ds
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dt
+    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
+    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
+    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
     real(kind=dp) :: wx(coef%Xh%lxyz)
     real(kind=dp) :: ta1(coef%Xh%lxyz)
     real(kind=dp) :: ta2(coef%Xh%lxyz)
@@ -162,8 +162,8 @@ contains
   end subroutine opr_cpu_cdtp
 
   subroutine opr_cpu_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=dp), intent(inout) ::  du(Xh%lxyz,nelv)
     real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
@@ -222,7 +222,7 @@ contains
      type(field_t), intent(inout) :: u3
      type(field_t), intent(inout) :: work1
      type(field_t), intent(inout) :: work2
-     type(coef_t), intent(inout)  :: c_Xh
+     type(coef_t), intent(in)  :: c_Xh
      integer :: gdim, n
 
      n = w1%dof%size()
