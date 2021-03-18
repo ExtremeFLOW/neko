@@ -24,7 +24,8 @@ contains
   end subroutine opchsign
   subroutine opcolv (a1,a2,a3,c,gdim,n)
     integer, intent(in) :: n, gdim
-    real(kind=dp), dimension(n), intent(inout) :: a1, a2, a3, c
+    real(kind=dp), dimension(n), intent(inout) :: a1, a2, a3
+    real(kind=dp), dimension(n), intent(in) :: c
     integer :: i
     if (gdim .eq. 3) then
        do i=1,n
