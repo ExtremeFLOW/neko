@@ -252,10 +252,11 @@ contains
 #else
 
   !> Compute a k-way partitioning of a mesh @a msh 
-  subroutine parmetis_partmeshkway(msh, parts, weights)
+  subroutine parmetis_partmeshkway(msh, parts, weights, nprts)
     type(mesh_t), intent(inout) :: msh                !< Mesh
     type(mesh_fld_t), intent(inout) :: parts          !< Partitions
     type(mesh_fld_t), intent(in), optional :: weights !< Weights
+    integer, intent(in), optional :: nprts            !< Number of partitions
     call neko_error('NEKO needs to be built with ParMETIS support')
   end subroutine parmetis_partmeshkway
 
