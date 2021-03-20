@@ -75,10 +75,11 @@ contains
 #ifdef HAVE_PARMETIS
 
   !> Compute a k-way partitioning of a mesh @a msh 
-  subroutine parmetis_partmeshkway(msh, parts, weights)
+  subroutine parmetis_partmeshkway(msh, parts, weights, nprts)
     type(mesh_t), intent(inout) :: msh                !< Mesh
     type(mesh_fld_t), intent(inout) :: parts          !< Partitions
     type(mesh_fld_t), intent(in), optional :: weights !< Weights
+    integer, intent(in), optional :: nprts            !< Number of partitions
     integer(kind=M_INT), target :: wgtflag, numflag, ncon, ncommonnodes
     integer(kind=M_INT), target :: nparts, options(3), edgecut, rcode
     real(kind=M_REAL), allocatable, target, dimension(:) :: tpwgts, ubvec
@@ -91,16 +92,21 @@ contains
     !! in the same way as the MPI ranks
     numflag = 0
     ncon = 1
-    nparts = pe_size
     ncommonnodes = 2**(msh%gdim - 1)
     options(1) = 1
     options(2) = 1
     options(3) = 15
     wgtflag = 2
+
+    if (present(nprts)) then
+       nparts = nprts
+    else          
+       nparts = pe_size
+    end if
     
     allocate(elmdist(0:pe_size), eptr(0:msh%nelv))
     allocate(eind(0:(msh%nelv * msh%npts)), part(msh%nelv))
-    allocate(elmwgt(msh%nelv), tpwgts(ncon * pe_size), ubvec(ncon)) 
+    allocate(elmwgt(msh%nelv), tpwgts(ncon * nparts), ubvec(ncon)) 
 
     call parmetis_dist(elmdist, msh%nelv)
 
