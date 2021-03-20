@@ -1,1 +1,2 @@
-SUBDIRS = rea2nbin
+SUBDIRS = rea2nbin\
+	  prepart
