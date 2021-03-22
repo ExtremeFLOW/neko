@@ -21,7 +21,7 @@ module usr_inflow
 
   !> Abstract interface defining a user defined inflow condition (pointwise)
   abstract interface
-     subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz)
+     subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
        import dp
        real(kind=dp), intent(inout) :: u
        real(kind=dp), intent(inout) :: v
@@ -32,6 +32,10 @@ module usr_inflow
        real(kind=dp), intent(in) :: nx
        real(kind=dp), intent(in) :: ny
        real(kind=dp), intent(in) :: nz
+       integer, intent(in) :: ix
+       integer, intent(in) :: iy
+       integer, intent(in) :: iz
+       integer, intent(in) :: ie
      end subroutine usr_inflow_eval
   end interface
 
@@ -71,7 +75,8 @@ contains
                  zc(idx(1), idx(2), idx(3), idx(4)), &
                  nx(idx(2), idx(3), facet, idx(4)), &
                  ny(idx(2), idx(3), facet, idx(4)), &
-                 nz(idx(2), idx(3), facet, idx(4)))
+                 nz(idx(2), idx(3), facet, idx(4)), &
+                 idx(1), idx(2), idx(3), idx(4))
          case(3,4)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
@@ -79,7 +84,8 @@ contains
                  zc(idx(1), idx(2), idx(3), idx(4)), &       
                  nx(idx(1), idx(3), facet, idx(4)), &
                  ny(idx(1), idx(3), facet, idx(4)), &
-                 nz(idx(1), idx(3), facet, idx(4)))
+                 nz(idx(1), idx(3), facet, idx(4)), &
+                 idx(1), idx(2), idx(3), idx(4))
          case(5,6)
             call this%eval(x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
@@ -87,7 +93,8 @@ contains
                  zc(idx(1), idx(2), idx(3), idx(4)), &                     
                  nx(idx(1), idx(2), facet, idx(4)), &
                  ny(idx(1), idx(2), facet, idx(4)), &
-                 nz(idx(1), idx(2), facet, idx(4)))
+                 nz(idx(1), idx(2), facet, idx(4)), &
+                 idx(1), idx(2), idx(3), idx(4))
          end select
       end do
     end associate
