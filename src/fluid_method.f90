@@ -447,12 +447,15 @@ contains
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
-    select type(bc_if => this%bc_inflow)
-    type is(usr_inflow_t)
-       call bc_if%set_eval(usr_eval)
-    class default
-       call neko_error("Not a user defined inflow condition")
-    end select
+
+    if (this%msh%inlet%size .gt. 0) then
+       select type(bc_if => this%bc_inflow)
+       type is(usr_inflow_t)
+          call bc_if%set_eval(usr_eval)
+       class default
+          call neko_error("Not a user defined inflow condition")
+       end select
+    end if
     
   end subroutine fluid_scheme_set_usr_inflow
   function fluid_compute_cfl(this, dt) result(c)
