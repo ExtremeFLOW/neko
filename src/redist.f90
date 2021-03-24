@@ -77,7 +77,7 @@ contains
     ! Extract new mesh distribution
     !
     
-    allocate(new_mesh_dist(0:pe_size - 1))
+    allocate(new_mesh_dist(0:(pe_size - 1)))
     do i = 0, pe_size - 1
        call new_mesh_dist(i)%init()
     end do
@@ -256,10 +256,25 @@ contains
              call neko_error('Missing periodic element after redistribution')
           end if
           
+          call mesh_mark_periodic_facet(msh, zp(i)%f, new_el_idx, &
+               zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
+       end select
+    end do
+    do i = 1, new_zone_dist(pe_rank)%size()
+       if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
+          call neko_error('Missing element after redistribution')
+       end if
+       select case(zp(i)%type)
+       case(5)
+          if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
+             call neko_error('Missing periodic element after redistribution')
+          end if
+          
           call mesh_apply_periodic_facet(msh, zp(i)%f, new_el_idx, &
                zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
        end select
     end do
+ 
     call new_zone_dist(pe_rank)%free()
 
     !

@@ -479,8 +479,7 @@ contains
              periodic = .true.
              p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
              p_facet = facet_map(int(re2v2_data_bc(i)%bc_data(2)))
-             call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
-                  p_facet, p_el_idx, pids)
+             call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
           end select
@@ -523,8 +522,7 @@ contains
              periodic = .true.
              p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
              p_facet = facet_map(int(re2v1_data_bc(i)%bc_data(2)))
-             call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
-                  p_facet, p_el_idx, pids)
+             call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
           end select
