@@ -135,11 +135,25 @@ contains
              case(4)
                 call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
              case(5)
+                call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                     nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
+             end select
+          end if
+       end do
+       !Apply facets, important that marking is finished
+       do i = 1, nzones
+          el_idx = nmsh_zone(i)%e
+          if (el_idx .gt. msh%offset_el .and. &
+               el_idx .le. msh%offset_el + msh%nelv) then             
+             el_idx = el_idx - msh%offset_el
+             select case(nmsh_zone(i)%type)
+             case(5)
                 call mesh_apply_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              end select
           end if
        end do
+
 
        deallocate(nmsh_zone)
     end if

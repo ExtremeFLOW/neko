@@ -248,8 +248,7 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
-                                                 p_facet, p_el_idx, pids)
+                      call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
                       call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                                         p_facet, p_el_idx, pids)
                    end select

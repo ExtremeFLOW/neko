@@ -1200,7 +1200,7 @@ contains
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
     end if
-    if ((m%gdim .eq. 2 .and. sum(curve_type(5:12)) .gt. 0) ) then
+    if ((m%gdim .eq. 2 .and. sum(curve_type(5:8)) .gt. 0) ) then
        call neko_error('Invalid curve element')
     end if
     call m%curve%add_element(e, curve_data, curve_type)
@@ -1273,17 +1273,24 @@ contains
     integer, intent(inout) :: pf
     integer, intent(inout) :: pe
     integer, intent(inout) :: pids(4)
-
-    call m%periodic%add_periodic_facet(f, e, pf, pe, pids)
+    integer, dimension(4) :: org_ids
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
+                                                       2,6,7,3,&
+                                                       1,2,6,5,&
+                                                       4,3,7,8,&
+                                                       1,2,3,4,&
+                                                       5,6,7,8/),&
+                                                       (/4,6/))
+    
+    call mesh_get_facet_ids(m, f, e, org_ids)
+    call m%periodic%add_periodic_facet(f, e, pf, pe, pids, org_ids)
   end subroutine mesh_mark_periodic_facet
 
   !> Get original ids of periodic points
-  subroutine mesh_get_periodic_ids(m, f, e, pf, pe, pids)
+  subroutine mesh_get_facet_ids(m, f, e, pids)
     type(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
     integer, intent(inout) :: e
-    integer, intent(inout) :: pf
-    integer, intent(inout) :: pe
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
     integer :: i
@@ -1302,7 +1309,7 @@ contains
           pids(i) = pi%id()
        end do
     end select
-  end subroutine mesh_get_periodic_ids
+  end subroutine mesh_get_facet_ids
   
   !> Reset ids of periodic points to their original ids
   subroutine mesh_reset_periodic_ids(m)
@@ -1312,9 +1319,8 @@ contains
     integer :: e
     integer :: pf
     integer :: pe
-    integer :: pids(4), pids_org(4)
+    integer :: org_ids(4), pids(4)
     type(point_t), pointer :: pi
-    integer, allocatable :: temp_ids(:,:)
     integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
                                                        2,6,7,3,&
                                                        1,2,6,5,&
@@ -1322,7 +1328,6 @@ contains
                                                        1,2,3,4,&
                                                        5,6,7,8/),&
                                                        (/4,6/))
-    allocate(temp_ids(4,m%periodic%size))
     do i = 1, m%periodic%size
        e = m%periodic%facet_el(i)%x(2) 
        f = m%periodic%facet_el(i)%x(1)
@@ -1333,7 +1338,6 @@ contains
        type is(hex_t)
        do j = 1, 4
           pi => ele%pts(face_nodes(j,f))%p
-          temp_ids(j,i) = pids(j)
           pids(j) = pi%id()
        end do
        end select
@@ -1342,18 +1346,15 @@ contains
     do i = 1, m%periodic%size
        e = m%periodic%facet_el(i)%x(2) 
        f = m%periodic%facet_el(i)%x(1)
-       pe = m%periodic%p_facet_el(i)%x(2)
-       pf = m%periodic%p_facet_el(i)%x(1)
-       pids = m%periodic%p_ids(i)%x
+       org_ids = m%periodic%org_ids(i)%x
        select type(ele => m%elements(e)%e)
        type is(hex_t)
        do j = 1, 4
           pi => ele%pts(face_nodes(j,f))%p
-          call pi%set_id(temp_ids(j,i))
+          call pi%set_id(org_ids(j))
        end do
        end select
     end do
-    deallocate(temp_ids)
   end subroutine mesh_reset_periodic_ids
   
   !> Creates common ids for matching periodic points.
@@ -1445,9 +1446,7 @@ contains
     type is(hex_t)
        do i = 1, 4
           pi => ele%pts(face_nodes(i,f))%p
-          temp_id = pi%id()
           call pi%set_id(pids(i))
-          pids(i) = temp_id 
           call mesh_add_point(m,pi,id)
           p_local_idx = mesh_get_local(m, m%points(id))
           id = ele%id()
@@ -1465,7 +1464,6 @@ contains
        end do
     end select
 
-    call mesh_mark_periodic_facet(m, f, e, pf, pe, pids)
   end subroutine mesh_apply_periodic_facet
 
   !> Return the local id of a point @a p

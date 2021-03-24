@@ -105,9 +105,16 @@ program prepart
   do i =1, msh%periodic%size
      idx = idx_map(msh%periodic%facet_el(i)%x(2))
      p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
+     call mesh_mark_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
+          msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
+  end do
+  do i =1, msh%periodic%size
+     idx = idx_map(msh%periodic%facet_el(i)%x(2))
+     p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
      call mesh_apply_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
           msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
   end do
+
 
   call mesh_finalize(new_msh)
 
