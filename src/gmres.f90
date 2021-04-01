@@ -160,7 +160,7 @@ contains
 
     call rone(this%ml,n)
     call rone(this%mu ,n)
-    norm_fac = 1./sqrt(coef%volume)
+    norm_fac = 1d0/sqrt(coef%volume)
     call rzero(x%x,n)
     call rzero(this%gam,this%lgmres+1)
     call rone(this%s,this%lgmres)
@@ -189,7 +189,7 @@ contains
 
        if ( this%gam(1) .eq. 0) return
 
-       rnorm = 0.
+       rnorm = 0d0
        temp = 1d0 / this%gam(1)
        call cmult2(this%v(1,1),this%r,temp,n) 
        do j=1,this%lgmres
@@ -224,7 +224,7 @@ contains
              this%h(i+1,j)= -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           enddo
           alpha = sqrt(glsc3(this%w,this%w,coef%mult,n))   
-          rnorm = 0.
+          rnorm = 0d0
           if(alpha .eq. 0d0) then 
             conv = .true.
             exit

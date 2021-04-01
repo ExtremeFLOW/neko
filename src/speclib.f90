@@ -815,6 +815,7 @@ contains
 !     Note: D and DT are square matrices.
 !
 !-----------------------------------------------------------------
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
       PARAMETER (NMAX=84)
       REAL(KIND=DP) D(NZD,NZD),DT(NZD,NZD),Z(1)
       N  = NZ-1
@@ -849,6 +850,7 @@ contains
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
       REAL(KIND=DP) ZGLL(1), EPS, DZ, Z
       EPS = 1.E-5
       DZ = Z - ZGLL(I)
@@ -894,6 +896,7 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.  
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
       REAL(KIND=DP) Z, P1, P2, P3
       IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
@@ -924,6 +927,7 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
+      IMPLICIT REAL(KIND=DP)  (A-H,O-Z)
       REAL(KIND=DP) P1, P2, P1D, P2D, P3D, Z
       P1   = 1.
       P2   = Z
