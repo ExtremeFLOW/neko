@@ -127,16 +127,16 @@ contains
     real(kind=dp), intent(inout) :: work(n,n)
     integer :: ie,i,j
     do j=1,n
-       wt(j,1,1,ie)=1.0/work(1,j)
-       wt(j,2,1,ie)=1.0/work(2,j)
-       wt(j,3,1,ie)=1.0/work(n-1,j)
-       wt(j,4,1,ie)=1.0/work(n,j)
+       wt(j,1,1,ie)=1d0/work(1,j)
+       wt(j,2,1,ie)=1d0/work(2,j)
+       wt(j,3,1,ie)=1d0/work(n-1,j)
+       wt(j,4,1,ie)=1d0/work(n,j)
     enddo
     do i=1,n
-       wt(i,1,2,ie)=1.0/work(i,1)
-       wt(i,2,2,ie)=1.0/work(i,2)
-       wt(i,3,2,ie)=1.0/work(i,n-1)
-       wt(i,4,2,ie)=1.0/work(i,n)
+       wt(i,1,2,ie)=1d0/work(i,1)
+       wt(i,2,2,ie)=1d0/work(i,2)
+       wt(i,3,2,ie)=1d0/work(i,n-1)
+       wt(i,4,2,ie)=1d0/work(i,n)
     enddo
 
     return
@@ -153,26 +153,26 @@ contains
 
       do k=1,n
       do j=1,n
-         wt(j,k,1,1,ie)=1.0/work(1,j,k)
-         wt(j,k,2,1,ie)=1.0/work(2,j,k)
-         wt(j,k,3,1,ie)=1.0/work(n-1,j,k)
-         wt(j,k,4,1,ie)=1.0/work(n,j,k)
+         wt(j,k,1,1,ie)=1d0/work(1,j,k)
+         wt(j,k,2,1,ie)=1d0/work(2,j,k)
+         wt(j,k,3,1,ie)=1d0/work(n-1,j,k)
+         wt(j,k,4,1,ie)=1d0/work(n,j,k)
       enddo
       enddo
       do k=1,n
       do i=1,n
-         wt(i,k,1,2,ie)=1.0/work(i,1,k)
-         wt(i,k,2,2,ie)=1.0/work(i,2,k)
-         wt(i,k,3,2,ie)=1.0/work(i,n-1,k)
-         wt(i,k,4,2,ie)=1.0/work(i,n,k)
+         wt(i,k,1,2,ie)=1d0/work(i,1,k)
+         wt(i,k,2,2,ie)=1d0/work(i,2,k)
+         wt(i,k,3,2,ie)=1d0/work(i,n-1,k)
+         wt(i,k,4,2,ie)=1d0/work(i,n,k)
       enddo
       enddo
       do j=1,n
       do i=1,n
-         wt(i,j,1,3,ie)=1.0/work(i,j,1)
-         wt(i,j,2,3,ie)=1.0/work(i,j,2)
-         wt(i,j,3,3,ie)=1.0/work(i,j,n-1)
-         wt(i,j,4,3,ie)=1.0/work(i,j,n)
+         wt(i,j,1,3,ie)=1d0/work(i,j,1)
+         wt(i,j,2,3,ie)=1d0/work(i,j,2)
+         wt(i,j,3,3,ie)=1d0/work(i,j,n-1)
+         wt(i,j,4,3,ie)=1d0/work(i,j,n)
       enddo
       enddo
   end subroutine schwarz_setup_schwarz_wt3d_2

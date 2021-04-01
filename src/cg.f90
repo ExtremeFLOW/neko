@@ -98,7 +98,7 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
-    norm_fac = 1./sqrt(coef%volume)
+    norm_fac = 1d0/sqrt(coef%volume)
 
     rtz1 = 1d0
     call rzero(x%x, n)
