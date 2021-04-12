@@ -8,8 +8,8 @@ module gs_sx
 
   !> Gather-scatter backend for NEC SX-Aurora
   type, public, extends(gs_bcknd_t) :: gs_sx_t
-     real(kind=dp), allocatable :: local_wrk(:)
-     real(kind=dp), allocatable :: shared_wrk(:)
+     real(kind=rp), allocatable :: local_wrk(:)
+     real(kind=rp), allocatable :: shared_wrk(:)
      integer :: nlocal
      integer :: nshared
    contains
@@ -60,9 +60,9 @@ contains
     integer, intent(inout) :: n
     integer, intent(inout) :: nb
     class(gs_sx_t), intent(inout) :: this
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(inout) :: o
@@ -104,15 +104,15 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    real(kind=dp), dimension(m), intent(inout) :: w
+    real(kind=rp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: w
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
 
     v = 0d0 
     do i = 1, abs(o) - 1
@@ -142,15 +142,15 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    real(kind=dp), dimension(m), intent(inout) :: w
+    real(kind=rp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: w
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
     
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
@@ -179,15 +179,15 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    real(kind=dp), dimension(m), intent(inout) :: w
+    real(kind=rp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: w
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
 
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
@@ -216,15 +216,15 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    real(kind=dp), dimension(m), intent(inout) :: w
+    real(kind=rp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: w
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
 
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
@@ -253,9 +253,9 @@ contains
     integer, intent(in) :: n
     integer, intent(in) :: nb
     class(gs_sx_t), intent(inout) :: this
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
         
@@ -272,14 +272,14 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
-    real(kind=dp), dimension(m), intent(inout) :: w
+    real(kind=rp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: w
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
     
     !NEC$ IVDEP
     do i = 1, m

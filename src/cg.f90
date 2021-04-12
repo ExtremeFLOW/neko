@@ -7,10 +7,10 @@ module cg
 
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_t
-     real(kind=dp), allocatable :: w(:)
-     real(kind=dp), allocatable :: r(:)
-     real(kind=dp), allocatable :: p(:)
-     real(kind=dp), allocatable :: z(:)
+     real(kind=rp), allocatable :: w(:)
+     real(kind=rp), allocatable :: r(:)
+     real(kind=rp), allocatable :: p(:)
+     real(kind=rp), allocatable :: z(:)
    contains
      procedure, pass(this) :: init => cg_init
      procedure, pass(this) :: free => cg_free
@@ -24,8 +24,8 @@ contains
     class(cg_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
-    real(kind=dp), optional, intent(inout) :: rel_tol
-    real(kind=dp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(inout) :: rel_tol
+    real(kind=rp), optional, intent(inout) :: abs_tol
 
         
     call this%free()
@@ -83,22 +83,22 @@ contains
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(inout) :: n
-    real(kind=dp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(inout) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
-    real(kind=dp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=dp) :: beta, pap, alpha, alphm, eps, norm_fac
+    real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
+    real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
     
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = KSP_MAX_ITER
     end if
-    norm_fac = 1./sqrt(coef%volume)
+    norm_fac = real(1d0,rp)/sqrt(coef%volume)
 
     rtz1 = 1d0
     call rzero(x%x, n)
@@ -133,6 +133,7 @@ contains
        rtr = glsc4(this%r, coef%mult, coef%Binv, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)*norm_fac
+       if (pe_rank .eq. 0) print *, rnorm
        if (rnorm .lt. this%abs_tol) then
           exit
        end if

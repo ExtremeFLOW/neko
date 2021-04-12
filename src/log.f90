@@ -137,10 +137,10 @@ contains
   !! @todo move to a future Time module
   subroutine log_status(this, t, T_end)
     class(log_t), intent(in) :: this
-    real(kind=dp), intent(in) :: t
-    real(kind=dp), intent(in) :: T_end
+    real(kind=rp), intent(in) :: t
+    real(kind=rp), intent(in) :: T_end
     character(len=LOG_SIZE) :: log_buf
-    real(kind=dp) :: t_prog
+    real(kind=rp) :: t_prog
 
      t_prog = 100d0 * t / T_end
 

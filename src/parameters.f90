@@ -7,14 +7,14 @@ module parameters
      integer :: nsamples        !< Number of samples
      logical :: output_bdry     !< Output boundary markings
      logical :: output_part     !< Output partitions
-     real(kind=dp) :: dt        !< time-step size               
-     real(kind=dp) :: T_end     !< Final time
-     real(kind=dp) :: rho       !< Density \f$ \rho \f$
-     real(kind=dp) :: mu        !< Dynamic viscosity \f$ \mu \f$
-     real(kind=dp) :: Re        !< Reynolds number
-     real(kind=dp), dimension(3) :: uinf !< Free-stream velocity \f$ u_\infty \f$
-     real(kind=dp) :: abstol_vel  !< Tolerance for velocity solver
-     real(kind=dp) :: abstol_prs  !< Tolerance for pressure solver
+     real(kind=rp) :: dt        !< time-step size               
+     real(kind=rp) :: T_end     !< Final time
+     real(kind=rp) :: rho       !< Density \f$ \rho \f$
+     real(kind=rp) :: mu        !< Dynamic viscosity \f$ \mu \f$
+     real(kind=rp) :: Re        !< Reynolds number
+     real(kind=rp), dimension(3) :: uinf !< Free-stream velocity \f$ u_\infty \f$
+     real(kind=rp) :: abstol_vel  !< Tolerance for velocity solver
+     real(kind=rp) :: abstol_prs  !< Tolerance for pressure solver
      character(len=20) :: ksp_vel !< Krylov solver for velocity 
      character(len=20) :: ksp_prs !< Krylov solver for pressure
      character(len=20) :: pc_vel  !< Precon for velocity solver
@@ -23,7 +23,7 @@ module parameters
      integer :: vol_flow_dir !< Direction of forced volume flow x=1, y=2, z=3
      logical :: avflow       !< If we should use the averaged flow for vol_flow
      logical :: loadb        !< Load-balancing
-     real(kind=dp) :: flow_rate !< Volume flow speed
+     real(kind=rp) :: flow_rate !< Volume flow speed
      integer :: proj_dim     !< Projection space for pressure solution
 
   end type param_t
@@ -81,14 +81,14 @@ contains
     param%p%output_bdry = output_bdry
     param%p%output_part = output_part
     param%p%nsamples = nsamples
-    param%p%dt = dt
-    param%p%T_end = T_end
-    param%p%rho = rho 
-    param%p%mu = mu
-    param%p%Re = Re
-    param%p%uinf = uinf
-    param%p%abstol_vel = abstol_vel
-    param%p%abstol_prs = abstol_prs
+    param%p%dt = real(dt,rp)
+    param%p%T_end = real(T_end,rp)
+    param%p%rho = real(rho,rp)
+    param%p%mu = real(mu,rp)
+    param%p%Re = real(Re,rp)
+    param%p%uinf = real(uinf,rp)
+    param%p%abstol_vel = real(abstol_vel,rp)
+    param%p%abstol_prs = real(abstol_prs,rp)
     param%p%ksp_vel = ksp_vel
     param%p%ksp_prs = ksp_prs
     param%p%pc_vel = pc_vel
@@ -97,7 +97,7 @@ contains
     param%p%vol_flow_dir = vol_flow_dir
     param%p%avflow = avflow
     param%p%loadb = loadb
-    param%p%flow_rate = flow_rate
+    param%p%flow_rate = real(flow_rate,rp)
     param%p%proj_dim = proj_dim
 
   end subroutine param_read
@@ -124,14 +124,14 @@ contains
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
     output_part = param%p%output_part
-    dt = param%p%dt
-    T_end = param%p%T_end
-    rho = param%p%rho  
-    mu = param%p%mu
-    Re = param%p%Re
-    uinf = param%p%uinf
-    abstol_vel = param%p%abstol_vel
-    abstol_prs = param%p%abstol_prs
+    dt = real(param%p%dt,dp)
+    T_end = real(param%p%T_end,dp)
+    rho = real(param%p%rho,dp)
+    mu = real(param%p%mu,dp)
+    Re = real(param%p%Re,dp)
+    uinf = real(param%p%uinf,dp)
+    abstol_vel =real(param%p%abstol_vel,dp)
+    abstol_prs =real(param%p%abstol_prs,dp)
     ksp_vel = param%p%ksp_vel
     ksp_prs = param%p%ksp_prs
     pc_vel = param%p%pc_vel
@@ -140,7 +140,7 @@ contains
     vol_flow_dir = param%p%vol_flow_dir
     avflow = param%p%avflow
     loadb = param%p%loadb
-    flow_rate = param%p%flow_rate
+    flow_rate = real(param%p%flow_rate,dp)
     proj_dim = param%p%proj_dim
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)

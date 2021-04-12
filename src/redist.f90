@@ -87,7 +87,7 @@ contains
        el%el_idx = ep%id()
        do j = 1, 8
           el%v(j)%v_idx = ep%pts(j)%p%id()
-          el%v(j)%v_xyz = ep%pts(j)%p%x
+          el%v(j)%v_xyz = real(ep%pts(j)%p%x,dp)
        end do       
        call new_mesh_dist(parts%data(i))%push(el)
     end do
@@ -164,7 +164,7 @@ contains
     np => new_mesh_dist(pe_rank)%array()
     do i = 1, new_mesh_dist(pe_rank)%size()
        do j = 1, 8
-          p(j) = point_t(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
+          p(j) = point_t(real(np(i)%v(j)%v_xyz,rp), np(i)%v(j)%v_idx)
        end do
        call mesh_add_element(msh, i, &
             p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
@@ -285,7 +285,7 @@ contains
        if (el_map%get(cp(i)%e, new_el_idx) .gt. 0) then
           call neko_error('Missing element after redistribution')
        end if
-       call mesh_mark_curve_element(msh, new_el_idx, cp(i)%curve_data, cp(i)%type)
+       call mesh_mark_curve_element(msh, new_el_idx, real(cp(i)%curve_data,rp), cp(i)%type)
     end do
     call new_curve_dist(pe_rank)%free()
 
@@ -338,7 +338,7 @@ contains
     do i = 1, c%size
        curve_el = c%curve_el(i)%el_idx
        nmsh_curve%e = curve_el + msh%offset_el
-       nmsh_curve%curve_data = c%curve_el(i)%curve_data
+       nmsh_curve%curve_data = real(c%curve_el(i)%curve_data,dp)
        nmsh_curve%type = c%curve_el(i)%curve_type
        call new_dist(parts%data(curve_el))%push(nmsh_curve)
     end do

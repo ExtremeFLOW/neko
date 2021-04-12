@@ -17,8 +17,8 @@ module sampler
      integer :: n              
      integer :: size
      integer :: nsample
-     real(kind=dp) :: freq
-     real(kind=dp) :: T
+     real(kind=rp) :: freq
+     real(kind=rp) :: T
    contains
      procedure, pass(this) :: init => sampler_init
      procedure, pass(this) :: free => sampler_free
@@ -32,7 +32,7 @@ contains
   subroutine sampler_init(this, nsamp, T_end, size)
     class(sampler_t), intent(inout) :: this
     integer, intent(inout) :: nsamp
-    real(kind=dp) :: T_end
+    real(kind=rp) :: T_end
     integer, intent(inout), optional :: size
     integer :: n, i
 
@@ -54,8 +54,8 @@ contains
     this%size = n
 
     this%nsample = 0
-    this%freq = ( dble(nsamp) / T_end )
-    this%T = 1d0 / this%freq
+    this%freq = ( real(nsamp,rp) / T_end )
+    this%T = real(1d0,rp) / this%freq
     
   end subroutine sampler_init
 
@@ -92,7 +92,7 @@ contains
   !> Sample all outputs in the sampler
   subroutine sampler_sample(this, t)
     class(sampler_t), intent(inout) :: this
-    real(kind=dp), intent(in) :: t
+    real(kind=rp), intent(in) :: t
     character(len=LOG_SIZE) :: log_buf
     integer :: i
 

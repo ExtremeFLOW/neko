@@ -13,20 +13,20 @@ module krylov
   implicit none
 
   integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
-  real(kind=dp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
-  real(kind=dp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
+  real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
+  real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
   type, public :: ksp_monitor_t
     integer :: iter
-    real(kind=dp) :: res_start
-    real(kind=dp) :: res_final
+    real(kind=rp) :: res_start
+    real(kind=rp) :: res_final
   end type ksp_monitor_t
 
   !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M            !< Preconditioner
-     real(kind=dp) :: rel_tol   !< Relative tolerance
-     real(kind=dp) :: abs_tol   !< Absolute tolerance
+     real(kind=rp) :: rel_tol   !< Relative tolerance
+     real(kind=rp) :: abs_tol   !< Absolute tolerance
    contains
      procedure, pass(this) :: ksp_init => krylov_init
      procedure, pass(this) :: ksp_free => krylov_free
@@ -54,13 +54,13 @@ module krylov
        import :: gs_t
        import :: ax_t
        import :: ksp_monitor_t
-       import dp
+       import rp
        implicit none
        class(ksp_t), intent(inout) :: this
        class(ax_t), intent(inout) :: Ax
        type(field_t), intent(inout) :: x
        integer, intent(inout) :: n
-       real(kind=dp), dimension(n), intent(inout) :: f
+       real(kind=rp), dimension(n), intent(inout) :: f
        type(coef_t), intent(inout) :: coef
        type(bc_list_t), intent(inout) :: blst
        type(gs_t), intent(inout) :: gs_h              
@@ -82,8 +82,8 @@ contains
   !> Create a krylov solver
   subroutine krylov_init(this, rel_tol, abs_tol, M)    
     class(ksp_t), intent(inout) :: this
-    real(kind=dp), optional, intent(in) :: rel_tol
-    real(kind=dp), optional, intent(in) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
     integer :: i
     type(ident_t), target :: M_ident

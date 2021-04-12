@@ -1,4 +1,7 @@
 module ax_poisson
+  use mxm_wrapper
+  use math
+  use num_types
   use ax_product
   implicit none
 
@@ -13,13 +16,13 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
   
-    real(kind=dp) :: ur(Xh%lx**3)
-    real(kind=dp) :: us(Xh%lx**3)
-    real(kind=dp) :: ut(Xh%lx**3)
-    real(kind=dp) :: wk(Xh%lx**3)
+    real(kind=rp) :: ur(Xh%lx**3)
+    real(kind=rp) :: us(Xh%lx**3)
+    real(kind=rp) :: ut(Xh%lx**3)
+    real(kind=rp) :: wk(Xh%lx**3)
     integer :: e
   
     do e = 1, msh%nelv
@@ -32,22 +35,22 @@ contains
   end subroutine ax_poisson_compute
   
   subroutine ax_e(w, u, g1, g2, g3, g4, g5, g6, ur, us, ut, wk, lx, D, Dt)
-    real(kind=dp), intent(inout) :: w(lx**3)
-    real(kind=dp), intent(inout) :: u(lx**3)
-    real(kind=dp), intent(inout) :: g1(lx**3)
-    real(kind=dp), intent(inout) :: g2(lx**3)
-    real(kind=dp), intent(inout) :: g3(lx**3)
-    real(kind=dp), intent(inout) :: g4(lx**3)
-    real(kind=dp), intent(inout) :: g5(lx**3)
-    real(kind=dp), intent(inout) :: g6(lx**3)
-    real(kind=dp), intent(inout) :: ur(lx**3)
-    real(kind=dp), intent(inout) :: us(lx**3)
-    real(kind=dp), intent(inout) :: ut(lx**3)
-    real(kind=dp), intent(inout) :: wk(lx**3)
-    real(kind=dp), intent(inout) :: D(lx, lx)
-    real(kind=dp), intent(inout) :: Dt(lx, lx)
+    real(kind=rp), intent(inout) :: w(lx**3)
+    real(kind=rp), intent(inout) :: u(lx**3)
+    real(kind=rp), intent(inout) :: g1(lx**3)
+    real(kind=rp), intent(inout) :: g2(lx**3)
+    real(kind=rp), intent(inout) :: g3(lx**3)
+    real(kind=rp), intent(inout) :: g4(lx**3)
+    real(kind=rp), intent(inout) :: g5(lx**3)
+    real(kind=rp), intent(inout) :: g6(lx**3)
+    real(kind=rp), intent(inout) :: ur(lx**3)
+    real(kind=rp), intent(inout) :: us(lx**3)
+    real(kind=rp), intent(inout) :: ut(lx**3)
+    real(kind=rp), intent(inout) :: wk(lx**3)
+    real(kind=rp), intent(inout) :: D(lx, lx)
+    real(kind=rp), intent(inout) :: Dt(lx, lx)
     integer, intent(inout) :: lx
-    real(kind=dp) :: wr, ws, wt
+    real(kind=rp) :: wr, ws, wt
     integer :: i, n
   
     n = lx - 1
@@ -67,14 +70,13 @@ contains
   end subroutine ax_e
   
   subroutine local_grad3(ur, us, ut, u, n, D, Dt)
-    implicit none
     
-    real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: us(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: ut(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: u(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: D(0:n, 0:n)
-    real(kind=dp), intent(inout) :: Dt(0:n, 0:n)
+    real(kind=rp), intent(inout) :: ur(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: us(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: ut(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: u(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: D(0:n, 0:n)
+    real(kind=rp), intent(inout) :: Dt(0:n, 0:n)
     integer, intent(inout) :: n
     integer :: m1, m2, k
   
@@ -90,18 +92,14 @@ contains
   end subroutine local_grad3
   
   subroutine local_grad3_t(u,ur,us,ut,N,D,Dt,w)
-    use num_types
-    use mxm_wrapper
-    use math
-    implicit none
   
-    real(kind=dp), intent(inout) :: ur(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: us(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: ut(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: u(0:n, 0:n, 0:n)
-    real(kind=dp), intent(inout) :: D(0:n, 0:n)
-    real(kind=dp), intent(inout) :: Dt(0:n, 0:n)
-    real(kind=dp), intent(inout) :: w(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: ur(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: us(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: ut(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: u(0:n, 0:n, 0:n)
+    real(kind=rp), intent(inout) :: D(0:n, 0:n)
+    real(kind=rp), intent(inout) :: Dt(0:n, 0:n)
+    real(kind=rp), intent(inout) :: w(0:n, 0:n, 0:n)
     integer, intent(inout) :: n
     integer :: m1, m2, m3, k
   

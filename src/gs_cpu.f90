@@ -35,9 +35,9 @@ contains
     integer, intent(inout) :: n
     integer, intent(inout) :: nb
     class(gs_cpu_t), intent(inout) :: this
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(inout) :: o
@@ -62,14 +62,14 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
 
     k = 0
     do i = 1, nb
@@ -101,14 +101,14 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
     
     k = 0
     do i = 1, nb
@@ -140,14 +140,14 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
 
     k = 0
     do i = 1, nb
@@ -179,14 +179,14 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
 
     k = 0
     do i = 1, nb
@@ -218,9 +218,9 @@ contains
     integer, intent(in) :: n
     integer, intent(in) :: nb
     class(gs_cpu_t), intent(inout) :: this
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
         
@@ -233,13 +233,13 @@ contains
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
-    real(kind=dp), dimension(m), intent(inout) :: v
+    real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer :: i, j, k, blk_len
-    real(kind=dp) :: tmp
+    real(kind=rp) :: tmp
     
     k = 0
     do i = 1, nb

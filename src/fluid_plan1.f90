@@ -71,7 +71,7 @@ contains
 
   subroutine fluid_plan1_step(this, t, tstep, ab_bdf)
     class(fluid_plan1_t), intent(inout) :: this
-    real(kind=dp), intent(inout) :: t
+    real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     type(abbdf_t), intent(inout) :: ab_bdf
 

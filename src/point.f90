@@ -9,7 +9,7 @@ module point
 
   !> A point in \f$ R^d \f$ with coordinates \f$ (x,y,z)\f$
   type, extends(entity_t), public ::  point_t
-     real(kind=dp), dimension(3) :: x
+     real(kind=rp), dimension(3) :: x
    contains
      procedure :: point_eq
      procedure :: point_ne
@@ -36,7 +36,7 @@ contains
   
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates
   function point_init(x, id) result(this)
-    real(kind=dp), dimension(3), intent(in) :: x
+    real(kind=rp), dimension(3), intent(in) :: x
     integer, optional, intent(inout) :: id
     type(point_t) :: this
 
@@ -52,9 +52,9 @@ contains
 
   !> Initialize a point from \f$ (x,y,z) \f$ coordinates
   function point_init_xyz(x, y, z, id) result(this)
-    real(kind=dp), intent(in) :: x
-    real(kind=dp), intent(in) :: y
-    real(kind=dp), intent(in) :: z
+    real(kind=rp), intent(in) :: x
+    real(kind=rp), intent(in) :: y
+    real(kind=rp), intent(in) :: z
     integer, optional, intent(inout) :: id
     type(point_t) :: this
 
@@ -73,7 +73,7 @@ contains
   !> Assigns coordinates @a x to a point
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
-    real(kind=dp), dimension(3), intent(in) :: x
+    real(kind=rp), dimension(3), intent(in) :: x
 
     this%x = x
 

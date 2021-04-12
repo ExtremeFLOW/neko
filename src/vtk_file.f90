@@ -25,7 +25,7 @@ contains
   subroutine vtk_file_write(this, data, t)
     class(vtk_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=dp), intent(in), optional :: t
+    real(kind=rp), intent(in), optional :: t
     type(mesh_t), pointer :: msh => null()
     type(field_t), pointer :: fld => null()
     type(mesh_fld_t), pointer :: mfld => null()
@@ -100,7 +100,7 @@ contains
     ! Dump coordinates
     write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
     do i = 1, msh%mpts
-       write(unit, fmt='(F15.8,F15.8,F15.8)') msh%points(i)%x
+       write(unit, fmt='(F15.8,F15.8,F15.8)') real(msh%points(i)%x,dp)
     end do
 
     ! Dump cells
@@ -170,16 +170,16 @@ contains
           id(j) = mesh_get_local(fld%msh, fld%msh%elements(i)%e%pts(j)%p)
        end do
 
-       point_data(id(1)) = fld%x(1,1,1,i)
-       point_data(id(2)) = fld%x(lx,1,1,i)
-       point_data(id(4)) = fld%x(1,ly,1,i)
-       point_data(id(3)) = fld%x(lx,ly,1,i)       
+       point_data(id(1)) = real(fld%x(1,1,1,i),dp)
+       point_data(id(2)) = real(fld%x(lx,1,1,i),dp)
+       point_data(id(4)) = real(fld%x(1,ly,1,i),dp)
+       point_data(id(3)) = real(fld%x(lx,ly,1,i),dp)       
 
        if (fld%msh%gdim .eq. 3) then
-          point_data(id(5)) = fld%x(1,1,lz,i)
-          point_data(id(6)) = fld%x(lx,1,lz,i)
-          point_data(id(8)) = fld%x(1,ly,lz,i)
-          point_data(id(7)) = fld%x(lx,ly,lz,i)       
+          point_data(id(5)) = real(fld%x(1,1,lz,i),dp)
+          point_data(id(6)) = real(fld%x(lx,1,lz,i),dp)
+          point_data(id(8)) = real(fld%x(1,ly,lz,i),dp)
+          point_data(id(7)) = real(fld%x(lx,ly,lz,i),dp)    
        end if
 
     end do
@@ -203,7 +203,9 @@ contains
           do k = 1, dm%Xh%ly
              do j = 1, dm%Xh%lx
                 write(unit, fmt='(F15.8,F15.8,F15.8)') &
-                     dm%x(j,k,l,i), dm%y(j,k,l,i), dm%z(j,k,l,i)
+                     real(dm%x(j,k,l,i),dp),&
+                     real(dm%y(j,k,l,i),dp),&
+                     real(dm%z(j,k,l,i),dp)
              end do
           end do
        end do
@@ -231,7 +233,7 @@ contains
         do l = 1, dm%Xh%lz
            do k = 1, dm%Xh%ly
               do j = 1, dm%Xh%lx
-                 write(unit, fmt='(I8)') dm%dof(j,k,l,i)
+                 write(unit, fmt='(I8)') real(dm%dof(j,k,l,i),dp)
               end do
            end do
         end do

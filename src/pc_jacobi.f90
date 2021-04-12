@@ -9,7 +9,7 @@ module jacobi
   
   !> Defines a canonical Krylov preconditioner
   type, public, extends(pc_t) :: jacobi_t
-     real(kind=dp), allocatable :: d(:,:,:,:)
+     real(kind=rp), allocatable :: d(:,:,:,:)
      type(gs_t), pointer :: gs_h
      type(dofmap_t), pointer :: dof
      type(coef_t), pointer :: coef
@@ -55,8 +55,8 @@ contains
   subroutine jacobi_solve(this, z, r, n)
     integer, intent(inout) :: n
     class(jacobi_t), intent(inout) :: this
-    real(kind=dp), dimension(n), intent(inout) :: z
-    real(kind=dp), dimension(n), intent(inout) :: r
+    real(kind=rp), dimension(n), intent(inout) :: z
+    real(kind=rp), dimension(n), intent(inout) :: r
     call col3(z,r,this%d,n)
   end subroutine jacobi_solve
 

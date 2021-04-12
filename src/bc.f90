@@ -45,22 +45,22 @@ module bc
   abstract interface
      subroutine bc_apply_scalar(this, x, n)
        import :: bc_t
-       import :: dp
+       import :: rp
        class(bc_t), intent(inout) :: this
        integer, intent(in) :: n
-       real(kind=dp), intent(inout), dimension(n) :: x
+       real(kind=rp), intent(inout), dimension(n) :: x
      end subroutine bc_apply_scalar
   end interface
 
   abstract interface
      subroutine bc_apply_vector(this, x, y, z, n)
        import :: bc_t
-       import :: dp
+       import :: rp
        class(bc_t), intent(inout) :: this
        integer, intent(in) :: n
-       real(kind=dp), intent(inout), dimension(n) :: x
-       real(kind=dp), intent(inout), dimension(n) :: y
-       real(kind=dp), intent(inout), dimension(n) :: z
+       real(kind=rp), intent(inout), dimension(n) :: x
+       real(kind=rp), intent(inout), dimension(n) :: y
+       real(kind=rp), intent(inout), dimension(n) :: z
      end subroutine bc_apply_vector
   end interface
 
@@ -291,7 +291,7 @@ contains
   subroutine bc_list_apply_scalar(bclst, x, n)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: x
     integer :: i
 
     do i = 1, bclst%n
@@ -304,9 +304,9 @@ contains
   subroutine bc_list_apply_vector(bclst, x, y, z, n)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
-    real(kind=dp), intent(inout),  dimension(n) :: y
-    real(kind=dp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: y
+    real(kind=rp), intent(inout),  dimension(n) :: z
     integer :: i
 
     do i = 1, bclst%n

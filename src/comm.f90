@@ -1,9 +1,13 @@
 module comm
+  use num_types
   use mpi_f08
   implicit none
   
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
+
+  !> Real precision number mpi type
+  type(MPI_Datatype) :: MPI_REAL_PRECISION
 
   !> MPI rank
   integer :: pe_rank
@@ -38,7 +42,13 @@ contains
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
-
+    if (rp .eq. sp) then
+       MPI_REAL_PRECISION = MPI_REAL
+    else if (rp .eq. dp) then
+       MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
+    else if (rp .eq. qp) then
+       MPI_REAL_PRECISION = MPI_REAL16
+    end if
 
   end subroutine comm_init
 

@@ -20,15 +20,15 @@ module gather_scatter
      type(MPI_Status) :: status
      type(MPI_Request) :: request
      logical :: flag
-     real(kind=dp), allocatable :: data(:)
+     real(kind=rp), allocatable :: data(:)
   end type gs_comm_t
   
   type gs_t
-     real(kind=dp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
+     real(kind=rp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:)          !< Local gs to dof mapping
      integer, allocatable :: local_blk_len(:)         !< Local non-facet blocks
-     real(kind=dp), allocatable :: shared_gs(:)       !< Buffer for shared gs-op
+     real(kind=rp), allocatable :: shared_gs(:)       !< Buffer for shared gs-op
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:)        !< Shared non-facet blocks
@@ -1025,7 +1025,7 @@ contains
   subroutine gs_op_vector(gs, u, n, op)
     type(gs_t), intent(inout) :: gs
     integer, intent(inout) :: n
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer :: m, l, op, lo, so
     
     lo = gs%local_facet_offset
@@ -1070,7 +1070,7 @@ contains
 
     do i = 1, size(gs%recv_pe)
        call MPI_IRecv(gs%recv_buf(i)%data, size(gs%recv_buf(i)%data), &
-            MPI_DOUBLE_PRECISION, gs%recv_pe(i), 0, &
+            MPI_REAL_PRECISION, gs%recv_pe(i), 0, &
             NEKO_COMM, gs%recv_buf(i)%request, ierr)
        gs%recv_buf(i)%flag = .false.
     end do
@@ -1081,7 +1081,7 @@ contains
   subroutine gs_nbsend(gs, u, n)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n        
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer ::  i, j, ierr, dst
     integer , pointer :: sp(:)
 
@@ -1093,7 +1093,7 @@ contains
        end do
 
        call MPI_Isend(gs%send_buf(i)%data, size(gs%send_buf(i)%data), &
-            MPI_DOUBLE_PRECISION, gs%send_pe(i), 0, &
+            MPI_REAL_PRECISION, gs%send_pe(i), 0, &
             NEKO_COMM, gs%send_buf(i)%request, ierr)
        gs%send_buf(i)%flag = .false.
     end do
@@ -1104,7 +1104,7 @@ contains
   subroutine gs_nbwait(gs, u, n, op)
     type(gs_t), intent(inout) ::gs
     integer, intent(in) :: n    
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer :: i, j, src, ierr
     integer :: op
     integer , pointer :: sp(:)

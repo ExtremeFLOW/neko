@@ -4,6 +4,7 @@ module identity
   use utils
   use precon
   use ax_product
+  use num_types
   implicit none
   
   !> Defines a canonical Krylov preconditioner
@@ -18,8 +19,8 @@ contains
   subroutine ident_solve(this, z, r, n)
     integer, intent(inout) :: n
     class(ident_t), intent(inout) :: this
-    real(kind=dp), dimension(n), intent(inout) :: z
-    real(kind=dp), dimension(n), intent(inout) :: r
+    real(kind=rp), dimension(n), intent(inout) :: z
+    real(kind=rp), dimension(n), intent(inout) :: r
     call copy(z, r, n)    
   end subroutine ident_solve
   !> Mandatory update routine

@@ -15,8 +15,8 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     if (Xh%lx .eq. 10) then
        call sx_ax_helm_lx10(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
@@ -40,30 +40,30 @@ contains
        h1, G1, G2, G3, G4, G5, G6, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
-    real(kind=dp), intent(inout) :: w(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: u(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G6(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: Dx(lx,lx)
-    real(kind=dp), intent(in) :: Dy(lx,lx)
-    real(kind=dp), intent(in) :: Dz(lx,lx)
-    real(kind=dp), intent(in) :: Dxt(lx,lx)
-    real(kind=dp), intent(in) :: Dyt(lx,lx)
-    real(kind=dp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: Dx(lx,lx)
+    real(kind=rp), intent(in) :: Dy(lx,lx)
+    real(kind=rp), intent(in) :: Dz(lx,lx)
+    real(kind=rp), intent(in) :: Dxt(lx,lx)
+    real(kind=rp), intent(in) :: Dyt(lx,lx)
+    real(kind=rp), intent(in) :: Dzt(lx,lx)
 
     integer :: e, i, j, k, jj, kk    
-    real(kind=dp) :: ur(lx,lx,lx,n)
-    real(kind=dp) :: us(lx,lx,lx,n)
-    real(kind=dp) :: ut(lx,lx,lx,n)
-    real(kind=dp) :: uur(lx,lx,lx,n)
-    real(kind=dp) :: uus(lx,lx,lx,n)
-    real(kind=dp) :: uut(lx,lx,lx,n)
-    real(kind=dp) :: wr, ws, wt
+    real(kind=rp) :: ur(lx,lx,lx,n)
+    real(kind=rp) :: us(lx,lx,lx,n)
+    real(kind=rp) :: ut(lx,lx,lx,n)
+    real(kind=rp) :: uur(lx,lx,lx,n)
+    real(kind=rp) :: uus(lx,lx,lx,n)
+    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: wr, ws, wt
 
     do i=1,lx
        do jj = 1, lx * lx * n
@@ -169,30 +169,30 @@ contains
        h1, G1, G2, G3, G4, G5, G6, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
-    real(kind=dp), intent(inout) :: w(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: u(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G6(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: Dx(lx,lx)
-    real(kind=dp), intent(in) :: Dy(lx,lx)
-    real(kind=dp), intent(in) :: Dz(lx,lx)
-    real(kind=dp), intent(in) :: Dxt(lx,lx)
-    real(kind=dp), intent(in) :: Dyt(lx,lx)
-    real(kind=dp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: Dx(lx,lx)
+    real(kind=rp), intent(in) :: Dy(lx,lx)
+    real(kind=rp), intent(in) :: Dz(lx,lx)
+    real(kind=rp), intent(in) :: Dxt(lx,lx)
+    real(kind=rp), intent(in) :: Dyt(lx,lx)
+    real(kind=rp), intent(in) :: Dzt(lx,lx)
 
     integer :: e, i, j, k, jj, kk    
-    real(kind=dp) :: ur(lx,lx,lx,n)
-    real(kind=dp) :: us(lx,lx,lx,n)
-    real(kind=dp) :: ut(lx,lx,lx,n)
-    real(kind=dp) :: uur(lx,lx,lx,n)
-    real(kind=dp) :: uus(lx,lx,lx,n)
-    real(kind=dp) :: uut(lx,lx,lx,n)
-    real(kind=dp) :: wr, ws, wt
+    real(kind=rp) :: ur(lx,lx,lx,n)
+    real(kind=rp) :: us(lx,lx,lx,n)
+    real(kind=rp) :: ut(lx,lx,lx,n)
+    real(kind=rp) :: uur(lx,lx,lx,n)
+    real(kind=rp) :: uus(lx,lx,lx,n)
+    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: wr, ws, wt
 
     do i=1,lx
        do jj = 1, lx * lx * n
@@ -298,29 +298,29 @@ contains
        h1, G1, G2, G3, G4, G5, G6, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
-    real(kind=dp), intent(inout) :: w(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: u(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G6(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: Dx(lx,lx)
-    real(kind=dp), intent(in) :: Dy(lx,lx)
-    real(kind=dp), intent(in) :: Dz(lx,lx)
-    real(kind=dp), intent(in) :: Dxt(lx,lx)
-    real(kind=dp), intent(in) :: Dyt(lx,lx)
-    real(kind=dp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: Dx(lx,lx)
+    real(kind=rp), intent(in) :: Dy(lx,lx)
+    real(kind=rp), intent(in) :: Dz(lx,lx)
+    real(kind=rp), intent(in) :: Dxt(lx,lx)
+    real(kind=rp), intent(in) :: Dyt(lx,lx)
+    real(kind=rp), intent(in) :: Dzt(lx,lx)
 
     integer :: e, i, j, k, jj, kk
-    real(kind=dp) :: ur(lx,lx,lx,n)
-    real(kind=dp) :: us(lx,lx,lx,n)
-    real(kind=dp) :: ut(lx,lx,lx,n)
-    real(kind=dp) :: uur(lx,lx,lx,n)
-    real(kind=dp) :: uus(lx,lx,lx,n)
-    real(kind=dp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx,lx,lx,n)
+    real(kind=rp) :: us(lx,lx,lx,n)
+    real(kind=rp) :: ut(lx,lx,lx,n)
+    real(kind=rp) :: uur(lx,lx,lx,n)
+    real(kind=rp) :: uus(lx,lx,lx,n)
+    real(kind=rp) :: uut(lx,lx,lx,n)
 
     do i=1,lx
        do jj = 1, lx * lx * n
@@ -418,29 +418,29 @@ contains
        h1, G1, G2, G3, G4, G5, G6, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
-    real(kind=dp), intent(inout) :: w(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: u(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: G6(lx, lx, lx, n)
-    real(kind=dp), intent(in) :: Dx(lx,lx)
-    real(kind=dp), intent(in) :: Dy(lx,lx)
-    real(kind=dp), intent(in) :: Dz(lx,lx)
-    real(kind=dp), intent(in) :: Dxt(lx,lx)
-    real(kind=dp), intent(in) :: Dyt(lx,lx)
-    real(kind=dp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: Dx(lx,lx)
+    real(kind=rp), intent(in) :: Dy(lx,lx)
+    real(kind=rp), intent(in) :: Dz(lx,lx)
+    real(kind=rp), intent(in) :: Dxt(lx,lx)
+    real(kind=rp), intent(in) :: Dyt(lx,lx)
+    real(kind=rp), intent(in) :: Dzt(lx,lx)
 
     integer :: e, i, j, k, jj, kk
-    real(kind=dp) :: ur(lx,lx,lx,n)
-    real(kind=dp) :: us(lx,lx,lx,n)
-    real(kind=dp) :: ut(lx,lx,lx,n)
-    real(kind=dp) :: uur(lx,lx,lx,n)
-    real(kind=dp) :: uus(lx,lx,lx,n)
-    real(kind=dp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx,lx,lx,n)
+    real(kind=rp) :: us(lx,lx,lx,n)
+    real(kind=rp) :: ut(lx,lx,lx,n)
+    real(kind=rp) :: uur(lx,lx,lx,n)
+    real(kind=rp) :: uus(lx,lx,lx,n)
+    real(kind=rp) :: uut(lx,lx,lx,n)
 
     do i=1,lx
        do jj = 1, lx * lx * n

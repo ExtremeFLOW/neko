@@ -9,14 +9,14 @@ contains
   subroutine sx_dudxyz_lx12(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=dp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k, lxy, lyz, lxyz
     integer :: i, j, ii, jj, kk, nelv 
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp) :: wr, ws, wt, www
 
     do i=1,lx
        do jj = 1, lx*lx*nel
@@ -69,14 +69,14 @@ contains
   subroutine sx_dudxyz_lx11(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 11
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=dp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k, lxy, lyz, lxyz
     integer :: i, j, ii, jj, kk, nelv 
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp) :: wr, ws, wt, www
 
     do i=1,lx
        do jj = 1, lx*lx*nel
@@ -129,14 +129,14 @@ contains
   subroutine sx_dudxyz_lx10(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 10
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=dp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k, lxy, lyz, lxyz
     integer :: i, j, ii, jj, kk, nelv 
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp) :: wr, ws, wt, www
 
     do i=1,lx
        do jj = 1, lx*lx*nel
@@ -189,14 +189,14 @@ contains
   subroutine sx_dudxyz_lx9(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 9
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=dp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k, lxy, lyz, lxyz
     integer :: i, j, ii, jj, kk, nelv 
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp) :: wr, ws, wt, www
 
     do i=1,lx
        do jj = 1, lx*lx*nel
@@ -249,14 +249,14 @@ contains
   subroutine sx_dudxyz_lx8(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 8
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=dp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k, lxy, lyz, lxyz
     integer :: i, j, ii, jj, kk, nelv 
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp) :: wr, ws, wt, www
 
     do i=1,lx
        do jj = 1, lx*lx*nel
@@ -309,14 +309,14 @@ contains
   subroutine sx_dudxyz_lx7(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 7
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=dp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k, lxy, lyz, lxyz
     integer :: i, j, ii, jj, kk, nelv 
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp) :: wr, ws, wt, www
 
     do i=1,lx
        do jj = 1, lx*lx*nel
@@ -369,14 +369,14 @@ contains
   subroutine sx_dudxyz_lx6(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 6
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=dp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=dp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
     integer :: e, k, lxy, lyz, lxyz
     integer :: i, j, ii, jj, kk, nelv 
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp) :: wr, ws, wt, www
 
     do i=1,lx
        do jj = 1, lx*lx*nel

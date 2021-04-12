@@ -30,7 +30,7 @@ contains
   subroutine fld_file_write(this, data, t)
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=dp), intent(in), optional :: t
+    real(kind=rp), intent(in), optional :: t
     type(field_t), pointer :: u, v, w, p
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
@@ -52,7 +52,7 @@ contains
     integer :: FLD_DATA_SIZE
 
     if (present(t)) then
-       time = t
+       time = real(t,dp)
     else
        time = 0d0
     end if
@@ -163,7 +163,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_dp(i) = dof%x(j,k,l,el)
+                      tmp_dp(i) = real(dof%x(j,k,l,el),dp)
                       i = i +1
                    end do
                 end do
@@ -171,7 +171,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_dp(i) = dof%y(j,k,l,el)
+                      tmp_dp(i) = real(dof%y(j,k,l,el),dp)
                       i = i +1
                    end do
                 end do
@@ -179,7 +179,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_dp(i) = dof%z(j,k,l,el)
+                      tmp_dp(i) = real(dof%z(j,k,l,el),dp)
                       i = i +1
                    end do
                 end do
@@ -195,7 +195,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_sp(i) = real(dof%x(j,k,l,el))
+                      tmp_sp(i) = real(dof%x(j,k,l,el),sp)
                       i = i +1
                    end do
                 end do
@@ -203,7 +203,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_sp(i) = real(dof%y(j,k,l,el))
+                      tmp_sp(i) = real(dof%y(j,k,l,el),sp)
                       i = i +1
                    end do
                 end do
@@ -211,7 +211,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_sp(i) = real(dof%z(j,k,l,el))
+                      tmp_sp(i) = real(dof%z(j,k,l,el),sp)
                       i = i +1
                    end do
                 end do
@@ -239,7 +239,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_dp(i) = u%x(j,k,l,el)
+                      tmp_dp(i) = real(u%x(j,k,l,el),dp)
                       i = i +1
                    end do
                 end do
@@ -247,7 +247,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_dp(i) = v%x(j,k,l,el)
+                      tmp_dp(i) = real(v%x(j,k,l,el),dp)
                       i = i +1
                    end do
                 end do
@@ -255,7 +255,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_dp(i) = w%x(j,k,l,el)
+                      tmp_dp(i) = real(w%x(j,k,l,el),dp)
                       i = i +1
                    end do
                 end do
@@ -271,7 +271,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_sp(i) = real(u%x(j,k,l,el))
+                      tmp_sp(i) = real(u%x(j,k,l,el),sp)
                       i = i +1
                    end do
                 end do
@@ -279,7 +279,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_sp(i) = real(v%x(j,k,l,el))
+                      tmp_sp(i) = real(v%x(j,k,l,el),sp)
                       i = i +1
                    end do
                 end do
@@ -287,7 +287,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_sp(i) = real(w%x(j,k,l,el))
+                      tmp_sp(i) = real(w%x(j,k,l,el),sp)
                       i = i +1
                    end do
                 end do
@@ -317,7 +317,7 @@ contains
              do l = 1, Xh%lz
                 do k = 1, Xh%ly
                    do j = 1, Xh%lx
-                      tmp_sp(i) = real(p%x(j,k,l,el))
+                      tmp_sp(i) = real(p%x(j,k,l,el),sp)
                       i = i + 1
                    end do
                 end do
@@ -327,7 +327,18 @@ contains
           call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n/3, &
                MPI_REAL, status, ierr)
        else
-          call MPI_File_write_at_all(fh, byte_offset, p%x, n/3, &
+          i = 1
+          do el = 1, msh%nelv
+             do l = 1, Xh%lz
+                do k = 1, Xh%ly
+                   do j = 1, Xh%lx
+                      tmp_dp(i) = real(p%x(j,k,l,el),dp)
+                      i = i + 1
+                   end do
+                end do
+             end do
+          end do
+          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n/3, &
                MPI_DOUBLE_PRECISION, status, ierr)
        end if
     end if

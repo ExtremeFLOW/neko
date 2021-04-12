@@ -81,7 +81,7 @@ contains
             nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
        do i = 1, nelv
           do j = 1, 4
-             p(j) = point_t(nmsh_quad(i)%v(j)%v_xyz, nmsh_quad(i)%v(j)%v_idx)
+             p(j) = point_t(real(nmsh_quad(i)%v(j)%v_xyz,rp), nmsh_quad(i)%v(j)%v_idx)
           end do
           call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
        end do
@@ -94,7 +94,7 @@ contains
             nmsh_hex, msh%nelv, MPI_NMSH_HEX, status, ierr)
        do i = 1, nelv
           do j = 1, 8
-             p(j) = point_t(nmsh_hex(i)%v(j)%v_xyz, nmsh_hex(i)%v(j)%v_idx)
+             p(j) = point_t(real(nmsh_hex(i)%v(j)%v_xyz,rp), nmsh_hex(i)%v(j)%v_idx)
           end do
           call mesh_add_element(msh, i, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
@@ -173,7 +173,7 @@ contains
           el_idx = nmsh_curve(i)%e - msh%offset_el
           if (el_idx .gt. 0 .and. &
               el_idx .le. msh%nelv) then             
-             call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
+             call mesh_mark_curve_element(msh, el_idx, real(nmsh_curve(i)%curve_data,rp), nmsh_curve(i)%type)
           end if
        end do
        
@@ -192,7 +192,7 @@ contains
   subroutine nmsh_file_write(this, data, t)
     class(nmsh_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=dp), intent(in), optional :: t
+    real(kind=rp), intent(in), optional :: t
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_zone_t), allocatable :: nmsh_zone(:)
@@ -243,7 +243,7 @@ contains
           nmsh_quad(i)%el_idx = ep%id()
           do j = 1, 4
              nmsh_quad(i)%v(j)%v_idx = ep%pts(j)%p%id()
-             nmsh_quad(i)%v(j)%v_xyz = ep%pts(j)%p%x
+             nmsh_quad(i)%v(j)%v_xyz = real(ep%pts(j)%p%x,dp)
           end do
        end do
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
@@ -258,7 +258,7 @@ contains
           nmsh_hex(i)%el_idx = ep%id()
           do j = 1, 8
              nmsh_hex(i)%v(j)%v_idx = ep%pts(j)%p%id()
-             nmsh_hex(i)%v(j)%v_xyz = ep%pts(j)%p%x
+             nmsh_hex(i)%v(j)%v_xyz = real(ep%pts(j)%p%x,dp)
           end do
        end do
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_hex_size
@@ -342,7 +342,7 @@ contains
        
        do i = 1, ncurves
           nmsh_curve(i)%e = msh%curve%curve_el(i)%el_idx + msh%offset_el
-          nmsh_curve(i)%curve_data = msh%curve%curve_el(i)%curve_data
+          nmsh_curve(i)%curve_data = real(msh%curve%curve_el(i)%curve_data,dp)
           nmsh_curve(i)%type = msh%curve%curve_el(i)%curve_type
        end do
        mpi_offset = mpi_el_offset + 2*MPI_INTEGER_SIZE + nzones*nmsh_zone_size

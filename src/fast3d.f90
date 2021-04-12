@@ -15,10 +15,10 @@ contains
   subroutine fd_weights_full(xx, x, n, m, c)
     integer, intent(in) :: n
     integer, intent(in) :: m
-    real(kind=dp), intent(in) :: x(0:n)
-    real(kind=dp), intent(out) :: c(0:n,0:m)
-    real(kind=dp), intent(in) :: xx
-    real(kind=dp) :: c1, c2, c3, c4, c5
+    real(kind=rp), intent(in) :: x(0:n)
+    real(kind=rp), intent(out) :: c(0:n,0:m)
+    real(kind=rp), intent(in) :: xx
+    real(kind=rp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 
     c1 = 1d0
@@ -77,17 +77,17 @@ contains
 !!
   subroutine semhat(a,b,c,d,z,dgll,jgll,bgl,zgl,dgl,jgl,n,w)
     integer, intent(in) :: n
-    real(kind=dp), intent(inout) :: a(0:n,0:n)
-    real(kind=dp), intent(inout) :: b(0:n)
-    real(kind=dp), intent(inout) :: c(0:n,0:n)
-    real(kind=dp), intent(inout) :: d(0:n,0:n)
-    real(kind=dp), intent(inout) :: z(0:n)
-    real(kind=dp), intent(inout) :: dgll(0:n,1:n-1),jgll(0:n,1:n-1)
-    real(kind=dp), intent(inout) :: bgl(1:n-1)
-    real(kind=dp), intent(inout) :: zgl(1:n-1)
-    real(kind=dp), intent(inout) :: dgl(1:n-1,0:n)
-    real(kind=dp), intent(inout) :: jgl(1:n-1,0:n)
-    real(kind=dp), intent(inout) :: w(0:2*n+1)
+    real(kind=rp), intent(inout) :: a(0:n,0:n)
+    real(kind=rp), intent(inout) :: b(0:n)
+    real(kind=rp), intent(inout) :: c(0:n,0:n)
+    real(kind=rp), intent(inout) :: d(0:n,0:n)
+    real(kind=rp), intent(inout) :: z(0:n)
+    real(kind=rp), intent(inout) :: dgll(0:n,1:n-1),jgll(0:n,1:n-1)
+    real(kind=rp), intent(inout) :: bgl(1:n-1)
+    real(kind=rp), intent(inout) :: zgl(1:n-1)
+    real(kind=rp), intent(inout) :: dgl(1:n-1,0:n)
+    real(kind=rp), intent(inout) :: jgl(1:n-1,0:n)
+    real(kind=rp), intent(inout) :: w(0:2*n+1)
     integer :: np, nm, n2, i, j, k
     np = n+1
     nm = n-1

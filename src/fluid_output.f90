@@ -36,8 +36,7 @@ contains
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
-    real(kind=dp), intent(in) :: t
-    
+    real(kind=rp), intent(in) :: t
     call this%file_%write(this%fluid, t)
 
   end subroutine fluid_output_sample

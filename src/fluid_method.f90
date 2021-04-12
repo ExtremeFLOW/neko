@@ -94,9 +94,9 @@ module fluid_method
      subroutine fluid_method_step(this, t, tstep, ab_bdf)
        import fluid_scheme_t
        import abbdf_t
-       import dp
+       import rp
        class(fluid_scheme_t), intent(inout) :: this
-       real(kind=dp), intent(inout) :: t
+       real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        type(abbdf_t), intent(inout) :: ab_bdf
      end subroutine fluid_method_step
@@ -185,40 +185,40 @@ contains
        call neko_log%message('Saving boundary markings')
        
        call field_init(this%bdry, this%dm_Xh, 'bdry')
-       this%bdry = 0d0
+       this%bdry = real(0d0,rp)
        
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(1d0)
+       call bdry_mask%set_g(real(1d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(2d0)
+       call bdry_mask%set_g(real(2d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(3d0)
+       call bdry_mask%set_g(real(3d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(4d0)
+       call bdry_mask%set_g(real(4d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(5d0)
+       call bdry_mask%set_g(real(5d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
     end if
@@ -273,7 +273,7 @@ contains
        call this%bc_prs%init(this%dm_Xh)
        call this%bc_prs%mark_zone(msh%outlet)
        call this%bc_prs%finalize()
-       call this%bc_prs%set_g(0d0)
+       call this%bc_prs%set_g(real(0d0,rp))
        call bc_list_add(this%bclst_prs, this%bc_prs)
     end if
 
@@ -393,7 +393,7 @@ contains
     class(ksp_t), allocatable, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=20), intent(inout) :: solver
-    real(kind=dp) :: abstol
+    real(kind=rp) :: abstol
     if (trim(solver) .eq. 'cg') then
        allocate(cg_t::ksp)
     else if (trim(solver) .eq. 'gmres') then
@@ -460,8 +460,8 @@ contains
   end subroutine fluid_scheme_set_usr_inflow
   function fluid_compute_cfl(this, dt) result(c)
     class(fluid_scheme_t) :: this
-    real(kind=dp) :: dt
-    real(kind=dp) :: c
+    real(kind=rp) :: dt
+    real(kind=rp) :: c
 
     c = cfl(dt, this%u%x, this%v%x, this%w%x, this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim) 
   end function fluid_compute_cfl

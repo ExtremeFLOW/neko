@@ -10,18 +10,18 @@ module gmres
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: gmres_t
      integer :: lgmres
-     real(kind=dp), allocatable :: w(:)
-     real(kind=dp), allocatable :: c(:)
-     real(kind=dp), allocatable :: r(:)
-     real(kind=dp), allocatable :: z(:,:)
-     real(kind=dp), allocatable :: h(:,:)
-     real(kind=dp), allocatable :: ml(:)
-     real(kind=dp), allocatable :: v(:,:)
-     real(kind=dp), allocatable :: s(:)
-     real(kind=dp), allocatable :: mu(:)
-     real(kind=dp), allocatable :: gam(:)
-     real(kind=dp), allocatable :: wk1(:)
-     real(kind=dp) :: rnorm
+     real(kind=rp), allocatable :: w(:)
+     real(kind=rp), allocatable :: c(:)
+     real(kind=rp), allocatable :: r(:)
+     real(kind=rp), allocatable :: z(:,:)
+     real(kind=rp), allocatable :: h(:,:)
+     real(kind=rp), allocatable :: ml(:)
+     real(kind=rp), allocatable :: v(:,:)
+     real(kind=rp), allocatable :: s(:)
+     real(kind=rp), allocatable :: mu(:)
+     real(kind=rp), allocatable :: gam(:)
+     real(kind=rp), allocatable :: wk1(:)
+     real(kind=rp) :: rnorm
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -36,8 +36,8 @@ contains
     integer, intent(in) :: n
     class(pc_t), optional, intent(inout), target :: M
     integer, optional, intent(inout) :: lgmres
-    real(kind=dp), optional, intent(inout) :: rel_tol
-    real(kind=dp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(inout) :: rel_tol
+    real(kind=rp), optional, intent(inout) :: abs_tol
 
     if (present(lgmres)) then
        this%lgmres = lgmres
@@ -140,7 +140,7 @@ contains
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(inout) :: n
-    real(kind=dp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(inout) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -148,9 +148,9 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, glb_n
     integer :: i, j, k, ierr 
-    real(kind=dp) :: rnorm 
-    real(kind=dp) ::  alpha, temp, l
-    real(kind=dp) :: ratio, div0, norm_fac, tolpss
+    real(kind=rp) :: rnorm 
+    real(kind=rp) ::  alpha, temp, l
+    real(kind=rp) :: ratio, div0, norm_fac, tolpss
     logical :: conv
     integer outer
 
@@ -178,7 +178,7 @@ contains
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call add2s2(this%r,this%w,-1d0,n) 
+          call add2s2(this%r,this%w,real(-1d0,rp),n) 
           call col2(this%r,this%ml,n)       
        endif
        this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n))
@@ -210,7 +210,7 @@ contains
           enddo
           !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
-               MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, j) 
 
           do i=1,j

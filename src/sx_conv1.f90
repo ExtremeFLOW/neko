@@ -10,17 +10,17 @@ contains
        jacinv, nelv, gdim)
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv, gdim
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
-    real(kind=dp), dimension(lx, lx), intent(in) :: dx, dy, dz        
-    real(kind=dp), dimension(lx,lx,lx,nelv) ::  dudr
-    real(kind=dp), dimension(lx,lx,lx,nelv) ::  duds
-    real(kind=dp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz        
+    real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
+    real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
+    real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
+    real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
     do i=1,lx
@@ -86,17 +86,17 @@ contains
        jacinv, nelv, gdim)
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv, gdim
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
-    real(kind=dp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
-    real(kind=dp), dimension(lx, lx), intent(in) :: dx, dy, dz        
-    real(kind=dp), dimension(lx,lx,lx,nelv) ::  dudr
-    real(kind=dp), dimension(lx,lx,lx,nelv) ::  duds
-    real(kind=dp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=dp) :: wr, ws, wt, www
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz        
+    real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
+    real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
+    real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
+    real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
     do i=1,lx

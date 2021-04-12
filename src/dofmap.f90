@@ -15,9 +15,9 @@ module dofmap
   type, public :: dofmap_t
      integer(kind=8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
      logical, allocatable :: shared_dof(:,:,:,:)   !< True if the dof is shared
-     real(kind=dp), allocatable :: x(:,:,:,:)      !< Mapping to x-coordinates
-     real(kind=dp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
-     real(kind=dp), allocatable :: z(:,:,:,:)      !< Mapping to z-coordinates
+     real(kind=rp), allocatable :: x(:,:,:,:)      !< Mapping to x-coordinates
+     real(kind=rp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
+     real(kind=rp), allocatable :: z(:,:,:,:)      !< Mapping to z-coordinates
      integer :: n_dofs                             !< Total number of dofs
 
      type(mesh_t), pointer :: msh
@@ -546,11 +546,11 @@ contains
     integer :: i,j,k, el_idx
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
-    real(kind=dp) :: xyzb(2,2,2,3), zgml(this%Xh%lx, 3)
-    real(kind=dp) :: jx(this%Xh%lx*2), jy(this%Xh%lx*2), jz(this%Xh%lx*2)
-    real(kind=dp) :: jxt(this%Xh%lx*2), jyt(this%Xh%lx*2), jzt(this%Xh%lx*2)
-    real(kind=dp) :: w(4*this%Xh%lx**3), tmp(this%Xh%lx, this%Xh%lx, this%Xh%lx)
-    real(kind=dp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
+    real(kind=rp) :: xyzb(2,2,2,3), zgml(this%Xh%lx, 3)
+    real(kind=rp) :: jx(this%Xh%lx*2), jy(this%Xh%lx*2), jz(this%Xh%lx*2)
+    real(kind=rp) :: jxt(this%Xh%lx*2), jyt(this%Xh%lx*2), jzt(this%Xh%lx*2)
+    real(kind=rp) :: w(4*this%Xh%lx**3), tmp(this%Xh%lx, this%Xh%lx, this%Xh%lx)
+    real(kind=rp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
     
 
     msh => this%msh
@@ -620,12 +620,12 @@ contains
     integer, intent(in) :: isid, gdim
     type(space_t), intent(in) :: Xh
     class(element_t) :: element
-    real(kind=dp), dimension(5), intent(in) :: curve_data
-    real(kind=dp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z 
-    real(kind=dp) :: pt1x, pt1y, pt2x, pt2y, pt12x, pt12y
-    real(kind=dp) :: radius, gap, xz, yz, xyz, dtheta, r, xys 
-    real(kind=dp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
-    real(kind=dp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
+    real(kind=rp), dimension(5), intent(in) :: curve_data
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z 
+    real(kind=rp) :: pt1x, pt1y, pt2x, pt2y, pt12x, pt12y
+    real(kind=rp) :: radius, gap, xz, yz, xyz, dtheta, r, xys 
+    real(kind=rp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
+    real(kind=rp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
     integer :: isid1, ixt, iyt, izt, ix, isidt
 
     pt1x  = element%pts(isid)%p%x(1)
@@ -706,8 +706,8 @@ contains
 
   subroutine compute_h(h, zgml, gdim, lx)
     integer, intent(in) :: lx, gdim
-    real(kind=dp), intent(inout) ::  h(lx, 3, 2)
-    real(kind=dp), intent(in) :: zgml(lx, 3)
+    real(kind=rp), intent(inout) ::  h(lx, 3, 2)
+    real(kind=rp), intent(in) :: zgml(lx, 3)
     integer :: ix, iy, iz 
     do ix = 1, lx
        h(ix,1,1)=(1.0-zgml(ix,1))*0.5

@@ -16,7 +16,7 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(point_t), pointer :: pt
     integer :: i, p, npts
-    real(kind=dp) :: pi, d
+    real(kind=rp) :: pi, d
     pi = 4d0*atan(1d0)
     d = 4d0
 
@@ -39,7 +39,7 @@ contains
     type(field_t), intent(inout) :: p
     type(param_t), intent(inout) :: params
     integer :: i
-    real(kind=dp) :: uvw(3)
+    real(kind=rp) :: uvw(3)
 
     do i = 1, u%dof%size()
        uvw = tgv_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
@@ -47,22 +47,22 @@ contains
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
-    p = 0d0
+    p = real(0d0,rp)
   end subroutine user_ic
   
   function tgv_ic(x, y, z) result(uvw)
-    real(kind=dp) :: x, y, z
-    real(kind=dp) :: ux, uy, uz
-    real(kind=dp) :: uvw(3)
+    real(kind=rp) :: x, y, z
+    real(kind=rp) :: ux, uy, uz
+    real(kind=rp) :: uvw(3)
     integer e,eg
 
     uvw(1)   = sin(x)*cos(y)*cos(z)
     uvw(2)   = -cos(x)*sin(y)*cos(z)
-    uvw(3)   = 0d0
+    uvw(3)   = real(0d0,rp)
   end function tgv_ic
 
   subroutine usr_calc_quantities( t, dt, tstep,u, v, w, p, coef)
-    real(kind=dp), intent(in) :: t, dt
+    real(kind=rp), intent(in) :: t, dt
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: u
@@ -71,7 +71,7 @@ contains
     type(field_t), intent(inout) :: p
     type(field_t) :: omg1, omg2, omg3, w1, w2
     integer :: n, i
-    real(kind=dp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo
+    real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo
     n = u%dof%n_dofs
 
     if (mod(tstep,50).ne.0) return
@@ -83,7 +83,7 @@ contains
     call field_init(omg3, u%dof, 'omg3')
     call field_init(w1, u%dof, 'work1')
     call field_init(w2, u%dof, 'work1')
-    
+
     call curl(omg1, omg2, omg3, u, v, w, w1, w2, coef)
     do i = 1,n
        vv = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
