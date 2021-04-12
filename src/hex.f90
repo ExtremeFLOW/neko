@@ -257,7 +257,7 @@ contains
 
     res = .false.
     select type(other)
-    class is (hex_t)
+    type is (hex_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
           do i = 1, this%npts()
