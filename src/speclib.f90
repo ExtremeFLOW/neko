@@ -815,6 +815,7 @@ contains
 !     Note: D and DT are square matrices.
 !
 !-----------------------------------------------------------------
+      IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
       PARAMETER (NMAX=84)
       REAL(KIND=RP) D(NZD,NZD),DT(NZD,NZD),Z(1)
       N  = NZ-1
@@ -850,6 +851,7 @@ contains
 !
 !---------------------------------------------------------------------
       REAL(KIND=RP) ZGLL(1), EPS, DZ, Z
+      IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
       EPS = 1.E-5
       DZ = Z - ZGLL(I)
       IF (ABS(DZ) .LT. EPS) THEN
@@ -895,6 +897,7 @@ contains
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
       REAL(KIND=RP) Z, P1, P2, P3
+      IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
       IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
 
@@ -925,6 +928,7 @@ contains
 !
 !----------------------------------------------------------------------
       REAL(KIND=RP) P1, P2, P1D, P2D, P3D, Z
+      IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
       P1   = 1.
       P2   = Z
       P1D  = 0.

@@ -292,9 +292,9 @@ contains
     call fdm_setup_fast1d_a(s,lbc,rbc,ll,lm,lr,ah,n)
     call fdm_setup_fast1d_b(b,lbc,rbc,ll,lm,lr,bh,n)
     call generalev(s,b,lam,nl,lx1,w)
-    if(lbc.gt.0 .or. ll .eq. 0d0) call row_zero(s,nl,nl,1)
+    if(lbc.gt.0 .or. ll .lt. NEKO_EPS) call row_zero(s,nl,nl,1)
     if(lbc.eq.1) call row_zero(s,nl,nl,2)
-    if(rbc.gt.0 .or. lr .eq. 0d0) call row_zero(s,nl,nl,nl)
+    if(rbc.gt.0 .or. lr .lt. NEKO_EPS) call row_zero(s,nl,nl,nl)
     if(rbc.eq.1) call row_zero(s,nl,nl,nl-1)
     
     call trsp(s(1,1,2),nl,s,nl)
@@ -352,7 +352,7 @@ contains
           a(i+1,j+1)=fac*ah(i,j)
        enddo
     enddo
-    if(lbc.eq.0 .and. ll .ne. 0d0 ) then
+    if(lbc.eq.0 .and. abs(ll) .gt. NEKO_EPS ) then
     !if(lbc.eq.0) then
        fac = 2d0/ll
        a(0,0)=fac*ah(n-1,n-1)
@@ -362,7 +362,7 @@ contains
     else
        a(0,0)=1d0
     endif
-    if(rbc.eq.0 .and. lr .ne. 0d0) then
+    if(rbc.eq.0 .and. abs(lr) .gt. NEKO_EPS) then
     !if(rbc.eq.0) then
        fac = 2d0/lr
        a(n+1,n+1)=a(n+1,n+1)+fac*ah(0,0)
@@ -387,27 +387,27 @@ contains
     if(rbc.eq.1) i1=n-1
     
     call rzero(b,(n+3)*(n+3))
-    fac = 0.5*lm
-    b(1,1)=1.0
-    b(n+1,n+1)=1.0
+    fac = 0.5d0*lm
+    b(1,1)=1.0d0
+    b(n+1,n+1)=1.0d0
     do i=i0,i1
        b(i+1,i+1)=fac*bh(i)
     enddo
-    if(lbc.eq.0 .and. ll .ne. 0d0 ) then
+    if(lbc.eq.0 .and. abs(ll) .gt. NEKO_EPS ) then
     !if(lbc.eq.0) then
-       fac = 0.5*ll
+       fac = 0.5d0*ll
        b(0,0)=fac*bh(n-1)
        b(1,1)=b(1,1)+fac*bh(n  )
     else
-       b(0,0)=1.0
+       b(0,0)=1.0d0
     endif
-    if(rbc.eq.0 .and. lr .ne. 0d0) then
+    if(rbc.eq.0 .and. abs(lr) .gt. NEKO_EPS) then
     !if(rbc.eq.0) then
-       fac = 0.5*lr
+       fac = 0.5d0*lr
        b(n+1,n+1)=b(n+1,n+1)+fac*bh(0)
        b(n+2,n+2)=fac*bh(1)
     else
-       b(n+2,n+2)=1.0
+       b(n+2,n+2)=1.0d0
     endif
   end subroutine fdm_setup_fast1d_b
 
