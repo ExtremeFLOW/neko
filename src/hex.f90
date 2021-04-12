@@ -134,7 +134,7 @@ contains
 
     select type(t)
     type is(tuple4_i4_t)
-       t = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
+       t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
        do i = 1, 3 
           do j = i+1,4
              if(t%x(j) .lt. t%x(i)) then
@@ -163,7 +163,7 @@ contains
 
     select type(t)
     type is(tuple4_i4_t)
-       t = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
+       t%x = (/ p1%id(), p2%id(), p3%id(), p4%id() /)
     end select
 
   end subroutine hex_facet_order
@@ -182,9 +182,9 @@ contains
     select type(t)
     type is(tuple_i4_t)
        if (p1%id() .lt. p2%id()) then
-          t = (/ p1%id(), p2%id() /)
+          t%x = (/ p1%id(), p2%id() /)
       else
-          t = (/ p2%id(), p1%id() /)
+          t%x = (/ p2%id(), p1%id() /)
       endif
 
     end select
