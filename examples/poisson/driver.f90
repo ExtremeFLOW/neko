@@ -16,15 +16,13 @@ program poisson
   type(ax_poisson_t) :: ax
   type(coef_t) :: coef
   type(cg_t) :: solver
-  type(jacobi_t) :: jac
   type(ksp_monitor_t) :: ksp_mon
   integer :: argc, lx, n, n_glb, niter, ierr
   character(len=80) :: suffix
   real(kind=rp), allocatable :: f(:)
-  real(kind=rp) :: tol, sum(1)
-  niter = 5000
+  real(kind=rp) :: tol
+  niter = 100
   tol = -1.0
-  print *, rp
 
   argc = command_argument_count()
 
@@ -53,7 +51,7 @@ program poisson
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
   call dir_bc%init(dm)
-  call dir_bc%set_g(real(0.0q0,rp))
+  call dir_bc%set_g(real(0.0d0,rp))
  
   !user specified
   call set_bc(dir_bc, msh)
@@ -61,7 +59,6 @@ program poisson
   call dir_bc%finalize()
   call bc_list_init(bclst)
   call bc_list_add(bclst,dir_bc)
-  call jac%init(coef, dm, gs_h)
   call solver%init(n, abs_tol = tol)
 
   allocate(f(n))
@@ -70,13 +67,8 @@ program poisson
   call rzero(f,n)
   call set_f(f, coef%mult, dm, n, gs_h)
   call bc_list_apply(bclst,f,n)
-  call jac%update()
-  !ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
+  ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
-  sum(1) = vlsc3(f,f,coef%mult,n)
-  print *, sum(1)
-  print *, glsum(sum,1)
-  print *, glsc3(f,f,coef%mult,n)
   
   call MPI_Barrier(NEKO_COMM, ierr)
 
