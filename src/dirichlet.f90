@@ -26,7 +26,6 @@ contains
     integer :: i, m, k
 
     m = this%msk(0)
-    print *, 'yes', this%g
     do i = 1, m
        k = this%msk(i)
        x(k) = this%g

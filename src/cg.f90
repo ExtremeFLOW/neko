@@ -104,7 +104,7 @@ contains
     call rzero(x%x, n)
     call copy(this%r, f, n)
 
-    rtr = glsc4(this%r, coef%Binv,coef%mult, this%r, n)
+    rtr = glsc3(this%r, coef%Binv, this%r, n)
     rnorm = sqrt(rtr)*norm_fac
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
@@ -130,10 +130,9 @@ contains
        call add2s2(x%x, this%p, alpha, n)
        call add2s2(this%r, this%w, alphm, n)
 
-       rtr = glsc4(this%r, coef%mult, coef%Binv, this%r, n)
+       rtr = glsc3(this%r, coef%Binv, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)*norm_fac
-       if (pe_rank .eq. 0) print *, rnorm
        if (rnorm .lt. this%abs_tol) then
           exit
        end if

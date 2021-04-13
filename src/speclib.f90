@@ -850,8 +850,8 @@ contains
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
-      REAL(KIND=RP) ZGLL(1), EPS, DZ, Z
       IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
+      REAL(KIND=RP) ZGLL(1), EPS, DZ, Z
       EPS = 1.E-5
       DZ = Z - ZGLL(I)
       IF (ABS(DZ) .LT. EPS) THEN
@@ -896,8 +896,8 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.  
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
-      REAL(KIND=RP) Z, P1, P2, P3
       IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
+      REAL(KIND=RP) Z, P1, P2, P3
       IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
 
@@ -927,8 +927,8 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
-      REAL(KIND=RP) P1, P2, P1D, P2D, P3D, Z
       IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
+      REAL(KIND=RP) P1, P2, P1D, P2D, P3D, Z
       P1   = 1.
       P2   = Z
       P1D  = 0.
