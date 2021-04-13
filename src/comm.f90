@@ -48,6 +48,8 @@ contains
        MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
     else if (rp .eq. qp) then
        MPI_REAL_PRECISION = MPI_REAL16
+    else then
+       call neko_error('Chosen real precision (rp) not supported (yet)!')
     end if
 
   end subroutine comm_init
