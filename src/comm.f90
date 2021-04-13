@@ -6,8 +6,8 @@ module comm
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
 
-  !> Real precision number mpi type
-  type(MPI_Datatype) :: MPI_REAL_PRECISION
+  !> Real precision number mpi type, standard double precision
+  type(MPI_Datatype) :: MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
 
   !> MPI rank
   integer :: pe_rank
