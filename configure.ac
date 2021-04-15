@@ -12,6 +12,13 @@ AC_ARG_ENABLE(contrib,
               [Compile various tools]), 
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
+AC_ARG_ENABLE(real,
+	      AC_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
+                    sp -- REAL(kind=4)
+	            dp -- REAL(kind=8) (default)
+	            qp -- REAL(kind=16)]),
+	        [enable_real=${enableval}], [enable_real=dp])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -90,8 +97,18 @@ if test "x${found_domain_decomp}" != xyes; then
 fi
 
 # Select Working precision of REAL
-AC_SUBST(NEKO_REAL_TYPE, "dp")
-AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
+if test "x$enable_real" = xsp; then
+   AC_SUBST(NEKO_REAL_TYPE, "sp")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
+elif test "x$enable_real" = xdp; then
+   AC_SUBST(NEKO_REAL_TYPE, "dp")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
+elif test "x$enable_real" = xqp; then
+   AC_SUBST(NEKO_REAL_TYPE, "qp")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL16")
+else
+   AC_MSG_ERROR([Invalid working precision])
+fi
 
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
