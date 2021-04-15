@@ -1,14 +1,13 @@
 module comm
-  use num_types
   use mpi_f08
   implicit none
   
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
 
-  !> Real precision number mpi type, standard double precision
-  type(MPI_Datatype) :: MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
-
+  !> MPI type for working precision of real types
+  type(MPI_Datatype) :: MPI_REAL_PRECISION 
+  
   !> MPI rank
   integer :: pe_rank
 
@@ -42,15 +41,10 @@ contains
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
-    if (rp .eq. sp) then
-       MPI_REAL_PRECISION = MPI_REAL
-    else if (rp .eq. dp) then
-       MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
-    else if (rp .eq. qp) then
-       MPI_REAL_PRECISION = MPI_REAL16
-    else 
-       call neko_error('Chosen real precision (rp) not supported (yet)!')
-    end if
+
+    !> @todo Other assignment options seems to break for ompi 4.0.x
+    !! Preferably we want this to be a parameter
+    MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
 
   end subroutine comm_init
 
