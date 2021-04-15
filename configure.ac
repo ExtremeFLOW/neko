@@ -87,7 +87,11 @@ if test "x${found_domain_decomp}" != xyes; then
        LIBS="$PARMETIS_LIBS $LIBS"
        found_domain_decomp="yes"
    fi
-fi	 
+fi
+
+# Select Working precision of REAL
+AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
+
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 
@@ -98,6 +102,7 @@ AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
+		 src/comm.f90\
 	 	 src/neko_config.f90\
 		 makeneko\
 		 neko.pc])
