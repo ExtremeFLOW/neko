@@ -90,6 +90,7 @@ if test "x${found_domain_decomp}" != xyes; then
 fi
 
 # Select Working precision of REAL
+AC_SUBST(NEKO_REAL_TYPE, "dp")
 AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
 
 
@@ -104,6 +105,7 @@ AC_CONFIG_FILES([Makefile\
 		 tests/Makefile\
 		 src/comm.f90\
 	 	 src/neko_config.f90\
+		 src/num_types.f90\
 		 makeneko\
 		 neko.pc])
 
