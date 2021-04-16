@@ -16,7 +16,7 @@ module output
   abstract interface
      subroutine output_sample(this, t)
        import :: output_t
-       import dp, rp
+       import rp
        class(output_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
      end subroutine output_sample
