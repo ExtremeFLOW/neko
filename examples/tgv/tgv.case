@@ -7,17 +7,12 @@ initial_condition = 'user'
 /
 &NEKO_PARAMETERS
 dt = 1d-2
-T_end = 20d0
-nsamples = 20
+T_end = 20
+nsamples = 100
 uinf= 0.0,0.0,0.0
 output_bdry = .true.
-loadb=.false.
 rho = 1
 Re = 360
-abstol_vel = 1e-7
-abstol_prs = 1e-7
-ksp_vel = 'cg'
-ksp_prs = 'gmres'
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
 proj_dim = 8

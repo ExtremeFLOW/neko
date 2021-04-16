@@ -1,7 +1,4 @@
 module ax_poisson
-  use mxm_wrapper
-  use math
-  use num_types
   use ax_product
   implicit none
 

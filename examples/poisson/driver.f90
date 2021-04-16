@@ -1,7 +1,6 @@
 program poisson
   use neko
   use ax_poisson
-  use num_types
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: fname, lxchar
@@ -74,9 +73,8 @@ program poisson
 
   call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
   ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
-  write (*,*) ksp_mon%res_start, ksp_mon%res_final
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
-  
+
   fname = 'out.fld'
   mf =  file_t(fname)
   call mf%write(x)

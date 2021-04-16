@@ -54,11 +54,12 @@ contains
     real(kind=rp) :: x, y, z
     real(kind=rp) :: ux, uy, uz
     real(kind=rp) :: uvw(3)
+    real(kind=rp), parameter :: zero = 0d0
     integer e,eg
 
     uvw(1)   = sin(x)*cos(y)*cos(z)
     uvw(2)   = -cos(x)*sin(y)*cos(z)
-    uvw(3)   = real(0d0,rp)
+    uvw(3)   = zero
   end function tgv_ic
 
   subroutine usr_calc_quantities( t, dt, tstep,u, v, w, p, coef)

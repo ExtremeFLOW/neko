@@ -5,8 +5,7 @@ subroutine set_bc(bc_, msh)
   
   type(mesh_t), intent(in) :: msh
   type(dirichlet_t), intent(inout) :: bc_
-  integer :: i, k
-  k = 0
+  integer :: i
 
   do i = 1, msh%nelv
      if (msh%facet_neigh(1, i) .eq. 0) then
@@ -40,9 +39,10 @@ subroutine set_f(f, c, dm, n, gs_h)
   type(dofmap_t), intent(in) :: dm
   integer,  intent(inout) :: n
   type(gs_t), intent(inout) :: gs_h
-  real(kind=rp) :: arg, dx, dy, dz, e
+  real(kind=rp) :: dx, dy, dz
+  real(kind=rp), parameter :: arg = 2d0
   integer :: i, idx(4)
-  arg = 2d0
+
   do i = 1, n
      idx = nonlinear_index(i, dm%Xh%lx, dm%Xh%ly, dm%Xh%lz)
      dx = dm%x(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
