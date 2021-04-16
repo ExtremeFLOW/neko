@@ -85,7 +85,8 @@ contains
   subroutine schwarz_setup_wt(this)
     class(schwarz_t), intent(inout) :: this
     integer :: enx,eny,enz, n, ie, k, ns
-    real(kind=rp) :: zero, one
+    real(kind=rp), parameter :: zero = 0.0
+    real(kind=rp), parameter :: one = 1.0
     associate(work1 => this%work1, work2 => this%work2)
     n  = this%dm%n_dofs
 
@@ -99,8 +100,6 @@ contains
  
 !   Sum overlap region (border excluded)
 !   Cred to PFF for this, very clever
-    zero = real(0,rp)
-    one = real(1,rp)
     call schwarz_extrude(work1,0,zero,work2,0,one ,enx,eny,enz, this%msh%nelv)
     call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
     call schwarz_extrude(work2,0,one ,work1,0,-one,enx,eny,enz, this%msh%nelv)
