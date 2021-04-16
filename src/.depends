@@ -5,7 +5,7 @@ nmsh.o : nmsh.f90 num_types.o
 re2.o : re2.f90 num_types.o 
 map.o : map.f90 mesh.o 
 log.o : log.f90 num_types.o comm.o 
-comm.o : comm.f90 num_types.o 
+comm.o : comm.f90 
 curve.o : curve.f90 hex.o point.o structs.o utils.o stack.o 
 mpi_types.o : mpi_types.f90 parameters.o nmsh.o re2.o comm.o 
 datadist.o : datadist.f90 
