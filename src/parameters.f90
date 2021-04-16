@@ -36,7 +36,7 @@ module parameters
   end type param_io_t
 
   interface write(formatted)
-     module procedure :: param_write
+     module procedure param_write
   end interface write(formatted)
   
 contains

@@ -384,7 +384,7 @@ contains
           id = re2v2_data_curve(i)%face
           chtemp = re2v2_data_curve(i)%type
           do j = 1, 5 
-             curve_data(j,id, el_idx) = real(re2v2_data_curve(i)%point(j),dp) 
+             curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j)
           enddo
        else 
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
