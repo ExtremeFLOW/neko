@@ -9,17 +9,21 @@ module math
   !> \f$ ln(2) \f$
   real(kind=rp), parameter :: NEKO_M_LN2 = 0.693147180559945d0
 
+  interface abscmp
+     module procedure sabscmp, dabscmp, qabscmp
+  end interface abscmp
+
 contains
 
-  !> Return absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function abscmp(x, y)
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    logical :: abscmp 
+  !> Return single precision absolute comparison \f$ | x - y | < \epsilon \f$
+  pure function sabscmp(x, y)
+    real(kind=sp), intent(in) :: x
+    real(kind=sp), intent(in) :: y
+    logical :: sabscmp 
 
-    abscmp = abs(x - y) .lt. NEKO_EPS
+    sabscmp = abs(x - y) .lt. NEKO_EPS
 
-  end function abscmp
+  end function sabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
   pure function dabscmp(x, y)
@@ -28,9 +32,18 @@ contains
     logical :: dabscmp 
 
     dabscmp = abs(x - y) .lt. NEKO_EPS
-
+    
   end function dabscmp
 
+  !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
+  pure function qabscmp(x, y)
+    real(kind=qp), intent(in) :: x
+    real(kind=qp), intent(in) :: y
+    logical :: qabscmp 
+
+    qabscmp = abs(x - y) .lt. NEKO_EPS
+
+  end function qabscmp
 
   !> Zero a real vector
   subroutine rzero(a, n)

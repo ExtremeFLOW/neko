@@ -181,8 +181,8 @@ contains
     res = .false.
     select type(other)
     type is(tuple_r8_t)
-       if (dabscmp(this%x(1), other%x(1)) .and. &
-            dabscmp(this%x(2), other%x(2))) then
+       if (abscmp(this%x(1), other%x(1)) .and. &
+            abscmp(this%x(2), other%x(2))) then
           res = .true.          
        end if
     end select

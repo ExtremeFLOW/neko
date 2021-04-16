@@ -86,9 +86,9 @@ contains
     class(point_t), intent(in) :: p2
     logical :: res
 
-    if (dabscmp(p1%x(1), p2%x(1)) .and. &
-         dabscmp(p1%x(2), p2%x(2)) .and. &
-         dabscmp(p1%x(3), p2%x(3))) then
+    if (abscmp(p1%x(1), p2%x(1)) .and. &
+         abscmp(p1%x(2), p2%x(2)) .and. &
+         abscmp(p1%x(3), p2%x(3))) then
        res = .true.
     else
        res = .false.
@@ -103,9 +103,9 @@ contains
     class(point_t), intent(in) :: p2
     logical :: res
 
-    if (.not. dabscmp(p1%x(1), p2%x(1)) .and. &
-         .not. dabscmp(p1%x(2), p2%x(2)) .and. &
-         .not. dabscmp(p1%x(3), p2%x(3))) then
+    if (.not. abscmp(p1%x(1), p2%x(1)) .and. &
+         .not. abscmp(p1%x(2), p2%x(2)) .and. &
+         .not. abscmp(p1%x(3), p2%x(3))) then
        res = .true.
     else
        res = .false.
@@ -121,9 +121,9 @@ contains
     logical :: res
 
     if (p1%x(1) .lt. p2%x(1) .or. &
-         (dabscmp(p1%x(1), p2%x(1)) .and. &
+         (abscmp(p1%x(1), p2%x(1)) .and. &
          (p1%x(2) .lt. p2%x(2) .or. &
-         (dabscmp(p1%x(2), p2%x(2)) .and. p1%x(3) .lt. p2%x(3))))) then
+         (abscmp(p1%x(2), p2%x(2)) .and. p1%x(3) .lt. p2%x(3))))) then
        res = .true.
     else
        res = .false.

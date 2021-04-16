@@ -300,16 +300,16 @@ contains
        v = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(1)%p%x
        w = m%elements(e)%e%pts(5)%p%x - m%elements(e)%e%pts(1)%p%x
        temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
-       if(.not. dabscmp(temp, zero)) m%dfrmd_el(e) = .true.
+       if(.not. abscmp(temp, zero)) m%dfrmd_el(e) = .true.
        temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
-       if(.not. dabscmp(temp, zero)) m%dfrmd_el(e) = .true.
+       if(.not. abscmp(temp, zero)) m%dfrmd_el(e) = .true.
        u = m%elements(e)%e%pts(8)%p%x - m%elements(e)%e%pts(7)%p%x
        v = m%elements(e)%e%pts(6)%p%x - m%elements(e)%e%pts(7)%p%x
        w = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(7)%p%x
        temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
-       if(.not. dabscmp(temp, zero)) m%dfrmd_el(e) = .true.
+       if(.not. abscmp(temp, zero)) m%dfrmd_el(e) = .true.
        temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
-       if(.not. dabscmp(temp, zero)) m%dfrmd_el(e) = .true.
+       if(.not. abscmp(temp, zero)) m%dfrmd_el(e) = .true.
     end do
   end subroutine mesh_generate_flags
 
