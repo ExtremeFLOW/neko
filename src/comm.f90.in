@@ -6,7 +6,7 @@ module comm
   type(MPI_Comm) :: NEKO_COMM
 
   !> MPI type for working precision of REAL types
-  type(MPI_Datatype) :: MPI_REAL_PRECISION 
+  type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
   
   !> MPI rank
   integer :: pe_rank
@@ -42,10 +42,6 @@ contains
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
 
-    !> @todo Other assignment options seems to break for ompi 4.0.x
-    !! Preferably we want this to be a parameter
-    MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
-    
   end subroutine comm_init
 
   subroutine comm_free
