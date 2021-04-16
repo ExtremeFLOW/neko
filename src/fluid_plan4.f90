@@ -259,6 +259,7 @@ contains
     integer tt
     integer :: n, iter, i, niter
     type(ksp_monitor_t) :: ksp_results(4)
+    real(kind=rp), parameter :: one = 1.0
     n = this%dm_Xh%n_dofs
     niter = 1000
 
@@ -365,7 +366,7 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       
-      call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x,real(1d0,rp),n,msh%gdim)
+      call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, one, n, msh%gdim)
      
       if (this%flow_dir .ne. 0) call plan4_vol_flow(this, ab_bdf)
       call fluid_step_info(tstep, t, params%dt, ksp_results)
@@ -377,9 +378,10 @@ contains
     real(kind=rp), intent(inout) :: h1(n)
     real(kind=rp), intent(inout) :: h2(n)
     real(kind=rp), intent(inout) :: rho
+    real(kind=rp), parameter :: one = 1.0
     logical, intent(inout) :: ifh2
     call rone(h1, n)
-    call cmult(h1, real(1d0,rp) /rho, n)
+    call cmult(h1, one /rho, n)
     call rzero(h2, n)
     ifh2 = .false.
   end subroutine fluid_plan4_pres_setup
@@ -393,9 +395,10 @@ contains
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(inout) :: dt
     logical, intent(inout) :: ifh2
+    real(kind=rp), parameter :: one = 1.0
     real(kind=rp) :: dtbd    
     dtbd = rho * (bd / dt)
-    h1 = (1d0 / Re)
+    h1 = (one / Re)
     h2 = dtbd
     ifh2 = .true.
   end subroutine fluid_plan4_vel_setup
@@ -419,7 +422,8 @@ contains
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     integer, intent(inout) :: n
-
+    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: three = 3.0
     real(kind=rp) :: scl
 
     call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
@@ -430,15 +434,15 @@ contains
     
     call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
-    scl = -1d0/3d0
+    scl = -one /three 
 
     call rzero(ta4,c_xh%dof%n_dofs)
     call add2s1  (ta4,p%x,scl,c_Xh%dof%n_dofs)
     call opgrad  (ta1,ta2,ta3,ta4,c_Xh)
 
-    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, real(-1d0,rp), n, msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -one, n, msh%gdim)
 
-    call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, real(1d0,rp), n, msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, three, n, msh%gdim)
 
   end subroutine fluid_plan4_vel_residual
 
@@ -470,6 +474,9 @@ contains
     real(kind=rp), intent(inout) :: dt
     real(kind=rp), intent(inout) :: Re
     real(kind=rp), intent(inout) :: rho
+    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: three = 3.0
+    real(kind=rp), parameter :: four = 4.0
     real(kind=rp) :: scl, dtbd, real
     integer :: i, idx(4)
     integer :: n, gdim, glb_n,m, k
@@ -481,13 +488,13 @@ contains
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
-    scl = -4d0 / 3d0
+    scl = -four / three
     call rzero(ta1%x,n)
     call rzero(ta2%x,n)
     call rzero(ta3%x,n)
     call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
-    work1%x = (1d0 / Re) / rho
+    work1%x = (one / Re) / rho
     call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
 
     call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)
@@ -578,6 +585,7 @@ contains
     real(kind=rp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
     real(kind=rp), intent(inout) :: dt, rho, bd(10)
     real(kind=rp) :: const
+    real(kind=rp), parameter :: one = 1.0
     integer :: ilag
     CONST = rho /DT
     call rone(h2, n)
@@ -588,7 +596,7 @@ contains
                                       vlag (1,ILAG-1),&
                                       wlag (1,ILAG-1),&
                                       B,bd(ilag+1),n,gdim)
-       CALL OPADD2cm  (TB1,TB2,TB3,TA1%x,TA2%x,TA3%x, real(1d0,rp), n, gdim)
+       CALL OPADD2cm  (TB1,TB2,TB3,TA1%x,TA2%x,TA3%x, one, n, gdim)
    ENDDO
    CALL OPADD2col (BFX,BFY,BFZ,TB1,TB2,TB3,h2, n, gdim)
   END subroutine makebdf

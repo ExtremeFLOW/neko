@@ -52,14 +52,14 @@ contains
     integer :: nsamples = 0
     logical :: output_bdry = .false.
     logical :: output_part = .false.
-    real(kind=dp) :: dt = 0d0
-    real(kind=dp) :: T_end = 0d0
-    real(kind=dp) :: rho = 1d0
-    real(kind=dp) :: mu = 1d0
-    real(kind=dp) :: Re = 1d0
-    real(kind=dp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
-    real(kind=dp) :: abstol_vel = 1d-9
-    real(kind=dp) :: abstol_prs = 1d-9
+    real(kind=rp) :: dt = 0d0
+    real(kind=rp) :: T_end = 0d0
+    real(kind=rp) :: rho = 1d0
+    real(kind=rp) :: mu = 1d0
+    real(kind=rp) :: Re = 1d0
+    real(kind=rp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
+    real(kind=rp) :: abstol_vel = 1d-9
+    real(kind=rp) :: abstol_prs = 1d-9
     character(len=20) :: ksp_vel = 'cg'
     character(len=20) :: ksp_prs = 'gmres'
     character(len=20) :: pc_vel = 'jacobi'
@@ -68,7 +68,7 @@ contains
     integer :: vol_flow_dir = 0
     logical :: avflow = .true.
     logical :: loadb = .false.
-    real(kind=dp) :: flow_rate = 0d0
+    real(kind=rp) :: flow_rate = 0d0
     integer :: proj_dim = 20
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
@@ -81,14 +81,14 @@ contains
     param%p%output_bdry = output_bdry
     param%p%output_part = output_part
     param%p%nsamples = nsamples
-    param%p%dt = real(dt,rp)
-    param%p%T_end = real(T_end,rp)
-    param%p%rho = real(rho,rp)
-    param%p%mu = real(mu,rp)
-    param%p%Re = real(Re,rp)
-    param%p%uinf = real(uinf,rp)
-    param%p%abstol_vel = real(abstol_vel,rp)
-    param%p%abstol_prs = real(abstol_prs,rp)
+    param%p%dt = dt
+    param%p%T_end = T_end
+    param%p%rho = rho
+    param%p%mu = mu
+    param%p%Re = Re
+    param%p%uinf = uinf
+    param%p%abstol_vel = abstol_vel
+    param%p%abstol_prs = abstol_prs
     param%p%ksp_vel = ksp_vel
     param%p%ksp_prs = ksp_prs
     param%p%pc_vel = pc_vel
@@ -97,7 +97,7 @@ contains
     param%p%vol_flow_dir = vol_flow_dir
     param%p%avflow = avflow
     param%p%loadb = loadb
-    param%p%flow_rate = real(flow_rate,rp)
+    param%p%flow_rate = flow_rate
     param%p%proj_dim = proj_dim
 
   end subroutine param_read
@@ -110,9 +110,9 @@ contains
     integer(kind=4), intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    real(kind=dp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
+    real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
-    real(kind=dp), dimension(3) :: uinf
+    real(kind=rp), dimension(3) :: uinf
     logical :: output_part, avflow
     logical :: output_bdry, loadb
     integer :: nsamples, vol_flow_dir, proj_dim
@@ -124,14 +124,14 @@ contains
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
     output_part = param%p%output_part
-    dt = real(param%p%dt,dp)
-    T_end = real(param%p%T_end,dp)
-    rho = real(param%p%rho,dp)
-    mu = real(param%p%mu,dp)
-    Re = real(param%p%Re,dp)
-    uinf = real(param%p%uinf,dp)
-    abstol_vel =real(param%p%abstol_vel,dp)
-    abstol_prs =real(param%p%abstol_prs,dp)
+    dt = param%p%dt
+    T_end = param%p%T_end
+    rho = param%p%rho
+    mu = param%p%mu
+    Re = param%p%Re
+    uinf = param%p%uinf
+    abstol_vel = param%p%abstol_vel
+    abstol_prs = param%p%abstol_prs
     ksp_vel = param%p%ksp_vel
     ksp_prs = param%p%ksp_prs
     pc_vel = param%p%pc_vel
@@ -140,7 +140,7 @@ contains
     vol_flow_dir = param%p%vol_flow_dir
     avflow = param%p%avflow
     loadb = param%p%loadb
-    flow_rate = real(param%p%flow_rate,dp)
+    flow_rate = param%p%flow_rate
     proj_dim = param%p%proj_dim
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)

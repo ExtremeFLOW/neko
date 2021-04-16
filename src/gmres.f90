@@ -148,6 +148,7 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, glb_n
     integer :: i, j, k, ierr 
+    real(kind=rp), parameter :: one = 1.0
     real(kind=rp) :: rnorm 
     real(kind=rp) ::  alpha, temp, l
     real(kind=rp) :: ratio, div0, norm_fac, tolpss
@@ -160,7 +161,7 @@ contains
 
     call rone(this%ml,n)
     call rone(this%mu ,n)
-    norm_fac = 1d0/sqrt(coef%volume)
+    norm_fac = one / sqrt(coef%volume)
     call rzero(x%x,n)
     call rzero(this%gam,this%lgmres+1)
     call rone(this%s,this%lgmres)
@@ -178,7 +179,7 @@ contains
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call add2s2(this%r,this%w,real(-1d0,rp),n) 
+          call add2s2(this%r,this%w,real(-one,rp),n) 
           call col2(this%r,this%ml,n)       
        endif
        this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n))
@@ -190,7 +191,7 @@ contains
        if ( this%gam(1) .eq. 0) return
 
        rnorm = 0d0
-       temp = 1d0 / this%gam(1)
+       temp = one / this%gam(1)
        call cmult2(this%v(1,1),this%r,temp,n) 
        do j=1,this%lgmres
           iter = iter+1
@@ -230,7 +231,7 @@ contains
             exit
           end if
           l = sqrt(this%h(j,j)*this%h(j,j)+alpha*alpha)
-          temp = 1d0 / l
+          temp = one / l
           this%c(j) = this%h(j,j) * temp
           this%s(j) = alpha  * temp
           this%h(j,j) = l
@@ -247,7 +248,7 @@ contains
           if (iter+1.gt.niter) exit
           
           if( j .lt. this%lgmres) then
-            temp = 1d0 / alpha
+            temp = one / alpha
             call cmult2(this%v(1,j+1),this%w,temp,n)
           endif
        enddo
