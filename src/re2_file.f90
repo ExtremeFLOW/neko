@@ -274,8 +274,8 @@ contains
                re2v1_data_xy, nelv, MPI_RE2V1_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4             
-                p(j) = point_t(real(re2v1_data_xy(i)%x(j),rp), &
-                     real(re2v1_data_xy(i)%y(j),rp), real(0.0,rp))
+                p(j) = point_t(real(re2v1_data_xy(i)%x(j),dp), &
+                     real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
@@ -288,8 +288,8 @@ contains
                re2v2_data_xy, nelv, MPI_RE2V2_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4             
-                p(j) = point_t(real(re2v2_data_xy(i)%x(j),rp), &
-                     real(re2v2_data_xy(i)%y(j),rp), real(0.0,rp))
+                p(j) = point_t(re2v2_data_xy(i)%x(j), &
+                     re2v2_data_xy(i)%y(j), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
@@ -305,9 +305,9 @@ contains
                re2v1_data_xyz, nelv, MPI_RE2V1_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8             
-                p(j) = point_t(real(re2v1_data_xyz(i)%x(j),rp), &
-                     real(re2v1_data_xyz(i)%y(j),rp),&
-                     real(re2v1_data_xyz(i)%z(j),rp))
+                p(j) = point_t(real(re2v1_data_xyz(i)%x(j),dp), &
+                     real(re2v1_data_xyz(i)%y(j),dp),&
+                     real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
@@ -321,9 +321,9 @@ contains
                re2v2_data_xyz, nelv, MPI_RE2V2_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8             
-                p(j) = point_t(real(re2v2_data_xyz(i)%x(j),rp), &
-                     real(re2v2_data_xyz(i)%y(j),rp),&
-                     real(re2v2_data_xyz(i)%z(j),rp))
+                p(j) = point_t(re2v2_data_xyz(i)%x(j), &
+                     re2v2_data_xyz(i)%y(j),&
+                     re2v2_data_xyz(i)%z(j))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
@@ -349,7 +349,7 @@ contains
     integer :: i, j, l, ierr, pt_idx, el_idx, id
     type(re2v1_curve_t), allocatable :: re2v1_data_curve(:)
     type(re2v2_curve_t), allocatable :: re2v2_data_curve(:)    
-    real(kind=rp), allocatable :: curve_data(:,:,:)
+    real(kind=dp), allocatable :: curve_data(:,:,:)
     integer, allocatable :: curve_type(:,:)
     logical, allocatable :: curve_element(:)
     character(len=4) :: chtemp
@@ -384,14 +384,14 @@ contains
           id = re2v2_data_curve(i)%face
           chtemp = re2v2_data_curve(i)%type
           do j = 1, 5 
-             curve_data(j,id, el_idx) = real(re2v2_data_curve(i)%point(j),rp) 
+             curve_data(j,id, el_idx) = real(re2v2_data_curve(i)%point(j),dp) 
           enddo
        else 
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
           id = re2v1_data_curve(i)%face
           chtemp = re2v1_data_curve(i)%type
           do j = 1, 5 
-             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),rp) 
+             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp) 
           enddo
        end if
        

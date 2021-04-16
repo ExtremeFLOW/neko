@@ -4,7 +4,7 @@ module structs
   implicit none
   
   type, public :: struct_curve_t
-    real(kind=rp) :: curve_data(5,8)
+    real(kind=dp) :: curve_data(5,8)
     integer :: curve_type(8)
     integer :: el_idx
   end type struct_curve_t

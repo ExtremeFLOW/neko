@@ -9,7 +9,7 @@ module point
 
   !> A point in \f$ R^d \f$ with coordinates \f$ (x,y,z)\f$
   type, extends(entity_t), public ::  point_t
-     real(kind=rp), dimension(3) :: x
+     real(kind=dp), dimension(3) :: x
    contains
      procedure :: point_eq
      procedure :: point_ne
@@ -36,7 +36,7 @@ contains
   
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates
   function point_init(x, id) result(this)
-    real(kind=rp), dimension(3), intent(in) :: x
+    real(kind=dp), dimension(3), intent(in) :: x
     integer, optional, intent(inout) :: id
     type(point_t) :: this
 
@@ -52,9 +52,9 @@ contains
 
   !> Initialize a point from \f$ (x,y,z) \f$ coordinates
   function point_init_xyz(x, y, z, id) result(this)
-    real(kind=rp), intent(in) :: x
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: z
+    real(kind=dp), intent(in) :: x
+    real(kind=dp), intent(in) :: y
+    real(kind=dp), intent(in) :: z
     integer, optional, intent(inout) :: id
     type(point_t) :: this
 
@@ -73,7 +73,7 @@ contains
   !> Assigns coordinates @a x to a point
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
-    real(kind=rp), dimension(3), intent(in) :: x
+    real(kind=dp), dimension(3), intent(in) :: x
 
     this%x = x
 
@@ -86,9 +86,9 @@ contains
     class(point_t), intent(in) :: p2
     logical :: res
 
-    if (abscmp(p1%x(1), p2%x(1)) .and. &
-         abscmp(p1%x(2), p2%x(2)) .and. &
-         abscmp(p1%x(3), p2%x(3))) then
+    if (dabscmp(p1%x(1), p2%x(1)) .and. &
+         dabscmp(p1%x(2), p2%x(2)) .and. &
+         dabscmp(p1%x(3), p2%x(3))) then
        res = .true.
     else
        res = .false.
@@ -103,9 +103,9 @@ contains
     class(point_t), intent(in) :: p2
     logical :: res
 
-    if (.not. abscmp(p1%x(1), p2%x(1)) .and. &
-         .not. abscmp(p1%x(2), p2%x(2)) .and. &
-         .not. abscmp(p1%x(3), p2%x(3))) then
+    if (.not. dabscmp(p1%x(1), p2%x(1)) .and. &
+         .not. dabscmp(p1%x(2), p2%x(2)) .and. &
+         .not. dabscmp(p1%x(3), p2%x(3))) then
        res = .true.
     else
        res = .false.
@@ -121,9 +121,9 @@ contains
     logical :: res
 
     if (p1%x(1) .lt. p2%x(1) .or. &
-         (abscmp(p1%x(1), p2%x(1)) .and. &
+         (dabscmp(p1%x(1), p2%x(1)) .and. &
          (p1%x(2) .lt. p2%x(2) .or. &
-         (abscmp(p1%x(2), p2%x(2)) .and. p1%x(3) .lt. p2%x(3))))) then
+         (dabscmp(p1%x(2), p2%x(2)) .and. p1%x(3) .lt. p2%x(3))))) then
        res = .true.
     else
        res = .false.

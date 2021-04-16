@@ -550,6 +550,7 @@ contains
     real(kind=rp) :: jx(this%Xh%lx*2), jy(this%Xh%lx*2), jz(this%Xh%lx*2)
     real(kind=rp) :: jxt(this%Xh%lx*2), jyt(this%Xh%lx*2), jzt(this%Xh%lx*2)
     real(kind=rp) :: w(4*this%Xh%lx**3), tmp(this%Xh%lx, this%Xh%lx, this%Xh%lx)
+    real(kind=rp) :: rp_curve_data(5)
     real(kind=rp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
     
 
@@ -608,7 +609,8 @@ contains
        el_idx = msh%curve%curve_el(i)%el_idx
        do j = 1, 8
        if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
-          call arc_surface(j, msh%curve%curve_el(i)%curve_data(:,j), &
+          rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
+          call arc_surface(j, rp_curve_data, &
                            this%x(1,1,1,el_idx), this%y(1,1,1,el_idx), this%z(1,1,1, el_idx), &
                            Xh, msh%elements(el_idx)%e, msh%gdim) 
        end if

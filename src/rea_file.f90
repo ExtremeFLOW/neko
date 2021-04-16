@@ -41,7 +41,7 @@ contains
     logical :: read_param, read_bcs, read_map
     real(kind=dp) :: xc(8), yc(8), zc(8), curve(5)
     real(kind=dp), allocatable :: bc_data(:,:,:)
-    real(kind=rp), allocatable :: curve_data(:,:,:)
+    real(kind=dp), allocatable :: curve_data(:,:,:)
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     type(map_file_t) :: map_file
@@ -152,7 +152,7 @@ contains
              read(9, *) (yc(j),j=1,4)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
-                   p(j) = point_t(real(xc(j),rp), real(yc(j),rp),real(0d0,rp))
+                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
@@ -166,7 +166,7 @@ contains
              read(9, *) (zc(j),j=5,8)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
-                   p(j) = point_t(real(xc(j),rp), real(yc(j),rp), real(zc(j),rp))
+                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 call mesh_add_element(msh, el_idx, &

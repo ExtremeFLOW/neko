@@ -81,7 +81,7 @@ contains
   !> Add a (facet, el) tuple to an unfinalized domain
   subroutine curve_element_add(z, el_idx, curve_data, curve_type )
     class(curve_t), intent(inout) :: z
-    real(kind=rp), dimension(5,8), intent(in) :: curve_data
+    real(kind=dp), dimension(5,8), intent(in) :: curve_data
     integer, dimension(8), intent(in) :: curve_type
     integer, intent(in) :: el_idx
     type(struct_curve_t) :: c_el
