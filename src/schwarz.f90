@@ -274,7 +274,8 @@ contains
     class(schwarz_t), intent(inout) :: this
     real(kind=rp), dimension(this%dm%n_dofs), intent(inout) :: e, r
     integer :: n, enx, eny, enz, ns
-    real(kind=rp) :: zero, one
+    real(kind=rp), parameter :: zero = 0.0
+    real(kind=rp), parameter :: one = 1.0
     associate(work1 => this%work1, work2 => this%work2)
 
     n  = this%dm%n_dofs
@@ -283,8 +284,6 @@ contains
     enz=this%Xh_schwarz%lz
     if(.not. this%msh%gdim .eq. 3) enz=1
     ns = enx*eny*enz*this%msh%nelv
-    zero = real(0,rp)
-    one = real(1, rp)
 
     call bc_list_apply_scalar(this%bclst, r, n)
     !if (if3d) then ! extended array 

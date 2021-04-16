@@ -190,14 +190,14 @@ contains
           do j = 1, 8
              curve_type(j,i) = 0
              do l = 1, 5
-                curve_data(l,j,i) = real(0d0,rp)
+                curve_data(l,j,i) = 0d0
              end do
           end do
        end do
        do i = 1, nskip
           read(9, *) edge, el_idx, (curve,j=1,5), chtemp       
           do j = 1, 5
-             curve_data(j,edge,el_idx) = real(curve(j),rp)
+             curve_data(j,edge,el_idx) = curve(j)
           end do
           curve_element(el_idx) = .true. 
           select case(trim(chtemp))

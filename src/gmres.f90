@@ -179,7 +179,7 @@ contains
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call add2s2(this%r,this%w,real(-one,rp),n) 
+          call add2s2(this%r,this%w,-one,n) 
           call col2(this%r,this%ml,n)       
        endif
        this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n))

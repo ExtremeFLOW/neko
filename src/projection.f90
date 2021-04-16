@@ -18,7 +18,7 @@ module projection
      real(kind=rp), allocatable :: bb(:,:)
      real(kind=rp), allocatable :: xbar(:), bbar(:)
      integer :: m, L
-     real(kind=rp) :: tol = real(1d-7,rp)
+     real(kind=rp) :: tol = 1d-7
    contains
      procedure, pass(this) :: project_on => project1
      procedure, pass(this) :: project_back => project2
@@ -216,13 +216,14 @@ contains
   subroutine givens_rotation(a, b, c, s, r)
     real(kind=rp), intent(inout) :: a, b, c, s, r
     real(kind=rp) ::  h, d
+    real(kind=rp), parameter :: one = 1d0
 
     if(b.ne.0d0) then
        h = hypot(a,b) 
        d = 1d0/h
        c = abs(a)*d
        s = sign(d,a)*b
-       r = sign(real(1d0,rp),a)*h
+       r = sign(one,a)*h
     else
        c = 1d0
        s = 0d0
