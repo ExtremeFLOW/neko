@@ -32,8 +32,8 @@ contains
     type(htable_i4_t) :: algnf 
     integer :: i, m, j, k, l, idx(4), facet, ntype, msk_size
     integer, pointer :: sp(:)        
-    real(kind=dp) :: sx,sy,sz
-    real(kind=dp), parameter :: TOL = 1d-3
+    real(kind=rp) :: sx,sy,sz
+    real(kind=rp), parameter :: TOL = 1d-3
     
     call symmetry_free(this)
 
@@ -183,16 +183,16 @@ contains
   subroutine symmetry_apply_scalar(this, x, n)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
   end subroutine symmetry_apply_scalar
 
   !> Apply symmetry conditions (axis aligned)
   subroutine symmetry_apply_vector(this, x, y, z, n)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
-    real(kind=dp), intent(inout),  dimension(n) :: y
-    real(kind=dp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: y
+    real(kind=rp), intent(inout),  dimension(n) :: z
     integer :: i, m, k
 
     m = this%xaxis_msk(0)

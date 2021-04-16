@@ -20,8 +20,8 @@ contains
 !     ds  - ds/dx or ds/dy or ds/dz
 !     dt  - dt/dx or dt/dy or dt/dz
     type(coef_t), intent(in), target :: coef
-    real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
-    real(kind=dp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
@@ -37,10 +37,10 @@ contains
   !Compute gradient of T -- mesh 1 to mesh 1 (vel. to vel.)
 
     type(coef_t), intent(in) :: coef  
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_opgrad(ux, uy, uz, u, coef)
@@ -54,8 +54,8 @@ contains
   subroutine ortho(x,n ,glb_n)
     integer, intent(in) :: n
     integer, intent(in) :: glb_n
-    real(kind=dp), dimension(n), intent(inout) :: x
-    real(kind=dp) :: rlam
+    real(kind=rp), dimension(n), intent(inout) :: x
+    real(kind=rp) :: rlam
 
     rlam = glsum(x,n)/glb_n
     call cadd(x,-rlam,n)
@@ -66,11 +66,11 @@ contains
   !> This needs to be revised... the loop over n1,n2 is probably unesccssary
   subroutine cdtp (dtx,x,dr,ds,dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
-    real(kind=dp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
@@ -84,11 +84,11 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=dp), intent(inout) ::  du(Xh%lxyz,nelv)
-    real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
-    real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
-    real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
-    real(kind=dp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
@@ -121,12 +121,12 @@ contains
     type(space_t) :: Xh
     type(coef_t) :: coef
     integer :: nelv, gdim
-    real(kind=dp) :: dt
-    real(kind=dp) ::  du(Xh%lxyz,nelv)
-    real(kind=dp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
-    real(kind=dp) :: cflr, cfls, cflt, cflm, cfl_temp(1)
-    real(kind=dp) :: ur, us, ut
-    real(kind=dp) :: cfl
+    real(kind=rp) :: dt
+    real(kind=rp) ::  du(Xh%lxyz,nelv)
+    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp) :: cflr, cfls, cflt, cflm, cfl_temp(1)
+    real(kind=rp) :: ur, us, ut
+    real(kind=rp) :: cfl
     integer :: i,j,k,e
     cfl_temp(1) = 0d0
     if (gdim .eq. 3) then

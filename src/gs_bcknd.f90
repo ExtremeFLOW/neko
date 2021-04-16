@@ -37,14 +37,14 @@ module gs_bcknd
   abstract interface
      subroutine gs_gather(this, v, m, o, dg, u, n, gd, nb, b, op)
        import gs_bcknd_t       
-       import dp
+       import rp
        integer, intent(inout) :: m
        integer, intent(inout) :: n
        integer, intent(inout) :: nb
        class(gs_bcknd_t), intent(inout) :: this
-       real(kind=dp), dimension(m), intent(inout) :: v
+       real(kind=rp), dimension(m), intent(inout) :: v
        integer, dimension(m), intent(inout) :: dg
-       real(kind=dp), dimension(n), intent(inout) :: u
+       real(kind=rp), dimension(n), intent(inout) :: u
        integer, dimension(m), intent(inout) :: gd
        integer, dimension(nb), intent(inout) :: b
        integer, intent(inout) :: o
@@ -58,18 +58,18 @@ module gs_bcknd
   abstract interface
      subroutine gs_scatter(this, v, m, dg, u, n, gd, nb, b)
        import gs_bcknd_t       
-       import dp
+       import rp
        integer, intent(in) :: m
        integer, intent(in) :: n
        integer, intent(in) :: nb
        class(gs_bcknd_t), intent(inout) :: this              
-       real(kind=dp), dimension(m), intent(inout) :: v
+       real(kind=rp), dimension(m), intent(inout) :: v
        integer, dimension(m), intent(inout) :: dg
-       real(kind=dp), dimension(n), intent(inout) :: u
+       real(kind=rp), dimension(n), intent(inout) :: u
        integer, dimension(m), intent(inout) :: gd
        integer, dimension(nb), intent(inout) :: b
        integer :: i, j, k, blk_len
-       real(kind=dp) :: tmp       
+       real(kind=rp) :: tmp       
      end subroutine gs_scatter
   end interface
 

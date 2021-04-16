@@ -22,16 +22,16 @@ module usr_inflow
   !> Abstract interface defining a user defined inflow condition (pointwise)
   abstract interface
      subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
-       import dp
-       real(kind=dp), intent(inout) :: u
-       real(kind=dp), intent(inout) :: v
-       real(kind=dp), intent(inout) :: w
-       real(kind=dp), intent(in) :: x
-       real(kind=dp), intent(in) :: y
-       real(kind=dp), intent(in) :: z
-       real(kind=dp), intent(in) :: nx
-       real(kind=dp), intent(in) :: ny
-       real(kind=dp), intent(in) :: nz
+       import rp
+       real(kind=rp), intent(inout) :: u
+       real(kind=rp), intent(inout) :: v
+       real(kind=rp), intent(inout) :: w
+       real(kind=rp), intent(in) :: x
+       real(kind=rp), intent(in) :: y
+       real(kind=rp), intent(in) :: z
+       real(kind=rp), intent(in) :: nx
+       real(kind=rp), intent(in) :: ny
+       real(kind=rp), intent(in) :: nz
        integer, intent(in) :: ix
        integer, intent(in) :: iy
        integer, intent(in) :: iz
@@ -47,16 +47,16 @@ contains
   subroutine usr_inflow_apply_scalar(this, x, n)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: x
   end subroutine usr_inflow_apply_scalar
 
   !> Apply user defined inflow conditions (vector valued)
   subroutine usr_inflow_apply_vector(this, x, y, z, n)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
-    real(kind=dp), intent(inout),  dimension(n) :: y
-    real(kind=dp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: y
+    real(kind=rp), intent(inout),  dimension(n) :: z
     integer :: i, m, k, idx(4), facet
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &

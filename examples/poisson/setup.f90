@@ -31,27 +31,25 @@ end subroutine set_bc
 
 ! Setup rhs
 subroutine set_f(f, c, dm, n, gs_h)
-  use gather_scatter
-  use num_types
-  use utils
+  use neko
   implicit none
   
-  real(kind=dp), intent(inout), dimension(n) :: f
-  real(kind=dp), intent(inout), dimension(n) :: c
+  real(kind=rp), intent(inout), dimension(n) :: f
+  real(kind=rp), intent(inout), dimension(n) :: c
   type(dofmap_t), intent(in) :: dm
   integer,  intent(inout) :: n
   type(gs_t), intent(inout) :: gs_h
-  real(kind=dp) :: arg, dx, dy, dz
+  real(kind=rp) :: dx, dy, dz
+  real(kind=rp), parameter :: arg = 2d0
   integer :: i, idx(4)
 
   do i = 1, n
      idx = nonlinear_index(i, dm%Xh%lx, dm%Xh%ly, dm%Xh%lz)
-     dx = dm%x(idx(1), idx(2), idx(3), idx(4)) - 4;
-     dy = dm%y(idx(1), idx(2), idx(3), idx(4)) - 4;
-     dz = dm%z(idx(1), idx(2), idx(3), idx(4)) - 4;
-     f(i) = 500.0*exp(-(dx**2 + dy**2 + dz**2)/2);
+     dx = dm%x(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
+     dy = dm%y(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
+     dz = dm%z(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
+     f(i) = 500d0*exp(-(dx**arg + dy**arg + dz**arg)/arg)
   end do
-
   call gs_op(gs_h, f, n, GS_OP_ADD)
   call col2(f,c,n)
 end subroutine set_f

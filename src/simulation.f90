@@ -13,7 +13,7 @@ contains
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
     type(case_t), intent(inout) :: C
-    real(kind=dp) :: t, start_time_org, start_time, end_time, cfl
+    real(kind=rp) :: t, start_time_org, start_time, end_time, cfl
     character(len=LOG_SIZE) :: log_buf    
     integer :: tstep
 
@@ -57,11 +57,11 @@ contains
   end subroutine neko_solve
 
   subroutine simulation_settime(t, dt, ab_bdf, tlag, dtlag, step)
-    real(kind=dp), intent(inout) :: t
-    real(kind=dp), intent(in) :: dt
+    real(kind=rp), intent(inout) :: t
+    real(kind=rp), intent(in) :: dt
     type(abbdf_t), intent(inout) :: ab_bdf
-    real(kind=dp), dimension(10) :: tlag
-    real(kind=dp), dimension(10) :: dtlag
+    real(kind=rp), dimension(10) :: tlag
+    real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
     integer :: i
 

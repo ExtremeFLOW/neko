@@ -6,9 +6,9 @@ module source
 
   !> Defines a source term \f$ f \f$
   type :: source_t
-     real(kind=dp), allocatable :: u(:,:,:,:) !< x-component of source term
-     real(kind=dp), allocatable :: v(:,:,:,:) !< y-component of source term
-     real(kind=dp), allocatable :: w(:,:,:,:) !< w-component of source term
+     real(kind=rp), allocatable :: u(:,:,:,:) !< x-component of source term
+     real(kind=rp), allocatable :: v(:,:,:,:) !< y-component of source term
+     real(kind=rp), allocatable :: w(:,:,:,:) !< w-component of source term
      type(dofmap_t), pointer :: dm            !< dofmap for the given space
      procedure(source_term), pass(f), pointer  :: eval => null()
      procedure(source_term_pw), nopass, pointer  :: eval_pw => null()
@@ -25,10 +25,10 @@ module source
   !> Abstract interface defining how to compute a source term pointwise
   abstract interface
      subroutine source_term_pw(u, v, w, j, k, l, e)
-       import dp
-       real(kind=dp), intent(inout) :: u
-       real(kind=dp), intent(inout) :: v
-       real(kind=dp), intent(inout) :: w
+       import rp
+       real(kind=rp), intent(inout) :: u
+       real(kind=rp), intent(inout) :: v
+       real(kind=rp), intent(inout) :: w
        integer, intent(inout) :: j
        integer, intent(inout) :: k
        integer, intent(inout) :: l

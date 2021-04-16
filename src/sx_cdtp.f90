@@ -9,11 +9,11 @@ contains
   subroutine sx_cdtp_lx10(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 10
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=dp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
-    real(kind=dp), dimension(lx,lx,lx,nel) :: wx, ta1
-    real(kind=dp) :: tmp
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
+    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
     call col3(wx, B, x, nd)
@@ -69,11 +69,11 @@ contains
   subroutine sx_cdtp_lx8(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 8
     integer, intent(in) :: nel, nd
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=dp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=dp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
-    real(kind=dp), dimension(lx,lx,lx,nel) :: wx, ta1
-    real(kind=dp) :: tmp
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
+    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
     call col3(wx, B, x, nd)

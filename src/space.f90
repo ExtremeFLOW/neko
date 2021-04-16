@@ -17,25 +17,25 @@ module space
      integer :: lxz              !< Number of points in xz-plane
      integer :: lxyz              !< Number of points in xyz-block
      
-     real(kind=dp), allocatable :: zg(:,:) !< Quadrature points
+     real(kind=rp), allocatable :: zg(:,:) !< Quadrature points
      
-     real(kind=dp), allocatable :: dr_inv(:) !< 1/dist quadrature points
-     real(kind=dp), allocatable :: ds_inv(:) !< 1/dist quadrature points
-     real(kind=dp), allocatable :: dt_inv(:) !< 1/dist quadrature points
+     real(kind=rp), allocatable :: dr_inv(:) !< 1/dist quadrature points
+     real(kind=rp), allocatable :: ds_inv(:) !< 1/dist quadrature points
+     real(kind=rp), allocatable :: dt_inv(:) !< 1/dist quadrature points
 
-     real(kind=dp), allocatable :: wx(:)   !< Quadrature weights
-     real(kind=dp), allocatable :: wy(:)   !< Quadrature weights
-     real(kind=dp), allocatable :: wz(:)   !< Quadrature weights
+     real(kind=rp), allocatable :: wx(:)   !< Quadrature weights
+     real(kind=rp), allocatable :: wy(:)   !< Quadrature weights
+     real(kind=rp), allocatable :: wz(:)   !< Quadrature weights
 
-     real(kind=dp), allocatable :: w3(:,:,:)
+     real(kind=rp), allocatable :: w3(:,:,:)
 
-     real(kind=dp), allocatable :: dx(:,:) !< Derivative operator
-     real(kind=dp), allocatable :: dy(:,:) !< Derivative operator
-     real(kind=dp), allocatable :: dz(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dx(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dy(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dz(:,:) !< Derivative operator
 
-     real(kind=dp), allocatable :: dxt(:,:) !< Derivative operator
-     real(kind=dp), allocatable :: dyt(:,:) !< Derivative operator
-     real(kind=dp), allocatable :: dzt(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dxt(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
 
      !> @todo Store gll points etc in the space
   end type space_t
@@ -242,7 +242,7 @@ contains
   
   subroutine space_compute_dist(dx, x, lx)
     integer, intent(in) :: lx
-    real(kind=dp), intent(inout) :: dx(lx), x(lx)
+    real(kind=rp), intent(inout) :: dx(lx), x(lx)
     integer :: i
     dx(1) = x(2) - x(1)
     do i = 2, lx -1

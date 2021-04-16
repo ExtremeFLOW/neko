@@ -9,15 +9,16 @@ module projection
   use coefs
   use ax_product
   use bc
+  use comm
   use gather_scatter
   implicit none
 
   type projection_t
-     real(kind=dp), allocatable :: xx(:,:)
-     real(kind=dp), allocatable :: bb(:,:)
-     real(kind=dp), allocatable :: xbar(:), bbar(:)
+     real(kind=rp), allocatable :: xx(:,:)
+     real(kind=rp), allocatable :: bb(:,:)
+     real(kind=rp), allocatable :: xbar(:), bbar(:)
      integer :: m, L
-     real(kind=dp) :: tol = 1d-7
+     real(kind=rp) :: tol = 1d-7
    contains
      procedure, pass(this) :: project_on => project1
      procedure, pass(this) :: project_back => project2
@@ -74,9 +75,9 @@ contains
     class(coef_t), intent(inout) :: coef   
     class(bc_list_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
-    real(kind=dp), intent(inout), dimension(n) :: b 
+    real(kind=rp), intent(inout), dimension(n) :: b 
     integer :: i, j, k, ierr
-    real(kind=dp) :: work(this%L),alpha(this%L)
+    real(kind=rp) :: work(this%L),alpha(this%L)
     associate(xbar => this%xbar, xx => this%xx, &
               bbar => this%bbar, bb => this%bb)
     
@@ -89,7 +90,7 @@ contains
       !First one outside loop to avoid zeroing xbar and bbar
       !Could prorbably be done inplace...
       call MPI_Allreduce(alpha, work, this%m, &
-           MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+           MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       call copy(alpha, work, this%m) 
 
       call cmult2(xbar,xx(1,1),alpha(1),n)
@@ -105,7 +106,7 @@ contains
          alpha(k) = vlsc3(xx(1,k),coef%mult,b,n)
       enddo
       call MPI_Allreduce(alpha, work, this%m, &
-           MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+           MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       call copy(alpha, work, this%m) 
       do k = 1,this%m
          call add2s2(xbar,xx(1,k),alpha(k),n)
@@ -122,7 +123,7 @@ contains
     class(coef_t), intent(inout) :: coef   
     class(bc_list_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
-    real(kind=dp), intent(inout), dimension(n) :: x 
+    real(kind=rp), intent(inout), dimension(n) :: x 
     
     if (this%m.gt.0) call add2(x,this%xbar,n)      ! Restore desired solution
     this%m = min(this%m+1,this%L)
@@ -136,10 +137,10 @@ contains
   subroutine proj_ortho(this, xx, bb, w, n)
     type(projection_t)  :: this
     integer, intent(inout) :: n
-    real(kind=dp), dimension(n,this%L), intent(inout) :: xx, bb
-    real(kind=dp), dimension(n), intent(inout) :: w
-    real(kind=dp) :: nrm, scl1, scl2, c, s
-    real(kind=dp) :: work(this%L), alpha(this%L), beta(this%L)
+    real(kind=rp), dimension(n,this%L), intent(inout) :: xx, bb
+    real(kind=rp), dimension(n), intent(inout) :: w
+    real(kind=rp) :: nrm, scl1, scl2, c, s
+    real(kind=rp) :: work(this%L), alpha(this%L), beta(this%L)
     integer :: i, j, k, h, ierr
     associate(m => this%m)
     if(m.le.0) return !No vectors to ortho-normalize 
@@ -152,7 +153,7 @@ contains
                 + vlsc3(bb(1,k),w,xx(1,m),n))
     enddo
     call MPI_Allreduce(alpha, work, this%m, &
-         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     call copy(alpha, work, this%m) 
     nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
     do k = 1,m-1
@@ -165,7 +166,7 @@ contains
                + vlsc3(bb(1,k),w,xx(1,m),n))
     enddo
     call MPI_Allreduce(beta, work, this%m-1, &
-         MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     call copy(beta, work, this%m) 
     do k = 1,m-1
        call add2s2(xx(1,m),xx(1,k),-beta(k),n)
@@ -207,21 +208,22 @@ contains
 
     else !New vector is not linearly independent, forget about it
        k = m !location of rank deficient column
-       if( pe_rank .eq. 0) write(*,*) "New vector not linearly independent!" 
+       if(pe_rank .eq. 0) call neko_warning('New vector not linearly indepependent!')
        m = m - 1 !Remove column
     endif   
     end associate
   end subroutine proj_ortho
   subroutine givens_rotation(a, b, c, s, r)
-    real(kind=dp), intent(inout) :: a, b, c, s, r
-    real(kind=dp) ::  h, d
+    real(kind=rp), intent(inout) :: a, b, c, s, r
+    real(kind=rp) ::  h, d
+    real(kind=rp), parameter :: one = 1d0
 
     if(b.ne.0d0) then
        h = hypot(a,b) 
        d = 1d0/h
        c = abs(a)*d
        s = sign(d,a)*b
-       r = sign(1d0,a)*h
+       r = sign(one,a)*h
     else
        c = 1d0
        s = 0d0

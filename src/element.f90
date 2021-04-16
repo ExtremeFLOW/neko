@@ -31,9 +31,9 @@ module element
   abstract interface
      function element_diameter(this) result(res)
        import :: element_t
-       import :: dp
+       import :: rp
        class(element_t), intent(in) :: this
-       real(kind=dp) :: res
+       real(kind=rp) :: res
      end function element_diameter
   end interface
 

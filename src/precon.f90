@@ -17,16 +17,16 @@ module precon
   !! @param r vector of length @a n
   abstract interface
      subroutine pc_solve(this, z, r, n)
-       import dp
+       import rp
        import :: pc_t
        implicit none
        integer, intent(inout) :: n
        class(pc_t), intent(inout) :: this
-       real(kind=dp), dimension(n), intent(inout) :: z
-       real(kind=dp), dimension(n), intent(inout) :: r
+       real(kind=rp), dimension(n), intent(inout) :: z
+       real(kind=rp), dimension(n), intent(inout) :: r
      end subroutine pc_solve
      subroutine pc_update(this)
-       import dp
+       import rp
        import :: pc_t
        implicit none
        class(pc_t), intent(inout) :: this

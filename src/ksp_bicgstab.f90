@@ -7,13 +7,13 @@ module bicgstab
 
   !> Standard preconditioned Bi-Conjugate Gradient Stabilized method
   type, public, extends(ksp_t) :: bicgstab_t
-     real(kind=dp), allocatable :: p(:)
-     real(kind=dp), allocatable :: p_hat(:)
-     real(kind=dp), allocatable :: r(:)
-     real(kind=dp), allocatable :: s(:)
-     real(kind=dp), allocatable :: s_hat(:)
-     real(kind=dp), allocatable :: t(:)
-     real(kind=dp), allocatable :: v(:)
+     real(kind=rp), allocatable :: p(:)
+     real(kind=rp), allocatable :: p_hat(:)
+     real(kind=rp), allocatable :: r(:)
+     real(kind=rp), allocatable :: s(:)
+     real(kind=rp), allocatable :: s_hat(:)
+     real(kind=rp), allocatable :: t(:)
+     real(kind=rp), allocatable :: v(:)
    contains
      procedure, pass(this) :: init => bicgstab_init
      procedure, pass(this) :: free => bicgstab_free
@@ -27,8 +27,8 @@ contains
     class(bicgstab_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
-    real(kind=dp), optional, intent(inout) :: rel_tol
-    real(kind=dp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(inout) :: rel_tol
+    real(kind=rp), optional, intent(inout) :: abs_tol
 
         
     call this%free()
@@ -101,15 +101,15 @@ contains
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(inout) :: n
-    real(kind=dp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(inout) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
-    real(kind=dp) :: rnorm, rtr, norm_fac, gamma
-    real(kind=dp) :: beta, alpha, omega, rho_1, rho_2
+    real(kind=rp) :: rnorm, rtr, norm_fac, gamma
+    real(kind=rp) :: beta, alpha, omega, rho_1, rho_2
     
     if (present(niter)) then
        max_iter = niter

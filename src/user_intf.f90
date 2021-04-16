@@ -34,8 +34,8 @@ module user_intf
      subroutine usercheck(t, dt, tstep, u, v, w, p, coef)
        import field_t
        import coef_t
-       import dp
-       real(kind=dp), intent(in) :: t, dt
+       import rp
+       real(kind=rp), intent(in) :: t, dt
        integer, intent(in) :: tstep
        type(coef_t), intent(inout) :: coef
        type(field_t), intent(inout) :: u
@@ -97,9 +97,9 @@ contains
 
   !> Dummy user forcing
   subroutine dummy_user_f(u, v, w, j, k, l, e)
-    real(kind=dp), intent(inout) :: u
-    real(kind=dp), intent(inout) :: v
-    real(kind=dp), intent(inout) :: w
+    real(kind=rp), intent(inout) :: u
+    real(kind=rp), intent(inout) :: v
+    real(kind=rp), intent(inout) :: w
     integer, intent(inout) :: j
     integer, intent(inout) :: k
     integer, intent(inout) :: l
@@ -114,7 +114,7 @@ contains
   
   !> Dummy user check
   subroutine dummy_user_check( t, dt, tstep,u, v, w, p, coef)
-    real(kind=dp), intent(in) :: t, dt
+    real(kind=rp), intent(in) :: t, dt
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: u

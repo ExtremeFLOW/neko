@@ -13,12 +13,12 @@ module fdm
   use tensor
   implicit none  
   type, public :: fdm_t
-    real(kind=dp), allocatable :: s(:,:,:,:)
-    real(kind=dp), allocatable :: d(:,:)
-    real(kind=dp), allocatable :: len_lr(:),len_ls(:),len_lt(:)
-    real(kind=dp), allocatable :: len_mr(:),len_ms(:),len_mt(:)
-    real(kind=dp), allocatable :: len_rr(:),len_rs(:),len_rt(:)
-    real(kind=dp), allocatable :: swplen(:,:,:,:)
+    real(kind=rp), allocatable :: s(:,:,:,:)
+    real(kind=rp), allocatable :: d(:,:)
+    real(kind=rp), allocatable :: len_lr(:),len_ls(:),len_lt(:)
+    real(kind=rp), allocatable :: len_mr(:),len_ms(:),len_mt(:)
+    real(kind=rp), allocatable :: len_rr(:),len_rs(:),len_rt(:)
+    real(kind=rp), allocatable :: swplen(:,:,:,:)
     type(space_t), pointer :: Xh
     type(bc_list_t), pointer :: bclst
     type(dofmap_t), pointer :: dof
@@ -37,7 +37,7 @@ contains
     type(gs_t), target, intent(inout) :: gs_h
     type(bc_list_t), target, intent(inout):: bclst
     !We only really use ah, bh
-    real(kind=dp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, wh
+    real(kind=rp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, wh
     integer :: nl, n, nelv
     n = Xh%lx -1 !Polynomnial degree
     nl = Xh%lx + 2 !Schwarz!
@@ -66,7 +66,7 @@ contains
   subroutine swap_lengths(this,x,y,z,nelv,gdim)
     type(fdm_t), intent(inout) :: this
     integer, intent(in) :: gdim, nelv
-    real(kind=dp), dimension(this%Xh%lxyz,nelv) , intent(in):: x, y, z
+    real(kind=rp), dimension(this%Xh%lxyz,nelv) , intent(in):: x, y, z
     integer :: i, j, k, e, n2, nz0, nzn, nx, lx1, n
     associate(l => this%swplen, &
               llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
@@ -129,12 +129,12 @@ contains
 !!    We no longer base this on the finest grid, but rather the dofmap we are working with, Karp 210112
   subroutine plane_space(lr,ls,lt,i1,i2,w,x,y,z,nx,nxn,nz0,nzn, nelv, gdim)
     integer, intent(in) :: nxn, nzn, i1, i2, nelv, gdim, nx, nz0
-    real(kind=dp), intent(inout) :: lr(nelv),ls(nelv),lt(nelv)
-    real(kind=dp), intent(inout) :: w(nx)
-    real(kind=dp), intent(in) :: x(0:nxn,0:nxn,nz0:nzn,nelv)
-    real(kind=dp), intent(in) :: y(0:nxn,0:nxn,nz0:nzn,nelv)
-    real(kind=dp), intent(in) :: z(0:nxn,0:nxn,nz0:nzn,nelv)
-    real(kind=dp) ::  lr2, ls2, lt2, weight, wsum
+    real(kind=rp), intent(inout) :: lr(nelv),ls(nelv),lt(nelv)
+    real(kind=rp), intent(inout) :: w(nx)
+    real(kind=rp), intent(in) :: x(0:nxn,0:nxn,nz0:nzn,nelv)
+    real(kind=rp), intent(in) :: y(0:nxn,0:nxn,nz0:nzn,nelv)
+    real(kind=rp), intent(in) :: z(0:nxn,0:nxn,nz0:nzn,nelv)
+    real(kind=rp) ::  lr2, ls2, lt2, weight, wsum
     integer :: ny, nz, j1, k1, j2, k2, i, j, k, ie
     ny = nx
     nz = nx
@@ -219,12 +219,12 @@ contains
   subroutine fdm_setup_fast(this, ah, bh, nl, n)
     integer, intent(in) :: nl, n
     type(fdm_t), intent(inout) :: this
-    real(kind=dp), intent(inout) ::  ah(n+1,n+1),bh(n+1)
-    real(kind=dp), dimension(2*this%Xh%lx + 4) :: lr,ls,lt
+    real(kind=rp), intent(inout) ::  ah(n+1,n+1),bh(n+1)
+    real(kind=rp), dimension(2*this%Xh%lx + 4) :: lr,ls,lt
     integer :: i,j,k
     integer :: ie,il,nr,ns,nt
     integer :: lbr,rbr,lbs,rbs,lbt,rbt,two
-    real(kind=dp) :: eps,diag
+    real(kind=rp) :: eps,diag
     
     associate(s => this%s, d => this%d, &
               llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
@@ -282,10 +282,10 @@ contains
   
   subroutine fdm_setup_fast1d(s,lam,nl,lbc,rbc,ll,lm,lr,ah,bh,n,ie)
     integer, intent(in)  :: nl,lbc,rbc,n, ie
-    real(kind=dp), intent(inout) :: s(nl,nl,2),lam(nl),ll,lm,lr
-    real(kind=dp), intent(inout) ::  ah(0:n,0:n),bh(0:n)
+    real(kind=rp), intent(inout) :: s(nl,nl,2),lam(nl),ll,lm,lr
+    real(kind=rp), intent(inout) ::  ah(0:n,0:n),bh(0:n)
     integer ::  lx1, lxm
-    real(kind=dp) :: b(2*(n+3)**2), w(2*(n+3)**2)
+    real(kind=rp) :: b(2*(n+3)**2), w(2*(n+3)**2)
     lx1 = n + 1
     lxm = lx1+2
      
@@ -305,23 +305,38 @@ contains
 !!     B -- symm., pos. definite
   subroutine generalev(a,b,lam,n,lx,w)
       integer, intent(in) :: n, lx
-      real(kind=dp), intent(inout) :: a(n,n),b(n,n),lam(n),w(n,n)
-      !Work array, in nek this one is huge, but I dont think that is necessary
-      !Maybe if we do it for the whole global system at once, but we dont do that here at least
+      real(kind=rp), intent(inout) :: a(n,n),b(n,n),lam(n),w(n,n)
+      real(kind=dp) :: a2(n,n),b2(n,n),lam2(n),w2(n,n)
       integer :: lbw, lw
-      real(kind=dp) :: bw(4*(lx+2)**3)
+      real(kind=rp) :: bw(4*(lx+2)**3)
+      real(kind=dp) :: bw2(4*(lx+2)**3)
       integer :: info = 0
       lbw = 4*(lx+2)**3
       lw = n*n
-      call dsygv(1,'V','U',n,a,n,b,n,lam,bw,lbw,info)
+      if (rp .eq. dp) then
+         call dsygv(1,'V','U',n,a,n,b,n,lam,bw,lbw,info)
+      else if ( rp .eq. sp) then
+         call ssygv(1,'V','U',n,a,n,b,n,lam,bw,lbw,info)
+      else
+         a2 = real(a,dp)
+         b2 = real(b,dp)
+         lam2 = real(lam,dp)
+         w2 = real(w,dp)
+         call dsygv(1,'V','U',n,a2,n,b2,n,lam2,bw2,lbw,info)
+         a = real(a2,rp)
+         b = real(b2,rp)
+         lam = real(lam2,rp)
+         w = real(w2,rp)
+         if (pe_rank .eq. 0) call neko_warning('Real precision choice not supported for fdm, treating it as double')
+      end if
 
   end subroutine generalev
 
   subroutine fdm_setup_fast1d_a(a,lbc,rbc,ll,lm,lr,ah,n)
     integer, intent(in) ::lbc,rbc,n
-    real(kind=dp), intent(inout) :: a(0:n+2,0:n+2),ll,lm,lr
-    real(kind=dp), intent(inout) :: ah(0:n,0:n)
-    real(kind=dp) :: fac
+    real(kind=rp), intent(inout) :: a(0:n+2,0:n+2),ll,lm,lr
+    real(kind=rp), intent(inout) :: ah(0:n,0:n)
+    real(kind=rp) :: fac
     integer :: i,j,i0,i1
     i0=0
     if(lbc.eq.1) i0=1
@@ -361,10 +376,10 @@ contains
 
   subroutine fdm_setup_fast1d_b(b,lbc,rbc,ll,lm,lr,bh,n)
     integer, intent(in) :: lbc,rbc,n
-    real(kind=dp), intent(inout) :: b(0:n+2,0:n+2),ll,lm,lr
-    real(kind=dp), intent(inout) :: bh(0:n)
+    real(kind=rp), intent(inout) :: b(0:n+2,0:n+2),ll,lm,lr
+    real(kind=rp), intent(inout) :: bh(0:n)
     
-    real(kind=dp) :: fac
+    real(kind=rp) :: fac
     integer :: i,j,i0,i1
     i0=0
     if(lbc.eq.1) i0=1
@@ -456,16 +471,16 @@ contains
 
   subroutine fdm_compute(this, e, r)
     class(fdm_t), intent(inout) :: this
-    real(kind=dp), dimension((this%Xh%lx+2)**3, this%msh%nelv), intent(inout) :: e, r
+    real(kind=rp), dimension((this%Xh%lx+2)**3, this%msh%nelv), intent(inout) :: e, r
     call fdm_do_fast(e, r, this%s, this%d, this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
   end subroutine fdm_compute
  
   subroutine fdm_do_fast(e,r,s,d,nl,ldim,nelv)
     integer, intent(in) :: nl, nelv, ldim
-    real(kind=dp), intent(inout) :: e(nl**ldim,nelv)
-    real(kind=dp), intent(inout) :: r(nl**ldim,nelv)
-    real(kind=dp), intent(inout) :: s(nl*nl,2,ldim,nelv)
-    real(kind=dp), intent(inout) :: d(nl**ldim,nelv)
+    real(kind=rp), intent(inout) :: e(nl**ldim,nelv)
+    real(kind=rp), intent(inout) :: r(nl**ldim,nelv)
+    real(kind=rp), intent(inout) :: s(nl*nl,2,ldim,nelv)
+    real(kind=rp), intent(inout) :: d(nl**ldim,nelv)
     
     integer ::  ie,nn,i
     nn=nl**ldim

@@ -475,11 +475,11 @@ contains
     
     type(1) = MPI_INTEGER
     type(2:3) = MPI_LOGICAL
-    type(4:11) = MPI_DOUBLE_PRECISION
+    type(4:11) = MPI_REAL_PRECISION
     type(12:16) = MPI_CHARACTER
     type(17) = MPI_INTEGER
     type(18:19) = MPI_LOGICAL
-    type(20) = MPI_DOUBLE_PRECISION
+    type(20) = MPI_REAL_PRECISION
     type(21) = MPI_INTEGER
     
     call MPI_Type_create_struct(21, len, disp, type, MPI_NEKO_PARAMS, ierr)

@@ -7,7 +7,7 @@ contains
 
   subroutine opchsign (a1,a2,a3,gdim,n)
     integer, intent(in) :: n, gdim
-    real(kind=dp), dimension(n), intent(inout) :: a1, a2, a3
+    real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
     integer :: i
     if (gdim .eq. 3) then
        do i=1,n
@@ -24,8 +24,8 @@ contains
   end subroutine opchsign
   subroutine opcolv (a1,a2,a3,c,gdim,n)
     integer, intent(in) :: n, gdim
-    real(kind=dp), dimension(n), intent(inout) :: a1, a2, a3
-    real(kind=dp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
+    real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
     if (gdim .eq. 3) then
        do i=1,n
@@ -42,9 +42,9 @@ contains
   end subroutine opcolv
   subroutine opcolv3c (a1,a2,a3,b1,b2,b3,c,d,n,gdim)
     integer, intent(in) :: n, gdim
-    real(kind=dp), dimension(n), intent(inout) :: a1,a2,a3
-    real(kind=dp), dimension(n), intent(in) :: b1, b2, b3
-    real(kind=dp), intent(in) :: c(n), d
+    real(kind=rp), dimension(n), intent(inout) :: a1,a2,a3
+    real(kind=rp), dimension(n), intent(in) :: b1, b2, b3
+    real(kind=rp), intent(in) :: c(n), d
     integer :: i
     if (gdim .eq. 3) then
        do i=1,n
@@ -61,9 +61,9 @@ contains
   end subroutine opcolv3c
  subroutine opadd2cm (a1,a2,a3,b1,b2,b3,c,n,gdim)
     integer, intent(in) :: n, gdim
-    real(kind=dp), dimension(n), intent(inout) :: a1,a2,a3
-    real(kind=dp), dimension(n), intent(in) :: b1, b2, b3
-    real(kind=dp), intent(in) :: c
+    real(kind=rp), dimension(n), intent(inout) :: a1,a2,a3
+    real(kind=rp), dimension(n), intent(in) :: b1, b2, b3
+    real(kind=rp), intent(in) :: c
     integer :: i
     if (gdim .eq. 3) then
        do i=1,n
@@ -80,9 +80,9 @@ contains
   end subroutine opadd2cm
  subroutine opadd2col (a1,a2,a3,b1,b2,b3,c,n,gdim)
     integer, intent(in) :: n, gdim
-    real(kind=dp), dimension(n), intent(inout) :: a1,a2,a3
-    real(kind=dp), dimension(n), intent(in) :: b1, b2, b3
-    real(kind=dp), intent(in) :: c(n)
+    real(kind=rp), dimension(n), intent(inout) :: a1,a2,a3
+    real(kind=rp), dimension(n), intent(in) :: b1, b2, b3
+    real(kind=rp), intent(in) :: c(n)
     integer :: i
     if (gdim .eq. 3) then
        do i=1,n

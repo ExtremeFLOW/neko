@@ -24,28 +24,28 @@ contains
   subroutine facet_normal_apply_scalar(this, x, n)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
   end subroutine facet_normal_apply_scalar
 
   !> No-op vector apply
   subroutine facet_normal_apply_vector(this, x, y, z, n)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout), dimension(n) :: x
-    real(kind=dp), intent(inout), dimension(n) :: y
-    real(kind=dp), intent(inout), dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
   end subroutine facet_normal_apply_vector
 
   !> Apply in facet normal direction (vector valued)
   subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout), dimension(n) :: x
-    real(kind=dp), intent(inout), dimension(n) :: y
-    real(kind=dp), intent(inout), dimension(n) :: z
-    real(kind=dp), intent(inout), dimension(n) :: u
-    real(kind=dp), intent(inout), dimension(n) :: v
-    real(kind=dp), intent(inout), dimension(n) :: w
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: u
+    real(kind=rp), intent(inout), dimension(n) :: v
+    real(kind=rp), intent(inout), dimension(n) :: w
     integer :: i, m, k, idx(4), facet
     
     if (.not. associated(this%c)) then

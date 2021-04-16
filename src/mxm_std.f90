@@ -5,7 +5,7 @@ contains
   subroutine mxmf2(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) ::  a(n1,n2),b(n2,n3),c(n1,n3)
+    real(kind=rp) ::  a(n1,n2),b(n2,n3),c(n1,n3)
 
     if (n2.le.8) then
        if (n2.eq.1) then
@@ -69,7 +69,7 @@ contains
   subroutine mxf1(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) ::  a(n1,1),b(1,n3),c(n1,n3)
+    real(kind=rp) ::  a(n1,1),b(1,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -81,7 +81,7 @@ contains
   subroutine mxf2(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,2),b(2,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,2),b(2,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -94,7 +94,7 @@ contains
   subroutine mxf3(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3  
-    real(kind=dp) :: a(n1,3),b(3,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,3),b(3,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -108,7 +108,7 @@ contains
   subroutine mxf4(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,4),b(4,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,4),b(4,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -123,7 +123,7 @@ contains
   subroutine mxf5(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,5),b(5,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,5),b(5,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -139,7 +139,7 @@ contains
   subroutine mxf6(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,6),b(6,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,6),b(6,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -156,7 +156,7 @@ contains
   subroutine mxf7(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3 
-    real(kind=dp) :: a(n1,7),b(7,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,7),b(7,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -174,7 +174,7 @@ contains
   subroutine mxf8(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,8),b(8,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,8),b(8,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -193,7 +193,7 @@ contains
   subroutine mxf9(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3 
-    real(kind=dp) :: a(n1,9),b(9,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,9),b(9,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -213,7 +213,7 @@ contains
   subroutine mxf10(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3  
-    real(kind=dp) ::  a(n1,10),b(10,n3),c(n1,n3)
+    real(kind=rp) ::  a(n1,10),b(10,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -234,7 +234,7 @@ contains
   subroutine mxf11(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,11),b(11,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,11),b(11,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -256,7 +256,7 @@ contains
   subroutine mxf12(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,12),b(12,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,12),b(12,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -279,7 +279,7 @@ contains
   subroutine mxf13(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,13),b(13,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,13),b(13,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -303,7 +303,7 @@ contains
   subroutine mxf14(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,14),b(14,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,14),b(14,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -328,7 +328,7 @@ contains
   subroutine mxf15(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,15),b(15,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,15),b(15,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -354,7 +354,7 @@ contains
   subroutine mxf16(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,16),b(16,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,16),b(16,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -381,7 +381,7 @@ contains
   subroutine mxf17(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,17),b(17,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,17),b(17,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -409,7 +409,7 @@ contains
   subroutine mxf18(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,18),b(18,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,18),b(18,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -438,7 +438,7 @@ contains
   subroutine mxf19(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,19),b(19,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,19),b(19,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -468,7 +468,7 @@ contains
   subroutine mxf20(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3        
-    real(kind=dp) :: a(n1,20),b(20,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,20),b(20,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -499,7 +499,7 @@ contains
   subroutine mxf21(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,21),b(21,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,21),b(21,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -531,7 +531,7 @@ contains
   subroutine mxf22(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,22),b(22,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,22),b(22,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -564,7 +564,7 @@ contains
   subroutine mxf23(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,23),b(23,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,23),b(23,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -598,7 +598,7 @@ contains
   subroutine mxf24(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,24),b(24,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,24),b(24,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -635,9 +635,9 @@ contains
   subroutine mxm44_0(a, m, b, k, c, n)
     use num_types
     integer :: m, k, n
-    real(kind=dp) :: a(m,k), b(k,n), c(m,n)
-    real(kind=dp) :: s11, s12, s13, s14, s21, s22, s23, s24
-    real(kind=dp) :: s31, s32, s33, s34, s41, s42, s43, s44
+    real(kind=rp) :: a(m,k), b(k,n), c(m,n)
+    real(kind=rp) :: s11, s12, s13, s14, s21, s22, s23, s24
+    real(kind=rp) :: s31, s32, s33, s34, s41, s42, s43, s44
 
     mresid = iand(m,3) 
     nresid = iand(n,3) 
@@ -1061,7 +1061,7 @@ contains
   subroutine mxm44_2(a, m, b, k, c, n)
     use num_types
     integer :: m, k, n
-    real(kind=dp) :: a(m,2), b(2,n), c(m,n)
+    real(kind=rp) :: a(m,2), b(2,n), c(m,n)
 
     nresid = iand(n,3) 
     n1 = n - nresid + 1
@@ -1108,7 +1108,7 @@ contains
   subroutine initab(a,b,n)
     use num_types
     integer :: n
-    real(kind=dp) :: a(1),b(1)
+    real(kind=rp) :: a(1),b(1)
     do i=1,n-1
        x  = i
        k = mod(i,19) + 2
@@ -1156,7 +1156,7 @@ contains
     !---------------------------------------------------------------------
     use num_types
     integer :: n1, n2, n3
-    REAL(kind=dp) ::  A(N1,N2),B(N2,N3),C(N1,N3)
+    REAL(kind=rp) ::  A(N1,N2),B(N2,N3),C(N1,N3)
 
     N0=N1*N3
     DO I=1,N0
@@ -1182,7 +1182,7 @@ contains
   subroutine madd (a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3  
-    real(kind=dp) :: a(n1,n2),b(n2,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,n2),b(n2,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1201,7 +1201,7 @@ contains
     !---------------------------------------------------------------------
     use num_types
     integer :: n1, n2, n3
-    REAL(kind=dp) ::  A(N1,N2),B(N2,N3),C(N1,N3)
+    REAL(kind=rp) ::  A(N1,N2),B(N2,N3),C(N1,N3)
 
     if (n2.le.8) then
        if (n2.eq.1) then
@@ -1258,7 +1258,7 @@ contains
   subroutine mxmur2_1(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,1),b(1,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,1),b(1,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1270,7 +1270,7 @@ contains
   subroutine mxmur2_2(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,2),b(2,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,2),b(2,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1283,7 +1283,7 @@ contains
   subroutine mxmur2_3(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,3),b(3,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,3),b(3,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1297,7 +1297,7 @@ contains
   subroutine mxmur2_4(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,4),b(4,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,4),b(4,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1312,7 +1312,7 @@ contains
   subroutine mxmur2_5(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,5),b(5,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,5),b(5,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1328,7 +1328,7 @@ contains
   subroutine mxmur2_6(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,6),b(6,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,6),b(6,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1345,7 +1345,7 @@ contains
   subroutine mxmur2_7(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,7),b(7,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,7),b(7,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1363,7 +1363,7 @@ contains
   subroutine mxmur2_8(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,8),b(8,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,8),b(8,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1382,7 +1382,7 @@ contains
   subroutine mxmur2_9(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,9),b(9,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,9),b(9,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1402,7 +1402,7 @@ contains
   subroutine mxmur2_10(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,10),b(10,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,10),b(10,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1423,7 +1423,7 @@ contains
   subroutine mxmur2_11(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,11),b(11,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,11),b(11,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1445,7 +1445,7 @@ contains
   subroutine mxmur2_12(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,12),b(12,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,12),b(12,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1468,7 +1468,7 @@ contains
   subroutine mxmur2_13(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,13),b(13,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,13),b(13,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1492,7 +1492,7 @@ contains
   subroutine mxmur2_14(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,14),b(14,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,14),b(14,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1517,7 +1517,7 @@ contains
   subroutine mxmur2_15(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) ::  a(n1,15),b(15,n3),c(n1,n3)
+    real(kind=rp) ::  a(n1,15),b(15,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1543,7 +1543,7 @@ contains
   subroutine mxmur2_16(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,16),b(16,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,16),b(16,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -1576,7 +1576,7 @@ contains
     !---------------------------------------------------------------------
     use num_types
     integer :: n1, n2, n3
-    REAL(kind=dp) :: A(N1,N2),B(N2,N3),C(N1,N3)
+    REAL(kind=rp) :: A(N1,N2),B(N2,N3),C(N1,N3)
 
     N0=N1*N3
     DO  I=1,N0
@@ -1633,7 +1633,7 @@ contains
   subroutine mxmur3_16(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3   
-    real(kind=dp) ::  a(n1,n2),b(n2,16),c(n1,16)
+    real(kind=rp) ::  a(n1,n2),b(n2,16),c(n1,16)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1677,7 +1677,7 @@ contains
   subroutine mxmur3_15(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,15),c(n1,15)
+    real(kind=rp) :: a(n1,n2),b(n2,15),c(n1,15)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1721,7 +1721,7 @@ contains
   subroutine mxmur3_14(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,14),c(n1,14)
+    real(kind=rp) :: a(n1,n2),b(n2,14),c(n1,14)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1762,7 +1762,7 @@ contains
   subroutine mxmur3_13(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,13),c(n1,13)
+    real(kind=rp) :: a(n1,n2),b(n2,13),c(n1,13)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1801,7 +1801,7 @@ contains
   subroutine mxmur3_12(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,12),c(n1,12)
+    real(kind=rp) :: a(n1,n2),b(n2,12),c(n1,12)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1838,7 +1838,7 @@ contains
   subroutine mxmur3_11(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,11),c(n1,11)
+    real(kind=rp) :: a(n1,n2),b(n2,11),c(n1,11)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1873,7 +1873,7 @@ contains
   subroutine mxmur3_10(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,10),c(n1,10)
+    real(kind=rp) :: a(n1,n2),b(n2,10),c(n1,10)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1906,7 +1906,7 @@ contains
   subroutine mxmur3_9(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,9),c(n1,9)
+    real(kind=rp) :: a(n1,n2),b(n2,9),c(n1,9)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1937,7 +1937,7 @@ contains
   subroutine mxmur3_8(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,8),c(n1,8)
+    real(kind=rp) :: a(n1,n2),b(n2,8),c(n1,8)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1966,7 +1966,7 @@ contains
   subroutine mxmur3_7(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3  
-    real(kind=dp) :: a(n1,n2),b(n2,7),c(n1,7)
+    real(kind=rp) :: a(n1,n2),b(n2,7),c(n1,7)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -1993,7 +1993,7 @@ contains
   subroutine mxmur3_6(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,6),c(n1,6)
+    real(kind=rp) :: a(n1,n2),b(n2,6),c(n1,6)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -2018,7 +2018,7 @@ contains
   subroutine mxmur3_5(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,5),c(n1,5)
+    real(kind=rp) :: a(n1,n2),b(n2,5),c(n1,5)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -2041,7 +2041,7 @@ contains
   subroutine mxmur3_4(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,4),c(n1,4)
+    real(kind=rp) :: a(n1,n2),b(n2,4),c(n1,4)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -2062,7 +2062,7 @@ contains
   subroutine mxmur3_3(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,n2),b(n2,3),c(n1,3)
+    real(kind=rp) :: a(n1,n2),b(n2,3),c(n1,3)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -2081,7 +2081,7 @@ contains
   subroutine mxmur3_2(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) ::  a(n1,n2),b(n2,2),c(n1,2)
+    real(kind=rp) ::  a(n1,n2),b(n2,2),c(n1,2)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -2097,7 +2097,7 @@ contains
   subroutine mxmur3_1(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3 
-    real(kind=dp) :: a(n1,n2),b(n2,1),c(n1,1)
+    real(kind=rp) :: a(n1,n2),b(n2,1),c(n1,1)
 
     do k=1,n2
        tmp1  =  b(k, 1)
@@ -2118,7 +2118,7 @@ contains
     !----------------------------------------------------------------------
     use num_types
     integer :: n1, n2, n3
-    REAL(kind=dp) :: A(N1,N2),B(N2,N3),C(N1,N3)
+    REAL(kind=rp) :: A(N1,N2),B(N2,N3),C(N1,N3)
     
     call mxm44(a,n1,b,n2,c,n3)
     
@@ -2133,7 +2133,7 @@ contains
     !----------------------------------------------------------------------
     use num_types
     integer :: n1, n2, n3
-    REAL(kind=dp) :: A(N1,N2),B(N2,N3),C(N1,N3)
+    REAL(kind=rp) :: A(N1,N2),B(N2,N3),C(N1,N3)
 
     if (n2.le.8) then
        if (n2.eq.1) then
@@ -2198,7 +2198,7 @@ contains
   subroutine mxmfb_1(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,1),b(1,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,1),b(1,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2210,7 +2210,7 @@ contains
   subroutine mxmfb_2(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,2),b(2,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,2),b(2,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2223,7 +2223,7 @@ contains
   subroutine mxmfb_3(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,3),b(3,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,3),b(3,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2237,7 +2237,7 @@ contains
   subroutine mxmfb_4(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,4),b(4,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,4),b(4,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2252,7 +2252,7 @@ contains
   subroutine mxmfb_5(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,5),b(5,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,5),b(5,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2268,7 +2268,7 @@ contains
   subroutine mxmfb_6(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,6),b(6,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,6),b(6,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2285,7 +2285,7 @@ contains
   subroutine mxmfb_7(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,7),b(7,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,7),b(7,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2303,7 +2303,7 @@ contains
   subroutine mxmfb_8(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,8),b(8,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,8),b(8,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2322,7 +2322,7 @@ contains
   subroutine mxmfb_9(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,9),b(9,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,9),b(9,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2342,7 +2342,7 @@ contains
   subroutine mxmfb_10(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,10),b(10,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,10),b(10,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2363,7 +2363,7 @@ contains
   subroutine mxmfb_11(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,11),b(11,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,11),b(11,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2385,7 +2385,7 @@ contains
   subroutine mxmfb_12(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,12),b(12,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,12),b(12,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2408,7 +2408,7 @@ contains
   subroutine mxmfb_13(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,13),b(13,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,13),b(13,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2432,7 +2432,7 @@ contains
   subroutine mxmfb_14(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,14),b(14,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,14),b(14,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2457,7 +2457,7 @@ contains
   subroutine mxmfb_15(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,15),b(15,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,15),b(15,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2482,7 +2482,7 @@ contains
   !-----------------------------------------------------------------------
   subroutine mxmfb_16(a,n1,b,n2,c,n3)
     use num_types
-    real(kind=dp) :: a(n1,16),b(16,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,16),b(16,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2509,7 +2509,7 @@ contains
   subroutine mxmfb_17(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) ::  a(n1,17),b(17,n3),c(n1,n3)
+    real(kind=rp) ::  a(n1,17),b(17,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2537,7 +2537,7 @@ contains
   subroutine mxmfb_18(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,18),b(18,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,18),b(18,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2566,7 +2566,7 @@ contains
   subroutine mxmfb_19(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,19),b(19,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,19),b(19,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2596,7 +2596,7 @@ contains
   subroutine mxmfb_20(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,20),b(20,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,20),b(20,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2627,7 +2627,7 @@ contains
   subroutine mxmfb_21(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,21),b(21,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,21),b(21,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2659,7 +2659,7 @@ contains
   subroutine mxmfb_22(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,22),b(22,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,22),b(22,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2692,7 +2692,7 @@ contains
   subroutine mxmfb_23(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,23),b(23,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,23),b(23,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2726,7 +2726,7 @@ contains
   subroutine mxmfb_24(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,24),b(24,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,24),b(24,n3),c(n1,n3)
 
     do j=1,n3
        do i=1,n1
@@ -2767,7 +2767,7 @@ contains
     !----------------------------------------------------------------------
     use num_types
     integer :: n1, n2, n3
-    REAL(kind=dp) :: A(N1,N2),B(N2,N3),C(N1,N3)
+    REAL(kind=rp) :: A(N1,N2),B(N2,N3),C(N1,N3)
 
     if (n2.le.8) then
        if (n2.eq.1) then
@@ -2832,7 +2832,7 @@ contains
   subroutine mxmf3_1(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,1),b(1,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,1),b(1,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2844,7 +2844,7 @@ contains
   subroutine mxmf3_2(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,2),b(2,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,2),b(2,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2857,7 +2857,7 @@ contains
   subroutine mxmf3_3(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,3),b(3,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,3),b(3,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2871,7 +2871,7 @@ contains
   subroutine mxmf3_4(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,4),b(4,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,4),b(4,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2886,7 +2886,7 @@ contains
   subroutine mxmf3_5(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,5),b(5,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,5),b(5,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2902,7 +2902,7 @@ contains
   subroutine mxmf3_6(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,6),b(6,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,6),b(6,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2919,7 +2919,7 @@ contains
   subroutine mxmf3_7(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,7),b(7,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,7),b(7,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2937,7 +2937,7 @@ contains
   subroutine mxmf3_8(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,8),b(8,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,8),b(8,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2956,7 +2956,7 @@ contains
   subroutine mxmf3_9(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,9),b(9,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,9),b(9,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2976,7 +2976,7 @@ contains
   subroutine mxmf3_10(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,10),b(10,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,10),b(10,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -2997,7 +2997,7 @@ contains
   subroutine mxmf3_11(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,11),b(11,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,11),b(11,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3019,7 +3019,7 @@ contains
   subroutine mxmf3_12(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,12),b(12,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,12),b(12,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3042,7 +3042,7 @@ contains
   subroutine mxmf3_13(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) ::  a(n1,13),b(13,n3),c(n1,n3)
+    real(kind=rp) ::  a(n1,13),b(13,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3066,7 +3066,7 @@ contains
   subroutine mxmf3_14(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,14),b(14,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,14),b(14,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3091,7 +3091,7 @@ contains
   subroutine mxmf3_15(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,15),b(15,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,15),b(15,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3117,7 +3117,7 @@ contains
   subroutine mxmf3_16(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,16),b(16,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,16),b(16,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3144,7 +3144,7 @@ contains
   subroutine mxmf3_17(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,17),b(17,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,17),b(17,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3 
@@ -3172,7 +3172,7 @@ contains
   subroutine mxmf3_18(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,18),b(18,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,18),b(18,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3201,7 +3201,7 @@ contains
   subroutine mxmf3_19(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,19),b(19,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,19),b(19,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3231,7 +3231,7 @@ contains
   subroutine mxmf3_20(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,20),b(20,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,20),b(20,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3262,7 +3262,7 @@ contains
   subroutine mxmf3_21(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,21),b(21,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,21),b(21,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3294,7 +3294,7 @@ contains
   subroutine mxmf3_22(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,22),b(22,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,22),b(22,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3327,7 +3327,7 @@ contains
   subroutine mxmf3_23(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,23),b(23,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,23),b(23,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3361,7 +3361,7 @@ contains
   subroutine mxmf3_24(a,n1,b,n2,c,n3)
     use num_types
     integer :: n1, n2, n3
-    real(kind=dp) :: a(n1,24),b(24,n3),c(n1,n3)
+    real(kind=rp) :: a(n1,24),b(24,n3),c(n1,n3)
 
     do i=1,n1
        do j=1,n3
@@ -3409,7 +3409,7 @@ contains
     !----------------------------------------------------------------------
     use num_types
     integer :: n1, n2, n3
-    REAL(kind=dp) ::  A(N1,N2),B(N2,N3),C(N1,N3)
+    REAL(kind=rp) ::  A(N1,N2),B(N2,N3),C(N1,N3)
 
     if (n2.eq.1) then
        call mxm44_2_t(a,n1,b,2,c,n3)
@@ -3427,9 +3427,9 @@ contains
     !       real*8 a(lda,k), b(ldb,n), c(ldc,n)
     use num_types
     integer :: m, k, n
-    real(kind=dp) ::  a(m,k), b(k,n), c(m,n)
-    real(kind=dp) ::  s11, s12, s13, s14, s21, s22, s23, s24
-    real(kind=dp) ::  s31, s32, s33, s34, s41, s42, s43, s44
+    real(kind=rp) ::  a(m,k), b(k,n), c(m,n)
+    real(kind=rp) ::  s11, s12, s13, s14, s21, s22, s23, s24
+    real(kind=rp) ::  s31, s32, s33, s34, s41, s42, s43, s44
     !
     ! matrix multiply with a 4x4 pencil 
     !
@@ -3856,7 +3856,7 @@ contains
   subroutine mxm44_2_t(a, m, b, k, c, n)
     use num_types
     integer :: m, k, n
-    real(kind=dp) ::  a(m,2), b(2,n), c(m,n)
+    real(kind=rp) ::  a(m,2), b(2,n), c(m,n)
 
     nresid = iand(n,3) 
     n1 = n - nresid + 1
