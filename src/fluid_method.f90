@@ -1,6 +1,7 @@
 !> Fluid formulations
 module fluid_method
   use gather_scatter
+  use neko_config
   use parameters
   use num_types
   use source
@@ -18,6 +19,7 @@ module fluid_method
   use bicgstab
   use bc
   use jacobi
+  use sx_jacobi
   use gmres
   use mesh
   use math
@@ -426,7 +428,11 @@ contains
     character(len=20) :: pctype
     
     if (trim(pctype) .eq. 'jacobi') then
-       allocate(jacobi_t::pc)
+       if (NEKO_BCKND_SX .eq. 1) then
+          allocate(sx_jacobi_t::pc)
+       else
+          allocate(jacobi_t::pc)
+       end if
     else if (trim(pctype) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
     else

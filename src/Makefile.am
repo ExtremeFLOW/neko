@@ -75,6 +75,7 @@ libneko_a_SOURCES = \
 	gmres.f90\
 	pc_jacobi.f90\
 	pc_identity.f90\
+	pc_jacobi_sx.f90\
 	source.f90\
 	abbdf.f90\
 	neko_config.f90\
