@@ -71,8 +71,9 @@ usr_inflow.o : usr_inflow.f90 utils.o inflow.o coef.o num_types.o
 facet_normal.o : facet_normal.f90 utils.o math.o coef.o dirichlet.o num_types.o 
 symmetry.o : symmetry.f90 htable.o stack.o utils.o math.o coef.o dirichlet.o num_types.o 
 gmres.o : gmres.f90 num_types.o operators.o math.o comm.o krylov.o 
-pc_jacobi.o : pc_jacobi.f90 gather_scatter.o ax.o precon.o utils.o math.o 
+pc_jacobi.o : pc_jacobi.f90 gather_scatter.o num_types.o coef.o precon.o math.o 
 pc_identity.o : pc_identity.f90 num_types.o ax.o precon.o utils.o math.o 
+pc_jacobi_sx.o : pc_jacobi_sx.f90 gather_scatter.o num_types.o coef.o precon.o math.o 
 source.o : source.f90 num_types.o dofmap.o 
 abbdf.o : abbdf.f90 math.o num_types.o 
 neko_config.o : neko_config.f90 

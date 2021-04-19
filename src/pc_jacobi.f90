@@ -3,6 +3,7 @@ module jacobi
   use math
   use precon
   use coefs
+  use num_types
   use gather_scatter
   implicit none
   private
