@@ -94,6 +94,10 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(Xh%lx)
+      case(12)
+         call sx_cdtp_lx12(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
       case(10)
          call sx_cdtp_lx10(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
@@ -118,6 +122,12 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
 
     select case(Xh%lx)
+    case(12)
+       call sx_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
     case(10)
        call sx_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &

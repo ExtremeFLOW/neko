@@ -18,7 +18,10 @@ contains
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    if (Xh%lx .eq. 10) then
+    if (Xh%lx .eq. 12) then
+       call sx_ax_helm_lx12(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
+            coef%h1, coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, msh%nelv)
+    else if (Xh%lx .eq. 10) then
        call sx_ax_helm_lx10(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, msh%nelv)
     else if (Xh%lx .eq. 8) then
@@ -35,6 +38,135 @@ contains
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%n_dofs)
 
   end subroutine ax_helm_sx_compute
+
+  subroutine sx_ax_helm_lx12(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+       h1, G1, G2, G3, G4, G5, G6, n)
+    integer, parameter :: lx = 12
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: Dx(lx,lx)
+    real(kind=rp), intent(in) :: Dy(lx,lx)
+    real(kind=rp), intent(in) :: Dz(lx,lx)
+    real(kind=rp), intent(in) :: Dxt(lx,lx)
+    real(kind=rp), intent(in) :: Dyt(lx,lx)
+    real(kind=rp), intent(in) :: Dzt(lx,lx)
+
+    integer :: e, i, j, k, jj, kk    
+    real(kind=rp) :: ur(lx,lx,lx,n)
+    real(kind=rp) :: us(lx,lx,lx,n)
+    real(kind=rp) :: ut(lx,lx,lx,n)
+    real(kind=rp) :: uur(lx,lx,lx,n)
+    real(kind=rp) :: uus(lx,lx,lx,n)
+    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: wr, ws, wt
+
+    do i=1,lx
+       do jj = 1, lx * lx * n
+          wr = 0d0
+          do kk=1,lx
+             wr = wr + Dx(i,kk)*u(kk,jj,1,1)
+          end do
+          ur(i,jj,1,1) = wr
+       end do
+    end do
+
+    do k=1,lx
+       do i=1,lx                
+          do j=1,lx       
+             do e = 1,n                                   
+                ws = 0d0
+                !NEC$ unroll_completely
+                do kk=1,lx
+                   ws = ws + Dy(j,kk)*u(i,kk,k,e)
+                end do
+                us(i,j,k,e) = ws
+             end do
+          end do
+       end do
+    end do
+
+    do j=1,lx
+       do i=1,lx
+          do k=1,lx
+             do e = 1,n
+                wt = 0d0
+                !NEC$ unroll_completely
+                do kk=1,lx
+                   wt = wt + Dz(k,kk)*u(i,j,kk,e)
+                end do
+                ut(i,j,k,e) = wt
+             end do
+          end do
+       end do
+    end do
+
+    do i = 1, n * lx * lx * lx
+       uur(i,1,1,1) = h1(i,1,1,1) * &
+            ( G1(i,1,1,1) * ur(i,1,1,1) &
+            + G4(i,1,1,1) * us(i,1,1,1) &
+            + G5(i,1,1,1) * ut(i,1,1,1))
+
+       uus(i,1,1,1) = h1(i,1,1,1) * &
+            ( G2(i,1,1,1) * us(i,1,1,1) &
+            + G4(i,1,1,1) * ur(i,1,1,1) &
+            + G6(i,1,1,1) * ut(i,1,1,1) )
+
+       uut(i,1,1,1) = h1(i,1,1,1) * &
+            ( G3(i,1,1,1) * ut(i,1,1,1) &
+            + G5(i,1,1,1) * ur(i,1,1,1) &
+            + G6(i,1,1,1) * us(i,1,1,1))
+    end do
+
+    do i=1,lx
+       do jj = 1, lx * lx * n
+          wr = 0d0
+          do kk=1,lx
+             wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
+          end do
+          w(i,jj,1,1) = wr
+       end do
+    end do
+
+    do k=1,lx
+       do i=1,lx
+          do j=1,lx
+             do e=1,n
+                ws = 0d0
+                !NEC$ unroll_completely
+                do kk=1,lx
+                   ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
+                end do
+                w(i,j,k,e) = w(i,j,k,e) + ws
+             end do
+          end do
+       end do
+    end do
+
+    do j=1,lx
+       do i=1,lx
+          do k=1,lx
+             do e=1,n
+                wt = 0d0
+                !NEC$ unroll_completely
+                do kk=1,lx
+                   wt = wt + dzt(k, kk)*uut(i,j,kk,e)
+                end do
+                w(i,j,k,e) = w(i,j,k,e) + wt 
+             end do
+          end do
+       end do
+    end do
+
+
+  end subroutine sx_ax_helm_lx12
 
   subroutine sx_ax_helm_lx10(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G1, G2, G3, G4, G5, G6, n)
