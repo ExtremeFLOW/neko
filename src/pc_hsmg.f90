@@ -17,6 +17,7 @@ module hsmg
   use gmres
   use tensor
   use jacobi
+  use sx_jacobi
   implicit none
 
   !Struct to arrange our multigridlevels
@@ -44,7 +45,7 @@ module hsmg
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(cg_t) :: crs_solver !< Solver for course problem
      integer :: niter = 10 !< Number of iter of crs sovlve
-     type(jacobi_t) :: pc_crs !< Some basic precon for crs
+     class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
      real(kind=rp), allocatable :: jh(:,:) !< Interpolator crs -> fine
      real(kind=rp), allocatable :: jht(:,:)!< Interpolator crs -> fine, transpose
@@ -91,10 +92,11 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(ax_helm_sx_t::this%ax)
+       allocate(sx_jacobi_t::this%pc_crs)
     else
        allocate(ax_helm_t::this%ax)
+       allocate(jacobi_t::this%pc_crs)
     end if
-
     
     ! Compute all elements as if they are deformed
     call mesh_all_deformed(msh)
@@ -108,7 +110,12 @@ contains
     call field_init(this%e_crs, this%dm_crs,'work crs')
     call coef_init(this%c_crs, this%gs_crs)
     
-    call this%pc_crs%init(this%c_crs, this%dm_crs, this%gs_crs)
+    select type(pc => this%pc_crs)
+    type is (jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (sx_jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    end select
     call this%crs_solver%init(this%dm_crs%n_dofs, M= this%pc_crs)
 
     call this%bc_crs%init(this%dm_crs)
@@ -236,6 +243,7 @@ contains
   subroutine hsmg_free(this)
     class(hsmg_t), intent(inout) :: this
     if (allocated(this%ax)) deallocate(this%ax)
+    if (allocated(this%pc_crs)) deallocate(this%pc_crs)
     if (allocated(this%grids)) deallocate(this%grids)
     if (allocated(this%jh)) deallocate(this%jh)
     if (allocated(this%jht)) deallocate(this%jht)
@@ -250,13 +258,15 @@ contains
     call field_free(this%e)
     call field_free(this%e_mg)
     call field_free(this%e_crs)
-    call this%pc_crs%free()
+    select type(pc => this%pc_crs)
+    type is (jacobi_t)
+       call pc%free()
+    type is (sx_jacobi_t)
+       call pc%free()
+    end select
     call gs_free(this%gs_crs)
     call gs_free(this%gs_mg)
     call this%crs_solver%free()
-    
-
-
   end subroutine hsmg_free
 
   !> The h1mg preconditioner from Nek5000.
