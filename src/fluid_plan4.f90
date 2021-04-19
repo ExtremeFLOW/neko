@@ -442,7 +442,7 @@ contains
 
     call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -one, n, msh%gdim)
 
-    call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, three, n, msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, one, n, msh%gdim)
 
   end subroutine fluid_plan4_vel_residual
 
