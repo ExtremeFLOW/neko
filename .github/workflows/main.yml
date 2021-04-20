@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        compiler: [gfortran-8, gfortran-9, gfortran-10]
+        compiler: [gfortran-9, gfortran-10]
         include:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui
@@ -48,16 +48,17 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --prefix=/tmp/pkg
-          make -j$(nproc) install
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
+          make -j$(nproc)
       - name: Check
         run: |
           make -j$(nproc) check
       - name: Dist
         run: |
           make dist
-          tar xf neko-0.1.0.tar.gz
-          cd neko-0.1.0
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
           ./configure FC=${FC}
           make -j $(nproc)
 
@@ -90,18 +91,12 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --prefix=/tmp/pkg
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 #      - name: Check
 #        run: |
 #          make check
-      - name: Dist
-        run: |
-          make dist
-          tar xf neko-0.1.0.tar.gz
-          cd neko-0.1.0
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
-          make -j $(nproc)
+
           
 #  Nvidia:
 #    runs-on: ubuntu-20.04
