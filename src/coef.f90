@@ -11,43 +11,43 @@ module coefs
   
   !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple
   type, public :: coef_t     
-     real(kind=dp), allocatable :: G1(:,:,:,:) !< Geometric data
-     real(kind=dp), allocatable :: G2(:,:,:,:) !< Geometric data
-     real(kind=dp), allocatable :: G3(:,:,:,:) !< Geometric data
-     real(kind=dp), allocatable :: G4(:,:,:,:) !< Geometric data
-     real(kind=dp), allocatable :: G5(:,:,:,:) !< Geometric data
-     real(kind=dp), allocatable :: G6(:,:,:,:) !< Geometric data
+     real(kind=rp), allocatable :: G1(:,:,:,:) !< Geometric data
+     real(kind=rp), allocatable :: G2(:,:,:,:) !< Geometric data
+     real(kind=rp), allocatable :: G3(:,:,:,:) !< Geometric data
+     real(kind=rp), allocatable :: G4(:,:,:,:) !< Geometric data
+     real(kind=rp), allocatable :: G5(:,:,:,:) !< Geometric data
+     real(kind=rp), allocatable :: G6(:,:,:,:) !< Geometric data
 
-     real(kind=dp), allocatable :: mult(:,:,:,:) !< Multiplicity
+     real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      ! generate mapping data between element and reference element 
      !! \f$ dx/dr, dy/dr, dz/dr \f$
      !! \f$ dx/ds, dy/ds, dz/ds \f$
      !! \f$ dx/dt, dy/dt, dz/dt \f$
-     real(kind=dp), allocatable :: dxdr(:,:,:,:), dydr(:,:,:,:), dzdr(:,:,:,:) 
-     real(kind=dp), allocatable :: dxds(:,:,:,:), dyds(:,:,:,:), dzds(:,:,:,:)
-     real(kind=dp), allocatable :: dxdt(:,:,:,:), dydt(:,:,:,:), dzdt(:,:,:,:) 
+     real(kind=rp), allocatable :: dxdr(:,:,:,:), dydr(:,:,:,:), dzdr(:,:,:,:) 
+     real(kind=rp), allocatable :: dxds(:,:,:,:), dyds(:,:,:,:), dzds(:,:,:,:)
+     real(kind=rp), allocatable :: dxdt(:,:,:,:), dydt(:,:,:,:), dzdt(:,:,:,:) 
      !< \f$ dr/dx, dr/dy, dr/dz \f$
      !! \f$ ds/dx, ds/dy, ds/dz \f$
      !! \f$ dt/dx, dt/dy, dt/dz \f$
-     real(kind=dp), allocatable :: drdx(:,:,:,:), drdy(:,:,:,:), drdz(:,:,:,:) 
-     real(kind=dp), allocatable :: dsdx(:,:,:,:), dsdy(:,:,:,:), dsdz(:,:,:,:)
-     real(kind=dp), allocatable :: dtdx(:,:,:,:), dtdy(:,:,:,:), dtdz(:,:,:,:) 
+     real(kind=rp), allocatable :: drdx(:,:,:,:), drdy(:,:,:,:), drdz(:,:,:,:) 
+     real(kind=rp), allocatable :: dsdx(:,:,:,:), dsdy(:,:,:,:), dsdz(:,:,:,:)
+     real(kind=rp), allocatable :: dtdx(:,:,:,:), dtdy(:,:,:,:), dtdz(:,:,:,:) 
      
-     real(kind=dp), allocatable :: h1(:,:,:,:) 
-     real(kind=dp), allocatable :: h2(:,:,:,:)
+     real(kind=rp), allocatable :: h1(:,:,:,:) 
+     real(kind=rp), allocatable :: h2(:,:,:,:)
      logical :: ifh2
      
-     real(kind=dp), allocatable :: jac(:,:,:,:) !< Jacobian
-     real(kind=dp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
-     real(kind=dp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
-     real(kind=dp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
+     real(kind=rp), allocatable :: jac(:,:,:,:) !< Jacobian
+     real(kind=rp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
+     real(kind=rp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
+     real(kind=rp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
 
-     real(kind=dp), allocatable :: area(:,:,:,:) !< Facet area
-     real(kind=dp), allocatable :: nx(:,:,:,:)   !< x-direction of facet normal
-     real(kind=dp), allocatable :: ny(:,:,:,:)   !< y-direction of facet normal
-     real(kind=dp), allocatable :: nz(:,:,:,:)   !< z-direction of facet normal
+     real(kind=rp), allocatable :: area(:,:,:,:) !< Facet area
+     real(kind=rp), allocatable :: nx(:,:,:,:)   !< x-direction of facet normal
+     real(kind=rp), allocatable :: ny(:,:,:,:)   !< y-direction of facet normal
+     real(kind=rp), allocatable :: nz(:,:,:,:)   !< z-direction of facet normal
      
-     real(kind=dp) :: volume
+     real(kind=rp) :: volume
      
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
@@ -427,12 +427,12 @@ contains
   !> Generate facet area and surface normals
   subroutine coef_generate_area_and_normal(coef)
     type(coef_t), intent(inout) :: coef
-    real(kind=dp), allocatable :: a(:,:,:,:)
-    real(kind=dp), allocatable :: b(:,:,:,:)
-    real(kind=dp), allocatable :: c(:,:,:,:)
-    real(kind=dp), allocatable :: dot(:,:,:,:)
+    real(kind=rp), allocatable :: a(:,:,:,:)
+    real(kind=rp), allocatable :: b(:,:,:,:)
+    real(kind=rp), allocatable :: c(:,:,:,:)
+    real(kind=rp), allocatable :: dot(:,:,:,:)
     integer :: n, e, j, k, l, lx
-    real(kind=dp) :: weight, len
+    real(kind=rp) :: weight, len
     n = coef%dof%n_dofs
     lx = coef%Xh%lx
     

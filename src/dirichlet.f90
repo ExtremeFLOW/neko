@@ -8,7 +8,7 @@ module dirichlet
   !> Generic Dirichlet boundary condition
   !! \f$ x = g \f$ on \f$\partial \Omega\f$
   type, public, extends(bc_t) :: dirichlet_t
-     real(kind=dp), private :: g
+     real(kind=rp), private :: g
    contains
      procedure, pass(this) :: apply_scalar => dirichlet_apply_scalar
      procedure, pass(this) :: apply_vector => dirichlet_apply_vector
@@ -22,7 +22,7 @@ contains
   subroutine dirichlet_apply_scalar(this, x, n)
     class(dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: x
     integer :: i, m, k
 
     m = this%msk(0)
@@ -37,9 +37,9 @@ contains
   subroutine dirichlet_apply_vector(this, x, y, z, n)
     class(dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
-    real(kind=dp), intent(inout),  dimension(n) :: y
-    real(kind=dp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: y
+    real(kind=rp), intent(inout),  dimension(n) :: z
     integer :: i, m, k
 
     m = this%msk(0)
@@ -55,7 +55,7 @@ contains
   !> Set value of \f$ g \f$
   subroutine dirichlet_set_g(this, g)
     class(dirichlet_t), intent(inout) :: this
-    real(kind=dp), intent(in) :: g
+    real(kind=rp), intent(in) :: g
 
     this%g = g
     

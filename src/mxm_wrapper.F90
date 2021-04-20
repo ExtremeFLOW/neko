@@ -13,9 +13,9 @@ contains
   !! for contiguously packed matrices A,B, and C.
   subroutine mxm(a,n1,b,n2,c,n3)
     integer, intent(in) :: n1, n2, n3
-    real(kind=dp), intent(inout) :: a(n1, n2)
-    real(kind=dp), intent(inout) :: b(n2, n3)
-    real(kind=dp), intent(inout) :: c(n1, n3)
+    real(kind=rp), intent(in) :: a(n1, n2)
+    real(kind=rp), intent(in) :: b(n2, n3)
+    real(kind=rp), intent(inout) :: c(n1, n3)
 #ifdef HAVE_LIBXSMM
     type(libxsmm_dmmfunction) :: xmm
     
@@ -46,8 +46,8 @@ contains
     integer ,parameter :: nn=24
     integer, parameter :: nt=10
     character(len=5) c(3,nt)
-    real(kind=dp) :: s(nn,2,nt,3)
-    real(kind=dp) :: a(nn,2,nt,3)
+    real(kind=rp) :: s(nn,2,nt,3)
+    real(kind=rp) :: a(nn,2,nt,3)
     integer :: k
 
 !      call nekgsync

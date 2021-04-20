@@ -18,7 +18,10 @@ program poisson
   type(ksp_monitor_t) :: ksp_mon
   integer :: argc, lx, n, n_glb, niter, ierr
   character(len=80) :: suffix
-  real(kind=dp), allocatable :: f(:)
+  real(kind=rp), allocatable :: f(:)
+  real(kind=rp) :: tol
+  niter = 100
+  tol = -1.0
 
   argc = command_argument_count()
 
@@ -28,7 +31,6 @@ program poisson
   end if
   
   call neko_init 
-  
   call get_command_argument(1, lxchar)
   read(lxchar, *) lx
   
@@ -48,23 +50,22 @@ program poisson
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
   call dir_bc%init(dm)
-  call dir_bc%set_g(0d0)
+  call dir_bc%set_g(real(0.0d0,rp))
  
   !user specified
   call set_bc(dir_bc, msh)
  
   call dir_bc%finalize()
-  call bc_list_init(bclst,1)
+  call bc_list_init(bclst)
   call bc_list_add(bclst,dir_bc)
-  call solver%init(n)
+  call solver%init(n, abs_tol = tol)
 
-  niter = 100
   allocate(f(n))
 
   !user specified
+  call rzero(f,n)
   call set_f(f, coef%mult, dm, n, gs_h)
   call bc_list_apply(bclst,f,n)
-  
   ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
   

@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.1.0])
+AC_INIT([neko],[0.1.1])
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -11,6 +11,13 @@ AC_ARG_ENABLE(contrib,
               AC_HELP_STRING([--enable-contrib],
               [Compile various tools]), 
               [enable_contrib=${enableval}], [enable_contrib=yes])
+
+AC_ARG_ENABLE(real,
+	      AC_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
+                    sp -- REAL(kind=4)
+	            dp -- REAL(kind=8) (default)
+	            qp -- REAL(kind=16)]),
+	        [enable_real=${enableval}], [enable_real=dp])
 
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
@@ -53,8 +60,8 @@ AM_CONDITIONAL([ENABLE_DOXYGEN], [test -n "$DOXYGEN_DEPS"])
 AC_CHECK_PROGS([MAKEDEPF90], [makedepf90])
 AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 
-
 AX_CRAY
+AX_SX
 
 # Checks for pFUnit
 AX_PFUNIT
@@ -87,7 +94,22 @@ if test "x${found_domain_decomp}" != xyes; then
        LIBS="$PARMETIS_LIBS $LIBS"
        found_domain_decomp="yes"
    fi
-fi	 
+fi
+
+# Select Working precision of REAL
+if test "x$enable_real" = xsp; then
+   AC_SUBST(NEKO_REAL_TYPE, "sp")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
+elif test "x$enable_real" = xdp; then
+   AC_SUBST(NEKO_REAL_TYPE, "dp")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
+elif test "x$enable_real" = xqp; then
+   AC_SUBST(NEKO_REAL_TYPE, "qp")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL16")
+else
+   AC_MSG_ERROR([Invalid working precision])
+fi
+
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 
@@ -98,7 +120,9 @@ AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
+		 src/comm.f90\
 	 	 src/neko_config.f90\
+		 src/num_types.f90\
 		 makeneko\
 		 neko.pc])
 
@@ -118,8 +142,9 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/bc/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
-   AC_CONFIG_FILES([contrib/Makefile
-		    contrib/rea2nbin/Makefile])
+   AC_CONFIG_FILES([contrib/Makefile\
+		    contrib/rea2nbin/Makefile\
+		    contrib/prepart/Makefile])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])

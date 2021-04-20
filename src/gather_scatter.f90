@@ -1,5 +1,6 @@
 !> Gather-scatter
 module gather_scatter
+  use neko_config
   use gs_bcknd
   use gs_cpu
   use gs_ops
@@ -19,15 +20,15 @@ module gather_scatter
      type(MPI_Status) :: status
      type(MPI_Request) :: request
      logical :: flag
-     real(kind=dp), allocatable :: data(:)
+     real(kind=rp), allocatable :: data(:)
   end type gs_comm_t
   
   type gs_t
-     real(kind=dp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
+     real(kind=rp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:)          !< Local gs to dof mapping
      integer, allocatable :: local_blk_len(:)         !< Local non-facet blocks
-     real(kind=dp), allocatable :: shared_gs(:)       !< Buffer for shared gs-op
+     real(kind=rp), allocatable :: shared_gs(:)       !< Buffer for shared gs-op
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:)        !< Shared non-facet blocks
@@ -97,7 +98,11 @@ contains
     if (present(bcknd)) then
        bcknd_ = bcknd
     else
-       bcknd_ = GS_BCKND_CPU ! Select this from neko_config
+       if (NEKO_BCKND_SX .eq. 1) then
+          bcknd_ = GS_BCKND_SX
+       else
+          bcknd_ = GS_BCKND_CPU
+       end if
     end if
 
     ! Setup Gather-scatter backend
@@ -1020,7 +1025,7 @@ contains
   subroutine gs_op_vector(gs, u, n, op)
     type(gs_t), intent(inout) :: gs
     integer, intent(inout) :: n
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer :: m, l, op, lo, so
     
     lo = gs%local_facet_offset
@@ -1065,7 +1070,7 @@ contains
 
     do i = 1, size(gs%recv_pe)
        call MPI_IRecv(gs%recv_buf(i)%data, size(gs%recv_buf(i)%data), &
-            MPI_DOUBLE_PRECISION, gs%recv_pe(i), 0, &
+            MPI_REAL_PRECISION, gs%recv_pe(i), 0, &
             NEKO_COMM, gs%recv_buf(i)%request, ierr)
        gs%recv_buf(i)%flag = .false.
     end do
@@ -1076,7 +1081,7 @@ contains
   subroutine gs_nbsend(gs, u, n)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n        
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer ::  i, j, ierr, dst
     integer , pointer :: sp(:)
 
@@ -1088,7 +1093,7 @@ contains
        end do
 
        call MPI_Isend(gs%send_buf(i)%data, size(gs%send_buf(i)%data), &
-            MPI_DOUBLE_PRECISION, gs%send_pe(i), 0, &
+            MPI_REAL_PRECISION, gs%send_pe(i), 0, &
             NEKO_COMM, gs%send_buf(i)%request, ierr)
        gs%send_buf(i)%flag = .false.
     end do
@@ -1099,7 +1104,7 @@ contains
   subroutine gs_nbwait(gs, u, n, op)
     type(gs_t), intent(inout) ::gs
     integer, intent(in) :: n    
-    real(kind=dp), dimension(n), intent(inout) :: u
+    real(kind=rp), dimension(n), intent(inout) :: u
     integer :: i, j, src, ierr
     integer :: op
     integer , pointer :: sp(:)
@@ -1119,18 +1124,22 @@ contains
                 sp => gs%recv_dof(src)%array()
                 select case(op)
                 case (GS_OP_ADD)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = u(sp(j)) + gs%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = u(sp(j)) * gs%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MIN)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = min(u(sp(j)), gs%recv_buf(i)%data(j))
                    end do
                 case (GS_OP_MAX)
+                   !NEC$ IVDEP
                    do j = 1, gs%send_dof(src)%size()
                       u(sp(j)) = max(u(sp(j)), gs%recv_buf(i)%data(j))
                    end do

@@ -150,7 +150,7 @@ contains
   subroutine re2_file_write(this, data, t)
     class(re2_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=dp), intent(in), optional :: t
+    real(kind=rp), intent(in), optional :: t
     type(re2v1_xy_t), allocatable :: re2_data_xy(:)
     type(re2v1_xyz_t), allocatable :: re2_data_xyz(:)
     type(mesh_t), pointer :: msh
@@ -274,8 +274,8 @@ contains
                re2v1_data_xy, nelv, MPI_RE2V1_DATA_XY, status, ierr)
           do i = 1, nelv
              do j = 1, 4             
-                p(j) = point_t(dble(re2v1_data_xy(i)%x(j)), &
-                     dble(re2v1_data_xy(i)%y(j)), 0d0)
+                p(j) = point_t(real(re2v1_data_xy(i)%x(j),dp), &
+                     real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
@@ -289,7 +289,7 @@ contains
           do i = 1, nelv
              do j = 1, 4             
                 p(j) = point_t(re2v2_data_xy(i)%x(j), &
-                     re2v2_data_xy(i)%y(j), 0d0)
+                     re2v2_data_xy(i)%y(j), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
@@ -305,9 +305,9 @@ contains
                re2v1_data_xyz, nelv, MPI_RE2V1_DATA_XYZ, status, ierr)
           do i = 1, nelv
              do j = 1, 8             
-                p(j) = point_t(dble(re2v1_data_xyz(i)%x(j)), &
-                     dble(re2v1_data_xyz(i)%y(j)),&
-                     dble(re2v1_data_xyz(i)%z(j)))
+                p(j) = point_t(real(re2v1_data_xyz(i)%x(j),dp), &
+                     real(re2v1_data_xyz(i)%y(j),dp),&
+                     real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
@@ -384,14 +384,14 @@ contains
           id = re2v2_data_curve(i)%face
           chtemp = re2v2_data_curve(i)%type
           do j = 1, 5 
-             curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j) 
+             curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j)
           enddo
        else 
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
           id = re2v1_data_curve(i)%face
           chtemp = re2v1_data_curve(i)%type
           do j = 1, 5 
-             curve_data(j,id, el_idx) = dble(re2v1_data_curve(i)%point(j)) 
+             curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp) 
           enddo
        end if
        
@@ -479,8 +479,7 @@ contains
              periodic = .true.
              p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
              p_facet = facet_map(int(re2v2_data_bc(i)%bc_data(2)))
-             call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
-                  p_facet, p_el_idx, pids)
+             call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
           end select
@@ -523,8 +522,7 @@ contains
              periodic = .true.
              p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
              p_facet = facet_map(int(re2v1_data_bc(i)%bc_data(2)))
-             call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
-                  p_facet, p_el_idx, pids)
+             call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
           end select

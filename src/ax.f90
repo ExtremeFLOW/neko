@@ -27,13 +27,13 @@ module ax_product
        import mesh_t
        import coef_t
        import ax_t
-       import dp
+       import rp
        implicit none
        type(space_t), intent(inout) :: Xh
        type(mesh_t), intent(inout) :: msh       
        type(coef_t), intent(inout) :: coef
-       real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-       real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
      end subroutine ax_compute
   end interface
   

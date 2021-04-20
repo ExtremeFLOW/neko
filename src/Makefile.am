@@ -47,7 +47,13 @@ libneko_a_SOURCES = \
 	mesh_field.f90\
 	field.f90\
 	rea.f90\
+	sx_cdtp.f90\
+	sx_conv1.f90\
+	sx_dudxyz.f90\
+	sx_opgrad.f90\
 	operators.f90\
+	opr_cpu.f90\
+	opr_sx.f90\
 	generic_file.f90\
 	map_file.f90\
 	re2_file.f90\
@@ -69,6 +75,7 @@ libneko_a_SOURCES = \
 	gmres.f90\
 	pc_jacobi.f90\
 	pc_identity.f90\
+	pc_jacobi_sx.f90\
 	source.f90\
 	abbdf.f90\
 	neko_config.f90\
@@ -80,6 +87,7 @@ libneko_a_SOURCES = \
 	fluid_schemes.f90\
 	simulation.f90\
 	ax_helm.f90\
+	ax_helm_sx.f90\
 	projection.f90\
 	parmetis.F90\
 	redist.f90\

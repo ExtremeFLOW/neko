@@ -5,6 +5,9 @@ module comm
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
 
+  !> MPI type for working precision of REAL types
+  type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+  
   !> MPI rank
   integer :: pe_rank
 
@@ -38,7 +41,6 @@ contains
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
-
 
   end subroutine comm_init
 

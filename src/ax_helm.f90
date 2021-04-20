@@ -13,18 +13,18 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=dp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
   
-    real(kind=dp) :: dudr(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: duds(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: dudt(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: tmp1(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: tmp2(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: tmp3(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: tm1(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: tm2(Xh%lx,Xh%ly,Xh%lz)
-    real(kind=dp) :: tm3(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: dudr(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: duds(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: dudt(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: tmp1(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: tmp2(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: tmp3(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: tm1(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: tm2(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: tm3(Xh%lx,Xh%ly,Xh%lz)
     integer :: e, k, lxy, lxz, lyz, lxyz
 
     lxy = Xh%lx*Xh%ly

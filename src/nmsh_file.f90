@@ -135,11 +135,25 @@ contains
              case(4)
                 call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
              case(5)
+                call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
+                     nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
+             end select
+          end if
+       end do
+       !Apply facets, important that marking is finished
+       do i = 1, nzones
+          el_idx = nmsh_zone(i)%e
+          if (el_idx .gt. msh%offset_el .and. &
+               el_idx .le. msh%offset_el + msh%nelv) then             
+             el_idx = el_idx - msh%offset_el
+             select case(nmsh_zone(i)%type)
+             case(5)
                 call mesh_apply_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              end select
           end if
        end do
+
 
        deallocate(nmsh_zone)
     end if
@@ -178,7 +192,7 @@ contains
   subroutine nmsh_file_write(this, data, t)
     class(nmsh_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=dp), intent(in), optional :: t
+    real(kind=rp), intent(in), optional :: t
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_zone_t), allocatable :: nmsh_zone(:)

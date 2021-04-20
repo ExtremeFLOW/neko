@@ -72,7 +72,7 @@ contains
   subroutine file_write(this, data, t)
     class(file_t), intent(inout) :: this
     class(*), intent(inout) :: data
-    real(kind=dp), intent(in), optional :: t
+    real(kind=rp), intent(in), optional :: t
 
     if (present(t)) then
        call this%file_type%write(data, t)

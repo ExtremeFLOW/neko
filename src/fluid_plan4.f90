@@ -1,9 +1,11 @@
 !> Classic Nek5000 PN/PN formulation for fluids
 !! Splitting scheme A.G. Tomboulides et al.
 !! Journal of Sci.Comp.,Vol. 12, No. 2, 1998
-module fluid_plan4
+module fluid_plan4  
   use fluid_method
   use facet_normal
+  use neko_config
+  use ax_helm_sx
   use ax_helm
   use abbdf
   use projection
@@ -15,13 +17,13 @@ module fluid_plan4
      type(field_t) :: v_e
      type(field_t) :: w_e
 
-     real(kind=dp), allocatable :: p_res(:)
-     real(kind=dp), allocatable :: u_res(:,:,:,:)
-     real(kind=dp), allocatable :: v_res(:,:,:,:)
-     real(kind=dp), allocatable :: w_res(:,:,:,:)
-     real(kind=dp), allocatable :: ulag(:,:,:,:,:)
-     real(kind=dp), allocatable :: vlag(:,:,:,:,:)
-     real(kind=dp), allocatable :: wlag(:,:,:,:,:)
+     real(kind=rp), allocatable :: p_res(:)
+     real(kind=rp), allocatable :: u_res(:,:,:,:)
+     real(kind=rp), allocatable :: v_res(:,:,:,:)
+     real(kind=rp), allocatable :: w_res(:,:,:,:)
+     real(kind=rp), allocatable :: ulag(:,:,:,:,:)
+     real(kind=rp), allocatable :: vlag(:,:,:,:,:)
+     real(kind=rp), allocatable :: wlag(:,:,:,:,:)
 
      type(field_t) :: dp
      type(field_t) :: du
@@ -41,7 +43,7 @@ module fluid_plan4
      type(field_t) :: work1
      type(field_t) :: work2
 
-     type(ax_helm_t) :: Ax
+     class(ax_t), allocatable :: Ax
      
      type(projection_t) :: proj
 
@@ -50,18 +52,18 @@ module fluid_plan4
      type(bc_list_t) :: bclst_vel_residual  
 
      !> Time variables
-     real(kind=dp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
-     real(kind=dp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
+     real(kind=rp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
+     real(kind=rp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
 
      !> all the shit for vol_flow
      
      integer :: flow_dir !> these two should be moved to params
      logical :: avflow 
-     real(kind=dp) :: flow_rate 
-     real(kind=dp) :: dtlag = 0d0
-     real(kind=dp) :: bdlag = 0d0!> Really quite pointless since we do not vary the timestep
+     real(kind=rp) :: flow_rate 
+     real(kind=rp) :: dtlag = 0d0
+     real(kind=rp) :: bdlag = 0d0!> Really quite pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
-     real(kind=dp) :: domain_length, base_flow
+     real(kind=rp) :: domain_length, base_flow
 
      integer :: niter = 1000
 
@@ -83,6 +85,12 @@ contains
     
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., .true.)
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(ax_helm_sx_t::this%Ax)
+    else
+       allocate(ax_helm_t::this%Ax)
+    end if
     
     ! Initialize variables specific to this plan
     allocate(this%p_res(this%dm_Xh%n_dofs))
@@ -136,7 +144,7 @@ contains
     call this%bc_vel_residual%mark_zone(msh%inlet)
     call this%bc_vel_residual%mark_zone(msh%wall)
     call this%bc_vel_residual%finalize()
-    call this%bc_vel_residual%set_g(0d0)
+    call this%bc_vel_residual%set_g(real(0d0,rp))
     call bc_list_init(this%bclst_vel_residual)
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
 
@@ -191,6 +199,10 @@ contains
     call field_free(this%work1)
     call field_free(this%work2)
 
+    if (allocated(this%Ax)) then
+       deallocate(this%Ax)
+    end if
+
     if (allocated(this%p_res)) then
        deallocate(this%p_res)
     end if
@@ -241,12 +253,13 @@ contains
   
   subroutine fluid_plan4_step(this, t, tstep, ab_bdf)
     class(fluid_plan4_t), intent(inout) :: this
-    real(kind=dp), intent(inout) :: t
+    real(kind=rp), intent(inout) :: t
     type(abbdf_t), intent(inout) :: ab_bdf
     integer, intent(inout) :: tstep
     integer tt
     integer :: n, iter, i, niter
     type(ksp_monitor_t) :: ksp_results(4)
+    real(kind=rp), parameter :: one = 1.0
     n = this%dm_Xh%n_dofs
     niter = 1000
 
@@ -266,6 +279,7 @@ contains
       end if
 
       call f_Xh%eval()
+      call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       call advab(ta1, ta2, ta3, &
                  this%u, this%v, this%w, &
                  f_Xh%u, f_Xh%v, f_Xh%w, &
@@ -352,7 +366,7 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       
-      call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x,1d0,n,msh%gdim)
+      call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, one, n, msh%gdim)
      
       if (this%flow_dir .ne. 0) call plan4_vol_flow(this, ab_bdf)
       call fluid_step_info(tstep, t, params%dt, ksp_results)
@@ -361,53 +375,56 @@ contains
   
   subroutine fluid_plan4_pres_setup(h1, h2, rho, n, ifh2)
     integer, intent(inout) :: n
-    real(kind=dp), intent(inout) :: h1(n)
-    real(kind=dp), intent(inout) :: h2(n)
-    real(kind=dp), intent(inout) :: rho
+    real(kind=rp), intent(inout) :: h1(n)
+    real(kind=rp), intent(inout) :: h2(n)
+    real(kind=rp), intent(inout) :: rho
+    real(kind=rp), parameter :: one = 1.0
     logical, intent(inout) :: ifh2
     call rone(h1, n)
-    call cmult(h1, 1d0 /rho, n)
+    call cmult(h1, one /rho, n)
     call rzero(h2, n)
     ifh2 = .false.
   end subroutine fluid_plan4_pres_setup
 
   subroutine fluid_plan4_vel_setup(h1, h2, Re, rho, bd, dt, n, ifh2)
     integer, intent(inout) :: n
-    real(kind=dp), intent(inout) :: h1(n)
-    real(kind=dp), intent(inout) :: h2(n)
-    real(kind=dp), intent(inout) :: Re
-    real(kind=dp), intent(inout) :: rho
-    real(kind=dp), intent(inout) :: bd
-    real(kind=dp), intent(inout) :: dt
+    real(kind=rp), intent(inout) :: h1(n)
+    real(kind=rp), intent(inout) :: h2(n)
+    real(kind=rp), intent(inout) :: Re
+    real(kind=rp), intent(inout) :: rho
+    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(inout) :: dt
     logical, intent(inout) :: ifh2
-    real(kind=dp) :: dtbd    
+    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp) :: dtbd    
     dtbd = rho * (bd / dt)
-    h1 = (1d0 / Re)
+    h1 = (one / Re)
     h2 = dtbd
     ifh2 = .true.
   end subroutine fluid_plan4_vel_setup
 
   subroutine fluid_plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
        p, ta1, ta2, ta3, ta4, f_Xh, c_Xh, msh, Xh, n)
-    type(ax_helm_t), intent(in) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    real(kind=dp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: ta1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: ta2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: ta3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=dp), intent(inout) :: ta4(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: ta1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: ta2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: ta3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: ta4(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     integer, intent(inout) :: n
-
-    real(kind=dp) :: scl
+    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: three = 3.0
+    real(kind=rp) :: scl
 
     call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res, v%x, c_Xh, msh, Xh)
@@ -417,15 +434,15 @@ contains
     
     call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
-    scl = -1d0/3d0
+    scl = -one /three 
 
     call rzero(ta4,c_xh%dof%n_dofs)
     call add2s1  (ta4,p%x,scl,c_Xh%dof%n_dofs)
     call opgrad  (ta1,ta2,ta3,ta4,c_Xh)
 
-    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1d0, n, msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -one, n, msh%gdim)
 
-    call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, 1d0, n, msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, one, n, msh%gdim)
 
   end subroutine fluid_plan4_vel_residual
 
@@ -433,7 +450,7 @@ contains
        ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, &
        bc_prs_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p
-    real(kind=dp), intent(inout) :: p_res(p%dof%n_dofs)
+    real(kind=rp), intent(inout) :: p_res(p%dof%n_dofs)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -453,11 +470,14 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
     class(Ax_t), intent(inout) :: Ax
-    real(kind=dp), intent(inout) :: bd
-    real(kind=dp), intent(inout) :: dt
-    real(kind=dp), intent(inout) :: Re
-    real(kind=dp), intent(inout) :: rho
-    real(kind=dp) :: scl, dtbd
+    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(inout) :: dt
+    real(kind=rp), intent(inout) :: Re
+    real(kind=rp), intent(inout) :: rho
+    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: three = 3.0
+    real(kind=rp), parameter :: four = 4.0
+    real(kind=rp) :: scl, dtbd, real
     integer :: i, idx(4)
     integer :: n, gdim, glb_n,m, k
 
@@ -468,13 +488,13 @@ contains
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
-    scl = -4d0 / 3d0
-    ta1 = 0d0
-    ta2 = 0d0
-    ta3 = 0d0
+    scl = -four / three
+    call rzero(ta1%x,n)
+    call rzero(ta2%x,n)
+    call rzero(ta3%x,n)
     call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
-    work1%x = (1d0 / Re) / rho
+    work1%x = (one / Re) / rho
     call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
 
     call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)
@@ -535,10 +555,10 @@ contains
   !> Sum up AB/BDF contributions 
   subroutine fluid_plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
-    real(kind=dp), dimension(n), intent(inout) :: v,vv
-    real(kind=dp), dimension(n,2), intent(inout) :: vvlag
-    real(kind=dp), dimension(3), intent(in) :: ab
-    real(kind=dp) :: ab0, ab1, ab2
+    real(kind=rp), dimension(n), intent(inout) :: v,vv
+    real(kind=rp), dimension(n,2), intent(inout) :: vvlag
+    real(kind=rp), dimension(3), intent(in) :: ab
+    real(kind=rp) :: ab0, ab1, ab2
 
     ab0 = ab(1)
     ab1 = ab(2)
@@ -555,16 +575,17 @@ contains
 !
     integer, intent(inout) :: n, nbd, gdim
     type(field_t) :: ta1, ta2, ta3, u, v, w
-    real(kind=dp), intent(inout) :: TB1(n)
-    real(kind=dp), intent(inout) :: TB2(n)
-    real(kind=dp), intent(inout) :: TB3(n)
-    real(kind=dp), intent(inout) :: BFX(n)
-    real(kind=dp), intent(inout) :: BFY(n)
-    real(kind=dp), intent(inout) :: BFZ(n)
-    real(kind=dp), intent(inout) :: H2 (n), B(n)
-    real(kind=dp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
-    real(kind=dp), intent(inout) :: dt, rho, bd(10)
-    real(kind=dp) :: const
+    real(kind=rp), intent(inout) :: TB1(n)
+    real(kind=rp), intent(inout) :: TB2(n)
+    real(kind=rp), intent(inout) :: TB3(n)
+    real(kind=rp), intent(inout) :: BFX(n)
+    real(kind=rp), intent(inout) :: BFY(n)
+    real(kind=rp), intent(inout) :: BFZ(n)
+    real(kind=rp), intent(inout) :: H2 (n), B(n)
+    real(kind=rp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
+    real(kind=rp), intent(inout) :: dt, rho, bd(10)
+    real(kind=rp) :: const
+    real(kind=rp), parameter :: one = 1.0
     integer :: ilag
     CONST = rho /DT
     call rone(h2, n)
@@ -575,7 +596,7 @@ contains
                                       vlag (1,ILAG-1),&
                                       wlag (1,ILAG-1),&
                                       B,bd(ilag+1),n,gdim)
-       CALL OPADD2cm  (TB1,TB2,TB3,TA1%x,TA2%x,TA3%x, 1d0, n, gdim)
+       CALL OPADD2cm  (TB1,TB2,TB3,TA1%x,TA2%x,TA3%x, one, n, gdim)
    ENDDO
    CALL OPADD2col (BFX,BFY,BFZ,TB1,TB2,TB3,h2, n, gdim)
   END subroutine makebdf
@@ -587,14 +608,14 @@ contains
 !
 !-----------------------------------------------------------------------
     type(field_t), intent(inout) :: ta1, ta2, ta3
-    real(kind=dp), intent(inout) :: rho, ab(10)
+    real(kind=rp), intent(inout) :: rho, ab(10)
      integer, intent(in) :: n, gdim
-    real(kind=dp), intent(inout) :: BFX(n)
-    real(kind=dp), intent(inout) :: BFY(n)
-    real(kind=dp), intent(inout) :: BFZ(n)
-    real(kind=dp), intent(inout) :: abx1(n), aby1(n), abz1(n)
-    real(kind=dp), intent(inout) :: abx2(n), aby2(n), abz2(n)
-    real(kind=dp) :: ab0, ab1, ab2
+    real(kind=rp), intent(inout) :: BFX(n)
+    real(kind=rp), intent(inout) :: BFY(n)
+    real(kind=rp), intent(inout) :: BFZ(n)
+    real(kind=rp), intent(inout) :: abx1(n), aby1(n), abz1(n)
+    real(kind=rp), intent(inout) :: abx2(n), aby2(n), abz2(n)
+    real(kind=rp) :: ab0, ab1, ab2
     AB0 = AB(1)
     AB1 = AB(2)
     AB2 = AB(3)
@@ -628,7 +649,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: ta1, ta2, ta3, vx, vy, vz
     integer, intent(inout) :: nelv, n, gdim
-    real(kind=dp), intent(inout), dimension(n) :: bfx, bfy, bfz
+    real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
     call rzero  (ta1%x,n)
     call rzero  (ta2%x,n)
     call rzero  (ta3%x,n)
@@ -648,7 +669,7 @@ contains
   subroutine fluid_step_info(step, t, dt, ksp_results)
     type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
-    real(kind=dp), intent(in) :: t, dt
+    real(kind=rp), intent(in) :: t, dt
     character(len=LOG_SIZE) :: log_buf
 
 
@@ -695,9 +716,9 @@ contains
     type(fluid_plan4_t), intent(inout) :: this
     type(abbdf_t), intent(inout) :: ab_bdf
     integer :: n
-    real(kind=dp) :: xlmin, xlmax
-    real(kind=dp) :: ylmin, ylmax
-    real(kind=dp) :: zlmin, zlmax
+    real(kind=rp) :: xlmin, xlmax
+    real(kind=rp) :: ylmin, ylmax
+    real(kind=rp) :: zlmin, zlmax
     type(ksp_monitor_t) :: ksp_result
 
 
@@ -779,8 +800,8 @@ contains
 !     pff 6/28/98
       type(fluid_plan4_t), intent(inout) :: this
       type(abbdf_t), intent(inout) :: ab_bdf
-      real(kind=dp) :: ifcomp(1), flow_rate, xsec
-      real(kind=dp) :: current_flow, delta_flow, base_flow, scale
+      real(kind=rp) :: ifcomp(1), flow_rate, xsec
+      real(kind=rp) :: current_flow, delta_flow, base_flow, scale
       integer :: n
 
       n = this%dm_Xh%n_dofs

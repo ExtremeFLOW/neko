@@ -6,8 +6,8 @@ module abbdf
 
   !> AB-BDF coefficeints
   type abbdf_t
-     real(kind=dp), dimension(10) :: ab
-     real(kind=dp), dimension(10) :: bd
+     real(kind=rp), dimension(10) :: ab
+     real(kind=rp), dimension(10) :: bd
      integer :: nab = 0
      integer :: nbd = 0
    contains
@@ -21,10 +21,10 @@ contains
   !>Compute backward-differentiation coefficients of order NBD
   subroutine abbdf_set_bd(this, dtbd)
     class(abbdf_t), intent(inout) :: this
-    real(kind=dp), intent(inout), dimension(10) :: dtbd
-    real(kind=dp), dimension(10,10) :: bdmat
-    real(kind=dp), dimension(10) :: bdrhs
-    real(kind=dp) :: bdf
+    real(kind=rp), intent(inout), dimension(10) :: dtbd
+    real(kind=rp), dimension(10,10) :: bdmat
+    real(kind=rp), dimension(10) :: bdrhs
+    real(kind=rp) :: bdf
     integer, parameter :: ldim = 10
     integer, dimension(10) :: ir, ic
     integer :: ibd, nsys, i
@@ -71,8 +71,8 @@ contains
   !!
   subroutine abbdf_set_abbd(this, dtlag)
     class(abbdf_t), intent(inout)  :: this
-    real(kind=dp), intent(inout), dimension(10) :: dtlag
-    real(kind=dp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
+    real(kind=rp), intent(inout), dimension(10) :: dtlag
+    real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
 
     associate(nab => this%nab, nbd => this%nbd, ab => this%ab)
 
@@ -127,8 +127,8 @@ contains
   
   subroutine bdsys (a,b,dt,nbd,ldim)
     integer :: ldim, j, n, k, i, nsys, nbd
-    real(kind=dp) ::  A(ldim,9),B(9),DT(9)
-    real(kind=dp) :: SUMDT
+    real(kind=rp) ::  A(ldim,9),B(9),DT(9)
+    real(kind=rp) :: SUMDT
     CALL RZERO (A,ldim**2)
     N = NBD+1
     DO J=1,NBD
@@ -162,7 +162,7 @@ contains
 
     SUBROUTINE LU(A,N,ldim,IR,IC)
       integer :: n, ldim, IR(10), IC(10)
-      real(kind=dp) :: A(ldim,10), xmax, ymax, B, Y, C
+      real(kind=rp) :: A(ldim,10), xmax, ymax, B, Y, C
       integer :: i, j, k, l, m, icm, irl, k1
       DO I=1,N
          IR(I)=I
@@ -227,7 +227,7 @@ contains
     SUBROUTINE SOLVE(F,A,K,N,ldim,IR,IC)
       integer :: IR(10),IC(10), N, N1, k, kk, i, j, ldim, ICM, URL, K1, ICI
       integer :: I1, IRI,IRL, IT
-      real(kind=dp) ::  A(ldim,10),F(ldim,10), G(2000), B, Y
+      real(kind=rp) ::  A(ldim,10),F(ldim,10), G(2000), B, Y
 
         
 

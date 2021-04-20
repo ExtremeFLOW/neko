@@ -9,7 +9,7 @@ module field
   implicit none
   
   type field_t
-     real(kind=dp), allocatable :: x(:,:,:,:) !< Field data
+     real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
      
      type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh   !< Mesh
@@ -154,7 +154,7 @@ contains
   !> Assignment \f$ F = a \f$
   subroutine field_assign_scalar(f, a)
     type(field_t), intent(inout) :: f
-    real(kind=dp), intent(in) :: a
+    real(kind=rp), intent(in) :: a
     integer :: n, i, j, k, l
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
@@ -188,7 +188,7 @@ contains
   !! F(u_1, u_2, ... , u_n) + a \f$
   subroutine field_add_scalar(f, a)
     type(field_t), intent(inout) :: f
-    real(kind=dp), intent(inout) :: a
+    real(kind=rp), intent(inout) :: a
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz

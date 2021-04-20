@@ -40,7 +40,8 @@ contains
     integer :: el_idx, pt_idx
     logical :: read_param, read_bcs, read_map
     real(kind=dp) :: xc(8), yc(8), zc(8), curve(5)
-    real(kind=dp), allocatable :: bc_data(:,:,:), curve_data(:,:,:)
+    real(kind=dp), allocatable :: bc_data(:,:,:)
+    real(kind=dp), allocatable :: curve_data(:,:,:)
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     type(map_file_t) :: map_file
@@ -151,7 +152,7 @@ contains
              read(9, *) (yc(j),j=1,4)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 4
-                   p(j) = point_t(xc(j), yc(j), 0d0)
+                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
@@ -165,7 +166,7 @@ contains
              read(9, *) (zc(j),j=5,8)
              if (i .ge. start_el .and. i .le. end_el) then
                 do j = 1, 8
-                   p(j) = point_t(xc(j), yc(j), zc(j))
+                   p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 call mesh_add_element(msh, el_idx, &
@@ -194,7 +195,10 @@ contains
           end do
        end do
        do i = 1, nskip
-          read(9, *) edge, el_idx, (curve_data(j,edge,el_idx),j=1,5), chtemp
+          read(9, *) edge, el_idx, (curve,j=1,5), chtemp       
+          do j = 1, 5
+             curve_data(j,edge,el_idx) = curve(j)
+          end do
           curve_element(el_idx) = .true. 
           select case(trim(chtemp))
           case ('s')
@@ -248,8 +252,7 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_get_periodic_ids(msh, sym_facet, el_idx, &
-                                                 p_facet, p_el_idx, pids)
+                      call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
                       call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                                         p_facet, p_el_idx, pids)
                    end select
@@ -323,7 +326,7 @@ contains
   subroutine rea_file_write(this, data, t)
     class(rea_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=dp), intent(in), optional :: t
+    real(kind=rp), intent(in), optional :: t
   end subroutine rea_file_write
 
   subroutine rea_file_add_point(htp, p, idx)

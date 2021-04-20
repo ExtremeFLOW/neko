@@ -57,7 +57,7 @@ subroutine test_stack_nh_push
   type(stack_nh_t) :: s
   integer :: i, j, k
   type(nmsh_hex_t) :: data
-  type(nmsh_hex_t), pointer :: qp(:)
+  type(nmsh_hex_t), pointer :: hex_ptr(:)
 
   call s%init()  
   do i = 1, 64
@@ -81,16 +81,16 @@ subroutine test_stack_nh_push
   @assertEqual(s%size_, 128, message='Unnecessary reallocation')
   @assertEqual(s%top_, (64 + 2), message='Corrupt size')
 
-  qp => s%array()
+  hex_ptr => s%array()
   do i = 1, 66
      do j = 1, 8
         data%v(j)%v_idx = i**j
         data%v(j)%v_xyz = (/ dble(i**j), dble(2*i**j), dble(3*i**j) /)
      end do
      do j = 1, 8
-        @assertTrue(qp(i)%v(j)%v_idx .eq. data%v(j)%v_idx)
+        @assertTrue(hex_ptr(i)%v(j)%v_idx .eq. data%v(j)%v_idx)
         do k = 1, 3
-           @assertTrue(qp(i)%v(j)%v_xyz(k) .eq. data%v(j)%v_xyz(k))
+           @assertTrue(hex_ptr(i)%v(j)%v_xyz(k) .eq. data%v(j)%v_xyz(k))
         end do
      end do
   end do

@@ -22,8 +22,8 @@ module case
      type(mesh_t) :: msh
      type(param_t) :: params
      type(abbdf_t) :: ab_bdf
-     real(kind=dp), dimension(10) :: tlag
-     real(kind=dp), dimension(10) :: dtlag
+     real(kind=rp), dimension(10) :: tlag
+     real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
      type(user_t) :: usr
@@ -54,7 +54,7 @@ contains
     character buffer(nbytes)
     integer :: pack_index, temp, i
     type(mesh_fld_t) :: parts
-    real(kind=dp) :: eps, uvw(3)
+    real(kind=rp) :: eps, uvw(3)
     
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))

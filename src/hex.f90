@@ -194,7 +194,7 @@ contains
   !> Compute the diameter of a hexahedron element
   function hex_diameter(this) result(res)
     class(hex_t), intent(in) :: this
-    real(kind=dp) :: d1, d2, d3, d4, res
+    real(kind=rp) :: d1, d2, d3, d4, res
     type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
     integer :: i
 
@@ -257,7 +257,7 @@ contains
 
     res = .false.
     select type(other)
-    class is (hex_t)
+    type is (hex_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
           do i = 1, this%npts()

@@ -1,5 +1,6 @@
 !> Krylov preconditioner
 module hsmg
+  use neko_config
   use math
   use utils
   use precon
@@ -12,9 +13,11 @@ module hsmg
   use fdm
   use schwarz
   use ax_helm
+  use ax_helm_sx
   use gmres
   use tensor
   use jacobi
+  use sx_jacobi
   implicit none
 
   !Struct to arrange our multigridlevels
@@ -42,14 +45,14 @@ module hsmg
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(cg_t) :: crs_solver !< Solver for course problem
      integer :: niter = 10 !< Number of iter of crs sovlve
-     type(jacobi_t) :: pc_crs !< Some basic precon for crs
-     type(ax_helm_t) :: ax !< Matrix for crs solve
-     real(kind=dp), allocatable :: jh(:,:) !< Interpolator crs -> fine
-     real(kind=dp), allocatable :: jht(:,:)!< Interpolator crs -> fine, transpose
-     real(kind=dp), allocatable :: r(:)!< Residual work array
-     real(kind=dp), allocatable :: jhfc(:,:)!< Interpolator fine -> crs
-     real(kind=dp), allocatable :: jhfct(:,:) !< Interpolator fine -> crs, transpose
-     real(kind=dp), allocatable :: w(:) !< work array
+     class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
+     class(ax_t), allocatable :: ax !< Matrix for crs solve
+     real(kind=rp), allocatable :: jh(:,:) !< Interpolator crs -> fine
+     real(kind=rp), allocatable :: jht(:,:)!< Interpolator crs -> fine, transpose
+     real(kind=rp), allocatable :: r(:)!< Residual work array
+     real(kind=rp), allocatable :: jhfc(:,:)!< Interpolator fine -> crs
+     real(kind=rp), allocatable :: jhfct(:,:) !< Interpolator fine -> crs, transpose
+     real(kind=rp), allocatable :: w(:) !< work array
   contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: free => hsmg_free
@@ -87,6 +90,14 @@ contains
     allocate(this%w(dof%n_dofs))
     allocate(this%r(dof%n_dofs))
 
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(ax_helm_sx_t::this%ax)
+       allocate(sx_jacobi_t::this%pc_crs)
+    else
+       allocate(ax_helm_t::this%ax)
+       allocate(jacobi_t::this%pc_crs)
+    end if
+    
     ! Compute all elements as if they are deformed
     call mesh_all_deformed(msh)
 
@@ -99,13 +110,18 @@ contains
     call field_init(this%e_crs, this%dm_crs,'work crs')
     call coef_init(this%c_crs, this%gs_crs)
     
-    call this%pc_crs%init(this%c_crs, this%dm_crs, this%gs_crs)
+    select type(pc => this%pc_crs)
+    type is (jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (sx_jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    end select
     call this%crs_solver%init(this%dm_crs%n_dofs, M= this%pc_crs)
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_crs%mark_zone(msh%outlet)
     call this%bc_crs%finalize()
-    call this%bc_crs%set_g(0d0)
+    call this%bc_crs%set_g(real(0d0,rp))
     call bc_list_init(this%bclst_crs)
     call bc_list_add(this%bclst_crs, this%bc_crs)
 
@@ -118,7 +134,7 @@ contains
     call this%bc_mg%init(this%dm_mg)
     call this%bc_mg%mark_zone(msh%outlet)
     call this%bc_mg%finalize()
-    call this%bc_mg%set_g(0d0)
+    call this%bc_mg%set_g(real(0d0,rp))
     call bc_list_init(this%bclst_mg)
     call bc_list_add(this%bclst_mg, this%bc_mg)
 
@@ -158,7 +174,7 @@ contains
 
   subroutine hsmg_intp_fc(grid_c,grid_f,jhfc, jhfct) ! l is coarse level
     type(multigrid_t), intent(inout) :: grid_c, grid_f
-    real(kind=dp), intent(inout), dimension(grid_c%Xh%lx*grid_f%Xh%lx) :: jhfc, jhfct
+    real(kind=rp), intent(inout), dimension(grid_c%Xh%lx*grid_f%Xh%lx) :: jhfc, jhfct
     integer :: nc, nf
     nc = grid_c%Xh%lx
     nf = grid_f%Xh%lx
@@ -192,8 +208,8 @@ contains
   subroutine hsmg_setup_intp(grids, jh, jht, jhfc, jhfct, lvls)
     integer, intent(in) :: lvls
     type(multigrid_t) :: grids(lvls)
-    real(kind=dp), intent(inout), dimension(grids(lvls)%Xh%lxy,lvls) :: jh, jht
-    real(kind=dp), intent(inout), dimension(grids(lvls)%Xh%lxy,lvls) :: jhfc, jhfct
+    real(kind=rp), intent(inout), dimension(grids(lvls)%Xh%lxy,lvls) :: jh, jht
+    real(kind=rp), intent(inout), dimension(grids(lvls)%Xh%lxy,lvls) :: jhfc, jhfct
     integer l,nf,nc
 
     do l=1,lvls-1
@@ -214,8 +230,8 @@ contains
 
   subroutine hsmg_setup_intpm(jh,zf,zc,nf,nc)
     integer, intent(in) :: nf,nc
-    real(kind=dp), intent(inout) :: jh(nf,nc),zf(nf),zc(nc)
-    real(kind=dp) ::  w(2*(nf+nc)+4)
+    real(kind=rp), intent(inout) :: jh(nf,nc),zf(nf),zc(nc)
+    real(kind=rp) ::  w(2*(nf+nc)+4)
     integer :: i, j
     do i=1,nf
        call fd_weights_full(zf(i),zc,nc-1,1,w)
@@ -226,6 +242,8 @@ contains
   end subroutine hsmg_setup_intpm
   subroutine hsmg_free(this)
     class(hsmg_t), intent(inout) :: this
+    if (allocated(this%ax)) deallocate(this%ax)
+    if (allocated(this%pc_crs)) deallocate(this%pc_crs)
     if (allocated(this%grids)) deallocate(this%grids)
     if (allocated(this%jh)) deallocate(this%jh)
     if (allocated(this%jht)) deallocate(this%jht)
@@ -240,21 +258,23 @@ contains
     call field_free(this%e)
     call field_free(this%e_mg)
     call field_free(this%e_crs)
-    call this%pc_crs%free()
+    select type(pc => this%pc_crs)
+    type is (jacobi_t)
+       call pc%free()
+    type is (sx_jacobi_t)
+       call pc%free()
+    end select
     call gs_free(this%gs_crs)
     call gs_free(this%gs_mg)
     call this%crs_solver%free()
-    
-
-
   end subroutine hsmg_free
 
   !> The h1mg preconditioner from Nek5000.
   subroutine hsmg_solve(this, z, r, n)
     integer, intent(inout) :: n
     class(hsmg_t), intent(inout) :: this
-    real(kind=dp), dimension(n), intent(inout) :: z
-    real(kind=dp), dimension(n), intent(inout) :: r
+    real(kind=rp), dimension(n), intent(inout) :: z
+    real(kind=rp), dimension(n), intent(inout) :: r
     integer :: i
     type(ksp_monitor_t) :: crs_info
     

@@ -19,7 +19,7 @@ contains
   subroutine no_slip_wall_apply_scalar(this, x, n)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: x
     integer :: i, m, k
 
     m = this%msk(0)
@@ -35,9 +35,9 @@ contains
   subroutine no_slip_wall_apply_vector(this, x, y, z, n)
     class(no_slip_wall_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=dp), intent(inout),  dimension(n) :: x
-    real(kind=dp), intent(inout),  dimension(n) :: y
-    real(kind=dp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: y
+    real(kind=rp), intent(inout),  dimension(n) :: z
     integer :: i, m, k
 
     m = this%msk(0)
