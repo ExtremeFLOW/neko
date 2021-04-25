@@ -59,6 +59,8 @@ module mesh
 
      type(distdata_t) :: ddata            !< Mesh distributed data
 
+     integer(2), allocatable :: facet_type(:,:) !< Facet type     
+     
      type(zone_t) :: wall                 !< Zone of wall facets
      type(zone_t) :: inlet                !< Zone of inlet facets
      type(zone_t) :: outlet               !< Zone of outlet facets
@@ -202,6 +204,9 @@ contains
        call m%point_neigh(i)%init()
     end do
 
+    allocate(m%facet_type(2 * m%gdim, m%nelv))
+    m%facet_type = 0
+    
     call m%htp%init(m%npts*m%nelv, i)
 
     call m%wall%init(m%nelv)
@@ -263,6 +268,10 @@ contains
           call m%point_neigh(i)%free()
        end do
        deallocate(m%point_neigh)
+    end if
+
+    if (allocated(m%facet_type)) then
+       deallocate(m%facet_type)
     end if
 
     call m%wall%free()
@@ -1186,7 +1195,7 @@ contains
          (m%gdim .eq. 3 .and. f .gt. 6)) then
        call neko_error('Invalid facet index')
     end if
-    
+    m%facet_type(f, e) = 2
     call m%wall%add_facet(f, e)
     
   end subroutine mesh_mark_wall_facet
@@ -1223,7 +1232,7 @@ contains
          (m%gdim .eq. 3 .and. f .gt. 6)) then
        call neko_error('Invalid facet index')
     end if
-
+    m%facet_type(f, e) = 2
     call m%inlet%add_facet(f, e)
     
   end subroutine mesh_mark_inlet_facet
@@ -1242,7 +1251,7 @@ contains
          (m%gdim .eq. 3 .and. f .gt. 6)) then
        call neko_error('Invalid facet index')
     end if
-
+    m%facet_type(f, e) = 1
     call m%outlet%add_facet(f, e)
     
   end subroutine mesh_mark_outlet_facet
@@ -1261,7 +1270,7 @@ contains
          (m%gdim .eq. 3 .and. f .gt. 6)) then
        call neko_error('Invalid facet index')
     end if
-
+    m%facet_type(f, e) = 2
     call m%sympln%add_facet(f, e)
     
   end subroutine mesh_mark_sympln_facet
