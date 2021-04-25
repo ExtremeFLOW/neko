@@ -5,8 +5,6 @@ module fdm
   use math
   use space
   use dofmap
-  use bc
-  use dirichlet
   use gather_scatter
   use fast3d
   use mxm_wrapper
@@ -20,7 +18,6 @@ module fdm
     real(kind=rp), allocatable :: len_rr(:),len_rs(:),len_rt(:)
     real(kind=rp), allocatable :: swplen(:,:,:,:)
     type(space_t), pointer :: Xh
-    type(bc_list_t), pointer :: bclst
     type(dofmap_t), pointer :: dof
     type(gs_t), pointer :: gs_h
     type(mesh_t), pointer :: msh
@@ -30,12 +27,11 @@ module fdm
     procedure, pass(this) :: compute => fdm_compute
   end type fdm_t
 contains
-  subroutine fdm_init(this, Xh, dm, gs_h, bclst)
+  subroutine fdm_init(this, Xh, dm, gs_h)
     class(fdm_t), intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
     type(dofmap_t), target, intent(inout) :: dm
     type(gs_t), target, intent(inout) :: gs_h
-    type(bc_list_t), target, intent(inout):: bclst
     !We only really use ah, bh
     real(kind=rp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, wh
     integer :: nl, n, nelv
@@ -52,7 +48,6 @@ contains
 
     call semhat(ah,bh,ch,dh,zh,dph,jph,bgl,zglhat,dgl,jgl,n,wh)
     this%Xh => Xh
-    this%bclst => bclst
     this%dof => dm
     this%gs_h => gs_h
     this%msh => dm%msh
@@ -125,8 +120,9 @@ contains
     end associate
   end subroutine swap_lengths
 
-!>    Here, spacing is based on harmonic mean.  pff 2/10/07
-!!    We no longer base this on the finest grid, but rather the dofmap we are working with, Karp 210112
+  !> Here, spacing is based on harmonic mean.  pff 2/10/07
+  !! We no longer base this on the finest grid, but rather
+  !! the dofmap we are working with, Karp 210112
   subroutine plane_space(lr,ls,lt,i1,i2,w,x,y,z,nx,nxn,nz0,nzn, nelv, gdim)
     integer, intent(in) :: nxn, nzn, i1, i2, nelv, gdim, nx, nz0
     real(kind=rp), intent(inout) :: lr(nelv),ls(nelv),lt(nelv)
@@ -142,7 +138,7 @@ contains
     k1 = i1
     j2 = i2
     k2 = i2
-!   Now, for each element, compute lr,ls,lt between specified planes
+    !   Now, for each element, compute lr,ls,lt between specified planes
     do ie=1,nelv
        if (gdim .eq. 3) then
           lr2  = 0d0
@@ -231,8 +227,13 @@ contains
               lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
               lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
       do ie=1,this%dof%msh%nelv
-         call get_fast_bc(lbr,rbr,lbs,rbs,lbt,rbt,ie,&
-              this%bclst, this%dof%msh%gdim)
+         lbr = this%dof%msh%facet_type(1, ie)
+         rbr = this%dof%msh%facet_type(2, ie)
+         lbs = this%dof%msh%facet_type(3, ie)
+         rbs = this%dof%msh%facet_type(4, ie)
+         lbt = this%dof%msh%facet_type(5, ie)
+         rbt = this%dof%msh%facet_type(6, ie)
+         
          nr=nl
          ns=nl
          nt=nl
@@ -300,9 +301,9 @@ contains
     call trsp(s(1,1,2),nl,s,nl)
   end subroutine fdm_setup_fast1d
 
-!>     Solve the generalized eigenvalue problem /$ A x = lam B x/$
-!!     A -- symm.
-!!     B -- symm., pos. definite
+  !> Solve the generalized eigenvalue problem /$ A x = lam B x/$
+  !! A -- symm.
+  !! B -- symm., pos. definite
   subroutine generalev(a,b,lam,n,lx,w)
       integer, intent(in) :: n, lx
       real(kind=rp), intent(inout) :: a(n,n),b(n,n),lam(n),w(n,n)
@@ -411,40 +412,6 @@ contains
     endif
   end subroutine fdm_setup_fast1d_b
 
-  !> Get what type of boundary conditions we have in a specific direction.
-  !! Can be grouped into three cases:
-  !! ibc = 0  <==>  Dirichlet
-  !! ibc = 1  <==>  Dirichlet, outflow (no extension)
-  !! ibc = 2  <==>  Neumann,   
-  !! @note this description does not really make sense, need to be revised
-
-  subroutine get_fast_bc(lbr,rbr,lbs,rbs,lbt,rbt,e,bclst, gdim)
-    integer, intent(inout) :: lbr,rbr,lbs,rbs,lbt,rbt
-    integer, intent(in) :: e, gdim
-    type(bc_list_t), intent(inout) :: bclst
-    type(tuple_i4_t), pointer :: bfp(:)
-    integer :: fbc(6), ibc, iface, i, j
-    !This got to be one of the ugliest hacks I have done. 
-    do iface=1,2*gdim
-       fbc(iface) = 0
-       do i =1, bclst%n
-          bfp => bclst%bc(i)%bcp%marked_facet%array()
-          do j = 1, bclst%bc(i)%bcp%marked_facet%size()
-             if( bfp(j)%x(1) .eq. iface .and. bfp(j)%x(2) .eq. e) then
-                 fbc(iface) = 1
-             end if
-          end do
-       end do
-    enddo
-
-    lbr = fbc(1)
-    rbr = fbc(2)
-    lbs = fbc(3)
-    rbs = fbc(4)
-    lbt = fbc(5)
-    rbt = fbc(6)
-  end subroutine get_fast_bc
-
   subroutine fdm_free(this)
     class(fdm_t), intent(inout) :: this
     if(allocated(this%s)) then
@@ -462,7 +429,6 @@ contains
     if(allocated(this%len_rt)) deallocate(this%len_rt)
     if(allocated(this%swplen)) deallocate(this%swplen)
     nullify(this%Xh)
-    nullify(this%bclst)
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%msh)
