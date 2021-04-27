@@ -435,6 +435,8 @@ contains
        end if
     else if (trim(pctype) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
+    else if (trim(pctype) .eq. 'identity') then
+       allocate(ident_t::pc)
     else
        call neko_error('Unknown preconditioner')
     end if

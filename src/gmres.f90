@@ -237,9 +237,12 @@ contains
           this%h(j,j) = l
           this%gam(j+1) = -this%s(j) * this%gam(j)
           this%gam(j)   =  this%c(j) * this%gam(j)
-
           rnorm = abs(this%gam(j+1))*norm_fac
           ratio = rnorm / div0
+          if ( pe_rank .eq. 0) then 
+             write (*,*) 'GMRES Iteration:', iter
+             write (*,*) rnorm, abs(this%gam(j+1)), ratio
+          end if
           if (rnorm .lt. this%abs_tol) then 
              conv = .true.
              exit
@@ -265,11 +268,39 @@ contains
        do i=1,j
           call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
        enddo                                       !          i  i
+       if (pe_rank .eq. 0) write(*,*) 'True norms'
+       call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
+       call gs_op(gs_h, this%w, n, GS_OP_ADD)
+       call bc_list_apply(blst, this%w, n)
+       call sub2(this%w,f,n)
+       rnorm = calc_norms(this%w, f, coef%mult, coef%Binv, norm_fac, n)
     enddo
 !    call ortho   (x%x, n, glb_n)
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+
   end function gmres_solve
+  
+  function calc_norms(r, f, mult, Binv, norm_fac, n) result(rnorm)
+    integer :: n
+    real(kind=rp) :: r(n), mult(n), Binv(n), f(n)
+    real(kind=rp) :: norm_fac
+    real(kind=rp) :: alg_norm, vel_norm
+    real(kind=rp) :: l2_norm, max_norm, rel_l2_norm, max_rel_norm, rnorm
+    
+    l2_norm = sqrt(glsc3(r, mult, r, n))
+    
+    alg_norm = l2_norm*norm_fac
+    vel_norm = sqrt(glsc4(r, mult, Binv, r, n))*norm_fac
+    
+    max_norm = max(glmax(r, n), -glmin(r, n))
+    max_rel_norm = max_norm/max(glmax(f,n), -glmin(f,n))
+    rel_l2_norm = l2_norm/sqrt(glsc3(f,mult,f, n))
+    rnorm = alg_norm
+    if( pe_rank .eq. 0) write (*,*) alg_norm, vel_norm, l2_norm, rel_l2_norm, max_norm, max_rel_norm
+
+  end function calc_norms
+
 
 end module gmres
   
