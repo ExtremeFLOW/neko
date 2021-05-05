@@ -38,6 +38,7 @@ libneko_a_SOURCES = \
         ksp_bicgstab.f90\
 	quad.f90\
 	hex.f90\
+	tri.f90\
 	htable.f90\
 	uset.f90\
 	stack.f90\

@@ -36,6 +36,7 @@ cg.o : cg.f90 num_types.o math.o krylov.o
 ksp_bicgstab.o : ksp_bicgstab.f90 num_types.o math.o krylov.o 
 quad.o : quad.f90 point.o tuple.o element.o num_types.o 
 hex.o : hex.f90 point.o tuple.o element.o num_types.o 
+tri.o : tri.f90 point.o tuple.o element.o num_types.o 
 htable.o : htable.f90 math.o tuple.o point.o utils.o num_types.o 
 uset.o : uset.f90 utils.o htable.o num_types.o 
 stack.o : stack.f90 math.o structs.o utils.o nmsh.o tuple.o num_types.o 
