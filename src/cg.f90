@@ -104,6 +104,7 @@ contains
 
     rtz1 = one
     call rzero(x%x, n)
+    call rzero(this%p, n)
     call copy(this%r, f, n)
 
     rtr = glsc3(this%r, coef%Binv, this%r, n)
