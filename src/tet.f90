@@ -185,6 +185,8 @@ contains
     d2 = 0d0
     d3 = 0d0
     d4 = 0d0
+    d5 = 0d0
+    d6 = 0d0
 
     p1 => this%p(1)
     p2 => this%p(2)
