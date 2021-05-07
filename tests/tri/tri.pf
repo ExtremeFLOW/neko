@@ -5,7 +5,7 @@ subroutine test_tri_init
   use tri
   use num_types
   implicit none
-  type(point_t) :: p1, p2, p3, p4
+  type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
@@ -43,7 +43,7 @@ subroutine test_tri_free
   use tri
   use num_types
   implicit none
-  type(point_t) :: p1, p2, p3, p4
+  type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
@@ -103,7 +103,7 @@ subroutine test_tri_diameter
   use tri
   use num_types
   implicit none
-  type(point_t) :: p1, p2, p3, p4
+  type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
   real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
