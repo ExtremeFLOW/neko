@@ -103,6 +103,7 @@ contains
     end select
     
   end subroutine quad_facet_order
+
   !> Compute the diameter of a quadrilateral element
   function quad_diameter(this) result(res)
     class(quad_t), intent(in) :: this
