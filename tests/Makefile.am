@@ -5,6 +5,7 @@ SUBDIRS = tuple\
 	  uset\
 	  quad\
 	  hex\
+	  tet\
 	  tri\
 	  math\
 	  mesh\
@@ -20,6 +21,7 @@ TESTS = tuple/tuple_test\
 	uset/uset_test\
 	quad/quad_test\
 	hex/hex_test\
+	tet/tet_test\
 	tri/tri_test\
 	math/math_test\
 	mesh/mesh_test\
@@ -35,6 +37,7 @@ EXTRA_DIST = \
 	gather_scatter/gather_scatter_parallel.pf\
 	krylov/krylov.pf\
 	hex/hex.pf\
+	tet/tet.pf\
 	tri/tri.pf\
 	bc/bc.pf\
 	tuple/tuple.pf\

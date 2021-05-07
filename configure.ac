@@ -134,6 +134,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/uset/Makefile\
 		 tests/quad/Makefile\
 		 tests/hex/Makefile\
+		 tests/tet/Makefile\
 		 tests/tri/Makefile\
 		 tests/math/Makefile\
 		 tests/mesh/Makefile\
