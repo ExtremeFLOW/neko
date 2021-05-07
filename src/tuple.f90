@@ -152,8 +152,7 @@ contains
     type is(tuple3_i4_t)
        if ((this%x(1) .eq. other%x(1)) .and. &
             (this%x(2) .eq. other%x(2)) .and. &
-            (this%x(3) .eq. other%x(3)) .and. &
-            (this%x(4) .eq. other%x(4))) then
+            (this%x(3) .eq. other%x(3))) then
           res = .true.
        end if
     end select
