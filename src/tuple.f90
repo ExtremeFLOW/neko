@@ -24,7 +24,16 @@ module tuple
      procedure, pass(this) :: equal => tuple_i4_equal
   end type tuple_i4_t
 
-    !> Integer based 4-tuple 
+  !> Integer based 3-tuple 
+  type, extends(tuple_t), public :: tuple3_i4_t
+     integer :: x(3) = (/0, 0, 0/)
+   contains
+     procedure, pass(this) :: assign_tuple => tuple3_i4_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple3_i4_assign_vector
+     procedure, pass(this) :: equal => tuple3_i4_equal
+  end type tuple3_i4_t
+
+  !> Integer based 4-tuple 
   type, extends(tuple_t), public :: tuple4_i4_t
      integer :: x(4) = (/0, 0, 0, 0/)
    contains
@@ -110,6 +119,46 @@ contains
     end select
   end function tuple_i4_equal
 
+  !> Assign an integer 3-tuple to a tuple
+  subroutine tuple3_i4_assign_tuple(this, other)
+    class(tuple3_i4_t), intent(inout) :: this
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is(tuple3_i4_t)
+       this%x = other%x
+    end select
+  end subroutine tuple3_i4_assign_tuple
+
+  !> Assign an integer vector to a tuple
+  subroutine tuple3_i4_assign_vector(this, x)
+    class(tuple3_i4_t), intent(inout) :: this
+    class(*), dimension(:), intent(in) :: x
+
+    select type(x)
+    type is (integer)
+       this%x = x
+    end select    
+  end subroutine tuple3_i4_assign_vector
+
+  !> Check if two integer based tuples are equal
+  pure function tuple3_i4_equal(this, other) result(res)
+    class(tuple3_i4_t), intent(in) :: this
+    class(tuple_t), intent(in) :: other
+    logical :: res    
+
+    res = .false.
+    select type(other)
+    type is(tuple3_i4_t)
+       if ((this%x(1) .eq. other%x(1)) .and. &
+            (this%x(2) .eq. other%x(2)) .and. &
+            (this%x(3) .eq. other%x(3)) .and. &
+            (this%x(4) .eq. other%x(4))) then
+          res = .true.
+       end if
+    end select
+  end function tuple3_i4_equal
+  
   !> Assign an integer 4-tuple to a tuple
   subroutine tuple4_i4_assign_tuple(this, other)
     class(tuple4_i4_t), intent(inout) :: this
