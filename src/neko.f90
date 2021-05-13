@@ -63,6 +63,7 @@ module neko
   use parmetis
   use structs
   use curve
+  use tet_mesh
 contains
 
   subroutine neko_init(C)
