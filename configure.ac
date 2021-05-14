@@ -77,6 +77,8 @@ fi
 # Checks for libxsmm
 AX_LIBXSMM
 
+# Checks for MAMBA
+AX_MAMBA
 
 found_domain_decomp="no"
 
