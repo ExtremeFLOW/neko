@@ -49,6 +49,7 @@ libneko_a_SOURCES = \
 	mesh_field.f90\
 	tet_mesh.f90\
 	field.f90\
+	mmb_field.f90\
 	rea.f90\
 	sx_cdtp.f90\
 	sx_conv1.f90\

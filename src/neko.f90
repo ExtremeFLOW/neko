@@ -36,6 +36,7 @@ module neko
   use nmsh_file
   use file
   use field
+  use mmb_field
   use mpi_types
   use gather_scatter
   use coefs
