@@ -5,6 +5,7 @@ module fluid_plan4
   use fluid_method
   use facet_normal
   use neko_config
+  use ax_helm_xsmm
   use ax_helm_sx
   use ax_helm
   use abbdf
@@ -88,6 +89,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(ax_helm_sx_t::this%Ax)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       allocate(ax_helm_xsmm_t::this%Ax)
     else
        allocate(ax_helm_t::this%Ax)
     end if
