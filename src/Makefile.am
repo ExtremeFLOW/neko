@@ -91,6 +91,7 @@ libneko_a_SOURCES = \
 	simulation.f90\
 	ax_helm.f90\
 	ax_helm_sx.f90\
+	ax_helm_xsmm.F90\
 	projection.f90\
 	parmetis.F90\
 	redist.f90\
