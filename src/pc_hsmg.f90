@@ -14,6 +14,7 @@ module hsmg
   use schwarz
   use ax_helm
   use ax_helm_sx
+  use ax_helm_xsmm
   use gmres
   use tensor
   use jacobi
@@ -93,6 +94,9 @@ contains
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(ax_helm_sx_t::this%ax)
        allocate(sx_jacobi_t::this%pc_crs)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       allocate(ax_helm_xsmm_t::this%ax)
+       allocate(jacobi_t::this%pc_crs)
     else
        allocate(ax_helm_t::this%ax)
        allocate(jacobi_t::this%pc_crs)

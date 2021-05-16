@@ -7,14 +7,6 @@ module ax_helm_xsmm
   implicit none
   private
   
-  !>@todo Consider chaning ax_t to allow for type bound data
-#ifdef HAVE_LIBXSMM
-  type(libxsmm_dmmfunction) :: ax_helm_xmm1
-  type(libxsmm_dmmfunction) :: ax_helm_xmm2
-  type(libxsmm_dmmfunction) :: ax_helm_xmm3
-  logical, save :: ax_helm_xsmm_init = .false.
-#endif
-  
   type, public, extends(ax_t) :: ax_helm_xsmm_t
    contains
      procedure, nopass :: compute => ax_helm_xsmm_compute
@@ -39,14 +31,19 @@ contains
     real(kind=rp) :: tm2(Xh%lx,Xh%ly,Xh%lz)
     real(kind=rp) :: tm3(Xh%lx,Xh%ly,Xh%lz)
     integer :: e, k, lxy, lxz, lyz, lxyz
-
 #ifdef HAVE_LIBXSMM
+    type(libxsmm_dmmfunction), save :: ax_helm_xmm1
+    type(libxsmm_dmmfunction), save :: ax_helm_xmm2
+    type(libxsmm_dmmfunction), save :: ax_helm_xmm3
+    integer, save :: ax_helm_xsmm_lx = 0
+    logical, save :: ax_helm_xsmm_init = .false.
+
     lxy = Xh%lx*Xh%ly
     lxz = Xh%lx*Xh%lz
     lyz = Xh%ly*Xh%lz
     lxyz = Xh%lx*Xh%ly*Xh%lz
 
-    if (.not. ax_helm_xsmm_init) then
+    if (.not. ax_helm_xsmm_init .or. (ax_helm_xsmm_lx .ne. Xh%lx)) then
        call libxsmm_dispatch(ax_helm_xmm1, Xh%lx, Xh%ly*Xh%lz, Xh%lx, &
             alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
        call libxsmm_dispatch(ax_helm_xmm2, Xh%lx, Xh%ly, Xh%ly, &
@@ -54,6 +51,7 @@ contains
        call libxsmm_dispatch(ax_helm_xmm3, Xh%lx*Xh%ly, Xh%lz, Xh%lz, &
             alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
        ax_helm_xsmm_init = .true.
+       ax_helm_xsmm_lx = Xh%lx
     end if
 
   
