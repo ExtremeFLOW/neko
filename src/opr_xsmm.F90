@@ -15,27 +15,13 @@ module opr_xsmm
   implicit none
 
 #ifdef HAVE_LIBXSMM
-  type(libxsmm_dmmfunction), private :: dudxyz_xmm1
-  type(libxsmm_dmmfunction), private :: dudxyz_xmm2
-  type(libxsmm_dmmfunction), private :: dudxyz_xmm3
-  logical, private, save :: dudxyz_xsmm_init = .false.
-
-  type(libxsmm_dmmfunction), private :: lgrad_xmm1
-  type(libxsmm_dmmfunction), private :: lgrad_xmm2
-  type(libxsmm_dmmfunction), private :: lgrad_xmm3
-  logical, private, save :: lgrad_xsmm_init = .false.
-
-  type(libxsmm_dmmfunction), private :: cdtp_xmm1
-  type(libxsmm_dmmfunction), private :: cdtp_xmm2
-  type(libxsmm_dmmfunction), private :: cdtp_xmm3
-  logical, private, save :: cdtp_xsmm_init = .false.
-
-  type(libxsmm_dmmfunction), private :: conv1_xmm1
-  type(libxsmm_dmmfunction), private :: conv1_xmm2
-  type(libxsmm_dmmfunction), private :: conv1_xmm3
-  logical, private, save :: conv1_xsmm_init = .false.
+    type(libxsmm_dmmfunction), private :: lgrad_xmm1
+    type(libxsmm_dmmfunction), private :: lgrad_xmm2
+    type(libxsmm_dmmfunction), private :: lgrad_xmm3
+    logical, save :: lgrad_xsmm_init = .false.
 #endif
-
+    
+  
 contains
 
   subroutine opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
@@ -46,8 +32,12 @@ contains
     type(space_t), pointer :: Xh 
     type(mesh_t), pointer :: msh
     integer :: e, k, lxy, lyz, lxyz
-
 #ifdef HAVE_LIBXSMM
+    type(libxsmm_dmmfunction), save :: dudxyz_xmm1
+    type(libxsmm_dmmfunction), save :: dudxyz_xmm2
+    type(libxsmm_dmmfunction), save :: dudxyz_xmm3
+    logical, save :: dudxyz_xsmm_init = .false.
+  
     Xh => coef%Xh
     msh => coef%msh 
     lxy  = Xh%lx*Xh%ly
@@ -96,7 +86,6 @@ contains
     real(kind=rp) :: us(coef%Xh%lxyz)
     real(kind=rp) :: ut(coef%Xh%lxyz)
     integer :: e, i, N
-
     N = coef%Xh%lx - 1
 
 #ifdef HAVE_LIBXSMM
@@ -189,13 +178,17 @@ contains
     real(kind=rp) :: ta2(coef%Xh%lxyz)
     real(kind=rp) :: ta3(coef%Xh%lxyz)
     integer :: e, i1, i2, n1, n2, iz
-    type(space_t), pointer :: Xh 
+    type(space_t), pointer :: Xh
+#ifdef HAVE_LIBXSMM
+    type(libxsmm_dmmfunction), save :: cdtp_xmm1
+    type(libxsmm_dmmfunction), save :: cdtp_xmm2
+    type(libxsmm_dmmfunction), save :: cdtp_xmm3
+    logical, save :: cdtp_xsmm_init = .false.
 
     Xh => coef%Xh
     n1 = Xh%lx*Xh%ly
     n2 = Xh%lx*Xh%ly
 
-#ifdef HAVE_LIBXSMM
     if (.not. cdtp_xsmm_init) then
        call libxsmm_dispatch(cdtp_xmm1, Xh%lx, Xh%ly*Xh%lz, Xh%lx, &
             alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
@@ -239,8 +232,12 @@ contains
     !   Store the inverse jacobian to speed this operation up
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz) :: dudr, duds, dudt
     integer :: ie, iz, i
-
 #ifdef HAVE_LIBXSMM
+    type(libxsmm_dmmfunction), save :: conv1_xmm1
+    type(libxsmm_dmmfunction), save :: conv1_xmm2
+    type(libxsmm_dmmfunction), save :: conv1_xmm3
+    logical, save :: conv1_xsmm_init = .false.
+    
     if (.not. conv1_xsmm_init) then
        call libxsmm_dispatch(conv1_xmm1, Xh%lx, Xh%ly*Xh%lx, Xh%lx, &
             alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
