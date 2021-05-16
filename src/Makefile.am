@@ -57,6 +57,7 @@ libneko_a_SOURCES = \
 	operators.f90\
 	opr_cpu.f90\
 	opr_sx.f90\
+	opr_xsmm.F90\
 	generic_file.f90\
 	map_file.f90\
 	re2_file.f90\
