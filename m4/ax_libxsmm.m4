@@ -13,15 +13,18 @@ AC_DEFUN([AX_LIBXSMM],[
 		    [Compile with support for libxsmm]),
 		    [with_libxsmm=${withval}], [with_libxsmm=no])
 
-
+	xsmm_bcknd="0"
         if test "x${with_libxsmm}" != xno; then
      	   PKG_CHECK_MODULES([libxsmmf], [libxsmmf >= 0.16.1], 
-	           	     have_libxsmm=yes, have_libxsmm=no)
-           if test "x${have_libxsmm}" = xyes; then 	
+	           	     have_libxsmm=yes xsmm_bcknd="1",
+			     xsmm_bkcnd="0" have_libxsmm=no)
+	   if test "x${have_libxsmm}" = xyes; then 	
 	      FCFLAGS="$FCFLAGS $libxsmmf_CFLAGS"
 	      LIBS="$LIBS $libxsmmf_LIBS"
 	      AC_DEFINE(HAVE_LIBXSMM,[1],
 			[Define if you have the LIBXSMM library.])
 	   fi
 	fi
+        AC_SUBST(xsmm_bcknd)
+
 ])

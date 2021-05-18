@@ -29,6 +29,36 @@ subroutine test_tuple_i4
 end subroutine test_tuple_i4
 
 @test
+subroutine test_tuple3_i4
+  use pfunit
+  use tuple    
+  implicit none
+  type(tuple3_i4_t) :: t1, t2
+  integer :: i
+  integer :: x(3) = (/2, 2, 2/)
+  t1 = (/1, 2, 3/)
+  t2 = (/1, 2, 3/)
+
+  do i = 1, 3
+     @assertEqual(t1%x(i), t2%x(i))
+  end do
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2, 2, 2/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = x
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2, 3, 4/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = t2
+  @assertTrue(t1 .eq. t2)
+    
+end subroutine test_tuple3_i4
+
+@test
 subroutine test_tuple4_i4
   use pfunit
   use tuple    

@@ -48,7 +48,7 @@ contains
     allocate(this%work2(this%dm_schwarz%n_dofs))
     allocate(this%wt(Xh%lx, Xh%lx, 4, msh%gdim, msh%nelv))
     
-    call fdm_init(this%fdm,Xh, dm, gs_h, bclst)
+    call fdm_init(this%fdm,Xh, dm, gs_h)
 
 
     this%msh => msh

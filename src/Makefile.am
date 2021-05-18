@@ -38,6 +38,8 @@ libneko_a_SOURCES = \
         ksp_bicgstab.f90\
 	quad.f90\
 	hex.f90\
+	tet.f90\
+	tri.f90\
 	htable.f90\
 	uset.f90\
 	stack.f90\
@@ -45,6 +47,7 @@ libneko_a_SOURCES = \
 	zone.f90\
 	mesh.f90\
 	mesh_field.f90\
+	tet_mesh.f90\
 	field.f90\
 	rea.f90\
 	sx_cdtp.f90\
@@ -54,6 +57,7 @@ libneko_a_SOURCES = \
 	operators.f90\
 	opr_cpu.f90\
 	opr_sx.f90\
+	opr_xsmm.F90\
 	generic_file.f90\
 	map_file.f90\
 	re2_file.f90\
@@ -88,6 +92,7 @@ libneko_a_SOURCES = \
 	simulation.f90\
 	ax_helm.f90\
 	ax_helm_sx.f90\
+	ax_helm_xsmm.F90\
 	projection.f90\
 	parmetis.F90\
 	redist.f90\

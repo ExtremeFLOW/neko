@@ -5,5 +5,6 @@ module neko_config
   character(len=80), parameter :: NEKO_BUILD_INFO = '@NEKO_BUILD_INFO@'
 
   integer, parameter :: NEKO_BCKND_SX = @is_sx@
+  integer, parameter :: NEKO_BCKND_XSMM = @xsmm_bcknd@
 
 end module neko_config

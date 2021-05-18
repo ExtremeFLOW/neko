@@ -3,6 +3,7 @@ module operators
   use num_types  
   use opr_cpu
   use opr_sx
+  use opr_xsmm
   use space  
   use coefs
   use field
@@ -25,6 +26,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     end if
@@ -44,6 +47,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_opgrad(ux, uy, uz, u, coef)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_opgrad(ux, uy, uz, u, coef)
     else
        call opr_cpu_opgrad(ux, uy, uz, u, coef)
     end if
@@ -92,6 +97,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
     else
        call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
     end if
@@ -111,6 +118,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     else
        call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     end if
