@@ -28,7 +28,7 @@ contains
     lxyz = Xh%lx*Xh%ly*Xh%lz
 
     do e=1,msh%nelv
-       if (msh%nelv .eq. 2) then
+       if (msh%gdim .eq. 2) then
           call mxm     (Xh%dx,Xh%lx,u(1,1,1,e),Xh%lx,du(1,1,1,e),lyz)
           call col2    (du(1,1,1,e),dr(1,1,1,e),lxyz)
           call mxm     (U(1,1,1,e),Xh%lx,Xh%dyt,Xh%ly,drst,Xh%ly)
