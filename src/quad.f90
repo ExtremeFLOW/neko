@@ -82,7 +82,7 @@ contains
 
     select type(t)
     type is(tuple_i4_t)
-       t = (/ p1%id(), p2%id() /)
+       t%x = (/ p1%id(), p2%id() /)
     end select
     
   end subroutine quad_facet_id
@@ -99,7 +99,7 @@ contains
 
     select type(t)
     type is(tuple_i4_t)
-       t = (/ p1%id(), p2%id() /)
+       t%x = (/ p1%id(), p2%id() /)
     end select
     
   end subroutine quad_facet_order
@@ -156,7 +156,7 @@ contains
 
     res = .false.
     select type(other)
-    class is (quad_t)
+    type is (quad_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
           do i = 1, this%npts()

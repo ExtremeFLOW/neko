@@ -115,7 +115,7 @@ contains
     integer, intent(in) :: el
     type(tuple_i4_t) :: t
 
-    t = (/facet, el/)
+    t%x = (/facet, el/)
     call this%marked_facet%push(t)
     
   end subroutine bc_mark_facet

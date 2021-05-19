@@ -60,7 +60,7 @@ contains
     integer, intent(in), value :: side    !< Facet index
     type(tuple_i4_t) :: t
 
-    t = (/ element, side /)
+    t%x = (/ element, side /)
     call ddata%shared_el_facet%push(t)
     
   end subroutine distdata_set_shared_el_facet
