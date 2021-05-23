@@ -44,6 +44,18 @@ contains
       case(6)
          call sx_dudxyz_lx6(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%n_dofs)
+      case(5)
+         call sx_dudxyz_lx5(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(4)
+         call sx_dudxyz_lx4(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(3)
+         call sx_dudxyz_lx3(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(2)
+         call sx_dudxyz_lx2(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
       end select
     end associate
 
@@ -65,6 +77,13 @@ contains
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
+      case(11)
+         call sx_opgrad_lx11(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
       case(10)
          call sx_opgrad_lx10(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
@@ -72,8 +91,57 @@ contains
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
+      case(9)
+         call sx_opgrad_lx9(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
       case(8)
          call sx_opgrad_lx8(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(7)
+         call sx_opgrad_lx7(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(6)
+         call sx_opgrad_lx6(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(5)
+         call sx_opgrad_lx5(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(4)
+         call sx_opgrad_lx4(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(3)
+         call sx_opgrad_lx3(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(2)
+         call sx_opgrad_lx2(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
@@ -98,12 +166,44 @@ contains
          call sx_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(11)
+         call sx_cdtp_lx11(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
       case(10)
          call sx_cdtp_lx10(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(9)
+         call sx_cdtp_lx9(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
       case(8)
          call sx_cdtp_lx8(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(7)
+         call sx_cdtp_lx7(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(6)
+         call sx_cdtp_lx6(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(5)
+         call sx_cdtp_lx5(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(4)
+         call sx_cdtp_lx4(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(3)
+         call sx_cdtp_lx3(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(2)
+         call sx_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%n_dofs)
       end select
@@ -128,14 +228,62 @@ contains
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
+    case(11)
+       call sx_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
     case(10)
        call sx_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
+    case(9)
+       call sx_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
     case(8)
        call sx_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(7)
+       call sx_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(6)
+       call sx_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(5)
+       call sx_conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(4)
+       call sx_conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(3)
+       call sx_conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(2)
+       call sx_conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &

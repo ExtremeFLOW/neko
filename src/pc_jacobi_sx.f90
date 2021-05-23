@@ -6,6 +6,7 @@ module sx_jacobi
   use num_types
   use gather_scatter
   implicit none
+  private
 
   !> Defines a jacobi preconditioner for SX-Aurora
   type, public, extends(pc_t) :: sx_jacobi_t
@@ -70,7 +71,7 @@ contains
 
       select case(lx)
       case (12)
-         call sx_update_lx10(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
+         call sx_update_lx12(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
               coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, dof%msh%nelv)
       case (10)
          call sx_update_lx10(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
@@ -496,3 +497,4 @@ contains
   end subroutine sx_update_lx2
 
 end module sx_jacobi
+
