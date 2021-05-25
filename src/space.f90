@@ -141,12 +141,15 @@ contains
     call space_compute_dist(s%dr_inv, s%zg(1,1), lx)
     call space_compute_dist(s%ds_inv, s%zg(1,2), ly)
     call space_compute_dist(s%dt_inv, s%zg(1,3), lz)
+
+    ! Push space to a device (if present)
+    !$omp target enter data map(to:s) 
   end subroutine space_init
    
   !> Deallocate a space @a s
   subroutine space_free(s)
     type(space_t), intent(inout) :: s
-    
+
     if (allocated(s%zg)) then
        deallocate(s%zg)
     end if

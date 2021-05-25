@@ -143,11 +143,18 @@ contains
     call rone(coef%h2,n)
     coef%ifh2 = .false.
 
+    ! Push coefs to a device (if present)
+    !$omp target enter data map(to: coef) 
   end subroutine coef_init
 
   !> Deallocate coefficients
   subroutine coef_free(coef)
     type(coef_t), intent(inout) :: coef
+
+    ! Release data from a device (if present)
+    !$ if (allocated(coef%G1)) then
+         !$omp target exit data map(delete: coef)
+    !$ end if
 
     if (allocated(coef%G1)) then
        deallocate(coef%G1)
