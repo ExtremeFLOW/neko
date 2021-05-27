@@ -1,5 +1,6 @@
 module comm
   use mpi_f08
+  use num_types
   implicit none
   
   !> MPI communicator
@@ -7,6 +8,7 @@ module comm
 
   !> MPI type for working precision of REAL types
   type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+  type(MPI_Op) :: sum_real
   
   !> MPI rank
   integer :: pe_rank
@@ -18,6 +20,25 @@ module comm
   logical :: nio
 
 contains
+  subroutine reduce_sum_real(iv, iov, n, dt)
+    use ISO_C_BINDING
+    type(c_ptr), value :: iv, iov
+    integer ::  n
+    type(MPI_Datatype) ::  dt
+    call rsum(iv,iov,n)
+  end subroutine reduce_sum_real
+
+  subroutine rsum(iv,iov,n)
+!DEC$ ATTRIBUTES NO_ARG_CHECK :: iv, iov
+    integer, intent(in) ::  n
+    real(kind=rp), intent(in) :: iv(n)
+    real(kind=rp), intent(inout) :: iov(n)
+    integer :: i
+    do i = 1,n
+      iov(i) = iov(i) + iv(i)
+    enddo
+  end subroutine rsum
+
   subroutine comm_init
     integer :: ierr
     logical :: initialized
@@ -42,6 +63,8 @@ contains
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
 
+    call MPI_Op_create(reduce_sum_real,.true.,sum_real, ierr)
+  
   end subroutine comm_init
 
   subroutine comm_free

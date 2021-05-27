@@ -136,7 +136,7 @@ contains
        tmp = tmp + a(i)
     end do
     call MPI_Allreduce(tmp, glsum, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, sum_real, NEKO_COMM, ierr)
     
   end function glsum
   
@@ -594,7 +594,7 @@ contains
     end do
     
     call MPI_Allreduce(tmp, glsc2, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, sum_real, NEKO_COMM, ierr)
 
   end function glsc2
   
@@ -613,7 +613,7 @@ contains
     end do
     
     call MPI_Allreduce(tmp, glsc3, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, sum_real, NEKO_COMM, ierr)
 
   end function glsc3
   function glsc4(a, b, c,d, n)
@@ -631,7 +631,7 @@ contains
     end do
     
     call MPI_Allreduce(tmp, glsc4, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, sum_real, NEKO_COMM, ierr)
 
   end function glsc4
   

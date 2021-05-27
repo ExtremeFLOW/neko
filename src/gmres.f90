@@ -211,7 +211,7 @@ contains
           enddo
           !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
-               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+               MPI_REAL_PRECISION, sum_real, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, j) 
 
           do i=1,j
