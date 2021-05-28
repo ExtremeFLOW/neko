@@ -3,6 +3,7 @@ libneko_a_SOURCES = \
 	num_types.f90\
         structs.f90\
 	parameters.f90\
+	device.f90\
 	nmsh.f90\
 	re2.f90\
 	map.f90\

@@ -6,10 +6,13 @@ module field
   use mesh
   use space
   use dofmap
+  use device
+  use, intrinsic :: iso_c_binding
   implicit none
   
   type field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
+     type(c_ptr) :: x_d                       !< Field data (device pointer)
      
      type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
      type(mesh_t), pointer :: msh   !< Mesh
@@ -35,8 +38,8 @@ contains
 
   !> Initialize a field @a f on the mesh @a msh using an internal dofmap
   subroutine field_init_internal_dof(f, msh, space, fld_name)
-    type(field_t), intent(inout) :: f       !< Field to be initialized
-    type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
+    type(field_t), intent(inout) :: f          !< Field to be initialized
+    type(mesh_t), target, intent(in) :: msh    !< underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
     character(len=*), optional :: fld_name     !< Name of the field
 
@@ -59,7 +62,7 @@ contains
 
   !> Initialize a field @a f on the mesh @a msh using an internal dofmap
   subroutine field_init_external_dof(f, dof, fld_name)
-    type(field_t), intent(inout) :: f       !< Field to be initialized
+    type(field_t), intent(inout) :: f          !< Field to be initialized
     type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
     character(len=*), optional :: fld_name     !< Name of the field
 
@@ -79,8 +82,8 @@ contains
 
   !> Initialize a field @a f 
   subroutine field_init_common(f, fld_name)
-    type(field_t), intent(inout) :: f       !< Field to be initialized
-    character(len=*), optional :: fld_name  !< Name of the field
+    type(field_t), intent(inout), target :: f !< Field to be initialized
+    character(len=*), optional :: fld_name    !< Name of the field
     integer :: ierr
     integer :: lx, ly, lz, nelv
 
@@ -99,7 +102,10 @@ contains
     else
        f%name = "Field"
     end if
-    
+
+    call device_alloc(f%x, f%x_d, (lx * ly * lz * nelv))
+    call device_associate(f%x, f%x_d, (lx * ly * lz * nelv))
+
   end subroutine field_init_common
 
   !> Deallocate a field @a f
