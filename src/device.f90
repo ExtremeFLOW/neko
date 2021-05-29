@@ -1,3 +1,4 @@
+!> Simple interface to device memory
 module device
   use num_types
   use utils
@@ -6,6 +7,7 @@ module device
   implicit none
 
   integer, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2
+  
 contains
 
   !> Allocate a Fortran array on the device
@@ -96,5 +98,5 @@ contains
 !$  end if
     
   end subroutine device_memcpy
-  
+
 end module device
