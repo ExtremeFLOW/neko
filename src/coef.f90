@@ -115,6 +115,9 @@ contains
     allocate(coef%nx(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
     allocate(coef%ny(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
     allocate(coef%nz(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
+
+    ! Allocate coefs on a device (if present)
+    !$omp target enter data map(alloc: coef) 
     
     call coef_generate_dxyzdrst(coef)
     
@@ -127,8 +130,10 @@ contains
     !
     n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
     allocate(coef%mult(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    call rone(coef%mult, n)   
+    call rone(coef%mult, n)
+    !$omp target update to(coef%mult)
     call gs_op_vector(gs_h, coef%mult, n, GS_OP_ADD)
+    !$omp target update from(coef%mult)
     call invcol1(coef%mult, n)
     
     allocate(coef%B(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
@@ -142,9 +147,9 @@ contains
     call rone(coef%h1,n)
     call rone(coef%h2,n)
     coef%ifh2 = .false.
-
     ! Push coefs to a device (if present)
-    !$omp target enter data map(to: coef) 
+    !$omp target update to(coef)
+
   end subroutine coef_init
 
   !> Deallocate coefficients

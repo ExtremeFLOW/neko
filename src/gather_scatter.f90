@@ -123,6 +123,11 @@ contains
     call neko_log%end_section()
 
     call gs%bcknd%init(gs%nlocal, gs%nshared)
+
+    !$omp target enter data map(alloc: gs%local_gs, gs%shared_gs)
+    !$omp target enter data map(to: gs%local_dof_gs, gs%local_gs_dof)
+    !$omp target enter data map(to: gs%shared_dof_gs, gs%shared_gs_dof)
+    !$omp target enter data map(to: gs%local_blk_len, gs%shared_blk_len)
     
   end subroutine gs_init
 
@@ -131,6 +136,13 @@ contains
     type(gs_t), intent(inout) :: gs
     integer :: i
 
+!$  if (associated(gs%dofmap)) then
+       !$omp target exit data map(delete: gs%local_gs, gs%shared_gs)
+       !$omp target exit data map(delete: gs%local_dof_gs, gs%local_gs_dof)
+       !$omp target exit data map(delete: gs%shared_dof_gs, gs%shared_gs_dof)
+       !$omp target exit data map(delete: gs%local_blk_len, gs%shared_blk_len)
+!$  end if
+    
     nullify(gs%dofmap)
 
     if (allocated(gs%local_gs)) then
@@ -1046,12 +1058,12 @@ contains
     end if
     
     ! Gather-scatter local dofs
-
+    
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len)
-
+    
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
 
