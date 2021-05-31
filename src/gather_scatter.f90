@@ -4,6 +4,7 @@ module gather_scatter
   use gs_bcknd
   use gs_cpu
   use gs_ops
+  use gs_omp
   use gs_sx
   use mesh
   use dofmap
@@ -113,6 +114,9 @@ contains
     case(GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
        bcknd_str = '          sx'
+    case(GS_BCKND_OMP)
+       allocate(gs_omp_t::gs%bcknd)
+       bcknd_str = '         omp'
     case default
        call neko_error('Unknown Gather-scatter backend')
     end select
