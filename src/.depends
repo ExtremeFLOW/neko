@@ -1,6 +1,7 @@
 num_types.o : num_types.f90 
 structs.o : structs.f90 num_types.o 
 parameters.o : parameters.f90 num_types.o 
+device.o : device.f90 utils.o num_types.o 
 nmsh.o : nmsh.f90 num_types.o 
 re2.o : re2.f90 num_types.o 
 map.o : map.f90 mesh.o 
@@ -46,7 +47,7 @@ zone.o : zone.f90 structs.o utils.o stack.o tuple.o
 mesh.o : mesh.f90 curve.o uset.o math.o zone.o distdata.o datadist.o tuple.o stack.o comm.o htable.o utils.o quad.o hex.o element.o point.o num_types.o 
 mesh_field.o : mesh_field.f90 mesh.o num_types.o 
 tet_mesh.o : tet_mesh.f90 utils.o point.o tet.o mesh.o 
-field.o : field.f90 dofmap.o space.o mesh.o math.o num_types.o 
+field.o : field.f90 device.o dofmap.o space.o mesh.o math.o num_types.o 
 rea.o : rea.f90 mesh.o num_types.o 
 sx_cdtp.o : sx_cdtp.f90 math.o num_types.o 
 sx_conv1.o : sx_conv1.f90 num_types.o 
