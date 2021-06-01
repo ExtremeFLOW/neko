@@ -19,6 +19,10 @@ AC_ARG_ENABLE(real,
 	            qp -- REAL(kind=16)]),
 	        [enable_real=${enableval}], [enable_real=dp])
 
+AC_ARG_ENABLE(hip,
+	      AC_HELP_STRING([--enable-hip],[Compile with HIP backend]),
+	                     [enable_hip=${enableval}], [enable_hip=no])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -110,9 +114,17 @@ else
    AC_MSG_ERROR([Invalid working precision])
 fi
 
+# Checks for HIP backend
+hip_bcknd="0"
+if test "x${enable_hip}" != xno; then
+   AC_DEFINE(HAVE_HIP,1,[Define if you have HIP.])	
+   hip_bcknd="1"
+fi
+AC_SUBST(hip_bcknd)
+
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
-
+AM_CONDITIONAL([ENABLE_HIP], [test "x${enable_hip}" = xyes])
 
 
 

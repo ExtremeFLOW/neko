@@ -1,3 +1,5 @@
+include $(top_srcdir)/hip.mk
+
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	num_types.f90\
@@ -99,10 +101,16 @@ libneko_a_SOURCES = \
 	pc_hsmg.f90\
 	fdm.f90\
 	schwarz.f90\
+	hip_intf.F90\
+	device.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
 libneko_a_SOURCES += parmetis_wrapper.c
+endif
+
+if ENABLE_HIP
+libneko_a_SOURCES += hip_wrapper.hip
 endif
 
 bin_PROGRAMS = neko
