@@ -1,4 +1,5 @@
 include $(top_srcdir)/hip.mk
+include $(top_srcdir)/cuda.mk
 
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
@@ -101,6 +102,7 @@ libneko_a_SOURCES = \
 	pc_hsmg.f90\
 	fdm.f90\
 	schwarz.f90\
+	cuda_intf.F90\
 	hip_intf.F90\
 	device.F90\
 	neko.f90
@@ -111,6 +113,10 @@ endif
 
 if ENABLE_HIP
 libneko_a_SOURCES += hip_wrapper.hip
+endif
+
+if ENABLE_CUDA
+libneko_a_SOURCES += cuda_wrapper.hip
 endif
 
 bin_PROGRAMS = neko

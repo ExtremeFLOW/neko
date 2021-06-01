@@ -23,6 +23,10 @@ AC_ARG_ENABLE(hip,
 	      AC_HELP_STRING([--enable-hip],[Compile with HIP backend]),
 	                     [enable_hip=${enableval}], [enable_hip=no])
 
+AC_ARG_ENABLE(cuda,
+	      AC_HELP_STRING([--enable-cuda],[Compile with CUDA backend]),
+	                     [enable_cuda=${enableval}], [enable_cuda=no])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -122,10 +126,18 @@ if test "x${enable_hip}" != xno; then
 fi
 AC_SUBST(hip_bcknd)
 
+# Checks for CUDA backend
+cuda_bcknd="0"
+if test "x${enable_cuda}" != xno; then
+   AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])	
+   cuda_bcknd="1"
+fi
+AC_SUBST(cuda_bcknd)
+
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
+AM_CONDITIONAL([ENABLE_CUDA], [test "x${enable_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${enable_hip}" = xyes])
-
 
 
 

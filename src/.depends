@@ -98,8 +98,9 @@ pc_hsmg.o : pc_hsmg.f90 pc_jacobi_sx.o pc_jacobi.o tensor.o gmres.o ax_helm_xsmm
 fdm.o : fdm.f90 tensor.o mxm_wrapper.o fast3d.o gather_scatter.o dofmap.o space.o math.o speclib.o num_types.o 
 parmetis_wrapper.o : parmetis_wrapper.c 
 schwarz.o : schwarz.f90 fdm.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o
-hip_intf.o : hip_intf.F90 utils.o 
-device.o : device.F90 utils.o hip_intf.o num_types.o 
+hip_intf.o : hip_intf.F90 utils.o
+cuda_intf.o : cuda_intf.F90 utils.o
+device.o : device.F90 utils.o hip_intf.o cuda_intf.o num_types.o 
 neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
 hip_wrapper.o : hip_wrapper.hip 
 driver.o : driver.f90 neko.o 
