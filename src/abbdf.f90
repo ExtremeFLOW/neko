@@ -2,6 +2,7 @@
 module abbdf
   use num_types
   use math
+  use utils
   implicit none
 
   !> AB-BDF coefficeints
@@ -10,13 +11,26 @@ module abbdf
      real(kind=rp), dimension(10) :: bd
      integer :: nab = 0
      integer :: nbd = 0
+     integer :: time_order  !< Default is 3
    contains
      procedure, pass(this) :: set_bd => abbdf_set_bd
      procedure, pass(this) :: set_abbd => abbdf_set_abbd
+     procedure, pass(this) :: set_time_order => abbdf_set_time_order
   end type abbdf_t
 
 
 contains
+
+  subroutine abbdf_set_time_order(this,torder)
+    integer, intent(in) :: torder
+    class(abbdf_t), intent(inout) :: this
+    if(torder .le. 3 .and. torder .gt. 0) then
+       this%time_order = torder
+    else
+       this%time_order = 3
+       call neko_warning('Invalid time order, defaulting to 3')
+    end if
+  end subroutine abbdf_set_time_order
 
   !>Compute backward-differentiation coefficients of order NBD
   subroutine abbdf_set_bd(this, dtbd)
@@ -32,8 +46,8 @@ contains
     associate(nbd => this%nbd, bd => this%bd)
     
       nbd = nbd + 1
-      nbd = min(nbd, 3)
-
+      nbd = min(nbd, this%time_order)
+      call rzero(bd, 10)
       if (nbd .eq. 1) then
          bd(1) = 1d0
          bdf = 1d0
@@ -77,11 +91,12 @@ contains
     associate(nab => this%nab, nbd => this%nbd, ab => this%ab)
 
       nab = nab + 1
-      nab = min(nab, 3)
+      nab = min(nab, this%time_order)
     
       dt0 = dtlag(1)
       dt1 = dtlag(2)
       dt2 = dtlag(3)
+      call rzero(ab, 10)
       
       if (nab .eq. 1) then
          ab(1) = 1d0
