@@ -11,7 +11,7 @@ module abbdf
      real(kind=rp), dimension(10) :: bd
      integer :: nab = 0
      integer :: nbd = 0
-     integer :: time_order  !> Default is 3
+     integer :: time_order  !< Default is 3
    contains
      procedure, pass(this) :: set_bd => abbdf_set_bd
      procedure, pass(this) :: set_abbd => abbdf_set_abbd
