@@ -4,6 +4,7 @@ module gather_scatter
   use gs_bcknd
   use gs_cpu
   use gs_ops
+  use gs_hip
   use gs_sx
   use mesh
   use dofmap
@@ -100,6 +101,8 @@ contains
     else
        if (NEKO_BCKND_SX .eq. 1) then
           bcknd_ = GS_BCKND_SX
+       else if (NEKO_BCKND_HIP .eq. 1) then
+          bcknd_ = GS_BCKND_HIP
        else
           bcknd_ = GS_BCKND_CPU
        end if
@@ -110,6 +113,9 @@ contains
     case(GS_BCKND_CPU)
        allocate(gs_cpu_t::gs%bcknd)
        bcknd_str = '         std'
+    case(GS_BCKND_HIP)
+       allocate(gs_hip_t::gs%bcknd)
+       bcknd_str = '         hip'
     case(GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
        bcknd_str = '          sx'
