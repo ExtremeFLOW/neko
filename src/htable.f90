@@ -184,6 +184,13 @@ module htable
      procedure, pass(this) :: key => htable_iter_cptr_key
   end type htable_iter_cptr_t
 
+  !
+  ! Type wrappers
+  !
+  type, public :: h_cptr_t
+     type(c_ptr) :: ptr
+  end type h_cptr_t
+
 contains
 
   !> Initialize a hash table of type @a data
@@ -298,7 +305,7 @@ contains
        allocate(htable_i4t2_t::tmp)
     type is (tuple4_i4_t)
        allocate(htable_i4t4_t::tmp)
-    type is (c_ptr)
+    type is (h_cptr_t)
        allocate(htable_cptr_t::tmp)
     end select
 
@@ -413,9 +420,9 @@ contains
        type is (tuple4_i4_t)
           hdp = data
        end select
-    type is (c_ptr)
+    type is (h_cptr_t)
        select type(hdp)
-       type is (c_ptr)
+       type is (h_cptr_t)
           hdp = data
        end select          
     end select
@@ -458,9 +465,9 @@ contains
        type is (tuple4_i4_t)
           data = hdp
        end select
-    type is (c_ptr)
+    type is (h_cptr_t)
        select type (data)
-       type is (c_ptr)
+       type is (h_cptr_t)
           data = hdp
        end select
     end select
@@ -505,10 +512,10 @@ contains
        type is (tuple4_i4_t)
           res = (kp .eq. key)
        end select
-    type is (c_ptr)
+    type is (h_cptr_t)
        select type (key)
-       type is (c_ptr)
-          res = (kp .eq. key)
+       type is (h_cptr_t)
+          res = c_associated(kp%ptr, key%ptr)
        end select
     end select
   end function htable_eq_key
@@ -552,9 +559,9 @@ contains
        type is (tuple4_i4_t)
           kp = key
        end select
-    type is (c_ptr)
+    type is (h_cptr_t)
        select type(kp)
-       type is (c_ptr)
+       type is (h_cptr_t)
           kp = key
        end select
     end select
@@ -623,9 +630,9 @@ contains
        type is (tuple4_i4_t)
           data = hdp
        end select
-    type is (c_ptr)
+    type is (h_cptr_t)
        select type (data)
-       type is (c_ptr)
+       type is (h_cptr_t)
           data = hdp
        end select
     end select
@@ -1324,8 +1331,8 @@ contains
     class(htable_cptr_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
-    type(c_ptr) :: key
-
+    type(h_cptr_t) :: key
+    
     if (present(data)) then
        call htable_init(this, size, key, data)
     else
@@ -1337,7 +1344,7 @@ contains
   !> Insert a C pointer into the hash table
   subroutine htable_cptr_set(this, key, data) 
     class(htable_cptr_t), target, intent(inout) :: this
-    type(c_ptr), intent(inout) :: key   !< Table key
+    type(h_cptr_t), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
@@ -1347,7 +1354,7 @@ contains
   !> Retrive a C pointer with key @a key from the hash table
   function htable_cptr_get(this, key, data) result(rcode)
     class(htable_cptr_t), target, intent(inout) :: this
-    type(c_ptr), intent(inout) :: key   !< Key to retrieve
+    type(h_cptr_t), intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
@@ -1363,8 +1370,8 @@ contains
     integer(kind=8) :: k_int
 
     select type(k)
-    type is (c_ptr)
-       k_int = transfer(k, k_int)
+    type is (h_cptr_t)
+       k_int = transfer(k%ptr, k_int)
        hash = int(modulo(k_int * 2654435761_8, int(this%size, 8)), 4)
     class default
        hash = -1
@@ -1374,7 +1381,7 @@ contains
   !> Remove a C pointer with key @a key from the hash table
   subroutine htable_cptr_remove(this, key) 
     class(htable_cptr_t), target, intent(inout) :: this
-    type(c_ptr), intent(inout) :: key   !< Table key
+    type(h_cptr_t), intent(inout) :: key   !< Table key
 
     call htable_remove(this, key)
 
@@ -1394,11 +1401,11 @@ contains
   function htable_iter_cptr_value(this) result(value)
     class(htable_iter_cptr_t), target, intent(inout) :: this
     class(*), pointer :: hdp
-    type(c_ptr), pointer :: value
+    type(h_cptr_t), pointer :: value
 
     hdp => this%t%t(this%n)%data
     select type (hdp)
-    type is (c_ptr)
+    type is (h_cptr_t)
        value => hdp
     class default
        call neko_error('Key and data of different kind')
@@ -1410,11 +1417,11 @@ contains
   function htable_iter_cptr_key(this) result(key)
     class(htable_iter_cptr_t), target, intent(inout) :: this
     class(*), pointer :: kp
-    type(c_ptr), pointer :: key
+    type(h_cptr_t), pointer :: key
 
     kp => this%t%t(this%n)%key
     select type (kp)
-    type is (c_ptr)
+    type is (h_cptr_t)
        key => kp
     end select
     
