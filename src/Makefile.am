@@ -112,11 +112,11 @@ libneko_a_SOURCES += parmetis_wrapper.c
 endif
 
 if ENABLE_HIP
-libneko_a_SOURCES += hip_wrapper.hip
+libneko_a_SOURCES += hip/hip_wrapper.hip
 endif
 
 if ENABLE_CUDA
-libneko_a_SOURCES += cuda_wrapper.hip
+libneko_a_SOURCES += cuda/cuda_wrapper.hip
 endif
 
 bin_PROGRAMS = neko

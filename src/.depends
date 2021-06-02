@@ -102,5 +102,6 @@ hip_intf.o : hip_intf.F90 utils.o
 cuda_intf.o : cuda_intf.F90 utils.o
 device.o : device.F90 utils.o hip_intf.o cuda_intf.o num_types.o 
 neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
-hip_wrapper.o : hip_wrapper.hip 
+hip_wrapper.o : hip/hip_wrapper.hip
+cuda_wrapper.o : cuda/cuda_wrapper.hip 
 driver.o : driver.f90 neko.o 
