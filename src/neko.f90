@@ -75,6 +75,7 @@ contains
 
     call comm_init
     call mpi_types_init
+    call device_init
 
     call neko_log%init()
 
@@ -119,7 +120,8 @@ contains
     if (present(C)) then
        call case_free(C)
     end if
-
+    
+    call device_finalize
     call mpi_types_free
     call comm_free
   end subroutine neko_finalize
