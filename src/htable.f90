@@ -7,6 +7,7 @@ module htable
   use point
   use tuple
   use math, only : NEKO_M_LN2
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -103,6 +104,16 @@ module htable
      procedure, pass(this) :: remove => htable_i4t4_remove          
   end type htable_i4t4_t
 
+  !> C pointer based hash table
+  type, public, extends(htable_t) :: htable_cptr_t
+   contains
+     procedure, pass(this) :: init => htable_cptr_init
+     procedure, pass(this) :: set => htable_cptr_set
+     procedure, pass(this) :: get => htable_cptr_get
+     procedure, pass(this) :: hash => htable_cptr_hash
+     procedure, pass(this) :: remove => htable_cptr_remove          
+  end type htable_cptr_t
+
   !
   ! Iterators
   !
@@ -164,6 +175,14 @@ module htable
      procedure, pass(this) :: value => htable_iter_i4t4_value
      procedure, pass(this) :: key => htable_iter_i4t4_key
   end type htable_iter_i4t4_t
+
+  !> Iterator for a C pointer based hash table
+  type, public, extends(htable_iter_t) :: htable_iter_cptr_t
+   contains
+     procedure, pass(this) :: init => htable_iter_cptr_init
+     procedure, pass(this) :: value => htable_iter_cptr_value
+     procedure, pass(this) :: key => htable_iter_cptr_key
+  end type htable_iter_cptr_t
 
 contains
 
@@ -279,6 +298,8 @@ contains
        allocate(htable_i4t2_t::tmp)
     type is (tuple4_i4_t)
        allocate(htable_i4t4_t::tmp)
+    type is (c_ptr)
+       allocate(htable_cptr_t::tmp)
     end select
 
     call htable_init(tmp, ishft(this%size, 1), key, data)
@@ -392,6 +413,11 @@ contains
        type is (tuple4_i4_t)
           hdp = data
        end select
+    type is (c_ptr)
+       select type(hdp)
+       type is (c_ptr)
+          hdp = data
+       end select          
     end select
   end subroutine htable_set_data
 
@@ -430,6 +456,11 @@ contains
     type is (tuple4_i4_t)
        select type(data)
        type is (tuple4_i4_t)
+          data = hdp
+       end select
+    type is (c_ptr)
+       select type (data)
+       type is (c_ptr)
           data = hdp
        end select
     end select
@@ -474,6 +505,11 @@ contains
        type is (tuple4_i4_t)
           res = (kp .eq. key)
        end select
+    type is (c_ptr)
+       select type (key)
+       type is (c_ptr)
+          res = (kp .eq. key)
+       end select
     end select
   end function htable_eq_key
 
@@ -514,6 +550,11 @@ contains
     type is (tuple4_i4_t)
        select type(kp)
        type is (tuple4_i4_t)
+          kp = key
+       end select
+    type is (c_ptr)
+       select type(kp)
+       type is (c_ptr)
           kp = key
        end select
     end select
@@ -580,6 +621,11 @@ contains
     type is (tuple4_i4_t)
        select type (data)
        type is (tuple4_i4_t)
+          data = hdp
+       end select
+    type is (c_ptr)
+       select type (data)
+       type is (c_ptr)
           data = hdp
        end select
     end select
@@ -1269,5 +1315,109 @@ contains
     end select
     
   end function htable_iter_i4t4_key
+
+  !
+  ! C pointer based implementation
+  !
+  !> Initialize a C pointer based  hash table
+  subroutine htable_cptr_init(this, size, data)
+    class(htable_cptr_t), intent(inout) :: this
+    integer, value :: size                    !< Initial size of the table
+    class(*), intent(inout), optional :: data !< Data to associate with @a key
+    type(c_ptr) :: key
+
+    if (present(data)) then
+       call htable_init(this, size, key, data)
+    else
+       call htable_init(this, size, key)
+    end if
+    
+  end subroutine htable_cptr_init
+
+  !> Insert a C pointer into the hash table
+  subroutine htable_cptr_set(this, key, data) 
+    class(htable_cptr_t), target, intent(inout) :: this
+    type(c_ptr), intent(inout) :: key   !< Table key
+    class(*), intent(inout) :: data !< Data associated with @a key
+
+    call htable_set(this, key, data)
+
+  end subroutine htable_cptr_set
+
+  !> Retrive a C pointer with key @a key from the hash table
+  function htable_cptr_get(this, key, data) result(rcode)
+    class(htable_cptr_t), target, intent(inout) :: this
+    type(c_ptr), intent(inout) :: key   !< Key to retrieve
+    class(*), intent(inout) :: data !< Retrieved data
+    integer :: rcode
+
+    rcode = htable_get(this, key, data)
+
+  end function htable_cptr_get
+
+  !> Hash function for an integer 4-tuple hash table
+  pure function htable_cptr_hash(this, k) result(hash)
+    class(htable_cptr_t), intent(in) :: this
+    class(*), intent(in) :: k
+    integer :: i, tmp, mult, hash
+    integer(kind=8) :: k_int
+
+    select type(k)
+    type is (c_ptr)
+       k_int = transfer(k, k_int)
+       hash = int(modulo(k_int * 2654435761_8, int(this%size, 8)), 4)
+    class default
+       hash = -1
+    end select
+  end function htable_cptr_hash
+
+  !> Remove a C pointer with key @a key from the hash table
+  subroutine htable_cptr_remove(this, key) 
+    class(htable_cptr_t), target, intent(inout) :: this
+    type(c_ptr), intent(inout) :: key   !< Table key
+
+    call htable_remove(this, key)
+
+  end subroutine htable_cptr_remove
+
+  !> Initialize a C pointer based hash table iterator
+  subroutine htable_iter_cptr_init(this, t)
+    class(htable_iter_cptr_t), intent(inout) :: this
+    type(htable_cptr_t), target, intent(inout) :: t
+
+    this%t => t
+    this%n = -1    
+
+  end subroutine htable_iter_cptr_init
+
+  !> Return the current value of C pointer based hash table iterator
+  function htable_iter_cptr_value(this) result(value)
+    class(htable_iter_cptr_t), target, intent(inout) :: this
+    class(*), pointer :: hdp
+    type(c_ptr), pointer :: value
+
+    hdp => this%t%t(this%n)%data
+    select type (hdp)
+    type is (c_ptr)
+       value => hdp
+    class default
+       call neko_error('Key and data of different kind')
+    end select
+    
+  end function htable_iter_cptr_value
+
+  !> Return the current key of a C pointer based hash table iterator
+  function htable_iter_cptr_key(this) result(key)
+    class(htable_iter_cptr_t), target, intent(inout) :: this
+    class(*), pointer :: kp
+    type(c_ptr), pointer :: key
+
+    kp => this%t%t(this%n)%key
+    select type (kp)
+    type is (c_ptr)
+       key => kp
+    end select
+    
+  end function htable_iter_cptr_key
 
 end module htable
