@@ -13,9 +13,9 @@ module space
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
      integer :: lxy             !< Number of points in xy-plane
-     integer :: lyz              !< Number of points in yz-plane
-     integer :: lxz              !< Number of points in xz-plane
-     integer :: lxyz              !< Number of points in xyz-block
+     integer :: lyz             !< Number of points in yz-plane
+     integer :: lxz             !< Number of points in xz-plane
+     integer :: lxyz            !< Number of points in xyz-block
      
      real(kind=rp), allocatable :: zg(:,:) !< Quadrature points
      
