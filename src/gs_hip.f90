@@ -51,7 +51,7 @@ module gs_hip
 
 contains
   
-  !> Dummy backend initialisation
+  !> HIP backend initialisation
   subroutine gs_hip_init(this, nlocal, nshared)
     class(gs_hip_t), intent(inout) :: this
     integer, intent(in) :: nlocal
@@ -199,18 +199,20 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    type(c_ptr) :: v_d, u_d, dg_d, gd_d
+    type(c_ptr) :: u_d
 
-    v_d = device_get_ptr(v, m)
     u_d = device_get_ptr(u, n)
 
-    dg_d = device_get_ptr(dg, m)
-    gd_d = device_get_ptr(gd, m)
-    
     if (this%nlocal .eq. m) then
-       call hip_gather_scatter(v_d, m, dg_d, u_d, n, gd_d, this%local_wrk_d)
+       associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
+            gd_d=>this%local_gs_dof_d, w_d=>this%local_wrk_d)
+         call hip_gather_scatter(v_d, m, dg_d, u_d, n, gd_d, w_d)
+       end associate
     else if (this%nshared .eq. m) then
-       call hip_gather_scatter(v_d, m, dg_d, u_d, n, gd_d, this%shared_wrk_d)
+       associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
+            gd_d=>this%shared_gs_dof_d, w_d=>this%shared_wrk_d)
+         call hip_gather_scatter(v_d, m, dg_d, u_d, n, gd_d, w_d)
+       end associate
     end if
 
   end subroutine gs_scatter_hip
