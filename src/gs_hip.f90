@@ -40,13 +40,13 @@ module gs_hip
   end interface
 
   interface
-     subroutine hip_gather_scatter(v, m, dg, u, n, gd, w) &
+     subroutine hip_scatter_kernel(v, m, dg, u, n, gd, w) &
           bind(c, name='hip_scatter_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n
        type(c_ptr), value :: v, w, u, dg, gd
-     end subroutine hip_gather_scatter
+     end subroutine hip_scatter_kernel
   end interface
 
 contains
@@ -154,14 +154,17 @@ contains
          if (.not. c_associated(dg_d)) then
             call device_alloc(dg_d, maplen)
             call device_associate(dg, dg_d, m)
+            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_alloc(gd_d, maplen)
             call device_associate(gd, gd_d, m)
+            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE)
          end if
          
-         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op) 
+         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         
        end associate
     else if (this%nshared .eq. m) then
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
@@ -175,17 +178,20 @@ contains
          if (.not. c_associated(dg_d)) then
             call device_alloc(dg_d, maplen)
             call device_associate(dg, dg_d, m)
+            call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE)
          end if
 
          if (.not. c_associated(gd_d)) then
             call device_alloc(gd_d, maplen)
             call device_associate(gd, gd_d, m)
+            call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE)
          end if
          
-         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op) 
+         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         
        end associate
     end if
-    
+
   end subroutine gs_gather_hip
  
   !> Scatter kernel
@@ -206,12 +212,12 @@ contains
     if (this%nlocal .eq. m) then
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
             gd_d=>this%local_gs_dof_d, w_d=>this%local_wrk_d)
-         call hip_gather_scatter(v_d, m, dg_d, u_d, n, gd_d, w_d)
+         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
        end associate
     else if (this%nshared .eq. m) then
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
             gd_d=>this%shared_gs_dof_d, w_d=>this%shared_wrk_d)
-         call hip_gather_scatter(v_d, m, dg_d, u_d, n, gd_d, w_d)
+         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
        end associate
     end if
 
