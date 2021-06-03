@@ -1,3 +1,4 @@
+!> Device abstraction, common interface for various accelerators
 module device
   use num_types
   use cuda_intf
