@@ -1,4 +1,5 @@
 #include <hip/hip_runtime.h>
+#include <climits>
 #include <cstdio>
 
 #define GS_OP_ADD  1
@@ -10,40 +11,158 @@
  * Device gather kernel for addition of data
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
  */
-__global__ void gather_kernel_add(double *v, int m, int o, int *dg,
-				  double *u, int n, int *gd, double *w) {
+__global__ void gather_kernel_add(double * __restrict__ v,
+				  const int m,
+				  const int o,
+				  const int * __restrict__ dg,
+				  const double * __restrict__ u,
+				  const int n,
+				  const int * __restrict__ gd,
+				  double * __restrict__ w) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    w[i] = u[gd[i] - 1];
+  }
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    atomicAdd(&v[dg[i] - 1], w[i]);
+  }
+  
+  for (int i = ((abs(o) - 1) + idx + 1); i < (m - 1); i += (str + 1)) {
+    double tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
+    v[dg[i] - 1] = tmp;
+  }
+    
 }
 
 /**
  * Device gather kernel for multiplication of data
  * \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
  */
-__global__ void gather_kernel_mul(double *v, int m, int o, int *dg,
-				  double *u, int n, int *gd, double *w) {
+__global__ void gather_kernel_mul(double * __restrict__ v,
+				  const int m,
+				  const int o,
+				  const int * __restrict__ dg,
+				  const double * __restrict__ u,
+				  const int n,
+				  const int * __restrict__ gd,
+				  double * __restrict__ w) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    w[i] = u[gd[i] - 1];
+  }
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    /** @todo Fix atomic mul
+       atomicMul(&v[dg[i] - 1], w[i]);
+    */
+    v[dg[i] - 1] *= w[i];
+  }
+  
+  for (int i = ((abs(o) - 1) + idx + 1); i < (m - 1); i += (str + 1)) {
+    double tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
+    v[dg[i] - 1] = tmp;
+  }
+  
 }
 
 /**
  * Device gather kernel for minimum of data
  * \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
  */
-__global__ void gather_kernel_min(double *v, int m, int o, int *dg,
-				  double *u, int n, int *gd, double *w) {
+__global__ void gather_kernel_min(double * __restrict__ v,
+				  const int m,
+				  const int o,
+				  const int * __restrict__ dg,
+				  const double * __restrict__ u,
+				  const int n,
+				  const int * __restrict__ gd,
+				  double * __restrict__ w) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    w[i] = u[gd[i] - 1];
+  }
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    /** @todo Fix atomic min
+       atomicMin(&v[dg[i] - 1], w[i]);
+    */
+    v[dg[i] - 1] = min(v[dg[i] - 1], w[i]);
+  }
+  
+  for (int i = ((abs(o) - 1) + idx + 1); i < (m - 1); i += (str + 1)) {
+    double tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
+    v[dg[i] - 1] = tmp;
+  }
+
 }
 
 /**
  * Device gather kernel for maximum of data
  * \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
  */
-__global__ void gather_kernel_max(double *v, int m, int o, int *dg,
-				  double *u, int n, int *gd, double *w) {
+__global__ void gather_kernel_max(double * __restrict__ v,
+				  const int m,
+				  const int o,
+				  const int * __restrict__ dg,
+				  const double * __restrict__ u,
+				  const int n,
+				  const int * __restrict__ gd,
+				  double * __restrict__ w) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    w[i] = u[gd[i] - 1];
+  }
+
+  for (int i = idx; i < (abs(o) - 1); i += str) {
+    /** @todo Fix atomic max
+       atomicMax(&v[dg[i] - 1], w[i]);
+    */
+    v[dg[i] - 1] = max(v[dg[i] - 1], w[i]);
+  }
+  
+  for (int i = ((abs(o) - 1) + idx + 1); i < (m - 1); i += (str + 1)) {
+    double tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
+    v[dg[i] - 1] = tmp;
+  }
+
 }
 
 /**
  * Device scatter kernel
  * \f$ u(gd(i) = v(dg(i)) \f$
  */
-__global__ void scatter_kernel(double *v, int m, int *dg,
-			       double *u, int n, int *gd, double *w) {
+__global__ void scatter_kernel(double * __restrict__ v,
+			       const int m,
+			       const int * __restrict__ dg,
+			       double * __restrict__ u,
+			       const int n,
+			       const int * __restrict__ gd,
+			       double * __restrict__ w) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  
+  for (int i = idx; i < m; i += str) {
+    w[i] = v[dg[i] - 1];
+  }
+
+  for (int i = idx; i < m; i += str) {
+    u[gd[i] - 1] = w[i];
+  }
+  
 }
 
 extern "C" {
@@ -54,31 +173,35 @@ extern "C" {
   void hip_gather_kernel(void *v, int *m, int *o, void *dg,
 			 void *u, int *n, void *gd, void *w, int *op) {
 
-    const int nblcks = (*m) / 256;
-    const int nthrds = 256;
+    const dim3 nthrds(512, 1, 1);
+    const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
 
     switch (*op) {
     case GS_OP_ADD:
+      hipMemset(v, 0, (*m) * sizeof(double));
       hipLaunchKernelGGL(gather_kernel_add,
-			 dim3(nblcks), dim3(nthrds), 0, 0,
+			 nblcks, nthrds, 0, 0,
 			 (double *) v, *m, *o, (int *) dg,
 			 (double *) u, *n, (int *) gd, (double *) w);
       break;
     case GS_OP_MUL:
+      hipMemset(v, 1, (*m) * sizeof(double));
       hipLaunchKernelGGL(gather_kernel_mul,
-			 dim3(nblcks), dim3(nthrds), 0, 0,
+			 nblcks, nthrds, 0, 0,
 			 (double *) v, *m, *o, (int *) dg,
 			 (double *) u, *n, (int *) gd, (double *) w);
       break;
     case GS_OP_MIN:
+      hipMemset(v, INT_MAX, (*m) * sizeof(double));
       hipLaunchKernelGGL(gather_kernel_min,
-			 dim3(nblcks), dim3(nthrds), 0, 0,
+			 nblcks, nthrds, 0, 0,
 			 (double *) v, *m, *o, (int *) dg,
 			 (double *) u, *n, (int *) gd, (double *) w);
       break;
     case GS_OP_MAX:
+      hipMemset(v, -INT_MAX, (*m) * sizeof(double));
       hipLaunchKernelGGL(gather_kernel_max,
-			 dim3(nblcks), dim3(nthrds), 0, 0,
+			 nblcks, nthrds, 0, 0,
 			 (double *) v, *m, *o, (int *) dg,
 			 (double *) u, *n, (int *) gd, (double *) w);
       break;
@@ -89,13 +212,13 @@ extern "C" {
    * Fortran wrapper for device scatter kernel
    */
   void hip_scatter_kernel(void *v, int *m, void *dg,
-			 void *u, int *n, void *gd, void *w) {
-
-    const int nblcks = (*m) / 256;
-    const int nthrds = 256;
+			  void *u, int *n, void *gd, void *w) {
+    
+    const dim3 nthrds(512, 1, 1);
+    const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
 
     hipLaunchKernelGGL(scatter_kernel,
-		       dim3(nblcks), dim3(nthrds), 0, 0,
+		       nblcks, nthrds, 0, 0,
 		       (double *) v, *m, (int *) dg,
 		       (double *) u, *n, (int *) gd, (double *) w);
   }
