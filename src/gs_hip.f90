@@ -107,6 +107,14 @@ contains
        call device_free(this%local_gs_dof_d)
     end if
 
+    if (c_associated(this%local_wrk_d)) then
+       call device_free(this%local_wrk_d)
+    end if
+
+    if (c_associated(this%shared_wrk_d)) then
+       call device_free(this%shared_wrk_d)
+    end if   
+
     this%nlocal = 0
     this%nshared = 0
     
