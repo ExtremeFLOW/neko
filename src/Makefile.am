@@ -115,7 +115,8 @@ endif
 if ENABLE_HIP
 libneko_a_SOURCES += \
 	hip/hip_wrapper.hip\
-	hip/gs_kernels.hip
+	hip/gs_kernels.hip\
+	hip/dirichlet_kernel.hip
 endif
 
 if ENABLE_CUDA

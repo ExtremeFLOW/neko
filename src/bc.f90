@@ -72,26 +72,22 @@ module bc
   end interface
   
   abstract interface
-     subroutine bc_apply_scalar_dev(this, x, n)
+     subroutine bc_apply_scalar_dev(this, x_d)
        import :: c_ptr       
        import :: bc_t
-       import :: rp
        class(bc_t), intent(inout) :: this
-       integer, intent(in) :: n
-       type(c_ptr) :: x
+       type(c_ptr) :: x_d
      end subroutine bc_apply_scalar_dev
   end interface
 
   abstract interface
-     subroutine bc_apply_vector_dev(this, x, y, z, n)
+     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d)
        import :: c_ptr
        import :: bc_t
-       import :: rp
        class(bc_t), intent(inout) :: this
-       integer, intent(in) :: n
-       type(c_ptr) :: x
-       type(c_ptr) :: y
-       type(c_ptr) :: z
+       type(c_ptr) :: x_d
+       type(c_ptr) :: y_d
+       type(c_ptr) :: z_d
      end subroutine bc_apply_vector_dev
   end interface
 
@@ -346,7 +342,7 @@ contains
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
        x_d = device_get_ptr(x, n)
        do i = 1, bclst%n
-          call bclst%bc(i)%bcp%apply_scalar_dev(x_d, n)
+          call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
        end do
     else       
        do i = 1, bclst%n
@@ -373,7 +369,7 @@ contains
        y_d = device_get_ptr(y, n)
        z_d = device_get_ptr(z, n)
        do i = 1, bclst%n
-          call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, n)
+          call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
        end do       
     else
        do i = 1, bclst%n

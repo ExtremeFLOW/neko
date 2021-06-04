@@ -105,5 +105,6 @@ neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o p
 parmetis_wrapper.o : parmetis_wrapper.c
 cuda_wrapper.o : cuda/cuda_wrapper.cu
 hip/hip_wrapper.o : hip/hip_wrapper.hip 
-hip/gs_kernels.o : hip/gs_kernels.hip 
+hip/gs_kernels.o : hip/gs_kernels.hip
+hip/dirichlet_kernels.o : hip/dirichlet_kernels.hip 
 driver.o : driver.f90 neko.o 

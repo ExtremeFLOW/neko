@@ -18,6 +18,28 @@ module dirichlet
      procedure, pass(this) :: apply_vector_dev => dirichlet_apply_vector_dev
      procedure, pass(this) :: set_g => dirichlet_set_g
   end type dirichlet_t
+
+  interface
+     subroutine hip_dirichlet_apply_scalar(msk, x, g, m) &
+          bind(c, name='hip_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       real(c_double) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x
+     end subroutine hip_dirichlet_apply_scalar
+  end interface
+  
+  interface
+     subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m) &
+          bind(c, name='hip_dirichlet_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       real(c_double) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z
+     end subroutine hip_dirichlet_apply_vector
+  end interface
      
 contains
 
@@ -58,27 +80,25 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x (device version)
-  subroutine dirichlet_apply_scalar_dev(this, x, n)
+  subroutine dirichlet_apply_scalar_dev(this, x_d)
     class(dirichlet_t), intent(inout) :: this
-    integer, intent(in) :: n
-    type(c_ptr) :: x
-    integer :: i, m, k
+    type(c_ptr) :: x_d
 
-    call neko_error('Not implemented yet')
+    call hip_dirichlet_apply_scalar(this%msk_d, x_d, &
+                                    this%g, this%msk(0))
     
   end subroutine dirichlet_apply_scalar_dev
 
   !> Boundary condition apply for a generic Dirichlet condition 
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine dirichlet_apply_vector_dev(this, x, y, z, n)
+  subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d)
     class(dirichlet_t), intent(inout) :: this
-    integer, intent(in) :: n
-    type(c_ptr) :: x
-    type(c_ptr) :: y
-    type(c_ptr) :: z
-    integer :: i, m, k
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
 
-    call neko_error('Not implemented yet')
+    call hip_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+                                    this%g, this%msk(0))
     
   end subroutine dirichlet_apply_vector_dev
 
