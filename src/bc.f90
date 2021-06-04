@@ -33,6 +33,8 @@ module bc
      procedure, pass(this) :: finalize => bc_finalize
      procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
      procedure(bc_apply_vector), pass(this), deferred :: apply_vector
+     procedure(bc_apply_scalar_dev), pass(this), deferred :: apply_scalar_dev
+     procedure(bc_apply_vector_dev), pass(this), deferred :: apply_vector_dev
   end type bc_t
 
   !> Pointer to boundary condtiion
@@ -67,6 +69,30 @@ module bc
        real(kind=rp), intent(inout), dimension(n) :: y
        real(kind=rp), intent(inout), dimension(n) :: z
      end subroutine bc_apply_vector
+  end interface
+  
+  abstract interface
+     subroutine bc_apply_scalar_dev(this, x, n)
+       import :: c_ptr       
+       import :: bc_t
+       import :: rp
+       class(bc_t), intent(inout) :: this
+       integer, intent(in) :: n
+       type(c_ptr) :: x
+     end subroutine bc_apply_scalar_dev
+  end interface
+
+  abstract interface
+     subroutine bc_apply_vector_dev(this, x, y, z, n)
+       import :: c_ptr
+       import :: bc_t
+       import :: rp
+       class(bc_t), intent(inout) :: this
+       integer, intent(in) :: n
+       type(c_ptr) :: x
+       type(c_ptr) :: y
+       type(c_ptr) :: z
+     end subroutine bc_apply_vector_dev
   end interface
 
   interface bc_list_apply
@@ -314,11 +340,19 @@ contains
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
+    type(c_ptr) :: x_d
     integer :: i
 
-    do i = 1, bclst%n
-       call bclst%bc(i)%bcp%apply_scalar(x, n)
-    end do
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       x_d = device_get_ptr(x, n)
+       do i = 1, bclst%n
+          call bclst%bc(i)%bcp%apply_scalar_dev(x_d, n)
+       end do
+    else       
+       do i = 1, bclst%n
+          call bclst%bc(i)%bcp%apply_scalar(x, n)
+       end do
+    end if
 
   end subroutine bc_list_apply_scalar
 
@@ -329,11 +363,23 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
     integer :: i
 
-    do i = 1, bclst%n
-       call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
-    end do
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       x_d = device_get_ptr(x, n)
+       y_d = device_get_ptr(y, n)
+       z_d = device_get_ptr(z, n)
+       do i = 1, bclst%n
+          call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, n)
+       end do       
+    else
+       do i = 1, bclst%n
+          call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
+       end do
+    end if
 
   end subroutine bc_list_apply_vector
   
