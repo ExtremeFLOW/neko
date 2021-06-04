@@ -1,6 +1,8 @@
 !> Defines a boundary condition
 module bc
+  use neko_config
   use num_types
+  use device
   use dofmap
   use space
   use mesh
@@ -8,6 +10,7 @@ module bc
   use stack
   use tuple
   use utils
+  use, intrinsic :: iso_c_binding
   implicit none
   private
   
@@ -19,6 +22,8 @@ module bc
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
      type(stack_i4t2_t) :: marked_facet
+     type(c_ptr) :: msk_d
+     type(c_ptr) :: facet_d
    contains     
      procedure, pass(this) :: init => bc_init
      procedure, pass(this) :: free => bc_free
@@ -105,6 +110,14 @@ contains
     if (allocated(this%facet)) then
        deallocate(this%facet)
     end if
+
+    if (c_associated(this%msk_d)) then
+       call device_free(this%msk_d)       
+    end if
+
+    if (c_associated(this%facet_d)) then
+       call device_free(this%facet_d)       
+    end if
     
   end subroutine bc_free
 
@@ -152,7 +165,7 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet_size, facet, el
     integer :: i, j, k, l, msk_c
-    integer :: lx, ly, lz
+    integer :: lx, ly, lz, n
 
     lx = this%Xh%lx
     ly = this%Xh%ly
@@ -225,6 +238,15 @@ contains
 
     this%msk(0) = msk_c
     this%facet(0) = msk_c
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       n = facet_size * this%marked_facet%size()
+       call device_map(this%msk, this%msk_d, n)
+       call device_map(this%facet, this%facet_d, n)
+
+       call device_memcpy(this%msk, this%msk_d, n, HOST_TO_DEVICE)
+       call device_memcpy(this%facet, this%facet_d, n, HOST_TO_DEVICE)
+    end if
     
   end subroutine bc_finalize
 

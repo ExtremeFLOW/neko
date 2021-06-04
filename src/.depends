@@ -68,7 +68,7 @@ file.o : file.f90 vtk_file.o fld_file.o re2_file.o rea_file.o map_file.o nmsh_fi
 output.o : output.f90 file.o num_types.o 
 fluid_output.o : fluid_output.f90 output.o fluid_method.o 
 sampler.o : sampler.f90 log.o comm.o output.o num_types.o 
-bc.o : bc.f90 utils.o tuple.o stack.o zone.o mesh.o space.o dofmap.o num_types.o 
+bc.o : bc.f90 utils.o tuple.o stack.o zone.o mesh.o space.o dofmap.o device.o num_types.o neko_config.o 
 dirichlet.o : dirichlet.f90 bc.o num_types.o 
 wall.o : wall.f90 dirichlet.o num_types.o 
 inflow.o : inflow.f90 dirichlet.o num_types.o 
@@ -103,7 +103,7 @@ hip_intf.o : hip_intf.F90 utils.o
 device.o : device.F90 utils.o htable.o hip_intf.o cuda_intf.o num_types.o 
 neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
 parmetis_wrapper.o : parmetis_wrapper.c
-hip/hip_wrapper.o : hip/hip_wrapper.hip 
-hip/gs_kernels.o : hip/gs_kernels.hip
 cuda_wrapper.o : cuda/cuda_wrapper.cu
+hip/hip_wrapper.o : hip/hip_wrapper.hip 
+hip/gs_kernels.o : hip/gs_kernels.hip 
 driver.o : driver.f90 neko.o 
