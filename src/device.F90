@@ -126,6 +126,33 @@ contains
 
   end subroutine device_associate
 
+  !> Map a Fortran array to a device (allocate and associate)
+  subroutine device_map(x, x_d, n)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(n)
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t) :: s
+
+    if (c_associated(x_d)) then
+       call neko_error('Device pointer already associated')
+    end if
+
+    select type(x)
+    type is (integer)
+       s = n * 4
+    type is (integer(8))       
+       s = n * 8
+    type is (real)
+       s = n * 4
+    type is (double precision)
+       s = n * 8
+    end select
+
+    call device_alloc(x_d, s)
+    call device_associate(x, x_d, n)
+    
+  end subroutine device_map
+
   !> Check if a Fortran array is assoicated with a device pointer
   function device_associated(x, n) result(assoc)
     integer, intent(in) :: n

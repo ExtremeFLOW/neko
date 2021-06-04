@@ -56,7 +56,6 @@ contains
     class(gs_hip_t), intent(inout) :: this
     integer, intent(in) :: nlocal
     integer, intent(in) :: nshared
-    integer(c_size_t) :: n
 
     call this%free()
 
@@ -66,13 +65,8 @@ contains
     allocate(this%local_wrk(nlocal))
     allocate(this%shared_wrk(nshared))
 
-    n = nlocal * 8
-    call device_alloc(this%local_wrk_d, n)
-    call device_associate(this%local_wrk, this%local_wrk_d, nlocal)
-
-    n = nshared * 8
-    call device_alloc(this%shared_wrk_d, n)
-    call device_associate(this%shared_wrk, this%shared_wrk_d, nshared)
+    call device_map(this%local_wrk, this%local_wrk_d, nlocal)
+    call device_map(this%shared_wrk, this%shared_wrk_d, nshared)
 
     this%local_gs_d = C_NULL_PTR
     this%local_dof_gs_d = C_NULL_PTR
@@ -133,13 +127,8 @@ contains
     integer, dimension(nb), intent(inout) :: b
     integer, intent(inout) :: o
     integer :: op
-    integer(c_size_t) :: buflen
-    integer(c_size_t) :: maplen
     type(c_ptr) :: u_d
 
-    buflen = m * 8
-    maplen = m * 4
-    
     u_d = device_get_ptr(u, n)
         
     if (this%nlocal .eq. m) then       
@@ -147,19 +136,16 @@ contains
             gd_d=>this%local_gs_dof_d, w_d=>this%local_wrk_d)
 
          if (.not. c_associated(v_d)) then
-            call device_alloc(v_d, buflen)
-            call device_associate(v, v_d, m)
+            call device_map(v, v_d, m)
          end if
 
          if (.not. c_associated(dg_d)) then
-            call device_alloc(dg_d, maplen)
-            call device_associate(dg, dg_d, m)
+            call device_map(dg, dg_d, m)
             call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE)
          end if
 
          if (.not. c_associated(gd_d)) then
-            call device_alloc(gd_d, maplen)
-            call device_associate(gd, gd_d, m)
+            call device_map(gd, gd_d, m)
             call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE)
          end if
          
@@ -171,19 +157,16 @@ contains
             gd_d=>this%shared_gs_dof_d, w_d=>this%shared_wrk_d)
 
          if (.not. c_associated(v_d)) then
-            call device_alloc(v_d, buflen)
-            call device_associate(v, v_d, m)
+            call device_map(v, v_d, m)
          end if
 
          if (.not. c_associated(dg_d)) then
-            call device_alloc(dg_d, maplen)
-            call device_associate(dg, dg_d, m)
+            call device_map(dg, dg_d, m)
             call device_memcpy(dg, dg_d, m, HOST_TO_DEVICE)
          end if
 
          if (.not. c_associated(gd_d)) then
-            call device_alloc(gd_d, maplen)
-            call device_associate(gd, gd_d, m)
+            call device_map(gd, gd_d, m)
             call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE)
          end if
          

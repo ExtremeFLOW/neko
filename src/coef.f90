@@ -83,7 +83,6 @@ contains
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m
-    integer(c_size_t) :: len
     call coef_free(coef)
     
     coef%msh => gs_h%dofmap%msh
@@ -148,90 +147,52 @@ contains
     
     n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       len = n * 8              !<@todo Respect sizeof(real(rp))
-       call device_alloc(coef%G1_d, len)
-       call device_alloc(coef%G2_d, len)
-       call device_alloc(coef%G3_d, len)
-       call device_alloc(coef%G4_d, len)
-       call device_alloc(coef%G5_d, len)
-       call device_alloc(coef%G6_d, len)
-       call device_associate(coef%G1, coef%G1_d, n)
-       call device_associate(coef%G2, coef%G2_d, n)
-       call device_associate(coef%G3, coef%G3_d, n)
-       call device_associate(coef%G4, coef%G4_d, n)
-       call device_associate(coef%G5, coef%G5_d, n)
-       call device_associate(coef%G6, coef%G6_d, n)
+       call device_map(coef%G1, coef%G1_d, n)
+       call device_map(coef%G2, coef%G2_d, n)
+       call device_map(coef%G3, coef%G3_d, n)
+       call device_map(coef%G4, coef%G4_d, n)
+       call device_map(coef%G5, coef%G5_d, n)
+       call device_map(coef%G6, coef%G6_d, n)
        
-       call device_alloc(coef%dxdr_d, len)
-       call device_alloc(coef%dydr_d, len)
-       call device_alloc(coef%dzdr_d, len)
-       call device_associate(coef%dxdr, coef%dxdr_d, n)
-       call device_associate(coef%dydr, coef%dydr_d, n)
-       call device_associate(coef%dzdr, coef%dzdr_d, n)
+       call device_map(coef%dxdr, coef%dxdr_d, n)
+       call device_map(coef%dydr, coef%dydr_d, n)
+       call device_map(coef%dzdr, coef%dzdr_d, n)
 
-       call device_alloc(coef%dxds_d, len)
-       call device_alloc(coef%dyds_d, len)
-       call device_alloc(coef%dzds_d, len)
-       call device_associate(coef%dxds, coef%dxds_d, n)
-       call device_associate(coef%dyds, coef%dyds_d, n)
-       call device_associate(coef%dzds, coef%dzds_d, n)
-
-       call device_alloc(coef%dxdt_d, len)
-       call device_alloc(coef%dydt_d, len)
-       call device_alloc(coef%dzdt_d, len)
-       call device_associate(coef%dxdt, coef%dxdt_d, n)
-       call device_associate(coef%dydt, coef%dydt_d, n)
-       call device_associate(coef%dzdt, coef%dzdt_d, n)
-
-       call device_alloc(coef%drdx_d, len)
-       call device_alloc(coef%drdy_d, len)
-       call device_alloc(coef%drdz_d, len)
-       call device_associate(coef%drdx, coef%drdx_d, n)
-       call device_associate(coef%drdy, coef%drdy_d, n)
-       call device_associate(coef%drdz, coef%drdz_d, n)
-
-       call device_alloc(coef%dsdx_d, len)
-       call device_alloc(coef%dsdy_d, len)
-       call device_alloc(coef%dsdz_d, len)
-       call device_associate(coef%dsdx, coef%dsdx_d, n)
-       call device_associate(coef%dsdy, coef%dsdy_d, n)
-       call device_associate(coef%dsdz, coef%dsdz_d, n)
-
-       call device_alloc(coef%dtdx_d, len)
-       call device_alloc(coef%dtdy_d, len)
-       call device_alloc(coef%dtdz_d, len)
-       call device_associate(coef%dtdx, coef%dtdx_d, n)
-       call device_associate(coef%dtdy, coef%dtdy_d, n)
-       call device_associate(coef%dtdz, coef%dtdz_d, n)
-
-       call device_alloc(coef%mult_d, len)
-       call device_associate(coef%mult, coef%mult_d, n)
+       call device_map(coef%dxds, coef%dxds_d, n)
+       call device_map(coef%dyds, coef%dyds_d, n)
+       call device_map(coef%dzds, coef%dzds_d, n)
        
-       call device_alloc(coef%h1_d, len)       
-       call device_associate(coef%h1, coef%h1_d, n)
+       call device_map(coef%dxdt, coef%dxdt_d, n)
+       call device_map(coef%dydt, coef%dydt_d, n)
+       call device_map(coef%dzdt, coef%dzdt_d, n)
 
-       call device_alloc(coef%h2_d, len)
-       call device_associate(coef%h2, coef%h2_d, n)
+       call device_map(coef%drdx, coef%drdx_d, n)
+       call device_map(coef%drdy, coef%drdy_d, n)
+       call device_map(coef%drdz, coef%drdz_d, n)
 
-       call device_alloc(coef%jac_d, len)
-       call device_alloc(coef%jacinv_d, len)
-       call device_alloc(coef%B_d, len)
-       call device_alloc(coef%Binv_d, len)
-       call device_associate(coef%jac, coef%jac_d, n)
-       call device_associate(coef%jacinv, coef%jacinv_d, n)
-       call device_associate(coef%B, coef%B_d, n)
-       call device_associate(coef%Binv, coef%Binv_d, n)
+       call device_map(coef%dsdx, coef%dsdx_d, n)
+       call device_map(coef%dsdy, coef%dsdy_d, n)
+       call device_map(coef%dsdz, coef%dsdz_d, n)
+
+       call device_map(coef%dtdx, coef%dtdx_d, n)
+       call device_map(coef%dtdy, coef%dtdy_d, n)
+       call device_map(coef%dtdz, coef%dtdz_d, n)
+
+       call device_map(coef%mult, coef%mult_d, n)
+       call device_map(coef%h1, coef%h1_d, n)
+       call device_map(coef%h2, coef%h2_d, n)
+
+       call device_map(coef%jac, coef%jac_d, n)
+       call device_map(coef%jacinv, coef%jacinv_d, n)
+       call device_map(coef%B, coef%B_d, n)
+       call device_map(coef%Binv, coef%Binv_d, n)
 
        m = coef%Xh%lx * coef%Xh%ly * 6 * coef%msh%nelv
-       len = m * 8
-       call device_alloc(coef%area_d, len)
-       call device_alloc(coef%nx_d, len)
-       call device_alloc(coef%ny_d, len)
-       call device_alloc(coef%nz_d, len)
-       call device_associate(coef%area, coef%area_d, m)
-       call device_associate(coef%nx, coef%nx_d, m)
-       call device_associate(coef%ny, coef%ny_d, m)
-       call device_associate(coef%nz, coef%nz_d, m)
+       
+       call device_map(coef%area, coef%area_d, m)
+       call device_map(coef%nx, coef%nx_d, m)
+       call device_map(coef%ny, coef%ny_d, m)
+       call device_map(coef%nz, coef%nz_d, m)
     else
        coef%G1_d = C_NULL_PTR
        coef%G2_d = C_NULL_PTR
