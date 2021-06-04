@@ -69,7 +69,7 @@ output.o : output.f90 file.o num_types.o
 fluid_output.o : fluid_output.f90 output.o fluid_method.o 
 sampler.o : sampler.f90 log.o comm.o output.o num_types.o 
 bc.o : bc.f90 utils.o tuple.o stack.o zone.o mesh.o space.o dofmap.o device.o num_types.o neko_config.o 
-dirichlet.o : dirichlet.f90 bc.o utils.o num_types.o 
+dirichlet.o : dirichlet.f90 bc.o num_types.o 
 wall.o : wall.f90 dirichlet.o num_types.o 
 inflow.o : inflow.f90 dirichlet.o num_types.o 
 usr_inflow.o : usr_inflow.f90 utils.o inflow.o coef.o num_types.o 
@@ -105,6 +105,8 @@ neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o p
 parmetis_wrapper.o : parmetis_wrapper.c
 cuda_wrapper.o : cuda/cuda_wrapper.cu
 hip/hip_wrapper.o : hip/hip_wrapper.hip 
-hip/gs_kernels.o : hip/gs_kernels.hip
-hip/dirichlet_kernels.o : hip/dirichlet_kernels.hip 
+hip/gs_kernels.o : hip/gs_kernels.hip 
+hip/dirichlet_kernel.o : hip/dirichlet_kernel.hip 
+hip/inflow_kernel.o : hip/inflow_kernel.hip 
+hip/no_slip_wall_kernel.o : hip/no_slip_wall_kernel.hip 
 driver.o : driver.f90 neko.o 

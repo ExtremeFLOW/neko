@@ -1,7 +1,6 @@
 !> Defines a dirichlet boundary condition
 module dirichlet
   use num_types
-  use utils
   use bc
   use, intrinsic :: iso_c_binding
   implicit none
@@ -88,7 +87,7 @@ contains
                                     this%g, this%msk(0))
     
   end subroutine dirichlet_apply_scalar_dev
-
+  
   !> Boundary condition apply for a generic Dirichlet condition 
   !! to vectors @a x, @a y and @a z (device version)
   subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d)

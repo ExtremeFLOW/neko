@@ -116,7 +116,9 @@ if ENABLE_HIP
 libneko_a_SOURCES += \
 	hip/hip_wrapper.hip\
 	hip/gs_kernels.hip\
-	hip/dirichlet_kernel.hip
+	hip/dirichlet_kernel.hip\
+	hip/inflow_kernel.hip\
+	hip/no_slip_wall_kernel.hip
 endif
 
 if ENABLE_CUDA
