@@ -3,10 +3,10 @@
 /**
  * Device kernel for scalar apply for a Dirichlet condition
  */
-__global__ void apply_scalar_kernel(const int * __restrict__ msk,
-				    double * __restrict__ x,
-				    const double g,
-				    const int m) {
+__global__ void dirichlet_apply_scalar_kernel(const int * __restrict__ msk,
+					      double * __restrict__ x,
+					      const double g,
+					      const int m) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -20,12 +20,12 @@ __global__ void apply_scalar_kernel(const int * __restrict__ msk,
 /**
  * Device kernel for vector apply for a Dirichlet condition
  */
-__global__ void apply_vector_kernel(const int * __restrict__ msk,
-				    double * __restrict__ x,
-				    double * __restrict__ y,
-				    double * __restrict__ z,
-				    const double g,
-				    const int m) {
+__global__ void dirichlet_apply_vector_kernel(const int * __restrict__ msk,
+					      double * __restrict__ x,
+					      double * __restrict__ y,
+					      double * __restrict__ z,
+					      const double g,
+					      const int m) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -49,7 +49,7 @@ extern "C" {
     const dim3 nthrds(512, 1, 1);
     const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
 
-    hipLaunchKernelGGL(apply_scalar_kernel,
+    hipLaunchKernelGGL(dirichlet_apply_scalar_kernel,
 		       nblcks, nthrds, 0, 0,
 		       (int *) msk, (double *) x, *g, *m);
   }
@@ -63,7 +63,7 @@ extern "C" {
     const dim3 nthrds(512, 1, 1);
     const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
 
-    hipLaunchKernelGGL(apply_vector_kernel,
+    hipLaunchKernelGGL(dirichlet_apply_vector_kernel,
 		       nblcks, nthrds, 0, 0,
 		       (int *) msk, (double *) x,
 		       (double *) y, (double *) z, *g, *m);
