@@ -18,9 +18,9 @@ math.o : math.f90 comm.o num_types.o
 mathops.o : mathops.f90 comm.o num_types.o 
 fast3d.o : fast3d.f90 math.o speclib.o num_types.o 
 tensor.o : tensor.f90 mxm_wrapper.o num_types.o 
-space.o : space.f90 math.o utils.o speclib.o num_types.o 
+space.o : space.f90 math.o utils.o device.o speclib.o num_types.o neko_config.o 
 dofmap.o : dofmap.f90 math.o tensor.o fast3d.o utils.o num_types.o tuple.o space.o mesh.o 
-coef.o : coef.f90 mxm_wrapper.o mesh.o math.o space.o num_types.o gather_scatter.o 
+coef.o : coef.f90 mxm_wrapper.o device.o mesh.o math.o space.o num_types.o neko_config.o gather_scatter.o 
 gs_bcknd.o : gs_bcknd.f90 num_types.o 
 gs_cpu.o : gs_cpu.f90 gs_ops.o gs_bcknd.o num_types.o 
 gs_hip.o : gs_hip.f90 gs_ops.o device.o gs_bcknd.o num_types.o 
@@ -102,8 +102,8 @@ cuda_intf.o : cuda_intf.F90 utils.o
 hip_intf.o : hip_intf.F90 utils.o 
 device.o : device.F90 utils.o htable.o hip_intf.o cuda_intf.o num_types.o 
 neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
-parmetis_wrapper.o : parmetis_wrapper.c 
+parmetis_wrapper.o : parmetis_wrapper.c
 hip/hip_wrapper.o : hip/hip_wrapper.hip 
-hip/gs_kernels.o : hip/gs_kernels.hip 
+hip/gs_kernels.o : hip/gs_kernels.hip
 cuda_wrapper.o : cuda/cuda_wrapper.cu
 driver.o : driver.f90 neko.o 

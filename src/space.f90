@@ -1,9 +1,12 @@
 !> Defines a function space
 module space
+  use neko_config
   use num_types
   use speclib
+  use device
   use utils
   use math
+  use, intrinsic :: iso_c_binding
   implicit none
 
   integer, parameter :: GL = 0, GLL = 1, GJ = 2
@@ -37,7 +40,15 @@ module space
      real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
      real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
 
-     !> @todo Store gll points etc in the space
+     !
+     ! Device pointers (if present)
+     !
+     type(c_ptr) :: dr_inv_d, ds_inv_d, dt_inv_d
+     type(c_ptr) :: dxt_d, dyt_d, dzt_d
+     type(c_ptr) :: dx_d, dy_d, dz_d
+     type(c_ptr) :: wx_d, wy_d, wz_d
+     type(c_ptr) :: zg_d, w3_d
+
   end type space_t
 
   interface operator(.eq.)
@@ -58,7 +69,7 @@ contains
     integer, intent(in) :: ly           !< Polynomial dimension in y-direction
     integer, optional, intent(in) :: lz !< Polynomial dimension in z-direction
     integer :: ix, iy, iz
-
+ 
     call space_free(s)
 
     s%lx = lx
@@ -141,6 +152,40 @@ contains
     call space_compute_dist(s%dr_inv, s%zg(1,1), lx)
     call space_compute_dist(s%ds_inv, s%zg(1,2), ly)
     call space_compute_dist(s%dt_inv, s%zg(1,3), lz)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_map(s%dr_inv, s%dr_inv_d, s%lx)
+       call device_map(s%dr_inv, s%ds_inv_d, s%lx)
+       call device_map(s%dt_inv, s%dt_inv_d, s%lx)
+       call device_map(s%wx, s%wx_d, s%lx)
+       call device_map(s%wy, s%wy_d, s%lx)
+       call device_map(s%wz, s%wz_d, s%lx)
+       call device_map(s%dx, s%dx_d, s%lxy)
+       call device_map(s%dy, s%dy_d, s%lxy)
+       call device_map(s%dz, s%dz_d, s%lxy)
+       call device_map(s%dxt, s%dxt_d, s%lxy)
+       call device_map(s%dyt, s%dyt_d, s%lxy)
+       call device_map(s%dzt, s%dzt_d, s%lxy)
+       call device_map(s%w3, s%w3_d, s%lxyz)
+
+       call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE)
+       call device_memcpy(s%dr_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE)
+       call device_memcpy(s%dt_inv, s%dt_inv_d, s%lx, HOST_TO_DEVICE)
+       call device_memcpy(s%wx, s%wx_d, s%lx, HOST_TO_DEVICE)
+       call device_memcpy(s%wy, s%wy_d, s%lx, HOST_TO_DEVICE)
+       call device_memcpy(s%wz, s%wz_d, s%lx, HOST_TO_DEVICE)
+       call device_memcpy(s%dx, s%dx_d, s%lxy, HOST_TO_DEVICE)
+       call device_memcpy(s%dy, s%dy_d, s%lxy, HOST_TO_DEVICE)
+       call device_memcpy(s%dz, s%dz_d, s%lxy, HOST_TO_DEVICE)
+       call device_memcpy(s%dxt, s%dxt_d, s%lxy, HOST_TO_DEVICE)
+       call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE)
+       call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE)
+       call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE)
+
+       ix = s%lx * 3
+       call device_map(s%zg, s%zg_d, ix)
+       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE)
+    end if
   end subroutine space_init
    
   !> Deallocate a space @a s
@@ -202,7 +247,66 @@ contains
     if (allocated(s%dt_inv)) then
        deallocate(s%dt_inv)
     end if
+
+    !
+    ! Cleanup the device (if present)
+    !
     
+    if (c_associated(s%dr_inv_d)) then
+       call device_free(s%dr_inv_d)
+    end if
+
+    if (c_associated(s%ds_inv_d)) then
+       call device_free(s%ds_inv_d)
+    end if
+
+    if (c_associated(s%dt_inv_d)) then
+       call device_free(s%dt_inv_d)
+    end if
+
+    if (c_associated(s%dxt_d)) then
+       call device_free(s%dxt_d)
+    end if
+
+    if (c_associated(s%dyt_d)) then
+       call device_free(s%dyt_d)
+    end if
+
+    if (c_associated(s%dzt_d)) then
+       call device_free(s%dzt_d)
+    end if
+    
+    if (c_associated(s%dx_d)) then
+       call device_free(s%dx_d)
+    end if
+
+    if (c_associated(s%dy_d)) then
+       call device_free(s%dy_d)
+    end if
+
+    if (c_associated(s%dz_d)) then
+       call device_free(s%dz_d)
+    end if
+
+    if (c_associated(s%wx_d)) then
+       call device_free(s%wx_d)
+    end if
+
+    if (c_associated(s%wy_d)) then
+       call device_free(s%wy_d)
+    end if
+
+    if (c_associated(s%wz_d)) then
+       call device_free(s%wz_d)
+    end if
+
+    if (c_associated(s%w3_d)) then
+       call device_free(s%w3_d)
+    end if
+
+    if (c_associated(s%zg_d)) then
+       call device_free(s%zg_d)
+    end if
 
   end subroutine space_free
 
