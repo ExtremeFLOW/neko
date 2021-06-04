@@ -47,7 +47,7 @@ zone.o : zone.f90 structs.o utils.o stack.o tuple.o
 mesh.o : mesh.f90 curve.o uset.o math.o zone.o distdata.o datadist.o tuple.o stack.o comm.o htable.o utils.o quad.o hex.o element.o point.o num_types.o 
 mesh_field.o : mesh_field.f90 mesh.o num_types.o 
 tet_mesh.o : tet_mesh.f90 utils.o point.o tet.o mesh.o 
-field.o : field.f90 dofmap.o space.o mesh.o math.o num_types.o 
+field.o : field.f90 dofmap.o space.o mesh.o math.o device.o num_types.o neko_config.o 
 rea.o : rea.f90 mesh.o num_types.o 
 sx_cdtp.o : sx_cdtp.f90 math.o num_types.o 
 sx_conv1.o : sx_conv1.f90 num_types.o 
