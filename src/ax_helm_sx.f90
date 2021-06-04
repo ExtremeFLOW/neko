@@ -20,19 +20,19 @@ contains
 
     if (Xh%lx .eq. 12) then
        call sx_ax_helm_lx12(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
     else if (Xh%lx .eq. 10) then
        call sx_ax_helm_lx10(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
     else if (Xh%lx .eq. 8) then
        call sx_ax_helm_lx8(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
     else if (Xh%lx .eq. 4) then
        call sx_ax_helm_lx4(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
     else if (Xh%lx .eq. 2) then
        call sx_ax_helm_lx2(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
     end if
 
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%n_dofs)
@@ -40,18 +40,18 @@ contains
   end subroutine ax_helm_sx_compute
 
   subroutine sx_ax_helm_lx12(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, G1, G2, G3, G4, G5, G6, n)
+       h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
     real(kind=rp), intent(in) :: u(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -110,19 +110,19 @@ contains
 
     do i = 1, n * lx * lx * lx
        uur(i,1,1,1) = h1(i,1,1,1) * &
-            ( G1(i,1,1,1) * ur(i,1,1,1) &
-            + G4(i,1,1,1) * us(i,1,1,1) &
-            + G5(i,1,1,1) * ut(i,1,1,1))
+            ( G11(i,1,1,1) * ur(i,1,1,1) &
+            + G12(i,1,1,1) * us(i,1,1,1) &
+            + G13(i,1,1,1) * ut(i,1,1,1))
 
        uus(i,1,1,1) = h1(i,1,1,1) * &
-            ( G2(i,1,1,1) * us(i,1,1,1) &
-            + G4(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * ut(i,1,1,1) )
+            ( G22(i,1,1,1) * us(i,1,1,1) &
+            + G12(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * ut(i,1,1,1) )
 
        uut(i,1,1,1) = h1(i,1,1,1) * &
-            ( G3(i,1,1,1) * ut(i,1,1,1) &
-            + G5(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * us(i,1,1,1))
+            ( G33(i,1,1,1) * ut(i,1,1,1) &
+            + G13(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
     do i=1,lx
@@ -169,18 +169,18 @@ contains
   end subroutine sx_ax_helm_lx12
 
   subroutine sx_ax_helm_lx10(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, G1, G2, G3, G4, G5, G6, n)
+       h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
     real(kind=rp), intent(in) :: u(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -239,19 +239,19 @@ contains
 
     do i = 1, n * lx * lx * lx
        uur(i,1,1,1) = h1(i,1,1,1) * &
-            ( G1(i,1,1,1) * ur(i,1,1,1) &
-            + G4(i,1,1,1) * us(i,1,1,1) &
-            + G5(i,1,1,1) * ut(i,1,1,1))
+            ( G11(i,1,1,1) * ur(i,1,1,1) &
+            + G12(i,1,1,1) * us(i,1,1,1) &
+            + G13(i,1,1,1) * ut(i,1,1,1))
 
        uus(i,1,1,1) = h1(i,1,1,1) * &
-            ( G2(i,1,1,1) * us(i,1,1,1) &
-            + G4(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * ut(i,1,1,1) )
+            ( G22(i,1,1,1) * us(i,1,1,1) &
+            + G12(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * ut(i,1,1,1) )
 
        uut(i,1,1,1) = h1(i,1,1,1) * &
-            ( G3(i,1,1,1) * ut(i,1,1,1) &
-            + G5(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * us(i,1,1,1))
+            ( G33(i,1,1,1) * ut(i,1,1,1) &
+            + G13(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
     do i=1,lx
@@ -298,18 +298,18 @@ contains
   end subroutine sx_ax_helm_lx10
   
   subroutine sx_ax_helm_lx8(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, G1, G2, G3, G4, G5, G6, n)
+       h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
     real(kind=rp), intent(in) :: u(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -368,19 +368,19 @@ contains
 
     do i = 1, n * lx * lx * lx
        uur(i,1,1,1) = h1(i,1,1,1) * &
-            ( G1(i,1,1,1) * ur(i,1,1,1) &
-            + G4(i,1,1,1) * us(i,1,1,1) &
-            + G5(i,1,1,1) * ut(i,1,1,1))
+            ( G11(i,1,1,1) * ur(i,1,1,1) &
+            + G12(i,1,1,1) * us(i,1,1,1) &
+            + G13(i,1,1,1) * ut(i,1,1,1))
 
        uus(i,1,1,1) = h1(i,1,1,1) * &
-            ( G2(i,1,1,1) * us(i,1,1,1) &
-            + G4(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * ut(i,1,1,1) )
+            ( G22(i,1,1,1) * us(i,1,1,1) &
+            + G12(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * ut(i,1,1,1) )
 
        uut(i,1,1,1) = h1(i,1,1,1) * &
-            ( G3(i,1,1,1) * ut(i,1,1,1) &
-            + G5(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * us(i,1,1,1))
+            ( G33(i,1,1,1) * ut(i,1,1,1) &
+            + G13(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
     do i=1,lx
@@ -427,18 +427,18 @@ contains
   end subroutine sx_ax_helm_lx8
 
   subroutine sx_ax_helm_lx4(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, G1, G2, G3, G4, G5, G6, n)
+       h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
     real(kind=rp), intent(in) :: u(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -494,19 +494,19 @@ contains
 
     do i = 1, n * lx * lx * lx
        uur(i,1,1,1) = h1(i,1,1,1) * &
-            ( G1(i,1,1,1) * ur(i,1,1,1) &
-            + G4(i,1,1,1) * us(i,1,1,1) &
-            + G5(i,1,1,1) * ut(i,1,1,1))
+            ( G11(i,1,1,1) * ur(i,1,1,1) &
+            + G12(i,1,1,1) * us(i,1,1,1) &
+            + G13(i,1,1,1) * ut(i,1,1,1))
 
        uus(i,1,1,1) = h1(i,1,1,1) * &
-            ( G2(i,1,1,1) * us(i,1,1,1) &
-            + G4(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * ut(i,1,1,1) )
+            ( G22(i,1,1,1) * us(i,1,1,1) &
+            + G12(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * ut(i,1,1,1) )
 
        uut(i,1,1,1) = h1(i,1,1,1) * &
-            ( G3(i,1,1,1) * ut(i,1,1,1) &
-            + G5(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * us(i,1,1,1))
+            ( G33(i,1,1,1) * ut(i,1,1,1) &
+            + G13(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
     do i=1,lx
@@ -547,18 +547,18 @@ contains
   end subroutine sx_ax_helm_lx4
 
   subroutine sx_ax_helm_lx2(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
-       h1, G1, G2, G3, G4, G5, G6, n)
+       h1, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
     real(kind=rp), intent(in) :: u(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx,lx)
     real(kind=rp), intent(in) :: Dy(lx,lx)
     real(kind=rp), intent(in) :: Dz(lx,lx)
@@ -605,19 +605,19 @@ contains
 
     do i = 1, n * lx * lx * lx
        uur(i,1,1,1) = h1(i,1,1,1) * &
-            ( G1(i,1,1,1) * ur(i,1,1,1) &
-            + G4(i,1,1,1) * us(i,1,1,1) &
-            + G5(i,1,1,1) * ut(i,1,1,1))
+            ( G11(i,1,1,1) * ur(i,1,1,1) &
+            + G12(i,1,1,1) * us(i,1,1,1) &
+            + G13(i,1,1,1) * ut(i,1,1,1))
 
        uus(i,1,1,1) = h1(i,1,1,1) * &
-            ( G2(i,1,1,1) * us(i,1,1,1) &
-            + G4(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * ut(i,1,1,1) )
+            ( G22(i,1,1,1) * us(i,1,1,1) &
+            + G12(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * ut(i,1,1,1) )
 
        uut(i,1,1,1) = h1(i,1,1,1) * &
-            ( G3(i,1,1,1) * ut(i,1,1,1) &
-            + G5(i,1,1,1) * ur(i,1,1,1) &
-            + G6(i,1,1,1) * us(i,1,1,1))
+            ( G33(i,1,1,1) * ut(i,1,1,1) &
+            + G13(i,1,1,1) * ur(i,1,1,1) &
+            + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
     do i=1,lx
