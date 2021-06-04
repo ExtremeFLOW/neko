@@ -75,7 +75,7 @@ contains
                do j=1,ly
                   do i=1,lx
                      this%d(i,j,k,e) = this%d(i,j,k,e) + &
-                          coef%G1(l,j,k,e) * dof%Xh%dxt(i,l)**2
+                          coef%G11(l,j,k,e) * dof%Xh%dxt(i,l)**2
                   end do
                end do
             end do
@@ -85,7 +85,7 @@ contains
                do j=1,ly
                   do i=1,lx
                      this%d(i,j,k,e) = this%d(i,j,k,e) + &
-                          coef%G2(i,l,k,e) * dof%Xh%dyt(j,l)**2
+                          coef%G22(i,l,k,e) * dof%Xh%dyt(j,l)**2
                   end do
                end do
             end do
@@ -95,7 +95,7 @@ contains
                do j=1,ly
                   do i=1,lx
                      this%d(i,j,k,e) = this%d(i,j,k,e) + &
-                          coef%G3(i,j,l,e) * dof%Xh%dzt(k,l)**2
+                          coef%G33(i,j,l,e) * dof%Xh%dzt(k,l)**2
                   end do
                end do
             end do
@@ -105,32 +105,32 @@ contains
             do j=1,ly,ly-1
                do k=1,lz,lz-1
                   this%d(1,j,k,e) = this%d(1,j,k,e) &
-                       + coef%G4(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dyt(j,j) &
-                       + coef%G5(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dzt(k,k)
+                       + coef%G12(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dyt(j,j) &
+                       + coef%G13(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dzt(k,k)
                   this%d(lx,j,k,e) = this%d(lx,j,k,e) &
-                       + coef%G4(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dyt(j,j) &
-                       + coef%G5(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dzt(k,k)
+                       + coef%G12(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dyt(j,j) &
+                       + coef%G13(lx,j,k,e) * dof%Xh%dxt(lx,lx)*dof%Xh%dzt(k,k)
                end do
             end do
 
             do i=1,lx,lx-1
                do k=1,lz,lz-1
                   this%d(i,1,k,e) = this%d(i,1,k,e) &
-                       + coef%G4(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dxt(i,i) &
-                       + coef%G6(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dzt(k,k)
+                       + coef%G12(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dxt(i,i) &
+                       + coef%G23(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dzt(k,k)
                   this%d(i,ly,k,e) = this%d(i,ly,k,e) &
-                       + coef%G4(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dxt(i,i) &
-                       + coef%G6(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dzt(k,k)
+                       + coef%G12(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dxt(i,i) &
+                       + coef%G23(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dzt(k,k)
                end do
             end do
             do i=1,lx,lx-1
                do j=1,ly,ly-1
                   this%d(i,j,1,e) = this%d(i,j,1,e) &
-                       + coef%G5(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dxt(i,i) &
-                       + coef%G6(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dyt(j,j)
+                       + coef%G13(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dxt(i,i) &
+                       + coef%G23(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dyt(j,j)
                   this%d(i,j,lz,e) = this%d(i,j,lz,e) &
-                       + coef%G5(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dxt(i,i) &
-                       + coef%G6(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dyt(j,j)
+                       + coef%G13(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dxt(i,i) &
+                       + coef%G23(i,j,lz,e) * dof%Xh%dzt(lz,lz)*dof%Xh%dyt(j,j)
                end do
             end do
          end if
