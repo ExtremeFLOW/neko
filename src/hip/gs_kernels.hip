@@ -31,10 +31,17 @@ __global__ void gather_kernel_add(double * __restrict__ v,
     atomicAdd(&v[dg[i] - 1], w[i]);
   }
 
-  if ((idx%2 == 0)) {
+  if (o < 0) {
     for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
-      double tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
-      v[dg[i] - 1] = tmp;
+      v[dg[i] - 1] = u[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+	double tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
+	v[dg[i] - 1] = tmp;
+      }
     }
   }
   
@@ -67,10 +74,17 @@ __global__ void gather_kernel_mul(double * __restrict__ v,
     v[dg[i] - 1] *= w[i];
   }
 
-  if ((idx%2 == 0)) {
+  if (o < 0) {
     for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
-      double tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
-      v[dg[i] - 1] = tmp;
+      v[dg[i] - 1] = u[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+	double tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
+	v[dg[i] - 1] = tmp;
+      }
     }
   }
 
@@ -102,11 +116,18 @@ __global__ void gather_kernel_min(double * __restrict__ v,
     */
     v[dg[i] - 1] = min(v[dg[i] - 1], w[i]);
   }
-  
-  if ((idx%2 == 0)) {
+
+  if (o < 0) {
     for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
-      double tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
-      v[dg[i] - 1] = tmp;
+      v[dg[i] - 1] = u[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+	double tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
+	v[dg[i] - 1] = tmp;
+      }
     }
   }
   
@@ -138,11 +159,18 @@ __global__ void gather_kernel_max(double * __restrict__ v,
     */
     v[dg[i] - 1] = max(v[dg[i] - 1], w[i]);
   }
-  
-  if ((idx%2 == 0)) {
+
+  if (o < 0) {
     for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
-      double tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
-      v[dg[i] - 1] = tmp;
+      v[dg[i] - 1] = u[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+	double tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
+	v[dg[i] - 1] = tmp;
+      }
     }
   }
   
