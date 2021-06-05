@@ -67,7 +67,7 @@ contains
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     call hip_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
-                                 c_loc(this%x), size(this%msk)))
+                                 c_loc(this%x), size(this%msk))
   end subroutine inflow_apply_vector_dev
 
   !> Set inflow vector
