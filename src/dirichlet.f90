@@ -84,7 +84,7 @@ contains
     type(c_ptr) :: x_d
 
     call hip_dirichlet_apply_scalar(this%msk_d, x_d, &
-                                    this%g, this%msk(0))
+                                    this%g, size(this%msk))
     
   end subroutine dirichlet_apply_scalar_dev
   
@@ -97,7 +97,7 @@ contains
     type(c_ptr) :: z_d
 
     call hip_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-                                    this%g, this%msk(0))
+                                    this%g, size(this%msk))
     
   end subroutine dirichlet_apply_vector_dev
 

@@ -12,7 +12,7 @@ __global__ void dirichlet_apply_scalar_kernel(const int * __restrict__ msk,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = (idx + 1); i < m; i += str) {
-    const int k = (msk[i] - 1);
+    const int k = msk[i] -1;
     x[k] = g;
   }
 }
@@ -31,7 +31,7 @@ __global__ void dirichlet_apply_vector_kernel(const int * __restrict__ msk,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = (idx + 1); i < m; i += str) {
-    const int k = (msk[i] - 1);
+    const int k = msk[i] -1;
     x[k] = g;
     y[k] = g;
     z[k] = g;

@@ -262,7 +262,7 @@ contains
     this%facet(0) = msk_c
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       n = facet_size * this%marked_facet%size()
+       n = facet_size * this%marked_facet%size() + 1
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
 

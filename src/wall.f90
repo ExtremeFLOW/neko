@@ -79,7 +79,7 @@ contains
     class(dirichlet_t), intent(inout) :: this
     type(c_ptr) :: x_d
 
-    call hip_no_slip_wall_apply_scalar(this%msk_d, x_d, this%msk(0))
+    call hip_no_slip_wall_apply_scalar(this%msk_d, x_d, size(this%msk))
     
   end subroutine no_slip_wall_apply_scalar_dev
   
@@ -91,7 +91,7 @@ contains
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
 
-    call hip_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, this%msk(0))
+    call hip_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, size(this%msk))
     
   end subroutine no_slip_wall_apply_vector_dev
   
