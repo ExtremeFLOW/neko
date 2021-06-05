@@ -39,6 +39,7 @@ libneko_a_SOURCES = \
 	precon.f90\
 	krylov.f90\
 	cg.f90\
+	cg_hip.f90\
         ksp_bicgstab.f90\
 	quad.f90\
 	hex.f90\
@@ -105,6 +106,7 @@ libneko_a_SOURCES = \
 	schwarz.f90\
 	cuda_intf.F90\
 	hip_intf.F90\
+	hip_math.F90\
 	device.F90\
 	neko.f90
 
@@ -115,6 +117,7 @@ endif
 if ENABLE_HIP
 libneko_a_SOURCES += \
 	hip/hip_wrapper.hip\
+	hip/math.hip\
 	hip/gs_kernels.hip\
 	hip/dirichlet_kernel.hip\
 	hip/inflow_kernel.hip\
