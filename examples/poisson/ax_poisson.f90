@@ -24,22 +24,18 @@ contains
   
     do e = 1, msh%nelv
        call ax_e(w(1,1,1,e), u(1,1,1,e), &
-            coef%g1(1,1,1,e), coef%g2(1,1,1,e), coef%g3(1,1,1,e), &
-            coef%g4(1,1,1,e), coef%g5(1,1,1,e), coef%g6(1,1,1,e), &
+            coef%g11(1,1,1,e), coef%g22(1,1,1,e), coef%g33(1,1,1,e), &
             ur, us, ut, wk, Xh%lx, Xh%dx, Xh%dxt)
     end do
 
   end subroutine ax_poisson_compute
   
-  subroutine ax_e(w, u, g1, g2, g3, g4, g5, g6, ur, us, ut, wk, lx, D, Dt)
+  subroutine ax_e(w, u, g11, g22, g33, ur, us, ut, wk, lx, D, Dt)
     real(kind=rp), intent(inout) :: w(lx**3)
     real(kind=rp), intent(inout) :: u(lx**3)
-    real(kind=rp), intent(inout) :: g1(lx**3)
-    real(kind=rp), intent(inout) :: g2(lx**3)
-    real(kind=rp), intent(inout) :: g3(lx**3)
-    real(kind=rp), intent(inout) :: g4(lx**3)
-    real(kind=rp), intent(inout) :: g5(lx**3)
-    real(kind=rp), intent(inout) :: g6(lx**3)
+    real(kind=rp), intent(inout) :: g11(lx**3)
+    real(kind=rp), intent(inout) :: g22(lx**3)
+    real(kind=rp), intent(inout) :: g33(lx**3)
     real(kind=rp), intent(inout) :: ur(lx**3)
     real(kind=rp), intent(inout) :: us(lx**3)
     real(kind=rp), intent(inout) :: ut(lx**3)
@@ -54,9 +50,9 @@ contains
     call local_grad3(ur, us, ut, u, n, D, Dt)
   
     do i=1, lx**3
-       wr = g1(i)*ur(i) 
-       ws = g2(i)*us(i) 
-       wt = g3(i)*ut(i) 
+       wr = g11(i)*ur(i) 
+       ws = g22(i)*us(i) 
+       wt = g33(i)*ut(i) 
        ur(i) = wr
        us(i) = ws
        ut(i) = wt
