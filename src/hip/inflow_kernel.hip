@@ -35,8 +35,8 @@ extern "C" {
     const double gy = ((double *)g)[1];
     const double gz = ((double *)g)[2];
     
-    const dim3 nthrds(512, 1, 1);
-    const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(inflow_apply_vector_kernel,
 		       nblcks, nthrds, 0, 0,

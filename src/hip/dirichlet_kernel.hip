@@ -46,8 +46,8 @@ extern "C" {
   void hip_dirichlet_apply_scalar(void *msk, void *x,
 				  double *g, int *m) {
     
-    const dim3 nthrds(512, 1, 1);
-    const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(dirichlet_apply_scalar_kernel,
 		       nblcks, nthrds, 0, 0,
@@ -60,8 +60,8 @@ extern "C" {
   void hip_dirichlet_apply_vector(void *msk, void *x, void *y,
 				  void *z, double *g, int *m) {
     
-    const dim3 nthrds(512, 1, 1);
-    const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(dirichlet_apply_vector_kernel,
 		       nblcks, nthrds, 0, 0,

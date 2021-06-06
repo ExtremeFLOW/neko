@@ -209,8 +209,8 @@ extern "C" {
   void hip_gather_kernel(void *v, int *m, int *o, void *dg,
 			 void *u, int *n, void *gd, void *w, int *op) {
 
-    const dim3 nthrds(512, 1, 1);
-    const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
 
     switch (*op) {
     case GS_OP_ADD:
@@ -250,8 +250,8 @@ extern "C" {
   void hip_scatter_kernel(void *v, int *m, void *dg,
 			  void *u, int *n, void *gd, void *w) {
     
-    const dim3 nthrds(512, 1, 1);
-    const dim3 nblcks(((*m)+512 - 1)/ 512, 1, 1);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(scatter_kernel,
 		       nblcks, nthrds, 0, 0,
