@@ -35,12 +35,10 @@ __global__ void add2s2_kernel(double * __restrict__ a,
 /**
  * Device kernel for glsc3
  */
-
-__device__ double res_d;
-
 __global__ void glsc3_kernel(const double * a,
 			     const double * b,
 			     const double * c,
+			     double * buf_h,
 			     const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -63,11 +61,10 @@ __global__ void glsc3_kernel(const double * a,
     __syncthreads();
     i = i>>1;
   }
-
-  if (threadIdx.x == 0) { 
-     atomicAdd(&res_d, buf[0]);
+ 
+  if (threadIdx.x == 0) {
+    buf_h[blockIdx.x] = buf[0];
   }
-
 }
 
 extern "C" {
@@ -130,18 +127,27 @@ extern "C" {
 	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    double res =0.0;
-
-    hipMemcpyToSymbol(HIP_SYMBOL(res_d), &res,
-		      sizeof(double), 0, hipMemcpyHostToDevice);    
+    const int nb = ((*n) + 1024 - 1)/ 1024;
     
+    double * buf = (double *) malloc(nb * sizeof(double));
+    double * buf_d;
+
+    hipMalloc(&buf_d, nb*sizeof(double));
+     
     hipLaunchKernelGGL(glsc3_kernel,
 		       nblcks, nthrds, 0, 0,
 		       (double *) a, (double *) b,
-		       (double *) c, *n);
+		       (double *) c, buf_d, *n);
 
-    hipMemcpyFromSymbol(&res, HIP_SYMBOL(res_d),
-			sizeof(double), 0, hipMemcpyDeviceToHost);    
+    hipMemcpy(buf, buf_d, nb * sizeof(double), hipMemcpyDeviceToHost);
+
+    double res = 0.0;
+    for (int i = 0; i < nb; i++) {
+      res += buf[i];
+    }
+
+    free(buf);
+    hipFree(buf_d);
 
     return res;
   }
