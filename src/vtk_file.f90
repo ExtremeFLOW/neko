@@ -8,6 +8,7 @@ module vtk_file
   use field
   use dofmap
   use mesh_field
+  use tet_mesh    
   use comm
   implicit none
   private
@@ -30,6 +31,7 @@ contains
     type(field_t), pointer :: fld => null()
     type(mesh_fld_t), pointer :: mfld => null()
     type(dofmap_t), pointer :: dm => null()
+    type(tet_mesh_t), pointer :: tet_msh => null()
     character(len=80) :: suffix,fname
     character(len=10) :: id_str
     integer:: suffix_pos
@@ -45,6 +47,8 @@ contains
        mfld => data
     type is (dofmap_t)
        dm => data
+    type is (tet_mesh_t)
+       tet_msh => data
     class default
        call neko_error('Invalid data')
     end select
@@ -78,7 +82,9 @@ contains
        call vtk_file_write_dofmap_coordinates(9, dm)
 
        call vtk_file_write_dofmap_data(9, dm)
-       
+    else if (associated(tet_msh)) then
+       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       call vtk_file_write_tet_mesh(9, tet_msh)
     else
        call neko_error('Invalid data')
     end if
@@ -257,5 +263,36 @@ contains
     end do
     
   end subroutine vtk_file_write_dofmap_data
+
+  !> Write a tetrahedral mesh in legacy VTK format
+  subroutine vtk_file_write_tet_mesh(unit, tet_msh)
+    integer :: unit
+    type(tet_mesh_t), intent(inout) :: tet_msh
+    integer, parameter :: npts = 4
+    integer :: i, j, vtk_type
+
+    ! Dump coordinates
+    write(unit, fmt='(A,I8,A)') 'POINTS', tet_msh%msh%mpts,' double'
+    do i = 1, tet_msh%msh%mpts
+       write(unit, fmt='(F15.8,F15.8,F15.8)') real(tet_msh%msh%points(i)%x,dp)
+    end do
+
+    ! Dump cells
+    write(unit, fmt='(A,I8,I8)')  'CELLS', tet_msh%nelv, tet_msh%nelv*(npts+1)
+    j = 0
+    do i = 1, tet_msh%nelv
+       write(unit, fmt='(I8,8I8)') npts, &
+            (mesh_get_local_point(tet_msh%msh, tet_msh%el(i)%pts(j)%p) - 1, &
+            j=1, npts)
+    end do
+
+    ! Dump cell type for each element
+    write(unit, fmt='(A,I8)') 'CELL_TYPES', tet_msh%nelv
+    vtk_type = 10
+    do i = 1, tet_msh%nelv
+       write(unit, fmt='(I2)') vtk_type
+    end do
+
+  end subroutine vtk_file_write_tet_mesh
 
 end module vtk_file

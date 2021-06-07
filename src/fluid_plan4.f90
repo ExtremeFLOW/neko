@@ -5,6 +5,7 @@ module fluid_plan4
   use fluid_method
   use facet_normal
   use neko_config
+  use ax_helm_xsmm
   use ax_helm_sx
   use ax_helm
   use abbdf
@@ -79,7 +80,8 @@ contains
     class(fluid_plan4_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: param        
+    type(param_t), intent(inout) :: param     
+    integer :: n   
 
     call this%free()
     
@@ -88,6 +90,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(ax_helm_sx_t::this%Ax)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       allocate(ax_helm_xsmm_t::this%Ax)
     else
        allocate(ax_helm_t::this%Ax)
     end if
@@ -110,6 +114,16 @@ contains
     allocate(this%abx2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%aby2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
     allocate(this%abz2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
+    
+    n = this%Xh%lx*this%Xh%ly*this%Xh%lz*this%msh%nelv
+
+    call rzero(this%abx1,n)
+    call rzero(this%aby1,n)
+    call rzero(this%abz1,n)
+    
+    call rzero(this%abx2,n)
+    call rzero(this%aby2,n)
+    call rzero(this%abz2,n)
             
     call field_init(this%u_e, this%dm_Xh, 'u_e')
     call field_init(this%v_e, this%dm_Xh, 'v_e')
@@ -494,7 +508,7 @@ contains
     call rzero(ta3%x,n)
     call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
-    work1%x = (one / Re) / rho
+    work1 = (one / Re) / rho
     call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
 
     call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)

@@ -11,12 +11,12 @@ module coefs
   
   !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple
   type, public :: coef_t     
-     real(kind=rp), allocatable :: G1(:,:,:,:) !< Geometric data
-     real(kind=rp), allocatable :: G2(:,:,:,:) !< Geometric data
-     real(kind=rp), allocatable :: G3(:,:,:,:) !< Geometric data
-     real(kind=rp), allocatable :: G4(:,:,:,:) !< Geometric data
-     real(kind=rp), allocatable :: G5(:,:,:,:) !< Geometric data
-     real(kind=rp), allocatable :: G6(:,:,:,:) !< Geometric data
+     real(kind=rp), allocatable :: G11(:,:,:,:) !< Geometric data at index 1,1
+     real(kind=rp), allocatable :: G22(:,:,:,:) !< Geometric data at index 2,2
+     real(kind=rp), allocatable :: G33(:,:,:,:) !< Geometric data at index 3,3
+     real(kind=rp), allocatable :: G12(:,:,:,:) !< Geometric data at index 1,2
+     real(kind=rp), allocatable :: G13(:,:,:,:) !< Geometric data at index 1,3
+     real(kind=rp), allocatable :: G23(:,:,:,:) !< Geometric data at index 2,3
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      ! generate mapping data between element and reference element 
@@ -76,12 +76,12 @@ contains
     ! Allocate arrays for geometric data
     !
     !>@todo Be clever and try to avoid allocating zeroed geom. factors
-    allocate(coef%G1(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G2(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G3(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G4(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G5(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G6(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%G11(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%G22(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%G33(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%G12(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%G13(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%G23(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     
     allocate(coef%dxdr(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     allocate(coef%dxds(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
@@ -149,28 +149,28 @@ contains
   subroutine coef_free(coef)
     type(coef_t), intent(inout) :: coef
 
-    if (allocated(coef%G1)) then
-       deallocate(coef%G1)
+    if (allocated(coef%G11)) then
+       deallocate(coef%G11)
     end if
 
-    if (allocated(coef%G2)) then
-       deallocate(coef%G2)
+    if (allocated(coef%G22)) then
+       deallocate(coef%G22)
     end if
 
-    if (allocated(coef%G3)) then
-       deallocate(coef%G3)
+    if (allocated(coef%G33)) then
+       deallocate(coef%G33)
     end if
 
-    if (allocated(coef%G4)) then
-       deallocate(coef%G4)
+    if (allocated(coef%G12)) then
+       deallocate(coef%G12)
     end if
 
-    if (allocated(coef%G5)) then
-       deallocate(coef%G5)
+    if (allocated(coef%G13)) then
+       deallocate(coef%G13)
     end if
     
-    if (allocated(coef%G6)) then
-       deallocate(coef%G6)
+    if (allocated(coef%G23)) then
+       deallocate(coef%G23)
     end if
 
     if (allocated(coef%mult)) then
@@ -367,38 +367,38 @@ contains
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     
     if(c%msh%gdim .eq. 2) then
-      call vdot2(c%G1,c%drdx,c%drdy,c%drdx,c%drdy,c%dof%n_dofs)
-      call vdot2(c%G2,c%dsdx,c%dsdy,c%dsdx,c%dsdy,c%dof%n_dofs)
-      call vdot2(c%G4,c%drdx,c%drdy,c%dsdx,c%dsdy,c%dof%n_dofs)
-      call  col2(c%G1,c%jacinv,c%dof%n_dofs)
-      call  col2(c%G2,c%jacinv,c%dof%n_dofs)
-      call  col2(c%G4,c%jacinv,c%dof%n_dofs)
-      call rzero(c%G3,c%dof%n_dofs)
-      call rzero(c%G5,c%dof%n_dofs)
-      call rzero(c%G6,c%dof%n_dofs)
+      call vdot2(c%G11,c%drdx,c%drdy,c%drdx,c%drdy,c%dof%n_dofs)
+      call vdot2(c%G22,c%dsdx,c%dsdy,c%dsdx,c%dsdy,c%dof%n_dofs)
+      call vdot2(c%G12,c%drdx,c%drdy,c%dsdx,c%dsdy,c%dof%n_dofs)
+      call  col2(c%G11,c%jacinv,c%dof%n_dofs)
+      call  col2(c%G22,c%jacinv,c%dof%n_dofs)
+      call  col2(c%G12,c%jacinv,c%dof%n_dofs)
+      call rzero(c%G33,c%dof%n_dofs)
+      call rzero(c%G13,c%dof%n_dofs)
+      call rzero(c%G23,c%dof%n_dofs)
     else
-      call vdot3(c%G1,c%drdx,c%drdy,c%drdz,c%drdx,c%drdy,c%drdz,c%dof%n_dofs)
-      call vdot3(c%G2,c%dsdx,c%dsdy,c%dsdz,c%dsdx,c%dsdy,c%dsdz,c%dof%n_dofs)
-      call vdot3(c%G3,c%dtdx,c%dtdy,c%dtdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
-      call vdot3(c%G4,c%drdx,c%drdy,c%drdz,c%dsdx,c%dsdy,c%dsdz,c%dof%n_dofs)
-      call vdot3(c%G5,c%drdx,c%drdy,c%drdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
-      call vdot3(c%G6,c%dsdx,c%dsdy,c%dsdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
+      call vdot3(c%G11,c%drdx,c%drdy,c%drdz,c%drdx,c%drdy,c%drdz,c%dof%n_dofs)
+      call vdot3(c%G22,c%dsdx,c%dsdy,c%dsdz,c%dsdx,c%dsdy,c%dsdz,c%dof%n_dofs)
+      call vdot3(c%G33,c%dtdx,c%dtdy,c%dtdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
+      call vdot3(c%G12,c%drdx,c%drdy,c%drdz,c%dsdx,c%dsdy,c%dsdz,c%dof%n_dofs)
+      call vdot3(c%G13,c%drdx,c%drdy,c%drdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
+      call vdot3(c%G23,c%dsdx,c%dsdy,c%dsdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
       
-      call col2(c%G1,c%jacinv,c%dof%n_dofs)
-      call col2(c%G2,c%jacinv,c%dof%n_dofs)
-      call col2(c%G3,c%jacinv,c%dof%n_dofs)
-      call col2(c%G4,c%jacinv,c%dof%n_dofs)
-      call col2(c%G5,c%jacinv,c%dof%n_dofs)
-      call col2(c%G6,c%jacinv,c%dof%n_dofs)
+      call col2(c%G11,c%jacinv,c%dof%n_dofs)
+      call col2(c%G22,c%jacinv,c%dof%n_dofs)
+      call col2(c%G33,c%jacinv,c%dof%n_dofs)
+      call col2(c%G12,c%jacinv,c%dof%n_dofs)
+      call col2(c%G13,c%jacinv,c%dof%n_dofs)
+      call col2(c%G23,c%jacinv,c%dof%n_dofs)
     end if
     do e=1,c%msh%nelv
-       call col2(c%G1(1,1,1,e),c%Xh%w3,lxyz)
-       call col2(c%G2(1,1,1,e),c%Xh%w3,lxyz)
-       call col2(c%G4(1,1,1,e),c%Xh%w3,lxyz)
+       call col2(c%G11(1,1,1,e),c%Xh%w3,lxyz)
+       call col2(c%G22(1,1,1,e),c%Xh%w3,lxyz)
+       call col2(c%G12(1,1,1,e),c%Xh%w3,lxyz)
        if (c%msh%gdim .eq. 3) then
-         call col2(c%G3(1,1,1,e),c%Xh%w3,lxyz)
-         call col2(c%G5(1,1,1,e),c%Xh%w3,lxyz)
-         call col2(c%G6(1,1,1,e),c%Xh%w3,lxyz)
+         call col2(c%G33(1,1,1,e),c%Xh%w3,lxyz)
+         call col2(c%G13(1,1,1,e),c%Xh%w3,lxyz)
+         call col2(c%G23(1,1,1,e),c%Xh%w3,lxyz)
        end if
     end do
   end subroutine coef_generate_geo

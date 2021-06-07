@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.1.1])
+AC_INIT([neko],[0.1.2])
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -134,6 +134,8 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/uset/Makefile\
 		 tests/quad/Makefile\
 		 tests/hex/Makefile\
+		 tests/tet/Makefile\
+		 tests/tri/Makefile\
 		 tests/math/Makefile\
 		 tests/mesh/Makefile\
 		 tests/dofmap/Makefile\
