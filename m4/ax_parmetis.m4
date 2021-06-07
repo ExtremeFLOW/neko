@@ -10,7 +10,7 @@
 AC_DEFUN([AX_PARMETIS],[
 	AC_ARG_WITH([parmetis],
 	AS_HELP_STRING([--with-parmetis=DIR],
-	[Directory for parmetis]),
+	[Compile with support for parmetis]),
 	[	   
 	if test -d "$withval"; then
 		ac_parmetis_path="$withval";
