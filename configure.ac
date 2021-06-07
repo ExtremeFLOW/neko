@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.1.1])
+AC_INIT([neko],[0.2.x])
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -82,10 +82,6 @@ else
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
-# Checks for libxsmm
-AX_LIBXSMM
-
-
 found_domain_decomp="no"
 
 # Checks for ParMetis
@@ -118,13 +114,11 @@ else
    AC_MSG_ERROR([Invalid working precision])
 fi
 
+# Checks for libxsmm backend
+AX_LIBXSMM
+
 # Checks for HIP backend
-hip_bcknd="0"
-if test "x${enable_hip}" != xno; then
-   AC_DEFINE(HAVE_HIP,1,[Define if you have HIP.])	
-   hip_bcknd="1"
-fi
-AC_SUBST(hip_bcknd)
+AX_HIP
 
 # Checks for CUDA backend
 cuda_bcknd="0"
@@ -137,7 +131,7 @@ AC_SUBST(cuda_bcknd)
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${enable_cuda}" = xyes])
-AM_CONDITIONAL([ENABLE_HIP], [test "x${enable_hip}" = xyes])
+AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 
 
 

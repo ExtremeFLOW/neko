@@ -1,2 +1,2 @@
 .hip.o:
-	hipcc -o $@ -c $<
+	$(HIPCC) -O3 -o $@ -c $<
