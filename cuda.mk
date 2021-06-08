@@ -1,2 +1,2 @@
 .cu.o:
-	nvcc -o $@ -c $<
+	$(NVCC) -O3 -o $@ -c $<

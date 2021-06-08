@@ -121,16 +121,11 @@ AX_LIBXSMM
 AX_HIP
 
 # Checks for CUDA backend
-cuda_bcknd="0"
-if test "x${enable_cuda}" != xno; then
-   AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])	
-   cuda_bcknd="1"
-fi
-AC_SUBST(cuda_bcknd)
+AX_CUDA
 
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
-AM_CONDITIONAL([ENABLE_CUDA], [test "x${enable_cuda}" = xyes])
+AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 
 
