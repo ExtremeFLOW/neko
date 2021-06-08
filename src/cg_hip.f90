@@ -1,8 +1,7 @@
 !> Defines various Conjugate Gradient methods for accelerators using HIP
 module cg_hip
   use krylov
-  use math
-  use hip_math    
+  use device_math    
   use num_types
   use, intrinsic :: iso_c_binding
   implicit none
@@ -130,36 +129,36 @@ contains
     norm_fac = one/sqrt(coef%volume)
 
     rtz1 = one
-    call hip_rzero(x%x_d, n)
-    call hip_rzero(this%p_d, n)
-    call hip_copy(this%r_d, f_d, n)
+    call device_rzero(x%x_d, n)
+    call device_rzero(this%p_d, n)
+    call device_copy(this%r_d, f_d, n)
 
-    rtr = hip_glsc3(this%r_d, coef%mult_d, this%r_d, n)
+    rtr = device_glsc3(this%r_d, coef%mult_d, this%r_d, n)
     rnorm = sqrt(rtr)*norm_fac
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
     if(rnorm .eq. zero) return
     do iter = 1, max_iter
-       call hip_copy(this%z_d, this%r_d, n)
+       call device_copy(this%z_d, this%r_d, n)
        rtz2 = rtz1
-       rtz1 = hip_glsc3(this%r_d, coef%mult_d, this%z_d, n)
+       rtz1 = device_glsc3(this%r_d, coef%mult_d, this%z_d, n)
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = zero
-       call hip_add2s1(this%p_d, this%z_d, beta, n)
+       call device_add2s1(this%p_d, this%z_d, beta, n)
 
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)       
        call gs_op(gs_h, this%w, n, GS_OP_ADD)       
        call bc_list_apply(blst, this%w, n)       
 
-       pap = hip_glsc3(this%w_d, coef%mult_d, this%p_d, n)
+       pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)
 
        alpha = rtz1 / pap
        alphm = -alpha
-       call hip_add2s2(x_d, this%p_d, alpha, n)
-       call hip_add2s2(this%r_d, this%w_d, alphm, n)
+       call device_add2s2(x_d, this%p_d, alpha, n)
+       call device_add2s2(this%r_d, this%w_d, alphm, n)
 
-       rtr = hip_glsc3(this%r_d, coef%mult_d, this%r_d, n)       
+       rtr = device_glsc3(this%r_d, coef%mult_d, this%r_d, n)       
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)*norm_fac
        if (rnorm .lt. this%abs_tol) then

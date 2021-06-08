@@ -108,6 +108,7 @@ libneko_a_SOURCES = \
 	hip_intf.F90\
 	hip_math.F90\
 	device.F90\
+	device_math.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
