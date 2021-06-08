@@ -106,7 +106,6 @@ libneko_a_SOURCES = \
 	schwarz.f90\
 	cuda_intf.F90\
 	hip_intf.F90\
-	hip_math.F90\
 	device.F90\
 	device_math.F90\
 	neko.f90
