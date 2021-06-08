@@ -1,5 +1,6 @@
 !> Defines inflow dirichlet conditions
 module inflow
+  use device_inflow
   use num_types
   use dirichlet
   use, intrinsic :: iso_c_binding
@@ -16,16 +17,6 @@ module inflow
      procedure, pass(this) :: apply_vector_dev => inflow_apply_vector_dev
      procedure, pass(this) :: set_inflow => inflow_set_vector
   end type inflow_t
-
-  interface
-     subroutine hip_inflow_apply_vector(msk, x, y, z, g, m) &
-          bind(c, name='hip_inflow_apply_vector')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z, g
-     end subroutine hip_inflow_apply_vector
-  end interface
   
 contains
 
@@ -66,8 +57,8 @@ contains
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
-    call hip_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
-                                 c_loc(this%x), size(this%msk))
+    call device_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
+                                    c_loc(this%x), size(this%msk))
   end subroutine inflow_apply_vector_dev
 
   !> Set inflow vector

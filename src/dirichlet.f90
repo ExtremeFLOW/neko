@@ -1,5 +1,6 @@
 !> Defines a dirichlet boundary condition
 module dirichlet
+  use device_dirichlet
   use num_types
   use bc
   use, intrinsic :: iso_c_binding
@@ -18,28 +19,6 @@ module dirichlet
      procedure, pass(this) :: set_g => dirichlet_set_g
   end type dirichlet_t
 
-  interface
-     subroutine hip_dirichlet_apply_scalar(msk, x, g, m) &
-          bind(c, name='hip_dirichlet_apply_scalar')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       real(c_double) :: g
-       integer(c_int) :: m
-       type(c_ptr), value :: msk, x
-     end subroutine hip_dirichlet_apply_scalar
-  end interface
-  
-  interface
-     subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m) &
-          bind(c, name='hip_dirichlet_apply_vector')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       real(c_double) :: g
-       integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z
-     end subroutine hip_dirichlet_apply_vector
-  end interface
-     
 contains
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -83,8 +62,8 @@ contains
     class(dirichlet_t), intent(inout) :: this
     type(c_ptr) :: x_d
 
-    call hip_dirichlet_apply_scalar(this%msk_d, x_d, &
-                                    this%g, size(this%msk))
+    call device_dirichlet_apply_scalar(this%msk_d, x_d, &
+                                       this%g, size(this%msk))
     
   end subroutine dirichlet_apply_scalar_dev
   
@@ -96,8 +75,8 @@ contains
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
 
-    call hip_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-                                    this%g, size(this%msk))
+    call device_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+                                       this%g, size(this%msk))
     
   end subroutine dirichlet_apply_vector_dev
 

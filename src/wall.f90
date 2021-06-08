@@ -1,5 +1,6 @@
 !> Defines wall boundary conditions
 module wall
+  use device_wall
   use num_types
   use dirichlet
   use, intrinsic :: iso_c_binding
@@ -14,26 +15,6 @@ module wall
      procedure, pass(this) :: apply_scalar_dev => no_slip_wall_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => no_slip_wall_apply_vector_dev
   end type no_slip_wall_t
-
-  interface
-     subroutine hip_no_slip_wall_apply_scalar(msk, x, m) &
-          bind(c, name='hip_no_slip_wall_apply_scalar')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int) :: m
-       type(c_ptr), value :: msk, x
-     end subroutine hip_no_slip_wall_apply_scalar
-  end interface
-  
-  interface
-     subroutine hip_no_slip_wall_apply_vector(msk, x, y, z, m) &
-          bind(c, name='hip_no_slip_wall_apply_vector')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int) :: m
-       type(c_ptr), value :: msk, x, y, z
-     end subroutine hip_no_slip_wall_apply_vector
-  end interface
 
 contains
 
@@ -79,7 +60,7 @@ contains
     class(no_slip_wall_t), intent(inout) :: this
     type(c_ptr) :: x_d
 
-    call hip_no_slip_wall_apply_scalar(this%msk_d, x_d, size(this%msk))
+    call device_no_slip_wall_apply_scalar(this%msk_d, x_d, size(this%msk))
     
   end subroutine no_slip_wall_apply_scalar_dev
   
@@ -91,7 +72,8 @@ contains
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
 
-    call hip_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, size(this%msk))
+    call device_no_slip_wall_apply_vector(this%msk_d, x_d, y_d, z_d, &
+                                          size(this%msk))
     
   end subroutine no_slip_wall_apply_vector_dev
   
