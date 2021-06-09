@@ -16,7 +16,6 @@ jobs:
           uses: actions/cache@v2
           with:
             key: flinter
-         - name: Setup env.
       - name: Setup env.
         if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
