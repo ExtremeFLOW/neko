@@ -2,6 +2,8 @@ name: Linting
 
 # Controls when the action will run. 
 on:
+  pull_request:
+     branches: [develop]
   workflow_dispatch:
   
 jobs:
@@ -9,13 +11,7 @@ jobs:
     name: "Flint"
     runs-on: ubuntu-latest
     steps:
-      - name: Cache flinter
-        id: cache-flinter
-        uses: actions/cache@v2
-        with:
-          key: flinter
       - name: Setup env.
-        if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update && sudo apt-get install python3-tk
           pip install flinter
