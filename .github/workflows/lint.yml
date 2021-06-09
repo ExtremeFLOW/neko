@@ -11,9 +11,11 @@ jobs:
     name: "Flint"
     runs-on: ubuntu-latest
     steps:
-        - name: Cache flinter
-          id: cache-flinter
-          uses: actions/cache@v2
+      - name: Cache flinter
+        id: cache-flinter
+        uses: actions/cache@v2
+        with:
+          key: flinter
       - name: Setup env.
         if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
