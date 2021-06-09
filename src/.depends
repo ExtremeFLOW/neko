@@ -75,7 +75,7 @@ wall.o : wall.f90 dirichlet.o num_types.o device_wall.o
 inflow.o : inflow.f90 dirichlet.o num_types.o device_inflow.o 
 usr_inflow.o : usr_inflow.f90 utils.o inflow.o coef.o num_types.o 
 facet_normal.o : facet_normal.f90 utils.o math.o coef.o dirichlet.o num_types.o 
-symmetry.o : symmetry.f90 htable.o stack.o utils.o math.o coef.o dirichlet.o num_types.o 
+symmetry.o : symmetry.f90 htable.o stack.o utils.o math.o coef.o device.o dirichlet.o num_types.o device_symmetry.o 
 gmres.o : gmres.f90 num_types.o operators.o math.o comm.o krylov.o 
 pc_jacobi.o : pc_jacobi.f90 gather_scatter.o num_types.o coef.o precon.o math.o 
 pc_identity.o : pc_identity.f90 num_types.o ax.o precon.o utils.o math.o 
@@ -106,6 +106,7 @@ device_math.o : device_math.F90 comm.o utils.o num_types.o
 device_dirichlet.o : device_dirichlet.F90 utils.o num_types.o 
 device_inflow.o : device_inflow.F90 utils.o num_types.o 
 device_wall.o : device_wall.F90 utils.o num_types.o 
+device_symmetry.o : device_symmetry.F90 utils.o num_types.o 
 neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg_hip.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
 parmetis_wrapper.o : parmetis_wrapper.c
 cuda_wrapper.o : cuda/cuda_wrapper.cu

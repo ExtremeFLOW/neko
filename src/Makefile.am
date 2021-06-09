@@ -111,6 +111,7 @@ libneko_a_SOURCES = \
 	device_dirichlet.F90\
 	device_inflow.F90\
 	device_wall.F90\
+	device_symmetry.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
@@ -124,7 +125,8 @@ libneko_a_SOURCES += \
 	hip/gs_kernels.hip\
 	hip/dirichlet_kernel.hip\
 	hip/inflow_kernel.hip\
-	hip/no_slip_wall_kernel.hip
+	hip/no_slip_wall_kernel.hip\
+	hip/symmetry_kernel.hip
 endif
 
 if ENABLE_CUDA
