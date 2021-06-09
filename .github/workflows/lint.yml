@@ -17,8 +17,8 @@ jobs:
           with:
             key: flinter
          - name: Setup env.
-       if: steps.cache-flinter.outputs.cache-hit != 'true'
       - name: Setup env.
+        if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update && sudo apt-get install python3-tk
           pip install flinter
