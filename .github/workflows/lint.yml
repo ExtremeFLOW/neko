@@ -11,6 +11,13 @@ jobs:
     name: "Flint"
     runs-on: ubuntu-latest
     steps:
+        - name: Cache flinter
+          id: cache-flinter
+          uses: actions/cache@v2
+          with:
+            key: flinter
+         - name: Setup env.
+       if: steps.cache-flinter.outputs.cache-hit != 'true'
       - name: Setup env.
         run: |
           sudo apt-get update && sudo apt-get install python3-tk
@@ -33,7 +40,7 @@ jobs:
           path: flint.svg
           retention-days: 5
       - name: Archive linter report
-        uses: actions/upload-artifacts@v2
+        uses: actions/upload-artifact@v2
         with:
           name: flint-report
           path: flint.txt
