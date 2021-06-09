@@ -1,0 +1,25 @@
+name: develop
+
+# Controls when the action will run. 
+on:
+  push:
+     branches: [develop]
+  workflow_dispatch:
+  
+jobs:
+  linting:
+    name: "Flint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup env.
+        run: |
+          pip install flinter
+          pip install anybadge
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Lint
+        run: |
+          flint score src/ -d 1
+          
