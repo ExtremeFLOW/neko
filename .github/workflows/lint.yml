@@ -2,8 +2,6 @@ name: Linting
 
 # Controls when the action will run. 
 on:
-  push:
-     branches: [develop]
   workflow_dispatch:
   
 jobs:
@@ -11,7 +9,13 @@ jobs:
     name: "Flint"
     runs-on: ubuntu-latest
     steps:
+      - name: Cache flinter
+        id: cache-flinter
+        uses: actions/cache@v2
+        with:
+          key: flinter
       - name: Setup env.
+        if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update && sudo apt-get install python3-tk
           pip install flinter
@@ -22,8 +26,7 @@ jobs:
           fetch-depth: 1
       - name: Lint
         run: |
-          flint score src/
-          flint score src/ -d 1 | tee flint.txt
+          flint score src/ -d 2 | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
           echo $score
           anybadge -l flint  -o --file=flint.svg -v $score  2=red 4=orange 8=yellow 10=green
@@ -32,5 +35,11 @@ jobs:
         with:
           name: flint-badge
           path: flint.svg
-          
+          retention-days: 5
+      - name: Archive linter report
+        uses: actions/upload-artifacts@v2
+        with:
+          name: flint-report
+          path: flint.txt
+          retention-days: 5
           
