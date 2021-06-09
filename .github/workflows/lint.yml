@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Setup env.
         run: |
-          sudo apt-get update && sudo apt-get install python3-tk 
+          sudo apt-get update && sudo apt-get install python3-tk
           pip install flinter
           pip install anybadge
       - name: Checkout
@@ -22,5 +22,7 @@ jobs:
           fetch-depth: 1
       - name: Lint
         run: |
-          flint score src/ -d 1
+          flint score src/ -d 1 | tee flint.txt
+          score=$(awk '$1==0{print $3}' flint.txt)
+          echo $score
           
