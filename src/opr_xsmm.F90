@@ -113,7 +113,7 @@ contains
              uz(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdz(i,1,1,e) &
                   + us(i)*coef%dsdz(i,1,1,e) &
                   + ut(i)*coef%dtdz(i,1,1,e) )
-          enddo
+          end do
        else
 
           call local_grad2(ur, us, u(1,e), N, coef%Xh%dx, coef%Xh%dyt)
@@ -123,9 +123,9 @@ contains
                   + us(i)*coef%dsdx(i,1,1,e) )
              uy(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdy(i,1,1,e) &
                   + us(i)*coef%dsdy(i,1,1,e) )
-          enddo
+          end do
        endif
-    enddo
+    end do
   end subroutine opr_xsmm_opgrad
 
   subroutine local_grad3_xsmm(ur, us, ut, u, n, D, Dt)
@@ -144,7 +144,7 @@ contains
     call libxsmm_mmcall(lgrad_xmm1, D, u, ur)
     do k=0,n
        call libxsmm_mmcall(lgrad_xmm2, u(0,0,k), Dt, us(0,0,k))
-    enddo
+    end do
     call libxsmm_mmcall(lgrad_xmm3, u, Dt, ut)
 #endif
 
@@ -211,12 +211,12 @@ contains
           call libxsmm_mmcall(cdtp_xmm2, ta1(i2), Xh%dy, ta2(i1))
           i1 = i1 + n1
           i2 = i2 + n2
-       enddo
+       end do
        call add2(dtx(1,e), ta2, Xh%lxyz)
        call col3(ta1, wx, dt(1,e), Xh%lxyz)
        call libxsmm_mmcall(cdtp_xmm3, ta1, Xh%dz, ta2)
        call add2 (dtx(1,e), ta2, Xh%lxyz)
-    enddo
+    end do
 #endif
   end subroutine opr_xsmm_cdtp
 
@@ -254,7 +254,7 @@ contains
           call libxsmm_mmcall(conv1_xmm1, Xh%dx, u(1,1,1,ie), dudr)
           do iz=1,Xh%lz
              call libxsmm_mmcall(conv1_xmm2, u(1,1,iz,ie), Xh%dyt, duds(1,1,iz))
-          enddo
+          end do
           call libxsmm_mmcall(conv1_xmm3, u(1,1,1,ie), Xh%dzt, dudt)
           do i=1,Xh%lxyz
              du(i,ie) = coef%jacinv(i,1,1,ie)*( &
@@ -270,7 +270,7 @@ contains
                   coef%drdz(i,1,1,ie)*dudr(i,1,1) &
                   + coef%dsdz(i,1,1,ie)*duds(i,1,1) &
                   + coef%dtdz(i,1,1,ie)*dudt(i,1,1)))
-          enddo
+          end do
        else
           !        2D
           call mxm(Xh%dx, Xh%lx, u(1,1,1,ie), Xh%lx, dudr, Xh%lyz)
@@ -283,9 +283,9 @@ contains
                   + vy(i,1,1,ie)*( &
                   coef%drdy(i,1,1,ie)*dudr(i,1,1) &
                   + coef%dsdy(i,1,1,ie)*duds(i,1,1)))
-          enddo
+          end do
        endif
-    enddo
+    end do
 
 #endif
     
