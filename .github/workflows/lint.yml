@@ -28,9 +28,11 @@ jobs:
           fetch-depth: 1
       - name: Lint
         run: |
-          flint score src/ -d 2 | tee flint.txt
+          flint score src/ -d 2 -r flinter_rc.yml | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
-          echo $score
+          if (( $(echo "$score < 6.15" |bc -l) )) ; then
+            exit 1
+          fi
           anybadge -l flint  -o --file=flint.svg -v $score  2=red 4=orange 8=yellow 10=green
       - name: Archive linter badge
         uses: actions/upload-artifact@v2

@@ -69,31 +69,31 @@ contains
 
       this%d = 0d0
 
-      do e=1,dof%msh%nelv
-         do l=1,lx
-            do k=1,lz
-               do j=1,ly
-                  do i=1,lx
+      do e = 1,dof%msh%nelv
+         do l = 1,lx
+            do k = 1,lz
+               do j = 1,ly
+                  do i = 1,lx
                      this%d(i,j,k,e) = this%d(i,j,k,e) + &
                           coef%G11(l,j,k,e) * dof%Xh%dxt(i,l)**2
                   end do
                end do
             end do
          end do
-         do l=1,ly
-            do k=1,lz
-               do j=1,ly
-                  do i=1,lx
+         do l = 1,ly
+            do k = 1,lz
+               do j = 1,ly
+                  do i = 1,lx
                      this%d(i,j,k,e) = this%d(i,j,k,e) + &
                           coef%G22(i,l,k,e) * dof%Xh%dyt(j,l)**2
                   end do
                end do
             end do
          end do
-         do l=1,lz
-            do k=1,lz
-               do j=1,ly
-                  do i=1,lx
+         do l = 1,lz
+            do k = 1,lz
+               do j = 1,ly
+                  do i = 1,lx
                      this%d(i,j,k,e) = this%d(i,j,k,e) + &
                           coef%G33(i,j,l,e) * dof%Xh%dzt(k,l)**2
                   end do
@@ -102,8 +102,8 @@ contains
          end do
 
          if (dof%msh%dfrmd_el(e)) then
-            do j=1,ly,ly-1
-               do k=1,lz,lz-1
+            do j = 1,ly,ly-1
+               do k = 1,lz,lz-1
                   this%d(1,j,k,e) = this%d(1,j,k,e) &
                        + coef%G12(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dyt(j,j) &
                        + coef%G13(1,j,k,e) * dof%Xh%dxt(1,1)*dof%Xh%dzt(k,k)
@@ -113,8 +113,8 @@ contains
                end do
             end do
 
-            do i=1,lx,lx-1
-               do k=1,lz,lz-1
+            do i = 1,lx,lx-1
+               do k = 1,lz,lz-1
                   this%d(i,1,k,e) = this%d(i,1,k,e) &
                        + coef%G12(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dxt(i,i) &
                        + coef%G23(i,1,k,e) * dof%Xh%dyt(1,1)*dof%Xh%dzt(k,k)
@@ -123,8 +123,8 @@ contains
                        + coef%G23(i,ly,k,e) * dof%Xh%dyt(ly,ly)*dof%Xh%dzt(k,k)
                end do
             end do
-            do i=1,lx,lx-1
-               do j=1,ly,ly-1
+            do i = 1,lx,lx-1
+               do j = 1,ly,ly-1
                   this%d(i,j,1,e) = this%d(i,j,1,e) &
                        + coef%G13(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dxt(i,i) &
                        + coef%G23(i,j,1,e) * dof%Xh%dzt(1,1)*dof%Xh%dyt(j,j)

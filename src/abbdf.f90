@@ -242,7 +242,7 @@ contains
     SUBROUTINE SOLVE(F,A,K,N,ldim,IR,IC)
       integer :: IR(10),IC(10), N, N1, k, kk, i, j, ldim, ICM, URL, K1, ICI
       integer :: I1, IRI,IRL, IT
-      real(kind=rp) ::  A(ldim,10),F(ldim,10), G(2000), B, Y
+      real(kind=rp) ::  A(ldim,10), F(ldim,10), G(2000), B, Y
 
         
 
