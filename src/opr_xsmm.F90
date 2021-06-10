@@ -56,27 +56,27 @@ contains
 
     do e=1,msh%nelv
        if (msh%gdim .eq. 2) then
-          call mxm     (Xh%dx,Xh%lx,u(1,1,1,e),Xh%lx,du(1,1,1,e),lyz)
-          call col2    (du(1,1,1,e),dr(1,1,1,e),lxyz)
-          call mxm     (U(1,1,1,e),Xh%lx,Xh%dyt,Xh%ly,drst,Xh%ly)
-          call addcol3 (du(1,1,1,e),drst,ds(1,1,1,e),lxyz)
+          call mxm(Xh%dx, Xh%lx, u(1,1,1,e), Xh%lx, du(1,1,1,e), lyz)
+          call col2(du(1,1,1,e), dr(1,1,1,e), lxyz)
+          call mxm(U(1,1,1,e), Xh%lx, Xh%dyt, Xh%ly, drst, Xh%ly)
+          call addcol3(du(1,1,1,e), drst, ds(1,1,1,e),lxyz)
        else
           call libxsmm_mmcall(dudxyz_xmm1, Xh%dx, u(1,1,1,e), du(1,1,1,e))
-          call col2  (du(1,1,1,e),dr(1,1,1,e),lxyz)
+          call col2(du(1,1,1,e), dr(1,1,1,e), lxyz)
           do k=1,Xh%lz
              call libxsmm_mmcall(dudxyz_xmm2, u(1,1,k,e), Xh%dyt, drst(1,1,k))
           end do
-          call addcol3 (du(1,1,1,e),drst,ds(1,1,1,e),lxyz)
+          call addcol3(du(1,1,1,e), drst, ds(1,1,1,e), lxyz)
           call libxsmm_mmcall(dudxyz_xmm3, u(1,1,1,e), Xh%dzt, drst)
-          call addcol3 (du(1,1,1,e),drst,dt(1,1,1,e),lxyz)
+          call addcol3(du(1,1,1,e), drst, dt(1,1,1,e), lxyz)
        end if
     end do
-    call col2 (du,coef%jacinv,coef%dof%n_dofs)
+    call col2(du, coef%jacinv, coef%dof%n_dofs)
 
 #endif    
   end subroutine opr_xsmm_dudxyz
 
-  subroutine opr_xsmm_opgrad(ux,uy,uz,u,coef) 
+  subroutine opr_xsmm_opgrad(ux, uy, uz, u, coef) 
     type(coef_t), intent(in) :: coef  
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
@@ -102,7 +102,7 @@ contains
     
     do e=1,coef%msh%nelv
        if(coef%msh%gdim .eq. 3) then
-          call local_grad3_xsmm(ur,us,ut,u(1,e),N,coef%Xh%dx,coef%Xh%dxt)
+          call local_grad3_xsmm(ur, us, ut, u(1,e), N, coef%Xh%dx, coef%Xh%dxt)
           do i=1,coef%Xh%lxyz
              ux(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdx(i,1,1,e) &
                   + us(i)*coef%dsdx(i,1,1,e) &
@@ -116,7 +116,7 @@ contains
           enddo
        else
 
-          call local_grad2(ur,us,u(1,e),N,coef%Xh%dx,coef%Xh%dyt)
+          call local_grad2(ur, us, u(1,e), N, coef%Xh%dx, coef%Xh%dyt)
 
           do i=1,coef%Xh%lxyz
              ux(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdx(i,1,1,e) &
@@ -200,11 +200,11 @@ contains
     end if
 
     do e=1,coef%msh%nelv
-       call col3 (wx,coef%B(1,1,1,e),x(1,e),Xh%lxyz)
-       call invcol2(wx,coef%jac(1,1,1,e),Xh%lxyz)
-       call col3 (ta1,wx,dr(1,e),Xh%lxyz)
+       call col3(wx, coef%B(1,1,1,e), x(1,e), Xh%lxyz)
+       call invcol2(wx, coef%jac(1,1,1,e), Xh%lxyz)
+       call col3(ta1, wx, dr(1,e), Xh%lxyz)
        call libxsmm_mmcall(cdtp_xmm1, Xh%dxt, ta1, dtx(1,e))
-       call col3 (ta1,wx,ds(1,e),Xh%lxyz)
+       call col3 (ta1, wx, ds(1,e), Xh%lxyz)
        i1 = 1
        i2 = 1
        do iz=1,Xh%lz
@@ -212,10 +212,10 @@ contains
           i1 = i1 + n1
           i2 = i2 + n2
        enddo
-       call add2 (dtx(1,e),ta2,Xh%lxyz)
-       call col3 (ta1,wx,dt(1,e),Xh%lxyz)
+       call add2(dtx(1,e), ta2, Xh%lxyz)
+       call col3(ta1, wx, dt(1,e), Xh%lxyz)
        call libxsmm_mmcall(cdtp_xmm3, ta1, Xh%dz, ta2)
-       call add2 (dtx(1,e),ta2,Xh%lxyz)
+       call add2 (dtx(1,e), ta2, Xh%lxyz)
     enddo
 #endif
   end subroutine opr_xsmm_cdtp
@@ -253,7 +253,7 @@ contains
        if (gdim .eq. 3) then
           call libxsmm_mmcall(conv1_xmm1, Xh%dx, u(1,1,1,ie), dudr)
           do iz=1,Xh%lz
-             call libxsmm_mmcall(conv1_xmm2,u(1,1,iz,ie), Xh%dyt, duds(1,1,iz))
+             call libxsmm_mmcall(conv1_xmm2, u(1,1,iz,ie), Xh%dyt, duds(1,1,iz))
           enddo
           call libxsmm_mmcall(conv1_xmm3, u(1,1,1,ie), Xh%dzt, dudt)
           do i=1,Xh%lxyz
@@ -273,8 +273,8 @@ contains
           enddo
        else
           !        2D
-          call mxm (Xh%dx,Xh%lx,u(1,1,1,ie),Xh%lx,dudr,Xh%lyz)
-          call mxm (u(1,1,1,ie),Xh%lx,Xh%dyt,Xh%ly,duds,Xh%ly)
+          call mxm(Xh%dx, Xh%lx, u(1,1,1,ie), Xh%lx, dudr, Xh%lyz)
+          call mxm(u(1,1,1,ie), Xh%lx, Xh%dyt, Xh%ly, duds, Xh%ly)
           do i=1,Xh%lxyz
              du(i,ie) = coef%jacinv(i,1,1,ie)*( &
                   vx(i,1,1,ie)*( &
@@ -334,7 +334,7 @@ contains
     call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
-    call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+    call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_xsmm_curl
 
