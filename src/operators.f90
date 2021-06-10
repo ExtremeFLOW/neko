@@ -141,46 +141,46 @@ contains
     if (gdim .eq. 3) then
        do e=1,nelv
           do k=1,Xh%lz
-          do j=1,Xh%ly
-          do i=1,Xh%lx
-             ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
-                +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
-                +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
-             us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &
-                +   v(i,j,k,e)*coef%dsdy(i,j,k,e) &
-                +   w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
-             ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
-                +   v(i,j,k,e)*coef%dtdy(i,j,k,e) &
-                +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+             do j=1,Xh%ly
+                do i=1,Xh%lx
+                   ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
+                      +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
+                      +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                   us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &
+                      +   v(i,j,k,e)*coef%dsdy(i,j,k,e) &
+                      +   w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                   ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
+                      +   v(i,j,k,e)*coef%dtdy(i,j,k,e) &
+                      +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
  
-             cflr = abs(dt*ur*Xh%dr_inv(i))
-             cfls = abs(dt*us*Xh%ds_inv(j))
-             cflt = abs(dt*ut*Xh%dt_inv(k))
+                   cflr = abs(dt*ur*Xh%dr_inv(i))
+                   cfls = abs(dt*us*Xh%ds_inv(j))
+                   cflt = abs(dt*ut*Xh%dt_inv(k))
  
-             cflm = cflr + cfls + cflt
-             cfl_temp(1)  = max(cfl_temp(1),cflm)
-          enddo
-          enddo
-          enddo
-       enddo
+                   cflm = cflr + cfls + cflt
+                   cfl_temp(1)  = max(cfl_temp(1),cflm)
+                end do
+             end do
+          end do
+       end do
     else
        do e=1,nelv
           do j=1,Xh%ly
-          do i=1,Xh%lx
-             ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
-                +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
-             us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
-                +   v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
+             do i=1,Xh%lx
+                ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
+                   +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
+                us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
+                   +   v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
 
-             cflr = abs(dt*ur*Xh%dr_inv(i))
-             cfls = abs(dt*us*Xh%ds_inv(j))
+                cflr = abs(dt*ur*Xh%dr_inv(i))
+                cfls = abs(dt*us*Xh%ds_inv(j))
+                
+                cflm = cflr + cfls
+                cfl_temp(1)  = max(cfl_temp(1),cflm)
 
-             cflm = cflr + cfls
-             cfl_temp(1)  = max(cfl_temp(1),cflm)
-
-          enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     endif
     cfl = glmax(cfl_temp,1)
   end function cfl

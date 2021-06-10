@@ -63,61 +63,62 @@ contains
     integer, intent(in) :: gdim, nelv
     real(kind=rp), dimension(this%Xh%lxyz,nelv) , intent(in):: x, y, z
     integer :: i, j, k, e, n2, nz0, nzn, nx, lx1, n
-    associate(l => this%swplen, &
+
+    associate(l => this%swplen, Xh =>this%Xh, &
               llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
               lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
               lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
-    lx1 = this%Xh%lx
-    n2 = lx1-1
-    nz0 = 1
-    nzn = 1
-    nx  = lx1-2
-    if (gdim .eq. 3) then
-       nz0 = 0
-       nzn = n2
-    endif
-    call plane_space(lmr,lms,lmt,0,n2,this%Xh%wx,x,y,z,nx,n2,nz0,nzn, nelv, gdim)
-    n=n2+1
-    if (gdim .eq. 3) then
-       do e=1,nelv
-       do j=2,n2
-       do k=2,n2
-          l(1,k,j,e) = lmr(e)
-          l(n,k,j,e) = lmr(e)
-          l(k,1,j,e) = lms(e)
-          l(k,n,j,e) = lms(e)
-          l(k,j,1,e) = lmt(e)
-          l(k,j,n,e) = lmt(e)
-       enddo
-       enddo
-       enddo
+      lx1 = this%Xh%lx
+      n2 = lx1-1
+      nz0 = 1
+      nzn = 1
+      nx  = lx1-2
+      if (gdim .eq. 3) then
+         nz0 = 0
+         nzn = n2
+      endif
+      call plane_space(lmr,lms,lmt,0,n2,Xh%wx,x,y,z,nx,n2,nz0,nzn, nelv, gdim)
+      n = n2+1
+      if (gdim .eq. 3) then
+         do e = 1,nelv
+            do j = 2,n2
+               do k = 2,n2
+                  l(1,k,j,e) = lmr(e)
+                  l(n,k,j,e) = lmr(e)
+                  l(k,1,j,e) = lms(e)
+                  l(k,n,j,e) = lms(e)
+                  l(k,j,1,e) = lmt(e)
+                  l(k,j,n,e) = lmt(e)
+               end do
+            end do
+         end do
+         call gs_op_vector(this%gs_h,l,this%dof%n_dofs, GS_OP_ADD)
+         do e = 1,nelv
+            llr(e) = l(1,2,2,e)-lmr(e)
+            lrr(e) = l(n,2,2,e)-lmr(e)
+            lls(e) = l(2,1,2,e)-lms(e)
+            lrs(e) = l(2,n,2,e)-lms(e)
+            llt(e) = l(2,2,1,e)-lmt(e)
+            lrt(e) = l(2,2,n,e)-lmt(e)
+         enddo
+      else
+         do e = 1,nelv
+            do j = 2,n2
+               l(1,j,1,e) = lmr(e)
+               l(n,j,1,e) = lmr(e)
+               l(j,1,1,e) = lms(e)
+               l(j,n,1,e) = lms(e)
+            enddo
+         enddo
        call gs_op_vector(this%gs_h,l,this%dof%n_dofs, GS_OP_ADD)
-       do e=1,nelv
-          llr(e) = l(1,2,2,e)-lmr(e)
-          lrr(e) = l(n,2,2,e)-lmr(e)
-          lls(e) = l(2,1,2,e)-lms(e)
-          lrs(e) = l(2,n,2,e)-lms(e)
-          llt(e) = l(2,2,1,e)-lmt(e)
-          lrt(e) = l(2,2,n,e)-lmt(e)
-       enddo
-    else
-       do e=1,nelv
-       do j=2,n2
-          l(1,j,1,e) = lmr(e)
-          l(n,j,1,e) = lmr(e)
-          l(j,1,1,e) = lms(e)
-          l(j,n,1,e) = lms(e)
-       enddo
-       enddo
-       call gs_op_vector(this%gs_h,l,this%dof%n_dofs, GS_OP_ADD)
-       do e=1,nelv
+       do e = 1,nelv
           llr(e) = l(1,2,1,e)-lmr(e)
           lrr(e) = l(n,2,1,e)-lmr(e)
           lls(e) = l(2,1,1,e)-lms(e)
           lrs(e) = l(2,n,1,e)-lms(e)
        enddo
     endif
-    end associate
+  end associate
   end subroutine swap_lengths
 
   !> Here, spacing is based on harmonic mean.  pff 2/10/07
@@ -139,48 +140,48 @@ contains
     j2 = i2
     k2 = i2
     !   Now, for each element, compute lr,ls,lt between specified planes
-    do ie=1,nelv
+    do ie = 1,nelv
        if (gdim .eq. 3) then
           lr2  = 0d0
           wsum = 0d0
-          do k=1,nz
-          do j=1,ny
-             weight = w(j)*w(k)
-             lr2  = lr2  +   weight /&
-                          ( (x(i2,j,k,ie)-x(i1,j,k,ie))**2&
-                        +   (y(i2,j,k,ie)-y(i1,j,k,ie))**2&
-                        +   (z(i2,j,k,ie)-z(i1,j,k,ie))**2 )
-             wsum = wsum + weight
-          enddo
-          enddo
+          do k = 1,nz
+             do j = 1,ny
+                weight = w(j)*w(k)
+                lr2  = lr2  +   weight /&
+                     ( (x(i2,j,k,ie)-x(i1,j,k,ie))**2&
+                     +   (y(i2,j,k,ie)-y(i1,j,k,ie))**2&
+                     +   (z(i2,j,k,ie)-z(i1,j,k,ie))**2 )
+                wsum = wsum + weight
+             end do
+          end do
           lr2     = lr2/wsum
           lr(ie)  = 1d0/sqrt(lr2)
           ls2 = 0d0
           wsum = 0d0
-          do k=1,nz
-          do i=1,nx
-             weight = w(i)*w(k)
-             ls2  = ls2  +   weight / &
-                          ( (x(i,j2,k,ie)-x(i,j1,k,ie))**2 &
-                        +   (y(i,j2,k,ie)-y(i,j1,k,ie))**2 &
-                        +   (z(i,j2,k,ie)-z(i,j1,k,ie))**2 )
-             wsum = wsum + weight
-          enddo
-          enddo
+          do k = 1,nz
+             do i = 1,nx
+                weight = w(i)*w(k)
+                ls2  = ls2  +   weight / &
+                     ( (x(i,j2,k,ie)-x(i,j1,k,ie))**2 &
+                     +   (y(i,j2,k,ie)-y(i,j1,k,ie))**2 &
+                     +   (z(i,j2,k,ie)-z(i,j1,k,ie))**2 )
+                wsum = wsum + weight
+             end do
+          end do
           ls2     = ls2/wsum
           ls(ie)  = 1d0/sqrt(ls2)
           lt2 = 0d0
           wsum = 0d0
           do j=1,ny
-          do i=1,nx
-             weight = w(i)*w(j)
-             lt2  = lt2  +   weight / &
-                          ( (x(i,j,k2,ie)-x(i,j,k1,ie))**2 &
-                        +   (y(i,j,k2,ie)-y(i,j,k1,ie))**2 &
-                        +   (z(i,j,k2,ie)-z(i,j,k1,ie))**2 )
-             wsum = wsum + weight
-          enddo
-          enddo
+             do i=1,nx
+                weight = w(i)*w(j)
+                lt2  = lt2  +   weight / &
+                     ( (x(i,j,k2,ie)-x(i,j,k1,ie))**2 &
+                     +   (y(i,j,k2,ie)-y(i,j,k1,ie))**2 &
+                     +   (z(i,j,k2,ie)-z(i,j,k1,ie))**2 )
+                wsum = wsum + weight
+             end do
+          end do
           lt2     = lt2/wsum
           lt(ie)  = 1d0/sqrt(lt2)
        else              ! 2D
@@ -258,8 +259,8 @@ contains
                      d(il,ie) = 0d0
                   endif
                   il=il+1
-               enddo
-            enddo
+               end do
+            end do
          else
             eps = 1d-5 * (vlmax(lr(2),nr-2) + &
                  vlmax(ls(2),ns-2) + vlmax(lt(2),nt-2))
@@ -273,11 +274,11 @@ contains
                         d(il,ie) = 0d0
                      endif
                      il=il+1
-                  enddo
-               enddo
-            enddo
+                  end do
+               end do
+            end do
          endif
-      enddo
+      end do
     end associate
   end subroutine fdm_setup_fast
   
@@ -305,30 +306,32 @@ contains
   !! A -- symm.
   !! B -- symm., pos. definite
   subroutine generalev(a,b,lam,n,lx,w)
-      integer, intent(in) :: n, lx
-      real(kind=rp), intent(inout) :: a(n,n),b(n,n),lam(n),w(n,n)
-      real(kind=dp) :: a2(n,n),b2(n,n),lam2(n),w2(n,n)
-      integer :: lbw, lw
-      real(kind=rp) :: bw(4*(lx+2)**3)
-      real(kind=dp) :: bw2(4*(lx+2)**3)
-      integer :: info = 0
-      lbw = 4*(lx+2)**3
-      lw = n*n
+    integer, intent(in) :: n, lx
+    real(kind=rp), intent(inout) :: a(n,n),b(n,n),lam(n),w(n,n)
+    real(kind=dp) :: a2(n,n),b2(n,n),lam2(n),w2(n,n)
+    integer :: lbw, lw
+    real(kind=rp) :: bw(4*(lx+2)**3)
+    real(kind=dp) :: bw2(4*(lx+2)**3)
+    integer :: info = 0
+    lbw = 4*(lx+2)**3
+    lw = n*n
       if (rp .eq. dp) then
-         call dsygv(1,'V','U',n,a,n,b,n,lam,bw,lbw,info)
+         call dsygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
       else if ( rp .eq. sp) then
-         call ssygv(1,'V','U',n,a,n,b,n,lam,bw,lbw,info)
+         call ssygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
       else
-         a2 = real(a,dp)
-         b2 = real(b,dp)
-         lam2 = real(lam,dp)
-         w2 = real(w,dp)
-         call dsygv(1,'V','U',n,a2,n,b2,n,lam2,bw2,lbw,info)
-         a = real(a2,rp)
-         b = real(b2,rp)
-         lam = real(lam2,rp)
-         w = real(w2,rp)
-         if (pe_rank .eq. 0) call neko_warning('Real precision choice not supported for fdm, treating it as double')
+         a2 = real(a, dp)
+         b2 = real(b, dp)
+         lam2 = real(lam, dp)
+         w2 = real(w, dp)
+         call dsygv(1, 'V', 'U', n, a2, n, b2, n, lam2, bw2, lbw, info)
+         a = real(a2, rp)
+         b = real(b2, rp)
+         lam = real(lam2, rp)
+         w = real(w2, rp)
+         if (pe_rank .eq. 0) then
+            call neko_warning('Real precision choice not supported for fdm, treating it as double')
+         end if
       end if
 
   end subroutine generalev
@@ -346,30 +349,30 @@ contains
     
     call rzero(a,(n+3)*(n+3))
     fac = 2d0/lm
-    a(1,1)=1d0
-    a(n+1,n+1)=1d0
+    a(1,1) = 1d0
+    a(n+1,n+1) = 1d0
     do j=i0,i1
        do i=i0,i1
-          a(i+1,j+1)=fac*ah(i,j)
+          a(i+1,j+1) = fac*ah(i,j)
        enddo
     enddo
     if(lbc.eq.0) then
        fac = 2d0/ll
-       a(0,0)=fac*ah(n-1,n-1)
-       a(1,0)=fac*ah(n  ,n-1)
-       a(0,1)=fac*ah(n-1,n  )
-       a(1,1)=a(1,1)+fac*ah(n  ,n  )
+       a(0,0) = fac*ah(n-1,n-1)
+       a(1,0) = fac*ah(n  ,n-1)
+       a(0,1) = fac*ah(n-1,n  )
+       a(1,1) = a(1,1)+fac*ah(n  ,n  )
     else
        a(0,0)=1d0
     endif
     if(rbc.eq.0) then
        fac = 2d0/lr
-       a(n+1,n+1)=a(n+1,n+1)+fac*ah(0,0)
-       a(n+2,n+1)=fac*ah(1,0)
-       a(n+1,n+2)=fac*ah(0,1)
-       a(n+2,n+2)=fac*ah(1,1)
+       a(n+1,n+1) = a(n+1,n+1)+fac*ah(0,0)
+       a(n+2,n+1) = fac*ah(1,0)
+       a(n+1,n+2) = fac*ah(0,1)
+       a(n+2,n+2) = fac*ah(1,1)
     else
-       a(n+2,n+2)=1d0
+       a(n+2,n+2) = 1d0
     endif
   end subroutine fdm_setup_fast1d_a
 
@@ -385,27 +388,27 @@ contains
     i1=n
     if(rbc.eq.1) i1=n-1
     
-    call rzero(b,(n+3)*(n+3))
+    call rzero(b, (n+3)*(n+3))
     fac = 0.5d0*lm
-    b(1,1)=1.0d0
-    b(n+1,n+1)=1.0d0
-    do i=i0,i1
-       b(i+1,i+1)=fac*bh(i)
-    enddo
+    b(1,1) = 1.0d0
+    b(n+1,n+1) = 1.0d0
+    do i = i0,i1
+       b(i+1,i+1) = fac*bh(i)
+    end do
     if(lbc.eq.0) then
        fac = 0.5d0*ll
-       b(0,0)=fac*bh(n-1)
-       b(1,1)=b(1,1)+fac*bh(n  )
+       b(0,0) = fac*bh(n-1)
+       b(1,1) = b(1,1)+fac*bh(n  )
     else
-       b(0,0)=1.0d0
-    endif
+       b(0,0) = 1.0d0
+    end if
     if(rbc.eq.0) then
        fac = 0.5d0*lr
-       b(n+1,n+1)=b(n+1,n+1)+fac*bh(0)
-       b(n+2,n+2)=fac*bh(1)
+       b(n+1,n+1) = b(n+1,n+1)+fac*bh(0)
+       b(n+2,n+2) = fac*bh(1)
     else
-       b(n+2,n+2)=1.0d0
-    endif
+       b(n+2,n+2) = 1.0d0
+    end if
   end subroutine fdm_setup_fast1d_b
 
   subroutine fdm_free(this)
@@ -451,7 +454,7 @@ contains
           call tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie))
           do i=1,nn
              r(i,ie)=d(i,ie)*e(i,ie)
-          enddo
+          end do
           call tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie))
        enddo
     else
@@ -459,9 +462,9 @@ contains
           call tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie),s(1,1,3,ie))
           do i=1,nn
              r(i,ie)=d(i,ie)*e(i,ie)
-          enddo
+          end do
           call tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie),s(1,2,3,ie))
-       enddo
-    endif
+       end do
+    end if
   end subroutine fdm_do_fast
 end module fdm

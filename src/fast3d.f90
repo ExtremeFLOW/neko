@@ -93,39 +93,39 @@ contains
     nm = n-1
     n2 = n-2
     call zwgll (z,b,np)
-    do i=0,n
+    do i = 0,n
        call fd_weights_full(z(i),z,n,1,w)
-       do j=0,n
+       do j = 0,n
           d(i,j) = w(j+np)                   !  Derivative matrix
-       enddo
-    enddo
+       end do
+    end do
 
     if (n.eq.1) return                       !  No interpolation for n=1
 
-    do i=0,n
+    do i = 0,n
        call fd_weights_full(z(i),z(1),n2,1,w(1))
-       do j=1,nm
+       do j = 1,nm
           jgll(i,j) = w(j   )                  !  Interpolation matrix
           dgll(i,j) = w(j+nm)                  !  Derivative    matrix
-       enddo
-    enddo
+       end do
+    end do
     call rzero(a,np*np)
-    do j=0,n
-    do i=0,n
-       do k=0,n
+    do j = 0,n
+    do i = 0,n
+       do k = 0,n
           a(i,j) = a(i,j) + d(k,i)*b(k)*d(k,j)
-       enddo
+       end do
        c(i,j) = b(i)*d(i,j)
-    enddo
-    enddo
+    end do
+    end do
     call zwgl (zgl,bgl,nm)
-    do i=1,n-1
+    do i = 1,n-1
        call fd_weights_full(zgl(i),z,n,1,w)
-       do j=0,n
+       do j = 0,n
           jgl(i,j) = w(j   )                  !  Interpolation matrix
           dgl(i,j) = w(j+np)                  !  Derivative    matrix
-       enddo
-    enddo
+       end do
+    end do
   end subroutine semhat
 
 end module fast3d
