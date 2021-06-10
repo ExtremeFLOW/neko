@@ -25,6 +25,7 @@ module parameters
      logical :: loadb        !< Load-balancing
      real(kind=rp) :: flow_rate !< Volume flow speed
      integer :: proj_dim     !< Projection space for pressure solution
+     integer :: time_order     !< Order of the time stepping
 
   end type param_t
 
@@ -70,11 +71,12 @@ contains
     logical :: loadb = .false.
     real(kind=rp) :: flow_rate = 0d0
     integer :: proj_dim = 20
+    integer :: time_order = 3
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
          T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
-         proj_dim
+         proj_dim, time_order
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -99,6 +101,7 @@ contains
     param%p%loadb = loadb
     param%p%flow_rate = flow_rate
     param%p%proj_dim = proj_dim
+    param%p%time_order = time_order
 
   end subroutine param_read
 
@@ -115,11 +118,11 @@ contains
     real(kind=rp), dimension(3) :: uinf
     logical :: output_part, avflow
     logical :: output_bdry, loadb
-    integer :: nsamples, vol_flow_dir, proj_dim
+    integer :: nsamples, vol_flow_dir, proj_dim, time_order
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
          T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
-         proj_dim
+         proj_dim, time_order
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -142,6 +145,7 @@ contains
     loadb = param%p%loadb
     flow_rate = param%p%flow_rate
     proj_dim = param%p%proj_dim
+    time_order = param%p%time_order
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 

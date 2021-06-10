@@ -74,8 +74,8 @@ contains
     do j=1,n3
        do i=1,n1
           c(i,j) = a(i,1)*b(1,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf1
   !-----------------------------------------------------------------------
   subroutine mxf2(a,n1,b,n2,c,n3)
@@ -87,8 +87,8 @@ contains
        do i=1,n1
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf2
   !-----------------------------------------------------------------------
   subroutine mxf3(a,n1,b,n2,c,n3)
@@ -101,8 +101,8 @@ contains
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j) &
                + a(i,3)*b(3,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf3
   !-----------------------------------------------------------------------
   subroutine mxf4(a,n1,b,n2,c,n3)
@@ -116,8 +116,8 @@ contains
                + a(i,2)*b(2,j) & 
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf4
   !-----------------------------------------------------------------------
   subroutine mxf5(a,n1,b,n2,c,n3)
@@ -132,8 +132,8 @@ contains
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf5
   !-----------------------------------------------------------------------
   subroutine mxf6(a,n1,b,n2,c,n3)
@@ -149,8 +149,8 @@ contains
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf6
   !-----------------------------------------------------------------------
   subroutine mxf7(a,n1,b,n2,c,n3)
@@ -167,8 +167,8 @@ contains
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf7
   !-----------------------------------------------------------------------
   subroutine mxf8(a,n1,b,n2,c,n3)
@@ -186,8 +186,8 @@ contains
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf8
   !-----------------------------------------------------------------------
   subroutine mxf9(a,n1,b,n2,c,n3)
@@ -206,8 +206,8 @@ contains
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf9
   !-----------------------------------------------------------------------
   subroutine mxf10(a,n1,b,n2,c,n3)
@@ -227,8 +227,8 @@ contains
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf10
   !-----------------------------------------------------------------------
   subroutine mxf11(a,n1,b,n2,c,n3)
@@ -249,8 +249,8 @@ contains
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf11
   !-----------------------------------------------------------------------
   subroutine mxf12(a,n1,b,n2,c,n3)
@@ -272,8 +272,8 @@ contains
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf12
   !-----------------------------------------------------------------------
   subroutine mxf13(a,n1,b,n2,c,n3)
@@ -296,8 +296,8 @@ contains
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf13
   !-----------------------------------------------------------------------
   subroutine mxf14(a,n1,b,n2,c,n3)
@@ -321,8 +321,8 @@ contains
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j) &
                + a(i,14)*b(14,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf14
   !-----------------------------------------------------------------------
   subroutine mxf15(a,n1,b,n2,c,n3)
@@ -347,8 +347,8 @@ contains
                + a(i,13)*b(13,j) &
                + a(i,14)*b(14,j) &
                + a(i,15)*b(15,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf15
   !-----------------------------------------------------------------------
   subroutine mxf16(a,n1,b,n2,c,n3)
@@ -374,8 +374,8 @@ contains
                + a(i,14)*b(14,j) &
                + a(i,15)*b(15,j) &
                + a(i,16)*b(16,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf16
   !-----------------------------------------------------------------------
   subroutine mxf17(a,n1,b,n2,c,n3)
@@ -402,8 +402,8 @@ contains
                + a(i,15)*b(15,j) &
                + a(i,16)*b(16,j) &
                + a(i,17)*b(17,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf17
   !-----------------------------------------------------------------------
   subroutine mxf18(a,n1,b,n2,c,n3)
@@ -431,8 +431,8 @@ contains
                + a(i,16)*b(16,j) &
                + a(i,17)*b(17,j) &
                + a(i,18)*b(18,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf18
   !-----------------------------------------------------------------------
   subroutine mxf19(a,n1,b,n2,c,n3)
@@ -461,8 +461,8 @@ contains
                + a(i,17)*b(17,j) &
                + a(i,18)*b(18,j) &
                + a(i,19)*b(19,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf19
   !-----------------------------------------------------------------------
   subroutine mxf20(a,n1,b,n2,c,n3)
@@ -492,8 +492,8 @@ contains
                + a(i,18)*b(18,j) &
                + a(i,19)*b(19,j) &
                + a(i,20)*b(20,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf20
   !-----------------------------------------------------------------------
   subroutine mxf21(a,n1,b,n2,c,n3)
@@ -524,8 +524,8 @@ contains
                + a(i,19)*b(19,j) &
                + a(i,20)*b(20,j) &
                + a(i,21)*b(21,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf21
   !-----------------------------------------------------------------------
   subroutine mxf22(a,n1,b,n2,c,n3)
@@ -557,8 +557,8 @@ contains
                + a(i,20)*b(20,j) &
                + a(i,21)*b(21,j) &
                + a(i,22)*b(22,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf22
   !-----------------------------------------------------------------------
   subroutine mxf23(a,n1,b,n2,c,n3)
@@ -591,8 +591,8 @@ contains
                + a(i,21)*b(21,j) &
                + a(i,22)*b(22,j) &
                + a(i,23)*b(23,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf23
   !-----------------------------------------------------------------------
   subroutine mxf24(a,n1,b,n2,c,n3)
@@ -626,8 +626,8 @@ contains
                + a(i,22)*b(22,j) &
                + a(i,23)*b(23,j) &
                + a(i,24)*b(24,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxf24
   !-----------------------------------------------------------------------
 
@@ -682,7 +682,7 @@ contains
              s42 = s42 + a(i+3,l)*b(l,j+1)
              s43 = s43 + a(i+3,l)*b(l,j+2)
              s44 = s44 + a(i+3,l)*b(l,j+3)
-          enddo
+          end do
           c(i,j)     = s11 
           c(i,j+1)   = s12 
           c(i,j+2)   = s13
@@ -703,7 +703,7 @@ contains
           c(i+1,j+3) = s24
           c(i+2,j+3) = s34
           c(i+3,j+3) = s44
-       enddo
+       end do
        ! Residual when n is not multiple of 4
        if (nresid .ne. 0) then
           if (nresid .eq. 1) then
@@ -716,7 +716,7 @@ contains
                 s21 = s21 + a(i+1,l)*b(l,n)
                 s31 = s31 + a(i+2,l)*b(l,n)
                 s41 = s41 + a(i+3,l)*b(l,n)
-             enddo
+             end do
              c(i,n)     = s11 
              c(i+1,n)   = s21 
              c(i+2,n)   = s31 
@@ -742,7 +742,7 @@ contains
 
                 s41 = s41 + a(i+3,l)*b(l,j)
                 s42 = s42 + a(i+3,l)*b(l,j+1)
-             enddo
+             end do
              c(i,j)     = s11 
              c(i,j+1)   = s12
 
@@ -782,7 +782,7 @@ contains
                 s41 = s41 + a(i+3,l)*b(l,j)
                 s42 = s42 + a(i+3,l)*b(l,j+1)
                 s43 = s43 + a(i+3,l)*b(l,j+2)
-             enddo
+             end do
              c(i,j)     = s11 
              c(i+1,j)   = s21 
              c(i+2,j)   = s31 
@@ -797,7 +797,7 @@ contains
              c(i+3,j+2) = s43
           endif
        endif
-    enddo
+    end do
 
     ! Residual when m is not multiple of 4
     if (mresid .eq. 0) then
@@ -813,12 +813,12 @@ contains
              s12 = s12 + a(m,l)*b(l,j+1)
              s13 = s13 + a(m,l)*b(l,j+2)
              s14 = s14 + a(m,l)*b(l,j+3)
-          enddo
+          end do
           c(m,j)     = s11 
           c(m,j+1)   = s12 
           c(m,j+2)   = s13
           c(m,j+3)   = s14
-       enddo
+       end do
        ! mresid is 1, check nresid
        if (nresid .eq. 0) then
           return
@@ -826,7 +826,7 @@ contains
           s11 = 0.0d0
           do l=1,k
              s11 = s11 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m,n) = s11
           return
        elseif (nresid .eq. 2) then
@@ -835,7 +835,7 @@ contains
           do l=1,k
              s11 = s11 + a(m,l)*b(l,n-1)
              s12 = s12 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m,n-1) = s11
           c(m,n) = s12
           return
@@ -847,7 +847,7 @@ contains
              s11 = s11 + a(m,l)*b(l,n-2)
              s12 = s12 + a(m,l)*b(l,n-1)
              s13 = s13 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m,n-2) = s11
           c(m,n-1) = s12
           c(m,n) = s13
@@ -873,7 +873,7 @@ contains
              s22 = s22 + a(m,l)*b(l,j+1)
              s23 = s23 + a(m,l)*b(l,j+2)
              s24 = s24 + a(m,l)*b(l,j+3)
-          enddo
+          end do
           c(m-1,j)   = s11 
           c(m-1,j+1) = s12 
           c(m-1,j+2) = s13
@@ -882,7 +882,7 @@ contains
           c(m,j+1)   = s22 
           c(m,j+2)   = s23
           c(m,j+3)   = s24
-       enddo
+       end do
        ! mresid is 2, check nresid
        if (nresid .eq. 0) then
           return
@@ -892,7 +892,7 @@ contains
           do l=1,k
              s11 = s11 + a(m-1,l)*b(l,n)
              s21 = s21 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-1,n) = s11
           c(m,n) = s21
           return
@@ -906,7 +906,7 @@ contains
              s12 = s12 + a(m-1,l)*b(l,n)
              s21 = s21 + a(m,l)*b(l,n-1)
              s22 = s22 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-1,n-1) = s11
           c(m-1,n)   = s12
           c(m,n-1)   = s21
@@ -926,7 +926,7 @@ contains
              s21 = s21 + a(m,l)*b(l,n-2)
              s22 = s22 + a(m,l)*b(l,n-1)
              s23 = s23 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-1,n-2) = s11
           c(m-1,n-1) = s12
           c(m-1,n)   = s13
@@ -969,7 +969,7 @@ contains
              s32 = s32 + a(m,l)*b(l,j+1)
              s33 = s33 + a(m,l)*b(l,j+2)
              s34 = s34 + a(m,l)*b(l,j+3)
-          enddo
+          end do
           c(m-2,j)   = s11 
           c(m-2,j+1) = s12 
           c(m-2,j+2) = s13
@@ -984,7 +984,7 @@ contains
           c(m,j+1)   = s32
           c(m,j+2)   = s33
           c(m,j+3)   = s34
-       enddo
+       end do
        ! mresid is 3, check nresid
        if (nresid .eq. 0) then
           return
@@ -996,7 +996,7 @@ contains
              s11 = s11 + a(m-2,l)*b(l,n)
              s21 = s21 + a(m-1,l)*b(l,n)
              s31 = s31 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-2,n) = s11
           c(m-1,n) = s21
           c(m,n) = s31
@@ -1015,7 +1015,7 @@ contains
              s22 = s22 + a(m-1,l)*b(l,n)
              s31 = s31 + a(m,l)*b(l,n-1)
              s32 = s32 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-2,n-1) = s11
           c(m-2,n)   = s12
           c(m-1,n-1) = s21
@@ -1043,7 +1043,7 @@ contains
              s31 = s31 + a(m,l)*b(l,n-2)
              s32 = s32 + a(m,l)*b(l,n-1)
              s33 = s33 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-2,n-2) = s11
           c(m-2,n-1) = s12
           c(m-2,n)   = s13
@@ -1076,22 +1076,22 @@ contains
                + a(i,2)*b(2,j+2)
           c(i,j+3) = a(i,1)*b(1,j+3) &
                + a(i,2)*b(2,j+3)
-       enddo
-    enddo
+       end do
+    end do
     if (nresid .eq. 0) then
        return
     elseif (nresid .eq. 1) then
        do i=1,m
           c(i,n) = a(i,1)*b(1,n) &
                + a(i,2)*b(2,n)
-       enddo
+       end do
     elseif (nresid .eq. 2) then
        do i=1,m
           c(i,n-1) = a(i,1)*b(1,n-1) &
                + a(i,2)*b(2,n-1)
           c(i,n) = a(i,1)*b(1,n) &
                + a(i,2)*b(2,n)
-       enddo
+       end do
     else
        do i=1,m
           c(i,n-2) = a(i,1)*b(1,n-2) &
@@ -1100,7 +1100,7 @@ contains
                + a(i,2)*b(2,n-1)
           c(i,n) = a(i,1)*b(1,n) &
                + a(i,2)*b(2,n)
-       enddo
+       end do
     endif
 
   end subroutine mxm44_2
@@ -1116,7 +1116,7 @@ contains
        m = mod(i,31) + 3
        a(i) = -.25*(a(i)+a(i+1)) + (x*x + k + l)/(x*x+m)
        b(i) = -.25*(b(i)+b(i+1)) + (x*x + k + m)/(x*x+l)
-    enddo
+    end do
     a(n) = -.25*(a(n)+a(n)) + (x*x + k + l)/(x*x+m)
     b(n) = -.25*(b(n)+b(n)) + (x*x + k + m)/(x*x+l)
     return
@@ -1187,8 +1187,8 @@ contains
     do j=1,n3
        do i=1,n1
           c(i,j) = a(i,j)+b(i,j)
-       enddo
-    enddo
+       end do
+    end do
 
   end subroutine madd
   !-----------------------------------------------------------------------
@@ -1263,8 +1263,8 @@ contains
     do j=1,n3
        do i=1,n1
           c(i,j) = a(i,1)*b(1,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_1
 
   subroutine mxmur2_2(a,n1,b,n2,c,n3)
@@ -1276,8 +1276,8 @@ contains
        do i=1,n1
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_2
 
   subroutine mxmur2_3(a,n1,b,n2,c,n3)
@@ -1290,8 +1290,8 @@ contains
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j) &
                + a(i,3)*b(3,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_3
 
   subroutine mxmur2_4(a,n1,b,n2,c,n3)
@@ -1305,8 +1305,8 @@ contains
                + a(i,2)*b(2,j) &
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_4
 
   subroutine mxmur2_5(a,n1,b,n2,c,n3)
@@ -1321,8 +1321,8 @@ contains
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_5
 
   subroutine mxmur2_6(a,n1,b,n2,c,n3)
@@ -1338,8 +1338,8 @@ contains
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_6
 
   subroutine mxmur2_7(a,n1,b,n2,c,n3)
@@ -1356,8 +1356,8 @@ contains
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_7
 
   subroutine mxmur2_8(a,n1,b,n2,c,n3)
@@ -1375,8 +1375,8 @@ contains
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_8
 
   subroutine mxmur2_9(a,n1,b,n2,c,n3)
@@ -1395,8 +1395,8 @@ contains
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_9
 
   subroutine mxmur2_10(a,n1,b,n2,c,n3)
@@ -1416,8 +1416,8 @@ contains
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_10
 
   subroutine mxmur2_11(a,n1,b,n2,c,n3)
@@ -1438,8 +1438,8 @@ contains
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_11
 
   subroutine mxmur2_12(a,n1,b,n2,c,n3)
@@ -1461,8 +1461,8 @@ contains
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_12
 
   subroutine mxmur2_13(a,n1,b,n2,c,n3)
@@ -1485,8 +1485,8 @@ contains
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_13
 
   subroutine mxmur2_14(a,n1,b,n2,c,n3)
@@ -1510,8 +1510,8 @@ contains
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j) &
                + a(i,14)*b(14,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_14
 
   subroutine mxmur2_15(a,n1,b,n2,c,n3)
@@ -1536,8 +1536,8 @@ contains
                + a(i,13)*b(13,j) &
                + a(i,14)*b(14,j) & 
                + a(i,15)*b(15,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_15
 
   subroutine mxmur2_16(a,n1,b,n2,c,n3)
@@ -1563,8 +1563,8 @@ contains
                + a(i,14)*b(14,j) &
                + a(i,15)*b(15,j) &
                + a(i,16)*b(16,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmur2_16
   !-----------------------------------------------------------------------
   subroutine mxmUR3(a,n1,b,n2,c,n3)
@@ -1669,9 +1669,9 @@ contains
           c(i,14)  =  c(i,14) + a(i,k) * tmp14
           c(i,15)  =  c(i,15) + a(i,k) * tmp15
           c(i,16)  =  c(i,16) + a(i,k) * tmp16
-       enddo
+       end do
 
-    enddo
+    end do
   end subroutine mxmur3_16
 
   subroutine mxmur3_15(a,n1,b,n2,c,n3)
@@ -1711,9 +1711,9 @@ contains
           c(i,13)  =  c(i,13) + a(i,k) * tmp13
           c(i,14)  =  c(i,14) + a(i,k) * tmp14
           c(i,15)  =  c(i,15) + a(i,k) * tmp15
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_15
 
@@ -1753,9 +1753,9 @@ contains
           c(i,12)  =  c(i,12) + a(i,k) * tmp12
           c(i,13)  =  c(i,13) + a(i,k) * tmp13
           c(i,14)  =  c(i,14) + a(i,k) * tmp14
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_14
 
@@ -1792,9 +1792,9 @@ contains
           c(i,11)  =  c(i,11) + a(i,k) * tmp11
           c(i,12)  =  c(i,12) + a(i,k) * tmp12
           c(i,13)  =  c(i,13) + a(i,k) * tmp13
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_13
 
@@ -1829,9 +1829,9 @@ contains
           c(i,10)  =  c(i,10) + a(i,k) * tmp10
           c(i,11)  =  c(i,11) + a(i,k) * tmp11
           c(i,12)  =  c(i,12) + a(i,k) * tmp12
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_12
 
@@ -1864,9 +1864,9 @@ contains
           c(i, 9)  =  c(i, 9) + a(i,k) * tmp9
           c(i,10)  =  c(i,10) + a(i,k) * tmp10
           c(i,11)  =  c(i,11) + a(i,k) * tmp11
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_11
 
@@ -1897,9 +1897,9 @@ contains
           c(i, 8)  =  c(i, 8) + a(i,k) * tmp8
           c(i, 9)  =  c(i, 9) + a(i,k) * tmp9
           c(i,10)  =  c(i,10) + a(i,k) * tmp10
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_10
 
@@ -1928,9 +1928,9 @@ contains
           c(i, 7)  =  c(i, 7) + a(i,k) * tmp7
           c(i, 8)  =  c(i, 8) + a(i,k) * tmp8
           c(i, 9)  =  c(i, 9) + a(i,k) * tmp9
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_9
 
@@ -1957,9 +1957,9 @@ contains
           c(i, 6)  =  c(i, 6) + a(i,k) * tmp6
           c(i, 7)  =  c(i, 7) + a(i,k) * tmp7
           c(i, 8)  =  c(i, 8) + a(i,k) * tmp8
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_8
 
@@ -1984,9 +1984,9 @@ contains
           c(i, 5)  =  c(i, 5) + a(i,k) * tmp5
           c(i, 6)  =  c(i, 6) + a(i,k) * tmp6
           c(i, 7)  =  c(i, 7) + a(i,k) * tmp7
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_7
 
@@ -2009,9 +2009,9 @@ contains
           c(i, 4)  =  c(i, 4) + a(i,k) * tmp4
           c(i, 5)  =  c(i, 5) + a(i,k) * tmp5
           c(i, 6)  =  c(i, 6) + a(i,k) * tmp6
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_6
 
@@ -2032,9 +2032,9 @@ contains
           c(i, 3)  =  c(i, 3) + a(i,k) * tmp3
           c(i, 4)  =  c(i, 4) + a(i,k) * tmp4
           c(i, 5)  =  c(i, 5) + a(i,k) * tmp5
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_5
 
@@ -2053,9 +2053,9 @@ contains
           c(i, 2)  =  c(i, 2) + a(i,k) * tmp2
           c(i, 3)  =  c(i, 3) + a(i,k) * tmp3
           c(i, 4)  =  c(i, 4) + a(i,k) * tmp4
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_4
 
@@ -2072,9 +2072,9 @@ contains
           c(i, 1)  =  c(i, 1) + a(i,k) * tmp1
           c(i, 2)  =  c(i, 2) + a(i,k) * tmp2
           c(i, 3)  =  c(i, 3) + a(i,k) * tmp3
-       enddo
+       end do
 
-    enddo
+    end do
 
   end subroutine mxmur3_3
 
@@ -2089,9 +2089,9 @@ contains
        do i=1,n1
           c(i, 1)  =  c(i, 1) + a(i,k) * tmp1
           c(i, 2)  =  c(i, 2) + a(i,k) * tmp2
-       enddo
+       end do
 
-    enddo
+    end do
   end subroutine mxmur3_2
 
   subroutine mxmur3_1(a,n1,b,n2,c,n3)
@@ -2103,8 +2103,8 @@ contains
        tmp1  =  b(k, 1)
        do i=1,n1
           c(i, 1)  =  c(i, 1) + a(i,k) * tmp1
-       enddo
-    enddo
+       end do
+    end do
 
   end subroutine mxmur3_1
   !----------------------------------------------------------------------
@@ -2203,8 +2203,8 @@ contains
     do j=1,n3
        do i=1,n1
           c(i,j) = a(i,1)*b(1,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_1
   !-----------------------------------------------------------------------
   subroutine mxmfb_2(a,n1,b,n2,c,n3)
@@ -2216,8 +2216,8 @@ contains
        do i=1,n1
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_2
   !-----------------------------------------------------------------------
   subroutine mxmfb_3(a,n1,b,n2,c,n3)
@@ -2230,8 +2230,8 @@ contains
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j) &
                + a(i,3)*b(3,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_3
   !-----------------------------------------------------------------------
   subroutine mxmfb_4(a,n1,b,n2,c,n3)
@@ -2245,8 +2245,8 @@ contains
                + a(i,2)*b(2,j) &
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_4
   !-----------------------------------------------------------------------
   subroutine mxmfb_5(a,n1,b,n2,c,n3)
@@ -2261,8 +2261,8 @@ contains
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_5
   !-----------------------------------------------------------------------
   subroutine mxmfb_6(a,n1,b,n2,c,n3)
@@ -2278,8 +2278,8 @@ contains
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_6
   !-----------------------------------------------------------------------
   subroutine mxmfb_7(a,n1,b,n2,c,n3)
@@ -2296,8 +2296,8 @@ contains
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_7
   !-----------------------------------------------------------------------
   subroutine mxmfb_8(a,n1,b,n2,c,n3)
@@ -2315,8 +2315,8 @@ contains
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_8
   !-----------------------------------------------------------------------
   subroutine mxmfb_9(a,n1,b,n2,c,n3)
@@ -2335,8 +2335,8 @@ contains
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_9
   !-----------------------------------------------------------------------
   subroutine mxmfb_10(a,n1,b,n2,c,n3)
@@ -2356,8 +2356,8 @@ contains
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_10
   !-----------------------------------------------------------------------
   subroutine mxmfb_11(a,n1,b,n2,c,n3)
@@ -2378,8 +2378,8 @@ contains
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_11
   !-----------------------------------------------------------------------
   subroutine mxmfb_12(a,n1,b,n2,c,n3)
@@ -2401,8 +2401,8 @@ contains
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_12
   !-----------------------------------------------------------------------
   subroutine mxmfb_13(a,n1,b,n2,c,n3)
@@ -2425,8 +2425,8 @@ contains
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_13
   !-----------------------------------------------------------------------
   subroutine mxmfb_14(a,n1,b,n2,c,n3)
@@ -2450,8 +2450,8 @@ contains
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j) &
                + a(i,14)*b(14,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_14
   !-----------------------------------------------------------------------
   subroutine mxmfb_15(a,n1,b,n2,c,n3)
@@ -2476,8 +2476,8 @@ contains
                + a(i,13)*b(13,j) &
                + a(i,14)*b(14,j) &
                + a(i,15)*b(15,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_15
   !-----------------------------------------------------------------------
   subroutine mxmfb_16(a,n1,b,n2,c,n3)
@@ -2502,8 +2502,8 @@ contains
                + a(i,14)*b(14,j) &
                + a(i,15)*b(15,j) &
                + a(i,16)*b(16,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_16
   !-----------------------------------------------------------------------
   subroutine mxmfb_17(a,n1,b,n2,c,n3)
@@ -2530,8 +2530,8 @@ contains
                + a(i,15)*b(15,j) &
                + a(i,16)*b(16,j) &
                + a(i,17)*b(17,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_17
   !-----------------------------------------------------------------------
   subroutine mxmfb_18(a,n1,b,n2,c,n3)
@@ -2559,8 +2559,8 @@ contains
                + a(i,16)*b(16,j) &
                + a(i,17)*b(17,j) &
                + a(i,18)*b(18,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_18
   !-----------------------------------------------------------------------
   subroutine mxmfb_19(a,n1,b,n2,c,n3)
@@ -2589,8 +2589,8 @@ contains
                + a(i,17)*b(17,j) & 
                + a(i,18)*b(18,j) &
                + a(i,19)*b(19,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_19
   !-----------------------------------------------------------------------
   subroutine mxmfb_20(a,n1,b,n2,c,n3)
@@ -2620,8 +2620,8 @@ contains
                + a(i,18)*b(18,j) &
                + a(i,19)*b(19,j) &
                + a(i,20)*b(20,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_20
   !-----------------------------------------------------------------------
   subroutine mxmfb_21(a,n1,b,n2,c,n3)
@@ -2652,8 +2652,8 @@ contains
                + a(i,19)*b(19,j) &
                + a(i,20)*b(20,j) &
                + a(i,21)*b(21,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_21
   !-----------------------------------------------------------------------
   subroutine mxmfb_22(a,n1,b,n2,c,n3)
@@ -2685,8 +2685,8 @@ contains
                + a(i,20)*b(20,j) &
                + a(i,21)*b(21,j) &
                + a(i,22)*b(22,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_22
   !-----------------------------------------------------------------------
   subroutine mxmfb_23(a,n1,b,n2,c,n3)
@@ -2719,8 +2719,8 @@ contains
                + a(i,21)*b(21,j) &
                + a(i,22)*b(22,j) &
                + a(i,23)*b(23,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_23
   !-----------------------------------------------------------------------
   subroutine mxmfb_24(a,n1,b,n2,c,n3)
@@ -2754,8 +2754,8 @@ contains
                + a(i,22)*b(22,j) &
                + a(i,23)*b(23,j) &
                + a(i,24)*b(24,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmfb_24
   !-----------------------------------------------------------------------
   subroutine mxmf3(a,n1,b,n2,c,n3)
@@ -2837,8 +2837,8 @@ contains
     do i=1,n1
        do j=1,n3
           c(i,j) = a(i,1)*b(1,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_1
   !-----------------------------------------------------------------------
   subroutine mxmf3_2(a,n1,b,n2,c,n3)
@@ -2850,8 +2850,8 @@ contains
        do j=1,n3
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_2
   !-----------------------------------------------------------------------
   subroutine mxmf3_3(a,n1,b,n2,c,n3)
@@ -2864,8 +2864,8 @@ contains
           c(i,j) = a(i,1)*b(1,j) &
                + a(i,2)*b(2,j) &
                + a(i,3)*b(3,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_3
   !-----------------------------------------------------------------------
   subroutine mxmf3_4(a,n1,b,n2,c,n3)
@@ -2879,8 +2879,8 @@ contains
                + a(i,2)*b(2,j) &
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_4
   !-----------------------------------------------------------------------
   subroutine mxmf3_5(a,n1,b,n2,c,n3)
@@ -2895,8 +2895,8 @@ contains
                + a(i,3)*b(3,j) &
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_5
   !-----------------------------------------------------------------------
   subroutine mxmf3_6(a,n1,b,n2,c,n3)
@@ -2912,8 +2912,8 @@ contains
                + a(i,4)*b(4,j) &
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_6
   !-----------------------------------------------------------------------
   subroutine mxmf3_7(a,n1,b,n2,c,n3)
@@ -2930,8 +2930,8 @@ contains
                + a(i,5)*b(5,j) &
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_7
   !-----------------------------------------------------------------------
   subroutine mxmf3_8(a,n1,b,n2,c,n3)
@@ -2949,8 +2949,8 @@ contains
                + a(i,6)*b(6,j) &
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_8
   !-----------------------------------------------------------------------
   subroutine mxmf3_9(a,n1,b,n2,c,n3)
@@ -2969,8 +2969,8 @@ contains
                + a(i,7)*b(7,j) &
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_9
   !-----------------------------------------------------------------------
   subroutine mxmf3_10(a,n1,b,n2,c,n3)
@@ -2990,8 +2990,8 @@ contains
                + a(i,8)*b(8,j) &
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_10
   !-----------------------------------------------------------------------
   subroutine mxmf3_11(a,n1,b,n2,c,n3)
@@ -3012,8 +3012,8 @@ contains
                + a(i,9)*b(9,j) &
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_11
   !-----------------------------------------------------------------------
   subroutine mxmf3_12(a,n1,b,n2,c,n3)
@@ -3035,8 +3035,8 @@ contains
                + a(i,10)*b(10,j) &
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_12
   !-----------------------------------------------------------------------
   subroutine mxmf3_13(a,n1,b,n2,c,n3)
@@ -3059,8 +3059,8 @@ contains
                + a(i,11)*b(11,j) &
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_13
   !-----------------------------------------------------------------------
   subroutine mxmf3_14(a,n1,b,n2,c,n3)
@@ -3084,8 +3084,8 @@ contains
                + a(i,12)*b(12,j) &
                + a(i,13)*b(13,j) &
                + a(i,14)*b(14,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_14
   !-----------------------------------------------------------------------
   subroutine mxmf3_15(a,n1,b,n2,c,n3)
@@ -3110,8 +3110,8 @@ contains
                + a(i,13)*b(13,j) & 
                + a(i,14)*b(14,j) &
                + a(i,15)*b(15,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_15
   !-----------------------------------------------------------------------
   subroutine mxmf3_16(a,n1,b,n2,c,n3)
@@ -3137,8 +3137,8 @@ contains
                + a(i,14)*b(14,j) &
                + a(i,15)*b(15,j) &
                + a(i,16)*b(16,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_16
   !-----------------------------------------------------------------------
   subroutine mxmf3_17(a,n1,b,n2,c,n3)
@@ -3165,8 +3165,8 @@ contains
                + a(i,15)*b(15,j) &
                + a(i,16)*b(16,j) &
                + a(i,17)*b(17,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_17
   !-----------------------------------------------------------------------
   subroutine mxmf3_18(a,n1,b,n2,c,n3)
@@ -3194,8 +3194,8 @@ contains
                + a(i,16)*b(16,j) &
                + a(i,17)*b(17,j) &
                + a(i,18)*b(18,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_18
   !-----------------------------------------------------------------------
   subroutine mxmf3_19(a,n1,b,n2,c,n3)
@@ -3224,8 +3224,8 @@ contains
                + a(i,17)*b(17,j) &
                + a(i,18)*b(18,j) &
                + a(i,19)*b(19,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_19
   !-----------------------------------------------------------------------
   subroutine mxmf3_20(a,n1,b,n2,c,n3)
@@ -3255,8 +3255,8 @@ contains
                + a(i,18)*b(18,j) &
                + a(i,19)*b(19,j) &
                + a(i,20)*b(20,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_20
   !-----------------------------------------------------------------------
   subroutine mxmf3_21(a,n1,b,n2,c,n3)
@@ -3287,8 +3287,8 @@ contains
                + a(i,19)*b(19,j) &
                + a(i,20)*b(20,j) &
                + a(i,21)*b(21,j) 
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_21
   !-----------------------------------------------------------------------
   subroutine mxmf3_22(a,n1,b,n2,c,n3)
@@ -3320,8 +3320,8 @@ contains
                + a(i,20)*b(20,j) &
                + a(i,21)*b(21,j) &
                + a(i,22)*b(22,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_22
   !-----------------------------------------------------------------------
   subroutine mxmf3_23(a,n1,b,n2,c,n3)
@@ -3354,8 +3354,8 @@ contains
                + a(i,21)*b(21,j) &
                + a(i,22)*b(22,j) &
                + a(i,23)*b(23,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_23
   !-----------------------------------------------------------------------
   subroutine mxmf3_24(a,n1,b,n2,c,n3)
@@ -3389,8 +3389,8 @@ contains
                + a(i,22)*b(22,j) &
                + a(i,23)*b(23,j) &
                + a(i,24)*b(24,j)
-       enddo
-    enddo
+       end do
+    end do
   end subroutine mxmf3_24
   !-----------------------------------------------------------------------
   subroutine mxm44(a,n1,b,n2,c,n3)
@@ -3477,7 +3477,7 @@ contains
              s42 = s42 + a(i+3,l)*b(l,j+1)
              s43 = s43 + a(i+3,l)*b(l,j+2)
              s44 = s44 + a(i+3,l)*b(l,j+3)
-          enddo
+          end do
           c(i,j)     = s11 
           c(i,j+1)   = s12 
           c(i,j+2)   = s13
@@ -3498,7 +3498,7 @@ contains
           c(i+1,j+3) = s24
           c(i+2,j+3) = s34
           c(i+3,j+3) = s44
-       enddo
+       end do
        ! Residual when n is not multiple of 4
        if (nresid .ne. 0) then
           if (nresid .eq. 1) then
@@ -3511,7 +3511,7 @@ contains
                 s21 = s21 + a(i+1,l)*b(l,n)
                 s31 = s31 + a(i+2,l)*b(l,n)
                 s41 = s41 + a(i+3,l)*b(l,n)
-             enddo
+             end do
              c(i,n)     = s11 
              c(i+1,n)   = s21 
              c(i+2,n)   = s31 
@@ -3537,7 +3537,7 @@ contains
 
                 s41 = s41 + a(i+3,l)*b(l,j)
                 s42 = s42 + a(i+3,l)*b(l,j+1)
-             enddo
+             end do
              c(i,j)     = s11 
              c(i,j+1)   = s12
 
@@ -3577,7 +3577,7 @@ contains
                 s41 = s41 + a(i+3,l)*b(l,j)
                 s42 = s42 + a(i+3,l)*b(l,j+1)
                 s43 = s43 + a(i+3,l)*b(l,j+2)
-             enddo
+             end do
              c(i,j)     = s11 
              c(i+1,j)   = s21 
              c(i+2,j)   = s31 
@@ -3592,7 +3592,7 @@ contains
              c(i+3,j+2) = s43
           endif
        endif
-    enddo
+    end do
 
     ! Residual when m is not multiple of 4
     if (mresid .eq. 0) then
@@ -3608,12 +3608,12 @@ contains
              s12 = s12 + a(m,l)*b(l,j+1)
              s13 = s13 + a(m,l)*b(l,j+2)
              s14 = s14 + a(m,l)*b(l,j+3)
-          enddo
+          end do
           c(m,j)     = s11 
           c(m,j+1)   = s12 
           c(m,j+2)   = s13
           c(m,j+3)   = s14
-       enddo
+       end do
        ! mresid is 1, check nresid
        if (nresid .eq. 0) then
           return
@@ -3621,7 +3621,7 @@ contains
           s11 = 0.0d0
           do l=1,k
              s11 = s11 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m,n) = s11
           return
        elseif (nresid .eq. 2) then
@@ -3630,7 +3630,7 @@ contains
           do l=1,k
              s11 = s11 + a(m,l)*b(l,n-1)
              s12 = s12 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m,n-1) = s11
           c(m,n) = s12
           return
@@ -3642,7 +3642,7 @@ contains
              s11 = s11 + a(m,l)*b(l,n-2)
              s12 = s12 + a(m,l)*b(l,n-1)
              s13 = s13 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m,n-2) = s11
           c(m,n-1) = s12
           c(m,n) = s13
@@ -3668,7 +3668,7 @@ contains
              s22 = s22 + a(m,l)*b(l,j+1)
              s23 = s23 + a(m,l)*b(l,j+2)
              s24 = s24 + a(m,l)*b(l,j+3)
-          enddo
+          end do
           c(m-1,j)   = s11 
           c(m-1,j+1) = s12 
           c(m-1,j+2) = s13
@@ -3677,7 +3677,7 @@ contains
           c(m,j+1)   = s22 
           c(m,j+2)   = s23
           c(m,j+3)   = s24
-       enddo
+       end do
        ! mresid is 2, check nresid
        if (nresid .eq. 0) then
           return
@@ -3687,7 +3687,7 @@ contains
           do l=1,k
              s11 = s11 + a(m-1,l)*b(l,n)
              s21 = s21 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-1,n) = s11
           c(m,n) = s21
           return
@@ -3701,7 +3701,7 @@ contains
              s12 = s12 + a(m-1,l)*b(l,n)
              s21 = s21 + a(m,l)*b(l,n-1)
              s22 = s22 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-1,n-1) = s11
           c(m-1,n)   = s12
           c(m,n-1)   = s21
@@ -3721,7 +3721,7 @@ contains
              s21 = s21 + a(m,l)*b(l,n-2)
              s22 = s22 + a(m,l)*b(l,n-1)
              s23 = s23 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-1,n-2) = s11
           c(m-1,n-1) = s12
           c(m-1,n)   = s13
@@ -3764,7 +3764,7 @@ contains
              s32 = s32 + a(m,l)*b(l,j+1)
              s33 = s33 + a(m,l)*b(l,j+2)
              s34 = s34 + a(m,l)*b(l,j+3)
-          enddo
+          end do
           c(m-2,j)   = s11 
           c(m-2,j+1) = s12 
           c(m-2,j+2) = s13
@@ -3779,7 +3779,7 @@ contains
           c(m,j+1)   = s32
           c(m,j+2)   = s33
           c(m,j+3)   = s34
-       enddo
+       end do
        !* mresid is 3, check nresid
        if (nresid .eq. 0) then
           return
@@ -3791,7 +3791,7 @@ contains
              s11 = s11 + a(m-2,l)*b(l,n)
              s21 = s21 + a(m-1,l)*b(l,n)
              s31 = s31 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-2,n) = s11
           c(m-1,n) = s21
           c(m,n) = s31
@@ -3810,7 +3810,7 @@ contains
              s22 = s22 + a(m-1,l)*b(l,n)
              s31 = s31 + a(m,l)*b(l,n-1)
              s32 = s32 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-2,n-1) = s11
           c(m-2,n)   = s12
           c(m-1,n-1) = s21
@@ -3838,7 +3838,7 @@ contains
              s31 = s31 + a(m,l)*b(l,n-2)
              s32 = s32 + a(m,l)*b(l,n-1)
              s33 = s33 + a(m,l)*b(l,n)
-          enddo
+          end do
           c(m-2,n-2) = s11
           c(m-2,n-1) = s12
           c(m-2,n)   = s13
@@ -3871,22 +3871,22 @@ contains
                + a(i,2)*b(2,j+2)
           c(i,j+3) = a(i,1)*b(1,j+3) &
                + a(i,2)*b(2,j+3)
-       enddo
-    enddo
+       end do
+    end do
     if (nresid .eq. 0) then
        return
     elseif (nresid .eq. 1) then
        do i=1,m
           c(i,n) = a(i,1)*b(1,n) &
                + a(i,2)*b(2,n)
-       enddo
+       end do
     elseif (nresid .eq. 2) then
        do i=1,m
           c(i,n-1) = a(i,1)*b(1,n-1) &
                + a(i,2)*b(2,n-1)
           c(i,n) = a(i,1)*b(1,n) &
                + a(i,2)*b(2,n)
-       enddo
+       end do
     else
        do i=1,m
           c(i,n-2) = a(i,1)*b(1,n-2) &
@@ -3895,7 +3895,7 @@ contains
                + a(i,2)*b(2,n-1)
           c(i,n) = a(i,1)*b(1,n) &
                + a(i,2)*b(2,n)
-       enddo
+       end do
     endif
   end subroutine mxm44_2_t
   !-----------------------------------------------------------------------

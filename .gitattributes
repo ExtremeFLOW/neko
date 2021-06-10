@@ -1,1 +1,3 @@
-src/hip/*.hip linguist-language=C++
+*.pf linguist-language=fortran
+*.hip linguist-language=C++
+

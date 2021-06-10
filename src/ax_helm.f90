@@ -37,11 +37,11 @@ contains
        if(msh%gdim .eq. 2) then
          call mxm  (Xh%dx,Xh%lx,u(1,1,1,e),Xh%lx,dudr,lyz)
          call mxm  (u(1,1,1,e),Xh%lx,Xh%dyt,Xh%ly,duds,Xh%ly)
-         call col3 (tmp1,dudr,coef%G1(1,1,1,e),lxyz)
-         call col3 (tmp2,duds,coef%G2(1,1,1,e),lxyz)
+         call col3 (tmp1,dudr,coef%G11(1,1,1,e),lxyz)
+         call col3 (tmp2,duds,coef%G22(1,1,1,e),lxyz)
          if (msh%dfrmd_el(e)) then
-            call addcol3 (tmp1,duds,coef%G4(1,1,1,e),lxyz)
-            call addcol3 (tmp2,dudr,coef%G4(1,1,1,e),lxyz)
+            call addcol3 (tmp1,duds,coef%G12(1,1,1,e),lxyz)
+            call addcol3 (tmp2,dudr,coef%G12(1,1,1,e),lxyz)
          end if
          call col2 (tmp1,coef%h1(1,1,1,e),lxyz)
          call col2 (tmp2,coef%h1(1,1,1,e),lxyz)
@@ -56,16 +56,16 @@ contains
             call mxm(u(1,1,k,e),Xh%lx,Xh%dyt,Xh%ly,duds(1,1,k),Xh%ly)
          end do
          call mxm     (u(1,1,1,e),lxy,Xh%dzt,Xh%lz,dudt,Xh%lz)
-         call col3    (tmp1,dudr,coef%G1(1,1,1,e),lxyz)
-         call col3    (tmp2,duds,coef%G2(1,1,1,e),lxyz)
-         call col3    (tmp3,dudt,coef%G3(1,1,1,e),lxyz)
+         call col3    (tmp1,dudr,coef%G11(1,1,1,e),lxyz)
+         call col3    (tmp2,duds,coef%G22(1,1,1,e),lxyz)
+         call col3    (tmp3,dudt,coef%G33(1,1,1,e),lxyz)
          if (msh%dfrmd_el(e)) then
-            call addcol3 (tmp1,duds,coef%G4(1,1,1,e),lxyz)
-            call addcol3 (tmp1,dudt,coef%G5(1,1,1,e),lxyz)
-            call addcol3 (tmp2,dudr,coef%G4(1,1,1,e),lxyz)
-            call addcol3 (tmp2,dudt,coef%G6(1,1,1,e),lxyz)
-            call addcol3 (tmp3,dudr,coef%G5(1,1,1,e),lxyz)
-            call addcol3 (tmp3,duds,coef%G6(1,1,1,e),lxyz)
+            call addcol3 (tmp1,duds,coef%G12(1,1,1,e),lxyz)
+            call addcol3 (tmp1,dudt,coef%G13(1,1,1,e),lxyz)
+            call addcol3 (tmp2,dudr,coef%G12(1,1,1,e),lxyz)
+            call addcol3 (tmp2,dudt,coef%G23(1,1,1,e),lxyz)
+            call addcol3 (tmp3,dudr,coef%G13(1,1,1,e),lxyz)
+            call addcol3 (tmp3,duds,coef%G23(1,1,1,e),lxyz)
          end if
          call col2 (tmp1,coef%h1(1,1,1,e),lxyz)
          call col2 (tmp2,coef%h1(1,1,1,e),lxyz)

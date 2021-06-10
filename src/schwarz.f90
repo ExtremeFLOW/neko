@@ -87,38 +87,44 @@ contains
     integer :: enx,eny,enz, n, ie, k, ns
     real(kind=rp), parameter :: zero = 0.0
     real(kind=rp), parameter :: one = 1.0
-    associate(work1 => this%work1, work2 => this%work2)
-    n  = this%dm%n_dofs
+    associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
+         Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
 
-    enx=this%Xh_schwarz%lx
-    eny=this%Xh_schwarz%ly
-    enz=this%Xh_schwarz%lz
-    if(.not. this%msh%gdim .eq. 3) enz=1
-    ns = enx*eny*enz*this%msh%nelv
+      n  = this%dm%n_dofs
 
-    call rone(this%work2,ns)
+      enx = Xh_schwarz%lx
+      eny = Xh_schwarz%ly
+      enz = Xh_schwarz%lz
+      if(.not. msh%gdim .eq. 3) enz=1
+      ns = enx*eny*enz*msh%nelv
+      
+      call rone(work2, ns)
  
-!   Sum overlap region (border excluded)
-!   Cred to PFF for this, very clever
-    call schwarz_extrude(work1,0,zero,work2,0,one ,enx,eny,enz, this%msh%nelv)
-    call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
-    call schwarz_extrude(work2,0,one ,work1,0,-one,enx,eny,enz, this%msh%nelv)
-    call schwarz_extrude(work2,2,one,work2,0,one,enx,eny,enz, this%msh%nelv)
+      !   Sum overlap region (border excluded)
+      !   Cred to PFF for this, very clever
+      call schwarz_extrude(work1, 0, zero, work2, 0, one , enx, eny, enz, msh%nelv)
+      call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
+      call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, msh%nelv)
+      call schwarz_extrude(work2, 2, one, work2, 0, one, enx, eny, enz, msh%nelv)
 
-   ! if(.not.if3d) then ! Go back to regular size array
-   !    call hsmg_schwarz_toreg2d(mg_work,mg_work(i),mg_nh(l))
-   ! else
-       call schwarz_toreg3d(work1,work2,this%Xh%lx, this%msh%nelv)
-   ! endif
+      ! if(.not.if3d) then ! Go back to regular size array
+      !    call hsmg_schwarz_toreg2d(mg_work,mg_work(i),mg_nh(l))
+      ! else
+      call schwarz_toreg3d(work1, work2, Xh%lx, msh%nelv)
+      ! endif
 
-   call gs_op_vector(this%gs_h, work1, n, GS_OP_ADD) 
-
-    k = 1
-    do ie=1,this%msh%nelv
-       if (this%msh%gdim .eq. 2) call schwarz_setup_schwarz_wt2d_2(this%wt,ie,this%Xh%lx,work1(k), this%msh%nelv)
-       if (this%msh%gdim.eq. 3) call schwarz_setup_schwarz_wt3d_2(this%wt,ie,this%Xh%lx,work1(k), this%msh%nelv)
-       k = k+this%Xh%lxyz
-    enddo
+      call gs_op_vector(this%gs_h, work1, n, GS_OP_ADD) 
+   
+      k = 1
+      do ie = 1,msh%nelv
+         if (msh%gdim .eq. 2) then
+            call schwarz_setup_schwarz_wt2d_2(this%wt,ie,Xh%lx, work1(k), msh%nelv)
+         end if
+         if (this%msh%gdim.eq. 3) then
+            call schwarz_setup_schwarz_wt3d_2(this%wt,ie,Xh%lx, work1(k), msh%nelv)
+            k = k + Xh%lxyz
+         end if
+      end do
     end associate
   end subroutine schwarz_setup_wt
 
@@ -128,18 +134,18 @@ contains
     real(kind=rp), intent(inout) :: wt(n,4,2,nelv)
     real(kind=rp), intent(inout) :: work(n,n)
     integer :: ie,i,j
-    do j=1,n
-       wt(j,1,1,ie)=1d0/work(1,j)
-       wt(j,2,1,ie)=1d0/work(2,j)
-       wt(j,3,1,ie)=1d0/work(n-1,j)
-       wt(j,4,1,ie)=1d0/work(n,j)
-    enddo
-    do i=1,n
-       wt(i,1,2,ie)=1d0/work(i,1)
-       wt(i,2,2,ie)=1d0/work(i,2)
-       wt(i,3,2,ie)=1d0/work(i,n-1)
-       wt(i,4,2,ie)=1d0/work(i,n)
-    enddo
+    do j = 1,n
+       wt(j,1,1,ie) = 1d0/work(1,j)
+       wt(j,2,1,ie) = 1d0/work(2,j)
+       wt(j,3,1,ie) = 1d0/work(n-1,j)
+       wt(j,4,1,ie) = 1d0/work(n,j)
+    end do
+    do i = 1,n
+       wt(i,1,2,ie) = 1d0/work(i,1)
+       wt(i,2,2,ie) = 1d0/work(i,2)
+       wt(i,3,2,ie) = 1d0/work(i,n-1)
+       wt(i,4,2,ie) = 1d0/work(i,n)
+    end do
 
     return
   end subroutine schwarz_setup_schwarz_wt2d_2
@@ -154,29 +160,29 @@ contains
       integer :: lbr,rbr,lbs,rbs,lbt,rbt
 
       do k=1,n
-      do j=1,n
-         wt(j,k,1,1,ie)=1d0/work(1,j,k)
-         wt(j,k,2,1,ie)=1d0/work(2,j,k)
-         wt(j,k,3,1,ie)=1d0/work(n-1,j,k)
-         wt(j,k,4,1,ie)=1d0/work(n,j,k)
-      enddo
-      enddo
-      do k=1,n
-      do i=1,n
-         wt(i,k,1,2,ie)=1d0/work(i,1,k)
-         wt(i,k,2,2,ie)=1d0/work(i,2,k)
-         wt(i,k,3,2,ie)=1d0/work(i,n-1,k)
-         wt(i,k,4,2,ie)=1d0/work(i,n,k)
-      enddo
-      enddo
-      do j=1,n
-      do i=1,n
-         wt(i,j,1,3,ie)=1d0/work(i,j,1)
-         wt(i,j,2,3,ie)=1d0/work(i,j,2)
-         wt(i,j,3,3,ie)=1d0/work(i,j,n-1)
-         wt(i,j,4,3,ie)=1d0/work(i,j,n)
-      enddo
-      enddo
+         do j=1,n
+            wt(j,k,1,1,ie)=1d0/work(1,j,k)
+            wt(j,k,2,1,ie)=1d0/work(2,j,k)
+            wt(j,k,3,1,ie)=1d0/work(n-1,j,k)
+            wt(j,k,4,1,ie)=1d0/work(n,j,k)
+         end do
+      end do
+      do k = 1,n
+         do i = 1,n
+            wt(i,k,1,2,ie) = 1d0/work(i,1,k)
+            wt(i,k,2,2,ie) = 1d0/work(i,2,k)
+            wt(i,k,3,2,ie) = 1d0/work(i,n-1,k)
+            wt(i,k,4,2,ie) = 1d0/work(i,n,k)
+         end do
+      end do
+      do j = 1,n
+         do i = 1,n
+            wt(i,j,1,3,ie) = 1d0/work(i,j,1)
+            wt(i,j,2,3,ie) = 1d0/work(i,j,2)
+            wt(i,j,3,3,ie) = 1d0/work(i,j,n-1)
+            wt(i,j,4,3,ie) = 1d0/work(i,j,n)
+         end do
+      end do
   end subroutine schwarz_setup_schwarz_wt3d_2
 
   !> convert array a from extended size to regular
@@ -184,15 +190,15 @@ contains
     integer, intent(in) :: n, nelv
     real (kind=rp), intent(inout) :: a(0:n+1,0:n+1,0:n+1,nelv),b(n,n,n,nelv)
     integer :: i,j,k,ie
-    do ie=1,nelv
-    do k=1,n
-    do j=1,n
-    do i=1,n
-       b(i,j,k,ie)=a(i,j,k,ie)
-    enddo
-    enddo
-    enddo
-    enddo
+    do ie = 1,nelv
+       do k = 1,n
+          do j = 1,n
+             do i = 1,n
+                b(i,j,k,ie) = a(i,j,k,ie)
+             end do
+          end do
+       end do
+    end do
     return
   end subroutine schwarz_toreg3d
 
@@ -203,15 +209,15 @@ contains
     integer :: i,j,k,ie
 
     call rzero(a,(n+2)*(n+2)*(n+2)*nelv)
-    do ie=1,nelv
-    do k=1,n
-    do j=1,n
-    do i=1,n
-       a(i,j,k,ie)=b(i,j,k,ie)
-    enddo
-    enddo
-    enddo
-    enddo
+    do ie = 1,nelv
+       do k = 1,n
+          do j = 1,n
+             do i = 1,n
+                a(i,j,k,ie) = b(i,j,k,ie)
+             end do
+          end do
+       end do
+    end do
   end subroutine schwarz_toext3d
 
   !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1. 
@@ -226,47 +232,47 @@ contains
     i1=nx-1
     
     if(nelv .ne. 3) then
-       do ie=1,nelv
-          do j=i0,i1
+       do ie = 1,nelv
+          do j = i0,i1
              arr1(l1+1 ,j,1,ie) = f1*arr1(l1+1 ,j,1,ie) &
                                  +f2*arr2(l2+1 ,j,1,ie)
              arr1(nx-l1,j,1,ie) = f1*arr1(nx-l1,j,1,ie) &
                                  +f2*arr2(nx-l2,j,1,ie)
-          enddo
-          do i=i0,i1
+          end do
+          do i = i0,i1
              arr1(i,l1+1 ,1,ie) = f1*arr1(i,l1+1 ,1,ie) &
                                  +f2*arr2(i,l2+1 ,1,ie)
              arr1(i,ny-l1,1,ie) = f1*arr1(i,ny-l1,1,ie) &
                                  +f2*arr2(i,nx-l2,1,ie)
-          enddo
-       enddo
+          end do
+       end do
     else
-       do ie=1,nelv
-          do k=i0,i1
-          do j=i0,i1
-             arr1(l1+1 ,j,k,ie) = f1*arr1(l1+1 ,j,k,ie) &
-                                 +f2*arr2(l2+1 ,j,k,ie)
-             arr1(nx-l1,j,k,ie) = f1*arr1(nx-l1,j,k,ie) &
-                                 +f2*arr2(nx-l2,j,k,ie)
-          enddo
-          enddo
-          do k=i0,i1
-          do i=i0,i1
-             arr1(i,l1+1 ,k,ie) = f1*arr1(i,l1+1 ,k,ie) &
-                                 +f2*arr2(i,l2+1 ,k,ie)
-             arr1(i,nx-l1,k,ie) = f1*arr1(i,nx-l1,k,ie) &
-                                 +f2*arr2(i,nx-l2,k,ie)
-          enddo
-          enddo
-          do j=i0,i1
-          do i=i0,i1
-             arr1(i,j,l1+1 ,ie) = f1*arr1(i,j,l1+1 ,ie) &
-                                 +f2*arr2(i,j,l2+1 ,ie)
-             arr1(i,j,nx-l1,ie) = f1*arr1(i,j,nx-l1,ie) &
-                                 +f2*arr2(i,j,nx-l2,ie)
-          enddo
-          enddo
-       enddo
+       do ie = 1,nelv
+          do k = i0,i1
+             do j = i0,i1
+                arr1(l1+1 ,j,k,ie) = f1*arr1(l1+1 ,j,k,ie) &
+                                    +f2*arr2(l2+1 ,j,k,ie)
+                arr1(nx-l1,j,k,ie) = f1*arr1(nx-l1,j,k,ie) &
+                                    +f2*arr2(nx-l2,j,k,ie)
+             end do
+          end do
+          do k = i0,i1
+             do i = i0,i1
+                arr1(i,l1+1 ,k,ie) = f1*arr1(i,l1+1 ,k,ie) &
+                                    +f2*arr2(i,l2+1 ,k,ie)
+                arr1(i,nx-l1,k,ie) = f1*arr1(i,nx-l1,k,ie) &
+                                    +f2*arr2(i,nx-l2,k,ie)
+             end do
+          end do
+          do j = i0,i1
+             do i = i0,i1
+                arr1(i,j,l1+1 ,ie) = f1*arr1(i,j,l1+1 ,ie) &
+                                    +f2*arr2(i,j,l2+1 ,ie)
+                arr1(i,j,nx-l1,ie) = f1*arr1(i,j,nx-l1,ie) &
+                                    +f2*arr2(i,j,nx-l2,ie)
+             end do
+          end do
+       end do
     endif
   end subroutine schwarz_extrude
   
@@ -331,31 +337,31 @@ contains
     real(kind=rp), intent(inout) ::  wt(n,n,4,3,nelv)
     integer :: ie,i,j,k
 
-    do ie=1,nelv
-       do k=1,n
-       do j=1,n
-          e(1  ,j,k,ie)=e(1  ,j,k,ie)*wt(j,k,1,1,ie)
-          e(2  ,j,k,ie)=e(2  ,j,k,ie)*wt(j,k,2,1,ie)
-          e(n-1,j,k,ie)=e(n-1,j,k,ie)*wt(j,k,3,1,ie)
-          e(n  ,j,k,ie)=e(n  ,j,k,ie)*wt(j,k,4,1,ie)
-       enddo
-       enddo
-       do k=1,n
-       do i=3,n-2
-          e(i,1  ,k,ie)=e(i,1  ,k,ie)*wt(i,k,1,2,ie)
-          e(i,2  ,k,ie)=e(i,2  ,k,ie)*wt(i,k,2,2,ie)
-          e(i,n-1,k,ie)=e(i,n-1,k,ie)*wt(i,k,3,2,ie)
-          e(i,n  ,k,ie)=e(i,n  ,k,ie)*wt(i,k,4,2,ie)
-       enddo
-       enddo
-       do j=3,n-2
-       do i=3,n-2
-          e(i,j,1  ,ie)=e(i,j,1  ,ie)*wt(i,j,1,3,ie)
-          e(i,j,2  ,ie)=e(i,j,2  ,ie)*wt(i,j,2,3,ie)
-          e(i,j,n-1,ie)=e(i,j,n-1,ie)*wt(i,j,3,3,ie)
-          e(i,j,n  ,ie)=e(i,j,n  ,ie)*wt(i,j,4,3,ie)
-       enddo
-       enddo
-    enddo
+    do ie = 1,nelv
+       do k = 1,n
+          do j = 1,n
+             e(1  ,j,k,ie) = e(1  ,j,k,ie) * wt(j,k,1,1,ie)
+             e(2  ,j,k,ie) = e(2  ,j,k,ie) * wt(j,k,2,1,ie)
+             e(n-1,j,k,ie) = e(n-1,j,k,ie) * wt(j,k,3,1,ie)
+             e(n  ,j,k,ie) = e(n  ,j,k,ie) * wt(j,k,4,1,ie)
+          end do
+       end do
+       do k = 1,n
+          do i = 3,n-2
+             e(i,1  ,k,ie) = e(i,1  ,k,ie) * wt(i,k,1,2,ie)
+             e(i,2  ,k,ie) = e(i,2  ,k,ie) * wt(i,k,2,2,ie)
+             e(i,n-1,k,ie) = e(i,n-1,k,ie) * wt(i,k,3,2,ie)
+             e(i,n  ,k,ie) = e(i,n  ,k,ie) * wt(i,k,4,2,ie)
+          end do
+       end do
+       do j = 3,n-2
+          do i = 3,n-2
+             e(i,j,1  ,ie) = e(i,j,1  ,ie) * wt(i,j,1,3,ie)
+             e(i,j,2  ,ie) = e(i,j,2  ,ie) * wt(i,j,2,3,ie)
+             e(i,j,n-1,ie) = e(i,j,n-1,ie) * wt(i,j,3,3,ie)
+             e(i,j,n  ,ie) = e(i,j,n  ,ie) * wt(i,j,4,3,ie)
+          end do
+       end do
+    end do
   end subroutine schwarz_wt3d
 end module schwarz

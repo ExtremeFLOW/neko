@@ -72,19 +72,19 @@ contains
       select case(lx)
       case (12)
          call sx_update_lx12(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
       case (10)
          call sx_update_lx10(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
       case (8)
          call sx_update_lx8(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
       case (4)
          call sx_update_lx4(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
       case (2)
          call sx_update_lx2(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G1, coef%G2, coef%G3, coef%G4, coef%G5, coef%G6, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
       end select
 
       call col2(this%d,coef%h1,coef%dof%n_dofs)
@@ -95,7 +95,7 @@ contains
     end associate
   end subroutine sx_jacobi_update
 
-  subroutine sx_update_lx12(d, dxt, dyt, dzt, G1, G2, G3, G4, G5, G6, n)
+  subroutine sx_update_lx12(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 12
     integer, parameter :: ly = 12
     integer, parameter :: lz = 12
@@ -104,12 +104,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, e, jj
 
@@ -120,13 +120,13 @@ contains
              do i=1,lx
                 do e=1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G1(l,j,k,e) * dxt(i,l)**2
+                        G11(l,j,k,e) * dxt(i,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G2(i,l,k,e) * dyt(j,l)**2
+                        G22(i,l,k,e) * dyt(j,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G3(i,j,l,e) * dzt(k,l)**2
+                        G33(i,j,l,e) * dzt(k,l)**2
 
                 end do
              end do
@@ -138,11 +138,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(1,j,k,e) = d(1,j,k,e) &
-                  + G4(1,j,k,e) * dxt(1,1)*dyt(j,j) &
-                  + G5(1,j,k,e) * dxt(1,1)*dzt(k,k)
+                  + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
+                  + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
              d(lx,j,k,e) = d(lx,j,k,e) &
-                  + G4(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
-                  + G5(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
+                  + G12(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
+                  + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
           end do
        end do
     end do
@@ -151,11 +151,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(i,1,k,e) = d(i,1,k,e) &
-                  + G4(i,1,k,e) * dyt(1,1)*dxt(i,i) &
-                  + G6(i,1,k,e) * dyt(1,1)*dzt(k,k)
+                  + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
+                  + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
              d(i,ly,k,e) = d(i,ly,k,e) &
-                  + G4(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
-                  + G6(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
+                  + G12(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
+                  + G23(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
           end do
        end do
     end do
@@ -164,11 +164,11 @@ contains
        do j=1,ly,ly-1
           do e=1,n
              d(i,j,1,e) = d(i,j,1,e) &
-                  + G5(i,j,1,e) * dzt(1,1)*dxt(i,i) &
-                  + G6(i,j,1,e) * dzt(1,1)*dyt(j,j)
+                  + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
+                  + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
              d(i,j,lz,e) = d(i,j,lz,e) &
-                  + G5(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
-                  + G6(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
+                  + G13(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
+                  + G23(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
           end do
        end do
     end do
@@ -176,7 +176,7 @@ contains
   end subroutine sx_update_lx12
 
 
-  subroutine sx_update_lx10(d, dxt, dyt, dzt, G1, G2, G3, G4, G5, G6, n)
+  subroutine sx_update_lx10(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 10
     integer, parameter :: ly = 10
     integer, parameter :: lz = 10
@@ -185,12 +185,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, e, jj
 
@@ -201,13 +201,13 @@ contains
              do i=1,lx
                 do e=1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G1(l,j,k,e) * dxt(i,l)**2
+                        G11(l,j,k,e) * dxt(i,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G2(i,l,k,e) * dyt(j,l)**2
+                        G22(i,l,k,e) * dyt(j,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G3(i,j,l,e) * dzt(k,l)**2
+                        G33(i,j,l,e) * dzt(k,l)**2
 
                 end do
              end do
@@ -219,11 +219,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(1,j,k,e) = d(1,j,k,e) &
-                  + G4(1,j,k,e) * dxt(1,1)*dyt(j,j) &
-                  + G5(1,j,k,e) * dxt(1,1)*dzt(k,k)
+                  + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
+                  + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
              d(lx,j,k,e) = d(lx,j,k,e) &
-                  + G4(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
-                  + G5(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
+                  + G12(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
+                  + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
           end do
        end do
     end do
@@ -232,11 +232,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(i,1,k,e) = d(i,1,k,e) &
-                  + G4(i,1,k,e) * dyt(1,1)*dxt(i,i) &
-                  + G6(i,1,k,e) * dyt(1,1)*dzt(k,k)
+                  + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
+                  + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
              d(i,ly,k,e) = d(i,ly,k,e) &
-                  + G4(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
-                  + G6(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
+                  + G12(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
+                  + G23(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
           end do
        end do
     end do
@@ -245,18 +245,18 @@ contains
        do j=1,ly,ly-1
           do e=1,n
              d(i,j,1,e) = d(i,j,1,e) &
-                  + G5(i,j,1,e) * dzt(1,1)*dxt(i,i) &
-                  + G6(i,j,1,e) * dzt(1,1)*dyt(j,j)
+                  + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
+                  + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
              d(i,j,lz,e) = d(i,j,lz,e) &
-                  + G5(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
-                  + G6(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
+                  + G13(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
+                  + G23(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
           end do
        end do
     end do
 
   end subroutine sx_update_lx10
 
-  subroutine sx_update_lx8(d, dxt, dyt, dzt, G1, G2, G3, G4, G5, G6, n)
+  subroutine sx_update_lx8(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 8
     integer, parameter :: ly = 8
     integer, parameter :: lz = 8
@@ -265,12 +265,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, e, jj
 
@@ -281,13 +281,13 @@ contains
              do i=1,lx
                 do e=1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G1(l,j,k,e) * dxt(i,l)**2
+                        G11(l,j,k,e) * dxt(i,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G2(i,l,k,e) * dyt(j,l)**2
+                        G22(i,l,k,e) * dyt(j,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G3(i,j,l,e) * dzt(k,l)**2
+                        G33(i,j,l,e) * dzt(k,l)**2
 
                 end do
              end do
@@ -299,11 +299,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(1,j,k,e) = d(1,j,k,e) &
-                  + G4(1,j,k,e) * dxt(1,1)*dyt(j,j) &
-                  + G5(1,j,k,e) * dxt(1,1)*dzt(k,k)
+                  + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
+                  + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
              d(lx,j,k,e) = d(lx,j,k,e) &
-                  + G4(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
-                  + G5(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
+                  + G12(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
+                  + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
           end do
        end do
     end do
@@ -312,11 +312,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(i,1,k,e) = d(i,1,k,e) &
-                  + G4(i,1,k,e) * dyt(1,1)*dxt(i,i) &
-                  + G6(i,1,k,e) * dyt(1,1)*dzt(k,k)
+                  + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
+                  + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
              d(i,ly,k,e) = d(i,ly,k,e) &
-                  + G4(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
-                  + G6(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
+                  + G12(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
+                  + G23(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
           end do
        end do
     end do
@@ -325,29 +325,29 @@ contains
        do j=1,ly,ly-1
           do e=1,n
              d(i,j,1,e) = d(i,j,1,e) &
-                  + G5(i,j,1,e) * dzt(1,1)*dxt(i,i) &
-                  + G6(i,j,1,e) * dzt(1,1)*dyt(j,j)
+                  + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
+                  + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
              d(i,j,lz,e) = d(i,j,lz,e) &
-                  + G5(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
-                  + G6(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
+                  + G13(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
+                  + G23(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
           end do
        end do
     end do
 
   end subroutine sx_update_lx8
 
-  subroutine sx_update_lx4(d, dxt, dyt, dzt, G1, G2, G3, G4, G5, G6, n)
+  subroutine sx_update_lx4(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 4
     integer, parameter :: ly = 4
     integer, parameter :: lz = 4
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
@@ -360,13 +360,13 @@ contains
              do i=1,lx
                 do e=1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G1(l,j,k,e) * dxt(i,l)**2
+                        G11(l,j,k,e) * dxt(i,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G2(i,l,k,e) * dyt(j,l)**2
+                        G22(i,l,k,e) * dyt(j,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G3(i,j,l,e) * dzt(k,l)**2
+                        G33(i,j,l,e) * dzt(k,l)**2
 
                 end do
              end do
@@ -378,11 +378,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(1,j,k,e) = d(1,j,k,e) &
-                  + G4(1,j,k,e) * dxt(1,1)*dyt(j,j) &
-                  + G5(1,j,k,e) * dxt(1,1)*dzt(k,k)
+                  + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
+                  + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
              d(lx,j,k,e) = d(lx,j,k,e) &
-                  + G4(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
-                  + G5(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
+                  + G12(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
+                  + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
           end do
        end do
     end do
@@ -391,11 +391,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(i,1,k,e) = d(i,1,k,e) &
-                  + G4(i,1,k,e) * dyt(1,1)*dxt(i,i) &
-                  + G6(i,1,k,e) * dyt(1,1)*dzt(k,k)
+                  + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
+                  + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
              d(i,ly,k,e) = d(i,ly,k,e) &
-                  + G4(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
-                  + G6(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
+                  + G12(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
+                  + G23(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
           end do
        end do
     end do
@@ -404,11 +404,11 @@ contains
        do j=1,ly,ly-1
           do e=1,n
              d(i,j,1,e) = d(i,j,1,e) &
-                  + G5(i,j,1,e) * dzt(1,1)*dxt(i,i) &
-                  + G6(i,j,1,e) * dzt(1,1)*dyt(j,j)
+                  + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
+                  + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
              d(i,j,lz,e) = d(i,j,lz,e) &
-                  + G5(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
-                  + G6(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
+                  + G13(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
+                  + G23(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
           end do
        end do
     end do
@@ -416,18 +416,18 @@ contains
 
   end subroutine sx_update_lx4
 
-  subroutine sx_update_lx2(d, dxt, dyt, dzt, G1, G2, G3, G4, G5, G6, n)
+  subroutine sx_update_lx2(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 2
     integer, parameter :: ly = 2
     integer, parameter :: lz = 2
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G1(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G2(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G3(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G4(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G5(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G6(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
@@ -441,13 +441,13 @@ contains
              do i=1,lx
                 do e=1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G1(l,j,k,e) * dxt(i,l)**2
+                        G11(l,j,k,e) * dxt(i,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G2(i,l,k,e) * dyt(j,l)**2
+                        G22(i,l,k,e) * dyt(j,l)**2
 
                    d(i,j,k,e) = d(i,j,k,e) + &
-                        G3(i,j,l,e) * dzt(k,l)**2
+                        G33(i,j,l,e) * dzt(k,l)**2
 
                 end do
              end do
@@ -459,11 +459,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(1,j,k,e) = d(1,j,k,e) &
-                  + G4(1,j,k,e) * dxt(1,1)*dyt(j,j) &
-                  + G5(1,j,k,e) * dxt(1,1)*dzt(k,k)
+                  + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
+                  + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
              d(lx,j,k,e) = d(lx,j,k,e) &
-                  + G4(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
-                  + G5(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
+                  + G12(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
+                  + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
           end do
        end do
     end do
@@ -472,11 +472,11 @@ contains
        do k=1,lz,lz-1
           do e=1,n
              d(i,1,k,e) = d(i,1,k,e) &
-                  + G4(i,1,k,e) * dyt(1,1)*dxt(i,i) &
-                  + G6(i,1,k,e) * dyt(1,1)*dzt(k,k)
+                  + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
+                  + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
              d(i,ly,k,e) = d(i,ly,k,e) &
-                  + G4(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
-                  + G6(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
+                  + G12(i,ly,k,e) * dyt(ly,ly)*dxt(i,i) &
+                  + G23(i,ly,k,e) * dyt(ly,ly)*dzt(k,k)
           end do
        end do
     end do
@@ -485,11 +485,11 @@ contains
        do j=1,ly,ly-1
           do e=1,n
              d(i,j,1,e) = d(i,j,1,e) &
-                  + G5(i,j,1,e) * dzt(1,1)*dxt(i,i) &
-                  + G6(i,j,1,e) * dzt(1,1)*dyt(j,j)
+                  + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
+                  + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
              d(i,j,lz,e) = d(i,j,lz,e) &
-                  + G5(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
-                  + G6(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
+                  + G13(i,j,lz,e) * dzt(lz,lz)*dxt(i,i) &
+                  + G23(i,j,lz,e) * dzt(lz,lz)*dyt(j,j)
           end do
        end do
     end do

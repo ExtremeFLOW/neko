@@ -57,47 +57,47 @@ contains
   
     do e = 1, msh%nelv
        if(msh%gdim .eq. 2) then
-         call mxm  (Xh%dx,Xh%lx,u(1,1,1,e),Xh%lx,dudr,lyz)
-         call mxm  (u(1,1,1,e),Xh%lx,Xh%dyt,Xh%ly,duds,Xh%ly)
-         call col3 (tmp1,dudr,coef%G1(1,1,1,e),lxyz)
-         call col3 (tmp2,duds,coef%G2(1,1,1,e),lxyz)
+         call mxm(Xh%dx, Xh%lx,u(1,1,1,e), Xh%lx, dudr, lyz)
+         call mxm(u(1,1,1,e), Xh%lx, Xh%dyt, Xh%ly, duds, Xh%ly)
+         call col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)
+         call col3(tmp2, duds, coef%G22(1,1,1,e), lxyz)
          if (msh%dfrmd_el(e)) then
-            call addcol3 (tmp1,duds,coef%G4(1,1,1,e),lxyz)
-            call addcol3 (tmp2,dudr,coef%G4(1,1,1,e),lxyz)
+            call addcol3(tmp1, duds, coef%G12(1,1,1,e), lxyz)
+            call addcol3(tmp2, dudr, coef%G12(1,1,1,e), lxyz)
          end if
-         call col2 (tmp1,coef%h1(1,1,1,e),lxyz)
-         call col2 (tmp2,coef%h1(1,1,1,e),lxyz)
-         call mxm  (Xh%dxt,Xh%lx,tmp1,Xh%lx,tm1,lyz)
-         call mxm  (tmp2,Xh%lx,Xh%dy,Xh%ly,tm2,Xh%ly)
-         call add3 (w(1,1,1,e),tm1,tm2,lxyz)
+         call col2(tmp1, coef%h1(1,1,1,e), lxyz)
+         call col2(tmp2, coef%h1(1,1,1,e), lxyz)
+         call mxm(Xh%dxt, Xh%lx, tmp1, Xh%lx, tm1, lyz)
+         call mxm(tmp2, Xh%lx, Xh%dy, Xh%ly, tm2, Xh%ly)
+         call add3(w(1,1,1,e), tm1, tm2, lxyz)
 
        ! 3D evaluation!
       else
          call libxsmm_mmcall(ax_helm_xmm1, Xh%dx, u(1,1,1,e), dudr)
-         do k=1,Xh%lz
+         do k = 1,Xh%lz
             call libxsmm_mmcall(ax_helm_xmm2, u(1,1,k,e), Xh%dyt, duds(1,1,k))
          end do
          call libxsmm_mmcall(ax_helm_xmm3, u(1,1,1,e), Xh%dzt, dudt)
-         call col3    (tmp1,dudr,coef%G1(1,1,1,e),lxyz)
-         call col3    (tmp2,duds,coef%G2(1,1,1,e),lxyz)
-         call col3    (tmp3,dudt,coef%G3(1,1,1,e),lxyz)
+         call col3(tmp1, dudr, coef%G11(1,1,1,e), lxyz)
+         call col3(tmp2, duds, coef%G22(1,1,1,e), lxyz)
+         call col3(tmp3, dudt, coef%G33(1,1,1,e), lxyz)
          if (msh%dfrmd_el(e)) then
-            call addcol3 (tmp1,duds,coef%G4(1,1,1,e),lxyz)
-            call addcol3 (tmp1,dudt,coef%G5(1,1,1,e),lxyz)
-            call addcol3 (tmp2,dudr,coef%G4(1,1,1,e),lxyz)
-            call addcol3 (tmp2,dudt,coef%G6(1,1,1,e),lxyz)
-            call addcol3 (tmp3,dudr,coef%G5(1,1,1,e),lxyz)
-            call addcol3 (tmp3,duds,coef%G6(1,1,1,e),lxyz)
+            call addcol3(tmp1, duds, coef%G12(1,1,1,e), lxyz)
+            call addcol3(tmp1, dudt, coef%G13(1,1,1,e), lxyz)
+            call addcol3(tmp2, dudr, coef%G12(1,1,1,e), lxyz)
+            call addcol3(tmp2, dudt, coef%G23(1,1,1,e), lxyz)
+            call addcol3(tmp3, dudr, coef%G13(1,1,1,e), lxyz)
+            call addcol3(tmp3, duds, coef%G23(1,1,1,e), lxyz)
          end if
-         call col2 (tmp1,coef%h1(1,1,1,e),lxyz)
-         call col2 (tmp2,coef%h1(1,1,1,e),lxyz)
-         call col2 (tmp3,coef%h1(1,1,1,e),lxyz)
+         call col2(tmp1, coef%h1(1,1,1,e), lxyz)
+         call col2(tmp2, coef%h1(1,1,1,e), lxyz)
+         call col2(tmp3, coef%h1(1,1,1,e), lxyz)
          call libxsmm_mmcall(ax_helm_xmm1, Xh%dxt, tmp1, tm1)
-         do k=1,Xh%lz
+         do k = 1,Xh%lz
             call libxsmm_mmcall(ax_helm_xmm2, tmp2(1,1,k), Xh%dy, tm2(1,1,k))
          end do
          call libxsmm_mmcall(ax_helm_xmm3, tmp3, Xh%dz, tm3)
-         call add4(w(1,1,1,e),tm1,tm2,tm3,lxyz)
+         call add4(w(1,1,1,e), tm1, tm2, tm3, lxyz)
        end if 
     end do
     

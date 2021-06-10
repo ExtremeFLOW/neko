@@ -20,48 +20,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx12
@@ -80,48 +80,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx11
@@ -140,48 +140,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx10
@@ -200,48 +200,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx9
@@ -260,48 +260,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx8
@@ -320,48 +320,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx7
@@ -380,48 +380,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx6
@@ -440,48 +440,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx5
@@ -500,48 +500,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk=1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk=1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx4
@@ -560,48 +560,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e=1,nel
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx3
@@ -620,48 +620,48 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
-       enddo
-    enddo
+       end do
+    end do
 
     call col3(ta1, wx, ds, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
-             do e=1,nel
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
+             do e = 1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
     call col3(ta1, wx, dt, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e=1,nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
-                enddo
+                end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
-             enddo
-          enddo
-       enddo
+             end do
+          end do
+       end do
     end do
 
   end subroutine sx_cdtp_lx2

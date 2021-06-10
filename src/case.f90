@@ -198,6 +198,10 @@ contains
     !
     call C%fluid%validate
 
+    !
+    ! Set order of timestepper
+    !
+    call C%ab_bdf%set_time_order(C%params%time_order)
 
     !
     ! Save boundary markings for fluid (if requested)
