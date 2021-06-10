@@ -45,7 +45,7 @@ contains
 
   subroutine device_dirichlet_apply_vector(msk, x, y, z, g, m)
     integer, intent(in) :: m
-      type(c_ptr) :: msk, x, y, z
+    type(c_ptr) :: msk, x, y, z
     real(kind=rp), intent(in) :: g
 
 #ifdef HAVE_HIP
