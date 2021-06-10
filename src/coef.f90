@@ -61,7 +61,8 @@ module coefs
      ! Device pointers (if present)
      ! 
      
-     type(c_ptr) :: G1_d, G2_d, G3_d, G4_d, G5_d, G6_d
+     type(c_ptr) :: G11_d, G22_d, G33_d
+     type(c_ptr) :: G12_d, G13_d, G23_d
      type(c_ptr) :: dxdr_d, dydr_d, dzdr_d
      type(c_ptr) :: dxds_d, dyds_d, dzds_d
      type(c_ptr) :: dxdt_d, dydt_d, dzdt_d
@@ -147,12 +148,12 @@ contains
     
     n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_map(coef%G1, coef%G1_d, n)
-       call device_map(coef%G2, coef%G2_d, n)
-       call device_map(coef%G3, coef%G3_d, n)
-       call device_map(coef%G4, coef%G4_d, n)
-       call device_map(coef%G5, coef%G5_d, n)
-       call device_map(coef%G6, coef%G6_d, n)
+       call device_map(coef%G11, coef%G11_d, n)
+       call device_map(coef%G22, coef%G22_d, n)
+       call device_map(coef%G33, coef%G33_d, n)
+       call device_map(coef%G12, coef%G12_d, n)
+       call device_map(coef%G13, coef%G13_d, n)
+       call device_map(coef%G23, coef%G23_d, n)
        
        call device_map(coef%dxdr, coef%dxdr_d, n)
        call device_map(coef%dydr, coef%dydr_d, n)
@@ -194,12 +195,12 @@ contains
        call device_map(coef%ny, coef%ny_d, m)
        call device_map(coef%nz, coef%nz_d, m)
     else
-       coef%G1_d = C_NULL_PTR
-       coef%G2_d = C_NULL_PTR
-       coef%G3_d = C_NULL_PTR
-       coef%G4_d = C_NULL_PTR
-       coef%G5_d = C_NULL_PTR
-       coef%G6_d = C_NULL_PTR
+       coef%G11_d = C_NULL_PTR
+       coef%G22_d = C_NULL_PTR
+       coef%G33_d = C_NULL_PTR
+       coef%G12_d = C_NULL_PTR
+       coef%G13_d = C_NULL_PTR
+       coef%G23_d = C_NULL_PTR
        coef%dxdr_d = C_NULL_PTR
        coef%dydr_d = C_NULL_PTR
        coef%dzdr_d = C_NULL_PTR
@@ -426,28 +427,28 @@ contains
     ! Cleanup the device (if present)
     !
     
-    if (c_associated(coef%G1_d)) then
-       call device_free(coef%G1_d)
+    if (c_associated(coef%G11_d)) then
+       call device_free(coef%G11_d)
     end if
 
-    if (c_associated(coef%G2_d)) then
-       call device_free(coef%G2_d)
+    if (c_associated(coef%G22_d)) then
+       call device_free(coef%G22_d)
     end if
 
-    if (c_associated(coef%G3_d)) then
-       call device_free(coef%G3_d)
+    if (c_associated(coef%G33_d)) then
+       call device_free(coef%G33_d)
     end if
 
-    if (c_associated(coef%G4_d)) then
-       call device_free(coef%G4_d)
+    if (c_associated(coef%G12_d)) then
+       call device_free(coef%G12_d)
     end if
 
-    if (c_associated(coef%G5_d)) then
-       call device_free(coef%G5_d)
+    if (c_associated(coef%G13_d)) then
+       call device_free(coef%G13_d)
     end if
 
-    if (c_associated(coef%G6_d)) then
-       call device_free(coef%G6_d)
+    if (c_associated(coef%G23_d)) then
+       call device_free(coef%G23_d)
     end if
 
     if (c_associated(coef%dxdr_d)) then
@@ -702,12 +703,12 @@ contains
 
     !>  @todo cleanup once we have device math in place
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(c%G1, c%G1_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G2, c%G2_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G3, c%G3_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G4, c%G4_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G5, c%G5_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G6, c%G6_d, c%dof%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(c%G11, c%G11_d, c%dof%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(c%G22, c%G22_d, c%dof%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(c%G33, c%G33_d, c%dof%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(c%G12, c%G12_d, c%dof%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(c%G13, c%G13_d, c%dof%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(c%G23, c%G23_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if
   end subroutine coef_generate_geo
  
