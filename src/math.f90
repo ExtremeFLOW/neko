@@ -74,7 +74,7 @@ contains
     integer :: j
     do j=1,n
        a(e,j)=0.
-    enddo
+    end do
   end subroutine row_zero
 
   !> Set all elements to one
@@ -190,7 +190,7 @@ contains
     tmax =-99d20
     do i=1,n
        tmax = max(tmax,vec(i))
-    enddo
+    end do
   end function vlmax
   
   !> Invert a vector \f$ a = 1 / a \f$
@@ -461,7 +461,7 @@ contains
   end subroutine col3
 
   !> Returns \f$ a = a - b*c \f$
-  subroutine subcol3(a,b,c,n)
+  subroutine subcol3(a, b, c, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -475,7 +475,7 @@ contains
   end subroutine subcol3
 
   !> Returns \f$ a = c1 * b + c2 * c \f$
-  subroutine add3s2(a,b,c,c1,c2,n)
+  subroutine add3s2(a, b, c, c1, c2 ,n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -491,7 +491,7 @@ contains
 
 
   !> Returns \f$ a = a - b*c*d \f$
-  subroutine subcol4(a,b,c,d,n)
+  subroutine subcol4(a, b, c, d, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -506,7 +506,7 @@ contains
   end subroutine subcol4
   
   !> Returns \f$ a = a + b*c \f$
-  subroutine addcol3(a,b,c,n)
+  subroutine addcol3(a, b, c, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -520,7 +520,7 @@ contains
   end subroutine addcol3
 
   !> Returns \f$ a = a + b*c*d \f$
-  subroutine addcol4(a,b,c,d,n)
+  subroutine addcol4(a, b, c, d, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -535,7 +535,7 @@ contains
   end subroutine addcol4
 
   !> Returns \f$ a = b \dot c - d \cdot e \f$
-  subroutine ascol5(a,b,c,d,e,n)
+  subroutine ascol5(a, b, c, d, e, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -551,7 +551,7 @@ contains
   end subroutine ascol5
 
   !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
-  subroutine p_update(a,b,c,c1,c2,n)
+  subroutine p_update(a, b, c, c1, c2, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -566,7 +566,7 @@ contains
   end subroutine p_update
 
   !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
-  subroutine x_update(a,b,c,c1,c2,n)
+  subroutine x_update(a, b, c, c1, c2, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -581,7 +581,7 @@ contains
   end subroutine x_update
 
   !> Weighted inner product \f$ a^T b c \f$
-  function glsc2(a, b,  n)
+  function glsc2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -616,7 +616,7 @@ contains
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc3
-  function glsc4(a, b, c,d, n)
+  function glsc4(a, b, c, d, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
