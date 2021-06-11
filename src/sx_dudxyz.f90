@@ -18,10 +18,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -30,13 +30,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -47,13 +47,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -78,10 +78,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -90,13 +90,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -107,13 +107,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -138,10 +138,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -150,13 +150,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -167,13 +167,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -198,10 +198,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -210,13 +210,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -227,13 +227,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -258,10 +258,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -270,13 +270,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -287,13 +287,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -318,10 +318,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -330,13 +330,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -347,13 +347,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -378,10 +378,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -390,13 +390,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -407,13 +407,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -438,10 +438,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -450,13 +450,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -467,13 +467,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -498,10 +498,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -510,13 +510,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -527,13 +527,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -558,10 +558,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -570,13 +570,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -587,13 +587,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt
@@ -618,10 +618,10 @@ contains
     integer :: i, j, ii, jj, kk, nelv 
     real(kind=rp) :: wr, ws, wt, www
 
-    do i=1,lx
+    do i = 1,lx
        do jj = 1, lx*lx*nel
           wr = 0d0
-          do kk=1,lx
+          do kk = 1,lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           du(i,jj,1,1) = wr
@@ -630,13 +630,13 @@ contains
 
     call col2 (du, dr, nd)
 
-    do k=1,lx
-       do i=1,lx
-          do j=1,lx
+    do k = 1,lx
+       do i = 1,lx
+          do j = 1,lx
              do e = 1,nel     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
@@ -647,13 +647,13 @@ contains
 
     call addcol3(du, drst, ds, nd)
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
+    do j = 1,lx
+       do i = 1,lx
+          do k = 1,lx
              do e = 1,nel
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk = 1,lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 drst(i,j,k,e) = wt

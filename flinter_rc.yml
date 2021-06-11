@@ -221,7 +221,7 @@ structure-rules:
   file-line-lenght: 80
   file-line-number: 2000
   max-statements-in-context: 300   # Subroutine of function
-  max-declared-locals: 30
+  max-declared-locals: 35
   min-varlen: 1
   max-varlen: 30
   max-arguments: 10

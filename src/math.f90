@@ -68,13 +68,14 @@ contains
   end subroutine izero
 
  !> Sets row e to 0 in matrix a
-  subroutine row_zero(a,m,n,e)
-    integer, intent(in) :: m,n,e
+  subroutine row_zero(a, m, n, e)
+    integer, intent(in) :: m, n, e
     real(kind=rp), intent(inout) :: a(m,n)
     integer :: j
-    do j=1,n
-       a(e,j)=0.
-    end do
+
+    do j = 1,n
+       a(e,j) = 0.
+    end do    
   end subroutine row_zero
 
   !> Set all elements to one
