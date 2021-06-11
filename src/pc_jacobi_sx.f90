@@ -62,7 +62,7 @@ contains
     class(sx_jacobi_t), intent(inout) :: this
     integer :: i, j, k, l, e, lz, ly, lx
     associate(dof => this%dof, coef => this%coef, &
-         gs_h => this%gs_h, nelv => dof%msh%nelv)
+         gs_h => this%gs_h, nelv => this%dof%msh%nelv)
 
       lx = dof%Xh%lx
       ly = dof%Xh%ly
