@@ -181,7 +181,7 @@ contains
   !> Return the device pointer for an associated Fortran
   function device_get_ptr(x, n) result(x_d)
     integer, intent(in) :: n
-    class(*), intent(inout), target :: x(n)
+    class(*), intent(in), target :: x(n)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: x_d
 
