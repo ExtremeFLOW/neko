@@ -79,6 +79,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_cdtp(dtx, x, dr, ds, dt, coef)
     else
        call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     end if
