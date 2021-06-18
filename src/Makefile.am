@@ -63,6 +63,7 @@ libneko_a_SOURCES = \
 	opr_cpu.f90\
 	opr_sx.f90\
 	opr_xsmm.F90\
+	opr_device.F90\
 	generic_file.f90\
 	map_file.f90\
 	re2_file.f90\
@@ -123,6 +124,8 @@ if ENABLE_HIP
 libneko_a_SOURCES += \
 	hip/hip_wrapper.hip\
 	hip/math.hip\
+	hip/opr_dudxyz.hip\
+	hip/dudxyz_kernel10.hip\
 	hip/gs_kernels.hip\
 	hip/dirichlet_kernel.hip\
 	hip/inflow_kernel.hip\
