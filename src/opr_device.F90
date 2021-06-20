@@ -16,12 +16,12 @@ module opr_device
 #ifdef HAVE_HIP
   interface
      subroutine hip_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
-          dx_d, dy_d, dz_d, jacinv_d, nel, nd, lx) &
+          dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
           bind(c, name='hip_dudxyz')
           use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
-       integer(c_int) :: nel, nd, lx
+       integer(c_int) :: nel, lx
      end subroutine hip_dudxyz
   end interface
 #endif
@@ -47,7 +47,7 @@ contains
 #ifdef HAVE_HIP
       call hip_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
            Xh%dx_d, Xh%dy_d, Xh%dz_d, coef%jacinv_d, &
-           msh%nelv, dof%n_dofs, Xh%lx)
+           msh%nelv, Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif

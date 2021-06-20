@@ -9,8 +9,7 @@ __global__ void dudxyz_kernel10(double * __restrict__ du,
 				const double * __restrict__ dx,
 				const double * __restrict__ dy,
 				const double * __restrict__ dz,
-				const double * __restrict__ jacinv,				
-				const int n);
+				const double * __restrict__ jacinv);
 
 
 extern "C" {
@@ -21,7 +20,7 @@ extern "C" {
   void hip_dudxyz(void *du, void *u,
 		  void *dr, void *ds, void *dt,
 		  void *dx, void *dy, void *dz,
-		  void *jacinv, int *nel, int *nd, int *lx) {
+		  void *jacinv, int *nel, int *lx) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
@@ -34,7 +33,7 @@ extern "C" {
 			 (double *) du, (double *) u, 
 			 (double *) dr, (double *) ds, (double *) dt,
 			 (double *) dx, (double *) dy, (double *) dz,
-			 (double *) jacinv, *nd);      
+			 (double *) jacinv);      
     }
   } 
 }

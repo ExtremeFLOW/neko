@@ -58,7 +58,7 @@ operators.o : operators.f90 math.o field.o coef.o space.o opr_device.o opr_xsmm.
 opr_cpu.o : opr_cpu.f90 mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o mxm_wrapper.o num_types.o 
 opr_sx.o : opr_sx.f90 mathops.o field.o mesh.o math.o coef.o space.o num_types.o gather_scatter.o sx_cdtp.o sx_conv1.o sx_opgrad.o sx_dudxyz.o 
 opr_xsmm.o : opr_xsmm.F90 mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o mxm_wrapper.o num_types.o 
-opr_device.o : opr_device.F90 utils.o mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o mxm_wrapper.o num_types.o 
+opr_device.o : opr_device.F90 utils.o mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o device.o num_types.o 
 generic_file.o : generic_file.f90 num_types.o 
 map_file.o : map_file.f90 map.o comm.o utils.o generic_file.o 
 re2_file.o : re2_file.f90 htable.o map_file.o map.o re2.o datadist.o mpi_types.o comm.o point.o mesh.o utils.o num_types.o generic_file.o 
@@ -114,6 +114,8 @@ parmetis_wrapper.o : parmetis_wrapper.c
 cuda_wrapper.o : cuda/cuda_wrapper.cu
 hip/hip_wrapper.o : hip/hip_wrapper.hip 
 hip/math.o : hip/math.hip 
+hip/opr_dudxyz.o : hip/opr_dudxyz.hip 
+hip/dudxyz_kernel10.o : hip/dudxyz_kernel10.hip 
 hip/gs_kernels.o : hip/gs_kernels.hip 
 hip/dirichlet_kernel.o : hip/dirichlet_kernel.hip 
 hip/inflow_kernel.o : hip/inflow_kernel.hip 
