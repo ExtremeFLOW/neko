@@ -1,0 +1,34 @@
+@test
+subroutine test_signal_trap_cpulimit()
+  use signal
+  implicit none
+
+  call signal_trap_cpulimit()
+  
+end subroutine test_signal_trap_cpulimit
+
+@test
+subroutine test_signal_timeout()
+  use signal
+  use funit
+  use, intrinsic :: iso_c_binding
+  implicit none
+
+  @assertFalse(signal_timeout())
+  
+end subroutine test_signal_timeout
+
+@test
+subroutine test_signal_set_timeout()
+  use signal
+  use funit
+  use, intrinsic :: iso_c_binding
+
+  call signal_set_timeout(3)
+  @assertFalse(signal_timeout())
+  call sleep(1)
+  @assertFalse(signal_timeout())
+  call sleep(2)
+  @assertTrue(signal_timeout())
+  
+end subroutine test_signal_set_timeout
