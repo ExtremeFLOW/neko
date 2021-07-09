@@ -64,6 +64,7 @@ module neko
   use structs
   use curve
   use tet_mesh
+  use signal
 contains
 
   subroutine neko_init(C)
