@@ -87,7 +87,7 @@ fluid_method.o : fluid_method.f90 log.o pc_hsmg.o operators.o mathops.o abbdf.o 
 fluid_plan4.o : fluid_plan4.f90 log.o projection.o abbdf.o ax_helm.o ax_helm_sx.o ax_helm_xsmm.o neko_config.o facet_normal.o fluid_method.o 
 fluid_plan1.o : fluid_plan1.f90 fluid_method.o 
 fluid_schemes.o : fluid_schemes.f90 fluid_plan4.o fluid_plan1.o fluid_method.o 
-simulation.o : simulation.f90 log.o abbdf.o case.o 
+simulation.o : simulation.f90 jobctrl.o log.o abbdf.o case.o 
 ax_helm.o : ax_helm.f90 ax.o 
 ax_helm_sx.o : ax_helm_sx.f90 num_types.o ax.o 
 ax_helm_xsmm.o : ax_helm_xsmm.F90 num_types.o ax.o 
@@ -99,5 +99,7 @@ fdm.o : fdm.f90 tensor.o mxm_wrapper.o fast3d.o gather_scatter.o dofmap.o space.
 schwarz.o : schwarz.f90 fdm.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o 
 signal.o : signal.f90 utils.o 
 sighdl.o : sighdl.c 
-neko.o : neko.f90 signal.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
+jobctrl.o : jobctrl.f90 log.o comm.o utils.o signal.o num_types.o 
+neko.o : neko.f90 jobctrl.o signal.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
+parmetis_wrapper.o : parmetis_wrapper.c 
 driver.o : driver.f90 neko.o 
