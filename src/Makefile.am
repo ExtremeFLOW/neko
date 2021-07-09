@@ -99,6 +99,8 @@ libneko_a_SOURCES = \
 	pc_hsmg.f90\
 	fdm.f90\
 	schwarz.f90\
+	signal.f90\
+	sighdl.c\
 	neko.f90
 
 if ENABLE_PARMETIS
