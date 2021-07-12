@@ -7,6 +7,10 @@ module jobctrl
   use log
   implicit none
 
+  interface jobctrl_set_time_limit
+     module procedure jobctrl_set_time_limit_sec, jobctrl_set_time_limit_str
+  end interface jobctrl_set_time_limit
+
 contains
 
   !> Initialize jobctrl
@@ -24,15 +28,42 @@ contains
 
   end subroutine jobctrl_init
 
+  !> Set a job's time limit (in walltime 'HH:MM:SS')
+  subroutine jobctrl_set_time_limit_str(limit_str)
+    character(len=*) limit_str
+    integer :: str_len, i, sep_h, h, m, s, jlimit
+
+    str_len = len_trim(limit_str)
+    
+    if (str_len .lt. 8) then
+       call neko_error('Invalid job limit')
+    end if
+
+    ! hour
+    sep_h = scan(trim(limit_str), ':')
+    read(limit_str(1:sep_h-1), *) h
+
+    !min
+    read(limit_str(sep_h+1:sep_h+2), *) m
+
+    !sec
+    read(limit_str(sep_h+4:str_len), *) s
+
+    call jobctrl_set_time_limit_sec(h*3600 + m * 60 + s)
+    
+  end subroutine jobctrl_set_time_limit_str
+  
   !> Set a job's time limit (in seconds)
-  subroutine jobctrl_set_time_limit(sec)
+  subroutine jobctrl_set_time_limit_sec(sec)
     integer :: sec
     integer :: jstop_sec
 
-    jstop_sec = sec - jobctrl_jobtime()
-    call signal_set_timeout(jstop_sec)
+    if (sec .gt. 0) then
+       jstop_sec = sec - jobctrl_jobtime()
+       call signal_set_timeout(jstop_sec)
+    end if
     
-  end subroutine jobctrl_set_time_limit
+  end subroutine jobctrl_set_time_limit_sec
   
   !> Check if the job's time limit has been reached
   function jobctrl_time_limit() result(jstop)
