@@ -14,7 +14,8 @@ module case
   use mesh
   use comm
   use abbdf
-  use log    
+  use log
+  use jobctrl
   use user_intf  
   implicit none
 
@@ -228,6 +229,11 @@ contains
     call C%s%init(C%params%nsamples, C%params%T_end)
     C%f_out = fluid_output_t(C%fluid)
     call C%s%add(C%f_out)
+
+    !
+    ! Setup joblimit
+    !
+    call jobctrl_set_time_limit(C%params%jlimit)
 
     call neko_log%end_section()
     

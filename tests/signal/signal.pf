@@ -28,7 +28,7 @@ subroutine test_signal_set_timeout()
   @assertFalse(signal_timeout())
   call sleep(1)
   @assertFalse(signal_timeout())
-  call sleep(2)
+  call sleep(3)
   @assertTrue(signal_timeout())
   
 end subroutine test_signal_set_timeout
