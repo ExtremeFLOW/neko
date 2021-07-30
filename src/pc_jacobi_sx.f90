@@ -61,7 +61,8 @@ contains
   subroutine sx_jacobi_update(this)
     class(sx_jacobi_t), intent(inout) :: this
     integer :: i, j, k, l, e, lz, ly, lx
-    associate(dof => this%dof, coef => this%coef, gs_h => this%gs_h)
+    associate(dof => this%dof, coef => this%coef, &
+         gs_h => this%gs_h, nelv => this%dof%msh%nelv)
 
       lx = dof%Xh%lx
       ly = dof%Xh%ly
@@ -72,26 +73,26 @@ contains
       select case(lx)
       case (12)
          call sx_update_lx12(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, nelv)
       case (10)
          call sx_update_lx10(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, nelv)
       case (8)
          call sx_update_lx8(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, nelv)
       case (4)
          call sx_update_lx4(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, nelv)
       case (2)
          call sx_update_lx2(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
-              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, dof%msh%nelv)
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, nelv)
       end select
 
-      call col2(this%d,coef%h1,coef%dof%n_dofs)
-      if (coef%ifh2) call addcol3(this%d,coef%h2,coef%B,coef%dof%n_dofs)
+      call col2(this%d, coef%h1, coef%dof%n_dofs)
+      if (coef%ifh2) call addcol3(this%d, coef%h2, coef%B, coef%dof%n_dofs)
       call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
       if (.not. coef%ifh2) call col2(this%d, coef%mult, coef%dof%n_dofs)
-      call invcol1(this%d,dof%n_dofs)
+      call invcol1(this%d, dof%n_dofs)
     end associate
   end subroutine sx_jacobi_update
 
@@ -114,11 +115,11 @@ contains
     integer :: i, j, k, l, e, jj
 
 
-    do l=1,lx
-       do k=1,lz
-          do j=1,ly
-             do i=1,lx
-                do e=1,n
+    do l = 1,lx
+       do k = 1,lz
+          do j = 1,ly
+             do i = 1,lx
+                do e = 1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
 
@@ -134,9 +135,9 @@ contains
        end do
     end do
 
-    do j=1,ly,ly-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do j = 1,ly,ly-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(1,j,k,e) = d(1,j,k,e) &
                   + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                   + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -147,9 +148,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(i,1,k,e) = d(i,1,k,e) &
                   + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                   + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -160,9 +161,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do j=1,ly,ly-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do j = 1,ly,ly-1
+          do e = 1,n
              d(i,j,1,e) = d(i,j,1,e) &
                   + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                   + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -195,11 +196,11 @@ contains
     integer :: i, j, k, l, e, jj
 
 
-    do l=1,lx
-       do k=1,lz
-          do j=1,ly
-             do i=1,lx
-                do e=1,n
+    do l = 1,lx
+       do k = 1,lz
+          do j = 1,ly
+             do i = 1,lx
+                do e = 1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
 
@@ -215,9 +216,9 @@ contains
        end do
     end do
 
-    do j=1,ly,ly-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do j = 1,ly,ly-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(1,j,k,e) = d(1,j,k,e) &
                   + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                   + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -228,9 +229,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(i,1,k,e) = d(i,1,k,e) &
                   + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                   + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -241,9 +242,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do j=1,ly,ly-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do j = 1,ly,ly-1
+          do e = 1,n
              d(i,j,1,e) = d(i,j,1,e) &
                   + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                   + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -275,11 +276,11 @@ contains
     integer :: i, j, k, l, e, jj
 
 
-    do l=1,lx
-       do k=1,lz
-          do j=1,ly
-             do i=1,lx
-                do e=1,n
+    do l = 1,lx
+       do k = 1,lz
+          do j = 1,ly
+             do i = 1,lx
+                do e = 1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
 
@@ -295,9 +296,9 @@ contains
        end do
     end do
 
-    do j=1,ly,ly-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do j = 1,ly,ly-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(1,j,k,e) = d(1,j,k,e) &
                   + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                   + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -308,9 +309,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(i,1,k,e) = d(i,1,k,e) &
                   + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                   + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -321,9 +322,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do j=1,ly,ly-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do j = 1,ly,ly-1
+          do e = 1,n
              d(i,j,1,e) = d(i,j,1,e) &
                   + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                   + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -354,11 +355,11 @@ contains
 
     integer :: i, j, k, l, e, jj
 
-    do l=1,lx
-       do k=1,lz
-          do j=1,ly
-             do i=1,lx
-                do e=1,n
+    do l = 1,lx
+       do k = 1,lz
+          do j = 1,ly
+             do i = 1,lx
+                do e = 1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
 
@@ -374,9 +375,9 @@ contains
        end do
     end do
 
-    do j=1,ly,ly-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do j = 1,ly,ly-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(1,j,k,e) = d(1,j,k,e) &
                   + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                   + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -387,9 +388,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(i,1,k,e) = d(i,1,k,e) &
                   + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                   + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -400,9 +401,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do j=1,ly,ly-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do j = 1,ly,ly-1
+          do e = 1,n
              d(i,j,1,e) = d(i,j,1,e) &
                   + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                   + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -435,11 +436,11 @@ contains
     integer :: i, j, k, l, e, jj
 
 
-    do l=1,lx
-       do k=1,lz
-          do j=1,ly
-             do i=1,lx
-                do e=1,n
+    do l = 1,lx
+       do k = 1,lz
+          do j = 1,ly
+             do i = 1,lx
+                do e = 1,n
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
 
@@ -455,9 +456,9 @@ contains
        end do
     end do
 
-    do j=1,ly,ly-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do j = 1,ly,ly-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(1,j,k,e) = d(1,j,k,e) &
                   + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                   + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -468,9 +469,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do k=1,lz,lz-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do k = 1,lz,lz-1
+          do e = 1,n
              d(i,1,k,e) = d(i,1,k,e) &
                   + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                   + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -481,9 +482,9 @@ contains
        end do
     end do
 
-    do i=1,lx,lx-1
-       do j=1,ly,ly-1
-          do e=1,n
+    do i = 1,lx,lx-1
+       do j = 1,ly,ly-1
+          do e = 1,n
              d(i,j,1,e) = d(i,j,1,e) &
                   + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                   + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)

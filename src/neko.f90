@@ -65,6 +65,8 @@ module neko
   use structs
   use curve
   use tet_mesh
+  use signal
+  use jobctrl
   use device
 contains
 
@@ -76,6 +78,7 @@ contains
 
     call comm_init
     call mpi_types_init
+    call jobctrl_init
     call device_init
 
     call neko_log%init()

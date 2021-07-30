@@ -12,7 +12,9 @@ SUBDIRS = tuple\
 	  dofmap\
 	  gather_scatter\
 	  krylov\
-	  bc
+	  bc\
+	  signal\
+	  jobctrl
 
 TESTS = tuple/tuple_test\
 	stack/stack_test\
@@ -28,7 +30,9 @@ TESTS = tuple/tuple_test\
 	dofmap/dofmap_test\
 	gather_scatter/gather_scatter_test\
 	krylov/krylov_test\
-	bc/bc_test
+	bc/bc_test\
+	signal/signal_test\
+	jobctrl/jobctrl_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
@@ -42,6 +46,8 @@ EXTRA_DIST = \
 	bc/bc.pf\
 	tuple/tuple.pf\
 	point/point.pf\
+	signal/signal.pf\
+	jobctrl/jobctrl_parallel.pf\
 	dofmap/dofmap_parallel.pf\
 	uset/uset_i4.pf\
 	uset/uset_r8.pf\
@@ -63,4 +69,5 @@ EXTRA_DIST = \
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
+	jobctrl/jobctrl_test\
 	math/math_test

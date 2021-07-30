@@ -105,6 +105,9 @@ libneko_a_SOURCES = \
 	pc_hsmg.f90\
 	fdm.f90\
 	schwarz.f90\
+	signal.f90\
+	sighdl.c\
+	jobctrl.f90\
 	cuda_intf.F90\
 	hip_intf.F90\
 	device.F90\

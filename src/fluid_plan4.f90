@@ -736,7 +736,10 @@ contains
     type(ksp_monitor_t) :: ksp_result
 
 
-    associate(c => this%c_Xh) 
+    associate(c => this%c_Xh, p_vol => this%p_vol, p_res => this%p_res, &
+         u_res => this%u_res, v_res => this%v_res, w_res=>this%w_res, &
+         msh => this%msh)
+      
     n = this%dm_Xh%size()
     xlmin = glmin(this%dm_Xh%x,n)
     xlmax = glmax(this%dm_Xh%x,n)
@@ -751,55 +754,72 @@ contains
     call fluid_plan4_pres_setup(c%h1, c%h2, this%params%rho, n, c%ifh2)
 !   Compute pressure 
 
-    if (this%flow_dir .eq. 1) call cdtp(this%p_res,c%h1,c%drdx,c%dsdx,c%dtdx,c)
-    if (this%flow_dir .eq. 2) call cdtp(this%p_res,c%h1,c%drdy,c%dsdy,c%dtdy,c)
-    if (this%flow_dir .eq. 3) call cdtp(this%p_res,c%h1,c%drdz,c%dsdz,c%dtdz,c)
-
+    if (this%flow_dir .eq. 1) then
+       call cdtp(p_res, c%h1, c%drdx, c%dsdx, c%dtdx, c)
+    end if
+    
+    if (this%flow_dir .eq. 2) then
+       call cdtp(p_res, c%h1, c%drdy, c%dsdy, c%dtdy, c)
+    end if
+    
+    if (this%flow_dir .eq. 3) then
+       call cdtp(p_res, c%h1, c%drdz, c%dsdz, c%dtdz, c)
+    end if
+    
     !call ortho    (respr)
 
-    call gs_op_vector(this%gs_Xh, this%p_res, n, GS_OP_ADD) 
-    call bc_list_apply_scalar(this%bclst_prs, this%p_res, n)
+    call gs_op_vector(this%gs_Xh, p_res, n, GS_OP_ADD) 
+    call bc_list_apply_scalar(this%bclst_prs, p_res, n)
     call this%pc_prs%update()
-    ksp_result = this%ksp_prs%solve(this%Ax, this%p_vol, this%p_res, n, c, &
+    ksp_result = this%ksp_prs%solve(this%Ax, p_vol, p_res, n, c, &
                               this%bclst_prs, this%gs_Xh, this%niter)    
 
 !   Compute velocity
 
-    call opgrad(this%u_res,this%v_res,this%w_res,this%p_vol%x,c)
-    call opchsign(this%u_res,this%v_res,this%w_res, this%msh%gdim, n)
+    call opgrad(u_res, v_res, w_res, p_vol%x, c)
+    call opchsign(u_res, v_res, w_res, msh%gdim, n)
     call copy(this%ta1%x, c%B, n)
     call copy(this%ta2%x, c%B, n)
     call copy(this%ta3%x, c%B, n)
     call bc_list_apply_vector(this%bclst_vel,&
                               this%ta1%x, this%ta2%x, this%ta3%x,n)
 
-    if (this%flow_dir.eq.1) call add2(this%u_res,this%ta1%x,n) ! add forcing
-    if (this%flow_dir.eq.2) call add2(this%v_res,this%ta2%x,n)
-    if (this%flow_dir.eq.3) call add2(this%w_res,this%ta3%x,n)
+    if (this%flow_dir.eq.1) call add2(u_res, this%ta1%x,n) ! add forcing
+    if (this%flow_dir.eq.2) call add2(v_res, this%ta2%x,n)
+    if (this%flow_dir.eq.3) call add2(w_res, this%ta3%x,n)
 
 
     call fluid_plan4_vel_setup(c%h1, c%h2, &
                                this%params%Re, this%params%rho,&
                                ab_bdf%bd(1), &
                                this%params%dt, n, c%ifh2)
-    call gs_op_vector(this%gs_Xh, this%u_res, n, GS_OP_ADD) 
-    call gs_op_vector(this%gs_Xh, this%v_res, n, GS_OP_ADD) 
-    call gs_op_vector(this%gs_Xh, this%w_res, n, GS_OP_ADD) 
+    call gs_op_vector(this%gs_Xh, u_res, n, GS_OP_ADD) 
+    call gs_op_vector(this%gs_Xh, v_res, n, GS_OP_ADD) 
+    call gs_op_vector(this%gs_Xh, w_res, n, GS_OP_ADD) 
 
     call bc_list_apply_vector(this%bclst_vel,&
-                              this%u_res, this%v_res, this%w_res, this%dm_Xh%n_dofs)
+                              u_res, v_res, w_res, this%dm_Xh%n_dofs)
     call this%pc_vel%update()
 
-    ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, this%u_res, n, &
+    ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res, n, &
          c, this%bclst_vel_residual, this%gs_Xh, this%niter)
-    ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, this%v_res, n, &
+    ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, v_res, n, &
          c, this%bclst_vel_residual, this%gs_Xh, this%niter)
-    ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, this%w_res, n, &
+    ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, w_res, n, &
          c, this%bclst_vel_residual, this%gs_Xh, this%niter)
       
-    if (this%flow_dir.eq.1) this%base_flow = glsc2(this%u_vol%x,c%B,n)/this%domain_length
-    if (this%flow_dir.eq.2) this%base_flow = glsc2(this%v_vol%x,c%B,n)/this%domain_length
-    if (this%flow_dir.eq.3) this%base_flow = glsc2(this%w_vol%x,c%B,n)/this%domain_length
+    if (this%flow_dir.eq.1) then
+       this%base_flow = glsc2(this%u_vol%x, c%B, n) / this%domain_length
+    end if
+    
+    if (this%flow_dir.eq.2) then
+       this%base_flow = glsc2(this%v_vol%x, c%B, n) / this%domain_length
+    end if
+    
+    if (this%flow_dir.eq.3) then
+       this%base_flow = glsc2(this%w_vol%x, c%B, n) / this%domain_length
+    end if
+    
   end associate
   end subroutine  plan4_compute_vol_flow
 

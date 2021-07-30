@@ -3,6 +3,7 @@ module simulation
   use case
   use abbdf
   use log
+  use jobctrl
   implicit none
   private
 
@@ -28,7 +29,7 @@ contains
     call neko_log%newline()
     
     start_time_org = MPI_WTIME()
-    do while (t .lt. C%params%T_end)
+    do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()))
        tstep = tstep + 1
        start_time = MPI_WTIME()
        cfl = C%fluid%compute_cfl(C%params%dt)

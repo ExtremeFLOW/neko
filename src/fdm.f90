@@ -13,9 +13,9 @@ module fdm
   type, public :: fdm_t
     real(kind=rp), allocatable :: s(:,:,:,:)
     real(kind=rp), allocatable :: d(:,:)
-    real(kind=rp), allocatable :: len_lr(:),len_ls(:),len_lt(:)
-    real(kind=rp), allocatable :: len_mr(:),len_ms(:),len_mt(:)
-    real(kind=rp), allocatable :: len_rr(:),len_rs(:),len_rt(:)
+    real(kind=rp), allocatable :: len_lr(:), len_ls(:), len_lt(:)
+    real(kind=rp), allocatable :: len_mr(:), len_ms(:), len_mt(:)
+    real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
     real(kind=rp), allocatable :: swplen(:,:,:,:)
     type(space_t), pointer :: Xh
     type(dofmap_t), pointer :: dof
@@ -33,8 +33,10 @@ contains
     type(dofmap_t), target, intent(inout) :: dm
     type(gs_t), target, intent(inout) :: gs_h
     !We only really use ah, bh
-    real(kind=rp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, wh
+    real(kind=rp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh
+    real(kind=rp), dimension((Xh%lx)**2) :: dph, jph, bgl, zglhat, dgl, jgl, wh
     integer :: nl, n, nelv
+
     n = Xh%lx -1 !Polynomnial degree
     nl = Xh%lx + 2 !Schwarz!
     nelv = dm%msh%nelv
@@ -46,7 +48,7 @@ contains
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
 
-    call semhat(ah,bh,ch,dh,zh,dph,jph,bgl,zglhat,dgl,jgl,n,wh)
+    call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
     this%Xh => Xh
     this%dof => dm
     this%gs_h => gs_h
@@ -124,9 +126,10 @@ contains
   !> Here, spacing is based on harmonic mean.  pff 2/10/07
   !! We no longer base this on the finest grid, but rather
   !! the dofmap we are working with, Karp 210112
-  subroutine plane_space(lr,ls,lt,i1,i2,w,x,y,z,nx,nxn,nz0,nzn, nelv, gdim)
+  subroutine plane_space(lr, ls, lt, i1, i2, w, x, y, z, &
+                         nx, nxn, nz0, nzn, nelv, gdim)
     integer, intent(in) :: nxn, nzn, i1, i2, nelv, gdim, nx, nz0
-    real(kind=rp), intent(inout) :: lr(nelv),ls(nelv),lt(nelv)
+    real(kind=rp), intent(inout) :: lr(nelv), ls(nelv), lt(nelv)
     real(kind=rp), intent(inout) :: w(nx)
     real(kind=rp), intent(in) :: x(0:nxn,0:nxn,nz0:nzn,nelv)
     real(kind=rp), intent(in) :: y(0:nxn,0:nxn,nz0:nzn,nelv)
@@ -216,12 +219,12 @@ contains
   subroutine fdm_setup_fast(this, ah, bh, nl, n)
     integer, intent(in) :: nl, n
     type(fdm_t), intent(inout) :: this
-    real(kind=rp), intent(inout) ::  ah(n+1,n+1),bh(n+1)
-    real(kind=rp), dimension(2*this%Xh%lx + 4) :: lr,ls,lt
-    integer :: i,j,k
-    integer :: ie,il,nr,ns,nt
-    integer :: lbr,rbr,lbs,rbs,lbt,rbt,two
-    real(kind=rp) :: eps,diag
+    real(kind=rp), intent(inout) ::  ah(n+1,n+1), bh(n+1)
+    real(kind=rp), dimension(2*this%Xh%lx + 4) :: lr, ls, lt
+    integer :: i, j, k
+    integer :: ie, il, nr, ns, nt
+    integer :: lbr, rbr, lbs, rbs, lbt, rbt, two
+    real(kind=rp) :: eps, diag
     
     associate(s => this%s, d => this%d, &
               llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
@@ -238,35 +241,35 @@ contains
          nr=nl
          ns=nl
          nt=nl
-         call fdm_setup_fast1d(s(1,1,1,ie),lr,nr,lbr,rbr, &
-              llr(ie),lmr(ie),lrr(ie),ah,bh,n,ie)
-         call fdm_setup_fast1d(s(1,1,2,ie),ls,ns,lbs,rbs, &
-              lls(ie),lms(ie),lrs(ie),ah,bh,n,ie)
+         call fdm_setup_fast1d(s(1,1,1,ie), lr, nr, lbr, rbr, &
+              llr(ie), lmr(ie), lrr(ie), ah, bh, n, ie)
+         call fdm_setup_fast1d(s(1,1,2,ie), ls, ns, lbs, rbs, &
+              lls(ie), lms(ie), lrs(ie), ah, bh, n, ie)
          if(this%dof%msh%gdim .eq. 3) then
-            call fdm_setup_fast1d(s(1,1,3,ie),lt,nt,lbt,rbt, &
-                 llt(ie),lmt(ie),lrt(ie),ah,bh,n,ie)
+            call fdm_setup_fast1d(s(1,1,3,ie), lt, nt, lbt, rbt, &
+                 llt(ie), lmt(ie), lrt(ie), ah, bh, n, ie)
          end if
 
-         il=1
+         il = 1
          if(.not.this%dof%msh%gdim .eq. 3) then
             eps = 1d-5*(vlmax(lr(2),nr-2) + vlmax(ls(2),ns-2))
-            do j=1,ns
-               do i=1,nr
+            do j = 1,ns
+               do i = 1,nr
                   diag = lr(i)+ls(j)
                   if (diag.gt.eps) then
                      d(il,ie) = 1d0/diag
                   else
                      d(il,ie) = 0d0
                   endif
-                  il=il+1
+                  il = il+1
                end do
             end do
          else
             eps = 1d-5 * (vlmax(lr(2),nr-2) + &
                  vlmax(ls(2),ns-2) + vlmax(lt(2),nt-2))
-            do k=1,nt
-               do j=1,ns
-                  do i=1,nr
+            do k = 1,nt
+               do j = 1,ns
+                  do i = 1,nr
                      diag = lr(i)+ls(j)+lt(k)
                      if (diag.gt.eps) then
                         d(il,ie) = 1d0/diag
@@ -280,82 +283,90 @@ contains
          endif
       end do
     end associate
+
   end subroutine fdm_setup_fast
   
-  subroutine fdm_setup_fast1d(s,lam,nl,lbc,rbc,ll,lm,lr,ah,bh,n,ie)
-    integer, intent(in)  :: nl,lbc,rbc,n, ie
-    real(kind=rp), intent(inout) :: s(nl,nl,2),lam(nl),ll,lm,lr
-    real(kind=rp), intent(inout) ::  ah(0:n,0:n),bh(0:n)
+  subroutine fdm_setup_fast1d(s, lam, nl, lbc, rbc, ll, lm, lr, ah, bh, n, ie)
+    integer, intent(in)  :: nl, lbc, rbc, n, ie
+    real(kind=rp), intent(inout) :: s(nl,nl,2), lam(nl), ll, lm, lr
+    real(kind=rp), intent(inout) ::  ah(0:n,0:n), bh(0:n)
     integer ::  lx1, lxm
     real(kind=rp) :: b(2*(n+3)**2), w(2*(n+3)**2)
+
     lx1 = n + 1
     lxm = lx1+2
      
-    call fdm_setup_fast1d_a(s,lbc,rbc,ll,lm,lr,ah,n)
-    call fdm_setup_fast1d_b(b,lbc,rbc,ll,lm,lr,bh,n)
-    call generalev(s,b,lam,nl,lx1,w)
-    if(lbc.gt.0) call row_zero(s,nl,nl,1)
-    if(lbc.eq.1) call row_zero(s,nl,nl,2)
-    if(rbc.gt.0) call row_zero(s,nl,nl,nl)
-    if(rbc.eq.1) call row_zero(s,nl,nl,nl-1)
+    call fdm_setup_fast1d_a(s, lbc, rbc, ll, lm, lr, ah, n)
+    call fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
+    call generalev(s, b, lam, nl, lx1, w)
+    if(lbc.gt.0) call row_zero(s, nl, nl, 1)
+    if(lbc.eq.1) call row_zero(s, nl, nl, 2)
+    if(rbc.gt.0) call row_zero(s, nl, nl, nl)
+    if(rbc.eq.1) call row_zero(s, nl, nl, nl-1)
     
-    call trsp(s(1,1,2),nl,s,nl)
+    call trsp(s(1,1,2), nl, s, nl)
+    
   end subroutine fdm_setup_fast1d
 
   !> Solve the generalized eigenvalue problem /$ A x = lam B x/$
   !! A -- symm.
   !! B -- symm., pos. definite
-  subroutine generalev(a,b,lam,n,lx,w)
+  subroutine generalev(a, b, lam, n, lx, w)
     integer, intent(in) :: n, lx
-    real(kind=rp), intent(inout) :: a(n,n),b(n,n),lam(n),w(n,n)
-    real(kind=dp) :: a2(n,n),b2(n,n),lam2(n),w2(n,n)
+    real(kind=rp), intent(inout) :: a(n,n), b(n,n), lam(n), w(n,n)
+    real(kind=dp) :: a2(n,n), b2(n,n), lam2(n), w2(n,n)
     integer :: lbw, lw
     real(kind=rp) :: bw(4*(lx+2)**3)
     real(kind=dp) :: bw2(4*(lx+2)**3)
     integer :: info = 0
+
     lbw = 4*(lx+2)**3
     lw = n*n
-      if (rp .eq. dp) then
-         call dsygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
-      else if ( rp .eq. sp) then
-         call ssygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
-      else
-         a2 = real(a, dp)
-         b2 = real(b, dp)
-         lam2 = real(lam, dp)
-         w2 = real(w, dp)
-         call dsygv(1, 'V', 'U', n, a2, n, b2, n, lam2, bw2, lbw, info)
-         a = real(a2, rp)
-         b = real(b2, rp)
-         lam = real(lam2, rp)
-         w = real(w2, rp)
-         if (pe_rank .eq. 0) then
-            call neko_warning('Real precision choice not supported for fdm, treating it as double')
-         end if
-      end if
-
+    if (rp .eq. dp) then
+       call dsygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
+    else if ( rp .eq. sp) then
+       call ssygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
+    else
+       a2 = real(a, dp)
+       b2 = real(b, dp)
+       lam2 = real(lam, dp)
+       w2 = real(w, dp)
+       call dsygv(1, 'V', 'U', n, a2, n, b2, n, lam2, bw2, lbw, info)
+       a = real(a2, rp)
+       b = real(b2, rp)
+       lam = real(lam2, rp)
+       w = real(w2, rp)
+       if (pe_rank .eq. 0) then
+          call neko_warning('Real precision choice not supported for fdm, treating it as double')
+       end if
+    end if
+    
   end subroutine generalev
 
-  subroutine fdm_setup_fast1d_a(a,lbc,rbc,ll,lm,lr,ah,n)
-    integer, intent(in) ::lbc,rbc,n
-    real(kind=rp), intent(inout) :: a(0:n+2,0:n+2),ll,lm,lr
+  subroutine fdm_setup_fast1d_a(a, lbc, rbc, ll, lm, lr, ah, n)
+    integer, intent(in) ::lbc, rbc, n
+    real(kind=rp), intent(inout) :: a(0:n+2,0:n+2), ll, lm, lr
     real(kind=rp), intent(inout) :: ah(0:n,0:n)
     real(kind=rp) :: fac
-    integer :: i,j,i0,i1
-    i0=0
+    integer :: i, j, i0, i1
+
+    i0 = 0
     if(lbc.eq.1) i0=1
-    i1=n
+    i1 = n
     if(rbc.eq.1) i1=n-1
     
     call rzero(a,(n+3)*(n+3))
+
     fac = 2d0/lm
     a(1,1) = 1d0
     a(n+1,n+1) = 1d0
-    do j=i0,i1
-       do i=i0,i1
+
+    do j = i0,i1
+       do i = i0,i1
           a(i+1,j+1) = fac*ah(i,j)
        enddo
     enddo
+    
     if(lbc.eq.0) then
        fac = 2d0/ll
        a(0,0) = fac*ah(n-1,n-1)
@@ -363,8 +374,9 @@ contains
        a(0,1) = fac*ah(n-1,n  )
        a(1,1) = a(1,1)+fac*ah(n  ,n  )
     else
-       a(0,0)=1d0
+       a(0,0) = 1d0
     endif
+    
     if(rbc.eq.0) then
        fac = 2d0/lr
        a(n+1,n+1) = a(n+1,n+1)+fac*ah(0,0)
@@ -374,27 +386,31 @@ contains
     else
        a(n+2,n+2) = 1d0
     endif
+    
   end subroutine fdm_setup_fast1d_a
 
-  subroutine fdm_setup_fast1d_b(b,lbc,rbc,ll,lm,lr,bh,n)
-    integer, intent(in) :: lbc,rbc,n
-    real(kind=rp), intent(inout) :: b(0:n+2,0:n+2),ll,lm,lr
-    real(kind=rp), intent(inout) :: bh(0:n)
-    
+  subroutine fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
+    integer, intent(in) :: lbc, rbc, n
+    real(kind=rp), intent(inout) :: b(0:n+2,0:n+2), ll, lm, lr
+    real(kind=rp), intent(inout) :: bh(0:n)    
     real(kind=rp) :: fac
-    integer :: i,j,i0,i1
-    i0=0
-    if(lbc.eq.1) i0=1
-    i1=n
-    if(rbc.eq.1) i1=n-1
+    integer :: i, j, i0, i1
+    
+    i0 = 0
+    if(lbc.eq.1) i0 = 1
+    i1 = n
+    if(rbc.eq.1) i1 = n-1
     
     call rzero(b, (n+3)*(n+3))
+
     fac = 0.5d0*lm
     b(1,1) = 1.0d0
     b(n+1,n+1) = 1.0d0
+
     do i = i0,i1
        b(i+1,i+1) = fac*bh(i)
     end do
+
     if(lbc.eq.0) then
        fac = 0.5d0*ll
        b(0,0) = fac*bh(n-1)
@@ -402,6 +418,7 @@ contains
     else
        b(0,0) = 1.0d0
     end if
+
     if(rbc.eq.0) then
        fac = 0.5d0*lr
        b(n+1,n+1) = b(n+1,n+1)+fac*bh(0)
@@ -409,24 +426,60 @@ contains
     else
        b(n+2,n+2) = 1.0d0
     end if
+    
   end subroutine fdm_setup_fast1d_b
 
   subroutine fdm_free(this)
     class(fdm_t), intent(inout) :: this
+    
     if(allocated(this%s)) then
-      deallocate(this%s)
+       deallocate(this%s)
     end if
-    if(allocated(this%d)) deallocate(this%d)
-    if(allocated(this%len_lr)) deallocate(this%len_lr)
-    if(allocated(this%len_ls)) deallocate(this%len_ls)
-    if(allocated(this%len_lt)) deallocate(this%len_lt)
-    if(allocated(this%len_mr)) deallocate(this%len_mr)
-    if(allocated(this%len_ms)) deallocate(this%len_ms)
-    if(allocated(this%len_mt)) deallocate(this%len_mt)
-    if(allocated(this%len_rr)) deallocate(this%len_rr)
-    if(allocated(this%len_rs)) deallocate(this%len_rs)
-    if(allocated(this%len_rt)) deallocate(this%len_rt)
-    if(allocated(this%swplen)) deallocate(this%swplen)
+   
+    if(allocated(this%d)) then
+       deallocate(this%d)
+    end if
+    
+    if(allocated(this%len_lr)) then
+       deallocate(this%len_lr)
+    end if
+    
+    if(allocated(this%len_ls)) then
+       deallocate(this%len_ls)
+    end if
+    
+    if(allocated(this%len_lt)) then
+       deallocate(this%len_lt)
+    end if
+    
+    if(allocated(this%len_mr)) then
+       deallocate(this%len_mr)
+    end if
+    
+    if(allocated(this%len_ms)) then
+       deallocate(this%len_ms)
+    end if
+    
+    if(allocated(this%len_mt)) then
+       deallocate(this%len_mt)
+    end if
+    
+    if(allocated(this%len_rr)) then
+       deallocate(this%len_rr)
+    end if
+    
+    if(allocated(this%len_rs)) then
+       deallocate(this%len_rs)
+    end if
+    
+    if(allocated(this%len_rt)) then
+       deallocate(this%len_rt)
+    end if
+    
+    if(allocated(this%swplen)) then
+       deallocate(this%swplen)
+    end if
+    
     nullify(this%Xh)
     nullify(this%dof)
     nullify(this%gs_h)

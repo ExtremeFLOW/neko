@@ -84,13 +84,13 @@ pc_jacobi_sx.o : pc_jacobi_sx.f90 gather_scatter.o num_types.o coef.o precon.o m
 source.o : source.f90 num_types.o dofmap.o 
 abbdf.o : abbdf.f90 utils.o math.o num_types.o 
 neko_config.o : neko_config.f90 
-case.o : case.f90 user_intf.o log.o abbdf.o comm.o mesh.o utils.o file.o sampler.o redist.o parmetis.o mesh_field.o mpi_types.o parameters.o fluid_output.o fluid_schemes.o num_types.o 
+case.o : case.f90 user_intf.o jobctrl.o log.o abbdf.o comm.o mesh.o utils.o file.o sampler.o redist.o parmetis.o mesh_field.o mpi_types.o parameters.o fluid_output.o fluid_schemes.o num_types.o 
 user_intf.o : user_intf.f90 num_types.o parameters.o usr_inflow.o coef.o source.o field.o 
 fluid_method.o : fluid_method.f90 log.o pc_hsmg.o operators.o mathops.o abbdf.o math.o mesh.o gmres.o pc_jacobi_sx.o pc_jacobi.o bc.o ksp_bicgstab.o cg.o symmetry.o dirichlet.o usr_inflow.o inflow.o wall.o coef.o krylov.o dofmap.o space.o field.o source.o num_types.o parameters.o neko_config.o gather_scatter.o 
 fluid_plan4.o : fluid_plan4.f90 log.o projection.o abbdf.o ax_helm.o ax_helm_sx.o ax_helm_xsmm.o neko_config.o facet_normal.o fluid_method.o 
 fluid_plan1.o : fluid_plan1.f90 fluid_method.o 
 fluid_schemes.o : fluid_schemes.f90 fluid_plan4.o fluid_plan1.o fluid_method.o 
-simulation.o : simulation.f90 log.o abbdf.o case.o 
+simulation.o : simulation.f90 jobctrl.o log.o abbdf.o case.o 
 ax_helm.o : ax_helm.f90 ax.o 
 ax_helm_sx.o : ax_helm_sx.f90 num_types.o ax.o 
 ax_helm_xsmm.o : ax_helm_xsmm.F90 num_types.o ax.o 
@@ -99,7 +99,10 @@ parmetis.o : parmetis.F90 mesh.o mesh_field.o num_types.o utils.o point.o comm.o
 redist.o : redist.f90 zone.o nmsh.o mesh.o comm.o curve.o stack.o point.o htable.o mpi_types.o mesh_field.o 
 pc_hsmg.o : pc_hsmg.f90 pc_jacobi_sx.o pc_jacobi.o tensor.o gmres.o ax_helm_xsmm.o ax_helm_sx.o ax_helm.o schwarz.o fdm.o dirichlet.o cg.o bc.o fast3d.o gather_scatter.o ax.o precon.o utils.o math.o neko_config.o 
 fdm.o : fdm.f90 tensor.o mxm_wrapper.o fast3d.o gather_scatter.o dofmap.o space.o math.o speclib.o num_types.o 
-schwarz.o : schwarz.f90 fdm.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o 
+schwarz.o : schwarz.f90 fdm.o fast3d.o gather_scatter.o dirichlet.o bc.o dofmap.o space.o math.o speclib.o num_types.o
+signal.o : signal.f90 utils.o 
+sighdl.o : sighdl.c 
+jobctrl.o : jobctrl.f90 log.o comm.o utils.o signal.o num_types.o  
 cuda_intf.o : cuda_intf.F90 utils.o 
 hip_intf.o : hip_intf.F90 utils.o 
 device.o : device.F90 utils.o htable.o hip_intf.o cuda_intf.o num_types.o 
@@ -109,7 +112,7 @@ device_inflow.o : device_inflow.F90 utils.o num_types.o
 device_wall.o : device_wall.F90 utils.o num_types.o 
 device_symmetry.o : device_symmetry.F90 utils.o num_types.o 
 device_facet_normal.o : device_facet_normal.F90 utils.o num_types.o 
-neko.o : neko.f90 device.o tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg_hip.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
+neko.o : neko.f90 device.o jobctrl.o signal.o  tet_mesh.o curve.o structs.o parmetis.o user_intf.o projection.o mathops.o operators.o ax_helm.o simulation.o fluid_output.o output.o sampler.o case.o neko_config.o pc_jacobi.o gmres.o ax.o precon.o ksp_bicgstab.o cg_hip.o cg.o krylov.o dirichlet.o wall.o bc.o coef.o gather_scatter.o mpi_types.o field.o file.o nmsh_file.o fld_file.o vtk_file.o map_file.o re2_file.o rea_file.o mxm_std.o mxm_wrapper.o rea.o re2.o nmsh.o map.o mesh_field.o mesh.o tuple.o stack.o uset.o hex.o quad.o element.o point.o entity.o generic_file.o htable.o space.o dofmap.o speclib.o math.o log.o utils.o comm.o parameters.o num_types.o 
 parmetis_wrapper.o : parmetis_wrapper.c
 cuda_wrapper.o : cuda/cuda_wrapper.cu
 hip/hip_wrapper.o : hip/hip_wrapper.hip 
