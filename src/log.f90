@@ -18,6 +18,8 @@ module log
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
      procedure, pass(this) :: status => log_status
+     procedure, pass(this) :: error => log_error
+     procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: end_section => log_end_section
   end type log_t
   
@@ -88,6 +90,30 @@ contains
     end if
     
   end subroutine log_message
+
+  !> Write an error message to a log
+  subroutine log_error(this, msg)
+    class(log_t), intent(in) :: this
+    character(len=*), intent(in) :: msg
+
+    if (pe_rank .eq. 0) then
+       call this%indent()
+       write(*, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'       
+    end if
+
+  end subroutine log_error
+
+  !> Write a warning message to a log
+  subroutine log_warning(this, msg)
+    class(log_t), intent(in) :: this
+    character(len=*), intent(in) :: msg
+
+    if (pe_rank .eq. 0) then
+       call this%indent()
+       write(*, '(A,A,A)') '*** WARNING: ', trim(msg),'  ***'       
+    end if
+
+  end subroutine log_warning
 
   !> Begin a new log section
   subroutine log_section(this, msg)
