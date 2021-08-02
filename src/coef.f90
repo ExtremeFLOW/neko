@@ -351,7 +351,7 @@ contains
          call copy    (dsdy, dxdr, n_dofs)
          call rzero   (drdz, n_dofs)
          call rzero   (dsdz, n_dofs)
-         call RONE    (dtdz, n_dofs)
+         call rone    (dtdz, n_dofs)
       else
          call rzero   (jac, n_dofs)
          call addcol4 (jac, dxdr, dyds, dzdt, n_dofs)
