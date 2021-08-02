@@ -504,13 +504,13 @@ contains
     
     nn = nl**ldim
     if(.not. ldim .eq. 3) then
-       do i e =1, nelv
+       do ie = 1, nelv
           call tnsr2d_el(e(1,ie), nl, r(1,ie), nl, s(1,2,1,ie), s(1,1,2,ie))
           do i = 1, nn
              r(i,ie) = d(i,ie) * e(i,ie)
           end do
           call tnsr2d_el(e(1,ie), nl, r(1,ie), nl, s(1,1,1,ie), s(1,2,2,ie))
-       enddo
+       end do
     else
        do ie = 1, nelv
           call tnsr3d_el(e(1,ie), nl, r(1,ie), nl, &

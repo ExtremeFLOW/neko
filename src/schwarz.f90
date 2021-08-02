@@ -189,7 +189,7 @@ contains
   subroutine schwarz_toreg3d(b, a, n, nelv)
     integer, intent(in) :: n, nelv
     real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv)
-    real(kind=rp), intent(jnout) :: b(n,n,n,nelv)
+    real(kind=rp), intent(inout) :: b(n,n,n,nelv)
     integer :: i, j, k, ie
     do ie = 1,nelv
        do k = 1,n
