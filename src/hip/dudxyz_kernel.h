@@ -1,22 +1,20 @@
 #include <hip/hip_runtime.h>
 
 /**
- * Device kernel for derivative (LX 10)
+ * Device kernel for derivative 
  */
 
-#define LX 10
-#define CHUNKS 1024
-
-__global__ void dudxyz_kernel10(double * __restrict__ du,
-				const double * __restrict__ u,
-				const double * __restrict__ dr,
-				const double * __restrict__ ds,
-				const double * __restrict__ dt,
-				const double * __restrict__ dx,
-				const double * __restrict__ dy,
-				const double * __restrict__ dz,
-				const double * __restrict__ jacinv) { 
-
+template< const int LX, const int CHUNKS >
+__global__ void dudxyz_kernel(double * __restrict__ du,
+			      const double * __restrict__ u,
+			      const double * __restrict__ dr,
+			      const double * __restrict__ ds,
+			      const double * __restrict__ dt,
+			      const double * __restrict__ dx,
+			      const double * __restrict__ dy,
+			      const double * __restrict__ dz,
+			      const double * __restrict__ jacinv) { 
+  
   __shared__ double shu[LX * LX * LX];
   __shared__ double shdr[LX * LX * LX];
   __shared__ double shds[LX * LX * LX];
@@ -74,7 +72,5 @@ __global__ void dudxyz_kernel10(double * __restrict__ du,
       
     }
   }
-
-  
 }
 

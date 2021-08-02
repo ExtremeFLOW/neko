@@ -118,7 +118,6 @@ cuda_wrapper.o : cuda/cuda_wrapper.cu
 hip/hip_wrapper.o : hip/hip_wrapper.hip 
 hip/math.o : hip/math.hip 
 hip/opr_dudxyz.o : hip/opr_dudxyz.hip 
-hip/dudxyz_kernel10.o : hip/dudxyz_kernel10.hip 
 hip/gs_kernels.o : hip/gs_kernels.hip 
 hip/dirichlet_kernel.o : hip/dirichlet_kernel.hip 
 hip/inflow_kernel.o : hip/inflow_kernel.hip 

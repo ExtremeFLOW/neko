@@ -128,7 +128,6 @@ libneko_a_SOURCES += \
 	hip/hip_wrapper.hip\
 	hip/math.hip\
 	hip/opr_dudxyz.hip\
-	hip/dudxyz_kernel10.hip\
 	hip/gs_kernels.hip\
 	hip/dirichlet_kernel.hip\
 	hip/inflow_kernel.hip\
