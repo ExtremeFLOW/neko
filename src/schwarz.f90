@@ -186,10 +186,11 @@ contains
   end subroutine schwarz_setup_schwarz_wt3d_2
 
   !> convert array a from extended size to regular
-  subroutine schwarz_toreg3d(b,a,n, nelv)
+  subroutine schwarz_toreg3d(b, a, n, nelv)
     integer, intent(in) :: n, nelv
-    real (kind=rp), intent(inout) :: a(0:n+1,0:n+1,0:n+1,nelv),b(n,n,n,nelv)
-    integer :: i,j,k,ie
+    real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv)
+    real(kind=rp), intent(jnout) :: b(n,n,n,nelv)
+    integer :: i, j, k, ie
     do ie = 1,nelv
        do k = 1,n
           do j = 1,n
