@@ -191,7 +191,7 @@ contains
       XMAX = ABS(A(K,K))
       DO I = K, N
          DO J = K, N
-            Y= A BS(A(I,J))
+            Y = ABS(A(I,J))
             IF(XMAX .GE. Y) GOTO 100
             XMAX = Y
             L = I
