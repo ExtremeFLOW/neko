@@ -60,27 +60,28 @@ contains
 
   end subroutine fdm_init
 
-  subroutine swap_lengths(this,x,y,z,nelv,gdim)
+  subroutine swap_lengths(this, x, y, z, nelv, gdim)
     type(fdm_t), intent(inout) :: this
     integer, intent(in) :: gdim, nelv
     real(kind=rp), dimension(this%Xh%lxyz,nelv) , intent(in):: x, y, z
     integer :: i, j, k, e, n2, nz0, nzn, nx, lx1, n
 
     associate(l => this%swplen, Xh =>this%Xh, &
-              llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
-              lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
-              lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
+         llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
+         lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
+         lrr => this%len_rr, lrs => this%len_rs, lrt => this%len_rt)
       lx1 = this%Xh%lx
-      n2 = lx1-1
+      n2 = lx1 - 1
       nz0 = 1
       nzn = 1
-      nx  = lx1-2
+      nx  = lx1 - 2
       if (gdim .eq. 3) then
          nz0 = 0
          nzn = n2
-      endif
-      call plane_space(lmr,lms,lmt,0,n2,Xh%wx,x,y,z,nx,n2,nz0,nzn, nelv, gdim)
-      n = n2+1
+      end if
+      call plane_space(lmr, lms, lmt, 0, n2, Xh%wx, x, y, z,&
+           nx, n2, nz0, nzn, nelv, gdim)
+      n = n2 + 1
       if (gdim .eq. 3) then
          do e = 1,nelv
             do j = 2,n2
@@ -94,15 +95,15 @@ contains
                end do
             end do
          end do
-         call gs_op_vector(this%gs_h,l,this%dof%n_dofs, GS_OP_ADD)
+         call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
          do e = 1,nelv
-            llr(e) = l(1,2,2,e)-lmr(e)
-            lrr(e) = l(n,2,2,e)-lmr(e)
-            lls(e) = l(2,1,2,e)-lms(e)
-            lrs(e) = l(2,n,2,e)-lms(e)
-            llt(e) = l(2,2,1,e)-lmt(e)
-            lrt(e) = l(2,2,n,e)-lmt(e)
-         enddo
+            llr(e) = l(1,2,2,e) - lmr(e)
+            lrr(e) = l(n,2,2,e) - lmr(e)
+            lls(e) = l(2,1,2,e) - lms(e)
+            lrs(e) = l(2,n,2,e) - lms(e)
+            llt(e) = l(2,2,1,e) - lmt(e)
+            lrt(e) = l(2,2,n,e) - lmt(e)
+         end do
       else
          do e = 1,nelv
             do j = 2,n2
@@ -110,17 +111,17 @@ contains
                l(n,j,1,e) = lmr(e)
                l(j,1,1,e) = lms(e)
                l(j,n,1,e) = lms(e)
-            enddo
-         enddo
-       call gs_op_vector(this%gs_h,l,this%dof%n_dofs, GS_OP_ADD)
-       do e = 1,nelv
-          llr(e) = l(1,2,1,e)-lmr(e)
-          lrr(e) = l(n,2,1,e)-lmr(e)
-          lls(e) = l(2,1,1,e)-lms(e)
-          lrs(e) = l(2,n,1,e)-lms(e)
-       enddo
-    endif
-  end associate
+            end do
+         end do
+         call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         do e = 1,nelv
+            llr(e) = l(1,2,1,e) - lmr(e)
+            lrr(e) = l(n,2,1,e) - lmr(e)
+            lls(e) = l(2,1,1,e) - lms(e)
+            lrs(e) = l(2,n,1,e) - lms(e)
+         end do
+      end if
+    end associate
   end subroutine swap_lengths
 
   !> Here, spacing is based on harmonic mean.  pff 2/10/07
@@ -238,9 +239,9 @@ contains
          lbt = this%dof%msh%facet_type(5, ie)
          rbt = this%dof%msh%facet_type(6, ie)
          
-         nr=nl
-         ns=nl
-         nt=nl
+         nr = nl
+         ns = nl
+         nt = nl
          call fdm_setup_fast1d(s(1,1,1,ie), lr, nr, lbr, rbr, &
               llr(ie), lmr(ie), lrr(ie), ah, bh, n, ie)
          call fdm_setup_fast1d(s(1,1,2,ie), ls, ns, lbs, rbs, &
@@ -251,32 +252,32 @@ contains
          end if
 
          il = 1
-         if(.not.this%dof%msh%gdim .eq. 3) then
-            eps = 1d-5*(vlmax(lr(2),nr-2) + vlmax(ls(2),ns-2))
-            do j = 1,ns
-               do i = 1,nr
-                  diag = lr(i)+ls(j)
-                  if (diag.gt.eps) then
-                     d(il,ie) = 1d0/diag
+         if(.not. this%dof%msh%gdim .eq. 3) then
+            eps = 1d-5 * (vlmax(lr(2), nr-2) + vlmax(ls(2), ns-2))
+            do j = 1, ns
+               do i = 1, nr
+                  diag = lr(i) + ls(j)
+                  if (diag .gt. eps) then
+                     d(il,ie) = 1.0_rp / diag
                   else
-                     d(il,ie) = 0d0
+                     d(il,ie) = 0.0_rp
                   endif
-                  il = il+1
+                  il = il + 1
                end do
             end do
          else
-            eps = 1d-5 * (vlmax(lr(2),nr-2) + &
-                 vlmax(ls(2),ns-2) + vlmax(lt(2),nt-2))
-            do k = 1,nt
-               do j = 1,ns
-                  do i = 1,nr
-                     diag = lr(i)+ls(j)+lt(k)
-                     if (diag.gt.eps) then
-                        d(il,ie) = 1d0/diag
+            eps = 1d-5 * (vlmax(lr(2), nr-2) + &
+                 vlmax(ls(2),ns-2) + vlmax(lt(2), nt-2))
+            do k = 1, nt
+               do j = 1, ns
+                  do i = 1, nr
+                     diag = lr(i) + ls(j) + lt(k)
+                     if (diag .gt. eps) then
+                        d(il,ie) = 1.0_rp / diag
                      else
-                        d(il,ie) = 0d0
+                        d(il,ie) = 0.0_rp
                      endif
-                     il=il+1
+                     il = il + 1
                   end do
                end do
             end do
@@ -288,21 +289,21 @@ contains
   
   subroutine fdm_setup_fast1d(s, lam, nl, lbc, rbc, ll, lm, lr, ah, bh, n, ie)
     integer, intent(in)  :: nl, lbc, rbc, n, ie
-    real(kind=rp), intent(inout) :: s(nl,nl,2), lam(nl), ll, lm, lr
-    real(kind=rp), intent(inout) ::  ah(0:n,0:n), bh(0:n)
+    real(kind=rp), intent(inout) :: s(nl, nl, 2), lam(nl), ll, lm, lr
+    real(kind=rp), intent(inout) ::  ah(0:n, 0:n), bh(0:n)
     integer ::  lx1, lxm
     real(kind=rp) :: b(2*(n+3)**2), w(2*(n+3)**2)
 
     lx1 = n + 1
-    lxm = lx1+2
+    lxm = lx1 + 2
      
     call fdm_setup_fast1d_a(s, lbc, rbc, ll, lm, lr, ah, n)
     call fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
     call generalev(s, b, lam, nl, lx1, w)
-    if(lbc.gt.0) call row_zero(s, nl, nl, 1)
-    if(lbc.eq.1) call row_zero(s, nl, nl, 2)
-    if(rbc.gt.0) call row_zero(s, nl, nl, nl)
-    if(rbc.eq.1) call row_zero(s, nl, nl, nl-1)
+    if(lbc .gt. 0) call row_zero(s, nl, nl, 1)
+    if(lbc .eq. 1) call row_zero(s, nl, nl, 2)
+    if(rbc .gt. 0) call row_zero(s, nl, nl, nl)
+    if(rbc .eq. 1) call row_zero(s, nl, nl, nl-1)
     
     call trsp(s(1,1,2), nl, s, nl)
     
@@ -351,80 +352,80 @@ contains
     integer :: i, j, i0, i1
 
     i0 = 0
-    if(lbc.eq.1) i0=1
+    if(lbc .eq. 1) i0 = 1
     i1 = n
-    if(rbc.eq.1) i1=n-1
+    if(rbc .eq. 1) i1 = n - 1
     
-    call rzero(a,(n+3)*(n+3))
+    call rzero(a, (n+3) * (n+3))
 
-    fac = 2d0/lm
-    a(1,1) = 1d0
-    a(n+1,n+1) = 1d0
+    fac = 2.0_rp / lm
+    a(1,1) = 1.0_rp
+    a(n+1,n+1) = 1.0-rp
 
-    do j = i0,i1
-       do i = i0,i1
-          a(i+1,j+1) = fac*ah(i,j)
+    do j = i0, i1
+       do i = i0, i1
+          a(i+1,j+1) = fac * ah(i,j)
        enddo
     enddo
     
-    if(lbc.eq.0) then
-       fac = 2d0/ll
-       a(0,0) = fac*ah(n-1,n-1)
-       a(1,0) = fac*ah(n  ,n-1)
-       a(0,1) = fac*ah(n-1,n  )
-       a(1,1) = a(1,1)+fac*ah(n  ,n  )
+    if(lbc .eq. 0) then
+       fac = 2.0_rp / ll
+       a(0,0) = fac * ah(n-1,n-1)
+       a(1,0) = fac * ah(n  ,n-1)
+       a(0,1) = fac * ah(n-1,n  )
+       a(1,1) = a(1,1) + fac * ah(n,n)
     else
-       a(0,0) = 1d0
+       a(0,0) = 1.0_rp
     endif
     
-    if(rbc.eq.0) then
-       fac = 2d0/lr
-       a(n+1,n+1) = a(n+1,n+1)+fac*ah(0,0)
-       a(n+2,n+1) = fac*ah(1,0)
-       a(n+1,n+2) = fac*ah(0,1)
-       a(n+2,n+2) = fac*ah(1,1)
+    if(rbc .eq. 0) then
+       fac = 2.0_rp / lr
+       a(n+1,n+1) = a(n+1,n+1) + fac*ah(0,0)
+       a(n+2,n+1) = fac * ah(1,0)
+       a(n+1,n+2) = fac * ah(0,1)
+       a(n+2,n+2) = fac * ah(1,1)
     else
-       a(n+2,n+2) = 1d0
+       a(n+2,n+2) = 1.0_rp
     endif
     
   end subroutine fdm_setup_fast1d_a
 
   subroutine fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
     integer, intent(in) :: lbc, rbc, n
-    real(kind=rp), intent(inout) :: b(0:n+2,0:n+2), ll, lm, lr
+    real(kind=rp), intent(inout) :: b(0:n+2, 0:n+2), ll, lm, lr
     real(kind=rp), intent(inout) :: bh(0:n)    
     real(kind=rp) :: fac
     integer :: i, j, i0, i1
     
     i0 = 0
-    if(lbc.eq.1) i0 = 1
+    if(lbc .eq. 1) i0 = 1
     i1 = n
-    if(rbc.eq.1) i1 = n-1
+    if(rbc .eq. 1) i1 = n - 1
     
-    call rzero(b, (n+3)*(n+3))
+    call rzero(b, (n + 3) * (n + 3))
 
-    fac = 0.5d0*lm
-    b(1,1) = 1.0d0
-    b(n+1,n+1) = 1.0d0
+    fac = 0.5_rp * lm
+    b(1,1) = 1.0_rp
+    b(n+1,n+1) = 1.0_rp
 
-    do i = i0,i1
-       b(i+1,i+1) = fac*bh(i)
+    do i = i0, i1
+       b(i+1,i+1) = fac * bh(i)
     end do
 
-    if(lbc.eq.0) then
-       fac = 0.5d0*ll
-       b(0,0) = fac*bh(n-1)
-       b(1,1) = b(1,1)+fac*bh(n  )
+    if(lbc .eq. 0) then
+       fac = 0.5_rp * ll
+       b(0,0) = fac * bh(n-1)
+       b(1,1) = b(1,1) + fac * bh(n)
     else
-       b(0,0) = 1.0d0
+       b(0,0) = 1.0_rp
     end if
 
-    if(rbc.eq.0) then
-       fac = 0.5d0*lr
-       b(n+1,n+1) = b(n+1,n+1)+fac*bh(0)
-       b(n+2,n+2) = fac*bh(1)
+    if(rbc .eq. 0) then
+       fac = 0.5_rp * lr
+       b(n+1,n+1) = b(n+1,n+1) + fac * bh(0)
+       b(n+2,n+2) = fac * bh(1)
     else
-       b(n+2,n+2) = 1.0d0
+       b(n+2,n+2) = 1.0_rp
     end if
     
   end subroutine fdm_setup_fast1d_b
@@ -493,30 +494,32 @@ contains
     call fdm_do_fast(e, r, this%s, this%d, this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
   end subroutine fdm_compute
  
-  subroutine fdm_do_fast(e,r,s,d,nl,ldim,nelv)
+  subroutine fdm_do_fast(e, r, s, d, nl, ldim, nelv)
     integer, intent(in) :: nl, nelv, ldim
-    real(kind=rp), intent(inout) :: e(nl**ldim,nelv)
-    real(kind=rp), intent(inout) :: r(nl**ldim,nelv)
-    real(kind=rp), intent(inout) :: s(nl*nl,2,ldim,nelv)
-    real(kind=rp), intent(inout) :: d(nl**ldim,nelv)
+    real(kind=rp), intent(inout) :: e(nl**ldim, nelv)
+    real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
+    real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
+    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)    
+    integer ::  ie, nn, i
     
-    integer ::  ie,nn,i
-    nn=nl**ldim
+    nn = nl**ldim
     if(.not. ldim .eq. 3) then
-       do ie=1,nelv
-          call tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie))
-          do i=1,nn
-             r(i,ie)=d(i,ie)*e(i,ie)
+       do ie = 1, nelv
+          call tnsr2d_el(e(1,ie), nl, r(1,ie), nl, s(1,2,1,ie), s(1,1,2,ie))
+          do i = 1, nn
+             r(i,ie) = d(i,ie) * e(i,ie)
           end do
-          call tnsr2d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie))
-       enddo
+          call tnsr2d_el(e(1,ie), nl, r(1,ie), nl, s(1,1,1,ie), s(1,2,2,ie))
+       end do
     else
-       do ie=1,nelv
-          call tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,2,1,ie),s(1,1,2,ie),s(1,1,3,ie))
-          do i=1,nn
-             r(i,ie)=d(i,ie)*e(i,ie)
+       do ie = 1, nelv
+          call tnsr3d_el(e(1,ie), nl, r(1,ie), nl, &
+               s(1,2,1,ie), s(1,1,2,ie), s(1,1,3,ie))
+          do i = 1, nn
+             r(i,ie) = d(i,ie) * e(i,ie)
           end do
-          call tnsr3d_el(e(1,ie),nl,r(1,ie),nl,s(1,1,1,ie),s(1,2,2,ie),s(1,2,3,ie))
+          call tnsr3d_el(e(1,ie), nl, r(1,ie), nl, &
+               s(1,1,1,ie), s(1,2,2,ie), s(1,2,3,ie))
        end do
     end if
   end subroutine fdm_do_fast

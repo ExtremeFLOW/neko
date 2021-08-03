@@ -54,7 +54,6 @@ module fluid_method
      type(field_t) :: bdry                     !< Boundary markings
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
-
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -450,6 +449,7 @@ contains
     
   end subroutine fluid_scheme_precon_factory
 
+  !> Initialize a user defined inflow condition
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
@@ -464,12 +464,16 @@ contains
     end if
     
   end subroutine fluid_scheme_set_usr_inflow
+
+  !> Compute CFL
   function fluid_compute_cfl(this, dt) result(c)
-    class(fluid_scheme_t) :: this
-    real(kind=rp) :: dt
+    class(fluid_scheme_t), intent(in) :: this
+    real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
 
-    c = cfl(dt, this%u%x, this%v%x, this%w%x, this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim) 
+    c = cfl(dt, this%u%x, this%v%x, this%w%x, &
+         this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
+    
   end function fluid_compute_cfl
      
 end module fluid_method

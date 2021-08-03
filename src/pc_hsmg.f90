@@ -61,11 +61,8 @@ module hsmg
      procedure, pass(this) :: update => hsmg_set_h
   end type hsmg_t
   
-  !> Abstract interface for solving \f$ M z = r \f$
-  !!
-  !! @param z vector of length @a n
-  !! @param r vector of length @a n
 contains
+  
   !> @note I do not think we actually use the same grids as they do in the original!
   subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst)
     class(hsmg_t), intent(inout) :: this
@@ -138,7 +135,7 @@ contains
     call this%bc_mg%init(this%dm_mg)
     call this%bc_mg%mark_zone(msh%outlet)
     call this%bc_mg%finalize()
-    call this%bc_mg%set_g(real(0d0,rp))
+    call this%bc_mg%set_g(0.0_rp)
     call bc_list_init(this%bclst_mg)
     call bc_list_add(this%bclst_mg, this%bc_mg)
 
@@ -173,7 +170,7 @@ contains
 !       call hsmg_intp_fc(this%grids(i-1),this%grids(i), this%jhfc(1,i-1),this%jhfct(1,i-1))
 !    end do
     this%grids(1)%coef%ifh2 = .false.
-    call copy(this%grids(1)%coef%h1,this%grids(3)%coef%h1,this%grids(1)%dof%n_dofs)
+    call copy(this%grids(1)%coef%h1, this%grids(3)%coef%h1, this%grids(1)%dof%n_dofs)
   end subroutine hsmg_set_h
 
   subroutine hsmg_intp_fc(grid_c,grid_f,jhfc, jhfct) ! l is coarse level
@@ -182,8 +179,10 @@ contains
     integer :: nc, nf
     nc = grid_c%Xh%lx
     nf = grid_f%Xh%lx
-    call tnsr3d(grid_c%coef%h1,nc,grid_f%coef%h1,nf,jhfc,jhfct, jhfct, grid_c%dof%msh%nelv)
-    call tnsr3d(grid_c%coef%h2,nc,grid_f%coef%h2,nf,jhfc,jhfct, jhfct, grid_c%dof%msh%nelv)
+    call tnsr3d(grid_c%coef%h1, nc, grid_f%coef%h1, nf, &
+         jhfc, jhfct, jhfct, grid_c%dof%msh%nelv)
+    call tnsr3d(grid_c%coef%h2, nc, grid_f%coef%h2, nf, &
+         jhfc, jhfct, jhfct, grid_c%dof%msh%nelv)
   end subroutine hsmg_intp_fc
 
   subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, grids, l) 
@@ -216,18 +215,18 @@ contains
     real(kind=rp), intent(inout), dimension(grids(lvls)%Xh%lxy,lvls) :: jhfc, jhfct
     integer l,nf,nc
 
-    do l=1,lvls-1
+    do l = 1, lvls - 1
 
-       nf=grids(l+1)%Xh%lx
-       nc=grids(l)%Xh%lx
+       nf = grids(l+1)%Xh%lx
+       nc = grids(l)%Xh%lx
 
        !Standard multigrid coarse-to-fine interpolation
-       call hsmg_setup_intpm(jh(1,l),grids(l+1)%Xh%zg,grids(l)%Xh%zg,nf,nc)
-       call trsp(jht(1,l),nc,jh(1,l),nf)
+       call hsmg_setup_intpm(jh(1,l), grids(l+1)%Xh%zg, grids(l)%Xh%zg, nf, nc)
+       call trsp(jht(1,l), nc, jh(1,l), nf)
 
        !Fine-to-coarse interpolation for variable-coefficient operators
-       call hsmg_setup_intpm(jhfc(1,l),grids(l)%Xh%zg,grids(l+1)%Xh%zg,nc,nf)
-       call trsp(jhfct(1,l),nf,jhfc(1,l),nc)
+       call hsmg_setup_intpm(jhfc(1,l), grids(l)%Xh%zg, grids(l+1)%Xh%zg, nc, nf)
+       call trsp(jhfct(1,l), nf, jhfc(1,l), nc)
 
     enddo
   end subroutine hsmg_setup_intp
@@ -237,13 +236,14 @@ contains
     real(kind=rp), intent(inout) :: jh(nf,nc),zf(nf),zc(nc)
     real(kind=rp) ::  w(2*(nf+nc)+4)
     integer :: i, j
-    do i=1,nf
-       call fd_weights_full(zf(i),zc,nc-1,1,w)
-       do j=1,nc
-          jh(i,j)=w(j)
+    do i = 1, nf
+       call fd_weights_full(zf(i), zc, nc-1, 1, w)
+       do j = 1, nc
+          jh(i,j) = w(j)
        enddo
     enddo
   end subroutine hsmg_setup_intpm
+
   subroutine hsmg_free(this)
     class(hsmg_t), intent(inout) :: this
     if (allocated(this%ax)) deallocate(this%ax)
@@ -267,7 +267,7 @@ contains
        call pc%free()
     type is (sx_jacobi_t)
        call pc%free()
-    end select
+    end select    
     call gs_free(this%gs_crs)
     call gs_free(this%gs_mg)
     call this%crs_solver%free()
@@ -286,13 +286,13 @@ contains
     call copy(this%r, r, n)
 
     !OVERLAPPING Schwarz exchange and solve
-    call this%grids(3)%schwarz%compute(z,this%r)      
+    call this%grids(3)%schwarz%compute(z, this%r)      
     ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
     !In original code they do not do col2 but only on faces
     call col2(this%r, this%grids(3)%coef%mult, &
                  this%grids(3)%dof%n_dofs)
     !Restrict to middle level
-    call tnsr1_3d(this%r,this%grids(2)%Xh%lx,this%grids(3)%Xh%lx,&
+    call tnsr1_3d(this%r, this%grids(2)%Xh%lx, this%grids(3)%Xh%lx,&
                   this%jht(1,2),this%jh(1,2), this%jh(1,2), &
                   this%msh%nelv)
     call gs_op_vector(this%grids(2)%gs_h, this%r, &
@@ -302,7 +302,7 @@ contains
                                                      !         T
     call col2(this%r, this%grids(2)%coef%mult, this%grids(2)%dof%n_dofs)
     !restrict residual to crs
-    call tnsr1_3d(this%r,this%grids(1)%Xh%lx,this%grids(2)%Xh%lx,&
+    call tnsr1_3d(this%r, this%grids(1)%Xh%lx,this%grids(2)%Xh%lx,&
                   this%jht(1,1),this%jh(1,1), this%jh(1,1), &
                   this%msh%nelv)
     !Crs solve
@@ -319,12 +319,12 @@ contains
                               this%grids(1)%dof%n_dofs)
     ! UNWIND.  No smoothing.    
     !to middle level
-    call tnsr3d(this%w,this%grids(2)%Xh%lx,this%grids(1)%e%x, &
+    call tnsr3d(this%w, this%grids(2)%Xh%lx, this%grids(1)%e%x, &
                 this%grids(1)%Xh%lx,this%jh(1,1), &
                 this%jht(1,1), this%jht(1,1), this%msh%nelv)
-    call add2(this%grids(2)%e%x,this%w,this%grids(2)%dof%n_dofs)
+    call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%n_dofs)
     !to original grid
-    call tnsr3d(this%w,this%grids(3)%Xh%lx,this%grids(2)%e%x, &
+    call tnsr3d(this%w, this%grids(3)%Xh%lx, this%grids(2)%e%x, &
                 this%grids(2)%Xh%lx,this%jh(1,2), &
                 this%jht(1,2), this%jht(1,2), this%msh%nelv)
     call add2(z, this%w, this%grids(3)%dof%n_dofs)
