@@ -16,7 +16,8 @@ module chkp_output
   
 contains
 
-  function chkp_output_init(name) result(this)
+  function chkp_output_init(chkp, name) result(this)
+    type(chkp_t), intent(in), target :: chkp
     character(len=*), intent(in), optional :: name
     type(chkp_output_t) :: this
     character(len=80) :: fname
@@ -28,6 +29,7 @@ contains
     end if
 
     call output_init(this, fname)
+    this%chkp => chkp
   end function chkp_output_init
 
   !> Sample a checkpoint at time @a t
