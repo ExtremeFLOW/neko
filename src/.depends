@@ -56,6 +56,7 @@ operators.o : operators.f90 math.o field.o coef.o space.o opr_xsmm.o opr_sx.o op
 opr_cpu.o : opr_cpu.f90 mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o mxm_wrapper.o num_types.o 
 opr_sx.o : opr_sx.f90 mathops.o field.o mesh.o math.o coef.o space.o num_types.o gather_scatter.o sx_cdtp.o sx_conv1.o sx_opgrad.o sx_dudxyz.o 
 opr_xsmm.o : opr_xsmm.F90 mathops.o gather_scatter.o field.o mesh.o math.o coef.o space.o mxm_wrapper.o num_types.o 
+checkpoint.o : checkpoint.f90 field.o num_types.o 
 generic_file.o : generic_file.f90 num_types.o 
 map_file.o : map_file.f90 map.o comm.o utils.o generic_file.o 
 re2_file.o : re2_file.f90 htable.o map_file.o map.o re2.o datadist.o mpi_types.o comm.o point.o mesh.o utils.o num_types.o generic_file.o 
@@ -63,9 +64,11 @@ rea_file.o : rea_file.f90 htable.o datadist.o comm.o map_file.o re2_file.o rea.o
 fld_file.o : fld_file.f90 mpi_types.o comm.o utils.o mesh.o fluid_method.o dofmap.o field.o generic_file.o 
 vtk_file.o : vtk_file.f90 comm.o tet_mesh.o mesh_field.o dofmap.o field.o mesh.o utils.o generic_file.o num_types.o 
 nmsh_file.o : nmsh_file.f90 log.o mpi_types.o datadist.o nmsh.o utils.o mesh.o comm.o generic_file.o 
-file.o : file.f90 vtk_file.o fld_file.o re2_file.o rea_file.o map_file.o nmsh_file.o generic_file.o utils.o 
+chkp_file.o : chkp_file.f90 utils.o num_types.o checkpoint.o generic_file.o 
+file.o : file.f90 vtk_file.o fld_file.o re2_file.o rea_file.o map_file.o chkp_file.o nmsh_file.o generic_file.o utils.o 
 output.o : output.f90 file.o num_types.o 
 fluid_output.o : fluid_output.f90 output.o fluid_method.o 
+chkp_output.o : chkp_output.f90 output.o checkpoint.o 
 sampler.o : sampler.f90 log.o comm.o output.o num_types.o 
 bc.o : bc.f90 utils.o tuple.o stack.o zone.o mesh.o space.o dofmap.o num_types.o 
 dirichlet.o : dirichlet.f90 bc.o num_types.o 

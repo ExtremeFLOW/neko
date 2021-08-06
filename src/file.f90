@@ -2,6 +2,7 @@ module file
   use utils
   use generic_file
   use nmsh_file
+  use chkp_file        
   use map_file
   use rea_file
   use re2_file
@@ -49,6 +50,8 @@ contains
        allocate(nmsh_file_t::this%file_type)
     else if (suffix .eq. "fld") then
        allocate(fld_file_t::this%file_type)
+    else if (suffix .eq. "chkp") then
+       allocate(chkp_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
