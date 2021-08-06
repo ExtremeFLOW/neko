@@ -433,60 +433,61 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    type(MPI_Datatype) :: type(23)
-    integer(kind=MPI_ADDRESS_KIND) :: disp(23), base    
+    type(MPI_Datatype) :: type(24)
+    integer(kind=MPI_ADDRESS_KIND) :: disp(24), base    
     integer :: len(23), ierr
     integer :: i
 
     call MPI_Get_address(param_data%nsamples, disp(1), ierr)
     call MPI_Get_address(param_data%output_bdry, disp(2), ierr)
     call MPI_Get_address(param_data%output_part, disp(3), ierr)
-    call MPI_Get_address(param_data%dt, disp(4), ierr)
-    call MPI_Get_address(param_data%T_end, disp(5), ierr)
-    call MPI_Get_address(param_data%rho, disp(6), ierr)
-    call MPI_Get_address(param_data%mu, disp(7), ierr)
-    call MPI_Get_address(param_data%Re, disp(8), ierr)
-    call MPI_Get_address(param_data%uinf, disp(9), ierr)
-    call MPI_Get_address(param_data%abstol_vel, disp(10), ierr)
-    call MPI_Get_address(param_data%abstol_prs, disp(11), ierr)
-    call MPI_Get_address(param_data%ksp_vel, disp(12), ierr)
-    call MPI_Get_address(param_data%ksp_prs, disp(13), ierr)
-    call MPI_Get_address(param_data%pc_vel, disp(14), ierr)
-    call MPI_Get_address(param_data%pc_prs, disp(15), ierr)
-    call MPI_Get_address(param_data%fluid_inflow, disp(16), ierr)
-    call MPI_Get_address(param_data%vol_flow_dir, disp(17), ierr)
-    call MPI_Get_address(param_data%avflow, disp(18), ierr)
-    call MPI_Get_address(param_data%loadb, disp(19), ierr)
-    call MPI_Get_address(param_data%flow_rate, disp(20), ierr)
-    call MPI_Get_address(param_data%proj_dim, disp(21), ierr)
-    call MPI_Get_address(param_data%time_order, disp(22), ierr)
-    call MPI_Get_address(param_data%jlimit, disp(23), ierr)
+    call MPI_Get_address(param_data%output_chkp, disp(4), ierr)
+    call MPI_Get_address(param_data%dt, disp(5), ierr)
+    call MPI_Get_address(param_data%T_end, disp(6), ierr)
+    call MPI_Get_address(param_data%rho, disp(7), ierr)
+    call MPI_Get_address(param_data%mu, disp(8), ierr)
+    call MPI_Get_address(param_data%Re, disp(9), ierr)
+    call MPI_Get_address(param_data%uinf, disp(10), ierr)
+    call MPI_Get_address(param_data%abstol_vel, disp(11), ierr)
+    call MPI_Get_address(param_data%abstol_prs, disp(12), ierr)
+    call MPI_Get_address(param_data%ksp_vel, disp(13), ierr)
+    call MPI_Get_address(param_data%ksp_prs, disp(14), ierr)
+    call MPI_Get_address(param_data%pc_vel, disp(15), ierr)
+    call MPI_Get_address(param_data%pc_prs, disp(16), ierr)
+    call MPI_Get_address(param_data%fluid_inflow, disp(17), ierr)
+    call MPI_Get_address(param_data%vol_flow_dir, disp(18), ierr)
+    call MPI_Get_address(param_data%avflow, disp(19), ierr)
+    call MPI_Get_address(param_data%loadb, disp(20), ierr)
+    call MPI_Get_address(param_data%flow_rate, disp(21), ierr)
+    call MPI_Get_address(param_data%proj_dim, disp(22), ierr)
+    call MPI_Get_address(param_data%time_order, disp(23), ierr)
+    call MPI_Get_address(param_data%jlimit, disp(24), ierr)
 
 
     base = disp(1)
-    do i = 1, 23
+    do i = 1, 24
        disp(i) = disp(i) - base
     end do
 
 
-    len(1:8) = 1
-    len(9) = 3
-    len(10:11) = 1
-    len(12:16) = 20
-    len(17:22) = 1
-    len(23) = 8
+    len(1:9) = 1
+    len(10) = 3
+    len(11:12) = 1
+    len(13:17) = 20
+    len(18:23) = 1
+    len(24) = 8
     
     type(1) = MPI_INTEGER
-    type(2:3) = MPI_LOGICAL
-    type(4:11) = MPI_REAL_PRECISION
-    type(12:16) = MPI_CHARACTER
-    type(17) = MPI_INTEGER
-    type(18:19) = MPI_LOGICAL
-    type(20) = MPI_REAL_PRECISION
-    type(21:22) = MPI_INTEGER
-    type(23) = MPI_CHARACTER
+    type(2:4) = MPI_LOGICAL
+    type(5:12) = MPI_REAL_PRECISION
+    type(13:17) = MPI_CHARACTER
+    type(18) = MPI_INTEGER
+    type(19:20) = MPI_LOGICAL
+    type(21) = MPI_REAL_PRECISION
+    type(22:23) = MPI_INTEGER
+    type(24) = MPI_CHARACTER
     
-    call MPI_Type_create_struct(23, len, disp, type, MPI_NEKO_PARAMS, ierr)
+    call MPI_Type_create_struct(24, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
 
   end subroutine mpi_type_neko_params_init

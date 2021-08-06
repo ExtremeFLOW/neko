@@ -7,6 +7,7 @@ module parameters
      integer :: nsamples        !< Number of samples
      logical :: output_bdry     !< Output boundary markings
      logical :: output_part     !< Output partitions
+     logical :: output_chkp     !< Output checkpoints
      real(kind=rp) :: dt        !< time-step size               
      real(kind=rp) :: T_end     !< Final time
      real(kind=rp) :: rho       !< Density \f$ \rho \f$
@@ -54,6 +55,7 @@ contains
     integer :: nsamples = 0
     logical :: output_bdry = .false.
     logical :: output_part = .false.
+    logical :: output_chkp = .false.
     real(kind=rp) :: dt = 0d0
     real(kind=rp) :: T_end = 0d0
     real(kind=rp) :: rho = 1d0
@@ -75,8 +77,8 @@ contains
     integer :: time_order = 3
     character(len=8) :: jlimit = '00:00:00'
 
-    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
-         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
+    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
+         dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
          proj_dim, time_order, jlimit
 
@@ -84,6 +86,7 @@ contains
 
     param%p%output_bdry = output_bdry
     param%p%output_part = output_part
+    param%p%output_chkp = output_chkp
     param%p%nsamples = nsamples
     param%p%dt = dt
     param%p%T_end = T_end
@@ -119,18 +122,19 @@ contains
     real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
     real(kind=rp), dimension(3) :: uinf
-    logical :: output_part, avflow
-    logical :: output_bdry, loadb
+    logical :: output_part, output_bdry, output_chkp
+    logical :: avflow, loadb
     integer :: nsamples, vol_flow_dir, proj_dim, time_order
     character(len=8) :: jlimit
-    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
-         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
+    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
+         dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
          proj_dim, time_order, jlimit
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
     output_part = param%p%output_part
+    output_chkp = param%p%output_chkp
     dt = param%p%dt
     T_end = param%p%T_end
     rho = param%p%rho
