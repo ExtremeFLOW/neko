@@ -13,9 +13,9 @@ module space
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
      integer :: lxy             !< Number of points in xy-plane
-     integer :: lyz              !< Number of points in yz-plane
-     integer :: lxz              !< Number of points in xz-plane
-     integer :: lxyz              !< Number of points in xyz-block
+     integer :: lyz             !< Number of points in yz-plane
+     integer :: lxz             !< Number of points in xz-plane
+     integer :: lxyz            !< Number of points in xyz-block
      
      real(kind=rp), allocatable :: zg(:,:) !< Quadrature points
      
@@ -36,8 +36,6 @@ module space
      real(kind=rp), allocatable :: dxt(:,:) !< Derivative operator
      real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
      real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
-
-     !> @todo Store gll points etc in the space
   end type space_t
 
   interface operator(.eq.)
@@ -45,7 +43,7 @@ module space
   end interface operator(.eq.)
 
   interface operator(.ne.)
-     module procedure space_eq
+     module procedure space_ne
   end interface operator(.ne.)
   
 contains
@@ -138,9 +136,14 @@ contains
        s%dzt = 0d0
     end if
     
-    call space_compute_dist(s%dr_inv, s%zg(1,1), lx)
-    call space_compute_dist(s%ds_inv, s%zg(1,2), ly)
-    call space_compute_dist(s%dt_inv, s%zg(1,3), lz)
+    call space_compute_dist(s%dr_inv, s%zg(1,1), s%lx)
+    call space_compute_dist(s%ds_inv, s%zg(1,2), s%ly)
+    if (s%lz .gt. 1) then
+       call space_compute_dist(s%dt_inv, s%zg(1,3), s%lz)
+    else
+       s%dt_inv = 0d0
+    end if
+    
   end subroutine space_init
    
   !> Deallocate a space @a s
@@ -202,7 +205,6 @@ contains
     if (allocated(s%dt_inv)) then
        deallocate(s%dt_inv)
     end if
-    
 
   end subroutine space_free
 
@@ -213,9 +215,9 @@ contains
     type(space_t), intent(in) :: Yh
     logical :: res
 
-    if ( (Xh%lx .eq. Xh%lx) .and. &
-         (Xh%ly .eq. Xh%ly) .and. &
-         (Xh%lz .eq. Xh%lz) ) then
+    if ( (Xh%lx .eq. Yh%lx) .and. &
+         (Xh%ly .eq. Yh%ly) .and. &
+         (Xh%lz .eq. Yh%lz) ) then
        res = .true.
     else
        res = .false.
@@ -230,9 +232,9 @@ contains
     type(space_t), intent(in) :: Yh
     logical :: res
 
-    if ( (Xh%lx .eq. Xh%lx) .and. &
-         (Xh%ly .eq. Xh%ly) .and. &
-         (Xh%lz .eq. Xh%lz) ) then
+    if ( (Xh%lx .eq. Yh%lx) .and. &
+         (Xh%ly .eq. Yh%ly) .and. &
+         (Xh%lz .eq. Yh%lz) ) then
        res = .false.
     else
        res = .true.
@@ -245,7 +247,7 @@ contains
     real(kind=rp), intent(inout) :: dx(lx), x(lx)
     integer :: i
     dx(1) = x(2) - x(1)
-    do i = 2, lx -1
+    do i = 2, lx - 1
        dx(i) = 0.5*(x(i+1) - x(i-1))
     enddo
     dx(lx) = x(lx) - x(lx-1)
