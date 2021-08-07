@@ -225,7 +225,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
     end if
-
+    
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
@@ -372,6 +372,11 @@ contains
     type is(usr_inflow_t)
        call ip%validate
     end select
+
+    !
+    ! Setup checkpoint structure (if everything is fine)
+    !
+    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine fluid_scheme_validate
 

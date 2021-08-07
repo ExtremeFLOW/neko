@@ -176,6 +176,9 @@ contains
     call field_init(this%w_vol, this%dm_Xh, 'w_vol')
     call field_init(this%p_vol, this%dm_Xh, 'p_vol')
 
+    ! Add lagged term to checkpoint
+    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
+
   end subroutine fluid_plan4_init
 
   subroutine fluid_plan4_free(this)
