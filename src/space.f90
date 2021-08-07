@@ -215,9 +215,9 @@ contains
     type(space_t), intent(in) :: Yh
     logical :: res
 
-    if ( (Xh%lx .eq. Xh%lx) .and. &
-         (Xh%ly .eq. Xh%ly) .and. &
-         (Xh%lz .eq. Xh%lz) ) then
+    if ( (Xh%lx .eq. Yh%lx) .and. &
+         (Xh%ly .eq. Yh%ly) .and. &
+         (Xh%lz .eq. Yh%lz) ) then
        res = .true.
     else
        res = .false.
@@ -232,9 +232,9 @@ contains
     type(space_t), intent(in) :: Yh
     logical :: res
 
-    if ( (Xh%lx .eq. Xh%lx) .and. &
-         (Xh%ly .eq. Xh%ly) .and. &
-         (Xh%lz .eq. Xh%lz) ) then
+    if ( (Xh%lx .eq. Yh%lx) .and. &
+         (Xh%ly .eq. Yh%ly) .and. &
+         (Xh%lz .eq. Yh%lz) ) then
        res = .false.
     else
        res = .true.
