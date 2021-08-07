@@ -45,7 +45,7 @@ module space
   end interface operator(.eq.)
 
   interface operator(.ne.)
-     module procedure space_eq
+     module procedure space_ne
   end interface operator(.ne.)
   
 contains
