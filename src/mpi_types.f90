@@ -28,7 +28,8 @@ module mpi_types
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
   integer :: MPI_CHARACTER_SIZE        !< Size of MPI type character
-  integer :: MPI_INTEGER_SIZE          !< size of MPI type integer
+  integer :: MPI_INTEGER_SIZE          !< Size of MPI type integer
+  integer :: MPI_REAL_PREC_SIZE        !< Size of working precision REAL types
 
   ! Public dervied types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
@@ -38,7 +39,8 @@ module mpi_types
        MPI_RE2V2_DATA_XYZ, MPI_RE2V2_DATA_XY, &
        MPI_RE2V2_DATA_CV, MPI_RE2V2_DATA_BC, &
        MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
-       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, MPI_NEKO_PARAMS
+       MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, &
+       MPI_REAL_PREC_SIZE, MPI_NEKO_PARAMS
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -67,6 +69,7 @@ contains
     call MPI_Type_size(MPI_DOUBLE_PRECISION, MPI_DOUBLE_PRECISION_SIZE, ierr)
     call MPI_Type_size(MPI_CHARACTER, MPI_CHARACTER_SIZE, ierr)
     call MPI_Type_size(MPI_INTEGER, MPI_INTEGER_SIZE, ierr)
+    call MPI_Type_size(MPI_REAL_PRECISION, MPI_REAL_PREC_SIZE, ierr)
 
     call MPI_Barrier(NEKO_COMM, ierr)
 
