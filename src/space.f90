@@ -13,9 +13,9 @@ module space
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
      integer :: lxy             !< Number of points in xy-plane
-     integer :: lyz              !< Number of points in yz-plane
-     integer :: lxz              !< Number of points in xz-plane
-     integer :: lxyz              !< Number of points in xyz-block
+     integer :: lyz             !< Number of points in yz-plane
+     integer :: lxz             !< Number of points in xz-plane
+     integer :: lxyz            !< Number of points in xyz-block
      
      real(kind=rp), allocatable :: zg(:,:) !< Quadrature points
      
@@ -36,8 +36,6 @@ module space
      real(kind=rp), allocatable :: dxt(:,:) !< Derivative operator
      real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
      real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
-
-     !> @todo Store gll points etc in the space
   end type space_t
 
   interface operator(.eq.)
@@ -202,7 +200,6 @@ contains
     if (allocated(s%dt_inv)) then
        deallocate(s%dt_inv)
     end if
-    
 
   end subroutine space_free
 
