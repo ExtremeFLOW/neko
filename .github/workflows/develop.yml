@@ -14,15 +14,19 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, macos-latest]
-        compiler: [gfortran-10]
+        compiler: [gfortran-10, gfortran-11]
+        exclude:
+        - os: ubuntu-20.04
+          compiler: gfortran-11
+        - os: macos-latest
+          compiler: gfortran-10
         include:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui
         - os: macos-latest
-          setup-env: export HOMEBREW_CC=gcc-10 && export HOMEBREW_CXX=g++-10 && brew update && brew install openmpi && brew install automake
+          setup-env: export brew update && brew install openmpi && brew install automake
     env:
       FC: ${{ matrix.compiler }}
-      CC: gcc-10
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
@@ -50,7 +54,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
           make -j$(nproc)
       - name: Check
         run: |
