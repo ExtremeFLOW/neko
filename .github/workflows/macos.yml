@@ -1,0 +1,38 @@
+name: macos
+
+# Controls when the action will run. 
+on:
+  workflow_dispatch:
+  
+jobs:
+  GNU:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+        compiler: [gfortran-10]
+        include:
+        - os: macos-10.15
+          setup-env: brew update && brew install openmpi
+    env:
+      FC: ${{ matrix.compiler }}
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    name: ${{ matrix.os }} / ${{ matrix.compiler }}
+    steps:
+      - name: Setup env.
+        run: ${{ matrix.setup-env }}
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Build
+        run: |
+          which cmake
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"
+          make -j$(nproc)
+
+ 
