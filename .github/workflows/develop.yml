@@ -13,11 +13,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-20.04, macos-latest]
         compiler: [gfortran-10]
         include:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui
+        - os: macos-latest
+          setup-env: brew update && brew install openmpi && brew install automake
     env:
       FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
@@ -89,36 +91,4 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 
-  macos:
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest]
-        compiler: [gfortran-10]
-        include:
-        - os: macos-latest
-          setup-env: brew update && brew install openmpi
-    env:
-      FC: ${{ matrix.compiler }}
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-    name: ${{ matrix.os }} / ${{ matrix.compiler }}
-    steps:
-      - name: Setup env.
-        run: ${{ matrix.setup-env }}
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-      - name: Build
-        run: |
-          which cmake
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"
-          make -j$(nproc)
-
-
-
-  
+ 
