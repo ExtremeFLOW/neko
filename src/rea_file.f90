@@ -35,7 +35,7 @@ contains
     integer, allocatable :: curve_type(:,:)
     logical, allocatable :: curve_element(:)
     character(len=1) :: chtemp
-    integer :: ndim, nparam, nskip, nlogic, nbcs
+    integer :: ndim, nparam, nskip, nlogic, nbcs, ncurve
     integer :: nelgs, nelgv, i, j, ierr, l
     integer :: el_idx, pt_idx
     logical :: read_param, read_bcs, read_map
@@ -181,7 +181,7 @@ contains
        call htp%free()
        
        read(9, *) 
-       read(9, *) nskip
+       read(9, *) ncurve
        allocate(curve_data(5,8,nelgv))
        allocate(curve_element(nelgv))
        allocate(curve_type(8,nelgv))
@@ -194,7 +194,7 @@ contains
              end do
           end do
        end do
-       do i = 1, nskip
+       do i = 1, ncurve
           read(9, *) edge, el_idx, (curve(j),j=1,5), chtemp       
           do j = 1, 5
              curve_data(j,edge,el_idx) = curve(j)
