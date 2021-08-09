@@ -28,7 +28,7 @@ module parameters
      integer :: proj_dim     !< Projection space for pressure solution
      integer :: time_order   !< Order of the time stepping
      character(len=8) :: jlimit !< Job limit in HH:MM:SS
-
+     character(len=80) :: restart_file !< Checkpoint filename
   end type param_t
 
   type param_io_t
@@ -76,11 +76,12 @@ contains
     integer :: proj_dim = 20
     integer :: time_order = 3
     character(len=8) :: jlimit = '00:00:00'
-
+    character(len=80) :: restart_file = ''
+    
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
-         proj_dim, time_order, jlimit
+         proj_dim, time_order, jlimit, restart_file
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -108,6 +109,7 @@ contains
     param%p%proj_dim = proj_dim
     param%p%time_order = time_order
     param%p%jlimit = jlimit
+    param%p%restart_file = restart_file
 
   end subroutine param_read
 
@@ -126,10 +128,11 @@ contains
     logical :: avflow, loadb
     integer :: nsamples, vol_flow_dir, proj_dim, time_order
     character(len=8) :: jlimit
+    character(len=80) :: restart_file
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
-         proj_dim, time_order, jlimit
+         proj_dim, time_order, jlimit, restart_file
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -155,6 +158,7 @@ contains
     proj_dim = param%p%proj_dim
     time_order = param%p%time_order
     jlimit = param%p%jlimit
+    restart_file = param%p%restart_file
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
