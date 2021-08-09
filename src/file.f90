@@ -15,6 +15,7 @@ module file
    contains
      procedure :: write => file_write
      procedure :: read => file_read
+     procedure :: set_counter => file_set_counter
      final :: file_free
   end type file_t
 
@@ -94,5 +95,12 @@ contains
     call this%file_type%read(data)
     
   end subroutine file_read
+
+  !> Set a file's counter
+  subroutine file_set_counter(this, n)
+    class(file_t), intent(inout) :: this
+    integer, intent(in) :: n
+    call this%file_type%set_counter(n)
+  end subroutine file_set_counter
 
 end module file
