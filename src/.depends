@@ -90,7 +90,7 @@ fluid_method.o : fluid_method.f90 log.o pc_hsmg.o operators.o mathops.o abbdf.o 
 fluid_plan4.o : fluid_plan4.f90 log.o projection.o abbdf.o ax_helm.o ax_helm_sx.o ax_helm_xsmm.o neko_config.o facet_normal.o fluid_method.o 
 fluid_plan1.o : fluid_plan1.f90 fluid_method.o 
 fluid_schemes.o : fluid_schemes.f90 fluid_plan4.o fluid_plan1.o fluid_method.o 
-simulation.o : simulation.f90 jobctrl.o log.o abbdf.o case.o 
+simulation.o : simulation.f90 jobctrl.o file.o log.o abbdf.o case.o 
 ax_helm.o : ax_helm.f90 ax.o 
 ax_helm_sx.o : ax_helm_sx.f90 num_types.o ax.o 
 ax_helm_xsmm.o : ax_helm_xsmm.F90 num_types.o ax.o 
