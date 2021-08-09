@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.1.2])
+AC_INIT([neko],[0.1.3])
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
