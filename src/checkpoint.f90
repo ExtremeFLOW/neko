@@ -17,9 +17,12 @@ module checkpoint
      real(kind=rp), pointer :: ulag(:,:,:,:,:) => null()
      real(kind=rp), pointer :: vlag(:,:,:,:,:) => null()
      real(kind=rp), pointer :: wlag(:,:,:,:,:) => null()
+
+     real(kind=dp) :: t         !< Restart time (valid after load)
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: add_lag => chkp_add_lag
+     procedure, pass(this) :: restart_time => chkp_restart_time
      final :: chkp_free
   end type chkp_t
 
@@ -52,6 +55,8 @@ contains
     this%v => v
     this%w => w
     this%p => p
+
+    this%t = 0d0
     
   end subroutine chkp_init
 
@@ -82,5 +87,13 @@ contains
     this%wlag => wlag
     
   end subroutine chkp_add_lag
+
+  !> Return restart time from a loaded checkpoint
+  pure function chkp_restart_time(this) result(rtime)
+    class(chkp_t), intent(in) :: this
+    real(kind=dp) :: rtime
+
+    rtime = this%t
+  end function chkp_restart_time
   
 end module checkpoint

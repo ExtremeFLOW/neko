@@ -95,16 +95,19 @@ contains
     call MPI_File_write_all(fh, msh%gdim, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, u%Xh%lx, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, have_lag, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_write_all(fh, time, 1, MPI_DOUBLE_PRECISION, status, ierr)
     
     
     !
     ! Dump mandatory checkpoint data
     !
     
-    byte_offset = 4 * MPI_INTEGER_SIZE + dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+    byte_offset = 4 * MPI_INTEGER_SIZE + MPI_DOUBLE_PRECISION_SIZE + &
+         dof_offset * int(MPI_REAL_PREC_SIZE, 8)
     call MPI_File_write_at_all(fh, byte_offset, u%x, u%dof%size(), &
          MPI_REAL_PRECISION, status, ierr)
-    mpi_offset = 4 * MPI_INTEGER_SIZE + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+    mpi_offset = 4 * MPI_INTEGER_SIZE + MPI_DOUBLE_PRECISION_SIZE + &
+         n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
     
     byte_offset = mpi_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, 8)
@@ -166,6 +169,7 @@ contains
   subroutine chkp_file_read(this, data)
     class(chkp_file_t) :: this
     class(*), target, intent(inout) :: data
+    type(chkp_t), pointer :: chkp
     character(len=5) :: id_str
     character(len=80) :: fname
     integer :: ierr, suffix_pos
@@ -183,7 +187,7 @@ contains
     logical read_lag
     
     select type(data)
-    type is (chkp_t)
+    type is (chkp_t)       
 
        if ( .not. associated(data%u) .or. &
             .not. associated(data%v) .or. &
@@ -206,6 +210,8 @@ contains
        else
           read_lag = .false.
        end if
+
+       chkp => data
        
     class default
        call neko_error('Invalid data')
@@ -219,12 +225,12 @@ contains
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, lx, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, have_lag, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_read_all(fh, chkp%t, 1, MPI_DOUBLE_PRECISION, status, ierr)
 
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
          ( lx .ne. u%Xh%lx .or. lx .ne. u%Xh%ly .or. lx .ne. u%Xh%lz) .or. &
-         ( (have_lag .eq. 1) .and. (.not. read_lag) ) .or. &
-         ( (have_lag .ne. 0) .and. read_lag) ) then
+         ( (have_lag .eq. 1) .and. (.not. read_lag) ) ) then
        call neko_error('Checkpoint does not match case')
     end if
     
@@ -236,10 +242,12 @@ contains
     ! Read mandatory checkpoint data
     !
     
-    byte_offset = 4 * MPI_INTEGER_SIZE + dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+    byte_offset = 4 * MPI_INTEGER_SIZE + MPI_DOUBLE_PRECISION_SIZE + &
+         dof_offset * int(MPI_REAL_PREC_SIZE, 8)
     call MPI_File_read_at_all(fh, byte_offset, u%x, u%dof%size(), &
          MPI_REAL_PRECISION, status, ierr)
-    mpi_offset = 4 * MPI_INTEGER_SIZE + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+    mpi_offset = 4 * MPI_INTEGER_SIZE + MPI_DOUBLE_PRECISION_SIZE + &
+         n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
     
     byte_offset = mpi_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, 8)
@@ -291,10 +299,7 @@ contains
        
     end if
     
-    call MPI_File_close(fh, ierr)
-    
-    
-    call neko_error('Not implemented yet!')
+    call MPI_File_close(fh, ierr)      
     
   end subroutine chkp_file_read
   
