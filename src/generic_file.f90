@@ -10,6 +10,7 @@ module generic_file
      procedure :: init => generic_file_init           !< Constructor
      procedure(generic_file_write), deferred :: write !< Write method
      procedure(generic_file_read), deferred :: read   !< Read method
+     procedure :: set_counter => generic_file_set_counter !< Update counter
   end type generic_file_t
 
   abstract interface
@@ -42,5 +43,12 @@ contains
     this%counter = 0
     
   end subroutine generic_file_init
+
+  !> Set the file counter to @a n
+  subroutine generic_file_set_counter(this, n)
+    class(generic_file_t), intent(inout) :: this
+    integer, intent(in) :: n
+    this%counter = n    
+  end subroutine generic_file_set_counter
 
 end module generic_file

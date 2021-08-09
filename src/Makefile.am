@@ -58,6 +58,7 @@ libneko_a_SOURCES = \
 	opr_cpu.f90\
 	opr_sx.f90\
 	opr_xsmm.F90\
+	checkpoint.f90\
 	generic_file.f90\
 	map_file.f90\
 	re2_file.f90\
@@ -65,9 +66,11 @@ libneko_a_SOURCES = \
 	fld_file.f90\
 	vtk_file.f90\
 	nmsh_file.f90\
+	chkp_file.f90\
 	file.f90\
 	output.f90\
 	fluid_output.f90\
+	chkp_output.f90\
 	sampler.f90\
 	bc.f90\
 	dirichlet.f90\

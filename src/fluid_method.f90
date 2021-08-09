@@ -3,6 +3,7 @@ module fluid_method
   use gather_scatter
   use neko_config
   use parameters
+  use checkpoint
   use num_types
   use source
   use field
@@ -51,9 +52,10 @@ module fluid_method
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     type(field_t) :: bdry                     !< Boundary markings
+     type(field_t) :: bdry                     !< Boundary markings     
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
+     type(chkp_t) :: chkp                      !< Checkpoint
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -223,7 +225,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
     end if
-
+    
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
@@ -370,6 +372,11 @@ contains
     type is(usr_inflow_t)
        call ip%validate
     end select
+
+    !
+    ! Setup checkpoint structure (if everything is fine)
+    !
+    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine fluid_scheme_validate
 
