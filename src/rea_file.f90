@@ -195,7 +195,7 @@ contains
           end do
        end do
        do i = 1, nskip
-          read(9, *) edge, el_idx, (curve,j=1,5), chtemp       
+          read(9, *) edge, el_idx, (curve(j),j=1,5), chtemp       
           do j = 1, 5
              curve_data(j,edge,el_idx) = curve(j)
           end do
