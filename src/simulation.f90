@@ -3,6 +3,7 @@ module simulation
   use case
   use abbdf
   use log
+  use file
   use jobctrl
   implicit none
   private
@@ -26,8 +27,13 @@ contains
     call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7)') 'dt :  ', C%params%dt
     call neko_log%message(log_buf)
-    call neko_log%newline()
     
+    if (len_trim(C%params%restart_file) .gt. 0) then
+       call simulation_restart(C, t)
+    end if
+    
+    call neko_log%newline()
+
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()))
        tstep = tstep + 1
@@ -66,6 +72,7 @@ contains
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
     integer :: i
+    
 
     do i = 10, 2, -1
        tlag(i) = tlag(i-1)
@@ -84,6 +91,28 @@ contains
     call ab_bdf%set_abbd(dtlag)
     
   end subroutine simulation_settime
+
+  subroutine simulation_restart(C, t)
+    type(case_t), intent(inout) :: C
+    real(kind=rp) :: t
+    type(file_t) :: chkpf
+    character(len=LOG_SIZE) :: log_buf   
+
+    chkpf = file_t(trim(C%params%restart_file))
+    call chkpf%read(C%fluid%chkp)
+
+    t = C%fluid%chkp%restart_time()
+    call neko_log%section('Restarting from checkpoint')
+    write(log_buf,'(A,A)') 'File :   ', &
+         trim(C%params%restart_file)
+    call neko_log%message(log_buf)
+    write(log_buf,'(A,E15.7)') 'Time : ', t
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+
+    call C%s%set_counter(t)
+  end subroutine simulation_restart
 
 end module simulation
 
