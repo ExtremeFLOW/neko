@@ -79,6 +79,8 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_cdtp(dtx, x, dr, ds, dt, coef)
     else
        call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     end if
@@ -136,13 +138,13 @@ contains
     real(kind=rp) :: cflr, cfls, cflt, cflm, cfl_temp(1)
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
-    integer :: i,j,k,e
+    integer :: i, j, k, e
     cfl_temp(1) = 0d0
     if (gdim .eq. 3) then
-       do e=1,nelv
-          do k=1,Xh%lz
-             do j=1,Xh%ly
-                do i=1,Xh%lx
+       do e = 1,nelv
+          do k = 1,Xh%lz
+             do j = 1,Xh%ly
+                do i = 1,Xh%lx
                    ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
                       +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
                       +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
@@ -164,9 +166,9 @@ contains
           end do
        end do
     else
-       do e=1,nelv
-          do j=1,Xh%ly
-             do i=1,Xh%lx
+       do e = 1,nelv
+          do j = 1,Xh%ly
+             do i = 1,Xh%lx
                 ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
                    +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
                 us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
@@ -181,7 +183,7 @@ contains
              end do
           end do
        end do
-    endif
+    end if
     cfl = glmax(cfl_temp,1)
   end function cfl
   

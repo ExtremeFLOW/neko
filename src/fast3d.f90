@@ -75,7 +75,7 @@ contains
 !!     Currently, this is set up for pressure nodes on the interior GLL pts.
 !!
 !!
-  subroutine semhat(a,b,c,d,z,dgll,jgll,bgl,zgl,dgl,jgl,n,w)
+  subroutine semhat(a, b, c, d, z, dgll, jgll, bgl, zgl, dgl, jgl, n, w)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(0:n,0:n)
     real(kind=rp), intent(inout) :: b(0:n)
@@ -92,9 +92,9 @@ contains
     np = n+1
     nm = n-1
     n2 = n-2
-    call zwgll (z,b,np)
+    call zwgll(z, b, np)
     do i = 0,n
-       call fd_weights_full(z(i),z,n,1,w)
+       call fd_weights_full(z(i), z, n, 1, w)
        do j = 0,n
           d(i,j) = w(j+np)                   !  Derivative matrix
        end do
@@ -103,13 +103,13 @@ contains
     if (n.eq.1) return                       !  No interpolation for n=1
 
     do i = 0,n
-       call fd_weights_full(z(i),z(1),n2,1,w(1))
+       call fd_weights_full(z(i), z(1), n2, 1, w(1))
        do j = 1,nm
           jgll(i,j) = w(j   )                  !  Interpolation matrix
           dgll(i,j) = w(j+nm)                  !  Derivative    matrix
        end do
     end do
-    call rzero(a,np*np)
+    call rzero(a, np*np)
     do j = 0,n
     do i = 0,n
        do k = 0,n
@@ -118,9 +118,9 @@ contains
        c(i,j) = b(i)*d(i,j)
     end do
     end do
-    call zwgl (zgl,bgl,nm)
+    call zwgl(zgl, bgl, nm)
     do i = 1,n-1
-       call fd_weights_full(zgl(i),z,n,1,w)
+       call fd_weights_full(zgl(i), z, n, 1, w)
        do j = 0,n
           jgl(i,j) = w(j   )                  !  Interpolation matrix
           dgl(i,j) = w(j+np)                  !  Derivative    matrix

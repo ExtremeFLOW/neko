@@ -26,7 +26,6 @@ contains
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-
         
     call this%free()
     
@@ -34,6 +33,7 @@ contains
     allocate(this%r(n))
     allocate(this%p(n))
     allocate(this%z(n))
+    
     if (present(M)) then 
        this%M => M
     end if
@@ -74,7 +74,6 @@ contains
 
     nullify(this%M)
 
-
   end subroutine cg_free
   
   !> Standard PCG solve
@@ -100,7 +99,7 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
-    norm_fac = one/sqrt(coef%volume)
+    norm_fac = one / sqrt(coef%volume)
 
     rtz1 = one
     call rzero(x%x, n)
@@ -135,7 +134,7 @@ contains
 
        rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr
-       rnorm = sqrt(rtr)*norm_fac
+       rnorm = sqrt(rtr) * norm_fac
        if (rnorm .lt. this%abs_tol) then
           exit
        end if

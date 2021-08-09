@@ -24,6 +24,7 @@ module sampler
      procedure, pass(this) :: free => sampler_free
      procedure, pass(this) :: add => sampler_add
      procedure, pass(this) :: sample => sampler_sample
+     procedure, pass(this) :: set_counter => sampler_set_counter
   end type sampler_t
 
 contains
@@ -108,5 +109,19 @@ contains
     end if
     
   end subroutine sampler_sample
+
+  !> Set sampling counter (after restart)
+  subroutine sampler_set_counter(this, t)
+    class(sampler_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer :: i
+
+    this%nsample = int(t / this%T) + 1
+
+    do i = 1, this%n
+       call this%output_list(i)%outp%set_counter(this%nsample)
+    end do
+    
+  end subroutine sampler_set_counter
   
 end module sampler

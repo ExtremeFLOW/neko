@@ -314,7 +314,7 @@ contains
        call sub3(w1%x, work1%x, work2%x, n)
     else
        call copy(w1%x, work1%x, n)
-    endif
+    end if
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
        call opr_sx_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
@@ -324,7 +324,7 @@ contains
        call rzero (work1%x, n)
        call opr_sx_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
        call sub3(w2%x, work1%x, work2%x, n)
-    endif
+    end if
     !     this%work1=dv/dx ; this%work2=du/dy
     call opr_sx_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call opr_sx_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)

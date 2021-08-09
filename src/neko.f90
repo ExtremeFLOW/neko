@@ -64,6 +64,8 @@ module neko
   use structs
   use curve
   use tet_mesh
+  use signal
+  use jobctrl
 contains
 
   subroutine neko_init(C)
@@ -74,6 +76,7 @@ contains
 
     call comm_init
     call mpi_types_init
+    call jobctrl_init
 
     call neko_log%init()
 

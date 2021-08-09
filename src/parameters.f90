@@ -7,6 +7,7 @@ module parameters
      integer :: nsamples        !< Number of samples
      logical :: output_bdry     !< Output boundary markings
      logical :: output_part     !< Output partitions
+     logical :: output_chkp     !< Output checkpoints
      real(kind=rp) :: dt        !< time-step size               
      real(kind=rp) :: T_end     !< Final time
      real(kind=rp) :: rho       !< Density \f$ \rho \f$
@@ -25,8 +26,9 @@ module parameters
      logical :: loadb        !< Load-balancing
      real(kind=rp) :: flow_rate !< Volume flow speed
      integer :: proj_dim     !< Projection space for pressure solution
-     integer :: time_order     !< Order of the time stepping
-
+     integer :: time_order   !< Order of the time stepping
+     character(len=8) :: jlimit !< Job limit in HH:MM:SS
+     character(len=80) :: restart_file !< Checkpoint filename
   end type param_t
 
   type param_io_t
@@ -53,6 +55,7 @@ contains
     integer :: nsamples = 0
     logical :: output_bdry = .false.
     logical :: output_part = .false.
+    logical :: output_chkp = .false.
     real(kind=rp) :: dt = 0d0
     real(kind=rp) :: T_end = 0d0
     real(kind=rp) :: rho = 1d0
@@ -72,16 +75,19 @@ contains
     real(kind=rp) :: flow_rate = 0d0
     integer :: proj_dim = 20
     integer :: time_order = 3
-
-    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
-         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
+    character(len=8) :: jlimit = '00:00:00'
+    character(len=80) :: restart_file = ''
+    
+    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
+         dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
-         proj_dim, time_order
+         proj_dim, time_order, jlimit, restart_file
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
     param%p%output_bdry = output_bdry
     param%p%output_part = output_part
+    param%p%output_chkp = output_chkp
     param%p%nsamples = nsamples
     param%p%dt = dt
     param%p%T_end = T_end
@@ -102,6 +108,8 @@ contains
     param%p%flow_rate = flow_rate
     param%p%proj_dim = proj_dim
     param%p%time_order = time_order
+    param%p%jlimit = jlimit
+    param%p%restart_file = restart_file
 
   end subroutine param_read
 
@@ -116,17 +124,20 @@ contains
     real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
     real(kind=rp), dimension(3) :: uinf
-    logical :: output_part, avflow
-    logical :: output_bdry, loadb
+    logical :: output_part, output_bdry, output_chkp
+    logical :: avflow, loadb
     integer :: nsamples, vol_flow_dir, proj_dim, time_order
-    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, dt, &
-         T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
+    character(len=8) :: jlimit
+    character(len=80) :: restart_file
+    namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
+         dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
-         proj_dim, time_order
+         proj_dim, time_order, jlimit, restart_file
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
     output_part = param%p%output_part
+    output_chkp = param%p%output_chkp
     dt = param%p%dt
     T_end = param%p%T_end
     rho = param%p%rho
@@ -146,6 +157,8 @@ contains
     flow_rate = param%p%flow_rate
     proj_dim = param%p%proj_dim
     time_order = param%p%time_order
+    jlimit = param%p%jlimit
+    restart_file = param%p%restart_file
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 

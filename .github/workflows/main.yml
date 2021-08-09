@@ -13,14 +13,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
-        compiler: [gfortran-9, gfortran-10]
+        os: [ubuntu-20.04, macos-latest]
+        compiler: [gfortran-10, gfortran-11]
+        exclude:
+        - os: ubuntu-20.04
+          compiler: gfortran-11
+        - os: macos-latest
+          compiler: gfortran-10
         include:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui
-          
+        - os: macos-latest
+          setup-env: export brew update && brew install open-mpi && brew install automake && export OMPI_FC=gfortran-11 && export OMPI_CC=gcc-11 && printenv >> $GITHUB_ENV
     env:
       FC: ${{ matrix.compiler }}
+      OMPI_FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none

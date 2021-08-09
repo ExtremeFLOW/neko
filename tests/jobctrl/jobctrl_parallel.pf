@@ -1,0 +1,31 @@
+module jobctrl_parallel
+  use mpi
+  use pfunit
+  use num_types
+  use mesh
+  use jobctrl
+  implicit none
+  
+contains
+
+  @test(npes=[1])
+  subroutine test_jobctrl_set_time_limit(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(mesh_t) :: m ! Dummy type to avoid link issues
+    integer :: ierr
+    
+     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+     pe_rank = this%getProcessRank()
+     pe_size = this%getNumProcesses()
+
+     call jobctrl_init()
+     call jobctrl_set_time_limit(3)
+     call sleep(1)
+     @assertFalse(signal_timeout())
+     call sleep(3)
+     @assertTrue(signal_timeout())
+    
+   end subroutine test_jobctrl_set_time_limit
+
+end module jobctrl_parallel

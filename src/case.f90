@@ -3,6 +3,7 @@ module case
   use num_types
   use fluid_schemes
   use fluid_output
+  use chkp_output
   use parameters
   use mpi_types
   use mesh_field
@@ -14,7 +15,8 @@ module case
   use mesh
   use comm
   use abbdf
-  use log    
+  use log
+  use jobctrl
   use user_intf  
   implicit none
 
@@ -26,6 +28,7 @@ module case
      real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
+     type(chkp_output_t) :: f_chkp
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
@@ -228,6 +231,19 @@ contains
     call C%s%init(C%params%nsamples, C%params%T_end)
     C%f_out = fluid_output_t(C%fluid)
     call C%s%add(C%f_out)
+
+    !
+    ! Save checkpoints (if requested)
+    !
+    if (C%params%output_chkp) then
+       C%f_chkp = chkp_output_t(C%fluid%chkp)
+       call C%s%add(C%f_chkp)
+    end if
+
+    !
+    ! Setup joblimit
+    !
+    call jobctrl_set_time_limit(C%params%jlimit)
 
     call neko_log%end_section()
     
