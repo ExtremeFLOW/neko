@@ -40,10 +40,10 @@ libneko_a_SOURCES = \
 	mesh/hex.f90\
 	mesh/tet.f90\
 	mesh/tri.f90\
-	htable.f90\
-	uset.f90\
-	stack.f90\
-	tuple.f90\
+	adt/htable.f90\
+	adt/uset.f90\
+	adt/stack.f90\
+	adt/tuple.f90\
 	mesh/zone.f90\
 	mesh/mesh.f90\
 	mesh_field.f90\
