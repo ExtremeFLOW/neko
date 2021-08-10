@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 1
       - name: Lint
         run: |
-          flint score src/ -d 4 -r flinter_rc.yml | tee flint.txt
+          flint score src/ -d 5 -r flinter_rc.yml | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
           if (( $(echo "$score < 7.32" |bc -l) )) ; then
             exit 1
