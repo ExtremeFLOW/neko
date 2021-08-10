@@ -3,6 +3,7 @@ module fluid_method
   use gather_scatter
   use neko_config
   use parameters
+  use checkpoint
   use num_types
   use source
   use field
@@ -51,10 +52,10 @@ module fluid_method
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     type(field_t) :: bdry                     !< Boundary markings
+     type(field_t) :: bdry                     !< Boundary markings     
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
-
+     type(chkp_t) :: chkp                      !< Checkpoint
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -224,7 +225,7 @@ contains
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
     end if
-
+    
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
@@ -372,6 +373,11 @@ contains
        call ip%validate
     end select
 
+    !
+    ! Setup checkpoint structure (if everything is fine)
+    !
+    call this%chkp%init(this%u, this%v, this%w, this%p)
+
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
@@ -450,6 +456,7 @@ contains
     
   end subroutine fluid_scheme_precon_factory
 
+  !> Initialize a user defined inflow condition
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
@@ -464,12 +471,16 @@ contains
     end if
     
   end subroutine fluid_scheme_set_usr_inflow
+
+  !> Compute CFL
   function fluid_compute_cfl(this, dt) result(c)
-    class(fluid_scheme_t) :: this
-    real(kind=rp) :: dt
+    class(fluid_scheme_t), intent(in) :: this
+    real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
 
-    c = cfl(dt, this%u%x, this%v%x, this%w%x, this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim) 
+    c = cfl(dt, this%u%x, this%v%x, this%w%x, &
+         this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
+    
   end function fluid_compute_cfl
      
 end module fluid_method

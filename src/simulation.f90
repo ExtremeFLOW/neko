@@ -3,6 +3,7 @@ module simulation
   use case
   use abbdf
   use log
+  use file
   use jobctrl
   implicit none
   private
@@ -26,8 +27,13 @@ contains
     call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7)') 'dt :  ', C%params%dt
     call neko_log%message(log_buf)
-    call neko_log%newline()
     
+    if (len_trim(C%params%restart_file) .gt. 0) then
+       call simulation_restart(C, t)
+    end if
+    
+    call neko_log%newline()
+
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()))
        tstep = tstep + 1
@@ -55,7 +61,13 @@ contains
        call neko_log%end()
        call C%s%sample(t)
     end do
+
+    if (t .lt. C%params%T_end) then
+       call simulation_joblimit_chkp(C, t)
+    end if
+    
     call neko_log%end_section('normal end.')
+    
   end subroutine neko_solve
 
   subroutine simulation_settime(t, dt, ab_bdf, tlag, dtlag, step)
@@ -66,6 +78,7 @@ contains
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
     integer :: i
+    
 
     do i = 10, 2, -1
        tlag(i) = tlag(i-1)
@@ -84,6 +97,43 @@ contains
     call ab_bdf%set_abbd(dtlag)
     
   end subroutine simulation_settime
+
+  !> Restart a case @a C from a given checkpoint
+  subroutine simulation_restart(C, t)
+    type(case_t), intent(inout) :: C
+    real(kind=rp), intent(inout) :: t
+    type(file_t) :: chkpf
+    character(len=LOG_SIZE) :: log_buf   
+
+    chkpf = file_t(trim(C%params%restart_file))
+    call chkpf%read(C%fluid%chkp)
+
+    t = C%fluid%chkp%restart_time()
+    call neko_log%section('Restarting from checkpoint')
+    write(log_buf,'(A,A)') 'File :   ', &
+         trim(C%params%restart_file)
+    call neko_log%message(log_buf)
+    write(log_buf,'(A,E15.7)') 'Time : ', t
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+
+    call C%s%set_counter(t)
+  end subroutine simulation_restart
+
+  !> Write a checkpoint at joblimit
+  subroutine simulation_joblimit_chkp(C, t)
+    type(case_t), intent(inout) :: C
+    real(kind=rp), intent(inout) :: t
+    type(file_t) :: chkpf
+    character(len=LOG_SIZE) :: log_buf
+
+    chkpf = file_t('joblimit.chkp')
+    call chkpf%write(C%fluid%chkp, t)
+    write(log_buf, '(A)') '! saving checkpoint >>>'
+    call neko_log%message(log_buf)
+    
+  end subroutine simulation_joblimit_chkp
 
 end module simulation
 

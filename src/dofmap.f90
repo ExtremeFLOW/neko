@@ -711,22 +711,27 @@ contains
     real(kind=rp), intent(inout) ::  h(lx, 3, 2)
     real(kind=rp), intent(in) :: zgml(lx, 3)
     integer :: ix, iy, iz 
+
     do ix = 1, lx
-       h(ix,1,1)=(1.0-zgml(ix,1))*0.5
-       h(ix,1,2)=(1.0+zgml(ix,1))*0.5
+       h(ix,1,1) = (1.0_rp - zgml(ix, 1)) * 0.5_rp
+       h(ix,1,2) = (1.0_rp + zgml(ix, 1)) * 0.5_rp
     end do
+    
     do iy = 1, lx
-       h(iy,2,1)=(1.0-zgml(iy,2))*0.5
-       h(iy,2,2)=(1.0+zgml(iy,2))*0.5
+       h(iy,2,1) = (1.0_rp - zgml(iy, 2)) * 0.5_rp
+       h(iy,2,2) = (1.0_rp + zgml(iy, 2)) * 0.5_rp
     end do
+    
     if (gdim .eq. 3) then
        do iz = 1, lx
-          h(iz,3,1)=(1.0-zgml(iz,3))*0.5
-          h(iz,3,2)=(1.0+zgml(iz,3))*0.5
+          h(iz,3,1) = (1.0_rp - zgml(iz, 3)) * 0.5_rp
+          h(iz,3,2) = (1.0_rp + zgml(iz, 3)) * 0.5_rp
        end do
     else
-       call rone(h(1,3,1),lx)
-       call rone(h(1,3,2),lx)
-    endif
+       call rone(h(1,3,1), lx)
+       call rone(h(1,3,2), lx)
+    end if
+    
   end subroutine compute_h
+  
 end module dofmap

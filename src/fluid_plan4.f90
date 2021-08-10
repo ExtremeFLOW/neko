@@ -11,6 +11,7 @@ module fluid_plan4
   use abbdf
   use projection
   use log
+  use, intrinsic :: ieee_arithmetic, only: ieee_is_nan  
   implicit none
 
   type, extends(fluid_scheme_t) :: fluid_plan4_t
@@ -136,7 +137,7 @@ contains
     call field_init(this%ta1, this%dm_Xh, 'ta1')
     call field_init(this%ta2, this%dm_Xh, 'ta2')
     call field_init(this%ta3, this%dm_Xh, 'ta3')
-    call field_init(this%ta4, this%dm_Xh, 'ta3')
+    call field_init(this%ta4, this%dm_Xh, 'ta4')
     
     call field_init(this%du, this%dm_Xh, 'du')
     call field_init(this%dv, this%dm_Xh, 'dv')
@@ -174,6 +175,9 @@ contains
     call field_init(this%v_vol, this%dm_Xh, 'v_vol')
     call field_init(this%w_vol, this%dm_Xh, 'w_vol')
     call field_init(this%p_vol, this%dm_Xh, 'p_vol')
+
+    ! Add lagged term to checkpoint
+    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
 
   end subroutine fluid_plan4_init
 
@@ -451,8 +455,8 @@ contains
     scl = -one /three 
 
     call rzero(ta4,c_xh%dof%n_dofs)
-    call add2s1  (ta4,p%x,scl,c_Xh%dof%n_dofs)
-    call opgrad  (ta1,ta2,ta3,ta4,c_Xh)
+    call add2s1(ta4,p%x,scl,c_Xh%dof%n_dofs)
+    call opgrad(ta1,ta2,ta3,ta4,c_Xh)
 
     call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -one, n, msh%gdim)
 
@@ -685,6 +689,7 @@ contains
     integer, intent(in) :: step
     real(kind=rp), intent(in) :: t, dt
     character(len=LOG_SIZE) :: log_buf
+    integer :: i
 
 
     call neko_log%message('Pressure')
@@ -720,6 +725,14 @@ contains
          ksp_results(4)%res_start, ksp_results(4)%res_final
     call neko_log%message(log_buf)
 
+    ! Check for divergence
+    do i = 1, 4
+       if (ieee_is_nan(ksp_results(i)%res_final)) then
+          call neko_log%error("Fluid solver diverged")
+          stop
+       end if
+    end do
+    
   end subroutine fluid_step_info
 
   subroutine plan4_compute_vol_flow(this, ab_bdf)

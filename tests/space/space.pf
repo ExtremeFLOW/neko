@@ -1,0 +1,272 @@
+@test
+subroutine test_space_init
+  use pfunit
+  use space
+  implicit none
+  type(space_t) :: Xh, Yh
+  integer :: n
+
+  do n = 2, 8, 2
+  
+     !
+     ! 3D case
+     ! 
+  
+     call space_init(Xh, GLL, n, n, n)
+     
+     @assertTrue(Xh%lx .eq. n)
+     @assertTrue(Xh%lx .eq. Xh%ly)
+     @assertTrue(Xh%lx .eq. Xh%lz)
+     
+     @assertTrue(Xh%lxy .eq. n * n)
+     @assertTrue(Xh%lyz .eq. n * n)
+     @assertTrue(Xh%lxz .eq. n * n)
+     @assertTrue(Xh%lxyz .eq. n * n * n)
+     
+     @assertTrue(size(Xh%zg) .eq. n * 3)
+     
+     @assertTrue(size(Xh%dr_inv) .eq. n)
+     @assertTrue(size(Xh%ds_inv) .eq. n)
+     @assertTrue(size(Xh%dt_inv) .eq. n)
+     
+     @assertTrue(size(Xh%wx) .eq. n)
+     @assertTrue(size(Xh%wy) .eq. n)
+     @assertTrue(size(Xh%wz) .eq. n)
+
+     @assertTrue(size(Xh%w3) .eq. n * n * n )
+
+     @assertTrue(size(Xh%dx) .eq. n * n)
+     @assertTrue(size(Xh%dy) .eq. n * n)
+     @assertTrue(size(Xh%dz) .eq. n * n)
+
+     @assertTrue(size(Xh%dxt) .eq. n * n)
+     @assertTrue(size(Xh%dyt) .eq. n * n)
+     @assertTrue(size(Xh%dzt) .eq. n * n)
+
+     call space_free(Xh)
+     
+     !
+     ! 2D case
+     !
+     
+     call space_init(Yh, GLL, n, n)
+
+     @assertTrue(Yh%lx .eq. n)
+     @assertTrue(Yh%lx .eq. Yh%ly)
+     @assertFalse(Yh%lx .eq. Yh%lz)
+     @assertTrue(Yh%lz .eq. 1)
+     
+     @assertTrue(Yh%lxy .eq. n * n)
+     @assertTrue(Yh%lyz .eq. n * 1)
+     @assertTrue(Yh%lxz .eq. n * 1)
+     @assertTrue(Yh%lxyz .eq. n * n * 1)
+     
+     @assertTrue(size(Yh%zg) .eq. n * 3)
+  
+     @assertTrue(size(Yh%dr_inv) .eq. n)
+     @assertTrue(size(Yh%ds_inv) .eq. n)
+     @assertTrue(size(Yh%dt_inv) .eq. 1)
+     
+     @assertTrue(size(Yh%wx) .eq. n)
+     @assertTrue(size(Yh%wy) .eq. n)
+     @assertTrue(size(Yh%wz) .eq. 1)
+     
+     @assertTrue(size(Yh%w3) .eq. n * n * 1 )
+  
+     @assertTrue(size(Yh%dx) .eq. n * n)
+     @assertTrue(size(Yh%dy) .eq. n * n)
+     @assertTrue(size(Yh%dz) .eq. 1)
+     
+     @assertTrue(size(Yh%dxt) .eq. n * n)
+     @assertTrue(size(Yh%dyt) .eq. n * n)
+     @assertTrue(size(Yh%dzt) .eq. 1)
+
+     call space_free(Yh)
+  end do
+  
+end subroutine test_space_init
+
+@test
+subroutine test_space_free
+  use pfunit
+  use space
+  implicit none
+  type(space_t) :: Xh, Yh
+  integer :: n
+
+  do n = 2, 8, 2
+
+     !
+     ! 3D case
+     !
+     
+     call space_init(Xh, GLL, n, n, n)
+  
+     @assertTrue(allocated(Xh%zg))
+     
+     @assertTrue(allocated(Xh%dr_inv))
+     @assertTrue(allocated(Xh%ds_inv))
+     @assertTrue(allocated(Xh%dt_inv))
+  
+     @assertTrue(allocated(Xh%wx))
+     @assertTrue(allocated(Xh%wy))
+     @assertTrue(allocated(Xh%wz))
+     
+     @assertTrue(allocated(Xh%w3))
+  
+     @assertTrue(allocated(Xh%dx))
+     @assertTrue(allocated(Xh%dy))
+     @assertTrue(allocated(Xh%dz))
+     
+     @assertTrue(allocated(Xh%dxt))
+     @assertTrue(allocated(Xh%dyt))
+     @assertTrue(allocated(Xh%dzt))
+     
+     call space_free(Xh)
+
+     @assertTrue(.not. allocated(Xh%zg))
+  
+     @assertTrue(.not. allocated(Xh%dr_inv))
+     @assertTrue(.not. allocated(Xh%ds_inv))
+     @assertTrue(.not. allocated(Xh%dt_inv))
+     
+     @assertTrue(.not. allocated(Xh%wx))
+     @assertTrue(.not. allocated(Xh%wy))
+     @assertTrue(.not. allocated(Xh%wz))
+     
+     @assertTrue(.not. allocated(Xh%w3))
+  
+     @assertTrue(.not. allocated(Xh%dx))
+     @assertTrue(.not. allocated(Xh%dy))
+     @assertTrue(.not. allocated(Xh%dz))
+     
+     @assertTrue(.not. allocated(Xh%dxt))
+     @assertTrue(.not. allocated(Xh%dyt))
+     @assertTrue(.not. allocated(Xh%dzt))
+
+     !
+     ! 2D case
+     !
+     
+     call space_init(Yh, GLL, n, n)
+  
+     @assertTrue(allocated(Yh%zg))
+     
+     @assertTrue(allocated(Yh%dr_inv))
+     @assertTrue(allocated(Yh%ds_inv))
+     @assertTrue(allocated(Yh%dt_inv))
+  
+     @assertTrue(allocated(Yh%wx))
+     @assertTrue(allocated(Yh%wy))
+     @assertTrue(allocated(Yh%wz))
+     
+     @assertTrue(allocated(Yh%w3))
+  
+     @assertTrue(allocated(Yh%dx))
+     @assertTrue(allocated(Yh%dy))
+     @assertTrue(allocated(Yh%dz))
+     
+     @assertTrue(allocated(Yh%dxt))
+     @assertTrue(allocated(Yh%dyt))
+     @assertTrue(allocated(Yh%dzt))
+     
+     call space_free(Yh)
+
+     @assertTrue(.not. allocated(Yh%zg))
+  
+     @assertTrue(.not. allocated(Yh%dr_inv))
+     @assertTrue(.not. allocated(Yh%ds_inv))
+     @assertTrue(.not. allocated(Yh%dt_inv))
+     
+     @assertTrue(.not. allocated(Yh%wx))
+     @assertTrue(.not. allocated(Yh%wy))
+     @assertTrue(.not. allocated(Yh%wz))
+     
+     @assertTrue(.not. allocated(Yh%w3))
+  
+     @assertTrue(.not. allocated(Yh%dx))
+     @assertTrue(.not. allocated(Yh%dy))
+     @assertTrue(.not. allocated(Yh%dz))
+     
+     @assertTrue(.not. allocated(Yh%dxt))
+     @assertTrue(.not. allocated(Yh%dyt))
+     @assertTrue(.not. allocated(Yh%dzt))
+  end do
+
+end subroutine test_space_free
+
+@test
+subroutine test_space_eq
+  use pfunit
+  use space
+  implicit none
+  type(space_t) :: Xh, Yh, Zh
+
+  !
+  ! 3D case
+  !
+  call space_init(Xh, GLL, 10, 10, 10)
+  call space_init(Yh, GLL, 10, 10, 10)
+  call space_init(Zh, GLL, 4, 4, 4)
+
+  @assertTrue(Xh .eq. Yh)
+  @assertFalse(Xh .eq. Zh)
+
+  call space_free(Xh)
+  call space_free(Yh)
+  call space_free(Zh)
+
+  !
+  ! 2xD case
+  !
+  call space_init(Xh, GLL, 10, 10)
+  call space_init(Yh, GLL, 10, 10)
+  call space_init(Zh, GLL, 4, 4)
+
+  @assertTrue(Xh .eq. Yh)
+  @assertFalse(Xh .eq. Zh)
+
+  call space_free(Xh)
+  call space_free(Yh)
+  call space_free(Zh)
+  
+end subroutine test_space_eq
+
+@test
+subroutine test_space_ne
+  use pfunit
+  use space
+  implicit none
+  type(space_t) :: Xh, Yh, Zh
+
+  !
+  ! 3D case
+  !
+  call space_init(Xh, GLL, 10, 10, 10)
+  call space_init(Yh, GLL, 10, 10, 10)
+  call space_init(Zh, GLL, 4, 4, 4)
+
+  @assertFalse(Xh .ne. Yh)
+  @assertTrue(Xh .ne. Zh)
+  @assertTrue(Yh .ne. Zh)
+
+  call space_free(Xh)
+  call space_free(Yh)
+  call space_free(Zh)
+
+  !
+  ! 2xD case
+  !
+  call space_init(Xh, GLL, 10, 10)
+  call space_init(Yh, GLL, 10, 10)
+  call space_init(Zh, GLL, 4, 4)
+
+  @assertFalse(Xh .ne. Yh)
+  @assertTrue(Xh .ne. Zh)
+  @assertTrue(Yh .ne. Zh)
+
+  call space_free(Xh)
+  call space_free(Yh)
+  call space_free(Zh)
+  
+end subroutine test_space_ne

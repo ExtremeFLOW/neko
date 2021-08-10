@@ -9,6 +9,7 @@ module output
      type(file_t) :: file_
    contains
      procedure, pass(this) :: init => output_init
+     procedure, pass(this) :: set_counter => output_set_counter
      procedure(output_sample), pass(this), deferred :: sample
   end type output_t
 
@@ -32,5 +33,12 @@ contains
     this%file_ = file_t(fname)
     
   end subroutine output_init
+
+  !> Update the output's file counter
+  subroutine output_set_counter(this, n)
+    class(output_t), intent(inout) :: this
+    integer, intent(in) :: n
+    call this%file_%set_counter(n)
+  end subroutine output_set_counter
   
 end module output

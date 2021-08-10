@@ -156,20 +156,20 @@ contains
     integer outer
 
     conv = .false.
-    iter  = 0
+    iter = 0
     glb_n = n / x%msh%nelv * x%msh%glb_nelv
 
-    call rone(this%ml,n)
-    call rone(this%mu ,n)
+    call rone(this%ml, n)
+    call rone(this%mu, n)
     norm_fac = one / sqrt(coef%volume)
-    call rzero(x%x,n)
-    call rzero(this%gam,this%lgmres+1)
-    call rone(this%s,this%lgmres)
-    call rone(this%c,this%lgmres)
-    call rzero(this%h,this%lgmres*this%lgmres)
+    call rzero(x%x, n)
+    call rzero(this%gam, this%lgmres + 1)
+    call rone(this%s, this%lgmres)
+    call rone(this%c, this%lgmres)
+    call rzero(this%h, this%lgmres * this%lgmres)
     outer = 0
     do while (.not. conv .and. iter .lt. niter)
-       outer = outer+1
+       outer = outer + 1
 
        if(iter.eq.0) then               
           call col3(this%r,this%ml,f,n) 
@@ -182,20 +182,20 @@ contains
           call add2s2(this%r,this%w,-one,n) 
           call col2(this%r,this%ml,n)       
        endif
-       this%gam(1) = sqrt(glsc3(this%r,this%r,coef%mult,n))
+       this%gam(1) = sqrt(glsc3(this%r, this%r, coef%mult, n))
        if(iter.eq.0) then
-          div0 = this%gam(1)*norm_fac
+          div0 = this%gam(1) * norm_fac
           ksp_results%res_start = div0
        endif
 
        if ( this%gam(1) .eq. 0) return
 
-       rnorm = 0d0
+       rnorm = 0.0_rp
        temp = one / this%gam(1)
-       call cmult2(this%v(1,1),this%r,temp,n) 
-       do j=1,this%lgmres
+       call cmult2(this%v(1,1), this%r, temp, n) 
+       do j = 1, this%lgmres
           iter = iter+1
-          call col3(this%w,this%mu,this%v(1,j),n)
+          call col3(this%w, this%mu, this%v(1,j), n)
 
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
@@ -204,10 +204,10 @@ contains
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call col2(this%w,this%ml,n)       
+          call col2(this%w, this%ml, n)       
 
-          do i=1,j
-             this%h(i,j)=vlsc3(this%w,this%v(1,i),coef%mult,n) 
+          do i = 1, j
+             this%h(i,j) = vlsc3(this%w, this%v(1,i), coef%mult, n) 
           enddo
           !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
@@ -215,22 +215,22 @@ contains
           call copy(this%h(1,j), this%wk1, j) 
 
           do i=1,j
-             call add2s2(this%w,this%v(1,i),-this%h(i,j),n)
+             call add2s2(this%w, this%v(1,i), -this%h(i,j), n)
           enddo                                            
 
           !apply Givens rotations to new column
           do i=1,j-1
              temp = this%h(i,j)                   
-             this%h(i  ,j)=  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
-             this%h(i+1,j)= -this%s(i)*temp + this%c(i)*this%h(i+1,j)
+             this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
+             this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           enddo
-          alpha = sqrt(glsc3(this%w,this%w,coef%mult,n))   
-          rnorm = 0d0
-          if(alpha .eq. 0d0) then 
+          alpha = sqrt(glsc3(this%w, this%w, coef%mult, n))   
+          rnorm = 0.0_rp
+          if(alpha .eq. 0.0_rp) then 
             conv = .true.
             exit
           end if
-          l = sqrt(this%h(j,j)*this%h(j,j)+alpha*alpha)
+          l = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
           temp = one / l
           this%c(j) = this%h(j,j) * temp
           this%s(j) = alpha  * temp
@@ -238,33 +238,33 @@ contains
           this%gam(j+1) = -this%s(j) * this%gam(j)
           this%gam(j)   =  this%c(j) * this%gam(j)
 
-          rnorm = abs(this%gam(j+1))*norm_fac
+          rnorm = abs(this%gam(j+1)) * norm_fac
           ratio = rnorm / div0
           if (rnorm .lt. this%abs_tol) then 
              conv = .true.
              exit
           end if
          
-          if (iter+1.gt.niter) exit
+          if (iter + 1 .gt. niter) exit
           
           if( j .lt. this%lgmres) then
             temp = one / alpha
-            call cmult2(this%v(1,j+1),this%w,temp,n)
+            call cmult2(this%v(1,j+1), this%w, temp, n)
           endif
        enddo
        j = min(j, this%lgmres)
        !back substitution
-       do k=j,1,-1
+       do k = j, 1, -1
           temp = this%gam(k)
-          do i=j,k+1,-1
-             temp = temp - this%h(k,i)*this%c(i)
+          do i = j, k+1, -1
+             temp = temp - this%h(k,i) * this%c(i)
           enddo
           this%c(k) = temp / this%h(k,k)
        enddo
        !sum up Arnoldi vectors
-       do i=1,j
-          call add2s2(x%x,this%z(1,i),this%c(i),n) ! x = x + c  z
-       enddo                                       !          i  i
+       do i = 1, j
+          call add2s2(x%x, this%z(1,i), this%c(i), n) ! x = x + c  z
+       enddo                                          !          i  i
     enddo
 !    call ortho   (x%x, n, glb_n)
     ksp_results%res_final = rnorm

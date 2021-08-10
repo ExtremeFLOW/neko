@@ -575,88 +575,106 @@ contains
     
     lxy=c%Xh%lx*c%Xh%ly
     lyz=c%Xh%ly*c%Xh%lz
-    do e =1,c%msh%nelv
-       call mxm(c%Xh%dx,c%Xh%lx,c%dof%x(1,1,1,e),c%Xh%lx,c%dxdr(1,1,1,e),lyz)
-       call mxm(c%Xh%dx,c%Xh%lx,c%dof%y(1,1,1,e),c%Xh%lx,c%dydr(1,1,1,e),lyz)
-       call mxm(c%Xh%dx,c%Xh%lx,c%dof%z(1,1,1,e),c%Xh%lx,c%dzdr(1,1,1,e),lyz)
+       
+    associate(G11 => c%G11, G12 => c%G12, G13 => c%G13, &
+         G22 => c%G22, G23 => c%G23, G33 => c%G33, &
+         drdx => c%drdx, drdy => c%drdy, drdz => c%drdz, &
+         dsdx => c%dsdx, dsdy => c%dsdy, dsdz => c%dsdz, &
+         dtdx => c%dtdx, dtdy => c%dtdy, dtdz => c%dtdz, &
+         dxdr => c%dxdr, dydr => c%dydr, dzdr => c%dzdr, &
+         dxds => c%dxds, dyds => c%dyds, dzds => c%dzds, &
+         dxdt => c%dxdt, dydt => c%dydt, dzdt => c%dzdt, &
+         dx => c%Xh%dx, dy => c%Xh%dy, dz => c%Xh%dz, &
+         x => c%dof%x, y => c%dof%y, z => c%dof%z, &
+         lx => c%Xh%lx, ly => c%Xh%ly, lz => c%Xh%lz, &
+         dyt => c%Xh%dyt, dzt => c%Xh%dzt, &
+         jacinv => c%jacinv, jac => c%jac, n_dofs => c%dof%n_dofs)
 
-       DO i=1,c%Xh%lz
-          call mxm(c%dof%x(1,1,i,e),c%Xh%lx,c%Xh%dyt,c%Xh%ly,c%dxds(1,1,i,e),c%Xh%ly)
-          call mxm(c%dof%y(1,1,i,e),c%Xh%lx,c%Xh%dyt,c%Xh%ly,c%dyds(1,1,i,e),c%Xh%ly)
-          call mxm(c%dof%z(1,1,i,e),c%Xh%lx,c%Xh%dyt,c%Xh%ly,c%dzds(1,1,i,e),c%Xh%ly)
-       end do
-       !> We actually take 2d into account, wow, need to do that for the rest.
-       if(c%msh%gdim .eq. 3) then
-          call mxm(c%dof%x(1,1,1,e),lxy,c%Xh%dzt,c%Xh%lz,c%dxdt(1,1,1,e),c%Xh%lz)
-          call mxm(c%dof%y(1,1,1,e),lxy,c%Xh%dzt,c%Xh%lz,c%dydt(1,1,1,e),c%Xh%lz)
-          call mxm(c%dof%z(1,1,1,e),lxy,c%Xh%dzt,c%Xh%lz,c%dzdt(1,1,1,e),c%Xh%lz)
-       else
-          call rzero(c%dxdt(1,1,1,e),lxy)
-          call rzero(c%dydt(1,1,1,e),lxy)
-          call rone(c%dzdt(1,1,1,e),lxy)
-       endif
-    end do
+      do e = 1, c%msh%nelv
+         call mxm(dx, lx, x(1,1,1,e), lx, dxdr(1,1,1,e), lyz)
+         call mxm(dx, lx, y(1,1,1,e), lx, dydr(1,1,1,e), lyz)
+         call mxm(dx, lx, z(1,1,1,e), lx, dzdr(1,1,1,e), lyz)
+         
+         do i = 1, lz
+            call mxm(x(1,1,i,e), lx, dyt, ly, dxds(1,1,i,e), ly)
+            call mxm(y(1,1,i,e), lx, dyt, ly, dyds(1,1,i,e), ly)
+            call mxm(z(1,1,i,e), lx, dyt, ly, dzds(1,1,i,e), ly)
+         end do
+       
+         ! We actually take 2d into account, wow, need to do that for the rest.
+         if(c%msh%gdim .eq. 3) then
+            call mxm(x(1,1,1,e), lxy, dzt, lz, dxdt(1,1,1,e), lz)
+            call mxm(y(1,1,1,e), lxy, dzt, lz, dydt(1,1,1,e), lz)
+            call mxm(z(1,1,1,e), lxy, dzt, lz, dzdt(1,1,1,e), lz)
+         else
+            call rzero(dxdt(1,1,1,e), lxy)
+            call rzero(dydt(1,1,1,e), lxy)
+            call rone(dzdt(1,1,1,e), lxy)
+         end if
+      end do
+      
+      if (c%msh%gdim .eq. 2) then
+         call rzero   (jac, n_dofs)
+         call addcol3 (jac, dxdr, dyds, n_dofs)
+         call subcol3 (jac, dxds, dydr, n_dofs)
+         call copy    (drdx, dyds, n_dofs)
+         call copy    (drdy, dxds, n_dofs)
+         call chsign  (drdy, n_dofs)
+         call copy    (dsdx, dydr, n_dofs)
+         call chsign  (dsdx, n_dofs)
+         call copy    (dsdy, dxdr, n_dofs)
+         call rzero   (drdz, n_dofs)
+         call rzero   (dsdz, n_dofs)
+         call rone    (dtdz, n_dofs)
+      else
+         call rzero   (jac, n_dofs)
+         call addcol4 (jac, dxdr, dyds, dzdt, n_dofs)
+         call addcol4 (jac, dxdt, dydr, dzds, n_dofs)
+         call addcol4 (jac, dxds, dydt, dzdr, n_dofs)
+         call subcol4 (jac, dxdr, dydt, dzds, n_dofs)
+         call subcol4 (jac, dxds, dydr, dzdt, n_dofs)
+         call subcol4 (jac, dxdt, dyds, dzdr, n_dofs)
+         call ascol5  (drdx, dyds, dzdt, dydt, dzds, n_dofs)
+         call ascol5  (drdy, dxdt, dzds, dxds, dzdt, n_dofs)
+         call ascol5  (drdz, dxds, dydt, dxdt, dyds, n_dofs)
+         call ascol5  (dsdx, dydt, dzdr, dydr, dzdt, n_dofs)
+         call ascol5  (dsdy, dxdr, dzdt, dxdt, dzdr, n_dofs)
+         call ascol5  (dsdz, dxdt, dydr, dxdr, dydt, n_dofs)
+         call ascol5  (dtdx, dydr, dzds, dyds, dzdr, n_dofs)
+         call ascol5  (dtdy, dxds, dzdr, dxdr, dzds, n_dofs)
+         call ascol5  (dtdz, dxdr, dyds, dxds, dydr, n_dofs)
+      end if
+      
+      call invers2(jacinv, jac, n_dofs)
 
-    if (c%msh%gdim .eq. 2) then
-       call rzero   (c%jac,c%dof%n_dofs)
-       call addcol3 (c%jac,c%dxdr,c%dyds,c%dof%n_dofs)
-       call subcol3 (c%jac,c%dxds,c%dydr,c%dof%n_dofs)
-       call copy    (c%drdx,c%dyds,c%dof%n_dofs)
-       call copy    (c%drdy,c%dxds,c%dof%n_dofs)
-       call chsign  (c%drdy,c%dof%n_dofs)
-       call copy    (c%dsdx,c%dydr,c%dof%n_dofs)
-       call chsign  (c%dsdx,c%dof%n_dofs)
-       call copy    (c%dsdy,c%dxdr,c%dof%n_dofs)
-       call rzero   (c%drdz,c%dof%n_dofs)
-       call rzero   (c%dsdz,c%dof%n_dofs)
-       call RONE    (c%dtdz,c%dof%n_dofs)
-   else
-       call rzero   (c%jac,c%dof%n_dofs)
-       call addcol4 (c%jac,c%dxdr,c%dyds,c%dzdt,c%dof%n_dofs)
-       call addcol4 (c%jac,c%dxdt,c%dydr,c%dzds,c%dof%n_dofs)
-       call addcol4 (c%jac,c%dxds,c%dydt,c%dzdr,c%dof%n_dofs)
-       call subcol4 (c%jac,c%dxdr,c%dydt,c%dzds,c%dof%n_dofs)
-       call subcol4 (c%jac,c%dxds,c%dydr,c%dzdt,c%dof%n_dofs)
-       call subcol4 (c%jac,c%dxdt,c%dyds,c%dzdr,c%dof%n_dofs)
-       call ascol5  (c%drdx,c%dyds,c%dzdt,c%dydt,c%dzds,c%dof%n_dofs)
-       call ascol5  (c%drdy,c%dxdt,c%dzds,c%dxds,c%dzdt,c%dof%n_dofs)
-       call ascol5  (c%drdz,c%dxds,c%dydt,c%dxdt,c%dyds,c%dof%n_dofs)
-       call ascol5  (c%dsdx,c%dydt,c%dzdr,c%dydr,c%dzdt,c%dof%n_dofs)
-       call ascol5  (c%dsdy,c%dxdr,c%dzdt,c%dxdt,c%dzdr,c%dof%n_dofs)
-       call ascol5  (c%dsdz,c%dxdt,c%dydr,c%dxdr,c%dydt,c%dof%n_dofs)
-       call ascol5  (c%dtdx,c%dydr,c%dzds,c%dyds,c%dzdr,c%dof%n_dofs)
-       call ascol5  (c%dtdy,c%dxds,c%dzdr,c%dxdr,c%dzds,c%dof%n_dofs)
-       call ascol5  (c%dtdz,c%dxdr,c%dyds,c%dxds,c%dydr,c%dof%n_dofs)
-    end if
-
-    call invers2(c%jacinv,c%jac,c%dof%n_dofs)
-
-    !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(c%dxds, c%dxds_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dydr, c%dyds_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dzdr, c%dzds_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dxds, c%dxds_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dyds, c%dyds_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dzds, c%dzds_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dxdt, c%dxdt_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dydt, c%dydt_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dzdt, c%dzdt_d, c%dof%n_dofs, HOST_TO_DEVICE)       
-       call device_memcpy(c%drdx, c%drdx_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%drdy, c%drdy_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%drdz, c%drdz_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dsdx, c%dsdx_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dsdy, c%dsdy_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dsdz, c%dsdz_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dtdx, c%dtdx_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dtdy, c%dtdy_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%dtdz, c%dtdz_d, c%dof%n_dofs, HOST_TO_DEVICE)       
-       call device_memcpy(c%jac, c%jac_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%jacinv, c%jacinv_d, c%dof%n_dofs, HOST_TO_DEVICE)
-    end if
-
+      !>  @todo cleanup once we have device math in place
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+         call device_memcpy(dxds, c%dxds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dydr, c%dyds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dzdr, c%dzds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dxds, c%dxds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dyds, c%dyds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dzds, c%dzds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dxdt, c%dxdt_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dydt, c%dydt_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dzdt, c%dzdt_d, n_dofs, HOST_TO_DEVICE)       
+         call device_memcpy(drdx, c%drdx_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(drdy, c%drdy_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(drdz, c%drdz_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dsdx, c%dsdx_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dsdy, c%dsdy_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dsdz, c%dsdz_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dtdx, c%dtdx_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dtdy, c%dtdy_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dtdz, c%dtdz_d, n_dofs, HOST_TO_DEVICE)       
+         call device_memcpy(jac, c%jac_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(jacinv, c%jacinv_d, n_dofs, HOST_TO_DEVICE)
+      end if
+      
+    end associate
+    
   end subroutine coef_generate_dxyzdrst
-
+  
   !> Generate geometric data for the given mesh
   !! @note Current implementation assumes regular shaped hex elements
   subroutine coef_generate_geo(c)
@@ -664,52 +682,62 @@ contains
     integer :: e, lxyz
 
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
-    
-    if(c%msh%gdim .eq. 2) then
-      call vdot2(c%G11,c%drdx,c%drdy,c%drdx,c%drdy,c%dof%n_dofs)
-      call vdot2(c%G22,c%dsdx,c%dsdy,c%dsdx,c%dsdy,c%dof%n_dofs)
-      call vdot2(c%G12,c%drdx,c%drdy,c%dsdx,c%dsdy,c%dof%n_dofs)
-      call  col2(c%G11,c%jacinv,c%dof%n_dofs)
-      call  col2(c%G22,c%jacinv,c%dof%n_dofs)
-      call  col2(c%G12,c%jacinv,c%dof%n_dofs)
-      call rzero(c%G33,c%dof%n_dofs)
-      call rzero(c%G13,c%dof%n_dofs)
-      call rzero(c%G23,c%dof%n_dofs)
-    else
-      call vdot3(c%G11,c%drdx,c%drdy,c%drdz,c%drdx,c%drdy,c%drdz,c%dof%n_dofs)
-      call vdot3(c%G22,c%dsdx,c%dsdy,c%dsdz,c%dsdx,c%dsdy,c%dsdz,c%dof%n_dofs)
-      call vdot3(c%G33,c%dtdx,c%dtdy,c%dtdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
-      call vdot3(c%G12,c%drdx,c%drdy,c%drdz,c%dsdx,c%dsdy,c%dsdz,c%dof%n_dofs)
-      call vdot3(c%G13,c%drdx,c%drdy,c%drdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
-      call vdot3(c%G23,c%dsdx,c%dsdy,c%dsdz,c%dtdx,c%dtdy,c%dtdz,c%dof%n_dofs)
-      
-      call col2(c%G11,c%jacinv,c%dof%n_dofs)
-      call col2(c%G22,c%jacinv,c%dof%n_dofs)
-      call col2(c%G33,c%jacinv,c%dof%n_dofs)
-      call col2(c%G12,c%jacinv,c%dof%n_dofs)
-      call col2(c%G13,c%jacinv,c%dof%n_dofs)
-      call col2(c%G23,c%jacinv,c%dof%n_dofs)
-    end if
-    do e=1,c%msh%nelv
-       call col2(c%G11(1,1,1,e),c%Xh%w3,lxyz)
-       call col2(c%G22(1,1,1,e),c%Xh%w3,lxyz)
-       call col2(c%G12(1,1,1,e),c%Xh%w3,lxyz)
-       if (c%msh%gdim .eq. 3) then
-         call col2(c%G33(1,1,1,e),c%Xh%w3,lxyz)
-         call col2(c%G13(1,1,1,e),c%Xh%w3,lxyz)
-         call col2(c%G23(1,1,1,e),c%Xh%w3,lxyz)
-       end if
-    end do
 
-    !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(c%G11, c%G11_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G22, c%G22_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G33, c%G33_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G12, c%G12_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G13, c%G13_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%G23, c%G23_d, c%dof%n_dofs, HOST_TO_DEVICE)
-    end if
+    associate(G11 => c%G11, G12 => c%G12, G13 => c%G13, &
+         G22 => c%G22, G23 => c%G23, G33 => c%G33, &
+         drdx => c%drdx, drdy => c%drdy, drdz => c%drdz, &
+         dsdx => c%dsdx, dsdy => c%dsdy, dsdz => c%dsdz, &
+         dtdx => c%dtdx, dtdy => c%dtdy, dtdz => c%dtdz, &
+         jacinv => c%jacinv, n_dofs => c%dof%n_dofs, w3 => c%Xh%w3)
+    
+      if(c%msh%gdim .eq. 2) then
+         call vdot2(G11, drdx, drdy, drdx, drdy, n_dofs)
+         call vdot2(G22, dsdx, dsdy, dsdx, dsdy, n_dofs)
+         call vdot2(G12, drdx, drdy, dsdx, dsdy, n_dofs)
+         call  col2(G11, jacinv, n_dofs)
+         call  col2(G22, jacinv, n_dofs)
+         call  col2(G12, jacinv, n_dofs)
+         call rzero(G33, n_dofs)
+         call rzero(G13, n_dofs)
+         call rzero(G23, n_dofs)
+      else
+         call vdot3(G11, drdx, drdy, drdz, drdx, drdy, drdz, n_dofs)
+         call vdot3(G22, dsdx, dsdy, dsdz, dsdx, dsdy, dsdz, n_dofs)
+         call vdot3(G33, dtdx, dtdy, dtdz, dtdx, dtdy, dtdz, n_dofs)
+         call vdot3(G12, drdx, drdy, drdz, dsdx, dsdy, dsdz, n_dofs)
+         call vdot3(G13, drdx, drdy, drdz, dtdx, dtdy, dtdz, n_dofs)
+         call vdot3(G23, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, n_dofs)
+         
+         call col2(G11, jacinv, n_dofs)
+         call col2(G22, jacinv, n_dofs)
+         call col2(G33, jacinv, n_dofs)
+         call col2(G12, jacinv, n_dofs)
+         call col2(G13, jacinv, n_dofs)
+         call col2(G23, jacinv, n_dofs)
+      end if
+      do e = 1, c%msh%nelv
+         call col2(G11(1,1,1,e), w3, lxyz)
+         call col2(G22(1,1,1,e), w3, lxyz)
+         call col2(G12(1,1,1,e), w3, lxyz)
+         if (c%msh%gdim .eq. 3) then
+            call col2(G33(1,1,1,e), w3, lxyz)
+            call col2(G13(1,1,1,e), w3, lxyz)
+            call col2(G23(1,1,1,e), w3, lxyz)
+         end if
+      end do
+
+      !>  @todo cleanup once we have device math in place
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+         call device_memcpy(G11, c%G11_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(G22, c%G22_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(G33, c%G33_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(G12, c%G12_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(G13, c%G13_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(G23, c%G23_d, n_dofs, HOST_TO_DEVICE)
+      end if
+      
+    end associate
+    
   end subroutine coef_generate_geo
  
   !> Generate mass matrix B for the given mesh and space
@@ -721,9 +749,9 @@ contains
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     
     call rone(c%B,c%dof%n_dofs)
-    do e=1,c%msh%nelv
+    do e = 1, c%msh%nelv
        ! Here we need to handle things differently for axis symmetric elements
-       call col3(c%B(1,1,1,e),c%jac(1,1,1,e),c%Xh%w3,lxyz)
+       call col3(c%B(1,1,1,e), c%jac(1,1,1,e), c%Xh%w3, lxyz)
     end do
     
     call copy(c%Binv,c%B,c%dof%n_dofs)

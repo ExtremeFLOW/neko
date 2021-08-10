@@ -9,6 +9,7 @@ SUBDIRS = tuple\
 	  tri\
 	  math\
 	  mesh\
+	  space\
 	  dofmap\
 	  gather_scatter\
 	  krylov\
@@ -27,6 +28,7 @@ TESTS = tuple/tuple_test\
 	tri/tri_test\
 	math/math_test\
 	mesh/mesh_test\
+	space/space_test\
 	dofmap/dofmap_test\
 	gather_scatter/gather_scatter_test\
 	krylov/krylov_test\
@@ -47,6 +49,7 @@ EXTRA_DIST = \
 	tuple/tuple.pf\
 	point/point.pf\
 	signal/signal.pf\
+	space/space.pf\
 	jobctrl/jobctrl_parallel.pf\
 	dofmap/dofmap_parallel.pf\
 	uset/uset_i4.pf\
