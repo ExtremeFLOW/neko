@@ -7,11 +7,11 @@ libneko_a_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	common/log.f90\
-	comm.f90\
+	comm/comm.f90\
 	mesh/curve.f90\
-	mpi_types.f90 \
-	common/datadist.f90 \
-	common/distdata.f90 \
+	comm/mpi_types.f90\
+	common/datadist.f90\
+	common/distdata.f90\
 	common/utils.f90\
 	math/mxm_wrapper.F90\
 	math/bcknd/cpu/mxm_std.f90\
@@ -97,8 +97,8 @@ libneko_a_SOURCES = \
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	common/projection.f90\
-	parmetis.F90\
-	redist.f90\
+	comm/parmetis.F90\
+	comm/redist.f90\
 	krylov/pc_hsmg.f90\
 	math/fdm.f90\
 	math/schwarz.f90\
@@ -108,7 +108,7 @@ libneko_a_SOURCES = \
 	neko.f90
 
 if ENABLE_PARMETIS
-libneko_a_SOURCES += parmetis_wrapper.c
+libneko_a_SOURCES += comm/parmetis_wrapper.c
 endif
 
 bin_PROGRAMS = neko

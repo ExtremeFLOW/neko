@@ -4,18 +4,18 @@ common/parameters.o : common/parameters.f90 config/num_types.o
 io/format/nmsh.o : io/format/nmsh.f90 config/num_types.o 
 io/format/re2.o : io/format/re2.f90 config/num_types.o 
 io/format/map.o : io/format/map.f90 mesh/mesh.o 
-common/log.o : common/log.f90 config/num_types.o comm.o 
-comm.o : comm.f90 
+common/log.o : common/log.f90 config/num_types.o comm/comm.o 
+comm/comm.o : comm/comm.f90 
 mesh/curve.o : mesh/curve.f90 mesh/hex.o mesh/point.o common/structs.o common/utils.o adt/stack.o 
-mpi_types.o : mpi_types.f90 common/parameters.o io/format/nmsh.o io/format/re2.o comm.o 
+comm/mpi_types.o : comm/mpi_types.f90 common/parameters.o io/format/nmsh.o io/format/re2.o comm/comm.o 
 common/datadist.o : common/datadist.f90 
 common/distdata.o : common/distdata.f90 adt/uset.o adt/tuple.o adt/stack.o 
 common/utils.o : common/utils.f90 
 math/mxm_wrapper.o : math/mxm_wrapper.F90 config/num_types.o math/bcknd/cpu/mxm_std.o 
 math/bcknd/cpu/mxm_std.o : math/bcknd/cpu/mxm_std.f90 config/num_types.o 
 sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o 
-math/math.o : math/math.f90 comm.o config/num_types.o 
-math/mathops.o : math/mathops.f90 comm.o config/num_types.o 
+math/math.o : math/math.f90 comm/comm.o config/num_types.o 
+math/mathops.o : math/mathops.f90 comm/comm.o config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
 math/tensor.o : math/tensor.f90 math/mxm_wrapper.o config/num_types.o 
 sem/space.o : sem/space.f90 math/math.o common/utils.o sem/speclib.o config/num_types.o 
@@ -43,7 +43,7 @@ adt/uset.o : adt/uset.f90 common/utils.o adt/htable.o config/num_types.o
 adt/stack.o : adt/stack.f90 math/math.o common/structs.o common/utils.o io/format/nmsh.o adt/tuple.o config/num_types.o 
 adt/tuple.o : adt/tuple.f90 config/num_types.o math/math.o 
 mesh/zone.o : mesh/zone.f90 common/structs.o common/utils.o adt/stack.o adt/tuple.o 
-mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/zone.o common/distdata.o common/datadist.o adt/tuple.o adt/stack.o comm.o adt/htable.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
+mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/zone.o common/distdata.o common/datadist.o adt/tuple.o adt/stack.o comm/comm.o adt/htable.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o config/num_types.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o config/num_types.o 
@@ -58,18 +58,18 @@ math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o m
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
 common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o config/num_types.o 
 io/generic_file.o : io/generic_file.f90 config/num_types.o 
-io/map_file.o : io/map_file.f90 io/format/map.o comm.o common/utils.o io/generic_file.o 
-io/re2_file.o : io/re2_file.f90 adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o mpi_types.o comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
-io/rea_file.o : io/rea_file.f90 adt/htable.o common/datadist.o comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
-io/fld_file.o : io/fld_file.f90 mpi_types.o comm.o common/utils.o mesh/mesh.o fluid/fluid_method.o sem/dofmap.o field/field.o io/generic_file.o 
-io/vtk_file.o : io/vtk_file.f90 comm.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
-io/nmsh_file.o : io/nmsh_file.f90 common/log.o mpi_types.o common/datadist.o io/format/nmsh.o common/utils.o mesh/mesh.o comm.o io/generic_file.o 
-io/chkp_file.o : io/chkp_file.f90 mpi_types.o mesh/mesh.o common/utils.o field/field.o config/num_types.o common/checkpoint.o io/generic_file.o 
+io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
+io/re2_file.o : io/re2_file.f90 adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
+io/rea_file.o : io/rea_file.f90 adt/htable.o common/datadist.o comm/comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
+io/fld_file.o : io/fld_file.f90 comm/mpi_types.o comm/comm.o common/utils.o mesh/mesh.o fluid/fluid_method.o sem/dofmap.o field/field.o io/generic_file.o 
+io/vtk_file.o : io/vtk_file.f90 comm/comm.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
+io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o io/format/nmsh.o common/utils.o mesh/mesh.o comm/comm.o io/generic_file.o 
+io/chkp_file.o : io/chkp_file.f90 comm/mpi_types.o mesh/mesh.o common/utils.o field/field.o config/num_types.o common/checkpoint.o io/generic_file.o 
 io/file.o : io/file.f90 io/vtk_file.o io/fld_file.o io/re2_file.o io/rea_file.o io/map_file.o io/chkp_file.o io/nmsh_file.o io/generic_file.o common/utils.o 
 io/output.o : io/output.f90 io/file.o config/num_types.o 
 io/fluid_output.o : io/fluid_output.f90 io/output.o fluid/fluid_method.o 
 io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o 
-common/sampler.o : common/sampler.f90 common/log.o comm.o io/output.o config/num_types.o 
+common/sampler.o : common/sampler.f90 common/log.o comm/comm.o io/output.o config/num_types.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o config/num_types.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o 
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o 
@@ -77,14 +77,14 @@ bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o
 bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/inflow.o sem/coef.o config/num_types.o 
 bc/facet_normal.o : bc/facet_normal.f90 common/utils.o math/math.o sem/coef.o bc/dirichlet.o config/num_types.o 
 bc/symmetry.o : bc/symmetry.f90 adt/htable.o adt/stack.o common/utils.o math/math.o sem/coef.o bc/dirichlet.o config/num_types.o 
-krylov/gmres.o : krylov/gmres.f90 config/num_types.o math/operators.o math/math.o comm.o krylov/krylov.o 
+krylov/gmres.o : krylov/gmres.f90 config/num_types.o math/operators.o math/math.o comm/comm.o krylov/krylov.o 
 krylov/bcknd/cpu/pc_jacobi.o : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
 krylov/pc_identity.o : krylov/pc_identity.f90 config/num_types.o math/ax.o krylov/precon.o common/utils.o math/math.o 
 krylov/bcknd/sx/pc_jacobi_sx.o : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
 common/source.o : common/source.f90 config/num_types.o sem/dofmap.o 
 common/abbdf.o : common/abbdf.f90 common/utils.o math/math.o config/num_types.o 
 config/neko_config.o : config/neko_config.f90 
-case.o : case.f90 common/user_intf.o common/jobctrl.o common/log.o common/abbdf.o comm.o mesh/mesh.o common/utils.o io/file.o common/sampler.o redist.o parmetis.o field/mesh_field.o mpi_types.o common/parameters.o io/chkp_output.o io/fluid_output.o fluid/fluid_schemes.o config/num_types.o 
+case.o : case.f90 common/user_intf.o common/jobctrl.o common/log.o common/abbdf.o comm/comm.o mesh/mesh.o common/utils.o io/file.o common/sampler.o comm/redist.o comm/parmetis.o field/mesh_field.o comm/mpi_types.o common/parameters.o io/chkp_output.o io/fluid_output.o fluid/fluid_schemes.o config/num_types.o 
 common/user_intf.o : common/user_intf.f90 config/num_types.o common/parameters.o bc/usr_inflow.o sem/coef.o common/source.o field/field.o 
 fluid/fluid_method.o : fluid/fluid_method.f90 common/log.o krylov/pc_hsmg.o math/operators.o math/mathops.o common/abbdf.o math/math.o mesh/mesh.o krylov/gmres.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o bc/bc.o krylov/bicgstab.o krylov/cg.o bc/symmetry.o bc/dirichlet.o bc/usr_inflow.o bc/inflow.o bc/wall.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o common/source.o config/num_types.o common/checkpoint.o common/parameters.o config/neko_config.o gs/gather_scatter.o 
 fluid/fluid_plan4.o : fluid/fluid_plan4.f90 common/log.o common/projection.o common/abbdf.o math/bcknd/cpu/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o config/neko_config.o bc/facet_normal.o fluid/fluid_method.o 
@@ -94,15 +94,15 @@ simulation.o : simulation.f90 common/jobctrl.o io/file.o common/log.o common/abb
 math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/ax.o 
 math/bcknd/sx/ax_helm_sx.o : math/bcknd/sx/ax_helm_sx.f90 config/num_types.o math/ax.o 
 math/bcknd/xsmm/ax_helm_xsmm.o : math/bcknd/xsmm/ax_helm_xsmm.F90 config/num_types.o math/ax.o 
-common/projection.o : common/projection.f90 gs/gather_scatter.o comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
-parmetis.o : parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm.o 
-redist.o : redist.f90 mesh/zone.o io/format/nmsh.o mesh/mesh.o comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o mpi_types.o field/mesh_field.o 
+common/projection.o : common/projection.f90 gs/gather_scatter.o comm/comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
+comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
+comm/redist.o : comm/redist.f90 mesh/zone.o io/format/nmsh.o mesh/mesh.o comm/comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o comm/mpi_types.o field/mesh_field.o 
 krylov/pc_hsmg.o : krylov/pc_hsmg.f90 krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/tensor.o krylov/gmres.o math/bcknd/xsmm/ax_helm_xsmm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/cpu/ax_helm.o math/schwarz.o math/fdm.o bc/dirichlet.o krylov/cg.o bc/bc.o math/fast3d.o gs/gather_scatter.o math/ax.o krylov/precon.o common/utils.o math/math.o config/neko_config.o 
 math/fdm.o : math/fdm.f90 math/tensor.o math/mxm_wrapper.o math/fast3d.o gs/gather_scatter.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o 
 math/schwarz.o : math/schwarz.f90 math/fdm.o math/fast3d.o gs/gather_scatter.o bc/dirichlet.o bc/bc.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o 
 common/signal.o : common/signal.f90 common/utils.o 
 common/sighdl.o : common/sighdl.c 
-common/jobctrl.o : common/jobctrl.f90 common/log.o comm.o common/utils.o common/signal.o config/num_types.o 
-neko.o : neko.f90 common/jobctrl.o common/signal.o mesh/tet_mesh.o mesh/curve.o common/structs.o parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o math/bcknd/cpu/ax_helm.o simulation.o io/fluid_output.o io/output.o common/sampler.o case.o config/neko_config.o krylov/bcknd/cpu/pc_jacobi.o krylov/gmres.o math/ax.o krylov/precon.o krylov/bicgstab.o krylov/cg.o krylov/krylov.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o mpi_types.o field/field.o io/file.o io/nmsh_file.o io/fld_file.o io/vtk_file.o io/map_file.o io/re2_file.o io/rea_file.o math/bcknd/cpu/mxm_std.o math/mxm_wrapper.o io/format/rea.o io/format/re2.o io/format/nmsh.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o mesh/hex.o mesh/quad.o mesh/element.o mesh/point.o mesh/entity.o io/generic_file.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm.o common/parameters.o config/num_types.o 
-parmetis_wrapper.o : parmetis_wrapper.c 
+common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
+neko.o : neko.f90 common/jobctrl.o common/signal.o mesh/tet_mesh.o mesh/curve.o common/structs.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o math/bcknd/cpu/ax_helm.o simulation.o io/fluid_output.o io/output.o common/sampler.o case.o config/neko_config.o krylov/bcknd/cpu/pc_jacobi.o krylov/gmres.o math/ax.o krylov/precon.o krylov/bicgstab.o krylov/cg.o krylov/krylov.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o io/nmsh_file.o io/fld_file.o io/vtk_file.o io/map_file.o io/re2_file.o io/rea_file.o math/bcknd/cpu/mxm_std.o math/mxm_wrapper.o io/format/rea.o io/format/re2.o io/format/nmsh.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o mesh/hex.o mesh/quad.o mesh/element.o mesh/point.o mesh/entity.o io/generic_file.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
+comm/parmetis_wrapper.o : comm/parmetis_wrapper.c 
 driver.o : driver.f90 neko.o 
