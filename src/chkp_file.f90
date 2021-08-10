@@ -134,7 +134,7 @@ contains
     if (write_lag) then
        
        n_lag = int(size(ulag) / u%dof%size(), 8)
-       n_glb_dofs = int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8) * &
+       n_glb_lag = int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8) * &
             int(msh%glb_nelv, 8)
        lag_offset = int(msh%offset_el, 8) * &
             int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8)
@@ -274,7 +274,7 @@ contains
     if (read_lag) then
        
        n_lag = int(size(ulag) / u%dof%size(), 8)
-       n_glb_dofs = int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8) * &
+       n_glb_lag = int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8) * &
             int(msh%glb_nelv, 8)
        lag_offset = int(msh%offset_el, 8) * &
             int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8)
