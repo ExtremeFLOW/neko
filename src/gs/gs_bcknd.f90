@@ -4,7 +4,7 @@ module gs_bcknd
   implicit none
 
   integer, public, parameter :: GS_BCKND_CPU = 1, GS_BCKND_SX = 2, &
-       GS_BCKND_HIP = 3
+       GS_BCKND_DEV = 3
   
   !> Gather-scatter backend
   type, public, abstract :: gs_bcknd_t

@@ -29,7 +29,7 @@ libneko_a_SOURCES = \
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
-	gs/bcknd/hip/gs_hip.f90\
+	gs/bcknd/device/gs_device.f90\
 	gs/gs_ops.f90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
@@ -131,7 +131,7 @@ libneko_a_SOURCES += \
 	device/hip/hip_wrapper.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\
-	gs/bcknd/hip/gs_kernels.hip\
+	gs/bcknd/device/hip/gs_kernels.hip\
 	bc/bcknd/device/hip/dirichlet_kernel.hip\
 	bc/bcknd/device/hip/inflow_kernel.hip\
 	bc/bcknd/device/hip/no_slip_wall_kernel.hip\

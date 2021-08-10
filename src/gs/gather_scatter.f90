@@ -2,10 +2,10 @@
 module gather_scatter
   use neko_config
   use gs_bcknd
+  use gs_device
+  use gs_sx
   use gs_cpu
   use gs_ops
-  use gs_hip
-  use gs_sx
   use mesh
   use dofmap
   use field
@@ -101,8 +101,8 @@ contains
     else
        if (NEKO_BCKND_SX .eq. 1) then
           bcknd_ = GS_BCKND_SX
-       else if (NEKO_BCKND_HIP .eq. 1) then
-          bcknd_ = GS_BCKND_HIP
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          bcknd_ = GS_BCKND_DEV
        else
           bcknd_ = GS_BCKND_CPU
        end if
@@ -113,9 +113,13 @@ contains
     case(GS_BCKND_CPU)
        allocate(gs_cpu_t::gs%bcknd)
        bcknd_str = '         std'
-    case(GS_BCKND_HIP)
-       allocate(gs_hip_t::gs%bcknd)
-       bcknd_str = '         hip'
+    case(GS_BCKND_DEV)
+       allocate(gs_device_t::gs%bcknd)
+       if (NEKO_BCKND_HIP .eq. 1) then
+          bcknd_str = '         hip'
+       else if (NEKO_BCKND_CUDA .eq. 1) then
+          bcknd_str = '        cuda'
+       end if
     case(GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
        bcknd_str = '          sx'
