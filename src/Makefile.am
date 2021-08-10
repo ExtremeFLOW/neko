@@ -46,9 +46,9 @@ libneko_a_SOURCES = \
 	adt/tuple.f90\
 	mesh/zone.f90\
 	mesh/mesh.f90\
-	mesh_field.f90\
+	field/mesh_field.f90\
 	mesh/tet_mesh.f90\
-	field.f90\
+	field/field.f90\
 	io/format/rea.f90\
 	sx_cdtp.f90\
 	sx_conv1.f90\
@@ -72,13 +72,13 @@ libneko_a_SOURCES = \
 	io/fluid_output.f90\
 	io/chkp_output.f90\
 	sampler.f90\
-	bc.f90\
-	dirichlet.f90\
-	wall.f90\
-	inflow.f90\
-	usr_inflow.f90\
-	facet_normal.f90\
-	symmetry.f90\
+	bc/bc.f90\
+	bc/dirichlet.f90\
+	bc/wall.f90\
+	bc/inflow.f90\
+	bc/usr_inflow.f90\
+	bc/facet_normal.f90\
+	bc/symmetry.f90\
 	gmres.f90\
 	pc_jacobi.f90\
 	pc_identity.f90\
@@ -88,10 +88,10 @@ libneko_a_SOURCES = \
 	config/neko_config.f90\
 	case.f90\
 	user_intf.f90\
-	fluid_method.f90\
-	fluid_plan4.f90\
-	fluid_plan1.f90\
-	fluid_schemes.f90\
+	fluid/fluid_method.f90\
+	fluid/fluid_plan4.f90\
+	fluid/fluid_plan1.f90\
+	fluid/fluid_schemes.f90\
 	simulation.f90\
 	ax_helm.f90\
 	ax_helm_sx.f90\
