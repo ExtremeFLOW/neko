@@ -40,9 +40,6 @@ contains
     ! function space
     if ( u%Xh .ne. v%Xh .or. &
          u%Xh .ne. w%Xh ) then
-       write(*,*) u%Xh%lx, v%Xh%lx, w%Xh%lx
-       write(*,*) u%Xh%ly, v%Xh%ly, w%Xh%ly
-       write(*,*) u%Xh%lz, v%Xh%lz, w%Xh%lz
        call neko_error('Different function spaces for each velocity component')
     end if
 
