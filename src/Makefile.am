@@ -1,41 +1,41 @@
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	config/num_types.f90\
-	structs.f90\
-	parameters.f90\
+	common/structs.f90\
+	common/parameters.f90\
 	io/format/nmsh.f90\
 	io/format/re2.f90\
 	io/format/map.f90\
-	log.f90\
+	common/log.f90\
 	comm.f90\
 	mesh/curve.f90\
 	mpi_types.f90 \
-	datadist.f90 \
-	distdata.f90 \
-	utils.f90\
-	mxm_wrapper.F90\
-	mxm_std.f90\
-	speclib.f90 \
-	math.f90\
-	mathops.f90\
-	fast3d.f90\
-	tensor.f90\
-	space.f90\
-	dofmap.f90\
-	coef.f90\
-	gs_bcknd.f90\
-	gs_cpu.f90\
-	gs_sx.f90\
-	gs_ops.f90\
-	gather_scatter.f90\
+	common/datadist.f90 \
+	common/distdata.f90 \
+	common/utils.f90\
+	math/mxm_wrapper.F90\
+	math/bcknd/cpu/mxm_std.f90\
+	sem/speclib.f90 \
+	math/math.f90\
+	math/mathops.f90\
+	math/fast3d.f90\
+	math/tensor.f90\
+	sem/space.f90\
+	sem/dofmap.f90\
+	sem/coef.f90\
+	gs/gs_bcknd.f90\
+	gs/bcknd/cpu/gs_cpu.f90\
+	gs/bcknd/sx/gs_sx.f90\
+	gs/gs_ops.f90\
+	gs/gather_scatter.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
 	mesh/element.f90\
-	ax.f90\
-	precon.f90\
-	krylov.f90\
-	cg.f90\
-	ksp_bicgstab.f90\
+	math/ax.f90\
+	krylov/precon.f90\
+	krylov/krylov.f90\
+	krylov/cg.f90\
+	krylov/bicgstab.f90\
 	mesh/quad.f90\
 	mesh/hex.f90\
 	mesh/tet.f90\
@@ -50,15 +50,15 @@ libneko_a_SOURCES = \
 	mesh/tet_mesh.f90\
 	field/field.f90\
 	io/format/rea.f90\
-	sx_cdtp.f90\
-	sx_conv1.f90\
-	sx_dudxyz.f90\
-	sx_opgrad.f90\
-	operators.f90\
-	opr_cpu.f90\
-	opr_sx.f90\
-	opr_xsmm.F90\
-	checkpoint.f90\
+	math/bcknd/sx/sx_cdtp.f90\
+	math/bcknd/sx/sx_conv1.f90\
+	math/bcknd/sx/sx_dudxyz.f90\
+	math/bcknd/sx/sx_opgrad.f90\
+	math/operators.f90\
+	math/bcknd/cpu/opr_cpu.f90\
+	math/bcknd/sx/opr_sx.f90\
+	math/bcknd/xsmm/opr_xsmm.F90\
+	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
 	io/re2_file.f90\
@@ -71,7 +71,7 @@ libneko_a_SOURCES = \
 	io/output.f90\
 	io/fluid_output.f90\
 	io/chkp_output.f90\
-	sampler.f90\
+	common/sampler.f90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
 	bc/wall.f90\
@@ -79,32 +79,32 @@ libneko_a_SOURCES = \
 	bc/usr_inflow.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
-	gmres.f90\
-	pc_jacobi.f90\
-	pc_identity.f90\
-	pc_jacobi_sx.f90\
-	source.f90\
-	abbdf.f90\
+	krylov/gmres.f90\
+	krylov/bcknd/cpu/pc_jacobi.f90\
+	krylov/pc_identity.f90\
+	krylov/bcknd/sx/pc_jacobi_sx.f90\
+	common/source.f90\
+	common/abbdf.f90\
 	config/neko_config.f90\
 	case.f90\
-	user_intf.f90\
+	common/user_intf.f90\
 	fluid/fluid_method.f90\
 	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
 	fluid/fluid_schemes.f90\
 	simulation.f90\
-	ax_helm.f90\
-	ax_helm_sx.f90\
-	ax_helm_xsmm.F90\
-	projection.f90\
+	math/bcknd/cpu/ax_helm.f90\
+	math/bcknd/sx/ax_helm_sx.f90\
+	math/bcknd/xsmm/ax_helm_xsmm.F90\
+	common/projection.f90\
 	parmetis.F90\
 	redist.f90\
-	pc_hsmg.f90\
-	fdm.f90\
-	schwarz.f90\
-	signal.f90\
-	sighdl.c\
-	jobctrl.f90\
+	krylov/pc_hsmg.f90\
+	math/fdm.f90\
+	math/schwarz.f90\
+	common/signal.f90\
+	common/sighdl.c\
+	common/jobctrl.f90\
 	neko.f90
 
 if ENABLE_PARMETIS
