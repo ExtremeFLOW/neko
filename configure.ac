@@ -1,5 +1,5 @@
-AC_INIT([neko],[0.2.x])
-AM_INIT_AUTOMAKE([foreign])
+AC_INIT([neko],[0.1.99])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
@@ -137,9 +137,9 @@ AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
-		 src/comm.f90\
-	 	 src/neko_config.f90\
-		 src/num_types.f90\
+		 src/comm/comm.f90\
+	 	 src/config/neko_config.f90\
+		 src/config/num_types.f90\
 		 makeneko\
 		 neko.pc])
 
