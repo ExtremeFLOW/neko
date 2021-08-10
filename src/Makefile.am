@@ -1,7 +1,7 @@
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
-	num_types.f90\
-        structs.f90\
+	config/num_types.f90\
+	structs.f90\
 	parameters.f90\
 	io/format/nmsh.f90\
 	io/format/re2.f90\
@@ -85,7 +85,7 @@ libneko_a_SOURCES = \
 	pc_jacobi_sx.f90\
 	source.f90\
 	abbdf.f90\
-	neko_config.f90\
+	config/neko_config.f90\
 	case.f90\
 	user_intf.f90\
 	fluid_method.f90\
