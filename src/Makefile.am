@@ -3,9 +3,9 @@ libneko_a_SOURCES = \
 	num_types.f90\
         structs.f90\
 	parameters.f90\
-	nmsh.f90\
-	re2.f90\
-	map.f90\
+	io/format/nmsh.f90\
+	io/format/re2.f90\
+	io/format/map.f90\
 	log.f90\
 	comm.f90\
         curve.f90\
@@ -49,7 +49,7 @@ libneko_a_SOURCES = \
 	mesh_field.f90\
 	tet_mesh.f90\
 	field.f90\
-	rea.f90\
+	io/format/rea.f90\
 	sx_cdtp.f90\
 	sx_conv1.f90\
 	sx_dudxyz.f90\
@@ -59,18 +59,18 @@ libneko_a_SOURCES = \
 	opr_sx.f90\
 	opr_xsmm.F90\
 	checkpoint.f90\
-	generic_file.f90\
-	map_file.f90\
-	re2_file.f90\
-	rea_file.f90\
-	fld_file.f90\
-	vtk_file.f90\
-	nmsh_file.f90\
-	chkp_file.f90\
-	file.f90\
-	output.f90\
-	fluid_output.f90\
-	chkp_output.f90\
+	io/generic_file.f90\
+	io/map_file.f90\
+	io/re2_file.f90\
+	io/rea_file.f90\
+	io/fld_file.f90\
+	io/vtk_file.f90\
+	io/nmsh_file.f90\
+	io/chkp_file.f90\
+	io/file.f90\
+	io/output.f90\
+	io/fluid_output.f90\
+	io/chkp_output.f90\
 	sampler.f90\
 	bc.f90\
 	dirichlet.f90\
