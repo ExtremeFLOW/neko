@@ -1,29 +1,29 @@
-!> Defines various Conjugate Gradient methods for accelerators using HIP
-module cg_hip
+!> Defines various Conjugate Gradient methods for accelerators
+module cg_device
   use krylov
   use device_math    
   use num_types
   use, intrinsic :: iso_c_binding
   implicit none
 
-  !> HIP based preconditioned conjugate gradient method
-  type, public, extends(ksp_t) :: cg_hip_t
+  !> Device based preconditioned conjugate gradient method
+  type, public, extends(ksp_t) :: cg_device_t
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: p(:)
      real(kind=rp), allocatable :: z(:)
      type(c_ptr) :: w_d, r_d, p_d, z_d
    contains
-     procedure, pass(this) :: init => cg_hip_init
-     procedure, pass(this) :: free => cg_hip_free
-     procedure, pass(this) :: solve => cg_hip_solve
-  end type cg_hip_t
+     procedure, pass(this) :: init => cg_device_init
+     procedure, pass(this) :: free => cg_device_free
+     procedure, pass(this) :: solve => cg_device_solve
+  end type cg_device_t
 
 contains
 
-  !> Initialise a HIP based PCG solver
-  subroutine cg_hip_init(this, n, M, rel_tol, abs_tol)
-    class(cg_hip_t), intent(inout) :: this
+  !> Initialise a DEVICE based PCG solver
+  subroutine cg_device_init(this, n, M, rel_tol, abs_tol)
+    class(cg_device_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
@@ -55,11 +55,11 @@ contains
        call this%ksp_init()
     end if
           
-  end subroutine cg_hip_init
+  end subroutine cg_device_init
 
-  !> Deallocate a HIP based PCG solver
-  subroutine cg_hip_free(this)
-    class(cg_hip_t), intent(inout) :: this
+  !> Deallocate a device based PCG solver
+  subroutine cg_device_free(this)
+    class(cg_device_t), intent(inout) :: this
 
     call this%ksp_free()
 
@@ -97,11 +97,11 @@ contains
        call device_free(this%z_d)
     end if
 
-  end subroutine cg_hip_free
+  end subroutine cg_device_free
   
   !> Standard PCG solve
-  function cg_hip_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
-    class(cg_hip_t), intent(inout) :: this
+  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+    class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(inout) :: n
@@ -168,8 +168,8 @@ contains
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
 
-  end function cg_hip_solve
+  end function cg_device_solve
 
-end module cg_hip
+end module cg_device
   
 
