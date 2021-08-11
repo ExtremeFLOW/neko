@@ -78,6 +78,8 @@ contains
     type is (double precision)
        s = n * 8
        ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
     end select
 #ifdef HAVE_HIP
     if (hipmemcpy(ptr_h, x_d, s, dir) .ne. HIP_SUCCESS) then
@@ -118,6 +120,8 @@ contains
        htbl_ptr_h%ptr = c_loc(x)
     type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
     end select
 
     htbl_ptr_d%ptr = x_d
@@ -146,6 +150,8 @@ contains
        s = n * 4
     type is (double precision)
        s = n * 8
+    class default
+       call neko_error('Unknown Fortran type')
     end select
 
     call device_alloc(x_d, s)
@@ -169,6 +175,8 @@ contains
        htbl_ptr_h%ptr = c_loc(x)
     type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
     end select
     
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
@@ -194,6 +202,8 @@ contains
        htbl_ptr_h%ptr = c_loc(x)
     type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
     end select
     
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
