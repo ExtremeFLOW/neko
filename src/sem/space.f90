@@ -159,7 +159,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
        call device_map(s%dr_inv, s%dr_inv_d, s%lx)
-       call device_map(s%dr_inv, s%ds_inv_d, s%lx)
+       call device_map(s%ds_inv, s%ds_inv_d, s%lx)
        call device_map(s%dt_inv, s%dt_inv_d, s%lx)
        call device_map(s%wx, s%wx_d, s%lx)
        call device_map(s%wy, s%wy_d, s%lx)
@@ -173,7 +173,7 @@ contains
        call device_map(s%w3, s%w3_d, s%lxyz)
 
        call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE)
-       call device_memcpy(s%dr_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE)
+       call device_memcpy(s%ds_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE)
        call device_memcpy(s%dt_inv, s%dt_inv_d, s%lx, HOST_TO_DEVICE)
        call device_memcpy(s%wx, s%wx_d, s%lx, HOST_TO_DEVICE)
        call device_memcpy(s%wy, s%wy_d, s%lx, HOST_TO_DEVICE)
