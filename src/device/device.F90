@@ -187,11 +187,11 @@ contains
   end function device_associated
   
   !> Return the device pointer for an associated Fortran
-  function device_get_ptr(x, n) result(x_d)
+  function device_get_ptr(x, n)
     integer, intent(in) :: n
     class(*), intent(in), target :: x(n)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
-    type(c_ptr) :: x_d
+    type(c_ptr) :: device_get_ptr
 
     select type(x)
     type is (integer)
@@ -206,8 +206,10 @@ contains
        call neko_error('Unknown Fortran type')
     end select
     
+    device_get_ptr = C_NULL_PTR
+    
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
-       x_d = htbl_ptr_d%ptr
+       device_get_ptr = htbl_ptr_d%ptr
     else
        call neko_error('Array not associated with device')
     end if
