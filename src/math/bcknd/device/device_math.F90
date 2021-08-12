@@ -95,7 +95,7 @@ contains
     real(kind=rp) :: c1
     integer :: n
 #ifdef HAVE_HIP
-    call hip_add2s1(a_d, b_d, c1, n)
+    call hip_add2s2(a_d, b_d, c1, n)
 #else
     call neko_error('No device backend configured')
 #endif
