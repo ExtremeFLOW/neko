@@ -24,6 +24,17 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine hip_dudxyz
   end interface
+
+  interface
+     subroutine hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
+          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
+          bind(c, name='hip_cdtp')
+          use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       integer(c_int) :: nel, lx
+     end subroutine hip_cdtp
+  end interface
 #endif
   
 contains
@@ -77,11 +88,24 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    type(c_ptr) :: dtx_d, x_d, dr_d, ds_d, dt_d
 
+    dtx_d = device_get_ptr(dtx, size(dtx))
+    x_d = device_get_ptr(x, size(x))
+
+    dr_d = device_get_ptr(dr, size(dr))
+    ds_d = device_get_ptr(ds, size(ds))
+    dt_d = device_get_ptr(dt, size(dt))
+    
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
 #ifdef HAVE_HIP
+      call hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
+           coef%jac_d, msh%nelv, Xh%lx) 
 #else
-    call neko_error('No device backend configured')
+      call neko_error('No device backend configured')
 #endif
+  end associate
 
   end subroutine opr_device_cdtp
 
@@ -94,10 +118,10 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
-
+    
 #ifdef HAVE_HIP
 #else
-    call neko_error('No device backend configured')
+      call neko_error('No device backend configured')
 #endif
     
   end subroutine opr_device_conv1

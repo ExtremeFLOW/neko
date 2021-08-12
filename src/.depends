@@ -26,7 +26,7 @@ gs/bcknd/cpu/gs_cpu.o : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.o gs/gs_bcknd.o config
 gs/bcknd/sx/gs_sx.o : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.o gs/gs_bcknd.o config/num_types.o 
 gs/bcknd/device/gs_device.o : gs/bcknd/device/gs_device.F90 gs/gs_ops.o device/device.o gs/gs_bcknd.o config/num_types.o 
 gs/gs_ops.o : gs/gs_ops.f90 
-gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stack.o adt/htable.o config/num_types.o field/field.o sem/dofmap.o mesh/mesh.o gs/bcknd/sx/gs_sx.o gs/bcknd/device/gs_device.o gs/gs_ops.o gs/bcknd/cpu/gs_cpu.o gs/gs_bcknd.o config/neko_config.o 
+gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stack.o adt/htable.o config/num_types.o field/field.o sem/dofmap.o mesh/mesh.o gs/gs_ops.o gs/bcknd/cpu/gs_cpu.o gs/bcknd/sx/gs_sx.o gs/bcknd/device/gs_device.o gs/gs_bcknd.o config/neko_config.o 
 mesh/entity.o : mesh/entity.f90 
 mesh/point.o : mesh/point.f90 mesh/entity.o math/math.o config/num_types.o 
 mesh/element.o : mesh/element.f90 mesh/point.o adt/tuple.o mesh/entity.o config/num_types.o 
@@ -120,7 +120,8 @@ comm/parmetis_wrapper.o : comm/parmetis_wrapper.c
 device/hip/hip_wrapper.o : device/hip/hip_wrapper.hip 
 math/bcknd/device/hip/math.o : math/bcknd/device/hip/math.hip 
 math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip 
-gs/bcknd/hip/gs_kernels.o : gs/bcknd/hip/gs_kernels.hip 
+math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip 
+gs/bcknd/device/hip/gs_kernels.o : gs/bcknd/device/hip/gs_kernels.hip 
 bc/bcknd/device/hip/dirichlet_kernel.o : bc/bcknd/device/hip/dirichlet_kernel.hip 
 bc/bcknd/device/hip/inflow_kernel.o : bc/bcknd/device/hip/inflow_kernel.hip 
 bc/bcknd/device/hip/no_slip_wall_kernel.o : bc/bcknd/device/hip/no_slip_wall_kernel.hip 

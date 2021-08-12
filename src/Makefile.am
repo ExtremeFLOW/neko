@@ -131,6 +131,7 @@ libneko_a_SOURCES += \
 	device/hip/hip_wrapper.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\
+	math/bcknd/device/hip/opr_cdtp.hip\
 	gs/bcknd/device/hip/gs_kernels.hip\
 	bc/bcknd/device/hip/dirichlet_kernel.hip\
 	bc/bcknd/device/hip/inflow_kernel.hip\
@@ -157,6 +158,7 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
-	math/bcknd/device/hip/dudxyz_kernel.h
+	math/bcknd/device/hip/dudxyz_kernel.h\
+	math/bcknd/device/hip/cdtp_kernel.h
 
 include	.depends
