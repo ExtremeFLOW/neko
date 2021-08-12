@@ -29,7 +29,7 @@ libneko_a_SOURCES = \
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
-	gs/bcknd/device/gs_device.f90\
+	gs/bcknd/device/gs_device.F90\
 	gs/gs_ops.f90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
