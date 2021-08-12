@@ -116,9 +116,8 @@ contains
     integer :: iter, max_iter
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
-    type(c_ptr) :: x_d, f_d
+    type(c_ptr) :: f_d
     
-    x_d = device_get_ptr(x%x, n)
     f_d = device_get_ptr(f, n)
 
     if (present(niter)) then
@@ -155,10 +154,10 @@ contains
 
        alpha = rtz1 / pap
        alphm = -alpha
-       call device_add2s2(x_d, this%p_d, alpha, n)
+       call device_add2s2(x%x_d, this%p_d, alpha, n)
        call device_add2s2(this%r_d, this%w_d, alphm, n)
 
-       rtr = device_glsc3(this%r_d, coef%mult_d, this%r_d, n)       
+       rtr = device_glsc3(this%r_d, coef%mult_d, this%r_d, n)
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr)*norm_fac
        if (rnorm .lt. this%abs_tol) then
