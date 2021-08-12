@@ -1,5 +1,3 @@
-#include <hip/hip_runtime.h>
-
 /**
  * Device kernel for derivative 
  */
