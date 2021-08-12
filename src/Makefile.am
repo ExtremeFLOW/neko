@@ -155,4 +155,8 @@ depend:
 	$(MAKEDEPF90) $(libneko_a_SOURCES) driver.f90  > .depends
 endif
 
+# Note we need to list any headers etc here for the dist. script
+EXTRA_DIST = \
+	math/bcknd/device/hip/dudxyz_kernel.h
+
 include	.depends
