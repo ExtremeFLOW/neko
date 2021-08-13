@@ -1,13 +1,14 @@
 !> Operators accelerator backends
 module opr_device
+  use gather_scatter  
   use num_types
+  use device_math
   use device    
   use space
   use coefs
   use math
   use mesh
   use field
-  use gather_scatter
   use mathops
   use utils
   use, intrinsic :: iso_c_binding
@@ -167,33 +168,66 @@ contains
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in)  :: c_Xh
-    integer :: gdim, n
+    integer :: gdim, n, nelv
 
     n = w1%dof%size()
     gdim = c_Xh%msh%gdim
+    nelv = c_Xh%msh%nelv
 
     !     this%work1=dw/dy ; this%work2=dv/dz
-    call opr_device_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#ifdef HAVE_HIP
+    call hip_dudxyz(work1%x_d, u3%x_d, &
+           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#endif
     if (gdim .eq. 3) then
-       call opr_device_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
+#ifdef HAVE_HIP
+       call hip_dudxyz(work2%x_d, u2%x_d, &
+            c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#endif
+       call device_sub3(w1%x_d, work1%x_d, work2%x_d, n)
     else
-       call copy(w1%x, work1%x, n)
+       call device_copy(w1%x_d, work1%x_d, n)
     endif
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
-       call opr_device_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call opr_device_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+#ifdef HAVE_HIP
+       call hip_dudxyz(work1%x_d, u1%x_d, &
+            c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+       call hip_dudxyz(work2%x_d, u3%x_d, &
+            c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)       
+#endif
+       call device_sub3(w2%x_d, work1%x_d, work2%x_d, n)
     else
-       call rzero (work1%x, n)
-       call opr_device_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call device_rzero (work1%x_d, n)
+#ifdef HAVE_HIP
+       call hip_dudxyz(work2%x_d, u3%x_d, &
+            c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#endif
        call sub3(w2%x, work1%x, work2%x, n)
     endif
     !     this%work1=dv/dx ; this%work2=du/dy
-    call opr_device_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call opr_device_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
+#ifdef HAVE_HIP
+    call hip_dudxyz(work1%x_d, u2%x_d, &
+         c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+    call hip_dudxyz(work2%x_d, u1%x_d, &
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)       
+#endif
+    call device_sub3(w3%x_d, work1%x_d, work2%x_d, n)
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
@@ -201,7 +235,10 @@ contains
     call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
     call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
-
+#else
+    call neko_error('No device backend configured')
+#endif
+        
   end subroutine opr_device_curl
 
 
