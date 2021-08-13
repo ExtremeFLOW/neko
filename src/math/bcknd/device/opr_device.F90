@@ -18,7 +18,7 @@ module opr_device
      subroutine hip_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
           dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
           bind(c, name='hip_dudxyz')
-          use, intrinsic :: iso_c_binding
+       use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
        integer(c_int) :: nel, lx
@@ -29,12 +29,27 @@ module opr_device
      subroutine hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
           dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
           bind(c, name='hip_cdtp')
-          use, intrinsic :: iso_c_binding
+       use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
        integer(c_int) :: nel, lx
      end subroutine hip_cdtp
   end interface
+
+  interface
+     subroutine hip_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
+          dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
+          jacinv_d, nel, gdim, lx) &
+          bind(c, name='hip_conv1')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: jacinv_d
+       integer(c_int) :: nel, gdim, lx
+     end subroutine hip_conv1
+  end interface       
 #endif
   
 contains
@@ -81,7 +96,7 @@ contains
   end subroutine opr_device_opgrad
 
 
-  subroutine opr_device_cdtp(dtx,x,dr,ds,dt, coef)
+  subroutine opr_device_cdtp(dtx, x, dr,ds, dt, coef)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
@@ -109,7 +124,7 @@ contains
 
   end subroutine opr_device_cdtp
 
-  subroutine opr_device_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  
+  subroutine opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)  
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
@@ -118,11 +133,27 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
+
+    du_d = device_get_ptr(du, size(du))
+    u_d = device_get_ptr(u, size(u))
+
+    vx_d = device_get_ptr(vx, size(vx))
+    vy_d = device_get_ptr(vy, size(vy))
+    vz_d = device_get_ptr(vz, size(vz))
     
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
 #ifdef HAVE_HIP
+      call hip_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
+                     Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+                     coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                     coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                     coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                     coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif
+    end associate
     
   end subroutine opr_device_conv1
 
