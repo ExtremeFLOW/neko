@@ -47,6 +47,26 @@ module device_math
   end interface
 
   interface
+     subroutine hip_col2(a_d, b_d, n) &
+          bind(c, name='hip_col2')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine hip_col2
+  end interface
+  
+  interface
+     subroutine hip_col3(a_d, b_d, c_d, n) &
+          bind(c, name='hip_col3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_col3
+  end interface
+  
+  interface
      subroutine hip_sub3(a_d, b_d, c_d, n) &
           bind(c, name='hip_sub3')
        use, intrinsic :: iso_c_binding
@@ -111,6 +131,26 @@ contains
 #endif
   end subroutine device_add2s2
 
+  subroutine device_col2(a_d, b_d, n)
+    type(c_ptr) :: a_d, b_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_col2(a_d, b_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_col2
+  
+  subroutine device_col3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_col3(a_d, b_d, c_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_col3
+  
   subroutine device_sub3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
