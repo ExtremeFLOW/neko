@@ -32,6 +32,22 @@ __global__ void add2s2_kernel(double * __restrict__ a,
   }
 }
 
+/** 
+ * Device kernel for sub3
+ */
+__global__ void sub3_kernel(double * __restrict__ a,
+			    const double * __restrict__ b,
+			    const double * __restrict__ c,
+			    const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] - c[i];
+  }  
+}
+
 /**
  * Device kernel for glsc3
  */
@@ -116,6 +132,22 @@ extern "C" {
 		       (double *) a, (double *) b,
 		       *c1, *n);
 
+  }
+
+
+  /**
+   * Fortran wrapper for sub3
+   * Vector subtraction \f$ a = b - c \f$
+   * (multiplication on second argument) 
+   */
+  void hip_sub3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(sub3_kernel,
+		       nblcks, nthrds, 0, 0,
+		       (double *) a, (double *) b, (double *) c, *n);
   }
 
 

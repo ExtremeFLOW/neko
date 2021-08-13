@@ -47,6 +47,16 @@ module device_math
   end interface
 
   interface
+     subroutine hip_sub3(a_d, b_d, c_d, n) &
+          bind(c, name='hip_sub3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_sub3
+  end interface
+
+  interface
      real(c_double) function hip_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='hip_glsc3')
        use, intrinsic :: iso_c_binding
@@ -100,6 +110,16 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
+
+  subroutine device_sub3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_sub3(a_d, b_d, c_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_sub3
 
   function device_glsc3(a_d, b_d, c_d, n) result(res)
     type(c_ptr) :: a_d, b_d, c_d
