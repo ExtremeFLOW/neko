@@ -214,7 +214,7 @@ contains
             c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
             c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #endif
-       call sub3(w2%x, work1%x, work2%x, n)
+       call device_sub3(w2%x_d, work1%x_d, work2%x_d, n)
     endif
     !     this%work1=dv/dx ; this%work2=du/dy
 #ifdef HAVE_HIP
@@ -230,11 +230,18 @@ contains
     call device_sub3(w3%x_d, work1%x_d, work2%x_d, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
+    !Change to opcolv when there's a device version...
+    call device_col2(w1%x_d, c_Xh%B_d, n)
+    call device_col2(w2%x_d, c_Xh%B_d, n)
+    call device_col2(w3%x_d, c_Xh%B_d, n)
     call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
-    call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD)
+    !Change to opcolv when there's a device version...
+    call device_col2(w1%x_d, c_Xh%Binv_d, n)
+    call device_col2(w2%x_d, c_Xh%Binv_d, n)
+    call device_col2(w3%x_d, c_Xh%Binv_d, n)
+
 #else
     call neko_error('No device backend configured')
 #endif
