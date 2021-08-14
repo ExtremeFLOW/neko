@@ -133,6 +133,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_dudxyz.hip\
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
+	math/bcknd/device/hip/opr_opgrad.hip\
 	gs/bcknd/device/hip/gs_kernels.hip\
 	bc/bcknd/device/hip/dirichlet_kernel.hip\
 	bc/bcknd/device/hip/inflow_kernel.hip\

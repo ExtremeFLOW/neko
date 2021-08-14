@@ -50,6 +50,24 @@ module opr_device
        type(c_ptr), value :: jacinv_d
        integer(c_int) :: nel, gdim, lx
      end subroutine hip_conv1
+  end interface
+
+  interface
+     subroutine hip_opgrad(ux_d, uy_d, uz_d, u_d, &
+          dx_d, dy_d, dz_d, &
+          drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
+          bind(c, name='hip_opgrad')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine hip_opgrad
   end interface       
 #endif
   
@@ -82,17 +100,32 @@ contains
   
   end subroutine opr_device_dudxyz
 
-  subroutine opr_device_opgrad(ux,uy,uz,u,coef) 
+  subroutine opr_device_opgrad(ux, uy, uz, u, coef) 
     type(coef_t), intent(in) :: coef  
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    type(c_ptr) :: ux_d, uy_d, uz_d, u_d
 
+    ux_d = device_get_ptr(ux, size(ux))
+    uy_d = device_get_ptr(uy, size(uy))
+    uz_d = device_get_ptr(uz, size(uz))
+
+    u_d = device_get_ptr(u, size(u))    
+    
+    associate(Xh => coef%Xh, msh => coef%msh)
 #ifdef HAVE_HIP
+      call hip_opgrad(ux_d, uy_d, uz_d, u_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, msh%nelv, Xh%lx)
 #else
-    call neko_error('No device backend configured')
+      call neko_error('No device backend configured')
 #endif
+    end associate
     
   end subroutine opr_device_opgrad
 
