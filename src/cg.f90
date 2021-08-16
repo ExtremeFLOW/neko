@@ -114,13 +114,12 @@ contains
     ksp_results%iter = 0
     if(rnorm .eq. zero) return
     do iter = 1, max_iter
-       call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1
-       rtz1 = glsc3(this%r, coef%mult, this%z, n)
+       rtz1 = glsc3(this%r, coef%mult, this%r, n)
 
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = zero
-       call add2s1(this%p, this%z, beta, n)
+       call add2s1(this%p, this%r, beta, n)
        
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_op(gs_h, this%w, n, GS_OP_ADD)
