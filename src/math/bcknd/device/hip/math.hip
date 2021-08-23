@@ -32,6 +32,21 @@ __global__ void add2s2_kernel(double * __restrict__ a,
   }
 }
 
+/**
+ * Device kernel for invcol2
+ */
+__global__ void invcol2_kernel(double * __restrict__ a,
+			       const double * __restrict__ b,
+			       const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] / b[i];
+  }  
+}
+
 /** 
  * Device kernel for col2
  */
@@ -77,6 +92,24 @@ __global__ void sub3_kernel(double * __restrict__ a,
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] - c[i];
   }  
+}
+
+/**
+ * Device kernel for addcol3
+ */
+__global__ void addcol3_kernel(double * __restrict__ a,
+			    const double * __restrict__ b,
+			    const double * __restrict__ c,
+			    const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + b[i] * c[i];
+  }  
+  
+
 }
 
 /**
@@ -166,10 +199,24 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for invcol2
+   * Vector division \f$ a = a / b \f$
+   */
+  void hip_invcol2(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(invcol2_kernel,
+		       nblcks, nthrds, 0, 0,
+		       (double *) a, (double *) b, *n);
+  }
+  
+  /**
    * Fortran wrapper for col2
    * Vector multiplication with 2 vectors \f$ a = a \cdot b \f$
    */
-  void hip_col2(void *a, void *b, void *c, int *n) {
+  void hip_col2(void *a, void *b, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -208,6 +255,19 @@ extern "C" {
 		       (double *) a, (double *) b, (double *) c, *n);
   }
 
+  /**
+   * Fortran wrapper for addcol3
+   * \f$ a = a + b * c \f$
+   */
+  void hip_addcol3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(addcol3_kernel,
+		       nblcks, nthrds, 0, 0,
+		       (double *) a, (double *) b, (double *) c, *n);
+  }
 
   /**
    * Fortran wrapper glsc3
@@ -241,7 +301,4 @@ extern "C" {
 
     return res;
   }
-
-
- 
 }
