@@ -89,6 +89,7 @@ libneko_a_SOURCES = \
 	krylov/bcknd/cpu/pc_jacobi.f90\
 	krylov/pc_identity.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
+	krylov/bcknd/device/pc_jacobi_device.F90\
 	common/source.f90\
 	common/abbdf.f90\
 	config/neko_config.f90\
@@ -134,6 +135,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	krylov/bcknd/device/hip/pc_jacobi.hip\
 	gs/bcknd/device/hip/gs_kernels.hip\
 	bc/bcknd/device/hip/dirichlet_kernel.hip\
 	bc/bcknd/device/hip/inflow_kernel.hip\
@@ -162,6 +164,7 @@ endif
 EXTRA_DIST = \
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
-	math/bcknd/device/hip/conv1_kernel.h
+	math/bcknd/device/hip/conv1_kernel.h\
+	math/bcknd/device/hip/jacobi_kernel.h
 
 include	.depends

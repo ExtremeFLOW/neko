@@ -84,6 +84,7 @@ krylov/gmres.o : krylov/gmres.f90 config/num_types.o math/operators.o math/math.
 krylov/bcknd/cpu/pc_jacobi.o : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
 krylov/pc_identity.o : krylov/pc_identity.f90 config/num_types.o math/ax.o krylov/precon.o common/utils.o math/math.o 
 krylov/bcknd/sx/pc_jacobi_sx.o : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
+krylov/bcknd/device/pc_jacobi_device.o : krylov/bcknd/device/pc_jacobi_device.F90 gs/gather_scatter.o math/bcknd/device/device_math.o config/num_types.o sem/coef.o krylov/precon.o 
 common/source.o : common/source.f90 config/num_types.o sem/dofmap.o 
 common/abbdf.o : common/abbdf.f90 common/utils.o math/math.o config/num_types.o 
 config/neko_config.o : config/neko_config.f90 
@@ -123,6 +124,7 @@ math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/b
 math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
 math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h
 math/bcknd/device/hip/opr_opgrad.o : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
+krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip krylov/bcknd/device/hip/pc_jacobi_kernel.h
 gs/bcknd/device/hip/gs_kernels.o : gs/bcknd/device/hip/gs_kernels.hip 
 bc/bcknd/device/hip/dirichlet_kernel.o : bc/bcknd/device/hip/dirichlet_kernel.hip 
 bc/bcknd/device/hip/inflow_kernel.o : bc/bcknd/device/hip/inflow_kernel.hip 
