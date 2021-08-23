@@ -90,6 +90,7 @@ libneko_a_SOURCES = \
 	krylov/pc_identity.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
+	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
 	common/abbdf.f90\
 	config/neko_config.f90\
