@@ -118,6 +118,20 @@ bc/bcknd/device/device_wall.o : bc/bcknd/device/device_wall.F90 common/utils.o c
 bc/bcknd/device/device_symmetry.o : bc/bcknd/device/device_symmetry.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 common/utils.o config/num_types.o 
 neko.o : neko.f90 device/device.o common/jobctrl.o common/signal.o mesh/tet_mesh.o mesh/curve.o common/structs.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o math/bcknd/cpu/ax_helm.o simulation.o io/fluid_output.o io/output.o common/sampler.o case.o config/neko_config.o krylov/bcknd/cpu/pc_jacobi.o krylov/gmres.o math/ax.o krylov/precon.o krylov/bicgstab.o krylov/bcknd/device/cg_device.o krylov/cg.o krylov/krylov.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o io/nmsh_file.o io/fld_file.o io/vtk_file.o io/map_file.o io/re2_file.o io/rea_file.o math/bcknd/cpu/mxm_std.o math/mxm_wrapper.o io/format/rea.o io/format/re2.o io/format/nmsh.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o mesh/hex.o mesh/quad.o mesh/element.o mesh/point.o mesh/entity.o io/generic_file.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
+comm/parmetis_wrapper.o : comm/parmetis_wrapper.c 
+device/hip/hip_wrapper.o : device/hip/hip_wrapper.hip 
+math/bcknd/device/hip/math.o : math/bcknd/device/hip/math.hip 
+math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h 
+math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
+math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h
+math/bcknd/device/hip/opr_opgrad.o : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
+krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip krylov/bcknd/device/hip/pc_jacobi_kernel.h
+gs/bcknd/device/hip/gs_kernels.o : gs/bcknd/device/hip/gs_kernels.hip 
+bc/bcknd/device/hip/dirichlet_kernel.o : bc/bcknd/device/hip/dirichlet_kernel.hip 
+bc/bcknd/device/hip/inflow_kernel.o : bc/bcknd/device/hip/inflow_kernel.hip 
+bc/bcknd/device/hip/no_slip_wall_kernel.o : bc/bcknd/device/hip/no_slip_wall_kernel.hip 
+bc/bcknd/device/hip/symmetry_kernel.o : bc/bcknd/device/hip/symmetry_kernel.hip 
+bc/bcknd/device/hip/facet_normal_kernel.o : bc/bcknd/device/hip/facet_normal_kernel.hip 
 device/cuda/cuda_wrapper.o : device/cuda/cuda_wrapper.cu 
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu 
 bc/bcknd/device/cuda/dirichlet_kernel.o : bc/bcknd/device/cuda/dirichlet_kernel.cu 
