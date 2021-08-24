@@ -105,6 +105,106 @@ module device_math
        integer(c_int) :: n
      end function hip_glsc3
   end interface
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_copy(a_d, b_d, n) &
+          bind(c, name='cuda_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine cuda_copy
+  end interface
+
+  interface
+     subroutine cuda_rzero(a_d, n) &
+          bind(c, name='cuda_rzero')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine cuda_rzero
+  end interface
+
+  interface
+     subroutine cuda_add2s1(a_d, b_d, c1, n) &
+          bind(c, name='cuda_add2s1')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_double) :: c1
+       integer(c_int) :: n
+     end subroutine cuda_add2s1
+  end interface
+
+  interface
+     subroutine cuda_add2s2(a_d, b_d, c1, n) &
+          bind(c, name='cuda_add2s2')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_double) :: c1
+       integer(c_int) :: n
+     end subroutine cuda_add2s2
+  end interface
+
+  interface
+     subroutine cuda_invcol2(a_d, b_d, n) &
+          bind(c, name='cuda_invcol2')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine cuda_invcol2
+  end interface
+  
+  interface
+     subroutine cuda_col2(a_d, b_d, n) &
+          bind(c, name='cuda_col2')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine cuda_col2
+  end interface
+  
+  interface
+     subroutine cuda_col3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_col3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine cuda_col3
+  end interface
+  
+  interface
+     subroutine cuda_sub3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_sub3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine cuda_sub3
+  end interface
+
+  interface
+     subroutine cuda_addcol3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_addcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine cuda_addcol3
+  end interface
+
+  interface
+     real(c_double) function cuda_glsc3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_glsc3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end function cuda_glsc3
+  end interface
 #endif
   
 contains
@@ -114,6 +214,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_copy(a_d, b_d, n)
+#elif HAVE_CUDA
+    call cuda_copy(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -124,6 +226,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_rzero(a_d, n)
+#elif HAVE_CUDA
+    call cuda_rzero(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -135,6 +239,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_add2s1(a_d, b_d, c1, n)
+#elif HAVE_CUDA
+    call cuda_add2s1(a_d, b_d, c1, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -146,6 +252,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_add2s2(a_d, b_d, c1, n)
+#elif HAVE_CUDA
+    call cuda_add2s2(a_d, b_d, c1, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -156,6 +264,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_invcol2(a_d, b_d, n)
+#elif HAVE_CUDA
+    call cuda_invcol2(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -166,6 +276,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_col2(a_d, b_d, n)
+#elif HAVE_CUDA
+    call cuda_col2(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -176,6 +288,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_col3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    call cuda_col3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -186,6 +300,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_sub3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    call cuda_sub3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -196,6 +312,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_addcol3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    call cuda_addcol3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -207,6 +325,8 @@ contains
     real(kind=rp) :: res
 #ifdef HAVE_HIP
     res = hip_glsc3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    res = cuda_glsc3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
