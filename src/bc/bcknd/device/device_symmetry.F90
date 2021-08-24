@@ -14,6 +14,16 @@ module device_symmetry
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z
      end subroutine hip_symmetry_apply_vector
   end interface
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l) &
+          bind(c, name='cuda_symmetry_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, l
+       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z
+     end subroutine cuda_symmetry_apply_vector
+  end interface
 #endif
   
 contains
@@ -24,6 +34,8 @@ contains
 
 #ifdef HAVE_HIP
     call hip_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)
+#elif HAVE_CUDA
+    call cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)
 #else
     call neko_error('No device backend configured')
 #endif
