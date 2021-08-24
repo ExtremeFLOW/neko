@@ -151,6 +151,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/math.cu\
 	bc/bcknd/device/cuda/dirichlet_kernel.cu\
 	bc/bcknd/device/cuda/inflow_kernel.cu\
+	bc/bcknd/device/cuda/no_slip_wall_kernel.cu\
 	bc/bcknd/device/cuda/symmetry_kernel.cu
 endif
 
