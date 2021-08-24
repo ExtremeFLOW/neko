@@ -49,6 +49,29 @@ module gs_device
        type(c_ptr), value :: v, w, u, dg, gd
      end subroutine hip_scatter_kernel
   end interface
+
+#elif HAVE_CUDA
+
+  interface
+     subroutine cuda_gather_kernel(v, m, o, dg, u, n, gd, w, op) &
+          bind(c, name='cuda_gather_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, o, op
+       type(c_ptr), value :: v, w, u, dg, gd
+     end subroutine cuda_gather_kernel
+  end interface
+
+  interface
+     subroutine cuda_scatter_kernel(v, m, dg, u, n, gd, w) &
+          bind(c, name='cuda_scatter_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n
+       type(c_ptr), value :: v, w, u, dg, gd
+     end subroutine cuda_scatter_kernel
+  end interface
+
 #endif
 
 contains
@@ -153,6 +176,8 @@ contains
          
 #ifdef HAVE_HIP
          call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+#elif HAVE_CUDA
+         call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -177,6 +202,8 @@ contains
          end if
 #ifdef HAVE_HIP   
          call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+#elif HAVE_CUDA
+         call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -206,6 +233,8 @@ contains
             gd_d=>this%local_gs_dof_d, w_d=>this%local_wrk_d)
 #ifdef HAVE_HIP
          call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
+#elif HAVE_CUDA
+         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -215,6 +244,8 @@ contains
             gd_d=>this%shared_gs_dof_d, w_d=>this%shared_wrk_d)
 #ifdef HAVE_HIP
          call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
+#elif HAVE_CUDA
+         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
 #else
          call neko_error('No device backend configured')
 #endif

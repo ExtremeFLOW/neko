@@ -134,6 +134,7 @@ bc/bcknd/device/hip/symmetry_kernel.o : bc/bcknd/device/hip/symmetry_kernel.hip
 bc/bcknd/device/hip/facet_normal_kernel.o : bc/bcknd/device/hip/facet_normal_kernel.hip 
 device/cuda/cuda_wrapper.o : device/cuda/cuda_wrapper.cu 
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu 
+gs/bcknd/device/cuda/gs_kernels.o : gs/bcknd/device/cuda/gs_kernels.cu 
 bc/bcknd/device/cuda/dirichlet_kernel.o : bc/bcknd/device/cuda/dirichlet_kernel.cu 
 bc/bcknd/device/cuda/inflow_kernel.o : bc/bcknd/device/cuda/inflow_kernel.cu 
 bc/bcknd/device/cuda/no_slip_wall_kernel.o : bc/bcknd/device/cuda/no_slip_wall_kernel.cu 
