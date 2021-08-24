@@ -135,4 +135,5 @@ bc/bcknd/device/hip/facet_normal_kernel.o : bc/bcknd/device/hip/facet_normal_ker
 device/cuda/cuda_wrapper.o : device/cuda/cuda_wrapper.cu 
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu 
 bc/bcknd/device/cuda/dirichlet_kernel.o : bc/bcknd/device/cuda/dirichlet_kernel.cu 
+bc/bcknd/device/cuda/inflow_kernel.o : bc/bcknd/device/cuda/inflow_kernel.cu 
 driver.o : driver.f90 neko.o 

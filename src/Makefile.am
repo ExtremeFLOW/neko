@@ -149,7 +149,8 @@ if ENABLE_CUDA
 libneko_a_SOURCES += \
 	device/cuda/cuda_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
-	bc/bcknd/device/cuda/dirichlet_kernel.cu
+	bc/bcknd/device/cuda/dirichlet_kernel.cu\
+	bc/bcknd/device/cuda/inflow_kernel.cu
 endif
 
 bin_PROGRAMS = neko
