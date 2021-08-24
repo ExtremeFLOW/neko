@@ -26,6 +26,28 @@ module device_dirichlet
        type(c_ptr), value :: msk, x, y, z
      end subroutine hip_dirichlet_apply_vector
   end interface
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_dirichlet_apply_scalar(msk, x, g, m) &
+          bind(c, name='cuda_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       real(c_double) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x
+     end subroutine cuda_dirichlet_apply_scalar
+  end interface
+  
+  interface
+     subroutine cuda_dirichlet_apply_vector(msk, x, y, z, g, m) &
+          bind(c, name='cuda_dirichlet_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       real(c_double) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z
+     end subroutine cuda_dirichlet_apply_vector
+  end interface
 #endif
   
 contains
@@ -37,6 +59,8 @@ contains
 
 #ifdef HAVE_HIP
     call hip_dirichlet_apply_scalar(msk, x, g, m)
+#elif HAVE_CUDA
+    call cuda_dirichlet_apply_scalar(msk, x, g, m)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -50,6 +74,8 @@ contains
 
 #ifdef HAVE_HIP
     call hip_dirichlet_apply_vector(msk, x, y, z, g, m)
+#elif HAVE_CUDA
+    call cuda_dirichlet_apply_vector(msk, x, y, z, g, m)
 #else
     call neko_error('No device backend configured')
 #endif
