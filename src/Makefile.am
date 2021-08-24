@@ -146,7 +146,9 @@ libneko_a_SOURCES += \
 endif
 
 if ENABLE_CUDA
-libneko_a_SOURCES += device/cuda/cuda_wrapper.cu
+libneko_a_SOURCES += \
+	device/cuda/cuda_wrapper.cu\
+	math/bcknd/device/cuda/math.cu
 endif
 
 bin_PROGRAMS = neko
