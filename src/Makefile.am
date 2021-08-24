@@ -152,7 +152,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/dirichlet_kernel.cu\
 	bc/bcknd/device/cuda/inflow_kernel.cu\
 	bc/bcknd/device/cuda/no_slip_wall_kernel.cu\
-	bc/bcknd/device/cuda/symmetry_kernel.cu
+	bc/bcknd/device/cuda/symmetry_kernel.cu\
+	bc/bcknd/device/cuda/facet_normal_kernel.cu
 endif
 
 bin_PROGRAMS = neko
