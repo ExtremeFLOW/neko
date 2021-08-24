@@ -99,10 +99,12 @@ contains
       ly = Xh%ly
       lz = Xh%lz
 
+#ifdef HAVE_HIP
       call hip_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
                              coef%G11_d, coef%G22_d, coef%G33_d, &
                              coef%G12_d, coef%G13_d, coef%G23_d, &
                              nelv, lx)
+#endif
 
       call device_col2(this%d_d, coef%h1_d, coef%dof%n_dofs)
 
