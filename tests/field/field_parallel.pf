@@ -60,9 +60,6 @@ contains
     call test_field_gen_msh(msh)
     call space_init(Xh, GLL, lx, lx, lx)
     
-    @assertFalse(associated(f_msh_Xh%Xh))
-    @assertFalse(associated(f_msh_Xh%msh))
-    @assertFalse(associated(f_msh_Xh%dof))
     call field_init(f_msh_Xh, msh, Xh, 'test')
     @assertTrue(allocated(f_msh_Xh%x))
     @assertTrue(associated(f_msh_Xh%Xh))
@@ -72,9 +69,6 @@ contains
     @assertEqual(maxval(f_msh_Xh%x), 0d0)
 
     dm = dofmap_t(msh, Xh)
-    @assertFalse(associated(f_dm%Xh))
-    @assertFalse(associated(f_dm%msh))
-    @assertFalse(associated(f_dm%dof))
     call field_init(f_dm, msh, Xh, 'test')
     @assertTrue(allocated(f_dm%x))
     @assertTrue(associated(f_dm%Xh))

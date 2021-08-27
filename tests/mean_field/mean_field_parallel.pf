@@ -62,7 +62,6 @@ contains
     
     call field_init(f, msh, Xh, 'test')
     
-    @assertFalse(associated(mf%f))
     call mf%init(f)
     @assertTrue(associated(mf%f))
     @assertTrue(allocated(mf%mf%x))
