@@ -1,0 +1,86 @@
+module field_parallel
+  use mpi
+  use pfunit
+  use field
+  use num_types
+  implicit none
+
+contains
+
+  subroutine test_field_gen_msh(msh)
+    type(mesh_t), intent(inout) :: msh
+    type(point_t) :: p(12)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+  
+    call mesh_init(msh, 3, 2)
+    call mesh_add_element(msh, 1, p(1), p(2), p(4), p(3), &
+         p(7), p(8), p(9), p(10))
+    
+    call mesh_add_element(msh, 2, p(2), p(5), p(6), p(4), &
+         p(8), p(11), p(12), p(9))
+    
+  end subroutine test_field_gen_msh
+  
+  @test(npes=[1])
+  subroutine test_field_init(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    integer, parameter :: LX = 4
+    type(field_t) :: f_msh_Xh, f_dm
+    integer :: ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call test_field_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)
+    
+    @assertFalse(associated(f_msh_Xh%Xh))
+    @assertFalse(associated(f_msh_Xh%msh))
+    @assertFalse(associated(f_msh_Xh%dof))
+    call field_init(f_msh_Xh, msh, Xh, 'test')
+    @assertTrue(associated(f_msh_Xh%Xh))
+    @assertTrue(associated(f_msh_Xh%msh))
+    @assertTrue(associated(f_msh_Xh%dof))
+    @assertEqual(size(f_msh_Xh%x), 2 * lx**3)
+    @assertEqual(maxval(f_msh_Xh%x), 0.0_rp)
+
+    dm = dofmap_t(msh, Xh)
+    @assertFalse(associated(f_dm%Xh))
+    @assertFalse(associated(f_dm%msh))
+    @assertFalse(associated(f_dm%dof))
+    call field_init(f_dm, msh, Xh, 'test')
+    @assertTrue(associated(f_dm%Xh))
+    @assertTrue(associated(f_dm%msh))
+    @assertTrue(associated(f_dm%dof))
+    @assertEqual(size(f_dm%x), 2 * lx**3)
+    @assertEqual(maxval(f_dm%x), 0.0_rp)
+
+end subroutine test_field_init
+
+end module field_parallel
