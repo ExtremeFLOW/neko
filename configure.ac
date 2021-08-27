@@ -145,6 +145,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/space/Makefile\
 		 tests/dofmap/Makefile\
 		 tests/field/Makefile\
+		 tests/mean_field/Makefile\
 		 tests/gather_scatter/Makefile\
 		 tests/krylov/Makefile\
 		 tests/bc/Makefile\

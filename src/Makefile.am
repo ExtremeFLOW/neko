@@ -46,9 +46,10 @@ libneko_a_SOURCES = \
 	adt/tuple.f90\
 	mesh/zone.f90\
 	mesh/mesh.f90\
-	field/mesh_field.f90\
 	mesh/tet_mesh.f90\
 	field/field.f90\
+	field/mean_field.f90\
+	field/mesh_field.f90\
 	io/format/rea.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
