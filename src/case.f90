@@ -10,6 +10,7 @@ module case
   use parmetis
   use redist
   use sampler
+  use stats
   use file
   use utils
   use mesh
@@ -29,6 +30,7 @@ module case
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
+     type(stats_t) :: q   
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
@@ -239,6 +241,11 @@ contains
        C%f_chkp = chkp_output_t(C%fluid%chkp)
        call C%s%add(C%f_chkp)
     end if
+
+    !
+    ! Setup statistics
+    !
+    call C%q%init()
 
     !
     ! Setup joblimit

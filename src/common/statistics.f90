@@ -18,6 +18,7 @@ module stats
      procedure, pass(this) :: init => stats_init
      procedure, pass(this) :: free => stats_free
      procedure, pass(this) :: add => stats_add
+     procedure, pass(this) :: eval => stats_eval
   end type stats_t
 
 contains
@@ -73,5 +74,17 @@ contains
     this%n = this%n + 1
     this%quant_list(this%n)%quantp => quant
   end subroutine stats_add
+
+  !> Evaluated all statistical quantities
+  subroutine stats_eval(this, k)
+    class(stats_t), intent(inout) :: this
+    real(kind=dp), intent(in) :: k
+    integer :: i
+
+    do i = 1, this%n
+       call this%quant_list(i)%quantp%update(k)
+    end do
+    
+  end subroutine stats_eval
 
 end module stats

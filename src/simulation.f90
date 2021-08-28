@@ -59,6 +59,7 @@ contains
        call C%usr%usr_chk(t, C%params%dt, tstep,&
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
        call neko_log%end()
+       call C%q%eval(C%params%dt)
        call C%s%sample(t)
     end do
 
