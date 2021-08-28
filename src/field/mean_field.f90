@@ -7,7 +7,7 @@ module mean_field
   use math
   implicit none
   
-  type, extends(stat_quant_t) ::  mean_field_t
+  type, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f
      type(field_t) :: mf
      real(kind=dp) :: time

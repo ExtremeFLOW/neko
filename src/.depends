@@ -85,6 +85,7 @@ krylov/bcknd/sx/pc_jacobi_sx.o : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scat
 common/source.o : common/source.f90 config/num_types.o sem/dofmap.o 
 common/abbdf.o : common/abbdf.f90 common/utils.o math/math.o config/num_types.o 
 common/stats_quant.o : common/stats_quant.f90 config/num_types.o 
+common/statistics.o : common/statistics.f90 common/stats_quant.o config/num_types.o 
 config/neko_config.o : config/neko_config.f90 
 case.o : case.f90 common/user_intf.o common/jobctrl.o common/log.o common/abbdf.o comm/comm.o mesh/mesh.o common/utils.o io/file.o common/sampler.o comm/redist.o comm/parmetis.o field/mesh_field.o comm/mpi_types.o common/parameters.o io/chkp_output.o io/fluid_output.o fluid/fluid_schemes.o config/num_types.o 
 common/user_intf.o : common/user_intf.f90 config/num_types.o common/parameters.o bc/usr_inflow.o sem/coef.o common/source.o field/field.o 
