@@ -438,7 +438,7 @@ contains
     type(param_t) :: param_data
     type(MPI_Datatype) :: type(26)
     integer(kind=MPI_ADDRESS_KIND) :: disp(26), base    
-    integer :: len(25), ierr
+    integer :: len(26), ierr
     integer :: i
 
     call MPI_Get_address(param_data%nsamples, disp(1), ierr)
