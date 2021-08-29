@@ -5,6 +5,7 @@ module fld_file
   use field
   use dofmap
   use fluid_method
+  use mean_flow
   use mesh
   use utils
   use comm
@@ -70,6 +71,16 @@ contains
        v => data%v
        w => data%w
        p => data%p
+       msh => p%msh              
+       Xh => p%Xh
+       dof => p%dof
+       write_pressure = .true.
+       write_velocity = .true.
+    type is (mean_flow_t)
+       u => data%u%mf
+       v => data%v%mf
+       w => data%w%mf
+       p => data%p%mf
        msh => p%msh              
        Xh => p%Xh
        dof => p%dof
