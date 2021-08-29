@@ -1,12 +1,13 @@
 !> Defines a mean field
 !
 module mean_field
-  use field
+  use stats_quant
   use num_types
+  use field
   use math
   implicit none
   
-  type mean_field_t
+  type, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f
      type(field_t) :: mf
      real(kind=dp) :: time
@@ -50,7 +51,7 @@ contains
   !> Update a mean field
   subroutine mean_field_update(this, k)
     class(mean_field_t), intent(inout) :: this
-    real(kind=dp) :: k          !< Time since last sample
+    real(kind=dp), intent(in) :: k !< Time since last sample
 
     this%mf%x = this%mf%x * this%time
     call add2s2(this%mf%x, this%f%x, k, this%mf%dof%n_dofs)

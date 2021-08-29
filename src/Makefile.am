@@ -86,6 +86,8 @@ libneko_a_SOURCES = \
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	common/source.f90\
 	common/abbdf.f90\
+	common/stats_quant.f90\
+	common/statistics.f90\
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
