@@ -14,6 +14,7 @@ module stats
      type(quantp_t), allocatable :: quant_list(:)
      integer :: n
      integer :: size
+     real(kind=rp) :: T_begin
    contains
      procedure, pass(this) :: init => stats_init
      procedure, pass(this) :: free => stats_free
@@ -23,9 +24,10 @@ module stats
 
 contains
 
-  !> Initialize statistics
-  subroutine stats_init(this, size)
+  !> Initialize statistics, computed after @a T_begin
+  subroutine stats_init(this, T_begin, size)
     class(stats_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: T_begin
     integer, intent(inout), optional ::size
     integer :: n, i
     
@@ -45,6 +47,8 @@ contains
 
     this%n = 0
     this%size = n
+    this%T_begin = T_begin
+    
   end subroutine stats_init
 
   !> Deallocate
@@ -76,14 +80,17 @@ contains
   end subroutine stats_add
 
   !> Evaluated all statistical quantities
-  subroutine stats_eval(this, k)
+  subroutine stats_eval(this, t, k)
     class(stats_t), intent(inout) :: this
+    real(kind=dp), intent(in) :: t
     real(kind=dp), intent(in) :: k
     integer :: i
 
-    do i = 1, this%n
-       call this%quant_list(i)%quantp%update(k)
-    end do
+    if (t .ge. this%T_begin) then
+       do i = 1, this%n
+          call this%quant_list(i)%quantp%update(k)
+       end do
+    end if
     
   end subroutine stats_eval
 

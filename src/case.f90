@@ -245,7 +245,7 @@ contains
     !
     ! Setup statistics
     !
-    call C%q%init()
+    call C%q%init(C%params%stats_begin)
 
     !
     ! Setup joblimit
