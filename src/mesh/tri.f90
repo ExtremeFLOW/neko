@@ -85,9 +85,9 @@ contains
     select type(t)
     type is(tuple_i4_t)
        if (p1 .lt. p2) then
-          t = (/ p1%id(), p2%id() /)
+          t%x = (/ p1%id(), p2%id() /)
        else
-          t = (/ p2%id(), p1%id() /)
+          t%x = (/ p2%id(), p1%id() /)
        end if
     end select
     
@@ -105,7 +105,7 @@ contains
 
     select type(t)
     type is(tuple_i4_t)
-       t = (/ p1%id(), p2%id() /)
+       t%x = (/ p1%id(), p2%id() /)
     end select
 
   end subroutine tri_facet_order

@@ -376,7 +376,7 @@ contains
                 call m%elements(i)%e%facet_id(edge, j)
                 
                 ! Assume that all facets are on the exterior
-                facet_data = (/  0, 0/)
+                facet_data%x = (/  0, 0/)
                 
                 if (fmp%get(edge, facet_data) .gt. 0) then
                    if (mod(j, 2) .gt. 0) then
@@ -408,7 +408,7 @@ contains
              do j = 1, n_sides
                 call m%elements(i)%e%facet_id(face, j)
                
-                facet_data = (/ 0, 0/)
+                facet_data%x = (/ 0, 0/)
 
                 !check it this face has shown up earlier
                 if (fmp%get(face, facet_data) .eq. 0) then

@@ -100,7 +100,7 @@ contains
        call neko_error('Zone already finalized')
     end if
 
-    t = (/ facet, el /)
+    t%x = (/ facet, el /)
     call z%scratch%push(t)
     
   end subroutine zone_add_facet
@@ -210,11 +210,11 @@ contains
 
     call z%add_facet(facet, el)
 
-    t = (/ p_facet, p_el /)
+    t%x = (/ p_facet, p_el /)
     call z%p_scratch%push(t)
-    t2 = pids
+    t2%x = pids
     call z%p_id_scratch%push(t2)
-    t3 = org_ids
+    t3%x = org_ids
     call z%org_id_scratch%push(t3)
     
   end subroutine zone_periodic_add_facet
