@@ -255,7 +255,7 @@ contains
        call C%q%add(C%fluid%mean%p)
 
        if (C%params%output_mean_flow) then
-          C%f_mf = mean_flow_output_t(C%fluid%mean)
+          C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin)
           call C%s%add(C%f_mf)
        end if
     end if
