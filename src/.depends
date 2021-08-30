@@ -70,7 +70,7 @@ io/file.o : io/file.f90 io/vtk_file.o io/fld_file.o io/re2_file.o io/rea_file.o 
 io/output.o : io/output.f90 io/file.o config/num_types.o 
 io/fluid_output.o : io/fluid_output.f90 io/output.o fluid/fluid_method.o 
 io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o 
-io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o fluid/mean_flow.o 
+io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o config/num_types.o fluid/mean_flow.o 
 common/sampler.o : common/sampler.f90 common/log.o comm/comm.o io/output.o config/num_types.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o config/num_types.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o 
