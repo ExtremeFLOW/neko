@@ -83,6 +83,7 @@ contains
        allocate(tmp(this%size * 2))
        tmp(1:this%size) = this%output_list
        call move_alloc(tmp, this%output_list)
+       this%size = this%size * 2
     end if
 
     this%n = this%n + 1

@@ -4,6 +4,7 @@ module fluid_method
   use neko_config
   use parameters
   use checkpoint
+  use mean_flow
   use num_types
   use source
   use field
@@ -56,6 +57,7 @@ module fluid_method
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
+     type(mean_flow_t) :: mean                 !< Mean flow field
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -377,6 +379,13 @@ contains
     ! Setup checkpoint structure (if everything is fine)
     !
     call this%chkp%init(this%u, this%v, this%w, this%p)
+
+    !
+    ! Setup mean flow field if requested
+    !
+    if (this%params%stats_mean_flow) then
+       call this%mean%init(this%u, this%v, this%w, this%p)
+    end if
 
   end subroutine fluid_scheme_validate
 

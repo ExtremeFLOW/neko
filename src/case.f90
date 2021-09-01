@@ -4,12 +4,14 @@ module case
   use fluid_schemes
   use fluid_output
   use chkp_output
+  use mean_flow_output
   use parameters
   use mpi_types
   use mesh_field
   use parmetis
   use redist
   use sampler
+  use stats
   use file
   use utils
   use mesh
@@ -29,6 +31,8 @@ module case
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
+     type(mean_flow_output_t) :: f_mf
+     type(stats_t) :: q   
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
@@ -241,6 +245,22 @@ contains
     end if
 
     !
+    ! Setup statistics
+    !
+    call C%q%init(C%params%stats_begin)
+    if (C%params%stats_mean_flow) then
+       call C%q%add(C%fluid%mean%u)
+       call C%q%add(C%fluid%mean%v)
+       call C%q%add(C%fluid%mean%w)
+       call C%q%add(C%fluid%mean%p)
+
+       if (C%params%output_mean_flow) then
+          C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin)
+          call C%s%add(C%f_mf)
+       end if
+    end if
+
+    !
     ! Setup joblimit
     !
     call jobctrl_set_time_limit(C%params%jlimit)
@@ -260,6 +280,8 @@ contains
     call mesh_free(C%msh)
 
     call C%s%free()
+
+    call C%q%free()
     
   end subroutine case_free
   
