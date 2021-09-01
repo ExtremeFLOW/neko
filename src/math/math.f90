@@ -405,6 +405,20 @@ contains
     end do
     
   end subroutine add2s2
+
+  !> Returns \f$ a = a + c1 * (b * b )\f$
+  subroutine addsqr2s2(a, b, c1, n)
+    integer, intent(in) :: n    
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c1
+    integer :: i
+
+    do i = 1,n
+       a(i) = a(i) + c1 * ( b(i) * b(i) )
+    end do
+
+  end subroutine addsqr2s2
   
   !> Multiplication by constant c \f$ a = c \cdot b \f$
   subroutine cmult2(a, b, c, n)
