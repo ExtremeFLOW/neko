@@ -3,7 +3,7 @@ program poisson
   use ax_poisson
   implicit none
 
-  character(len=NEKO_FNAME_LEN) :: fname, lxchar
+  character(len=NEKO_FNAME_LEN) :: fname, lxchar, iterchar
   type(mesh_t) :: msh
   type(file_t) :: nmsh_file, mf
   type(space_t) :: Xh
@@ -20,21 +20,22 @@ program poisson
   character(len=80) :: suffix
   real(kind=rp), allocatable :: f(:)
   real(kind=rp) :: tol
-  niter = 100
   tol = -1.0
 
   argc = command_argument_count()
 
-  if ((argc .lt. 1) .or. (argc .gt. 1)) then
-     write(*,*) 'Usage: ./poisson <N>'
+  if ((argc .lt. 3) .or. (argc .gt. 3)) then
+     write(*,*) 'Usage: ./poisson <neko mesh> <N> <Iterations>'
      stop
   end if
   
   call neko_init 
-  call get_command_argument(1, lxchar)
+  call get_command_argument(1, fname)
+  call get_command_argument(2, lxchar)
+  call get_command_argument(3, iterchar)
   read(lxchar, *) lx
+  read(iterchar, *) niter
   
-  fname = '512.nmsh'
   nmsh_file = file_t(fname)
   call nmsh_file%read(msh)  
 
@@ -74,7 +75,8 @@ program poisson
   call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
   ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
-
+  write (*,*) 'Start and final residual', ksp_mon%res_start, ksp_mon%res_final
+  
   fname = 'out.fld'
   mf =  file_t(fname)
   call mf%write(x)
@@ -107,7 +109,7 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
   if (iset .eq. 0) then
      time0 = MPI_Wtime()
   else
-     flop_a = (19d0 * nxyz + 12d0 * nx * nxyz) * dble(nelt) * dble(niter)
+     flop_a = (15d0 * nxyz + 12d0 * nx * nxyz) * dble(nelt) * dble(niter)
      flop_cg = dble(niter+1) * 15d0 * dble(n)
      time1 = MPI_Wtime()
      time1 = time1-time0
