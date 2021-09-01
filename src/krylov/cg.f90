@@ -9,8 +9,10 @@ module cg
   type, public, extends(ksp_t) :: cg_t
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
-     real(kind=rp), allocatable :: p(:)
+     real(kind=rp), allocatable :: p(:,:)
      real(kind=rp), allocatable :: z(:)
+     real(kind=rp), allocatable :: alpha(:)
+     integer :: p_space
    contains
      procedure, pass(this) :: init => cg_init
      procedure, pass(this) :: free => cg_free
@@ -28,11 +30,12 @@ contains
     real(kind=rp), optional, intent(inout) :: abs_tol
         
     call this%free()
-    
+    this%p_space = 10
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%p(n))
+    allocate(this%p(n,this%p_space))
     allocate(this%z(n))
+    allocate(this%alpha(this%p_space))
     
     if (present(M)) then 
        this%M => M
@@ -90,8 +93,8 @@ contains
     integer, optional, intent(in) :: niter
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
-    integer :: iter, max_iter
-    real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
+    integer :: iter, max_iter, x_update, i, j, p_cur, p_prev
+    real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1, x_plus
     real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
     
     if (present(niter)) then
@@ -111,6 +114,8 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
+    p_prev = this%p_space
+    p_cur = 1
     if(rnorm .eq. zero) return
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
@@ -119,29 +124,53 @@ contains
 
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = zero
-       call add2s1(this%p, this%z, beta, n)
+       !call add2s1(this%p, this%z, beta, n)
+       do i = 1, n
+          this%p(i,p_cur) = this%z(i) + beta*this%p(i,p_prev)
+       end do
        
-       call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
+       call Ax%compute(this%w, this%p(1,p_cur), coef, x%msh, x%Xh)
        call gs_op(gs_h, this%w, n, GS_OP_ADD)
        call bc_list_apply(blst, this%w, n)
 
-       pap = glsc3(this%w, coef%mult, this%p, n)
+       pap = glsc3(this%w, coef%mult, this%p(1,p_cur), n)
 
-       alpha = rtz1 / pap
-       alphm = -alpha
-       call add2s2(x%x, this%p, alpha, n)
-       call add2s2(this%r, this%w, alphm, n)
-
-       rtr = glsc3(this%r, coef%mult, this%r, n)
+       this%alpha(p_cur) = rtz1 / pap
+       !call add2s2(x%x, this%p, alpha, n)
+       !call add2s2(this%r, this%w, alphm, n)
+       !rtr = glsc3(this%r, coef%mult, this%r, n)
+       call second_cg_part(rtr, this%r, coef%mult, this%w, this%alpha(p_cur), n)
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr) * norm_fac
-       if (rnorm .lt. this%abs_tol) then
-          exit
+       if (p_cur .eq. this%p_space .or. rnorm .lt. this%abs_tol) then
+          do i = 1,n
+             x_plus = 0.0
+             do j = 1, p_cur
+                x_plus = x_plus + this%alpha(j)*this%p(i,j)
+             end do
+             x%x(i,1,1,1) = x%x(i,1,1,1) + x_plus
+          end do 
+          p_prev = p_cur
+          p_cur = 1
+          if (rnorm .lt. this%abs_tol) exit
+       else
+          p_prev = p_cur
+          p_cur = p_cur + 1
        end if
     end do
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
   end function cg_solve
+  subroutine second_cg_part(rtr, r, mult, w, alpha, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: r(n), rtr
+    real(kind=rp), intent(in) ::mult(n), w(n), alpha 
+    integer :: i
+    do i = 1,n
+       r(i) =r(i) - alpha*w(i)
+       rtr = r(i) * r(i) * mult(i)
+    end do
+  end subroutine second_cg_part 
 
 end module cg
   
