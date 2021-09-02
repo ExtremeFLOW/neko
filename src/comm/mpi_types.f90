@@ -486,7 +486,7 @@ contains
     len(18:23) = 1
     len(24) = 8
     len(25) = 80
-    len(26:28) = 1
+    len(26:30) = 1
     
     type(1) = MPI_INTEGER
     type(2:4) = MPI_LOGICAL
