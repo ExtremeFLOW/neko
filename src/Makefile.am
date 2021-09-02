@@ -74,6 +74,7 @@ libneko_a_SOURCES = \
 	io/fluid_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
+	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
