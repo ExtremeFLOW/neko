@@ -145,12 +145,13 @@ contains
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
+    integer, parameter :: BLOCK_SIZE = 1000
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, glb_n
-    integer :: i, j, k, ierr 
+    integer :: i, j, k, l, ierr 
     real(kind=rp), parameter :: one = 1.0
-    real(kind=rp) :: rnorm 
-    real(kind=rp) ::  alpha, temp, l
+    real(kind=rp) :: rnorm, w_plus(BLOCK_SIZE), x_plus(BLOCK_SIZE)
+    real(kind=rp) ::  alpha, temp, lr, alpha2
     real(kind=rp) :: ratio, div0, norm_fac, tolpss
     logical :: conv
     integer outer
@@ -159,9 +160,8 @@ contains
     iter = 0
     glb_n = n / x%msh%nelv * x%msh%glb_nelv
 
-    call rone(this%ml, n)
-    call rone(this%mu, n)
     norm_fac = one / sqrt(coef%volume)
+    call rone(this%mu, n)
     call rzero(x%x, n)
     call rzero(this%gam, this%lgmres + 1)
     call rone(this%s, this%lgmres)
@@ -172,7 +172,7 @@ contains
        outer = outer + 1
 
        if(iter.eq.0) then               
-          call col3(this%r,this%ml,f,n) 
+          call copy(this%r,f,n) 
        else
           !update residual
           call copy  (this%r,f,n)      
@@ -180,7 +180,6 @@ contains
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
           call add2s2(this%r,this%w,-one,n) 
-          call col2(this%r,this%ml,n)       
        endif
        this%gam(1) = sqrt(glsc3(this%r, this%r, coef%mult, n))
        if(iter.eq.0) then
@@ -196,7 +195,6 @@ contains
        do j = 1, this%lgmres
           iter = iter+1
           call col3(this%w, this%mu, this%v(1,j), n)
-
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
 
@@ -204,37 +202,83 @@ contains
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call col2(this%w, this%ml, n)       
 
-          do i = 1, j
-             this%h(i,j) = vlsc3(this%w, this%v(1,i), coef%mult, n) 
+          !do l = 1, j
+          !   this%h(l,j) = vlsc3(this%w, this%v(1,l), coef%mult, n) 
+          !enddo
+          do l = 1, j
+             this%h(l,j) = 0.0
           enddo
+
+          do i = 1,n,BLOCK_SIZE
+              if (i + BLOCK_SIZE .le. n) then
+                 do l = 1,j
+                    do k = 1, BLOCK_SIZE
+                       this%h(l,j) = this%h(l,j) + this%w(i+k)*this%v(i+k,l)*coef%mult(i+k,1,1,1)
+                    end do
+                 end do
+              else 
+                 do k = 1, n-i
+                    do l = 1, j
+                       this%h(l,j) = this%h(l,j) + this%w(i+k)*this%v(i+k,l)*coef%mult(i+k,1,1,1)
+                    end do
+                 end do
+              end if
+          end do 
+       
           !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, j) 
 
-          do i=1,j
-             call add2s2(this%w, this%v(1,i), -this%h(i,j), n)
-          enddo                                            
-
+          !do l=1,j
+          !   call add2s2(this%w, this%v(1,l), -this%h(l,j), n)
+          !enddo                                            
+          alpha2 = 0.0_rp
+          do i = 1,n,BLOCK_SIZE
+              if (i + BLOCK_SIZE .le. n) then
+                 do k = 1, BLOCK_SIZE
+                    w_plus(k) = 0.0
+                 end do
+                 do l = 1,j
+                    do k = 1, BLOCK_SIZE
+                       w_plus(k) = w_plus(k) - this%h(l,j)*this%v(i+k,l)
+                    end do
+                 end do
+                 do k = 1, BLOCK_SIZE
+                    this%w(i+k) = this%w(i+k)+w_plus(k)
+                    alpha2 = alpha2 + this%w(i+k)**2*coef%mult(i+k,1,1,1)
+                 end do
+              else 
+                 do k = 1, n-i
+                    w_plus(1) = 0.0
+                    do l = 1, j
+                       w_plus(1) = w_plus(1) - this%h(l,j)*this%v(i+k,l)
+                    end do
+                    this%w(i+k) = this%w(i+k) + w_plus(1)
+                    alpha2 = alpha2 + this%w(i+k)**2*coef%mult(i+k,1,1,1)
+                 end do
+              end if
+          end do 
+          call MPI_Allreduce(alpha2, alpha, 1, &
+               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           !apply Givens rotations to new column
           do i=1,j-1
              temp = this%h(i,j)                   
              this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           enddo
-          alpha = sqrt(glsc3(this%w, this%w, coef%mult, n))   
+          alpha = sqrt(alpha)   
           rnorm = 0.0_rp
           if(alpha .eq. 0.0_rp) then 
             conv = .true.
             exit
           end if
-          l = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
-          temp = one / l
+          lr = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
+          temp = one / lr
           this%c(j) = this%h(j,j) * temp
           this%s(j) = alpha  * temp
-          this%h(j,j) = l
+          this%h(j,j) = lr
           this%gam(j+1) = -this%s(j) * this%gam(j)
           this%gam(j)   =  this%c(j) * this%gam(j)
 
@@ -262,9 +306,32 @@ contains
           this%c(k) = temp / this%h(k,k)
        enddo
        !sum up Arnoldi vectors
-       do i = 1, j
-          call add2s2(x%x, this%z(1,i), this%c(i), n) ! x = x + c  z
-       enddo                                          !          i  i
+       !do l = 1, j
+       !   call add2s2(x%x, this%z(1,l), this%c(l), n) ! x = x + c  z
+       !enddo                                          !          i  i
+       do i = 1,n,BLOCK_SIZE
+          if (i + BLOCK_SIZE .le. n) then
+             do k = 1, BLOCK_SIZE
+                x_plus(k) = 0.0
+             end do
+             do l = 1,j
+                do k = 1, BLOCK_SIZE
+                   x_plus(k) = x_plus(k) + this%c(l)*this%z(i+k,l)
+                end do
+             end do
+             do k = 1, BLOCK_SIZE
+                x%x(i+k,1,1,1) = x%x(i+k,1,1,1)+x_plus(k)
+             end do
+          else 
+             do k = 1, n-i
+                x_plus(1) = 0.0
+                do l = 1, j
+                   x_plus(1) = x_plus(1) + this%c(l)*this%z(i+k,l)
+                end do
+                x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
+             end do
+          end if
+       end do 
     enddo
 !    call ortho   (x%x, n, glb_n)
     ksp_results%res_final = rnorm
