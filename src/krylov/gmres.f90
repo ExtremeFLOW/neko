@@ -194,9 +194,8 @@ contains
        call cmult2(this%v(1,1), this%r, temp, n) 
        do j = 1, this%lgmres
           iter = iter+1
-          call col3(this%w, this%mu, this%v(1,j), n)
           !Apply precond
-          call this%M%solve(this%z(1,j), this%w, n)
+          call this%M%solve(this%z(1,j), this%v(1,j), n)
 
 !          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
