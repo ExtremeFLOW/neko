@@ -32,6 +32,8 @@ module parameters
      real(kind=rp) :: stats_begin      !< Start time for statistics
      logical :: stats_mean_flow        !< Mean flow statistics
      logical :: output_mean_flow       !< Output mean flow field
+     logical :: stats_mean_sqr_flow    !< Mean squared flow statistics
+     logical :: output_mean_sqr_flow   !< Output mean squared flow field
   end type param_t
 
   type param_io_t

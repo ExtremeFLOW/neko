@@ -260,6 +260,13 @@ contains
        end if
     end if
 
+    if (C%params%stats_mean_sqr_flow) then
+       call C%q%add(C%fluid%mean_sqr%uu)
+       call C%q%add(C%fluid%mean_sqr%vv)
+       call C%q%add(C%fluid%mean_sqr%ww)
+       call C%q%add(C%fluid%mean_sqr%pp)
+    end if
+
     !
     ! Setup joblimit
     !

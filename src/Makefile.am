@@ -98,6 +98,7 @@ libneko_a_SOURCES = \
 	fluid/fluid_plan1.f90\
 	fluid/fluid_schemes.f90\
 	fluid/mean_flow.f90\
+	fluid/mean_sqr_flow.f90\
 	simulation.f90\
 	math/bcknd/cpu/ax_helm.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
