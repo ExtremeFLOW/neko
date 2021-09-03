@@ -19,6 +19,7 @@ module fluid_method
   use dirichlet
   use symmetry
   use cg
+  use pipecg
   use bicgstab
   use bc
   use jacobi
@@ -419,6 +420,8 @@ contains
     real(kind=rp) :: abstol
     if (trim(solver) .eq. 'cg') then
        allocate(cg_t::ksp)
+    else if (trim(solver) .eq. 'pipecg') then
+       allocate(pipecg_t::ksp)
     else if (trim(solver) .eq. 'gmres') then
        allocate(gmres_t::ksp)
     else if (trim(solver) .eq. 'bicgstab') then
@@ -429,6 +432,8 @@ contains
 
     select type(kp => ksp)
     type is(cg_t)
+       call kp%init(n, abs_tol = abstol)
+    type is(pipecg_t)
        call kp%init(n, abs_tol = abstol)
     type is(gmres_t)
        call kp%init(n, abs_tol = abstol)
