@@ -33,6 +33,7 @@ math/ax.o : math/ax.f90 mesh/mesh.o field/field.o sem/space.o sem/coef.o config/
 krylov/precon.o : krylov/precon.f90 common/utils.o math/math.o 
 krylov/krylov.o : krylov/krylov.f90 krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
 krylov/cg.o : krylov/cg.f90 config/num_types.o math/math.o krylov/krylov.o 
+krylov/pipecg.o : krylov/pipecg.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bicgstab.o : krylov/bicgstab.f90 config/num_types.o math/math.o krylov/krylov.o 
 mesh/quad.o : mesh/quad.f90 mesh/point.o adt/tuple.o mesh/element.o config/num_types.o 
 mesh/hex.o : mesh/hex.f90 mesh/point.o adt/tuple.o mesh/element.o config/num_types.o 
