@@ -44,6 +44,7 @@ module neko
   use dirichlet
   use krylov
   use cg
+  use pipecg
   use bicgstab
   use precon
   use ax_product
