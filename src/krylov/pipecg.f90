@@ -110,9 +110,12 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter, i
+    integer :: iter, max_iter, i, ierr
     real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac 
     real(kind=rp) :: alpha, beta, gamma1, gamma2, delta
+    real(kind=rp) :: tmp1, tmp2, tmp3
+    type(MPI_Request) :: request
+    type(MPI_Status) :: status
     
     if (present(niter)) then
        max_iter = niter
@@ -121,88 +124,89 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    call rzero(x%x, n)
-    call rzero(this%z, n)
-    call rzero(this%q, n)
-    call rzero(this%p, n)
-    call rzero(this%s, n)
-    call copy(this%r, f, n)
-    call this%M%solve(this%u, this%r, n)
-    call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
-    call gs_op(gs_h, this%w, n, GS_OP_ADD)
-    call bc_list_apply(blst, this%w, n)
+    associate(p => this%p, q => this%q, r => this%r, s => this%s, &
+         u => this%u, w => this%w, z => this%z, mi => this%mi, ni => this%ni)
+      
+      call rzero(x%x, n)
+      call rzero(z, n)
+      call rzero(q, n)
+      call rzero(p, n)
+      call rzero(s, n)
+      call copy(r, f, n)
+      call this%M%solve(u, r, n)
+      call Ax%compute(w, u, coef, x%msh, x%Xh)
+      call gs_op(gs_h, w, n, GS_OP_ADD)
+      call bc_list_apply(blst, w, n)
     
-    rtr = glsc3(this%r, coef%mult, this%r, n)
-    rnorm = sqrt(rtr)*norm_fac
-    ksp_results%res_start = rnorm
-    ksp_results%res_final = rnorm
-    ksp_results%iter = 0
-    gamma1 = 0.0_rp
-    if(rnorm .eq. 0.0_rp) return
-    do iter = 1, max_iter
-       reduction = pipecg_reduction(this%r, this%w, this%u,  coef%mult, n)
-       gamma2 = gamma1       
-       gamma1 = reduction(1)
-       delta = reduction(2)
-       rtr = reduction(3)
-       rnorm = sqrt(rtr)*norm_fac
-       write(*,*) rnorm
-       if (rnorm .lt. this%abs_tol) then
-          exit
-       end if
-       call this%M%solve(this%mi, this%w, n)
-       call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%ni, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%ni, n)
+      rtr = glsc3(r, coef%mult, r, n)
+      rnorm = sqrt(rtr)*norm_fac
+      ksp_results%res_start = rnorm
+      ksp_results%res_final = rnorm
+      ksp_results%iter = 0
+      if(rnorm .eq. 0.0_rp) return
 
-       if (iter .gt. 1) then
-          beta = gamma1 / gamma2
-          alpha = gamma1 / (delta - (beta * gamma1/alpha))
-       else 
-          beta = 0.0_rp
-          alpha = gamma1/delta
-       end if
+      gamma1 = 0.0_rp
+      
+      do iter = 1, max_iter
 
-       call add2s1(this%z, this%ni, beta, n)
-       call add2s1(this%q, this%mi, beta, n)
-       call add2s1(this%s, this%w, beta, n)
-       call add2s1(this%p, this%u, beta, n)
+         tmp1 = 0.0_rp
+         tmp2 = 0.0_rp
+         tmp3 = 0.0_rp
+         do i = 1, n
+            tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i)
+            tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i)
+            tmp3 = tmp3 + r(i) * coef%mult(i,1,1,1) * r(i)
+         end do
+         reduction(1) = tmp1
+         reduction(2) = tmp2
+         reduction(3) = tmp3
+
+         call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
+              MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
+         
+         call this%M%solve(mi, w, n)
+         call Ax%compute(ni, mi, coef, x%msh, x%Xh)
+         call gs_op(gs_h, ni, n, GS_OP_ADD)
+         call bc_list_apply(blst, ni, n)
+
+         call MPI_Wait(request, status, ierr)
+         gamma2 = gamma1       
+         gamma1 = reduction(1)
+         delta = reduction(2)
+         rtr = reduction(3)
+
+         rnorm = sqrt(rtr)*norm_fac
+         if (rnorm .lt. this%abs_tol) then
+            exit
+         end if
+         
+         if (iter .gt. 1) then
+            beta = gamma1 / gamma2
+            alpha = gamma1 / (delta - (beta * gamma1/alpha))
+         else 
+            beta = 0.0_rp
+            alpha = gamma1/delta
+         end if
+         
+         call add2s1(z, ni, beta, n)
+         call add2s1(q, mi, beta, n)
+         call add2s1(s, w, beta, n)
+         call add2s1(p, u, beta, n)
  
-       
-       call add2s2(x%x, this%p, alpha, n)
-       call add2s2(this%r, this%s, -alpha, n)
-       call add2s2(this%u, this%q, -alpha, n)
-       call add2s2(this%w, this%z, -alpha, n)
-    end do
-    ksp_results%res_final = rnorm
-    ksp_results%iter = iter
+         call add2s2(x%x, p, alpha, n)
+         call add2s2(r, s, -alpha, n)
+         call add2s2(u, q, -alpha, n)
+         call add2s2(w, z, -alpha, n)
+         
+      end do
+      
+      ksp_results%res_final = rnorm
+      ksp_results%iter = iter
+      
+    end associate
+    
   end function pipecg_solve
    
-  function pipecg_reduction(r, w, u, mult, n) result(reduction)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(in) :: r
-    real(kind=rp), dimension(n), intent(in) :: w
-    real(kind=rp), dimension(n), intent(in) :: u
-    real(kind=rp), dimension(n), intent(in) :: mult
-    real(kind=rp) :: tmp1, tmp2, tmp3, temp(3), reduction(3)
-    integer :: i, ierr
-
-    tmp1 = 0.0_rp
-    tmp2 = 0.0_rp
-    tmp3 = 0.0_rp
-    do i = 1, n
-       tmp1 = tmp1 + r(i) * mult(i) * u(i)
-       tmp2 = tmp2 + w(i) * mult(i) * u(i)
-       tmp3 = tmp3 + r(i) * mult(i) * r(i)
-    end do
-    temp(1) = tmp1
-    temp(2) = tmp2
-    temp(3) = tmp3
-
-    call MPI_Allreduce(temp, reduction, 3, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-  end function pipecg_reduction
-
 end module pipecg
   
 
