@@ -1,5 +1,5 @@
-AC_INIT([neko],[0.1.1])
-AM_INIT_AUTOMAKE([foreign])
+AC_INIT([neko],[0.1.99])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
@@ -59,6 +59,10 @@ AM_CONDITIONAL([ENABLE_DOXYGEN], [test -n "$DOXYGEN_DEPS"])
 # Checks for makedepf90
 AC_CHECK_PROGS([MAKEDEPF90], [makedepf90])
 AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
+
+# Checks for flinter
+AC_CHECK_PROGS([FLINT], [flint])
+AM_CONDITIONAL([ENABLE_FLINT], [test -n "$FLINT"])
 
 AX_CRAY
 AX_SX
@@ -122,9 +126,9 @@ AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
-		 src/comm.f90\
-	 	 src/neko_config.f90\
-		 src/num_types.f90\
+		 src/comm/comm.f90\
+	 	 src/config/neko_config.f90\
+		 src/config/num_types.f90\
 		 makeneko\
 		 neko.pc])
 
@@ -140,10 +144,16 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/tri/Makefile\
 		 tests/math/Makefile\
 		 tests/mesh/Makefile\
+		 tests/space/Makefile\
 		 tests/dofmap/Makefile\
+		 tests/field/Makefile\
+		 tests/mean_field/Makefile\
+		 tests/mean_sqr_field/Makefile\
 		 tests/gather_scatter/Makefile\
 		 tests/krylov/Makefile\
-		 tests/bc/Makefile])
+		 tests/bc/Makefile\
+		 tests/signal/Makefile\
+		 tests/jobctrl/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
