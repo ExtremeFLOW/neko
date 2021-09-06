@@ -93,7 +93,7 @@ contains
     integer, optional, intent(in) :: niter
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
-    integer, parameter :: BLOCK_SIZE = 1000
+    integer, parameter :: BLOCK_SIZE = 50000
     integer :: iter, max_iter, x_update, i, j, p_cur, p_prev, k
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1, x_plus(BLOCK_SIZE)
     real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
@@ -141,7 +141,7 @@ contains
        if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr) * norm_fac
        if (p_cur .eq. this%p_space .or. rnorm .lt. this%abs_tol .or. iter .eq. max_iter) then
-           do i = 1,n,BLOCK_SIZE
+           do i = 0,n,BLOCK_SIZE
               if (i + BLOCK_SIZE .le. n) then
                  do k = 1, BLOCK_SIZE
                     x_plus(k) = 0.0
