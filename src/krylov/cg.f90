@@ -74,6 +74,10 @@ contains
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
+    
+    if (allocated(this%alpha)) then
+       deallocate(this%alpha)
+    end if
 
     nullify(this%M)
 
@@ -94,9 +98,9 @@ contains
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
     integer, parameter :: BLOCK_SIZE = 50000
-    integer :: iter, max_iter, x_update, i, j, p_cur, p_prev, k
-    real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1, x_plus(BLOCK_SIZE)
-    real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
+    integer :: iter, max_iter, i, j, k, p_cur, p_prev
+    real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(BLOCK_SIZE)
+    real(kind=rp) :: beta, pap, norm_fac
     
     if (present(niter)) then
        max_iter = niter
@@ -125,7 +129,6 @@ contains
 
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = zero
-       !call add2s1(this%p, this%z, beta, n)
        do i = 1, n
           this%p(i,p_cur) = this%z(i) + beta*this%p(i,p_prev)
        end do
@@ -138,7 +141,6 @@ contains
 
        this%alpha(p_cur) = rtz1 / pap
        call second_cg_part(rtr, this%r, coef%mult, this%w, this%alpha(p_cur), n)
-       if (iter .eq. 1) rtr0 = rtr
        rnorm = sqrt(rtr) * norm_fac
        if (p_cur .eq. this%p_space .or. rnorm .lt. this%abs_tol .or. iter .eq. max_iter) then
            do i = 0,n,BLOCK_SIZE
