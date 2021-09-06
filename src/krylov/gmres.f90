@@ -15,13 +15,10 @@ module gmres
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: z(:,:)
      real(kind=rp), allocatable :: h(:,:)
-     real(kind=rp), allocatable :: ml(:)
      real(kind=rp), allocatable :: v(:,:)
      real(kind=rp), allocatable :: s(:)
-     real(kind=rp), allocatable :: mu(:)
      real(kind=rp), allocatable :: gam(:)
      real(kind=rp), allocatable :: wk1(:)
-     real(kind=rp) :: rnorm
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -54,8 +51,6 @@ contains
 
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%ml(n))
-    allocate(this%mu(n))
     allocate(this%wk1(n))
     
     allocate(this%c(this%lgmres))
@@ -106,10 +101,6 @@ contains
        deallocate(this%h)
     end if
     
-    if (allocated(this%ml)) then
-       deallocate(this%ml)
-    end if
-    
     if (allocated(this%v)) then
        deallocate(this%v)
     end if
@@ -118,9 +109,6 @@ contains
        deallocate(this%s)
     end if
     
-    if (allocated(this%mu)) then
-       deallocate(this%mu)
-    end if
     
     if (allocated(this%gam)) then
        deallocate(this%gam)
@@ -147,64 +135,52 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, parameter :: BLOCK_SIZE = 50000
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter, glb_n
+    integer :: iter 
     integer :: i, j, k, l, ierr 
-    real(kind=rp), parameter :: one = 1.0
-    real(kind=rp) :: rnorm, w_plus(BLOCK_SIZE), x_plus(BLOCK_SIZE)
-    real(kind=rp) ::  alpha, temp, lr, alpha2
-    real(kind=rp) :: ratio, div0, norm_fac, tolpss
+    real(kind=rp), parameter :: one = 1.0_rp
+    real(kind=rp) :: w_plus(BLOCK_SIZE), x_plus(BLOCK_SIZE)
+    real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
-    integer outer
 
     conv = .false.
     iter = 0
-    glb_n = n / x%msh%nelv * x%msh%glb_nelv
 
     norm_fac = one / sqrt(coef%volume)
-    call rone(this%mu, n)
     call rzero(x%x, n)
     call rzero(this%gam, this%lgmres + 1)
     call rone(this%s, this%lgmres)
     call rone(this%c, this%lgmres)
     call rzero(this%h, this%lgmres * this%lgmres)
-    outer = 0
     do while (.not. conv .and. iter .lt. niter)
-       outer = outer + 1
 
        if(iter.eq.0) then               
           call copy(this%r,f,n) 
        else
-          !update residual
           call copy  (this%r,f,n)      
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
-          call add2s2(this%r,this%w,-one,n) 
+          call sub2(this%r,this%w,n) 
        endif
        this%gam(1) = sqrt(glsc3(this%r, this%r, coef%mult, n))
        if(iter.eq.0) then
-          div0 = this%gam(1) * norm_fac
-          ksp_results%res_start = div0
+          ksp_results%res_start = this%gam(1) * norm_fac
        endif
 
-       if ( this%gam(1) .eq. 0) return
+       if (this%gam(1) .eq. 0) return
 
        rnorm = 0.0_rp
        temp = one / this%gam(1)
        call cmult2(this%v(1,1), this%r, temp, n) 
        do j = 1, this%lgmres
           iter = iter+1
-          !Apply precond
+          
           call this%M%solve(this%z(1,j), this%v(1,j), n)
 
-!          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
 
-          !do l = 1, j
-          !   this%h(l,j) = vlsc3(this%w, this%v(1,l), coef%mult, n) 
-          !enddo
           do l = 1, j
              this%h(l,j) = 0.0
           enddo
@@ -225,14 +201,10 @@ contains
               end if
           end do 
        
-          !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, j) 
 
-          !do l=1,j
-          !   call add2s2(x%x, this%v(1,l), -this%h(l,j), n)
-          !enddo                                            
           alpha2 = 0.0_rp
           do i = 0,n,BLOCK_SIZE
               if (i + BLOCK_SIZE .le. n) then
@@ -259,10 +231,9 @@ contains
                  end do
               end if
           end do 
-          call MPI_Allreduce(alpha2, alpha, 1, &
+          call MPI_Allreduce(alpha2, temp, 1, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-          !apply Givens rotations to new column
-          alpha2 = alpha
+          alpha2 = temp
           alpha = sqrt(alpha2)
           do i=1,j-1
              temp = this%h(i,j)                   
@@ -283,7 +254,6 @@ contains
           this%gam(j)   =  this%c(j) * this%gam(j)
 
           rnorm = abs(this%gam(j+1)) * norm_fac
-          ratio = rnorm / div0
           if (rnorm .lt. this%abs_tol) then 
              conv = .true.
              exit
@@ -297,7 +267,6 @@ contains
           endif
        enddo
        j = min(j, this%lgmres)
-       !back substitution
        do k = j, 1, -1
           temp = this%gam(k)
           do i = j, k+1, -1
@@ -305,10 +274,6 @@ contains
           enddo
           this%c(k) = temp / this%h(k,k)
        enddo
-       !sum up Arnoldi vectors
-       !do l = 1, j
-       !   call add2s2(this%w, this%z(1,l), this%c(l), n) ! x = x + c  z
-       !enddo                                          !          i  i
        do i = 0,n,BLOCK_SIZE
           if (i + BLOCK_SIZE .le. n) then
              do k = 1, BLOCK_SIZE
@@ -333,7 +298,6 @@ contains
           end if
        end do 
     enddo
-!    call ortho   (x%x, n, glb_n)
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
   end function gmres_solve
