@@ -145,7 +145,7 @@ contains
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
-    integer, parameter :: BLOCK_SIZE = 1000
+    integer, parameter :: BLOCK_SIZE = 50000
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, glb_n
     integer :: i, j, k, l, ierr 
@@ -209,7 +209,7 @@ contains
              this%h(l,j) = 0.0
           enddo
 
-          do i = 1,n,BLOCK_SIZE
+          do i = 0,n,BLOCK_SIZE
               if (i + BLOCK_SIZE .le. n) then
                  do l = 1,j
                     do k = 1, BLOCK_SIZE
@@ -231,10 +231,10 @@ contains
           call copy(this%h(1,j), this%wk1, j) 
 
           !do l=1,j
-          !   call add2s2(this%w, this%v(1,l), -this%h(l,j), n)
+          !   call add2s2(x%x, this%v(1,l), -this%h(l,j), n)
           !enddo                                            
           alpha2 = 0.0_rp
-          do i = 1,n,BLOCK_SIZE
+          do i = 0,n,BLOCK_SIZE
               if (i + BLOCK_SIZE .le. n) then
                  do k = 1, BLOCK_SIZE
                     w_plus(k) = 0.0
@@ -255,19 +255,20 @@ contains
                        w_plus(1) = w_plus(1) - this%h(l,j)*this%v(i+k,l)
                     end do
                     this%w(i+k) = this%w(i+k) + w_plus(1)
-                    alpha2 = alpha2 + this%w(i+k)**2*coef%mult(i+k,1,1,1)
+                    alpha2 = alpha2 + (this%w(i+k)**2)*coef%mult(i+k,1,1,1)
                  end do
               end if
           end do 
           call MPI_Allreduce(alpha2, alpha, 1, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           !apply Givens rotations to new column
+          alpha2 = alpha
+          alpha = sqrt(alpha2)
           do i=1,j-1
              temp = this%h(i,j)                   
              this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           enddo
-          alpha = sqrt(alpha)   
           rnorm = 0.0_rp
           if(alpha .eq. 0.0_rp) then 
             conv = .true.
@@ -306,9 +307,9 @@ contains
        enddo
        !sum up Arnoldi vectors
        !do l = 1, j
-       !   call add2s2(x%x, this%z(1,l), this%c(l), n) ! x = x + c  z
+       !   call add2s2(this%w, this%z(1,l), this%c(l), n) ! x = x + c  z
        !enddo                                          !          i  i
-       do i = 1,n,BLOCK_SIZE
+       do i = 0,n,BLOCK_SIZE
           if (i + BLOCK_SIZE .le. n) then
              do k = 1, BLOCK_SIZE
                 x_plus(k) = 0.0
