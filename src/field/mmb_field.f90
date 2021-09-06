@@ -85,7 +85,6 @@ contains
     end if
 
     
-    call mmb_logging_set_level(MMB_LOG_DEBUG, err)
 
     dram_config = mmbMemSpaceConfig(mmbSizeConfig(MMB_SIZE_SET,.false.,8000),&
          MMB_MEMINTERFACE_CONFIG_DEFAULT)

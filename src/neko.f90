@@ -83,7 +83,8 @@ contains
 
     call mmb_init(err=err)
     if (err .ne. MMB_OK) call neko_error('Mamba init fail')
-
+    call mmb_logging_set_level(MMB_LOG_DEBUG, err)
+    
 
     call neko_log%init()
 
