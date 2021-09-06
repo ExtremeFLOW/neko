@@ -5,6 +5,7 @@ module coefs
   use space  
   use math
   use mesh
+  use mamba
   use mxm_wrapper
   implicit none
   private
@@ -53,6 +54,23 @@ module coefs
      type(mesh_t), pointer :: msh => null()
      type(dofmap_t), pointer :: dof => null()
      type(gs_t), pointer :: gs_h=> null()
+
+     type(mmbArray) :: mba_g11
+     type(mmbArray) :: mba_g22
+     type(mmbArray) :: mba_g33
+     type(mmbArray) :: mba_g12
+     type(mmbArray) :: mba_g13
+     type(mmbArray) :: mba_g23
+
+     type(mmbLayout) :: layout
+
+     type(mmbTileIterator) :: mba_g11_it
+     type(mmbTileIterator) :: mba_g22_it
+     type(mmbTileIterator) :: mba_g33_it
+     type(mmbTileIterator) :: mba_g12_it
+     type(mmbTileIterator) :: mba_g13_it
+     type(mmbTileIterator) :: mba_g23_it
+
   end type coef_t
 
   public :: coef_init, coef_free
@@ -382,6 +400,8 @@ contains
   subroutine coef_generate_geo(c)
     type(coef_t), intent(inout) :: c
     integer :: e, lxyz
+    integer(mmbErrorKind) :: err
+    integer(mmbIndexKind), dimension(4) :: dims
 
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     associate(G11 => c%G11, G12 => c%G12, G13 => c%G13, &
@@ -426,6 +446,39 @@ contains
             call col2(G23(1,1,1,e), w3, lxyz)
          end if
       end do
+
+      dims = [c%Xh%lx, c%Xh%lx, c%Xh%lx, c%msh%nelv]
+      call mmb_layout_create_regular_nd(int(storage_size(1.0)/8, mmbSizeKind), &
+           4_mmbSizeKind, MMB_COLMAJOR, mmb_layout_padding_create_zero(),&
+           c%layout, err)
+
+      call mmb_array_create_wrapped(G11, dims, c%layout, &
+         dram_interface, MMB_READ_WRITE, c%mba_g11, err)
+      call mmb_array_create_wrapped(G22, dims, c%layout, &
+         dram_interface, MMB_READ_WRITE, c%mba_g22, err)
+      call mmb_array_create_wrapped(G33, dims, c%layout, &
+         dram_interface, MMB_READ_WRITE, c%mba_g33, err)
+      call mmb_array_create_wrapped(G12, dims, c%layout, &
+         dram_interface, MMB_READ_WRITE, c%mba_g12, err)
+      call mmb_array_create_wrapped(G13, dims, c%layout, &
+         dram_interface, MMB_READ_WRITE, c%mba_g13, err)
+      call mmb_array_create_wrapped(G23, dims, c%layout, &
+         dram_interface, MMB_READ_WRITE, c%mba_g23, err)
+
+      call mmb_array_tile(c%mba_g11, dims, err)
+      call mmb_array_tile(c%mba_g22, dims, err)
+      call mmb_array_tile(c%mba_g33, dims, err)
+      call mmb_array_tile(c%mba_g12, dims, err)
+      call mmb_array_tile(c%mba_g13, dims, err)
+      call mmb_array_tile(c%mba_g23, dims, err)
+
+    call mmb_tile_iterator_create(c%mba_g11, c%mba_g11_it, err)
+    call mmb_tile_iterator_create(c%mba_g22, c%mba_g22_it, err)
+    call mmb_tile_iterator_create(c%mba_g33, c%mba_g33_it, err)
+    call mmb_tile_iterator_create(c%mba_g12, c%mba_g12_it, err)
+    call mmb_tile_iterator_create(c%mba_g13, c%mba_g13_it, err)
+    call mmb_tile_iterator_create(c%mba_g23, c%mba_g23_it, err)
+
     end associate
   end subroutine coef_generate_geo
  

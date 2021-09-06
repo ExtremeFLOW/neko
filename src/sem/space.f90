@@ -4,6 +4,7 @@ module space
   use speclib
   use utils
   use math
+  use mamba
   implicit none
 
   integer, parameter :: GL = 0, GLL = 1, GJ = 2
@@ -36,6 +37,12 @@ module space
      real(kind=rp), allocatable :: dxt(:,:) !< Derivative operator
      real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
      real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
+
+     type(mmbArray) :: mba_dx
+     type(mmbArray) :: mba_dxt
+     type(mmbLayout) :: layout
+     type(mmbTileIterator) :: mba_dx_it
+     type(mmbTileIterator) :: mba_dxt_it
   end type space_t
 
   interface operator(.eq.)
@@ -56,6 +63,8 @@ contains
     integer, intent(in) :: ly           !< Polynomial dimension in y-direction
     integer, optional, intent(in) :: lz !< Polynomial dimension in z-direction
     integer :: ix, iy, iz
+    integer(mmbErrorKind) :: err
+    integer(mmbIndexKind), dimension(2) :: dims
 
     call space_free(s)
 
@@ -144,6 +153,23 @@ contains
        s%dt_inv = 0d0
     end if
     
+    dims = [s%lx, s%lx]
+    call mmb_layout_create_regular_nd(int(storage_size(1.0)/8, mmbSizeKind), &
+         4_mmbSizeKind, MMB_COLMAJOR, mmb_layout_padding_create_zero(),&
+         s%layout, err)
+
+    call mmb_array_create_wrapped(s%dx, dims, s%layout, &
+         dram_interface, MMB_READ_WRITE, s%mba_dx, err)
+    
+    call mmb_array_create_wrapped(s%dxt, dims, s%layout, &
+         dram_interface, MMB_READ_WRITE, s%mba_dxt, err)
+
+    call mmb_array_tile(s%mba_dx, dims, err)
+    call mmb_array_tile(s%mba_dxt, dims, err)
+
+    call mmb_tile_iterator_create(s%mba_dx, s%mba_dx_it, err)
+    call mmb_tile_iterator_create(s%mba_dxt, s%mba_dxt_it, err)
+
   end subroutine space_init
    
   !> Deallocate a space @a s

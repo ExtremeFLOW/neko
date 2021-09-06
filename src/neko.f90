@@ -75,7 +75,8 @@ contains
     type(case_t), intent(inout), optional :: C
     character(len=NEKO_FNAME_LEN) :: case_file
     character(len=10) :: suffix
-    integer :: argc, err
+    integer :: argc
+    integer(mmbErrorKind) :: err
 
     call comm_init
     call mpi_types_init
@@ -85,6 +86,18 @@ contains
     if (err .ne. MMB_OK) call neko_error('Mamba init fail')
     call mmb_logging_set_level(MMB_LOG_DEBUG, err)
     
+
+    dram_config = mmbMemSpaceConfig(mmbSizeConfig(MMB_SIZE_SET,.false.,8000),&
+         MMB_MEMINTERFACE_CONFIG_DEFAULT)
+    call mmb_register_memory(MMB_DRAM, MMB_EXECUTION_CONTEXT_DEFAULT, &
+         dram_config,err=err)
+    if (err .ne. MMB_OK) call neko_error('Mamba mem. reg. fail')
+
+    ! Get memory space, space config is optional 
+    call mmb_request_space(MMB_DRAM, MMB_EXECUTION_CONTEXT_DEFAULT, &                        
+         new_space=dram_space, err=err )    
+
+    call mmb_request_interface(dram_space, new_interface=dram_interface, err=err)                             
 
     call neko_log%init()
 

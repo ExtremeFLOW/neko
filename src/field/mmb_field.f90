@@ -1,12 +1,14 @@
 module mmb_field
   use mamba
   use field
+  use num_types
   implicit none
 
 
   type, public, extends(field_t) ::  mmb_field_t
      type(mmbArray) :: mba_x
      type(mmbLayout) :: layout
+     type(mmbTileIterator) :: mba_it
    contains
      procedure, pass(this) :: free => mmb_field_free
      procedure, pass(this) :: init => mmb_field_init_internal_dof, &
@@ -69,9 +71,6 @@ contains
     integer :: lx, ly, lz, nelv
     integer(mmbErrorKind) :: err
     integer(mmbIndexKind), dimension(4) :: dims
-    type(mmbMemSpace) dram_space
-    type(mmbMemSpaceConfig) dram_config
-    type(mmbMemInterface) dram_interface
   
     
     lx = f%Xh%lx
@@ -84,19 +83,7 @@ contains
        f%x = 0d0
     end if
 
-    
-
-    dram_config = mmbMemSpaceConfig(mmbSizeConfig(MMB_SIZE_SET,.false.,8000),&
-         MMB_MEMINTERFACE_CONFIG_DEFAULT)
-    call mmb_register_memory(MMB_DRAM, MMB_EXECUTION_CONTEXT_DEFAULT, &
-         dram_config,err=err)
-    if (err .ne. MMB_OK) call neko_error('Mamba mem. reg. fail')
-
-    ! Get memory space, space config is optional 
-    call mmb_request_space(MMB_DRAM, MMB_EXECUTION_CONTEXT_DEFAULT, &                        
-         new_space=dram_space, err=err )    
-
-    call mmb_request_interface(dram_space, new_interface=dram_interface, err=err)                             
+   
 
     dims = [lx, ly, lz, nelv]
     call mmb_layout_create_regular_nd(int(storage_size(1.0)/8, mmbSizeKind), &
@@ -107,6 +94,10 @@ contains
     call mmb_array_create_wrapped(f%x, dims, f%layout, &
          dram_interface, MMB_READ_WRITE, f%mba_x, err)
     if (err .ne. MMB_OK) call neko_error('Mamba array wrap. fail')
+
+    call mmb_array_tile(f%mba_x, dims, err)
+
+    call mmb_tile_iterator_create(f%mba_x, f%mba_it, err)
 
     if (present(fld_name)) then
        f%name = fld_name

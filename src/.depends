@@ -29,7 +29,7 @@ gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stac
 mesh/entity.o : mesh/entity.f90 
 mesh/point.o : mesh/point.f90 mesh/entity.o math/math.o config/num_types.o 
 mesh/element.o : mesh/element.f90 mesh/point.o adt/tuple.o mesh/entity.o config/num_types.o 
-math/ax.o : math/ax.f90 mesh/mesh.o field/field.o sem/space.o sem/coef.o config/num_types.o math/mxm_wrapper.o 
+math/ax.o : math/ax.f90 mesh/mesh.o field/field.o field/mmb_field.o sem/space.o sem/coef.o config/num_types.o math/mxm_wrapper.o 
 krylov/precon.o : krylov/precon.f90 common/utils.o math/math.o 
 krylov/krylov.o : krylov/krylov.f90 krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
 krylov/cg.o : krylov/cg.f90 config/num_types.o math/math.o krylov/krylov.o 
@@ -47,7 +47,7 @@ mesh/zone.o : mesh/zone.f90 common/structs.o common/utils.o adt/stack.o adt/tupl
 mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/zone.o common/distdata.o common/datadist.o adt/tuple.o adt/stack.o comm/comm.o adt/htable.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o config/num_types.o 
-field/mmb_field.o : field/mmb_field.f90 field/field.o 
+field/mmb_field.o : field/mmb_field.f90 config/num_types.o field/field.o 
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o config/num_types.o 
 field/mean_field.o : field/mean_field.f90 math/math.o field/field.o config/num_types.o common/stats_quant.o 
 field/mean_sqr_field.o : field/mean_sqr_field.f90 math/math.o field/field.o config/num_types.o field/mean_field.o 
