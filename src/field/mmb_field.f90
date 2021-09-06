@@ -84,8 +84,6 @@ contains
        f%x = 0d0
     end if
 
-    call mmb_init(err=err)
-    if (err .ne. MMB_OK) call neko_error('Mamba init fail')
     
     call mmb_logging_set_level(MMB_LOG_DEBUG, err)
 
@@ -94,7 +92,13 @@ contains
     call mmb_register_memory(MMB_DRAM, MMB_EXECUTION_CONTEXT_DEFAULT, &
          dram_config,err=err)
     if (err .ne. MMB_OK) call neko_error('Mamba mem. reg. fail')
-    
+
+    ! Get memory space, space config is optional 
+    call mmb_request_space(MMB_DRAM, MMB_EXECUTION_CONTEXT_DEFAULT, &                        
+         new_space=dram_space, err=err )    
+
+    call mmb_request_interface(dram_space, new_interface=dram_interface, err=err)                             
+
     dims = [lx, ly, lz, nelv]
     call mmb_layout_create_regular_nd(int(storage_size(1.0)/8, mmbSizeKind), &
          4_mmbSizeKind, MMB_COLMAJOR, mmb_layout_padding_create_zero(),&
@@ -102,7 +106,7 @@ contains
     if (err .ne. MMB_OK) call neko_error('Mamba layout fail')
 
     call mmb_array_create_wrapped(f%x, dims, f%layout, &
-         dram_interface, MMB_WRITE, f%mba_x, err)
+         dram_interface, MMB_READ_WRITE, f%mba_x, err)
     if (err .ne. MMB_OK) call neko_error('Mamba array wrap. fail')
 
     if (present(fld_name)) then
@@ -110,7 +114,7 @@ contains
     else
        f%name = "MAMBA Field"
     end if
-    
+
   end subroutine mmb_field_init_common
 
 

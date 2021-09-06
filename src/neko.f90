@@ -1,6 +1,7 @@
 !> Master module
 !
 module neko
+  use mamba
   use num_types
   use parameters    
   use comm
@@ -74,11 +75,15 @@ contains
     type(case_t), intent(inout), optional :: C
     character(len=NEKO_FNAME_LEN) :: case_file
     character(len=10) :: suffix
-    integer :: argc
+    integer :: argc, err
 
     call comm_init
     call mpi_types_init
     call jobctrl_init
+
+    call mmb_init(err=err)
+    if (err .ne. MMB_OK) call neko_error('Mamba init fail')
+
 
     call neko_log%init()
 
