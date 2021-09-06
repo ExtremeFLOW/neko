@@ -97,9 +97,8 @@ contains
     integer, optional, intent(in) :: niter
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
-    integer, parameter :: BLOCK_SIZE = 50000
     integer :: iter, max_iter, i, j, k, p_cur, p_prev
-    real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(BLOCK_SIZE)
+    real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: beta, pap, norm_fac
     
     if (present(niter)) then
@@ -143,17 +142,17 @@ contains
        call second_cg_part(rtr, this%r, coef%mult, this%w, this%alpha(p_cur), n)
        rnorm = sqrt(rtr) * norm_fac
        if (p_cur .eq. this%p_space .or. rnorm .lt. this%abs_tol .or. iter .eq. max_iter) then
-           do i = 0,n,BLOCK_SIZE
-              if (i + BLOCK_SIZE .le. n) then
-                 do k = 1, BLOCK_SIZE
+           do i = 0,n,NEKO_BLK_SIZE
+              if (i + NEKO_BLK_SIZE .le. n) then
+                 do k = 1, NEKO_BLK_SIZE
                     x_plus(k) = 0.0
                  end do
                  do j = 1, p_cur
-                    do k = 1, BLOCK_SIZE
+                    do k = 1, NEKO_BLK_SIZE
                        x_plus(k) = x_plus(k) + this%alpha(j)*this%p(i+k,j)
                     end do
                  end do
-                 do k = 1, BLOCK_SIZE
+                 do k = 1, NEKO_BLK_SIZE
                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                  end do
               else 

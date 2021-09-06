@@ -133,12 +133,11 @@ contains
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
-    integer, parameter :: BLOCK_SIZE = 50000
     integer, optional, intent(in) :: niter
     integer :: iter 
     integer :: i, j, k, l, ierr 
     real(kind=rp), parameter :: one = 1.0_rp
-    real(kind=rp) :: w_plus(BLOCK_SIZE), x_plus(BLOCK_SIZE)
+    real(kind=rp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
 
@@ -185,10 +184,10 @@ contains
              this%h(l,j) = 0.0
           enddo
 
-          do i = 0,n,BLOCK_SIZE
-              if (i + BLOCK_SIZE .le. n) then
+          do i = 0,n,NEKO_BLK_SIZE
+              if (i + NEKO_BLK_SIZE .le. n) then
                  do l = 1,j
-                    do k = 1, BLOCK_SIZE
+                    do k = 1, NEKO_BLK_SIZE
                        this%h(l,j) = this%h(l,j) + this%w(i+k)*this%v(i+k,l)*coef%mult(i+k,1,1,1)
                     end do
                  end do
@@ -206,17 +205,17 @@ contains
           call copy(this%h(1,j), this%wk1, j) 
 
           alpha2 = 0.0_rp
-          do i = 0,n,BLOCK_SIZE
-              if (i + BLOCK_SIZE .le. n) then
-                 do k = 1, BLOCK_SIZE
+          do i = 0,n,NEKO_BLK_SIZE
+              if (i + NEKO_BLK_SIZE .le. n) then
+                 do k = 1, NEKO_BLK_SIZE
                     w_plus(k) = 0.0
                  end do
                  do l = 1,j
-                    do k = 1, BLOCK_SIZE
+                    do k = 1, NEKO_BLK_SIZE
                        w_plus(k) = w_plus(k) - this%h(l,j)*this%v(i+k,l)
                     end do
                  end do
-                 do k = 1, BLOCK_SIZE
+                 do k = 1, NEKO_BLK_SIZE
                     this%w(i+k) = this%w(i+k)+w_plus(k)
                     alpha2 = alpha2 + this%w(i+k)**2*coef%mult(i+k,1,1,1)
                  end do
@@ -274,17 +273,17 @@ contains
           enddo
           this%c(k) = temp / this%h(k,k)
        enddo
-       do i = 0,n,BLOCK_SIZE
-          if (i + BLOCK_SIZE .le. n) then
-             do k = 1, BLOCK_SIZE
+       do i = 0,n,NEKO_BLK_SIZE
+          if (i + NEKO_BLK_SIZE .le. n) then
+             do k = 1, NEKO_BLK_SIZE
                 x_plus(k) = 0.0
              end do
              do l = 1,j
-                do k = 1, BLOCK_SIZE
+                do k = 1, NEKO_BLK_SIZE
                    x_plus(k) = x_plus(k) + this%c(l)*this%z(i+k,l)
                 end do
              end do
-             do k = 1, BLOCK_SIZE
+             do k = 1, NEKO_BLK_SIZE
                 x%x(i+k,1,1,1) = x%x(i+k,1,1,1)+x_plus(k)
              end do
           else 
