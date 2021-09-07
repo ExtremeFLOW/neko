@@ -7,7 +7,7 @@ module gmres
   use num_types
   implicit none
 
-  !> Standard preconditioned conjugate gradient method
+  !> Standard preconditioned generalized minimal residual method 
   type, public, extends(ksp_t) :: gmres_t
      integer :: lgmres
      real(kind=rp), allocatable :: w(:)
@@ -122,7 +122,7 @@ contains
     
   end subroutine gmres_free
  
-  !> Standard PCG solve
+  !> Standard GMRES solve
   function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(gmres_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
