@@ -6,6 +6,7 @@ module neko_config
 
   integer, parameter :: NEKO_BCKND_SX = @is_sx@
   integer, parameter :: NEKO_BCKND_XSMM = @xsmm_bcknd@
+
   integer, parameter :: NEKO_BLK_SIZE = @blk_size@
 
 end module neko_config
