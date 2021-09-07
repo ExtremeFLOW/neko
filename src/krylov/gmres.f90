@@ -241,7 +241,7 @@ contains
              temp = this%h(i,j)                   
              this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
-          enddo
+          end do
 
           rnorm = 0.0_rp
           if(alpha .eq. 0.0_rp) then 
@@ -279,7 +279,7 @@ contains
              temp = temp - this%h(k,i) * this%c(i)
           end do
           this%c(k) = temp / this%h(k,k)
-       enddo
+       end do
 
        do i = 0, n, NEKO_BLK_SIZE
           if (i + NEKO_BLK_SIZE .le. n) then
@@ -304,7 +304,7 @@ contains
              end do
           end if
        end do 
-    enddo
+    end do
 
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
