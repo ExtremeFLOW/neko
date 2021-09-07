@@ -25,7 +25,9 @@ program poisson
   argc = command_argument_count()
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
-     write(*,*) 'Usage: ./poisson <neko mesh> <N> <Iterations>'
+     if (pe_rank .eq. 0) then
+        write(*,*) 'Usage: ./poisson <neko mesh> <N> <Iterations>'
+     end if
      stop
   end if
   
@@ -72,10 +74,9 @@ program poisson
   
   call MPI_Barrier(NEKO_COMM, ierr)
 
-  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
+  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
   ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
-  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
-  write (*,*) 'Start and final residual', ksp_mon%res_start, ksp_mon%res_final
+  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
   
   fname = 'out.fld'
   mf =  file_t(fname)
@@ -91,8 +92,9 @@ program poisson
 
 end program poisson
 
-subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
+subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n, ksp_mon)
   use comm
+  use krylov
   use num_types
   implicit none
 
@@ -101,8 +103,10 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
   integer, intent(inout) :: nx1
   integer, intent(inout) :: niter
   integer, intent(inout) :: n
+  type(ksp_monitor_t), intent(in) :: ksp_mon
   real(kind=dp), save :: time0, time1, mflops, flop_a, flop_cg
   real(kind=dp) :: nxyz, nx
+
 
   nx = dble(nx1)
   nxyz = dble(nx1 * nx1 * nx1)
@@ -119,12 +123,14 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
         write(6,1) nelt,pe_size,nx1
         write(6,2) mflops, mflops/pe_size
         write(6,3) flop_a,flop_cg
-        write(6,4) time1
+        write(6,4) ksp_mon%res_start, ksp_mon%res_final
+        write(6,5) time1
      endif
 1    format('nelt = ',i7, ', np = ', i9,', nx1 = ', i7)
 2    format('Tot MFlops = ', 1pe12.4, ', MFlops      = ', e12.4)
 3    format('Setup Flop = ', 1pe12.4, ', Solver Flop = ', e12.4)
-4    format('Solve Time = ', e12.4)
+4    format('Start res  = ', 1pe12.4, ', Final res   = ', e12.4)
+5    format('Solve Time = ', e12.4)
   endif
 
 end subroutine set_timer_flop_cnt

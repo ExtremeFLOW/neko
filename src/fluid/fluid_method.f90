@@ -1,6 +1,7 @@
 !> Fluid formulations
 module fluid_method
   use gather_scatter
+  use mean_sqr_flow    
   use neko_config
   use parameters
   use checkpoint
@@ -18,6 +19,7 @@ module fluid_method
   use dirichlet
   use symmetry
   use cg
+  use pipecg
   use bicgstab
   use bc
   use jacobi
@@ -58,6 +60,7 @@ module fluid_method
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
+     type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -381,10 +384,14 @@ contains
     call this%chkp%init(this%u, this%v, this%w, this%p)
 
     !
-    ! Setup mean flow field if requested
+    ! Setup mean flow fields if requested
     !
     if (this%params%stats_mean_flow) then
        call this%mean%init(this%u, this%v, this%w, this%p)
+    end if
+
+    if (this%params%stats_mean_sqr_flow) then
+       call this%mean_sqr%init(this%u, this%v, this%w, this%p)
     end if
 
   end subroutine fluid_scheme_validate
@@ -413,6 +420,8 @@ contains
     real(kind=rp) :: abstol
     if (trim(solver) .eq. 'cg') then
        allocate(cg_t::ksp)
+    else if (trim(solver) .eq. 'pipecg') then
+       allocate(pipecg_t::ksp)
     else if (trim(solver) .eq. 'gmres') then
        allocate(gmres_t::ksp)
     else if (trim(solver) .eq. 'bicgstab') then
@@ -423,6 +432,8 @@ contains
 
     select type(kp => ksp)
     type is(cg_t)
+       call kp%init(n, abs_tol = abstol)
+    type is(pipecg_t)
        call kp%init(n, abs_tol = abstol)
     type is(gmres_t)
        call kp%init(n, abs_tol = abstol)
