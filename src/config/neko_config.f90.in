@@ -9,4 +9,6 @@ module neko_config
   integer, parameter :: NEKO_BCKND_CUDA = @cuda_bcknd@
   integer, parameter :: NEKO_BCKND_HIP = @hip_bcknd@
 
+  integer, parameter :: NEKO_BLK_SIZE = @blk_size@
+
 end module neko_config

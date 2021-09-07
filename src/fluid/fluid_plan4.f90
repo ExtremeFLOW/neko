@@ -59,11 +59,11 @@ module fluid_plan4
 
      !> all the shit for vol_flow
      
-     integer :: flow_dir !> these two should be moved to params
+     integer :: flow_dir !< these two should be moved to params
      logical :: avflow 
      real(kind=rp) :: flow_rate 
      real(kind=rp) :: dtlag = 0d0
-     real(kind=rp) :: bdlag = 0d0!> Really quite pointless since we do not vary the timestep
+     real(kind=rp) :: bdlag = 0d0!< Really quite pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
 

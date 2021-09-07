@@ -18,6 +18,9 @@ AC_ARG_ENABLE(real,
 	            dp -- REAL(kind=8) (default)
 	            qp -- REAL(kind=16)]),
 	        [enable_real=${enableval}], [enable_real=dp])
+AC_ARG_ENABLE(blk_size,
+              AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
+              [blk_size=${enableval}], [blk_size="10000"])
 
 AC_ARG_ENABLE(hip,
 	      AC_HELP_STRING([--enable-hip],[Compile with HIP backend]),
@@ -118,6 +121,8 @@ else
    AC_MSG_ERROR([Invalid working precision])
 fi
 
+AC_SUBST(blk_size, ${blk_size})
+
 # Checks for libxsmm backend
 AX_LIBXSMM
 
@@ -157,6 +162,9 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/mesh/Makefile\
 		 tests/space/Makefile\
 		 tests/dofmap/Makefile\
+		 tests/field/Makefile\
+		 tests/mean_field/Makefile\
+		 tests/mean_sqr_field/Makefile\
 		 tests/gather_scatter/Makefile\
 		 tests/krylov/Makefile\
 		 tests/bc/Makefile\

@@ -45,6 +45,7 @@ module neko
   use krylov
   use cg
   use cg_device
+  use pipecg
   use bicgstab
   use precon
   use ax_product

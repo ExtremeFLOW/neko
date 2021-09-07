@@ -9,8 +9,10 @@ module cg
   type, public, extends(ksp_t) :: cg_t
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
-     real(kind=rp), allocatable :: p(:)
+     real(kind=rp), allocatable :: p(:,:)
      real(kind=rp), allocatable :: z(:)
+     real(kind=rp), allocatable :: alpha(:)
+     integer :: p_space
    contains
      procedure, pass(this) :: init => cg_init
      procedure, pass(this) :: free => cg_free
@@ -28,11 +30,12 @@ contains
     real(kind=rp), optional, intent(inout) :: abs_tol
         
     call this%free()
-    
+    this%p_space = 50
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%p(n))
+    allocate(this%p(n,this%p_space))
     allocate(this%z(n))
+    allocate(this%alpha(this%p_space))
     
     if (present(M)) then 
        this%M => M
@@ -71,6 +74,10 @@ contains
     if (allocated(this%z)) then
        deallocate(this%z)
     end if
+    
+    if (allocated(this%alpha)) then
+       deallocate(this%alpha)
+    end if
 
     nullify(this%M)
 
@@ -90,9 +97,9 @@ contains
     integer, optional, intent(in) :: niter
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
-    integer :: iter, max_iter
-    real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
+    integer :: iter, max_iter, i, j, k, p_cur, p_prev
+    real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
+    real(kind=rp) :: beta, pap, norm_fac
     
     if (present(niter)) then
        max_iter = niter
@@ -101,47 +108,98 @@ contains
     end if
     norm_fac = one / sqrt(coef%volume)
 
-    rtz1 = one
-    call rzero(x%x, n)
-    call rzero(this%p, n)
-    call copy(this%r, f, n)
+    associate(w => this%w, r => this%r, p => this%p, &
+         z => this%z, alpha => this%alpha)
 
-    rtr = glsc3(this%r, coef%mult, this%r, n)
-    rnorm = sqrt(rtr)*norm_fac
-    ksp_results%res_start = rnorm
-    ksp_results%res_final = rnorm
-    ksp_results%iter = 0
-    if(rnorm .eq. zero) return
-    do iter = 1, max_iter
-       call this%M%solve(this%z, this%r, n)
-       rtz2 = rtz1
-       rtz1 = glsc3(this%r, coef%mult, this%z, n)
+      rtz1 = one
+      call rzero(x%x, n)
+      call rzero(p, n)
+      call copy(r, f, n)
 
-       beta = rtz1 / rtz2
-       if (iter .eq. 1) beta = zero
-       call add2s1(this%p, this%z, beta, n)
+      rtr = glsc3(r, coef%mult, r, n)
+      rnorm = sqrt(rtr) * norm_fac
+      ksp_results%res_start = rnorm
+      ksp_results%res_final = rnorm
+      ksp_results%iter = 0
+      p_prev = this%p_space
+      p_cur = 1
+      if(rnorm .eq. zero) return
+      do iter = 1, max_iter
+         call this%M%solve(z, r, n)
+         rtz2 = rtz1
+         rtz1 = glsc3(r, coef%mult, z, n)
+      
+         beta = rtz1 / rtz2
+         if (iter .eq. 1) beta = zero
+         do i = 1, n
+            p(i,p_cur) = z(i) + beta * p(i,p_prev)
+         end do
        
-       call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%w, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%w, n)
+         call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
+         call gs_op(gs_h, w, n, GS_OP_ADD)
+         call bc_list_apply(blst, w, n)
+         
+         pap = glsc3(w, coef%mult, p(1,p_cur), n)
+         
+         alpha(p_cur) = rtz1 / pap
+         call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
+         rnorm = sqrt(rtr) * norm_fac
 
-       pap = glsc3(this%w, coef%mult, this%p, n)
+         if ((p_cur .eq. this%p_space) .or. &
+             (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+            do i = 0, n, NEKO_BLK_SIZE
+               if (i + NEKO_BLK_SIZE .le. n) then
+                  do k = 1, NEKO_BLK_SIZE
+                     x_plus(k) = 0.0
+                  end do
+                  do j = 1, p_cur
+                     do k = 1, NEKO_BLK_SIZE
+                        x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
+                     end do
+                  end do
+                  do k = 1, NEKO_BLK_SIZE
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+                  end do
+               else 
+                  do k = 1, n-i
+                     x_plus(1) = 0.0
+                     do j = 1, p_cur
+                        x_plus(1) = x_plus(1) + alpha(j) * p(i+k,j)
+                     end do
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
+                  end do
+               end if
+            end do
+            p_prev = p_cur
+            p_cur = 1
+            if (rnorm .lt. this%abs_tol) exit
+         else
+            p_prev = p_cur
+            p_cur = p_cur + 1
+         end if
+      end do
+    end associate
 
-       alpha = rtz1 / pap
-       alphm = -alpha
-       call add2s2(x%x, this%p, alpha, n)
-       call add2s2(this%r, this%w, alphm, n)
-
-       rtr = glsc3(this%r, coef%mult, this%r, n)
-       if (iter .eq. 1) rtr0 = rtr
-       rnorm = sqrt(rtr) * norm_fac
-       if (rnorm .lt. this%abs_tol) then
-          exit
-       end if
-    end do
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+
   end function cg_solve
+
+  subroutine second_cg_part(rtr, r, mult, w, alpha, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: r(n), rtr
+    real(kind=rp), intent(in) ::mult(n), w(n), alpha 
+    integer :: i, ierr
+
+    rtr = 0.0
+    do i = 1, n
+       r(i) = r(i) - alpha*w(i)
+       rtr = rtr + r(i) * r(i) * mult(i)
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
+  end subroutine second_cg_part 
 
 end module cg
   

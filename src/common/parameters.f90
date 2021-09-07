@@ -29,6 +29,11 @@ module parameters
      integer :: time_order   !< Order of the time stepping
      character(len=8) :: jlimit !< Job limit in HH:MM:SS
      character(len=80) :: restart_file !< Checkpoint filename
+     real(kind=rp) :: stats_begin      !< Start time for statistics
+     logical :: stats_mean_flow        !< Mean flow statistics
+     logical :: output_mean_flow       !< Output mean flow field
+     logical :: stats_mean_sqr_flow    !< Mean squared flow statistics
+     logical :: output_mean_sqr_flow   !< Output mean squared flow field
   end type param_t
 
   type param_io_t
@@ -77,11 +82,18 @@ contains
     integer :: time_order = 3
     character(len=8) :: jlimit = '00:00:00'
     character(len=80) :: restart_file = ''
+    real(kind=rp) :: stats_begin = 0d0
+    logical :: stats_mean_flow = .false.
+    logical :: output_mean_flow = .false.
+    logical :: stats_mean_sqr_flow = .false.
+    logical :: output_mean_sqr_flow = .false.        
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
-         proj_dim, time_order, jlimit, restart_file
+         proj_dim, time_order, jlimit, restart_file, stats_begin, &
+         stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
+         output_mean_sqr_flow
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -110,6 +122,11 @@ contains
     param%p%time_order = time_order
     param%p%jlimit = jlimit
     param%p%restart_file = restart_file
+    param%p%stats_begin = stats_begin
+    param%p%stats_mean_flow = stats_mean_flow
+    param%p%output_mean_flow = output_mean_flow
+    param%p%stats_mean_sqr_flow = stats_mean_sqr_flow
+    param%p%output_mean_sqr_flow = output_mean_sqr_flow
 
   end subroutine param_read
 
@@ -122,17 +139,22 @@ contains
     character(len=*), intent(inout) :: iomsg
 
     real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
+    real(kind=rp) :: stats_begin
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
     real(kind=rp), dimension(3) :: uinf
     logical :: output_part, output_bdry, output_chkp
-    logical :: avflow, loadb
+    logical :: avflow, loadb, stats_mean_flow, output_mean_flow
+    logical :: stats_mean_sqr_flow, output_mean_sqr_flow
     integer :: nsamples, vol_flow_dir, proj_dim, time_order
     character(len=8) :: jlimit
     character(len=80) :: restart_file
+
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
-         proj_dim, time_order, jlimit, restart_file
+         proj_dim, time_order, jlimit, restart_file, stats_begin, &
+         stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
+         output_mean_sqr_flow
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -159,6 +181,11 @@ contains
     time_order = param%p%time_order
     jlimit = param%p%jlimit
     restart_file = param%p%restart_file
+    stats_begin = param%p%stats_begin
+    stats_mean_flow = param%p%stats_mean_flow
+    output_mean_flow = param%p%output_mean_flow
+    stats_mean_sqr_flow = param%p%stats_mean_sqr_flow
+    output_mean_sqr_flow = param%p%output_mean_sqr_flow
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 

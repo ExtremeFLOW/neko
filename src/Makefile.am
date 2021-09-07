@@ -39,6 +39,7 @@ libneko_a_SOURCES = \
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/cg.f90\
+	krylov/pipecg.f90\
 	krylov/bicgstab.f90\
 	krylov/bcknd/device/cg_device.f90\
 	mesh/quad.f90\
@@ -51,9 +52,11 @@ libneko_a_SOURCES = \
 	adt/tuple.f90\
 	mesh/zone.f90\
 	mesh/mesh.f90\
-	field/mesh_field.f90\
 	mesh/tet_mesh.f90\
 	field/field.f90\
+	field/mesh_field.f90\
+	field/mean_field.f90\
+	field/mean_sqr_field.f90\
 	io/format/rea.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
@@ -77,6 +80,8 @@ libneko_a_SOURCES = \
 	io/output.f90\
 	io/fluid_output.f90\
 	io/chkp_output.f90\
+	io/mean_flow_output.f90\
+	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
@@ -93,6 +98,8 @@ libneko_a_SOURCES = \
 	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
 	common/abbdf.f90\
+	common/stats_quant.f90\
+	common/statistics.f90\
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
@@ -100,6 +107,8 @@ libneko_a_SOURCES = \
 	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
 	fluid/fluid_schemes.f90\
+	fluid/mean_flow.f90\
+	fluid/mean_sqr_flow.f90\
 	simulation.f90\
 	math/bcknd/cpu/ax_helm.f90\
 	math/bcknd/sx/ax_helm_sx.f90\

@@ -22,7 +22,13 @@ EXTRA_DIST = \
 	examples/tgv/tgv.case\
 	examples/tgv/tgv.f90\
 	examples/tgv/512.nmsh\
-	examples/poisson/512.nmsh\
+	examples/poisson/data/512.nmsh\
+	examples/poisson/data/1024.nmsh\
+	examples/poisson/data/2048.nmsh\
+	examples/poisson/data/4096.nmsh\
+	examples/poisson/data/8192.nmsh\
+	examples/poisson/data/16384.nmsh\
+	examples/poisson/data/32768.nmsh\
 	examples/poisson/Makefile\
 	examples/poisson/ax_poisson.f90\
 	examples/poisson/driver.f90\
