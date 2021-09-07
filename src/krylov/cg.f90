@@ -189,15 +189,14 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r(n), rtr
     real(kind=rp), intent(in) ::mult(n), w(n), alpha 
-    real(kind=rp) :: tmp
     integer :: i, ierr
 
-    tmp = 0.0
+    rtr = 0.0
     do i = 1, n
        r(i) = r(i) - alpha*w(i)
-       tmp = tmp + r(i) * r(i) * mult(i)
+       rtr = rtr + r(i) * r(i) * mult(i)
     end do
-    call MPI_Allreduce(tmp, rtr, 1, &
+    call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end subroutine second_cg_part 
