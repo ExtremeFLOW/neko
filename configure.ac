@@ -18,6 +18,9 @@ AC_ARG_ENABLE(real,
 	            dp -- REAL(kind=8) (default)
 	            qp -- REAL(kind=16)]),
 	        [enable_real=${enableval}], [enable_real=dp])
+AC_ARG_ENABLE(blk_size,
+              AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
+              [blk_size=${enableval}], [blk_size="10000"])
 
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
@@ -113,6 +116,8 @@ elif test "x$enable_real" = xqp; then
 else
    AC_MSG_ERROR([Invalid working precision])
 fi
+
+AC_SUBST(blk_size, ${blk_size})
 
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
