@@ -161,11 +161,11 @@ contains
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
           call sub2(this%r,this%w,n) 
-       endif
+       end if
        this%gam(1) = sqrt(glsc3(this%r, this%r, coef%mult, n))
        if(iter.eq.0) then
           ksp_results%res_start = this%gam(1) * norm_fac
-       endif
+       end if
 
        if (this%gam(1) .eq. 0) return
 
@@ -185,17 +185,19 @@ contains
              this%h(l,j) = 0.0
           enddo
 
-          do i = 0,n,BLOCK_SIZE
+          do i = 0, n, BLOCK_SIZE
               if (i + BLOCK_SIZE .le. n) then
-                 do l = 1,j
+                 do l = 1, j
                     do k = 1, BLOCK_SIZE
-                       this%h(l,j) = this%h(l,j) + this%w(i+k)*this%v(i+k,l)*coef%mult(i+k,1,1,1)
+                       this%h(l,j) = this%h(l,j) + &
+                            this%w(i+k) * this%v(i+k,l) * coef%mult(i+k,1,1,1)
                     end do
                  end do
               else 
                  do k = 1, n-i
                     do l = 1, j
-                       this%h(l,j) = this%h(l,j) + this%w(i+k)*this%v(i+k,l)*coef%mult(i+k,1,1,1)
+                       this%h(l,j) = this%h(l,j) + &
+                            this%w(i+k) * this%v(i+k,l) * coef%mult(i+k,1,1,1)
                     end do
                  end do
               end if
@@ -213,24 +215,25 @@ contains
                  end do
                  do l = 1,j
                     do k = 1, BLOCK_SIZE
-                       w_plus(k) = w_plus(k) - this%h(l,j)*this%v(i+k,l)
+                       w_plus(k) = w_plus(k) - this%h(l,j) * this%v(i+k,l)
                     end do
                  end do
                  do k = 1, BLOCK_SIZE
-                    this%w(i+k) = this%w(i+k)+w_plus(k)
-                    alpha2 = alpha2 + this%w(i+k)**2*coef%mult(i+k,1,1,1)
+                    this%w(i+k) = this%w(i+k) + w_plus(k)
+                    alpha2 = alpha2 + this%w(i+k)**2 * coef%mult(i+k,1,1,1)
                  end do
               else 
                  do k = 1, n-i
                     w_plus(1) = 0.0
                     do l = 1, j
-                       w_plus(1) = w_plus(1) - this%h(l,j)*this%v(i+k,l)
+                       w_plus(1) = w_plus(1) - this%h(l,j) * this%v(i+k,l)
                     end do
                     this%w(i+k) = this%w(i+k) + w_plus(1)
-                    alpha2 = alpha2 + (this%w(i+k)**2)*coef%mult(i+k,1,1,1)
+                    alpha2 = alpha2 + (this%w(i+k)**2) * coef%mult(i+k,1,1,1)
                  end do
               end if
           end do 
+
           call MPI_Allreduce(alpha2, temp, 1, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           alpha2 = temp
@@ -240,11 +243,13 @@ contains
              this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           enddo
+
           rnorm = 0.0_rp
           if(alpha .eq. 0.0_rp) then 
             conv = .true.
             exit
           end if
+
           lr = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
           temp = one / lr
           this%c(j) = this%h(j,j) * temp
@@ -264,17 +269,20 @@ contains
           if( j .lt. this%lgmres) then
             temp = one / alpha
             call cmult2(this%v(1,j+1), this%w, temp, n)
-          endif
-       enddo
+          end if
+
+       end do
+
        j = min(j, this%lgmres)
        do k = j, 1, -1
           temp = this%gam(k)
           do i = j, k+1, -1
              temp = temp - this%h(k,i) * this%c(i)
-          enddo
+          end do
           this%c(k) = temp / this%h(k,k)
-       enddo
-       do i = 0,n,BLOCK_SIZE
+       end do
+
+       do i = 0, n, BLOCK_SIZE
           if (i + BLOCK_SIZE .le. n) then
              do k = 1, BLOCK_SIZE
                 x_plus(k) = 0.0
@@ -291,15 +299,17 @@ contains
              do k = 1, n-i
                 x_plus(1) = 0.0
                 do l = 1, j
-                   x_plus(1) = x_plus(1) + this%c(l)*this%z(i+k,l)
+                   x_plus(1) = x_plus(1) + this%c(l) * this%z(i+k,l)
                 end do
                 x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
              end do
           end if
        end do 
     enddo
+
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+
   end function gmres_solve
 
 end module gmres

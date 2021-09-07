@@ -115,7 +115,7 @@ contains
     call copy(this%r, f, n)
 
     rtr = glsc3(this%r, coef%mult, this%r, n)
-    rnorm = sqrt(rtr)*norm_fac
+    rnorm = sqrt(rtr) * norm_fac
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
@@ -142,15 +142,17 @@ contains
        this%alpha(p_cur) = rtz1 / pap
        call second_cg_part(rtr, this%r, coef%mult, this%w, this%alpha(p_cur), n)
        rnorm = sqrt(rtr) * norm_fac
-       if (p_cur .eq. this%p_space .or. rnorm .lt. this%abs_tol .or. iter .eq. max_iter) then
-           do i = 0,n,BLOCK_SIZE
+
+       if ((p_cur .eq. this%p_space) .or. &
+           (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+           do i = 0, n, BLOCK_SIZE
               if (i + BLOCK_SIZE .le. n) then
                  do k = 1, BLOCK_SIZE
                     x_plus(k) = 0.0
                  end do
                  do j = 1, p_cur
                     do k = 1, BLOCK_SIZE
-                       x_plus(k) = x_plus(k) + this%alpha(j)*this%p(i+k,j)
+                       x_plus(k) = x_plus(k) + this%alpha(j) * this%p(i+k,j)
                     end do
                  end do
                  do k = 1, BLOCK_SIZE
@@ -160,7 +162,7 @@ contains
                  do k = 1, n-i
                     x_plus(1) = 0.0
                     do j = 1, p_cur
-                       x_plus(1) = x_plus(1) + this%alpha(j)*this%p(i+k,j)
+                       x_plus(1) = x_plus(1) + this%alpha(j) * this%p(i+k,j)
                     end do
                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
                  end do
@@ -174,22 +176,27 @@ contains
           p_cur = p_cur + 1
        end if
     end do
+
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+
   end function cg_solve
+
   subroutine second_cg_part(rtr, r, mult, w, alpha, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r(n), rtr
     real(kind=rp), intent(in) ::mult(n), w(n), alpha 
     real(kind=rp) :: tmp
     integer :: i, ierr
+
     tmp = 0.0
-    do i = 1,n
-       r(i) =r(i) - alpha*w(i)
+    do i = 1, n
+       r(i) = r(i) - alpha*w(i)
        tmp = tmp + r(i) * r(i) * mult(i)
     end do
     call MPI_Allreduce(tmp, rtr, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
   end subroutine second_cg_part 
 
 end module cg
