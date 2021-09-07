@@ -184,10 +184,10 @@ contains
              this%h(l,j) = 0.0
           enddo
 
-          do i = 0, n, BLOCK_SIZE
-              if (i + BLOCK_SIZE .le. n) then
+          do i = 0, n, NEKO_BLK_SIZE
+              if (i + NEKO_BLK_SIZE .le. n) then
                  do l = 1, j
-                    do k = 1, BLOCK_SIZE
+                    do k = 1, NEKO_BLK_SIZE
                        this%h(l,j) = this%h(l,j) + &
                             this%w(i+k) * this%v(i+k,l) * coef%mult(i+k,1,1,1)
                     end do
@@ -213,11 +213,11 @@ contains
                     w_plus(k) = 0.0
                  end do
                  do l = 1,j
-                    do k = 1, BLOCK_SIZE
+                    do k = 1, NEKO_BLK_SIZE
                        w_plus(k) = w_plus(k) - this%h(l,j) * this%v(i+k,l)
                     end do
                  end do
-                 do k = 1, BLOCK_SIZE
+                 do k = 1, NEKO_BLK_SIZE
                     this%w(i+k) = this%w(i+k) + w_plus(k)
                     alpha2 = alpha2 + this%w(i+k)**2 * coef%mult(i+k,1,1,1)
                  end do
@@ -279,18 +279,11 @@ contains
              temp = temp - this%h(k,i) * this%c(i)
           end do
           this%c(k) = temp / this%h(k,k)
-<<<<<<< HEAD
        enddo
-       do i = 0,n,NEKO_BLK_SIZE
+
+       do i = 0, n, NEKO_BLK_SIZE
           if (i + NEKO_BLK_SIZE .le. n) then
              do k = 1, NEKO_BLK_SIZE
-=======
-       end do
-
-       do i = 0, n, BLOCK_SIZE
-          if (i + BLOCK_SIZE .le. n) then
-             do k = 1, BLOCK_SIZE
->>>>>>> 0e783e562c8b2799e6e235d53a079f92644cecb2
                 x_plus(k) = 0.0
              end do
              do l = 1,j

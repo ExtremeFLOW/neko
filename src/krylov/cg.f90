@@ -147,17 +147,17 @@ contains
 
          if ((p_cur .eq. this%p_space) .or. &
              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
-            do i = 0, n, BLOCK_SIZE
-               if (i + BLOCK_SIZE .le. n) then
-                  do k = 1, BLOCK_SIZE
+            do i = 0, n, NEKO_BLK_SIZE
+               if (i + NEKO_BLK_SIZE .le. n) then
+                  do k = 1, NEKO_BLK_SIZE
                      x_plus(k) = 0.0
                   end do
                   do j = 1, p_cur
-                     do k = 1, BLOCK_SIZE
+                     do k = 1, NEKO_BLK_SIZE
                         x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
                      end do
                   end do
-                  do k = 1, BLOCK_SIZE
+                  do k = 1, NEKO_BLK_SIZE
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                   end do
                else 
