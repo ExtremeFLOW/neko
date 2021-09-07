@@ -109,73 +109,77 @@ contains
     end if
     norm_fac = one / sqrt(coef%volume)
 
-    rtz1 = one
-    call rzero(x%x, n)
-    call rzero(this%p, n)
-    call copy(this%r, f, n)
+    associate(w => this%w, r => this%r, p => this%p, &
+         z => this%z, alpha => this%alpha)
 
-    rtr = glsc3(this%r, coef%mult, this%r, n)
-    rnorm = sqrt(rtr) * norm_fac
-    ksp_results%res_start = rnorm
-    ksp_results%res_final = rnorm
-    ksp_results%iter = 0
-    p_prev = this%p_space
-    p_cur = 1
-    if(rnorm .eq. zero) return
-    do iter = 1, max_iter
-       call this%M%solve(this%z, this%r, n)
-       rtz2 = rtz1
-       rtz1 = glsc3(this%r, coef%mult, this%z, n)
+      rtz1 = one
+      call rzero(x%x, n)
+      call rzero(p, n)
+      call copy(r, f, n)
 
-       beta = rtz1 / rtz2
-       if (iter .eq. 1) beta = zero
-       do i = 1, n
-          this%p(i,p_cur) = this%z(i) + beta*this%p(i,p_prev)
-       end do
+      rtr = glsc3(r, coef%mult, r, n)
+      rnorm = sqrt(rtr) * norm_fac
+      ksp_results%res_start = rnorm
+      ksp_results%res_final = rnorm
+      ksp_results%iter = 0
+      p_prev = this%p_space
+      p_cur = 1
+      if(rnorm .eq. zero) return
+      do iter = 1, max_iter
+         call this%M%solve(z, r, n)
+         rtz2 = rtz1
+         rtz1 = glsc3(r, coef%mult, z, n)
        
-       call Ax%compute(this%w, this%p(1,p_cur), coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%w, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%w, n)
+         beta = rtz1 / rtz2
+         if (iter .eq. 1) beta = zero
+         do i = 1, n
+            p(i,p_cur) = z(i) + beta * p(i,p_prev)
+         end do
+       
+         call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
+         call gs_op(gs_h, w, n, GS_OP_ADD)
+         call bc_list_apply(blst, w, n)
+         
+         pap = glsc3(w, coef%mult, p(1,p_cur), n)
+         
+         alpha(p_cur) = rtz1 / pap
+         call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
+         rnorm = sqrt(rtr) * norm_fac
 
-       pap = glsc3(this%w, coef%mult, this%p(1,p_cur), n)
-
-       this%alpha(p_cur) = rtz1 / pap
-       call second_cg_part(rtr, this%r, coef%mult, this%w, this%alpha(p_cur), n)
-       rnorm = sqrt(rtr) * norm_fac
-
-       if ((p_cur .eq. this%p_space) .or. &
-           (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
-           do i = 0, n, BLOCK_SIZE
-              if (i + BLOCK_SIZE .le. n) then
-                 do k = 1, BLOCK_SIZE
-                    x_plus(k) = 0.0
-                 end do
-                 do j = 1, p_cur
-                    do k = 1, BLOCK_SIZE
-                       x_plus(k) = x_plus(k) + this%alpha(j) * this%p(i+k,j)
-                    end do
-                 end do
-                 do k = 1, BLOCK_SIZE
-                    x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                 end do
-              else 
-                 do k = 1, n-i
-                    x_plus(1) = 0.0
-                    do j = 1, p_cur
-                       x_plus(1) = x_plus(1) + this%alpha(j) * this%p(i+k,j)
-                    end do
-                    x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                 end do
-              end if
-          end do 
-          p_prev = p_cur
-          p_cur = 1
-          if (rnorm .lt. this%abs_tol) exit
-       else
-          p_prev = p_cur
-          p_cur = p_cur + 1
-       end if
-    end do
+         if ((p_cur .eq. this%p_space) .or. &
+             (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+            do i = 0, n, BLOCK_SIZE
+               if (i + BLOCK_SIZE .le. n) then
+                  do k = 1, BLOCK_SIZE
+                     x_plus(k) = 0.0
+                  end do
+                  do j = 1, p_cur
+                     do k = 1, BLOCK_SIZE
+                        x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
+                     end do
+                  end do
+                  do k = 1, BLOCK_SIZE
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+                  end do
+               else 
+                  do k = 1, n-i
+                     x_plus(1) = 0.0
+                     do j = 1, p_cur
+                        x_plus(1) = x_plus(1) + alpha(j) * p(i+k,j)
+                     end do
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
+                  end do
+               end if
+            end do
+            p_prev = p_cur
+            p_cur = 1
+            if (rnorm .lt. this%abs_tol) exit
+         else
+            p_prev = p_cur
+            p_cur = p_cur + 1
+         end if
+      end do
+    end associate
 
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
