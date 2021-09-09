@@ -59,7 +59,7 @@ contains
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x (device version)
   subroutine dirichlet_apply_scalar_dev(this, x_d)
-    class(dirichlet_t), intent(inout) :: this
+    class(dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
 
     call device_dirichlet_apply_scalar(this%msk_d, x_d, &
@@ -70,7 +70,7 @@ contains
   !> Boundary condition apply for a generic Dirichlet condition 
   !! to vectors @a x, @a y and @a z (device version)
   subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d)
-    class(dirichlet_t), intent(inout) :: this
+    class(dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d

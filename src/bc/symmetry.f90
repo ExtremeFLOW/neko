@@ -247,13 +247,13 @@ contains
 
   !> No-op scalar apply (device version)
   subroutine symmetry_apply_scalar_dev(this, x_d)
-    class(symmetry_t), intent(inout) :: this
+    class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
   end subroutine symmetry_apply_scalar_dev
 
   !> Apply symmetry conditions (axis aligned) (device version)
   subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d)
-    class(symmetry_t), intent(inout) :: this
+    class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d

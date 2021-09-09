@@ -75,7 +75,7 @@ module bc
      subroutine bc_apply_scalar_dev(this, x_d)
        import :: c_ptr       
        import :: bc_t
-       class(bc_t), intent(inout) :: this
+       class(bc_t), intent(inout), target :: this
        type(c_ptr) :: x_d
      end subroutine bc_apply_scalar_dev
   end interface
@@ -84,7 +84,7 @@ module bc
      subroutine bc_apply_vector_dev(this, x_d, y_d, z_d)
        import :: c_ptr
        import :: bc_t
-       class(bc_t), intent(inout) :: this
+       class(bc_t), intent(inout), target :: this
        type(c_ptr) :: x_d
        type(c_ptr) :: y_d
        type(c_ptr) :: z_d
