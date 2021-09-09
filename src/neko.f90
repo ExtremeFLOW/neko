@@ -49,6 +49,7 @@ module neko
   use precon
   use ax_product
   use gmres
+  use cacg
   use jacobi
   use neko_config
   use case
