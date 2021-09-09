@@ -12,14 +12,14 @@ module gs_device
   type, public, extends(gs_bcknd_t) :: gs_device_t
      real(kind=rp), allocatable :: local_wrk(:)  !< Scratch array for local
      real(kind=rp), allocatable :: shared_wrk(:) !< Scratch array for shared
-     type(c_ptr) :: local_gs_d      !< Device ptr for local gs-ops
-     type(c_ptr) :: local_dof_gs_d  !< Device ptr for local dof to gs mapping
-     type(c_ptr) :: local_gs_dof_d  !< Device ptr for local gs to dof mapping
-     type(c_ptr) :: shared_gs_d     !< Device ptr for shared gs-ops
-     type(c_ptr) :: shared_dof_gs_d !< Device ptr for shared dof to gs mapping
-     type(c_ptr) :: shared_gs_dof_d !< Device ptr for shared gs to dof mapping
-     type(c_ptr) :: local_wrk_d     !< Device ptr for local scratch array
-     type(c_ptr) :: shared_wrk_d    !< Device ptr for shared scratch array
+     type(c_ptr) :: local_gs_d = C_NULL_PTR      !< Device ptr for local gs-ops
+     type(c_ptr) :: local_dof_gs_d = C_NULL_PTR  !< Device ptr for local dof to gs mapping
+     type(c_ptr) :: local_gs_dof_d = C_NULL_PTR  !< Device ptr for local gs to dof mapping
+     type(c_ptr) :: shared_gs_d = C_NULL_PTR     !< Device ptr for shared gs-ops
+     type(c_ptr) :: shared_dof_gs_d = C_NULL_PTR !< Device ptr for shared dof to gs mapping
+     type(c_ptr) :: shared_gs_dof_d = C_NULL_PTR !< Device ptr for shared gs to dof mapping
+     type(c_ptr) :: local_wrk_d = C_NULL_PTR     !< Device ptr for local scratch array
+     type(c_ptr) :: shared_wrk_d = C_NULL_PTR    !< Device ptr for shared scratch array
      integer :: nlocal              
      integer :: nshared
    contains
