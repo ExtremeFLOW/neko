@@ -19,6 +19,7 @@ module fluid_method
   use dirichlet
   use symmetry
   use cg
+  use cacg
   use pipecg
   use bicgstab
   use bc
@@ -426,6 +427,8 @@ contains
        allocate(gmres_t::ksp)
     else if (trim(solver) .eq. 'bicgstab') then
        allocate(bicgstab_t::ksp)
+    else if (trim(solver) .eq. 'cacg') then
+       allocate(cacg_t::ksp)
     else
        call neko_error('Unknown linear solver')
     end if
@@ -434,6 +437,8 @@ contains
     type is(cg_t)
        call kp%init(n, abs_tol = abstol)
     type is(pipecg_t)
+       call kp%init(n, abs_tol = abstol)
+    type is(cacg_t)
        call kp%init(n, abs_tol = abstol)
     type is(gmres_t)
        call kp%init(n, abs_tol = abstol)
