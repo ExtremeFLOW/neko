@@ -1062,6 +1062,74 @@ contains
     end if
        
   end subroutine gs_op_vector
+  !> Gather-scatter operation on a vector @a u with op @a op
+  subroutine gs_gather_vector(gs, u, n, op)
+    type(gs_t), intent(inout) :: gs
+    integer, intent(inout) :: n
+    real(kind=rp), dimension(n), intent(inout) :: u
+    integer :: m, l, op, lo, so
+    
+    lo = gs%local_facet_offset
+    so = -gs%shared_facet_offset
+    m = gs%nlocal
+    l = gs%nshared
+
+    ! Gather shared dofs
+    if (pe_size .gt. 1) then
+
+       call gs_nbrecv(gs)
+
+       call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
+
+       call gs_nbsend(gs, gs%shared_gs, l)
+       
+    end if
+    
+    ! Gather-scatter local dofs
+
+    call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op)
+
+    ! Scatter shared dofs
+    if (pe_size .gt. 1) then
+
+       call gs_nbwait(gs, gs%shared_gs, l, op)
+
+    end if
+       
+
+       
+  end subroutine gs_gather_vector
+  
+  !> Gather-scatter operation on a vector @a u with op @a op
+  subroutine gs_scatter_vector(gs, u, n, op)
+    type(gs_t), intent(inout) :: gs
+    integer, intent(inout) :: n
+    real(kind=rp), dimension(n), intent(inout) :: u
+    integer :: m, l, lo, so, op
+    
+    lo = gs%local_facet_offset
+    so = -gs%shared_facet_offset
+    m = gs%nlocal
+    l = gs%nshared
+
+    ! scatter local dofs
+    call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len)
+
+
+    ! Scatter shared dofs
+    if (pe_size .gt. 1) then
+
+       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
+    end if
+       
+  end subroutine gs_scatter_vector
+
+
+
   
   !> Post non-blocking receive operations
   subroutine gs_nbrecv(gs)
