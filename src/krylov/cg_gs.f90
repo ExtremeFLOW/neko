@@ -258,7 +258,7 @@ contains
        end do
        do i = gs%shared_facet_offset, gs%nshared
           it = it + 1
-          gs%local_gs(gs%shared_dof_gs(i)) = u(it)
+          gs%shared_gs(gs%shared_dof_gs(i)) = u(it)
        end do
     end if
     call gs_scatter_vector(gs, u_s, n, GS_OP_ADD)
@@ -302,7 +302,7 @@ contains
        end do
        do i = gs%shared_facet_offset, gs%nshared
           it = it + 1
-          u(it) = gs%local_gs(gs%shared_dof_gs(i))
+          u(it) = gs%shared_gs(gs%shared_dof_gs(i))
        end do
     end if
   end subroutine gather
