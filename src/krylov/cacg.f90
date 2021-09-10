@@ -35,7 +35,7 @@ contains
        this%s = 2
     end if
     if (pe_rank .eq. 0) then
-       neko_warning("Communication Avoiding CG chosen, be aware of potential instabilities")
+       call neko_warning("Communication Avoiding CG chosen, be aware of potential instabilities")
     end if
     
     allocate(this%r(n))
