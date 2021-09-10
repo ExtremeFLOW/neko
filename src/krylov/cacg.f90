@@ -5,7 +5,7 @@ module cacg
   use num_types
   implicit none
 
-  !> Standard preconditioned conjugate gradient method
+  !> S-step communication avoiding  preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cacg_t
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: p(:)
@@ -19,7 +19,7 @@ module cacg
 
 contains
 
-  !> Initialise a standard PCG solver
+  !> Initialise a s-step CA  PCG solver
   subroutine cacg_init(this, n, M, s, rel_tol, abs_tol)
     class(cacg_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
@@ -57,7 +57,7 @@ contains
           
   end subroutine cacg_init
 
-  !> Deallocate a standard PCG solver
+  !> Deallocate a s-step CA PCG solver
   subroutine cacg_free(this)
     class(cacg_t), intent(inout) :: this
 
@@ -80,7 +80,7 @@ contains
 
   end subroutine cacg_free
   
-  !> Standard PCG solve
+  !> S-step CA PCG solve
   function cacg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cacg_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
