@@ -1,4 +1,4 @@
-!> Defines various Conjugate Gradient methods
+!> Defines a communication avoiding Conjugate Gradient method
 module cacg
   use krylov
   use math
