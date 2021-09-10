@@ -423,12 +423,12 @@ contains
        allocate(cg_t::ksp)
     else if (trim(solver) .eq. 'pipecg') then
        allocate(pipecg_t::ksp)
+    else if (trim(solver) .eq. 'cacg') then
+       allocate(cacg_t::ksp)
     else if (trim(solver) .eq. 'gmres') then
        allocate(gmres_t::ksp)
     else if (trim(solver) .eq. 'bicgstab') then
        allocate(bicgstab_t::ksp)
-    else if (trim(solver) .eq. 'cacg') then
-       allocate(cacg_t::ksp)
     else
        call neko_error('Unknown linear solver')
     end if
