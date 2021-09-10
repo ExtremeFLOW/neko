@@ -102,162 +102,179 @@ contains
     real(kind=rp) :: r_c(4*this%s+1,this%s+1)
     real(kind=rp) :: z_c(4*this%s+1,this%s+1)
     real(kind=rp) :: x_c(4*this%s+1,this%s+1)
-    associate(PR => this%PR, r => this%r, p => this%p)
-    s = this%s
-    if (present(niter)) then
-       max_iter = niter
-    else
-       max_iter = KSP_MAX_ITER
-    end if
-    norm_fac = one/sqrt(coef%volume)
-
-    rtz1 = one
-    call rzero(x%x, n)
-    call copy(this%r, f, n)
-    call this%M%solve(this%p, this%r, n)
     
-    rtr = glsc3(this%r, coef%mult, this%r, n)
-    rnorm = sqrt(rtr)*norm_fac
-    ksp_results%res_start = rnorm
-    ksp_results%res_final = rnorm
-    ksp_results%iter = 0
-    iter = 0
-    if(rnorm .eq. zero) return
-    do while (iter < max_iter)
-       call copy(this%PR,this%p,n)
-       call copy(this%PR(1,2*s+2),this%r,n)
-       !Here we have hardcoded a monomial basis atm. 
-       do i = 2,2*s+1
-          if (mod(i,2) == 0) then
-             call Ax%compute(this%PR(1,i), this%PR(1,i-1), coef, x%msh, x%Xh)
-             call gs_op_vector(gs_h, this%PR(1,i), n, GS_OP_ADD)
-             call bc_list_apply_scalar(blst, this%PR(1,i), n)
-          else
-             call this%M%solve(this%PR(1,i), this%PR(1,i-1), n)
-          end if
-       end do
-       do i = 2*s+2,4*s
-          if (mod(i,2) == 0) then
-             call this%M%solve(this%PR(1,i+1), this%PR(1,i), n)
-          else
-             call Ax%compute(this%PR(1,i+1), this%PR(1,i), coef, x%msh, x%Xh)
-             call gs_op_vector(gs_h, this%PR(1,i+1), n, GS_OP_ADD)
-             call bc_list_apply_scalar(blst, this%PR(1,1+i), n)
-          end if
-       end do
-       call construct_basis_matrix(Tt,s)
-       call rzero(p_c,(4*s+1)*(s+1))
-       p_c(1,1) = 1.0_rp 
-       call rzero(r_c,(4*s+1)*(s+1))
-       r_c(2*s+2,1) = 1.0_rp
-       call mxm(Tt,4*s+1, r_c, 4*s+1,z_c,s+1)
-       call rzero(x_c,(4*s+1)*(s+1))
-       call rzero(temp,(4*s+1)**2)
-       do i = 0, n, NEKO_BLK_SIZE
-          it = 0
-          if (i + NEKO_BLK_SIZE .le. n) then
-             do j = 1, 4*s+1
-                do l = 1, j
-                   it = it + 1
-                   do k = 1, NEKO_BLK_SIZE
-                      temp(it,1) = temp(it,1) + this%PR(i+k,j)*this%PR(i+k,l)*coef%mult(i+k,1,1,1)
-                   end do
-                end do
-             end do
-           else
-             do j = 1, 4*s+1
-                do l = 1, j
-                   it = it + 1
-                   do k = 1, n-i
-                      temp(it,1) = temp(it,1) + this%PR(i+k,j)*this%PR(i+k,l)*coef%mult(i+k,1,1,1)
-                   end do
-                end do
-             end do
-           end if
-       end do
-       call MPI_Allreduce(temp, temp2, it, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-       it = 0
-       do j = 1, 4*s+1
-          do k = 1, j
-              it = it + 1
-              G(j,k) = temp2(it,1)
-              G(k,j) = temp2(it,1)
-          end do
-       end do
+    associate(PR => this%PR, r => this%r, p => this%p)
+      s = this%s
+      if (present(niter)) then
+         max_iter = niter
+      else
+         max_iter = KSP_MAX_ITER
+      end if
+      norm_fac = one/sqrt(coef%volume)
+      
+      rtz1 = one
+      call rzero(x%x, n)
+      call copy(r, f, n)
+      call this%M%solve(p, r, n)
+      
+      rtr = glsc3(r, coef%mult, r, n)
+      rnorm = sqrt(rtr)*norm_fac
+      ksp_results%res_start = rnorm
+      ksp_results%res_final = rnorm
+      ksp_results%iter = 0
+      iter = 0
+      if(rnorm .eq. zero) return
+      do while (iter < max_iter)
 
-       call mxm(G,4*s+1, Tt, 4*s+1,GTt,4*s+1)
+         call copy(PR,p, n)
+         call copy(PR(1,2*s+2), r, n)
 
-       do j = 1, s
-         iter = iter + 1
+         !Here we have hardcoded a monomial basis atm. 
+         do i = 2, 2*s + 1
+            if (mod(i,2) == 0) then
+               call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
+               call gs_op_vector(gs_h, PR(1,i), n, GS_OP_ADD)
+               call bc_list_apply_scalar(blst, PR(1,i), n)
+            else
+               call this%M%solve(PR(1,i), PR(1,i-1), n)
+            end if
+         end do
+
+         do i = 2*s+2, 4*s
+            if (mod(i,2) == 0) then
+               call this%M%solve(PR(1,i+1), PR(1,i), n)
+            else
+               call Ax%compute(PR(1,i+1), PR(1,i), coef, x%msh, x%Xh)
+               call gs_op_vector(gs_h, PR(1,i+1), n, GS_OP_ADD)
+               call bc_list_apply_scalar(blst, PR(1,1+i), n)
+            end if
+         end do
+
+         call construct_basis_matrix(Tt, s)
+         call rzero(p_c, (4*s+1) * (s+1))
+         p_c(1,1) = 1.0_rp 
+         call rzero(r_c, (4*s+1) * (s+1))
+         r_c(2*s+2,1) = 1.0_rp
+         call mxm(Tt, 4*s+1, r_c, 4*s+1, z_c,s+1)
+         call rzero(x_c, (4*s+1) * (s+1))
+         call rzero(temp, (4*s+1)**2)
+
+         do i = 0, n, NEKO_BLK_SIZE
+            it = 0
+            if (i + NEKO_BLK_SIZE .le. n) then
+               do j = 1, 4*s+1
+                  do l = 1, j
+                     it = it + 1
+                     do k = 1, NEKO_BLK_SIZE
+                        temp(it,1) = temp(it,1) &
+                                   + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
+                     end do
+                  end do
+               end do
+            else
+               do j = 1, 4*s+1
+                  do l = 1, j
+                     it = it + 1
+                     do k = 1, n-i
+                        temp(it,1) = temp(it,1) &
+                                   + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
+                     end do
+                  end do
+               end do
+            end if
+         end do
+
+         call MPI_Allreduce(temp, temp2, it, &
+              MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         it = 0
+         do j = 1, 4*s+1
+            do k = 1, j
+               it = it + 1
+               G(j,k) = temp2(it,1)
+               G(k,j) = temp2(it,1)
+            end do
+         end do
+         
+         call mxm(G,4*s+1, Tt, 4*s+1,GTt,4*s+1)
+         
+         do j = 1, s
+            iter = iter + 1
           
-          call mxm(G,4*s+1,r_c(1,j),4*s+1,temp,1)
-          call mxm(GTt,4*s+1,p_c(1,j),4*s+1,temp2,1)
-          alpha1 = 0.0_rp
-          alpha2 = 0.0_rp
-          do i = 1,4*s+1
-             alpha1 = alpha1 + temp(i,1)*z_c(i,j)
-             alpha2 = alpha2 + temp2(i,1)*p_c(i,j)
-          end do          
-          alpha(j) = alpha1/alpha2
-          do i = 1, 4*s+1
-             x_c(i,j+1) = x_c(i,j) + alpha(j)*p_c(i,j)
-             tmp = 0.0_rp
-             do k = 1, 4*s+1
-                tmp = tmp + Tt(i,k)*p_c(k,j)
-             end do
-             r_c(i,j+1) =  r_c(i,j) - alpha(j)*tmp
-             tmp = 0.0_rp
-             do k = 1, 4*s+1
-                tmp = tmp + Tt(i,k)*r_c(k,j+1)
-             end do
-             z_c(i,j+1) = tmp
-          end do
-          call mxm(G,4*s+1,r_c(1,j+1),4*s+1,temp2,1)
-          alpha2 = 0.0_rp
-          do i = 1,4*s+1
-             alpha2 = alpha2 + temp2(i,1)*z_c(i,j+1)
-          end do          
-          beta(j) = alpha2/alpha1
-          do i = 1,4*s+1
-             p_c(i,j+1) = z_c(i,j+1) +  beta(j)*p_c(i,j)
-          end do          
-       end do
-       call rzero(this%p,n)
-       call rzero(this%r,n)
-       rtr = 0.0_rp
-       do i = 0, n, NEKO_BLK_SIZE
-          if (i + NEKO_BLK_SIZE .le. n) then
-             do j = 1,4*s+1
-                do k = 1, NEKO_BLK_SIZE
-                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + this%PR(i+k,j)*x_c(j,s+1)
-                   this%p(i+k) = this%p(i+k) + this%PR(i+k,j)*p_c(j,s+1)
-                   tmp = this%PR(i+k,j)*r_c(j,s+1)
-                   this%r(i+k) = this%r(i+k) + tmp
-                   rtr = rtr + tmp**2*coef%mult(i+k,1,1,1)
-                end do
-             end do 
-          else 
-             do j = 1,4*s+1
-                do k = 1, n-i
-                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + this%PR(i+k,j)*x_c(j,s+1)
-                   this%p(i+k) = this%p(i+k) + this%PR(i+k,j)*p_c(j,s+1)
-                   tmp = this%PR(i+k,j)*r_c(j,s+1)
-                   this%r(i+k) = this%r(i+k) + tmp
-                   rtr = rtr + tmp**2*coef%mult(i+k,1,1,1)
-                end do
-             end do
-          end if
-       end do
-       call MPI_Allreduce(rtr, tmp, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-       rnorm = norm_fac*sqrt(tmp)
-       if( rnorm <= this%abs_tol) exit 
-    end do
-    ksp_results%res_final = rnorm
-    ksp_results%iter = iter
+            call mxm(G, 4*s+1, r_c(1,j), 4*s+1,temp, 1)
+            call mxm(GTt, 4*s+1, p_c(1,j), 4*s+1,temp2, 1)
+            alpha1 = 0.0_rp
+            alpha2 = 0.0_rp
+            do i = 1,4*s+1
+               alpha1 = alpha1 + temp(i,1) * z_c(i,j)
+               alpha2 = alpha2 + temp2(i,1) * p_c(i,j)
+            end do
+            alpha(j) = alpha1/alpha2
+
+            do i = 1, 4*s+1
+               x_c(i,j+1) = x_c(i,j) + alpha(j) * p_c(i,j)
+               tmp = 0.0_rp
+               do k = 1, 4*s+1
+                  tmp = tmp + Tt(i,k) * p_c(k,j)
+               end do
+               r_c(i,j+1) =  r_c(i,j) - alpha(j)*tmp
+               tmp = 0.0_rp
+               do k = 1, 4*s+1
+                  tmp = tmp + Tt(i,k)*r_c(k,j+1)
+               end do
+               z_c(i,j+1) = tmp
+            end do
+
+            call mxm(G,4*s+1,r_c(1,j+1),4*s+1,temp2,1)
+            alpha2 = 0.0_rp
+            do i = 1,4*s+1
+               alpha2 = alpha2 + temp2(i,1)*z_c(i,j+1)
+            end do
+            beta(j) = alpha2 / alpha1
+            do i = 1,4*s+1
+               p_c(i,j+1) = z_c(i,j+1) +  beta(j)*p_c(i,j)
+            end do
+         end do
+
+         call rzero(p, n)
+         call rzero(r, n)
+         rtr = 0.0_rp
+         do i = 0, n, NEKO_BLK_SIZE
+            if (i + NEKO_BLK_SIZE .le. n) then
+               do j = 1, 4*s + 1
+                  do k = 1, NEKO_BLK_SIZE
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + PR(i+k,j) * x_c(j,s+1)
+                     p(i+k) = p(i+k) + PR(i+k,j) * p_c(j,s+1)
+                     tmp = PR(i+k,j) * r_c(j,s+1)
+                     r(i+k) = r(i+k) + tmp
+                     rtr = rtr + tmp**2 * coef%mult(i+k,1,1,1)
+                  end do
+               end do
+            else 
+               do j = 1,4*s+1
+                  do k = 1, n-i
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + PR(i+k,j) * x_c(j,s+1)
+                     p(i+k) = p(i+k) + PR(i+k,j) * p_c(j,s+1)
+                     tmp = PR(i+k,j) * r_c(j,s+1)
+                     r(i+k) = r(i+k) + tmp
+                     rtr = rtr + tmp**2 * coef%mult(i+k,1,1,1)
+                  end do
+               end do
+            end if
+         end do
+
+         call MPI_Allreduce(rtr, tmp, 1, &
+              MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         rnorm = norm_fac*sqrt(tmp)
+         if( rnorm <= this%abs_tol) exit 
+      end do
+
+      ksp_results%res_final = rnorm
+      ksp_results%iter = iter
+
     end associate
+
   end function cacg_solve
+
   !> Monomial matrix constuction, not sparse
   subroutine construct_basis_matrix(Tt, s)
      integer, intent(in) :: s
