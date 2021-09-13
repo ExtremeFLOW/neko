@@ -19,10 +19,6 @@ module device
           device_memcpy_r3, device_memcpy_r4
   end interface device_memcpy
   
-  interface device_map
-     module procedure device_map_i4, device_map_i8, device_map_r4, device_map_r8
-  end interface device_map
-
   private :: device_memcpy_common
   
 contains
@@ -225,9 +221,9 @@ contains
   end subroutine device_associate
   
   !> Map a Fortran array to a device (allocate and associate)
-  subroutine device_map_i4(x, x_d, n)
+  subroutine device_map(x, x_d, n)
     integer, intent(in) :: n
-    integer, intent(inout), target :: x(..)
+    class(*), intent(inout), target :: x(..)
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
 
@@ -235,63 +231,66 @@ contains
        call neko_error('Device pointer already associated')
     end if
 
-    s = n * 4
+    select rank(x)
+    rank (1)
+       select type(x)
+       type is (integer)
+          s = n * 4
+       type is (integer(8))
+          s = n * 8
+       type is (real)
+          s = n * 4
+       type is (double precision)
+          s = n * 8
+       class default
+          call neko_error('Unknown Fortran type')
+       end select
+    rank (2)
+       select type(x)
+       type is (integer)
+          s = n * 4
+       type is (integer(8))
+          s = n * 8
+       type is (real)
+          s = n * 4
+       type is (double precision)
+          s = n * 8
+       class default
+          call neko_error('Unknown Fortran type')
+       end select
+    rank (3)
+       select type(x)
+       type is (integer)
+          s = n * 4
+       type is (integer(8))
+          s = n * 8
+       type is (real)
+          s = n * 4
+       type is (double precision)
+          s = n * 8
+       class default
+          call neko_error('Unknown Fortran type')
+       end select
+    rank (4)
+       select type(x)
+       type is (integer)
+          s = n * 4
+       type is (integer(8))
+          s = n * 8
+       type is (real)
+          s = n * 4
+       type is (double precision)
+          s = n * 8
+       class default
+          call neko_error('Unknown Fortran type')
+       end select
+    end select
+
     call device_alloc(x_d, s)
     call device_associate(x, x_d, n)
 
-  end subroutine device_map_i4
-
-  !> Map a Fortran array to a device (allocate and associate)
-  subroutine device_map_i8(x, x_d, n)
-    integer, intent(in) :: n
-    integer(kind=8), intent(inout), target :: x(..)
-    type(c_ptr), intent(inout) :: x_d
-    integer(c_size_t) :: s
-
-    if (c_associated(x_d)) then
-       call neko_error('Device pointer already associated')
-    end if
-
-    s = n * 8
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
-    
-  end subroutine device_map_i8
-
-  !> Map a Fortran array to a device (allocate and associate)
-  subroutine device_map_r4(x, x_d, n)
-    integer, intent(in) :: n
-    real(kind=sp), intent(inout), target :: x(..)
-    type(c_ptr), intent(inout) :: x_d
-    integer(c_size_t) :: s
-
-    if (c_associated(x_d)) then
-       call neko_error('Device pointer already associated')
-    end if
-
-    s = n * 4
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
-    
-  end subroutine device_map_r4
-
-  !> Map a Fortran array to a device (allocate and associate)
-  subroutine device_map_r8(x, x_d, n)
-    integer, intent(in) :: n
-    real(kind=dp), intent(inout), target :: x(..)
-    type(c_ptr), intent(inout) :: x_d
-    integer(c_size_t) :: s
-
-    if (c_associated(x_d)) then
-       call neko_error('Device pointer already associated')
-    end if
-    
-    s = n * 8
-    call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)       
+  end subroutine device_map
  
-  end subroutine device_map_r8
-
   !> Check if a Fortran array is assoicated with a device pointer
   function device_associated(x) result(assoc)
     type(*), intent(inout), target :: x(..)
