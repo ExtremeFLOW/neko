@@ -18,10 +18,10 @@ module device
           device_associate_r4, device_associate_r8
   end interface device_associate
 
+  !> Copy data between host and device
   interface device_memcpy
-     module procedure device_memcpy_i4_r1, device_memcpy_i4_r2, &
-          device_memcpy_i4_r3, device_memcpy_i4_r4, device_memcpy_r8_r1, &
-          device_memcpy_r8_r2, device_memcpy_r8_r3, device_memcpy_r8_r4
+     module procedure device_memcpy_r1, device_memcpy_r2, &
+          device_memcpy_r3, device_memcpy_r4
   end interface device_memcpy
   
   interface device_map
@@ -77,139 +77,117 @@ contains
 #endif
   end subroutine device_free
 
-  !> Copy data between host and device
-  subroutine device_memcpy_i4_r1(x, x_d, n, dir)
+  !> Copy data between host and device (rank 1)
+  subroutine device_memcpy_r1(x, x_d, n, dir)
     integer, intent(in) :: n
-    integer, intent(inout), target :: x(n)
+    class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
     type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
-    s = n * 4
-    ptr_h = c_loc(x)
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
     call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_i4_r1
+  end subroutine device_memcpy_r1
 
-    subroutine device_memcpy_i4_r2(x, x_d, n, dir)
+  !> Copy data between host and device (rank 2)
+  subroutine device_memcpy_r2(x, x_d, n, dir)
     integer, intent(in) :: n
-    integer, intent(inout), target :: x(:,:)
+    class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
     type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
-    s = n * 4
-    ptr_h = c_loc(x)
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
     call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_i4_r2
+  end subroutine device_memcpy_r2
 
-    subroutine device_memcpy_i4_r3(x, x_d, n, dir)
+  !> Copy data between host and device (rank 3)
+  subroutine device_memcpy_r3(x, x_d, n, dir)
     integer, intent(in) :: n
-    integer, intent(inout), target :: x(:,:,:)
+    class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
     type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
-    s = n * 4
-    ptr_h = c_loc(x)
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
     call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_i4_r3
+  end subroutine device_memcpy_r3
 
-    subroutine device_memcpy_i4_r4(x, x_d, n, dir)
-    integer, intent(in) :: n
-    integer, intent(inout), target :: x(:,:,:,:)
-    type(c_ptr), intent(inout) :: x_d
-    integer, intent(in), value :: dir
-    type(c_ptr) :: ptr_h
-    integer(c_size_t) :: s
-
-    s = n * 4
-    ptr_h = c_loc(x)
-    call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_i4_r4
-
-    !> Copy data between host and device
-  subroutine device_memcpy_i8(x, x_d, n, dir)
-    integer, intent(in) :: n
-    integer(kind=8), intent(inout), target :: x(n)
-    type(c_ptr), intent(inout) :: x_d
-    integer, intent(in), value :: dir
-    type(c_ptr) :: ptr_h
-    integer(c_size_t) :: s
-
-    s = n * 8
-    ptr_h = c_loc(x)
-    call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_i8
-
-  !> Copy data between host and device
+  !> Copy data between host and device (rank 4)
   subroutine device_memcpy_r4(x, x_d, n, dir)
     integer, intent(in) :: n
-    real(kind=sp), intent(inout), target :: x(n)
+    class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
-    integer, value :: dir
+    integer, intent(in), value :: dir
     type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
-    s = n * 4
-    ptr_h = c_loc(x)
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
     call device_memcpy_common(ptr_h, x_d, s, dir)
   end subroutine device_memcpy_r4
-  
-  !> Copy data between host and device
-  subroutine device_memcpy_r8_r1(x, x_d, n, dir)
-    integer, intent(in) :: n
-    real(kind=dp), intent(inout), target :: x(n)
-    type(c_ptr), intent(inout) :: x_d
-    integer, value :: dir
-    type(c_ptr) :: ptr_h
-    integer(c_size_t) :: s
-
-    s = n * 8
-    ptr_h = c_loc(x)
-    call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_r8_r1
-
-    subroutine device_memcpy_r8_r2(x, x_d, n, dir)
-    integer, intent(in) :: n
-    real(kind=dp), intent(inout), target :: x(:,:)
-    type(c_ptr), intent(inout) :: x_d
-    integer, value :: dir
-    type(c_ptr) :: ptr_h
-    integer(c_size_t) :: s
-
-    s = n * 8
-    ptr_h = c_loc(x)
-    call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_r8_r2
-
-      subroutine device_memcpy_r8_r3(x, x_d, n, dir)
-    integer, intent(in) :: n
-    real(kind=dp), intent(inout), target :: x(:,:,:)
-    type(c_ptr), intent(inout) :: x_d
-    integer, value :: dir
-    type(c_ptr) :: ptr_h
-    integer(c_size_t) :: s
-
-    s = n * 8
-    ptr_h = c_loc(x)
-    call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_r8_r3
-
-  subroutine device_memcpy_r8_r4(x, x_d, n, dir)
-    integer, intent(in) :: n
-    real(kind=dp), intent(inout), target :: x(:,:,:,:)
-    type(c_ptr), intent(inout) :: x_d
-    integer, value :: dir
-    type(c_ptr) :: ptr_h
-    integer(c_size_t) :: s
-
-    s = n * 8
-    ptr_h = c_loc(x)
-    call device_memcpy_common(ptr_h, x_d, s, dir)
-  end subroutine device_memcpy_r8_r4
 
   !> Copy data between host and device
   subroutine device_memcpy_common(ptr_h, x_d, s, dir)
@@ -314,7 +292,7 @@ contains
 
   end subroutine device_map_i4
 
-    !> Map a Fortran array to a device (allocate and associate)
+  !> Map a Fortran array to a device (allocate and associate)
   subroutine device_map_i8(x, x_d, n)
     integer, intent(in) :: n
     integer(kind=8), intent(inout), target :: x(..)
