@@ -174,6 +174,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
-	math/bcknd/device/hip/jacobi_kernel.h
+	math/bcknd/device/hip/opgrad_kernel.h\
+	krylov/bcknd/device/hip/pc_jacobi_kernel.h
 
 include	.depends
