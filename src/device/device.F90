@@ -10,8 +10,26 @@ module device
 
   integer, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2
 
+  interface device_memcpy
+     module procedure device_memcpy_r1, device_memcpy_r2, &
+          device_memcpy_r3, device_memcpy_r4
+  end interface device_memcpy
+
+  interface device_map
+     module procedure device_map_r1, device_map_r2, &
+          device_map_r3, device_map_r4
+  end interface device_map
+
+  interface device_associate
+     module procedure device_associate_r1, device_associate_r2, &
+          device_associate_r3, device_associate_r4
+  end interface device_associate
+     
+  
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
+
+  private :: device_memcpy_common
   
 contains
 
@@ -56,86 +74,132 @@ contains
 #endif
   end subroutine device_free
 
-  !> Copy data between host and device
-  subroutine device_memcpy(x, x_d, n, dir)
+  !> Copy data between host and device (rank 1 arrays)
+  subroutine device_memcpy_r1(x, x_d, n, dir)
     integer, intent(in) :: n
-    class(*), intent(inout), target :: x(..)
+    class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     integer, intent(in), value :: dir
     type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
-    select rank(x)
-    rank(1)
-       select type(x)
-       type is (integer)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (integer(8))       
-          s = n * 8
-          ptr_h = c_loc(x)
-       type is (real)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (double precision)
-          s = n * 8
-          ptr_h = c_loc(x)
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
-    rank(2)
-       select type(x)
-       type is (integer)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (integer(8))       
-          s = n * 8
-          ptr_h = c_loc(x)
-       type is (real)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (double precision)
-          s = n * 8
-          ptr_h = c_loc(x)
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
-    rank(3)
-       select type(x)
-       type is (integer)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (integer(8))       
-          s = n * 8
-          ptr_h = c_loc(x)
-       type is (real)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (double precision)
-          s = n * 8
-          ptr_h = c_loc(x)
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
-    rank(4)
-       select type(x)
-       type is (integer)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (integer(8))       
-          s = n * 8
-          ptr_h = c_loc(x)
-       type is (real)
-          s = n * 4
-          ptr_h = c_loc(x)
-       type is (double precision)
-          s = n * 8
-          ptr_h = c_loc(x)
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
     end select
 
+    call device_memcpy_common(ptr_h, x_d, s, dir)
+    
+  end subroutine device_memcpy_r1
+
+  !> Copy data between host and device (rank 2 arrays)
+  subroutine device_memcpy_r2(x, x_d, n, dir)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:)
+    type(c_ptr), intent(inout) :: x_d
+    integer, intent(in), value :: dir
+    type(c_ptr) :: ptr_h
+    integer(c_size_t) :: s
+
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    call device_memcpy_common(ptr_h, x_d, s, dir)
+    
+  end subroutine device_memcpy_r2
+
+    !> Copy data between host and device (rank 2 arrays)
+  subroutine device_memcpy_r3(x, x_d, n, dir)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    integer, intent(in), value :: dir
+    type(c_ptr) :: ptr_h
+    integer(c_size_t) :: s
+
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    call device_memcpy_common(ptr_h, x_d, s, dir)
+    
+  end subroutine device_memcpy_r3
+
+    !> Copy data between host and device (rank 2 arrays)
+  subroutine device_memcpy_r4(x, x_d, n, dir)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    integer, intent(in), value :: dir
+    type(c_ptr) :: ptr_h
+    integer(c_size_t) :: s
+
+    select type(x)
+    type is (integer)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (integer(8))       
+       s = n * 8
+       ptr_h = c_loc(x)
+    type is (real)
+       s = n * 4
+       ptr_h = c_loc(x)
+    type is (double precision)
+       s = n * 8
+       ptr_h = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    call device_memcpy_common(ptr_h, x_d, s, dir)
+    
+  end subroutine device_memcpy_r4
+
+  !> Copy data between host and device
+  subroutine device_memcpy_common(ptr_h, x_d, s, dir)
+    type(c_ptr), intent(inout) :: ptr_h
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t), intent(in) :: s
+    integer, intent(in), value :: dir
 #ifdef HAVE_HIP
     if (hipmemcpy(ptr_h, x_d, s, dir) .ne. HIP_SUCCESS) then
        if (dir .eq. HOST_TO_DEVICE) then
@@ -157,27 +221,117 @@ contains
        end if
     end if
 #endif
-    
-  end subroutine device_memcpy
+
+  end subroutine device_memcpy_common
 
   !> Associate a Fortran array to a (allocated) device pointer
-  subroutine device_associate(x, x_d, n)
+  subroutine device_associate_r1(x, x_d, n)
     integer, intent(in) :: n
-    type(*), intent(inout), target :: x(..)
+    class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
-    htbl_ptr_h%ptr = c_loc(x)
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
     htbl_ptr_d%ptr = x_d
     
     call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
 
-  end subroutine device_associate
+  end subroutine device_associate_r1
+
+  !> Associate a Fortran array to a (allocated) device pointer
+  subroutine device_associate_r2(x, x_d, n)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    htbl_ptr_d%ptr = x_d
+    
+    call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
+
+  end subroutine device_associate_r2
+
+    !> Associate a Fortran array to a (allocated) device pointer
+  subroutine device_associate_r3(x, x_d, n)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    htbl_ptr_d%ptr = x_d
+    
+    call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
+
+  end subroutine device_associate_r3
+
+    !> Associate a Fortran array to a (allocated) device pointer
+  subroutine device_associate_r4(x, x_d, n)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    htbl_ptr_d%ptr = x_d
+    
+    call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
+
+  end subroutine device_associate_r4
   
   !> Map a Fortran array to a device (allocate and associate)
-  subroutine device_map(x, x_d, n)
+  subroutine device_map_r1(x, x_d, n)
     integer, intent(in) :: n
-    class(*), intent(inout), target :: x(..)
+    class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
 
@@ -185,69 +339,114 @@ contains
        call neko_error('Device pointer already associated')
     end if
 
-    select rank(x)
-    rank (1)
-       select type(x)
-       type is (integer)
-          s = n * 4
-       type is (integer(8))
-          s = n * 8
-       type is (real)
-          s = n * 4
-       type is (double precision)
-          s = n * 8
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
-    rank (2)
-       select type(x)
-       type is (integer)
-          s = n * 4
-       type is (integer(8))
-          s = n * 8
-       type is (real)
-          s = n * 4
-       type is (double precision)
-          s = n * 8
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
-    rank (3)
-       select type(x)
-       type is (integer)
-          s = n * 4
-       type is (integer(8))
-          s = n * 8
-       type is (real)
-          s = n * 4
-       type is (double precision)
-          s = n * 8
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
-    rank (4)
-       select type(x)
-       type is (integer)
-          s = n * 4
-       type is (integer(8))
-          s = n * 8
-       type is (real)
-          s = n * 4
-       type is (double precision)
-          s = n * 8
-       class default
-          call neko_error('Unknown Fortran type')
-       end select
+    select type(x)
+    type is (integer)
+       s = n * 4
+    type is (integer(8))
+       s = n * 8
+    type is (real)
+       s = n * 4
+    type is (double precision)
+       s = n * 8
+    class default
+       call neko_error('Unknown Fortran type')
     end select
 
     call device_alloc(x_d, s)
     call device_associate(x, x_d, n)
 
-  end subroutine device_map
- 
+  end subroutine device_map_r1
+
+  !> Map a Fortran array to a device (allocate and associate)
+  subroutine device_map_r2(x, x_d, n)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:)
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t) :: s
+
+    if (c_associated(x_d)) then
+       call neko_error('Device pointer already associated')
+    end if
+
+    select type(x)
+    type is (integer)
+       s = n * 4
+    type is (integer(8))
+       s = n * 8
+    type is (real)
+       s = n * 4
+    type is (double precision)
+       s = n * 8
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    call device_alloc(x_d, s)
+    call device_associate(x, x_d, n)
+
+  end subroutine device_map_r2
+
+  !> Map a Fortran array to a device (allocate and associate)
+  subroutine device_map_r3(x, x_d, n)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t) :: s
+
+    if (c_associated(x_d)) then
+       call neko_error('Device pointer already associated')
+    end if
+
+    select type(x)
+    type is (integer)
+       s = n * 4
+    type is (integer(8))
+       s = n * 8
+    type is (real)
+       s = n * 4
+    type is (double precision)
+       s = n * 8
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    call device_alloc(x_d, s)
+    call device_associate(x, x_d, n)
+
+  end subroutine device_map_r3
+
+    !> Map a Fortran array to a device (allocate and associate)
+  subroutine device_map_r4(x, x_d, n)
+    integer, intent(in) :: n
+    class(*), intent(inout), target :: x(:,:,:,:)
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t) :: s
+
+    if (c_associated(x_d)) then
+       call neko_error('Device pointer already associated')
+    end if
+
+    select type(x)
+    type is (integer)
+       s = n * 4
+    type is (integer(8))
+       s = n * 8
+    type is (real)
+       s = n * 4
+    type is (double precision)
+       s = n * 8
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    call device_alloc(x_d, s)
+    call device_associate(x, x_d, n)
+
+  end subroutine device_map_r4
+
   !> Check if a Fortran array is assoicated with a device pointer
   function device_associated(x) result(assoc)
-    type(*), intent(inout), target :: x(..)
+    type(*), intent(inout), target :: x(*)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     logical :: assoc
 
@@ -264,7 +463,7 @@ contains
   !> Return the device pointer for an associated Fortran
   function device_get_ptr(x, n)
     integer, intent(in) :: n
-    type(*), intent(in), target :: x(..)
+    type(*), intent(in), target :: x(*)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr
 
