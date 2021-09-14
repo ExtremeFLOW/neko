@@ -81,6 +81,24 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine cuda_dudxyz
   end interface
+
+  interface
+     subroutine cuda_opgrad(ux_d, uy_d, uz_d, u_d, &
+          dx_d, dy_d, dz_d, &
+          drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
+          bind(c, name='cuda_opgrad')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: w3_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_opgrad
+  end interface
 #endif
   
 contains
@@ -133,6 +151,13 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh)
 #ifdef HAVE_HIP
       call hip_opgrad(ux_d, uy_d, uz_d, u_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           Xh%w3_d, msh%nelv, Xh%lx)
+#elif HAVE_CUDA
+      call cuda_opgrad(ux_d, uy_d, uz_d, u_d, &
            Xh%dx_d, Xh%dy_d, Xh%dz_d, &
            coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
            coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
