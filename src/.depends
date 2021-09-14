@@ -143,6 +143,10 @@ bc/bcknd/device/hip/symmetry_kernel.o : bc/bcknd/device/hip/symmetry_kernel.hip
 bc/bcknd/device/hip/facet_normal_kernel.o : bc/bcknd/device/hip/facet_normal_kernel.hip 
 device/cuda/cuda_wrapper.o : device/cuda/cuda_wrapper.cu 
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu 
+math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h 
+math/bcknd/device/cuda/opr_cdtp.o : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
+math/bcknd/device/cuda/opr_conv1.o : math/bcknd/device/cuda/opr_conv1.cu math/bcknd/device/cuda/conv1_kernel.h
+math/bcknd/device/cuda/opr_opgrad.o : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h
 gs/bcknd/device/cuda/gs_kernels.o : gs/bcknd/device/cuda/gs_kernels.cu 
 bc/bcknd/device/cuda/dirichlet_kernel.o : bc/bcknd/device/cuda/dirichlet_kernel.cu 
 bc/bcknd/device/cuda/inflow_kernel.o : bc/bcknd/device/cuda/inflow_kernel.cu 
