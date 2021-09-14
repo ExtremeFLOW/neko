@@ -68,7 +68,19 @@ module opr_device
        type(c_ptr), value :: w3_d
        integer(c_int) :: nel, lx
      end subroutine hip_opgrad
-  end interface       
+  end interface
+
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
+          dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
+          bind(c, name='cuda_dudxyz')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_dudxyz
+  end interface
 #endif
   
 contains
@@ -91,6 +103,10 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
 #ifdef HAVE_HIP
       call hip_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, coef%jacinv_d, &
+           msh%nelv, Xh%lx)
+#elif HAVE_CUDA
+      call cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
            Xh%dx_d, Xh%dy_d, Xh%dz_d, coef%jacinv_d, &
            msh%nelv, Xh%lx)
 #else

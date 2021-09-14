@@ -158,6 +158,7 @@ if ENABLE_CUDA
 libneko_a_SOURCES += \
 	device/cuda/cuda_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
+	math/bcknd/device/cuda/opr_dudxyz.cu\
 	gs/bcknd/device/cuda/gs_kernels.cu\
 	bc/bcknd/device/cuda/dirichlet_kernel.cu\
 	bc/bcknd/device/cuda/inflow_kernel.cu\
@@ -181,6 +182,7 @@ endif
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
 	math/bcknd/device/hip/dudxyz_kernel.h\
+	math/bcknd/device/cuda/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
