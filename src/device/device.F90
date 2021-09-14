@@ -34,7 +34,7 @@ module device
           device_associated_r3, device_associated_r4
   end interface device_associated
 
-  !> Return the device pointer for an associated Fortran
+  !> Return the device pointer for an associated Fortran array
   interface device_get_ptr
      module procedure device_get_ptr_r1, device_get_ptr_r2, &
           device_get_ptr_r3, device_get_ptr_r4
@@ -148,7 +148,7 @@ contains
     
   end subroutine device_memcpy_r2
 
-    !> Copy data between host and device (rank 2 arrays)
+  !> Copy data between host and device (rank 3 arrays)
   subroutine device_memcpy_r3(x, x_d, n, dir)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:)
@@ -178,7 +178,7 @@ contains
     
   end subroutine device_memcpy_r3
 
-    !> Copy data between host and device (rank 2 arrays)
+  !> Copy data between host and device (rank 4 arrays)
   subroutine device_memcpy_r4(x, x_d, n, dir)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
@@ -238,7 +238,7 @@ contains
 
   end subroutine device_memcpy_common
 
-  !> Associate a Fortran array to a (allocated) device pointer
+  !> Associate a Fortran rank 1 array to a (allocated) device pointer
   subroutine device_associate_r1(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:)
@@ -264,7 +264,7 @@ contains
 
   end subroutine device_associate_r1
 
-  !> Associate a Fortran array to a (allocated) device pointer
+  !> Associate a Fortran rank 2 array to a (allocated) device pointer
   subroutine device_associate_r2(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:)
@@ -290,7 +290,7 @@ contains
 
   end subroutine device_associate_r2
 
-  !> Associate a Fortran array to a (allocated) device pointer
+  !> Associate a Fortran rank 3 array to a (allocated) device pointer
   subroutine device_associate_r3(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:)
@@ -316,7 +316,7 @@ contains
 
   end subroutine device_associate_r3
 
-  !> Associate a Fortran array to a (allocated) device pointer
+  !> Associate a Fortran rank 4 array to a (allocated) device pointer
   subroutine device_associate_r4(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
@@ -342,7 +342,7 @@ contains
 
   end subroutine device_associate_r4
   
-  !> Map a Fortran array to a device (allocate and associate)
+  !> Map a Fortran rank 1 array to a device (allocate and associate)
   subroutine device_map_r1(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:)
@@ -371,7 +371,7 @@ contains
 
   end subroutine device_map_r1
 
-  !> Map a Fortran array to a device (allocate and associate)
+  !> Map a Fortran rank 2 array to a device (allocate and associate)
   subroutine device_map_r2(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:)
@@ -400,7 +400,7 @@ contains
 
   end subroutine device_map_r2
 
-  !> Map a Fortran array to a device (allocate and associate)
+  !> Map a Fortran rank 3 array to a device (allocate and associate)
   subroutine device_map_r3(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:)
@@ -429,7 +429,7 @@ contains
 
   end subroutine device_map_r3
 
-  !> Map a Fortran array to a device (allocate and associate)
+  !> Map a Fortran rank 4 array to a device (allocate and associate)
   subroutine device_map_r4(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
@@ -458,7 +458,7 @@ contains
 
   end subroutine device_map_r4
 
-  !> Check if a Fortran array is assoicated with a device pointer
+  !> Check if a Fortran rank 1 array is assoicated with a device pointer
   function device_associated_r1(x) result(assoc)
     class(*), intent(inout), target :: x(:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -485,7 +485,7 @@ contains
     
   end function device_associated_r1
 
-  !> Check if a Fortran array is assoicated with a device pointer
+  !> Check if a Fortran rank 2 array is assoicated with a device pointer
   function device_associated_r2(x) result(assoc)
     class(*), intent(inout), target :: x(:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -512,7 +512,7 @@ contains
     
   end function device_associated_r2
 
-  !> Check if a Fortran array is assoicated with a device pointer
+  !> Check if a Fortran rank 3 array is assoicated with a device pointer
   function device_associated_r3(x) result(assoc)
     class(*), intent(inout), target :: x(:,:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -539,7 +539,7 @@ contains
     
   end function device_associated_r3
 
-  !> Check if a Fortran array is assoicated with a device pointer
+  !> Check if a Fortran rank 4 array is assoicated with a device pointer
   function device_associated_r4(x) result(assoc)
     class(*), intent(inout), target :: x(:,:,:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -566,7 +566,7 @@ contains
     
   end function device_associated_r4
 
-  !> Return the device pointer for an associated Fortran
+  !> Return the device pointer for an associated Fortran rank 1 array
   function device_get_ptr_r1(x, n)
     integer, intent(in) :: n
     class(*), intent(in), target :: x(:)
@@ -595,7 +595,7 @@ contains
     end if
   end function device_get_ptr_r1
 
-  !> Return the device pointer for an associated Fortran
+  !> Return the device pointer for an associated Fortran rank 2 array
   function device_get_ptr_r2(x, n)
     integer, intent(in) :: n
     class(*), intent(in), target :: x(:,:)
@@ -624,7 +624,7 @@ contains
     end if
   end function device_get_ptr_r2
 
-  !> Return the device pointer for an associated Fortran
+  !> Return the device pointer for an associated Fortran rank 3 array
   function device_get_ptr_r3(x, n)
     integer, intent(in) :: n
     class(*), intent(in), target :: x(:,:,:)
@@ -653,7 +653,7 @@ contains
     end if
   end function device_get_ptr_r3
 
-  !> Return the device pointer for an associated Fortran
+  !> Return the device pointer for an associated Fortran rank 4 array
   function device_get_ptr_r4(x, n)
     integer, intent(in) :: n
     class(*), intent(in), target :: x(:,:,:,:)
