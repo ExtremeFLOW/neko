@@ -55,7 +55,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2018"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
           make -j$(nproc)
       - name: Check
         run: |
@@ -99,7 +99,7 @@ jobs:
         run: |
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
-          make FCFLAGS="-O2 -stand f18 -warn errors" -j$(nproc)
+          make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 #      - name: Check
 #        run: |
 #          make check
