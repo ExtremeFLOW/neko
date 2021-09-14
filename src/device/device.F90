@@ -10,22 +10,36 @@ module device
 
   integer, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2
 
+  !> Copy data between host and device
   interface device_memcpy
      module procedure device_memcpy_r1, device_memcpy_r2, &
           device_memcpy_r3, device_memcpy_r4
   end interface device_memcpy
 
+  !> Map a Fortran array to a device (allocate and associate)
   interface device_map
      module procedure device_map_r1, device_map_r2, &
           device_map_r3, device_map_r4
   end interface device_map
 
+  !> Associate a Fortran array to a (allocated) device pointer
   interface device_associate
      module procedure device_associate_r1, device_associate_r2, &
           device_associate_r3, device_associate_r4
   end interface device_associate
-     
-  
+
+  !> Check if a Fortran array is assoicated with a device pointer
+  interface device_associated
+     module procedure device_associated_r1, device_associated_r2, &
+          device_associated_r3, device_associated_r4
+  end interface device_associated
+
+  !> Return the device pointer for an associated Fortran
+  interface device_get_ptr
+     module procedure device_get_ptr_r1, device_get_ptr_r2, &
+          device_get_ptr_r3, device_get_ptr_r4
+  end interface device_get_ptr
+      
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
 
@@ -276,7 +290,7 @@ contains
 
   end subroutine device_associate_r2
 
-    !> Associate a Fortran array to a (allocated) device pointer
+  !> Associate a Fortran array to a (allocated) device pointer
   subroutine device_associate_r3(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:)
@@ -302,7 +316,7 @@ contains
 
   end subroutine device_associate_r3
 
-    !> Associate a Fortran array to a (allocated) device pointer
+  !> Associate a Fortran array to a (allocated) device pointer
   subroutine device_associate_r4(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
@@ -415,7 +429,7 @@ contains
 
   end subroutine device_map_r3
 
-    !> Map a Fortran array to a device (allocate and associate)
+  !> Map a Fortran array to a device (allocate and associate)
   subroutine device_map_r4(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
@@ -445,12 +459,23 @@ contains
   end subroutine device_map_r4
 
   !> Check if a Fortran array is assoicated with a device pointer
-  function device_associated(x) result(assoc)
-    type(*), intent(inout), target :: x(*)
+  function device_associated_r1(x) result(assoc)
+    class(*), intent(inout), target :: x(:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     logical :: assoc
 
-    htbl_ptr_h%ptr = c_loc(x)
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
 
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
        assoc = .true.
@@ -458,24 +483,204 @@ contains
        assoc = .false.       
     end if
     
-  end function device_associated
-  
-  !> Return the device pointer for an associated Fortran
-  function device_get_ptr(x, n)
-    integer, intent(in) :: n
-    type(*), intent(in), target :: x(*)
-    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
-    type(c_ptr) :: device_get_ptr
+  end function device_associated_r1
 
-    device_get_ptr = C_NULL_PTR
-    htbl_ptr_h%ptr = c_loc(x)
+  !> Check if a Fortran array is assoicated with a device pointer
+  function device_associated_r2(x) result(assoc)
+    class(*), intent(inout), target :: x(:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    logical :: assoc
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
 
     if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
-       device_get_ptr = htbl_ptr_d%ptr
+       assoc = .true.
+    else
+       assoc = .false.       
+    end if
+    
+  end function device_associated_r2
+
+  !> Check if a Fortran array is assoicated with a device pointer
+  function device_associated_r3(x) result(assoc)
+    class(*), intent(inout), target :: x(:,:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    logical :: assoc
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       assoc = .true.
+    else
+       assoc = .false.       
+    end if
+    
+  end function device_associated_r3
+
+  !> Check if a Fortran array is assoicated with a device pointer
+  function device_associated_r4(x) result(assoc)
+    class(*), intent(inout), target :: x(:,:,:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    logical :: assoc
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       assoc = .true.
+    else
+       assoc = .false.       
+    end if
+    
+  end function device_associated_r4
+
+  !> Return the device pointer for an associated Fortran
+  function device_get_ptr_r1(x, n)
+    integer, intent(in) :: n
+    class(*), intent(in), target :: x(:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    type(c_ptr) :: device_get_ptr_r1
+
+    device_get_ptr_r1 = C_NULL_PTR
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       device_get_ptr_r1 = htbl_ptr_d%ptr
     else
        call neko_error('Array not associated with device')
     end if
-  end function device_get_ptr
+  end function device_get_ptr_r1
+
+  !> Return the device pointer for an associated Fortran
+  function device_get_ptr_r2(x, n)
+    integer, intent(in) :: n
+    class(*), intent(in), target :: x(:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    type(c_ptr) :: device_get_ptr_r2
+
+    device_get_ptr_r2 = C_NULL_PTR
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       device_get_ptr_r2 = htbl_ptr_d%ptr
+    else
+       call neko_error('Array not associated with device')
+    end if
+  end function device_get_ptr_r2
+
+  !> Return the device pointer for an associated Fortran
+  function device_get_ptr_r3(x, n)
+    integer, intent(in) :: n
+    class(*), intent(in), target :: x(:,:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    type(c_ptr) :: device_get_ptr_r3
+
+    device_get_ptr_r3 = C_NULL_PTR
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       device_get_ptr_r3 = htbl_ptr_d%ptr
+    else
+       call neko_error('Array not associated with device')
+    end if
+  end function device_get_ptr_r3
+
+  !> Return the device pointer for an associated Fortran
+  function device_get_ptr_r4(x, n)
+    integer, intent(in) :: n
+    class(*), intent(in), target :: x(:,:,:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+    type(c_ptr) :: device_get_ptr_r4
+
+    device_get_ptr_r4 = C_NULL_PTR
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(8))
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       device_get_ptr_r4 = htbl_ptr_d%ptr
+    else
+       call neko_error('Array not associated with device')
+    end if
+  end function device_get_ptr_r4
   
   !> Synchronize the device
   subroutine device_sync()
