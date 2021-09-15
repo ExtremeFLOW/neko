@@ -2,27 +2,27 @@
  * Device kernel for derivative 
  */
 
-template< const int LX, const int CHUNKS >
-__global__ void dudxyz_kernel(double * __restrict__ du,
-			      const double * __restrict__ u,
-			      const double * __restrict__ dr,
-			      const double * __restrict__ ds,
-			      const double * __restrict__ dt,
-			      const double * __restrict__ dx,
-			      const double * __restrict__ dy,
-			      const double * __restrict__ dz,
-			      const double * __restrict__ jacinv) { 
+template< typename T, const int LX, const int CHUNKS >
+__global__ void dudxyz_kernel(T * __restrict__ du,
+			      const T * __restrict__ u,
+			      const T * __restrict__ dr,
+			      const T * __restrict__ ds,
+			      const T * __restrict__ dt,
+			      const T * __restrict__ dx,
+			      const T * __restrict__ dy,
+			      const T * __restrict__ dz,
+			      const T * __restrict__ jacinv) { 
   
-  __shared__ double shu[LX * LX * LX];
-  __shared__ double shdr[LX * LX * LX];
-  __shared__ double shds[LX * LX * LX];
-  __shared__ double shdt[LX * LX * LX];
+  __shared__ T shu[LX * LX * LX];
+  __shared__ T shdr[LX * LX * LX];
+  __shared__ T shds[LX * LX * LX];
+  __shared__ T shdt[LX * LX * LX];
 
-  __shared__ double shdx[LX * LX];
-  __shared__ double shdy[LX * LX];
-  __shared__ double shdz[LX * LX];
+  __shared__ T shdx[LX * LX];
+  __shared__ T shdy[LX * LX];
+  __shared__ T shdz[LX * LX];
   
-  __shared__ double shjacinv[LX * LX * LX];
+  __shared__ T shjacinv[LX * LX * LX];
   
   int i,j,k;
   
@@ -55,9 +55,9 @@ __global__ void dudxyz_kernel(double * __restrict__ du,
     k = jk / LX;
     j = jk - k * LX;
     if ( i < LX && j < LX && k < LX) {
-      double rtmp = 0.0;
-      double stmp = 0.0;
-      double ttmp = 0.0;
+      T rtmp = 0.0;
+      T stmp = 0.0;
+      T ttmp = 0.0;
       for (int l = 0; l < LX; l++) {
 	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];
 	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];

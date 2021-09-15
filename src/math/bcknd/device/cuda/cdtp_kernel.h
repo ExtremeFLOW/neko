@@ -2,29 +2,29 @@
  * Device kernel for \f$ D^T x \f$
  */
 
-template< const int LX, const int CHUNKS >
-__global__ void cdtp_kernel(double * __restrict__ dtx,
-			    const double * __restrict__ x,
-			    const double * __restrict__ dr,
-			    const double * __restrict__ ds,
-			    const double * __restrict__ dt,
-			    const double * __restrict__ dxt,
-			    const double * __restrict__ dyt,
-			    const double * __restrict__ dzt,
-			    const double * __restrict__ B,
-			    const double * __restrict__ jac) { 
+template< typename T, const int LX, const int CHUNKS >
+__global__ void cdtp_kernel(T * __restrict__ dtx,
+			    const T * __restrict__ x,
+			    const T * __restrict__ dr,
+			    const T * __restrict__ ds,
+			    const T * __restrict__ dt,
+			    const T * __restrict__ dxt,
+			    const T * __restrict__ dyt,
+			    const T * __restrict__ dzt,
+			    const T * __restrict__ B,
+			    const T * __restrict__ jac) { 
   
-  __shared__ double shx[LX * LX * LX];
-  __shared__ double shdr[LX * LX * LX];
-  __shared__ double shds[LX * LX * LX];
-  __shared__ double shdt[LX * LX * LX];
+  __shared__ T shx[LX * LX * LX];
+  __shared__ T shdr[LX * LX * LX];
+  __shared__ T shds[LX * LX * LX];
+  __shared__ T shdt[LX * LX * LX];
 
-  __shared__ double shdxt[LX * LX];
-  __shared__ double shdyt[LX * LX];
-  __shared__ double shdzt[LX * LX];
+  __shared__ T shdxt[LX * LX];
+  __shared__ T shdyt[LX * LX];
+  __shared__ T shdzt[LX * LX];
   
-  __shared__ double shjac[LX * LX * LX];
-  __shared__ double shB[LX * LX * LX];
+  __shared__ T shjac[LX * LX * LX];
+  __shared__ T shB[LX * LX * LX];
   
   int i,j,k;
   
@@ -62,25 +62,25 @@ __global__ void cdtp_kernel(double * __restrict__ dtx,
     k = jk / LX;
     j = jk - k * LX;
     if ( i < LX && j < LX && k < LX) {
-      double rtmp = 0.0;
-      double stmp = 0.0;
-      double ttmp = 0.0;
+      T rtmp = 0.0;
+      T stmp = 0.0;
+      T ttmp = 0.0;
       for (int l = 0; l < LX; l++) {
 
 	// col3(wx, B, x) + invcol2(wx, jac) + col3(ta1, wx, dr)
-	const double ta1_r = (((shB[l + j * LX + k * LX * LX]
+	const T ta1_r = (((shB[l + j * LX + k * LX * LX]
 				* shx[l + j * LX + k * LX * LX]) /
 			       shjac[l + j * LX + k * LX * LX]) *
 			      shdr[l + j * LX + k * LX * LX]);
 
 	// col3(wx, B, x) + invcol2(wx, jac) + col3(ta1, wx, ds)
-	const double ta1_s = (((shB[i + l * LX + k * LX * LX]
+	const T ta1_s = (((shB[i + l * LX + k * LX * LX]
 				* shx[i + l * LX + k * LX * LX]) /
 			       shjac[i + l * LX + k * LX * LX])
 			      * shds[i + l * LX + k * LX * LX]);
 
 	// col3(wx, B, x) + invcol2(wx, jac) + col3(ta1, wx, dt)
-	const double ta1_t = (((shB[i + j * LX + l * LX * LX]
+	const T  ta1_t = (((shB[i + j * LX + l * LX * LX]
 				* shx[i + j * LX + l * LX * LX]) /
 			       shjac[i + j * LX + l * LX * LX])
 			      * shdt[i + j * LX + l * LX * LX]);
