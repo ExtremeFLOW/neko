@@ -20,7 +20,7 @@ extern "C" {
 
     switch(*lx) {
     case 2:
-      opgrad_kernel<2, 1024>
+      opgrad_kernel<double, 2, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -29,7 +29,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 3:
-      opgrad_kernel<3, 1024>
+      opgrad_kernel<double, 3, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -38,7 +38,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 4:
-      opgrad_kernel<4, 1024>
+      opgrad_kernel<double, 4, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -47,7 +47,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 5:
-      opgrad_kernel<5, 1024>
+      opgrad_kernel<double, 5, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -56,7 +56,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 6:
-      opgrad_kernel<6, 1024>
+      opgrad_kernel<double, 6, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -65,7 +65,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 7:
-      opgrad_kernel<7, 1024>
+      opgrad_kernel<double, 7, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -74,7 +74,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 8:
-      opgrad_kernel<8, 1024>
+      opgrad_kernel<double, 8, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -83,7 +83,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 9:
-      opgrad_kernel<9, 1024>
+      opgrad_kernel<double, 9, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,
@@ -92,7 +92,7 @@ extern "C" {
 			     (double *) w3);
       break;     
     case 10:
-      opgrad_kernel<10, 1024>
+      opgrad_kernel<double, 10, 1024>
 	<<<nblcks, nthrds>>>((double *) ux, (double *) uy, (double *) uz, (double *) u,
 			     (double *) dx, (double *) dy, (double *) dz,
 			     (double *) drdx, (double *) dsdx, (double *) dtdx,

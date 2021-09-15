@@ -2,37 +2,37 @@
  * Device kernel for convective terms
  */
 
-template< const int LX, const int CHUNKS >
-__global__ void conv1_kernel(double * __restrict__ du,
-			     const double * __restrict__ u,
-			     const double * __restrict__ vx,
-			     const double * __restrict__ vy,
-			     const double * __restrict__ vz,
-			     const double * __restrict__ dx,
-			     const double * __restrict__ dy,
-			     const double * __restrict__ dz,
-			     const double * __restrict__ drdx,
-			     const double * __restrict__ dsdx,
-			     const double * __restrict__ dtdx,
-			     const double * __restrict__ drdy,
-			     const double * __restrict__ dsdy,
-			     const double * __restrict__ dtdy,
-			     const double * __restrict__ drdz,
-			     const double * __restrict__ dsdz,
-			     const double * __restrict__ dtdz,
-			     const double * __restrict__ jacinv) { 
+template< typename T, const int LX, const int CHUNKS >
+__global__ void conv1_kernel(T * __restrict__ du,
+			     const T * __restrict__ u,
+			     const T * __restrict__ vx,
+			     const T * __restrict__ vy,
+			     const T * __restrict__ vz,
+			     const T * __restrict__ dx,
+			     const T * __restrict__ dy,
+			     const T * __restrict__ dz,
+			     const T * __restrict__ drdx,
+			     const T * __restrict__ dsdx,
+			     const T * __restrict__ dtdx,
+			     const T * __restrict__ drdy,
+			     const T * __restrict__ dsdy,
+			     const T * __restrict__ dtdy,
+			     const T * __restrict__ drdz,
+			     const T * __restrict__ dsdz,
+			     const T * __restrict__ dtdz,
+			     const T * __restrict__ jacinv) { 
 
-  __shared__ double shu[LX * LX * LX];
+  __shared__ T shu[LX * LX * LX];
 
-  __shared__ double shvx[LX * LX * LX];
-  __shared__ double shvy[LX * LX * LX];
-  __shared__ double shvz[LX * LX * LX];
+  __shared__ T shvx[LX * LX * LX];
+  __shared__ T shvy[LX * LX * LX];
+  __shared__ T shvz[LX * LX * LX];
   
-  __shared__ double shdx[LX * LX];
-  __shared__ double shdy[LX * LX];
-  __shared__ double shdz[LX * LX];
+  __shared__ T shdx[LX * LX];
+  __shared__ T shdy[LX * LX];
+  __shared__ T shdz[LX * LX];
   
-  __shared__ double shjacinv[LX * LX * LX];
+  __shared__ T shjacinv[LX * LX * LX];
 
   
   int i,j,k;
@@ -69,9 +69,9 @@ __global__ void conv1_kernel(double * __restrict__ du,
     k = jk / LX;
     j = jk - k * LX;
     if ( i < LX && j < LX && k < LX) {
-      double rtmp = 0.0;
-      double stmp = 0.0;
-      double ttmp = 0.0;
+      T rtmp = 0.0;
+      T stmp = 0.0;
+      T ttmp = 0.0;
       for (int l = 0; l < LX; l++) {		
 	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
 	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
