@@ -61,41 +61,17 @@ module coefs
      ! Device pointers (if present)
      ! 
      
-     type(c_ptr) :: G11_d = C_NULL_PTR
-     type(c_ptr) :: G22_d = C_NULL_PTR
-     type(c_ptr) :: G33_d = C_NULL_PTR
-     type(c_ptr) :: G12_d = C_NULL_PTR
-     type(c_ptr) :: G13_d = C_NULL_PTR
-     type(c_ptr) :: G23_d = C_NULL_PTR
-     type(c_ptr) :: dxdr_d = C_NULL_PTR
-     type(c_ptr) :: dydr_d = C_NULL_PTR
-     type(c_ptr) :: dzdr_d = C_NULL_PTR
-     type(c_ptr) :: dxds_d = C_NULL_PTR
-     type(c_ptr) :: dyds_d = C_NULL_PTR
-     type(c_ptr) :: dzds_d = C_NULL_PTR
-     type(c_ptr) :: dxdt_d = C_NULL_PTR
-     type(c_ptr) :: dydt_d = C_NULL_PTR
-     type(c_ptr) :: dzdt_d = C_NULL_PTR
-     type(c_ptr) :: drdx_d = C_NULL_PTR
-     type(c_ptr) :: drdy_d = C_NULL_PTR
-     type(c_ptr) :: drdz_d = C_NULL_PTR
-     type(c_ptr) :: dsdx_d = C_NULL_PTR
-     type(c_ptr) :: dsdy_d = C_NULL_PTR
-     type(c_ptr) :: dsdz_d = C_NULL_PTR
-     type(c_ptr) :: dtdx_d = C_NULL_PTR
-     type(c_ptr) :: dtdy_d = C_NULL_PTR
-     type(c_ptr) :: dtdz_d = C_NULL_PTR
-     type(c_ptr) :: mult_d = C_NULL_PTR
-     type(c_ptr) :: h1_d = C_NULL_PTR
-     type(c_ptr) :: h2_d = C_NULL_PTR
-     type(c_ptr) :: jac_d = C_NULL_PTR
-     type(c_ptr) :: jacinv_d = C_NULL_PTR
-     type(c_ptr) :: B_d = C_NULL_PTR
-     type(c_ptr) :: Binv_d = C_NULL_PTR
-     type(c_ptr) :: area_d = C_NULL_PTR
-     type(c_ptr) :: nx_d = C_NULL_PTR
-     type(c_ptr) :: ny_d = C_NULL_PTR
-     type(c_ptr) :: nz_d = C_NULL_PTR
+     type(c_ptr) :: G11_d, G22_d, G33_d
+     type(c_ptr) :: G12_d, G13_d, G23_d
+     type(c_ptr) :: dxdr_d, dydr_d, dzdr_d
+     type(c_ptr) :: dxds_d, dyds_d, dzds_d
+     type(c_ptr) :: dxdt_d, dydt_d, dzdt_d
+     type(c_ptr) :: drdx_d, drdy_d, drdz_d
+     type(c_ptr) :: dsdx_d, dsdy_d, dsdz_d
+     type(c_ptr) :: dtdx_d, dtdy_d, dtdz_d
+     type(c_ptr) :: mult_d, h1_d, h2_d
+     type(c_ptr) :: jac_d, jacinv_d, B_d, Binv_d
+     type(c_ptr) :: area_d, nx_d, ny_d, nz_d
 
   end type coef_t
 
@@ -254,7 +230,7 @@ contains
        coef%nx_d = C_NULL_PTR
        coef%ny_d = C_NULL_PTR
        coef%nz_d = C_NULL_PTR       
-    end if
+  end if
 
     call coef_generate_dxyzdrst(coef)
     
