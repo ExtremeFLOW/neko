@@ -448,7 +448,7 @@ contains
       end do
 
       dims = [c%Xh%lx, c%Xh%lx, c%Xh%lx, c%msh%nelv]
-      call mmb_layout_create_regular_nd(int(storage_size(1.0)/8, mmbSizeKind), &
+      call mmb_layout_create_regular_nd(int(storage_size(1.0_rp)/8, mmbSizeKind), &
            4_mmbSizeKind, MMB_COLMAJOR, mmb_layout_padding_create_zero(),&
            c%layout, err)
 
@@ -472,12 +472,12 @@ contains
       call mmb_array_tile(c%mba_g13, dims, err)
       call mmb_array_tile(c%mba_g23, dims, err)
 
-    call mmb_tile_iterator_create(c%mba_g11, c%mba_g11_it, err)
-    call mmb_tile_iterator_create(c%mba_g22, c%mba_g22_it, err)
-    call mmb_tile_iterator_create(c%mba_g33, c%mba_g33_it, err)
-    call mmb_tile_iterator_create(c%mba_g12, c%mba_g12_it, err)
-    call mmb_tile_iterator_create(c%mba_g13, c%mba_g13_it, err)
-    call mmb_tile_iterator_create(c%mba_g23, c%mba_g23_it, err)
+      call mmb_tile_iterator_create(c%mba_g11, c%mba_g11_it, err)
+      call mmb_tile_iterator_create(c%mba_g22, c%mba_g22_it, err)
+      call mmb_tile_iterator_create(c%mba_g33, c%mba_g33_it, err)
+      call mmb_tile_iterator_create(c%mba_g12, c%mba_g12_it, err)
+      call mmb_tile_iterator_create(c%mba_g13, c%mba_g13_it, err)
+      call mmb_tile_iterator_create(c%mba_g23, c%mba_g23_it, err)
 
     end associate
   end subroutine coef_generate_geo

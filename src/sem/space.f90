@@ -154,8 +154,8 @@ contains
     end if
     
     dims = [s%lx, s%lx]
-    call mmb_layout_create_regular_nd(int(storage_size(1.0)/8, mmbSizeKind), &
-         4_mmbSizeKind, MMB_COLMAJOR, mmb_layout_padding_create_zero(),&
+    call mmb_layout_create_regular_nd(int(storage_size(1.0_rp)/8, mmbSizeKind), &
+         2_mmbSizeKind, MMB_COLMAJOR, mmb_layout_padding_create_zero(),&
          s%layout, err)
 
     call mmb_array_create_wrapped(s%dx, dims, s%layout, &
