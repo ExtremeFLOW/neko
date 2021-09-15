@@ -18,56 +18,56 @@ extern "C" {
 
     switch(*lx) {
     case 2:
-      cdtp_kernel<2, 1024>
+      cdtp_kernel<double, 2, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
 			     (double *) B, (double *) jac);
       break;     
     case 3:
-      cdtp_kernel<3, 1024>
+      cdtp_kernel<double, 3, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
 			     (double *) B, (double *) jac);
       break;     
     case 4:
-      cdtp_kernel<4, 1024>
+      cdtp_kernel<double, 4, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
 			     (double *) B, (double *) jac);
       break;     
     case 5:
-      cdtp_kernel<5, 1024>
+      cdtp_kernel<double, 5, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
 			     (double *) B, (double *) jac);
       break;     
     case 6:
-      cdtp_kernel<6, 1024>
+      cdtp_kernel<double, 6, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
 			     (double *) B, (double *) jac);
       break;     
     case 7:
-      cdtp_kernel<7, 1024>
+      cdtp_kernel<double, 7, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
 			     (double *) B, (double *) jac);
       break;     
     case 8:
-      cdtp_kernel<8, 1024>
+      cdtp_kernel<double, 8, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
 			     (double *) B, (double *) jac);
       break;     
     case 9:
-      cdtp_kernel<9, 1024>
+      cdtp_kernel<double, 9, 1024>
 	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
 			     (double *) dr, (double *) ds, (double *) dt,
 			     (double *) dxt, (double *) dyt, (double *) dzt,
