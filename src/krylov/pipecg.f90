@@ -212,10 +212,6 @@ contains
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
-                  !p(i) = beta * p(i) + u(i)
-                  !p(i) = beta(p_cur) * p(i) + u(i,u_prev)
- 
-                  !x%x(i,1,1,1) = x%x(i,1,1,1) + alpha(p_cur) * p(i)
                   r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
                   u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
                   w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
@@ -228,10 +224,6 @@ contains
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
-                  !p(i) = beta * p(i) + u(i)
-                  !p(i) = beta(p_cur) * p(i) + u(i,u_prev)
- 
-                  !x%x(i,1,1,1) = x%x(i,1,1,1) + alpha(p_cur) * p(i)
                   r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
                   u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
                   w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
