@@ -279,7 +279,7 @@ contains
             p_cur = p_cur + 1
          end if
       end do
-      if ((rnorm .lt. this%abs_tol .or. iter .eq. max_iter) .and. p_cur .ne. 1) then
+      if ( p_cur .ne. 1) then
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
