@@ -22,7 +22,7 @@ extern "C" {
 
     switch(*lx) {
     case 2:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<2, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 2, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -33,7 +33,7 @@ extern "C" {
 			 (double *) jacinv);
       break;     
     case 3:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<3, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 3, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -44,7 +44,7 @@ extern "C" {
 			 (double *) jacinv);
       break;     
     case 4:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<4, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 4, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -55,7 +55,7 @@ extern "C" {
 			 (double *) jacinv);
       break;     
     case 5:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<5, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 5, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -66,7 +66,7 @@ extern "C" {
 			 (double *) jacinv);
       break;     
     case 6:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<6, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 6, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -77,7 +77,7 @@ extern "C" {
 			 (double *) jacinv);
       break;     
     case 7:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<7, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 7, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -88,7 +88,7 @@ extern "C" {
 			 (double *) jacinv);     
       break;     
     case 8:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<8, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 8, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -99,7 +99,7 @@ extern "C" {
 			 (double *) jacinv);
       break;     
     case 9:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<9, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 9, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
@@ -110,7 +110,7 @@ extern "C" {
 			 (double *) jacinv);
       break;     
     case 10:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<10, 1024> ),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( conv1_kernel<double, 10, 1024> ),
 			 nblcks, nthrds, 0, 0,
 			 (double *) du, (double *) u,
 			 (double *) vx, (double *) vy, (double *) vz,
