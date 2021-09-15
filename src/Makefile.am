@@ -184,6 +184,8 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/cuda/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\

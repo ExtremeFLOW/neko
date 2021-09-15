@@ -1,149 +1,4 @@
-/**
- * Device kernel for add2s1
- */
-__global__ void add2s1_kernel(double * __restrict__ a,
-			      const double * __restrict__ b,
-			      const double c1,
-			      const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = c1 * a[i] + b[i];
-  }
-}
-
-/**
- * Device kernel for add2s2
- */
-__global__ void add2s2_kernel(double * __restrict__ a,
-			      const double * __restrict__ b,
-			      const double c1,
-			      const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = a[i] + c1 * b[i];
-  }
-}
-
-/**
- * Device kernel for invcol2
- */
-__global__ void invcol2_kernel(double * __restrict__ a,
-			       const double * __restrict__ b,
-			       const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-  
-  for (int i = idx; i < n; i += str) {
-    a[i] = a[i] / b[i];
-  }  
-}
-
-/** 
- * Device kernel for col2
- */
-__global__ void col2_kernel(double * __restrict__ a,
-			    const double * __restrict__ b,
-			    const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = a[i] * b[i];
-  }  
-}
-
-/** 
- * Device kernel for col3
- */
-__global__ void col3_kernel(double * __restrict__ a,
-			    const double * __restrict__ b,
-			    const double * __restrict__ c,
-			    const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = b[i] * c[i];
-  }  
-}
-
-/** 
- * Device kernel for sub3
- */
-__global__ void sub3_kernel(double * __restrict__ a,
-			    const double * __restrict__ b,
-			    const double * __restrict__ c,
-			    const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = b[i] - c[i];
-  }  
-}
-
-/**
- * Device kernel for addcol3
- */
-__global__ void addcol3_kernel(double * __restrict__ a,
-			    const double * __restrict__ b,
-			    const double * __restrict__ c,
-			    const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = a[i] + b[i] * c[i];
-  }  
-  
-
-}
-
-/**
- * Device kernel for glsc3
- */
-__global__ void glsc3_kernel(const double * a,
-			     const double * b,
-			     const double * c,
-			     double * buf_h,
-			     const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  __shared__ double buf[1024];
-  double tmp = 0.0;
-
-  for (int i = idx; i < n; i+= str) {
-    tmp += a[i] * b[i] * c[i];
-  }
-  buf[threadIdx.x] = tmp;
-  __syncthreads();
-
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x] += buf[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
-  }
- 
-  if (threadIdx.x == 0) {
-    buf_h[blockIdx.x] = buf[0];
-  }
-}
+#include "math_kernel.h"
 
 extern "C" {
 
@@ -172,9 +27,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add2s1_kernel<<<nblcks, nthrds>>>((double *) a,
-				      (double *) b,
-				      *c1, *n);
+    add2s1_kernel<double><<<nblcks, nthrds>>>((double *) a,
+					      (double *) b,
+					      *c1, *n);
     
   }
 
@@ -188,9 +43,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add2s2_kernel<<<nblcks, nthrds>>>((double *) a,
-				      (double *) b,
-				      *c1, *n);
+    add2s2_kernel<double><<<nblcks, nthrds>>>((double *) a,
+					      (double *) b,
+					      *c1, *n);
 
   }
 
@@ -203,8 +58,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    invcol2_kernel<<<nblcks, nthrds>>>((double *) a,
-				       (double *) b, *n);
+    invcol2_kernel<double><<<nblcks, nthrds>>>((double *) a,
+					       (double *) b, *n);
   }
   
   /**
@@ -216,8 +71,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    col2_kernel<<<nblcks, nthrds>>>((double *) a, 
-				    (double *) b, *n);
+    col2_kernel<double><<<nblcks, nthrds>>>((double *) a, 
+					    (double *) b, *n);
   }
   
   /**
@@ -229,8 +84,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    col3_kernel<<<nblcks, nthrds>>>((double *) a, (double *) b,
-				    (double *) c, *n);
+    col3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b,
+					    (double *) c, *n);
   }
   
 
@@ -243,8 +98,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    sub3_kernel<<<nblcks, nthrds>>>((double *) a, (double *) b, 
-				    (double *) c, *n);
+    sub3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b, 
+					    (double *) c, *n);
   }
 
   /**
@@ -256,8 +111,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    addcol3_kernel<<<nblcks, nthrds>>>((double *) a, (double *) b,
-				       (double *) c, *n);
+    addcol3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b,
+					       (double *) c, *n);
   }
 
   /**
@@ -275,8 +130,8 @@ extern "C" {
 
     cudaMalloc(&buf_d, nb*sizeof(double));
      
-    glsc3_kernel<<<nblcks, nthrds>>>((double *) a, (double *) b,
-				     (double *) c, buf_d, *n);
+    glsc3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b,
+					     (double *) c, buf_d, *n);
 
     cudaMemcpy(buf, buf_d, nb * sizeof(double), cudaMemcpyDeviceToHost);
 
