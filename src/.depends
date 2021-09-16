@@ -147,7 +147,7 @@ math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/
 math/bcknd/device/cuda/opr_cdtp.o : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
 math/bcknd/device/cuda/opr_conv1.o : math/bcknd/device/cuda/opr_conv1.cu math/bcknd/device/cuda/conv1_kernel.h
 math/bcknd/device/cuda/opr_opgrad.o : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h
-gs/bcknd/device/cuda/gs_kernels.o : gs/bcknd/device/cuda/gs_kernels.cu 
+gs/bcknd/device/cuda/gs.o : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h
 bc/bcknd/device/cuda/dirichlet.o : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h
 bc/bcknd/device/cuda/inflow.o : bc/bcknd/device/cuda/inflow.cu bc/bcknd/device/cuda/inflow_kernel.h
 bc/bcknd/device/cuda/no_slip_wall.o : bc/bcknd/device/cuda/no_slip_wall.cu bc/bcknd/device/cuda/no_slip_wall_kernel.h

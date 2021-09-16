@@ -162,7 +162,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
-	gs/bcknd/device/cuda/gs_kernels.cu\
+	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/no_slip_wall.cu\
@@ -189,6 +189,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
+	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/hip/dudxyz_kernel.h\
