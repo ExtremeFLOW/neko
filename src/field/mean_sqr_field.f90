@@ -17,7 +17,7 @@ contains
   !> Update a mean sqr field
   subroutine mean_sqr_field_update(this, k)
     class(mean_sqr_field_t), intent(inout) :: this
-    real(kind=dp), intent(in) :: k !< Time since last sample
+    real(kind=rp), intent(in) :: k !< Time since last sample
 
     this%mf%x = this%mf%x * this%time
     call addsqr2s2(this%mf%x, this%f%x, k, this%mf%dof%n_dofs)
