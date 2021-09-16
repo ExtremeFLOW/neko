@@ -190,16 +190,16 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
-	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/cuda/math_kernel.h\
-	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/cuda/dudxyz_kernel.h\
-	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/cuda/cdtp_kernel.h\
-	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
-	math/bcknd/device/hip/opgrad_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/hip/dudxyz_kernel.h\
+	math/bcknd/device/hip/cdtp_kernel.h\
+	math/bcknd/device/hip/conv1_kernel.h\
+	math/bcknd/device/hip/opgrad_kernel.h\
 	krylov/bcknd/device/hip/pc_jacobi_kernel.h
 
 include	.depends
