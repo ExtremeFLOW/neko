@@ -83,8 +83,8 @@ contains
   !> Evaluated all statistical quantities
   subroutine stats_eval(this, t, k)
     class(stats_t), intent(inout) :: this
-    real(kind=dp), intent(in) :: t
-    real(kind=dp), intent(in) :: k
+    real(kind=rp), intent(in) :: t
+    real(kind=rp), intent(in) :: k
     integer :: i
 
     if (t .ge. this%T_begin) then

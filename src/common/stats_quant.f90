@@ -13,9 +13,9 @@ module stats_quant
   abstract interface
      subroutine stats_quant_update(this, k)
        import :: stats_quant_t
-       import dp
+       import rp
        class(stats_quant_t), intent(inout) :: this
-       real(kind=dp), intent(in) :: k
+       real(kind=rp), intent(in) :: k
      end subroutine stats_quant_update
   end interface
   
