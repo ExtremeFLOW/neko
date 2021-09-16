@@ -26,7 +26,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }}
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
@@ -50,7 +50,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-rp=${RP}
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP}
           make -j$(nproc)
       - name: Check
         run: |
@@ -61,15 +61,20 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} --enable-rp=${RP}
+          ./configure FC=${FC} --enable-real=${RP}
           make -j $(nproc)
 
   Intel:
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        precision: [sp, dp]
     env:
      FC: ifort
      CC: icc
-    name: Intel Fortran
+     RP: ${{ matrix.precision }}
+    name: Intel Fortran / ${{ matrix.precision }}
     steps:
       - name: Setup env.
         run: |
@@ -89,7 +94,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort
+          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --enable-real=${RP}
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 
  
