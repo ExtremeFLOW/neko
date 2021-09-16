@@ -136,11 +136,11 @@ math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bck
 math/bcknd/device/hip/opr_opgrad.o : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
 krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip krylov/bcknd/device/hip/pc_jacobi_kernel.h
 gs/bcknd/device/hip/gs_kernels.o : gs/bcknd/device/hip/gs_kernels.hip 
-bc/bcknd/device/hip/dirichlet_kernel.o : bc/bcknd/device/hip/dirichlet_kernel.hip 
-bc/bcknd/device/hip/inflow_kernel.o : bc/bcknd/device/hip/inflow_kernel.hip 
-bc/bcknd/device/hip/no_slip_wall_kernel.o : bc/bcknd/device/hip/no_slip_wall_kernel.hip 
-bc/bcknd/device/hip/symmetry_kernel.o : bc/bcknd/device/hip/symmetry_kernel.hip 
-bc/bcknd/device/hip/facet_normal_kernel.o : bc/bcknd/device/hip/facet_normal_kernel.hip 
+bc/bcknd/device/hip/dirichlet.o : bc/bcknd/device/hip/dirichlet.hip bc/bcknd/device/hip/dirichlet_kernel.h
+bc/bcknd/device/hip/inflow.o : bc/bcknd/device/hip/inflow.hip bc/bcknd/device/hip/inflow_kernel.h
+bc/bcknd/device/hip/no_slip_wall.o : bc/bcknd/device/hip/no_slip_wall.hip bc/bcknd/device/hip/no_slip_wall_kernel.h
+bc/bcknd/device/hip/symmetry.o : bc/bcknd/device/hip/symmetry.hip bc/bcknd/device/hip/symmetry_kernel.h 
+bc/bcknd/device/hip/facet_normal.o : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h 
 device/cuda/cuda_wrapper.o : device/cuda/cuda_wrapper.cu 
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h 
 math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h 

@@ -1,4 +1,3 @@
-#include <hip/hip_runtime.h>
 
 /**
  * Computes the linear index for area and normal arrays
@@ -27,19 +26,20 @@ void nonlinear_index(const int idx, const int lx, int *index) {
 /**
  * Device kernel for vector apply for a symmetry condition
  */
+template< typename T >
 __global__
 void facet_normal_apply_surfvec_kernel(const int * __restrict__ msk,
 				       const int * __restrict__ facet,
-				       double * __restrict__ x,
-				       double * __restrict__ y,
-				       double * __restrict__ z,
-				       const double * __restrict__ u,
-				       const double * __restrict__ v,
-				       const double * __restrict__ w,
-				       const double * __restrict__ nx,
-				       const double * __restrict__ ny,
-				       const double * __restrict__ nz,
-				       const double * __restrict__ area,
+				       T * __restrict__ x,
+				       T * __restrict__ y,
+				       T * __restrict__ z,
+				       const T * __restrict__ u,
+				       const T * __restrict__ v,
+				       const T * __restrict__ w,
+				       const T * __restrict__ nx,
+				       const T * __restrict__ ny,
+				       const T * __restrict__ nz,
+				       const T * __restrict__ area,
 				       const int lx,
 				       const int m) {
   int index[4];
@@ -87,27 +87,3 @@ void facet_normal_apply_surfvec_kernel(const int * __restrict__ msk,
   }
 }
 
-extern "C" {
-
-  /** 
-   * Fortran wrapper for device facet normal apply surfvec
-   */
-  void hip_facet_normal_apply_surfvec(void *msk, void *facet,
-				      void *x, void *y, void *z,
-				      void *u, void *v, void *w,
-				      void *nx, void * ny, void *nz,
-				      void *area, int *lx, int *m) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m) + 1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(facet_normal_apply_surfvec_kernel,
-		       nblcks, nthrds, 0, 0,
-		       (int *) msk, (int *) facet,
-		       (double *) x, (double *) y, (double *) z,
-		       (double *) u, (double *) v, (double *) v,
-		       (double *) nx, (double *) ny, (double *) nz,
-		       (double *) area, *lx, *m);
-  }
- 
-}

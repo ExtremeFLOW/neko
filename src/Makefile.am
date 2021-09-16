@@ -147,11 +147,11 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_opgrad.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	gs/bcknd/device/hip/gs_kernels.hip\
-	bc/bcknd/device/hip/dirichlet_kernel.hip\
-	bc/bcknd/device/hip/inflow_kernel.hip\
-	bc/bcknd/device/hip/no_slip_wall_kernel.hip\
-	bc/bcknd/device/hip/symmetry_kernel.hip\
-	bc/bcknd/device/hip/facet_normal_kernel.hip
+	bc/bcknd/device/hip/dirichlet.hip\
+	bc/bcknd/device/hip/inflow.hip\
+	bc/bcknd/device/hip/no_slip_wall.hip\
+	bc/bcknd/device/hip/symmetry.hip\
+	bc/bcknd/device/hip/facet_normal.hip
 endif
 
 if ENABLE_CUDA
@@ -195,6 +195,11 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	bc/bcknd/device/hip/dirichlet_kernel.h\
+	bc/bcknd/device/hip/inflow_kernel.h\
+	bc/bcknd/device/hip/no_slip_wall_kernel.h\
+	bc/bcknd/device/hip/symmetry_kernel.h\
+	bc/bcknd/device/hip/facet_normal_kernel.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
