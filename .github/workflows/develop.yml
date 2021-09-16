@@ -15,6 +15,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         compiler: [gfortran-10]
+        precision: [sp, dp]
         include:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui
@@ -24,6 +25,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
+      RP: ${{ matrix.precision }}
     name: ${{ matrix.os }} / ${{ matrix.compiler }}
     steps:
       - name: Setup env.
@@ -48,7 +50,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-rp=${RP}
           make -j$(nproc)
       - name: Check
         run: |
@@ -59,7 +61,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC}
+          ./configure FC=${FC} --enable-rp=${RP}
           make -j $(nproc)
 
   Intel:
