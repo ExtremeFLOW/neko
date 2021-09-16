@@ -28,9 +28,10 @@ module device_math
      subroutine hip_add2s1(a_d, b_d, c1, n) &
           bind(c, name='hip_add2s1')
        use, intrinsic :: iso_c_binding
+       import c_rp                     
        implicit none
        type(c_ptr), value :: a_d, b_d
-       real(c_double) :: c1
+       real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine hip_add2s1
   end interface
@@ -39,9 +40,10 @@ module device_math
      subroutine hip_add2s2(a_d, b_d, c1, n) &
           bind(c, name='hip_add2s2')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
-       real(c_double) :: c1
+       real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine hip_add2s2
   end interface
@@ -97,9 +99,10 @@ module device_math
   end interface
 
   interface
-     real(c_double) function hip_glsc3(a_d, b_d, c_d, n) &
+     real(c_rp) function hip_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='hip_glsc3')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
@@ -128,9 +131,10 @@ module device_math
      subroutine cuda_add2s1(a_d, b_d, c1, n) &
           bind(c, name='cuda_add2s1')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
-       real(c_double) :: c1
+       real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine cuda_add2s1
   end interface
@@ -139,9 +143,10 @@ module device_math
      subroutine cuda_add2s2(a_d, b_d, c1, n) &
           bind(c, name='cuda_add2s2')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d
-       real(c_double) :: c1
+       real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine cuda_add2s2
   end interface
@@ -149,7 +154,7 @@ module device_math
   interface
      subroutine cuda_invcol2(a_d, b_d, n) &
           bind(c, name='cuda_invcol2')
-       use, intrinsic :: iso_c_binding
+       use, intrinsic :: iso_c_binding       
        implicit none
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
@@ -197,9 +202,10 @@ module device_math
   end interface
 
   interface
-     real(c_double) function cuda_glsc3(a_d, b_d, c_d, n) &
+     real(c_rp) function cuda_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='cuda_glsc3')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n

@@ -1,5 +1,5 @@
 #include "conv1_kernel.h"
-
+#include <device/device_config.h>
 
 
 extern "C" {
@@ -21,103 +21,103 @@ extern "C" {
 
     switch(*lx) {
     case 2:
-      conv1_kernel<double, 2, 1024>
+      conv1_kernel<real, 2, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 3:
-      conv1_kernel<double, 3, 1024>
+      conv1_kernel<real, 3, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 4:
-      conv1_kernel<double, 4, 1024>
+      conv1_kernel<real, 4, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 5:
-      conv1_kernel<double, 5, 1024>
+      conv1_kernel<real, 5, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 6:
-      conv1_kernel<double, 6, 1024>
+      conv1_kernel<real, 6, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 7:
-      conv1_kernel<double, 7, 1024>
+      conv1_kernel<real, 7, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 8:
-      conv1_kernel<double, 8, 1024>
+      conv1_kernel<real, 8, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 9:
-      conv1_kernel<double, 9, 1024>
+      conv1_kernel<real, 9, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;     
     case 10:
-      conv1_kernel<double, 10, 1024>
+      conv1_kernel<real, 10, 1024>
 	<<<nblcks, nthrds>>>
-	((double *) du, (double *) u,
-	 (double *) vx, (double *) vy, (double *) vz,
-	 (double *) dx, (double *) dy, (double *) dz,
-	 (double *) drdx, (double *) dsdx, (double *) dtdx,
-	 (double *) drdy, (double *) dsdy, (double *) dtdy,
-	 (double *) drdz, (double *) dsdz, (double *) dtdz,
-	 (double *) jacinv);
+	((real *) du, (real *) u,
+	 (real *) vx, (real *) vy, (real *) vz,
+	 (real *) dx, (real *) dy, (real *) dz,
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,
+	 (real *) jacinv);
       break;
     }
   } 

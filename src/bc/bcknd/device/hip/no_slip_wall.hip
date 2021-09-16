@@ -1,5 +1,5 @@
 #include <hip/hip_runtime.h>
-
+#include <device/device_config.h>
 #include "no_slip_wall_kernel.h"
 
 extern "C" {
@@ -12,9 +12,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(no_slip_wall_apply_scalar_kernel<double>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(no_slip_wall_apply_scalar_kernel<real>),
 		       nblcks, nthrds, 0, 0,
-		       (int *) msk, (double *) x, *m);
+		       (int *) msk, (real *) x, *m);
   }
   
   /** 
@@ -26,9 +26,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(no_slip_wall_apply_vector_kernel<double>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(no_slip_wall_apply_vector_kernel<real>),
 		       nblcks, nthrds, 0, 0, (int *) msk,
-		       (double *) x, (double *) y, (double *) z, *m); 
+		       (real *) x, (real *) y, (real *) z, *m); 
   }
  
 }

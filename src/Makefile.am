@@ -173,7 +173,7 @@ endif
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
-pkginclude_HEADERS =  $(wildcard *.mod)
+pkginclude_HEADERS = $(wildcard *.mod) device/device_config.h
 
 CLEANFILES =*.mod
 

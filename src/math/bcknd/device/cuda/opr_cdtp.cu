@@ -1,5 +1,5 @@
 #include "cdtp_kernel.h"
-
+#include <device/device_config.h>
 
 
 extern "C" {
@@ -18,60 +18,60 @@ extern "C" {
 
     switch(*lx) {
     case 2:
-      cdtp_kernel<double, 2, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 2, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     case 3:
-      cdtp_kernel<double, 3, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 3, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     case 4:
-      cdtp_kernel<double, 4, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 4, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     case 5:
-      cdtp_kernel<double, 5, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 5, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     case 6:
-      cdtp_kernel<double, 6, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 6, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     case 7:
-      cdtp_kernel<double, 7, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 7, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     case 8:
-      cdtp_kernel<double, 8, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 8, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     case 9:
-      cdtp_kernel<double, 9, 1024>
-	<<<nblcks, nthrds>>>((double *) dtx, (double *) x, 
-			     (double *) dr, (double *) ds, (double *) dt,
-			     (double *) dxt, (double *) dyt, (double *) dzt,
-			     (double *) B, (double *) jac);
+      cdtp_kernel<real, 9, 1024>
+	<<<nblcks, nthrds>>>((real *) dtx, (real *) x, 
+			     (real *) dr, (real *) ds, (real *) dt,
+			     (real *) dxt, (real *) dyt, (real *) dzt,
+			     (real *) B, (real *) jac);
       break;     
     }
   } 

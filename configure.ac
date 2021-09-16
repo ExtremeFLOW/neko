@@ -110,13 +110,19 @@ fi
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "float")   				
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "double")   				
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_long_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL16")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "long double")   				
 else
    AC_MSG_ERROR([Invalid working precision])
 fi
@@ -145,6 +151,7 @@ AC_CONFIG_FILES([Makefile\
 		 src/comm/comm.f90\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
+		 src/device/device_config.h\
 		 makeneko\
 		 neko.pc])
 

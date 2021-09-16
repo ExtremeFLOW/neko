@@ -1,4 +1,5 @@
 #include <hip/hip_runtime.h>
+#include <device/device_config.h>
 #include "math_kernel.h"
 
 extern "C" {
@@ -7,14 +8,14 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void hip_copy(void *a, void *b, int *n) {
-    hipMemcpy(a, b, (*n) * sizeof(double), hipMemcpyDeviceToDevice);
+    hipMemcpy(a, b, (*n) * sizeof(real), hipMemcpyDeviceToDevice);
   }
 
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
   void hip_rzero(void *a, int *n) {
-    hipMemset(a, 0, (*n) * sizeof(double));
+    hipMemset(a, 0, (*n) * sizeof(real));
   }
 
   
@@ -23,14 +24,14 @@ extern "C" {
    * Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
    * (multiplication on first argument) 
    */
-  void hip_add2s1(void *a, void *b, double *c1, int *n) {
+  void hip_add2s1(void *a, void *b, real *c1, int *n) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(add2s1_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b,
+		       (real *) a, (real *) b,
 		       *c1, *n);
     
   }
@@ -40,14 +41,14 @@ extern "C" {
    * Vector addition with scalar multiplication \f$ a = a + c_1 b \f$
    * (multiplication on second argument) 
    */
-  void hip_add2s2(void *a, void *b, double *c1, int *n) {
+  void hip_add2s2(void *a, void *b, real *c1, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(add2s2_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b,
+		       (real *) a, (real *) b,
 		       *c1, *n);
 
   }
@@ -63,7 +64,7 @@ extern "C" {
 
     hipLaunchKernelGGL(invcol2_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b, *n);
+		       (real *) a, (real *) b, *n);
   }
   
   /**
@@ -77,7 +78,7 @@ extern "C" {
 
     hipLaunchKernelGGL(col2_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b, *n);
+		       (real *) a, (real *) b, *n);
   }
   
   /**
@@ -91,7 +92,7 @@ extern "C" {
 
     hipLaunchKernelGGL(col3_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b, (double *) c, *n);
+		       (real *) a, (real *) b, (real *) c, *n);
   }
   
 
@@ -106,7 +107,7 @@ extern "C" {
 
     hipLaunchKernelGGL(sub3_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b, (double *) c, *n);
+		       (real *) a, (real *) b, (real *) c, *n);
   }
 
   /**
@@ -120,32 +121,32 @@ extern "C" {
 
     hipLaunchKernelGGL(addcol3_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b, (double *) c, *n);
+		       (real *) a, (real *) b, (real *) c, *n);
   }
 
   /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
    */
-  double hip_glsc3(void *a, void *b, void *c, int *n) {
+  real hip_glsc3(void *a, void *b, void *c, int *n) {
 	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    double * buf = (double *) malloc(nb * sizeof(double));
-    double * buf_d;
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
 
-    hipMalloc(&buf_d, nb*sizeof(double));
+    hipMalloc(&buf_d, nb*sizeof(real));
      
     hipLaunchKernelGGL(glsc3_kernel,
 		       nblcks, nthrds, 0, 0,
-		       (double *) a, (double *) b,
-		       (double *) c, buf_d, *n);
+		       (real *) a, (real *) b,
+		       (real *) c, buf_d, *n);
 
-    hipMemcpy(buf, buf_d, nb * sizeof(double), hipMemcpyDeviceToHost);
+    hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost);
 
-    double res = 0.0;
+    real res = 0.0;
     for (int i = 0; i < nb; i++) {
       res += buf[i];
     }

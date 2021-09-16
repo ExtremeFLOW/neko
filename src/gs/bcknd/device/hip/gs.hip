@@ -1,7 +1,7 @@
 #include <hip/hip_runtime.h>
 #include <climits>
 #include <cstdio>
-
+#include <device/device_config.h>
 #include "gs_kernels.h"
 
 #define GS_OP_ADD  1
@@ -22,32 +22,32 @@ extern "C" {
 
     switch (*op) {
     case GS_OP_ADD:
-      hipMemset(v, 0, (*m) * sizeof(double));
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<double>),
+      hipMemset(v, 0, (*m) * sizeof(real));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<real>),
 			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
+			 (real *) v, *m, *o, (int *) dg,
+			 (real *) u, *n, (int *) gd, (real *) w);
       break;
     case GS_OP_MUL:
-      hipMemset(v, 1, (*m) * sizeof(double));
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<double>),
+      hipMemset(v, 1, (*m) * sizeof(real));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<real>),
 			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
+			 (real *) v, *m, *o, (int *) dg,
+			 (real *) u, *n, (int *) gd, (real *) w);
       break;
     case GS_OP_MIN:
-      hipMemset(v, INT_MAX, (*m) * sizeof(double));
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<double>),
+      hipMemset(v, INT_MAX, (*m) * sizeof(real));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<real>),
 			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
+			 (real *) v, *m, *o, (int *) dg,
+			 (real *) u, *n, (int *) gd, (real *) w);
       break;
     case GS_OP_MAX:
-      hipMemset(v, -INT_MAX, (*m) * sizeof(double));
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<double>),
+      hipMemset(v, -INT_MAX, (*m) * sizeof(real));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<real>),
 			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
+			 (real *) v, *m, *o, (int *) dg,
+			 (real *) u, *n, (int *) gd, (real *) w);
       break;
     }
   }
@@ -61,9 +61,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_kernel<double>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_kernel<real>),
 		       nblcks, nthrds, 0, 0,
-		       (double *) v, *m, (int *) dg,
-		       (double *) u, *n, (int *) gd, (double *) w);
+		       (real *) v, *m, (int *) dg,
+		       (real *) u, *n, (int *) gd, (real *) w);
   }
 }

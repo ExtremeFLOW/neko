@@ -1,4 +1,5 @@
 #include "no_slip_wall_kernel.h"
+#include <device/device_config.h>
 
 extern "C" {
 
@@ -10,8 +11,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    no_slip_wall_apply_scalar_kernel<double>
-      <<<nblcks, nthrds>>>((int *) msk, (double *) x, *m);
+    no_slip_wall_apply_scalar_kernel<real>
+      <<<nblcks, nthrds>>>((int *) msk, (real *) x, *m);
   }
   
   /** 
@@ -23,9 +24,9 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    no_slip_wall_apply_vector_kernel<double>
+    no_slip_wall_apply_vector_kernel<real>
       <<<nblcks, nthrds>>>((int *) msk,
-			   (double *) x, (double *) y, (double *) z, *m);
+			   (real *) x, (real *) y, (real *) z, *m);
   }
  
 }

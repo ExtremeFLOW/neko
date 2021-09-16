@@ -9,8 +9,9 @@ module device_dirichlet
      subroutine hip_dirichlet_apply_scalar(msk, x, g, m) &
           bind(c, name='hip_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
-       real(c_double) :: g
+       real(c_rp) :: g
        integer(c_int) :: m
        type(c_ptr), value :: msk, x
      end subroutine hip_dirichlet_apply_scalar
@@ -20,8 +21,9 @@ module device_dirichlet
      subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m) &
           bind(c, name='hip_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
-       real(c_double) :: g
+       real(c_rp) :: g
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z
      end subroutine hip_dirichlet_apply_vector
@@ -31,8 +33,9 @@ module device_dirichlet
      subroutine cuda_dirichlet_apply_scalar(msk, x, g, m) &
           bind(c, name='cuda_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
-       real(c_double) :: g
+       real(c_rp) :: g
        integer(c_int) :: m
        type(c_ptr), value :: msk, x
      end subroutine cuda_dirichlet_apply_scalar
@@ -42,8 +45,9 @@ module device_dirichlet
      subroutine cuda_dirichlet_apply_vector(msk, x, y, z, g, m) &
           bind(c, name='cuda_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
+       import c_rp
        implicit none
-       real(c_double) :: g
+       real(c_rp) :: g
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z
      end subroutine cuda_dirichlet_apply_vector

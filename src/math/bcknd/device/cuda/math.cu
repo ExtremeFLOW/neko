@@ -1,4 +1,5 @@
 #include "math_kernel.h"
+#include <device/device_config.h>
 
 extern "C" {
 
@@ -6,14 +7,14 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void cuda_copy(void *a, void *b, int *n) {
-    cudaMemcpy(a, b, (*n) * sizeof(double), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(a, b, (*n) * sizeof(real), cudaMemcpyDeviceToDevice);
   }
 
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
   void cuda_rzero(void *a, int *n) {
-    cudaMemset(a, 0, (*n) * sizeof(double));
+    cudaMemset(a, 0, (*n) * sizeof(real));
   }
 
   
@@ -22,13 +23,13 @@ extern "C" {
    * Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
    * (multiplication on first argument) 
    */
-  void cuda_add2s1(void *a, void *b, double *c1, int *n) {
+  void cuda_add2s1(void *a, void *b, real *c1, int *n) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add2s1_kernel<double><<<nblcks, nthrds>>>((double *) a,
-					      (double *) b,
+    add2s1_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					      (real *) b,
 					      *c1, *n);
     
   }
@@ -38,13 +39,13 @@ extern "C" {
    * Vector addition with scalar multiplication \f$ a = a + c_1 b \f$
    * (multiplication on second argument) 
    */
-  void cuda_add2s2(void *a, void *b, double *c1, int *n) {
+  void cuda_add2s2(void *a, void *b, real *c1, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    add2s2_kernel<double><<<nblcks, nthrds>>>((double *) a,
-					      (double *) b,
+    add2s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					      (real *) b,
 					      *c1, *n);
 
   }
@@ -58,8 +59,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    invcol2_kernel<double><<<nblcks, nthrds>>>((double *) a,
-					       (double *) b, *n);
+    invcol2_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					       (real *) b, *n);
   }
   
   /**
@@ -71,8 +72,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    col2_kernel<double><<<nblcks, nthrds>>>((double *) a, 
-					    (double *) b, *n);
+    col2_kernel<real><<<nblcks, nthrds>>>((real *) a, 
+					    (real *) b, *n);
   }
   
   /**
@@ -84,8 +85,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    col3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b,
-					    (double *) c, *n);
+    col3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
+					    (real *) c, *n);
   }
   
 
@@ -98,8 +99,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    sub3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b, 
-					    (double *) c, *n);
+    sub3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b, 
+					    (real *) c, *n);
   }
 
   /**
@@ -111,31 +112,31 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    addcol3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b,
-					       (double *) c, *n);
+    addcol3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
+					       (real *) c, *n);
   }
 
   /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
    */
-  double cuda_glsc3(void *a, void *b, void *c, int *n) {
+  real cuda_glsc3(void *a, void *b, void *c, int *n) {
 	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    double * buf = (double *) malloc(nb * sizeof(double));
-    double * buf_d;
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
 
-    cudaMalloc(&buf_d, nb*sizeof(double));
+    cudaMalloc(&buf_d, nb*sizeof(real));
      
-    glsc3_kernel<double><<<nblcks, nthrds>>>((double *) a, (double *) b,
-					     (double *) c, buf_d, *n);
+    glsc3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
+					     (real *) c, buf_d, *n);
 
-    cudaMemcpy(buf, buf_d, nb * sizeof(double), cudaMemcpyDeviceToHost);
+    cudaMemcpy(buf, buf_d, nb * sizeof(real), cudaMemcpyDeviceToHost);
 
-    double res = 0.0;
+    real res = 0.0;
     for (int i = 0; i < nb; i++) {
       res += buf[i];
     }
