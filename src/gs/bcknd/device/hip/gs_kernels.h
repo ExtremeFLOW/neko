@@ -1,16 +1,9 @@
-#include <hip/hip_runtime.h>
-#include <climits>
-#include <cstdio>
-
-#define GS_OP_ADD  1
-#define GS_OP_MUL  2
-#define GS_OP_MIN  3
-#define GS_OP_MAX  4
 
 /**
  * Device gather kernel for addition of data
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
  */
+template< typename T >
 __global__ void gather_kernel_add(double * __restrict__ v,
 				  const int m,
 				  const int o,
@@ -51,6 +44,7 @@ __global__ void gather_kernel_add(double * __restrict__ v,
  * Device gather kernel for multiplication of data
  * \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
  */
+template< typename T >
 __global__ void gather_kernel_mul(double * __restrict__ v,
 				  const int m,
 				  const int o,
@@ -94,6 +88,7 @@ __global__ void gather_kernel_mul(double * __restrict__ v,
  * Device gather kernel for minimum of data
  * \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
  */
+template< typename T >
 __global__ void gather_kernel_min(double * __restrict__ v,
 				  const int m,
 				  const int o,
@@ -137,6 +132,7 @@ __global__ void gather_kernel_min(double * __restrict__ v,
  * Device gather kernel for maximum of data
  * \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
  */
+template< typename T >
 __global__ void gather_kernel_max(double * __restrict__ v,
 				  const int m,
 				  const int o,
@@ -180,6 +176,7 @@ __global__ void gather_kernel_max(double * __restrict__ v,
  * Device scatter kernel
  * \f$ u(gd(i) = v(dg(i)) \f$
  */
+template< typename T >
 __global__ void scatter_kernel(double * __restrict__ v,
 			       const int m,
 			       const int * __restrict__ dg,
@@ -201,61 +198,3 @@ __global__ void scatter_kernel(double * __restrict__ v,
   
 }
 
-extern "C" {
-
-  /** 
-   * Fortran wrapper for device gather kernels
-   */
-  void hip_gather_kernel(void *v, int *m, int *o, void *dg,
-			 void *u, int *n, void *gd, void *w, int *op) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
-
-    switch (*op) {
-    case GS_OP_ADD:
-      hipMemset(v, 0, (*m) * sizeof(double));
-      hipLaunchKernelGGL(gather_kernel_add,
-			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
-      break;
-    case GS_OP_MUL:
-      hipMemset(v, 1, (*m) * sizeof(double));
-      hipLaunchKernelGGL(gather_kernel_mul,
-			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
-      break;
-    case GS_OP_MIN:
-      hipMemset(v, INT_MAX, (*m) * sizeof(double));
-      hipLaunchKernelGGL(gather_kernel_min,
-			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
-      break;
-    case GS_OP_MAX:
-      hipMemset(v, -INT_MAX, (*m) * sizeof(double));
-      hipLaunchKernelGGL(gather_kernel_max,
-			 nblcks, nthrds, 0, 0,
-			 (double *) v, *m, *o, (int *) dg,
-			 (double *) u, *n, (int *) gd, (double *) w);
-      break;
-    }
-  }
-
-  /**
-   * Fortran wrapper for device scatter kernel
-   */
-  void hip_scatter_kernel(void *v, int *m, void *dg,
-			  void *u, int *n, void *gd, void *w) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(scatter_kernel,
-		       nblcks, nthrds, 0, 0,
-		       (double *) v, *m, (int *) dg,
-		       (double *) u, *n, (int *) gd, (double *) w);
-  }
-}

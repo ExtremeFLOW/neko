@@ -146,7 +146,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
-	gs/bcknd/device/hip/gs_kernels.hip\
+	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
 	bc/bcknd/device/hip/no_slip_wall.hip\
@@ -200,6 +200,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
+	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
