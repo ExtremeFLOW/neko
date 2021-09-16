@@ -10,23 +10,30 @@ module fdm
   use mxm_wrapper
   use tensor
   implicit none  
+
   type, public :: fdm_t
-    real(kind=rp), allocatable :: s(:,:,:,:)
-    real(kind=rp), allocatable :: d(:,:)
-    real(kind=rp), allocatable :: len_lr(:), len_ls(:), len_lt(:)
-    real(kind=rp), allocatable :: len_mr(:), len_ms(:), len_mt(:)
-    real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
-    real(kind=rp), allocatable :: swplen(:,:,:,:)
-    type(space_t), pointer :: Xh
-    type(dofmap_t), pointer :: dof
-    type(gs_t), pointer :: gs_h
-    type(mesh_t), pointer :: msh
-  contains 
-    procedure, pass(this) :: init => fdm_init
-    procedure, pass(this) :: free => fdm_free
-    procedure, pass(this) :: compute => fdm_compute
+     real(kind=rp), allocatable :: s(:,:,:,:)
+     real(kind=rp), allocatable :: d(:,:)
+     real(kind=rp), allocatable :: len_lr(:), len_ls(:), len_lt(:)
+     real(kind=rp), allocatable :: len_mr(:), len_ms(:), len_mt(:)
+     real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
+     real(kind=rp), allocatable :: swplen(:,:,:,:)
+     type(space_t), pointer :: Xh
+     type(dofmap_t), pointer :: dof
+     type(gs_t), pointer :: gs_h
+     type(mesh_t), pointer :: msh
+   contains 
+     procedure, pass(this) :: init => fdm_init
+     procedure, pass(this) :: free => fdm_free
+     procedure, pass(this) :: compute => fdm_compute
   end type fdm_t
+
+  interface sygv
+     module procedure sp_sygv, dp_sygv, qp_sygv
+  end interface sygv
+
 contains
+  
   subroutine fdm_init(this, Xh, dm, gs_h)
     class(fdm_t), intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
@@ -292,14 +299,14 @@ contains
     real(kind=rp), intent(inout) :: s(nl, nl, 2), lam(nl), ll, lm, lr
     real(kind=rp), intent(inout) ::  ah(0:n, 0:n), bh(0:n)
     integer ::  lx1, lxm
-    real(kind=rp) :: b(2*(n+3)**2), w(2*(n+3)**2)
+    real(kind=rp) :: b(2*(n+3)**2)
 
     lx1 = n + 1
     lxm = lx1 + 2
      
     call fdm_setup_fast1d_a(s, lbc, rbc, ll, lm, lr, ah, n)
     call fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
-    call generalev(s, b, lam, nl, lx1, w)
+    call generalev(s, b, lam, nl, lx1)
     if(lbc .gt. 0) call row_zero(s, nl, nl, 1)
     if(lbc .eq. 1) call row_zero(s, nl, nl, 2)
     if(rbc .gt. 0) call row_zero(s, nl, nl, nl)
@@ -312,37 +319,56 @@ contains
   !> Solve the generalized eigenvalue problem /$ A x = lam B x/$
   !! A -- symm.
   !! B -- symm., pos. definite
-  subroutine generalev(a, b, lam, n, lx, w)
+  subroutine generalev(a, b, lam, n, lx)
     integer, intent(in) :: n, lx
-    real(kind=rp), intent(inout) :: a(n,n), b(n,n), lam(n), w(n,n)
-    real(kind=dp) :: a2(n,n), b2(n,n), lam2(n), w2(n,n)
+    real(kind=rp), intent(inout) :: a(n,n), b(n,n), lam(n)
+    real(kind=dp) :: a2(n,n), b2(n,n), lam2(n)
     integer :: lbw, lw
     real(kind=rp) :: bw(4*(lx+2)**3)
-    real(kind=dp) :: bw2(4*(lx+2)**3)
     integer :: info = 0
 
     lbw = 4*(lx+2)**3
     lw = n*n
-    if (rp .eq. dp) then
-       call dsygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
-    else if ( rp .eq. sp) then
-       call ssygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
-    else
-       a2 = real(a, dp)
-       b2 = real(b, dp)
-       lam2 = real(lam, dp)
-       w2 = real(w, dp)
-       call dsygv(1, 'V', 'U', n, a2, n, b2, n, lam2, bw2, lbw, info)
-       a = real(a2, rp)
-       b = real(b2, rp)
-       lam = real(lam2, rp)
-       w = real(w2, rp)
-       if (pe_rank .eq. 0) then
-          call neko_warning('Real precision choice not supported for fdm, treating it as double')
-       end if
-    end if
+    call sygv(a, b, lam, n, lx, bw, lbw)
     
   end subroutine generalev
+
+  subroutine sp_sygv(a, b, lam, n, lx, bw, lbw)
+    integer, intent(in) :: n, lx, lbw
+    real(kind=sp), intent(inout) :: a(n,n), b(n,n), lam(n)
+    real(kind=sp) :: bw(4*(lx+2)**3)
+    integer :: info = 0
+    call ssygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
+  end subroutine sp_sygv
+
+  subroutine dp_sygv(a, b, lam, n, lx, bw, lbw)
+    integer, intent(in) :: n, lx, lbw
+    real(kind=dp), intent(inout) :: a(n,n), b(n,n), lam(n)
+    real(kind=dp) :: bw(4*(lx+2)**3)
+    integer :: info = 0
+    call dsygv(1, 'V', 'U', n, a, n, b, n, lam, bw, lbw, info)
+  end subroutine dp_sygv
+
+  subroutine qp_sygv(a, b, lam, n, lx, bw, lbw)
+    integer, intent(in) :: n, lx, lbw
+    real(kind=qp), intent(inout) :: a(n,n), b(n,n), lam(n)
+    real(kind=dp) :: a2(n,n), b2(n,n), lam2(n)
+    real(kind=qp) :: bw(4*(lx+2)**3)
+    real(kind=dp) :: bw2(4*(lx+2)**3)
+    integer :: info = 0
+
+    a2 = real(a, dp)
+    b2 = real(b, dp)
+    lam2 = real(lam, dp)
+    call dsygv(1, 'V', 'U', n, a2, n, b2, n, lam2, bw2, lbw, info)
+    a = real(a2, qp)
+    b = real(b2, qp)
+    lam = real(lam2, qp)
+    if (pe_rank .eq. 0) then
+       call neko_warning('Real precision choice not supported for fdm, treating it as double')
+    end if
+
+  end subroutine qp_sygv
 
   subroutine fdm_setup_fast1d_a(a, lbc, rbc, ll, lm, lr, ah, n)
     integer, intent(in) ::lbc, rbc, n
