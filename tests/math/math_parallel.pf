@@ -9,7 +9,7 @@ contains
 
   @test
   subroutine test_math_abscmp
-    real(kind=dp) :: a, b, c, d
+    real(kind=rp) :: a, b, c, d
 
     a = 17.0d0
     b = 42.0d0
@@ -25,7 +25,7 @@ contains
   @test
   subroutine test_math_rzero
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n)
+    real(kind=rp) :: a(n)
     integer :: i
 
     a = 1d0  
@@ -61,7 +61,7 @@ contains
   @test
   subroutine test_math_rone
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n)
+    real(kind=rp) :: a(n)
     integer :: i
 
     call rzero(a, n)
@@ -78,7 +78,7 @@ contains
   @test
   subroutine test_math_copy
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n), b(n)
+    real(kind=rp) :: a(n), b(n)
     integer :: i
 
     call rone(a, n)
@@ -97,8 +97,8 @@ contains
   @test
   subroutine test_math_cadd
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n)
-    real(kind=dp), parameter :: s = 42
+    real(kind=rp) :: a(n)
+    real(kind=rp), parameter :: s = 42
     integer :: i
 
     call rone(a, n)
@@ -113,8 +113,8 @@ contains
   @test
   subroutine test_math_vcross
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-    real(kind=dp), parameter :: s = 42
+    real(kind=rp), dimension(n) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
+    real(kind=rp), parameter :: s = 42
     integer :: i
 
     call rzero(u1, n)
@@ -144,7 +144,7 @@ contains
   @test
   subroutine test_math_vdot2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, v1, v2, w1, w2
+    real(kind=rp), dimension(n) :: dot, v1, v2, w1, w2
     integer :: i
 
     call rzero(dot, n)
@@ -170,7 +170,7 @@ contains
   subroutine test_math_vdot3
     implicit none
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, v1, v2, v3, w1, w2, w3
+    real(kind=rp), dimension(n) :: dot, v1, v2, v3, w1, w2, w3
     integer :: i
 
     call rzero(dot, n)
@@ -196,7 +196,7 @@ contains
   @test
   subroutine test_math_add2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, a, b
+    real(kind=rp), dimension(n) :: dot, a, b
     integer :: i
 
     do i = 1, n
@@ -215,7 +215,7 @@ contains
   @test
   subroutine test_math_add3
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, a, b, c
+    real(kind=rp), dimension(n) :: dot, a, b, c
     integer :: i
 
     do i = 1, n
@@ -235,7 +235,7 @@ contains
   @test
   subroutine test_math_add4
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, a, b, c, d
+    real(kind=rp), dimension(n) :: dot, a, b, c, d
     integer :: i
 
 
@@ -257,8 +257,8 @@ contains
   @test
   subroutine test_math_add2s1
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b
-    real(kind=dp), parameter :: c1 = 2d0
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2d0
     integer :: i
 
     do i = 1, n
@@ -277,8 +277,8 @@ contains
   @test
   subroutine test_math_add2s2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b
-    real(kind=dp), parameter :: c1 = 2d0
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2d0
     integer :: i
 
     do i = 1, n
@@ -297,7 +297,7 @@ contains
   @test
   subroutine test_math_col2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b
+    real(kind=rp), dimension(n) :: a, b
     integer :: i
 
     do i = 1, n
@@ -317,8 +317,8 @@ contains
   subroutine test_math_glsc3(this)
     class (MpiTestMethod), intent(inout) :: this
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b, c
-    real(kind=dp) :: res, expected
+    real(kind=rp), dimension(n) :: a, b, c
+    real(kind=rp) :: res, expected
     integer :: i, ierr
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
