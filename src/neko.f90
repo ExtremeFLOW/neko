@@ -152,6 +152,10 @@ contains
           write(log_buf(13:), '(a)') 'SX-Aurora'
        else if (NEKO_BCKND_XSMM .eq. 1) then
           write(log_buf(13:), '(a)') 'CPU (libxsmm)'
+       else if (NEKO_BCKND_CUDA .eq. 1) then
+          write(log_buf(13:), '(a)') 'Accelerator (CUDA)'
+       else if (NEKO_BCKND_HIP .eq. 1) then
+          write(log_buf(13:), '(a)') 'Accelerator (HIP)'
        else
           write(log_buf(13:), '(a)') 'CPU'
        end if
