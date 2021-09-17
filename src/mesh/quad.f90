@@ -107,7 +107,7 @@ contains
   !> Compute the diameter of a quadrilateral element
   function quad_diameter(this) result(res)
     class(quad_t), intent(in) :: this
-    real(kind=rp) :: d1, d2, res
+    real(kind=dp) :: d1, d2, res
     type(point_t), pointer :: p1, p2, p3, p4
     integer :: i
 
