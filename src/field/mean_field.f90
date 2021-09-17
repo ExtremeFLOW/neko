@@ -10,7 +10,7 @@ module mean_field
   type, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f
      type(field_t) :: mf
-     real(kind=dp) :: time
+     real(kind=rp) :: time
    contains
      procedure, pass(this) :: init => mean_field_init
      procedure, pass(this) :: free => mean_field_free
@@ -28,7 +28,7 @@ contains
     call this%free()
 
     this%f => f
-    this%time = 0d0
+    this%time = 0.0_rp
 
     name = 'mean_'//trim(f%name)
 
