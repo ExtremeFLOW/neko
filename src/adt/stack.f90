@@ -114,7 +114,7 @@ contains
        size_t = NEKO_STACK_SIZE_T
     end if
 
-    this%size_ = ishft(1, ceiling(log(dble(size_t)) / NEKO_M_LN2))
+    this%size_ = ishft(1, ceiling(log(real(size_t, rp)) / NEKO_M_LN2))
     this%top_ = 0
     select type(this)
     type is(stack_i4_t)
