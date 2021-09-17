@@ -3,7 +3,7 @@ module sampler
   use num_types
   use output
   use comm
-  use log
+  use logger
   implicit none
 
   !> Pointer to an arbitrary output

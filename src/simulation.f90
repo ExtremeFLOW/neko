@@ -2,8 +2,8 @@
 module simulation
   use case
   use abbdf
-  use log
   use file
+  use logger
   use jobctrl
   implicit none
   private

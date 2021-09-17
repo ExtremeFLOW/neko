@@ -18,7 +18,7 @@ module case
   use mesh
   use comm
   use abbdf
-  use log
+  use logger
   use jobctrl
   use user_intf  
   implicit none
