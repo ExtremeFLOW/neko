@@ -52,7 +52,7 @@ contains
     integer :: i
     
     do i = 1, n
-       a(i) = 0d0
+       a(i) = 0.0_rp
     end do
   end subroutine rzero
 
@@ -63,18 +63,18 @@ contains
     integer :: i
     
     do i = 1, n
-       a(i) = 0d0
+       a(i) = 0
     end do
   end subroutine izero
 
- !> Sets row e to 0 in matrix a
+  !> Sets row e to 0 in matrix a
   subroutine row_zero(a, m, n, e)
     integer, intent(in) :: m, n, e
     real(kind=rp), intent(inout) :: a(m,n)
     integer :: j
 
     do j = 1,n
-       a(e,j) = 0.
+       a(e,j) = 0.0_rp
     end do    
   end subroutine row_zero
 
@@ -85,7 +85,7 @@ contains
     integer :: i
     
     do i = 1, n
-       a(i) = 1d0
+       a(i) = 1.0_rp
     end do
   end subroutine rone
 
@@ -132,7 +132,7 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glsum
     integer :: i, ierr
-    tmp = 0d0
+    tmp = 0.0_rp
     do i = 1, n
        tmp = tmp + a(i)
     end do
@@ -188,7 +188,7 @@ contains
     integer :: n, i
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmax
-    tmax =-99d20
+    tmax = real(-99d20, rp)
     do i=1,n
        tmax = max(tmax,vec(i))
     end do
@@ -201,7 +201,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1d0 / a(i)
+       a(i) = 1.0_rp / a(i)
     end do
     
   end subroutine invcol1
@@ -227,7 +227,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1d0 / b(i)
+       a(i) = 1.0_rp / b(i)
     end do
     
   end subroutine invers2
@@ -285,7 +285,7 @@ contains
     real(kind=rp) :: s
     integer :: i
 
-    s = 0d0
+    s = 0.0_rp
     do i = 1, n 
       s = s + u(i)*v(i)*w(i)
     end do
@@ -299,7 +299,7 @@ contains
     real(kind=rp) :: s
     integer :: i
 
-    s = 0d0
+    s = 0.0_rp
     do i = 1, n 
       s = s + u(i)*v(i)
     end do
@@ -603,7 +603,7 @@ contains
     real(kind=rp) :: glsc2, tmp
     integer :: i, ierr
 
-    tmp = 0d0
+    tmp = 0.0_rp
     do i = 1, n
        tmp = tmp + a(i) * b(i) 
     end do
@@ -622,7 +622,7 @@ contains
     real(kind=rp) :: glsc3, tmp
     integer :: i, ierr
 
-    tmp = 0d0
+    tmp = 0.0_rp
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i)
     end do
@@ -640,7 +640,7 @@ contains
     real(kind=rp) :: glsc4, tmp
     integer :: i, ierr
 
-    tmp = 0d0
+    tmp = 0.0_rp
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i) * d(i)
     end do
