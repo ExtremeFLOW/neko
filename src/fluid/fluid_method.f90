@@ -32,7 +32,7 @@ module fluid_method
   use mathops
   use operators
   use hsmg
-  use log
+  use logger
   implicit none
   
   !> Base type of all fluid formulations

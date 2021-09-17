@@ -13,7 +13,7 @@ module gather_scatter
   use htable
   use stack
   use utils
-  use log    
+  use logger
   implicit none
 
   type, private :: gs_comm_t

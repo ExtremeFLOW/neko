@@ -1,5 +1,5 @@
 !> Logging routines
-module log
+module logger
   use comm
   use num_types
   implicit none
@@ -178,4 +178,4 @@ contains
     call this%message('----------------------------------------------------------------')
   end subroutine log_status
   
-end module log
+end module logger

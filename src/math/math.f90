@@ -7,7 +7,7 @@ module math
   real(kind=rp), parameter :: NEKO_EPS = epsilon(1.0_rp)
 
   !> \f$ ln(2) \f$
-  real(kind=rp), parameter :: NEKO_M_LN2 = 0.69314718055994529_rp
+  real(kind=rp), parameter :: NEKO_M_LN2 = log(2.0_rp)
 
   interface abscmp
      module procedure sabscmp, dabscmp, qabscmp

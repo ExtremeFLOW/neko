@@ -5,7 +5,7 @@ module neko
   use parameters    
   use comm
   use utils
-  use log
+  use logger
   use math
   use speclib
   use dofmap
