@@ -80,6 +80,7 @@ jobs:
     env:
      FC: ifort
      CC: icc
+     RP: ${{ matrix.precision }}
     name: Intel Fortran / ${{ matrix.precision }}
     steps:
       - name: Setup env.
