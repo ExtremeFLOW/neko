@@ -4,10 +4,10 @@ module math
   implicit none
 
   !> Machine epsilon \f$ \epsilon \f$
-  real(kind=rp), parameter :: NEKO_EPS = epsilon(1d0)
+  real(kind=rp), parameter :: NEKO_EPS = epsilon(1.0_rp)
 
   !> \f$ ln(2) \f$
-  real(kind=rp), parameter :: NEKO_M_LN2 = 0.693147180559945d0
+  real(kind=rp), parameter :: NEKO_M_LN2 = 0.69314718055994529_rp
 
   interface abscmp
      module procedure sabscmp, dabscmp, qabscmp
