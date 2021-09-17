@@ -8,7 +8,7 @@ module nmsh_file
   use datadist
   use mpi_types
   use mpi_f08
-  use log
+  use logger
   implicit none
   
   private

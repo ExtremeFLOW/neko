@@ -177,7 +177,7 @@ contains
   !> Compute the diameter of a tetrahedral element
   function tet_diameter(this) result(res)
     class(tet_t), intent(in) :: this
-    real(kind=rp) :: d1, d2, d3, d4, d5, d6, res
+    real(kind=dp) :: d1, d2, d3, d4, d5, d6, res
     type(point_t), pointer :: p1, p2, p3, p4
     integer :: i
 

@@ -3,13 +3,15 @@ subroutine test_stack_r8_init
   use pfunit
   use stack
   use math, only : NEKO_M_LN2
+  use num_types, only : rp
   implicit none
   type(stack_r8_t) :: s1, s2, s3
+  integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
 
   call s1%init()
   @assertTrue(allocated(s1%data))
-  @assertEqual(s1%size_, 64)
-  @assertEqual(size(s1%array()), 64)
+  @assertEqual(s1%size_, size_t)
+  @assertEqual(size(s1%array()), size_t)
   @assertEqual(s1%size_, size(s1%array()))
   @assertEqual(s1%top_, s1%size())
   @assertLessThan(s1%size(), size(s1%array()))
@@ -24,8 +26,8 @@ subroutine test_stack_r8_init
 
   call s3%init(0)
   @assertTrue(allocated(s3%data))
-  @assertEqual(s3%size_, 64)
-  @assertEqual(size(s3%array()), 64)
+  @assertEqual(s3%size_, size_t)
+  @assertEqual(size(s3%array()), size_t)
   @assertEqual(s3%size_, size(s3%array()))
   @assertEqual(s3%top_, s3%size())
   @assertLessThan(s3%size(), size(s3%array()))

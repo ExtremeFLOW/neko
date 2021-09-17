@@ -9,13 +9,17 @@ contains
 
   @test
   subroutine test_math_abscmp
-    real(kind=dp) :: a, b, c, d
+    real(kind=rp) :: a, b, c, d
 
-    a = 17.0d0
-    b = 42.0d0
-    c = 42.0d0 + (NEKO_EPS/2d0)
-    d = 42.0d0 + 1d-12
-
+    a = 17.0_rp
+    b = 42.0_rp
+    c = 42.0_rp + (NEKO_EPS/2.0_rp)
+    if (epsilon(1.0_rp) .lt. real(1d-12, rp)) then
+       d = 42.0_rp + real(1d-12, rp)
+    else if (epsilon(1.0_rp) .lt.  real(1d-5, rp)) then
+       d = 42.0_rp + real(1d-5, rp)
+    end if
+    
     @assertFalse(abscmp(a, b))
     @assertTrue(abscmp(b, c))
     @assertFalse(abscmp(b, d))
@@ -25,21 +29,21 @@ contains
   @test
   subroutine test_math_rzero
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n)
+    real(kind=rp) :: a(n)
     integer :: i
 
-    a = 1d0  
+    a = 1.0_rp  
     call rzero(a, n)
     do i = 1, n
-       @assertEqual(0d0, a(i))
+       @assertEqual(0.0_rp, a(i))
     end do
 
     do i = 1, n
-       a(i) = dble(i)
+       a(i) = real(i, rp)
     end do
     call rzero(a, n)
     do i = 1, n
-       @assertEqual(0d0, a(i))
+       @assertEqual(0.0_rp, a(i))
     end do
     
   end subroutine test_math_rzero
@@ -61,16 +65,16 @@ contains
   @test
   subroutine test_math_rone
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n)
+    real(kind=rp) :: a(n)
     integer :: i
 
     call rzero(a, n)
     do i = 1, n
-       @assertEqual(0d0, a(i))
+       @assertEqual(0.0_rp, a(i))
     end do
     call rone(a, n)
     do i = 1, n
-       @assertEqual(1d0, a(i))
+       @assertEqual(1.0_rp, a(i))
     end do
     
   end subroutine test_math_rone
@@ -78,7 +82,7 @@ contains
   @test
   subroutine test_math_copy
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n), b(n)
+    real(kind=rp) :: a(n), b(n)
     integer :: i
 
     call rone(a, n)
@@ -97,15 +101,15 @@ contains
   @test
   subroutine test_math_cadd
     integer, parameter :: n = 17
-    real(kind=dp) :: a(n)
-    real(kind=dp), parameter :: s = 42
+    real(kind=rp) :: a(n)
+    real(kind=rp), parameter :: s = 42
     integer :: i
 
     call rone(a, n)
     call cadd(a, s, n)
 
     do i = 1, n
-       @assertEqual(43d0, a(i))
+       @assertEqual(43.0_rp, a(i))
     end do
 
   end subroutine test_math_cadd
@@ -113,8 +117,8 @@ contains
   @test
   subroutine test_math_vcross
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-    real(kind=dp), parameter :: s = 42
+    real(kind=rp), dimension(n) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
+    real(kind=rp), parameter :: s = 42
     integer :: i
 
     call rzero(u1, n)
@@ -122,21 +126,21 @@ contains
     call rzero(u3, n)
 
     do i = 1, n
-       v1(i) = 1d0
-       v2(i) = 4d0
-       v3(i) = -1d0
+       v1(i) = 1.0_rp
+       v2(i) = 4.0_rp
+       v3(i) = -1.0_rp
 
-       w1(i) = 2d0
-       w2(i) = -4d0
-       w3(i) = 6d0
+       w1(i) = 2.0_rp
+       w2(i) = -4.0_rp
+       w3(i) = 6.0_rp
     end do
 
     call vcross(u1, u2, u3, v1, v2, v3, w1, w2, w3, n)
 
     do i = 1, n
-       @assertEqual(20d0, u1(i))
-       @assertEqual(-8d0, u2(i))
-       @assertEqual(-12d0, u3(i))
+       @assertEqual(20.0_rp, u1(i))
+       @assertEqual(-8.0_rp, u2(i))
+       @assertEqual(-12.0_rp, u3(i))
     end do
 
   end subroutine test_math_vcross
@@ -144,23 +148,23 @@ contains
   @test
   subroutine test_math_vdot2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, v1, v2, w1, w2
+    real(kind=rp), dimension(n) :: dot, v1, v2, w1, w2
     integer :: i
 
     call rzero(dot, n)
 
     do i = 1, n
-       v1(i) = 1d0
-       v2(i) = 4d0
+       v1(i) = 1.0_rp
+       v2(i) = 4.0_rp
 
-       w1(i) = 4d0
-       w2(i) = 1d0
+       w1(i) = 4.0_rp
+       w2(i) = 1.0_rp
     end do
 
     call vdot2(dot, v1, v2, w1, w2, n)
 
     do i = 1, n
-       @assertEqual(8, dot(i))
+       @assertEqual(8.0_rp, dot(i))
     end do
 
   end subroutine test_math_vdot2
@@ -170,25 +174,25 @@ contains
   subroutine test_math_vdot3
     implicit none
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, v1, v2, v3, w1, w2, w3
+    real(kind=rp), dimension(n) :: dot, v1, v2, v3, w1, w2, w3
     integer :: i
 
     call rzero(dot, n)
 
     do i = 1, n
-       v1(i) = 1d0
-       v2(i) = 4d0
-       v3(i) = 1d0
+       v1(i) = 1.0_rp
+       v2(i) = 4.0_rp
+       v3(i) = 1.0_rp
 
-       w1(i) = 4d0
-       w2(i) = 1d0
-       w3(i) = -1d0
+       w1(i) = 4.0_rp
+       w2(i) = 1.0_rp
+       w3(i) = -1.0_rp
     end do
 
     call vdot3(dot, v1, v2, v3, w1, w2, w3, n)
 
     do i = 1, n
-       @assertEqual(7, dot(i))
+       @assertEqual(7.0_rp, dot(i))
     end do
 
   end subroutine test_math_vdot3
@@ -196,18 +200,18 @@ contains
   @test
   subroutine test_math_add2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, a, b
+    real(kind=rp), dimension(n) :: dot, a, b
     integer :: i
 
     do i = 1, n
-       a(i) = 14d0
-       b(i) = 3d0
+       a(i) = 14.0_rp
+       b(i) = 3.0_rp
     end do
 
     call add2(a, b, n)
 
     do i = 1, n
-       @assertEqual(17, a(i))
+       @assertEqual(17.0_rp, a(i))
     end do
 
   end subroutine test_math_add2
@@ -215,19 +219,19 @@ contains
   @test
   subroutine test_math_add3
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, a, b, c
+    real(kind=rp), dimension(n) :: dot, a, b, c
     integer :: i
 
     do i = 1, n
-       a(i) = 14d0
-       b(i) = 3d0
-       c(i) = 0d0
+       a(i) = 14.0_rp
+       b(i) = 3.0_rp
+       c(i) = 0.0_rp
     end do
 
     call add3(c, a, b, n)
 
     do i = 1, n
-       @assertEqual(17, c(i))
+       @assertEqual(17.0_rp, c(i))
     end do
 
   end subroutine test_math_add3
@@ -235,21 +239,21 @@ contains
   @test
   subroutine test_math_add4
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: dot, a, b, c, d
+    real(kind=rp), dimension(n) :: dot, a, b, c, d
     integer :: i
 
 
     do i = 1, n
-       a(i) = 14d0
-       b(i) = 3d0
-       c(i) = 25d0
-       d(i) = 0d0
+       a(i) = 14.0_rp
+       b(i) = 3.0_rp
+       c(i) = 25.0_rp
+       d(i) = 0.0_rp
     end do
 
     call add4(d, a, b, c, n)
 
     do i = 1, n
-       @assertEqual(42, d(i))
+       @assertEqual(42.0_rp, d(i))
     end do
 
   end subroutine test_math_add4
@@ -257,19 +261,19 @@ contains
   @test
   subroutine test_math_add2s1
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b
-    real(kind=dp), parameter :: c1 = 2d0
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2.0_rp
     integer :: i
 
     do i = 1, n
-       a(i) = 20d0
-       b(i) = 2d0
+       a(i) = 20.0_rp
+       b(i) = 2.0_rp
     end do
 
     call add2s1(a, b, c1, n)
 
     do i = 1, n
-       @assertEqual(42, a(i))
+       @assertEqual(42.0_rp, a(i))
     end do
 
   end subroutine test_math_add2s1
@@ -277,19 +281,19 @@ contains
   @test
   subroutine test_math_add2s2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b
-    real(kind=dp), parameter :: c1 = 2d0
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2_rp
     integer :: i
 
     do i = 1, n
-       a(i) = 20d0
-       b(i) = 2d0
+       a(i) = 20.0_rp
+       b(i) = 2.0_rp
     end do
 
     call add2s2(a, b, c1, n)
 
     do i = 1, n
-       @assertEqual(24, a(i))
+       @assertEqual(24.0_rp, a(i))
     end do
 
   end subroutine test_math_add2s2
@@ -297,18 +301,18 @@ contains
   @test
   subroutine test_math_col2
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b
+    real(kind=rp), dimension(n) :: a, b
     integer :: i
 
     do i = 1, n
-       a(i) = 21d0
-       b(i) = 2d0
+       a(i) = 21.0_rp
+       b(i) = 2.0_rp
     end do
 
     call col2(a, b, n)
 
     do i = 1, n
-       @assertEqual(42, a(i))
+       @assertEqual(42.0_rp, a(i))
     end do
 
   end subroutine test_math_col2
@@ -317,19 +321,19 @@ contains
   subroutine test_math_glsc3(this)
     class (MpiTestMethod), intent(inout) :: this
     integer, parameter :: n = 17
-    real(kind=dp), dimension(n) :: a, b, c
-    real(kind=dp) :: res, expected
+    real(kind=rp), dimension(n) :: a, b, c
+    real(kind=rp) :: res, expected
     integer :: i, ierr
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     
     do i = 1, n
-       a(i) = 1d0
-       b(i) = 1d0
-       c(i) = 1d0
+       a(i) = 1.0_rp
+       b(i) = 1.0_rp
+       c(i) = 1.0_rp
     end do
 
-    expected = this%getNumProcesses() * 17d0
+    expected = real(this%getNumProcesses(), rp)  * 17.0_rp
     res = glsc3(a, b, c, n)
     @assertEqual(expected, res)
     @MPIassertEqual(expected, res)

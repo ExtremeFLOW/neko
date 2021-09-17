@@ -117,8 +117,8 @@ contains
     call field_init(f, msh, Xh, 'test')
     @assertEqual(maxval(f%x), 0d0)
 
-    f = 42d0
-    @assertEqual(maxval(f%x), 42d0)
+    f = 42.0_rp
+    @assertEqual(maxval(f%x), 42.0_rp)
     
   end subroutine test_field_assign_scalar
 
@@ -140,10 +140,10 @@ contains
     call field_init(f, msh, Xh, 'test')
     call field_init(g, msh, Xh, 'test')
 
-    f = 42d0
+    f = 42.0_rp
     g = f
 
-    @assertEqual(maxval(f%x), 42d0)
+    @assertEqual(maxval(f%x), 42.0_rp)
     
   end subroutine test_field_assign_field
 
@@ -154,7 +154,7 @@ contains
     type(space_t) :: Xh
     type(mesh_t) :: msh
     integer, parameter :: LX = 4
-    real(kind=dp) :: a
+    real(kind=rp) :: a
     type(field_t) :: f
     integer :: ierr
 
@@ -165,10 +165,10 @@ contains
     
     call field_init(f, msh, Xh, 'test')
 
-    f = 42d0
-    a = 17d0
+    f = 42.0_rp
+    a = 17.0_rp
     call field_add(f, a)
-    @assertEqual(maxval(f%x), 42d0 + a)
+    @assertEqual(maxval(f%x), 42.0_rp + a)
     
   end subroutine test_field_add_scalar
 
@@ -190,10 +190,10 @@ contains
     call field_init(f, msh, Xh, 'test')
     call field_init(g, msh, Xh, 'test')
 
-    f = 42d0
-    g = 17d0
+    f = 42.0_rp
+    g = 17.0_rp
     call field_add(f, g)
-    @assertEqual(maxval(f%x), 42d0 + 17d0)
+    @assertEqual(maxval(f%x), 42.0_rp + 17.0_rp)
     
   end subroutine test_field_add_field
 

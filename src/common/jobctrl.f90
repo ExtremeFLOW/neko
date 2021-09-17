@@ -4,7 +4,7 @@ module jobctrl
   use signal
   use utils
   use comm
-  use log
+  use logger
   implicit none
 
   interface jobctrl_set_time_limit

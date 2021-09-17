@@ -5,7 +5,7 @@ module neko
   use parameters    
   use comm
   use utils
-  use log
+  use logger
   use math
   use speclib
   use dofmap
@@ -50,6 +50,7 @@ module neko
   use precon
   use ax_product
   use gmres
+  use cacg
   use jacobi
   use neko_config
   use case
@@ -74,8 +75,13 @@ contains
   subroutine neko_init(C)
     type(case_t), intent(inout), optional :: C
     character(len=NEKO_FNAME_LEN) :: case_file
+    character(len=LOG_SIZE) :: log_buf
     character(len=10) :: suffix
+    character(10) :: time
+    character(8) :: date
     integer :: argc
+
+    call date_and_time(time=time, date=date)           
 
     call comm_init
     call mpi_types_init
@@ -112,7 +118,61 @@ contains
        if (trim(suffix) .ne. 'case') then
           call neko_error('Invalid case file')
        end if
-       
+
+       !
+       ! Job information
+       !
+       call neko_log%section("Job Information")       
+       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
+            time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
+       call neko_log%message(log_buf)
+       write(log_buf, '(a)') 'Running on: '
+       if (pe_size .lt. 1e1)  then
+          write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
+          if (pe_size .eq. 1) then
+             write(log_buf(19:), '(a)') 'rank'
+          else
+             write(log_buf(19:), '(a)') 'ranks'
+          end if
+       else if (pe_size .lt. 1e2) then
+          write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
+       else if (pe_size .lt. 1e3) then
+          write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
+       else if (pe_size .lt. 1e4) then
+          write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
+       else if (pe_size .lt. 1e5) then
+          write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
+       else
+          write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
+       end if
+       call neko_log%message(log_buf)
+
+       write(log_buf, '(a)') 'Bcknd type: '
+       if (NEKO_BCKND_SX .eq. 1) then
+          write(log_buf(13:), '(a)') 'SX-Aurora'
+       else if (NEKO_BCKND_XSMM .eq. 1) then
+          write(log_buf(13:), '(a)') 'CPU (libxsmm)'
+       else
+          write(log_buf(13:), '(a)') 'CPU'
+       end if
+       call neko_log%message(log_buf)
+               
+       write(log_buf, '(a)') 'Real type : '
+       select case (rp)
+       case (4)
+          write(log_buf(13:), '(a)') 'single precision'
+       case (8)
+          write(log_buf(13:), '(a)') 'double precision'
+       case (16)
+          write(log_buf(13:), '(a)') 'quad precision'
+       end select
+       call neko_log%message(log_buf)
+
+       call neko_log%end()
+
+       !
+       ! Create case
+       !
        call case_init(C, case_file)
        
     end if

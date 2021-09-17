@@ -19,6 +19,7 @@ module fluid_method
   use dirichlet
   use symmetry
   use cg
+  use cacg
   use pipecg
   use bicgstab
   use bc
@@ -31,7 +32,7 @@ module fluid_method
   use mathops
   use operators
   use hsmg
-  use log
+  use logger
   implicit none
   
   !> Base type of all fluid formulations
@@ -422,6 +423,8 @@ contains
        allocate(cg_t::ksp)
     else if (trim(solver) .eq. 'pipecg') then
        allocate(pipecg_t::ksp)
+    else if (trim(solver) .eq. 'cacg') then
+       allocate(cacg_t::ksp)
     else if (trim(solver) .eq. 'gmres') then
        allocate(gmres_t::ksp)
     else if (trim(solver) .eq. 'bicgstab') then
@@ -434,6 +437,8 @@ contains
     type is(cg_t)
        call kp%init(n, abs_tol = abstol)
     type is(pipecg_t)
+       call kp%init(n, abs_tol = abstol)
+    type is(cacg_t)
        call kp%init(n, abs_tol = abstol)
     type is(gmres_t)
        call kp%init(n, abs_tol = abstol)

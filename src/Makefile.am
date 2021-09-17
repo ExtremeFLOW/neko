@@ -39,6 +39,7 @@ libneko_a_SOURCES = \
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/cg.f90\
+	krylov/cacg.f90\
 	krylov/pipecg.f90\
 	krylov/bicgstab.f90\
 	krylov/bcknd/device/cg_device.f90\

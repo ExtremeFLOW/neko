@@ -75,12 +75,12 @@ contains
     call field_init(x,m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,8), n/2)
+    call add2(x%x,real(d%dof,rp), n/2)
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
    
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=1d-14)
+      @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
       enddo
     enddo 
 
@@ -149,12 +149,12 @@ contains
     call field_init(x,m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,8), n/2)
+    call add2(x%x,real(d%dof,rp), n/2)
     call gs_op_vector(gs_h,x%x, n, GS_OP_ADD)
     
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2),tolerance=1d-14)
+      @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
       enddo
     enddo 
 
@@ -222,11 +222,11 @@ contains
     call field_init(x,m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,8), n/2)
+    call add2(x%x,real(d%dof,rp), n/2)
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=1d-14)
+      @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
       enddo
     enddo 
 
@@ -294,11 +294,11 @@ contains
     call field_init(x,m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,8), n/2)
+    call add2(x%x,real(d%dof,rp), n/2)
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=1d-14)
+      @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
       enddo
     enddo 
 
@@ -367,11 +367,11 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     
-    call add2(x%x,real(d%dof,8), n/2)
+    call add2(x%x,real(d%dof,rp), n/2)
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=1d-14)
+      @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
       enddo
     enddo 
 
@@ -439,11 +439,11 @@ contains
     call field_init(x,m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,8), n/2)
+    call add2(x%x,real(d%dof,rp), n/2)
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=1d-14)
+      @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
       enddo
     enddo 
 
@@ -511,11 +511,11 @@ contains
     call field_init(x,m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,8), n/2)
+    call add2(x%x,real(d%dof,rp), n/2)
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
     do i = 1,lx
       do j = 1,lx
-      @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=1d-14)
+      @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
       enddo
     enddo 
 

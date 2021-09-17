@@ -10,7 +10,7 @@ module fluid_plan4
   use ax_helm
   use abbdf
   use projection
-  use log
+  use logger
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan  
   implicit none
 

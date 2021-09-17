@@ -113,7 +113,7 @@ contains
   !> Compute the diameter of a triangular element
   function tri_diameter(this) result(res)
     class(tri_t), intent(in) :: this
-    real(kind=rp) :: d1, d2, d3, res
+    real(kind=dp) :: d1, d2, d3, res
     type(point_t), pointer :: p1, p2, p3
     integer :: i
 

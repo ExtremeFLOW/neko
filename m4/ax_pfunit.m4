@@ -23,8 +23,14 @@ AC_DEFUN([AX_PFUNIT], [
  AC_LANG_PUSH([Fortran])
 
 
- AC_CHECK_FILE([$PFUNIT_DIR/include/PFUNIT.mk],
-	       [have_pfunit=yes], [have_pfunit=no])
+ AC_MSG_CHECKING([for pFUnit])
+ if ! test -f $PFUNIT_DIR/include/PFUNIT.mk; then
+      AC_MSG_RESULT([no])
+      have_pfunit=no
+ else
+      AC_MSG_RESULT([yes])
+      have_pfunit=yes
+ fi
 
  AC_SUBST(PFUNIT_DIR)
 
