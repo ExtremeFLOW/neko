@@ -794,10 +794,15 @@ contains
        src = modulo(pe_rank - i + pe_size, pe_size)
        dst = modulo(pe_rank + i, pe_size)
 
-       call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
-            MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
-            NEKO_COMM, status, ierr)
-
+       ! We should use the %array() procedure, which works great for
+       ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+       ! certain data types
+       select type(sbarray=>send_buff%data)
+       type is (integer(8))
+          call MPI_Sendrecv(sbarray, send_buff%size(), &
+               MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
+               NEKO_COMM, status, ierr)
+       end select
        call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
 
        do j = 1, n_recv
@@ -859,10 +864,15 @@ contains
        src = modulo(pe_rank - i + pe_size, pe_size)
        dst = modulo(pe_rank + i, pe_size)
 
-       call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
-            MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
-            NEKO_COMM, status, ierr)
-
+       ! We should use the %array() procedure, which works great for
+       ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+       ! certain data types
+       select type(sbarray=>send_buff%data)
+       type is (integer(8))
+          call MPI_Sendrecv(sbarray, send_buff%size(), &
+               MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
+               NEKO_COMM, status, ierr)
+       end select
        call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
 
        do j = 1, n_recv, 2
