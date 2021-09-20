@@ -312,7 +312,7 @@ contains
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
 
-    select type(sdp=>this%data)
+    select type (sdp=>this%data)
     type is (integer)       
        data = sdp(this%top_)
     end select
@@ -322,11 +322,9 @@ contains
   !> Return a pointer to the internal integer array
   function stack_i4_data(this) result(data)
     class(stack_i4_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     integer, pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (integer)       
        data => sdp
     end select
@@ -337,7 +335,7 @@ contains
     class(stack_i8_t), target, intent(inout) :: this
     integer(kind=8) :: data
 
-    select type(sdp=>this%data)
+    select type (sdp=>this%data)
     type is (integer(8))       
        data = sdp(this%top_)
     end select
@@ -347,11 +345,9 @@ contains
   !> Return a pointer to the internal integer*8 array
   function stack_i8_data(this) result(data)
     class(stack_i8_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     integer(kind=8), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (integer(8))       
        data => sdp
     end select
@@ -372,11 +368,9 @@ contains
   !> Return a pointer to the internal double precision array 
   function stack_r8_data(this) result(data)
     class(stack_r8_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     real(kind=dp), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (double precision)       
        data => sdp
     end select
@@ -397,11 +391,9 @@ contains
   !> Return a pointer to the interal 2-tuple array
   function stack_i4t2_data(this) result(data)
     class(stack_i4t2_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     type(tuple_i4_t), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (tuple_i4_t)       
        data => sdp
     end select
@@ -422,11 +414,9 @@ contains
   !> Return a pointer to the internal 4-tuple array
   function stack_i4t4_data(this) result(data)
     class(stack_i4t4_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     type(tuple4_i4_t), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (tuple4_i4_t)       
        data => sdp
     end select
@@ -447,11 +437,9 @@ contains
   !> Return a pointer to the internal curve element array
   function stack_curve_element_data(this) result(data)
     class(stack_curve_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     type(struct_curve_t), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (struct_curve_t)       
        data => sdp
     end select
@@ -472,11 +460,9 @@ contains
   !> Return a pointer to the internal Neko quad array
   function stack_nq_data(this) result(data)
     class(stack_nq_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     type(nmsh_quad_t), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (nmsh_quad_t)       
        data => sdp
     end select
@@ -497,11 +483,9 @@ contains
   !> Return a pointer to the internal Neko quad array
   function stack_nh_data(this) result(data)
     class(stack_nh_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     type(nmsh_hex_t), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp => this%data)
     type is (nmsh_hex_t)       
        data => sdp
     end select
@@ -522,11 +506,9 @@ contains
   !> Return a pointer to the internal Neko zone array
   function stack_nz_data(this) result(data)
     class(stack_nz_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     type(nmsh_zone_t), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (nmsh_zone_t)       
        data => sdp
     end select
@@ -547,11 +529,9 @@ contains
   !> Return a pointer to the internal Neko curve info array
   function stack_nc_data(this) result(data)
     class(stack_nc_t), target, intent(inout) :: this
-    class(*), pointer :: sdp(:)
     type(nmsh_curve_el_t), pointer :: data(:)
 
-    sdp=>this%data
-    select type(sdp)
+    select type (sdp=>this%data)
     type is (nmsh_curve_el_t)       
        data => sdp
     end select
