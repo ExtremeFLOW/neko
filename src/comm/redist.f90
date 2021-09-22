@@ -113,18 +113,30 @@ contains
        src = modulo(pe_rank - i + pe_size, pe_size)
        dst = modulo(pe_rank + i, pe_size)
 
-       call MPI_Sendrecv(new_mesh_dist(dst)%array(), &
-            new_mesh_dist(dst)%size(), MPI_NMSH_HEX, dst, 0, recv_buf_msh, &
-            max_recv(1), MPI_NMSH_HEX, src, 0, NEKO_COMM, status, ierr)
+       ! We should use the %array() procedure, which works great for
+       ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+       ! certain data types
+       select type (nmd_array => new_mesh_dist(dst)%data)
+       type is (nmsh_hex_t)
+          call MPI_Sendrecv(nmd_array, &
+               new_mesh_dist(dst)%size(), MPI_NMSH_HEX, dst, 0, recv_buf_msh, &
+               max_recv(1), MPI_NMSH_HEX, src, 0, NEKO_COMM, status, ierr)
+       end select
        call MPI_Get_count(status, MPI_NMSH_HEX, recv_size, ierr)
 
        do j = 1, recv_size
           call new_mesh_dist(pe_rank)%push(recv_buf_msh(j))
        end do
 
-       call MPI_Sendrecv(new_zone_dist(dst)%array(), &
+       ! We should use the %array() procedure, which works great for
+       ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+       ! certain data types
+       select type (nzd_array => new_zone_dist(dst)%data)
+       type is (nmsh_zone_t)
+          call MPI_Sendrecv(nzd_array, &
             new_zone_dist(dst)%size(), MPI_NMSH_ZONE, dst, 1, recv_buf_zone,&
             max_recv(2), MPI_NMSH_ZONE, src, 1, NEKO_COMM, status, ierr)
+       end select
        call MPI_Get_count(status, MPI_NMSH_ZONE, recv_size, ierr)
 
        do j = 1, recv_size
@@ -161,26 +173,31 @@ contains
     call el_map%init(new_mesh_dist(pe_rank)%size())
     call glb_map%init(new_mesh_dist(pe_rank)%size())
 
-    np => new_mesh_dist(pe_rank)%array()
-    do i = 1, new_mesh_dist(pe_rank)%size()
-       do j = 1, 8
-          p(j) = point_t(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type (np => new_mesh_dist(pe_rank)%data)
+    type is (nmsh_hex_t)
+       do i = 1, new_mesh_dist(pe_rank)%size()
+          do j = 1, 8
+             p(j) = point_t(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
+          end do
+          call mesh_add_element(msh, i, &
+               p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+          
+          if (el_map%get(np(i)%el_idx, tmp) .gt. 0) then
+             ! Old glb to new local
+             tmp = i
+             call el_map%set(np(i)%el_idx, tmp)
+             
+             ! Old glb to new glb
+             tmp = msh%elements(i)%e%id()
+             call glb_map%set(np(i)%el_idx,  tmp)
+          else
+             call neko_error('Global element id already defined')
+          end if
        end do
-       call mesh_add_element(msh, i, &
-            p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-
-       if (el_map%get(np(i)%el_idx, tmp) .gt. 0) then
-          ! Old glb to new local
-          tmp = i
-          call el_map%set(np(i)%el_idx, tmp)
-
-          ! Old glb to new glb
-          tmp = msh%elements(i)%e%id()
-          call glb_map%set(np(i)%el_idx,  tmp)
-       else
-          call neko_error('Global element id already defined')
-       end if       
-    end do
+    end select
     call new_mesh_dist(pe_rank)%free()
 
 
@@ -189,12 +206,17 @@ contains
     !
     call pe_lst%init()
     
-    zp => new_zone_dist(pe_rank)%array()
-    do i = 1, new_zone_dist(pe_rank)%size()
-       if (zp(i)%type .eq. 5) then
-          call pe_lst%push(zp(i)%p_e)
-       end if
-    end do
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(zp => new_zone_dist(pe_rank)%data)
+    type is (nmsh_zone_t)
+       do i = 1, new_zone_dist(pe_rank)%size()
+          if (zp(i)%type .eq. 5) then
+             call pe_lst%push(zp(i)%p_e)
+          end if
+       end do
+    end select
     
     max_recv_idx = 2 * pe_lst%size()
     call MPI_Allreduce(MPI_IN_PLACE, max_recv_idx, 1, MPI_INTEGER, &
@@ -206,9 +228,15 @@ contains
        src = modulo(pe_rank - i + pe_size, pe_size)
        dst = modulo(pe_rank + i, pe_size)
 
-       call MPI_Sendrecv(pe_lst%array(), &
-            pe_lst%size(), MPI_INTEGER, dst, 0, recv_buf_idx, &
-            max_recv_idx, MPI_INTEGER, src, 0, NEKO_COMM, status, ierr)
+       ! We should use the %array() procedure, which works great for
+       ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+       ! certain data types
+       select type (pe_lst_array => pe_lst%data)
+       type is (integer)
+          call MPI_Sendrecv(pe_lst_array, &
+               pe_lst%size(), MPI_INTEGER, dst, 0, recv_buf_idx, &
+               max_recv_idx, MPI_INTEGER, src, 0, NEKO_COMM, status, ierr)
+       end select
        call MPI_Get_count(status, MPI_INTEGER, recv_size, ierr)
 
        k = 0
