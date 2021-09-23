@@ -108,6 +108,17 @@ module device_math
        integer(c_int) :: n
      end function hip_glsc3
   end interface
+
+  interface
+     real(c_rp) function hip_glsc2(a_d, b_d, n) &
+          bind(c, name='hip_glsc2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end function hip_glsc2
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_copy(a_d, b_d, n) &
@@ -211,6 +222,18 @@ module device_math
        integer(c_int) :: n
      end function cuda_glsc3
   end interface
+
+  interface
+     real(c_rp) function cuda_glsc2(a_d, b_d, n) &
+          bind(c, name='cuda_glsc2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end function cuda_glsc2
+  end interface
+
 #endif
   
 contains
@@ -342,5 +365,24 @@ contains
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
   end function device_glsc3
+ 
+  function device_glsc2(a_d, b_d, n) result(res)
+    type(c_ptr) :: a_d, b_d
+    integer :: n, ierr
+    real(kind=rp) :: res
+#ifdef HAVE_HIP
+    res = hip_glsc2(a_d, b_d, n)
+#elif HAVE_CUDA
+    res = cuda_glsc2(a_d, b_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    end if
+  end function device_glsc2
   
+ 
 end module device_math

@@ -146,4 +146,36 @@ extern "C" {
 
     return res;
   }
+
+  /**
+   * Fortran wrapper glsc3
+   * Weighted inner product \f$ a^T b c \f$
+   */
+  real cuda_glsc2(void *a, void *b, int *n) {
+	
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
+
+    cudaMalloc(&buf_d, nb*sizeof(real));
+     
+    glsc2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
+					      buf_d, *n);
+
+    cudaMemcpy(buf, buf_d, nb * sizeof(real), cudaMemcpyDeviceToHost);
+
+    real res = 0.0;
+    for (int i = 0; i < nb; i++) {
+      res += buf[i];
+    }
+
+    free(buf);
+    cudaFree(buf_d);
+
+    return res;
+  }
+
 }
