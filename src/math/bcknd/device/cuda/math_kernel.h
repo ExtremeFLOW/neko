@@ -152,4 +152,37 @@ __global__ void glsc3_kernel(const T * a,
     buf_h[blockIdx.x] = buf[0];
   }
 }
+/**
+ * Device kernel for glsc2
+ */
+template< typename T >
+__global__ void glsc2_kernel(const T * a,
+			     const T * b,
+			     T * buf_h,
+			     const int n) {
 
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  __shared__ T buf[1024];
+  T tmp = 0.0;
+
+  for (int i = idx; i < n; i+= str) {
+    tmp += a[i] * b[i];
+  }
+  buf[threadIdx.x] = tmp;
+  __syncthreads();
+
+  int i = blockDim.x>>1;
+  while (i != 0) {
+    if (threadIdx.x < i) {
+      buf[threadIdx.x] += buf[threadIdx.x + i];
+    }
+    __syncthreads();
+    i = i>>1;
+  }
+ 
+  if (threadIdx.x == 0) {
+    buf_h[blockIdx.x] = buf[0];
+  }
+}
