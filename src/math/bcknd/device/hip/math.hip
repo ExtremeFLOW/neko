@@ -156,4 +156,38 @@ extern "C" {
 
     return res;
   }
+
+  /**
+   * Fortran wrapper glsc2
+   * Weighted inner product \f$ a^T b \f$
+   */
+  real hip_glsc2(void *a, void *b, int *n) {
+	
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
+
+    hipMalloc(&buf_d, nb*sizeof(real));
+     
+    hipLaunchKernelGGL(glsc2_kernel,
+		       nblcks, nthrds, 0, 0,
+		       (real *) a, (real *) b,
+		       buf_d, *n);
+
+    hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost);
+
+    real res = 0.0;
+    for (int i = 0; i < nb; i++) {
+      res += buf[i];
+    }
+
+    free(buf);
+    hipFree(buf_d);
+
+    return res;
+  }
+
 }
