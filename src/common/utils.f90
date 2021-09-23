@@ -18,6 +18,13 @@ contains
     suffix_pos = scan(trim(fname), '.', back=.true.)    
   end function filename_suffix_pos
 
+  !> Find position (in the string) of a filename's trailing slash
+  pure function filename_tslash_pos(fname) result(tslash_pos)
+    character(len=*), intent(in) :: fname
+    integer :: tslash_pos
+    tslash_pos = scan(trim(fname), '/', back=.true.)    
+  end function filename_tslash_pos
+  
   !> Extract a filename's suffix
   subroutine filename_suffix(fname, suffix)
     character(len=*) :: fname

@@ -18,15 +18,20 @@ module mean_sqr_flow_output
 
 contains
   
-  function mean_sqr_flow_output_init(msqrf, T_begin, name) result(this)
+  function mean_sqr_flow_output_init(msqrf, T_begin, name, path) result(this)
     type(mean_sqr_flow_t), intent(in), target ::msqrf
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in), optional :: name
+    character(len=*), intent(in), optional :: path
     type(mean_sqr_flow_output_t) :: this
     character(len=80) :: fname
-
-    if (present(name)) then
+    
+    if (present(name) .and. present(path)) then
+       fname = trim(path) // trim(name) // '.fld'
+    else if (present(name)) then
        fname = trim(name) // '.fld'
+    else if (present(path)) then
+       fname = trim(path) // 'mean_sqr_field.fld'
     else
        fname = 'mean_sqr_field.fld'
     end if

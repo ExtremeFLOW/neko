@@ -16,14 +16,19 @@ module chkp_output
   
 contains
 
-  function chkp_output_init(chkp, name) result(this)
+  function chkp_output_init(chkp, name, path) result(this)
     type(chkp_t), intent(in), target :: chkp
     character(len=*), intent(in), optional :: name
+    character(len=*), intent(in), optional :: path
     type(chkp_output_t) :: this
     character(len=80) :: fname
 
-    if (present(name)) then
+    if (present(name) .and. present(path)) then
+       fname = trim(path) // trim(name) // '.chkp'
+    else if (present(name)) then
        fname = trim(name) // '.chkp'
+    else if (present(path)) then
+       fname = trim(path) // 'fluid.chkp'
     else
        fname = 'fluid.chkp'
     end if
