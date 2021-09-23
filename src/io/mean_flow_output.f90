@@ -18,15 +18,20 @@ module mean_flow_output
 
 contains
   
-  function mean_flow_output_init(mf, T_begin, name) result(this)
+  function mean_flow_output_init(mf, T_begin, name, path) result(this)
     type(mean_flow_t), intent(in), target ::mf
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in), optional :: name
+    character(len=*), intent(in), optional :: path
     type(mean_flow_output_t) :: this
     character(len=80) :: fname
 
-    if (present(name)) then
+    if (present(name) .and. present(path)) then
+       fname = trim(path) // trim(name) // '.fld'
+    else if (present(name)) then
        fname = trim(name) // '.fld'
+    else if (present(path)) then
+       fname = trim(path) // 'mean_field.fld'
     else
        fname = 'mean_field.fld'
     end if
