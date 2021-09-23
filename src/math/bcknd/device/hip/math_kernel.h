@@ -158,7 +158,7 @@ __global__ void glsc3_kernel(const T * a,
  * Device kernel for glsc2
  */
 template< typename T >
-__global__ void glsc3_kernel(const T * a,
+__global__ void glsc2_kernel(const T * a,
 			     const T * b,
 			     T * buf_h,
 			     const int n) {
