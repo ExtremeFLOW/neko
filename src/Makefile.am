@@ -88,6 +88,9 @@ libneko_a_SOURCES = \
 	krylov/bcknd/cpu/bicgstab.f90\
 	krylov/bcknd/cpu/gmres.f90\
 	krylov/bcknd/cpu/pc_jacobi.f90\
+	krylov/bcknd/sx/cg_sx.f90\
+	krylov/bcknd/sx/pipecg_sx.f90\
+	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	common/source.f90\
 	common/abbdf.f90\

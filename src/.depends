@@ -86,6 +86,9 @@ krylov/bcknd/cpu/pipecg.o : krylov/bcknd/cpu/pipecg.f90 config/num_types.o math/
 krylov/bcknd/cpu/bicgstab.o : krylov/bcknd/cpu/bicgstab.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/cpu/gmres.o : krylov/bcknd/cpu/gmres.f90 config/num_types.o math/operators.o math/math.o comm/comm.o krylov/krylov.o 
 krylov/bcknd/cpu/pc_jacobi.o : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
+krylov/bcknd/sx/cg_sx.o : krylov/bcknd/sx/cg_sx.f90 config/num_types.o math/math.o krylov/krylov.o 
+krylov/bcknd/sx/pipecg_sx.o : krylov/bcknd/sx/pipecg_sx.f90 config/num_types.o math/math.o krylov/krylov.o 
+krylov/bcknd/sx/gmres_sx.o : krylov/bcknd/sx/gmres_sx.f90 config/num_types.o math/operators.o math/math.o comm/comm.o krylov/krylov.o 
 krylov/bcknd/sx/pc_jacobi_sx.o : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
 common/source.o : common/source.f90 config/num_types.o sem/dofmap.o 
 common/abbdf.o : common/abbdf.f90 common/utils.o math/math.o config/num_types.o 
