@@ -95,18 +95,23 @@ contains
   subroutine sampler_sample(this, t)
     class(sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    real(kind=dp) :: sample_start_time, sample_end_time
     character(len=LOG_SIZE) :: log_buf
     integer :: i
 
     if (t .ge. (this%nsample * this%T)) then
 
-       write(log_buf,'(a23,1x,e15.7)') 'Sampling fields at time:', t
-       call neko_log%message(log_buf)
-       
+       sample_start_time = MPI_WTIME()
        do i = 1, this%n
           call this%output_list(i)%outp%sample(t)
        end do
+       sample_end_time = MPI_WTIME()
        this%nsample = this%nsample + 1
+
+       write(log_buf,'(a23,1x,e15.7,A,F8.4)') 'Sampling fields at time:', t, &
+             ' Sample time (s): ', sample_end_time - sample_start_time
+       call neko_log%message(log_buf)
+
     end if
     
   end subroutine sampler_sample
