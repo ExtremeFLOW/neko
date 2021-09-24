@@ -90,7 +90,7 @@ contains
     integer, optional, intent(in) :: niter
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
-    integer :: iter, max_iter
+    integer :: i, iter, max_iter
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
     
@@ -102,9 +102,11 @@ contains
     norm_fac = one / sqrt(coef%volume)
 
     rtz1 = one
-    call rzero(x%x, n)
-    call rzero(this%p, n)
-    call copy(this%r, f, n)
+    do i = 1, n
+       x%x(i,1,1,1) = 0.0_rp
+       this%p(i) = 0.0_rp
+       this%r(i) = f(i)
+    end do
 
     rtr = glsc3(this%r, coef%mult, this%r, n)
     rnorm = sqrt(rtr)*norm_fac
@@ -112,6 +114,7 @@ contains
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
     if(rnorm .eq. zero) return
+
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1
@@ -129,8 +132,10 @@ contains
 
        alpha = rtz1 / pap
        alphm = -alpha
-       call add2s2(x%x, this%p, alpha, n)
-       call add2s2(this%r, this%w, alphm, n)
+       do i = 1, n
+          x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * this%p(i)
+          this%r(i) = this%r(i) + alphm * this%w(i)
+       end do
 
        rtr = glsc3(this%r, coef%mult, this%r, n)
        if (iter .eq. 1) rtr0 = rtr

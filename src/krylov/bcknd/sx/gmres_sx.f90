@@ -200,30 +200,37 @@ contains
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
 
-!          call ortho(this%z(1,j),n,glb_n) ! Orthogonalize wrt null space, if present
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
           call col2(this%w, this%ml, n)       
 
           do i = 1, j
-             this%h(i,j) = vlsc3(this%w, this%v(1,i), coef%mult, n) 
-          enddo
+             this%h(i,j) = 0.0_rp
+             do k = 1, n
+                this%h(i,j) = this%h(i,j) + &
+                     this%w(k) * this%v(k,i) * coef%mult(k,1,1,1)
+             end do
+          end do
+
           !Could probably be done inplace...
           call MPI_Allreduce(this%h(1,j), this%wk1, j, &
                MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
           call copy(this%h(1,j), this%wk1, j) 
 
-          do i=1,j
-             call add2s2(this%w, this%v(1,i), -this%h(i,j), n)
-          enddo                                            
+          do i = 1, j
+             do k = 1, n
+                this%w(k) = this%w(k) - this%h(i,j) * this%v(k,i)
+             end do
+          end do
 
           !apply Givens rotations to new column
           do i=1,j-1
              temp = this%h(i,j)                   
              this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
-          enddo
+          end do
+
           alpha = sqrt(glsc3(this%w, this%w, coef%mult, n))   
           rnorm = 0.0_rp
           if(alpha .eq. 0.0_rp) then 
@@ -251,7 +258,7 @@ contains
             temp = one / alpha
             call cmult2(this%v(1,j+1), this%w, temp, n)
           endif
-       enddo
+       end do
        j = min(j, this%lgmres)
        !back substitution
        do k = j, 1, -1
@@ -263,10 +270,12 @@ contains
        enddo
        !sum up Arnoldi vectors
        do i = 1, j
-          call add2s2(x%x, this%z(1,i), this%c(i), n) ! x = x + c  z
-       enddo                                          !          i  i
-    enddo
-!    call ortho   (x%x, n, glb_n)
+          do k = 1, n
+             x%x(k,1,1,1) = x%x(k,1,1,1) + this%c(i) * this%z(k,i)
+          end do
+       end do 
+    end do
+
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
   end function sx_gmres_solve

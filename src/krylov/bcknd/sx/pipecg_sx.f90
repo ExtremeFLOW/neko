@@ -124,90 +124,88 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    associate(p => this%p, q => this%q, r => this%r, s => this%s, &
-         u => this%u, w => this%w, z => this%z, mi => this%mi, ni => this%ni)
-      
-      call rzero(x%x, n)
-      call rzero(z, n)
-      call rzero(q, n)
-      call rzero(p, n)
-      call rzero(s, n)
-      call copy(r, f, n)
-      call this%M%solve(u, r, n)
-      call Ax%compute(w, u, coef, x%msh, x%Xh)
-      call gs_op(gs_h, w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+    do i = 1, n
+       x%x(i,1,1,1) = 0.0_rp
+       this%z(i) = 0.0_rp
+       this%q(i) = 0.0_rp
+       this%p(i) = 0.0_rp
+       this%s(i) = 0.0_rp
+       this%r(i) = f(i)
+    end do
+
+    call this%M%solve(this%u, this%r, n)
+    call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
+    call gs_op(gs_h, this%w, n, GS_OP_ADD)
+    call bc_list_apply(blst, this%w, n)
     
-      rtr = glsc3(r, coef%mult, r, n)
-      rnorm = sqrt(rtr)*norm_fac
-      ksp_results%res_start = rnorm
-      ksp_results%res_final = rnorm
-      ksp_results%iter = 0
-      if(rnorm .eq. 0.0_rp) return
+    rtr = glsc3(this%r, coef%mult, this%r, n)
+    rnorm = sqrt(rtr)*norm_fac
+    ksp_results%res_start = rnorm
+    ksp_results%res_final = rnorm
+    ksp_results%iter = 0
+    if(rnorm .eq. 0.0_rp) return
 
-      gamma1 = 0.0_rp
+    gamma1 = 0.0_rp
       
-      do iter = 1, max_iter
+    do iter = 1, max_iter
 
-         tmp1 = 0.0_rp
-         tmp2 = 0.0_rp
-         tmp3 = 0.0_rp
-         do i = 1, n
-            tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i)
-            tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i)
-            tmp3 = tmp3 + r(i) * coef%mult(i,1,1,1) * r(i)
-         end do
-         reduction(1) = tmp1
-         reduction(2) = tmp2
-         reduction(3) = tmp3
+       tmp1 = 0.0_rp
+       tmp2 = 0.0_rp
+       tmp3 = 0.0_rp
+       do i = 1, n
+          tmp1 = tmp1 + this%r(i) * coef%mult(i,1,1,1) * this%u(i)
+          tmp2 = tmp2 + this%w(i) * coef%mult(i,1,1,1) * this%u(i)
+          tmp3 = tmp3 + this%r(i) * coef%mult(i,1,1,1) * this%r(i)
+       end do
+       reduction(1) = tmp1
+       reduction(2) = tmp2
+       reduction(3) = tmp3
+       
+       call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
+       
+       call this%M%solve(this%mi, this%w, n)
+       call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
+       call gs_op(gs_h, this%ni, n, GS_OP_ADD)
+       call bc_list_apply(blst, this%ni, n)
 
-         call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
-              MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
-         
-         call this%M%solve(mi, w, n)
-         call Ax%compute(ni, mi, coef, x%msh, x%Xh)
-         call gs_op(gs_h, ni, n, GS_OP_ADD)
-         call bc_list_apply(blst, ni, n)
+       call MPI_Wait(request, status, ierr)
+       gamma2 = gamma1       
+       gamma1 = reduction(1)
+       delta = reduction(2)
+       rtr = reduction(3)
+       
+       rnorm = sqrt(rtr)*norm_fac
+       if (rnorm .lt. this%abs_tol) then
+          exit
+       end if
+       
+       if (iter .gt. 1) then
+          beta = gamma1 / gamma2
+          alpha = gamma1 / (delta - (beta * gamma1/alpha))
+       else 
+          beta = 0.0_rp
+          alpha = gamma1/delta
+       end if
+       
+       do i = 1, n
+          this%z(i) = beta * this%z(i) + this%ni(i)
+          this%q(i) = beta * this%q(i) + this%mi(i)
+          this%s(i) = beta * this%s(i) + this%w(i)
+          this%p(i) = beta * this%p(i) + this%u(i)
+       end do
 
-         call MPI_Wait(request, status, ierr)
-         gamma2 = gamma1       
-         gamma1 = reduction(1)
-         delta = reduction(2)
-         rtr = reduction(3)
-
-         rnorm = sqrt(rtr)*norm_fac
-         if (rnorm .lt. this%abs_tol) then
-            exit
-         end if
-         
-         if (iter .gt. 1) then
-            beta = gamma1 / gamma2
-            alpha = gamma1 / (delta - (beta * gamma1/alpha))
-         else 
-            beta = 0.0_rp
-            alpha = gamma1/delta
-         end if
-         
-         do i = 1, n
-            z(i) = beta * z(i) + ni(i)
-            q(i) = beta * q(i) + mi(i)
-            s(i) = beta * s(i) + w(i)
-            p(i) = beta * p(i) + u(i)
-         end do
-
-         do i = 1, n
-            x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p(i)
-            r(i) = r(i) - alpha * s(i)
-            u(i) = u(i) - alpha * q(i)
-            w(i) = w(i) - alpha * z(i)
-         end do
-
-      end do
-      
-      ksp_results%res_final = rnorm
-      ksp_results%iter = iter
-      
-    end associate
+       do i = 1, n
+          x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * this%p(i)
+          this%r(i) = this%r(i) - alpha * this%s(i)
+          this%u(i) = this%u(i) - alpha * this%q(i)
+          this%w(i) = this%w(i) - alpha * this%z(i)
+       end do
+       
+    end do
+    
+    ksp_results%res_final = rnorm
+    ksp_results%iter = iter
     
   end function sx_pipecg_solve
    
