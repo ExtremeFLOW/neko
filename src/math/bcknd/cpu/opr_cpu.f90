@@ -1,6 +1,7 @@
 !> Operators CPU backend
 module opr_cpu
   use dudxyz
+  use cdtp
   use num_types
   use mxm_wrapper
   use space
@@ -145,35 +146,45 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
-    real(kind=rp) :: wx(coef%Xh%lxyz)
-    real(kind=rp) :: ta1(coef%Xh%lxyz)
-    real(kind=rp) :: ta2(coef%Xh%lxyz)
-    real(kind=rp) :: ta3(coef%Xh%lxyz)
-    integer :: e, i1, i2, n1, n2, iz
-    type(space_t), pointer :: Xh 
 
-    Xh => coef%Xh
-    n1 = Xh%lx*Xh%ly
-    n2 = Xh%lx*Xh%ly
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+      select case(Xh%lx)
+      case(12)
+         call cdtp_lx12(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(11)
+         call cdtp_lx11(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(10)
+         call cdtp_lx10(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(9)
+         call cdtp_lx9(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(8)
+         call cdtp_lx8(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(7)
+         call cdtp_lx7(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(6)
+         call cdtp_lx6(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(5)
+         call cdtp_lx5(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(4)
+         call cdtp_lx4(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(3)
+         call cdtp_lx3(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(2)
+         call cdtp_lx2(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      end select
+    end associate
 
-    do e = 1,coef%msh%nelv
-       call col3(wx, coef%B(1,1,1,e), x(1,e), Xh%lxyz)
-       call invcol2(wx, coef%jac(1,1,1,e), Xh%lxyz)
-       call col3(ta1, wx, dr(1,e), Xh%lxyz)
-       call mxm(Xh%dxt, Xh%lx, ta1, Xh%lx, dtx(1,e), Xh%lyz)
-       call col3(ta1, wx, ds(1,e), Xh%lxyz)
-       i1 = 1
-       i2 = 1
-       do iz = 1,Xh%lz
-          call mxm(ta1(i2), Xh%lx, Xh%dy, Xh%ly,ta2(i1), Xh%ly)
-          i1 = i1 + n1
-          i2 = i2 + n2
-       end do
-       call add2(dtx(1,e), ta2, Xh%lxyz)
-       call col3(ta1, wx, dt(1,e), Xh%lxyz)
-       call mxm(ta1, Xh%lxy, Xh%dz, Xh%lz, ta2, Xh%lz)
-       call add2(dtx(1,e), ta2, Xh%lxyz)
-    end do
   end subroutine opr_cpu_cdtp
 
   subroutine opr_cpu_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  
