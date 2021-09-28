@@ -55,12 +55,13 @@ io/format/rea.o : io/format/rea.f90 mesh/mesh.o config/num_types.o
 math/bcknd/cpu/cdtp.o : math/bcknd/cpu/cdtp.f90 math/math.o config/num_types.o 
 math/bcknd/cpu/conv1.o : math/bcknd/cpu/conv1.f90 config/num_types.o 
 math/bcknd/cpu/dudxyz.o : math/bcknd/cpu/dudxyz.f90 math/math.o config/num_types.o 
+math/bcknd/cpu/opgrad.o : math/bcknd/cpu/opgrad.f90 config/num_types.o 
 math/bcknd/sx/sx_cdtp.o : math/bcknd/sx/sx_cdtp.f90 math/math.o config/num_types.o 
 math/bcknd/sx/sx_conv1.o : math/bcknd/sx/sx_conv1.f90 config/num_types.o 
 math/bcknd/sx/sx_dudxyz.o : math/bcknd/sx/sx_dudxyz.f90 math/math.o config/num_types.o 
 math/bcknd/sx/sx_opgrad.o : math/bcknd/sx/sx_opgrad.f90 config/num_types.o 
 math/operators.o : math/operators.f90 math/math.o field/field.o sem/coef.o sem/space.o math/bcknd/xsmm/opr_xsmm.o math/bcknd/sx/opr_sx.o math/bcknd/cpu/opr_cpu.o config/num_types.o config/neko_config.o 
-math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/dudxyz.o 
+math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/opgrad.o math/bcknd/cpu/dudxyz.o 
 math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o math/bcknd/sx/sx_cdtp.o math/bcknd/sx/sx_conv1.o math/bcknd/sx/sx_opgrad.o math/bcknd/sx/sx_dudxyz.o 
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
 common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o config/num_types.o 

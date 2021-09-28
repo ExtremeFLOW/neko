@@ -1,10 +1,10 @@
 !> Operators CPU backend
 module opr_cpu
   use dudxyz
+  use opgrad
   use cdtp
   use conv1
   use num_types
-  use mxm_wrapper
   use space
   use coefs
   use math
@@ -69,76 +69,90 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
-    real(kind=rp) :: ur(coef%Xh%lxyz)
-    real(kind=rp) :: us(coef%Xh%lxyz)
-    real(kind=rp) :: ut(coef%Xh%lxyz)
-    integer :: e, i, N
 
-    N = coef%Xh%lx - 1
-    do e = 1,coef%msh%nelv
-       if(coef%msh%gdim .eq. 3) then
-          call local_grad3(ur, us, ut, u(1,e), N, coef%Xh%dx, coef%Xh%dxt)
-          do i = 1,coef%Xh%lxyz
-             ux(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdx(i,1,1,e) &
-                  + us(i)*coef%dsdx(i,1,1,e) &
-                  + ut(i)*coef%dtdx(i,1,1,e) )
-             uy(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdy(i,1,1,e) &
-                  + us(i)*coef%dsdy(i,1,1,e) &
-                  + ut(i)*coef%dtdy(i,1,1,e) )
-             uz(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdz(i,1,1,e) &
-                  + us(i)*coef%dsdz(i,1,1,e) &
-                  + ut(i)*coef%dtdz(i,1,1,e) )
-          end do
-       else
+    associate(Xh => coef%Xh, msh => coef%msh)
+      select case(Xh%lx)
+      case(12)
+         call opgrad_lx12(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(11)
+         call opgrad_lx11(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(10)
+         call opgrad_lx10(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(9)
+         call opgrad_lx9(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(8)
+         call opgrad_lx8(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(7)
+         call opgrad_lx7(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(6)
+         call opgrad_lx6(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(5)
+         call opgrad_lx5(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(4)
+         call opgrad_lx4(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(3)
+         call opgrad_lx3(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(2)
+         call opgrad_lx2(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      end select
+    end associate
 
-          call local_grad2(ur, us, u(1,e), N, coef%Xh%dx, coef%Xh%dyt)
-
-          do i = 1,coef%Xh%lxyz
-             ux(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdx(i,1,1,e) &
-                  + us(i)*coef%dsdx(i,1,1,e) )
-             uy(i,e) = coef%Xh%w3(i,1,1)*(ur(i)*coef%drdy(i,1,1,e) &
-                  + us(i)*coef%dsdy(i,1,1,e) )
-          end do
-       end if
-    end do
   end subroutine opr_cpu_opgrad
-
-  subroutine local_grad3(ur, us, ut, u, n, D, Dt)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: ur(0:n, 0:n, 0:n)
-    real(kind=rp), intent(inout) :: us(0:n, 0:n, 0:n)
-    real(kind=rp), intent(inout) :: ut(0:n, 0:n, 0:n)
-    real(kind=rp), intent(in) :: u(0:n, 0:n, 0:n)
-    real(kind=rp), intent(in) :: D(0:n, 0:n)
-    real(kind=rp), intent(in) :: Dt(0:n, 0:n)
-    integer :: m1, m2, k
-
-    m1 = n + 1
-    m2 = m1*m1
-
-    call mxm(D ,m1,u,m1,ur,m2)
-    do k = 0,n
-       call mxm(u(0, 0, k), m1, Dt, m1, us(0,0,k), m1)
-    end do
-    call mxm(u, m2, Dt, m1, ut, m1)
-
-  end subroutine local_grad3
-
-  subroutine local_grad2(ur, us, u, n, D, Dt)
-    integer, intent(in) :: n    
-    real(kind=rp), intent(inout) :: ur(0:n, 0:n)
-    real(kind=rp), intent(inout) :: us(0:n, 0:n)
-    real(kind=rp), intent(in) :: u(0:n, 0:n)
-    real(kind=rp), intent(in) :: D(0:n, 0:n)
-    real(kind=rp), intent(in) :: Dt(0:n, 0:n)
-    integer :: m1, m2, k
-
-    m1 = n + 1
-
-    call mxm(D, m1, u, m1, ur, m1)
-    call mxm(u, m1, Dt, m1, us, m1)
-
-  end subroutine local_grad2
 
   subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef

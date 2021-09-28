@@ -57,6 +57,7 @@ libneko_a_SOURCES = \
 	math/bcknd/cpu/cdtp.f90\
 	math/bcknd/cpu/conv1.f90\
 	math/bcknd/cpu/dudxyz.f90\
+	math/bcknd/cpu/opgrad.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
