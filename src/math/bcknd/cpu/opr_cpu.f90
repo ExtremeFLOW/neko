@@ -2,6 +2,7 @@
 module opr_cpu
   use dudxyz
   use cdtp
+  use conv1
   use num_types
   use mxm_wrapper
   use space
@@ -196,47 +197,76 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
-    !   Store the inverse jacobian to speed this operation up
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz) :: dudr, duds, dudt
-    integer :: ie, iz, i
-    !   Compute vel.grad(u)
-    do ie = 1,nelv
-       if (gdim .eq. 3) then
-          call mxm(Xh%dx, Xh%lx, u(1,1,1,ie), Xh%lx, dudr, Xh%lxy)
-          do iz = 1,Xh%lz
-             call mxm(u(1,1,iz,ie), Xh%lx, Xh%dyt, Xh%ly, duds(1,1,iz), Xh%ly)
-          end do
-          call mxm(u(1,1,1,ie), Xh%lxy, Xh%dzt, Xh%lz, dudt, Xh%lz)
-          do i = 1,Xh%lxyz
-             du(i,ie) = coef%jacinv(i,1,1,ie)*( &
-                  vx(i,1,1,ie)*( &
-                  coef%drdx(i,1,1,ie)*dudr(i,1,1) &
-                  + coef%dsdx(i,1,1,ie)*duds(i,1,1) &
-                  + coef%dtdx(i,1,1,ie)*dudt(i,1,1)) &
-                  + vy(i,1,1,ie)*( &
-                  coef%drdy(i,1,1,ie)*dudr(i,1,1) &
-                  + coef%dsdy(i,1,1,ie)*duds(i,1,1) &
-                  + coef%dtdy(i,1,1,ie)*dudt(i,1,1)) &
-                  + vz(i,1,1,ie)*( &
-                  coef%drdz(i,1,1,ie)*dudr(i,1,1) &
-                  + coef%dsdz(i,1,1,ie)*duds(i,1,1) &
-                  + coef%dtdz(i,1,1,ie)*dudt(i,1,1)))
-          end do
-       else
-          !        2D
-          call mxm(Xh%dx, Xh%lx, u(1,1,1,ie), Xh%lx, dudr, Xh%lyz)
-          call mxm(u(1,1,1,ie), Xh%lx, Xh%dyt, Xh%ly, duds, Xh%ly)
-          do i = 1,Xh%lxyz
-             du(i,ie) = coef%jacinv(i,1,1,ie)*( &
-                  vx(i,1,1,ie)*( &
-                  coef%drdx(i,1,1,ie)*dudr(i,1,1) &
-                  + coef%dsdx(i,1,1,ie)*duds(i,1,1)) &
-                  + vy(i,1,1,ie)*( &
-                  coef%drdy(i,1,1,ie)*dudr(i,1,1) &
-                  + coef%dsdy(i,1,1,ie)*duds(i,1,1)))
-          end do
-       end if
-    end do
+
+    select case(Xh%lx)
+    case(12)
+       call conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(11)
+       call conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(10)
+       call conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(9)
+       call conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(8)
+       call conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(7)
+       call conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(6)
+       call conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(5)
+       call conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(4)
+       call conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(3)
+       call conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(2)
+       call conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    end select
+    
   end subroutine opr_cpu_conv1
 
   subroutine opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
