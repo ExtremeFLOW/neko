@@ -122,8 +122,8 @@ contains
   end subroutine field_free
 
   !> Assignment \f$ F = G \f$
-  !! @note @F will be initialized if it has a different size than
-  !! @G or it's not allocated
+  !! @note @a F will be initialized if it has a different size than
+  !! @a G or it's not allocated
   subroutine field_assign_field(f, g)
     type(field_t), intent(inout) :: f
     type(field_t), intent(in) :: g
