@@ -30,7 +30,7 @@ contains
                          + dx(i,9) * u(9,j,1,e) &
                          + dx(i,10) * u(10,j,1,e) &
                          + dx(i,11) * u(11,j,1,e) &
-                          + dx(i,12) * u(12,j,1,e) 
+                         + dx(i,12) * u(12,j,1,e) 
            end do
         end do
 
