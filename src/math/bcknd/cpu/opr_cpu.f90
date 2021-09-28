@@ -1,5 +1,6 @@
 !> Operators CPU backend
 module opr_cpu
+  use dudxyz
   use num_types
   use mxm_wrapper
   use space
@@ -18,33 +19,46 @@ contains
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
     real(kind=rp) :: drst(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
-    type(space_t), pointer :: Xh 
-    type(mesh_t), pointer :: msh
-    integer :: e, k, lxy, lyz, lxyz
-    Xh => coef%Xh
-    msh => coef%msh 
-    lxy  = Xh%lx*Xh%ly
-    lyz  = Xh%ly*Xh%lz
-    lxyz = Xh%lx*Xh%ly*Xh%lz
 
-    do e = 1,msh%nelv
-       if (msh%gdim .eq. 2) then
-          call mxm(Xh%dx, Xh%lx, u(1,1,1,e), Xh%lx, du(1,1,1,e), lyz)
-          call col2(du(1,1,1,e), dr(1,1,1,e), lxyz)
-          call mxm(u(1,1,1,e), Xh%lx, Xh%dyt, Xh%ly, drst,Xh%ly)
-          call addcol3(du(1,1,1,e), drst, ds(1,1,1,e), lxyz)
-       else
-          call mxm(Xh%dx, Xh%lx, u(1,1,1,e), Xh%lx, du(1,1,1,e), lyz)
-          call col2(du(1,1,1,e), dr(1,1,1,e), lxyz)
-          do k = 1,Xh%lz
-             call mxm(u(1,1,k,e), Xh%lx, Xh%dyt, Xh%ly, drst(1,1,k), Xh%ly)
-          end do
-          call addcol3(du(1,1,1,e), drst, ds(1,1,1,e), lxyz)
-          call mxm(u(1,1,1,e), lxy, Xh%dzt, Xh%lz, drst, Xh%lz)
-          call addcol3(du(1,1,1,e), drst, dt(1,1,1,e), lxyz)
-       end if
-    end do
-    call col2(du, coef%jacinv, coef%dof%n_dofs)    
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+      select case(coef%Xh%lx)
+      case(12)
+         call dudxyz_lx12(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(11)
+         call dudxyz_lx11(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(10)
+         call dudxyz_lx10(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(9)
+         call dudxyz_lx9(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(8)
+         call dudxyz_lx8(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(7)
+         call dudxyz_lx7(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(6)
+         call dudxyz_lx6(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(5)
+         call dudxyz_lx5(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(4)
+         call dudxyz_lx4(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(3)
+         call dudxyz_lx3(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(2)
+         call dudxyz_lx2(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      end select
+
+    end associate
+
   end subroutine opr_cpu_dudxyz
 
   subroutine opr_cpu_opgrad(ux, uy, uz, u, coef) 
