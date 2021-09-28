@@ -39,7 +39,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -54,7 +54,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -116,7 +116,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -131,7 +131,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -193,7 +193,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -208,7 +208,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -270,7 +270,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -285,7 +285,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -347,7 +347,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -362,7 +362,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -424,7 +424,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -439,7 +439,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -501,7 +501,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -516,7 +516,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -578,7 +578,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -593,7 +593,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -655,7 +655,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -670,7 +670,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -732,7 +732,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -747,7 +747,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -809,7 +809,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dx(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -824,7 +824,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   wt = wt + dx(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
