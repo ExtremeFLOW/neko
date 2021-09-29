@@ -1,11 +1,11 @@
 !> Gradient kernels
-module opgrad
+module cpu_opgrad
   use num_types
   implicit none
 
 contains
 
-  subroutine opgrad_lx12(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx12(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
@@ -90,9 +90,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx12
+  end subroutine cpu_opgrad_lx12
 
-  subroutine opgrad_lx11(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx11(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 11
     integer, intent(in) :: n
@@ -174,9 +174,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx11
+  end subroutine cpu_opgrad_lx11
 
-  subroutine opgrad_lx10(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx10(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
@@ -255,9 +255,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx10
+  end subroutine cpu_opgrad_lx10
 
-  subroutine opgrad_lx9(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx9(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 9
     integer, intent(in) :: n
@@ -333,9 +333,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx9
+  end subroutine cpu_opgrad_lx9
 
-  subroutine opgrad_lx8(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx8(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
@@ -408,9 +408,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx8
+  end subroutine cpu_opgrad_lx8
 
-  subroutine opgrad_lx7(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx7(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
@@ -480,9 +480,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx7
+  end subroutine cpu_opgrad_lx7
 
-  subroutine opgrad_lx6(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx6(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 6
     integer, intent(in) :: n
@@ -549,9 +549,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx6
+  end subroutine cpu_opgrad_lx6
 
-  subroutine opgrad_lx5(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx5(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
@@ -615,9 +615,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx5
+  end subroutine cpu_opgrad_lx5
 
-  subroutine opgrad_lx4(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx4(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
@@ -678,9 +678,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx4
+  end subroutine cpu_opgrad_lx4
 
-  subroutine opgrad_lx3(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx3(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 3
     integer, intent(in) :: n
@@ -738,9 +738,9 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx3
+  end subroutine cpu_opgrad_lx3
 
-  subroutine opgrad_lx2(ux, uy, uz, u, dx, dy, dz, &
+  subroutine cpu_opgrad_lx2(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
@@ -795,6 +795,6 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
-  end subroutine opgrad_lx2
+  end subroutine cpu_opgrad_lx2
 
-end module opgrad
+end module cpu_opgrad

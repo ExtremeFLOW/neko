@@ -1,12 +1,12 @@
 !> DT*X kernels
-module cdtp
+module cpu_cdtp
   use num_types
   use math
   implicit none
 
 contains
 
-  subroutine cdtp_lx12(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx12(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -89,9 +89,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx12
+  end subroutine cpu_cdtp_lx12
   
-  subroutine cdtp_lx11(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx11(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 11
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -171,9 +171,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx11
+  end subroutine cpu_cdtp_lx11
   
-  subroutine cdtp_lx10(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx10(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 10
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -251,9 +251,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx10
+  end subroutine cpu_cdtp_lx10
 
-  subroutine cdtp_lx9(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx9(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 9
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -327,9 +327,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx9
+  end subroutine cpu_cdtp_lx9
 
-  subroutine cdtp_lx8(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx8(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 8
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -401,9 +401,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx8
+  end subroutine cpu_cdtp_lx8
 
-  subroutine cdtp_lx7(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx7(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 7
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -471,9 +471,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx7
+  end subroutine cpu_cdtp_lx7
   
-  subroutine cdtp_lx6(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx6(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 6
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -538,9 +538,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx6
+  end subroutine cpu_cdtp_lx6
 
-  subroutine cdtp_lx5(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx5(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 5
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -602,9 +602,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx5
+  end subroutine cpu_cdtp_lx5
 
-  subroutine cdtp_lx4(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx4(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 4
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -663,9 +663,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx4
+  end subroutine cpu_cdtp_lx4
 
-  subroutine cdtp_lx3(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx3(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 3
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -721,9 +721,9 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx3
+  end subroutine cpu_cdtp_lx3
   
-  subroutine cdtp_lx2(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
+  subroutine cpu_cdtp_lx2(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 2
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
@@ -776,6 +776,6 @@ contains
        end do
        
     end do
-  end subroutine cdtp_lx2
+  end subroutine cpu_cdtp_lx2
 
-end module cdtp
+end module cpu_cdtp

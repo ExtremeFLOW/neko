@@ -1,9 +1,9 @@
 !> Operators CPU backend
 module opr_cpu
-  use dudxyz
-  use opgrad
-  use cdtp
-  use conv1
+  use cpu_dudxyz
+  use cpu_opgrad
+  use cpu_cdtp
+  use cpu_conv1
   use num_types
   use space
   use coefs
@@ -25,37 +25,37 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(coef%Xh%lx)
       case(12)
-         call dudxyz_lx12(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx12(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(11)
-         call dudxyz_lx11(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx11(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(10)
-         call dudxyz_lx10(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx10(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(9)
-         call dudxyz_lx9(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx9(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(8)
-         call dudxyz_lx8(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx8(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(7)
-         call dudxyz_lx7(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx7(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(6)
-         call dudxyz_lx6(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx6(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(5)
-         call dudxyz_lx5(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx5(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(4)
-         call dudxyz_lx4(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx4(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(3)
-         call dudxyz_lx3(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx3(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(2)
-         call dudxyz_lx2(du, u, dr, ds, dt, & 
+         call cpu_dudxyz_lx2(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       end select
 
@@ -73,77 +73,77 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh)
       select case(Xh%lx)
       case(12)
-         call opgrad_lx12(ux, uy, uz, u, &
+         call cpu_opgrad_lx12(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(11)
-         call opgrad_lx11(ux, uy, uz, u, &
+         call cpu_opgrad_lx11(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(10)
-         call opgrad_lx10(ux, uy, uz, u, &
+         call cpu_opgrad_lx10(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(9)
-         call opgrad_lx9(ux, uy, uz, u, &
+         call cpu_opgrad_lx9(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(8)
-         call opgrad_lx8(ux, uy, uz, u, &
+         call cpu_opgrad_lx8(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(7)
-         call opgrad_lx7(ux, uy, uz, u, &
+         call cpu_opgrad_lx7(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(6)
-         call opgrad_lx6(ux, uy, uz, u, &
+         call cpu_opgrad_lx6(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(5)
-         call opgrad_lx5(ux, uy, uz, u, &
+         call cpu_opgrad_lx5(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(4)
-         call opgrad_lx4(ux, uy, uz, u, &
+         call cpu_opgrad_lx4(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(3)
-         call opgrad_lx3(ux, uy, uz, u, &
+         call cpu_opgrad_lx3(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
       case(2)
-         call opgrad_lx2(ux, uy, uz, u, &
+         call cpu_opgrad_lx2(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
@@ -165,37 +165,37 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(Xh%lx)
       case(12)
-         call cdtp_lx12(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(11)
-         call cdtp_lx11(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx11(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(10)
-         call cdtp_lx10(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx10(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(9)
-         call cdtp_lx9(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx9(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(8)
-         call cdtp_lx8(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx8(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(7)
-         call cdtp_lx7(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx7(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(6)
-         call cdtp_lx6(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx6(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(5)
-         call cdtp_lx5(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx5(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(4)
-         call cdtp_lx4(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx4(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(3)
-         call cdtp_lx3(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx3(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(2)
-         call cdtp_lx2(dtx, x, dr, ds, dt, &
+         call cpu_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       end select
     end associate
@@ -214,67 +214,67 @@ contains
 
     select case(Xh%lx)
     case(12)
-       call conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(11)
-       call conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(10)
-       call conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(9)
-       call conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(8)
-       call conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(7)
-       call conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(6)
-       call conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(5)
-       call conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(4)
-       call conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(3)
-       call conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
     case(2)
-       call conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &

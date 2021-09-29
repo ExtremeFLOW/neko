@@ -1,11 +1,11 @@
 !> conv1 kernels
-module conv1
+module cpu_conv1
   use num_types
   implicit none
 
 contains
 
-  subroutine conv1_lx12(du, u, vx, vy, vz, dx, dy, dz, &
+  subroutine cpu_conv1_lx12(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 12
@@ -93,9 +93,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx12
+   end subroutine cpu_conv1_lx12
 
-   subroutine conv1_lx11(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx11(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 11
@@ -180,9 +180,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx11
+   end subroutine cpu_conv1_lx11
    
-   subroutine conv1_lx10(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx10(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 10
@@ -264,9 +264,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx10
+   end subroutine cpu_conv1_lx10
    
-   subroutine conv1_lx9(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx9(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 9
@@ -345,9 +345,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx9
+   end subroutine cpu_conv1_lx9
 
-   subroutine conv1_lx8(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx8(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 8
@@ -423,9 +423,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx8
+   end subroutine cpu_conv1_lx8
 
-   subroutine conv1_lx7(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx7(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 7
@@ -498,9 +498,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx7
+   end subroutine cpu_conv1_lx7
 
-   subroutine conv1_lx6(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx6(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 6
@@ -570,9 +570,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx6
+   end subroutine cpu_conv1_lx6
 
-   subroutine conv1_lx5(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx5(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 5
@@ -639,9 +639,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx5
+   end subroutine cpu_conv1_lx5
 
-   subroutine conv1_lx4(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx4(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 4
@@ -705,9 +705,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx4
+   end subroutine cpu_conv1_lx4
 
-   subroutine conv1_lx3(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx3(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 3
@@ -768,9 +768,9 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx3
+   end subroutine cpu_conv1_lx3
 
-   subroutine conv1_lx2(du, u, vx, vy, vz, dx, dy, dz, &
+   subroutine cpu_conv1_lx2(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv, gdim)
     integer, parameter :: lx = 2
@@ -828,6 +828,6 @@ contains
         end do
      end do
     
-   end subroutine conv1_lx2
+   end subroutine cpu_conv1_lx2
 
-end module conv1
+end module cpu_conv1

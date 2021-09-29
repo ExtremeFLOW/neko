@@ -1,12 +1,12 @@
 !> Derivative kernels
-module dudxyz
+module cpu_dudxyz
   use num_types
   use math
   implicit none
 
 contains
   
-  subroutine dudxyz_lx12(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+  subroutine cpu_dudxyz_lx12(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -88,9 +88,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx12
+   end subroutine cpu_dudxyz_lx12
 
-   subroutine dudxyz_lx11(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx11(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 11
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -169,9 +169,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx11
+   end subroutine cpu_dudxyz_lx11
 
-   subroutine dudxyz_lx10(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx10(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 10
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -247,9 +247,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx10
+   end subroutine cpu_dudxyz_lx10
 
-   subroutine dudxyz_lx9(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx9(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 9
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -322,9 +322,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx9
+   end subroutine cpu_dudxyz_lx9
 
-   subroutine dudxyz_lx8(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx8(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 8
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -394,9 +394,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx8
+   end subroutine cpu_dudxyz_lx8
 
-   subroutine dudxyz_lx7(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx7(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 7
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -463,9 +463,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx7
+   end subroutine cpu_dudxyz_lx7
 
-   subroutine dudxyz_lx6(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx6(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 6
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -529,9 +529,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx6
+   end subroutine cpu_dudxyz_lx6
 
-   subroutine dudxyz_lx5(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx5(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 5
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -592,9 +592,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx5
+   end subroutine cpu_dudxyz_lx5
 
-   subroutine dudxyz_lx4(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx4(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 4
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -652,9 +652,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx4
+   end subroutine cpu_dudxyz_lx4
 
-   subroutine dudxyz_lx3(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx3(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 3
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -709,9 +709,9 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx3
+   end subroutine cpu_dudxyz_lx3
 
-   subroutine dudxyz_lx2(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
+   subroutine cpu_dudxyz_lx2(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
      integer, parameter :: lx = 2
      integer, intent(in) :: nel
      real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
@@ -763,6 +763,6 @@ contains
 
      end do
 
-   end subroutine dudxyz_lx2
+   end subroutine cpu_dudxyz_lx2
 
-end module dudxyz
+end module cpu_dudxyz
