@@ -15,7 +15,7 @@ contains
     integer :: nv
     integer :: nu
     real(kind=rp), intent(inout) :: v(nv, nv, nv)
-    real(kind=rp), intent(inout) :: u(nv, nv, nv)
+    real(kind=rp), intent(inout) :: u(nu, nu, nu)
     real(kind=rp), intent(inout) :: w(nu*nu*nv)
     real(kind=rp), intent(inout) :: A(nv, nu)
     real(kind=rp), intent(inout) :: Bt(nu, nv)
