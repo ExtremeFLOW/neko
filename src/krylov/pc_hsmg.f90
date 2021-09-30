@@ -9,6 +9,7 @@ module hsmg
   use fast3d
   use bc
   use cg
+  use cg_sx
   use dirichlet
   use fdm
   use schwarz
@@ -44,7 +45,7 @@ module hsmg
      type(bc_list_t) :: bclst_crs, bclst_mg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
-     type(cg_t) :: crs_solver !< Solver for course problem
+     class(ksp_t), allocatable :: crs_solver !< Solver for course problem
      integer :: niter = 10 !< Number of iter of crs sovlve
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
@@ -74,7 +75,7 @@ contains
     type(bc_list_t), intent(inout), target :: bclst
     integer :: lx, n
     
-    call this%free()
+!    call this%free()
     if(Xh%lx .lt. 5) then
        call neko_error('Insufficient number of GLL points for hsmg precon. Minimum degree 4 and 5 GLL points required.')
     end if
@@ -90,12 +91,15 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(ax_helm_sx_t::this%ax)
+       allocate(sx_cg_t::this%crs_solver)
        allocate(sx_jacobi_t::this%pc_crs)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        allocate(ax_helm_xsmm_t::this%ax)
+       allocate(cg_t::this%crs_solver)       
        allocate(jacobi_t::this%pc_crs)
     else
        allocate(ax_helm_t::this%ax)
+       allocate(cg_t::this%crs_solver)       
        allocate(jacobi_t::this%pc_crs)
     end if
     
@@ -117,7 +121,15 @@ contains
     type is (sx_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
-    call this%crs_solver%init(this%dm_crs%n_dofs, M= this%pc_crs)
+
+    select type(crs_solver => this%crs_solver)
+    type is(cg_t)
+       call crs_solver%init(this%dm_crs%n_dofs, M= this%pc_crs)
+    type is(sx_cg_t)
+       call crs_solver%init(this%dm_crs%n_dofs, M= this%pc_crs)
+    class default
+       call neko_error('Invalid coarse grid solver')
+    end select
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_crs%mark_zone(msh%outlet)
