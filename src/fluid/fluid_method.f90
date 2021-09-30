@@ -22,6 +22,7 @@ module fluid_method
   use cg_sx
   use cacg
   use pipecg
+  use pipecg_sx
   use bicgstab
   use bc
   use jacobi
@@ -428,7 +429,11 @@ contains
           allocate(cg_t::ksp)
        end if
     else if (trim(solver) .eq. 'pipecg') then
-       allocate(pipecg_t::ksp)
+       if (NEKO_BCKND_SX .eq. 1) then
+          allocate(sx_pipecg_t::ksp)
+       else
+          allocate(pipecg_t::ksp)
+       end if
     else if (trim(solver) .eq. 'cacg') then
        allocate(cacg_t::ksp)
     else if (trim(solver) .eq. 'gmres') then
@@ -449,6 +454,8 @@ contains
     type is(sx_cg_t)
        call kp%init(n, abs_tol = abstol)       
     type is(pipecg_t)
+       call kp%init(n, abs_tol = abstol)
+    type is(sx_pipecg_t)
        call kp%init(n, abs_tol = abstol)
     type is(cacg_t)
        call kp%init(n, abs_tol = abstol)
