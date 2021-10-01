@@ -82,6 +82,7 @@ libneko_a_SOURCES = \
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
+	krylov/krylov_fctry.f90\
 	krylov/bcknd/cpu/cg.f90\
 	krylov/bcknd/cpu/cacg.f90\
 	krylov/bcknd/cpu/pipecg.f90\
@@ -106,6 +107,7 @@ libneko_a_SOURCES = \
 	fluid/mean_flow.f90\
 	fluid/mean_sqr_flow.f90\
 	simulation.f90\
+	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
