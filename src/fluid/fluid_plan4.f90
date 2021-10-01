@@ -2,12 +2,10 @@
 !! Splitting scheme A.G. Tomboulides et al.
 !! Journal of Sci.Comp.,Vol. 12, No. 2, 1998
 module fluid_plan4  
+  use ax_helm_fctry
   use fluid_method
   use facet_normal
   use neko_config
-  use ax_helm_xsmm
-  use ax_helm_sx
-  use ax_helm
   use abbdf
   use projection
   use logger
@@ -89,13 +87,8 @@ contains
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., .true.)
 
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(ax_helm_sx_t::this%Ax)
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(ax_helm_xsmm_t::this%Ax)
-    else
-       allocate(ax_helm_t::this%Ax)
-    end if
+    ! Setup backend dependent Ax routines
+    call ax_helm_factory(this%ax)
     
     ! Initialize variables specific to this plan
     allocate(this%p_res(this%dm_Xh%n_dofs))

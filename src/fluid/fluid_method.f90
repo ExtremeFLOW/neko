@@ -18,14 +18,10 @@ module fluid_method
   use usr_inflow
   use dirichlet
   use symmetry
-  use cg
-  use cacg
-  use pipecg
-  use bicgstab
+  use krylov_fctry
   use bc
   use jacobi
   use sx_jacobi
-  use gmres
   use mesh
   use math
   use abbdf
@@ -419,32 +415,8 @@ contains
     integer, intent(in), value :: n
     character(len=20), intent(inout) :: solver
     real(kind=rp) :: abstol
-    if (trim(solver) .eq. 'cg') then
-       allocate(cg_t::ksp)
-    else if (trim(solver) .eq. 'pipecg') then
-       allocate(pipecg_t::ksp)
-    else if (trim(solver) .eq. 'cacg') then
-       allocate(cacg_t::ksp)
-    else if (trim(solver) .eq. 'gmres') then
-       allocate(gmres_t::ksp)
-    else if (trim(solver) .eq. 'bicgstab') then
-       allocate(bicgstab_t::ksp)
-    else
-       call neko_error('Unknown linear solver')
-    end if
 
-    select type(kp => ksp)
-    type is(cg_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(pipecg_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(cacg_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(gmres_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(bicgstab_t)
-       call kp%init(n, abs_tol = abstol)
-    end select
+    call krylov_solver_factory(ksp, n, solver, abstol)
     
   end subroutine fluid_scheme_solver_factory
 
@@ -472,6 +444,8 @@ contains
 
     select type(pcp => pc)
     type is(jacobi_t)
+       call pcp%init(coef, dof, gs)
+    type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is(hsmg_t)
        call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
