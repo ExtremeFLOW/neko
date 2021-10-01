@@ -18,17 +18,10 @@ module fluid_method
   use usr_inflow
   use dirichlet
   use symmetry
-  use cg
-  use cg_sx
-  use cacg
-  use pipecg
-  use pipecg_sx
-  use bicgstab
+  use krylov_fctry
   use bc
   use jacobi
   use sx_jacobi
-  use gmres
-  use gmres_sx
   use mesh
   use math
   use abbdf
@@ -422,50 +415,8 @@ contains
     integer, intent(in), value :: n
     character(len=20), intent(inout) :: solver
     real(kind=rp) :: abstol
-    if (trim(solver) .eq. 'cg') then
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_cg_t::ksp)
-       else
-          allocate(cg_t::ksp)
-       end if
-    else if (trim(solver) .eq. 'pipecg') then
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_pipecg_t::ksp)
-       else
-          allocate(pipecg_t::ksp)
-       end if
-    else if (trim(solver) .eq. 'cacg') then
-       allocate(cacg_t::ksp)
-    else if (trim(solver) .eq. 'gmres') then
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_gmres_t::ksp)
-       else
-          allocate(gmres_t::ksp)
-       end if
-    else if (trim(solver) .eq. 'bicgstab') then
-       allocate(bicgstab_t::ksp)
-    else
-       call neko_error('Unknown linear solver')
-    end if
 
-    select type(kp => ksp)
-    type is(cg_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(sx_cg_t)
-       call kp%init(n, abs_tol = abstol)       
-    type is(pipecg_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(sx_pipecg_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(cacg_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(gmres_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(sx_gmres_t)
-       call kp%init(n, abs_tol = abstol)
-    type is(bicgstab_t)
-       call kp%init(n, abs_tol = abstol)
-    end select
+    call krylov_solver_factory(ksp, n, solver, abstol)
     
   end subroutine fluid_scheme_solver_factory
 

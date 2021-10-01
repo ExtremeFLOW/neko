@@ -5,18 +5,15 @@ module hsmg
   use utils
   use precon
   use ax_product
+  use ax_helm_fctry  
+  use krylov_fctry
   use gather_scatter
   use fast3d
   use bc
-  use cg
-  use cg_sx
+
   use dirichlet
   use fdm
   use schwarz
-  use ax_helm
-  use ax_helm_sx
-  use ax_helm_xsmm
-  use gmres
   use tensor
   use jacobi
   use sx_jacobi
@@ -89,19 +86,6 @@ contains
     allocate(this%w(dof%n_dofs))
     allocate(this%r(dof%n_dofs))
 
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(ax_helm_sx_t::this%ax)
-       allocate(sx_cg_t::this%crs_solver)
-       allocate(sx_jacobi_t::this%pc_crs)
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(ax_helm_xsmm_t::this%ax)
-       allocate(cg_t::this%crs_solver)       
-       allocate(jacobi_t::this%pc_crs)
-    else
-       allocate(ax_helm_t::this%ax)
-       allocate(cg_t::this%crs_solver)       
-       allocate(jacobi_t::this%pc_crs)
-    end if
     
     ! Compute all elements as if they are deformed
     call mesh_all_deformed(msh)
@@ -115,6 +99,19 @@ contains
     call field_init(this%e_crs, this%dm_crs,'work crs')
     call coef_init(this%c_crs, this%gs_crs)
     
+    ! Create backend specific Ax operator
+    call ax_helm_factory(this%ax)
+
+    ! Create a backend specific preconditioner
+    ! Not we can't call the pc factory since hsmg is a pc...
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(sx_jacobi_t::this%pc_crs)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       allocate(jacobi_t::this%pc_crs)
+    else
+       allocate(jacobi_t::this%pc_crs)
+    end if
+
     select type(pc => this%pc_crs)
     type is (jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
@@ -122,14 +119,9 @@ contains
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
 
-    select type(crs_solver => this%crs_solver)
-    type is(cg_t)
-       call crs_solver%init(this%dm_crs%n_dofs, M= this%pc_crs)
-    type is(sx_cg_t)
-       call crs_solver%init(this%dm_crs%n_dofs, M= this%pc_crs)
-    class default
-       call neko_error('Invalid coarse grid solver')
-    end select
+    ! Create a backend specific krylov solver
+    call krylov_solver_factory(this%crs_solver, &
+         this%dm_crs%n_dofs, 'cg', M = this%pc_crs)
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_crs%mark_zone(msh%outlet)
