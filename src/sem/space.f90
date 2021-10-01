@@ -77,6 +77,10 @@ contains
     s%lxz = s%lx*s%lz
     s%lxyz = s%lx*s%ly*s%lz
 
+    if (lx .gt. 12) then
+       call neko_error("Unsupported polynomial dimension (lx > 12)")
+    end if    
+
     allocate(s%zg(lx, 3))
 
     allocate(s%wx(s%lx))
