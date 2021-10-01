@@ -32,12 +32,6 @@ libneko_a_SOURCES = \
 	mesh/point.f90\
 	mesh/element.f90\
 	math/ax.f90\
-	krylov/precon.f90\
-	krylov/krylov.f90\
-	krylov/cg.f90\
-	krylov/cacg.f90\
-	krylov/pipecg.f90\
-	krylov/bicgstab.f90\
 	mesh/quad.f90\
 	mesh/hex.f90\
 	mesh/tet.f90\
@@ -85,9 +79,18 @@ libneko_a_SOURCES = \
 	bc/usr_inflow.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
-	krylov/gmres.f90\
-	krylov/bcknd/cpu/pc_jacobi.f90\
+	krylov/precon.f90\
+	krylov/krylov.f90\
 	krylov/pc_identity.f90\
+	krylov/bcknd/cpu/cg.f90\
+	krylov/bcknd/cpu/cacg.f90\
+	krylov/bcknd/cpu/pipecg.f90\
+	krylov/bcknd/cpu/bicgstab.f90\
+	krylov/bcknd/cpu/gmres.f90\
+	krylov/bcknd/cpu/pc_jacobi.f90\
+	krylov/bcknd/sx/cg_sx.f90\
+	krylov/bcknd/sx/pipecg_sx.f90\
+	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	common/source.f90\
 	common/abbdf.f90\
