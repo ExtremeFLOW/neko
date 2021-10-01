@@ -16,7 +16,7 @@ contains
   subroutine krylov_solver_factory(ksp, n, solver, abstol, M)
     class(ksp_t), allocatable, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=20), intent(in) :: solver
+    character(len=*) :: solver
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(inout), target :: M
  

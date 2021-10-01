@@ -70,7 +70,6 @@ contains
     type(dofmap_t), intent(inout), target :: dof
     type(gs_t), intent(inout), target :: gs_h 
     type(bc_list_t), intent(inout), target :: bclst
-    character(len=20), parameter :: solver_type = 'cg'    
     integer :: lx, n
     
 !    call this%free()
@@ -122,7 +121,7 @@ contains
 
     ! Create a backend specific krylov solver
     call krylov_solver_factory(this%crs_solver, &
-         this%dm_crs%n_dofs, solver_type, M = this%pc_crs)
+         this%dm_crs%n_dofs, 'cg', M = this%pc_crs)
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_crs%mark_zone(msh%outlet)
