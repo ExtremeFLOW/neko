@@ -1,3 +1,4 @@
+!> Tensor operations SX-Aurora backend
 module tensor_sx
   use num_types
   use mxm_wrapper
@@ -75,27 +76,86 @@ contains
     integer :: ie, i, j, k, l, ii, jj
     integer :: nunu, nvnu, nvnv
 
-    nvnu = nv * nu
-    nunu = nu * nu 
-    nvnv = nv * nv
+    if (nu .eq. 2 .and. nv .eq. 4) then
+       call tnsr3d_nu2nv4_sx(v, u, A, Bt, Ct, nelv)
+    else if (nu .eq. 4) then
+       call tnsr3d_nu4_sx(v, nv, u, A, Bt, Ct, nelv)
+    else
+       nvnu = nv * nu
+       nunu = nu * nu 
+       nvnv = nv * nv
 
-    do ie = 1,nelv
-       do j = 1, nunu
-          do i = 1, nv
-             ii = i + nv * (j - 1)
-             tmp = 0.0_rp
-             do k = 1, nu
-                tmp = tmp + A(i,k) * u(k + nu * (j - 1), ie)
+       do ie = 1,nelv
+          do j = 1, nunu
+             do i = 1, nv
+                ii = i + nv * (j - 1)
+                tmp = 0.0_rp
+                do k = 1, nu
+                   tmp = tmp + A(i,k) * u(k + nu * (j - 1), ie)
+                end do
+                work(ii) = tmp
              end do
-             work(ii) = tmp
+          end do
+          
+          do i = 1, nu
+             do j = 1, nv
+                do l = 1, nv
+                   ii = l + nv * (j - 1) + nvnv * (i - 1)
+                   tmp = 0.0_rp
+                   do k = 1, nu
+                      jj = l + nv * (k - 1) + nvnu * (i - 1)
+                      tmp = tmp + work(jj) * Bt(k,j)
+                   end do
+                   work2(ii) = tmp
+                end do
+             end do
+          end do
+          
+          do j = 1, nv
+             do i = 1, nvnv
+                jj = i + nvnv * (j - 1)
+                tmp = 0.0_rp
+                do k = 1, nu
+                   ii = i + nvnv * (k - 1)
+                   tmp = tmp + work2(ii) * Ct(k, j)
+                end do
+                v(jj, ie) = tmp
+             end do
           end do
        end do
-       
-       do i = 1, nu
-          do j = 1, nv
-             do l = 1, nv
+    end if
+  end subroutine tnsr3d_sx
+
+  subroutine tnsr3d_nu2nv4_sx(v, u, A, Bt, Ct, nelv)
+    integer, parameter :: nu = 2
+    integer, parameter :: nv = 4
+    integer, parameter :: nunu = 4
+    integer, parameter :: nvnu = 8
+    integer, parameter :: nvnv = 16
+    integer, intent(in) :: nelv
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
+    integer :: ie, i, j, k, l, ii, jj
+    
+
+    do j = 1, nunu
+       do i = 1, nv
+          do ie = 1,nelv
+             ii = i + nv * (j - 1)
+             work(ii) = A(i,1) * u(1 + nu * (j - 1), ie) &
+                      + A(i,2) * u(2 + nu * (j - 1), ie)             
+          end do
+       end do
+    end do
+    
+    do i = 1, nu
+       do j = 1, nv
+          do l = 1, nv
+             do ie = 1,nelv
                 ii = l + nv * (j - 1) + nvnv * (i - 1)
                 tmp = 0.0_rp
+                !NEC$ unroll_completely
                 do k = 1, nu
                    jj = l + nv * (k - 1) + nvnu * (i - 1)
                    tmp = tmp + work(jj) * Bt(k,j)
@@ -104,21 +164,75 @@ contains
              end do
           end do
        end do
-       
-       do j = 1, nv
-          do i = 1, nvnv
+    end do
+    
+    do j = 1, nv
+       do i = 1, nvnv
+          do ie = 1,nelv
              jj = i + nvnv * (j - 1)
-             tmp = 0.0_rp
-             do k = 1, nu
-                ii = i + nvnv * (k - 1)
-                tmp = tmp + work2(ii) * Ct(k, j)
+             v(jj, ie) = work2(i + nvnv * (1 - 1)) * Ct(1, j) &
+                       + work2(i + nvnv * (2 - 1)) * Ct(2, j) 
+          end do
+       end do
+    end do
+
+  end subroutine tnsr3d_nu2nv4_sx
+
+  subroutine tnsr3d_nu4_sx(v, nv, u, A, Bt, Ct, nelv)
+    integer, parameter :: nu = 4
+    integer, parameter :: nunu = 16
+    integer, intent(in) :: nv, nelv
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp) :: work(nu**2*nv, nelv), work2(nu*nv**2, nelv), tmp
+    integer :: ie, i, j, k, l, ii, jj
+    integer :: nvnu, nvnv
+
+    nvnu = nv * nu
+    nvnv = nv * nv
+    
+    do j = 1, nunu
+       do i = 1, nv
+          do ie = 1,nelv                 
+             ii = i + nv * (j - 1)
+             work(ii, ie) = A(i,1) * u(1 + nu * (j - 1), ie) &
+                          + A(i,2) * u(2 + nu * (j - 1), ie) &
+                          + A(i,3) * u(3 + nu * (j - 1), ie) &
+                          + A(i,4) * u(4 + nu * (j - 1), ie)             
+          end do
+       end do
+    end do
+
+    do i = 1, nu
+       do j = 1, nv
+          do l = 1, nv
+             do ie = 1,nelv                
+                ii = l + nv * (j - 1) + nvnv * (i - 1)
+                tmp = 0.0_rp
+                !NEC$ unroll_completely
+                do k = 1, nu
+                   jj = l + nv * (k - 1) + nvnu * (i - 1)
+                   tmp = tmp + work(jj,ie) * Bt(k,j)
+                end do
+                work2(ii, ie) = tmp
              end do
-             v(jj, ie) = tmp
           end do
        end do
     end do
     
-  end subroutine tnsr3d_sx
+    do j = 1, nv
+       do i = 1, nvnv
+          do ie = 1,nelv                 
+             jj = i + nvnv * (j - 1)
+             v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
+                       + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
+                       + work2(i + nvnv * (3 - 1),ie) * Ct(3, j) &
+                       + work2(i + nvnv * (4 - 1),ie) * Ct(4, j) 
+          end do
+       end do
+    end do
+
+  end subroutine tnsr3d_nu4_sx
 
   subroutine tnsr1_3d_sx(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
