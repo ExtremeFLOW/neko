@@ -19,7 +19,6 @@ libneko_a_SOURCES = \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
-	math/tensor.f90\
 	sem/space.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
@@ -60,6 +59,10 @@ libneko_a_SOURCES = \
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
 	math/bcknd/xsmm/opr_xsmm.F90\
+	math/tensor.f90\
+	math/bcknd/cpu/tensor_cpu.f90\
+	math/bcknd/sx/tensor_sx.f90\
+	math/bcknd/xsmm/tensor_xsmm.F90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
