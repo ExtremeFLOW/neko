@@ -14,7 +14,6 @@ libneko_a_SOURCES = \
 	common/distdata.f90\
 	common/utils.f90\
 	math/mxm_wrapper.F90\
-	math/bcknd/cpu/mxm_std.f90\
 	sem/speclib.f90 \
 	math/math.f90\
 	math/mathops.f90\
