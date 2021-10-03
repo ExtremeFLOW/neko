@@ -63,6 +63,11 @@ libneko_a_SOURCES = \
 	math/bcknd/cpu/tensor_cpu.f90\
 	math/bcknd/sx/tensor_sx.f90\
 	math/bcknd/xsmm/tensor_xsmm.F90\
+	math/fdm.f90\
+	math/bcknd/cpu/fdm_cpu.f90\
+	math/bcknd/sx/fdm_sx.f90\
+	math/bcknd/xsmm/fdm_xsmm.f90\
+	math/schwarz.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -122,8 +127,6 @@ libneko_a_SOURCES = \
 	comm/parmetis.F90\
 	comm/redist.f90\
 	krylov/pc_hsmg.f90\
-	math/fdm.f90\
-	math/schwarz.f90\
 	common/signal.f90\
 	common/sighdl.c\
 	common/jobctrl.f90\

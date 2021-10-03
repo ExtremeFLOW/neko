@@ -1,5 +1,6 @@
 !> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
 module fdm
+  use neko_config
   use num_types
   use speclib
   use math
@@ -7,8 +8,10 @@ module fdm
   use dofmap
   use gather_scatter
   use fast3d
-  use mxm_wrapper
   use tensor
+  use fdm_sx    
+  use fdm_xsmm
+  use fdm_cpu
   implicit none  
 
   type, public :: fdm_t
@@ -517,36 +520,19 @@ contains
   subroutine fdm_compute(this, e, r)
     class(fdm_t), intent(inout) :: this
     real(kind=rp), dimension((this%Xh%lx+2)**3, this%msh%nelv), intent(inout) :: e, r
-    call fdm_do_fast(e, r, this%s, this%d, this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       call fdm_do_fast_sx(e, r, this%s, this%d, &
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call fdm_do_fast_xsmm(e, r, this%s, this%d, &
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+    else
+       call fdm_do_fast_cpu(e, r, this%s, this%d, &
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+    end if
+
   end subroutine fdm_compute
  
-  subroutine fdm_do_fast(e, r, s, d, nl, ldim, nelv)
-    integer, intent(in) :: nl, nelv, ldim
-    real(kind=rp), intent(inout) :: e(nl**ldim, nelv)
-    real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
-    real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
-    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)    
-    integer ::  ie, nn, i
-    
-    nn = nl**ldim
-    if(.not. ldim .eq. 3) then
-       do ie = 1, nelv
-          call tnsr2d_el(e(1,ie), nl, r(1,ie), nl, s(1,2,1,ie), s(1,1,2,ie))
-          do i = 1, nn
-             r(i,ie) = d(i,ie) * e(i,ie)
-          end do
-          call tnsr2d_el(e(1,ie), nl, r(1,ie), nl, s(1,1,1,ie), s(1,2,2,ie))
-       end do
-    else
-       do ie = 1, nelv
-          call tnsr3d_el(e(1,ie), nl, r(1,ie), nl, &
-               s(1,2,1,ie), s(1,1,2,ie), s(1,1,3,ie))
-          do i = 1, nn
-             r(i,ie) = d(i,ie) * e(i,ie)
-          end do
-          call tnsr3d_el(e(1,ie), nl, r(1,ie), nl, &
-               s(1,1,1,ie), s(1,2,2,ie), s(1,2,3,ie))
-       end do
-    end if
-  end subroutine fdm_do_fast
+
 end module fdm
