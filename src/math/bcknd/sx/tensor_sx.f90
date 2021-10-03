@@ -81,50 +81,63 @@ contains
     else if (nu .eq. 4) then
        call tnsr3d_nu4_sx(v, nv, u, A, Bt, Ct, nelv)
     else
-       nvnu = nv * nu
-       nunu = nu * nu 
-       nvnv = nv * nv
+       call tnsr3d_nvnu_sx(v, nv, u, nu, A, Bt, Ct, nelv)
+    end if
 
-       do ie = 1,nelv
-          do j = 1, nunu
-             do i = 1, nv
-                ii = i + nv * (j - 1)
-                tmp = 0.0_rp
-                do k = 1, nu
-                   tmp = tmp + A(i,k) * u(k + nu * (j - 1), ie)
-                end do
-                work(ii) = tmp
+  end subroutine tnsr3d_sx
+
+  subroutine tnsr3d_nvnu_sx(v, nv, u, nu, A, Bt, Ct, nelv)
+    integer, intent(in) :: nv, nu, nelv
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
+    integer :: ie, i, j, k, l, ii, jj
+    integer :: nunu, nvnu, nvnv
+
+    nvnu = nv * nu
+    nunu = nu * nu 
+    nvnv = nv * nv
+
+    do ie = 1,nelv
+       do j = 1, nunu
+          do i = 1, nv
+             ii = i + nv * (j - 1)
+             tmp = 0.0_rp
+             do k = 1, nu
+                tmp = tmp + A(i,k) * u(k + nu * (j - 1), ie)
              end do
+             work(ii) = tmp
           end do
+       end do
           
-          do i = 1, nu
-             do j = 1, nv
-                do l = 1, nv
-                   ii = l + nv * (j - 1) + nvnv * (i - 1)
-                   tmp = 0.0_rp
-                   do k = 1, nu
-                      jj = l + nv * (k - 1) + nvnu * (i - 1)
-                      tmp = tmp + work(jj) * Bt(k,j)
-                   end do
-                   work2(ii) = tmp
-                end do
-             end do
-          end do
-          
+       do i = 1, nu
           do j = 1, nv
-             do i = 1, nvnv
-                jj = i + nvnv * (j - 1)
+             do l = 1, nv
+                ii = l + nv * (j - 1) + nvnv * (i - 1)
                 tmp = 0.0_rp
                 do k = 1, nu
-                   ii = i + nvnv * (k - 1)
-                   tmp = tmp + work2(ii) * Ct(k, j)
+                   jj = l + nv * (k - 1) + nvnu * (i - 1)
+                   tmp = tmp + work(jj) * Bt(k,j)
                 end do
-                v(jj, ie) = tmp
+                work2(ii) = tmp
              end do
           end do
        end do
-    end if
-  end subroutine tnsr3d_sx
+       
+       do j = 1, nv
+          do i = 1, nvnv
+             jj = i + nvnv * (j - 1)
+             tmp = 0.0_rp
+             do k = 1, nu
+                ii = i + nvnv * (k - 1)
+                tmp = tmp + work2(ii) * Ct(k, j)
+             end do
+             v(jj, ie) = tmp
+          end do
+       end do
+    end do
+
+  end subroutine tnsr3d_nvnu_sx
 
   subroutine tnsr3d_nu2nv4_sx(v, u, A, Bt, Ct, nelv)
     integer, parameter :: nu = 2
@@ -248,68 +261,82 @@ contains
     if (nu .eq. 4 .and. nv .eq. 2) then
        call tnsr1_3d_nu4nv2_sx(v, A, Bt, Ct, nelv)
     else
-       nvnu = nv * nu
-       nunu = nu * nu 
-       nvnv = nv * nv
-    
-       e0 = 1
-       es = 1
-       ee = nelv
-       
-       if (nv.gt.nu) then
-          e0 = nelv
-          es = -1
-          ee = 1
-       endif
-       
-       nu3 = nu**3
-       nv3 = nv**3
-
-       do e = e0,ee,es
-          iu = (e-1)*nu3
-          iv = (e-1)*nv3
-          
-          do j = 1, nunu
-             do i = 1, nv
-                ii = i + nv * (j - 1)
-                tmp = 0.0_rp
-                do k = 1, nu
-                   kk = k + nu * (j - 1) + iu
-                   tmp = tmp + A(i,k) * v(kk)
-                end do
-                work(ii) = tmp
-             end do
-          end do
-       
-          do i = 1, nu
-             do j = 1, nv
-                do l = 1, nv
-                   ii = l + nv * (j - 1) + nvnv * (i - 1)
-                   tmp = 0.0_rp
-                   do k = 1, nu
-                      jj = l + nv * (k - 1) + nvnu * (i - 1)
-                      tmp = tmp + work(jj) * Bt(k,j)
-                   end do
-                   work2(ii) = tmp
-                end do
-             end do
-          end do
-          
-          do j = 1, nv
-             do i = 1, nvnv
-                jj = i + nvnv * (j - 1) + iv
-                tmp = 0.0_rp
-                do k = 1, nu
-                   ii = i + nvnv * (k - 1)
-                   tmp = tmp + work2(ii) * Ct(k, j)
-                end do
-                v(jj) = tmp
-             end do
-          end do
-       end do
+       call tnsr1_3d_nvnu_sx(v, nv, nu, A, Bt, Ct, nelv)
     end if
     
   end subroutine tnsr1_3d_sx
+
+  subroutine tnsr1_3d_nvnu_sx(v, nv, nu, A, Bt, Ct, nelv)
+    integer, intent(in) :: nv, nu, nelv
+    real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
+    integer :: e, e0, ee, es, iu, iv, nu3, nv3
+    integer :: i, j, k, l, ii, jj, kk
+    integer :: nunu, nvnu, nvnv
+    real(kind=rp) :: tmp
+
+    nvnu = nv * nu
+    nunu = nu * nu 
+    nvnv = nv * nv
+    
+    e0 = 1
+    es = 1
+    ee = nelv
+    
+    if (nv.gt.nu) then
+       e0 = nelv
+       es = -1
+       ee = 1
+    endif
+    
+    nu3 = nu**3
+    nv3 = nv**3
+    
+    do e = e0,ee,es
+       iu = (e-1)*nu3
+       iv = (e-1)*nv3
+          
+       do j = 1, nunu
+          do i = 1, nv
+             ii = i + nv * (j - 1)
+             tmp = 0.0_rp
+             do k = 1, nu
+                kk = k + nu * (j - 1) + iu
+                tmp = tmp + A(i,k) * v(kk)
+             end do
+             work(ii) = tmp
+          end do
+       end do
+       
+       do i = 1, nu
+          do j = 1, nv
+             do l = 1, nv
+                ii = l + nv * (j - 1) + nvnv * (i - 1)
+                tmp = 0.0_rp
+                do k = 1, nu
+                   jj = l + nv * (k - 1) + nvnu * (i - 1)
+                   tmp = tmp + work(jj) * Bt(k,j)
+                end do
+                work2(ii) = tmp
+             end do
+          end do
+       end do
+          
+       do j = 1, nv
+          do i = 1, nvnv
+             jj = i + nvnv * (j - 1) + iv
+             tmp = 0.0_rp
+             do k = 1, nu
+                ii = i + nvnv * (k - 1)
+                tmp = tmp + work2(ii) * Ct(k, j)
+             end do
+             v(jj) = tmp
+          end do
+       end do
+    end do
+    
+  end subroutine tnsr1_3d_nvnu_sx
 
   subroutine tnsr1_3d_nu4nv2_sx(v, A, Bt, Ct, nelv)
     integer, parameter :: nu = 4
