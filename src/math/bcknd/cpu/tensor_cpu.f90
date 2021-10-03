@@ -226,31 +226,135 @@ contains
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
-    real(kind=rp) :: work(0:nu**2*nv), work2(0:nu*nv**2)
-    integer :: e, e0, ee, es, iu, iv, i, nu3, nv3
+    real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
+    integer :: e, e0, ee, es, iu, iv, nu3, nv3
+    integer :: i, j, k, l, ii, jj, kk
+    integer :: nunu, nvnu, nvnv
+    real(kind=rp) :: tmp
 
-    e0 = 1
-    es = 1
-    ee = nelv
 
-    if (nv.gt.nu) then
-       e0 = nelv
-       es = -1
-       ee = 1
-    endif
+    if (nu .eq. 4 .and. nv .eq. 2) then
+       call tnsr1_3d_nu4nv2_cpu(v, A, Bt, Ct, nelv)
+    else
+       nvnu = nv * nu
+       nunu = nu * nu 
+       nvnv = nv * nv
+    
+       e0 = 1
+       es = 1
+       ee = nelv
+       
+       if (nv.gt.nu) then
+          e0 = nelv
+          es = -1
+          ee = 1
+       endif
+       
+       nu3 = nu**3
+       nv3 = nv**3
 
-    nu3 = nu**3
-    nv3 = nv**3
-
-    do e = e0,ee,es
-       iu = 1 + (e-1)*nu3
-       iv = 1 + (e-1)*nv3
-       call mxm(A, nv, v(iu), nu, work, nu*nu)
-       do i = 0,nu-1
-          call mxm(work(nv*nu*i), nv, Bt, nu, work2(nv*nv*i), nv)
+       do e = e0,ee,es
+          iu = (e-1)*nu3
+          iv = (e-1)*nv3
+          
+          do j = 1, nunu
+             do i = 1, nv
+                ii = i + nv * (j - 1)
+                tmp = 0.0_rp
+                do k = 1, nu
+                   kk = k + nu * (j - 1) + iu
+                   tmp = tmp + A(i,k) * v(kk)
+                end do
+                work(ii) = tmp
+             end do
+          end do
+       
+          do i = 1, nu
+             do j = 1, nv
+                do l = 1, nv
+                   ii = l + nv * (j - 1) + nvnv * (i - 1)
+                   tmp = 0.0_rp
+                   do k = 1, nu
+                      jj = l + nv * (k - 1) + nvnu * (i - 1)
+                      tmp = tmp + work(jj) * Bt(k,j)
+                   end do
+                   work2(ii) = tmp
+                end do
+             end do
+          end do
+          
+          do j = 1, nv
+             do i = 1, nvnv
+                jj = i + nvnv * (j - 1) + iv
+                tmp = 0.0_rp
+                do k = 1, nu
+                   ii = i + nvnv * (k - 1)
+                   tmp = tmp + work2(ii) * Ct(k, j)
+                end do
+                v(jj) = tmp
+             end do
+          end do
        end do
-       call mxm(work2, nv*nv, Ct, nu, v(iv), nv)
-    end do
+    end if
+    
   end subroutine tnsr1_3d_cpu
+
+  subroutine tnsr1_3d_nu4nv2_cpu(v, A, Bt, Ct, nelv)
+    integer, parameter :: nu = 4
+    integer, parameter :: nv = 2
+    integer, parameter :: nunu = 16
+    integer, parameter :: nvnu = 8
+    integer, parameter :: nvnv = 4
+    integer, parameter :: nununu = 64
+    integer, parameter :: nvnvnv = 8
+    integer, intent(in) :: nelv
+    real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
+    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
+    integer :: e, e0, ee, es, iu, iv
+    integer :: i, j, k, l, ii, jj, kk
+    real(kind=rp) :: tmp
+
+    do e = 1,nelv
+       iu = (e-1)*nununu
+       iv = (e-1)*nvnvnv
+          
+       do j = 1, nunu
+          do i = 1, nv
+             ii = i + nv * (j - 1)
+             work(ii) = A(i,1) * v(1 + nu * (j - 1) + iu) &
+                      + A(i,2) * v(2 + nu * (j - 1) + iu) &
+                      + A(i,3) * v(3 + nu * (j - 1) + iu) &
+                      + A(i,4) * v(4 + nu * (j - 1) + iu) 
+          end do
+       end do
+       
+       do i = 1, nu
+          do j = 1, nv
+             do l = 1, nv
+                ii = l + nv * (j - 1) + nvnv * (i - 1)
+                tmp = 0.0_rp
+                do k = 1, nu
+                   jj = l + nv * (k - 1) + nvnu * (i - 1)
+                   tmp = tmp + work(jj) * Bt(k,j)
+                end do
+                work2(ii) = tmp
+             end do
+          end do
+       end do
+          
+       do j = 1, nv
+          do i = 1, nvnv
+             jj = i + nvnv * (j - 1) + iv
+             v(jj) = work2(i + nvnv * (1 - 1)) * Ct(1, j) &
+                   + work2(i + nvnv * (2 - 1)) * Ct(2, j) &
+                   + work2(i + nvnv * (3 - 1)) * Ct(3, j) &
+                   + work2(i + nvnv * (4 - 1)) * Ct(4, j)
+                  
+          end do
+       end do
+    end do
+    
+  end subroutine tnsr1_3d_nu4nv2_cpu
   
 end module tensor_cpu
