@@ -20,6 +20,46 @@ contains
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
     real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
+
+    if (nv .eq. nu) then
+       select case (nv)
+       case (14)
+          call tnsr3d_el_n14_cpu(v, u, A, Bt, Ct)
+       case (13)
+          call tnsr3d_el_n13_cpu(v, u, A, Bt, Ct)
+       case (12)
+          call tnsr3d_el_n12_cpu(v, u, A, Bt, Ct)
+       case (11)
+          call tnsr3d_el_n11_cpu(v, u, A, Bt, Ct)
+       case (10)
+          call tnsr3d_el_n10_cpu(v, u, A, Bt, Ct)
+       case (9)
+          call tnsr3d_el_n9_cpu(v, u, A, Bt, Ct)
+       case (8)
+          call tnsr3d_el_n8_cpu(v, u, A, Bt, Ct)
+       case (7)
+          call tnsr3d_el_n7_cpu(v, u, A, Bt, Ct)
+       case (6)
+          call tnsr3d_el_n6_cpu(v, u, A, Bt, Ct)
+       case (5)
+          call tnsr3d_el_n5_cpu(v, u, A, Bt, Ct)
+       case (4)
+          call tnsr3d_el_n4_cpu(v, u, A, Bt, Ct)
+       case (3)
+          call tnsr3d_el_n3_cpu(v, u, A, Bt, Ct)
+       case (2)
+          call tnsr3d_el_n2_cpu(v, u, A, Bt, Ct)
+       end select
+    else
+       call tnsr3d_el_nvnu_cpu(v, nv, u, nu, A, Bt, Ct)
+    end if
+    
+  end subroutine tnsr3d_el_cpu
+
+  subroutine tnsr3d_el_nvnu_cpu(v, nv, u, nu, A, Bt, Ct)
+    integer, intent(in) :: nv, nu
+    real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
+    real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, nunu, nvnu, nvnv
@@ -65,8 +105,723 @@ contains
        end do
     end do
     
-  end subroutine tnsr3d_el_cpu
+  end subroutine tnsr3d_el_nvnu_cpu
 
+  subroutine tnsr3d_el_n14_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 14
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) &
+                   + A(i,8) * u(8 + n * (j - 1)) &
+                   + A(i,9) * u(9 + n * (j - 1)) &
+                   + A(i,10) * u(10 + n * (j - 1)) &
+                   + A(i,11) * u(11 + n * (j - 1)) &
+                   + A(i,12) * u(12 + n * (j - 1)) &
+                   + A(i,13) * u(13 + n * (j - 1)) &
+                   + A(i,14) * u(14 + n * (j - 1))                    
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
+                       + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j) &
+                       + work(l + n * (13 - 1) + nn * (i - 1)) * Bt(13,j) &
+                       + work(l + n * (14 - 1) + nn * (i - 1)) * Bt(14,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) &
+                + work2(i + nn * (8 - 1)) * Ct(8, j) &
+                + work2(i + nn * (9 - 1)) * Ct(9, j) &
+                + work2(i + nn * (10 - 1)) * Ct(10, j) &
+                + work2(i + nn * (11 - 1)) * Ct(11, j) &
+                + work2(i + nn * (12 - 1)) * Ct(12, j) &
+                + work2(i + nn * (13 - 1)) * Ct(13, j) &
+                + work2(i + nn * (14 - 1)) * Ct(14, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n14_cpu
+
+  subroutine tnsr3d_el_n13_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 13
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) &
+                   + A(i,8) * u(8 + n * (j - 1)) &
+                   + A(i,9) * u(9 + n * (j - 1)) &
+                   + A(i,10) * u(10 + n * (j - 1)) &
+                   + A(i,11) * u(11 + n * (j - 1)) &
+                   + A(i,12) * u(12 + n * (j - 1)) &
+                   + A(i,13) * u(13 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
+                       + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j) &
+                       + work(l + n * (13 - 1) + nn * (i - 1)) * Bt(13,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) &
+                + work2(i + nn * (8 - 1)) * Ct(8, j) &
+                + work2(i + nn * (9 - 1)) * Ct(9, j) &
+                + work2(i + nn * (10 - 1)) * Ct(10, j) &
+                + work2(i + nn * (11 - 1)) * Ct(11, j) &
+                + work2(i + nn * (12 - 1)) * Ct(12, j) &
+                + work2(i + nn * (13 - 1)) * Ct(13, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n13_cpu
+
+  subroutine tnsr3d_el_n12_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 12
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) &
+                   + A(i,8) * u(8 + n * (j - 1)) &
+                   + A(i,9) * u(9 + n * (j - 1)) &
+                   + A(i,10) * u(10 + n * (j - 1)) &
+                   + A(i,11) * u(11 + n * (j - 1)) &
+                   + A(i,12) * u(12 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) &
+                       + work(l + n * (12 - 1) + nn * (i - 1)) * Bt(12,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) &
+                + work2(i + nn * (8 - 1)) * Ct(8, j) &
+                + work2(i + nn * (9 - 1)) * Ct(9, j) &
+                + work2(i + nn * (10 - 1)) * Ct(10, j) &
+                + work2(i + nn * (11 - 1)) * Ct(11, j) &
+                + work2(i + nn * (12 - 1)) * Ct(12, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n12_cpu
+
+  subroutine tnsr3d_el_n11_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 11
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) &
+                   + A(i,8) * u(8 + n * (j - 1)) &
+                   + A(i,9) * u(9 + n * (j - 1)) &
+                   + A(i,10) * u(10 + n * (j - 1)) &
+                   + A(i,11) * u(11 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) &
+                       + work(l + n * (11 - 1) + nn * (i - 1)) * Bt(11,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) &
+                + work2(i + nn * (8 - 1)) * Ct(8, j) &
+                + work2(i + nn * (9 - 1)) * Ct(9, j) &
+                + work2(i + nn * (10 - 1)) * Ct(10, j) &
+                + work2(i + nn * (11 - 1)) * Ct(11, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n11_cpu
+
+  subroutine tnsr3d_el_n10_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 10
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) &
+                   + A(i,8) * u(8 + n * (j - 1)) &
+                   + A(i,9) * u(9 + n * (j - 1)) &
+                   + A(i,10) * u(10 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) &
+                       + work(l + n * (10 - 1) + nn * (i - 1)) * Bt(10,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) &
+                + work2(i + nn * (8 - 1)) * Ct(8, j) &
+                + work2(i + nn * (9 - 1)) * Ct(9, j) &
+                + work2(i + nn * (10 - 1)) * Ct(10, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n10_cpu
+
+  subroutine tnsr3d_el_n9_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 9
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) &
+                   + A(i,8) * u(8 + n * (j - 1)) &
+                   + A(i,9) * u(9 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) &
+                       + work(l + n * (9 - 1) + nn * (i - 1)) * Bt(9,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) &
+                + work2(i + nn * (8 - 1)) * Ct(8, j) &
+                + work2(i + nn * (9 - 1)) * Ct(9, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n9_cpu
+
+  subroutine tnsr3d_el_n8_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 8
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) &
+                   + A(i,8) * u(8 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) &
+                       + work(l + n * (8 - 1) + nn * (i - 1)) * Bt(8,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) &
+                + work2(i + nn * (8 - 1)) * Ct(8, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n8_cpu
+
+  subroutine tnsr3d_el_n7_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 7
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) &
+                   + A(i,7) * u(7 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) &
+                       + work(l + n * (7 - 1) + nn * (i - 1)) * Bt(7,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) &
+                + work2(i + nn * (7 - 1)) * Ct(7, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n7_cpu
+
+  subroutine tnsr3d_el_n6_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 6
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) &
+                   + A(i,6) * u(6 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j) &
+                       + work(l + n * (6 - 1) + nn * (i - 1)) * Bt(6,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) &
+                + work2(i + nn * (6 - 1)) * Ct(6, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n6_cpu
+
+  subroutine tnsr3d_el_n5_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 5
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) &
+                   + A(i,5) * u(5 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) &
+                       + work(l + n * (5 - 1) + nn * (i - 1)) * Bt(5,j)
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) &
+                + work2(i + nn * (5 - 1)) * Ct(5, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n5_cpu
+
+  subroutine tnsr3d_el_n4_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 4
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) &
+                   + A(i,4) * u(4 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) &
+                       + work(l + n * (4 - 1) + nn * (i - 1)) * Bt(4,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) &
+                + work2(i + nn * (4 - 1)) * Ct(4, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n4_cpu
+
+  subroutine tnsr3d_el_n3_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 3
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) &
+                   + A(i,3) * u(3 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) &
+                       + work(l + n * (3 - 1) + nn * (i - 1)) * Bt(3,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) &
+                + work2(i + nn * (3 - 1)) * Ct(3, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n3_cpu
+
+    subroutine tnsr3d_el_n2_cpu(v, u, A, Bt, Ct)
+    integer, parameter :: n = 2
+    integer, parameter :: nn = n**2
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3)
+    integer :: i, j, k, l
+    integer :: ii, jj
+
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          work(ii) = A(i,1) * u(1 + n * (j - 1)) &
+                   + A(i,2) * u(2 + n * (j - 1)) 
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             work2(ii) = work(l + n * (1 - 1) + nn * (i - 1)) * Bt(1,j) &
+                       + work(l + n * (2 - 1) + nn * (i - 1)) * Bt(2,j) 
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          v(jj) = work2(i + nn * (1 - 1)) * Ct(1, j) &
+                + work2(i + nn * (2 - 1)) * Ct(2, j) 
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n2_cpu
+  
   subroutine tnsr3d_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
