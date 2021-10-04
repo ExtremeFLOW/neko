@@ -4,7 +4,8 @@ module pipecg_sx
   use math
   use num_types
   implicit none
-
+  private
+  
   !> Pipelined preconditioned conjugate gradient method for SX-Aurora
   type, public, extends(ksp_t) :: sx_pipecg_t
      real(kind=rp), allocatable :: p(:)

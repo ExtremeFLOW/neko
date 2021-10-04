@@ -1,7 +1,6 @@
 !> Krylov preconditioner
 module precon
-  use math
-  use utils
+  use num_types
   implicit none
   
   !> Defines a canonical Krylov preconditioner

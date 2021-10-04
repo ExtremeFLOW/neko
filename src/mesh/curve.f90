@@ -6,9 +6,10 @@ module curve
   use point
   use hex
   implicit none
+  private
 
   ! Maybe should be moved somewhere else
-  type :: curve_t
+  type, public :: curve_t
      type(struct_curve_t), allocatable :: curve_el(:)
      type(stack_curve_t), private :: scratch
      integer :: size = 0

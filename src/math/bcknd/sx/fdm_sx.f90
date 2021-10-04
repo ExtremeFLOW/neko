@@ -3,6 +3,9 @@ module fdm_sx
   use num_types
   use tensor_sx
   implicit none
+  private
+  
+  public :: fdm_do_fast_sx
 
 contains
 

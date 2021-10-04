@@ -3,9 +3,10 @@ module fluid_output
   use fluid_method
   use output
   implicit none
+  private
 
   !> Fluid output
-  type, extends(output_t) :: fluid_output_t
+  type, public, extends(output_t) :: fluid_output_t
      class(fluid_scheme_t), pointer :: fluid
    contains
      procedure, pass(this) :: sample => fluid_output_sample

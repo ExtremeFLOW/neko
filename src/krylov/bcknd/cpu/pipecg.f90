@@ -4,7 +4,8 @@ module pipecg
   use math
   use num_types
   implicit none
-  
+  private
+
   !> Pipelined preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: pipecg_t
      real(kind=rp), allocatable :: p(:)

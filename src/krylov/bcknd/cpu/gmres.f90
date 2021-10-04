@@ -6,6 +6,7 @@ module gmres
   use operators
   use num_types
   implicit none
+  private
 
   !> Standard preconditioned generalized minimal residual method 
   type, public, extends(ksp_t) :: gmres_t

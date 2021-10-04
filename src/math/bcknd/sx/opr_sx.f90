@@ -13,6 +13,9 @@ module opr_sx
   use field
   use mathops
   implicit none
+  private
+
+  public :: opr_sx_dudxyz, opr_sx_opgrad, opr_sx_cdtp, opr_sx_conv1, opr_sx_curl
 
 contains
 

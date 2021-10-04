@@ -11,8 +11,9 @@ module fluid_plan4
   use logger
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan  
   implicit none
+  private
 
-  type, extends(fluid_scheme_t) :: fluid_plan4_t
+  type, public, extends(fluid_scheme_t) :: fluid_plan4_t
      type(field_t) :: u_e
      type(field_t) :: v_e
      type(field_t) :: w_e

@@ -4,9 +4,10 @@ module abbdf
   use math
   use utils
   implicit none
+  private
 
   !> AB-BDF coefficeints
-  type abbdf_t
+  type, public :: abbdf_t
      real(kind=rp), dimension(10) :: ab
      real(kind=rp), dimension(10) :: bd
      integer :: nab = 0
