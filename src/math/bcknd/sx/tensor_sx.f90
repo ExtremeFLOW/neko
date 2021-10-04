@@ -5,7 +5,7 @@ module tensor_sx
   implicit none
   private
 
-  public :: tnsr2d_el_sx, tnsr3d_el_sx, tnsr3d_sx
+  public :: tnsr2d_el_sx, tnsr3d_el_sx, tnsr3d_sx, tnsr1_3d_sx
 
 contains
 
