@@ -1,5 +1,6 @@
 module ax_helm_xsmm
   use ax_product
+  use mxm_wrapper
   use num_types
 #ifdef HAVE_LIBXSMM
   use libxsmm, libxsmm_mmcall => libxsmm_dmmcall_abc
