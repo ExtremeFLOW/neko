@@ -14,12 +14,10 @@ libneko_a_SOURCES = \
 	common/distdata.f90\
 	common/utils.f90\
 	math/mxm_wrapper.F90\
-	math/bcknd/cpu/mxm_std.f90\
 	sem/speclib.f90 \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
-	math/tensor.f90\
 	sem/space.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
@@ -60,6 +58,15 @@ libneko_a_SOURCES = \
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
 	math/bcknd/xsmm/opr_xsmm.F90\
+	math/tensor.f90\
+	math/bcknd/cpu/tensor_cpu.f90\
+	math/bcknd/sx/tensor_sx.f90\
+	math/bcknd/xsmm/tensor_xsmm.F90\
+	math/fdm.f90\
+	math/bcknd/cpu/fdm_cpu.f90\
+	math/bcknd/sx/fdm_sx.f90\
+	math/bcknd/xsmm/fdm_xsmm.f90\
+	math/schwarz.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -119,8 +126,6 @@ libneko_a_SOURCES = \
 	comm/parmetis.F90\
 	comm/redist.f90\
 	krylov/pc_hsmg.f90\
-	math/fdm.f90\
-	math/schwarz.f90\
 	common/signal.f90\
 	common/sighdl.c\
 	common/jobctrl.f90\

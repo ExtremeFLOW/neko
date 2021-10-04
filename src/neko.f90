@@ -19,7 +19,6 @@ module neko
   use mesh_field
   use map
   use mxm_wrapper
-  use mxm_std
   use file
   use field
   use mpi_types
