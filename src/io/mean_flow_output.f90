@@ -4,8 +4,9 @@ module mean_flow_output
   use num_types
   use output
   implicit none
+  private
 
-  type, extends(output_t) :: mean_flow_output_t
+  type, public, extends(output_t) :: mean_flow_output_t
      type(mean_flow_t), pointer :: mf
      real(kind=rp) :: T_begin
    contains

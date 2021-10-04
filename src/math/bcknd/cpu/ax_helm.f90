@@ -1,6 +1,7 @@
 module ax_helm
   use ax_product
   implicit none
+  private 
 
   type, public, extends(ax_t) :: ax_helm_t
    contains

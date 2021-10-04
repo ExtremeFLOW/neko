@@ -6,6 +6,7 @@ module gmres_sx
   use operators
   use num_types
   implicit none
+  private
 
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: sx_gmres_t

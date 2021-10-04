@@ -4,6 +4,7 @@ module bicgstab
   use math
   use num_types
   implicit none
+  private
 
   !> Standard preconditioned Bi-Conjugate Gradient Stabilized method
   type, public, extends(ksp_t) :: bicgstab_t

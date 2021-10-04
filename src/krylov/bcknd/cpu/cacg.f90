@@ -4,7 +4,8 @@ module cacg
   use math
   use num_types
   implicit none
-
+  private
+  
   !> S-step communication avoiding  preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cacg_t
      real(kind=rp), allocatable :: r(:)

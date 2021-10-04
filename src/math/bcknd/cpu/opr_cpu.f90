@@ -13,6 +13,10 @@ module opr_cpu
   use gather_scatter
   use mathops
   implicit none
+  private
+
+  public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, opr_cpu_conv1, opr_cpu_curl
+
   
 contains
 

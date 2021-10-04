@@ -4,8 +4,9 @@ module mean_sqr_flow_output
   use num_types
   use output
   implicit none
+  private
 
-  type, extends(output_t) :: mean_sqr_flow_output_t
+  type, public, extends(output_t) :: mean_sqr_flow_output_t
      type(mean_sqr_flow_t), pointer :: msqrf
      real(kind=rp) :: T_begin
    contains

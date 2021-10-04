@@ -7,6 +7,7 @@ module krylov_fctry
   use bicgstab
   use gmres
   use gmres_sx
+  use krylov
   use neko_config
   implicit none
   
