@@ -32,7 +32,7 @@ contains
     if (present(s)) then
        this%s = s
     else 
-       this%s = 2
+       this%s = 4
     end if
     if (pe_rank .eq. 0) then
        call neko_warning("Communication Avoiding CG chosen, be aware of potential instabilities")
@@ -246,8 +246,10 @@ contains
                      p(i+k) = p(i+k) + PR(i+k,j) * p_c(j,s+1)
                      tmp = PR(i+k,j) * r_c(j,s+1)
                      r(i+k) = r(i+k) + tmp
-                     rtr = rtr + tmp**2 * coef%mult(i+k,1,1,1)
                   end do
+               end do
+               do k = 1, NEKO_BLK_SIZE
+                  rtr = rtr + r(i+k)**2 * coef%mult(i+k,1,1,1)
                end do
             else 
                do j = 1,4*s+1
@@ -256,8 +258,10 @@ contains
                      p(i+k) = p(i+k) + PR(i+k,j) * p_c(j,s+1)
                      tmp = PR(i+k,j) * r_c(j,s+1)
                      r(i+k) = r(i+k) + tmp
-                     rtr = rtr + tmp**2 * coef%mult(i+k,1,1,1)
                   end do
+               end do
+               do k = 1, n-i
+                  rtr = rtr + r(i+k)**2 * coef%mult(i+k,1,1,1)
                end do
             end if
          end do

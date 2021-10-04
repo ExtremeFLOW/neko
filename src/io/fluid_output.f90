@@ -17,14 +17,19 @@ module fluid_output
 
 contains
 
-  function fluid_output_init(fluid, name) result(this)
+  function fluid_output_init(fluid, name, path) result(this)
     class(fluid_scheme_t), intent(in), target :: fluid
     character(len=*), intent(in), optional :: name
+    character(len=*), intent(in), optional :: path
     type(fluid_output_t) :: this
     character(len=80) :: fname
 
-    if (present(name)) then
+    if (present(name) .and. present(path)) then
+       fname = trim(path) // trim(name) // '.fld'
+    else if (present(name)) then
        fname = trim(name) // '.fld'
+    else if (present(path)) then
+       fname = trim(path) // 'field.fld'
     else       
        fname = 'field.fld'
     end if

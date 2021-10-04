@@ -11,29 +11,13 @@ module neko
   use dofmap
   use space
   use htable
-  use generic_file
-  use entity
-  use point
-  use element
-  use quad
-  use hex
   use uset
   use stack
   use tuple
   use mesh
   use mesh_field
   use map
-  use nmsh
-  use re2
-  use rea
   use mxm_wrapper
-  use mxm_std
-  use rea_file
-  use re2_file
-  use map_file
-  use vtk_file
-  use fld_file
-  use nmsh_file
   use file
   use field
   use mpi_types
@@ -42,15 +26,10 @@ module neko
   use bc
   use wall
   use dirichlet
-  use krylov
-  use cg
-  use cg_device
-  use pipecg
-  use bicgstab
+  use krylov_fctry
+  use ax_helm_fctry
   use precon
   use ax_product
-  use gmres
-  use cacg
   use jacobi
   use neko_config
   use case
@@ -58,15 +37,12 @@ module neko
   use output
   use fluid_output  
   use simulation
-  use ax_helm
   use operators
   use mathops
   use projection
   use user_intf
   use parmetis
   use structs
-  use curve
-  use tet_mesh
   use signal
   use jobctrl
   use device

@@ -34,6 +34,7 @@ module parameters
      logical :: output_mean_flow       !< Output mean flow field
      logical :: stats_mean_sqr_flow    !< Mean squared flow statistics
      logical :: output_mean_sqr_flow   !< Output mean squared flow field
+     character(len=1024) :: output_dir !< Output directory
   end type param_t
 
   type param_io_t
@@ -86,14 +87,15 @@ contains
     logical :: stats_mean_flow = .false.
     logical :: output_mean_flow = .false.
     logical :: stats_mean_sqr_flow = .false.
-    logical :: output_mean_sqr_flow = .false.        
+    logical :: output_mean_sqr_flow = .false.
+    character(len=1024) :: output_dir = ''
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
-         output_mean_sqr_flow
+         output_mean_sqr_flow, output_dir
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -127,6 +129,7 @@ contains
     param%p%output_mean_flow = output_mean_flow
     param%p%stats_mean_sqr_flow = stats_mean_sqr_flow
     param%p%output_mean_sqr_flow = output_mean_sqr_flow
+    param%p%output_dir = output_dir
 
   end subroutine param_read
 
@@ -148,13 +151,14 @@ contains
     integer :: nsamples, vol_flow_dir, proj_dim, time_order
     character(len=8) :: jlimit
     character(len=80) :: restart_file
+    character(len=1024) :: output_dir
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
-         output_mean_sqr_flow
+         output_mean_sqr_flow, output_dir
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -186,6 +190,7 @@ contains
     output_mean_flow = param%p%output_mean_flow
     stats_mean_sqr_flow = param%p%stats_mean_sqr_flow
     output_mean_sqr_flow = param%p%output_mean_sqr_flow
+    output_dir = param%p%output_dir
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 

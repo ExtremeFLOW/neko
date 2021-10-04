@@ -42,7 +42,7 @@ contains
     character :: rdcode(10)
     character(len=6) :: id_str
     character(len=80) :: fname
-    integer :: i, ierr, n, j,k,l,el, suffix_pos
+    integer :: i, ierr, n, j,k,l,el, suffix_pos,tslash_pos
     integer, allocatable :: idx(:)
     type(MPI_Status) :: status
     type(MPI_File) :: fh
@@ -377,10 +377,11 @@ contains
 
     ! Write metadata file 
     if (pe_rank .eq. 0) then
+       tslash_pos = filename_tslash_pos(this%fname)
        open(unit=9, file=trim(this%fname(1:suffix_pos-1))//'.nek5000', &
             status='replace')
        write(9, fmt='(A,A,A)') 'filetemplate:         ', &
-            this%fname(1:suffix_pos-1),'%01d.f%05d'
+            this%fname(tslash_pos+1:suffix_pos-1),'%01d.f%05d'
        write(9, fmt='(A)') 'firsttimestep: 0'
        write(9, fmt='(A,i5)') 'numtimesteps: ', this%counter + 1
        write(9, fmt='(A)') 'type: binary'

@@ -13,7 +13,7 @@ check: field_suite
 
 
 field_suite_TESTS := field_parallel.pf
-field_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+field_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,field_suite))
 
 

@@ -17,12 +17,10 @@ libneko_a_SOURCES = \
 	common/distdata.f90\
 	common/utils.f90\
 	math/mxm_wrapper.F90\
-	math/bcknd/cpu/mxm_std.f90\
 	sem/speclib.f90 \
 	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
-	math/tensor.f90\
 	sem/space.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
@@ -36,13 +34,6 @@ libneko_a_SOURCES = \
 	mesh/point.f90\
 	mesh/element.f90\
 	math/ax.f90\
-	krylov/precon.f90\
-	krylov/krylov.f90\
-	krylov/cg.f90\
-	krylov/cacg.f90\
-	krylov/pipecg.f90\
-	krylov/bicgstab.f90\
-	krylov/bcknd/device/cg_device.f90\
 	mesh/quad.f90\
 	mesh/hex.f90\
 	mesh/tet.f90\
@@ -59,6 +50,10 @@ libneko_a_SOURCES = \
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\
 	io/format/rea.f90\
+	math/bcknd/cpu/cdtp.f90\
+	math/bcknd/cpu/conv1.f90\
+	math/bcknd/cpu/dudxyz.f90\
+	math/bcknd/cpu/opgrad.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
@@ -68,6 +63,15 @@ libneko_a_SOURCES = \
 	math/bcknd/sx/opr_sx.f90\
 	math/bcknd/xsmm/opr_xsmm.F90\
 	math/bcknd/device/opr_device.F90\
+	math/tensor.f90\
+	math/bcknd/cpu/tensor_cpu.f90\
+	math/bcknd/sx/tensor_sx.f90\
+	math/bcknd/xsmm/tensor_xsmm.F90\
+	math/fdm.f90\
+	math/bcknd/cpu/fdm_cpu.f90\
+	math/bcknd/sx/fdm_sx.f90\
+	math/bcknd/xsmm/fdm_xsmm.f90\
+	math/schwarz.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -91,10 +95,21 @@ libneko_a_SOURCES = \
 	bc/usr_inflow.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
-	krylov/gmres.f90\
-	krylov/bcknd/cpu/pc_jacobi.f90\
+	krylov/precon.f90\
+	krylov/krylov.f90\
 	krylov/pc_identity.f90\
+	krylov/krylov_fctry.f90\
+	krylov/bcknd/cpu/cg.f90\
+	krylov/bcknd/cpu/cacg.f90\
+	krylov/bcknd/cpu/pipecg.f90\
+	krylov/bcknd/cpu/bicgstab.f90\
+	krylov/bcknd/cpu/gmres.f90\
+	krylov/bcknd/cpu/pc_jacobi.f90\
+	krylov/bcknd/sx/cg_sx.f90\
+	krylov/bcknd/sx/pipecg_sx.f90\
+	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
+	krylov/bcknd/device/cg_device.f90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
@@ -111,6 +126,7 @@ libneko_a_SOURCES = \
 	fluid/mean_flow.f90\
 	fluid/mean_sqr_flow.f90\
 	simulation.f90\
+	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
@@ -118,8 +134,6 @@ libneko_a_SOURCES = \
 	comm/parmetis.F90\
 	comm/redist.f90\
 	krylov/pc_hsmg.f90\
-	math/fdm.f90\
-	math/schwarz.f90\
 	common/signal.f90\
 	common/sighdl.c\
 	common/jobctrl.f90\
