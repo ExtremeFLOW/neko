@@ -52,26 +52,7 @@ contains
        call neko_error('Unknown Krylov solver')
     end if
 
-    if (present(M)) then
-       select type(kp => ksp)
-       type is(cg_t)
-          call kp%init(n, M = M)
-       type is(sx_cg_t)
-          call kp%init(n, M = M)       
-       type is(pipecg_t)
-          call kp%init(n, M = M)
-       type is(sx_pipecg_t)
-          call kp%init(n, M = M)
-       type is(cacg_t)
-          call kp%init(n, M = M)
-       type is(gmres_t)
-          call kp%init(n, M = M)
-       type is(sx_gmres_t)
-          call kp%init(n, M = M)
-       type is(bicgstab_t)
-          call kp%init(n, M = M)
-       end select
-    else if (present(abstol) .and. present(M)) then
+    if (present(abstol) .and. present(M)) then
        select type(kp => ksp)
        type is(cg_t)
           call kp%init(n, M = M, abs_tol = abstol)
@@ -89,6 +70,44 @@ contains
           call kp%init(n, M = M, abs_tol = abstol)
        type is(bicgstab_t)
           call kp%init(n, M = M, abs_tol = abstol)
+       end select
+    else if (present(abstol)) then
+       select type(kp => ksp)
+       type is(cg_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(sx_cg_t)
+          call kp%init(n, abs_tol = abstol)       
+       type is(pipecg_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(sx_pipecg_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(cacg_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(gmres_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(sx_gmres_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(bicgstab_t)
+          call kp%init(n, abs_tol = abstol)
+       end select
+    else if (present(M)) then
+       select type(kp => ksp)
+       type is(cg_t)
+          call kp%init(n, M = M)
+       type is(sx_cg_t)
+          call kp%init(n, M = M)       
+       type is(pipecg_t)
+          call kp%init(n, M = M)
+       type is(sx_pipecg_t)
+          call kp%init(n, M = M)
+       type is(cacg_t)
+          call kp%init(n, M = M)
+       type is(gmres_t)
+          call kp%init(n, M = M)
+       type is(sx_gmres_t)
+          call kp%init(n, M = M)
+       type is(bicgstab_t)
+          call kp%init(n, M = M)
        end select
     else
        select type(kp => ksp)
