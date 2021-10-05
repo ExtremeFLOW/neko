@@ -1,7 +1,7 @@
 !> Defines a simulation case
 module case
   use num_types
-  use fluid_schemes
+  use fluid_fctry
   use fluid_output
   use chkp_output
   use mean_sqr_flow_output
@@ -136,15 +136,7 @@ contains
     !
     ! Setup fluid scheme
     !
-
-    if (trim(fluid_scheme) .eq. 'plan1') then
-       allocate(fluid_plan1_t::C%fluid)
-    else if (trim(fluid_scheme) .eq. 'plan4') then
-       allocate(fluid_plan4_t::C%fluid)
-    else
-       call neko_error('Invalid fluid scheme')
-    end if
-  
+    call fluid_scheme_factory(C%fluid, trim(fluid_scheme))
     call C%fluid%init(C%msh, lx, C%params)
 
     !

@@ -107,12 +107,12 @@ common/abbdf.o : common/abbdf.f90 common/utils.o math/math.o config/num_types.o
 common/stats_quant.o : common/stats_quant.f90 config/num_types.o 
 common/statistics.o : common/statistics.f90 common/stats_quant.o config/num_types.o 
 config/neko_config.o : config/neko_config.f90 
-case.o : case.f90 common/user_intf.o common/jobctrl.o common/log.o common/abbdf.o comm/comm.o mesh/mesh.o common/utils.o io/file.o common/statistics.o common/sampler.o comm/redist.o comm/parmetis.o field/mesh_field.o comm/mpi_types.o common/parameters.o io/mean_flow_output.o io/mean_sqr_flow_output.o io/chkp_output.o io/fluid_output.o fluid/fluid_schemes.o config/num_types.o 
+case.o : case.f90 common/user_intf.o common/jobctrl.o common/log.o common/abbdf.o comm/comm.o mesh/mesh.o common/utils.o io/file.o common/statistics.o common/sampler.o comm/redist.o comm/parmetis.o field/mesh_field.o comm/mpi_types.o common/parameters.o io/mean_flow_output.o io/mean_sqr_flow_output.o io/chkp_output.o io/fluid_output.o fluid/fluid_fctry.o config/num_types.o 
 common/user_intf.o : common/user_intf.f90 config/num_types.o common/parameters.o bc/usr_inflow.o sem/coef.o common/source.o field/field.o 
 fluid/fluid_method.o : fluid/fluid_method.f90 common/log.o krylov/pc_hsmg.o math/operators.o math/mathops.o common/abbdf.o math/math.o mesh/mesh.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o bc/bc.o krylov/krylov_fctry.o bc/symmetry.o bc/dirichlet.o bc/usr_inflow.o bc/inflow.o bc/wall.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o common/source.o config/num_types.o fluid/mean_flow.o common/checkpoint.o common/parameters.o config/neko_config.o fluid/mean_sqr_flow.o gs/gather_scatter.o 
 fluid/fluid_plan4.o : fluid/fluid_plan4.f90 common/log.o common/projection.o common/abbdf.o config/neko_config.o bc/facet_normal.o fluid/fluid_method.o math/ax_helm_fctry.o 
 fluid/fluid_plan1.o : fluid/fluid_plan1.f90 fluid/fluid_method.o 
-fluid/fluid_schemes.o : fluid/fluid_schemes.f90 fluid/fluid_plan4.o fluid/fluid_plan1.o fluid/fluid_method.o 
+fluid/fluid_fctry.o : fluid/fluid_fctry.f90 common/utils.o config/neko_config.o fluid/fluid_method.o fluid/fluid_plan4.o fluid/fluid_plan1.o 
 fluid/mean_flow.o : fluid/mean_flow.f90 field/mean_field.o 
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/mean_sqr_field.o 
 simulation.o : simulation.f90 common/jobctrl.o common/log.o io/file.o common/abbdf.o case.o 
