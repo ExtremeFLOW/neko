@@ -1,0 +1,112 @@
+module mean_field_parallel
+  use mpi
+  use pfunit
+  use mean_field
+  use num_types
+  implicit none
+
+contains
+
+  subroutine test_mean_field_gen_msh(msh)
+    type(mesh_t), intent(inout) :: msh
+    type(point_t) :: p(12)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+  
+    call mesh_init(msh, 3, 2)
+    call mesh_add_element(msh, 1, p(1), p(2), p(4), p(3), &
+         p(7), p(8), p(9), p(10))
+    
+    call mesh_add_element(msh, 2, p(2), p(5), p(6), p(4), &
+         p(8), p(11), p(12), p(9))
+    
+  end subroutine test_mean_field_gen_msh
+  
+  @test(npes=[1])
+  subroutine test_mean_field_init(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: f
+    type(mean_field_t) :: mf
+    integer :: ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call test_mean_field_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)
+    
+    call field_init(f, msh, Xh, 'test')
+    
+    call mf%init(f)
+    @assertTrue(associated(mf%f))
+    @assertTrue(allocated(mf%mf%x))
+    @assertEqual(size(f%x), size(mf%mf%x))
+
+  end subroutine test_mean_field_init
+
+
+  @test(npes=[1])
+  subroutine test_mean_field_update(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: f
+    type(mean_field_t) :: mf, mf2
+    integer :: ierr, i
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call test_mean_field_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)    
+    call field_init(f, msh, Xh, 'test')
+
+    f = 42.0_rp
+    call mf%init(f)
+
+    do i = 1, 10
+       call mf%update(1.0_rp)
+    end do
+
+    @assertEqual(maxval(mf%mf%x), 42.0_rp)
+    @assertEqual(mf%time, 10.0_rp)
+
+    call mf2%init(f)
+
+    do i = 1, 10
+       f = real(i, rp)
+       call mf2%update(1.0_rp)
+    end do
+
+    @assertEqual(maxval(mf2%mf%x), 5.5_rp)
+    @assertEqual(mf2%time, 10.0_rp)
+
+  end subroutine test_mean_field_update
+
+
+end module mean_field_parallel

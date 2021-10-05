@@ -3,7 +3,7 @@ program poisson
   use ax_poisson
   implicit none
 
-  character(len=NEKO_FNAME_LEN) :: fname, lxchar
+  character(len=NEKO_FNAME_LEN) :: fname, lxchar, iterchar
   type(mesh_t) :: msh
   type(file_t) :: nmsh_file, mf
   type(space_t) :: Xh
@@ -20,21 +20,24 @@ program poisson
   character(len=80) :: suffix
   real(kind=rp), allocatable :: f(:)
   real(kind=rp) :: tol
-  niter = 100
   tol = -1.0
 
   argc = command_argument_count()
 
-  if ((argc .lt. 1) .or. (argc .gt. 1)) then
-     write(*,*) 'Usage: ./poisson <N>'
+  if ((argc .lt. 3) .or. (argc .gt. 3)) then
+     if (pe_rank .eq. 0) then
+        write(*,*) 'Usage: ./poisson <neko mesh> <N> <Iterations>'
+     end if
      stop
   end if
   
   call neko_init 
-  call get_command_argument(1, lxchar)
+  call get_command_argument(1, fname)
+  call get_command_argument(2, lxchar)
+  call get_command_argument(3, iterchar)
   read(lxchar, *) lx
+  read(iterchar, *) niter
   
-  fname = '512.nmsh'
   nmsh_file = file_t(fname)
   call nmsh_file%read(msh)  
 
@@ -71,10 +74,10 @@ program poisson
   
   call MPI_Barrier(NEKO_COMM, ierr)
 
-  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb)
+  call set_timer_flop_cnt(0, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
   ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
-  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb)
-
+  call set_timer_flop_cnt(1, msh%glb_nelv, x%Xh%lx, niter, n_glb, ksp_mon)
+  
   fname = 'out.fld'
   mf =  file_t(fname)
   call mf%write(x)
@@ -89,8 +92,9 @@ program poisson
 
 end program poisson
 
-subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
+subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n, ksp_mon)
   use comm
+  use krylov
   use num_types
   implicit none
 
@@ -99,15 +103,17 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
   integer, intent(inout) :: nx1
   integer, intent(inout) :: niter
   integer, intent(inout) :: n
+  type(ksp_monitor_t), intent(in) :: ksp_mon
   real(kind=dp), save :: time0, time1, mflops, flop_a, flop_cg
   real(kind=dp) :: nxyz, nx
+
 
   nx = dble(nx1)
   nxyz = dble(nx1 * nx1 * nx1)
   if (iset .eq. 0) then
      time0 = MPI_Wtime()
   else
-     flop_a = (19d0 * nxyz + 12d0 * nx * nxyz) * dble(nelt) * dble(niter)
+     flop_a = (15d0 * nxyz + 12d0 * nx * nxyz) * dble(nelt) * dble(niter)
      flop_cg = dble(niter+1) * 15d0 * dble(n)
      time1 = MPI_Wtime()
      time1 = time1-time0
@@ -117,12 +123,14 @@ subroutine set_timer_flop_cnt(iset, nelt, nx1, niter, n)
         write(6,1) nelt,pe_size,nx1
         write(6,2) mflops, mflops/pe_size
         write(6,3) flop_a,flop_cg
-        write(6,4) time1
+        write(6,4) ksp_mon%res_start, ksp_mon%res_final
+        write(6,5) time1
      endif
 1    format('nelt = ',i7, ', np = ', i9,', nx1 = ', i7)
 2    format('Tot MFlops = ', 1pe12.4, ', MFlops      = ', e12.4)
 3    format('Setup Flop = ', 1pe12.4, ', Solver Flop = ', e12.4)
-4    format('Solve Time = ', e12.4)
+4    format('Start res  = ', 1pe12.4, ', Final res   = ', e12.4)
+5    format('Solve Time = ', e12.4)
   endif
 
 end subroutine set_timer_flop_cnt

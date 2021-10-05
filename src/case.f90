@@ -4,18 +4,21 @@ module case
   use fluid_schemes
   use fluid_output
   use chkp_output
+  use mean_sqr_flow_output
+  use mean_flow_output
   use parameters
   use mpi_types
   use mesh_field
   use parmetis
   use redist
   use sampler
+  use stats
   use file
   use utils
   use mesh
   use comm
   use abbdf
-  use log
+  use logger
   use jobctrl
   use user_intf  
   implicit none
@@ -29,6 +32,9 @@ module case
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
+     type(mean_flow_output_t) :: f_mf
+     type(mean_sqr_flow_output_t) :: f_msqrf
+     type(stats_t) :: q   
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
   end type case_t
@@ -102,6 +108,10 @@ contains
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
     end if
 
+    if (lx .gt. 12) then
+       call neko_error("Unsupported polynomial dimension (lx > 12)")
+    end if    
+    
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
     C%params = params%p
@@ -210,7 +220,7 @@ contains
     ! Save boundary markings for fluid (if requested)
     ! 
     if (C%params%output_bdry) then
-       bdry_file = file_t('bdry.fld')
+       bdry_file = file_t(trim(C%params%output_dir)//'bdry.fld')
        call bdry_file%write(C%fluid%bdry)
     end if
 
@@ -220,7 +230,7 @@ contains
     if (C%params%output_part) then
        call mesh_field_init(msh_part, C%msh, 'MPI_Rank')
        msh_part%data = pe_rank
-       part_file = file_t('partitions.vtk')
+       part_file = file_t(trim(C%params%output_dir)//'partitions.vtk')
        call part_file%write(msh_part)
        call mesh_field_free(msh_part)
     end if
@@ -229,15 +239,46 @@ contains
     ! Setup sampler
     !
     call C%s%init(C%params%nsamples, C%params%T_end)
-    C%f_out = fluid_output_t(C%fluid)
+    C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
     call C%s%add(C%f_out)
 
     !
     ! Save checkpoints (if requested)
     !
     if (C%params%output_chkp) then
-       C%f_chkp = chkp_output_t(C%fluid%chkp)
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%params%output_dir)
        call C%s%add(C%f_chkp)
+    end if
+
+    !
+    ! Setup statistics
+    !
+    call C%q%init(C%params%stats_begin)
+    if (C%params%stats_mean_flow) then
+       call C%q%add(C%fluid%mean%u)
+       call C%q%add(C%fluid%mean%v)
+       call C%q%add(C%fluid%mean%w)
+       call C%q%add(C%fluid%mean%p)
+
+       if (C%params%output_mean_flow) then
+          C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
+                                      path=C%params%output_dir)
+          call C%s%add(C%f_mf)
+       end if
+    end if
+
+    if (C%params%stats_mean_sqr_flow) then
+       call C%q%add(C%fluid%mean_sqr%uu)
+       call C%q%add(C%fluid%mean_sqr%vv)
+       call C%q%add(C%fluid%mean_sqr%ww)
+       call C%q%add(C%fluid%mean_sqr%pp)
+
+       if (C%params%output_mean_sqr_flow) then
+          C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
+                                             C%params%stats_begin, &
+                                             path=C%params%output_dir)
+          call C%s%add(C%f_msqrf)
+       end if
     end if
 
     !
@@ -248,6 +289,7 @@ contains
     call neko_log%end_section()
     
   end subroutine case_init
+  
   !> Deallocate a case 
   subroutine case_free(C)
     type(case_t), intent(inout) :: C
@@ -260,6 +302,8 @@ contains
     call mesh_free(C%msh)
 
     call C%s%free()
+
+    call C%q%free()
     
   end subroutine case_free
   

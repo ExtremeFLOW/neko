@@ -1,5 +1,5 @@
-AC_INIT([neko],[0.1.3])
-AM_INIT_AUTOMAKE([foreign])
+AC_INIT([neko],[0.2.0])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
@@ -18,6 +18,9 @@ AC_ARG_ENABLE(real,
 	            dp -- REAL(kind=8) (default)
 	            qp -- REAL(kind=16)]),
 	        [enable_real=${enableval}], [enable_real=dp])
+AC_ARG_ENABLE(blk_size,
+              AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
+              [blk_size=${enableval}], [blk_size="10000"])
 
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
@@ -114,6 +117,8 @@ else
    AC_MSG_ERROR([Invalid working precision])
 fi
 
+AC_SUBST(blk_size, ${blk_size})
+
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 
@@ -124,9 +129,9 @@ AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
-		 src/comm.f90\
-	 	 src/neko_config.f90\
-		 src/num_types.f90\
+		 src/comm/comm.f90\
+	 	 src/config/neko_config.f90\
+		 src/config/num_types.f90\
 		 makeneko\
 		 neko.pc])
 
@@ -144,6 +149,9 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/mesh/Makefile\
 		 tests/space/Makefile\
 		 tests/dofmap/Makefile\
+		 tests/field/Makefile\
+		 tests/mean_field/Makefile\
+		 tests/mean_sqr_field/Makefile\
 		 tests/gather_scatter/Makefile\
 		 tests/krylov/Makefile\
 		 tests/bc/Makefile\
