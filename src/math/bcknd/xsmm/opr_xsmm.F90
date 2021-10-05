@@ -13,6 +13,9 @@ module opr_xsmm
   use libxsmm, libxsmm_mmcall => libxsmm_dmmcall_abc
 #endif
   implicit none
+  private
+
+  public :: opr_xsmm_dudxyz, opr_xsmm_opgrad, opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl
 
 #ifdef HAVE_LIBXSMM
     type(libxsmm_dmmfunction), private :: lgrad_xmm1
@@ -21,7 +24,6 @@ module opr_xsmm
     logical, save :: lgrad_xsmm_init = .false.
 #endif
     
-  
 contains
 
   subroutine opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)

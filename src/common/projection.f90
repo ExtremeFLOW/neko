@@ -12,8 +12,9 @@ module projection
   use comm
   use gather_scatter
   implicit none
+  private
 
-  type projection_t
+  type, public ::  projection_t
      real(kind=rp), allocatable :: xx(:,:)
      real(kind=rp), allocatable :: bb(:,:)
      real(kind=rp), allocatable :: xbar(:), bbar(:)

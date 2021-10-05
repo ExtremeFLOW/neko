@@ -3,7 +3,10 @@ module tensor_xsmm
   use num_types
   use mxm_wrapper
   implicit none
+  private
 
+  public :: tnsr2d_el_xsmm, tnsr3d_el_xsmm, tnsr3d_xsmm, tnsr1_3d_xsmm
+  
 contains
   
   subroutine tnsr2d_el_xsmm(v, nv, u, nu, A, Bt)

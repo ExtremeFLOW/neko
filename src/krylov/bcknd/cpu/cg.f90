@@ -4,6 +4,7 @@ module cg
   use math
   use num_types
   implicit none
+  private
 
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_t

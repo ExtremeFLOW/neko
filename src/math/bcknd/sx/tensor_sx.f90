@@ -3,6 +3,9 @@ module tensor_sx
   use num_types
   use mxm_wrapper
   implicit none
+  private
+
+  public :: tnsr2d_el_sx, tnsr3d_el_sx, tnsr3d_sx, tnsr1_3d_sx
 
 contains
 

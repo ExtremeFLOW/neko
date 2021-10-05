@@ -2,9 +2,11 @@
 module cacg
   use krylov
   use math
+  use mxm_wrapper
   use num_types
   implicit none
-
+  private
+  
   !> S-step communication avoiding  preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cacg_t
      real(kind=rp), allocatable :: r(:)

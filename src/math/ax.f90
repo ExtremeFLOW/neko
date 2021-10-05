@@ -1,6 +1,5 @@
 !> Defines a Matrix-vector product
 module ax_product
-  use mxm_wrapper
   use num_types
   use coefs
   use space

@@ -2,7 +2,10 @@ module tensor_cpu
   use num_types
   use mxm_wrapper
   implicit none
+  private
 
+  public :: tnsr2d_el_cpu, tnsr3d_el_cpu, tnsr3d_cpu, tnsr1_3d_cpu
+ 
 contains
 
   subroutine tnsr2d_el_cpu(v, nv, u, nu, A, Bt)

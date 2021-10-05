@@ -3,8 +3,9 @@ module chkp_output
   use checkpoint
   use output
   implicit none
+  private
 
-  type, extends(output_t) :: chkp_output_t
+  type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp
    contains
      procedure, pass(this) :: sample => chkp_output_sample

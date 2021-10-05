@@ -10,6 +10,9 @@ module operators
   use field
   use math
   implicit none
+  private
+
+  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl
   
 contains
   
