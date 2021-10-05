@@ -978,22 +978,25 @@ contains
 
     call send_buff%init()
     
-    !> @todo Add quad case
-    fd => face_owner%array()
-    do i = 1, face_owner%size()
-       if (m%htf%get(fd(i), id) .eq. 0) then
-          call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
+    if (m%gdim .eq. 2) then
+       !> @todo Add quad case
+    else
+       fd => face_owner%array()
+       do i = 1, face_owner%size()
+          if (m%htf%get(fd(i), id) .eq. 0) then
+             call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
 
-          ! Add new number to send buffer
-          ! [facet id1 ... facet idn new_glb_id]
-          do j = 1, 4
-             call send_buff%push(fd(i)%x(j))
-          end do
-          call send_buff%push(shared_offset)
-
-          shared_offset = shared_offset + 1
-       end if
-    end do
+             ! Add new number to send buffer
+             ! [facet id1 ... facet idn new_glb_id]
+             do j = 1, 4
+                call send_buff%push(fd(i)%x(j))
+             end do
+             call send_buff%push(shared_offset)
+             
+             shared_offset = shared_offset + 1
+          end if
+       end do
+    end if
 
     ! Determine total number of unique facets in the mesh
     ! (This can probably be done in a clever way...)
