@@ -3,10 +3,11 @@ module logger
   use comm
   use num_types
   implicit none
+  private
 
-  integer, parameter :: LOG_SIZE = 80
+  integer, public, parameter :: LOG_SIZE = 80
   
-  type log_t
+  type, public :: log_t
      integer :: indent_
      integer :: section_id_
    contains

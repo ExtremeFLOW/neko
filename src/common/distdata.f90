@@ -4,7 +4,8 @@ module distdata
   use tuple
   use uset
   implicit none
-  
+  private
+
   type, public :: distdata_t
      type(stack_i4t2_t) :: shared_el_facet !< Elemenets with shared facets
      
@@ -16,6 +17,11 @@ module distdata
      integer, allocatable :: local_to_global_edge(:) !< Local to global (edges)
      
   end type distdata_t
+
+  public :: distdata_init, distdata_free, distdata_set_shared_el_facet, &
+       distdata_set_shared_facet, distdata_set_shared_edge, &
+       distdata_set_shared_point, distdata_set_local_to_global_facet, &
+       distdata_set_local_to_global_edge
 
 contains
 
