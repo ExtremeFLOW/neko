@@ -4,8 +4,9 @@ module checkpoint
   use field
   use utils
   implicit none
+  private
 
-  type chkp_t
+  type, public :: chkp_t
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
      type(field_t), pointer :: w => null()

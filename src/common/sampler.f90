@@ -5,6 +5,7 @@ module sampler
   use comm
   use logger
   implicit none
+  private
 
   !> Pointer to an arbitrary output
   type, private :: outp_t
@@ -12,7 +13,7 @@ module sampler
   end type outp_t
 
   !> Sampler
-  type :: sampler_t
+  type, public :: sampler_t
      type(outp_t), allocatable :: output_list(:)
      integer :: n              
      integer :: size
