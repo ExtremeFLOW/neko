@@ -7,10 +7,14 @@ module tensor
   use mxm_wrapper
   use neko_config
   implicit none
+  private
 
   interface transpose
      module procedure trsp, trsp1
   end interface transpose
+
+public tensr3, transpose, trsp, trsp1, &
+     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr
 
 contains
 

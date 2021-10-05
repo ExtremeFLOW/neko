@@ -3,7 +3,10 @@ module fast3d
   use num_types
   use speclib
   use math
-  implicit none  
+  implicit none
+  private
+
+  public :: fd_weights_full, semhat
 
 contains
 

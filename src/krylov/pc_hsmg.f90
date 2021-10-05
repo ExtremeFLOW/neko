@@ -10,7 +10,6 @@ module hsmg
   use gather_scatter
   use fast3d
   use bc
-
   use dirichlet
   use fdm
   use schwarz
@@ -18,6 +17,7 @@ module hsmg
   use jacobi
   use sx_jacobi
   implicit none
+  private
 
   !Struct to arrange our multigridlevels
   type, private :: multigrid_t

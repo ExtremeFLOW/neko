@@ -183,7 +183,7 @@ contains
 
     call this%bc_prs_surface%free()  
     call bc_list_free(this%bclst_vel_residual)
-    call projection_free(this%proj)
+    call this%proj%free()
    
     call field_free(this%u_e)
     call field_free(this%v_e)
