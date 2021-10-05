@@ -65,6 +65,7 @@ module fluid_method
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
+     procedure, pass(this) :: set_source => fluid_scheme_set_source
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      procedure(fluid_method_init), pass(this), deferred :: init
@@ -454,6 +455,27 @@ contains
     call ksp%set_pc(pc)
     
   end subroutine fluid_scheme_precon_factory
+
+  !> Initialize source term
+  subroutine fluid_scheme_set_source(this, source_term, usr_f)
+    class(fluid_scheme_t), intent(inout) :: this
+    character(len=*) :: source_term
+    procedure(source_term_pw), optional :: usr_f
+
+    if (trim(source_term) .eq. 'noforce') then
+       call source_set_type(this%f_Xh, source_eval_noforce)
+    else if (trim(source_term) .eq. 'user' .and. present(usr_f)) then
+       call source_set_pw_type(this%f_Xh, usr_f)
+    else if (trim(source_term) .eq. '') then
+       if (pe_rank .eq. 0) then
+          call neko_warning('No source term defined, using default (noforce)')
+       end if
+       call source_set_type(this%f_Xh, source_eval_noforce)
+    else
+       call neko_error('Invalid source term')
+    end if
+
+  end subroutine fluid_scheme_set_source
 
   !> Initialize a user defined inflow condition
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
