@@ -82,4 +82,7 @@ EXTRA_DIST = \
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
-	math/math_test
+	math/math_test\
+	field/field_test\
+	mean_field/mean_field_test\
+	mean_sqr_field/mean_sqr_field_test

@@ -122,7 +122,7 @@ libneko_a_SOURCES = \
 	fluid/fluid_method.f90\
 	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
-	fluid/fluid_schemes.f90\
+	fluid/fluid_fctry.f90\
 	fluid/mean_flow.f90\
 	fluid/mean_sqr_flow.f90\
 	simulation.f90\

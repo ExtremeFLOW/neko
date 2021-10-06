@@ -1,7 +1,7 @@
 !> Defines a simulation case
 module case
   use num_types
-  use fluid_schemes
+  use fluid_fctry
   use fluid_output
   use chkp_output
   use mean_sqr_flow_output
@@ -136,15 +136,7 @@ contains
     !
     ! Setup fluid scheme
     !
-
-    if (trim(fluid_scheme) .eq. 'plan1') then
-       allocate(fluid_plan1_t::C%fluid)
-    else if (trim(fluid_scheme) .eq. 'plan4') then
-       allocate(fluid_plan4_t::C%fluid)
-    else
-       call neko_error('Invalid fluid scheme')
-    end if
-  
+    call fluid_scheme_factory(C%fluid, trim(fluid_scheme))
     call C%fluid%init(C%msh, lx, C%params)
 
     !
@@ -157,19 +149,10 @@ contains
     !
     ! Setup source term
     ! 
-    
-    !> @todo We shouldn't really mess with other type's datatypes
-    if (trim(source_term) .eq. 'noforce') then
-       call source_set_type(C%fluid%f_Xh, source_eval_noforce)
-    else if (trim(source_term) .eq. 'user') then
-       call source_set_pw_type(C%fluid%f_Xh, C%usr%fluid_usr_f)
-    else if (trim(source_term) .eq. '') then
-       if (pe_rank .eq. 0) then
-          call neko_warning('No source term defined, using default (noforce)')
-       end if
-       call source_set_type(C%fluid%f_Xh, source_eval_noforce)
+    if (trim(source_term) .eq. 'user') then
+       call C%fluid%set_source(trim(source_term), C%usr%fluid_usr_f)
     else
-       call neko_error('Invalid source term')
+       call C%fluid%set_source(trim(source_term))
     end if
 
     !
