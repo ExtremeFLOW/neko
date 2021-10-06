@@ -28,8 +28,8 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(add2s1_kernel,
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add2s1_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       *c1, *n);
@@ -46,7 +46,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(add2s2_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add2s2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       *c1, *n);
@@ -62,7 +62,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(invcol2_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(invcol2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, *n);
   }
@@ -76,7 +76,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(col2_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(col2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, *n);
   }
@@ -90,7 +90,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(col3_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(col3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
   }
@@ -105,7 +105,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(sub3_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(sub3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
   }
@@ -119,7 +119,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(addcol3_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(addcol3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
   }
@@ -139,7 +139,7 @@ extern "C" {
 
     hipMalloc(&buf_d, nb*sizeof(real));
      
-    hipLaunchKernelGGL(glsc3_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       (real *) c, buf_d, *n);
@@ -172,7 +172,7 @@ extern "C" {
 
     hipMalloc(&buf_d, nb*sizeof(real));
      
-    hipLaunchKernelGGL(glsc2_kernel,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       buf_d, *n);
