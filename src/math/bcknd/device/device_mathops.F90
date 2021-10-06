@@ -54,6 +54,55 @@ module device_mathops
        integer(c_int) :: gdim, n
      end subroutine hip_opadd2col
   end interface
+#else
+  interface
+     subroutine cuda_opchsign(a1_d, a2_d, a3_d, gdim, n) &
+          bind(c, name='cuda_opchsign')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a1_d, a2_d, a3_d
+       integer(c_int) :: gdim, n
+     end subroutine cuda_opchsign
+  end interface
+
+  interface
+     subroutine cuda_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n) &
+          bind(c, name='cuda_opcolv')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a1_d, a2_d, a3_d, c_d
+       integer(c_int) :: gdim, n
+     end subroutine cuda_opcolv
+  end interface
+
+  interface
+     subroutine cuda_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n) &
+          bind(c, name='cuda_opcolv3c')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
+       real(c_rp) :: d
+       integer(c_int) :: gdim, n
+     end subroutine cuda_opcolv3c
+  end interface
+
+  interface
+     subroutine cuda_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n) &
+          bind(c, name='cuda_opadd2cm')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
+       real(c_rp) :: c
+       integer(c_int) :: gdim, n
+     end subroutine cuda_opadd2cm
+  end interface
+
+  interface
+     subroutine cuda_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n) &
+          bind(c, name='cuda_opadd2col')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
+       integer(c_int) :: gdim, n
+     end subroutine cuda_opadd2col
+  end interface
 #endif
 
 contains
@@ -63,6 +112,8 @@ contains
     integer :: n, gdim
 #ifdef HAVE_HIP
     call hip_opchsign(a1_d, a2_d, a3_d, gdim, n)
+#elif HAVE_CUDA
+    call cuda_opchsign(a1_d, a2_d, a3_d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -73,6 +124,8 @@ contains
     integer :: n, gdim
 #ifdef HAVE_HIP
     call hip_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
+#elif HAVE_CUDA
+    call cuda_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -85,6 +138,8 @@ contains
     integer :: n, gdim
 #ifdef HAVE_HIP
     call hip_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)
+#elif HAVE_CUDA
+    call cuda_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -96,6 +151,8 @@ contains
     integer :: n, gdim
 #ifdef HAVE_HIP
     call hip_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)
+#elif HAVE_CUDA
+    call cuda_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -106,6 +163,8 @@ contains
     integer :: n, gdim
 #ifdef HAVE_HIP
     call hip_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)
+#elif HAVE_CUDA
+    call cuda_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, gdim, n)
 #else
     call neko_error('No device backend configured')
 #endif

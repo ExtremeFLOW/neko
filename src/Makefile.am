@@ -175,6 +175,7 @@ if ENABLE_CUDA
 libneko_a_SOURCES += \
 	device/cuda/cuda_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
+	math/bcknd/device/cuda/mathops.cu\
 	math/bcknd/device/cuda/opr_dudxyz.cu\
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
@@ -208,6 +209,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
+	math/bcknd/device/cuda/mathops_kernel.h\
 	math/bcknd/device/cuda/dudxyz_kernel.h\
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
