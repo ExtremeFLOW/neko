@@ -136,6 +136,7 @@ device/cuda_intf.o : device/cuda_intf.F90 common/utils.o
 device/hip_intf.o : device/hip_intf.F90 common/utils.o 
 device/device.o : device/device.F90 common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o config/num_types.o 
 math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 comm/comm.o common/utils.o config/num_types.o 
+math/bcknd/device/device_mathops.o : math/bcknd/device/device_mathops.F90 comm/comm.o common/utils.o config/num_types.o 
 bc/bcknd/device/device_dirichlet.o : bc/bcknd/device/device_dirichlet.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_inflow.o : bc/bcknd/device/device_inflow.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_wall.o : bc/bcknd/device/device_wall.F90 common/utils.o config/num_types.o 
@@ -145,6 +146,7 @@ neko.o : neko.f90 device/device.o common/jobctrl.o common/signal.o comm/parmetis
 comm/parmetis_wrapper.o : comm/parmetis_wrapper.c 
 device/hip/hip_wrapper.o : device/hip/hip_wrapper.hip 
 math/bcknd/device/hip/math.o : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h
+math/bcknd/device/hip/mathops.o : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
 math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h
 math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
 math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h

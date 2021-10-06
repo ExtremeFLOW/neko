@@ -141,6 +141,7 @@ libneko_a_SOURCES = \
 	device/hip_intf.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
+	math/bcknd/device/device_mathops.F90\
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
 	bc/bcknd/device/device_wall.F90\
@@ -156,6 +157,7 @@ if ENABLE_HIP
 libneko_a_SOURCES += \
 	device/hip/hip_wrapper.hip\
 	math/bcknd/device/hip/math.hip\
+	math/bcknd/device/hip/mathops.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
@@ -217,6 +219,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/hip/mathops_kernel.h\
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
