@@ -84,6 +84,8 @@ fi
 # Checks for libxsmm
 AX_LIBXSMM
 
+# Checks for NoaSci
+AX_NOA
 
 found_domain_decomp="no"
 
