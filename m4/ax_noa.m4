@@ -48,6 +48,7 @@ AC_DEFUN([AX_NOA],[
 	AC_SUBST(NOA_LIBS)
 	if test x"${have_noa}" = xyes; then
 	   AC_DEFINE(HAVE_NOA,1,[Define if you have the NoaSci library.])
+	   LIBS="$LIBS $NOA_LIBS"
 	else
 		if test -d "$ac_noa_path"; then	
 		   LDFLAGS="$LDFLAGS_SAVED"
