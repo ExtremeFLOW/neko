@@ -74,7 +74,7 @@ contains
     type(fdm_t), intent(inout) :: this
     integer, intent(in) :: gdim, nelv
     real(kind=rp), dimension(this%Xh%lxyz,nelv) , intent(in):: x, y, z
-    integer :: i, j, k, e, n2, nz0, nzn, nx, lx1, n
+    integer :: j, k, e, n2, nz0, nzn, nx, lx1, n
 
     associate(l => this%swplen, Xh =>this%Xh, &
          llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
@@ -234,7 +234,7 @@ contains
     real(kind=rp), dimension(2*this%Xh%lx + 4) :: lr, ls, lt
     integer :: i, j, k
     integer :: ie, il, nr, ns, nt
-    integer :: lbr, rbr, lbs, rbs, lbt, rbt, two
+    integer :: lbr, rbr, lbs, rbs, lbt, rbt
     real(kind=rp) :: eps, diag
     
     associate(s => this%s, d => this%d, &
@@ -253,12 +253,12 @@ contains
          ns = nl
          nt = nl
          call fdm_setup_fast1d(s(1,1,1,ie), lr, nr, lbr, rbr, &
-              llr(ie), lmr(ie), lrr(ie), ah, bh, n, ie)
+              llr(ie), lmr(ie), lrr(ie), ah, bh, n)
          call fdm_setup_fast1d(s(1,1,2,ie), ls, ns, lbs, rbs, &
-              lls(ie), lms(ie), lrs(ie), ah, bh, n, ie)
+              lls(ie), lms(ie), lrs(ie), ah, bh, n)
          if(this%dof%msh%gdim .eq. 3) then
             call fdm_setup_fast1d(s(1,1,3,ie), lt, nt, lbt, rbt, &
-                 llt(ie), lmt(ie), lrt(ie), ah, bh, n, ie)
+                 llt(ie), lmt(ie), lrt(ie), ah, bh, n)
          end if
 
          il = 1
@@ -297,8 +297,8 @@ contains
 
   end subroutine fdm_setup_fast
   
-  subroutine fdm_setup_fast1d(s, lam, nl, lbc, rbc, ll, lm, lr, ah, bh, n, ie)
-    integer, intent(in)  :: nl, lbc, rbc, n, ie
+  subroutine fdm_setup_fast1d(s, lam, nl, lbc, rbc, ll, lm, lr, ah, bh, n)
+    integer, intent(in)  :: nl, lbc, rbc, n
     real(kind=rp), intent(inout) :: s(nl, nl, 2), lam(nl), ll, lm, lr
     real(kind=rp), intent(inout) ::  ah(0:n, 0:n), bh(0:n)
     integer ::  lx1, lxm
@@ -325,10 +325,8 @@ contains
   subroutine generalev(a, b, lam, n, lx)
     integer, intent(in) :: n, lx
     real(kind=rp), intent(inout) :: a(n,n), b(n,n), lam(n)
-    real(kind=dp) :: a2(n,n), b2(n,n), lam2(n)
     integer :: lbw, lw
     real(kind=rp) :: bw(4*(lx+2)**3)
-    integer :: info = 0
 
     lbw = 4*(lx+2)**3
     lw = n*n
@@ -424,7 +422,7 @@ contains
     real(kind=rp), intent(inout) :: b(0:n+2, 0:n+2), ll, lm, lr
     real(kind=rp), intent(inout) :: bh(0:n)    
     real(kind=rp) :: fac
-    integer :: i, j, i0, i1
+    integer :: i, i0, i1
     
     i0 = 0
     if(lbc .eq. 1) i0 = 1

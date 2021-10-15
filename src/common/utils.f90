@@ -71,7 +71,6 @@ contains
 
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
-    integer :: code
 
     if (present(error_code)) then
        write(*,*) '*** ERROR ***', error_code
