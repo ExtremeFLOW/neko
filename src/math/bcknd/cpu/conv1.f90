@@ -20,7 +20,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -110,7 +110,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -197,7 +197,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -281,7 +281,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -362,7 +362,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -440,7 +440,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -515,8 +515,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
-
+    integer :: e, i, j, k
+    
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -587,7 +587,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -656,7 +656,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -722,7 +722,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx
@@ -785,7 +785,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudr
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, nelv
        do j = 1, lx * lx

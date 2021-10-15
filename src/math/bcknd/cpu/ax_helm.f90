@@ -84,7 +84,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -238,7 +238,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -386,7 +386,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -528,7 +528,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -664,7 +664,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -794,7 +794,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -918,7 +918,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -1036,7 +1036,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -1148,7 +1148,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -1254,7 +1254,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx
@@ -1354,7 +1354,7 @@ contains
     real(kind=rp) :: wur(lx, lx, lx)
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
-    integer :: e, i, j, k, l
+    integer :: e, i, j, k
 
     do e = 1, n
        do j = 1, lx * lx

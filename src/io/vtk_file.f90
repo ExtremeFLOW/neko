@@ -150,7 +150,6 @@ contains
   subroutine vtk_file_write_point_data(unit, fld)
     integer :: unit
     type(field_t), intent(inout) :: fld
-    type(point_t), target :: p1, p2, p3, p4
     real(kind=dp), allocatable :: point_data(:)
     integer :: i, j, lx, ly, lz, id(8)
 

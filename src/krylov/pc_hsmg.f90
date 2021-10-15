@@ -70,7 +70,7 @@ contains
     type(dofmap_t), intent(inout), target :: dof
     type(gs_t), intent(inout), target :: gs_h 
     type(bc_list_t), intent(inout), target :: bclst
-    integer :: lx, n
+    integer :: n
     
 !    call this%free()
     if(Xh%lx .lt. 5) then
@@ -107,14 +107,14 @@ contains
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(sx_jacobi_t::this%pc_crs)
     else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(jacobi_t::this%pc_crs)
+       allocate(sx_jacobi_t::this%pc_crs)
     else
-       allocate(jacobi_t::this%pc_crs)
+       allocate(sx_jacobi_t::this%pc_crs)
     end if
 
     select type(pc => this%pc_crs)
-    type is (jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+!    type is (sx_jacobi_t)
+!       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     type is (sx_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
@@ -168,7 +168,7 @@ contains
   
   subroutine hsmg_set_h(this)
    class(hsmg_t), intent(inout) :: this
-    integer :: i
+!    integer :: i
    !Yeah I dont really know what to do here. For incompressible flow not much happens
 !    do i = this%nlvls,2,-1
 !       call hsmg_intp_fc(this%grids(i-1),this%grids(i), this%jhfc(1,i-1),this%jhfct(1,i-1))
@@ -283,7 +283,6 @@ contains
     class(hsmg_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
-    integer :: i
     type(ksp_monitor_t) :: crs_info
     
     !We should not work with the input 

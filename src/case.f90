@@ -61,9 +61,8 @@ contains
     type(mesh_fld_t) :: msh_part
     integer, parameter :: nbytes = NEKO_FNAME_LEN + 240 + 8
     character buffer(nbytes)
-    integer :: pack_index, temp, i
+    integer :: pack_index
     type(mesh_fld_t) :: parts
-    real(kind=rp) :: eps, uvw(3)
     
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))

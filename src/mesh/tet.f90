@@ -137,7 +137,6 @@ contains
     class(tet_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    integer :: i, j, temp
     type(point_t), pointer :: p1,p2,p3
 
     p1 => this%p(face_nodes(1, side))

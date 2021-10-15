@@ -24,7 +24,6 @@ contains
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
-    real(kind=rp) :: drst(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz)
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(coef%Xh%lx)
