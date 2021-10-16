@@ -153,7 +153,6 @@ contains
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    integer :: i, j, temp
     type(point_t), pointer :: p1,p2,p3,p4
 
     p1 => this%p(face_nodes(1, side))
@@ -174,7 +173,7 @@ contains
     class(hex_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1,p2,p3,p4
+    type(point_t), pointer :: p1,p2
 
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))

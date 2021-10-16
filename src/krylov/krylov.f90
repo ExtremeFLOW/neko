@@ -85,7 +85,6 @@ contains
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
-    integer :: i
     type(ident_t), target :: M_ident
     
     call krylov_free(this)

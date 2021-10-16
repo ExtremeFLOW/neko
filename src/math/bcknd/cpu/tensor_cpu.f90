@@ -116,7 +116,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -189,7 +189,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -259,7 +259,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -326,7 +326,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -390,7 +390,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -451,7 +451,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -509,7 +509,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -564,7 +564,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -616,7 +616,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -665,7 +665,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -711,7 +711,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -754,7 +754,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -794,7 +794,7 @@ contains
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
     real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
     real(kind=rp) :: work(n**3), work2(n**3)
-    integer :: i, j, k, l
+    integer :: i, j, l
     integer :: ii, jj
 
     do j = 1, nn
@@ -1087,8 +1087,8 @@ contains
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
-    integer :: e, e0, ee, es, iu, iv
-    integer :: i, j, k, l, ii, jj, kk
+    integer :: e, iu, iv
+    integer :: i, j, k, l, ii, jj
     real(kind=rp) :: tmp
 
     do e = 1,nelv

@@ -15,7 +15,7 @@ module logger
      procedure, pass(this) :: begin => log_begin
      procedure, pass(this) :: end => log_end
      procedure, pass(this) :: indent => log_indent
-     procedure, pass(this) :: newline => log_newline          
+     procedure, nopass :: newline => log_newline          
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
      procedure, pass(this) :: status => log_status
@@ -70,9 +70,7 @@ contains
   end subroutine log_indent
 
   !> Write a new line to a log
-  subroutine log_newline(this)
-    class(log_t), intent(in) :: this
-    integer :: i
+  subroutine log_newline
 
     if (pe_rank .eq. 0) then
        write(*,*) ' '

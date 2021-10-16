@@ -47,7 +47,7 @@ contains
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_gmres_t::ksp)
        else
-          allocate(gmres_t::ksp)
+          allocate(sx_gmres_t::ksp)
        end if
     else if (trim(solver) .eq. 'bicgstab') then
        allocate(bicgstab_t::ksp)

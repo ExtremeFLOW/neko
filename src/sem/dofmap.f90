@@ -127,7 +127,7 @@ contains
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
     type(dofmap_t), target :: this
-    integer :: i,j,k,l
+    integer :: i
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
 
@@ -185,7 +185,7 @@ contains
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
-    integer :: i,j,k,l
+    integer :: i,j,k
     integer :: global_id        
     type(tuple_i4_t) :: edge
     integer(kind=8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
@@ -371,7 +371,7 @@ contains
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh    
-    integer :: i,j,k,l
+    integer :: i,j,k
     integer :: global_id
     type(tuple4_i4_t) :: face, face_order
     integer(kind=8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)        

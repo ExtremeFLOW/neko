@@ -147,7 +147,6 @@ contains
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp) ::  du(Xh%lxyz,nelv)
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
     real(kind=rp) :: cflr, cfls, cflt, cflm, cfl_temp(1)
     real(kind=rp) :: ur, us, ut

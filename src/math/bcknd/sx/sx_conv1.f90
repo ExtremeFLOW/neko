@@ -23,23 +23,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -48,13 +48,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -99,23 +99,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -124,13 +124,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -175,23 +175,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -200,13 +200,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -251,23 +251,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -276,13 +276,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -327,23 +327,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -352,13 +352,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -403,23 +403,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -428,13 +428,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -479,23 +479,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -504,13 +504,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -555,23 +555,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -580,13 +580,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -631,23 +631,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -656,13 +656,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -707,23 +707,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -732,13 +732,13 @@ contains
        end do
     end do
 
-    do j=1,lx
-       do i=1,lx
-          do k=1,lx
-             do e = 1,nelv     
+    do j=1, lx
+       do i=1, lx
+          do k=1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt
@@ -783,23 +783,23 @@ contains
     real(kind=rp) :: wr, ws, wt, www
     integer :: e, i, j, k, ii, jj, kk    
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nelv     
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + dx(i,kk)*u(kk,jj,1,1)
           end do
           dudr(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nelv     
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nelv     
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + dy(j,kk)*u(i,kk,k,e)
                 end do
                 duds(i,j,k,e) = ws
@@ -808,13 +808,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nelv     
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nelv     
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk)*u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt

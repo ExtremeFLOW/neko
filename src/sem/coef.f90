@@ -744,7 +744,7 @@ contains
   !! @note This is also a stapleholder, we need to go through the coef class properly.
   subroutine coef_generate_mass(c)
     type(coef_t), intent(inout) :: c
-    integer :: e, j, k, l, lxyz
+    integer :: e, lxyz
     
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     
@@ -786,7 +786,7 @@ contains
     real(kind=rp), allocatable :: b(:,:,:,:)
     real(kind=rp), allocatable :: c(:,:,:,:)
     real(kind=rp), allocatable :: dot(:,:,:,:)
-    integer :: n, e, j, k, l, lx
+    integer :: n, e, j, k, lx
     real(kind=rp) :: weight, len
     n = coef%dof%n_dofs
     lx = coef%Xh%lx

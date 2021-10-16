@@ -571,7 +571,6 @@ contains
   function htable_iter_next(this) result(valid)
     class(htable_iter_t), intent(inout) :: this
     logical :: valid
-    integer index, i
 
     this%n = this%n + 1
     do while ((.not. this%t%t(this%n)%valid) .and. (this%n .lt. this%t%size))

@@ -6,6 +6,8 @@ module cg
   implicit none
   private
 
+  integer, parameter :: CG_P_SPACE = 7
+  
   !> Standard preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_t
      real(kind=rp), allocatable :: w(:)
@@ -13,7 +15,6 @@ module cg
      real(kind=rp), allocatable :: p(:,:)
      real(kind=rp), allocatable :: z(:)
      real(kind=rp), allocatable :: alpha(:)
-     integer :: p_space
    contains
      procedure, pass(this) :: init => cg_init
      procedure, pass(this) :: free => cg_free
@@ -31,12 +32,12 @@ contains
     real(kind=rp), optional, intent(inout) :: abs_tol
         
     call this%free()
-    this%p_space = 50
+
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%p(n,this%p_space))
+    allocate(this%p(n,CG_P_SPACE))
     allocate(this%z(n))
-    allocate(this%alpha(this%p_space))
+    allocate(this%alpha(CG_P_SPACE))
     
     if (present(M)) then 
        this%M => M
@@ -122,7 +123,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      p_prev = this%p_space
+      p_prev = CG_P_SPACE
       p_cur = 1
       if(rnorm .eq. zero) return
       do iter = 1, max_iter
@@ -146,7 +147,7 @@ contains
          call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
          rnorm = sqrt(rtr) * norm_fac
 
-         if ((p_cur .eq. this%p_space) .or. &
+         if ((p_cur .eq. CG_P_SPACE) .or. &
              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then

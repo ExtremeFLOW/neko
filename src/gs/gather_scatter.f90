@@ -924,7 +924,7 @@ contains
     type(stack_i4_t) :: send_pe, recv_pe
     type(MPI_Status) :: status
     integer :: i, j, max_recv, src, dst, ierr, n_recv
-    integer :: shared_id, tmp, shared_gs_id
+    integer :: tmp, shared_gs_id
     integer :: nshared_unique
     integer, pointer :: sp(:), rp(:)
 
@@ -1118,7 +1118,7 @@ contains
     integer :: i, j, src, ierr
     integer :: op
     integer , pointer :: sp(:)
-    integer :: nreqs, ndone
+    integer :: nreqs
 
     nreqs = size(gs%recv_pe)
 

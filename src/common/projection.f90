@@ -77,7 +77,7 @@ contains
     class(bc_list_t), intent(inout) :: bclst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: b 
-    integer :: i, j, k, ierr
+    integer :: k, ierr
     real(kind=rp) :: work(this%L),alpha(this%L)
     associate(xbar => this%xbar, xx => this%xx, &
               bbar => this%bbar, bb => this%bb)
