@@ -30,7 +30,7 @@ jobs:
         run: |
           flint score src/ -d 5 -r flinter_rc.yml | tee flint.txt
           score=$(awk '$1==0{print $3}' flint.txt)
-          if (( $(echo "$score < 7.59" |bc -l) )) ; then
+          if (( $(echo "$score < 7.89" |bc -l) )) ; then
             exit 1
           fi
           anybadge -l flint  -o --file=flint.svg -v $score  2=red 4=orange 8=yellow 10=green
