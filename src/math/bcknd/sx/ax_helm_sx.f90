@@ -71,38 +71,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -111,13 +111,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -143,23 +143,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -168,13 +168,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -199,38 +199,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk    
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx                
-          do j = 1,lx       
-             do e = 1,n                                   
+    do k = 1, lx
+       do i = 1, lx                
+          do j = 1, lx       
+             do e = 1, n                                   
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -239,13 +239,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -271,23 +271,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -296,13 +296,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -327,38 +327,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk    
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx                
-          do j = 1,lx       
-             do e = 1,n                                   
+    do k = 1, lx
+       do i = 1, lx                
+          do j = 1, lx       
+             do e = 1, n                                   
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -367,13 +367,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -399,23 +399,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -424,13 +424,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -455,38 +455,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk    
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx                
-          do j = 1,lx       
-             do e = 1,n                                   
+    do k = 1, lx
+       do i = 1, lx                
+          do j = 1, lx       
+             do e = 1, n                                   
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -495,13 +495,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -527,23 +527,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -552,13 +552,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -583,38 +583,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk    
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx                
-          do j = 1,lx       
-             do e = 1,n                                   
+    do k = 1, lx
+       do i = 1, lx                
+          do j = 1, lx       
+             do e = 1, n                                   
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -623,13 +623,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -655,23 +655,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -680,13 +680,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -711,38 +711,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk    
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx                
-          do j = 1,lx       
-             do e = 1,n                                   
+    do k = 1, lx
+       do i = 1, lx                
+          do j = 1, lx       
+             do e = 1, n                                   
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -751,13 +751,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -783,23 +783,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -808,13 +808,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -839,38 +839,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk    
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx                
-          do j = 1,lx       
-             do e = 1,n                                   
+    do k = 1, lx
+       do i = 1, lx                
+          do j = 1, lx       
+             do e = 1, n                                   
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -879,13 +879,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -911,23 +911,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -936,13 +936,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -967,38 +967,38 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj, kk    
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dx(i,kk)*u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx                
-          do j = 1,lx       
-             do e = 1,n                                   
+    do k = 1, lx
+       do i = 1, lx                
+          do j = 1, lx       
+             do e = 1, n                                   
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dy(j,kk)*u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
@@ -1007,13 +1007,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + Dz(k,kk)*u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
@@ -1039,23 +1039,23 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           wr = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              wr = wr + Dxt(i,kk) * uur(kk,jj,1,1)
           end do
           w(i,jj,1,1) = wr
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 ws = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    ws = ws + Dyt(j, kk)*uus(i,kk,k,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + ws
@@ -1064,13 +1064,13 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    wt = wt + dzt(k, kk)*uut(i,j,kk,e)
                 end do
                 w(i,j,k,e) = w(i,j,k,e) + wt 
@@ -1095,21 +1095,21 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           ur(i,jj,1,1) = Dx(i,1)*u(1,jj,1,1) &
                        + Dx(i,2)*u(2,jj,1,1) &
@@ -1119,9 +1119,9 @@ contains
     end do
 
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
              do e = 1, n
                 us(i,j,k,e) = Dy(j,1) * u(i,1,k,e) &
                             + Dy(j,2) * u(i,2,k,e) &
@@ -1134,9 +1134,9 @@ contains
 
 
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
              do e = 1, n
                 ut(i,j,k,e) = Dz(k,1) * u(i,j,1,e) &
                             + Dz(k,2) * u(i,j,2,e) &
@@ -1164,7 +1164,7 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           w(i,jj,1,1) = Dxt(i,1) * uur(1,jj,1,1) &
                       + Dxt(i,2) * uur(2,jj,1,1) &
@@ -1173,10 +1173,10 @@ contains
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 w(i,j,k,e) = w(i,j,k,e) + Dyt(j,1) * uus(i,1,k,e) &
                                         + Dyt(j,2) * uus(i,2,k,e) &
                                         + Dyt(j,3) * uus(i,3,k,e) &
@@ -1186,10 +1186,10 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 w(i,j,k,e) = w(i,j,k,e) + Dzt(k,1) * uut(i,j,1,e) &
                                         + Dzt(k,2) * uut(i,j,2,e) &
                                         + Dzt(k,3) * uut(i,j,3,e) &
@@ -1214,21 +1214,21 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           ur(i,jj,1,1) = Dx(i,1)*u(1,jj,1,1) &
                        + Dx(i,2)*u(2,jj,1,1) &
@@ -1237,9 +1237,9 @@ contains
     end do
 
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
              do e = 1, n
                 us(i,j,k,e) = Dy(j,1) * u(i,1,k,e) &
                             + Dy(j,2) * u(i,2,k,e) &
@@ -1251,9 +1251,9 @@ contains
 
 
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
              do e = 1, n
                 ut(i,j,k,e) = Dz(k,1) * u(i,j,1,e) &
                             + Dz(k,2) * u(i,j,2,e) &
@@ -1280,7 +1280,7 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           w(i,jj,1,1) = Dxt(i,1) * uur(1,jj,1,1) &
                       + Dxt(i,2) * uur(2,jj,1,1) &
@@ -1288,10 +1288,10 @@ contains
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 w(i,j,k,e) = w(i,j,k,e) + Dyt(j,1) * uus(i,1,k,e) &
                                         + Dyt(j,2) * uus(i,2,k,e) &
                                         + Dyt(j,3) * uus(i,3,k,e) 
@@ -1300,10 +1300,10 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 w(i,j,k,e) = w(i,j,k,e) + Dzt(k,1) * uut(i,j,1,e) &
                                         + Dzt(k,2) * uut(i,j,2,e) &
                                         + Dzt(k,3) * uut(i,j,3,e) 
@@ -1327,31 +1327,31 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: Dx(lx,lx)
-    real(kind=rp), intent(in) :: Dy(lx,lx)
-    real(kind=rp), intent(in) :: Dz(lx,lx)
-    real(kind=rp), intent(in) :: Dxt(lx,lx)
-    real(kind=rp), intent(in) :: Dyt(lx,lx)
-    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp), intent(in) :: Dx(lx, lx)
+    real(kind=rp), intent(in) :: Dy(lx, lx)
+    real(kind=rp), intent(in) :: Dz(lx, lx)
+    real(kind=rp), intent(in) :: Dxt(lx, lx)
+    real(kind=rp), intent(in) :: Dyt(lx, lx)
+    real(kind=rp), intent(in) :: Dzt(lx, lx)
     integer :: e, i, j, k, jj
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
-    real(kind=rp) :: uur(lx,lx,lx,n)
-    real(kind=rp) :: uus(lx,lx,lx,n)
-    real(kind=rp) :: uut(lx,lx,lx,n)
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
+    real(kind=rp) :: uur(lx, lx, lx, n)
+    real(kind=rp) :: uus(lx, lx, lx, n)
+    real(kind=rp) :: uut(lx, lx, lx, n)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           ur(i,jj,1,1) = Dx(i,1) * u(1,jj,1,1) &
                        + Dx(i,2) * u(2,jj,1,1)
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 us(i,j,k,e) = Dy(j,1) * u(i,1,k,e) &
                             + Dy(j,2) * u(i,2,k,e)
              end do
@@ -1359,10 +1359,10 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
                 ut(i,j,k,e) = Dz(k,1) * u(i,j,1,e) &
                             + Dz(k,2) * u(i,j,2,e)
              end do
@@ -1387,17 +1387,17 @@ contains
             + G23(i,1,1,1) * us(i,1,1,1))
     end do
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * n
           w(i,jj,1,1) = Dxt(i,1) * uur(1,jj,1,1) &
                       + Dxt(i,2) * uur(2,jj,1,1)
        end do
     end do
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,n
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, n
                 w(i,j,k,e) = w(i,j,k,e) + Dyt(j,1) * uus(i,1,k,e) &
                                         + Dyt(j,2) * uus(i,2,k,e)
              end do
@@ -1405,12 +1405,12 @@ contains
        end do
     end do
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,n
-                w(i,j,k,e) = w(i,j,k,e) + Dzt(k, 1) * uut(i,j,1,e) &
-                                        + Dzt(k, 2) * uut(i,j,2,e)
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, n
+                w(i,j,k,e) = w(i,j,k,e) + Dzt(k,1) * uut(i,j,1,e) &
+                                        + Dzt(k,2) * uut(i,j,2,e)
              end do
           end do
        end do

@@ -20,10 +20,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -32,13 +32,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -49,13 +49,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -80,10 +80,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -92,13 +92,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -109,13 +109,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -140,10 +140,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -152,13 +152,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -169,13 +169,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -200,10 +200,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -212,13 +212,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -229,13 +229,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -260,10 +260,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -272,13 +272,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -289,13 +289,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -320,10 +320,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -332,13 +332,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -349,13 +349,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -380,10 +380,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -392,13 +392,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -409,13 +409,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -440,10 +440,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -452,13 +452,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -469,13 +469,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -500,10 +500,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk=1,lx
+          do kk=1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -512,13 +512,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk=1,lx
+                do kk=1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -529,13 +529,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -560,10 +560,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -572,13 +572,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -589,13 +589,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e = 1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -620,10 +620,10 @@ contains
     call invcol2(wx, jac, nd)
     call col3(ta1, wx, dr, nd)
 
-    do i = 1,lx
+    do i = 1, lx
        do jj = 1, lx * lx * nel
           tmp = 0d0
-          do kk = 1,lx
+          do kk = 1, lx
              tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
           end do
           dtx(i,jj,1,1) = tmp
@@ -632,13 +632,13 @@ contains
 
     call col3(ta1, wx, ds, nd)
 
-    do k = 1,lx
-       do i = 1,lx
-          do j = 1,lx
-             do e = 1,nel
+    do k = 1, lx
+       do i = 1, lx
+          do j = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
@@ -649,13 +649,13 @@ contains
 
     call col3(ta1, wx, dt, nd)
 
-    do j = 1,lx
-       do i = 1,lx
-          do k = 1,lx
-             do e=1,nel
+    do j = 1, lx
+       do i = 1, lx
+          do k = 1, lx
+             do e = 1, nel
                 tmp = 0d0
                 !NEC$ unroll_completely
-                do kk = 1,lx
+                do kk = 1, lx
                    tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp

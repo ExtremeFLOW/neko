@@ -101,7 +101,7 @@ contains
     nunu = nu * nu 
     nvnv = nv * nv
 
-    do ie = 1,nelv
+    do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
              ii = i + nv * (j - 1)
@@ -157,7 +157,7 @@ contains
 
     do j = 1, nunu
        do i = 1, nv
-          do ie = 1,nelv
+          do ie = 1, nelv
              ii = i + nv * (j - 1)
              work(ii, ie) = A(i,1) * u(1 + nu * (j - 1), ie) &
                           + A(i,2) * u(2 + nu * (j - 1), ie)             
@@ -168,7 +168,7 @@ contains
     do i = 1, nu
        do j = 1, nv
           do l = 1, nv
-             do ie = 1,nelv
+             do ie = 1, nelv
                 ii = l + nv * (j - 1) + nvnv * (i - 1)
                 tmp = 0.0_rp
                 !NEC$ unroll_completely
@@ -184,7 +184,7 @@ contains
     
     do j = 1, nv
        do i = 1, nvnv
-          do ie = 1,nelv
+          do ie = 1, nelv
              jj = i + nvnv * (j - 1)
              v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
                        + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) 
@@ -209,7 +209,7 @@ contains
     
     do j = 1, nunu
        do i = 1, nv
-          do ie = 1,nelv                 
+          do ie = 1, nelv                 
              ii = i + nv * (j - 1)
              work(ii, ie) = A(i,1) * u(1 + nu * (j - 1), ie) &
                           + A(i,2) * u(2 + nu * (j - 1), ie) &
@@ -222,7 +222,7 @@ contains
     do i = 1, nu
        do j = 1, nv
           do l = 1, nv
-             do ie = 1,nelv                
+             do ie = 1, nelv                
                 ii = l + nv * (j - 1) + nvnv * (i - 1)
                 tmp = 0.0_rp
                 !NEC$ unroll_completely
@@ -238,7 +238,7 @@ contains
     
     do j = 1, nv
        do i = 1, nvnv
-          do ie = 1,nelv                 
+          do ie = 1, nelv                 
              jj = i + nvnv * (j - 1)
              v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
                        + work2(i + nvnv * (2 - 1),ie) * Ct(2, j) &
@@ -359,7 +359,7 @@ contains
 
     do j = 1, nunu
        do i = 1, nv
-          do ie = 1,nelv
+          do ie = 1, nelv
              iu = (ie-1)*nununu
              ii = i + nv * (j - 1)
              work(ii, ie) = A(i,1) * v(1 + nu * (j - 1) + iu) &
@@ -373,7 +373,7 @@ contains
     do i = 1, nu
        do j = 1, nv
           do l = 1, nv
-             do ie = 1,nelv
+             do ie = 1, nelv
                 ii = l + nv * (j - 1) + nvnv * (i - 1)
                 tmp = 0.0_rp
                 !NEC$ unroll_completely                
@@ -389,7 +389,7 @@ contains
           
     do j = 1, nv
        do i = 1, nvnv
-          do ie = 1,nelv
+          do ie = 1, nelv
              iv = (ie-1)*nvnvnv
              jj = i + nvnv * (j - 1) + iv
              v(jj) = work2(i + nvnv * (1 - 1),ie) * Ct(1, j) &
