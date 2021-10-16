@@ -52,11 +52,11 @@ module fluid_plan4
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_residual  
 
-     !> Time variables
+     ! Time variables
      real(kind=rp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
      real(kind=rp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
 
-     !> all the shit for vol_flow
+     ! Vol_flow
      
      integer :: flow_dir !< these two should be moved to params
      logical :: avflow 
@@ -65,9 +65,6 @@ module fluid_plan4
      real(kind=rp) :: bdlag = 0d0!< Really quite pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
-
-     integer :: niter = 1000
-
    contains
      procedure, pass(this) :: init => fluid_plan4_init
      procedure, pass(this) :: free => fluid_plan4_free
@@ -81,7 +78,6 @@ contains
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), intent(inout) :: param     
-    integer :: n   
 
     call this%free()
     
@@ -90,58 +86,59 @@ contains
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
-    
+
     ! Initialize variables specific to this plan
-    allocate(this%p_res(this%dm_Xh%n_dofs))
-    allocate(this%u_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%v_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%w_res(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    
-    allocate(this%ulag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
-    allocate(this%vlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
-    allocate(this%wlag(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv,2))
-    
-    
-    allocate(this%abx1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%aby1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%abz1(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    
-    allocate(this%abx2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%aby2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    allocate(this%abz2(this%Xh%lx,this%Xh%ly,this%Xh%lz,this%msh%nelv))
-    
-    n = this%Xh%lx*this%Xh%ly*this%Xh%lz*this%msh%nelv
+    associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
+         dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
-    call rzero(this%abx1,n)
-    call rzero(this%aby1,n)
-    call rzero(this%abz1,n)
+      allocate(this%p_res(dm_Xh%n_dofs))
+      allocate(this%u_res(Xh_lx, Xh_ly, Xh_lz, nelv))
+      allocate(this%v_res(Xh_lx, Xh_ly, Xh_lz, nelv))
+      allocate(this%w_res(Xh_lx, Xh_ly, Xh_lz, nelv))
+      
+      allocate(this%ulag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
+      allocate(this%vlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
+      allocate(this%wlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
+          
+      allocate(this%abx1(Xh_lx, Xh_ly, Xh_lz, nelv))
+      allocate(this%aby1(Xh_lx, Xh_ly, Xh_lz, nelv))
+      allocate(this%abz1(Xh_lx, Xh_ly, Xh_lz, nelv))
     
-    call rzero(this%abx2,n)
-    call rzero(this%aby2,n)
-    call rzero(this%abz2,n)
+      allocate(this%abx2(Xh_lx, Xh_ly, Xh_lz, nelv))
+      allocate(this%aby2(Xh_lx, Xh_ly, Xh_lz, nelv))
+      allocate(this%abz2(Xh_lx, Xh_ly, Xh_lz, nelv))
+      
+      call rzero(this%abx1, dm_Xh%n_dofs)
+      call rzero(this%aby1, dm_Xh%n_dofs)
+      call rzero(this%abz1, dm_Xh%n_dofs)
+      
+      call rzero(this%abx2, dm_Xh%n_dofs)
+      call rzero(this%aby2, dm_Xh%n_dofs)
+      call rzero(this%abz2, dm_Xh%n_dofs)
             
-    call field_init(this%u_e, this%dm_Xh, 'u_e')
-    call field_init(this%v_e, this%dm_Xh, 'v_e')
-    call field_init(this%w_e, this%dm_Xh, 'w_e')
+      call field_init(this%u_e, dm_Xh, 'u_e')
+      call field_init(this%v_e, dm_Xh, 'v_e')
+      call field_init(this%w_e, dm_Xh, 'w_e')
     
-    call field_init(this%wa1, this%dm_Xh, 'wa1')
-    call field_init(this%wa2, this%dm_Xh, 'wa2')
-    call field_init(this%wa3, this%dm_Xh, 'wa3')
+      call field_init(this%wa1, dm_Xh, 'wa1')
+      call field_init(this%wa2, dm_Xh, 'wa2')
+      call field_init(this%wa3, dm_Xh, 'wa3')
 
-    call field_init(this%ta1, this%dm_Xh, 'ta1')
-    call field_init(this%ta2, this%dm_Xh, 'ta2')
-    call field_init(this%ta3, this%dm_Xh, 'ta3')
-    call field_init(this%ta4, this%dm_Xh, 'ta4')
+      call field_init(this%ta1, dm_Xh, 'ta1')
+      call field_init(this%ta2, dm_Xh, 'ta2')
+      call field_init(this%ta3, dm_Xh, 'ta3')
+      call field_init(this%ta4, dm_Xh, 'ta4')
     
-    call field_init(this%du, this%dm_Xh, 'du')
-    call field_init(this%dv, this%dm_Xh, 'dv')
-    call field_init(this%dw, this%dm_Xh, 'dw')
-    call field_init(this%dp, this%dm_Xh, 'dp')
+      call field_init(this%du, dm_Xh, 'du')
+      call field_init(this%dv, dm_Xh, 'dv')
+      call field_init(this%dw, dm_Xh, 'dw')
+      call field_init(this%dp, dm_Xh, 'dp')
+
+      call field_init(this%work1, dm_Xh, 'work1')
+      call field_init(this%work2, dm_Xh, 'work2')
+
+    end associate
     
-
-    call field_init(this%work1, this%dm_Xh, 'work1')
-    call field_init(this%work2, this%dm_Xh, 'work2')
-
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%dm_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
@@ -153,7 +150,7 @@ contains
     call this%bc_vel_residual%mark_zone(msh%inlet)
     call this%bc_vel_residual%mark_zone(msh%wall)
     call this%bc_vel_residual%finalize()
-    call this%bc_vel_residual%set_g(real(0d0,rp))
+    call this%bc_vel_residual%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_residual)
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
 
@@ -268,8 +265,7 @@ contains
     real(kind=rp), intent(inout) :: t
     type(abbdf_t), intent(inout) :: ab_bdf
     integer, intent(inout) :: tstep
-    integer tt
-    integer :: n, iter, i, niter
+    integer :: n, i, niter
     type(ksp_monitor_t) :: ksp_results(4)
     real(kind=rp), parameter :: one = 1.0
     n = this%dm_Xh%n_dofs
@@ -380,8 +376,12 @@ contains
       
       call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, one, n, msh%gdim)
      
-      if (this%flow_dir .ne. 0) call plan4_vol_flow(this, ab_bdf)
+      if (this%flow_dir .ne. 0) then
+         call plan4_vol_flow(this, ab_bdf, niter)
+      end if
+      
       call fluid_step_info(tstep, t, params%dt, ksp_results)
+      
     end associate
   end subroutine fluid_plan4_step
   
@@ -420,10 +420,7 @@ contains
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+    type(field_t), intent(inout) :: p, u, v, w
     real(kind=rp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
@@ -434,49 +431,36 @@ contains
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     integer, intent(inout) :: n
-    real(kind=rp), parameter :: one = 1.0
-    real(kind=rp), parameter :: three = 3.0
-    real(kind=rp) :: scl
-
+    real(kind=rp), parameter :: scl = -1.0_rp / 3.0_rp
+    
     call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res, v%x, c_Xh, msh, Xh)
     if (msh%gdim .eq. 3) then
        call Ax%compute(w_res, w%x, c_Xh, msh, Xh)
     end if
-    
+
     call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
-    scl = -one /three 
+    call rzero(ta4, c_xh%dof%n_dofs)
+    call add2s1(ta4, p%x, scl, c_Xh%dof%n_dofs)
+    call opgrad(ta1, ta2, ta3, ta4, c_Xh)
 
-    call rzero(ta4,c_xh%dof%n_dofs)
-    call add2s1(ta4,p%x,scl,c_Xh%dof%n_dofs)
-    call opgrad(ta1,ta2,ta3,ta4,c_Xh)
+    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1.0_rp, n, msh%gdim)
 
-    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -one, n, msh%gdim)
-
-    call opadd2cm(u_res, v_res, w_res, f_Xh%u, f_Xh%v, f_Xh%w, one, n, msh%gdim)
+    call opadd2cm(u_res, v_res, w_res, &
+                  f_Xh%u, f_Xh%v, f_Xh%w, 1.0_rp, n, msh%gdim)
 
   end subroutine fluid_plan4_vel_residual
 
   subroutine fluid_plan4_pres_residual(p, p_res, u, v, w, u_e, v_e, w_e, &
        ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, &
        bc_prs_surface, Ax, bd, dt, Re, rho)
-    type(field_t), intent(inout) :: p
+    type(field_t), intent(inout) :: p, u, v, w
+    type(field_t), intent(inout) :: u_e, v_e, w_e
+    type(field_t), intent(inout) :: ta1, ta2, ta3
+    type(field_t), intent(inout) :: wa1, wa2, wa3
+    type(field_t), intent(inout) :: work1, work2
     real(kind=rp), intent(inout) :: p_res(p%dof%n_dofs)
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: u_e
-    type(field_t), intent(inout) :: v_e
-    type(field_t), intent(inout) :: w_e
-    type(field_t), intent(inout) :: ta1
-    type(field_t), intent(inout) :: ta2
-    type(field_t), intent(inout) :: ta3
-    type(field_t), intent(inout) :: wa1
-    type(field_t), intent(inout) :: wa2
-    type(field_t), intent(inout) :: wa3
-    type(field_t), intent(inout) :: work1
-    type(field_t), intent(inout) :: work2
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
@@ -486,12 +470,10 @@ contains
     real(kind=rp), intent(inout) :: dt
     real(kind=rp), intent(inout) :: Re
     real(kind=rp), intent(inout) :: rho
-    real(kind=rp), parameter :: one = 1.0
-    real(kind=rp), parameter :: three = 3.0
-    real(kind=rp), parameter :: four = 4.0
-    real(kind=rp) :: scl, dtbd, real
-    integer :: i, idx(4)
-    integer :: n, gdim, glb_n,m, k
+    real(kind=rp), parameter :: scl = -4.0_rp / 3.0_rp
+    real(kind=rp) :: dtbd
+    integer :: n, gdim, glb_n
+    integer :: i        
 
     n = c_Xh%dof%size()
     gdim = c_Xh%msh%gdim
@@ -500,19 +482,19 @@ contains
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
-    scl = -four / three
+
     call rzero(ta1%x,n)
     call rzero(ta2%x,n)
     call rzero(ta3%x,n)
     call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
-    work1 = (one / Re) / rho
+    work1 = (1.0_rp / Re) / rho
     call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
 
     call Ax%compute(p_res,p%x,c_Xh,p%msh,p%Xh)
-    call chsign  (p_res,n)
+    call chsign(p_res, n)
 
-    do i=1,n
+    do i = 1, n
        ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho - wa1%x(i,1,1,1)
        ta2%x(i,1,1,1) = f_Xh%v(i,1,1,1) / rho - wa2%x(i,1,1,1)
        ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho - wa3%x(i,1,1,1)
@@ -523,7 +505,7 @@ contains
     call gs_op(gs_Xh, ta2, GS_OP_ADD) 
     call gs_op(gs_Xh, ta3, GS_OP_ADD) 
 
-    do i=1,n
+    do i = 1, n
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
@@ -533,14 +515,14 @@ contains
        call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
        call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
        call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       do i=1,n
-          p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)+wa3%x(i,1,1,1)
+       do i = 1, n
+          p_res(i) = p_res(i) + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
        enddo
     else
        call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
        call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
 
-       do i=1,n
+       do i = 1, n
           p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)
        enddo
     endif
@@ -549,7 +531,7 @@ contains
     !
     ! Surface velocity terms
     !
-    dtbd = bd/dt
+    dtbd = bd / dt
     call rzero(ta1%x, n)
     call rzero(ta2%x, n)
     call rzero(ta3%x, n)
@@ -567,7 +549,7 @@ contains
   !> Sum up AB/BDF contributions 
   subroutine fluid_plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
-    real(kind=rp), dimension(n), intent(inout) :: v,vv
+    real(kind=rp), dimension(n), intent(inout) :: v, vv
     real(kind=rp), dimension(n,2), intent(inout) :: vvlag
     real(kind=rp), dimension(3), intent(in) :: ab
     real(kind=rp) :: ab0, ab1, ab2
@@ -580,104 +562,91 @@ contains
     if(nab .eq. 3) call add2s2(v,vvlag(1,2),ab2,n)
   end subroutine fluid_plan4_sumab
   
+  !> Add contributions to F from lagged BD terms.
   subroutine makebdf(ta1, ta2, ta3, tb1, tb2, tb3, h2, ulag, vlag, wlag, &
                      bfx, bfy, bfz, u, v, w, B, rho, dt,bd, nbd, n, gdim)
-!
-!     Add contributions to F from lagged BD terms.
-!
     integer, intent(inout) :: n, nbd, gdim
     type(field_t) :: ta1, ta2, ta3, u, v, w
-    real(kind=rp), intent(inout) :: TB1(n)
-    real(kind=rp), intent(inout) :: TB2(n)
-    real(kind=rp), intent(inout) :: TB3(n)
-    real(kind=rp), intent(inout) :: BFX(n)
-    real(kind=rp), intent(inout) :: BFY(n)
-    real(kind=rp), intent(inout) :: BFZ(n)
-    real(kind=rp), intent(inout) :: H2 (n), B(n)
+    real(kind=rp), intent(inout) :: tb1(n), tb2(n), tb3(n)
+    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
+    real(kind=rp), intent(inout) :: h2(n), B(n)
     real(kind=rp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
     real(kind=rp), intent(inout) :: dt, rho, bd(10)
     real(kind=rp) :: const
-    real(kind=rp), parameter :: one = 1.0
     integer :: ilag
-    CONST = rho /DT
+    
+    const = rho /DT
     call rone(h2, n)
     call cmult(h2,const,n)
-    CALL OPCOLV3c (TB1,TB2,TB3,u%x,v%x,w%x,B,bd(2),n,gdim)
-    DO ILAG=2,NBD
-       CALL OPCOLV3c(TA1%x,TA2%x,TA3%x,ulag (1,ILAG-1),&
-                                      vlag (1,ILAG-1),&
-                                      wlag (1,ILAG-1),&
-                                      B,bd(ilag+1),n,gdim)
-       CALL OPADD2cm  (TB1,TB2,TB3,TA1%x,TA2%x,TA3%x, one, n, gdim)
-   ENDDO
-   CALL OPADD2col (BFX,BFY,BFZ,TB1,TB2,TB3,h2, n, gdim)
-  END subroutine makebdf
+    call opcolv3c(tb1, tb2, tb3, u%x, v%x, w%x, B, bd(2), n, gdim)
+    do ilag = 2, nbd
+       call opcolv3c(ta1%x, ta2%x, ta3%x, &
+                     ulag(1,ilag-1), vlag(1,ilag-1), wlag(1,ilag-1), &
+                     B, bd(ilag+1), n, gdim)
+       call opadd2cm(tb1, tb2, tb3, ta1%x, ta2%x, ta3%x, 1.0_rp, n, gdim)
+    end do
+    call opadd2col(bfx, bfy, bfz, tb1, tb2, tb3, h2, n, gdim)
+  end subroutine makebdf
+
+  !> Sum up contributions to kth order extrapolation scheme.
   subroutine makeabf(ta1, ta2, ta3, abx1, aby1, abz1, abx2, aby2, abz2, &
-                    bfx, bfy, bfz, rho, ab, n, gdim)
-!-----------------------------------------------------------------------
-!
-!     Sum up contributions to kth order extrapolation scheme.
-!
-!-----------------------------------------------------------------------
+                     bfx, bfy, bfz, rho, ab, n, gdim)
     type(field_t), intent(inout) :: ta1, ta2, ta3
     real(kind=rp), intent(inout) :: rho, ab(10)
      integer, intent(in) :: n, gdim
-    real(kind=rp), intent(inout) :: BFX(n)
-    real(kind=rp), intent(inout) :: BFY(n)
-    real(kind=rp), intent(inout) :: BFZ(n)
+    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(inout) :: abx1(n), aby1(n), abz1(n)
     real(kind=rp), intent(inout) :: abx2(n), aby2(n), abz2(n)
     real(kind=rp) :: ab0, ab1, ab2
-    AB0 = AB(1)
-    AB1 = AB(2)
-    AB2 = AB(3)
-    CALL ADD3S2 (ta1%x,ABX1,ABX2,AB1,AB2,n)
-    CALL ADD3S2 (TA2%x,ABY1,ABY2,AB1,AB2,n)
-    CALL COPY   (ABX2,ABX1,n)
-    CALL COPY   (ABY2,ABY1,N)
-    CALL COPY   (ABX1,BFX,N)
-    CALL COPY   (ABY1,BFY,N)
-    CALL ADD2S1 (BFX,ta1%x,AB0,N)
-    CALL ADD2S1 (BFY,TA2%x,AB0,N)
-    CALL Cmult   (BFX,rho,N)          ! multiply by density
-    CALL Cmult   (BFY,rho,N)
-    IF (gdim.EQ.3) THEN
-       CALL ADD3S2 (TA3%x,ABZ1,ABZ2,AB1,AB2,N)
-       CALL COPY   (ABZ2,ABZ1,N)
-       CALL COPY   (ABZ1,BFZ,N)
-       CALL ADD2S1 (BFZ,TA3%x,AB0,N)
-       CALL cmult   (BFZ,rho,N)
-    ENDIF
-  END subroutine makeabf
 
+    ab0 = ab(1)
+    ab1 = ab(2)
+    ab2 = ab(3)
+    call add3s2(ta1%x, abx1, abx2, ab1, ab2, n)
+    call add3s2(ta2%x, aby1, aby2, ab1, ab2, n)
+    call copy(abx2, abx1, n)
+    call copy(aby2, aby1, n)
+    call copy(abx1, bfx, n)
+    call copy(aby1, bfy, n)
+    call add2s1(bfx, ta1%x, ab0, n)
+    call add2s1(bfy, ta2%x, ab0, n)
+    call cmult(bfx, rho, n)          ! multiply by density
+    call cmult(bfy, rho, n)
+    if (gdim.eq.3) then
+       call add3s2(ta3%x, abz1, abz2, ab1, ab2, n)
+       call copy(abz2, abz1, n)
+       call copy(abz1, bfz, n)
+       call add2s1(bfz, ta3%x, ab0, n)
+       call cmult(bfz, rho, n)
+    end if
+  end subroutine makeabf
+
+  !> Eulerian scheme, add convection term to forcing function
+  !! at current time step.
   subroutine advab(ta1, ta2, ta3, vx, vy, vz, bfx, bfy, bfz, Xh, coef, nelv, n, gdim)
-!---------------------------------------------------------------
-!
-!     Eulerian scheme, add convection term to forcing function 
-!     at current time step.
-!
-!---------------------------------------------------------------
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: ta1, ta2, ta3, vx, vy, vz
     integer, intent(inout) :: nelv, n, gdim
     real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
-    call rzero  (ta1%x,n)
-    call rzero  (ta2%x,n)
-    call rzero  (ta3%x,n)
-    CALL CONV1  (TA1%x,vx%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
-    CALL CONV1  (TA2%x,vy%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
-    CALL SUBCOL3 (BFX,coef%B,TA1%x,N)
-    CALL SUBCOL3 (BFY,coef%B,TA2%x,N)
-    IF (gdim.EQ.2) THEN
-       CALL RZERO (TA3%x,N)
-    ELSE
-       CALL CONV1  (TA3%x,vz%x, vx%X, vy%x, vz%x, Xh, coef, nelv, gdim)
-       CALL SUBCOL3 (BFZ,coef%B,TA3%x,N)
-    ENDIF
-  END subroutine advab
+
+    call rzero(ta1%x, n)
+    call rzero(ta2%x, n)
+    call rzero(ta3%x, n)
+    call conv1(ta1%x, vx%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
+    call conv1(ta2%x, vy%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
+    call subcol3 (bfx, coef%B, ta1%x, n)
+    call subcol3 (bfy, coef%B, ta2%x, n)
+    if (gdim .eq. 2) then
+       call rzero (ta3%x, n)
+    else
+       call conv1(ta3%x, vz%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
+       call subcol3(bfz, coef%B, ta3%x, n)
+    end if
+  end subroutine advab
+  
   !> Prints for prs, velx, vely, velz the following:
-  !> Number of iterations, start residual, end residual 
+  !! Number of iterations, start residual, end residual 
   subroutine fluid_step_info(step, t, dt, ksp_results)
     type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
@@ -729,13 +698,14 @@ contains
     
   end subroutine fluid_step_info
 
-  subroutine plan4_compute_vol_flow(this, ab_bdf)
+  subroutine plan4_compute_vol_flow(this, ab_bdf, niter)
 
 !     Compute pressure and velocity using fractional step method.
 !     (Tombo splitting scheme).
 
     type(fluid_plan4_t), intent(inout) :: this
     type(abbdf_t), intent(inout) :: ab_bdf
+    integer, intent(in) :: niter
     integer :: n
     real(kind=rp) :: xlmin, xlmax
     real(kind=rp) :: ylmin, ylmax
@@ -747,90 +717,95 @@ contains
          u_res => this%u_res, v_res => this%v_res, w_res=>this%w_res, &
          msh => this%msh)
       
-    n = this%dm_Xh%size()
-    xlmin = glmin(this%dm_Xh%x,n)
-    xlmax = glmax(this%dm_Xh%x,n)
-    ylmin = glmin(this%dm_Xh%y,n)          !  for Y!
-    ylmax = glmax(this%dm_Xh%y,n)
-    zlmin = glmin(this%dm_Xh%z,n)          !  for Z!
-    zlmax = glmax(this%dm_Xh%z,n)
-    if (this%flow_dir.eq.1) this%domain_length = xlmax - xlmin
-    if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
-    if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
-
-    call fluid_plan4_pres_setup(c%h1, c%h2, this%params%rho, n, c%ifh2)
-!   Compute pressure 
-
-    if (this%flow_dir .eq. 1) then
-       call cdtp(p_res, c%h1, c%drdx, c%dsdx, c%dtdx, c)
-    end if
-    
-    if (this%flow_dir .eq. 2) then
-       call cdtp(p_res, c%h1, c%drdy, c%dsdy, c%dtdy, c)
-    end if
-    
-    if (this%flow_dir .eq. 3) then
-       call cdtp(p_res, c%h1, c%drdz, c%dsdz, c%dtdz, c)
-    end if
-    
-    !call ortho    (respr)
-
-    call gs_op_vector(this%gs_Xh, p_res, n, GS_OP_ADD) 
-    call bc_list_apply_scalar(this%bclst_prs, p_res, n)
-    call this%pc_prs%update()
-    ksp_result = this%ksp_prs%solve(this%Ax, p_vol, p_res, n, c, &
-                              this%bclst_prs, this%gs_Xh, this%niter)    
-
-!   Compute velocity
-
-    call opgrad(u_res, v_res, w_res, p_vol%x, c)
-    call opchsign(u_res, v_res, w_res, msh%gdim, n)
-    call copy(this%ta1%x, c%B, n)
-    call copy(this%ta2%x, c%B, n)
-    call copy(this%ta3%x, c%B, n)
-    call bc_list_apply_vector(this%bclst_vel,&
-                              this%ta1%x, this%ta2%x, this%ta3%x,n)
-
-    if (this%flow_dir.eq.1) call add2(u_res, this%ta1%x,n) ! add forcing
-    if (this%flow_dir.eq.2) call add2(v_res, this%ta2%x,n)
-    if (this%flow_dir.eq.3) call add2(w_res, this%ta3%x,n)
-
-
-    call fluid_plan4_vel_setup(c%h1, c%h2, &
-                               this%params%Re, this%params%rho,&
-                               ab_bdf%bd(1), &
-                               this%params%dt, n, c%ifh2)
-    call gs_op_vector(this%gs_Xh, u_res, n, GS_OP_ADD) 
-    call gs_op_vector(this%gs_Xh, v_res, n, GS_OP_ADD) 
-    call gs_op_vector(this%gs_Xh, w_res, n, GS_OP_ADD) 
-
-    call bc_list_apply_vector(this%bclst_vel,&
-                              u_res, v_res, w_res, this%dm_Xh%n_dofs)
-    call this%pc_vel%update()
-
-    ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res, n, &
-         c, this%bclst_vel_residual, this%gs_Xh, this%niter)
-    ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, v_res, n, &
-         c, this%bclst_vel_residual, this%gs_Xh, this%niter)
-    ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, w_res, n, &
-         c, this%bclst_vel_residual, this%gs_Xh, this%niter)
+      n = this%dm_Xh%size()
+      xlmin = glmin(this%dm_Xh%x,n)
+      xlmax = glmax(this%dm_Xh%x,n)
+      ylmin = glmin(this%dm_Xh%y,n)          !  for Y!
+      ylmax = glmax(this%dm_Xh%y,n)
+      zlmin = glmin(this%dm_Xh%z,n)          !  for Z!
+      zlmax = glmax(this%dm_Xh%z,n)
+      if (this%flow_dir.eq.1) this%domain_length = xlmax - xlmin
+      if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
+      if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
       
-    if (this%flow_dir.eq.1) then
-       this%base_flow = glsc2(this%u_vol%x, c%B, n) / this%domain_length
-    end if
+      call fluid_plan4_pres_setup(c%h1, c%h2, this%params%rho, n, c%ifh2)
+      !   Compute pressure 
+
+      if (this%flow_dir .eq. 1) then
+         call cdtp(p_res, c%h1, c%drdx, c%dsdx, c%dtdx, c)
+      end if
+      
+      if (this%flow_dir .eq. 2) then
+         call cdtp(p_res, c%h1, c%drdy, c%dsdy, c%dtdy, c)
+      end if
     
-    if (this%flow_dir.eq.2) then
-       this%base_flow = glsc2(this%v_vol%x, c%B, n) / this%domain_length
-    end if
+      if (this%flow_dir .eq. 3) then
+         call cdtp(p_res, c%h1, c%drdz, c%dsdz, c%dtdz, c)
+      end if
     
-    if (this%flow_dir.eq.3) then
-       this%base_flow = glsc2(this%w_vol%x, c%B, n) / this%domain_length
-    end if
+      !call ortho    (respr)
+
+      call gs_op_vector(this%gs_Xh, p_res, n, GS_OP_ADD) 
+      call bc_list_apply_scalar(this%bclst_prs, p_res, n)
+      call this%pc_prs%update()
+      ksp_result = this%ksp_prs%solve(this%Ax, p_vol, p_res, n, c, &
+                                      this%bclst_prs, this%gs_Xh, niter)    
+      
+      !   Compute velocity
+      
+      call opgrad(u_res, v_res, w_res, p_vol%x, c)
+      call opchsign(u_res, v_res, w_res, msh%gdim, n)
+      call copy(this%ta1%x, c%B, n)
+      call copy(this%ta2%x, c%B, n)
+      call copy(this%ta3%x, c%B, n)
+      call bc_list_apply_vector(this%bclst_vel,&
+                                this%ta1%x, this%ta2%x, this%ta3%x,n)
+
+      if (this%flow_dir.eq.1) then
+         call add2(u_res, this%ta1%x,n) ! add forcing
+      else if (this%flow_dir.eq.2) then
+         call add2(v_res, this%ta2%x,n)
+      else if (this%flow_dir.eq.3) then
+         call add2(w_res, this%ta3%x,n)
+      end if
+      
+
+      call fluid_plan4_vel_setup(c%h1, c%h2, &
+                                 this%params%Re, this%params%rho,&
+                                 ab_bdf%bd(1), &
+                                 this%params%dt, n, c%ifh2)
+      call gs_op_vector(this%gs_Xh, u_res, n, GS_OP_ADD) 
+      call gs_op_vector(this%gs_Xh, v_res, n, GS_OP_ADD) 
+      call gs_op_vector(this%gs_Xh, w_res, n, GS_OP_ADD) 
+      
+      call bc_list_apply_vector(this%bclst_vel,&
+                                u_res, v_res, w_res, this%dm_Xh%n_dofs)
+      call this%pc_vel%update()
+
+      ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res, n, &
+           c, this%bclst_vel_residual, this%gs_Xh, niter)
+      ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, v_res, n, &
+           c, this%bclst_vel_residual, this%gs_Xh, niter)
+      ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, w_res, n, &
+           c, this%bclst_vel_residual, this%gs_Xh, niter)
+      
+      if (this%flow_dir.eq.1) then
+         this%base_flow = glsc2(this%u_vol%x, c%B, n) / this%domain_length
+      end if
+      
+      if (this%flow_dir.eq.2) then
+         this%base_flow = glsc2(this%v_vol%x, c%B, n) / this%domain_length
+      end if
+      
+      if (this%flow_dir.eq.3) then
+         this%base_flow = glsc2(this%w_vol%x, c%B, n) / this%domain_length
+      end if    
+
+    end associate
     
-  end associate
   end subroutine  plan4_compute_vol_flow
 
-  subroutine plan4_vol_flow(this, ab_bdf)
+  subroutine plan4_vol_flow(this, ab_bdf, niter)
 !     Adust flow volume at end of time step to keep flow rate fixed by
 !     adding an appropriate multiple of the linear solution to the Stokes
 !     problem arising from a unit forcing in the X-direction.  This assumes
@@ -841,6 +816,7 @@ contains
 !     pff 6/28/98
       type(fluid_plan4_t), intent(inout) :: this
       type(abbdf_t), intent(inout) :: ab_bdf
+      integer, intent(in) :: niter
       real(kind=rp) :: ifcomp(1), flow_rate, xsec
       real(kind=rp) :: current_flow, delta_flow, base_flow, scale
       integer :: n
@@ -855,12 +831,18 @@ contains
       this%dtlag = this%params%dt
       this%bdlag = ab_bdf%bd(1)
 
-      if (glsum(ifcomp,1) .gt. 0d0) call plan4_compute_vol_flow(this, ab_bdf)
+      if (glsum(ifcomp,1) .gt. 0d0) then
+         call plan4_compute_vol_flow(this, ab_bdf, niter)
+      end if
 
-      if (this%flow_dir .eq. 1) current_flow=glsc2(this%u%x,this%c_Xh%B,n)/this%domain_length  ! for X
-      if (this%flow_dir .eq. 2) current_flow=glsc2(this%v%x,this%c_Xh%B,n)/this%domain_length  ! for Y
-      if (this%flow_dir .eq. 3) current_flow=glsc2(this%w%x,this%c_Xh%B,n)/this%domain_length  ! for Z
-
+      if (this%flow_dir .eq. 1) then
+         current_flow=glsc2(this%u%x,this%c_Xh%B,n)/this%domain_length  ! for X
+      else if (this%flow_dir .eq. 2) then
+         current_flow=glsc2(this%v%x,this%c_Xh%B,n)/this%domain_length  ! for Y
+      else if (this%flow_dir .eq. 3) then
+         current_flow=glsc2(this%w%x,this%c_Xh%B,n)/this%domain_length  ! for Z
+      end if
+      
       if (this%avflow) then
          xsec = this%c_Xh%volume / this%domain_length
          flow_rate = this%flow_rate*xsec
@@ -879,4 +861,5 @@ contains
       call add2s2(this%w%x,this%w_vol%x,scale,n)
       call add2s2(this%p%x,this%p_vol%x,scale,n)
   end subroutine plan4_vol_flow
+
 end module fluid_plan4
