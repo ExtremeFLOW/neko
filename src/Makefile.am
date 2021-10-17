@@ -7,7 +7,7 @@ libneko_a_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	common/log.f90\
-	comm/comm.f90\
+	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	common/datadist.f90\

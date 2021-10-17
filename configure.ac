@@ -45,6 +45,7 @@ else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
 fi
 AX_MPIF08
+AX_MPI_DTYPE
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
@@ -130,7 +131,7 @@ AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
-		 src/comm/comm.f90\
+		 src/comm/comm.F90\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
 		 makeneko\
