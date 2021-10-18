@@ -618,9 +618,6 @@ contains
     integer, intent(inout) :: nelv, n, gdim
     real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
 
-    call rzero(ta1%x, n)
-    call rzero(ta2%x, n)
-    call rzero(ta3%x, n)
     call conv1(ta1%x, vx%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
     call conv1(ta2%x, vy%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
     call subcol3 (bfx, coef%B, ta1%x, n)
