@@ -103,18 +103,18 @@ contains
     call ax_helm_factory(this%ax)
 
     ! Create a backend specific preconditioner
-    ! Not we can't call the pc factory since hsmg is a pc...
+    ! Note we can't call the pc factory since hsmg is a pc...
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(sx_jacobi_t::this%pc_crs)
     else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(sx_jacobi_t::this%pc_crs)
+       allocate(jacobi_t::this%pc_crs)
     else
-       allocate(sx_jacobi_t::this%pc_crs)
+       allocate(jacobi_t::this%pc_crs)
     end if
 
     select type(pc => this%pc_crs)
-!    type is (sx_jacobi_t)
-!       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     type is (sx_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
