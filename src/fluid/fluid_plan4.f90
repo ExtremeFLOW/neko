@@ -38,7 +38,6 @@ module fluid_plan4
      type(field_t) :: ta1
      type(field_t) :: ta2
      type(field_t) :: ta3
-     type(field_t) :: ta4
      
      !> @todo move this to a scratch space
      type(field_t) :: work1
@@ -127,7 +126,6 @@ contains
       call field_init(this%ta1, dm_Xh, 'ta1')
       call field_init(this%ta2, dm_Xh, 'ta2')
       call field_init(this%ta3, dm_Xh, 'ta3')
-      call field_init(this%ta4, dm_Xh, 'ta4')
     
       call field_init(this%du, dm_Xh, 'du')
       call field_init(this%dv, dm_Xh, 'dv')
@@ -193,7 +191,6 @@ contains
     call field_free(this%ta1)
     call field_free(this%ta2)
     call field_free(this%ta3)
-    call field_free(this%ta4)
 
     call field_free(this%du)
     call field_free(this%dv)
@@ -274,7 +271,7 @@ contains
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
-         ta1 => this%ta1, ta2 => this%ta2, ta3 => this%ta3, ta4 => this%ta4, &
+         ta1 => this%ta1, ta2 => this%ta2, ta3 => this%ta3, &
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
@@ -356,7 +353,7 @@ contains
     
       call fluid_plan4_vel_residual(Ax, u, v, w, &
                                     u_res, v_res, w_res, &
-                                    p, ta1%x, ta2%x, ta3%x, ta4%x, &
+                                    p, ta1%x, ta2%x, ta3%x, &
                                     f_Xh, c_Xh, msh, Xh, dm_Xh%n_dofs)
 
       call gs_op_vector(gs_Xh, u_res, n, GS_OP_ADD) 
@@ -386,10 +383,10 @@ contains
   end subroutine fluid_plan4_step
   
   subroutine fluid_plan4_pres_setup(h1, h2, rho, n, ifh2)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout) :: h1(n)
     real(kind=rp), intent(inout) :: h2(n)
-    real(kind=rp), intent(inout) :: rho
+    real(kind=rp), intent(in) :: rho
     real(kind=rp), parameter :: one = 1.0
     logical, intent(inout) :: ifh2
     call rone(h1, n)
@@ -399,13 +396,13 @@ contains
   end subroutine fluid_plan4_pres_setup
 
   subroutine fluid_plan4_vel_setup(h1, h2, Re, rho, bd, dt, n, ifh2)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout) :: h1(n)
     real(kind=rp), intent(inout) :: h2(n)
-    real(kind=rp), intent(inout) :: Re
-    real(kind=rp), intent(inout) :: rho
-    real(kind=rp), intent(inout) :: bd
-    real(kind=rp), intent(inout) :: dt
+    real(kind=rp), intent(in) :: Re
+    real(kind=rp), intent(in) :: rho
+    real(kind=rp), intent(in) :: bd
+    real(kind=rp), intent(in) :: dt
     logical, intent(inout) :: ifh2
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp) :: dtbd    
@@ -416,7 +413,7 @@ contains
   end subroutine fluid_plan4_vel_setup
 
   subroutine fluid_plan4_vel_residual(Ax, u, v, w, u_res, v_res, w_res, &
-       p, ta1, ta2, ta3, ta4, f_Xh, c_Xh, msh, Xh, n)
+       p, ta1, ta2, ta3, f_Xh, c_Xh, msh, Xh, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
@@ -427,11 +424,9 @@ contains
     real(kind=rp), intent(inout) :: ta1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: ta2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: ta3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ta4(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    integer, intent(inout) :: n
-    real(kind=rp), parameter :: scl = -1.0_rp / 3.0_rp
+    integer, intent(in) :: n
     
     call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res, v%x, c_Xh, msh, Xh)
@@ -441,9 +436,7 @@ contains
 
     call opchsign(u_res, v_res, w_res, msh%gdim, n)
 
-    call rzero(ta4, c_xh%dof%n_dofs)
-    call add2s1(ta4, p%x, scl, c_Xh%dof%n_dofs)
-    call opgrad(ta1, ta2, ta3, ta4, c_Xh)
+    call opgrad(ta1, ta2, ta3, p%x, c_Xh)
 
     call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1.0_rp, n, msh%gdim)
 
@@ -467,26 +460,19 @@ contains
     type(facet_normal_t), intent(inout) :: bc_prs_surface
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
-    real(kind=rp), intent(inout) :: dt
-    real(kind=rp), intent(inout) :: Re
-    real(kind=rp), intent(inout) :: rho
-    real(kind=rp), parameter :: scl = -4.0_rp / 3.0_rp
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), intent(in) :: Re
+    real(kind=rp), intent(in) :: rho
     real(kind=rp) :: dtbd
-    integer :: n, gdim, glb_n
+    integer :: n, gdim
     integer :: i        
 
     n = c_Xh%dof%size()
     gdim = c_Xh%msh%gdim
-    glb_n = n / p%msh%nelv * p%msh%glb_nelv
     
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
     call opcolv(wa1%x, wa2%x, wa3%x, c_Xh%B, gdim, n)
-
-    call rzero(ta1%x,n)
-    call rzero(ta2%x,n)
-    call rzero(ta3%x,n)
-    call opadd2cm (wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x, scl, n, gdim)
 
     work1 = (1.0_rp / Re) / rho
     call opcolv(wa1%x, wa2%x, wa3%x, work1%x, gdim, n)
@@ -564,18 +550,20 @@ contains
   
   !> Add contributions to F from lagged BD terms.
   subroutine makebdf(ta1, ta2, ta3, tb1, tb2, tb3, h2, ulag, vlag, wlag, &
-                     bfx, bfy, bfz, u, v, w, B, rho, dt,bd, nbd, n, gdim)
-    integer, intent(inout) :: n, nbd, gdim
-    type(field_t) :: ta1, ta2, ta3, u, v, w
+                     bfx, bfy, bfz, u, v, w, B, rho, dt, bd, nbd, n, gdim)
+    integer, intent(in) :: n, nbd, gdim
+    type(field_t), intent(inout) :: ta1, ta2, ta3
+    type(field_t), intent(in) :: u, v, w
     real(kind=rp), intent(inout) :: tb1(n), tb2(n), tb3(n)
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    real(kind=rp), intent(inout) :: h2(n), B(n)
+    real(kind=rp), intent(inout) :: h2(n)
+    real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
-    real(kind=rp), intent(inout) :: dt, rho, bd(10)
+    real(kind=rp), intent(in) :: dt, rho, bd(10)
     real(kind=rp) :: const
     integer :: ilag
     
-    const = rho /DT
+    const = rho / dt
     call rone(h2, n)
     call cmult(h2,const,n)
     call opcolv3c(tb1, tb2, tb3, u%x, v%x, w%x, B, bd(2), n, gdim)
@@ -817,21 +805,27 @@ contains
       type(fluid_plan4_t), intent(inout) :: this
       type(abbdf_t), intent(inout) :: ab_bdf
       integer, intent(in) :: niter
-      real(kind=rp) :: ifcomp(1), flow_rate, xsec
+      real(kind=rp) :: ifcomp, flow_rate, xsec
       real(kind=rp) :: current_flow, delta_flow, base_flow, scale
-      integer :: n
+      integer :: n, ierr
 
       n = this%dm_Xh%n_dofs
 
 !     If either dt or the backwards difference coefficient change,
 !     then recompute base flow solution corresponding to unit forcing:
 
-      ifcomp(1) = 0d0
-      if (this%params%dt .ne. this%dtlag .or. ab_bdf%bd(1) .ne. this%bdlag) ifcomp= (/1d0/)
+      ifcomp = 0.0_rp
+
+      if (this%params%dt .ne. this%dtlag .or. ab_bdf%bd(1) .ne. this%bdlag) then
+         ifcomp = 1.0_rp
+      end if
+
       this%dtlag = this%params%dt
       this%bdlag = ab_bdf%bd(1)
 
-      if (glsum(ifcomp,1) .gt. 0d0) then
+      call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
+           MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+      if (ifcomp .gt. 0d0) then
          call plan4_compute_vol_flow(this, ab_bdf, niter)
       end if
 
