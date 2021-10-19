@@ -9,10 +9,10 @@
 #
 
 AC_DEFUN([AX_CRAY],[
-	AC_MSG_CHECKING([for a Cray XT, XE, XC or EX system])
+	AC_MSG_CHECKING([for a Cray XT, XE, XC system])
 	AC_LANG_PUSH([C])
 	AC_EGREP_CPP(yes,
-	[#if defined(__CRAYXT) || defined(__CRAYXE) || defined(__CRAYXC) || defined(__CRAYXT_COMPUTE_LINUX_TARGET)
+	[#if defined(__CRAYXT) || defined(__CRAYXE) || defined(__CRAYXC)
 	  yes
 	 #endif
 	],
@@ -22,6 +22,21 @@ AC_DEFUN([AX_CRAY],[
 	AC_MSG_RESULT([no])])
 	AC_LANG_POP([C])
 	AC_SUBST(is_cray)])
+
+AC_DEFUN([AX_HPE_CRAY],[
+	AC_MSG_CHECKING([for a HPE Cray system])
+	AC_LANG_PUSH([C])
+	AC_EGREP_CPP(yes,
+	[#if defined(__CRAYXT_COMPUTE_LINUX_TARGET) && (!defined(__CRAYXT) && !defined(__CRAYXE) && !defined(__CRAYXC))
+	  yes
+	 #endif
+	],
+	[AC_MSG_RESULT([yes])
+	is_hpe_cray="yes"],
+	[is_hpe_cray="no"
+	AC_MSG_RESULT([no])])
+	AC_LANG_POP([C])
+	AC_SUBST(is_hpe_cray)])
 
 AC_DEFUN([AX_CRAY_PETSC],[
 	AC_MSG_CHECKING([Cray PETSc])
