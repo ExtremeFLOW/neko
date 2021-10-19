@@ -74,10 +74,10 @@ contains
 
     if (present(error_code)) then
        write(*,*) '*** ERROR ***', error_code
-       stop
+       error stop
     else
        write(*,*) '*** ERROR ***'
-       stop
+       error stop
     end if
 
   end subroutine neko_error_plain
@@ -85,7 +85,7 @@ contains
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
     write(*,*) '*** ERROR: ', error_msg,' ***'
-    stop 
+    error stop
   end subroutine neko_error_msg
 
   subroutine neko_warning(warning_msg)
