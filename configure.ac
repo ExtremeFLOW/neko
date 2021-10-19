@@ -69,17 +69,34 @@ AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 AC_CHECK_PROGS([FLINT], [flint])
 AM_CONDITIONAL([ENABLE_FLINT], [test -n "$FLINT"])
 
+# Checks for various platforms
 AX_CRAY
+AX_HPE_CRAY
 AX_SX
 
 # Checks for pFUnit
 AX_PFUNIT
 
 # Check for blas and lapack
-AX_LAPACK
-if test "x${ax_lapack_ok}" != xno; then
-   LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS"
-else
+AS_IF([test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes],
+       AX_CRAY_LIBSCI
+       if test "x${have_cray_libsci}" = xyes; then
+         have_blas_lapack="yes"
+       else
+         have_blas_lapack="no"
+       fi, have_blas_lapack="no")
+
+if test "x${have_blas_lapack}" != xyes; then
+  AX_LAPACK
+  if test "x${ax_lapack_ok}" != xno; then
+     LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS"
+     have_blas_lapack=yes
+  else
+     have_blas_lapack=no
+  fi
+fi
+
+if test "x${have_blas_lapack}" != xyes; then
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
