@@ -62,7 +62,7 @@ module hsmg
 contains
   
   !> @note I do not think we actually use the same grids as they do in the original!
-  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst)
+  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, crs_pctype)
     class(hsmg_t), intent(inout) :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
@@ -70,6 +70,7 @@ contains
     type(dofmap_t), intent(inout), target :: dof
     type(gs_t), intent(inout), target :: gs_h 
     type(bc_list_t), intent(inout), target :: bclst
+    character(len=*), optional :: crs_pctype
     integer :: n
     
 !    call this%free()
@@ -120,8 +121,13 @@ contains
     end select
 
     ! Create a backend specific krylov solver
-    call krylov_solver_factory(this%crs_solver, &
-         this%dm_crs%n_dofs, 'cg', M = this%pc_crs)
+    if (present(crs_pctype)) then
+       call krylov_solver_factory(this%crs_solver, &
+            this%dm_crs%n_dofs, trim(crs_pctype), M = this%pc_crs)
+    else
+       call krylov_solver_factory(this%crs_solver, &
+            this%dm_crs%n_dofs, 'cg', M = this%pc_crs)
+    end if
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_crs%mark_zone(msh%outlet)
