@@ -5,7 +5,7 @@ io/format/nmsh.o : io/format/nmsh.f90 config/num_types.o
 io/format/re2.o : io/format/re2.f90 config/num_types.o 
 io/format/map.o : io/format/map.f90 mesh/mesh.o 
 common/log.o : common/log.f90 config/num_types.o comm/comm.o 
-comm/comm.o : comm/comm.F90
+comm/comm.o : comm/comm.F90 
 mesh/curve.o : mesh/curve.f90 mesh/hex.o mesh/point.o common/structs.o common/utils.o adt/stack.o 
 comm/mpi_types.o : comm/mpi_types.f90 common/parameters.o io/format/nmsh.o io/format/re2.o comm/comm.o 
 common/datadist.o : common/datadist.f90 
@@ -91,6 +91,7 @@ bc/symmetry.o : bc/symmetry.f90 adt/htable.o adt/stack.o common/utils.o math/mat
 krylov/precon.o : krylov/precon.f90 config/num_types.o 
 krylov/krylov.o : krylov/krylov.f90 krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
 krylov/pc_identity.o : krylov/pc_identity.f90 config/num_types.o math/ax.o krylov/precon.o common/utils.o math/math.o 
+krylov/precon_fctry.o : krylov/precon_fctry.f90 config/neko_config.o common/utils.o krylov/pc_hsmg.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o krylov/precon.o 
 krylov/krylov_fctry.o : krylov/krylov_fctry.f90 config/neko_config.o krylov/krylov.o krylov/bcknd/sx/gmres_sx.o krylov/bcknd/cpu/gmres.o krylov/bcknd/cpu/bicgstab.o krylov/bcknd/sx/pipecg_sx.o krylov/bcknd/cpu/pipecg.o krylov/bcknd/cpu/cacg.o krylov/bcknd/sx/cg_sx.o krylov/bcknd/cpu/cg.o 
 krylov/bcknd/cpu/cg.o : krylov/bcknd/cpu/cg.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/cpu/cacg.o : krylov/bcknd/cpu/cacg.f90 config/num_types.o math/mxm_wrapper.o math/math.o krylov/krylov.o 
@@ -109,7 +110,7 @@ common/statistics.o : common/statistics.f90 common/stats_quant.o config/num_type
 config/neko_config.o : config/neko_config.f90 
 case.o : case.f90 common/user_intf.o common/jobctrl.o common/log.o common/abbdf.o comm/comm.o mesh/mesh.o common/utils.o io/file.o common/statistics.o common/sampler.o comm/redist.o comm/parmetis.o field/mesh_field.o comm/mpi_types.o common/parameters.o io/mean_flow_output.o io/mean_sqr_flow_output.o io/chkp_output.o io/fluid_output.o fluid/fluid_fctry.o config/num_types.o 
 common/user_intf.o : common/user_intf.f90 config/num_types.o common/parameters.o bc/usr_inflow.o sem/coef.o common/source.o field/field.o 
-fluid/fluid_method.o : fluid/fluid_method.f90 common/log.o krylov/pc_hsmg.o math/operators.o math/mathops.o common/abbdf.o math/math.o mesh/mesh.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o bc/bc.o krylov/krylov_fctry.o bc/symmetry.o bc/dirichlet.o bc/usr_inflow.o bc/inflow.o bc/wall.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o common/source.o config/num_types.o fluid/mean_flow.o common/checkpoint.o common/parameters.o config/neko_config.o fluid/mean_sqr_flow.o gs/gather_scatter.o 
+fluid/fluid_method.o : fluid/fluid_method.f90 common/log.o math/operators.o math/mathops.o common/abbdf.o math/math.o mesh/mesh.o bc/bc.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/symmetry.o bc/dirichlet.o bc/usr_inflow.o bc/inflow.o bc/wall.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o common/source.o config/num_types.o fluid/mean_flow.o common/checkpoint.o common/parameters.o config/neko_config.o fluid/mean_sqr_flow.o gs/gather_scatter.o 
 fluid/fluid_plan4.o : fluid/fluid_plan4.f90 common/log.o common/projection.o common/abbdf.o config/neko_config.o bc/facet_normal.o fluid/fluid_method.o math/ax_helm_fctry.o 
 fluid/fluid_plan1.o : fluid/fluid_plan1.f90 fluid/fluid_method.o 
 fluid/fluid_fctry.o : fluid/fluid_fctry.f90 common/utils.o config/neko_config.o fluid/fluid_method.o fluid/fluid_plan4.o fluid/fluid_plan1.o 
@@ -127,6 +128,6 @@ krylov/pc_hsmg.o : krylov/pc_hsmg.f90 krylov/bcknd/sx/pc_jacobi_sx.o krylov/bckn
 common/signal.o : common/signal.f90 common/utils.o 
 common/sighdl.o : common/sighdl.c 
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
-neko.o : neko.f90 common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o krylov/bcknd/cpu/pc_jacobi.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
+neko.o : neko.f90 common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
 comm/parmetis_wrapper.o : comm/parmetis_wrapper.c 
 driver.o : driver.f90 neko.o 

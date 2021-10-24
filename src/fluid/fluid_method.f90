@@ -19,15 +19,13 @@ module fluid_method
   use dirichlet
   use symmetry
   use krylov_fctry
+  use precon_fctry
   use bc
-  use jacobi
-  use sx_jacobi
   use mesh
   use math
   use abbdf
   use mathops
   use operators
-  use hsmg
   use logger
   implicit none
   
@@ -322,13 +320,23 @@ contains
     call space_free(this%Xh)    
 
     if (allocated(this%ksp_vel)) then
-       call this%ksp_vel%free()
+       call krylov_solver_destroy(this%ksp_vel)
        deallocate(this%ksp_vel)
     end if
 
     if (allocated(this%ksp_prs)) then
-       call this%ksp_prs%free()
+       call krylov_solver_destroy(this%ksp_prs)
        deallocate(this%ksp_prs)
+    end if
+
+    if (allocated(this%pc_vel)) then
+       call precon_destroy(this%pc_vel)
+       deallocate(this%pc_vel)
+    end if
+
+    if (allocated(this%pc_prs)) then
+       call precon_destroy(this%pc_prs)
+       deallocate(this%pc_prs)
     end if
 
     call gs_free(this%gs_Xh)
@@ -431,18 +439,8 @@ contains
     type(bc_list_t), intent(inout) :: bclst
     character(len=20) :: pctype
     
-    if (trim(pctype) .eq. 'jacobi') then
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_jacobi_t::pc)
-       else
-          allocate(jacobi_t::pc)
-       end if
-    else if (pctype(1:4) .eq. 'hsmg') then
-       allocate(hsmg_t::pc)
-    else
-       call neko_error('Unknown preconditioner')
-    end if
-
+    call precon_factory(pc, pctype)
+    
     select type(pcp => pc)
     type is(jacobi_t)
        call pcp%init(coef, dof, gs)
