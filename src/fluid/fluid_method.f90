@@ -322,12 +322,12 @@ contains
     call space_free(this%Xh)    
 
     if (allocated(this%ksp_vel)) then
-       call this%ksp_vel%free()
+       call krylov_solver_destroy(this%ksp_vel)
        deallocate(this%ksp_vel)
     end if
 
     if (allocated(this%ksp_prs)) then
-       call this%ksp_prs%free()
+       call krylov_solver_destroy(this%ksp_prs)
        deallocate(this%ksp_prs)
     end if
 
