@@ -298,6 +298,11 @@ contains
     call field_free(this%e_crs)
     call gs_free(this%gs_crs)
     call gs_free(this%gs_mg)
+
+    if (allocated(this%crs_solver)) then
+       call krylov_solver_destroy(this%crs_solver)
+       deallocate(this%crs_solver)
+    end if
     
     if (allocated(this%pc_crs)) then 
        select type(pc => this%pc_crs)
@@ -307,11 +312,6 @@ contains
           call pc%free()
        end select       
        deallocate(this%pc_crs)
-    end if       
-
-    if (allocated(this%crs_solver)) then
-       call krylov_solver_destroy(this%crs_solver)
-       deallocate(this%crs_solver)
     end if
     
   end subroutine hsmg_free

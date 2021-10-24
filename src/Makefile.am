@@ -93,6 +93,7 @@ libneko_a_SOURCES = \
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
+	krylov/precon_fctry.f90\
 	krylov/krylov_fctry.f90\
 	krylov/bcknd/cpu/cg.f90\
 	krylov/bcknd/cpu/cacg.f90\

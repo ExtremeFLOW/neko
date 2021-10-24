@@ -136,27 +136,30 @@ contains
   subroutine krylov_solver_destroy(ksp)
     class(ksp_t), allocatable, intent(inout) :: ksp
 
-    select type(kp => ksp)
-    type is(cg_t)
-       call kp%free()
-    type is(sx_cg_t)
-       call kp%free()       
-    type is(pipecg_t)
-       call kp%free()
-    type is(sx_pipecg_t)
-       call kp%free()
-    type is(cacg_t)
-       call kp%free()
-    type is(gmres_t)
-       call kp%free()
-    type is(sx_gmres_t)
-       call kp%free()
-    type is(bicgstab_t)
-       call kp%free()
-    end select
+    if (allocated(ksp)) then
+       select type(kp => ksp)
+       type is(cg_t)
+          call kp%free()
+       type is(sx_cg_t)
+          call kp%free()       
+       type is(pipecg_t)
+          call kp%free()
+       type is(sx_pipecg_t)
+          call kp%free()
+       type is(cacg_t)
+          call kp%free()
+       type is(gmres_t)
+          call kp%free()
+       type is(sx_gmres_t)
+          call kp%free()
+       type is(bicgstab_t)
+          call kp%free()
+       end select
 
-    call ksp%free()
-                      
+       call ksp%free()
+
+    end if
+ 
   end subroutine krylov_solver_destroy
     
 end module krylov_fctry
