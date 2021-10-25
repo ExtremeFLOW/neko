@@ -9,7 +9,7 @@ on:
 jobs:
   linting:
     name: "Flint"
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
    #  - name: Cache flinter
    #     id: cache-flinter
@@ -19,8 +19,8 @@ jobs:
       - name: Setup env.
         #if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update && sudo apt-get install python3-tk
-          pip3 install flinter
+          sudo apt-get update && sudo apt-get install python-dev python3-tk
+          pip install flinter
 #          pip install anybadge
       - name: Checkout
         uses: actions/checkout@v2
