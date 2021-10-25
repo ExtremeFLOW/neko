@@ -89,7 +89,7 @@ bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device
 bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_inflow.o 
 bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/inflow.o sem/coef.o config/num_types.o 
 bc/facet_normal.o : bc/facet_normal.f90 common/utils.o math/math.o sem/coef.o bc/dirichlet.o config/num_types.o bc/bcknd/device/device_facet_normal.o 
-bc/symmetry.o : bc/symmetry.f90 adt/htable.o adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o bc/bcknd/device/device_symmetry.o 
+bc/symmetry.o : bc/symmetry.f90 adt/htable.o adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/bcknd/device/device_symmetry.o 
 krylov/precon.o : krylov/precon.f90 config/num_types.o 
 krylov/krylov.o : krylov/krylov.f90 krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
 krylov/pc_identity.o : krylov/pc_identity.f90 config/num_types.o math/ax.o krylov/precon.o common/utils.o math/math.o 
