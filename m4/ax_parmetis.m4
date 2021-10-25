@@ -8,6 +8,7 @@
 #
 
 AC_DEFUN([AX_PARMETIS],[
+	AC_REQUIRE([AX_METIS])
 	AC_ARG_WITH([parmetis],
 	AS_HELP_STRING([--with-parmetis=DIR],
 	[Compile with support for parmetis]),
@@ -18,6 +19,8 @@ AC_DEFUN([AX_PARMETIS],[
 		PARMETIS_CPPFLAGS="-I$ac_parmetis_path/include"
 	fi
 	],)
+
+
 
 	AC_ARG_WITH([parmetis-libdir],
 	AS_HELP_STRING([--with-parmetis-libdir=LIBDIR],

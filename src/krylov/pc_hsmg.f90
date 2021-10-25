@@ -62,7 +62,7 @@ module hsmg
 contains
   
   !> @note I do not think we actually use the same grids as they do in the original!
-  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst)
+  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, crs_pctype)
     class(hsmg_t), intent(inout) :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
@@ -70,9 +70,10 @@ contains
     type(dofmap_t), intent(inout), target :: dof
     type(gs_t), intent(inout), target :: gs_h 
     type(bc_list_t), intent(inout), target :: bclst
+    character(len=*), optional :: crs_pctype
     integer :: n
     
-!    call this%free()
+    call this%free()
     if(Xh%lx .lt. 5) then
        call neko_error('Insufficient number of GLL points for hsmg precon. Minimum degree 4 and 5 GLL points required.')
     end if
@@ -103,25 +104,30 @@ contains
     call ax_helm_factory(this%ax)
 
     ! Create a backend specific preconditioner
-    ! Not we can't call the pc factory since hsmg is a pc...
+    ! Note we can't call the pc factory since hsmg is a pc...
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(sx_jacobi_t::this%pc_crs)
     else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(sx_jacobi_t::this%pc_crs)
+       allocate(jacobi_t::this%pc_crs)
     else
-       allocate(sx_jacobi_t::this%pc_crs)
+       allocate(jacobi_t::this%pc_crs)
     end if
 
     select type(pc => this%pc_crs)
-!    type is (sx_jacobi_t)
-!       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     type is (sx_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
 
     ! Create a backend specific krylov solver
-    call krylov_solver_factory(this%crs_solver, &
-         this%dm_crs%n_dofs, 'cg', M = this%pc_crs)
+    if (present(crs_pctype)) then
+       call krylov_solver_factory(this%crs_solver, &
+            this%dm_crs%n_dofs, trim(crs_pctype), M = this%pc_crs)
+    else
+       call krylov_solver_factory(this%crs_solver, &
+            this%dm_crs%n_dofs, 'cg', M = this%pc_crs)
+    end if
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_crs%mark_zone(msh%outlet)
@@ -250,15 +256,39 @@ contains
 
   subroutine hsmg_free(this)
     class(hsmg_t), intent(inout) :: this
-    if (allocated(this%ax)) deallocate(this%ax)
-    if (allocated(this%pc_crs)) deallocate(this%pc_crs)
-    if (allocated(this%grids)) deallocate(this%grids)
-    if (allocated(this%jh)) deallocate(this%jh)
-    if (allocated(this%jht)) deallocate(this%jht)
-    if (allocated(this%jhfc)) deallocate(this%jhfc)
-    if (allocated(this%jhfct)) deallocate(this%jhfct)
-    if (allocated(this%w)) deallocate(this%w)
-    if (allocated(this%r)) deallocate(this%r)
+
+    if (allocated(this%ax)) then
+       deallocate(this%ax)
+    end if
+    
+    if (allocated(this%grids)) then
+       deallocate(this%grids)
+    end if
+    
+    if (allocated(this%jh)) then
+       deallocate(this%jh)
+    end if
+    
+    if (allocated(this%jht)) then
+       deallocate(this%jht)
+    end if
+    
+    if (allocated(this%jhfc)) then
+       deallocate(this%jhfc)
+    end if
+    
+    if (allocated(this%jhfct)) then
+       deallocate(this%jhfct)
+    end if
+    
+    if (allocated(this%w)) then
+       deallocate(this%w)
+    end if
+    
+    if (allocated(this%r)) then
+       deallocate(this%r)
+    end if
+
     call this%schwarz%free()
     call this%schwarz_mg%free()
     call coef_free(this%c_crs)
@@ -266,15 +296,24 @@ contains
     call field_free(this%e)
     call field_free(this%e_mg)
     call field_free(this%e_crs)
-    select type(pc => this%pc_crs)
-    type is (jacobi_t)
-       call pc%free()
-    type is (sx_jacobi_t)
-       call pc%free()
-    end select    
     call gs_free(this%gs_crs)
     call gs_free(this%gs_mg)
-    call this%crs_solver%free()
+
+    if (allocated(this%crs_solver)) then
+       call krylov_solver_destroy(this%crs_solver)
+       deallocate(this%crs_solver)
+    end if
+    
+    if (allocated(this%pc_crs)) then 
+       select type(pc => this%pc_crs)
+       type is (jacobi_t)
+          call pc%free()
+       type is (sx_jacobi_t)
+          call pc%free()
+       end select       
+       deallocate(this%pc_crs)
+    end if
+    
   end subroutine hsmg_free
 
   !> The h1mg preconditioner from Nek5000.

@@ -19,9 +19,9 @@ jobs:
       - name: Setup env.
         #if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update && sudo apt-get install python3-tk
+          sudo apt-get update && sudo apt-get install python-dev python3-tk
           pip install flinter
-          pip install anybadge
+#          pip install anybadge
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -33,13 +33,13 @@ jobs:
           if (( $(echo "$score < 8.00" |bc -l) )) ; then
             exit 1
           fi
-          anybadge -l flint  -o --file=flint.svg -v $score  2=red 4=orange 8=yellow 10=green
-      - name: Archive linter badge
-        uses: actions/upload-artifact@v2
-        with:
-          name: flint-badge
-          path: flint.svg
-          retention-days: 5
+ #         anybadge -l flint  -o --file=flint.svg -v $score  2=red 4=orange 8=yellow 10=green
+#      - name: Archive linter badge
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: flint-badge
+#          path: flint.svg
+#          retention-days: 5
       - name: Archive linter report
         uses: actions/upload-artifact@v2
         with:

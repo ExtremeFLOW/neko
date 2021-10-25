@@ -6,7 +6,11 @@ module comm
   type(MPI_Comm) :: NEKO_COMM
 
   !> MPI type for working precision of REAL types
+#ifdef HAVE_MPI_PARAM_DTYPE
   type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+#else
+  type(MPI_Datatype) :: MPI_REAL_PRECISION
+#endif
   
   !> MPI rank
   integer :: pe_rank
@@ -21,8 +25,6 @@ contains
   subroutine comm_init
     integer :: ierr
     logical :: initialized
-    type(MPI_Group) :: neko_group
-        
 
     pe_rank = -1
     pe_size = 0
@@ -34,10 +36,11 @@ contains
        call MPI_Init(ierr)       
     end if
 
-    !> @todo Why not use MPI_Comm_dup?
-    call MPI_Comm_group(MPI_COMM_WORLD, neko_group, ierr)
-    call MPI_Comm_create(MPI_COMM_WORLD, neko_group, NEKO_COMM, ierr)
-    call MPI_Group_free(neko_group, ierr)
+#ifndef HAVE_MPI_PARAM_DTYPE
+    MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+#endif
+
+    call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)

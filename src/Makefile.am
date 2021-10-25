@@ -10,7 +10,7 @@ libneko_a_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	common/log.f90\
-	comm/comm.f90\
+	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	common/datadist.f90\
@@ -98,6 +98,7 @@ libneko_a_SOURCES = \
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
+	krylov/precon_fctry.f90\
 	krylov/krylov_fctry.f90\
 	krylov/bcknd/cpu/cg.f90\
 	krylov/bcknd/cpu/cacg.f90\
