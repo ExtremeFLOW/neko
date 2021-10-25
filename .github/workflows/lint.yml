@@ -20,7 +20,7 @@ jobs:
         #if: steps.cache-flinter.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update && sudo apt-get install python3-tk
-          pip install flinter
+          pip3 install flinter
 #          pip install anybadge
       - name: Checkout
         uses: actions/checkout@v2
