@@ -1,6 +1,7 @@
 !> Mixed Dirichlet-Neumann axis aligned symmetry plane
 module symmetry
-   use device_symmetry
+  use device_symmetry
+  use neko_config
   use num_types
   use dirichlet
   use device
@@ -18,9 +19,9 @@ module symmetry
      integer, allocatable :: xaxis_msk(:)
      integer, allocatable :: zaxis_msk(:)
      integer, allocatable :: yaxis_msk(:)
-     type(c_ptr) :: xaxis_msk_d
-     type(c_ptr) :: yaxis_msk_d
-     type(c_ptr) :: zaxis_msk_d
+     type(c_ptr) :: xaxis_msk_d = C_NULL_PTR
+     type(c_ptr) :: yaxis_msk_d = C_NULL_PTR
+     type(c_ptr) :: zaxis_msk_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init_msk => symmetry_init_msk
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
@@ -130,14 +131,20 @@ contains
        do i = 1, msk_size
           this%xaxis_msk(i) = sp(i)
        end do
-       call device_map(this%xaxis_msk, this%xaxis_msk_d, msk_size + 1)
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%xaxis_msk, this%xaxis_msk_d, msk_size + 1)
+       end if
     else
        allocate(this%xaxis_msk(0:1))
        this%xaxis_msk(0) = 0
-       call device_map(this%xaxis_msk, this%xaxis_msk_d, 2)
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%xaxis_msk, this%xaxis_msk_d, 2)
+       end if
     end if
-    call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
-         size(this%xaxis_msk), HOST_TO_DEVICE)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
+            size(this%xaxis_msk), HOST_TO_DEVICE)
+    end if
 
     msk_size = ymsk%size()
     if (msk_size .gt. 0) then
@@ -147,14 +154,20 @@ contains
        do i = 1, msk_size
           this%yaxis_msk(i) = sp(i)
        end do
-       call device_map(this%yaxis_msk, this%yaxis_msk_d, msk_size + 1)
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%yaxis_msk, this%yaxis_msk_d, msk_size + 1)
+       end if
     else
        allocate(this%yaxis_msk(0:1))
        this%yaxis_msk(0) = 0
-       call device_map(this%yaxis_msk, this%yaxis_msk_d, 2)
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%yaxis_msk, this%yaxis_msk_d, 2)
+       end if
     end if
-    call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
-         size(this%yaxis_msk), HOST_TO_DEVICE)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
+            size(this%yaxis_msk), HOST_TO_DEVICE)
+    end if
 
     msk_size = zmsk%size()
     if (msk_size .gt. 0) then
@@ -164,14 +177,20 @@ contains
        do i = 1, msk_size
           this%zaxis_msk(i) = sp(i)
        end do
-       call device_map(this%zaxis_msk, this%zaxis_msk_d, msk_size + 1)
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%zaxis_msk, this%zaxis_msk_d, msk_size + 1)
+       end if
     else
        allocate(this%zaxis_msk(0:1))
        this%zaxis_msk(0) = 0
-       call device_map(this%zaxis_msk, this%zaxis_msk_d, 2)
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%zaxis_msk, this%zaxis_msk_d, 2)
+       end if
+    end if    
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
+            size(this%zaxis_msk), HOST_TO_DEVICE)
     end if
-    call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
-         size(this%zaxis_msk), HOST_TO_DEVICE)
 
     call xmsk%free()
     call ymsk%free()
@@ -197,14 +216,17 @@ contains
 
     if (c_associated(this%xaxis_msk_d)) then
        call device_free(this%xaxis_msk_d)
+       this%xaxis_msk_d = C_NULL_PTR
     end if
 
     if (c_associated(this%yaxis_msk_d)) then
        call device_free(this%yaxis_msk_d)
+       this%yaxis_msk_d = C_NULL_PTR
     end if
 
     if (c_associated(this%zaxis_msk_d)) then
        call device_free(this%zaxis_msk_d)
+       this%zaxis_msk_d = C_NULL_PTR
     end if
 
   end subroutine symmetry_free
