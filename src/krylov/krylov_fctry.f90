@@ -1,6 +1,7 @@
 module krylov_fctry
   use cg
   use cg_sx
+  use cg_device
   use cacg
   use pipecg
   use pipecg_sx
@@ -29,6 +30,8 @@ contains
     if (trim(solver) .eq. 'cg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_cg_t::ksp)
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          allocate(cg_device_t::ksp)
        else
           allocate(cg_t::ksp)
        end if
@@ -57,7 +60,9 @@ contains
        type is(cg_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_cg_t)
-          call kp%init(n, M = M, abs_tol = abstol)       
+          call kp%init(n, M = M, abs_tol = abstol)
+       type is(cg_device_t)
+          call kp%init(n, M = M, abs_tol = abstol)
        type is(pipecg_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_pipecg_t)
@@ -76,6 +81,8 @@ contains
        type is(cg_t)
           call kp%init(n, abs_tol = abstol)
        type is(sx_cg_t)
+          call kp%init(n, abs_tol = abstol)       
+       type is(cg_device_t)
           call kp%init(n, abs_tol = abstol)       
        type is(pipecg_t)
           call kp%init(n, abs_tol = abstol)
@@ -96,6 +103,8 @@ contains
           call kp%init(n, M = M)
        type is(sx_cg_t)
           call kp%init(n, M = M)       
+       type is(cg_device_t)
+          call kp%init(n, M = M)
        type is(pipecg_t)
           call kp%init(n, M = M)
        type is(sx_pipecg_t)
@@ -114,6 +123,8 @@ contains
        type is(cg_t)
           call kp%init(n)
        type is(sx_cg_t)
+          call kp%init(n)       
+       type is(cg_device_t)
           call kp%init(n)       
        type is(pipecg_t)
           call kp%init(n)

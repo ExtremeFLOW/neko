@@ -1,7 +1,9 @@
 !> Defines a dirichlet boundary condition
 module dirichlet
+  use device_dirichlet
   use num_types
-  use bc  
+  use bc
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -12,9 +14,11 @@ module dirichlet
    contains
      procedure, pass(this) :: apply_scalar => dirichlet_apply_scalar
      procedure, pass(this) :: apply_vector => dirichlet_apply_vector
+     procedure, pass(this) :: apply_scalar_dev => dirichlet_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => dirichlet_apply_vector_dev
      procedure, pass(this) :: set_g => dirichlet_set_g
   end type dirichlet_t
-     
+
 contains
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -51,6 +55,30 @@ contains
     end do
     
   end subroutine dirichlet_apply_vector
+
+  !> Boundary condition apply for a generic Dirichlet condition
+  !! to a vector @a x (device version)
+  subroutine dirichlet_apply_scalar_dev(this, x_d)
+    class(dirichlet_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+
+    call device_dirichlet_apply_scalar(this%msk_d, x_d, &
+                                       this%g, size(this%msk))
+    
+  end subroutine dirichlet_apply_scalar_dev
+  
+  !> Boundary condition apply for a generic Dirichlet condition 
+  !! to vectors @a x, @a y and @a z (device version)
+  subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d)
+    class(dirichlet_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+
+    call device_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+                                       this%g, size(this%msk))
+    
+  end subroutine dirichlet_apply_vector_dev
 
   !> Set value of \f$ g \f$
   subroutine dirichlet_set_g(this, g)

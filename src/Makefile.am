@@ -1,3 +1,6 @@
+include $(top_srcdir)/hip.mk
+include $(top_srcdir)/cuda.mk
+
 lib_LIBRARIES = libneko.a
 libneko_a_SOURCES = \
 	config/num_types.f90\
@@ -24,6 +27,7 @@ libneko_a_SOURCES = \
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
+	gs/bcknd/device/gs_device.F90\
 	gs/gs_ops.f90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
@@ -58,6 +62,7 @@ libneko_a_SOURCES = \
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
 	math/bcknd/xsmm/opr_xsmm.F90\
+	math/bcknd/device/opr_device.F90\
 	math/tensor.f90\
 	math/bcknd/cpu/tensor_cpu.f90\
 	math/bcknd/sx/tensor_sx.f90\
@@ -105,6 +110,9 @@ libneko_a_SOURCES = \
 	krylov/bcknd/sx/pipecg_sx.f90\
 	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
+	krylov/bcknd/device/cg_device.f90\
+	krylov/bcknd/device/pc_jacobi_device.F90\
+	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
 	common/abbdf.f90\
 	common/stats_quant.f90\
@@ -130,16 +138,61 @@ libneko_a_SOURCES = \
 	common/signal.f90\
 	common/sighdl.c\
 	common/jobctrl.f90\
+	device/cuda_intf.F90\
+	device/hip_intf.F90\
+	device/device.F90\
+	math/bcknd/device/device_math.F90\
+	math/bcknd/device/device_mathops.F90\
+	bc/bcknd/device/device_dirichlet.F90\
+	bc/bcknd/device/device_inflow.F90\
+	bc/bcknd/device/device_wall.F90\
+	bc/bcknd/device/device_symmetry.F90\
+	bc/bcknd/device/device_facet_normal.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
 libneko_a_SOURCES += comm/parmetis_wrapper.c
 endif
 
+if ENABLE_HIP
+libneko_a_SOURCES += \
+	device/hip/hip_wrapper.hip\
+	math/bcknd/device/hip/math.hip\
+	math/bcknd/device/hip/mathops.hip\
+	math/bcknd/device/hip/opr_dudxyz.hip\
+	math/bcknd/device/hip/opr_cdtp.hip\
+	math/bcknd/device/hip/opr_conv1.hip\
+	math/bcknd/device/hip/opr_opgrad.hip\
+	krylov/bcknd/device/hip/pc_jacobi.hip\
+	gs/bcknd/device/hip/gs.hip\
+	bc/bcknd/device/hip/dirichlet.hip\
+	bc/bcknd/device/hip/inflow.hip\
+	bc/bcknd/device/hip/no_slip_wall.hip\
+	bc/bcknd/device/hip/symmetry.hip\
+	bc/bcknd/device/hip/facet_normal.hip
+endif
+
+if ENABLE_CUDA
+libneko_a_SOURCES += \
+	device/cuda/cuda_wrapper.cu\
+	math/bcknd/device/cuda/math.cu\
+	math/bcknd/device/cuda/mathops.cu\
+	math/bcknd/device/cuda/opr_dudxyz.cu\
+	math/bcknd/device/cuda/opr_cdtp.cu\
+	math/bcknd/device/cuda/opr_conv1.cu\
+	math/bcknd/device/cuda/opr_opgrad.cu\
+	gs/bcknd/device/cuda/gs.cu\
+	bc/bcknd/device/cuda/dirichlet.cu\
+	bc/bcknd/device/cuda/inflow.cu\
+	bc/bcknd/device/cuda/no_slip_wall.cu\
+	bc/bcknd/device/cuda/symmetry.cu\
+	bc/bcknd/device/cuda/facet_normal.cu
+endif
+
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
-pkginclude_HEADERS =  $(wildcard *.mod)
+pkginclude_HEADERS = $(wildcard *.mod) device/device_config.h
 
 CLEANFILES =*.mod
 
@@ -147,5 +200,33 @@ if ENABLE_MAKEDEPF90
 depend:
 	$(MAKEDEPF90) $(libneko_a_SOURCES) driver.f90  > .depends
 endif
+
+# Note we need to list any headers etc here for the dist. script
+EXTRA_DIST = \
+	bc/bcknd/device/cuda/dirichlet_kernel.h\
+	bc/bcknd/device/cuda/inflow_kernel.h\
+	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
+	bc/bcknd/device/cuda/symmetry_kernel.h\
+	bc/bcknd/device/cuda/facet_normal_kernel.h\
+	gs/bcknd/device/cuda/gs_kernels.h\
+	math/bcknd/device/cuda/math_kernel.h\
+	math/bcknd/device/cuda/mathops_kernel.h\
+	math/bcknd/device/cuda/dudxyz_kernel.h\
+	math/bcknd/device/cuda/cdtp_kernel.h\
+	math/bcknd/device/cuda/conv1_kernel.h\
+	math/bcknd/device/cuda/opgrad_kernel.h\
+	bc/bcknd/device/hip/dirichlet_kernel.h\
+	bc/bcknd/device/hip/inflow_kernel.h\
+	bc/bcknd/device/hip/no_slip_wall_kernel.h\
+	bc/bcknd/device/hip/symmetry_kernel.h\
+	bc/bcknd/device/hip/facet_normal_kernel.h\
+	gs/bcknd/device/hip/gs_kernels.h\
+	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/hip/mathops_kernel.h\
+	math/bcknd/device/hip/dudxyz_kernel.h\
+	math/bcknd/device/hip/cdtp_kernel.h\
+	math/bcknd/device/hip/conv1_kernel.h\
+	math/bcknd/device/hip/opgrad_kernel.h\
+	krylov/bcknd/device/hip/pc_jacobi_kernel.h
 
 include	.depends

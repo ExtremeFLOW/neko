@@ -461,7 +461,7 @@ contains
     
   end subroutine col2
 
-  !> Vector multiplication with 3 vectors \f$ a = a \cdot b \cdot c \f$
+  !> Vector multiplication with 3 vectors \f$ a =  b \cdot c \f$
   subroutine col3(a, b, c, n)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a

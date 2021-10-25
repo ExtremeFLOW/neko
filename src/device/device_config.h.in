@@ -1,0 +1,9 @@
+/**
+ * Parameters and options for device backends
+ */
+
+/**
+ * Floating point precision in device kernels
+ * @note Set to the same C/C++ equivalent type as @a rp
+ */
+using real = @NEKO_DEV_REAL_TYPE@;

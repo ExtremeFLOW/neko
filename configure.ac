@@ -22,6 +22,14 @@ AC_ARG_ENABLE(blk_size,
               AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
               [blk_size=${enableval}], [blk_size="10000"])
 
+AC_ARG_ENABLE(hip,
+	      AC_HELP_STRING([--enable-hip],[Compile with HIP backend]),
+	                     [enable_hip=${enableval}], [enable_hip=no])
+
+AC_ARG_ENABLE(cuda,
+	      AC_HELP_STRING([--enable-cuda],[Compile with CUDA backend]),
+	                     [enable_cuda=${enableval}], [enable_cuda=no])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -100,10 +108,6 @@ if test "x${have_blas_lapack}" != xyes; then
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
-# Checks for libxsmm
-AX_LIBXSMM
-
-
 found_domain_decomp="no"
 
 # Checks for ParMetis
@@ -125,23 +129,38 @@ fi
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "float")   				
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "double")   				
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_long_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL16")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "long double")   				
 else
    AC_MSG_ERROR([Invalid working precision])
 fi
 
 AC_SUBST(blk_size, ${blk_size})
 
+# Checks for libxsmm backend
+AX_LIBXSMM
+
+# Checks for HIP backend
+AX_HIP
+
+# Checks for CUDA backend
+AX_CUDA
+
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
-
-
+AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
+AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 
 
 
@@ -151,6 +170,7 @@ AC_CONFIG_FILES([Makefile\
 		 src/comm/comm.F90\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
+		 src/device/device_config.h\
 		 makeneko\
 		 neko.pc])
 
