@@ -1,5 +1,6 @@
 module ax_poisson
   use ax_product
+  use mxm_wrapper
   implicit none
 
   type, public, extends(ax_t) :: ax_poisson_t

@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.2.0])
+AC_INIT([neko],[0.2.1])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -44,6 +44,8 @@ if test "x${have_mpi}" != xno; then
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
 fi
+AX_MPIF08
+AX_MPI_DTYPE
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
@@ -67,17 +69,34 @@ AM_CONDITIONAL([ENABLE_MAKEDEPF90], [test -n "$MAKEDEPF90"])
 AC_CHECK_PROGS([FLINT], [flint])
 AM_CONDITIONAL([ENABLE_FLINT], [test -n "$FLINT"])
 
+# Checks for various platforms
 AX_CRAY
+AX_HPE_CRAY
 AX_SX
 
 # Checks for pFUnit
 AX_PFUNIT
 
 # Check for blas and lapack
-AX_LAPACK
-if test "x${ax_lapack_ok}" != xno; then
-   LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS"
-else
+AS_IF([test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes],
+       AX_CRAY_LIBSCI
+       if test "x${have_cray_libsci}" = xyes; then
+         have_blas_lapack="yes"
+       else
+         have_blas_lapack="no"
+       fi, have_blas_lapack="no")
+
+if test "x${have_blas_lapack}" != xyes; then
+  AX_LAPACK
+  if test "x${ax_lapack_ok}" != xno; then
+     LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS"
+     have_blas_lapack=yes
+  else
+     have_blas_lapack=no
+  fi
+fi
+
+if test "x${have_blas_lapack}" != xyes; then
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
@@ -129,7 +148,7 @@ AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\
-		 src/comm/comm.f90\
+		 src/comm/comm.F90\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
 		 makeneko\

@@ -336,7 +336,6 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
     real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
-    real(kind=rp) :: tmp
     integer :: e, i, j, k
     
     do e = 1, nel

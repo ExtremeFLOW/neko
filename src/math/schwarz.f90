@@ -37,7 +37,7 @@ contains
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
     type(bc_list_t), target, intent(inout):: bclst
-    integer :: nl, n
+
     call this%free()
     
     call space_init(this%Xh_schwarz, GLL, Xh%lx+2, Xh%lx+2, Xh%lx+2)
@@ -152,37 +152,38 @@ contains
 
   !>Setup schwarz weights, 3d, second step
   subroutine schwarz_setup_schwarz_wt3d_2(wt,ie,n,work, nelv)
-      integer, intent(in) ::n, nelv, ie
-      real(kind=rp), intent(inout) :: wt(n,n,4,3,nelv)
-      real(kind=rp), intent(inout) :: work(n,n,n)
-      
-      integer :: i,j,k
-      integer :: lbr,rbr,lbs,rbs,lbt,rbt
-
-      do k=1,n
-         do j=1,n
-            wt(j,k,1,1,ie)=1d0/work(1,j,k)
-            wt(j,k,2,1,ie)=1d0/work(2,j,k)
-            wt(j,k,3,1,ie)=1d0/work(n-1,j,k)
-            wt(j,k,4,1,ie)=1d0/work(n,j,k)
-         end do
-      end do
-      do k = 1,n
-         do i = 1,n
-            wt(i,k,1,2,ie) = 1d0/work(i,1,k)
-            wt(i,k,2,2,ie) = 1d0/work(i,2,k)
-            wt(i,k,3,2,ie) = 1d0/work(i,n-1,k)
-            wt(i,k,4,2,ie) = 1d0/work(i,n,k)
-         end do
-      end do
-      do j = 1,n
-         do i = 1,n
-            wt(i,j,1,3,ie) = 1d0/work(i,j,1)
-            wt(i,j,2,3,ie) = 1d0/work(i,j,2)
-            wt(i,j,3,3,ie) = 1d0/work(i,j,n-1)
-            wt(i,j,4,3,ie) = 1d0/work(i,j,n)
-         end do
-      end do
+    integer, intent(in) ::n, nelv, ie
+    real(kind=rp), intent(inout) :: wt(n,n,4,3,nelv)
+    real(kind=rp), intent(inout) :: work(n,n,n)      
+    integer :: i,j,k
+    
+    do k = 1, n
+       do j = 1, n
+          wt(j,k,1,1,ie) = 1.0_rp / work(1,j,k)
+          wt(j,k,2,1,ie) = 1.0_rp / work(2,j,k)
+          wt(j,k,3,1,ie) = 1.0_rp / work(n-1,j,k)
+          wt(j,k,4,1,ie) = 1.0_rp / work(n,j,k)
+       end do
+    end do
+    
+    do k = 1, n
+       do i = 1, n
+          wt(i,k,1,2,ie) = 1.0_rp / work(i,1,k)
+          wt(i,k,2,2,ie) = 1.0_rp / work(i,2,k)
+          wt(i,k,3,2,ie) = 1.0_rp / work(i,n-1,k)
+          wt(i,k,4,2,ie) = 1.0_rp / work(i,n,k)
+       end do
+    end do
+    
+    do j = 1, n
+       do i = 1, n
+          wt(i,j,1,3,ie) = 1.0_rp / work(i,j,1)
+          wt(i,j,2,3,ie) = 1.0_rp / work(i,j,2)
+          wt(i,j,3,3,ie) = 1.0_rp / work(i,j,n-1)
+          wt(i,j,4,3,ie) = 1.0_rp / work(i,j,n)
+       end do
+    end do
+    
   end subroutine schwarz_setup_schwarz_wt3d_2
 
   !> convert array a from extended size to regular

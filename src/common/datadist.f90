@@ -37,7 +37,6 @@ contains
     integer :: size             !< Size of comm where the dist. is def. on
     type(MPI_Comm) :: comm      !< comm. to define the dist. over
     type(linear_dist_t), target :: this
-    integer :: ierr
 
     this%M = n
     this%comm = comm

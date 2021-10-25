@@ -19,15 +19,13 @@ module fluid_method
   use dirichlet
   use symmetry
   use krylov_fctry
+  use precon_fctry
   use bc
-  use jacobi
-  use sx_jacobi
   use mesh
   use math
   use abbdf
   use mathops
   use operators
-  use hsmg
   use logger
   implicit none
   
@@ -65,6 +63,7 @@ module fluid_method
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
+     procedure, pass(this) :: set_source => fluid_scheme_set_source
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      procedure(fluid_method_init), pass(this), deferred :: init
@@ -321,13 +320,23 @@ contains
     call space_free(this%Xh)    
 
     if (allocated(this%ksp_vel)) then
-       call this%ksp_vel%free()
+       call krylov_solver_destroy(this%ksp_vel)
        deallocate(this%ksp_vel)
     end if
 
     if (allocated(this%ksp_prs)) then
-       call this%ksp_prs%free()
+       call krylov_solver_destroy(this%ksp_prs)
        deallocate(this%ksp_prs)
+    end if
+
+    if (allocated(this%pc_vel)) then
+       call precon_destroy(this%pc_vel)
+       deallocate(this%pc_vel)
+    end if
+
+    if (allocated(this%pc_prs)) then
+       call precon_destroy(this%pc_prs)
+       deallocate(this%pc_prs)
     end if
 
     call gs_free(this%gs_Xh)
@@ -430,30 +439,50 @@ contains
     type(bc_list_t), intent(inout) :: bclst
     character(len=20) :: pctype
     
-    if (trim(pctype) .eq. 'jacobi') then
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_jacobi_t::pc)
-       else
-          allocate(jacobi_t::pc)
-       end if
-    else if (trim(pctype) .eq. 'hsmg') then
-       allocate(hsmg_t::pc)
-    else
-       call neko_error('Unknown preconditioner')
-    end if
-
+    call precon_factory(pc, pctype)
+    
     select type(pcp => pc)
     type is(jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is(hsmg_t)
-       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+       if (len_trim(pctype) .gt. 4) then
+          if (index(pctype, '+') .eq. 5) then
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
+                  bclst, trim(pctype(6:)))
+          else
+             call neko_error('Unknown coarse grid solver')
+          end if
+       else
+          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+       end if
     end select
 
     call ksp%set_pc(pc)
     
   end subroutine fluid_scheme_precon_factory
+
+  !> Initialize source term
+  subroutine fluid_scheme_set_source(this, source_term, usr_f)
+    class(fluid_scheme_t), intent(inout) :: this
+    character(len=*) :: source_term
+    procedure(source_term_pw), optional :: usr_f
+
+    if (trim(source_term) .eq. 'noforce') then
+       call source_set_type(this%f_Xh, source_eval_noforce)
+    else if (trim(source_term) .eq. 'user' .and. present(usr_f)) then
+       call source_set_pw_type(this%f_Xh, usr_f)
+    else if (trim(source_term) .eq. '') then
+       if (pe_rank .eq. 0) then
+          call neko_warning('No source term defined, using default (noforce)')
+       end if
+       call source_set_type(this%f_Xh, source_eval_noforce)
+    else
+       call neko_error('Invalid source term')
+    end if
+
+  end subroutine fluid_scheme_set_source
 
   !> Initialize a user defined inflow condition
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)

@@ -6,6 +6,8 @@ module pipecg
   implicit none
   private
 
+  integer, parameter :: PIPECG_P_SPACE = 7
+
   !> Pipelined preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: pipecg_t
      real(kind=rp), allocatable :: p(:)
@@ -17,7 +19,6 @@ module pipecg
      real(kind=rp), allocatable :: z(:)
      real(kind=rp), allocatable :: mi(:)
      real(kind=rp), allocatable :: ni(:)
-     integer :: p_space
    contains
      procedure, pass(this) :: init => pipecg_init
      procedure, pass(this) :: free => pipecg_free
@@ -35,14 +36,12 @@ contains
     real(kind=rp), optional, intent(inout) :: abs_tol
     
     call this%free()
-    
-    this%p_space = 50
-    
+        
     allocate(this%p(n))
     allocate(this%q(n))
     allocate(this%r(n))
     allocate(this%s(n))
-    allocate(this%u(n,this%p_space+1))
+    allocate(this%u(n,PIPECG_P_SPACE+1))
     allocate(this%w(n))
     allocate(this%z(n))
     allocate(this%mi(n))
@@ -116,7 +115,7 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, i, j, k, ierr, p_cur, p_prev, u_prev
     real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac
-    real(kind=rp) :: alpha(this%p_space), beta(this%p_space)
+    real(kind=rp) :: alpha(PIPECG_P_SPACE), beta(PIPECG_P_SPACE)
     real(kind=rp) :: gamma1, gamma2, delta
     real(kind=rp) :: tmp1, tmp2, tmp3, x_plus(NEKO_BLK_SIZE)
     type(MPI_Request) :: request
@@ -133,8 +132,8 @@ contains
     associate(p => this%p, q => this%q, r => this%r, s => this%s, &
          u => this%u, w => this%w, z => this%z, mi => this%mi, ni => this%ni)
       
-      p_prev = this%p_space
-      u_prev = this%p_space+1
+      p_prev = PIPECG_P_SPACE
+      u_prev = PIPECG_P_SPACE+1
       p_cur = 1
       call rzero(x%x, n)
       call rzero(z, n)
@@ -238,13 +237,13 @@ contains
          reduction(2) = tmp2
          reduction(3) = tmp3
          
-         if (p_cur .eq. this%p_space) then
+         if (p_cur .eq. PIPECG_P_SPACE) then
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
                      x_plus(k) = 0.0
                   end do
-                  p_prev = this%p_space+1
+                  p_prev = PIPECG_P_SPACE+1
                   do j = 1, p_cur
                      do k = 1, NEKO_BLK_SIZE
                         p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
@@ -254,24 +253,24 @@ contains
                   end do
                   do k = 1, NEKO_BLK_SIZE
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                     u(i+k,this%p_space+1) = u(i+k,this%p_space)
+                     u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                   end do
                else 
                   do k = 1, n-i
                      x_plus(1) = 0.0
-                     p_prev = this%p_space + 1
+                     p_prev = PIPECG_P_SPACE + 1
                      do j = 1, p_cur
                         p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
                         x_plus(1) = x_plus(1) + alpha(j) * p(i+k)
                         p_prev = j
                      end do
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                     u(i+k,this%p_space+1) = u(i+k,this%p_space)
+                     u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                   end do
                end if
             end do
             p_prev = p_cur
-            u_prev = this%p_space+1
+            u_prev = PIPECG_P_SPACE+1
             alpha(1) = alpha(p_cur) 
             beta(1) = beta(p_cur)
             p_cur = 1
@@ -288,7 +287,7 @@ contains
                do k = 1, NEKO_BLK_SIZE
                   x_plus(k) = 0.0
                end do
-               p_prev = this%p_space+1
+               p_prev = PIPECG_P_SPACE+1
                do j = 1, p_cur
                   do k = 1, NEKO_BLK_SIZE
                      p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
@@ -298,19 +297,19 @@ contains
                end do
                do k = 1, NEKO_BLK_SIZE
                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-                  u(i+k,this%p_space+1) = u(i+k,this%p_space)
+                  u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                end do
             else 
                do k = 1, n-i
                   x_plus(1) = 0.0
-                  p_prev = this%p_space + 1
+                  p_prev = PIPECG_P_SPACE + 1
                   do j = 1, p_cur
                      p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
                      x_plus(1) = x_plus(1) + alpha(j) * p(i+k)
                      p_prev = j
                   end do
                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
-                  u(i+k,this%p_space+1) = u(i+k,this%p_space)
+                  u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                end do
             end if
          end do

@@ -630,7 +630,7 @@ contains
     integer, pointer :: neighs(:)
 
     
-    call send_buffer%init()
+    call send_buffer%init(m%mpts * 2)
     
     ! Build send buffers containing
     ! [pt_glb_idx, #neigh, neigh id_1 ....neigh_id_n] 
@@ -708,9 +708,9 @@ contains
     !>@todo move this into distdata
     allocate(m%ddata%local_to_global_edge(m%meds))
 
-    call edge_idx%init()
-    call send_buff%init()
-    call owner%init()
+    call edge_idx%init(m%hte%num_entries())
+    call send_buff%init(m%hte%num_entries())
+    call owner%init(m%hte%num_entries())
 
     call glb_to_loc%init(32, i)
 
@@ -786,7 +786,7 @@ contains
     call MPI_Allreduce(send_buff%size(), max_recv, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
-    call ghost%init()
+    call ghost%init(send_buff%size())
 
     allocate(recv_buff(max_recv))
 
@@ -919,7 +919,7 @@ contains
        allocate(m%ddata%local_to_global_facet(m%meds))
     else
        allocate(m%ddata%local_to_global_facet(m%mfcs))
-       call face_owner%init()
+       call face_owner%init(m%mfcs)
        call face_ghost%init(64, i)       
     end if
     
@@ -975,25 +975,33 @@ contains
     call MPI_Exscan(owned_facets, shared_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     shared_offset = shared_offset + glb_nshared + 1
-
-    call send_buff%init()
     
-    !> @todo Add quad case
-    fd => face_owner%array()
-    do i = 1, face_owner%size()
-       if (m%htf%get(fd(i), id) .eq. 0) then
-          call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
+    if (m%gdim .eq. 2) then
+       !> @todo Add quad case
+    else
 
-          ! Add new number to send buffer
-          ! [facet id1 ... facet idn new_glb_id]
-          do j = 1, 4
-             call send_buff%push(fd(i)%x(j))
-          end do
-          call send_buff%push(shared_offset)
-
-          shared_offset = shared_offset + 1
+       if (owned_facets .gt. 32)  then
+          call send_buff%init(owned_facets)
+       else
+          call send_buff%init()
        end if
-    end do
+           
+       fd => face_owner%array()
+       do i = 1, face_owner%size()
+          if (m%htf%get(fd(i), id) .eq. 0) then
+             call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
+
+             ! Add new number to send buffer
+             ! [facet id1 ... facet idn new_glb_id]
+             do j = 1, 4
+                call send_buff%push(fd(i)%x(j))
+             end do
+             call send_buff%push(shared_offset)
+             
+             shared_offset = shared_offset + 1
+          end if
+       end do
+    end if
 
     ! Determine total number of unique facets in the mesh
     ! (This can probably be done in a clever way...)
