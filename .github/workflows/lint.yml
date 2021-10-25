@@ -9,7 +9,7 @@ on:
 jobs:
   linting:
     name: "Flint"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     steps:
    #  - name: Cache flinter
    #     id: cache-flinter
