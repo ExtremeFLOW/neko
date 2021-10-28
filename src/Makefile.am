@@ -156,7 +156,6 @@ endif
 
 if ENABLE_HIP
 libneko_a_SOURCES += \
-	device/hip/hip_wrapper.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/mathops.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\
@@ -174,7 +173,6 @@ endif
 
 if ENABLE_CUDA
 libneko_a_SOURCES += \
-	device/cuda/cuda_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/mathops.cu\
 	math/bcknd/device/cuda/opr_dudxyz.cu\

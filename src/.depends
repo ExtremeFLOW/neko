@@ -145,7 +145,6 @@ bc/bcknd/device/device_symmetry.o : bc/bcknd/device/device_symmetry.F90 common/u
 bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 common/utils.o config/num_types.o 
 neko.o : neko.f90 device/device.o common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
 comm/parmetis_wrapper.o : comm/parmetis_wrapper.c 
-device/hip/hip_wrapper.o : device/hip/hip_wrapper.hip 
 math/bcknd/device/hip/math.o : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h
 math/bcknd/device/hip/mathops.o : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
 math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h
@@ -159,7 +158,6 @@ bc/bcknd/device/hip/inflow.o : bc/bcknd/device/hip/inflow.hip bc/bcknd/device/hi
 bc/bcknd/device/hip/no_slip_wall.o : bc/bcknd/device/hip/no_slip_wall.hip bc/bcknd/device/hip/no_slip_wall_kernel.h
 bc/bcknd/device/hip/symmetry.o : bc/bcknd/device/hip/symmetry.hip bc/bcknd/device/hip/symmetry_kernel.h
 bc/bcknd/device/hip/facet_normal.o : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h
-device/cuda/cuda_wrapper.o : device/cuda/cuda_wrapper.cu 
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.o : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
 math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h
