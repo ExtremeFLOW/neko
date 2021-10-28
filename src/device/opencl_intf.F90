@@ -1,13 +1,13 @@
 !> Fortran OpenCL interface
 module opencl_intf
-  use utils,
+  use utils
   use, intrinsic :: iso_c_binding
   implicit none
 
 #ifdef HAVE_OPENCL
 
   !> Global OpenCL command queue
-  type(c_ptr) :: glb_cmd_queue
+  type(c_ptr) :: glb_cmd_queue = C_NULL_PTR
   
   !> Enum Error Codes
   enum, bind(c)
@@ -52,7 +52,7 @@ module opencl_intf
        type(c_ptr), value :: cmd_queue
      end function clFinish
   end interface
-  
+
 #endif
   
 end module opencl_intf
