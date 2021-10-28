@@ -28,7 +28,7 @@ module cuda_intf
        implicit none
        type(c_ptr) :: ptr_d
        integer(c_size_t), value :: s
-     end function cudamalloc
+     end function cudaMalloc
   end interface
 
   interface
@@ -37,7 +37,7 @@ module cuda_intf
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_d
-     end function cudafree
+     end function cudaFree
   end interface
   
   interface
@@ -56,7 +56,7 @@ module cuda_intf
           bind(c, name='cudaDeviceSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
-     end function cudadevicesynchronize
+     end function cudaDeviceSynchronize
   end interface
 
 #endif
