@@ -1,6 +1,7 @@
 !> Device abstraction, common interface for various accelerators
 module device
   use num_types
+  use opencl_intf
   use cuda_intf
   use hip_intf
   use htable
@@ -48,13 +49,13 @@ module device
 contains
 
   subroutine device_init
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%init(64)
 #endif
   end subroutine device_init
 
   subroutine device_finalize
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%free()
 #endif
   end subroutine device_finalize
@@ -83,6 +84,10 @@ contains
     end if
 #elif HAVE_CUDA
     if (cudafree(x_d) .ne. cudaSuccess) then
+       call neko_error('Memory deallocation on device failed')
+    end if
+#elif HAVE_OPENCL
+    if (clReleaseMemObject(x_d) .ne. CL_SUCCESS) then
        call neko_error('Memory deallocation on device failed')
     end if
 #endif
@@ -694,6 +699,10 @@ contains
     end if
 #elif HAVE_CUDA
     if (cudaDeviceSynchronize() .ne. cudaSuccess) then
+       call neko_error('Error during device sync')
+    end if
+#elif HAVE_OPENCL
+    if (clFlush(glb_cmd_queue) .ne. CL_SUCCESS) then
        call neko_error('Error during device sync')
     end if
 #endif

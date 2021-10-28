@@ -157,6 +157,8 @@ AX_HIP
 # Checks for CUDA backend
 AX_CUDA
 
+# Checks for OpenCL backend
+AX_OPENCL
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
