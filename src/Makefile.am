@@ -156,7 +156,6 @@ endif
 
 if ENABLE_HIP
 libneko_a_SOURCES += \
-	device/hip/hip_wrapper.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/mathops.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\

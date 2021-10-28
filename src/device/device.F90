@@ -64,7 +64,7 @@ contains
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
 #ifdef HAVE_HIP
-    if (hipmalloc(x_d, s) .ne. HIP_SUCCESS) then
+    if (hipMalloc(x_d, s) .ne. hipSuccess) then
        call neko_error('Memory allocation on device failed')
     end if
 #elif HAVE_CUDA
@@ -78,7 +78,7 @@ contains
   subroutine device_free(x_d)
     type(c_ptr), intent(inout) :: x_d
 #ifdef HAVE_HIP
-    if (hipfree(x_d) .ne. HIP_SUCCESS) then
+    if (hipfree(x_d) .ne. hipSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #elif HAVE_CUDA
@@ -215,14 +215,16 @@ contains
     integer(c_size_t), intent(in) :: s
     integer, intent(in), value :: dir
 #ifdef HAVE_HIP
-    if (hipmemcpy(ptr_h, x_d, s, dir) .ne. HIP_SUCCESS) then
-       if (dir .eq. HOST_TO_DEVICE) then
+    if (dir .eq. HOST_TO_DEVICE) then
+       if (hipMemcpy(x_d, ptr_h, s, hipMemcpyHostToDevice) .ne. hipSuccess) then
           call neko_error('Device memcpy (host-to-device) failed')
-       else if (dir .eq. DEVICE_TO_HOST) then
-          call neko_error('Device memcpy (device-to-host) failed')
-       else
-          call neko_error('Device memcpy failed (invalid direction')
        end if
+    else if (dir .eq. DEVICE_TO_HOST) then       
+       if (hipMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToHost) .ne. hipSuccess) then       
+          call neko_error('Device memcpy (device-to-host) failed')
+       end if
+    else
+       call neko_error('Device memcpy failed (invalid direction')
     end if
 #elif HAVE_CUDA
     if (dir .eq. HOST_TO_DEVICE) then
@@ -687,7 +689,7 @@ contains
   !> Synchronize the device
   subroutine device_sync()
 #ifdef HAVE_HIP
-    if (hipdevicesynchronize() .ne. HIP_SUCCESS) then
+    if (hipDeviceSynchronize() .ne. hipSuccess) then
        call neko_error('Error during device sync')
     end if
 #elif HAVE_CUDA
