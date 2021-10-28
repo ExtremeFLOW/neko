@@ -68,7 +68,7 @@ contains
        call neko_error('Memory allocation on device failed')
     end if
 #elif HAVE_CUDA
-    if (cudamalloc(x_d, s) .ne. CUDA_SUCCESS) then
+    if (cudamalloc(x_d, s) .ne. cudaSuccess) then
        call neko_error('Memory allocation on device failed')
     end if
 #endif
@@ -82,7 +82,7 @@ contains
        call neko_error('Memory deallocation on device failed')
     end if
 #elif HAVE_CUDA
-    if (cudafree(x_d) .ne. CUDA_SUCCESS) then
+    if (cudafree(x_d) .ne. cudaSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #endif
@@ -225,14 +225,16 @@ contains
        end if
     end if
 #elif HAVE_CUDA
-    if (cudamemcpy(ptr_h, x_d, s, dir) .ne. CUDA_SUCCESS) then
-       if (dir .eq. HOST_TO_DEVICE) then
+    if (dir .eq. HOST_TO_DEVICE) then
+       if (cudaMemcpy(x_d, ptr_h, s, cudaMemcpyHostToDevice) .ne. cudaSuccess) then
           call neko_error('Device memcpy (host-to-device) failed')
-       else if (dir .eq. DEVICE_TO_HOST) then
-          call neko_error('Device memcpy (device-to-host) failed')
-       else
-          call neko_error('Device memcpy failed (invalid direction')
        end if
+    else if (dir .eq. DEVICE_TO_HOST) then       
+       if (cudaMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToHost) .ne. cudaSuccess) then       
+          call neko_error('Device memcpy (device-to-host) failed')
+       end if
+    else
+       call neko_error('Device memcpy failed (invalid direction')
     end if
 #endif
 
@@ -689,7 +691,7 @@ contains
        call neko_error('Error during device sync')
     end if
 #elif HAVE_CUDA
-    if (cudadevicesynchronize() .ne. CUDA_SUCCESS) then
+    if (cudaDeviceSynchronize() .ne. cudaSuccess) then
        call neko_error('Error during device sync')
     end if
 #endif

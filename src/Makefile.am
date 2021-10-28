@@ -174,7 +174,6 @@ endif
 
 if ENABLE_CUDA
 libneko_a_SOURCES += \
-	device/cuda/cuda_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/mathops.cu\
 	math/bcknd/device/cuda/opr_dudxyz.cu\
