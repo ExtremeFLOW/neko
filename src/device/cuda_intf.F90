@@ -5,7 +5,8 @@ module cuda_intf
   implicit none
 
 #ifdef HAVE_CUDA
-  
+
+  !> Enum @a cudaError
   enum, bind(c)
      enumerator :: cudaSuccess = 0
      enumerator :: cudaErrorInvalidValue = 1
@@ -13,6 +14,7 @@ module cuda_intf
      enumerator :: cudaErrorInitializationError = 3
   end enum
 
+  !> Enum @a cudaMemcpyKind
   enum, bind(c)
      enumerator :: cudaMemcpyHostToHost = 0
      enumerator :: cudaMemcpyHostToDevice = 1
