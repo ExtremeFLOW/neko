@@ -51,7 +51,12 @@ contains
   subroutine device_init
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%init(64)
+
+#if defined(HAVE_OPENCL)
+    call opencl_init
 #endif
+
+#endif    
   end subroutine device_init
 
   subroutine device_finalize
@@ -702,7 +707,7 @@ contains
        call neko_error('Error during device sync')
     end if
 #elif HAVE_OPENCL
-    if (clFlush(glb_cmd_queue) .ne. CL_SUCCESS) then
+    if (clFinish(glb_cmd_queue) .ne. CL_SUCCESS) then
        call neko_error('Error during device sync')
     end if
 #endif
