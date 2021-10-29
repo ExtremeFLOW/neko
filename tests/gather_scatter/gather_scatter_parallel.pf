@@ -9,6 +9,7 @@ module gather_scatter_parallel
   use point
   use datadist
   use gather_scatter
+  use neko_config
   implicit none
   
 contains
@@ -78,8 +79,17 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+    end if
+
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
-   
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+    end if
+            
     do i = 1,lx
       do j = 1,lx
       @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
@@ -154,7 +164,16 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+    end if
+    
     call gs_op_vector(gs_h,x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+    end if
     
     do i = 1,lx
       do j = 1,lx
@@ -229,7 +248,17 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+    end if
+    
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+    end if
+    
     do i = 1,lx
       do j = 1,lx
       @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
@@ -303,7 +332,17 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+    end if
+    
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+    end if
+    
     do i = 1,lx
       do j = 1,lx
       @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
@@ -375,10 +414,19 @@ contains
     call gs_init(gs_h, d)
     call field_init(x,m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
-    call rone(x%x, n)
-    
+    call rone(x%x, n)    
     call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+    end if
+    
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+    end if
+    
     do i = 1,lx
       do j = 1,lx
       @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
@@ -452,7 +500,17 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+    end if
+    
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+    end if
+    
     do i = 1,lx
       do j = 1,lx
       @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
@@ -526,7 +584,17 @@ contains
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
+    end if
+    
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
+    end if
+    
     do i = 1,lx
       do j = 1,lx
       @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
@@ -534,10 +602,5 @@ contains
     enddo 
 
   end subroutine test_dofmap_face14
-
-
-
-
-
   
 end module gather_scatter_parallel
