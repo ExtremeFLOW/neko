@@ -978,6 +978,9 @@ contains
     
     if (m%gdim .eq. 2) then
        !> @todo Add quad case
+
+       call send_buff%init()
+       
     else
 
        if (owned_facets .gt. 32)  then
