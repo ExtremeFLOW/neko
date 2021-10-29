@@ -140,6 +140,7 @@ libneko_a_SOURCES = \
 	common/jobctrl.f90\
 	device/cuda_intf.F90\
 	device/hip_intf.F90\
+	device/opencl_intf.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/device_mathops.F90\

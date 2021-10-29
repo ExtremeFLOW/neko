@@ -22,8 +22,8 @@ module bc
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
      type(stack_i4t2_t) :: marked_facet
-     type(c_ptr) :: msk_d
-     type(c_ptr) :: facet_d
+     type(c_ptr) :: msk_d = C_NULL_PTR
+     type(c_ptr) :: facet_d = C_NULL_PTR
    contains     
      procedure, pass(this) :: init => bc_init
      procedure, pass(this) :: free => bc_free
@@ -261,7 +261,8 @@ contains
     this%msk(0) = msk_c
     this%facet(0) = msk_c
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+        (NEKO_BCKND_OPENCL .eq. 1)) then 
        n = facet_size * this%marked_facet%size() + 1
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
@@ -269,7 +270,7 @@ contains
        call device_memcpy(this%msk, this%msk_d, n, HOST_TO_DEVICE)
        call device_memcpy(this%facet, this%facet_d, n, HOST_TO_DEVICE)
     end if
-    
+
   end subroutine bc_finalize
 
   !> Initialize a list of boundary conditions

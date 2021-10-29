@@ -130,6 +130,8 @@ contains
           write(log_buf(13:), '(a)') 'Accelerator (CUDA)'
        else if (NEKO_BCKND_HIP .eq. 1) then
           write(log_buf(13:), '(a)') 'Accelerator (HIP)'
+       else if (NEKO_BCKND_OPENCL .eq. 1) then
+          write(log_buf(13:), '(a)') 'Accelerator (OpenCL)'
        else
           write(log_buf(13:), '(a)') 'CPU'
        end if

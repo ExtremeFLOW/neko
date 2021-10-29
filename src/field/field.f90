@@ -20,7 +20,7 @@ module field
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
      character(len=80) :: name            !< Name of the field
-     type(c_ptr) :: x_d
+     type(c_ptr) :: x_d = C_NULL_PTR
   end type field_t
 
   interface field_init

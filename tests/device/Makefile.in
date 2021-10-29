@@ -8,16 +8,16 @@ FC = @FC@
 	$(FC) -c $(FFLAGS) $<
 
 
-check: space_test
+check: device_test
 
 
-space_test_TESTS := space.pf
-space_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
-$(eval $(call make_pfunit_test,space_test))
+device_test_TESTS := device.pf
+device_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,device_test))
 
 
 clean:
-	$(RM) *.o *.mod *.a  *.inc *.F90 space_test
+	$(RM) *.o *.mod *.a  *.inc *.F90 device_test
 
 
 

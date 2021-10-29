@@ -1,6 +1,7 @@
 !> Device abstraction, common interface for various accelerators
 module device
   use num_types
+  use opencl_intf
   use cuda_intf
   use hip_intf
   use htable
@@ -48,14 +49,24 @@ module device
 contains
 
   subroutine device_init
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%init(64)
+
+#if defined(HAVE_OPENCL)
+    call opencl_init
 #endif
+
+#endif    
   end subroutine device_init
 
   subroutine device_finalize
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%free()
+
+#if defined(HAVE_OPENCL)
+    call opencl_finalize
+#endif
+
 #endif
   end subroutine device_finalize
   
@@ -63,12 +74,18 @@ contains
   subroutine device_alloc(x_d, s)
     type(c_ptr), intent(inout) :: x_d
     integer(c_size_t) :: s
+    integer :: ierr
 #ifdef HAVE_HIP
     if (hipMalloc(x_d, s) .ne. hipSuccess) then
        call neko_error('Memory allocation on device failed')
     end if
 #elif HAVE_CUDA
     if (cudamalloc(x_d, s) .ne. cudaSuccess) then
+       call neko_error('Memory allocation on device failed')
+    end if
+#elif HAVE_OPENCL
+    x_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE, s, C_NULL_PTR, ierr)
+    if (ierr .ne. CL_SUCCESS) then
        call neko_error('Memory allocation on device failed')
     end if
 #endif
@@ -85,7 +102,12 @@ contains
     if (cudafree(x_d) .ne. cudaSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
+#elif HAVE_OPENCL
+    if (clReleaseMemObject(x_d) .ne. CL_SUCCESS) then
+       call neko_error('Memory deallocation on device failed')
+    end if
 #endif
+    x_d = C_NULL_PTR
   end subroutine device_free
 
   !> Copy data between host and device (rank 1 arrays)
@@ -220,7 +242,7 @@ contains
           call neko_error('Device memcpy (host-to-device) failed')
        end if
     else if (dir .eq. DEVICE_TO_HOST) then       
-       if (hipMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToHost) .ne. hipSuccess) then       
+       if (hipMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToHost) .ne. hipSuccess) then
           call neko_error('Device memcpy (device-to-host) failed')
        end if
     else
@@ -232,14 +254,25 @@ contains
           call neko_error('Device memcpy (host-to-device) failed')
        end if
     else if (dir .eq. DEVICE_TO_HOST) then       
-       if (cudaMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToHost) .ne. cudaSuccess) then       
+       if (cudaMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToHost) .ne. cudaSuccess) then
           call neko_error('Device memcpy (device-to-host) failed')
        end if
     else
        call neko_error('Device memcpy failed (invalid direction')
     end if
+#elif HAVE_OPENCL
+    if (dir .eq. HOST_TO_DEVICE) then
+       if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_8, s, ptr_h, &
+            0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
+          call neko_error('Device memcpy (host-to-device) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_HOST) then
+       if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_8, s, ptr_h, &
+            0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
+          call neko_error('Device memcpy (host-to-device) failed')
+       end if
+    end if
 #endif
-
   end subroutine device_memcpy_common
 
   !> Associate a Fortran rank 1 array to a (allocated) device pointer
@@ -694,6 +727,10 @@ contains
     end if
 #elif HAVE_CUDA
     if (cudaDeviceSynchronize() .ne. cudaSuccess) then
+       call neko_error('Error during device sync')
+    end if
+#elif HAVE_OPENCL
+    if (clFinish(glb_cmd_queue) .ne. CL_SUCCESS) then
        call neko_error('Error during device sync')
     end if
 #endif
