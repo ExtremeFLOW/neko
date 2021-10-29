@@ -29,6 +29,24 @@ module opencl_intf
      enumerator :: CL_MAP_FAILURE = -12
   end enum
 
+  !> Enum mem flags
+  enum, bind(c)
+     enumerator :: CL_MEM_READ_WRITE = 1
+     enumerator :: CL_MEM_WRITE_ONLY = 2
+     enumerator :: CL_MEM_READ_ONLY = 4
+     enumerator :: CL_MEM_USE_HOST_PTR = 8
+     enumerator :: CL_MEM_ALLOC_HOST_PTR = 16
+     enumerator :: CL_MEM_HOST_WRITE_ONLY = 128
+     enumerator :: CL_MEM_HOST_READ_ONLY = 256
+     enumerator :: CL_MEM_HOST_NO_ACCESS = 512
+  end enum
+
+  !> Enum boolean
+  enum, bind(c)
+     enumerator :: CL_FALSE = 0
+     enumerator :: CL_TRUE = 1
+  end enum
+
   enum, bind(c)
      enumerator :: CL_CONTEXT_PLATFORM = int(Z'1084')
   end enum
@@ -89,6 +107,55 @@ module opencl_intf
        integer(c_int64_t), value :: properties
        integer(c_int) :: ierr
      end function clCreateCommandQueue
+  end interface
+
+  interface
+     type(c_ptr) function clCreateBuffer(context, flags, size,  host_ptr, ierr) &
+          bind(c, name='clCreateBuffer')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: context
+       integer(c_int), value :: flags
+       integer(c_size_t), value :: size
+       type(c_ptr), value :: host_ptr
+       integer(c_int) :: ierr
+     end function clCreateBuffer
+  end interface
+
+  interface
+     integer (c_int) function clEnqueueReadBuffer(queue, buffer, &
+          blocking_read, offset, size, ptr, num_events_in_wait_list, &
+          event_wait_list, event) bind(c, name='clEnqueueReadBuffer')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       type(c_ptr), value :: buffer
+       integer(c_int), value :: blocking_read
+       integer(c_size_t), value :: offset
+       integer(c_size_t), value :: size
+       type(c_ptr), value :: ptr
+       integer(c_int), value :: num_events_in_wait_list
+       type(c_ptr), value :: event_wait_list
+       type(c_ptr), value :: event
+     end function clEnqueueReadBuffer
+  end interface
+
+  interface
+     integer (c_int) function clEnqueueWriteBuffer(queue, buffer, &
+          blocking_write, offset, size, ptr, num_events_in_wait_list, &
+          event_wait_list, event) bind(c, name='clEnqueueWriteBuffer')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       type(c_ptr), value :: buffer
+       integer(c_int), value :: blocking_write
+       integer(c_size_t), value :: offset
+       integer(c_size_t), value :: size
+       type(c_ptr), value :: ptr
+       integer(c_int), value :: num_events_in_wait_list
+       type(c_ptr), value :: event_wait_list
+       type(c_ptr), value :: event
+     end function clEnqueueWriteBuffer
   end interface
 
   interface
