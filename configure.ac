@@ -198,7 +198,8 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/bc/Makefile\
 		 tests/signal/Makefile\
 		 tests/jobctrl/Makefile\
-		 tests/device/Makefile])
+		 tests/device/Makefile\
+		 tests/device_math/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\

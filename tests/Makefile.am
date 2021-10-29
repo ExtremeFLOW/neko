@@ -19,7 +19,8 @@ SUBDIRS = tuple\
 	  bc\
 	  signal\
 	  jobctrl\
-	  device
+	  device\
+	  device_math
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -42,7 +43,8 @@ TESTS = device/device_test\
 	krylov/krylov_test\
 	bc/bc_test\
 	signal/signal_test\
-	jobctrl/jobctrl_test
+	jobctrl/jobctrl_test\
+	device_math/device_math_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
@@ -81,6 +83,7 @@ EXTRA_DIST = \
 	htable/htable_r8.pf\
 	htable/htable_i4.pf\
 	htable/htable_i4t4.pf\
+	device_math/device_math_parallel.pf\
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
@@ -88,4 +91,5 @@ EXTRA_DIST = \
 	math/math_test\
 	field/field_test\
 	mean_field/mean_field_test\
-	mean_sqr_field/mean_sqr_field_test
+	mean_sqr_field/mean_sqr_field_test\
+	device_math/device_math_test

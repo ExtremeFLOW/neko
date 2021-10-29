@@ -1,0 +1,223 @@
+module device_math_parallel
+  use mpi
+  use math
+  use pfunit
+  use device
+  use device_math  
+  use neko_config
+  use num_types
+  implicit none
+
+contains
+
+  @test
+  subroutine test_device_math_rzero
+    integer, parameter :: n = 17
+    real(kind=rp) :: a(n)
+    type(c_ptr) :: a_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_init
+    
+       a = 1.0_rp
+       
+       call device_map(a, a_d, size(a))
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       
+       call device_rzero(a_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(0.0_rp, a(i))
+       end do
+       
+       do i = 1, n
+          a(i) = real(i, rp)
+       end do
+       
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       
+       call device_rzero(a_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(0.0_rp, a(i))
+       end do
+    end if
+    
+  end subroutine test_device_math_rzero
+
+  @test
+  subroutine test_device_math_copy
+    integer, parameter :: n = 17
+    real(kind=rp) :: a(n), b(n)
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_init
+       
+       call rone(a, n)
+       call rzero(b, n)
+       do i = 1, n
+          @assertNotEqual(a(i), b(i))
+       end do
+
+       call device_map(a, a_d, size(a))
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+    
+       call device_map(b, b_d, size(b))
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       call device_copy(b_d, a_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       call device_memcpy(b, b_d, size(a), DEVICE_TO_HOST)
+    
+       do i = 1, n
+          @assertEqual(a(i), b(i))
+       end do
+    end if
+    
+  end subroutine test_device_math_copy
+
+  @test
+  subroutine test_device_math_add2s1
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2.0_rp
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       do i = 1, n
+          a(i) = 20.0_rp
+          b(i) = 2.0_rp
+       end do
+       
+       call device_init
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       call device_add2s1(a_d, b_d, c1, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(42.0_rp, a(i))
+       end do
+    end if
+    
+  end subroutine test_device_math_add2s1
+
+  @test
+  subroutine test_device_math_add2s2
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2_rp
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       do i = 1, n
+          a(i) = 20.0_rp
+          b(i) = 2.0_rp
+       end do
+
+       call device_init
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       call device_add2s2(a_d, b_d, c1, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+
+       do i = 1, n
+          @assertEqual(24.0_rp, a(i))
+       end do
+    end if
+    
+  end subroutine test_device_math_add2s2
+
+  @test
+  subroutine test_device_math_col2
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       do i = 1, n
+          a(i) = 21.0_rp
+          b(i) = 2.0_rp
+       end do
+       
+       call device_init
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       call device_col2(a_d, b_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(42.0_rp, a(i))
+       end do
+    end if
+
+  end subroutine test_device_math_col2
+
+  @test(npes=[1])
+  subroutine test_device_math_glsc3(this)
+    class (MpiTestMethod), intent(inout) :: this
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b, c
+    real(kind=rp) :: res, expected
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    type(c_ptr) :: c_d = C_NULL_PTR
+    integer :: i, ierr
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+       
+       do i = 1, n
+          a(i) = 1.0_rp
+          b(i) = 1.0_rp
+          c(i) = 1.0_rp
+       end do
+       
+       call device_init
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       call device_map(c, c_d, size(c))
+       
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       
+       expected = real(this%getNumProcesses(), rp)  * 17.0_rp
+       res = device_glsc3(a_d, b_d, c_d, n)
+       @assertEqual(expected, res)
+       @MPIassertEqual(expected, res)
+    end if
+    
+  end subroutine test_device_math_glsc3
+
+end module device_math_parallel
