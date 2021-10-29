@@ -18,9 +18,11 @@ SUBDIRS = tuple\
 	  krylov\
 	  bc\
 	  signal\
-	  jobctrl
+	  jobctrl\
+	  device
 
-TESTS = tuple/tuple_test\
+TESTS = device/device_test\
+	tuple/tuple_test\
 	stack/stack_test\
 	point/point_test\
 	htable/htable_test\
@@ -61,6 +63,7 @@ EXTRA_DIST = \
 	field/field_parallel.pf\
 	mean_field/mean_field_parallel.pf\
 	mean_sqr_field/mean_sqr_field_parallel.pf\
+	device/device.pf\
 	uset/uset_i4.pf\
 	uset/uset_r8.pf\
 	uset/uset_i8.pf\
