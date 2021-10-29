@@ -26,6 +26,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -101,6 +103,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -174,6 +178,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -246,6 +252,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -317,6 +325,8 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
+    
+    call device_init
     
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -391,6 +401,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -462,6 +474,8 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
+    
+    call device_init
     
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
