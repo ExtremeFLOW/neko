@@ -11,6 +11,9 @@ module opencl_intf
 
   !> Global OpenCL context
   type(c_ptr) :: glb_ctx = C_NULL_PTR
+
+  !> Global OpenCL device_id
+  type(c_ptr), target :: glb_device_id = C_NULL_PTR
   
   !> Enum Error Codes
   enum, bind(c)
@@ -206,7 +209,7 @@ module opencl_intf
 contains
 
   subroutine opencl_init
-    type(c_ptr), target :: platform_id, device_id
+    type(c_ptr), target :: platform_id!, device_id
     integer(c_int) :: num_platforms, num_devices, ierr
     integer(c_intptr_t) :: ctx_prop(3)
     integer(c_int64_t), parameter :: queue_props = 0
@@ -218,7 +221,7 @@ contains
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &
-         c_loc(device_id), num_devices) .ne. CL_SUCCESS) then
+         c_loc(glb_device_id), num_devices) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a device id')
     end if
 
@@ -228,7 +231,7 @@ contains
        end if
     end if
 
-    glb_ctx = clCreateContext(C_NULL_PTR, num_devices, c_loc(device_id), &
+    glb_ctx = clCreateContext(C_NULL_PTR, num_devices, c_loc(glb_device_id), &
          C_NULL_FUNPTR, C_NULL_PTR, ierr)
 
     if (ierr .ne. CL_SUCCESS) then
@@ -241,7 +244,7 @@ contains
        end if
     end if
     
-    glb_cmd_queue = clCreateCommandQueue(glb_ctx, device_id, queue_props, ierr)
+    glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, ierr)
 
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
