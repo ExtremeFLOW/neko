@@ -188,12 +188,20 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/facet_normal.cu
 endif
 
+if ENABLE_OPENCL
+libneko_a_SOURCES += \
+	math/bcknd/device/opencl/math.c
+
+%.cl.h: %.cl
+	./scripts/cltostring.sh $<
+endif
+
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
 pkginclude_HEADERS = $(wildcard *.mod) device/device_config.h
 
-CLEANFILES =*.mod
+CLEANFILES = *.mod
 
 if ENABLE_MAKEDEPF90
 depend:

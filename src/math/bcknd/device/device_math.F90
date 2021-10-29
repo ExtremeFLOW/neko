@@ -2,6 +2,7 @@ module device_math
   use num_types
   use utils
   use comm
+  use opencl_intf
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -233,7 +234,18 @@ module device_math
        integer(c_int) :: n
      end function cuda_glsc2
   end interface
-
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_add2s1(ctx, cmd, dev, a_d, b_d, c1, n) &
+          bind(c, name='opencl_add2s1')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: ctx, cmd, dev, a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine opencl_add2s1
+  end interface
 #endif
   
 contains
@@ -270,6 +282,8 @@ contains
     call hip_add2s1(a_d, b_d, c1, n)
 #elif HAVE_CUDA
     call cuda_add2s1(a_d, b_d, c1, n)
+#elif HAVE_OPENCL
+    call opencl_add2s1(glb_ctx, glb_cmd_queue, glb_device_id, a_d, b_d, c1, n)
 #else
     call neko_error('No device backend configured')
 #endif
