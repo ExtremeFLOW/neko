@@ -107,6 +107,7 @@ contains
        call neko_error('Memory deallocation on device failed')
     end if
 #endif
+    x_d = C_NULL_PTR
   end subroutine device_free
 
   !> Copy data between host and device (rank 1 arrays)
