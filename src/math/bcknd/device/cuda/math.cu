@@ -54,7 +54,7 @@ extern "C" {
    * Fortran wrapper for invcol2
    * Vector division \f$ a = a / b \f$
    */
-  void cuda_invcol2(void *a, void *b, void *c, int *n) {
+  void cuda_invcol2(void *a, void *b, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
