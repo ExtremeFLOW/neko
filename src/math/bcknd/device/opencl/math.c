@@ -59,7 +59,7 @@ void opencl_add2s1(void *a, void *b, real *c1, int *n) {
   cl_kernel kernel = clCreateKernel(math_program, "add2s1_kernel", &err);
 
   err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
-  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &b);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
   err = clSetKernelArg(kernel, 2, sizeof(real), c1);
   err = clSetKernelArg(kernel, 3, sizeof(int), n);
   
@@ -86,9 +86,35 @@ void opencl_add2s2(void *a, void *b, real *c1, int *n) {
   cl_kernel kernel = clCreateKernel(math_program, "add2s2_kernel", &err);
   if (err != CL_SUCCESS) printf("%d\n", err);
   err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
-  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &b);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
   err = clSetKernelArg(kernel, 2, sizeof(real), c1);
   err = clSetKernelArg(kernel, 3, sizeof(int), n);
+  
+  const size_t global_item_size = CL_DEVICE_MAX_WORK_GROUP_SIZE;
+  const size_t local_item_size = (((*n) + CL_DEVICE_MAX_WORK_GROUP_SIZE - 1) /
+				  CL_DEVICE_MAX_WORK_GROUP_SIZE);
+
+  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+			       NULL, &global_item_size, &local_item_size,
+			       0, NULL, NULL);  
+  if (err != CL_SUCCESS) printf("%d\n", err);
+}
+
+/**
+ * Fortran wrapper for invcol2
+ * Vector division \f$ a = a / b \f$
+ */
+void opencl_invcol2(void *a, void *b, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_math_kernel_jit();
+
+  cl_kernel kernel = clCreateKernel(math_program, "invcol2_kernel", &err);
+  if (err != CL_SUCCESS) printf("%d\n", err);
+  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
+  err = clSetKernelArg(kernel, 2, sizeof(int), n);
   
   const size_t global_item_size = CL_DEVICE_MAX_WORK_GROUP_SIZE;
   const size_t local_item_size = (((*n) + CL_DEVICE_MAX_WORK_GROUP_SIZE - 1) /
@@ -113,8 +139,90 @@ void opencl_col2(void *a, void *b, int *n) {
   cl_kernel kernel = clCreateKernel(math_program, "col2_kernel", &err);
   if (err != CL_SUCCESS) printf("%d\n", err);
   err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
-  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &b);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
   err = clSetKernelArg(kernel, 2, sizeof(int), n);
+  
+  const size_t global_item_size = CL_DEVICE_MAX_WORK_GROUP_SIZE;
+  const size_t local_item_size = (((*n) + CL_DEVICE_MAX_WORK_GROUP_SIZE - 1) /
+				  CL_DEVICE_MAX_WORK_GROUP_SIZE);
+
+  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+			       NULL, &global_item_size, &local_item_size,
+			       0, NULL, NULL);  
+  if (err != CL_SUCCESS) printf("%d\n", err);
+}
+
+/**
+ * Fortran wrapper for col3
+ * Vector multiplication with 3 vectors \f$ a = b \cdot c \f$
+ */
+void opencl_col3(void *a, void *b, void *c, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_math_kernel_jit();
+
+  cl_kernel kernel = clCreateKernel(math_program, "col3_kernel", &err);
+  if (err != CL_SUCCESS) printf("%d\n", err);
+  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
+  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c);
+  err = clSetKernelArg(kernel, 3, sizeof(int), n);
+  
+  const size_t global_item_size = CL_DEVICE_MAX_WORK_GROUP_SIZE;
+  const size_t local_item_size = (((*n) + CL_DEVICE_MAX_WORK_GROUP_SIZE - 1) /
+				  CL_DEVICE_MAX_WORK_GROUP_SIZE);
+
+  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+			       NULL, &global_item_size, &local_item_size,
+			       0, NULL, NULL);  
+  if (err != CL_SUCCESS) printf("%d\n", err);
+}
+  
+
+/**
+ * Fortran wrapper for sub3
+ * Vector subtraction \f$ a = b - c \f$
+ */
+void opencl_sub3(void *a, void *b, void *c, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_math_kernel_jit();
+
+  cl_kernel kernel = clCreateKernel(math_program, "sub3_kernel", &err);
+  if (err != CL_SUCCESS) printf("%d\n", err);
+  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
+  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c);
+  err = clSetKernelArg(kernel, 3, sizeof(int), n);
+  
+  const size_t global_item_size = CL_DEVICE_MAX_WORK_GROUP_SIZE;
+  const size_t local_item_size = (((*n) + CL_DEVICE_MAX_WORK_GROUP_SIZE - 1) /
+				  CL_DEVICE_MAX_WORK_GROUP_SIZE);
+
+  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+			       NULL, &global_item_size, &local_item_size,
+			       0, NULL, NULL);  
+  if (err != CL_SUCCESS) printf("%d\n", err);
+}
+
+/**
+ * Fortran wrapper for addcol3
+ * \f$ a = a + b * c \f$
+ */
+void opencl_addcol3(void *a, void *b, void *c, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_math_kernel_jit();
+
+  cl_kernel kernel = clCreateKernel(math_program, "addcol3_kernel", &err);
+  if (err != CL_SUCCESS) printf("%d\n", err);
+  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
+  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c);
+  err = clSetKernelArg(kernel, 3, sizeof(int), n);
   
   const size_t global_item_size = CL_DEVICE_MAX_WORK_GROUP_SIZE;
   const size_t local_item_size = (((*n) + CL_DEVICE_MAX_WORK_GROUP_SIZE - 1) /
