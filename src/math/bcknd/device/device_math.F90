@@ -245,6 +245,28 @@ module device_math
        integer(c_int) :: n
      end subroutine opencl_add2s1
   end interface
+
+  interface
+     subroutine opencl_add2s2(a_d, b_d, c1, n) &
+          bind(c, name='opencl_add2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine opencl_add2s2
+  end interface
+
+  interface
+     subroutine opencl_col2(a_d, b_d, n) &
+          bind(c, name='opencl_col2')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine opencl_col2
+  end interface
 #endif
   
 contains
@@ -296,6 +318,8 @@ contains
     call hip_add2s2(a_d, b_d, c1, n)
 #elif HAVE_CUDA
     call cuda_add2s2(a_d, b_d, c1, n)
+#elif HAVE_OPENCL
+    call opencl_add2s2(a_d, b_d, c1, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -320,6 +344,8 @@ contains
     call hip_col2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_col2(a_d, b_d, n)
+#elif HAVE_OPENCL
+    call opencl_col2(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif

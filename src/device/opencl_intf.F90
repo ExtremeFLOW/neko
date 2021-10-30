@@ -180,6 +180,15 @@ module opencl_intf
   end interface
   
   interface
+     integer (c_int) function clReleaseDevice(device) &
+          bind(c, name='clReleaseDevice')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: device
+     end function clReleaseDevice
+  end interface
+  
+  interface
      integer (c_int) function clReleaseMemObject(ptr_d) &
           bind(c, name='clReleaseMemObject')
        use, intrinsic :: iso_c_binding
@@ -209,7 +218,7 @@ module opencl_intf
 contains
 
   subroutine opencl_init
-    type(c_ptr), target :: platform_id!, device_id
+    type(c_ptr), target :: platform_id
     integer(c_int) :: num_platforms, num_devices, ierr
     integer(c_intptr_t) :: ctx_prop(3)
     integer(c_int64_t), parameter :: queue_props = 0
@@ -258,11 +267,19 @@ contains
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
           call neko_error('Failed to release context')
        end if
+       glb_ctx = C_NULL_PTR
     end if
 
     if (c_associated(glb_cmd_queue)) then
        if (clReleaseCommandQueue(glb_cmd_queue) .ne. CL_SUCCESS) then
           call neko_error('Faield to release command queue')
+       end if
+       glb_cmd_queue = C_NULL_PTR
+    end if
+
+    if (c_associated(glb_device_id)) then
+       if (clReleaseDevice(glb_device_id) .ne. CL_SUCCESS) then
+          call neko_error('Faield to release device')
        end if
     end if
     

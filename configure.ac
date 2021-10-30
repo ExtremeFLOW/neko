@@ -174,6 +174,7 @@ AC_CONFIG_FILES([Makefile\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
 		 src/device/device_config.h\
+		 src/scripts/cltostring.sh\
 		 makeneko\
 		 neko.pc])
 

@@ -193,7 +193,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/math.c
 
 %.cl.h: %.cl
-	./scripts/cltostring.sh $<
+	bash ./scripts/cltostring.sh $<
 endif
 
 bin_PROGRAMS = neko
