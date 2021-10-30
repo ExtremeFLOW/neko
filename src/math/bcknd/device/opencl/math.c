@@ -212,3 +212,48 @@ void opencl_addcol3(void *a, void *b, void *c, int *n) {
 			       NULL, &global_item_size, &local_item_size,
 			       0, NULL, NULL);  
 }
+
+/**
+ * Fortran wrapper glsc3
+ * Weighted inner product \f$ a^T b c \f$
+ */
+real opencl_glsc3(void *a, void *b, void *c, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+    
+  const size_t global_item_size = 1024;
+  const size_t local_item_size = (((*n) + 1024 - 1) / 1024);
+  const int nb = ((*n) + 1024 - 1)/ 1024;
+    
+  real * buf = (real *) malloc(nb * sizeof(real));
+
+  cl_kernel kernel = clCreateKernel(math_program, "glsc3_kernel", &err);
+  
+  cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+				nb * sizeof(real), NULL, &err);
+  
+  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
+  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c);
+  err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &buf_d);
+  err = clSetKernelArg(kernel, 4, sizeof(int), n);
+  
+  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+			       NULL, &global_item_size, &local_item_size,
+			       0, NULL, NULL);
+
+  err = clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE, 0,
+			    nb * sizeof(real), buf, 0, NULL, NULL);
+    
+  real res = 0.0;
+  for (int i = 0; i < nb; i++) {
+    res += buf[i];
+  }
+  
+  free(buf);
+  err = clReleaseMemObject(buf_d);
+  
+  return res;
+}

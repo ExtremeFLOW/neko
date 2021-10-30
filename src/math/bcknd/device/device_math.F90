@@ -325,6 +325,17 @@ module device_math
        integer(c_int) :: n
      end subroutine opencl_addcol3
   end interface
+
+  interface
+     real(c_rp) function opencl_glsc3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_glsc3')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end function opencl_glsc3
+  end interface
 #endif
   
 contains
@@ -465,6 +476,8 @@ contains
     res = hip_glsc3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     res = cuda_glsc3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    res = opencl_glsc3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
