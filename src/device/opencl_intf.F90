@@ -7,13 +7,13 @@ module opencl_intf
 #ifdef HAVE_OPENCL
 
   !> Global OpenCL command queue
-  type(c_ptr) :: glb_cmd_queue = C_NULL_PTR
+  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
 
   !> Global OpenCL context
-  type(c_ptr) :: glb_ctx = C_NULL_PTR
+  type(c_ptr), bind(c) :: glb_ctx = C_NULL_PTR
 
   !> Global OpenCL device_id
-  type(c_ptr), target :: glb_device_id = C_NULL_PTR
+  type(c_ptr), bind(c), target :: glb_device_id = C_NULL_PTR
   
   !> Enum Error Codes
   enum, bind(c)
