@@ -41,7 +41,8 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
@@ -52,7 +53,7 @@ contains
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
        
        do i = 1, n
-          @assertEqual(0.0_rp, a(i))
+          @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
        end do
        
        do i = 1, n
@@ -66,7 +67,7 @@ contains
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
        
        do i = 1, n
-          @assertEqual(0.0_rp, a(i))
+          @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
        end do
     end if
     
@@ -81,7 +82,9 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       
        call rone(a, n)
        call rzero(b, n)
        do i = 1, n

@@ -234,6 +234,24 @@ module device_math
      end function cuda_glsc2
   end interface
 #elif HAVE_OPENCL
+    interface
+     subroutine opencl_copy(a_d, b_d, n) &
+          bind(c, name='opencl_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine opencl_copy
+  end interface
+
+  interface
+     subroutine opencl_rzero(a_d, n) &
+          bind(c, name='opencl_rzero')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine opencl_rzero
+  end interface
+  
   interface
      subroutine opencl_add2s1(a_d, b_d, c1, n) &
           bind(c, name='opencl_add2s1')
@@ -318,6 +336,8 @@ contains
     call hip_copy(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_copy(a_d, b_d, n)
+#elif HAVE_OPENCL
+    call opencl_copy(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -330,6 +350,8 @@ contains
     call hip_rzero(a_d, n)
 #elif HAVE_CUDA
     call cuda_rzero(a_d, n)
+#elif HAVE_OPENCL
+    call opencl_rzero(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
