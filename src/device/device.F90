@@ -6,6 +6,7 @@ module device
   use hip_intf
   use htable
   use utils
+  use opencl_prgm_lib
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -64,6 +65,7 @@ contains
     call device_addrtbl%free()
 
 #if defined(HAVE_OPENCL)
+    call opencl_prgm_lib_release
     call opencl_finalize
 #endif
 

@@ -141,6 +141,7 @@ libneko_a_SOURCES = \
 	device/cuda_intf.F90\
 	device/hip_intf.F90\
 	device/opencl_intf.F90\
+	device/opencl/prgm_lib.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/device_mathops.F90\
@@ -190,7 +191,8 @@ endif
 
 if ENABLE_OPENCL
 libneko_a_SOURCES += \
-	math/bcknd/device/opencl/math.c
+	device/opencl/jit.c\
+	math/bcknd/device/opencl/math.c	
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -234,6 +236,9 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
-	krylov/bcknd/device/hip/pc_jacobi_kernel.h
+	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
+	math/bcknd/device/opencl/math_kernel.cl\
+	device/opencl/jit.h\
+	device/opencl/prgm_lib.h
 
 include	.depends

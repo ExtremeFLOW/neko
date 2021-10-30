@@ -6,44 +6,10 @@
 
 #include <stdio.h>
 #include <device/device_config.h>
+#include <device/opencl/jit.h>
+#include <device/opencl/prgm_lib.h>
 
 #include "math_kernel.cl.h"
-
-cl_program math_program = NULL;
-
-/**
- * JIT compile OpenCL math kernels
- */
-
-void opencl_math_kernel_jit()
-{
-  cl_int err;
-
-  math_program = clCreateProgramWithSource((cl_context) glb_ctx, 1,
-					   &math_kernel, NULL, &err);
-  if (err != CL_SUCCESS) printf("%d\n", err);
-  err = clBuildProgram(math_program, 1, (cl_device_id *) &glb_device_id,
-		       NULL, NULL, NULL);
-
-  if (err == CL_BUILD_PROGRAM_FAILURE) {
-    // Determine the size of the log
-    size_t log_size;
-    clGetProgramBuildInfo(math_program, glb_device_id,
-			  CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
-
-    // Allocate memory for the log
-    char *log = (char *) malloc(log_size);
-
-    // Get the log
-    clGetProgramBuildInfo(math_program, glb_device_id,
-			  CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
-
-    // Print the log
-    printf("%s\n", log);
-
-  }
-  
-}
 
 /** Fortran wrapper for copy
  * Copy a vector \f$ a = b \f$
@@ -73,7 +39,7 @@ void opencl_add2s1(void *a, void *b, real *c1, int *n) {
   cl_int err;
 
   if (math_program == NULL)
-    opencl_math_kernel_jit();
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
   
   cl_kernel kernel = clCreateKernel(math_program, "add2s1_kernel", &err);
 
@@ -100,7 +66,7 @@ void opencl_add2s2(void *a, void *b, real *c1, int *n) {
   cl_int err;
 
   if (math_program == NULL)
-    opencl_math_kernel_jit();
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "add2s2_kernel", &err);
 
@@ -126,7 +92,7 @@ void opencl_invcol2(void *a, void *b, int *n) {
   cl_int err;
 
   if (math_program == NULL)
-    opencl_math_kernel_jit();
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "invcol2_kernel", &err);
 
@@ -151,7 +117,7 @@ void opencl_col2(void *a, void *b, int *n) {
   cl_int err;
 
   if (math_program == NULL)
-    opencl_math_kernel_jit();
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "col2_kernel", &err);
 
@@ -176,7 +142,7 @@ void opencl_col3(void *a, void *b, void *c, int *n) {
   cl_int err;
 
   if (math_program == NULL)
-    opencl_math_kernel_jit();
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "col3_kernel", &err);
 
@@ -203,7 +169,7 @@ void opencl_sub3(void *a, void *b, void *c, int *n) {
   cl_int err;
 
   if (math_program == NULL)
-    opencl_math_kernel_jit();
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "sub3_kernel", &err);
 
@@ -229,7 +195,7 @@ void opencl_addcol3(void *a, void *b, void *c, int *n) {
   cl_int err;
 
   if (math_program == NULL)
-    opencl_math_kernel_jit();
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "addcol3_kernel", &err);
 

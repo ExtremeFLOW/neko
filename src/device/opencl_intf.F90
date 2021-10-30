@@ -187,6 +187,15 @@ module opencl_intf
        type(c_ptr), value :: device
      end function clReleaseDevice
   end interface
+
+  interface
+     integer (c_int) function clReleaseProgram(prgm) &
+          bind(c, name='clReleaseProgram')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: prgm
+     end function clReleaseProgram
+  end interface
   
   interface
      integer (c_int) function clReleaseMemObject(ptr_d) &
