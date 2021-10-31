@@ -10,6 +10,9 @@ module opencl_prgm_lib
   !> Device math kernels
   type(c_ptr), bind(c) :: math_program = C_NULL_PTR
 
+  !> Device Dirichlet kernels
+  type(c_ptr), bind(c) :: dirichlet_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
