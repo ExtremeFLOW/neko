@@ -152,6 +152,7 @@ __global__ void glsc3_kernel(const T * a,
     buf_h[blockIdx.x] = buf[0];
   }
 }
+
 /**
  * Device kernel for glsc2
  */
