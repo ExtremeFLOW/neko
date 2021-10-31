@@ -148,7 +148,7 @@ extern "C" {
   }
 
   /**
-   * Fortran wrapper glsc3
+   * Fortran wrapper glsc2
    * Weighted inner product \f$ a^T b c \f$
    */
   real cuda_glsc2(void *a, void *b, int *n) {

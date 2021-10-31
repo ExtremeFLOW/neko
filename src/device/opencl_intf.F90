@@ -7,10 +7,13 @@ module opencl_intf
 #ifdef HAVE_OPENCL
 
   !> Global OpenCL command queue
-  type(c_ptr) :: glb_cmd_queue = C_NULL_PTR
+  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
 
   !> Global OpenCL context
-  type(c_ptr) :: glb_ctx = C_NULL_PTR
+  type(c_ptr), bind(c) :: glb_ctx = C_NULL_PTR
+
+  !> Global OpenCL device_id
+  type(c_ptr), bind(c), target :: glb_device_id = C_NULL_PTR
   
   !> Enum Error Codes
   enum, bind(c)
@@ -177,6 +180,24 @@ module opencl_intf
   end interface
   
   interface
+     integer (c_int) function clReleaseDevice(device) &
+          bind(c, name='clReleaseDevice')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: device
+     end function clReleaseDevice
+  end interface
+
+  interface
+     integer (c_int) function clReleaseProgram(prgm) &
+          bind(c, name='clReleaseProgram')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: prgm
+     end function clReleaseProgram
+  end interface
+  
+  interface
      integer (c_int) function clReleaseMemObject(ptr_d) &
           bind(c, name='clReleaseMemObject')
        use, intrinsic :: iso_c_binding
@@ -206,7 +227,7 @@ module opencl_intf
 contains
 
   subroutine opencl_init
-    type(c_ptr), target :: platform_id, device_id
+    type(c_ptr), target :: platform_id
     integer(c_int) :: num_platforms, num_devices, ierr
     integer(c_intptr_t) :: ctx_prop(3)
     integer(c_int64_t), parameter :: queue_props = 0
@@ -218,7 +239,7 @@ contains
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &
-         c_loc(device_id), num_devices) .ne. CL_SUCCESS) then
+         c_loc(glb_device_id), num_devices) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a device id')
     end if
 
@@ -228,7 +249,7 @@ contains
        end if
     end if
 
-    glb_ctx = clCreateContext(C_NULL_PTR, num_devices, c_loc(device_id), &
+    glb_ctx = clCreateContext(C_NULL_PTR, num_devices, c_loc(glb_device_id), &
          C_NULL_FUNPTR, C_NULL_PTR, ierr)
 
     if (ierr .ne. CL_SUCCESS) then
@@ -241,7 +262,7 @@ contains
        end if
     end if
     
-    glb_cmd_queue = clCreateCommandQueue(glb_ctx, device_id, queue_props, ierr)
+    glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, ierr)
 
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
@@ -255,11 +276,19 @@ contains
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
           call neko_error('Failed to release context')
        end if
+       glb_ctx = C_NULL_PTR
     end if
 
     if (c_associated(glb_cmd_queue)) then
        if (clReleaseCommandQueue(glb_cmd_queue) .ne. CL_SUCCESS) then
           call neko_error('Faield to release command queue')
+       end if
+       glb_cmd_queue = C_NULL_PTR
+    end if
+
+    if (c_associated(glb_device_id)) then
+       if (clReleaseDevice(glb_device_id) .ne. CL_SUCCESS) then
+          call neko_error('Faield to release device')
        end if
     end if
     

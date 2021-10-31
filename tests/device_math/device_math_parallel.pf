@@ -8,18 +8,41 @@ module device_math_parallel
   use num_types
   implicit none
 
+  @TestCase
+  type, extends(MPITestCase) :: test_device_math
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_device_math
+  
 contains
 
+  subroutine setUp(this)
+    class(test_device_math), intent(inout) :: this
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_device_math), intent(inout) :: this
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_finalize
+   end if
+  end subroutine tearDown
+
   @test
-  subroutine test_device_math_rzero
-    integer, parameter :: n = 17
+  subroutine test_device_math_rzero(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
     real(kind=rp) :: a(n)
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_init
-    
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
@@ -30,7 +53,7 @@ contains
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
        
        do i = 1, n
-          @assertEqual(0.0_rp, a(i))
+          @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
        end do
        
        do i = 1, n
@@ -44,22 +67,23 @@ contains
        call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
        
        do i = 1, n
-          @assertEqual(0.0_rp, a(i))
+          @assertEqual(0.0_rp, a(i), tolerance=NEKO_EPS)
        end do
     end if
     
   end subroutine test_device_math_rzero
 
   @test
-  subroutine test_device_math_copy
-    integer, parameter :: n = 17
+  subroutine test_device_math_copy(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
     real(kind=rp) :: a(n), b(n)
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_init
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        
        call rone(a, n)
        call rzero(b, n)
@@ -86,21 +110,22 @@ contains
   end subroutine test_device_math_copy
 
   @test
-  subroutine test_device_math_add2s1
-    integer, parameter :: n = 17
+  subroutine test_device_math_add2s1(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b
     real(kind=rp), parameter :: c1 = 2.0_rp
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        do i = 1, n
           a(i) = 20.0_rp
           b(i) = 2.0_rp
        end do
        
-       call device_init
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
@@ -119,21 +144,22 @@ contains
   end subroutine test_device_math_add2s1
 
   @test
-  subroutine test_device_math_add2s2
-    integer, parameter :: n = 17
+  subroutine test_device_math_add2s2(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b
     real(kind=rp), parameter :: c1 = 2_rp
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        do i = 1, n
           a(i) = 20.0_rp
           b(i) = 2.0_rp
        end do
 
-       call device_init
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        
@@ -152,20 +178,54 @@ contains
   end subroutine test_device_math_add2s2
 
   @test
-  subroutine test_device_math_col2
-    integer, parameter :: n = 17
+  subroutine test_device_math_invcol2(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        do i = 1, n
           a(i) = 21.0_rp
           b(i) = 2.0_rp
        end do
        
-       call device_init
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       call device_invcol2(a_d, b_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(10.5_rp, a(i))
+       end do
+    end if
+
+  end subroutine test_device_math_invcol2
+  
+  @test
+  subroutine test_device_math_col2(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       do i = 1, n
+          a(i) = 21.0_rp
+          b(i) = 2.0_rp
+       end do
+       
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
 
@@ -183,10 +243,121 @@ contains
 
   end subroutine test_device_math_col2
 
+  @test
+  subroutine test_device_math_col3(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b, c
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    type(c_ptr) :: c_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       do i = 1, n
+          a(i) = 17.0_rp
+          b(i) = 2.0_rp
+          c(i) = 21.0_rp
+       end do
+       
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       call device_map(c, c_d, size(c))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       
+       call device_col3(a_d, b_d, c_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(42.0_rp, a(i))
+       end do
+    end if
+
+  end subroutine test_device_math_col3
+
+  @test
+  subroutine test_device_math_sub3(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b, c
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    type(c_ptr) :: c_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       do i = 1, n
+          a(i) = 17.0_rp
+          b(i) = 2.0_rp
+          c(i) = 21.0_rp
+       end do
+       
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       call device_map(c, c_d, size(c))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       
+       call device_sub3(a_d, b_d, c_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(-19.0_rp, a(i))
+       end do
+    end if
+
+  end subroutine test_device_math_sub3
+
+  @test
+  subroutine test_device_math_addcol3(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b, c
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    type(c_ptr) :: c_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       do i = 1, n
+          a(i) = 4669.0_rp
+          b(i) = 2.0_rp
+          c(i) = 21.0_rp
+       end do
+       
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       call device_map(c, c_d, size(c))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
+       
+       call device_addcol3(a_d, b_d, c_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(4711.0_rp, a(i))
+       end do
+    end if
+
+  end subroutine test_device_math_addcol3
+
   @test(npes=[1])
   subroutine test_device_math_glsc3(this)
-    class (MpiTestMethod), intent(inout) :: this
-    integer, parameter :: n = 17
+    class (test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
     real(kind=rp) :: res, expected
     type(c_ptr) :: a_d = C_NULL_PTR
@@ -194,7 +365,9 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i, ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       
        call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
        
        do i = 1, n
@@ -203,7 +376,6 @@ contains
           c(i) = 1.0_rp
        end do
        
-       call device_init
        call device_map(a, a_d, size(a))
        call device_map(b, b_d, size(b))
        call device_map(c, c_d, size(c))
@@ -212,12 +384,46 @@ contains
        call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
        call device_memcpy(c, c_d, size(c), HOST_TO_DEVICE)
        
-       expected = real(this%getNumProcesses(), rp)  * 17.0_rp
+       expected = real(this%getNumProcesses(), rp)  * real(n, rp)
        res = device_glsc3(a_d, b_d, c_d, n)
        @assertEqual(expected, res)
        @MPIassertEqual(expected, res)
     end if
     
   end subroutine test_device_math_glsc3
+
+    @test(npes=[1])
+  subroutine test_device_math_glsc2(this)
+    class (test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp) :: res, expected
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i, ierr
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       
+       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+       
+       do i = 1, n
+          a(i) = 1.0_rp
+          b(i) = 1.0_rp
+       end do
+       
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       expected = real(this%getNumProcesses(), rp)  * real(n, rp)
+       res = device_glsc2(a_d, b_d, n)
+       @assertEqual(expected, res)
+       @MPIassertEqual(expected, res)
+    end if
+    
+  end subroutine test_device_math_glsc2
 
 end module device_math_parallel
