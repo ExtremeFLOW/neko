@@ -36,7 +36,7 @@ contains
   @test
   subroutine test_device_math_rzero(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp) :: a(n)
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
@@ -76,7 +76,7 @@ contains
   @test
   subroutine test_device_math_copy(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp) :: a(n), b(n)
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
@@ -112,7 +112,7 @@ contains
   @test
   subroutine test_device_math_add2s1(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b
     real(kind=rp), parameter :: c1 = 2.0_rp
     type(c_ptr) :: a_d = C_NULL_PTR
@@ -146,7 +146,7 @@ contains
   @test
   subroutine test_device_math_add2s2(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b
     real(kind=rp), parameter :: c1 = 2_rp
     type(c_ptr) :: a_d = C_NULL_PTR
@@ -180,7 +180,7 @@ contains
   @test
   subroutine test_device_math_invcol2(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
@@ -213,7 +213,7 @@ contains
   @test
   subroutine test_device_math_col2(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
@@ -246,7 +246,7 @@ contains
   @test
   subroutine test_device_math_col3(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
@@ -283,7 +283,7 @@ contains
   @test
   subroutine test_device_math_sub3(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
@@ -320,7 +320,7 @@ contains
   @test
   subroutine test_device_math_addcol3(this)
     class(test_device_math), intent(inout) :: this
-    integer, parameter :: n = 17
+    integer, parameter :: n = 4711
     real(kind=rp), dimension(n) :: a, b, c
     type(c_ptr) :: a_d = C_NULL_PTR
     type(c_ptr) :: b_d = C_NULL_PTR
