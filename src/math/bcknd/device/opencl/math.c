@@ -219,6 +219,7 @@ void opencl_addcol3(void *a, void *b, void *c, int *n) {
  */
 real opencl_glsc3(void *a, void *b, void *c, int *n) {
   cl_int err;
+  int i;
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
@@ -248,7 +249,7 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
 			    nb * sizeof(real), buf, 0, NULL, NULL);
     
   real res = 0.0;
-  for (int i = 0; i < nb; i++) {
+  for (i = 0; i < nb; i++) {
     res += buf[i];
   }
   
@@ -264,6 +265,7 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
  */
 real opencl_glsc2(void *a, void *b, int *n) {
   cl_int err;
+  int i;
   
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
@@ -292,7 +294,7 @@ real opencl_glsc2(void *a, void *b, int *n) {
 			    nb * sizeof(real), buf, 0, NULL, NULL);
     
   real res = 0.0;
-  for (int i = 0; i < nb; i++) {
+  for (i = 0; i < nb; i++) {
     res += buf[i];
   }
   
