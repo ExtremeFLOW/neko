@@ -120,11 +120,46 @@ __kernel void glsc3_kernel(__global const real *a,
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  __local real buf[1024]; /* Make this nice...*/
+  __local real buf[256]; /* Make this nice...*/
   real tmp = 0.0;
 
   for (int i = idx; i < n; i+= str) {
     tmp += a[i] * b[i] * c[i];
+  }
+  buf[get_local_id(0)] = tmp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  int i = (get_local_size(0))>>1;
+  while (i != 0) {
+    if (get_local_id(0) < i) {
+      buf[get_local_id(0)] += buf[get_local_id(0) + i];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i = i>>1;
+  }
+ 
+  if (get_local_id(0) == 0) {
+    buf_h[get_group_id(0)] = buf[0];
+  }
+
+}
+
+/**
+ * Device kernel for glsc2
+ */
+__kernel void glsc2_kernel(__global const real *a,
+			   __global const real *b,
+			   __global real *buf_h,
+			   const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  __local real buf[256]; /* Make this nice...*/
+  real tmp = 0.0;
+
+  for (int i = idx; i < n; i+= str) {
+    tmp += a[i] * b[i];
   }
   buf[get_local_id(0)] = tmp;
   barrier(CLK_LOCAL_MEM_FENCE);
