@@ -18,7 +18,7 @@ extern "C" {
     facet_normal_apply_surfvec_kernel<real>
       <<<nblcks, nthrds>>>((int *) msk, (int *) facet,
 			   (real *) x, (real *) y, (real *) z,
-			   (real *) u, (real *) v, (real *) v,
+			   (real *) u, (real *) v, (real *) w,
 			   (real *) nx,(real *) ny, (real *) nz,
 			   (real *) area, *lx, *m);
   }
