@@ -139,7 +139,7 @@ device/opencl_intf.o : device/opencl_intf.F90 common/utils.o
 device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/opencl_intf.o 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 
 math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 comm/comm.o common/utils.o config/num_types.o 
-math/bcknd/device/device_mathops.o : math/bcknd/device/device_mathops.F90 comm/comm.o common/utils.o config/num_types.o 
+math/bcknd/device/device_mathops.o : math/bcknd/device/device_mathops.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_dirichlet.o : bc/bcknd/device/device_dirichlet.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_inflow.o : bc/bcknd/device/device_inflow.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_wall.o : bc/bcknd/device/device_wall.F90 common/utils.o config/num_types.o 
