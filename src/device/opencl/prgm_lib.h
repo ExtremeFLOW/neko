@@ -16,3 +16,6 @@ extern void *no_slip_wall_program;
 
 /** Device Symmetry kernels */
 extern void *symmetry_program;
+
+/** Device Facet normal kernels */
+extern void *facet_normal_program;

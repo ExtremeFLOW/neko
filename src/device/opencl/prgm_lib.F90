@@ -22,6 +22,9 @@ module opencl_prgm_lib
   !> Device Symmetry kernels
   type(c_ptr), bind(c) :: symmetry_program = C_NULL_PTR
 
+  !> Device Facet normal kernels
+  type(c_ptr), bind(c) :: facet_normal_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -59,6 +62,13 @@ contains
           call neko_error('Failed to release program')
        end if
        symmetry_program = C_NULL_PTR
+    end if
+
+    if (c_associated(facet_normal_program)) then
+       if(clReleaseProgram(facet_normal_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       facet_normal_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release
