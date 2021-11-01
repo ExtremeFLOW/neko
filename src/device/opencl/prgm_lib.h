@@ -10,3 +10,6 @@ extern void *dirichlet_program;
 
 /** Device Inflow kernels */
 extern void *inflow_program;
+
+/** Device Symmetry kernels */
+extern void *symmetry_program;

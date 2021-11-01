@@ -17,8 +17,8 @@
 void opencl_inflow_apply_vector(void *msk, void *x, void *y,
 				void *z, void *g, int *m) {
 
-   cl_int err;
-  
+  cl_int err;
+   
   if (inflow_program == NULL)
     opencl_kernel_jit(inflow_kernel, (cl_program *) &inflow_program);
   

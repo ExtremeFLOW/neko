@@ -194,7 +194,8 @@ libneko_a_SOURCES += \
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
 	bc/bcknd/device/opencl/dirichlet.c\
-	bc/bcknd/device/opencl/inflow.c
+	bc/bcknd/device/opencl/inflow.c\
+	bc/bcknd/device/opencl/symmetry.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
