@@ -29,14 +29,14 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
 				    "symmetry_apply_vector_kernel", &err);
  
   err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &xmsk);
-  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &ymsk);
-  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &zmsk);
-  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &y);
-  err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &z);
-  err = clSetKernelArg(kernel, 7, sizeof(int), m);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &ymsk);
+  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &zmsk);
+  err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &x);
+  err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &y);
+  err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &z);
+  err = clSetKernelArg(kernel, 6, sizeof(int), m);
   err = clSetKernelArg(kernel, 7, sizeof(int), n);
-  err = clSetKernelArg(kernel, 7, sizeof(int), l);
+  err = clSetKernelArg(kernel, 8, sizeof(int), l);
   
   const int max_len = MAX(MAX(*m, *n), *l);
   const size_t global_item_size = 256 * max_len;

@@ -241,6 +241,8 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/opgrad_kernel.h\
 	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
+	bc/bcknd/device/opencl/inflow_kernel.cl\
+	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h
