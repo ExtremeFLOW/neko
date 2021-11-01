@@ -13,6 +13,9 @@ module opencl_prgm_lib
   !> Device Dirichlet kernels
   type(c_ptr), bind(c) :: dirichlet_program = C_NULL_PTR
 
+  !> Device Inflow kernels
+  type(c_ptr), bind(c) :: inflow_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -22,6 +25,20 @@ contains
           call neko_error('Failed to release program')
        end if
        math_program = C_NULL_PTR
+    end if
+
+    if (c_associated(dirichlet_program)) then
+       if(clReleaseProgram(dirichlet_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       dirichlet_program = C_NULL_PTR
+    end if
+
+    if (c_associated(inflow_program)) then
+       if(clReleaseProgram(inflow_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       inflow_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

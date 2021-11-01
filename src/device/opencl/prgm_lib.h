@@ -7,3 +7,6 @@ extern void *math_program;
 
 /** Device Dirichlet kernels */
 extern void *dirichlet_program;
+
+/** Device Inflow kernels */
+extern void *inflow_program;
