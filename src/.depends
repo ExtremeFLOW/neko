@@ -176,5 +176,6 @@ device/opencl/jit.o : device/opencl/jit.c
 math/bcknd/device/opencl/math.o : math/bcknd/device/opencl/math.c math/bcknd/device/opencl/math_kernel.cl.h
 bc/bcknd/device/opencl/dirichlet.o : bc/bcknd/device/opencl/dirichlet.c bc/bcknd/device/opencl/dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/inflow.o : bc/bcknd/device/opencl/inflow.c bc/bcknd/device/opencl/inflow_kernel.cl.h
-bc/bcknd/device/opencl/inflow.o : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h
+bc/bcknd/device/opencl/no_slip_wall.o : bc/bcknd/device/opencl/no_slip_wall.c bc/bcknd/device/opencl/no_slip_wall_kernel.cl.h
+bc/bcknd/device/opencl/symmetry.o : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h
 driver.o : driver.f90 neko.o 

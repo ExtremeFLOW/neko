@@ -195,6 +195,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/math.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
+	bc/bcknd/device/opencl/no_slip_wall.c\
 	bc/bcknd/device/opencl/symmetry.c
 
 %.cl.h: %.cl
