@@ -1,0 +1,312 @@
+
+@test
+subroutine test_mathops_opchsign
+  use pfunit
+  use device
+  use device_mathops
+  use neko_config
+  implicit none 
+  integer, parameter :: n = 17
+  real(kind=rp), dimension(n) :: a1, a2, a3
+  type(c_ptr) :: a1_d = C_NULL_PTR
+  type(c_ptr) :: a2_d = C_NULL_PTR
+  type(c_ptr) :: a3_d = C_NULL_PTR
+  integer :: i, gdim
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+     
+     call device_init
+     call device_map(a1, a1_d, n)
+     call device_map(a2, a2_d, n)
+     call device_map(a3, a3_d, n)
+     
+  
+     do gdim = 2, 3
+        a1 = 1.0_rp
+        a2 = 2.0_rp
+        a3 = 3.0_rp
+        
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
+        
+        call device_opchsign(a1_d, a2_d, a3_d, gdim, n)
+
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        
+        do i = 1, n
+           @assertEqual(a1(i), -1.0_rp)
+           @assertEqual(a2(i), -2.0_rp)
+           if (gdim .eq. 3) then
+              @assertEqual(a3(i), -3.0_rp)
+           end if
+        end do
+     end do
+     
+     call device_finalize
+
+  end if
+  
+end subroutine test_mathops_opchsign
+
+@test
+subroutine test_mathops_opcolv
+  use pfunit
+  use device
+  use device_mathops
+  use neko_config
+  implicit none 
+  integer, parameter :: n = 17
+  real(kind=rp), dimension(n) :: a1, a2, a3, c
+  type(c_ptr) :: a1_d = C_NULL_PTR
+  type(c_ptr) :: a2_d = C_NULL_PTR
+  type(c_ptr) :: a3_d = C_NULL_PTR
+  type(c_ptr) :: c_d = C_NULL_PTR
+  integer :: i, gdim
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+
+     call device_init
+     call device_map(a1, a1_d, n)
+     call device_map(a2, a2_d, n)
+     call device_map(a3, a3_d, n)
+     call device_map(c, c_d, n)
+     
+     do gdim = 2, 3
+        a1 = 1.0_rp
+        a2 = 2.0_rp
+        a3 = 3.0_rp
+        c = 42.0_rp
+
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(c, c_d, n, HOST_TO_DEVICE)
+        
+        call device_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
+
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+        
+        do i = 1, n
+           @assertEqual(a1(i), 42.0_rp)
+           @assertEqual(a2(i), 84.0_rp)
+           if (gdim .eq. 3) then
+              @assertEqual(a3(i), 126.0_rp)
+           end if
+        end do
+     end do
+
+     call device_finalize
+  end if
+     
+end subroutine test_mathops_opcolv
+
+@test
+subroutine test_mathops_opcolv3c
+  use pfunit
+  use device
+  use device_mathops
+  use neko_config
+  implicit none 
+  integer, parameter :: n = 17
+  real(kind=rp), dimension(n):: c(n)
+  real(kind=rp), parameter :: d = 1/42.0_rp
+  real(kind=rp), dimension(n) :: a1, a2, a3
+  real(kind=rp), dimension(n) :: b1, b2, b3
+  type(c_ptr) :: a1_d = C_NULL_PTR
+  type(c_ptr) :: a2_d = C_NULL_PTR
+  type(c_ptr) :: a3_d = C_NULL_PTR
+  type(c_ptr) :: b1_d = C_NULL_PTR
+  type(c_ptr) :: b2_d = C_NULL_PTR
+  type(c_ptr) :: b3_d = C_NULL_PTR
+  type(c_ptr) :: c_d = C_NULL_PTR
+  integer :: i, gdim
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+     
+     call device_init
+     call device_map(a1, a1_d, n)
+     call device_map(a2, a2_d, n)
+     call device_map(a3, a3_d, n)
+     call device_map(b1, b1_d, n)
+     call device_map(b2, b2_d, n)
+     call device_map(b3, b3_d, n)
+     call device_map(c, c_d, n)
+     
+     do gdim = 2, 3
+        a1 = 4711.0_rp
+        a2 = 4711.0_rp
+        a3 = 4711.0_rp
+        b1 = 1.0_rp
+        b2 = 2.0_rp
+        b3 = 3.0_rp
+        c = 42.0_rp
+
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(c, c_d, n, HOST_TO_DEVICE)
+        
+        call device_opcolv3c(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, d, n, gdim)
+
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+
+        do i = 1, n
+           @assertEqual(a1(i), 1.0_rp)
+           @assertEqual(a2(i), 2.0_rp)
+           if (gdim .eq. 3) then
+              @assertEqual(a3(i), 3.0_rp)
+           end if
+        end do
+     end do
+     call device_finalize
+  end if
+  
+end subroutine test_mathops_opcolv3c
+
+@test
+subroutine test_mathops_opadd2cm
+  use pfunit
+  use device
+  use device_mathops
+  use neko_config
+  implicit none 
+  integer, parameter :: n = 17
+  real(kind=rp), parameter :: c = 42.0_rp
+  real(kind=rp), dimension(n) :: a1, a2, a3
+  real(kind=rp), dimension(n) :: b1, b2, b3
+  type(c_ptr) :: a1_d = C_NULL_PTR
+  type(c_ptr) :: a2_d = C_NULL_PTR
+  type(c_ptr) :: a3_d = C_NULL_PTR
+  type(c_ptr) :: b1_d = C_NULL_PTR
+  type(c_ptr) :: b2_d = C_NULL_PTR
+  type(c_ptr) :: b3_d = C_NULL_PTR
+  integer :: i, gdim
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+     
+     call device_init
+     call device_map(a1, a1_d, n)
+     call device_map(a2, a2_d, n)
+     call device_map(a3, a3_d, n)
+     call device_map(b1, b1_d, n)
+     call device_map(b2, b2_d, n)
+     call device_map(b3, b3_d, n)
+     
+     do gdim = 2, 3
+        a1 = 4711.0_rp
+        a2 = 4711.0_rp
+        a3 = 4711.0_rp
+        b1 = 1.0_rp
+        b2 = 2.0_rp
+        b3 = 3.0_rp
+
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE)
+        
+        call device_opadd2cm(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)
+
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)
+                
+        do i = 1, n
+           @assertEqual(a1(i), 4753.0_rp)
+           @assertEqual(a2(i), 4795.0_rp)
+           if (gdim .eq. 3) then
+              @assertEqual(a3(i), 4837.0_rp)
+           end if
+        end do
+     end do
+     call device_finalize
+  end if
+  
+end subroutine test_mathops_opadd2cm
+
+@test
+subroutine test_mathops_opadd2col
+  use pfunit
+  use device
+  use device_mathops
+  use neko_config
+  implicit none 
+  integer, parameter :: n = 17
+  real(kind=rp), dimension(n) :: c
+  real(kind=rp), dimension(n) :: a1, a2, a3
+  real(kind=rp), dimension(n) :: b1, b2, b3
+  type(c_ptr) :: a1_d = C_NULL_PTR
+  type(c_ptr) :: a2_d = C_NULL_PTR
+  type(c_ptr) :: a3_d = C_NULL_PTR
+  type(c_ptr) :: b1_d = C_NULL_PTR
+  type(c_ptr) :: b2_d = C_NULL_PTR
+  type(c_ptr) :: b3_d = C_NULL_PTR
+  type(c_ptr) :: c_d = C_NULL_PTR
+  integer :: i, gdim
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+     
+     call device_init
+     call device_map(a1, a1_d, n)
+     call device_map(a2, a2_d, n)
+     call device_map(a3, a3_d, n)
+     call device_map(b1, b1_d, n)
+     call device_map(b2, b2_d, n)
+     call device_map(b3, b3_d, n)
+     call device_map(c, c_d, n)
+
+     do gdim = 2, 3
+        a1 = 4711.0_rp
+        a2 = 4711.0_rp
+        a3 = 4711.0_rp
+        b1 = 1.0_rp
+        b2 = 2.0_rp
+        b3 = 3.0_rp
+        c = 42.0_rp
+
+        call device_memcpy(a1, a1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a2, a2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(a3, a3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b1, b1_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b2, b2_d, n, HOST_TO_DEVICE)
+        call device_memcpy(b3, b3_d, n, HOST_TO_DEVICE)
+        call device_memcpy(c, c_d, n, HOST_TO_DEVICE)
+        
+        call device_opadd2col(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, n, gdim)
+
+        call device_memcpy(a1, a1_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a2, a2_d, n, DEVICE_TO_HOST)
+        call device_memcpy(a3, a3_d, n, DEVICE_TO_HOST)        
+        
+        do i = 1, n
+           @assertEqual(a1(i), 4753.0_rp)
+           @assertEqual(a2(i), 4795.0_rp)
+           if (gdim .eq. 3) then
+              @assertEqual(a3(i), 4837.0_rp)
+           end if
+        end do
+     end do
+     call device_finalize
+  end if
+  
+end subroutine test_mathops_opadd2col
+
+
+
