@@ -126,7 +126,7 @@ __kernel void opadd2cm_kernel(__global real *a1,
  */
 __kernel void opadd2col_kernel(__global real *a1, 
 			       __global real *a2, 
-			       __globla real *a3,
+			       __global real *a3,
 			       __global const real *b1, 
 			       __global const real *b2, 
 			       __global const real *b3,
