@@ -192,7 +192,12 @@ endif
 if ENABLE_OPENCL
 libneko_a_SOURCES += \
 	device/opencl/jit.c\
-	math/bcknd/device/opencl/math.c	
+	math/bcknd/device/opencl/math.c\
+	bc/bcknd/device/opencl/dirichlet.c\
+	bc/bcknd/device/opencl/inflow.c\
+	bc/bcknd/device/opencl/no_slip_wall.c\
+	bc/bcknd/device/opencl/symmetry.c\
+	bc/bcknd/device/opencl/facet_normal.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -237,6 +242,11 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
 	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
+	bc/bcknd/device/opencl/dirichlet_kernel.cl\
+	bc/bcknd/device/opencl/inflow_kernel.cl\
+	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
+	bc/bcknd/device/opencl/symmetry_kernel.cl\
+	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h
