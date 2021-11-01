@@ -107,6 +107,7 @@ module device_mathops
 
 contains
 
+  !> \f$ a = -a \f$
   subroutine device_opchsign(a1_d, a2_d, a3_d, gdim, n)
     type(c_ptr) :: a1_d, a2_d, a3_d
     integer :: n, gdim
@@ -119,6 +120,7 @@ contains
 #endif
   end subroutine device_opchsign
 
+  !> \f$ a = a * c \f$
   subroutine device_opcolv(a1_d, a2_d, a3_d, c_d, gdim, n)
     type(c_ptr) :: a1_d, a2_d, a3_d, c_d
     integer :: n, gdim
@@ -130,7 +132,8 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_opcolv
- 
+
+  !> \f$ a(i) = b(i) * c(i) * d \f$ 
   subroutine device_opcolv3c(a1_d, a2_d, a3_d, &
                              b1_d, b2_d, b3_d, c_d, d, n, gdim)
     type(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
@@ -145,6 +148,7 @@ contains
 #endif
   end subroutine device_opcolv3c
 
+  !> \f$ a(i) = a + b(i) * c \f$ 
   subroutine device_opadd2cm (a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c, n, gdim)
     type(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
     real(kind=rp) :: c
@@ -158,6 +162,7 @@ contains
 #endif
   end subroutine device_opadd2cm
 
+  !> \f$ a(i) = a + b(i) * c(i) \f$
   subroutine device_opadd2col (a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d, n, gdim)
     type(c_ptr) :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, c_d
     integer :: n, gdim
