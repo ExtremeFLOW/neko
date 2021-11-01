@@ -61,8 +61,9 @@ void opencl_opcolv(void *a1, void *a2, void *a3, void *c, int *gdim, int *n) {
 }
 
 /** Fortran wrapper for opcolv3c \f$ a(i) = b(i) * c(i) * d \f$ */
-void opencl_opcolv3c(void *a1, void *a2, void *a3, void *b1, void *b2, void *b3,
-		   void *c, real *d, int *gdim, int *n) {
+void opencl_opcolv3c(void *a1, void *a2, void *a3,
+		     void *b1, void *b2, void *b3,
+		     void *c, real *d, int *gdim, int *n) {
   cl_int err;
 
   if (mathops_program == NULL)
@@ -92,7 +93,8 @@ void opencl_opcolv3c(void *a1, void *a2, void *a3, void *b1, void *b2, void *b3,
 
 /** Fortran wrapper for opadd2cm \f$ a(i) = a + b(i) * c \f$ */
 void opencl_opadd2cm(void *a1, void *a2, void *a3, 
-		    void *b1, void *b2, void *b3, real *c, int *gdim, int *n) {
+		     void *b1, void *b2, void *b3,
+		     real *c, int *gdim, int *n) {
   cl_int err;
 
   if (mathops_program == NULL)
@@ -121,7 +123,8 @@ void opencl_opadd2cm(void *a1, void *a2, void *a3,
 
 /** Fortran wrapper for opadd2col \f$ a(i) = a + b(i) * c(i) \f$ */
 void opencl_opadd2col(void *a1, void *a2, void *a3, 
-		    void *b1, void *b2, void *b3, void *c, int *gdim, int *n) {
+		      void *b1, void *b2, void *b3,
+		      void *c, int *gdim, int *n) {
   cl_int err;
 
   if (mathops_program == NULL)
