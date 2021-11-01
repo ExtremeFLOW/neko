@@ -5,7 +5,7 @@
 extern "C" {
 
   /** 
-   * Fortran wrapper for device no-slop wall apply vector
+   * Fortran wrapper for device no-slip wall apply vector
    */
   void hip_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
 
@@ -18,7 +18,7 @@ extern "C" {
   }
   
   /** 
-   * Fortran wrapper for device no-slop wall apply vector
+   * Fortran wrapper for device no-slip wall apply vector
    */
   void hip_no_slip_wall_apply_vector(void *msk, void *x, void *y,
 				     void *z, int *m) {
