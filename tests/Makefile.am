@@ -21,7 +21,8 @@ SUBDIRS = tuple\
 	  jobctrl\
 	  device\
 	  device_math\
-	  mathops
+	  mathops\
+	  device_mathops
 
 TESTS = device/device_test\
 	tuple/tuple_test\
