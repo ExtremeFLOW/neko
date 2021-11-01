@@ -5,6 +5,9 @@
 /** Device math kernels */
 extern void *math_program;
 
+/** Device mathops kernels */
+extern void *mathops_program;
+
 /** Device Dirichlet kernels */
 extern void *dirichlet_program;
 
