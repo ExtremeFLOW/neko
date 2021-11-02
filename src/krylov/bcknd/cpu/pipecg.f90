@@ -241,7 +241,7 @@ contains
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
-                     x_plus(k) = 0.0
+                     x_plus(k) = 0.0_rp
                   end do
                   p_prev = PIPECG_P_SPACE+1
                   do j = 1, p_cur
@@ -257,7 +257,7 @@ contains
                   end do
                else 
                   do k = 1, n-i
-                     x_plus(1) = 0.0
+                     x_plus(1) = 0.0_rp
                      p_prev = PIPECG_P_SPACE + 1
                      do j = 1, p_cur
                         p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
@@ -285,7 +285,7 @@ contains
          do i = 0, n, NEKO_BLK_SIZE
             if (i + NEKO_BLK_SIZE .le. n) then
                do k = 1, NEKO_BLK_SIZE
-                  x_plus(k) = 0.0
+                  x_plus(k) = 0.0_rp
                end do
                p_prev = PIPECG_P_SPACE+1
                do j = 1, p_cur
@@ -301,7 +301,7 @@ contains
                end do
             else 
                do k = 1, n-i
-                  x_plus(1) = 0.0
+                  x_plus(1) = 0.0_rp
                   p_prev = PIPECG_P_SPACE + 1
                   do j = 1, p_cur
                      p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
