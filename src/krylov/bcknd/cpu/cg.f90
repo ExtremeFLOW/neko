@@ -97,8 +97,6 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    real(kind=rp), parameter :: one = 1.0
-    real(kind=rp), parameter :: zero = 0.0
     integer :: iter, max_iter, i, j, k, p_cur, p_prev
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: beta, pap, norm_fac
@@ -108,12 +106,12 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
-    norm_fac = one / sqrt(coef%volume)
+    norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate(w => this%w, r => this%r, p => this%p, &
          z => this%z, alpha => this%alpha)
 
-      rtz1 = one
+      rtz1 = 1.0_rp
       call rzero(x%x, n)
       call rzero(p, n)
       call copy(r, f, n)
@@ -125,14 +123,14 @@ contains
       ksp_results%iter = 0
       p_prev = CG_P_SPACE
       p_cur = 1
-      if(rnorm .eq. zero) return
+      if(rnorm .eq. 0.0_rp) return
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
          rtz1 = glsc3(r, coef%mult, z, n)
       
          beta = rtz1 / rtz2
-         if (iter .eq. 1) beta = zero
+         if (iter .eq. 1) beta = 0.0_rp
          do i = 1, n
             p(i,p_cur) = z(i) + beta * p(i,p_prev)
          end do
@@ -152,7 +150,7 @@ contains
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
-                     x_plus(k) = 0.0
+                     x_plus(k) = 0.0_rp
                   end do
                   do j = 1, p_cur
                      do k = 1, NEKO_BLK_SIZE
@@ -164,7 +162,7 @@ contains
                   end do
                else 
                   do k = 1, n-i
-                     x_plus(1) = 0.0
+                     x_plus(1) = 0.0_rp
                      do j = 1, p_cur
                         x_plus(1) = x_plus(1) + alpha(j) * p(i+k,j)
                      end do
@@ -193,7 +191,7 @@ contains
     real(kind=rp), intent(in) ::mult(n), w(n), alpha 
     integer :: i, ierr
 
-    rtr = 0.0
+    rtr = 0.0_rp
     do i = 1, n
        r(i) = r(i) - alpha*w(i)
        rtr = rtr + r(i) * r(i) * mult(i)
