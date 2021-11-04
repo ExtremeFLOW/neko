@@ -195,6 +195,7 @@ libneko_a_SOURCES += \
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
 	math/bcknd/device/opencl/mathops.c\
+	math/bcknd/device/opencl/opr_dudxyz.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/no_slip_wall.c\
@@ -251,6 +252,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\
+	math/bcknd/device/opencl/dudxyz_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h
 

@@ -125,7 +125,19 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine cuda_opgrad
   end interface
-#endif
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
+          dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
+          bind(c, name='opencl_dudxyz')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_dudxyz
+  end interface
+  
+#endif  
   
 contains
 
@@ -151,6 +163,10 @@ contains
            msh%nelv, Xh%lx)
 #elif HAVE_CUDA
       call cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, coef%jacinv_d, &
+           msh%nelv, Xh%lx)
+#elif HAVE_OPENCL
+      call opencl_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
            Xh%dx_d, Xh%dy_d, Xh%dz_d, coef%jacinv_d, &
            msh%nelv, Xh%lx)
 #else
