@@ -135,6 +135,7 @@ libneko_a_SOURCES = \
 	common/projection.f90\
 	comm/parmetis.F90\
 	comm/redist.f90\
+	sem/interpolation.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
 	common/sighdl.c\

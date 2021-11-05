@@ -18,6 +18,7 @@ math/mathops.o : math/mathops.f90 config/num_types.o
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
 sem/space.o : sem/space.f90 math/math.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
 sem/dofmap.o : sem/dofmap.f90 math/math.o math/tensor.o math/fast3d.o common/utils.o config/num_types.o adt/tuple.o sem/space.o mesh/mesh.o 
+sem/interpolation.o : sem/interpolation.f90 sem/space.o math/math.o math/tensor.o math/fast3d.o common/utils.o config/num_types.o adt/tuple.o sem/space.o mesh/mesh.o 
 sem/coef.o : sem/coef.f90 math/mxm_wrapper.o device/device.o mesh/mesh.o math/math.o sem/space.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 gs/gs_bcknd.o : gs/gs_bcknd.f90 config/num_types.o 
 gs/bcknd/cpu/gs_cpu.o : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.o gs/gs_bcknd.o config/num_types.o 
@@ -130,7 +131,7 @@ math/bcknd/xsmm/ax_helm_xsmm.o : math/bcknd/xsmm/ax_helm_xsmm.F90 config/num_typ
 common/projection.o : common/projection.f90 gs/gather_scatter.o comm/comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
 comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
 comm/redist.o : comm/redist.f90 mesh/zone.o io/format/nmsh.o mesh/mesh.o comm/comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o comm/mpi_types.o field/mesh_field.o 
-krylov/pc_hsmg.o : krylov/pc_hsmg.f90 krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/tensor.o math/schwarz.o math/fdm.o bc/dirichlet.o bc/bc.o math/fast3d.o gs/gather_scatter.o krylov/krylov_fctry.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o math/math.o config/neko_config.o 
+krylov/pc_hsmg.o : krylov/pc_hsmg.f90 sem/interpolation.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/tensor.o math/schwarz.o math/fdm.o bc/dirichlet.o bc/bc.o math/fast3d.o gs/gather_scatter.o krylov/krylov_fctry.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o math/math.o config/neko_config.o 
 common/signal.o : common/signal.f90 common/utils.o 
 common/sighdl.o : common/sighdl.c 
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
