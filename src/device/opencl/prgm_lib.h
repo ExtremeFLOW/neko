@@ -28,3 +28,6 @@ extern void *dudxyz_program;
 
 /** Device \f$ D^T X \f$ kernels */
 extern void *cdtp_program;
+
+/** Device convective kernels */
+extern void *conv1_program;
