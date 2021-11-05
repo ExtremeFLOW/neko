@@ -136,7 +136,17 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine opencl_dudxyz
   end interface
-  
+
+  interface
+     subroutine opencl_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
+          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
+          bind(c, name='opencl_cdtp')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_cdtp
+  end interface
 #endif  
   
 contains
@@ -235,6 +245,10 @@ contains
            coef%jac_d, msh%nelv, Xh%lx)
 #elif HAVE_CUDA
       call cuda_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
+           coef%jac_d, msh%nelv, Xh%lx)
+#elif HAVE_OPENCL
+      call opencl_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
            Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
            coef%jac_d, msh%nelv, Xh%lx)
 #else
