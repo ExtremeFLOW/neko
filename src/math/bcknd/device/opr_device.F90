@@ -373,6 +373,11 @@ contains
            c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#elif HAVE_OPENCL
+    call opencl_dudxyz(work1%x_d, u3%x_d, &
+           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #endif
     if (gdim .eq. 3) then
 #ifdef HAVE_HIP
@@ -382,6 +387,11 @@ contains
             c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #elif HAVE_CUDA
        call cuda_dudxyz(work2%x_d, u2%x_d, &
+            c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#elif HAVE_OPENCL
+       call opencl_dudxyz(work2%x_d, u2%x_d, &
             c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d,&
             c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
             c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
@@ -410,6 +420,15 @@ contains
             c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
             c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
             c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#elif HAVE_OPENCL
+       call opencl_dudxyz(work1%x_d, u1%x_d, &
+            c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+       call opencl_dudxyz(work2%x_d, u3%x_d, &
+            c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #endif
        call device_sub3(w2%x_d, work1%x_d, work2%x_d, n)
     else
@@ -421,6 +440,11 @@ contains
             c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #elif HAVE_CUDA
        call cuda_dudxyz(work2%x_d, u3%x_d, &
+            c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
+            c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+            c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#elif HAVE_OPENCL
+       call opencl_dudxyz(work2%x_d, u3%x_d, &
             c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
             c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
             c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
@@ -443,6 +467,15 @@ contains
          c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
          c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
     call cuda_dudxyz(work2%x_d, u1%x_d, &
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+#elif HAVE_OPENCL
+    call opencl_dudxyz(work1%x_d, u2%x_d, &
+         c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+    call opencl_dudxyz(work2%x_d, u1%x_d, &
          c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
          c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
          c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
