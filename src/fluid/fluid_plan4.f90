@@ -88,7 +88,7 @@ contains
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
-    call advection_factory(this%adv)
+    call advection_factory(this%adv,.false.,12)
 
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
