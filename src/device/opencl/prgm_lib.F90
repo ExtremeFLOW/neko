@@ -34,6 +34,9 @@ module opencl_prgm_lib
   !> Device \f$ D^T X \f$ kernels
   type(c_ptr), bind(c) :: cdtp_program = C_NULL_PTR
 
+  !> Device convective kernels
+  type(c_ptr), bind(c) :: conv1_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -99,6 +102,13 @@ contains
           call neko_error('Failed to release program')
        end if
        cdtp_program = C_NULL_PTR
+    end if
+
+    if (c_associated(conv1_program)) then
+       if(clReleaseProgram(conv1_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       conv1_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

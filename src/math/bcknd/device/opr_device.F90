@@ -147,6 +147,21 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine opencl_cdtp
   end interface
+
+  interface
+     subroutine opencl_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
+          dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
+          jacinv_d, nel, gdim, lx) &
+          bind(c, name='opencl_conv1')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: jacinv_d
+       integer(c_int) :: nel, gdim, lx
+     end subroutine opencl_conv1
+  end interface
 #endif  
   
 contains
@@ -286,11 +301,18 @@ contains
                      coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #elif HAVE_CUDA
       call cuda_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
-                     Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-                     coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                     coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                     coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                     coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+                      Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+                      coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                      coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                      coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                      coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+#elif HAVE_OPENCL
+      call opencl_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
+                        Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+                        coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                        coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                        coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                        coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif

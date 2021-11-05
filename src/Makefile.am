@@ -198,6 +198,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/mathops.c\
 	math/bcknd/device/opencl/opr_dudxyz.c\
 	math/bcknd/device/opencl/opr_cdtp.c\
+	math/bcknd/device/opencl/opr_conv1.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/no_slip_wall.c\
