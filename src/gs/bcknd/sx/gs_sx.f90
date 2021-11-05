@@ -21,12 +21,14 @@ module gs_sx
   
 contains
   
-  !> Dummy backend initialisation
-  subroutine gs_sx_init(this, nlocal, nshared)
+  !> SX backend initialisation
+  subroutine gs_sx_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
     class(gs_sx_t), intent(inout) :: this
     integer, intent(in) :: nlocal
     integer, intent(in) :: nshared
-
+    integer, intent(in) :: nlcl_blks
+    integer, intent(in) :: nshrd_blks
+       
     call this%free()
 
     this%nlocal = nlocal
@@ -37,7 +39,7 @@ contains
     
   end subroutine gs_sx_init
 
-  !> Dummy backend deallocation
+  !> SX backend deallocation
   subroutine gs_sx_free(this)
     class(gs_sx_t), intent(inout) :: this
 
