@@ -31,6 +31,9 @@ module opencl_prgm_lib
   !> Device Derivative kernels
   type(c_ptr), bind(c) :: dudxyz_program = C_NULL_PTR
 
+  !> Device \f$ D^T X \f$ kernels
+  type(c_ptr), bind(c) :: cdtp_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -89,6 +92,13 @@ contains
           call neko_error('Failed to release program')
        end if
        dudxyz_program = C_NULL_PTR
+    end if
+
+    if (c_associated(cdtp_program)) then
+       if(clReleaseProgram(cdtp_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       cdtp_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

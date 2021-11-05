@@ -25,3 +25,6 @@ extern void *facet_normal_program;
 
 /** Device Derivative kernels */
 extern void *dudxyz_program;
+
+/** Device \f$ D^T X \f$ kernels */
+extern void *cdtp_program;
