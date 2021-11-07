@@ -1,8 +1,8 @@
 /**
  * Device kernel for add2s1
  */
-__kernel void add2s1_kernel(__global real *a,
-			    __global const real *b,
+__kernel void add2s1_kernel(__global real * __restrict__ a,
+			    __global const real * __restrict__ b,
 			    const real c1,
 			    const int n) {
 
@@ -17,8 +17,8 @@ __kernel void add2s1_kernel(__global real *a,
 /**
  * Device kernel for add2s2
  */
-__kernel void add2s2_kernel(__global real *a,
-			    __global const real *b,
+__kernel void add2s2_kernel(__global real * __restrict__ a,
+			    __global const real * __restrict__ b,
 			    const real c1,
 			    const int n) {
 
@@ -33,8 +33,8 @@ __kernel void add2s2_kernel(__global real *a,
 /** 
  * Device kernel for invcol2
  */
-__kernel void invcol2_kernel(__global real *a,
-			     __global const real *b,
+__kernel void invcol2_kernel(__global real * __restrict__ a,
+			     __global const real * __restrict__ b,
 			     const int n) {
 
   const int idx = get_global_id(0);
@@ -48,8 +48,8 @@ __kernel void invcol2_kernel(__global real *a,
 /** 
  * Device kernel for col2
  */
-__kernel void col2_kernel(__global real *a,
-			  __global const real *b,
+__kernel void col2_kernel(__global real * __restrict__ a,
+			  __global const real * __restrict__ b,
 			  const int n) {
 
   const int idx = get_global_id(0);
@@ -63,9 +63,9 @@ __kernel void col2_kernel(__global real *a,
 /** 
  * Device kernel for col3
  */
-__kernel void col3_kernel(__global real *a,
-			  __global const real *b,
-			  __global const real *c,
+__kernel void col3_kernel(__global real * __restrict__ a,
+			  __global const real * __restrict__ b,
+			  __global const real * __restrict__ c,
 			  const int n) {
 
   const int idx = get_global_id(0);
@@ -79,9 +79,9 @@ __kernel void col3_kernel(__global real *a,
 /** 
  * Device kernel for sub3
  */
-__kernel void sub3_kernel(__global real *a,
-			  __global const real *b,
-			  __global const real *c,
+__kernel void sub3_kernel(__global real * __restrict__ a,
+			  __global const real * __restrict__ b,
+			  __global const real * __restrict__ c,
 			  const int n) {
 
   const int idx = get_global_id(0);
@@ -95,9 +95,9 @@ __kernel void sub3_kernel(__global real *a,
 /** 
  * Device kernel for addcol3
  */
-__kernel void addcol3_kernel(__global real *a,
-			     __global const real *b,
-			     __global const real *c,
+__kernel void addcol3_kernel(__global real * __restrict__ a,
+			     __global const real * __restrict__ b,
+			     __global const real * __restrict__ c,
 			     const int n) {
 
   const int idx = get_global_id(0);
@@ -111,10 +111,10 @@ __kernel void addcol3_kernel(__global real *a,
 /**
  * Device kernel for glsc3
  */
-__kernel void glsc3_kernel(__global const real *a,
-			   __global const real *b,
-			   __global const real *c,
-			   __global real *buf_h,
+__kernel void glsc3_kernel(__global const real * __restrict__ a,
+			   __global const real * __restrict__ b,
+			   __global const real * __restrict__ c,
+			   __global real * __restrict__ buf_h,
 			   const int n) {
 
   const int idx = get_global_id(0);
@@ -147,9 +147,9 @@ __kernel void glsc3_kernel(__global const real *a,
 /**
  * Device kernel for glsc2
  */
-__kernel void glsc2_kernel(__global const real *a,
-			   __global const real *b,
-			   __global real *buf_h,
+__kernel void glsc2_kernel(__global const real * __restrict__ a,
+			   __global const real * __restrict__ b,
+			   __global real * __restrict__ buf_h,
 			   const int n) {
 
   const int idx = get_global_id(0);

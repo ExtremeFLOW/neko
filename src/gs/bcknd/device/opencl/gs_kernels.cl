@@ -3,16 +3,16 @@
  * Device gather kernel for addition of data
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
  */
-__kernel void gather_kernel_add(__global real *v,
+__kernel void gather_kernel_add(__global real * __restrict__ v,
 				const int m,
 				const int o,
-				__global const int *dg,
-				__global const real *u,
+				__global const int * __restrict__ dg,
+				__global const real * __restrict__ u,
 			        const int n,
-				__global const int *gd,
+				__global const int * __restrict__ gd,
 				const int nb,
-				__global const int *b,
-				__global const int *bo) {
+				__global const int * __restrict__ b,
+				__global const int * __restrict__ bo) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -47,16 +47,16 @@ __kernel void gather_kernel_add(__global real *v,
  * Device gather kernel for multiplication of data
  * \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
  */
-__kernel void gather_kernel_mul(__global real *v,
+__kernel void gather_kernel_mul(__global real * __restrict__ v,
 				const int m,
 				const int o,
-				__global const int *dg,
-				__global const real *u,
+				__global const int * __restrict__ dg,
+				__global const real * __restrict__ u,
 				const int n,
-				__global const int *gd,
+				__global const int * __restrict__ gd,
 				const int nb,
-				__global const int *b,
-				__global const int *bo) { 
+				__global const int * __restrict__ b,
+				__global const int * __restrict__ bo) { 
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -91,16 +91,16 @@ __kernel void gather_kernel_mul(__global real *v,
  * Device gather kernel for minimum of data
  * \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
  */
-__kernel void gather_kernel_min(__global real *v,
+__kernel void gather_kernel_min(__global real * __restrict__ v,
 				const int m,
 				const int o,
-				__global const int *dg,
-				__global const real *u,
+				__global const int * __restrict__ dg,
+				__global const real * __restrict__ u,
 				const int n,
-				__global const int *gd,
+				__global const int * __restrict__ gd,
 				const int nb,
-				__global const int *b,
-				__global const int *bo) {
+				__global const int * __restrict__ b,
+				__global const int * __restrict__ bo) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -135,13 +135,13 @@ __kernel void gather_kernel_min(__global real *v,
  * Device gather kernel for maximum of data
  * \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
  */
-__kernel void gather_kernel_max(__global real *v,
+__kernel void gather_kernel_max(__global real * __restrict__ v,
 				const int m,
 				const int o,
-				__global const int *dg,
-				__global const real *u,
+				__global const int * __restrict__ dg,
+				__global const real * __restrict__ u,
 				const int n,
-				__global const int *gd,
+				__global const int * __restrict__ gd,
 				const int nb,
 				__global const int *b,
 				__global const int *bo) {
@@ -179,15 +179,15 @@ __kernel void gather_kernel_max(__global real *v,
  * Device scatter kernel
  * \f$ u(gd(i) = v(dg(i)) \f$
  */
-__kernel void scatter_kernel(__global real *v,
+__kernel void scatter_kernel(__global real * __restrict__ v,
 			     const int m,
-			     __global const int *dg,
+			     __global const int * __restrict__ dg,
 			     __global real *u,
 			     const int n,
-			     __global const int *gd,
+			     __global const int * __restrict__ gd,
 			     const int nb,
-			     __global const int *b,
-			     __global const int *bo) {
+			     __global const int * __restrict__ b,
+			     __global const int * __restrict__ bo) {
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
