@@ -80,13 +80,15 @@ contains
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
 
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
     end if
             
@@ -96,6 +98,8 @@ contains
       enddo
     enddo 
 
+    call device_finalize
+    
   end subroutine test_dofmap_face12
 
 
@@ -165,13 +169,15 @@ contains
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(gs_h,x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
     end if
     
@@ -181,6 +187,8 @@ contains
       enddo
     enddo 
 
+    call device_finalize
+    
   end subroutine test_dofmap_face15
 
   @test(npes=[1])
@@ -249,13 +257,15 @@ contains
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
     end if
     
@@ -265,6 +275,8 @@ contains
       enddo
     enddo 
 
+    call device_finalize
+    
   end subroutine test_dofmap_face11
 
   @test(npes=[1])
@@ -333,13 +345,15 @@ contains
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
     end if
     
@@ -347,7 +361,9 @@ contains
       do j = 1,lx
       @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
       enddo
-    enddo 
+   enddo
+
+   call device_finalize
 
   end subroutine test_dofmap_face11rot
 
@@ -417,13 +433,15 @@ contains
     call rone(x%x, n)    
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
     end if
     
@@ -431,7 +449,9 @@ contains
       do j = 1,lx
       @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
       enddo
-    enddo 
+   enddo
+
+   call device_finalize
 
   end subroutine test_dofmap_face16
 
@@ -501,13 +521,15 @@ contains
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
     end if
     
@@ -517,6 +539,8 @@ contains
       enddo
     enddo 
 
+    call device_finalize
+    
   end subroutine test_dofmap_face13
 
   @test(npes=[1])
@@ -585,13 +609,15 @@ contains
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST)
     end if
     
@@ -601,6 +627,8 @@ contains
       enddo
     enddo 
 
+    call device_finalize
+    
   end subroutine test_dofmap_face14
   
 end module gather_scatter_parallel

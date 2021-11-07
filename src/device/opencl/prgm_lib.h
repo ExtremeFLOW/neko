@@ -34,3 +34,6 @@ extern void *conv1_program;
 
 /** Device Velocity gradient kernels */
 extern void *opgrad_program;
+
+/** Device Gather-Scatter kernels */
+extern void * gs_program;

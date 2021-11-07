@@ -104,7 +104,8 @@ contains
        f%name = "Field"
     end if
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        n = lx * ly * lz * nelv           
        call device_map(f%x, f%x_d, n)
     end if
