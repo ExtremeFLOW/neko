@@ -56,14 +56,15 @@ extern "C" {
    * Fortran wrapper for device scatter kernel
    */
   void cuda_scatter_kernel(void *v, int *m, void *dg,
-			   void *u, int *n, void *gd, void *w) {
+			   void *u, int *n, void *gd,
+			   int *nb, void *b, void *bo) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     scatter_kernel<real>
       <<<nblcks, nthrds>>>((real *) v, *m, (int *) dg,
-			   (real *) u, *n, (int *) gd, 
-			   (real *) w);
+			   (real *) u, *n, (int *) gd,
+			   *nb, (int *) b, (int *) bo);
   }
 }

@@ -190,17 +190,26 @@ __global__ void scatter_kernel(T * __restrict__ v,
 			       T * __restrict__ u,
 			       const int n,
 			       const int * __restrict__ gd,
-			       T * __restrict__ w) {
+			       const int nb,
+			       const int *__restrict__ b,
+			       const int *__restrict__ bo) {
   
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   
-  for (int i = idx; i < m; i += str) {
-    w[i] = v[dg[i] - 1];
+  for (int i = idx; i < nb; i += str) {
+    const int blk_len = b[i];
+    const int k = bo[i];
+    T tmp = v[dg[k] - 1];
+    for (int j = 0; j < blk_len; j++) {
+      u[gd[k + j] - 1] = tmp;
+    }      
   }
 
-  for (int i = idx; i < m; i += str) {
-    u[gd[i] - 1] = w[i];
+  const int facet_offset = bo[nb - 1] + b[nb - 1];
+  
+  for (int i = ((facet_offset - 1) + idx); i < m; i += str) {
+    u[gd[i] - 1] = v[dg[i] - 1];
   }
   
 }
