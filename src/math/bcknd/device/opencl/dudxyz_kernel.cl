@@ -3,15 +3,15 @@
  */
                                                               
 #define DEFINE_DUDXYZ_KERNEL(LX, CHUNKS)                                       \
-__kernel void dudxyz_kernel_lx##LX(__global real *du,                          \
-				   __global const real *u,		       \
-				   __global const real *dr,		       \
-				   __global const real *ds,		       \
-				   __global const real *dt,		       \
-				   __global const real *dx,		       \
-				   __global const real *dy,		       \
-				   __global const real *dz,		       \
-				   __global const real *jacinv) {	       \
+__kernel void dudxyz_kernel_lx##LX(__global real * __restrict__ du,            \
+				   __global const real * __restrict__ u,       \
+				   __global const real * __restrict__ dr,      \
+				   __global const real * __restrict__ ds,      \
+				   __global const real * __restrict__ dt,      \
+				   __global const real * __restrict__ dx,      \
+				   __global const real * __restrict__ dy,      \
+				   __global const real * __restrict__ dz,      \
+				   __global const real * __restrict__ jacinv) {\
                                                                                \
   __local real shu[LX * LX * LX];                                              \
   __local real shdr[LX * LX * LX];                                             \

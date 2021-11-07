@@ -3,16 +3,16 @@
  */
 
 #define DEFINE_CDTP_KERNEL(LX, CHUNKS)                                         \
-__kernel void cdtp_kernel_lx##LX(__global real *dtx,                           \
-				 __global const real *x,		       \
-				 __global const real *dr,		       \
-				 __global const real *ds,		       \
-				 __global const real *dt,		       \
-				 __global const real *dxt,		       \
-				 __global const real *dyt,		       \
-				 __global const real *dzt,		       \
-				 __global const real *B,		       \
-				 __global const real *jac) {		       \
+__kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
+				 __global const real * __restrict__ x,	       \
+				 __global const real * __restrict__ dr,	       \
+				 __global const real * __restrict__ ds,	       \
+				 __global const real * __restrict__ dt,	       \
+				 __global const real * __restrict__ dxt,       \
+				 __global const real * __restrict__ dyt,       \
+				 __global const real * __restrict__ dzt,       \
+				 __global const real * __restrict__ B,         \
+				 __global const real * __restrict__jac) {      \
                                                                                \
   __local real shx[LX * LX * LX];                                              \
   __local real shdr[LX * LX * LX];                                             \
