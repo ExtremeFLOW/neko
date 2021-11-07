@@ -16,7 +16,7 @@ extern "C" {
    */
   void hip_gather_kernel(void *v, int *m, int *o, void *dg,
 			 void *u, int *n, void *gd, int *nb,
-			 void *b, void *bo, void *w, int *op) {
+			 void *b, void *bo, int *op) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
@@ -61,7 +61,8 @@ extern "C" {
    * Fortran wrapper for device scatter kernel
    */
   void hip_scatter_kernel(void *v, int *m, void *dg,
-			  void *u, int *n, void *gd, void *w) {
+			  void *u, int *n, void *gd,
+			  int *nb, void *b, void *bo) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
@@ -69,6 +70,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) v, *m, (int *) dg,
-		       (real *) u, *n, (int *) gd, (real *) w);
+		       (real *) u, *n, (int *) gd,
+		       *nb, (int *) b, (int *) bo);
   }
 }

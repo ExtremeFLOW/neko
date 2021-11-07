@@ -15,7 +15,7 @@ extern "C" {
    */
   void cuda_gather_kernel(void *v, int *m, int *o, void *dg,
 			  void *u, int *n, void *gd, int *nb,
-			  void *b, void *bo, void *w, int *op) {
+			  void *b, void *bo, int *op) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
