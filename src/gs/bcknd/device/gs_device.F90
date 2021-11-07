@@ -37,12 +37,12 @@ module gs_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_gather_kernel(v, m, o, dg, u, n, gd, w, op) &
+     subroutine hip_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, w, op) &
           bind(c, name='hip_gather_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: m, n, o, op
-       type(c_ptr), value :: v, w, u, dg, gd
+       integer(c_int) :: m, n, nb, o, op
+       type(c_ptr), value :: v, w, u, dg, gd, b, bo
      end subroutine hip_gather_kernel
   end interface
 
@@ -230,7 +230,8 @@ contains
          end if
          
 #ifdef HAVE_HIP
-         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+                                nb, b_d, bo_d, w_d, op)
 #elif HAVE_CUDA
          call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                  nb, b_d, bo_d, w_d, op)
@@ -266,7 +267,7 @@ contains
 
          if (.not. c_associated(bo_d)) then
             call device_map(bo, bo_d, nb)
-            bo(i) = 0
+            bo(1) = 0
             do  i = 2, nb
                bo(i) = bo(i - 1) + b(i - 1)
             end do
@@ -275,7 +276,8 @@ contains
 
          
 #ifdef HAVE_HIP   
-         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+                                nb, b_d, bo_d, w_d, op)
 #elif HAVE_CUDA
          call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                  nb, b_d, bo_d, w_d, op)
