@@ -132,7 +132,7 @@ contains
     
     call neko_log%end_section()
 
-    call gs%bcknd%init(gs%nlocal, gs%nshared)
+    call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
     
   end subroutine gs_init
 

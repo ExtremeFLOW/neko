@@ -14,7 +14,8 @@ extern "C" {
    * Fortran wrapper for device gather kernels
    */
   void cuda_gather_kernel(void *v, int *m, int *o, void *dg,
-			  void *u, int *n, void *gd, void *w, int *op) {
+			  void *u, int *n, void *gd, int *nb,
+			  void *b, void *bo, int *op) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
@@ -24,29 +25,29 @@ extern "C" {
       cudaMemset(v, 0, (*m) * sizeof(real));
       gather_kernel_add<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd, 
-			     (real *) w);
+			     (real *) u, *n, (int *) gd,
+			     *nb, (int *) b, (int *) bo);
       break;
     case GS_OP_MUL:
       cudaMemset(v, 1, (*m) * sizeof(real));
       gather_kernel_mul<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd, 
-			     (real *) w);
+			     (real *) u, *n, (int *) gd,
+			     *nb, (int *) b, (int *) bo);
       break;
     case GS_OP_MIN:
       cudaMemset(v, INT_MAX, (*m) * sizeof(real));
       gather_kernel_min<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd, 
-			     (real *) w);
+			     (real *) u, *n, (int *) gd,
+			     *nb, (int *) b, (int *) bo);
       break;
     case GS_OP_MAX:
       cudaMemset(v, -INT_MAX, (*m) * sizeof(real));
       gather_kernel_max<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd, 
-			     (real *) w);
+			     (real *) u, *n, (int *) gd,
+			     *nb, (int *) b, (int *) bo);
       break;
     }
   }
@@ -55,14 +56,15 @@ extern "C" {
    * Fortran wrapper for device scatter kernel
    */
   void cuda_scatter_kernel(void *v, int *m, void *dg,
-			   void *u, int *n, void *gd, void *w) {
+			   void *u, int *n, void *gd,
+			   int *nb, void *b, void *bo) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     scatter_kernel<real>
       <<<nblcks, nthrds>>>((real *) v, *m, (int *) dg,
-			   (real *) u, *n, (int *) gd, 
-			   (real *) w);
+			   (real *) u, *n, (int *) gd,
+			   *nb, (int *) b, (int *) bo);
   }
 }

@@ -17,11 +17,13 @@ module gs_bcknd
 
   !> Abstract interface for initialising a Gather-Scatter backend
   abstract interface
-     subroutine gs_backend_init(this, nlocal, nshared)
+     subroutine gs_backend_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
        import gs_bcknd_t
        class(gs_bcknd_t), intent(inout) :: this
        integer, intent(in) :: nlocal
        integer, intent(in) :: nshared
+       integer, intent(in) :: nlcl_blks
+       integer, intent(in) :: nshrd_blks
      end subroutine gs_backend_init
   end interface
 

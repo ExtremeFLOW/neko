@@ -18,10 +18,12 @@ module gs_cpu
 contains
   
   !> Dummy backend initialisation
-  subroutine gs_cpu_init(this, nlocal, nshared)
+  subroutine gs_cpu_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
     class(gs_cpu_t), intent(inout) :: this
     integer, intent(in) :: nlocal
     integer, intent(in) :: nshared
+    integer, intent(in) :: nlcl_blks
+    integer, intent(in) :: nshrd_blks
   end subroutine gs_cpu_init
 
   !> Dummy backend deallocation

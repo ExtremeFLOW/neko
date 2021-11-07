@@ -10,16 +10,18 @@ module gs_device
 
   !> Gather-scatter backend for offloading devices
   type, public, extends(gs_bcknd_t) :: gs_device_t
-     real(kind=rp), allocatable :: local_wrk(:)  !< Scratch array for local
-     real(kind=rp), allocatable :: shared_wrk(:) !< Scratch array for shared
+     integer, allocatable :: local_blk_off(:)    !< Local block offset
+     integer, allocatable :: shared_blk_off(:)   !< Shared block offset
      type(c_ptr) :: local_gs_d = C_NULL_PTR      !< Dev. ptr local gs-ops
      type(c_ptr) :: local_dof_gs_d = C_NULL_PTR  !< Dev. ptr local dof to gs map.
      type(c_ptr) :: local_gs_dof_d = C_NULL_PTR  !< Dev. ptr local gs to dof map.
      type(c_ptr) :: shared_gs_d = C_NULL_PTR     !< Dev. ptr shared gs-ops
      type(c_ptr) :: shared_dof_gs_d = C_NULL_PTR !< Dev. ptr shrd dof to gs map.
      type(c_ptr) :: shared_gs_dof_d = C_NULL_PTR !< Dev. ptr shrd gs to dof map.
-     type(c_ptr) :: local_wrk_d = C_NULL_PTR     !< Dev. ptr local scratch
-     type(c_ptr) :: shared_wrk_d = C_NULL_PTR    !< Dev. ptr for shrd scratch
+     type(c_ptr) :: local_blk_len_d = C_NULL_PTR !< Dev. ptr local n-f blocks
+     type(c_ptr) :: shared_blk_len_d = C_NULL_PTR!< Dev. ptr shared n-f blocks
+     type(c_ptr) :: local_blk_off_d = C_NULL_PTR !< Dev. ptr local blk offset
+     type(c_ptr) :: shared_blk_off_d = C_NULL_PTR!< Dev. ptr shared blk offset
      integer :: nlocal              
      integer :: nshared
    contains
@@ -31,44 +33,44 @@ module gs_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_gather_kernel(v, m, o, dg, u, n, gd, w, op) &
+     subroutine hip_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op) &
           bind(c, name='hip_gather_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: m, n, o, op
-       type(c_ptr), value :: v, w, u, dg, gd
+       integer(c_int) :: m, n, nb, o, op
+       type(c_ptr), value :: v, u, dg, gd, b, bo
      end subroutine hip_gather_kernel
   end interface
 
   interface
-     subroutine hip_scatter_kernel(v, m, dg, u, n, gd, w) &
+     subroutine hip_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo) &
           bind(c, name='hip_scatter_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: m, n
-       type(c_ptr), value :: v, w, u, dg, gd
+       integer(c_int) :: m, n, nb
+       type(c_ptr), value :: v, u, dg, gd, b, bo
      end subroutine hip_scatter_kernel
   end interface
 
 #elif HAVE_CUDA
 
   interface
-     subroutine cuda_gather_kernel(v, m, o, dg, u, n, gd, w, op) &
+     subroutine cuda_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op) &
           bind(c, name='cuda_gather_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: m, n, o, op
-       type(c_ptr), value :: v, w, u, dg, gd
+       integer(c_int) :: m, n, nb, o, op
+       type(c_ptr), value :: v, u, dg, gd, b, bo
      end subroutine cuda_gather_kernel
   end interface
 
   interface
-     subroutine cuda_scatter_kernel(v, m, dg, u, n, gd, w) &
+     subroutine cuda_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo) &
           bind(c, name='cuda_scatter_kernel')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: m, n
-       type(c_ptr), value :: v, w, u, dg, gd
+       integer(c_int) :: m, n, nb
+       type(c_ptr), value :: v, u, dg, gd, b, bo
      end subroutine cuda_scatter_kernel
   end interface
 
@@ -77,28 +79,31 @@ module gs_device
 contains
   
   !> Accelerator backend initialisation
-  subroutine gs_device_init(this, nlocal, nshared)
+  subroutine gs_device_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
     class(gs_device_t), intent(inout) :: this
     integer, intent(in) :: nlocal
     integer, intent(in) :: nshared
+    integer, intent(in) :: nlcl_blks
+    integer, intent(in) :: nshrd_blks
 
     call this%free()
 
     this%nlocal = nlocal
     this%nshared = nshared
 
-    allocate(this%local_wrk(nlocal))
-    allocate(this%shared_wrk(nshared))
-
-    call device_map(this%local_wrk, this%local_wrk_d, nlocal)
-    call device_map(this%shared_wrk, this%shared_wrk_d, nshared)
+    allocate(this%local_blk_off(nlcl_blks))
+    allocate(this%shared_blk_off(nshrd_blks))
 
     this%local_gs_d = C_NULL_PTR
     this%local_dof_gs_d = C_NULL_PTR
     this%local_gs_dof_d = C_NULL_PTR
+    this%local_blk_len_d = C_NULL_PTR
+    this%local_blk_off_d = C_NULL_PTR
     this%shared_gs_d = C_NULL_PTR
     this%shared_dof_gs_d = C_NULL_PTR
-    this%shared_gs_dof_d = C_NULL_PTR    
+    this%shared_gs_dof_d = C_NULL_PTR
+    this%shared_blk_len_d = C_NULL_PTR
+    this%shared_blk_off_d = C_NULL_PTR
       
   end subroutine gs_device_init
 
@@ -106,12 +111,12 @@ contains
   subroutine gs_device_free(this)
     class(gs_device_t), intent(inout) :: this
 
-    if (allocated(this%local_wrk)) then
-       deallocate(this%local_wrk)
+    if (allocated(this%local_blk_off)) then
+       deallocate(this%local_blk_off)
     end if
 
-    if (allocated(this%shared_wrk)) then
-       deallocate(this%shared_wrk)
+    if (allocated(this%shared_blk_off)) then
+       deallocate(this%shared_blk_off)
     end if
 
     if (c_associated(this%local_gs_d)) then
@@ -126,13 +131,21 @@ contains
        call device_free(this%local_gs_dof_d)
     end if
 
-    if (c_associated(this%local_wrk_d)) then
-       call device_free(this%local_wrk_d)
+    if (c_associated(this%local_blk_len_d)) then
+       call device_free(this%local_blk_len_d)
     end if
 
-    if (c_associated(this%shared_wrk_d)) then
-       call device_free(this%shared_wrk_d)
-    end if   
+    if (c_associated(this%shared_blk_len_d)) then
+       call device_free(this%shared_blk_len_d)
+    end if
+
+    if (c_associated(this%local_blk_off_d)) then
+       call device_free(this%local_blk_off_d)
+    end if
+
+    if (c_associated(this%shared_blk_off_d)) then
+       call device_free(this%shared_blk_off_d)
+    end if
 
     this%nlocal = 0
     this%nshared = 0
@@ -151,14 +164,15 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(inout) :: o
-    integer :: op
+    integer :: op, i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u, n)
         
     if (this%nlocal .eq. m) then       
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
-            gd_d=>this%local_gs_dof_d, w_d=>this%local_wrk_d)
+            gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
+            bo=>this%local_blk_off, bo_d=>this%local_blk_off_d)
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
@@ -173,11 +187,27 @@ contains
             call device_map(gd, gd_d, m)
             call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE)
          end if
+
+         if (.not. c_associated(b_d)) then
+            call device_map(b, b_d, nb)
+            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE)
+         end if
+
+         if (.not. c_associated(bo_d)) then
+            call device_map(bo, bo_d, nb)
+            bo(1) = 0
+            do  i = 2, nb
+               bo(i) = bo(i - 1) + b(i - 1)
+            end do
+            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE)
+         end if
          
 #ifdef HAVE_HIP
-         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+                                nb, b_d, bo_d, op)
 #elif HAVE_CUDA
-         call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+                                 nb, b_d, bo_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -185,7 +215,8 @@ contains
        end associate
     else if (this%nshared .eq. m) then
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
-            gd_d=>this%shared_gs_dof_d, w_d=>this%shared_wrk_d)
+            gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
+            bo=>this%shared_blk_off, bo_d=>this%shared_blk_off_d)
 
          if (.not. c_associated(v_d)) then
             call device_map(v, v_d, m)
@@ -200,10 +231,28 @@ contains
             call device_map(gd, gd_d, m)
             call device_memcpy(gd, gd_d, m, HOST_TO_DEVICE)
          end if
+
+         if (.not. c_associated(b_d)) then
+            call device_map(b, b_d, nb)
+            call device_memcpy(b, b_d, nb, HOST_TO_DEVICE)
+         end if
+
+         if (.not. c_associated(bo_d)) then
+            call device_map(bo, bo_d, nb)
+            bo(1) = 0
+            do  i = 2, nb
+               bo(i) = bo(i - 1) + b(i - 1)
+            end do
+            call device_memcpy(bo, bo_d, nb, HOST_TO_DEVICE)
+         end if
+
+         
 #ifdef HAVE_HIP   
-         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+                                nb, b_d, bo_d, op)
 #elif HAVE_CUDA
-         call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, w_d, op)
+         call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+                                 nb, b_d, bo_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -230,22 +279,24 @@ contains
 
     if (this%nlocal .eq. m) then
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
-            gd_d=>this%local_gs_dof_d, w_d=>this%local_wrk_d)
+            gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
+            bo_d=>this%local_blk_off_d)
 #ifdef HAVE_HIP
-         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
+         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
 #elif HAVE_CUDA
-         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
+         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
 #else
          call neko_error('No device backend configured')
 #endif
        end associate
     else if (this%nshared .eq. m) then
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
-            gd_d=>this%shared_gs_dof_d, w_d=>this%shared_wrk_d)
+            gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
+            bo_d=>this%shared_blk_off_d)
 #ifdef HAVE_HIP
-         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
+         call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
 #elif HAVE_CUDA
-         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, w_d)
+         call cuda_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
 #else
          call neko_error('No device backend configured')
 #endif
