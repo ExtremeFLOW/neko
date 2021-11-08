@@ -361,7 +361,7 @@ contains
     
   end subroutine sub2
 
-  !> Vector subtraction \f$ a = b - c \f$
+  !> Vector subtraction \f$ a = b - c \f$ 
   subroutine sub3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: c
@@ -374,6 +374,20 @@ contains
     end do
 
   end subroutine sub3
+
+    !> Vector subtraction \f$ a = b - c \f$ (Blocked version)
+  subroutine sub3_blckd(a, b, c, n, j, k)
+    integer, intent(in) :: n, j, k
+    real(kind=rp), dimension(n), intent(inout) :: c
+    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(out) :: a
+    integer :: i
+
+    do i = j, k
+       a(i) = b(i) - c(i)
+    end do
+    
+  end subroutine sub3_blckd
 
 
   !> Vector addition with scalar multiplication \f$ a = c_1 a + b \f$

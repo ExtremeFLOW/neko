@@ -20,46 +20,71 @@ module opr_cpu
   
 contains
 
-  subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
+  subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef, es, ee)
     type(coef_t), intent(in), target :: coef
+    integer, intent(in), optional :: es, ee
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
     real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+    integer :: eblk_start, eblk_end
+
+    if (present(es)) then
+       eblk_start = es
+    else
+       eblk_start = 1
+    end if
+       
+    if (present(ee)) then
+       eblk_end = ee
+    else
+       eblk_end = coef%msh%nelv
+    end if
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(coef%Xh%lx)
       case(12)
          call cpu_dudxyz_lx12(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(11)
          call cpu_dudxyz_lx11(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(10)
          call cpu_dudxyz_lx10(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(9)
          call cpu_dudxyz_lx9(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(8)
          call cpu_dudxyz_lx8(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(7)
          call cpu_dudxyz_lx7(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(6)
          call cpu_dudxyz_lx6(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(5)
          call cpu_dudxyz_lx5(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(4)
          call cpu_dudxyz_lx4(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(3)
          call cpu_dudxyz_lx3(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       case(2)
          call cpu_dudxyz_lx2(du, u, dr, ds, dt, & 
-              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, &
+              eblk_start, eblk_end)
       end select
 
     end associate
@@ -296,34 +321,58 @@ contains
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in)  :: c_Xh
-    integer :: gdim, n
+    integer, parameter :: BLCK_SIZE = 128
+    integer :: gdim, n, i, nelv, es, ee, vs, ve, lx
 
     n = w1%dof%size()
     gdim = c_Xh%msh%gdim
+    nelv = c_Xh%msh%nelv
+    lx = c_Xh%Xh%lx
+    
+    do i = 1, nelv, BLCK_SIZE
 
-    !     this%work1=dw/dy ; this%work2=dv/dz
-    call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
-    else
-       call copy(w1%x, work1%x, n)
-    end if
-    !     this%work1=du/dz ; this%work2=dw/dx
-    if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
-    else
-       call rzero (work1%x, n)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
-    end if
-    !     this%work1=dv/dx ; this%work2=du/dy
-    call opr_cpu_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call opr_cpu_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
-    !!    BC dependent, Needs to change if cyclic
+       ! Element start/end
+       es = i
+       ee = es + BLCK_SIZE
+       ! Vector start/end
+       vs = es * (lx**3)
+       ve = vs + BLCK_SIZE * (lx**3)
+       
+       !     this%work1=dw/dy ; this%work2=dv/dz
+       call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, &
+                           c_Xh, es, ee)
+       if (gdim .eq. 3) then
+          call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, &
+                              c_Xh, es, ee)
+          call sub3_blckd(w1%x, work1%x, work2%x, n, vs, ve)
+       else
+          ! Fixme
+          call copy(w1%x, work1%x, n)
+       end if
+
+       !     this%work1=du/dz ; this%work2=dw/dx
+       if (gdim .eq. 3) then
+          call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, &
+                              c_Xh, es, ee)
+          call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, &
+                              c_Xh, es, ee)
+          call sub3_blckd(w2%x, work1%x, work2%x, n, vs, ve)
+       else
+          ! Fixme 
+          call rzero (work1%x, n) 
+          call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, &
+               c_Xh, es, ee)
+          call sub3_blckd(w2%x, work1%x, work2%x, n, vs, ve)
+       end if
+       !     this%work1=dv/dx ; this%work2=du/dy
+       call opr_cpu_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, &
+                           c_Xh, es, ee)
+       call opr_cpu_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, &
+                           c_Xh, es, ee)
+       call sub3_blckd(w3%x, work1%x, work2%x, n, vs, ve)
+       !!    BC dependent, Needs to change if cyclic
+
+    end do
 
     call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
     call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
