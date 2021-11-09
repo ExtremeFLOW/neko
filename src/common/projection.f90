@@ -65,13 +65,10 @@ contains
 
   end subroutine projection_free
 
-  subroutine project1(this, b, Ax, coef, bclst, gs_h, n)
-    class(projection_t) :: this
+  subroutine project1(this, b, coef, n)
+    class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
-    class(Ax_t), intent(inout) :: Ax    
     class(coef_t), intent(inout) :: coef   
-    class(bc_list_t), intent(inout) :: bclst
-    type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: b 
     integer :: i, j, k, ierr
     real(kind=rp) :: work(this%L),alpha(this%L)
@@ -112,7 +109,7 @@ contains
          do k = 1,this%m
             call add2s2(xbar(i),xx(i,k),alpha(k),j)
             call add2s2(b(i),bb(i,k),-alpha(k),j)
-         enddo 
+         end do 
       end do
     end associate
   end subroutine project1
@@ -152,7 +149,7 @@ contains
     do i = 1, n, NEKO_BLK_SIZE
        j = min(NEKO_BLK_SIZE,n-i+1)
        do k = 1, m !First round CGS
-          alpha(k) = alpha(k) + 0.5*(vlsc3(xx(i,k),w(i),bb(i,m),j) &
+          alpha(k) = alpha(k) + 0.5_rp * (vlsc3(xx(i,k),w(i),bb(i,m),j) &
                    + vlsc3(bb(i,k),w(i),xx(i,m),j))
        end do
     end do
@@ -165,7 +162,7 @@ contains
        do k = 1,m-1
           call add2s2(xx(i,m),xx(i,k),-alpha(k),j)
           call add2s2(bb(i,m),bb(i,k),-alpha(k),j)
-          beta(k) = beta(k) + 0.5*(vlsc3(xx(i,k),w(i),bb(i,m),j) &
+          beta(k) = beta(k) + 0.5_rp * (vlsc3(xx(i,k),w(i),bb(i,m),j) &
                   + vlsc3(bb(i,k),w(i),xx(i,m),j))
        enddo
     end do
@@ -190,7 +187,7 @@ contains
 
     if(alpha(m).gt.this%tol*nrm) then !New vector is linearly independent    
        !Normalize dx and db
-       scl1 = 1.0/alpha(m) 
+       scl1 = 1.0_rp / alpha(m) 
        call cmult(xx(1,m), scl1, n)   
        call cmult(bb(1,m), scl1, n)   
 
@@ -222,17 +219,16 @@ contains
   subroutine givens_rotation(a, b, c, s, r)
     real(kind=rp), intent(inout) :: a, b, c, s, r
     real(kind=rp) ::  h, d
-    real(kind=rp), parameter :: one = 1d0
 
-    if(b.ne.0d0) then
+    if(b .ne. 0.0_rp) then
        h = hypot(a,b) 
-       d = 1d0/h
-       c = abs(a)*d
-       s = sign(d,a)*b
-       r = sign(one,a)*h
+       d = 1.0_rp / h
+       c = abs(a) * d
+       s = sign(d,a) * b
+       r = sign(1.0_rp,a) * h
     else
-       c = 1d0
-       s = 0d0
+       c = 1.0_rp
+       s = 0.0_rp
        r = a
     endif
       
