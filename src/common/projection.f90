@@ -17,7 +17,7 @@ module projection
   type, public ::  projection_t
      real(kind=rp), allocatable :: xx(:,:)
      real(kind=rp), allocatable :: bb(:,:)
-     real(kind=rp), allocatable :: xbar(:), bbar(:)
+     real(kind=rp), allocatable :: xbar(:)
      integer :: m, L
      real(kind=rp) :: tol = 1d-7
    contains
@@ -47,7 +47,6 @@ contains
     allocate(this%xx(n,this%L))
     allocate(this%bb(n,this%L))
     allocate(this%xbar(n))
-    allocate(this%bbar(n))
 
 
   end subroutine projection_init
@@ -63,9 +62,6 @@ contains
     if (allocated(this%xbar)) then
        deallocate(this%xbar)
     end if
-    if (allocated(this%bbar)) then
-       deallocate(this%bbar)
-    end if
 
   end subroutine projection_free
 
@@ -80,7 +76,7 @@ contains
     integer :: i, j, k, ierr
     real(kind=rp) :: work(this%L),alpha(this%L)
     associate(xbar => this%xbar, xx => this%xx, &
-              bbar => this%bbar, bb => this%bb)
+              bb => this%bb)
     
       if (this%m.le.0) return
 
@@ -99,11 +95,9 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          call cmult2(xbar(i),xx(i,1),alpha(1),j)
-         call cmult2(bbar(i),bb(i,1),alpha(1),j)
          call add2s2(b(i),bb(i,1),-alpha(1),j)
          do k = 2,this%m
             call add2s2(xbar(i),xx(i,k),alpha(k),j)
-            call add2s2(bbar(i),bb(i,k),alpha(k),j)
             call add2s2(b(i),bb(i,k),-alpha(k),j)
          end do
          !Second round of CGS
@@ -117,7 +111,6 @@ contains
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1,this%m
             call add2s2(xbar(i),xx(i,k),alpha(k),j)
-            call add2s2(bbar(i),bb(i,k),alpha(k),j)
             call add2s2(b(i),bb(i,k),-alpha(k),j)
          enddo 
       end do
