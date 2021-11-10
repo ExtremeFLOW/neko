@@ -99,9 +99,32 @@ module coefs
 
   end type coef_t
 
-  public :: coef_init, coef_free
+  public :: coef_init, coef_empty_init, coef_free
   
 contains
+  !> Initialize empty coefs for a space and a mesh 
+  subroutine coef_empty_init(coef, Xh, msh)
+    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(inout), target :: Xh
+    type(mesh_t), intent(inout), target :: msh
+    call coef_free(coef)
+    coef%msh => msh
+    coef%Xh => Xh
+    
+    allocate(coef%drdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dsdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dtdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    
+    allocate(coef%drdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dsdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dtdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    
+    allocate(coef%drdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dsdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dtdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    
+
+  end subroutine coef_empty_init
 
   !> Initialize coefficients
   subroutine coef_init(coef, gs_h)

@@ -25,15 +25,24 @@ contains
     class(interpolator_t), intent(inout) :: this
     type(space_t), intent(inout), target :: Xh
     type(space_t), intent(inout), target :: Yh
+    integer :: inter_type
+
     call this%free()
 
     allocate(this%Xh_to_Yh(Yh%lx,Xh%lx))
     allocate(this%Xh_to_YhT(Xh%lx,Yh%lx))
     allocate(this%Yh_to_Xh(Xh%lx,Yh%lx))
     allocate(this%Yh_to_XhT(Yh%lx,Xh%lx))
+    if (Xh%t .eq. GLL .and. Yh%t .eq. GLL) then
+       inter_type = 1
+    else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. (Yh%t .eq. GL .and. Xh%t .eq. GLL)) then
+       inter_type = 0
+    else
+       call neko_error('Unsupported interpolation')
+    end if
 
-    call setup_intp(this%Xh_to_Yh, this%Xh_to_YhT,Yh%zg,Xh%zg,Yh%lx,Xh%lx)
-    call setup_intp(this%Yh_to_Xh, this%Yh_to_XhT,Xh%zg,Yh%zg,Xh%lx,Yh%lx)
+    call setup_intp(this%Xh_to_Yh, this%Xh_to_YhT,Yh%zg,Xh%zg,Yh%lx,Xh%lx,inter_type)
+    call setup_intp(this%Yh_to_Xh, this%Yh_to_XhT,Xh%zg,Yh%zg,Xh%lx,Yh%lx,inter_type)
     this%Xh => Xh
     this%Yh => Yh
 
@@ -57,13 +66,13 @@ contains
   
   end subroutine interp_free
 
-  subroutine setup_intp(jh,jht, zf,zc,nf,nc)
-    integer, intent(in) :: nf,nc
+  subroutine setup_intp(jh,jht, zf,zc,nf,nc,inter_type)
+    integer, intent(in) :: nf,nc, inter_type
     real(kind=rp), intent(inout) :: jh(nf,nc),zf(nf),zc(nc), jht(nc,nf)
     real(kind=rp) ::  w(2*(nf+nc)+4)
     integer :: i, j
     do i = 1, nf
-       call fd_weights_full(zf(i), zc, nc-1, 1, w)
+       call fd_weights_full(zf(i), zc, nc-1, inter_type, w)
        do j = 1, nc
           jh(i,j) = w(j)
           jht(j,i) = w(j)
@@ -75,7 +84,7 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(to_space%lxyz,nel)
+    real(kind=rp), intent(inout) :: x(1,nel)
     real(kind=rp), intent(inout) :: y(1,nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d(y, this%Yh%lx, x, &
@@ -89,7 +98,5 @@ contains
        call neko_error('Invalid interpolation')
     end if
   end subroutine interpolate
-
-
 
 end module interpolation

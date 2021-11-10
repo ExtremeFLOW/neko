@@ -12,6 +12,7 @@ module space
   integer, parameter :: GL = 0, GLL = 1, GJ = 2
 
   type space_t
+     integer :: t               !< Space type (GL, GLL, GJ, ...)
      integer :: lx              !< Polynomial dimension in x-direction
      integer :: ly              !< Polynomial dimension in y-direction
      integer :: lz              !< Polynomial dimension in z-direction
@@ -83,6 +84,7 @@ contains
 
     s%lx = lx
     s%ly = ly
+    s%t = t
     if (present(lz)) then
        s%lz = lz
        if (lx .ne. ly .or. lx .ne. lz) then
