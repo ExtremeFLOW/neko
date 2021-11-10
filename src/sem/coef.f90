@@ -236,7 +236,7 @@ contains
     coef%ifh2 = .false.
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(coef%h1, coef%h2_d, n, HOST_TO_DEVICE)
+       call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE)
        call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE)
     end if
     
