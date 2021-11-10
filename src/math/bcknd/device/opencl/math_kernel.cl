@@ -30,6 +30,20 @@ __kernel void add2s2_kernel(__global real * __restrict__ a,
   }
 }
 
+/**
+ * Device kernel for invcol1
+ */
+__kernel void invcol1_kernel(__global real * __restrict__ a,
+			     const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = 1 / a[i];
+  }
+}
+
 /** 
  * Device kernel for invcol2
  */

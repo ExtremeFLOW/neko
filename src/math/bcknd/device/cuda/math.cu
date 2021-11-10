@@ -51,6 +51,18 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for invcol1
+   * Invert a vector \f$ a = 1 / a \f$
+   */
+  void cuda_invcol1(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    invcol1_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					     *n);
+  }
+  /**
    * Fortran wrapper for invcol2
    * Vector division \f$ a = a / b \f$
    */
