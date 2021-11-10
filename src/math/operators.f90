@@ -42,7 +42,7 @@ contains
   end subroutine dudxyz
 
   !> Equals wgradm1 in nek5000. Gradient of velocity vectors.
-  subroutine opgrad(ux,uy,uz,u,coef) ! weak form of grad 
+  subroutine opgrad(ux,uy,uz,u,coef, es, ee) ! weak form of grad 
 
   !Compute gradient of T -- mesh 1 to mesh 1 (vel. to vel.)
 
@@ -50,7 +50,21 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
+    integer, optional :: es, ee
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    integer :: eblk_start, eblk_end
+
+    if (present(es)) then
+       eblk_start = es
+    else
+       eblk_start = 1
+    end if
+
+    if (present(ee)) then
+       eblk_end = ee
+    else
+       eblk_end = coef%msh%nelv
+    end if
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_opgrad(ux, uy, uz, u, coef)
@@ -60,7 +74,7 @@ contains
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
        call opr_device_opgrad(ux, uy, uz, u, coef)
     else
-       call opr_cpu_opgrad(ux, uy, uz, u, coef)
+       call opr_cpu_opgrad(ux, uy, uz, u, coef, eblk_start, eblk_end)
     end if
     
   end subroutine opgrad
