@@ -170,7 +170,7 @@ contains
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
-    call advection_factory(this%adv, this%c_Xh, .true., 8)
+    call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
   end subroutine fluid_plan4_init
 

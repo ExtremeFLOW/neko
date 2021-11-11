@@ -54,12 +54,12 @@ contains
     class(advection_t), allocatable, intent(inout) :: this
     type(coef_t) :: coef
     logical, intent(in) :: dealias
-    integer, intent(in), optional :: lxd
+    integer, intent(in) :: lxd
      
     if (allocated(this)) then
        deallocate(this)
     end if
-
+    
     if (dealias) then
        allocate(adv_dealias_t::this)
     else
@@ -67,12 +67,12 @@ contains
     end if
     select type(adv => this)
        type is(adv_dealias_t)
-          if (present(lxd)) then
+          if (lxd .gt. 0) then
              call init_dealias(adv,lxd,coef) 
           else
              call init_dealias(adv,coef%Xh%lx*3/2, coef)
           end if
-       end select
+    end select
 
   end subroutine advection_factory
 
@@ -117,30 +117,68 @@ contains
     integer :: e, i, idx, NEKO_NEL_SIZE = 1
     associate(c_GL => this%coef_GL)
     do e = 1, nelv, NEKO_NEL_SIZE
-       call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
-       call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
-       call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+       !call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
+       !call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
+       !call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+         
+       call tnsr3d_el(tx, this%Xh_GL%lx, vx%x(1,1,1,e),&
+            this%Xh_GLL%lx, this%GLL_to_GL%Yh_to_Xh, &
+            this%GLL_to_GL%Yh_to_XhT, this%GLL_to_GL%Yh_to_XhT)
+       call tnsr3d_el(ty, this%Xh_GL%lx, vy%x(1,1,1,e),&
+            this%Xh_GLL%lx, this%GLL_to_GL%Yh_to_Xh, &
+            this%GLL_to_GL%Yh_to_XhT, this%GLL_to_GL%Yh_to_XhT)
+       call tnsr3d_el(tz, this%Xh_GL%lx, vz%x(1,1,1,e),&
+            this%Xh_GLL%lx, this%GLL_to_GL%Yh_to_Xh, &
+            this%GLL_to_GL%Yh_to_XhT, this%GLL_to_GL%Yh_to_XhT)
+       
+       
+       
+       !call this%GLL_to_GL%map(tempx, tx, 1, this%Xh_GLL)
+       !call this%GLL_to_GL%map(tempy, ty, 1, this%Xh_GLL)
+       !call this%GLL_to_GL%map(tempz, tz, 1, this%Xh_GLL)
+       !call copy(tempx,vx%x(1,1,1,e),this%Xh_GLL%lxyz)
+       !call copy(tempy,vy%x(1,1,1,e),this%Xh_GLL%lxyz)
+       !call copy(tempz,vz%x(1,1,1,e),this%Xh_GLL%lxyz)
+       !call copy(tx,tempx,this%Xh_GLL%lxyz)
+       !call copy(ty,tempy,this%Xh_GLL%lxyz)
+       !call copy(tz,tempz,this%Xh_GLL%lxyz)
+        
        do i = 1, this%Xh_GL%lxyz
-          tr(i) = c_GL%drdx(i,1,1,e) * tx(i) + c_GL%drdy(i,1,1,e)*ty(i) + c_GL%drdz(i,1,1,e)*tz(i)
-          ts(i) = c_GL%dsdx(i,1,1,e) * tx(i) + c_GL%dsdy(i,1,1,e)*ty(i) + c_GL%dsdz(i,1,1,e)*tz(i)
-          tt(i) = c_GL%dtdx(i,1,1,e) * tx(i) + c_GL%dtdy(i,1,1,e)*ty(i) + c_GL%dtdz(i,1,1,e)*tz(i)
+          tr(i) = (c_GL%drdx(i,1,1,e) * tx(i) + c_GL%drdy(i,1,1,e)*ty(i) + c_GL%drdz(i,1,1,e)*tz(i))
+          ts(i) = (c_GL%dsdx(i,1,1,e) * tx(i) + c_GL%dsdy(i,1,1,e)*ty(i) + c_GL%dsdz(i,1,1,e)*tz(i))
+          tt(i) = (c_GL%dtdx(i,1,1,e) * tx(i) + c_GL%dtdy(i,1,1,e)*ty(i) + c_GL%dtdz(i,1,1,e)*tz(i))
        end do
        call opgrad(vr, vs, vt, tx, c_GL, e, e)
        do i = 1, this%Xh_GL%lxyz
-          tbfx(i) = tr(i)*vr(i) + ts(i)*vs(i) + tt(i)*vt(i)
+          tbfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
        end do
        call opgrad(vr, vs, vt, ty, c_GL, e, e)
        do i = 1, this%Xh_GL%lxyz
-          tbfy(i) = tr(i)*vr(i) + ts(i)*vs(i) + tt(i)*vt(i)
+          tbfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
        end do
        call opgrad(vr, vs, vt, tz, c_GL, e, e)
        do i = 1, this%Xh_GL%lxyz
-          tbfz(i) = tr(i)*vr(i) + ts(i)*vs(i) + tt(i)*vt(i)
+          tbfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
        end do
        idx = (e-1)*this%Xh_GLL%lxyz+1
-       call this%GLL_to_GL%map(tempx, tbfx, 1, this%Xh_GLL)
-       call this%GLL_to_GL%map(tempy, tbfy, 1, this%Xh_GLL)
-       call this%GLL_to_GL%map(tempz, tbfz, 1, this%Xh_GLL)
+       !call this%GLL_to_GL%map(tempx, tbfx, 1, this%Xh_GLL)
+       !call this%GLL_to_GL%map(tempy, tbfy, 1, this%Xh_GLL)
+       !call this%GLL_to_GL%map(tempz, tbfz, 1, this%Xh_GLL)
+       call tnsr3d_el(tempx, this%Xh_GLL%lx, tbfx,&
+            this%Xh_GL%lx, this%GLL_to_GL%Yh_to_XhT, &
+            this%GLL_to_GL%Yh_to_Xh, this%GLL_to_GL%Yh_to_Xh)
+       call tnsr3d_el(tempy, this%Xh_GLL%lx, tbfy,&
+            this%Xh_GL%lx, this%GLL_to_GL%Yh_to_XhT, &
+            this%GLL_to_GL%Yh_to_Xh, this%GLL_to_GL%Yh_to_Xh)
+       call tnsr3d_el(tempz, this%Xh_GLL%lx, tbfz,&
+            this%Xh_GL%lx, this%GLL_to_GL%Yh_to_XhT, &
+            this%GLL_to_GL%Yh_to_Xh, this%GLL_to_GL%Yh_to_Xh)
+       !call copy(tempx,tbfx,this%Xh_GLL%lxyz)
+       !call copy(tempy,tbfy,this%Xh_GLL%lxyz)
+       !call copy(tempz,tbfz,this%Xh_GLL%lxyz)
+       call invcol2(tempx, this%coef_GLL%B(1,1,1,e),this%Xh_GLL%lxyz)
+       call invcol2(tempy, this%coef_GLL%B(1,1,1,e),this%Xh_GLL%lxyz)
+       call invcol2(tempz, this%coef_GLL%B(1,1,1,e),this%Xh_GLL%lxyz)
        call subcol3(bfx(idx),this%coef_GLL%B(1,1,1,e), tempx,this%Xh_GLL%lxyz)
        call subcol3(bfy(idx),this%coef_GLL%B(1,1,1,e), tempy,this%Xh_GLL%lxyz)
        call subcol3(bfz(idx),this%coef_GLL%B(1,1,1,e), tempz,this%Xh_GLL%lxyz)
