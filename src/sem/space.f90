@@ -5,6 +5,7 @@ module space
   use speclib
   use device
   use utils
+  use fast3d
   use math
   use, intrinsic :: iso_c_binding
   implicit none
@@ -150,15 +151,28 @@ contains
           end do
        end do
     end do
-
-    call dgll(s%dx, s%dxt, s%zg(1,1), s%lx, s%lx)
-    call dgll(s%dy, s%dyt, s%zg(1,2), s%ly, s%ly)
-    if (s%lz .gt. 1) then
-       call dgll(s%dz, s%dzt, s%zg(1,3), s%lz, s%lz)
-    else
-       s%dz = 0d0
-       s%dzt = 0d0
-    end if
+    !> Setup derivative matrices
+    if (t .eq. GLL) then
+        call dgll(s%dx, s%dxt, s%zg(1,1), s%lx, s%lx)
+        call dgll(s%dy, s%dyt, s%zg(1,2), s%ly, s%ly)
+        if (s%lz .gt. 1) then
+           call dgll(s%dz, s%dzt, s%zg(1,3), s%lz, s%lz)
+        else
+           s%dz = 0d0
+           s%dzt = 0d0
+        end if
+    else if (t .eq. GL) then
+       call setup_intp(s%dx,s%dxt,s%zg(1,1),s%zg(1,1),s%lx,s%lx,1)
+       call setup_intp(s%dy,s%dyt,s%zg(1,2),s%zg(1,2),s%ly,s%ly,1)
+        if (s%lz .gt. 1) then
+           call setup_intp(s%dz,s%dzt,s%zg(1,3),s%zg(1,3),s%lz,s%lz,1)
+        else
+           s%dz = 0d0
+           s%dzt = 0d0
+        end if
+     else
+        call neko_error("Invalid quadrature rule")
+     end if
     
     call space_compute_dist(s%dr_inv, s%zg(1,1), s%lx)
     call space_compute_dist(s%ds_inv, s%zg(1,2), s%ly)

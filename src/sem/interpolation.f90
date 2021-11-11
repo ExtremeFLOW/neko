@@ -25,7 +25,7 @@ contains
     class(interpolator_t), intent(inout) :: this
     type(space_t), intent(inout), target :: Xh
     type(space_t), intent(inout), target :: Yh
-    integer :: inter_type
+    integer :: deg_derivate
 
     call this%free()
 
@@ -34,15 +34,14 @@ contains
     allocate(this%Yh_to_Xh(Xh%lx,Yh%lx))
     allocate(this%Yh_to_XhT(Yh%lx,Xh%lx))
     if (Xh%t .eq. GLL .and. Yh%t .eq. GLL) then
-       inter_type = 1
     else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. (Yh%t .eq. GL .and. Xh%t .eq. GLL)) then
-       inter_type = 0
     else
        call neko_error('Unsupported interpolation')
     end if
+    deg_derivate = 0
+    call setup_intp(this%Xh_to_Yh, this%Xh_to_YhT,Yh%zg,Xh%zg,Yh%lx,Xh%lx,deg_derivate)
+    call setup_intp(this%Yh_to_Xh, this%Yh_to_XhT,Xh%zg,Yh%zg,Xh%lx,Yh%lx,deg_derivate)
 
-    call setup_intp(this%Xh_to_Yh, this%Xh_to_YhT,Yh%zg,Xh%zg,Yh%lx,Xh%lx,inter_type)
-    call setup_intp(this%Yh_to_Xh, this%Yh_to_XhT,Xh%zg,Yh%zg,Xh%lx,Yh%lx,inter_type)
     this%Xh => Xh
     this%Yh => Yh
 
@@ -65,20 +64,6 @@ contains
     end if
   
   end subroutine interp_free
-
-  subroutine setup_intp(jh,jht, zf,zc,nf,nc,inter_type)
-    integer, intent(in) :: nf,nc, inter_type
-    real(kind=rp), intent(inout) :: jh(nf,nc),zf(nf),zc(nc), jht(nc,nf)
-    real(kind=rp) ::  w(2*(nf+nc)+4)
-    integer :: i, j
-    do i = 1, nf
-       call fd_weights_full(zf(i), zc, nc-1, inter_type, w)
-       do j = 1, nc
-          jh(i,j) = w(j)
-          jht(j,i) = w(j)
-       enddo
-    enddo
-  end subroutine setup_intp
   !> Interpolates array x -> y in to_space
   subroutine interpolate(this, y, x, nel,to_space)
     class(interpolator_t), intent(inout) :: this
