@@ -137,7 +137,6 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter 
     integer :: i, j, k, l, ierr 
-    real(kind=rp), parameter :: one = 1.0_rp
     real(kind=rp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
@@ -148,7 +147,7 @@ contains
      associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
           v => this%v, s => this%s, gam => this%gam, wk1 =>this%wk1)
 
-       norm_fac = one / sqrt(coef%volume)
+       norm_fac = 1.0_rp / sqrt(coef%volume)
        call rzero(x%x, n)
        call rzero(gam, this%lgmres + 1)
        call rone(s, this%lgmres)
@@ -174,7 +173,7 @@ contains
           if (gam(1) .eq. 0) return
 
           rnorm = 0.0_rp
-          temp = one / gam(1)
+          temp = 1.0_rp / gam(1)
           call cmult2(v(1,1), r, temp, n) 
           do j = 1, this%lgmres
              iter = iter+1
@@ -186,7 +185,7 @@ contains
              call bc_list_apply(blst, w, n)
              
              do l = 1, j
-                h(l,j) = 0.0
+                h(l,j) = 0.0_rp
              enddo
 
              do i = 0, n, NEKO_BLK_SIZE
@@ -215,7 +214,7 @@ contains
              do i = 0,n,NEKO_BLK_SIZE
                 if (i + NEKO_BLK_SIZE .le. n) then
                    do k = 1, NEKO_BLK_SIZE
-                      w_plus(k) = 0.0
+                      w_plus(k) = 0.0_rp
                    end do
                    do l = 1,j
                       do k = 1, NEKO_BLK_SIZE
@@ -228,7 +227,7 @@ contains
                    end do
                 else 
                    do k = 1, n-i
-                      w_plus(1) = 0.0
+                      w_plus(1) = 0.0_rp
                       do l = 1, j
                          w_plus(1) = w_plus(1) - h(l,j) * v(i+k,l)
                       end do
@@ -255,7 +254,7 @@ contains
              end if
              
              lr = sqrt(h(j,j) * h(j,j) + alpha**2)
-             temp = one / lr
+             temp = 1.0_rp / lr
              c(j) = h(j,j) * temp
              s(j) = alpha  * temp
              h(j,j) = lr
@@ -271,7 +270,7 @@ contains
              if (iter + 1 .gt. niter) exit
              
              if( j .lt. this%lgmres) then
-                temp = one / alpha
+                temp = 1.0_rp / alpha
                 call cmult2(v(1,j+1), w, temp, n)
              end if
              
@@ -289,7 +288,7 @@ contains
           do i = 0, n, NEKO_BLK_SIZE
              if (i + NEKO_BLK_SIZE .le. n) then
                 do k = 1, NEKO_BLK_SIZE
-                   x_plus(k) = 0.0
+                   x_plus(k) = 0.0_rp
                 end do
                 do l = 1,j
                    do k = 1, NEKO_BLK_SIZE
@@ -301,7 +300,7 @@ contains
                 end do
              else 
                 do k = 1, n-i
-                   x_plus(1) = 0.0
+                   x_plus(1) = 0.0_rp
                    do l = 1, j
                       x_plus(1) = x_plus(1) + c(l) * z(i+k,l)
                    end do

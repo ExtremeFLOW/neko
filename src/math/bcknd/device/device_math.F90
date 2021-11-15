@@ -49,6 +49,16 @@ module device_math
   end interface
 
   interface
+     subroutine hip_invcol1(a_d, n) &
+          bind(c, name='hip_invcol1')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine hip_invcol1
+  end interface
+
+  interface
      subroutine hip_invcol2(a_d, b_d, n) &
           bind(c, name='hip_invcol2')
        use, intrinsic :: iso_c_binding
@@ -163,6 +173,16 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_invcol1(a_d, n) &
+          bind(c, name='cuda_invcol1')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine cuda_invcol1
+  end interface
+
+  interface
      subroutine cuda_invcol2(a_d, b_d, n) &
           bind(c, name='cuda_invcol2')
        use, intrinsic :: iso_c_binding       
@@ -233,7 +253,130 @@ module device_math
        integer(c_int) :: n
      end function cuda_glsc2
   end interface
+#elif HAVE_OPENCL
+    interface
+     subroutine opencl_copy(a_d, b_d, n) &
+          bind(c, name='opencl_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine opencl_copy
+  end interface
 
+  interface
+     subroutine opencl_rzero(a_d, n) &
+          bind(c, name='opencl_rzero')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine opencl_rzero
+  end interface
+  
+  interface
+     subroutine opencl_add2s1(a_d, b_d, c1, n) &
+          bind(c, name='opencl_add2s1')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine opencl_add2s1
+  end interface
+
+  interface
+     subroutine opencl_add2s2(a_d, b_d, c1, n) &
+          bind(c, name='opencl_add2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine opencl_add2s2
+  end interface
+
+  interface
+     subroutine opencl_invcol1(a_d, n) &
+          bind(c, name='opencl_invcol1')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine opencl_invcol1
+  end interface
+
+  interface
+     subroutine opencl_invcol2(a_d, b_d, n) &
+          bind(c, name='opencl_invcol2')
+       use, intrinsic :: iso_c_binding       
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine opencl_invcol2
+  end interface
+  
+  interface
+     subroutine opencl_col2(a_d, b_d, n) &
+          bind(c, name='opencl_col2')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine opencl_col2
+  end interface
+
+  interface
+     subroutine opencl_col3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_col3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine opencl_col3
+  end interface
+  
+  interface
+     subroutine opencl_sub3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_sub3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine opencl_sub3
+  end interface
+
+  interface
+     subroutine opencl_addcol3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_addcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine opencl_addcol3
+  end interface
+
+  interface
+     real(c_rp) function opencl_glsc3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_glsc3')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end function opencl_glsc3
+  end interface
+
+  interface
+     real(c_rp) function opencl_glsc2(a_d, b_d, n) &
+          bind(c, name='opencl_glsc2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end function opencl_glsc2
+  end interface
 #endif
   
 contains
@@ -245,6 +388,8 @@ contains
     call hip_copy(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_copy(a_d, b_d, n)
+#elif HAVE_OPENCL
+    call opencl_copy(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -257,6 +402,8 @@ contains
     call hip_rzero(a_d, n)
 #elif HAVE_CUDA
     call cuda_rzero(a_d, n)
+#elif HAVE_OPENCL
+    call opencl_rzero(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -270,6 +417,8 @@ contains
     call hip_add2s1(a_d, b_d, c1, n)
 #elif HAVE_CUDA
     call cuda_add2s1(a_d, b_d, c1, n)
+#elif HAVE_OPENCL
+    call opencl_add2s1(a_d, b_d, c1, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -283,10 +432,26 @@ contains
     call hip_add2s2(a_d, b_d, c1, n)
 #elif HAVE_CUDA
     call cuda_add2s2(a_d, b_d, c1, n)
+#elif HAVE_OPENCL
+    call opencl_add2s2(a_d, b_d, c1, n)
 #else
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
+
+  subroutine device_invcol1(a_d, n)
+    type(c_ptr) :: a_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_invcol1(a_d, n)
+#elif HAVE_CUDA
+    call cuda_invcol1(a_d, n)
+#elif HAVE_OPENCL
+    call opencl_invcol1(a_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_invcol1
 
   subroutine device_invcol2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
@@ -295,6 +460,8 @@ contains
     call hip_invcol2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_invcol2(a_d, b_d, n)
+#elif HAVE_OPENCL
+    call opencl_invcol2(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -307,6 +474,8 @@ contains
     call hip_col2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_col2(a_d, b_d, n)
+#elif HAVE_OPENCL
+    call opencl_col2(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -319,6 +488,8 @@ contains
     call hip_col3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_col3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    call opencl_col3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -331,6 +502,8 @@ contains
     call hip_sub3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_sub3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    call opencl_sub3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -343,11 +516,13 @@ contains
     call hip_addcol3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_addcol3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    call opencl_addcol3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
   end subroutine device_addcol3
-
+  
   function device_glsc3(a_d, b_d, c_d, n) result(res)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n, ierr
@@ -356,6 +531,8 @@ contains
     res = hip_glsc3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     res = cuda_glsc3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    res = opencl_glsc3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -374,6 +551,8 @@ contains
     res = hip_glsc2(a_d, b_d, n)
 #elif HAVE_CUDA
     res = cuda_glsc2(a_d, b_d, n)
+#elif HAVE_OPENCL
+    res = opencl_glsc2(a_d, b_d, n)
 #else
     call neko_error('No device backend configured')
 #endif

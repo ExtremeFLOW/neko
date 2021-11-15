@@ -9,6 +9,7 @@ module fluid_plan4
   use abbdf
   use projection
   use logger
+  use advection
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan  
   implicit none
   private
@@ -51,6 +52,8 @@ module fluid_plan4
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_residual  
 
+     class(advection_t), allocatable :: adv 
+
      ! Time variables
      real(kind=rp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
      real(kind=rp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
@@ -85,6 +88,7 @@ contains
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
+    call advection_factory(this%adv)
 
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
@@ -285,7 +289,7 @@ contains
 
       call f_Xh%eval()
       call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
-      call advab(ta1, ta2, ta3, &
+      call this%adv%apply(ta1, ta2, ta3, &
                  this%u, this%v, this%w, &
                  f_Xh%u, f_Xh%v, f_Xh%w, &
                  Xh, this%c_Xh, msh%nelv, &
@@ -336,8 +340,7 @@ contains
       call gs_op_vector(gs_Xh, p_res, n, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_prs, p_res, p%dof%n_dofs)
 
-      if( tstep .gt. 5) call this%proj%project_on(p_res, Ax, c_Xh, &
-                                this%bclst_prs, gs_Xh, n)
+      if( tstep .gt. 5) call this%proj%project_on(p_res, c_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
@@ -608,28 +611,6 @@ contains
        call cmult(bfz, rho, n)
     end if
   end subroutine makeabf
-
-  !> Eulerian scheme, add convection term to forcing function
-  !! at current time step.
-  subroutine advab(ta1, ta2, ta3, vx, vy, vz, bfx, bfy, bfz, Xh, coef, nelv, n, gdim)
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    type(field_t), intent(inout) :: ta1, ta2, ta3, vx, vy, vz
-    integer, intent(inout) :: nelv, n, gdim
-    real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
-
-    call conv1(ta1%x, vx%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
-    call conv1(ta2%x, vy%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
-    call subcol3 (bfx, coef%B, ta1%x, n)
-    call subcol3 (bfy, coef%B, ta2%x, n)
-    if (gdim .eq. 2) then
-       call rzero (ta3%x, n)
-    else
-       call conv1(ta3%x, vz%x, vx%x, vy%x, vz%x, Xh, coef, nelv, gdim)
-       call subcol3(bfz, coef%B, ta3%x, n)
-    end if
-  end subroutine advab
-  
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual 
   subroutine fluid_step_info(step, t, dt, ksp_results)

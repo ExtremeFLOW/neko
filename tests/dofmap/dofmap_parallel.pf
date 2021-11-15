@@ -8,6 +8,7 @@ module dofmap_parallel
   use hex
   use point
   use datadist
+  use device
   implicit none
   
 contains
@@ -22,6 +23,8 @@ contains
     type(point_t) :: p(12)
     integer :: ierr
     integer, parameter :: gdim = 3
+
+    call device_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -88,6 +91,8 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
+    
+    call device_init
     
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -161,6 +166,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -232,6 +239,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -301,6 +310,8 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
+    
+    call device_init
     
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -372,6 +383,8 @@ contains
     integer :: ierr, i,j, lx, i2, j2
     integer, parameter :: gdim = 3
     lx = 5
+    
+    call device_init
     
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -445,6 +458,8 @@ contains
     integer, parameter :: gdim = 3
     lx = 5
     
+    call device_init
+    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -515,6 +530,8 @@ contains
     integer :: ierr, i,j, lx, i2,j2
     integer, parameter :: gdim = 3
     lx = 5
+    
+    call device_init
     
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 

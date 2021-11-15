@@ -9,6 +9,7 @@ module hsmg
   use krylov_fctry
   use gather_scatter
   use fast3d
+  use interpolation
   use bc
   use dirichlet
   use fdm
@@ -46,11 +47,9 @@ module hsmg
      integer :: niter = 10 !< Number of iter of crs sovlve
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
-     real(kind=rp), allocatable :: jh(:,:) !< Interpolator crs -> fine
-     real(kind=rp), allocatable :: jht(:,:)!< Interpolator crs -> fine, transpose
      real(kind=rp), allocatable :: r(:)!< Residual work array
-     real(kind=rp), allocatable :: jhfc(:,:)!< Interpolator fine -> crs
-     real(kind=rp), allocatable :: jhfct(:,:) !< Interpolator fine -> crs, transpose
+     type(interpolator_t) :: interp_fine_mid
+     type(interpolator_t) :: interp_mid_crs
      real(kind=rp), allocatable :: w(:) !< work array
   contains
      procedure, pass(this) :: init => hsmg_init
@@ -80,10 +79,6 @@ contains
     this%nlvls = 3 
     this%msh => msh
     allocate(this%grids(this%nlvls))
-    allocate(this%jh(Xh%lxy,this%nlvls))
-    allocate(this%jht(Xh%lxy,this%nlvls))
-    allocate(this%jhfc(Xh%lxy,this%nlvls))
-    allocate(this%jhfct(Xh%lxy,this%nlvls))
     allocate(this%w(dof%n_dofs))
     allocate(this%r(dof%n_dofs))
 
@@ -102,6 +97,7 @@ contains
     
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax)
+
 
     ! Create a backend specific preconditioner
     ! Note we can't call the pc factory since hsmg is a pc...
@@ -153,6 +149,8 @@ contains
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
                               this%bclst_mg, msh)
 
+    call this%interp_fine_mid%init(Xh,this%Xh_mg)
+    call this%interp_mid_crs%init(this%Xh_mg,this%Xh_crs)
 
     call hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, this%schwarz, &
                         this%e, this%grids, 3) 
@@ -162,11 +160,6 @@ contains
     call hsmg_fill_grid(this%dm_crs, this%gs_crs, this%Xh_crs, &
                         this%c_crs, this%bclst_crs, this%schwarz_crs, &
                         this%e_crs, this%grids, 1) 
-
-    ! Interpolation between levels
-    ! Interpolation operators
-    call hsmg_setup_intp(this%grids, this%jh, this%jht, &
-                     this%jhfc, this%jhfct, this%nlvls) 
                  
     call hsmg_set_h(this)
 
@@ -176,24 +169,10 @@ contains
    class(hsmg_t), intent(inout) :: this
 !    integer :: i
    !Yeah I dont really know what to do here. For incompressible flow not much happens
-!    do i = this%nlvls,2,-1
-!       call hsmg_intp_fc(this%grids(i-1),this%grids(i), this%jhfc(1,i-1),this%jhfct(1,i-1))
-!    end do
     this%grids(1)%coef%ifh2 = .false.
     call copy(this%grids(1)%coef%h1, this%grids(3)%coef%h1, this%grids(1)%dof%n_dofs)
   end subroutine hsmg_set_h
 
-  subroutine hsmg_intp_fc(grid_c,grid_f,jhfc, jhfct) ! l is coarse level
-    type(multigrid_t), intent(inout) :: grid_c, grid_f
-    real(kind=rp), intent(inout), dimension(grid_c%Xh%lx*grid_f%Xh%lx) :: jhfc, jhfct
-    integer :: nc, nf
-    nc = grid_c%Xh%lx
-    nf = grid_f%Xh%lx
-    call tnsr3d(grid_c%coef%h1, nc, grid_f%coef%h1, nf, &
-         jhfc, jhfct, jhfct, grid_c%dof%msh%nelv)
-    call tnsr3d(grid_c%coef%h2, nc, grid_f%coef%h2, nf, &
-         jhfc, jhfct, jhfct, grid_c%dof%msh%nelv)
-  end subroutine hsmg_intp_fc
 
   subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, grids, l) 
     type(dofmap_t), target, intent(in):: dof
@@ -217,43 +196,6 @@ contains
 
   end subroutine hsmg_fill_grid
 
-
-  subroutine hsmg_setup_intp(grids, jh, jht, jhfc, jhfct, lvls)
-    integer, intent(in) :: lvls
-    type(multigrid_t) :: grids(lvls)
-    real(kind=rp), intent(inout), dimension(grids(lvls)%Xh%lxy,lvls) :: jh, jht
-    real(kind=rp), intent(inout), dimension(grids(lvls)%Xh%lxy,lvls) :: jhfc, jhfct
-    integer l,nf,nc
-
-    do l = 1, lvls - 1
-
-       nf = grids(l+1)%Xh%lx
-       nc = grids(l)%Xh%lx
-
-       !Standard multigrid coarse-to-fine interpolation
-       call hsmg_setup_intpm(jh(1,l), grids(l+1)%Xh%zg, grids(l)%Xh%zg, nf, nc)
-       call trsp(jht(1,l), nc, jh(1,l), nf)
-
-       !Fine-to-coarse interpolation for variable-coefficient operators
-       call hsmg_setup_intpm(jhfc(1,l), grids(l)%Xh%zg, grids(l+1)%Xh%zg, nc, nf)
-       call trsp(jhfct(1,l), nf, jhfc(1,l), nc)
-
-    enddo
-  end subroutine hsmg_setup_intp
-
-  subroutine hsmg_setup_intpm(jh,zf,zc,nf,nc)
-    integer, intent(in) :: nf,nc
-    real(kind=rp), intent(inout) :: jh(nf,nc),zf(nf),zc(nc)
-    real(kind=rp) ::  w(2*(nf+nc)+4)
-    integer :: i, j
-    do i = 1, nf
-       call fd_weights_full(zf(i), zc, nc-1, 1, w)
-       do j = 1, nc
-          jh(i,j) = w(j)
-       enddo
-    enddo
-  end subroutine hsmg_setup_intpm
-
   subroutine hsmg_free(this)
     class(hsmg_t), intent(inout) :: this
 
@@ -263,22 +205,6 @@ contains
     
     if (allocated(this%grids)) then
        deallocate(this%grids)
-    end if
-    
-    if (allocated(this%jh)) then
-       deallocate(this%jh)
-    end if
-    
-    if (allocated(this%jht)) then
-       deallocate(this%jht)
-    end if
-    
-    if (allocated(this%jhfc)) then
-       deallocate(this%jhfc)
-    end if
-    
-    if (allocated(this%jhfct)) then
-       deallocate(this%jhfct)
     end if
     
     if (allocated(this%w)) then
@@ -298,6 +224,8 @@ contains
     call field_free(this%e_crs)
     call gs_free(this%gs_crs)
     call gs_free(this%gs_mg)
+    call this%interp_mid_crs%free()
+    call this%interp_fine_mid%free()
 
     if (allocated(this%crs_solver)) then
        call krylov_solver_destroy(this%crs_solver)
@@ -330,24 +258,19 @@ contains
     !OVERLAPPING Schwarz exchange and solve
     call this%grids(3)%schwarz%compute(z, this%r)      
     ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
-    !In original code they do not do col2 but only on faces
     call col2(this%r, this%grids(3)%coef%mult, &
                  this%grids(3)%dof%n_dofs)
     !Restrict to middle level
-    call tnsr1_3d(this%r, this%grids(2)%Xh%lx, this%grids(3)%Xh%lx,&
-                  this%jht(1,2),this%jh(1,2), this%jh(1,2), &
-                  this%msh%nelv)
-    call gs_op_vector(this%grids(2)%gs_h, this%r, &
+    call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
+    call gs_op_vector(this%grids(2)%gs_h, this%w, &
                       this%grids(2)%dof%n_dofs, GS_OP_ADD)
     !OVERLAPPING Schwarz exchange and solve
-    call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%r)  
-                                                     !         T
-    call col2(this%r, this%grids(2)%coef%mult, this%grids(2)%dof%n_dofs)
+    call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
+    call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%n_dofs)
     !restrict residual to crs
-    call tnsr1_3d(this%r, this%grids(1)%Xh%lx,this%grids(2)%Xh%lx,&
-                  this%jht(1,1),this%jh(1,1), this%jh(1,1), &
-                  this%msh%nelv)
+    call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
     !Crs solve
+
     call gs_op_vector(this%grids(1)%gs_h, this%r, &
                       this%grids(1)%dof%n_dofs, GS_OP_ADD)
     call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
@@ -359,16 +282,12 @@ contains
                                  this%grids(1)%gs_h, this%niter)    
     call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                               this%grids(1)%dof%n_dofs)
-    ! UNWIND.  No smoothing.    
-    !to middle level
-    call tnsr3d(this%w, this%grids(2)%Xh%lx, this%grids(1)%e%x, &
-                this%grids(1)%Xh%lx,this%jh(1,1), &
-                this%jht(1,1), this%jht(1,1), this%msh%nelv)
+
+
+    call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
     call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%n_dofs)
-    !to original grid
-    call tnsr3d(this%w, this%grids(3)%Xh%lx, this%grids(2)%e%x, &
-                this%grids(2)%Xh%lx,this%jh(1,2), &
-                this%jht(1,2), this%jht(1,2), this%msh%nelv)
+
+    call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
     call add2(z, this%w, this%grids(3)%dof%n_dofs)
     call gs_op_vector(this%grids(3)%gs_h, z, &
                       this%grids(3)%dof%n_dofs, GS_OP_ADD)

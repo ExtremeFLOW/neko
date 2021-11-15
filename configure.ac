@@ -157,10 +157,13 @@ AX_HIP
 # Checks for CUDA backend
 AX_CUDA
 
+# Checks for OpenCL backend
+AX_OPENCL
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
+AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 
 
 
@@ -171,6 +174,7 @@ AC_CONFIG_FILES([Makefile\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
 		 src/device/device_config.h\
+		 src/scripts/cltostring.sh\
 		 makeneko\
 		 neko.pc])
 
@@ -195,7 +199,11 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/krylov/Makefile\
 		 tests/bc/Makefile\
 		 tests/signal/Makefile\
-		 tests/jobctrl/Makefile])
+		 tests/jobctrl/Makefile\
+		 tests/device/Makefile\
+		 tests/device_math/Makefile\
+		 tests/mathops/Makefile\
+		 tests/device_mathops/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\

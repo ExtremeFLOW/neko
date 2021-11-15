@@ -27,6 +27,18 @@ module device_inflow
      end subroutine cuda_inflow_apply_vector
   end interface
 
+#elif HAVE_OPENCL
+
+  interface
+     subroutine opencl_inflow_apply_vector(msk, x, y, z, g, m) &
+          bind(c, name='opencl_inflow_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z, g
+     end subroutine opencl_inflow_apply_vector
+  end interface
+
 #endif
 
 contains
@@ -39,6 +51,8 @@ contains
     call hip_inflow_apply_vector(msk, x, y, z, g, m)
 #elif HAVE_CUDA
     call cuda_inflow_apply_vector(msk, x, y, z, g, m)
+#elif HAVE_OPENCL
+    call opencl_inflow_apply_vector(msk, x, y, z, g, m)
 #else
     call neko_error('No device backend configured')
 #endif

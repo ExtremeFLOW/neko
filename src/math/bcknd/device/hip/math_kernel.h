@@ -34,6 +34,21 @@ __global__ void add2s2_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for invcol1
+ */
+template< typename T >
+__global__ void invcol1_kernel(T * __restrict__ a,
+			       const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = 1 / a[i];
+  }
+}
+
+/**
  * Device kernel for invcol2
  */
 template< typename T >

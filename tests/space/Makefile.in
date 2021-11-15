@@ -12,7 +12,7 @@ check: space_test
 
 
 space_test_TESTS := space.pf
-space_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+space_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,space_test))
 
 

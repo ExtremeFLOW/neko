@@ -43,11 +43,20 @@ module space
      !
      ! Device pointers (if present)
      !
-     type(c_ptr) :: dr_inv_d, ds_inv_d, dt_inv_d
-     type(c_ptr) :: dxt_d, dyt_d, dzt_d
-     type(c_ptr) :: dx_d, dy_d, dz_d
-     type(c_ptr) :: wx_d, wy_d, wz_d
-     type(c_ptr) :: zg_d, w3_d
+     type(c_ptr) :: dr_inv_d = C_NULL_PTR
+     type(c_ptr) :: ds_inv_d = C_NULL_PTR
+     type(c_ptr) :: dt_inv_d = C_NULL_PTR
+     type(c_ptr) :: dxt_d = C_NULL_PTR
+     type(c_ptr) :: dyt_d = C_NULL_PTR
+     type(c_ptr) :: dzt_d = C_NULL_PTR
+     type(c_ptr) :: dx_d = C_NULL_PTR
+     type(c_ptr) :: dy_d = C_NULL_PTR
+     type(c_ptr) :: dz_d = C_NULL_PTR
+     type(c_ptr) :: wx_d = C_NULL_PTR
+     type(c_ptr) :: wy_d = C_NULL_PTR
+     type(c_ptr) :: wz_d = C_NULL_PTR
+     type(c_ptr) :: zg_d = C_NULL_PTR
+     type(c_ptr) :: w3_d = C_NULL_PTR
 
   end type space_t
 
@@ -157,7 +166,8 @@ contains
        s%dt_inv = 0d0
     end if
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+        (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_map(s%dr_inv, s%dr_inv_d, s%lx)
        call device_map(s%ds_inv, s%ds_inv_d, s%lx)
        call device_map(s%dt_inv, s%dt_inv_d, s%lx)
@@ -196,7 +206,7 @@ contains
   !> Deallocate a space @a s
   subroutine space_free(s)
     type(space_t), intent(inout) :: s
-    
+
     if (allocated(s%zg)) then
        deallocate(s%zg)
     end if
