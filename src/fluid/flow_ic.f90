@@ -47,7 +47,7 @@ contains
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
-    real(kind=dp), intent(in) :: delta
+    real(kind=rp), intent(in) :: delta
     real(kind=rp), intent(in) :: uinf(3)
     character(len=*), intent(in) :: type
     procedure(blasius_profile), pointer :: bla => null()
