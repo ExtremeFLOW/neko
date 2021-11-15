@@ -16,6 +16,7 @@ module fluid_method
   use wall
   use inflow
   use usr_inflow
+  use blasius
   use dirichlet
   use symmetry
   use krylov_fctry
@@ -157,6 +158,8 @@ contains
 
        if (trim(params%fluid_inflow) .eq. "default") then
           allocate(inflow_t::this%bc_inflow)
+       else if (trim(params%fluid_inflow) .eq. "blasius") then
+          allocate(blasius_t::this%bc_inflow)
        else if (trim(params%fluid_inflow) .eq. "user") then
           allocate(usr_inflow_t::this%bc_inflow)
        else
@@ -169,6 +172,14 @@ contains
        call this%bc_inflow%set_inflow(params%uinf)
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
+       if (trim(params%fluid_inflow) .eq. "blasius") then
+          select type(bc_if => this%bc_inflow)
+          type is(blasius_t)
+             call bc_if%set_coef(this%C_Xh)
+             call bc_if%set_params(params%delta, params%blasius_approx)
+          end select
+       end if
+       
        if (trim(params%fluid_inflow) .eq. "user") then
           select type(bc_if => this%bc_inflow)
           type is(usr_inflow_t)

@@ -35,6 +35,8 @@ module parameters
      logical :: stats_mean_sqr_flow    !< Mean squared flow statistics
      logical :: output_mean_sqr_flow   !< Output mean squared flow field
      character(len=1024) :: output_dir !< Output directory
+     real(kind=rp) :: delta !< Boundary layer thickness \f$ \delta \f$
+     character(len=10) :: blasius_approx !< Type of approximate Blasius profile
   end type param_t
 
   type param_io_t
@@ -70,6 +72,7 @@ contains
     real(kind=rp), dimension(3) :: uinf = (/ 0d0, 0d0, 0d0 /)
     real(kind=rp) :: abstol_vel = 1d-9
     real(kind=rp) :: abstol_prs = 1d-9
+    real(kind=rp) :: delta = 1d0
     character(len=20) :: ksp_vel = 'cg'
     character(len=20) :: ksp_prs = 'gmres'
     character(len=20) :: pc_vel = 'jacobi'
@@ -89,13 +92,14 @@ contains
     logical :: stats_mean_sqr_flow = .false.
     logical :: output_mean_sqr_flow = .false.
     character(len=1024) :: output_dir = ''
+    character(len=10) :: blasius_approx = 'sin'
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
-         output_mean_sqr_flow, output_dir
+         output_mean_sqr_flow, output_dir, delta, blasius_approx
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -130,6 +134,8 @@ contains
     param%p%stats_mean_sqr_flow = stats_mean_sqr_flow
     param%p%output_mean_sqr_flow = output_mean_sqr_flow
     param%p%output_dir = output_dir
+    param%p%delta = delta
+    param%p%blasius_approx = blasius_approx
 
   end subroutine param_read
 
@@ -142,23 +148,24 @@ contains
     character(len=*), intent(inout) :: iomsg
 
     real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
-    real(kind=rp) :: stats_begin
+    real(kind=rp) :: stats_begin, delta
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
     real(kind=rp), dimension(3) :: uinf
     logical :: output_part, output_bdry, output_chkp
     logical :: avflow, loadb, stats_mean_flow, output_mean_flow
     logical :: stats_mean_sqr_flow, output_mean_sqr_flow
     integer :: nsamples, vol_flow_dir, proj_dim, time_order
-    character(len=8) :: jlimit
+    character(len=8) :: jlimit    
     character(len=80) :: restart_file
     character(len=1024) :: output_dir
+    character(len=10) :: blasius_approx
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
-         output_mean_sqr_flow, output_dir
+         output_mean_sqr_flow, output_dir, delta, blasius_approx
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -191,6 +198,8 @@ contains
     stats_mean_sqr_flow = param%p%stats_mean_sqr_flow
     output_mean_sqr_flow = param%p%output_mean_sqr_flow
     output_dir = param%p%output_dir
+    delta = param%p%delta
+    blasius_approx = param%p%blasius_approx
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
