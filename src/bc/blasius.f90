@@ -85,11 +85,26 @@ contains
   end subroutine blasius_apply_vector_dev
 
   !> Set Blasius parameters
-  subroutine blasius_set_params(this, delta)
+  subroutine blasius_set_params(this, delta, type)
     class(blasius_t), intent(inout) :: this
     real(kind=rp) :: delta
+    character(len=*) :: type
     this%delta = delta
-    this%bla => blasius_sin
+    
+    select case(trim(type))
+    case('linear')
+       this%bla => blasius_linear
+    case('quadratic')
+       this%bla => blasius_quadratic
+    case('cubic')
+       this%bla => blasius_cubic
+    case('quartic')
+       this%bla => blasius_quartic
+    case('sin')
+       this%bla => blasius_sin
+    case default
+       call neko_error('Invalid Blasius approximation')
+    end select
   end subroutine blasius_set_params
 
   !> Assign coefficients (facet normals etc)

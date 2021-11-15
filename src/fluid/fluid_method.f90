@@ -176,7 +176,7 @@ contains
           select type(bc_if => this%bc_inflow)
           type is(blasius_t)
              call bc_if%set_coef(this%C_Xh)
-             call bc_if%set_params(params%delta)
+             call bc_if%set_params(params%delta, params%blasius_approx)
           end select
        end if
        
