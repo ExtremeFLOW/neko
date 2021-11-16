@@ -289,11 +289,9 @@ contains
 
       call f_Xh%eval()
       call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
-      call this%adv%apply(ta1, ta2, ta3, &
-                 this%u, this%v, this%w, &
+      call this%adv%apply(this%u, this%v, this%w, &
                  f_Xh%u, f_Xh%v, f_Xh%w, &
-                 Xh, this%c_Xh, msh%nelv, &
-                 dm_Xh%n_dofs, msh%gdim)
+                 Xh, this%c_Xh, dm_Xh%n_dofs)
    
       call makeabf(ta1, ta2, ta3,&
                   this%abx1, this%aby1, this%abz1,&
