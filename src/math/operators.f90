@@ -114,15 +114,31 @@ contains
     
   end subroutine cdtp
    
-  subroutine conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  ! used to be conv1n
+  subroutine conv1(du,u, vx, vy, vz, Xh, coef, es, ee)  ! used to be conv1n
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    integer :: nelv, gdim, eblk_end, eblk_start
+    integer, optional :: es, ee
+    real(kind=rp), intent(inout) ::  du(Xh%lxyz,coef%msh%nelv)
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv) ::  u
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv) ::  vx
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv) ::  vy
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv) ::  vz
+
+    nelv = coef%msh%nelv
+    gdim = coef%msh%gdim
+
+    if (present(es)) then
+       eblk_start = es
+    else
+       eblk_start = 1
+    end if
+
+    if (present(ee)) then
+       eblk_end = ee
+    else
+       eblk_end = coef%msh%nelv
+    end if
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
@@ -132,7 +148,7 @@ contains
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
     else
-       call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+       call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, eblk_start, eblk_end)
     end if
 
   end subroutine conv1

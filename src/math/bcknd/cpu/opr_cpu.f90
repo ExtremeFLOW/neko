@@ -68,10 +68,10 @@ contains
 
   subroutine opr_cpu_opgrad(ux, uy, uz, u, coef, e_start, e_end) 
     type(coef_t), intent(in) :: coef  
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(in) :: u
     integer, intent(in) :: e_start, e_end
     integer :: e_len
     e_len = e_end-e_start+1
@@ -208,83 +208,94 @@ contains
 
   end subroutine opr_cpu_cdtp
 
-  subroutine opr_cpu_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  
+  subroutine opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, e_start, e_end)
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
-    integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    integer, intent(in) :: e_start, e_end
+    real(kind=rp), intent(inout) ::  du(Xh%lxyz,e_end-e_start+1)
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  u
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  vx
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  vy
+    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  vz
+    integer :: e_len
+
+    e_len = e_end-e_start+1
 
     select case(Xh%lx)
     case(12)
        call cpu_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
     case(11)
-       call cpu_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+       call cpu_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
     case(10)
        call cpu_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(9)
        call cpu_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(8)
        call cpu_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(7)
        call cpu_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(6)
        call cpu_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(5)
        call cpu_conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(4)
        call cpu_conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(3)
        call cpu_conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
+
     case(2)
        call cpu_conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-            coef%drdx, coef%dsdx, coef%dtdx, &
-            coef%drdy, coef%dsdy, coef%dtdy, &
-            coef%drdz, coef%dsdz, coef%dtdz, &
-            coef%jacinv, nelv, gdim)
+            coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
+            coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
+            coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
+            coef%jacinv(1,1,1,e_start), e_len)
     end select
     
   end subroutine opr_cpu_conv1
