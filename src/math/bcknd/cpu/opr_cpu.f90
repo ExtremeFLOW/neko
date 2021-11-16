@@ -68,11 +68,11 @@ contains
 
   subroutine opr_cpu_opgrad(ux, uy, uz, u, coef, e_start, e_end) 
     type(coef_t), intent(in) :: coef  
+    integer, intent(in) :: e_start, e_end
     real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(in) :: u
-    integer, intent(in) :: e_start, e_end
     integer :: e_len
     e_len = e_end-e_start+1
     associate(Xh => coef%Xh, msh => coef%msh)
@@ -92,7 +92,7 @@ contains
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len)
       case(10)
-   call cpu_opgrad_lx10(ux, uy, uz, u, &
+         call cpu_opgrad_lx10(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
@@ -100,35 +100,35 @@ contains
               Xh%w3, e_len)
 
       case(9)
-    call cpu_opgrad_lx9(ux, uy, uz, u, &
+         call cpu_opgrad_lx9(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len)  
       case(8)
-     call cpu_opgrad_lx8(ux, uy, uz, u, &
+         call cpu_opgrad_lx8(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len)  
       case(7)
-      call cpu_opgrad_lx7(ux, uy, uz, u, &
+         call cpu_opgrad_lx7(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len)  
       case(6)
-       call cpu_opgrad_lx6(ux, uy, uz, u, &
+         call cpu_opgrad_lx6(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len)  
       case(5)
-        call cpu_opgrad_lx5(ux, uy, uz, u, &
+         call cpu_opgrad_lx5(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
@@ -142,14 +142,14 @@ contains
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len)  
       case(3)
-          call cpu_opgrad_lx3(ux, uy, uz, u, &
+         call cpu_opgrad_lx3(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len) 
       case(2)
-           call cpu_opgrad_lx2(ux, uy, uz, u, &
+         call cpu_opgrad_lx2(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
