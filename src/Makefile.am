@@ -95,6 +95,7 @@ libneko_a_SOURCES = \
 	bc/usr_inflow.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
+	bc/blasius.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
@@ -126,6 +127,8 @@ libneko_a_SOURCES = \
 	fluid/fluid_fctry.f90\
 	fluid/mean_flow.f90\
 	fluid/mean_sqr_flow.f90\
+	fluid/flow_profile.f90\
+	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\

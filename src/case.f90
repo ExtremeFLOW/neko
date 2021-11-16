@@ -12,6 +12,7 @@ module case
   use parmetis
   use redist
   use sampler
+  use flow_ic    
   use stats
   use file
   use utils
@@ -157,18 +158,13 @@ contains
     !
     ! Setup initial conditions
     ! 
-    
-    !> @todo We shouldn't really mess with other type's datatypes
     if (len_trim(initial_condition) .gt. 0) then
-       if (trim(initial_condition) .eq. 'uniform') then
-          C%fluid%u = C%params%uinf(1)
-          C%fluid%v = C%params%uinf(2)
-          C%fluid%w = C%params%uinf(3)
-       else if (trim(initial_condition) .eq. 'user') then
+       if (trim(initial_condition) .ne. 'user') then
+          call set_flow_ic(C%fluid%u, C%fluid%v, &
+               C%fluid%w, C%fluid%p, initial_condition, C%params)
+       else
           call C%usr%fluid_usr_ic(C%fluid%u, C%fluid%v, &
                C%fluid%w, C%fluid%p, C%params)
-       else
-          call neko_error('Invalid initial condition')
        end if
     end if
 

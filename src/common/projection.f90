@@ -17,7 +17,7 @@ module projection
   type, public ::  projection_t
      real(kind=rp), allocatable :: xx(:,:)
      real(kind=rp), allocatable :: bb(:,:)
-     real(kind=rp), allocatable :: xbar(:), bbar(:)
+     real(kind=rp), allocatable :: xbar(:)
      integer :: m, L
      real(kind=rp) :: tol = 1d-7
    contains
@@ -47,7 +47,6 @@ contains
     allocate(this%xx(n,this%L))
     allocate(this%bb(n,this%L))
     allocate(this%xbar(n))
-    allocate(this%bbar(n))
 
 
   end subroutine projection_init
@@ -63,57 +62,55 @@ contains
     if (allocated(this%xbar)) then
        deallocate(this%xbar)
     end if
-    if (allocated(this%bbar)) then
-       deallocate(this%bbar)
-    end if
 
   end subroutine projection_free
 
-  subroutine project1(this, b, Ax, coef, bclst, gs_h, n)
-    class(projection_t) :: this
+  subroutine project1(this, b, coef, n)
+    class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
-    class(Ax_t), intent(inout) :: Ax    
     class(coef_t), intent(inout) :: coef   
-    class(bc_list_t), intent(inout) :: bclst
-    type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: b 
-    integer :: k, ierr
+    integer :: i, j, k, ierr
     real(kind=rp) :: work(this%L),alpha(this%L)
     associate(xbar => this%xbar, xx => this%xx, &
-              bbar => this%bbar, bb => this%bb)
+              bb => this%bb)
     
       if (this%m.le.0) return
 
       !First round of CGS
-      do k = 1, this%m 
-         alpha(k) = vlsc3(xx(1,k),coef%mult,b,n)
-      enddo
+      call rzero(alpha,this%m)
+      do i = 1, n, NEKO_BLK_SIZE
+         j = min(NEKO_BLK_SIZE,n-i+1)
+         do k = 1, this%m 
+            alpha(k) = alpha(k) + vlsc3(xx(i,k),coef%mult(i,1,1,1),b(i),j)
+         end do
+      end do
       !First one outside loop to avoid zeroing xbar and bbar
-      !Could prorbably be done inplace...
-      call MPI_Allreduce(alpha, work, this%m, &
+      call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call copy(alpha, work, this%m) 
-
-      call cmult2(xbar,xx(1,1),alpha(1),n)
-      call cmult2(bbar,bb(1,1),alpha(1),n)
-      call add2s2(b,bb(1,1),-alpha(1),n)
-      do k = 2,this%m
-         call add2s2(xbar,xx(1,k),alpha(k),n)
-         call add2s2(bbar,bb(1,k),alpha(k),n)
-         call add2s2(b,bb(1,k),-alpha(k),n)
-      enddo
-      !Second round of CGS
-      do k = 1, this%m
-         alpha(k) = vlsc3(xx(1,k),coef%mult,b,n)
-      enddo
-      call MPI_Allreduce(alpha, work, this%m, &
+      call rzero(work,this%m)
+      do i = 1, n, NEKO_BLK_SIZE
+         j = min(NEKO_BLK_SIZE,n-i+1)
+         call cmult2(xbar(i),xx(i,1),alpha(1),j)
+         call add2s2(b(i),bb(i,1),-alpha(1),j)
+         do k = 2,this%m
+            call add2s2(xbar(i),xx(i,k),alpha(k),j)
+            call add2s2(b(i),bb(i,k),-alpha(k),j)
+         end do
+         !Second round of CGS
+         do k = 1, this%m
+            work(k) = work(k) + vlsc3(xx(i,k),coef%mult(i,1,1,1),b(i),j)
+         end do
+      end do
+      call MPI_Allreduce(work, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      call copy(alpha, work, this%m) 
-      do k = 1,this%m
-         call add2s2(xbar,xx(1,k),alpha(k),n)
-         call add2s2(bbar,bb(1,k),alpha(k),n)
-         call add2s2(b,bb(1,k),-alpha(k),n)
-      enddo 
+      do i = 1, n, NEKO_BLK_SIZE
+         j = min(NEKO_BLK_SIZE,n-i+1)
+         do k = 1,this%m
+            call add2s2(xbar(i),xx(i,k),alpha(k),j)
+            call add2s2(b(i),bb(i,k),-alpha(k),j)
+         end do 
+      end do
     end associate
   end subroutine project1
 
@@ -148,44 +145,49 @@ contains
 
     ! AX = B
     ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb     
-       
-    do k = 1, m !First round CGS
-       alpha(k) = 0.5*(vlsc3(xx(1,k),w,bb(1,m),n) &
-                + vlsc3(bb(1,k),w,xx(1,m),n))
-    enddo
-    call MPI_Allreduce(alpha, work, this%m, &
+    call rzero(alpha,m)
+    do i = 1, n, NEKO_BLK_SIZE
+       j = min(NEKO_BLK_SIZE,n-i+1)
+       do k = 1, m !First round CGS
+          alpha(k) = alpha(k) + 0.5_rp * (vlsc3(xx(i,k),w(i),bb(i,m),j) &
+                   + vlsc3(bb(i,k),w(i),xx(i,m),j))
+       end do
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    call copy(alpha, work, this%m) 
     nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
-    do k = 1,m-1
-       call add2s2(xx(1,m),xx(1,k),-alpha(k),n)
-       call add2s2(bb(1,m),bb(1,k),-alpha(k),n)
-    enddo
-    
-    do k = 1, m-1 !Second round CGS
-       beta(k) = 0.5*(vlsc3(xx(1,k),w,bb(1,m),n) &
-               + vlsc3(bb(1,k),w,xx(1,m),n))
-    enddo
-    call MPI_Allreduce(beta, work, this%m-1, &
+    call rzero(beta,m)
+    do i = 1, n, NEKO_BLK_SIZE
+       j = min(NEKO_BLK_SIZE,n-i+1)
+       do k = 1,m-1
+          call add2s2(xx(i,m),xx(i,k),-alpha(k),j)
+          call add2s2(bb(i,m),bb(i,k),-alpha(k),j)
+          beta(k) = beta(k) + 0.5_rp * (vlsc3(xx(i,k),w(i),bb(i,m),j) &
+                  + vlsc3(bb(i,k),w(i),xx(i,m),j))
+       enddo
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, beta, this%m-1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    call copy(beta, work, this%m) 
-    do k = 1,m-1
-       call add2s2(xx(1,m),xx(1,k),-beta(k),n)
-       call add2s2(bb(1,m),bb(1,k),-beta(k),n)
-       !While we're at it,
-       !Sum weights from each round to get the total alpha
-       alpha(k) = alpha(k) + beta(k)
-    enddo
+    alpha(m) = 0.0_rp
+    do i = 1, n, NEKO_BLK_SIZE
+       j = min(NEKO_BLK_SIZE,n-i+1)
+       do k = 1,m-1
+          call add2s2(xx(i,m),xx(i,k),-beta(k),j)
+          call add2s2(bb(i,m),bb(i,k),-beta(k),j)
+          alpha(k) = alpha(k) + beta(k)
+       end do
+       alpha(m) = alpha(m) + vlsc3(xx(i,m),w(i),bb(i,m), j)
+    end do
 
-    !Calculate A-norm of newest solution
-    alpha(m) = glsc3(xx(1,m), w, bb(1,m), n) 
+    !alpha(m) = glsc3(xx(1,m), w, bb(1,m), n) 
+    call MPI_Allreduce(MPI_IN_PLACE, alpha(m), 1, &
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     alpha(m) = sqrt(alpha(m))
     !dx and db now stored in last column of xx and bb
 
-
     if(alpha(m).gt.this%tol*nrm) then !New vector is linearly independent    
        !Normalize dx and db
-       scl1 = 1.0/alpha(m) 
+       scl1 = 1.0_rp / alpha(m) 
        call cmult(xx(1,m), scl1, n)   
        call cmult(bb(1,m), scl1, n)   
 
@@ -217,17 +219,16 @@ contains
   subroutine givens_rotation(a, b, c, s, r)
     real(kind=rp), intent(inout) :: a, b, c, s, r
     real(kind=rp) ::  h, d
-    real(kind=rp), parameter :: one = 1d0
 
-    if(b.ne.0d0) then
+    if(b .ne. 0.0_rp) then
        h = hypot(a,b) 
-       d = 1d0/h
-       c = abs(a)*d
-       s = sign(d,a)*b
-       r = sign(one,a)*h
+       d = 1.0_rp / h
+       c = abs(a) * d
+       s = sign(d,a) * b
+       r = sign(1.0_rp,a) * h
     else
-       c = 1d0
-       s = 0d0
+       c = 1.0_rp
+       s = 0.0_rp
        r = a
     endif
       

@@ -338,8 +338,7 @@ contains
       call gs_op_vector(gs_Xh, p_res, n, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_prs, p_res, p%dof%n_dofs)
 
-      if( tstep .gt. 5) call this%proj%project_on(p_res, Ax, c_Xh, &
-                                this%bclst_prs, gs_Xh, n)
+      if( tstep .gt. 5) call this%proj%project_on(p_res, c_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    

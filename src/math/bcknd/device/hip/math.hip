@@ -54,6 +54,20 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for invcol1
+   * Invert a vector \f$ a = 1 / a \f$
+   */
+  void hip_invcol1(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(invcol1_kernel<real>),
+		       nblcks, nthrds, 0, 0,
+		       (real *) a, *n);
+  }
+
+  /**
    * Fortran wrapper for invcol2
    * Vector division \f$ a = a / b \f$
    */

@@ -22,14 +22,6 @@ AC_ARG_ENABLE(blk_size,
               AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
               [blk_size=${enableval}], [blk_size="10000"])
 
-AC_ARG_ENABLE(hip,
-	      AC_HELP_STRING([--enable-hip],[Compile with HIP backend]),
-	                     [enable_hip=${enableval}], [enable_hip=no])
-
-AC_ARG_ENABLE(cuda,
-	      AC_HELP_STRING([--enable-cuda],[Compile with CUDA backend]),
-	                     [enable_cuda=${enableval}], [enable_cuda=no])
-
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)

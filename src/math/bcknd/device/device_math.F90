@@ -49,6 +49,16 @@ module device_math
   end interface
 
   interface
+     subroutine hip_invcol1(a_d, n) &
+          bind(c, name='hip_invcol1')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine hip_invcol1
+  end interface
+
+  interface
      subroutine hip_invcol2(a_d, b_d, n) &
           bind(c, name='hip_invcol2')
        use, intrinsic :: iso_c_binding
@@ -163,6 +173,16 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_invcol1(a_d, n) &
+          bind(c, name='cuda_invcol1')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine cuda_invcol1
+  end interface
+
+  interface
      subroutine cuda_invcol2(a_d, b_d, n) &
           bind(c, name='cuda_invcol2')
        use, intrinsic :: iso_c_binding       
@@ -274,6 +294,16 @@ module device_math
        real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine opencl_add2s2
+  end interface
+
+  interface
+     subroutine opencl_invcol1(a_d, n) &
+          bind(c, name='opencl_invcol1')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine opencl_invcol1
   end interface
 
   interface
@@ -408,6 +438,20 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
+
+  subroutine device_invcol1(a_d, n)
+    type(c_ptr) :: a_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_invcol1(a_d, n)
+#elif HAVE_CUDA
+    call cuda_invcol1(a_d, n)
+#elif HAVE_OPENCL
+    call opencl_invcol1(a_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_invcol1
 
   subroutine device_invcol2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
