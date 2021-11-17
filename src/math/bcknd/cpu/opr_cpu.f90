@@ -229,7 +229,7 @@ contains
             coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
             coef%jacinv(1,1,1,e_start), e_len)
     case(11)
-       call cpu_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+       call cpu_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
             coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
             coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
