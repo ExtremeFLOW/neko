@@ -99,11 +99,16 @@ module coefs
 
   end type coef_t
 
-  public :: coef_init, coef_empty_init, coef_free
+  interface coef_init
+     module procedure coef_init_empty, coef_init_all
+  end interface coef_init
+  
+  public :: coef_init, coef_free
   
 contains
+  
   !> Initialize empty coefs for a space and a mesh 
-  subroutine coef_empty_init(coef, Xh, msh)
+  subroutine coef_init_empty(coef, Xh, msh)
     type(coef_t), intent(inout) :: coef
     type(space_t), intent(inout), target :: Xh
     type(mesh_t), intent(inout), target :: msh
@@ -124,10 +129,10 @@ contains
     allocate(coef%dtdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     
 
-  end subroutine coef_empty_init
+  end subroutine coef_init_empty
 
   !> Initialize coefficients
-  subroutine coef_init(coef, gs_h)
+  subroutine coef_init_all(coef, gs_h)
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m
@@ -285,7 +290,7 @@ contains
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
     
-  end subroutine coef_init
+  end subroutine coef_init_all
 
   !> Deallocate coefficients
   subroutine coef_free(coef)

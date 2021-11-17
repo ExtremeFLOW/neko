@@ -101,7 +101,7 @@ contains
     this%coef_GLL => coef
     call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
 
-    call coef_empty_init(this%coef_GL,this%Xh_GL,coef%msh)
+    call coef_init(this%coef_GL, this%Xh_GL,coef%msh)
 
     nel = coef%msh%nelv
     call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
