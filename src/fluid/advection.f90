@@ -63,12 +63,13 @@ contains
     if (allocated(this)) then
        deallocate(this)
     end if
-    print *, 'dealias', dealias 
+
     if (dealias) then
        allocate(adv_dealias_t::this)
     else
        allocate(adv_no_dealias_t::this)
     end if
+    
     select type(adv => this)
     type is(adv_dealias_t)
        if (lxd .gt. 0) then
