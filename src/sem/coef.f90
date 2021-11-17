@@ -112,6 +112,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(space_t), intent(inout), target :: Xh
     type(mesh_t), intent(inout), target :: msh
+    integer :: n    
     call coef_free(coef)
     coef%msh => msh
     coef%Xh => Xh
@@ -128,7 +129,28 @@ contains
     allocate(coef%dsdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     allocate(coef%dtdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     
+    !
+    ! Setup device memory (if present)
+    !
+    
+    n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+        (NEKO_BCKND_OPENCL .eq. 1)) then
 
+       call device_map(coef%drdx, coef%drdx_d, n)
+       call device_map(coef%drdy, coef%drdy_d, n)
+       call device_map(coef%drdz, coef%drdz_d, n)
+
+       call device_map(coef%dsdx, coef%dsdx_d, n)
+       call device_map(coef%dsdy, coef%dsdy_d, n)
+       call device_map(coef%dsdz, coef%dsdz_d, n)
+
+       call device_map(coef%dtdx, coef%dtdx_d, n)
+       call device_map(coef%dtdy, coef%dtdy_d, n)
+       call device_map(coef%dtdz, coef%dtdz_d, n)
+       
+    end if
+    
   end subroutine coef_init_empty
 
   !> Initialize coefficients
