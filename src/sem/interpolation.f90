@@ -9,8 +9,9 @@ module interpolation
   use space
   use, intrinsic :: iso_c_binding
   implicit none
-
-  type interpolator_t
+  private
+  
+  type, public :: interpolator_t
      type(space_t), pointer :: Xh
      type(space_t), pointer :: Yh
      real(kind=rp), allocatable :: Xh_to_Yh(:,:), Xh_to_YhT(:,:)
@@ -20,7 +21,9 @@ module interpolation
      procedure, pass(this) :: free => interp_free
      procedure, pass(this) :: map => interpolate
   end type interpolator_t
+  
 contains
+  
   subroutine interp_init(this, Xh, Yh)
     class(interpolator_t), intent(inout) :: this
     type(space_t), intent(inout), target :: Xh
@@ -34,13 +37,16 @@ contains
     allocate(this%Yh_to_Xh(Xh%lx,Yh%lx))
     allocate(this%Yh_to_XhT(Yh%lx,Xh%lx))
     if (Xh%t .eq. GLL .and. Yh%t .eq. GLL) then
-    else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. (Yh%t .eq. GL .and. Xh%t .eq. GLL)) then
+    else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. &
+         (Yh%t .eq. GL .and. Xh%t .eq. GLL)) then
     else
        call neko_error('Unsupported interpolation')
     end if
     deg_derivate = 0
-    call setup_intp(this%Xh_to_Yh, this%Xh_to_YhT,Yh%zg,Xh%zg,Yh%lx,Xh%lx,deg_derivate)
-    call setup_intp(this%Yh_to_Xh, this%Yh_to_XhT,Xh%zg,Yh%zg,Xh%lx,Yh%lx,deg_derivate)
+    call setup_intp(this%Xh_to_Yh, this%Xh_to_YhT, &
+         Yh%zg, Xh%zg, Yh%lx, Xh%lx, deg_derivate)
+    call setup_intp(this%Yh_to_Xh, this%Yh_to_XhT, &
+         Xh%zg, Yh%zg, Xh%lx, Yh%lx, deg_derivate)
 
     this%Xh => Xh
     this%Yh => Yh
@@ -62,8 +68,9 @@ contains
     if (allocated(this%Yh_to_XhT)) then
        deallocate(this%Yh_to_XhT)
     end if
-  
+
   end subroutine interp_free
+
   !> Interpolates array x -> y in to_space
   subroutine interpolate(this, y, x, nel,to_space)
     class(interpolator_t), intent(inout) :: this
