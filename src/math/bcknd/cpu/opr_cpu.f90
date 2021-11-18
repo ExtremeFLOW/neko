@@ -135,7 +135,7 @@ contains
               coef%drdz(1,1,1,e_start), coef%dsdz(1,1,1,e_start), coef%dtdz(1,1,1,e_start), &
               Xh%w3, e_len)  
       case(4)
-         call cpu_opgrad_lx5(ux, uy, uz, u, &
+         call cpu_opgrad_lx4(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx(1,1,1,e_start), coef%dsdx(1,1,1,e_start), coef%dtdx(1,1,1,e_start), &
               coef%drdy(1,1,1,e_start), coef%dsdy(1,1,1,e_start), coef%dtdy(1,1,1,e_start), &
