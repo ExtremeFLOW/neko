@@ -126,9 +126,9 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz, tr
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: ts, tt, tbfx, tbfy 
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tbfz, vr, vs, vt
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tbfx, tbfy, tbfz 
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
     integer :: e, i, idx
     associate(c_GL => this%coef_GL)
@@ -137,15 +137,6 @@ contains
          call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
          call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
          call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
-
-         do i = 1, this%Xh_GL%lxyz
-            tr(i) = (c_GL%drdx(i,1,1,e) * tx(i) + &
-                 c_GL%drdy(i,1,1,e)*ty(i) + c_GL%drdz(i,1,1,e)*tz(i))
-            ts(i) = (c_GL%dsdx(i,1,1,e) * tx(i) + &
-                 c_GL%dsdy(i,1,1,e)*ty(i) + c_GL%dsdz(i,1,1,e)*tz(i))
-            tt(i) = (c_GL%dtdx(i,1,1,e) * tx(i) + &
-                 c_GL%dtdy(i,1,1,e)*ty(i) + c_GL%dtdz(i,1,1,e)*tz(i))
-         end do
 
          call opgrad(vr, vs, vt, tx, c_GL, e, e)
          do i = 1, this%Xh_GL%lxyz
