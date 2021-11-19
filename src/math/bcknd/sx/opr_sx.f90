@@ -73,6 +73,27 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh)
       select case(Xh%lx)
+      case(15)
+         call sx_opgrad_lx15(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(14)
+         call sx_opgrad_lx14(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(13)
+         call sx_opgrad_lx13(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
       case(12)
          call sx_opgrad_lx12(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &

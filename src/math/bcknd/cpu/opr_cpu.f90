@@ -82,6 +82,27 @@ contains
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz)
       
       select case(Xh%lx)
+      case(15)
+         call cpu_opgrad_lx15(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              Xh%w3, e_len)
+      case(14)
+         call cpu_opgrad_lx14(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              Xh%w3, e_len)
+      case(13)
+         call cpu_opgrad_lx13(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              Xh%w3, e_len)
       case(12)
          call cpu_opgrad_lx12(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
