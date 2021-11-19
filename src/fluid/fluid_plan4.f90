@@ -88,7 +88,6 @@ contains
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
-    call advection_factory(this%adv)
 
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
@@ -171,6 +170,7 @@ contains
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
+    call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
   end subroutine fluid_plan4_init
 
@@ -289,11 +289,9 @@ contains
 
       call f_Xh%eval()
       call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
-      call this%adv%apply(ta1, ta2, ta3, &
-                 this%u, this%v, this%w, &
+      call this%adv%apply(this%u, this%v, this%w, &
                  f_Xh%u, f_Xh%v, f_Xh%w, &
-                 Xh, this%c_Xh, msh%nelv, &
-                 dm_Xh%n_dofs, msh%gdim)
+                 Xh, this%c_Xh, dm_Xh%n_dofs)
    
       call makeabf(ta1, ta2, ta3,&
                   this%abx1, this%aby1, this%abz1,&

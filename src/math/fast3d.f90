@@ -6,7 +6,7 @@ module fast3d
   implicit none
   private
 
-  public :: fd_weights_full, semhat
+  public :: fd_weights_full, semhat, setup_intp
 
 contains
 
@@ -131,4 +131,22 @@ contains
     end do
   end subroutine semhat
 
+  !> Computes interpolation between points zf, zc
+  !! The interpolation vectors are stored in jh, jht
+  !! nf, nc is the number of points in the spaces
+  !! derivate specifies if we want the derivative interpolation instead
+  !! derivate = 1 gives the first derivative etc.
+  subroutine setup_intp(jh,jht, zf,zc,nf,nc,derivate)
+    integer, intent(in) :: nf,nc, derivate
+    real(kind=rp), intent(inout) :: jh(nf,nc),zf(nf),zc(nc), jht(nc,nf)
+    real(kind=rp) ::  w(nc,0:derivate)
+    integer :: i, j
+    do i = 1, nf
+       call fd_weights_full(zf(i), zc, nc-1, derivate, w)
+       do j = 1, nc
+          jh(i,j) = w(j,derivate)
+          jht(j,i) = w(j,derivate)
+       enddo
+    enddo
+  end subroutine setup_intp
 end module fast3d
