@@ -28,6 +28,12 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(coef%Xh%lx)
+      case(14)
+         call cpu_dudxyz_lx14(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case(13)
+         call cpu_dudxyz_lx13(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case(12)
          call cpu_dudxyz_lx12(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
@@ -217,6 +223,12 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(Xh%lx)
+      case(14)
+         call cpu_cdtp_lx14(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case(13)
+         call cpu_cdtp_lx13(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case(12)
          call cpu_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
@@ -272,6 +284,18 @@ contains
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
          jacinv => coef%jacinv)
       select case(Xh%lx)
+      case(14)
+         call cpu_conv1_lx14(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(13)
+         call cpu_conv1_lx13(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
       case(12)
          call cpu_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
