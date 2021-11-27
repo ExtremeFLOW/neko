@@ -4,7 +4,76 @@ module cpu_conv1
   implicit none
 
 contains
+  
+  subroutine cpu_conv1_lx(du, u, vx, vy, vz, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
+       jacinv, nelv, lx)
+    integer, intent(in) :: nelv, lx
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) ::  u, vx, vy, vz
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz        
+    real(kind=rp), dimension(lx,lx,lx) ::  dudr
+    real(kind=rp), dimension(lx,lx,lx) ::  duds
+    real(kind=rp), dimension(lx,lx,lx) ::  dudt
+    real(kind=rp) :: tmp
+    integer :: e, i, j, k, l
 
+    do e = 1, nelv
+       do j = 1, lx * lx
+          do i = 1, lx
+             tmp = 0.0_rp
+             do k = 1, lx
+                tmp = tmp + dx(i,k) * u(k,j,1,e)
+             end do
+             dudr(i,j,1) = tmp
+          end do
+       end do
+       
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                tmp = 0.0_rp
+                do l = 1, lx
+                   tmp = tmp + dy(j,l) * u(i,l,k,e)
+                end do
+                duds(i,j,k) = tmp
+             end do
+          end do
+       end do
+       
+       do k = 1, lx
+          do i = 1, lx*lx
+             tmp = 0.0_rp
+             do l = 1, lx
+                tmp = tmp + dz(k,l) * u(i,1,l,e)
+             end do
+             dudt(i,1,k) = tmp
+          end do
+       end do
+       
+       do i = 1, lx * lx * lx
+          du(i,1,1,e) = jacinv(i,1,1,e) &
+                      * ( vx(i,1,1,e) &
+                        * ( drdx(i,1,1,e) * dudr(i,1,1) &
+                          + dsdx(i,1,1,e) * duds(i,1,1) &
+                          + dtdx(i,1,1,e) * dudt(i,1,1) ) &
+                        + vy(i,1,1,e) &
+                        * ( drdy(i,1,1,e) * dudr(i,1,1) &
+                          + dsdy(i,1,1,e) * duds(i,1,1) &
+                          + dtdy(i,1,1,e) * dudt(i,1,1) ) &
+                        + vz(i,1,1,e) &
+                        * ( drdz(i,1,1,e) * dudr(i,1,1) &
+                          + dsdz(i,1,1,e) * duds(i,1,1) &
+                          + dtdz(i,1,1,e) * dudt(i,1,1) ) )
+       end do
+    end do
+    
+  end subroutine cpu_conv1_lx
+  
   subroutine cpu_conv1_lx14(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
        jacinv, nelv)

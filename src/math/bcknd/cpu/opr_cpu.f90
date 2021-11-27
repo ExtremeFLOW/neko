@@ -67,6 +67,9 @@ contains
       case(2)
          call cpu_dudxyz_lx2(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
+      case default
+         call cpu_dudxyz_lx(du, u, dr, ds, dt, & 
+              Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, Xh%lx)
       end select
 
     end associate
@@ -207,7 +210,14 @@ contains
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len) 
+              Xh%w3, e_len)
+      case default
+         call cpu_opgrad_lx(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              Xh%w3, e_len, Xh%lx) 
       end select
     end associate
 
@@ -262,6 +272,9 @@ contains
       case(2)
          call cpu_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
+      case default
+         call cpu_cdtp_lx(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv, Xh%lx)
       end select
     end associate
 
@@ -362,6 +375,12 @@ contains
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
               jacinv(1,1,1,e_start), e_len)
+      case default
+         call cpu_conv1_lx(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len, Xh%lx)
       end select
     end associate
     
