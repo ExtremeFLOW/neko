@@ -107,6 +107,10 @@ contains
       case (2)
          call sx_update_lx2(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
               coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, nelv)
+      case default
+         call sx_update_lx(this%d, coef%Xh%dxt, coef%Xh%dyt, coef%Xh%dzt, &
+              coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
+              nelv, lx)
       end select
 
       call col2(this%d, coef%h1, coef%dof%n_dofs)
@@ -116,6 +120,83 @@ contains
       call invcol1(this%d, dof%n_dofs)
     end associate
   end subroutine sx_jacobi_update
+
+  subroutine sx_update_lx(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n, lx)
+    integer, intent(in) :: n, lx
+    real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: dxt(lx,lx)
+    real(kind=rp), intent(in) :: dyt(lx,lx)
+    real(kind=rp), intent(in) :: dzt(lx,lx)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=rp) :: tmp
+    integer :: i, j, k, l, e, jj
+
+
+    do l = 1,lx
+       do k = 1,lx
+          do j = 1,lx
+             do i = 1,lx
+                do e = 1,n
+                   d(i,j,k,e) = d(i,j,k,e) + &
+                        G11(l,j,k,e) * dxt(i,l)**2
+
+                   d(i,j,k,e) = d(i,j,k,e) + &
+                        G22(i,l,k,e) * dyt(j,l)**2
+
+                   d(i,j,k,e) = d(i,j,k,e) + &
+                        G33(i,j,l,e) * dzt(k,l)**2
+
+                end do
+             end do
+          end do
+       end do
+    end do
+
+    do j = 1,lx,lx-1
+       do k = 1,lx,lx-1
+          do e = 1,n
+             d(1,j,k,e) = d(1,j,k,e) &
+                  + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
+                  + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
+             d(lx,j,k,e) = d(lx,j,k,e) &
+                  + G12(lx,j,k,e) * dxt(lx,lx)*dyt(j,j) &
+                  + G13(lx,j,k,e) * dxt(lx,lx)*dzt(k,k)
+          end do
+       end do
+    end do
+
+    do i = 1,lx,lx-1
+       do k = 1,lx,lx-1
+          do e = 1,n
+             d(i,1,k,e) = d(i,1,k,e) &
+                  + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
+                  + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
+             d(i,lx,k,e) = d(i,lx,k,e) &
+                  + G12(i,lx,k,e) * dyt(lx,lx)*dxt(i,i) &
+                  + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
+          end do
+       end do
+    end do
+
+    do i = 1,lx,lx-1
+       do j = 1,lx,lx-1
+          do e = 1,n
+             d(i,j,1,e) = d(i,j,1,e) &
+                  + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
+                  + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
+             d(i,j,lx,e) = d(i,j,lx,e) &
+                  + G13(i,j,lx,e) * dzt(lx,lx)*dxt(i,i) &
+                  + G23(i,j,lx,e) * dzt(lx,lx)*dyt(j,j)
+          end do
+       end do
+    end do
+
+  end subroutine sx_update_lx
   
   subroutine sx_update_lx14(d, dxt, dyt, dzt, G11, G22, G33, G12, G13, G23, n)
     integer, parameter :: lx = 14
