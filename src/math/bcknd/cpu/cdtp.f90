@@ -7,11 +7,10 @@ module cpu_cdtp
 contains
   
   subroutine cpu_cdtp_lx(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, lx)
-    integer, intent(in) :: nel
+    integer, intent(in) :: nel, lx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
     real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    integer, intent(in) :: lx
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
