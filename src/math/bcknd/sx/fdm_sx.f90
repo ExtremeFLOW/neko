@@ -54,9 +54,114 @@ contains
           call fdm_do_fast_sx_nl3(e, r, s, d, nelv)
        case (2)
           call fdm_do_fast_sx_nl2(e, r, s, d, nelv)
+       case default
+          call fdm_do_fast_sx_nl(e, r, s, d, nelv, nl)
        end select
     end if
   end subroutine fdm_do_fast_sx
+
+  subroutine fdm_do_fast_sx_nl(e, r, s, d, nelv, n)
+    integer, intent(in) :: nelv, n
+    real(kind=rp), intent(inout) :: e(n**3, nelv)
+    real(kind=rp), intent(inout) :: r(n**3, nelv)
+    real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
+    real(kind=rp), intent(inout) :: d(n**3, nelv)
+    real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv), tmp
+    integer ::  ie, i, j, k, l, ii, jj, nn, nnn
+
+    nn = n**2
+    nnn = n**3
+
+    
+    do j = 1, nn
+       do i = 1, n
+          do ie = 1, nelv
+             ii = i + n * (j - 1)
+             tmp = 0.0_rp
+             do k = 1, n
+                tmp = tmp + s(i,k,2,1,ie) * r(k + n * (j - 1), ie)
+             end do
+             wrk(ii, ie) = tmp
+          end do
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             do ie = 1, nelv
+                ii = l + n * (j - 1) + nn * (i - 1)
+                tmp = 0.0_rp
+                do k = 1, n
+                   tmp = tmp + wrk(l + n * (k - 1) + nn * (i - 1), ie) &
+                               * s(k,j,1,2,ie)
+                end do
+                wrk2(ii,ie) = tmp
+             end do
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          do ie = 1, nelv
+             jj = i + nn * (j - 1)
+             tmp = 0.0_rp
+             do k = 1, n
+                tmp = tmp + wrk2(i + nn * (k - 1), ie) * s(k, j, 1, 3, ie)
+             end do                     
+             e(jj,ie) = tmp
+          end do
+       end do
+    end do
+
+    do i = 1, nnn * nelv
+       r(i,1) = d(i,1) * e(i,1)
+    end do
+   
+    do j = 1, nn
+       do i = 1, n
+          do ie = 1, nelv
+             ii = i + n * (j - 1)
+             tmp = 0.0_rp
+             do k = 1, n
+                tmp = tmp + s(i,k,1,1,ie) * r(k + n * (j - 1), ie)
+             end do
+             wrk(ii, ie) = tmp
+          end do
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             do ie = 1, nelv
+                ii = l + n * (j - 1) + nn * (i - 1)
+                tmp = 0.0_rp
+                do k = 1, n
+                   tmp = tmp + wrk(l + n * (k - 1) + nn * (i - 1), ie) &
+                               * s(k,j,2,2,ie)
+                end do
+                wrk2(ii,ie) = tmp
+             end do
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          do ie = 1, nelv
+             jj = i + nn * (j - 1)
+             tmp = 0.0_rp
+             do k = 1, n
+                tmp = tmp + wrk2(i + nn * (k - 1), ie) * s(k, j, 2, 3, ie)
+             end do
+             e(jj,ie) = tmp
+          end do
+       end do
+    end do
+    
+  end subroutine fdm_do_fast_sx_nl
 
   subroutine fdm_do_fast_sx_nl14(e, r, s, d, nelv)
     integer, parameter :: n = 14

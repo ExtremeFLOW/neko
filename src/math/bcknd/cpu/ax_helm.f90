@@ -58,12 +58,125 @@ contains
     case(2)
        call ax_helm_lx2(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
             coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+    case default
+       call ax_helm_lx(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, &
+            coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv, Xh%lx)
     end select
     
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%n_dofs)
     
  
   end subroutine ax_helm_compute
+
+  subroutine ax_helm_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+       h1, G11, G22, G33, G12, G13, G23, n, lx)
+    integer, intent(in) :: n, lx
+    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: Dx(lx,lx)
+    real(kind=rp), intent(in) :: Dy(lx,lx)
+    real(kind=rp), intent(in) :: Dz(lx,lx)
+    real(kind=rp), intent(in) :: Dxt(lx,lx)
+    real(kind=rp), intent(in) :: Dyt(lx,lx)
+    real(kind=rp), intent(in) :: Dzt(lx,lx)
+    real(kind=rp) :: ur(lx, lx, lx)
+    real(kind=rp) :: us(lx, lx, lx)
+    real(kind=rp) :: ut(lx, lx, lx)
+    real(kind=rp) :: wur(lx, lx, lx)
+    real(kind=rp) :: wus(lx, lx, lx)
+    real(kind=rp) :: wut(lx, lx, lx)
+    real(kind=rp) :: tmp
+    integer :: e, i, j, k, l
+
+    do e = 1, n
+       do j = 1, lx * lx
+          do i = 1, lx
+             tmp = 0.0_rp
+             do k = 1, lx
+                tmp = tmp + Dx(i,k) * u(k,j,1,e)
+             end do
+             wur(i,j,1) = tmp
+          end do
+       end do
+
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                tmp = 0.0_rp
+                do l = 1, lx
+                   tmp = tmp + Dy(j,l) * u(i,l,k,e)
+                end do
+                wus(i,j,k) = tmp
+             end do
+          end do
+       end do
+
+       do k = 1, lx
+          do i = 1, lx*lx
+             tmp = 0.0_rp
+             do l = 1, lx
+                tmp = tmp + Dz(k,l) * u(i,1,l,e)
+             end do
+             wut(i,1,k) = tmp
+          end do
+       end do
+
+       do i = 1, lx*lx*lx          
+          ur(i,1,1) = h1(i,1,1,e) &
+                    * ( G11(i,1,1,e) * wur(i,1,1) &
+                      + G12(i,1,1,e) * wus(i,1,1) &
+                      + G13(i,1,1,e) * wut(i,1,1) )
+          us(i,1,1) = h1(i,1,1,e) &
+                    * ( G12(i,1,1,e) * wur(i,1,1) &
+                      + G22(i,1,1,e) * wus(i,1,1) &
+                      + G23(i,1,1,e) * wut(i,1,1) )
+          ut(i,1,1) = h1(i,1,1,e) &
+                    * ( G13(i,1,1,e) * wur(i,1,1) &
+                      + G23(i,1,1,e) * wus(i,1,1) &
+                      + G33(i,1,1,e) * wut(i,1,1) )
+       end do
+
+       do j = 1, lx*lx
+          do i = 1, lx
+             tmp = 0.0_rp
+             do k = 1, lx
+                tmp = tmp + Dxt(i,k) * ur(k,j,1)
+             end do
+             w(i,j,1,e) = tmp
+          end do
+       end do
+
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                tmp = 0.0_rp
+                do l = 1, lx
+                   tmp = tmp + Dyt(j,l) * us(i,l,k)
+                end do
+                w(i,j,k,e) = w(i,j,k,e) + tmp
+             end do
+          end do
+       end do
+
+       do k = 1, lx
+          do i = 1, lx*lx
+             tmp = 0.0_rp
+             do l = 1, lx
+                tmp = tmp + Dzt(k,l) * ut(i,1,l)
+             end do
+             w(i,1,k,e) = w(i,1,k,e) + tmp
+          end do
+       end do
+
+    end do
+  end subroutine ax_helm_lx
   
   subroutine ax_helm_lx14(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n)

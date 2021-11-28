@@ -5,7 +5,72 @@ module cpu_cdtp
   implicit none
 
 contains
+  
+  subroutine cpu_cdtp_lx(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, lx)
+    integer, intent(in) :: nel, lx
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
+    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
+    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp) :: tmp
+    integer :: e, i, j, k, l
 
+    do e = 1, nel
+       
+       do i = 1, lx*lx*lx
+          wx(i,1,1) = ( B(i,1,1,e) * x(i,1,1,e) ) / jac(i,1,1,e)
+       end do
+       
+       do i = 1, lx*lx*lx
+          ta1(i,1,1) = wx(i,1,1) * dr(i,1,1,e)
+       end do
+       
+       do j = 1, lx * lx
+          do i = 1, lx
+             tmp = 0.0_rp
+             !DIR$ LOOP_INFO MIN_TRIPS(15)             
+             do k = 1, lx
+                tmp = tmp + dxt(i,k) * ta1(k,j,1)
+             end do
+             dtx(i,j,1,e) = tmp
+          end do
+       end do
+       
+       do i = 1, lx*lx*lx
+          ta1(i,1,1) = wx(i,1,1) * ds(i,1,1,e)
+       end do
+
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                tmp = 0.0_rp
+                !DIR$ LOOP_INFO MIN_TRIPS(15)                
+                do l = 1, lx
+                   tmp = tmp + dyt(j,l) * ta1(i,l,k)                   
+                end do
+                dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
+             end do
+          end do
+       end do
+       
+       do i = 1, lx*lx*lx
+          ta1(i,1,1) = wx(i,1,1) * dt(i,1,1,e)
+       end do
+       
+       do k = 1, lx
+          do i = 1, lx*lx
+             tmp = 0.0_rp
+             !DIR$ LOOP_INFO MIN_TRIPS(15)             
+             do l = 1, lx
+                tmp = tmp + dzt(k,l) * ta1(i,1,l)
+             end do
+             dtx(i,1,k,e) = dtx(i,1,k,e) + tmp
+          end do
+       end do
+       
+    end do
+  end subroutine cpu_cdtp_lx
+  
   subroutine cpu_cdtp_lx14(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel

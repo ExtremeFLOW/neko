@@ -65,6 +65,9 @@ contains
       case(2)
          call sx_dudxyz_lx2(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%n_dofs)
+      case default
+         call sx_dudxyz_lx(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs, Xh%lx)
       end select
     end associate
 
@@ -198,6 +201,13 @@ contains
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
+      case default
+         call sx_opgrad_lx(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv, Xh%lx)
       end select
     end associate
 
@@ -265,6 +275,10 @@ contains
          call sx_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case default
+         call sx_cdtp_lx(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs, Xh%lx)
       end select
     end associate
 
@@ -359,6 +373,12 @@ contains
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
+    case default
+       call sx_conv1_lx(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim, Xh%lx)
     end select
 
   end subroutine opr_sx_conv1

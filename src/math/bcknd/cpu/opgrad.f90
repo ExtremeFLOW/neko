@@ -5,6 +5,72 @@ module cpu_opgrad
 
 contains
 
+  subroutine cpu_opgrad_lx(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n, lx)
+    integer, intent(in) :: n, lx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: tmp
+    integer :: e, i, j, k, l
+
+    do e = 1, n
+       do j = 1, lx * lx
+          do i = 1, lx
+             tmp = 0.0_rp
+             do k = 1, lx
+                tmp = tmp + dx(i,k) * u(k,j,1,e)
+             end do
+             ur(i,j,1) = tmp
+          end do
+       end do
+
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                tmp = 0.0_rp
+                do l = 1, lx
+                   tmp = tmp + dy(j,l) * u(i,l,k,e)
+                end do
+                us(i,j,k) = tmp
+             end do
+          end do
+       end do
+
+       do k = 1, lx
+          do i = 1, lx*lx
+             tmp = 0.0_rp
+             do l = 1, lx
+                tmp = tmp + dz(k,l) * u(i,1,l,e)
+             end do
+             ut(i,1,k) = tmp
+          end do
+       end do
+    
+       do i = 1, lx * lx * lx
+          ux(i,1,1,e) = w3(i,1,1) &
+                      * ( drdx(i,1,1,e) * ur(i,1,1) &
+                       + dsdx(i,1,1,e) * us(i,1,1) &
+                       + dtdx(i,1,1,e) * ut(i,1,1) )
+          uy(i,1,1,e) = w3(i,1,1) &
+                      * ( dsdy(i,1,1,e) * us(i,1,1) &
+                        + drdy(i,1,1,e) * ur(i,1,1) &
+                        + dtdy(i,1,1,e) * ut(i,1,1) )          
+          uz(i,1,1,e) = w3(i,1,1) &
+                      * ( dtdz(i,1,1,e) * ut(i,1,1) &
+                        + drdz(i,1,1,e) * ur(i,1,1) &
+                        + dsdz(i,1,1,e) * us(i,1,1) )
+       end do
+    end do
+  end subroutine cpu_opgrad_lx
+  
   subroutine cpu_opgrad_lx18(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 18

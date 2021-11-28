@@ -108,10 +108,6 @@ contains
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
     end if
 
-    if (lx .gt. 12) then
-       call neko_error("Unsupported polynomial dimension (lx > 12)")
-    end if    
-    
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
     C%params = params%p

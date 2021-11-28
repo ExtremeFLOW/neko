@@ -6,6 +6,69 @@ module cpu_dudxyz
 
 contains
 
+  subroutine cpu_dudxyz_lx(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, lx)
+    integer, intent(in) :: nel, lx
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx) :: drst
+    real(kind=rp) :: tmp
+    integer :: e, i, j, k, l
+
+    do e = 1, nel
+       do j = 1, lx * lx
+          do i = 1, lx
+             tmp = 0.0_rp
+             do k = 1, lx
+                tmp = tmp + dx(i,k) * u(k,j,1,e)
+             end do
+             du(i,j,1,e) = tmp
+          end do
+       end do
+
+       do i = 1, lx * lx * lx
+          du(i,1,1,e) = du(i,1,1,e) * dr(i,1,1,e)
+       end do
+
+       do k = 1, lx
+          do j = 1, lx
+             do i = 1, lx
+                tmp = 0.0_rp
+                do l = 1, lx
+                   tmp = tmp + dy(j,l) * u(i,l,k,e)
+                end do
+                drst(i,j,k) =  tmp
+             end do
+          end do
+       end do
+        
+       do i = 1, lx * lx * lx
+          du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * ds(i,1,1,e)
+       end do
+       
+       do k = 1, lx
+          do i = 1, lx*lx
+             tmp = 0.0_rp
+             do l = 1, lx
+                tmp = tmp + dz(k,l) * u(i,1,l,e)
+             end do
+             drst(i,1,k) = tmp
+          end do
+       end do
+       
+       do i = 1, lx * lx * lx
+          du(i,1,1,e) = du(i,1,1,e) + drst(i,1,1) * dt(i,1,1,e)
+       end do
+       
+       do i = 1, lx * lx * lx
+          du(i,1,1,e) = du(i,1,1,e) * jacinv(i,1,1,e)
+       end do
+        
+    end do
+    
+  end subroutine cpu_dudxyz_lx
+  
   subroutine cpu_dudxyz_lx14(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel
