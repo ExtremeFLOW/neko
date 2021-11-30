@@ -415,7 +415,7 @@ contains
        call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
        call sub3(w2%x, work1%x, work2%x, n)
     else
-       call rzero (work1%x, n)
+       call rzero(work1%x, n)
        call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
        call sub3(w2%x, work1%x, work2%x, n)
     end if
@@ -425,11 +425,11 @@ contains
     call sub3(w3%x, work1%x, work2%x, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
+    call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
     call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
-    call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+    call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_cpu_curl
 
