@@ -66,9 +66,10 @@ contains
     if (msh%gdim .eq. 3) then
        call dofmap_number_points(this)
        call dofmap_number_edges(this)
-       call dofmap_number_facets(this)
+       call dofmap_number_faces(this)
     else
-       call neko_warning('Dofmap not implemented for 2D (yet...)')
+       call dofmap_number_points(this)
+       call dofmap_number_edges(this)
     end if
 
     !
@@ -133,51 +134,74 @@ contains
 
     msh => this%msh
     Xh => this%Xh
+    if (msh%gdim .eq. 2) then
+       do i = 1, msh%nelv
+          this%dof(1, 1, 1, i) = &
+               int(msh%elements(i)%e%pts(1)%p%id(), 8)
+          this%dof(Xh%lx, 1, 1, i) = &
+               int(msh%elements(i)%e%pts(2)%p%id(), 8)
+          this%dof(1, Xh%ly, 1, i) = &
+               int(msh%elements(i)%e%pts(4)%p%id(), 8)
+          this%dof(Xh%lx, Xh%ly, 1, i) = &
+               int(msh%elements(i)%e%pts(3)%p%id(), 8)
 
-    do i = 1, msh%nelv
-       this%dof(1, 1, 1, i) = &
-            int(msh%elements(i)%e%pts(1)%p%id(), 8)
-       this%dof(Xh%lx, 1, 1, i) = &
-            int(msh%elements(i)%e%pts(2)%p%id(), 8)
-       this%dof(1, Xh%ly, 1, i) = &
-            int(msh%elements(i)%e%pts(4)%p%id(), 8)
-       this%dof(Xh%lx, Xh%ly, 1, i) = &
-            int(msh%elements(i)%e%pts(3)%p%id(), 8)
+          this%shared_dof(1, 1, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
+          
+          this%shared_dof(Xh%lx, 1, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
 
-       this%dof(1, 1, Xh%lz, i) = &
-            int(msh%elements(i)%e%pts(5)%p%id(), 8)
-       this%dof(Xh%lx, 1, Xh%lz, i) = &
-            int(msh%elements(i)%e%pts(6)%p%id(), 8)
-       this%dof(1, Xh%ly, Xh%lz, i) = &
-            int(msh%elements(i)%e%pts(8)%p%id(), 8)
-       this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-            int(msh%elements(i)%e%pts(7)%p%id(), 8)
+          this%shared_dof(1, Xh%ly, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
+          
+          this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
+       end do
+    else    
+       do i = 1, msh%nelv
+          this%dof(1, 1, 1, i) = &
+               int(msh%elements(i)%e%pts(1)%p%id(), 8)
+          this%dof(Xh%lx, 1, 1, i) = &
+               int(msh%elements(i)%e%pts(2)%p%id(), 8)
+          this%dof(1, Xh%ly, 1, i) = &
+               int(msh%elements(i)%e%pts(4)%p%id(), 8)
+          this%dof(Xh%lx, Xh%ly, 1, i) = &
+               int(msh%elements(i)%e%pts(3)%p%id(), 8)
 
-       this%shared_dof(1, 1, 1, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
-       
-       this%shared_dof(Xh%lx, 1, 1, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
+          this%dof(1, 1, Xh%lz, i) = &
+               int(msh%elements(i)%e%pts(5)%p%id(), 8)
+          this%dof(Xh%lx, 1, Xh%lz, i) = &
+               int(msh%elements(i)%e%pts(6)%p%id(), 8)
+          this%dof(1, Xh%ly, Xh%lz, i) = &
+               int(msh%elements(i)%e%pts(8)%p%id(), 8)
+          this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
+               int(msh%elements(i)%e%pts(7)%p%id(), 8)
 
-       this%shared_dof(1, Xh%ly, 1, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
-       
-       this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
+          this%shared_dof(1, 1, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
+          
+          this%shared_dof(Xh%lx, 1, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
 
-       this%shared_dof(1, 1, Xh%lz, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(5)%p)
-       
-       this%shared_dof(Xh%lx, 1, Xh%lz, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(6)%p)
+          this%shared_dof(1, Xh%ly, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
+          
+          this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
 
-       this%shared_dof(1, Xh%ly, Xh%lz, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(8)%p)
-       
-       this%shared_dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-            mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
-       
-    end do
+          this%shared_dof(1, 1, Xh%lz, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(5)%p)
+          
+          this%shared_dof(Xh%lx, 1, Xh%lz, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(6)%p)
+
+          this%shared_dof(1, Xh%ly, Xh%lz, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(8)%p)
+          
+          this%shared_dof(Xh%lx, Xh%ly, Xh%lz, i) = &
+               mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
+       end do
+    end if
   end subroutine dofmap_number_points
 
   !> Assing numbers to dofs on edges
@@ -199,15 +223,14 @@ contains
     num_dofs_edges(1) =  int(Xh%lx - 2, 8)
     num_dofs_edges(2) =  int(Xh%ly - 2, 8)
     num_dofs_edges(3) =  int(Xh%lz - 2, 8)
-
-    edge_offset = int(msh%glb_mpts, 8) + int(1, 8)
+    edge_offset = int(msh%glb_mpts, 8) + int(1, 4)
 
     do i = 1, msh%nelv
        
        select type(ep=>msh%elements(i)%e)
        type is (hex_t)
           !
-          ! Number edges in x-direction
+          ! Number edges in r-direction
           ! 
           call ep%edge_id(edge, 1)
           shared_dof = mesh_is_shared(msh, edge)
@@ -260,7 +283,7 @@ contains
 
 
           !
-          ! Number edges in y-direction
+          ! Number edges in s-direction
           ! 
           call ep%edge_id(edge, 5)
           shared_dof = mesh_is_shared(msh, edge)
@@ -311,7 +334,7 @@ contains
           end do
 
           !
-          ! Number edges in z-direction
+          ! Number edges in t-direction
           ! 
           call ep%edge_id(edge, 9)
           shared_dof = mesh_is_shared(msh, edge)
@@ -360,14 +383,69 @@ contains
              this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
              edge_id = edge_id + 1
           end do
+       type is (quad_t)
+          !
+          ! Number edges in r-direction
+          ! 
+          call ep%facet_id(edge, 3)
+          shared_dof = mesh_is_shared(msh, edge)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          !Reverse order of tranversal if edge is reversed
+          do j = 2, Xh%lx - 1
+             k = j
+             if(int(edge%x(1),8) .ne. this%dof(1,1,1,i)) k = Xh%lx+1-j
+             this%dof(k, 1, 1, i) = edge_id
+             this%shared_dof(k, 1, 1, i) = shared_dof
+             edge_id = edge_id + 1
+          end do
+
+          call ep%facet_id(edge, 4)
+          shared_dof = mesh_is_shared(msh, edge)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          do j = 2, Xh%lx - 1
+             k = j
+             if(int(edge%x(1),8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lx+1-j
+             this%dof(k, Xh%ly, 1, i) = edge_id
+             this%shared_dof(k, Xh%ly, 1, i) = shared_dof
+             edge_id = edge_id + 1
+          end do
+
+          !
+          ! Number edges in s-direction
+          ! 
+          call ep%facet_id(edge, 1)
+          shared_dof = mesh_is_shared(msh, edge)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          do j = 2, Xh%ly - 1
+             k = j
+             if(int(edge%x(1),8) .ne. this%dof(1,1,1,i)) k = Xh%ly+1-j
+             this%dof(1, k, 1, i) = edge_id
+             this%shared_dof(1, k, 1, i) = shared_dof
+             edge_id = edge_id + 1
+          end do
+
+          call ep%facet_id(edge, 2)
+          shared_dof = mesh_is_shared(msh, edge)
+          global_id = mesh_get_global(msh, edge)
+          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          do j = 2, Xh%ly - 1
+             k = j
+             if(int(edge%x(1),8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%ly+1-j
+             this%dof(Xh%lx, k, 1, i) = edge_id
+             this%shared_dof(Xh%lx, k, 1, i) = shared_dof
+             edge_id = edge_id + 1
+          end do
           
        end select
        
     end do
   end subroutine dofmap_number_edges
 
-  !> Assign numbers to dofs on facets
-  subroutine dofmap_number_facets(this)
+  !> Assign numbers to dofs on faces
+  subroutine dofmap_number_faces(this)
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh    
@@ -393,7 +471,7 @@ contains
     do i = 1, msh%nelv
        
        !
-       ! Number facets in x-direction (s, t)-plane
+       ! Number facets in r-direction (s, t)-plane
        !
        call msh%elements(i)%e%facet_id(face, 1)
        call msh%elements(i)%e%facet_order(face_order, 1)
@@ -423,7 +501,7 @@ contains
 
 
        !
-       ! Number facets in y-direction (r, t)-plane
+       ! Number facets in s-direction (r, t)-plane
        !
        call msh%elements(i)%e%facet_id(face, 3)
        call msh%elements(i)%e%facet_order(face_order, 3)
@@ -453,7 +531,7 @@ contains
 
 
        !
-       ! Number facets in z-direction (r, s)-plane
+       ! Number facets in t-direction (r, s)-plane
        !
        call msh%elements(i)%e%facet_id(face, 5)
        call msh%elements(i)%e%facet_order(face_order, 5)
@@ -482,7 +560,7 @@ contains
        end do
     end do
 
-  end subroutine dofmap_number_facets
+  end subroutine dofmap_number_faces
 
  !> Get idx for GLL point on face depending on face ordering k and j
   function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, lj1) result(facet_idx)
@@ -595,14 +673,18 @@ contains
              xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
           end if
        end do
-
-       call tensr3(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
-       call copy(this%x(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
-       call tensr3(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
-       call copy(this%y(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
-       if (msh%gdim .gt. 2) then
+       if (msh%gdim .eq. 3) then
+          call tensr3(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
+          call copy(this%x(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
+          call tensr3(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
+          call copy(this%y(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
           call tensr3(tmp, Xh%lz, xyzb(1,1,1,3), 2, jx, jyt, jzt, w)
           call copy(this%z(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
+       else
+          call tnsr2d_el(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt)
+          call copy(this%x(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
+          call tnsr2d_el(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt)
+          call copy(this%y(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
        end if
     end do
     do i =1, msh%curve%size 
