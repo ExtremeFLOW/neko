@@ -52,6 +52,8 @@ contains
           call tnsr3d_el_n3_cpu(v, u, A, Bt, Ct)
        case (2)
           call tnsr3d_el_n2_cpu(v, u, A, Bt, Ct)
+       case default
+          call tnsr3d_el_n_cpu(v, u, A, Bt, Ct, nv)
        end select
     else
        call tnsr3d_el_nvnu_cpu(v, nv, u, nu, A, Bt, Ct)
@@ -74,7 +76,7 @@ contains
     do j = 1, nunu
        do i = 1, nv
           ii = i + nv * (j - 1)
-          tmp = 0.0_rp
+          tmp = 0.0_rp          
           do k = 1, nu
              tmp = tmp + A(i,k) * u(k + nu * (j - 1))
           end do
@@ -109,6 +111,53 @@ contains
     end do
     
   end subroutine tnsr3d_el_nvnu_cpu
+
+  subroutine tnsr3d_el_n_cpu(v, u, A, Bt, Ct, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
+    real(kind=rp), intent(inout) :: A(n,n), Bt(n,n), Ct(n,n)
+    real(kind=rp) :: work(n**3), work2(n**3), tmp    
+    integer :: i, j, l, k
+    integer :: ii, jj, nn
+
+    nn = n**2
+    
+    do j = 1, nn
+       do i = 1, n
+          ii = i + n * (j - 1)
+          tmp = 0.0_rp
+          do k = 1, n
+             tmp = tmp + A(i,k) * u(k + n * (j - 1))
+          end do
+          work(ii) =  tmp
+       end do
+    end do
+    
+    do i = 1, n
+       do j = 1, n
+          do l = 1, n
+             ii = l + n * (j - 1) + nn * (i - 1)
+             tmp = 0.0_rp
+             do k = 1, n
+                tmp = tmp + work(l + n * (k - 1) + nn * (i - 1)) * Bt(k,j)
+             end do
+             work2(ii) = tmp
+          end do
+       end do
+    end do
+     
+    do j = 1, n
+       do i = 1, nn
+          jj = i + nn * (j - 1)
+          tmp = 0.0_rp
+          do k = 1, n
+             tmp = tmp + work2(i + nn * (k - 1)) * Ct(k, j)
+          end do
+          v(jj) = tmp
+       end do
+    end do
+    
+  end subroutine tnsr3d_el_n_cpu
 
   subroutine tnsr3d_el_n14_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 14

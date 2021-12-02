@@ -35,6 +35,8 @@ module parameters
      logical :: stats_mean_sqr_flow    !< Mean squared flow statistics
      logical :: output_mean_sqr_flow   !< Output mean squared flow field
      character(len=1024) :: output_dir !< Output directory
+     logical :: dealias                !< Dealias on/off
+     integer :: lxd                    !< Size of dealiased space
      real(kind=rp) :: delta !< Boundary layer thickness \f$ \delta \f$
      character(len=10) :: blasius_approx !< Type of approximate Blasius profile
   end type param_t
@@ -92,6 +94,8 @@ contains
     logical :: stats_mean_sqr_flow = .false.
     logical :: output_mean_sqr_flow = .false.
     character(len=1024) :: output_dir = ''
+    logical :: dealias = .true.
+    integer :: dealias_lx  = 0
     character(len=10) :: blasius_approx = 'sin'
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
@@ -99,7 +103,8 @@ contains
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
-         output_mean_sqr_flow, output_dir, delta, blasius_approx
+         output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
+         delta, blasius_approx
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -134,6 +139,8 @@ contains
     param%p%stats_mean_sqr_flow = stats_mean_sqr_flow
     param%p%output_mean_sqr_flow = output_mean_sqr_flow
     param%p%output_dir = output_dir
+    param%p%dealias = dealias
+    param%p%lxd = dealias_lx
     param%p%delta = delta
     param%p%blasius_approx = blasius_approx
 
@@ -158,6 +165,8 @@ contains
     character(len=8) :: jlimit    
     character(len=80) :: restart_file
     character(len=1024) :: output_dir
+    integer :: dealias_lx
+    logical :: dealias
     character(len=10) :: blasius_approx
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
@@ -165,7 +174,8 @@ contains
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
-         output_mean_sqr_flow, output_dir, delta, blasius_approx
+         output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
+         delta, blasius_approx
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -198,6 +208,8 @@ contains
     stats_mean_sqr_flow = param%p%stats_mean_sqr_flow
     output_mean_sqr_flow = param%p%output_mean_sqr_flow
     output_dir = param%p%output_dir
+    dealias_lx = param%p%lxd
+    dealias = param%p%dealias
     delta = param%p%delta
     blasius_approx = param%p%blasius_approx
     

@@ -16,7 +16,7 @@ sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o
 math/math.o : math/math.f90 comm/comm.o config/num_types.o 
 math/mathops.o : math/mathops.f90 config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
-sem/space.o : sem/space.f90 math/math.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
+sem/space.o : sem/space.f90 math/fast3d.o math/math.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
 sem/dofmap.o : sem/dofmap.f90 math/math.o math/tensor.o math/fast3d.o common/utils.o config/num_types.o adt/tuple.o sem/space.o mesh/mesh.o 
 sem/coef.o : sem/coef.f90 math/mxm_wrapper.o device/device.o mesh/mesh.o math/math.o sem/space.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 gs/gs_bcknd.o : gs/gs_bcknd.f90 config/num_types.o 

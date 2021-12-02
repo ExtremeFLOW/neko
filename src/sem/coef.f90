@@ -99,12 +99,62 @@ module coefs
 
   end type coef_t
 
+  interface coef_init
+     module procedure coef_init_empty, coef_init_all
+  end interface coef_init
+  
   public :: coef_init, coef_free
   
 contains
+  
+  !> Initialize empty coefs for a space and a mesh 
+  subroutine coef_init_empty(coef, Xh, msh)
+    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(inout), target :: Xh
+    type(mesh_t), intent(inout), target :: msh
+    integer :: n    
+    call coef_free(coef)
+    coef%msh => msh
+    coef%Xh => Xh
+    
+    allocate(coef%drdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dsdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dtdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    
+    allocate(coef%drdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dsdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dtdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    
+    allocate(coef%drdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dsdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(coef%dtdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    
+    !
+    ! Setup device memory (if present)
+    !
+    
+    n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+        (NEKO_BCKND_OPENCL .eq. 1)) then
+
+       call device_map(coef%drdx, coef%drdx_d, n)
+       call device_map(coef%drdy, coef%drdy_d, n)
+       call device_map(coef%drdz, coef%drdz_d, n)
+
+       call device_map(coef%dsdx, coef%dsdx_d, n)
+       call device_map(coef%dsdy, coef%dsdy_d, n)
+       call device_map(coef%dsdz, coef%dsdz_d, n)
+
+       call device_map(coef%dtdx, coef%dtdx_d, n)
+       call device_map(coef%dtdy, coef%dtdy_d, n)
+       call device_map(coef%dtdz, coef%dtdz_d, n)
+       
+    end if
+    
+  end subroutine coef_init_empty
 
   !> Initialize coefficients
-  subroutine coef_init(coef, gs_h)
+  subroutine coef_init_all(coef, gs_h)
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m
@@ -262,7 +312,7 @@ contains
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
     
-  end subroutine coef_init
+  end subroutine coef_init_all
 
   !> Deallocate coefficients
   subroutine coef_free(coef)

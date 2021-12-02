@@ -26,6 +26,12 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(coef%Xh%lx)
+      case(14)
+         call sx_dudxyz_lx14(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
+      case(13)
+         call sx_dudxyz_lx13(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs)
       case(12)
          call sx_dudxyz_lx12(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%n_dofs)
@@ -59,6 +65,9 @@ contains
       case(2)
          call sx_dudxyz_lx2(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%n_dofs)
+      case default
+         call sx_dudxyz_lx(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%n_dofs, Xh%lx)
       end select
     end associate
 
@@ -73,6 +82,48 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh)
       select case(Xh%lx)
+      case(18)
+         call sx_opgrad_lx18(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(17)
+         call sx_opgrad_lx17(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(16)
+         call sx_opgrad_lx16(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(15)
+         call sx_opgrad_lx15(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(14)
+         call sx_opgrad_lx14(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
+      case(13)
+         call sx_opgrad_lx13(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv)
       case(12)
          call sx_opgrad_lx12(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
@@ -150,6 +201,13 @@ contains
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
+      case default
+         call sx_opgrad_lx(ux, uy, uz, u, &
+              Xh%dx, Xh%dy, Xh%dz, &
+              coef%drdx, coef%dsdx, coef%dtdx, &
+              coef%drdy, coef%dsdy, coef%dtdy, &
+              coef%drdz, coef%dsdz, coef%dtdz, &
+              Xh%w3, msh%nelv, Xh%lx)
       end select
     end associate
 
@@ -165,6 +223,14 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(Xh%lx)
+      case(14)
+         call sx_cdtp_lx14(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case(13)
+         call sx_cdtp_lx13(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs)
       case(12)
          call sx_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
@@ -209,6 +275,10 @@ contains
          call sx_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%n_dofs)
+      case default
+         call sx_cdtp_lx(dtx, x, dr, ds, dt, &
+              Xh%dxt, Xh%dyt, Xh%dzt, &
+              coef%B, coef%jac, msh%nelv, dof%n_dofs, Xh%lx)
       end select
     end associate
 
@@ -225,6 +295,18 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
 
     select case(Xh%lx)
+    case(14)
+       call sx_conv1_lx14(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)
+    case(13)
+       call sx_conv1_lx13(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim)   
     case(12)
        call sx_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
             coef%drdx, coef%dsdx, coef%dtdx, &
@@ -291,6 +373,12 @@ contains
             coef%drdy, coef%dsdy, coef%dtdy, &
             coef%drdz, coef%dsdz, coef%dtdz, &
             coef%jacinv, nelv, gdim)
+    case default
+       call sx_conv1_lx(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+            coef%drdx, coef%dsdx, coef%dtdx, &
+            coef%drdy, coef%dsdy, coef%dtdy, &
+            coef%drdz, coef%dsdz, coef%dtdz, &
+            coef%jacinv, nelv, gdim, Xh%lx)
     end select
 
   end subroutine opr_sx_conv1

@@ -116,12 +116,15 @@ contains
     integer, intent(inout) :: lx
     type(param_t), intent(inout), target :: params
     type(dirichlet_t) :: bdry_mask
+    character(len=LOG_SIZE) :: log_buf
     
     call neko_log%section('Fluid')
     call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
          ', ' // trim(params%pc_vel) // ')')
     call neko_log%message('Ksp prs. : ('// trim(params%ksp_prs) // &
          ', ' // trim(params%pc_prs) // ')')
+    write(log_buf, '(A, L1)') 'Dealias  : ',  params%dealias 
+    call neko_log%message(log_buf)
     
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)

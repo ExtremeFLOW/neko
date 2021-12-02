@@ -113,7 +113,7 @@ contains
   end subroutine dummy_user_mesh_setup
   
   !> Dummy user check
-  subroutine dummy_user_check( t, dt, tstep,u, v, w, p, coef)
+  subroutine dummy_user_check(t, dt, tstep, u, v, w, p, coef)
     real(kind=rp), intent(in) :: t, dt
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
