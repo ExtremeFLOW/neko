@@ -549,7 +549,10 @@ contains
                 !Check which side is connected
                 do l = 1,n_sides
                    call m%elements(element)%e%facet_id(edge2, l)
-                   if(edge2 .eq. edge) facet = l
+                   if(edge2 .eq. edge) then
+                      facet = l
+                      exit
+                   end if
                 enddo
                 m%facet_neigh(facet, element) = -neigh_el
                 facet_data%x(2) = -neigh_el
@@ -585,7 +588,10 @@ contains
                 element = facet_data%x(1) - m%offset_el
                 do l = 1,6
                    call m%elements(element)%e%facet_id(face2, l)
-                   if(face2 .eq. face) facet = l
+                   if(face2 .eq. face) then
+                      facet = l
+                      exit
+                   end if
                 enddo
                 m%facet_neigh(facet, element) = -neigh_el
                 facet_data%x(2) = -neigh_el                   
@@ -941,7 +947,6 @@ contains
     facet_offset = facet_offset + 1
     
     ! Determine ownership of shared facets
-    !! HERE WE DO WORK
     if (m%gdim .eq. 2) then
        call edge_it%init(m%hte)
        do while (edge_it%next())
@@ -962,14 +967,13 @@ contains
                          call edge_owner%push(edge)
                       end if
                    else
-                      call neko_error("Invalid facet neigh.")
+                      call neko_error("Invalid edge neigh.")
                    end if
                 end if
              end select
           end if
        end do
        owned_facets = edge_owner%size()
-
     else
        call face_it%init(m%htf)
        do while (face_it%next())
@@ -990,7 +994,7 @@ contains
                          call face_owner%push(face)
                       end if
                    else
-                      call neko_error("Invalid facet neigh.")
+                      call neko_error("Invalid face neigh.")
                    end if
                 end if
              end select
@@ -998,7 +1002,7 @@ contains
        end do
        owned_facets = face_owner%size()
     end if
-
+    
     ! Determine start offset for global numbering of shared facets
     glb_nshared = non_shared_facets
     call MPI_Allreduce(MPI_IN_PLACE, glb_nshared, 1, &
@@ -1008,20 +1012,22 @@ contains
     call MPI_Exscan(owned_facets, shared_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     shared_offset = shared_offset + glb_nshared + 1
-    !HERE WE DO WORK    
+
     if (m%gdim .eq. 2) then
+       
        if (owned_facets .gt. 32)  then
           call send_buff%init(owned_facets)
        else
           call send_buff%init()
        end if
+       
        ed => edge_owner%array()
        do i = 1, edge_owner%size()
           if (m%hte%get(ed(i), id) .eq. 0) then
              call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
-
+             
              ! Add new number to send buffer
-             ! [facet id1 ... facet idn new_glb_id]
+             ! [edge id1 ... edge idn new_glb_id]
              do j = 1, 2
                 call send_buff%push(ed(i)%x(j))
              end do
@@ -1030,8 +1036,9 @@ contains
              shared_offset = shared_offset + 1
           end if
        end do
+       
     else
-
+       
        if (owned_facets .gt. 32)  then
           call send_buff%init(owned_facets)
        else
@@ -1044,7 +1051,7 @@ contains
              call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
 
              ! Add new number to send buffer
-             ! [facet id1 ... facet idn new_glb_id]
+             ! [face id1 ... face idn new_glb_id]
              do j = 1, 4
                 call send_buff%push(fd(i)%x(j))
              end do
@@ -1053,6 +1060,7 @@ contains
              shared_offset = shared_offset + 1
           end if
        end do
+       
     end if
 
     ! Determine total number of unique facets in the mesh
@@ -1069,57 +1077,44 @@ contains
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
     allocate(recv_buff(max_recv))    
-    !HERE WE DO WORK
+
     !> @todo Since we now the neigh. we can actually do p2p here...
-    if (m%gdim .eq. 2) then
-       do i = 1, pe_size - 1
-          src = modulo(pe_rank - i + pe_size, pe_size)
-          dst = modulo(pe_rank + i, pe_size)
-
-          call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
-               MPI_INTEGER, dst, 0, recv_buff, max_recv, MPI_INTEGER, src, 0,&
-               NEKO_COMM, status, ierr)
-
-          call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
-
+    do i = 1, pe_size - 1
+       src = modulo(pe_rank - i + pe_size, pe_size)
+       dst = modulo(pe_rank + i, pe_size)
+       
+       call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
+            MPI_INTEGER, dst, 0, recv_buff, max_recv, MPI_INTEGER, src, 0,&
+            NEKO_COMM, status, ierr)
+       
+       call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+          
+       if (m%gdim .eq. 2) then
           do j = 1, n_recv, 3
-
+             
              recv_edge = (/recv_buff(j), recv_buff(j+1)/)
-
+             
              ! Check if the PE has the shared edge
              if (edge_ghost%get(recv_edge, id) .eq. 0) then
                 call distdata_set_local_to_global_facet(m%ddata, &
                      id, recv_buff(j+2))
              end if
           end do
-       end do
-    else
-       do i = 1, pe_size - 1
-          src = modulo(pe_rank - i + pe_size, pe_size)
-          dst = modulo(pe_rank + i, pe_size)
-
-          call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
-               MPI_INTEGER, dst, 0, recv_buff, max_recv, MPI_INTEGER, src, 0,&
-               NEKO_COMM, status, ierr)
-
-          call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
-
+       else             
           do j = 1, n_recv, 5
-
+             
              recv_face = (/recv_buff(j), recv_buff(j+1), &
                   recv_buff(j+2), recv_buff(j+3) /)
-
+             
              ! Check if the PE has the shared face
              if (face_ghost%get(recv_face, id) .eq. 0) then
                 call distdata_set_local_to_global_facet(m%ddata, &
                      id, recv_buff(j+4))
              end if
           end do
-       end do
+       end if
+    end do
 
-    end if
-
-    
     if (m%gdim .eq. 2) then
        call edge_owner%free()
        call edge_ghost%free()
@@ -1627,15 +1622,14 @@ contains
     type(mesh_t), intent(inout) :: m
     type(tuple_i4_t), intent(inout) :: e
     integer :: global_id
+
+    global_id = mesh_get_local_edge(m, e)
+
     if (m%gdim .eq. 2) then
-       global_id = mesh_get_local_edge(m, e)
-       
        if (pe_size .gt. 1) then
           global_id = m%ddata%local_to_global_facet(global_id)
        end if
     else 
-       global_id = mesh_Get_local_edge(m, e)
-    
        if (pe_size .gt. 1) then
           global_id = m%ddata%local_to_global_edge(global_id)
        end if
