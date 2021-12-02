@@ -83,7 +83,7 @@ contains
 
     s%lx = lx
     s%ly = ly
-    if (present(lz)) then
+    if (present(lz) .and. lz .ne. 1) then
        s%lz = lz
        if (lx .ne. ly .or. lx .ne. lz) then
           call neko_error("Unsupported polynomial dimension")
