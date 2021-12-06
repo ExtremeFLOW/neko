@@ -1,12 +1,16 @@
 !> Mixed Dirichlet-Neumann axis aligned symmetry plane
 module symmetry
+  use device_symmetry
+  use neko_config
   use num_types
   use dirichlet
+  use device
   use coefs
   use math
   use utils
   use stack
   use htable
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -15,6 +19,9 @@ module symmetry
      integer, allocatable :: xaxis_msk(:)
      integer, allocatable :: zaxis_msk(:)
      integer, allocatable :: yaxis_msk(:)
+     type(c_ptr) :: xaxis_msk_d = C_NULL_PTR
+     type(c_ptr) :: yaxis_msk_d = C_NULL_PTR
+     type(c_ptr) :: zaxis_msk_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init_msk => symmetry_init_msk
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
@@ -124,9 +131,19 @@ contains
        do i = 1, msk_size
           this%xaxis_msk(i) = sp(i)
        end do
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%xaxis_msk, this%xaxis_msk_d, msk_size + 1)
+       end if
     else
        allocate(this%xaxis_msk(0:1))
        this%xaxis_msk(0) = 0
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%xaxis_msk, this%xaxis_msk_d, 2)
+       end if
+    end if
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
+            size(this%xaxis_msk), HOST_TO_DEVICE)
     end if
 
     msk_size = ymsk%size()
@@ -137,9 +154,19 @@ contains
        do i = 1, msk_size
           this%yaxis_msk(i) = sp(i)
        end do
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%yaxis_msk, this%yaxis_msk_d, msk_size + 1)
+       end if
     else
        allocate(this%yaxis_msk(0:1))
        this%yaxis_msk(0) = 0
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%yaxis_msk, this%yaxis_msk_d, 2)
+       end if
+    end if
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
+            size(this%yaxis_msk), HOST_TO_DEVICE)
     end if
 
     msk_size = zmsk%size()
@@ -150,9 +177,19 @@ contains
        do i = 1, msk_size
           this%zaxis_msk(i) = sp(i)
        end do
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%zaxis_msk, this%zaxis_msk_d, msk_size + 1)
+       end if
     else
        allocate(this%zaxis_msk(0:1))
        this%zaxis_msk(0) = 0
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+          call device_map(this%zaxis_msk, this%zaxis_msk_d, 2)
+       end if
+    end if    
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
+            size(this%zaxis_msk), HOST_TO_DEVICE)
     end if
 
     call xmsk%free()
@@ -176,7 +213,22 @@ contains
     if (allocated(this%zaxis_msk)) then
        deallocate(this%zaxis_msk)
     end if
-    
+
+    if (c_associated(this%xaxis_msk_d)) then
+       call device_free(this%xaxis_msk_d)
+       this%xaxis_msk_d = C_NULL_PTR
+    end if
+
+    if (c_associated(this%yaxis_msk_d)) then
+       call device_free(this%yaxis_msk_d)
+       this%yaxis_msk_d = C_NULL_PTR
+    end if
+
+    if (c_associated(this%zaxis_msk_d)) then
+       call device_free(this%zaxis_msk_d)
+       this%zaxis_msk_d = C_NULL_PTR
+    end if
+
   end subroutine symmetry_free
   
   !> No-op scalar apply
@@ -214,5 +266,26 @@ contains
     end do
     
   end subroutine symmetry_apply_vector
+
+  !> No-op scalar apply (device version)
+  subroutine symmetry_apply_scalar_dev(this, x_d)
+    class(symmetry_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+  end subroutine symmetry_apply_scalar_dev
+
+  !> Apply symmetry conditions (axis aligned) (device version)
+  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d)
+    class(symmetry_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+
+    call device_symmetry_apply_vector(this%xaxis_msk_d, this%yaxis_msk_d, &
+                                      this%zaxis_msk_d, x_d, y_d, z_d, &
+                                      size(this%xaxis_msk), &
+                                      size(this%yaxis_msk), &
+                                      size(this%zaxis_msk))
+
+  end subroutine symmetry_apply_vector_dev
       
 end module symmetry

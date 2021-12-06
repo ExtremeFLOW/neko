@@ -12,6 +12,7 @@ module case
   use parmetis
   use redist
   use sampler
+  use flow_ic    
   use stats
   use file
   use utils
@@ -107,10 +108,6 @@ contains
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
     end if
 
-    if (lx .gt. 12) then
-       call neko_error("Unsupported polynomial dimension (lx > 12)")
-    end if    
-    
     msh_file = file_t(trim(mesh_file))
     call msh_file%read(C%msh)
     C%params = params%p
@@ -157,18 +154,13 @@ contains
     !
     ! Setup initial conditions
     ! 
-    
-    !> @todo We shouldn't really mess with other type's datatypes
     if (len_trim(initial_condition) .gt. 0) then
-       if (trim(initial_condition) .eq. 'uniform') then
-          C%fluid%u = C%params%uinf(1)
-          C%fluid%v = C%params%uinf(2)
-          C%fluid%w = C%params%uinf(3)
-       else if (trim(initial_condition) .eq. 'user') then
+       if (trim(initial_condition) .ne. 'user') then
+          call set_flow_ic(C%fluid%u, C%fluid%v, &
+               C%fluid%w, C%fluid%p, initial_condition, C%params)
+       else
           call C%usr%fluid_usr_ic(C%fluid%u, C%fluid%v, &
                C%fluid%w, C%fluid%p, C%params)
-       else
-          call neko_error('Invalid initial condition')
        end if
     end if
 

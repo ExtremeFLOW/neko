@@ -1,11 +1,14 @@
 !> Defines a field
 !
 module field
+  use neko_config
   use num_types
+  use device
   use math
   use mesh
   use space
   use dofmap
+  use, intrinsic :: iso_c_binding
   implicit none
   
   type field_t
@@ -17,6 +20,7 @@ module field
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
      character(len=80) :: name            !< Name of the field
+     type(c_ptr) :: x_d = C_NULL_PTR
   end type field_t
 
   interface field_init
@@ -82,7 +86,7 @@ contains
     type(field_t), intent(inout) :: f       !< Field to be initialized
     character(len=*), optional :: fld_name  !< Name of the field
     integer :: ierr
-    integer :: lx, ly, lz, nelv
+    integer :: lx, ly, lz, nelv, n
 
     lx = f%Xh%lx
     ly = f%Xh%ly
@@ -98,6 +102,12 @@ contains
        f%name = fld_name
     else
        f%name = "Field"
+    end if
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       n = lx * ly * lz * nelv           
+       call device_map(f%x, f%x_d, n)
     end if
     
   end subroutine field_init_common
@@ -118,6 +128,10 @@ contains
     nullify(f%msh)
     nullify(f%Xh)
     nullify(f%dof)
+
+    if (c_associated(f%x_d)) then
+       call device_free(f%x_d)
+    end if
 
   end subroutine field_free
 

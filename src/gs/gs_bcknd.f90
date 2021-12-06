@@ -3,7 +3,8 @@ module gs_bcknd
   use num_types
   implicit none
 
-  integer, public, parameter :: GS_BCKND_CPU = 1, GS_BCKND_SX = 2
+  integer, public, parameter :: GS_BCKND_CPU = 1, GS_BCKND_SX = 2, &
+       GS_BCKND_DEV = 3
   
   !> Gather-scatter backend
   type, public, abstract :: gs_bcknd_t
@@ -16,11 +17,13 @@ module gs_bcknd
 
   !> Abstract interface for initialising a Gather-Scatter backend
   abstract interface
-     subroutine gs_backend_init(this, nlocal, nshared)
+     subroutine gs_backend_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
        import gs_bcknd_t
        class(gs_bcknd_t), intent(inout) :: this
        integer, intent(in) :: nlocal
        integer, intent(in) :: nshared
+       integer, intent(in) :: nlcl_blks
+       integer, intent(in) :: nshrd_blks
      end subroutine gs_backend_init
   end interface
 

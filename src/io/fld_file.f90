@@ -165,7 +165,7 @@ contains
 
     deallocate(idx)
     
-    n = 3*(Xh%lx * Xh%ly * Xh%lz * msh%nelv)
+    n = msh%gdim*(Xh%lx * Xh%ly * Xh%lz * msh%nelv)
 
     if (this%dp_precision) then
        allocate(tmp_dp(n))
@@ -176,7 +176,7 @@ contains
     if (write_mesh) then
 
        byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            (int(msh%gdim*Xh%lxyz, 8) * &
             int(FLD_DATA_SIZE, 8))
        
        if (this%dp_precision) then
@@ -198,14 +198,16 @@ contains
                    end do
                 end do
              end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_dp(i) = real(dof%z(j,k,l,el),dp)
-                      i = i +1
+             if (msh%gdim .eq. 3) then
+                do l = 1, Xh%lz
+                   do k = 1, Xh%ly
+                      do j = 1, Xh%lx
+                         tmp_dp(i) = real(dof%z(j,k,l,el),dp)
+                         i = i +1
+                      end do
                    end do
                 end do
-             end do
+             end if
           end do
           
           call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
@@ -230,14 +232,16 @@ contains
                    end do
                 end do
              end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_sp(i) = real(dof%z(j,k,l,el),sp)
-                      i = i +1
+             if (msh%gdim .eq. 3) then
+                do l = 1, Xh%lz
+                   do k = 1, Xh%ly
+                      do j = 1, Xh%lx
+                         tmp_sp(i) = real(dof%z(j,k,l,el),sp)
+                         i = i +1
+                      end do
                    end do
                 end do
-             end do
+             end if
           end do
           
           call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
@@ -246,13 +250,13 @@ contains
        end if
 
        mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
-            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            (int(msh%gdim *Xh%lxyz, 8) * & 
             int(FLD_DATA_SIZE, 8))
     end if
 
     if (write_velocity) then
        byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), 8) * &
             int(FLD_DATA_SIZE, 8))
 
        if (this%dp_precision) then
@@ -274,14 +278,16 @@ contains
                    end do
                 end do
              end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_dp(i) = real(w%x(j,k,l,el),dp)
-                      i = i +1
+             if (msh%gdim .eq. 3) then
+                do l = 1, Xh%lz
+                   do k = 1, Xh%ly
+                      do j = 1, Xh%lx
+                         tmp_dp(i) = real(w%x(j,k,l,el),dp)
+                         i = i +1
+                      end do
                    end do
                 end do
-             end do
+             end if
           end do
           
           call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
@@ -306,14 +312,16 @@ contains
                    end do
                 end do
              end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_sp(i) = real(w%x(j,k,l,el),sp)
-                      i = i +1
+             if (msh%gdim .eq. 3) then
+                do l = 1, Xh%lz
+                   do k = 1, Xh%ly
+                      do j = 1, Xh%lx
+                         tmp_sp(i) = real(w%x(j,k,l,el),sp)
+                         i = i +1
+                      end do
                    end do
                 end do
-             end do
+             end if
           end do
 
           call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
@@ -322,7 +330,7 @@ contains
        end if
        
        mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
-            (int(3 * (Xh%lx * Xh%ly * Xh%lz), 8) * &
+            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), 8) * &
             int(FLD_DATA_SIZE, 8))
        
     end if
@@ -346,7 +354,7 @@ contains
              end do
           end do
           
-          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n/3, &
+          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n/msh%gdim, &
                MPI_REAL, status, ierr)
        else
           i = 1
@@ -360,7 +368,7 @@ contains
                 end do
              end do
           end do
-          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n/3, &
+          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n/msh%gdim, &
                MPI_DOUBLE_PRECISION, status, ierr)
        end if
     end if

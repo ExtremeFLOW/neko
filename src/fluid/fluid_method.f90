@@ -16,6 +16,7 @@ module fluid_method
   use wall
   use inflow
   use usr_inflow
+  use blasius
   use dirichlet
   use symmetry
   use krylov_fctry
@@ -115,13 +116,18 @@ contains
     integer, intent(inout) :: lx
     type(param_t), intent(inout), target :: params
     type(dirichlet_t) :: bdry_mask
+    character(len=LOG_SIZE) :: log_buf
     
     call neko_log%section('Fluid')
     call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
          ', ' // trim(params%pc_vel) // ')')
     call neko_log%message('Ksp prs. : ('// trim(params%ksp_prs) // &
          ', ' // trim(params%pc_prs) // ')')
-    
+    write(log_buf, '(A, L1)') 'Dealias  : ',  params%dealias
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'Save bdry: ',  params%output_bdry
+    call neko_log%message(log_buf)
+
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
     else
@@ -157,6 +163,8 @@ contains
 
        if (trim(params%fluid_inflow) .eq. "default") then
           allocate(inflow_t::this%bc_inflow)
+       else if (trim(params%fluid_inflow) .eq. "blasius") then
+          allocate(blasius_t::this%bc_inflow)
        else if (trim(params%fluid_inflow) .eq. "user") then
           allocate(usr_inflow_t::this%bc_inflow)
        else
@@ -169,6 +177,14 @@ contains
        call this%bc_inflow%set_inflow(params%uinf)
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
+       if (trim(params%fluid_inflow) .eq. "blasius") then
+          select type(bc_if => this%bc_inflow)
+          type is(blasius_t)
+             call bc_if%set_coef(this%C_Xh)
+             call bc_if%set_params(params%delta, params%blasius_approx)
+          end select
+       end if
+       
        if (trim(params%fluid_inflow) .eq. "user") then
           select type(bc_if => this%bc_inflow)
           type is(usr_inflow_t)
@@ -184,10 +200,7 @@ contains
        call bc_list_add(this%bclst_vel, this%bc_wall)
     end if
        
-    if (params%output_bdry) then
-
-       call neko_log%message('Saving boundary markings')
-       
+    if (params%output_bdry) then       
        call field_init(this%bdry, this%dm_Xh, 'bdry')
        this%bdry = real(0d0,rp)
        

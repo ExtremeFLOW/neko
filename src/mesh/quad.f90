@@ -82,9 +82,12 @@ contains
 
     select type(t)
     type is(tuple_i4_t)
-       t%x = (/ p1%id(), p2%id() /)
-    end select
-    
+       if (p1%id() .lt. p2%id()) then
+          t%x = (/ p1%id(), p2%id() /)
+      else
+          t%x = (/ p2%id(), p1%id() /)
+      endif
+    end select   
   end subroutine quad_facet_id
 
   !> Return the ordered edge for face @a i as a 2-tuple @a t 

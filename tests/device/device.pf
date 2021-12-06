@@ -1,0 +1,210 @@
+
+@test
+subroutine test_device_init
+  use pfunit
+  use device  
+  implicit none
+  call device_init()
+end subroutine test_device_init
+
+@test
+subroutine test_device_sync
+  use pfunit
+  use device
+  implicit none
+
+  call device_init()
+  call device_sync()
+  
+end subroutine test_device_sync
+
+@test
+subroutine test_device_alloc
+  use neko_config  
+  use pfunit  
+  use device
+  implicit none
+  type(c_ptr) :: x_d
+  integer(c_size_t) :: size_
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
+     size_ = 42 * 4
+     x_d = C_NULL_PTR
+
+     call device_alloc(x_d, size_)
+
+     @assertTrue(c_associated(x_d))
+
+  end if
+  
+end subroutine test_device_alloc
+
+@test
+subroutine test_device_free
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: x_d
+  integer(c_size_t) :: size_
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+         
+     size_ = 42 * 4
+     x_d = C_NULL_PTR
+
+     call device_alloc(x_d, size_)
+     
+     @assertTrue(c_associated(x_d))
+
+     call device_free(x_d)
+     
+     @assertFalse(c_associated(x_d))
+
+  end if
+  
+end subroutine test_device_free
+
+@test
+subroutine test_device_associate
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: x_d
+  integer(c_size_t) :: size_
+  integer :: x(42)
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+       
+     size_ = size(x) * 4
+     
+     call device_alloc(x_d, size_)
+     call device_associate(x, x_d, size(x))
+     
+     @assertTrue(c_associated(x_d))
+
+  end if
+  
+end subroutine test_device_associate
+
+@test
+subroutine test_device_associated
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: x_d
+  integer(c_size_t) :: size_
+  integer :: x(42)
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+     
+     size_ = size(x) * 4
+
+     call device_alloc(x_d, size_)
+     call device_associate(x, x_d, size(x))
+
+     @assertTrue(device_associated(x))
+
+  end if
+  
+end subroutine test_device_associated
+
+@test
+subroutine test_device_get_ptr
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: x_d, dev
+  integer(c_size_t) :: size_
+  integer :: x(42)
+  logical :: same_ptr
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+
+     size_ = size(x) * 4
+  
+     call device_alloc(x_d, size_)
+     call device_associate(x, x_d, size(x))
+
+     dev = device_get_ptr(x, size(x))
+
+     @assertTrue(c_associated(x_d, dev))
+
+  end if
+
+  
+end subroutine test_device_get_ptr
+
+@test
+subroutine test_device_map
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: x_d, dev
+  integer(c_size_t) :: size_
+  integer :: x(42)
+  logical :: same_ptr
+  
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+
+     size_ = size(x) * 4
+
+     call device_map(x, x_d, size(x))
+
+     dev = device_get_ptr(x, size(x))
+
+     @assertTrue(c_associated(x_d, dev))
+
+  end if
+
+  
+end subroutine test_device_map
+
+@test
+subroutine test_device_memcpy
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: x_d, dev
+  integer(c_size_t) :: size_
+  integer :: x(42), i
+  logical :: same_ptr
+
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then
+     
+     size_ = size(x) * 4
+
+     call device_map(x, x_d, size(x))
+
+     dev = device_get_ptr(x, size(x))
+
+     do i = 1, size(x)
+        x(i) = i
+     end do
+
+     call device_memcpy(x, x_d, size(X), HOST_TO_DEVICE)
+
+     x = 0
+
+     call device_memcpy(x, x_d, size(X), DEVICE_TO_HOST)
+     
+     do i = 1, size(x)
+        @assertEqual(x(i), i)
+     end do
+
+  end if
+
+end subroutine test_device_memcpy
+

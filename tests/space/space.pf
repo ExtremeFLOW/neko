@@ -1,11 +1,14 @@
 @test
 subroutine test_space_init
   use pfunit
+  use device
   use space
   implicit none
   type(space_t) :: Xh, Yh
   integer :: n
 
+  call device_init
+  
   do n = 2, 8, 2
   
      !
@@ -89,10 +92,13 @@ end subroutine test_space_init
 @test
 subroutine test_space_free
   use pfunit
+  use device
   use space
   implicit none
   type(space_t) :: Xh, Yh
   integer :: n
+
+  call device_init
 
   do n = 2, 8, 2
 
@@ -198,10 +204,13 @@ end subroutine test_space_free
 @test
 subroutine test_space_eq
   use pfunit
+  use device
   use space
   implicit none
   type(space_t) :: Xh, Yh, Zh
 
+  call device_init
+  
   !
   ! 3D case
   !
@@ -235,10 +244,13 @@ end subroutine test_space_eq
 @test
 subroutine test_space_ne
   use pfunit
+  use device
   use space
   implicit none
   type(space_t) :: Xh, Yh, Zh
 
+  call device_init
+  
   !
   ! 3D case
   !

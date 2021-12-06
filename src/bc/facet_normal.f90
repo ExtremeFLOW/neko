@@ -1,10 +1,12 @@
 !> Dirichlet condition applied in the facet normal direction
 module facet_normal
+  use device_facet_normal
   use num_types
   use dirichlet
   use coefs
   use math
   use utils
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -15,6 +17,7 @@ module facet_normal
      procedure, pass(this) :: apply_scalar => facet_normal_apply_scalar
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
+     procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
      procedure, pass(this) :: set_coef => facet_normal_set_coef
   end type facet_normal_t
 
@@ -91,5 +94,22 @@ contains
     type(coef_t), target, intent(inout) :: c
     this%c => c
   end subroutine facet_normal_set_coef
+
+  !> Apply in facet normal direction (vector valued, device version)
+  subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, u_d, v_d, w_d)
+    class(facet_normal_t), intent(inout), target :: this
+    type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
+
+    if (.not. associated(this%c)) then
+       call neko_error('No coefficients assigned')
+    end if
+    associate(c => this%c)
+      call device_Facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
+                                             x_d, y_d, z_d, u_d, v_d, w_d, &
+                                             c%nx_d, c%ny_d, c%nz_d, c%area_d, &
+                                             c%Xh%lx, size(this%msk))
+    end associate
+         
+  end subroutine facet_normal_apply_surfvec_dev
   
 end module facet_normal

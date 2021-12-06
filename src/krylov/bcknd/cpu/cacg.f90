@@ -94,8 +94,6 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    real(kind=rp), parameter :: one = 1.0
-    real(kind=rp), parameter :: zero = 0.0
     integer :: i, j, k, l, iter, max_iter, s, ierr, it
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1, tmp
     real(kind=rp) :: beta(this%s+1), alpha(this%s+1), alpha1, alpha2, norm_fac
@@ -112,9 +110,9 @@ contains
       else
          max_iter = KSP_MAX_ITER
       end if
-      norm_fac = one/sqrt(coef%volume)
+      norm_fac = 1.0_rp / sqrt(coef%volume)
       
-      rtz1 = one
+      rtz1 = 1.0_rp
       call rzero(x%x, n)
       call copy(r, f, n)
       call this%M%solve(p, r, n)
@@ -125,7 +123,7 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if(rnorm .eq. zero) return
+      if(rnorm .eq. 0.0_rp) return
       do while (iter < max_iter)
 
          call copy(PR,p, n)
@@ -133,7 +131,7 @@ contains
 
          !Here we have hardcoded a monomial basis atm. 
          do i = 2, 2*s + 1
-            if (mod(i,2) == 0) then
+            if (mod(i,2) .eq. 0) then
                call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
                call gs_op_vector(gs_h, PR(1,i), n, GS_OP_ADD)
                call bc_list_apply_scalar(blst, PR(1,i), n)

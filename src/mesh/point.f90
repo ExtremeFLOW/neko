@@ -103,8 +103,8 @@ contains
     class(point_t), intent(in) :: p2
     logical :: res
 
-    if (.not. abscmp(p1%x(1), p2%x(1)) .and. &
-         .not. abscmp(p1%x(2), p2%x(2)) .and. &
+    if (.not. abscmp(p1%x(1), p2%x(1)) .or. &
+         .not. abscmp(p1%x(2), p2%x(2)) .or. &
          .not. abscmp(p1%x(3), p2%x(3))) then
        res = .true.
     else

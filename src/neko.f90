@@ -43,6 +43,7 @@ module neko
   use parmetis
   use signal
   use jobctrl
+  use device
 contains
 
   subroutine neko_init(C)
@@ -59,6 +60,7 @@ contains
     call comm_init
     call mpi_types_init
     call jobctrl_init
+    call device_init
 
     call neko_log%init()
 
@@ -124,6 +126,12 @@ contains
           write(log_buf(13:), '(a)') 'SX-Aurora'
        else if (NEKO_BCKND_XSMM .eq. 1) then
           write(log_buf(13:), '(a)') 'CPU (libxsmm)'
+       else if (NEKO_BCKND_CUDA .eq. 1) then
+          write(log_buf(13:), '(a)') 'Accelerator (CUDA)'
+       else if (NEKO_BCKND_HIP .eq. 1) then
+          write(log_buf(13:), '(a)') 'Accelerator (HIP)'
+       else if (NEKO_BCKND_OPENCL .eq. 1) then
+          write(log_buf(13:), '(a)') 'Accelerator (OpenCL)'
        else
           write(log_buf(13:), '(a)') 'CPU'
        end if
@@ -157,7 +165,8 @@ contains
     if (present(C)) then
        call case_free(C)
     end if
-
+    
+    call device_finalize
     call mpi_types_free
     call comm_free
   end subroutine neko_finalize

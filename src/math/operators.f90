@@ -4,6 +4,7 @@ module operators
   use opr_cpu
   use opr_sx
   use opr_xsmm
+  use opr_device
   use space  
   use coefs
   use field
@@ -31,6 +32,9 @@ contains
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+       call opr_device_dudxyz(du, u, dr, ds, dt, coef)
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     end if
@@ -38,22 +42,39 @@ contains
   end subroutine dudxyz
 
   !> Equals wgradm1 in nek5000. Gradient of velocity vectors.
-  subroutine opgrad(ux,uy,uz,u,coef) ! weak form of grad 
+  subroutine opgrad(ux,uy,uz,u,coef, es, ee) ! weak form of grad 
 
   !Compute gradient of T -- mesh 1 to mesh 1 (vel. to vel.)
-
+    
     type(coef_t), intent(in) :: coef  
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    integer, optional :: es, ee        
+    integer :: eblk_start, eblk_end
+
+    if (present(es)) then
+       eblk_start = es
+    else
+       eblk_start = 1
+    end if
+
+    if (present(ee)) then
+       eblk_end = ee
+    else
+       eblk_end = coef%msh%nelv
+    end if
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_opgrad(ux, uy, uz, u, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_opgrad(ux, uy, uz, u, coef)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+       call opr_device_opgrad(ux, uy, uz, u, coef)
     else
-       call opr_cpu_opgrad(ux, uy, uz, u, coef)
+       call opr_cpu_opgrad(ux, uy, uz, u, coef, eblk_start, eblk_end)
     end if
     
   end subroutine opgrad
@@ -84,29 +105,50 @@ contains
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_cdtp(dtx, x, dr, ds, dt, coef)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+       call opr_device_cdtp(dtx, x, dr, ds, dt, coef)
     else
        call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     end if
     
   end subroutine cdtp
    
-  subroutine conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)  ! used to be conv1n
+  subroutine conv1(du,u, vx, vy, vz, Xh, coef, es, ee)  ! used to be conv1n
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    real(kind=rp), intent(inout) :: du(Xh%lxyz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vx(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vy(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vz(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    integer, optional :: es, ee
+    integer :: eblk_end, eblk_start
 
-    if (NEKO_BCKND_SX .eq. 1) then 
-       call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       call opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
-    else
-       call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
-    end if
+    associate(nelv => coef%msh%nelv, gdim => coef%msh%gdim)
+      if (present(es)) then
+         eblk_start = es
+      else
+         eblk_start = 1
+      end if
+      
+      if (present(ee)) then
+         eblk_end = ee
+      else
+         eblk_end = coef%msh%nelv
+      end if
+      
+      if (NEKO_BCKND_SX .eq. 1) then 
+         call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+      else if (NEKO_BCKND_XSMM .eq. 1) then
+         call opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+      else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+           .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+         call opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+      else
+         call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, eblk_start, eblk_end)
+      end if
+    end associate
 
   end subroutine conv1
 
@@ -125,6 +167,9 @@ contains
        call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+       call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     else
        call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     end if
