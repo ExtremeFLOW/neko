@@ -123,9 +123,11 @@ contains
          ', ' // trim(params%pc_vel) // ')')
     call neko_log%message('Ksp prs. : ('// trim(params%ksp_prs) // &
          ', ' // trim(params%pc_prs) // ')')
-    write(log_buf, '(A, L1)') 'Dealias  : ',  params%dealias 
+    write(log_buf, '(A, L1)') 'Dealias  : ',  params%dealias
     call neko_log%message(log_buf)
-    
+    write(log_buf, '(A, L1)') 'Save bdry: ',  params%output_bdry
+    call neko_log%message(log_buf)
+
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
     else
@@ -198,10 +200,7 @@ contains
        call bc_list_add(this%bclst_vel, this%bc_wall)
     end if
        
-    if (params%output_bdry) then
-
-       call neko_log%message('Saving boundary markings')
-       
+    if (params%output_bdry) then       
        call field_init(this%bdry, this%dm_Xh, 'bdry')
        this%bdry = real(0d0,rp)
        
