@@ -211,7 +211,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/no_slip_wall.c\
 	bc/bcknd/device/opencl/symmetry.c\
-	bc/bcknd/device/opencl/facet_normal.c
+	bc/bcknd/device/opencl/facet_normal.c\
+	bc/bcknd/device/opencl/blasius.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -263,6 +264,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
+	bc/bcknd/device/opencl/blasius_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\

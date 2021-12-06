@@ -192,4 +192,5 @@ bc/bcknd/device/opencl/inflow.o : bc/bcknd/device/opencl/inflow.c bc/bcknd/devic
 bc/bcknd/device/opencl/no_slip_wall.o : bc/bcknd/device/opencl/no_slip_wall.c bc/bcknd/device/opencl/no_slip_wall_kernel.cl.h
 bc/bcknd/device/opencl/symmetry.o : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h
 bc/bcknd/device/opencl/facet_normal.o : bc/bcknd/device/opencl/facet_normal.c bc/bcknd/device/opencl/facet_normal_kernel.cl.h
+bc/bcknd/device/opencl/blasius.o : bc/bcknd/device/opencl/blasius.c bc/bcknd/device/opencl/blasius_kernel.cl.h
 driver.o : driver.f90 neko.o 

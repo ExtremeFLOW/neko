@@ -23,6 +23,9 @@ extern void *symmetry_program;
 /** Device Facet normal kernels */
 extern void *facet_normal_program;
 
+/** Device Blasius profile kernel */
+extern void *blasius_program;
+
 /** Device Derivative kernels */
 extern void *dudxyz_program;
 
