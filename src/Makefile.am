@@ -176,7 +176,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/inflow.hip\
 	bc/bcknd/device/hip/no_slip_wall.hip\
 	bc/bcknd/device/hip/symmetry.hip\
-	bc/bcknd/device/hip/facet_normal.hip
+	bc/bcknd/device/hip/facet_normal.hip\
+	bc/bcknd/device/hip/blasius.hip
 endif
 
 if ENABLE_CUDA
@@ -248,6 +249,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
+	bc/bcknd/device/hip/blasius_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/mathops_kernel.h\
