@@ -87,8 +87,8 @@ EXTRA_DIST = \
 	htable/htable_r8.pf\
 	htable/htable_i4.pf\
 	htable/htable_i4t4.pf\
-	mathops/mathops.pf
-	device_mathops/device_mathops.pf
+	mathops/mathops.pf\
+	device_mathops/device_mathops.pf\
 	device_math/device_math_parallel.pf\
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
