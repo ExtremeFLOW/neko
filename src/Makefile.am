@@ -155,6 +155,7 @@ libneko_a_SOURCES = \
 	bc/bcknd/device/device_wall.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
+	bc/bcknd/device/device_blasius.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
@@ -191,7 +192,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/no_slip_wall.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
-	bc/bcknd/device/cuda/facet_normal.cu
+	bc/bcknd/device/cuda/facet_normal.cu\
+	bc/bcknd/device/cuda/blasius.cu
 endif
 
 if ENABLE_OPENCL
@@ -233,6 +235,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
+	bc/bcknd/device/cuda/blasius_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/mathops_kernel.h\
