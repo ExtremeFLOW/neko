@@ -155,6 +155,7 @@ libneko_a_SOURCES = \
 	bc/bcknd/device/device_wall.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
+	bc/bcknd/device/device_blasius.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
@@ -175,7 +176,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/inflow.hip\
 	bc/bcknd/device/hip/no_slip_wall.hip\
 	bc/bcknd/device/hip/symmetry.hip\
-	bc/bcknd/device/hip/facet_normal.hip
+	bc/bcknd/device/hip/facet_normal.hip\
+	bc/bcknd/device/hip/blasius.hip
 endif
 
 if ENABLE_CUDA
@@ -191,7 +193,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/no_slip_wall.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
-	bc/bcknd/device/cuda/facet_normal.cu
+	bc/bcknd/device/cuda/facet_normal.cu\
+	bc/bcknd/device/cuda/blasius.cu
 endif
 
 if ENABLE_OPENCL
@@ -208,7 +211,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/no_slip_wall.c\
 	bc/bcknd/device/opencl/symmetry.c\
-	bc/bcknd/device/opencl/facet_normal.c
+	bc/bcknd/device/opencl/facet_normal.c\
+	bc/bcknd/device/opencl/blasius.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -233,6 +237,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
+	bc/bcknd/device/cuda/blasius_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/mathops_kernel.h\
@@ -245,6 +250,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
+	bc/bcknd/device/hip/blasius_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/mathops_kernel.h\
@@ -258,6 +264,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
+	bc/bcknd/device/opencl/blasius_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\

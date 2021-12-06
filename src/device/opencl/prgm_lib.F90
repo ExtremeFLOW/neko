@@ -28,6 +28,9 @@ module opencl_prgm_lib
   !> Device Facet normal kernels
   type(c_ptr), bind(c) :: facet_normal_program = C_NULL_PTR
 
+  !> Device Blasius profile kernel
+  type(c_ptr), bind(c) :: blasius_program = C_NULL_PTR
+
   !> Device Derivative kernels
   type(c_ptr), bind(c) :: dudxyz_program = C_NULL_PTR
 
@@ -94,6 +97,13 @@ contains
           call neko_error('Failed to release program')
        end if
        facet_normal_program = C_NULL_PTR
+    end if
+
+    if (c_associated(blasius_program)) then
+       if(clReleaseProgram(blasius_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       blasius_program = C_NULL_PTR
     end if
 
     if (c_associated(dudxyz_program)) then
