@@ -12,7 +12,7 @@ module device_jacobi
   !> Defines a jacobi preconditioner
   type, public, extends(pc_t) :: device_jacobi_t
      real(kind=rp), allocatable :: d(:,:,:,:)
-     type(c_ptr) :: d_d
+     type(c_ptr) :: d_d = C_NULL_PTR
      type(gs_t), pointer :: gs_h
      type(dofmap_t), pointer :: dof
      type(coef_t), pointer :: coef
