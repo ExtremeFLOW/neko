@@ -71,7 +71,7 @@ module hip_intf
        integer(c_int), value :: dir
      end function hipMemcpy
   end interface
-
+  
   interface
      integer (c_int) function hipDeviceSynchronize() &
           bind(c, name='hipDeviceSynchronize')
@@ -79,6 +79,33 @@ module hip_intf
        implicit none
      end function hipDeviceSynchronize
   end interface
+
+  interface
+     integer (c_int) function hipDeviceGetName(name, len, device) &
+          bind(c, name='hipDeviceGetName')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: name
+       integer(c_int), value :: len
+       integer(c_int), value :: device
+     end function hipDeviceGetName
+  end interface
+
+contains
+
+  subroutine hip_device_name(name)
+    character(len=*), intent(inout) :: name
+    character(kind=c_char, len=1024), target :: c_name
+    integer :: end_pos
+    
+    if (hipDeviceGetName(c_loc(c_name), 1024, 0) .ne. hipSuccess) then
+       call neko_error('Failed to query device')
+    end if
+
+    end_pos = scan(c_name, C_NULL_CHAR)
+    name(1:end_pos) = c_name(1:end_pos)
+    
+  end subroutine hip_device_name
 
 #endif
  
