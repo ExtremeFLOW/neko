@@ -76,6 +76,7 @@ contains
     character(len=*), intent(inout) :: name
 
 #ifdef HAVE_HIP
+    call hip_device_name(name)
 #elif HAVE_CUDA
 #elif HAVE_OPENCL
     call opencl_device_name(name)
