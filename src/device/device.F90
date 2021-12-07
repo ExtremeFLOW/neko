@@ -71,6 +71,16 @@ contains
 
 #endif
   end subroutine device_finalize
+
+  subroutine device_name(name)
+    character(len=*), intent(inout) :: name
+
+#ifdef HAVE_HIP
+#elif HAVE_CUDA
+#elif HAVE_OPENCL
+    call opencl_device_name(name)
+#endif
+  end subroutine device_name
   
   !> Allocate memory on the device
   subroutine device_alloc(x_d, s)

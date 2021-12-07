@@ -54,6 +54,11 @@ module opencl_intf
      enumerator :: CL_CONTEXT_PLATFORM = int(Z'1084')
   end enum
 
+  !> Enum device info
+  enum, bind(c)
+     enumerator :: CL_DEVICE_NAME = 4139
+  end enum
+
   !> Device types
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_DEFAULT = 1
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_CPU = 2
@@ -162,6 +167,20 @@ module opencl_intf
   end interface
 
   interface
+     integer (c_int) function clGetDeviceInfo(device, param_name, &
+          param_value_size, param_value, param_value_size_ret) &
+          bind(c, name='clGetDeviceInfo')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: device
+       integer(c_int), value :: param_name
+       integer(c_size_t), value :: param_value_size
+       type(c_ptr), value :: param_value
+       type(c_ptr), value :: param_value_size_ret
+     end function clGetDeviceInfo
+  end interface
+       
+  interface
      integer (c_int) function clReleaseContext(context) &
           bind(c, name='clReleaseContext')
        use, intrinsic :: iso_c_binding
@@ -235,7 +254,7 @@ contains
 
     if (clGetPlatformIDs(1, c_loc(platform_id), &
          num_platforms) .ne. CL_SUCCESS) then
-       call neko_error('Faield to get a platform id')
+       call neko_error('Failed to get a platform id')
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &
@@ -293,6 +312,20 @@ contains
     end if
     
   end subroutine opencl_finalize
+
+  subroutine opencl_device_name(name)
+    character(len=*), intent(inout) :: name
+    character(kind=c_char, len=1024), target :: c_name
+    integer(c_size_t), target :: name_len
+
+    if (clGetDeviceInfo(glb_device_id, CL_DEVICE_NAME, int(1024, 8), &
+         c_loc(c_name), c_loc(name_len)) .ne. CL_SUCCESS) then
+       call neko_error('Failed to query device')
+    end if
+        
+    name(1:name_len) = c_name(1:name_len)
+    
+  end subroutine opencl_device_name
   
 #endif
   
