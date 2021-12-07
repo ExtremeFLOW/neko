@@ -78,6 +78,7 @@ contains
 #ifdef HAVE_HIP
     call hip_device_name(name)
 #elif HAVE_CUDA
+    call cuda_device_name(name)
 #elif HAVE_OPENCL
     call opencl_device_name(name)
 #endif
