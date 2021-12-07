@@ -99,7 +99,7 @@ contains
     integer :: end_pos
     
     if (hipDeviceGetName(c_loc(c_name), 1024, 0) .ne. hipSuccess) then
-       call neko_error('Faield to query device')
+       call neko_error('Failed to query device')
     end if
 
     end_pos = scan(c_name, C_NULL_CHAR)
