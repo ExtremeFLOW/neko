@@ -2,6 +2,7 @@ module precon_fctry
   use precon
   use jacobi
   use sx_jacobi
+  use device_jacobi
   use hsmg
   use utils
   use neko_config
@@ -22,6 +23,9 @@ contains
     if (trim(pctype) .eq. 'jacobi') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_jacobi_t::pc)
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          allocate(device_jacobi_t::pc)
        else
           allocate(jacobi_t::pc)
        end if
@@ -42,6 +46,8 @@ contains
        type is(jacobi_t)
           call pcp%free()
        type is(sx_jacobi_t)
+          call pcp%free()
+       type is(device_jacobi_t)
           call pcp%free()
        type is (hsmg_t)
           call pcp%free()
