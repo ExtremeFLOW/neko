@@ -12,7 +12,10 @@ module cg_device
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: p(:)
      real(kind=rp), allocatable :: z(:)
-     type(c_ptr) :: w_d, r_d, p_d, z_d
+     type(c_ptr) :: w_d = C_NULL_PTR
+     type(c_ptr) :: r_d = C_NULL_PTR
+     type(c_ptr) :: p_d = C_NULL_PTR
+     type(c_ptr) :: z_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init => cg_device_init
      procedure, pass(this) :: free => cg_device_free
@@ -21,7 +24,7 @@ module cg_device
 
 contains
 
-  !> Initialise a DEVICE based PCG solver
+  !> Initialise a device based PCG solver
   subroutine cg_device_init(this, n, M, rel_tol, abs_tol)
     class(cg_device_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
