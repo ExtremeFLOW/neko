@@ -109,7 +109,7 @@ krylov/bcknd/sx/pc_jacobi_sx.o : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scat
 krylov/bcknd/device/cg_device.o : krylov/bcknd/device/cg_device.f90 config/num_types.o math/bcknd/device/device_math.o krylov/krylov.o 
 krylov/bcknd/device/pc_jacobi_device.o : krylov/bcknd/device/pc_jacobi_device.F90 gs/gather_scatter.o math/bcknd/device/device_math.o config/num_types.o sem/coef.o krylov/precon.o 
 krylov/bcknd/device/pc_identity_device.o : krylov/bcknd/device/pc_identity_device.f90 config/num_types.o math/bcknd/device/device_math.o math/ax.o krylov/precon.o common/utils.o 
-common/source.o : common/source.f90 config/num_types.o sem/dofmap.o 
+common/source.o : common/source.f90 config/num_types.o sem/dofmap.o device/device.o config/neko_config.o math/bcknd/device/device_math.o common/utils.o 
 common/abbdf.o : common/abbdf.f90 common/utils.o math/math.o config/num_types.o 
 common/stats_quant.o : common/stats_quant.f90 config/num_types.o 
 common/statistics.o : common/statistics.f90 common/stats_quant.o config/num_types.o 

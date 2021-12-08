@@ -1,7 +1,12 @@
 !> Source terms
 module source
-  use dofmap
+  use neko_config
   use num_types
+  use dofmap
+  use utils
+  use device
+  use device_math
+  use, intrinsic :: iso_c_binding
   implicit none
 
   !> Defines a source term \f$ f \f$
@@ -10,6 +15,9 @@ module source
      real(kind=rp), allocatable :: v(:,:,:,:) !< y-component of source term
      real(kind=rp), allocatable :: w(:,:,:,:) !< w-component of source term
      type(dofmap_t), pointer :: dm            !< dofmap for the given space
+     type(c_ptr) :: u_d = C_NULL_PTR          !< dev. ptr for x-component
+     type(c_ptr) :: v_d = C_NULL_PTR          !< dev. ptr for y-component
+     type(c_ptr) :: w_d = C_NULL_PTR          !< dev. ptr for z-component
      procedure(source_term), pass(f), pointer  :: eval => null()
      procedure(source_term_pw), nopass, pointer  :: eval_pw => null()
   end type source_t
@@ -54,10 +62,14 @@ contains
     f%u = 0d0
     f%v = 0d0
     f%w = 0d0
+
+    call device_map(f%u, f%u_d, dm%size())
+    call device_map(f%v, f%v_d, dm%size())
+    call device_map(f%w, f%w_d, dm%size())
     
   end subroutine source_init
 
-  !> Deallicate a source term @a f
+  !> Deallocate a source term @a f
   subroutine source_free(f)
     type(source_t), intent(inout) :: f
 
@@ -74,6 +86,18 @@ contains
     end if
 
     nullify(f%dm)
+
+    if (c_associated(f%u_d)) then
+       call device_free(f%u_d)
+    end if
+
+    if (c_associated(f%v_d)) then
+       call device_free(f%v_d)
+    end if
+
+    if (c_associated(f%w_d)) then
+       call device_free(f%w_d)
+    end if
     
   end subroutine source_free
 
@@ -88,17 +112,28 @@ contains
   subroutine source_set_pw_type(f, f_eval_pw)
     type(source_t), intent(inout) :: f
     procedure(source_term_pw) :: f_eval_pw
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call neko_error('Pointwise source terms not supported on accelerators')
+    end if
     f%eval => source_eval_pw
-    f%eval_pw => f_eval_pw    
+    f%eval_pw => f_eval_pw
   end subroutine source_set_pw_type
 
   !> Eval routine for zero forcing
   !! @note Maybe this should be cache, avoding zeroing at each time-step
   subroutine source_eval_noforce(f)
     class(source_t) :: f
-    f%u = 0d0
-    f%v = 0d0
-    f%w = 0d0    
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_rzero(f%u_d, f%dm%size())
+       call device_rzero(f%v_d, f%dm%size())
+       call device_rzero(f%w_d, f%dm%size())
+    else
+       f%u = 0d0
+       f%v = 0d0
+       f%w = 0d0
+    end if
   end subroutine source_eval_noforce
 
   !> Driver for all pointwise source term evaluatons
