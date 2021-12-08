@@ -260,9 +260,9 @@ contains
 
     this%msk(0) = msk_c
     this%facet(0) = msk_c
-
+    
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then 
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        n = facet_size * this%marked_facet%size() + 1
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
@@ -340,7 +340,8 @@ contains
     type(c_ptr) :: x_d
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        x_d = device_get_ptr(x, n)
        do i = 1, bclst%n
           call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
@@ -365,7 +366,8 @@ contains
     type(c_ptr) :: z_d
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        x_d = device_get_ptr(x, n)
        y_d = device_get_ptr(y, n)
        z_d = device_get_ptr(z, n)
