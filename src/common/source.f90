@@ -63,9 +63,12 @@ contains
     f%v = 0d0
     f%w = 0d0
 
-    call device_map(f%u, f%u_d, dm%size())
-    call device_map(f%v, f%v_d, dm%size())
-    call device_map(f%w, f%w_d, dm%size())
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_map(f%u, f%u_d, dm%size())
+       call device_map(f%v, f%v_d, dm%size())
+       call device_map(f%w, f%w_d, dm%size())
+    end if
     
   end subroutine source_init
 
