@@ -1,8 +1,11 @@
 !> Adams-Bashforth coefs for Backward Differentiation schemes
 module abbdf
+  use neko_config
   use num_types
   use math
   use utils
+  use device
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -13,14 +16,30 @@ module abbdf
      integer :: nab = 0
      integer :: nbd = 0
      integer :: time_order  !< Default is 3
+     type(c_ptr) :: ab_d = C_NULL_PTR !< dev. ptr for coefficients
+     type(c_ptr) :: bd_d = C_NULL_PTR !< dev. ptr for coefficients
    contains
      procedure, pass(this) :: set_bd => abbdf_set_bd
      procedure, pass(this) :: set_abbd => abbdf_set_abbd
      procedure, pass(this) :: set_time_order => abbdf_set_time_order
+     final :: abbdf_free
   end type abbdf_t
 
 
 contains
+
+  subroutine abbdf_free(this)
+    type(abbdf_t), intent(inout) :: this
+
+    if (c_associated(this%ab_d)) then
+       call device_free(this%ab_d)
+    end if
+       
+    if (c_associated(this%bd_d)) then
+       call device_free(this%bd_d)
+    end if
+    
+  end subroutine abbdf_free
 
   subroutine abbdf_set_time_order(this,torder)
     integer, intent(in) :: torder
@@ -31,6 +50,13 @@ contains
        this%time_order = 3
        call neko_warning('Invalid time order, defaulting to 3')
     end if
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_map(this%ab, this%ab_d, 10)
+       call device_map(this%bd, this%bd_d, 10)
+    end if
+
   end subroutine abbdf_set_time_order
 
   !>Compute backward-differentiation coefficients of order NBD
@@ -39,13 +65,14 @@ contains
     real(kind=rp), intent(inout), dimension(10) :: dtbd
     real(kind=rp), dimension(10,10) :: bdmat
     real(kind=rp), dimension(10) :: bdrhs
+    real(kind=rp), dimension(10) :: bd_old
     real(kind=rp) :: bdf
     integer, parameter :: ldim = 10
     integer, dimension(10) :: ir, ic
     integer :: ibd, nsys, i
 
-    associate(nbd => this%nbd, bd => this%bd)
-    
+    associate(nbd => this%nbd, bd => this%bd, bd_d => this%bd_d)
+      bd_old = bd
       nbd = nbd + 1
       nbd = min(nbd, this%time_order)
       call rzero(bd, 10)
@@ -71,7 +98,14 @@ contains
       do ibd= 1, nbd + 1
          bd(ibd) = bd(ibd)/bdf
       end do
+
+      if (c_associated(bd_d)) then
+         if (maxval(abs(bd - bd_old)) .gt. 1e-10_rp) then
+            call device_memcpy(bd, bd_d, 10, HOST_TO_DEVICE)
+         end if
+      end if
     end associate
+    
   end subroutine abbdf_set_bd
 
   !>
@@ -88,9 +122,9 @@ contains
     class(abbdf_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dtlag
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
-
-    associate(nab => this%nab, nbd => this%nbd, ab => this%ab)
-
+    real(kind=rp), dimension(10) :: ab_old
+    associate(nab => this%nab, nbd => this%nbd, ab => this%ab, ab_d => this%ab_d)
+      ab_old = ab
       nab = nab + 1
       nab = min(nab, this%time_order)
     
@@ -131,6 +165,12 @@ contains
             ab(1) =  1.0_rp - ab(2) - ab(3)
          endif
       endif
+
+      if (c_associated(ab_d)) then
+         if (maxval(abs(ab - ab_old)) .gt. 1e-10_rp) then
+            call device_memcpy(ab, ab_d, 10, HOST_TO_DEVICE)
+         end if
+      end if
     end associate
     
   end subroutine abbdf_set_abbd
