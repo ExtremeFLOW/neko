@@ -8,14 +8,14 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void hip_copy(void *a, void *b, int *n) {
-    hipMemcpy(a, b, (*n) * sizeof(real), hipMemcpyDeviceToDevice);
+    hipMemcpyAsync(a, b, (*n) * sizeof(real), hipMemcpyDeviceToDevice);
   }
 
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
   void hip_rzero(void *a, int *n) {
-    hipMemset(a, 0, (*n) * sizeof(real));
+    hipMemsetAsync(a, 0, (*n) * sizeof(real));
   }
 
   
