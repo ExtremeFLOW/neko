@@ -15,34 +15,21 @@ module fluid_plan4
   private
 
   type, public, extends(fluid_scheme_t) :: fluid_plan4_t
-     type(field_t) :: u_e
-     type(field_t) :: v_e
-     type(field_t) :: w_e
+     type(field_t) :: u_e, v_e, w_e
 
-     real(kind=rp), allocatable :: p_res(:)
-     real(kind=rp), allocatable :: u_res(:,:,:,:)
-     real(kind=rp), allocatable :: v_res(:,:,:,:)
-     real(kind=rp), allocatable :: w_res(:,:,:,:)
+     type(field_t) :: p_res, u_res, v_res, w_res
+     
      real(kind=rp), allocatable :: ulag(:,:,:,:,:)
      real(kind=rp), allocatable :: vlag(:,:,:,:,:)
      real(kind=rp), allocatable :: wlag(:,:,:,:,:)
 
-     type(field_t) :: dp
-     type(field_t) :: du
-     type(field_t) :: dv
-     type(field_t) :: dw
+     type(field_t) :: dp, du, dv, dw
 
-     type(field_t) :: wa1
-     type(field_t) :: wa2
-     type(field_t) :: wa3
-
-     type(field_t) :: ta1
-     type(field_t) :: ta2
-     type(field_t) :: ta3
+     type(field_t) :: wa1, wa2, wa3
+     type(field_t) :: ta1, ta2, ta3
      
      !> @todo move this to a scratch space
-     type(field_t) :: work1
-     type(field_t) :: work2
+     type(field_t) :: work1, work2
 
      class(ax_t), allocatable :: Ax
      
@@ -55,8 +42,8 @@ module fluid_plan4
      class(advection_t), allocatable :: adv 
 
      ! Time variables
-     real(kind=rp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
-     real(kind=rp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
+     type(field_t) :: abx1, aby1, abz1
+     type(field_t) :: abx2, aby2, abz2
 
      ! Vol_flow
      
@@ -93,31 +80,23 @@ contains
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
-      allocate(this%p_res(dm_Xh%n_dofs))
-      allocate(this%u_res(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%v_res(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%w_res(Xh_lx, Xh_ly, Xh_lz, nelv))
-      
+      call field_init(this%p_res, dm_Xh, "p_res")
+      call field_init(this%u_res, dm_Xh, "u_res")
+      call field_init(this%v_res, dm_Xh, "v_res")
+      call field_init(this%w_res, dm_Xh, "w_res")
+            
       allocate(this%ulag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
       allocate(this%vlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
       allocate(this%wlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
           
-      allocate(this%abx1(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%aby1(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%abz1(Xh_lx, Xh_ly, Xh_lz, nelv))
-    
-      allocate(this%abx2(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%aby2(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%abz2(Xh_lx, Xh_ly, Xh_lz, nelv))
-      
-      call rzero(this%abx1, dm_Xh%n_dofs)
-      call rzero(this%aby1, dm_Xh%n_dofs)
-      call rzero(this%abz1, dm_Xh%n_dofs)
-      
-      call rzero(this%abx2, dm_Xh%n_dofs)
-      call rzero(this%aby2, dm_Xh%n_dofs)
-      call rzero(this%abz2, dm_Xh%n_dofs)
-            
+      call field_init(this%abx1, dm_Xh, "abx1")
+      call field_init(this%aby1, dm_Xh, "aby1")
+      call field_init(this%abz1, dm_Xh, "abz1")
+
+      call field_init(this%abx2, dm_Xh, "abx2")
+      call field_init(this%aby2, dm_Xh, "aby2")
+      call field_init(this%abz2, dm_Xh, "abz2")
+                  
       call field_init(this%u_e, dm_Xh, 'u_e')
       call field_init(this%v_e, dm_Xh, 'v_e')
       call field_init(this%w_e, dm_Xh, 'w_e')
@@ -187,6 +166,11 @@ contains
     call field_free(this%u_e)
     call field_free(this%v_e)
     call field_free(this%w_e)
+
+    call field_free(this%p_res)        
+    call field_free(this%u_res)
+    call field_free(this%v_res)
+    call field_free(this%w_res)
     
     call field_free(this%wa1)
     call field_free(this%wa2)
@@ -212,22 +196,6 @@ contains
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
-
-    if (allocated(this%p_res)) then
-       deallocate(this%p_res)
-    end if
-    
-    if (allocated(this%u_res)) then
-       deallocate(this%u_res)
-    end if
-    
-    if (allocated(this%v_res)) then
-       deallocate(this%v_res)
-    end if
-    
-    if (allocated(this%w_res)) then
-       deallocate(this%w_res)
-    end if
     
     if (allocated(this%ulag)) then
        deallocate(this%ulag)
@@ -240,25 +208,15 @@ contains
     if (allocated(this%wlag)) then
        deallocate(this%wlag)
     end if
+
+    call field_free(this%abx1)
+    call field_free(this%aby1)
+    call field_free(this%abz1)
+
+    call field_free(this%abx2)
+    call field_free(this%aby2)
+    call field_free(this%abz2)
     
-    if (allocated(this%abx1)) then
-       deallocate(this%abx1)
-    end if
-    if (allocated(this%aby1)) then
-       deallocate(this%aby1)
-    end if
-    if (allocated(this%abz1)) then
-       deallocate(this%abz1)
-    end if
-    if (allocated(this%abx2)) then
-       deallocate(this%abx2)
-    end if
-    if (allocated(this%aby2)) then
-       deallocate(this%aby2)
-    end if
-    if (allocated(this%abz2)) then
-       deallocate(this%abz2)
-    end if
   end subroutine fluid_plan4_free
   
   subroutine fluid_plan4_step(this, t, tstep, ab_bdf)
@@ -294,8 +252,8 @@ contains
                  Xh, this%c_Xh, dm_Xh%n_dofs)
    
       call makeabf(ta1, ta2, ta3,&
-                  this%abx1, this%aby1, this%abz1,&
-                  this%abx2, this%aby2, this%abz2, &
+                  this%abx1%x, this%aby1%x, this%abz1%x,&
+                  this%abx2%x, this%aby2%x, this%abz2%x, &
                   f_Xh%u, f_Xh%v, f_Xh%w,&
                   params%rho, ab_bdf%ab, n, msh%gdim)
       call makebdf(ta1, ta2, ta3,&
@@ -324,7 +282,7 @@ contains
       call this%bc_apply_prs()
       call fluid_plan4_pres_setup(c_Xh%h1, c_Xh%h2, params%rho, &
                                   dm_Xh%n_dofs, c_Xh%ifh2)    
-      call fluid_plan4_pres_residual(p, p_res, u, v, w, &
+      call fluid_plan4_pres_residual(p, p_res%x, u, v, w, &
                                      u_e, v_e, w_e, &
                                      ta1, ta2, ta3, &
                                      this%wa1, this%wa2, this%wa3, &
@@ -335,12 +293,12 @@ contains
 
       !Sets tolerances
       !call ctolspl  (tolspl,respr)
-      call gs_op_vector(gs_Xh, p_res, n, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_prs, p_res, p%dof%n_dofs)
+      call gs_op(gs_Xh, p_res, GS_OP_ADD) 
+      call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
 
-      if( tstep .gt. 5) call this%proj%project_on(p_res, c_Xh, n)
+      if( tstep .gt. 5) call this%proj%project_on(p_res%x, c_Xh, n)
       call this%pc_prs%update()
-      ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
+      ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
       if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
                                   this%bclst_prs, gs_Xh, n)
@@ -353,23 +311,23 @@ contains
                                  params%dt, dm_Xh%n_dofs, c_Xh%ifh2)
     
       call fluid_plan4_vel_residual(Ax, u, v, w, &
-                                    u_res, v_res, w_res, &
+                                    u_res%x, v_res%x, w_res%x, &
                                     p, ta1%x, ta2%x, ta3%x, &
                                     f_Xh, c_Xh, msh, Xh, dm_Xh%n_dofs)
 
-      call gs_op_vector(gs_Xh, u_res, n, GS_OP_ADD) 
-      call gs_op_vector(gs_Xh, v_res, n, GS_OP_ADD) 
-      call gs_op_vector(gs_Xh, w_res, n, GS_OP_ADD) 
+      call gs_op(gs_Xh, u_res, GS_OP_ADD) 
+      call gs_op(gs_Xh, v_res, GS_OP_ADD) 
+      call gs_op(gs_Xh, w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_residual,&
-                                u_res, v_res, w_res, dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, dm_Xh%n_dofs)
       call this%pc_vel%update()
 
-      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res, n, &
+      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
-      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res, n, &
+      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
-      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res, n, &
+      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       
       call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, one, n, msh%gdim)
@@ -510,7 +468,7 @@ contains
        call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
 
        do i = 1, n
-          p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)
+          p_res(i) = p_res(i) + wa1%x(i,1,1,1) + wa2%x(i,1,1,1)
        enddo
     endif
 
@@ -696,29 +654,29 @@ contains
       !   Compute pressure 
 
       if (this%flow_dir .eq. 1) then
-         call cdtp(p_res, c%h1, c%drdx, c%dsdx, c%dtdx, c)
+         call cdtp(p_res%x, c%h1, c%drdx, c%dsdx, c%dtdx, c)
       end if
       
       if (this%flow_dir .eq. 2) then
-         call cdtp(p_res, c%h1, c%drdy, c%dsdy, c%dtdy, c)
+         call cdtp(p_res%x, c%h1, c%drdy, c%dsdy, c%dtdy, c)
       end if
     
       if (this%flow_dir .eq. 3) then
-         call cdtp(p_res, c%h1, c%drdz, c%dsdz, c%dtdz, c)
+         call cdtp(p_res%x, c%h1, c%drdz, c%dsdz, c%dtdz, c)
       end if
     
       !call ortho    (respr)
 
-      call gs_op_vector(this%gs_Xh, p_res, n, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_prs, p_res, n)
+      call gs_op(this%gs_Xh, p_res, GS_OP_ADD) 
+      call bc_list_apply_scalar(this%bclst_prs, p_res%x, n)
       call this%pc_prs%update()
-      ksp_result = this%ksp_prs%solve(this%Ax, p_vol, p_res, n, c, &
+      ksp_result = this%ksp_prs%solve(this%Ax, p_vol, p_res%x, n, c, &
                                       this%bclst_prs, this%gs_Xh, niter)    
       
       !   Compute velocity
       
-      call opgrad(u_res, v_res, w_res, p_vol%x, c)
-      call opchsign(u_res, v_res, w_res, msh%gdim, n)
+      call opgrad(u_res%x, v_res%x, w_res%x, p_vol%x, c)
+      call opchsign(u_res%x, v_res%x, w_res%x, msh%gdim, n)
       call copy(this%ta1%x, c%B, n)
       call copy(this%ta2%x, c%B, n)
       call copy(this%ta3%x, c%B, n)
@@ -726,11 +684,11 @@ contains
                                 this%ta1%x, this%ta2%x, this%ta3%x,n)
 
       if (this%flow_dir.eq.1) then
-         call add2(u_res, this%ta1%x,n) ! add forcing
+         call add2(u_res%x, this%ta1%x,n) ! add forcing
       else if (this%flow_dir.eq.2) then
-         call add2(v_res, this%ta2%x,n)
+         call add2(v_res%x, this%ta2%x,n)
       else if (this%flow_dir.eq.3) then
-         call add2(w_res, this%ta3%x,n)
+         call add2(w_res%x, this%ta3%x,n)
       end if
       
 
@@ -738,19 +696,19 @@ contains
                                  this%params%Re, this%params%rho,&
                                  ab_bdf%bd(1), &
                                  this%params%dt, n, c%ifh2)
-      call gs_op_vector(this%gs_Xh, u_res, n, GS_OP_ADD) 
-      call gs_op_vector(this%gs_Xh, v_res, n, GS_OP_ADD) 
-      call gs_op_vector(this%gs_Xh, w_res, n, GS_OP_ADD) 
+      call gs_op(this%gs_Xh, u_res, GS_OP_ADD) 
+      call gs_op(this%gs_Xh, v_res, GS_OP_ADD) 
+      call gs_op(this%gs_Xh, w_res, GS_OP_ADD) 
       
       call bc_list_apply_vector(this%bclst_vel,&
-                                u_res, v_res, w_res, this%dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, this%dm_Xh%n_dofs)
       call this%pc_vel%update()
 
-      ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res, n, &
+      ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res%x, n, &
            c, this%bclst_vel_residual, this%gs_Xh, niter)
-      ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, v_res, n, &
+      ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, v_res%x, n, &
            c, this%bclst_vel_residual, this%gs_Xh, niter)
-      ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, w_res, n, &
+      ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, w_res%x, n, &
            c, this%bclst_vel_residual, this%gs_Xh, niter)
       
       if (this%flow_dir.eq.1) then
