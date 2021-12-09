@@ -16,7 +16,7 @@ sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o
 math/math.o : math/math.f90 comm/comm.o config/num_types.o 
 math/mathops.o : math/mathops.f90 config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
-sem/space.o : sem/space.f90 math/fast3d.o math/math.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
+sem/space.o : sem/space.f90 math/math.o math/fast3d.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
 sem/dofmap.o : sem/dofmap.f90 math/math.o math/tensor.o math/fast3d.o common/utils.o config/num_types.o adt/tuple.o sem/space.o mesh/mesh.o 
 sem/coef.o : sem/coef.f90 math/mxm_wrapper.o device/device.o mesh/mesh.o math/math.o sem/space.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 gs/gs_bcknd.o : gs/gs_bcknd.f90 config/num_types.o 
@@ -90,11 +90,11 @@ bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/de
 bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/inflow.o sem/coef.o config/num_types.o 
 bc/facet_normal.o : bc/facet_normal.f90 common/utils.o math/math.o sem/coef.o bc/dirichlet.o config/num_types.o bc/bcknd/device/device_facet_normal.o 
 bc/symmetry.o : bc/symmetry.f90 adt/htable.o adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/bcknd/device/device_symmetry.o 
-bc/blasius.o : bc/blasius.f90 fluid/flow_profile.o bc/inflow.o common/utils.o sem/coef.o config/num_types.o device/device.o bc/bcknd/device/device_blasius.o 
+bc/blasius.o : bc/blasius.f90 fluid/flow_profile.o bc/bcknd/device/device_blasius.o device/device.o bc/inflow.o common/utils.o sem/coef.o config/num_types.o 
 krylov/precon.o : krylov/precon.f90 config/num_types.o 
 krylov/krylov.o : krylov/krylov.f90 krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
 krylov/pc_identity.o : krylov/pc_identity.f90 config/num_types.o math/ax.o krylov/precon.o common/utils.o math/math.o 
-krylov/precon_fctry.o : krylov/precon_fctry.f90 config/neko_config.o common/utils.o krylov/pc_hsmg.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o krylov/bcknd/device/pc_jacobi_device.o krylov/precon.o 
+krylov/precon_fctry.o : krylov/precon_fctry.f90 config/neko_config.o common/utils.o krylov/pc_hsmg.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o krylov/precon.o 
 krylov/krylov_fctry.o : krylov/krylov_fctry.f90 config/neko_config.o krylov/krylov.o krylov/bcknd/sx/gmres_sx.o krylov/bcknd/cpu/gmres.o krylov/bcknd/cpu/bicgstab.o krylov/bcknd/sx/pipecg_sx.o krylov/bcknd/cpu/pipecg.o krylov/bcknd/cpu/cacg.o krylov/bcknd/device/cg_device.o krylov/bcknd/sx/cg_sx.o krylov/bcknd/cpu/cg.o 
 krylov/bcknd/cpu/cg.o : krylov/bcknd/cpu/cg.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/cpu/cacg.o : krylov/bcknd/cpu/cacg.f90 config/num_types.o math/mxm_wrapper.o math/math.o krylov/krylov.o 
@@ -109,8 +109,8 @@ krylov/bcknd/sx/pc_jacobi_sx.o : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scat
 krylov/bcknd/device/cg_device.o : krylov/bcknd/device/cg_device.f90 config/num_types.o math/bcknd/device/device_math.o krylov/krylov.o 
 krylov/bcknd/device/pc_jacobi_device.o : krylov/bcknd/device/pc_jacobi_device.F90 gs/gather_scatter.o math/bcknd/device/device_math.o config/num_types.o sem/coef.o krylov/precon.o 
 krylov/bcknd/device/pc_identity_device.o : krylov/bcknd/device/pc_identity_device.f90 config/num_types.o math/bcknd/device/device_math.o math/ax.o krylov/precon.o common/utils.o 
-common/source.o : common/source.f90 config/num_types.o sem/dofmap.o device/device.o config/neko_config.o math/bcknd/device/device_math.o common/utils.o 
-common/abbdf.o : common/abbdf.f90 common/utils.o math/math.o config/num_types.o device/device.o config/neko_config.o
+common/source.o : common/source.f90 math/bcknd/device/device_math.o device/device.o common/utils.o sem/dofmap.o config/num_types.o config/neko_config.o 
+common/abbdf.o : common/abbdf.f90 device/device.o common/utils.o math/math.o config/num_types.o config/neko_config.o 
 common/stats_quant.o : common/stats_quant.f90 config/num_types.o 
 common/statistics.o : common/statistics.f90 common/stats_quant.o config/num_types.o 
 config/neko_config.o : config/neko_config.f90 
@@ -124,7 +124,7 @@ fluid/mean_flow.o : fluid/mean_flow.f90 field/mean_field.o
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/mean_sqr_field.o 
 fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o 
 fluid/flow_ic.o : fluid/flow_ic.f90 common/utils.o field/field.o common/parameters.o fluid/flow_profile.o 
-fluid/advection.o : fluid/advection.f90 math/operators.o config/neko_config.o sem/coef.o field/field.o sem/space.o common/utils.o math/math.o config/num_types.o 
+fluid/advection.o : fluid/advection.f90 sem/interpolation.o math/operators.o config/neko_config.o sem/coef.o field/field.o sem/space.o common/utils.o math/math.o config/num_types.o 
 simulation.o : simulation.f90 common/jobctrl.o common/log.o io/file.o common/abbdf.o case.o 
 math/ax_helm_fctry.o : math/ax_helm_fctry.f90 math/bcknd/cpu/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o math/ax.o config/neko_config.o 
 math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/ax.o 
@@ -149,7 +149,7 @@ bc/bcknd/device/device_dirichlet.o : bc/bcknd/device/device_dirichlet.F90 common
 bc/bcknd/device/device_inflow.o : bc/bcknd/device/device_inflow.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_wall.o : bc/bcknd/device/device_wall.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_symmetry.o : bc/bcknd/device/device_symmetry.F90 common/utils.o config/num_types.o 
-bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 common/utils.o config/num_types.o
+bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_blasius.o : bc/bcknd/device/device_blasius.F90 common/utils.o config/num_types.o 
 neko.o : neko.f90 device/device.o common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
 comm/parmetis_wrapper.o : comm/parmetis_wrapper.c 
