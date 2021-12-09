@@ -7,14 +7,14 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void cuda_copy(void *a, void *b, int *n) {
-    cudaMemcpy(a, b, (*n) * sizeof(real), cudaMemcpyDeviceToDevice);
+    cudaMemcpyAsync(a, b, (*n) * sizeof(real), cudaMemcpyDeviceToDevice);
   }
 
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
   void cuda_rzero(void *a, int *n) {
-    cudaMemset(a, 0, (*n) * sizeof(real));
+    cudaMemsetAsync(a, 0, (*n) * sizeof(real));
   }
 
   
