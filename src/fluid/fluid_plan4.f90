@@ -311,8 +311,8 @@ contains
                                  params%dt, dm_Xh%n_dofs, c_Xh%ifh2)
     
       call fluid_plan4_vel_residual(Ax, u, v, w, &
-                                    u_res%x, v_res%x, w_res%x, &
-                                    p, ta1%x, ta2%x, ta3%x, &
+                                    u_res, v_res, w_res, &
+                                    p, ta1, ta2, ta3, &
                                     f_Xh, c_Xh, msh, Xh, dm_Xh%n_dofs)
 
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
@@ -377,29 +377,26 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: p, u, v, w
-    real(kind=rp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ta1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ta2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ta3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    type(field_t), intent(inout) :: u_res, v_res, w_res
+    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     integer, intent(in) :: n
     
-    call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
-    call Ax%compute(v_res, v%x, c_Xh, msh, Xh)
+    call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
+    call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     if (msh%gdim .eq. 3) then
-       call Ax%compute(w_res, w%x, c_Xh, msh, Xh)
+       call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
     end if
 
-    call opchsign(u_res, v_res, w_res, msh%gdim, n)
+    call opchsign(u_res%x, v_res%x, w_res%x, msh%gdim, n)
 
-    call opgrad(ta1, ta2, ta3, p%x, c_Xh)
+    call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
-    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1.0_rp, n, msh%gdim)
+    call opadd2cm(u_res%x, v_res%x, w_res%x, &
+         ta1%x, ta2%x, ta3%x, -1.0_rp, n, msh%gdim)
 
-    call opadd2cm(u_res, v_res, w_res, &
+    call opadd2cm(u_res%x, v_res%x, w_res%x, &
                   f_Xh%u, f_Xh%v, f_Xh%w, 1.0_rp, n, msh%gdim)
 
   end subroutine fluid_plan4_vel_residual
@@ -540,7 +537,7 @@ contains
                      bfx, bfy, bfz, rho, ab, n, gdim)
     type(field_t), intent(inout) :: ta1, ta2, ta3
     real(kind=rp), intent(inout) :: rho, ab(10)
-     integer, intent(in) :: n, gdim
+    integer, intent(in) :: n, gdim
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(inout) :: abx1(n), aby1(n), abz1(n)
     real(kind=rp), intent(inout) :: abx2(n), aby2(n), abz2(n)
