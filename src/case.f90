@@ -175,9 +175,9 @@ contains
     ! Add initial conditions to BDF scheme (if present)
     select type(f => C%fluid)
     type is(fluid_plan4_t)
-       call copy(f%ulag, C%fluid%u%x, C%fluid%dm_Xh%n_dofs)
-       call copy(f%vlag, C%fluid%v%x, C%fluid%dm_Xh%n_dofs)
-       call copy(f%wlag, C%fluid%w%x, C%fluid%dm_Xh%n_dofs)
+       call f%ulag%set(f%u)
+       call f%vlag%set(f%v)
+       call f%wlag%set(f%w)
     end select
 
     !

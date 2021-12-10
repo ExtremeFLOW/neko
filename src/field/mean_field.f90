@@ -41,7 +41,7 @@ contains
     class(mean_field_t), intent(inout) :: this
 
     if (associated(this%f)) then
-       nullifY(this%f)
+       nullify(this%f)
     end if
 
     call field_free(this%mf)

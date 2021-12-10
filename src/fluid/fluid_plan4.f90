@@ -1,8 +1,9 @@
 !> Classic Nek5000 PN/PN formulation for fluids
 !! Splitting scheme A.G. Tomboulides et al.
 !! Journal of Sci.Comp.,Vol. 12, No. 2, 1998
-module fluid_plan4  
+module fluid_plan4
   use ax_helm_fctry
+  use field_series    
   use fluid_method
   use facet_normal
   use neko_config
@@ -15,34 +16,19 @@ module fluid_plan4
   private
 
   type, public, extends(fluid_scheme_t) :: fluid_plan4_t
-     type(field_t) :: u_e
-     type(field_t) :: v_e
-     type(field_t) :: w_e
+     type(field_t) :: u_e, v_e, w_e
 
-     real(kind=rp), allocatable :: p_res(:)
-     real(kind=rp), allocatable :: u_res(:,:,:,:)
-     real(kind=rp), allocatable :: v_res(:,:,:,:)
-     real(kind=rp), allocatable :: w_res(:,:,:,:)
-     real(kind=rp), allocatable :: ulag(:,:,:,:,:)
-     real(kind=rp), allocatable :: vlag(:,:,:,:,:)
-     real(kind=rp), allocatable :: wlag(:,:,:,:,:)
+     type(field_t) :: p_res, u_res, v_res, w_res
 
-     type(field_t) :: dp
-     type(field_t) :: du
-     type(field_t) :: dv
-     type(field_t) :: dw
+     type(field_series_t) :: ulag, vlag, wlag
 
-     type(field_t) :: wa1
-     type(field_t) :: wa2
-     type(field_t) :: wa3
+     type(field_t) :: dp, du, dv, dw
 
-     type(field_t) :: ta1
-     type(field_t) :: ta2
-     type(field_t) :: ta3
+     type(field_t) :: wa1, wa2, wa3
+     type(field_t) :: ta1, ta2, ta3
      
      !> @todo move this to a scratch space
-     type(field_t) :: work1
-     type(field_t) :: work2
+     type(field_t) :: work1, work2
 
      class(ax_t), allocatable :: Ax
      
@@ -55,8 +41,8 @@ module fluid_plan4
      class(advection_t), allocatable :: adv 
 
      ! Time variables
-     real(kind=rp), allocatable :: abx1(:,:,:,:), aby1(:,:,:,:), abz1(:,:,:,:)
-     real(kind=rp), allocatable :: abx2(:,:,:,:), aby2(:,:,:,:), abz2(:,:,:,:)
+     type(field_t) :: abx1, aby1, abz1
+     type(field_t) :: abx2, aby2, abz2
 
      ! Vol_flow
      
@@ -93,31 +79,18 @@ contains
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
-      allocate(this%p_res(dm_Xh%n_dofs))
-      allocate(this%u_res(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%v_res(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%w_res(Xh_lx, Xh_ly, Xh_lz, nelv))
-      
-      allocate(this%ulag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
-      allocate(this%vlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
-      allocate(this%wlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
-          
-      allocate(this%abx1(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%aby1(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%abz1(Xh_lx, Xh_ly, Xh_lz, nelv))
-    
-      allocate(this%abx2(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%aby2(Xh_lx, Xh_ly, Xh_lz, nelv))
-      allocate(this%abz2(Xh_lx, Xh_ly, Xh_lz, nelv))
-      
-      call rzero(this%abx1, dm_Xh%n_dofs)
-      call rzero(this%aby1, dm_Xh%n_dofs)
-      call rzero(this%abz1, dm_Xh%n_dofs)
-      
-      call rzero(this%abx2, dm_Xh%n_dofs)
-      call rzero(this%aby2, dm_Xh%n_dofs)
-      call rzero(this%abz2, dm_Xh%n_dofs)
-            
+      call field_init(this%p_res, dm_Xh, "p_res")
+      call field_init(this%u_res, dm_Xh, "u_res")
+      call field_init(this%v_res, dm_Xh, "v_res")
+      call field_init(this%w_res, dm_Xh, "w_res")            
+      call field_init(this%abx1, dm_Xh, "abx1")
+      call field_init(this%aby1, dm_Xh, "aby1")
+      call field_init(this%abz1, dm_Xh, "abz1")
+
+      call field_init(this%abx2, dm_Xh, "abx2")
+      call field_init(this%aby2, dm_Xh, "aby2")
+      call field_init(this%abz2, dm_Xh, "abz2")
+                  
       call field_init(this%u_e, dm_Xh, 'u_e')
       call field_init(this%v_e, dm_Xh, 'v_e')
       call field_init(this%w_e, dm_Xh, 'w_e')
@@ -138,6 +111,10 @@ contains
       call field_init(this%work1, dm_Xh, 'work1')
       call field_init(this%work2, dm_Xh, 'work2')
 
+      call this%ulag%init(this%u, 2)
+      call this%vlag%init(this%v, 2)
+      call this%wlag%init(this%w, 2)
+      
     end associate
     
     ! Initialize velocity surface terms in pressure rhs
@@ -187,6 +164,11 @@ contains
     call field_free(this%u_e)
     call field_free(this%v_e)
     call field_free(this%w_e)
+
+    call field_free(this%p_res)        
+    call field_free(this%u_res)
+    call field_free(this%v_res)
+    call field_free(this%w_res)
     
     call field_free(this%wa1)
     call field_free(this%wa2)
@@ -209,56 +191,22 @@ contains
     call field_free(this%work1)
     call field_free(this%work2)
 
+    call field_free(this%abx1)
+    call field_free(this%aby1)
+    call field_free(this%abz1)
+
+    call field_free(this%abx2)
+    call field_free(this%aby2)
+    call field_free(this%abz2)
+    
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
-
-    if (allocated(this%p_res)) then
-       deallocate(this%p_res)
-    end if
     
-    if (allocated(this%u_res)) then
-       deallocate(this%u_res)
-    end if
+    call this%ulag%free()
+    call this%vlag%free()
+    call this%wlag%free()
     
-    if (allocated(this%v_res)) then
-       deallocate(this%v_res)
-    end if
-    
-    if (allocated(this%w_res)) then
-       deallocate(this%w_res)
-    end if
-    
-    if (allocated(this%ulag)) then
-       deallocate(this%ulag)
-    end if
-       
-    if (allocated(this%vlag)) then
-       deallocate(this%vlag)
-    end if
-    
-    if (allocated(this%wlag)) then
-       deallocate(this%wlag)
-    end if
-    
-    if (allocated(this%abx1)) then
-       deallocate(this%abx1)
-    end if
-    if (allocated(this%aby1)) then
-       deallocate(this%aby1)
-    end if
-    if (allocated(this%abz1)) then
-       deallocate(this%abz1)
-    end if
-    if (allocated(this%abx2)) then
-       deallocate(this%abx2)
-    end if
-    if (allocated(this%aby2)) then
-       deallocate(this%aby2)
-    end if
-    if (allocated(this%abz2)) then
-       deallocate(this%abz2)
-    end if
   end subroutine fluid_plan4_free
   
   subroutine fluid_plan4_step(this, t, tstep, ab_bdf)
@@ -279,12 +227,13 @@ contains
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh)
 
-      call fluid_plan4_sumab(u_e%x, u%x,this%ulag,n,ab_bdf%ab,ab_bdf%nab)
-      call fluid_plan4_sumab(v_e%x, v%x,this%vlag,n,ab_bdf%ab,ab_bdf%nab)
+      call fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ab_bdf%ab, ab_bdf%nab)
+      call fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ab_bdf%ab, ab_bdf%nab)
       if (msh%gdim .eq. 3) then
-         call fluid_plan4_sumab(w_e%x, w%x,this%wlag,n,ab_bdf%ab,ab_bdf%nab)
+         call fluid_plan4_sumab(w_e%x, w%x, wlag,n, ab_bdf%ab, ab_bdf%nab)
       end if
 
       call f_Xh%eval()
@@ -299,23 +248,15 @@ contains
                   f_Xh%u, f_Xh%v, f_Xh%w,&
                   params%rho, ab_bdf%ab, n, msh%gdim)
       call makebdf(ta1, ta2, ta3,&
-                   this%wa1%x, this%wa2%x, this%wa3%x,&
-                   c_Xh%h2, this%ulag, this%vlag, this%wlag, &
+                   this%wa1, this%wa2, this%wa3,&
+                   c_Xh%h2, ulag, vlag, wlag, &
                    f_Xh%u, f_Xh%v, f_Xh%w, u, v, w,&
                    c_Xh%B, params%rho, params%dt, &
                    ab_bdf%bd, ab_bdf%nbd, n, msh%gdim)
 
-    
-      do i = 3-1,2,-1
-         call copy(this%ulag(1,1,1,1,i), this%ulag(1,1,1,1,i-1), n)
-         call copy(this%vlag(1,1,1,1,i), this%vlag(1,1,1,1,i-1), n)
-         call copy(this%wlag(1,1,1,1,i), this%wlag(1,1,1,1,i-1), n)
-      end do
-    
-      call copy(this%ulag, u%x, n)
-      call copy(this%vlag, v%x, n)
-      call copy(this%wlag, w%x, n)
-      
+      call ulag%update()
+      call vlag%update()
+      call wlag%update()
 
       ! mask Dirichlet boundaries (velocity)
       call this%bc_apply_vel()
@@ -324,7 +265,7 @@ contains
       call this%bc_apply_prs()
       call fluid_plan4_pres_setup(c_Xh%h1, c_Xh%h2, params%rho, &
                                   dm_Xh%n_dofs, c_Xh%ifh2)    
-      call fluid_plan4_pres_residual(p, p_res, u, v, w, &
+      call fluid_plan4_pres_residual(p, p_res%x, u, v, w, &
                                      u_e, v_e, w_e, &
                                      ta1, ta2, ta3, &
                                      this%wa1, this%wa2, this%wa3, &
@@ -335,12 +276,12 @@ contains
 
       !Sets tolerances
       !call ctolspl  (tolspl,respr)
-      call gs_op_vector(gs_Xh, p_res, n, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_prs, p_res, p%dof%n_dofs)
+      call gs_op(gs_Xh, p_res, GS_OP_ADD) 
+      call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
 
-      if( tstep .gt. 5) call this%proj%project_on(p_res, c_Xh, n)
+      if( tstep .gt. 5) call this%proj%project_on(p_res%x, c_Xh, n)
       call this%pc_prs%update()
-      ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res, n, c_Xh, &
+      ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
       if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
                                   this%bclst_prs, gs_Xh, n)
@@ -354,22 +295,22 @@ contains
     
       call fluid_plan4_vel_residual(Ax, u, v, w, &
                                     u_res, v_res, w_res, &
-                                    p, ta1%x, ta2%x, ta3%x, &
+                                    p, ta1, ta2, ta3, &
                                     f_Xh, c_Xh, msh, Xh, dm_Xh%n_dofs)
 
-      call gs_op_vector(gs_Xh, u_res, n, GS_OP_ADD) 
-      call gs_op_vector(gs_Xh, v_res, n, GS_OP_ADD) 
-      call gs_op_vector(gs_Xh, w_res, n, GS_OP_ADD) 
+      call gs_op(gs_Xh, u_res, GS_OP_ADD) 
+      call gs_op(gs_Xh, v_res, GS_OP_ADD) 
+      call gs_op(gs_Xh, w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_residual,&
-                                u_res, v_res, w_res, dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, dm_Xh%n_dofs)
       call this%pc_vel%update()
 
-      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res, n, &
+      ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
-      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res, n, &
+      ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
-      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res, n, &
+      ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       
       call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, one, n, msh%gdim)
@@ -419,29 +360,26 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: p, u, v, w
-    real(kind=rp), intent(inout) :: u_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: v_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: w_res(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ta1(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ta2(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: ta3(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    type(field_t), intent(inout) :: u_res, v_res, w_res
+    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     integer, intent(in) :: n
     
-    call Ax%compute(u_res, u%x, c_Xh, msh, Xh)
-    call Ax%compute(v_res, v%x, c_Xh, msh, Xh)
+    call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
+    call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     if (msh%gdim .eq. 3) then
-       call Ax%compute(w_res, w%x, c_Xh, msh, Xh)
+       call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
     end if
 
-    call opchsign(u_res, v_res, w_res, msh%gdim, n)
+    call opchsign(u_res%x, v_res%x, w_res%x, msh%gdim, n)
 
-    call opgrad(ta1, ta2, ta3, p%x, c_Xh)
+    call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
-    call opadd2cm(u_res, v_res, w_res, ta1, ta2, ta3, -1.0_rp, n, msh%gdim)
+    call opadd2cm(u_res%x, v_res%x, w_res%x, &
+         ta1%x, ta2%x, ta3%x, -1.0_rp, n, msh%gdim)
 
-    call opadd2cm(u_res, v_res, w_res, &
+    call opadd2cm(u_res%x, v_res%x, w_res%x, &
                   f_Xh%u, f_Xh%v, f_Xh%w, 1.0_rp, n, msh%gdim)
 
   end subroutine fluid_plan4_vel_residual
@@ -510,7 +448,7 @@ contains
        call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
 
        do i = 1, n
-          p_res(i) = p_res(i)+wa1%x(i,1,1,1)+wa2%x(i,1,1,1)
+          p_res(i) = p_res(i) + wa1%x(i,1,1,1) + wa2%x(i,1,1,1)
        enddo
     endif
 
@@ -537,7 +475,7 @@ contains
   subroutine fluid_plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
     real(kind=rp), dimension(n), intent(inout) :: v, vv
-    real(kind=rp), dimension(n,2), intent(inout) :: vvlag
+    type(field_series_t), intent(inout) :: vvlag
     real(kind=rp), dimension(3), intent(in) :: ab
     real(kind=rp) :: ab0, ab1, ab2
 
@@ -545,8 +483,8 @@ contains
     ab1 = ab(2)
     ab2 = ab(3)
 
-    call add3s2(v,vv,vvlag(1,1),ab0,ab1,n)
-    if(nab .eq. 3) call add2s2(v,vvlag(1,2),ab2,n)
+    call add3s2(v,vv,vvlag%lf(1)%x,ab0,ab1,n)
+    if(nab .eq. 3) call add2s2(v,vvlag%lf(2)%x,ab2,n)
   end subroutine fluid_plan4_sumab
   
   !> Add contributions to F from lagged BD terms.
@@ -555,11 +493,11 @@ contains
     integer, intent(in) :: n, nbd, gdim
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(field_t), intent(in) :: u, v, w
-    real(kind=rp), intent(inout) :: tb1(n), tb2(n), tb3(n)
+    type(field_t), intent(inout) :: tb1, tb2, tb3
+    type(field_series_t), intent(in) :: ulag, vlag, wlag        
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(inout) :: h2(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
     real(kind=rp), intent(in) :: dt, rho, bd(10)
     real(kind=rp) :: const
     integer :: ilag
@@ -567,44 +505,44 @@ contains
     const = rho / dt
     call rone(h2, n)
     call cmult(h2,const,n)
-    call opcolv3c(tb1, tb2, tb3, u%x, v%x, w%x, B, bd(2), n, gdim)
+    call opcolv3c(tb1%x, tb2%x, tb3%x, u%x, v%x, w%x, B, bd(2), n, gdim)
     do ilag = 2, nbd
        call opcolv3c(ta1%x, ta2%x, ta3%x, &
-                     ulag(1,ilag-1), vlag(1,ilag-1), wlag(1,ilag-1), &
+                     ulag%lf(ilag-1)%x, vlag%lf(ilag-1)%x, wlag%lf(ilag-1)%x, &
                      B, bd(ilag+1), n, gdim)
-       call opadd2cm(tb1, tb2, tb3, ta1%x, ta2%x, ta3%x, 1.0_rp, n, gdim)
+       call opadd2cm(tb1%x, tb2%x, tb3%x, ta1%x, ta2%x, ta3%x, 1.0_rp, n, gdim)
     end do
-    call opadd2col(bfx, bfy, bfz, tb1, tb2, tb3, h2, n, gdim)
+    call opadd2col(bfx, bfy, bfz, tb1%x, tb2%x, tb3%x, h2, n, gdim)
   end subroutine makebdf
 
   !> Sum up contributions to kth order extrapolation scheme.
   subroutine makeabf(ta1, ta2, ta3, abx1, aby1, abz1, abx2, aby2, abz2, &
                      bfx, bfy, bfz, rho, ab, n, gdim)
     type(field_t), intent(inout) :: ta1, ta2, ta3
+    type(field_t), intent(inout) :: abx1, aby1, abz1
+    type(field_t), intent(inout) :: abx2, aby2, abz2
     real(kind=rp), intent(inout) :: rho, ab(10)
-     integer, intent(in) :: n, gdim
+    integer, intent(in) :: n, gdim
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    real(kind=rp), intent(inout) :: abx1(n), aby1(n), abz1(n)
-    real(kind=rp), intent(inout) :: abx2(n), aby2(n), abz2(n)
     real(kind=rp) :: ab0, ab1, ab2
 
     ab0 = ab(1)
     ab1 = ab(2)
     ab2 = ab(3)
-    call add3s2(ta1%x, abx1, abx2, ab1, ab2, n)
-    call add3s2(ta2%x, aby1, aby2, ab1, ab2, n)
-    call copy(abx2, abx1, n)
-    call copy(aby2, aby1, n)
-    call copy(abx1, bfx, n)
-    call copy(aby1, bfy, n)
+    call add3s2(ta1%x, abx1%x, abx2%x, ab1, ab2, n)
+    call add3s2(ta2%x, aby1%x, aby2%x, ab1, ab2, n)
+    call copy(abx2%x, abx1%x, n)
+    call copy(aby2%x, aby1%x, n)
+    call copy(abx1%x, bfx, n)
+    call copy(aby1%x, bfy, n)
     call add2s1(bfx, ta1%x, ab0, n)
     call add2s1(bfy, ta2%x, ab0, n)
     call cmult(bfx, rho, n)          ! multiply by density
     call cmult(bfy, rho, n)
     if (gdim.eq.3) then
-       call add3s2(ta3%x, abz1, abz2, ab1, ab2, n)
-       call copy(abz2, abz1, n)
-       call copy(abz1, bfz, n)
+       call add3s2(ta3%x, abz1%x, abz2%x, ab1, ab2, n)
+       call copy(abz2%x, abz1%x, n)
+       call copy(abz1%x, bfz, n)
        call add2s1(bfz, ta3%x, ab0, n)
        call cmult(bfz, rho, n)
     end if
@@ -696,29 +634,29 @@ contains
       !   Compute pressure 
 
       if (this%flow_dir .eq. 1) then
-         call cdtp(p_res, c%h1, c%drdx, c%dsdx, c%dtdx, c)
+         call cdtp(p_res%x, c%h1, c%drdx, c%dsdx, c%dtdx, c)
       end if
       
       if (this%flow_dir .eq. 2) then
-         call cdtp(p_res, c%h1, c%drdy, c%dsdy, c%dtdy, c)
+         call cdtp(p_res%x, c%h1, c%drdy, c%dsdy, c%dtdy, c)
       end if
     
       if (this%flow_dir .eq. 3) then
-         call cdtp(p_res, c%h1, c%drdz, c%dsdz, c%dtdz, c)
+         call cdtp(p_res%x, c%h1, c%drdz, c%dsdz, c%dtdz, c)
       end if
     
       !call ortho    (respr)
 
-      call gs_op_vector(this%gs_Xh, p_res, n, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_prs, p_res, n)
+      call gs_op(this%gs_Xh, p_res, GS_OP_ADD) 
+      call bc_list_apply_scalar(this%bclst_prs, p_res%x, n)
       call this%pc_prs%update()
-      ksp_result = this%ksp_prs%solve(this%Ax, p_vol, p_res, n, c, &
+      ksp_result = this%ksp_prs%solve(this%Ax, p_vol, p_res%x, n, c, &
                                       this%bclst_prs, this%gs_Xh, niter)    
       
       !   Compute velocity
       
-      call opgrad(u_res, v_res, w_res, p_vol%x, c)
-      call opchsign(u_res, v_res, w_res, msh%gdim, n)
+      call opgrad(u_res%x, v_res%x, w_res%x, p_vol%x, c)
+      call opchsign(u_res%x, v_res%x, w_res%x, msh%gdim, n)
       call copy(this%ta1%x, c%B, n)
       call copy(this%ta2%x, c%B, n)
       call copy(this%ta3%x, c%B, n)
@@ -726,11 +664,11 @@ contains
                                 this%ta1%x, this%ta2%x, this%ta3%x,n)
 
       if (this%flow_dir.eq.1) then
-         call add2(u_res, this%ta1%x,n) ! add forcing
+         call add2(u_res%x, this%ta1%x,n) ! add forcing
       else if (this%flow_dir.eq.2) then
-         call add2(v_res, this%ta2%x,n)
+         call add2(v_res%x, this%ta2%x,n)
       else if (this%flow_dir.eq.3) then
-         call add2(w_res, this%ta3%x,n)
+         call add2(w_res%x, this%ta3%x,n)
       end if
       
 
@@ -738,19 +676,19 @@ contains
                                  this%params%Re, this%params%rho,&
                                  ab_bdf%bd(1), &
                                  this%params%dt, n, c%ifh2)
-      call gs_op_vector(this%gs_Xh, u_res, n, GS_OP_ADD) 
-      call gs_op_vector(this%gs_Xh, v_res, n, GS_OP_ADD) 
-      call gs_op_vector(this%gs_Xh, w_res, n, GS_OP_ADD) 
+      call gs_op(this%gs_Xh, u_res, GS_OP_ADD) 
+      call gs_op(this%gs_Xh, v_res, GS_OP_ADD) 
+      call gs_op(this%gs_Xh, w_res, GS_OP_ADD) 
       
       call bc_list_apply_vector(this%bclst_vel,&
-                                u_res, v_res, w_res, this%dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, this%dm_Xh%n_dofs)
       call this%pc_vel%update()
 
-      ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res, n, &
+      ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res%x, n, &
            c, this%bclst_vel_residual, this%gs_Xh, niter)
-      ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, v_res, n, &
+      ksp_result = this%ksp_vel%solve(this%Ax, this%v_vol, v_res%x, n, &
            c, this%bclst_vel_residual, this%gs_Xh, niter)
-      ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, w_res, n, &
+      ksp_result = this%ksp_vel%solve(this%Ax, this%w_vol, w_res%x, n, &
            c, this%bclst_vel_residual, this%gs_Xh, niter)
       
       if (this%flow_dir.eq.1) then

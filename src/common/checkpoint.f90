@@ -1,6 +1,7 @@
 !> Defines a checkpoint
 module checkpoint
   use num_types
+  use field_series
   use field
   use utils
   implicit none
@@ -15,9 +16,9 @@ module checkpoint
      !
      ! Optional payload
      !
-     real(kind=rp), pointer :: ulag(:,:,:,:,:) => null()
-     real(kind=rp), pointer :: vlag(:,:,:,:,:) => null()
-     real(kind=rp), pointer :: wlag(:,:,:,:,:) => null()
+     type(field_series_t), pointer :: ulag => null()
+     type(field_series_t), pointer :: vlag => null()
+     type(field_series_t), pointer :: wlag => null()
 
      real(kind=dp) :: t         !< Restart time (valid after load)
    contains
@@ -75,10 +76,10 @@ contains
 
   !> Add lagged velocity terms
   subroutine chkp_add_lag(this, ulag, vlag, wlag)
-    class(chkp_t), intent(inout) :: this
-    real(kind=rp), target :: ulag(:,:,:,:,:)
-    real(kind=rp), target :: vlag(:,:,:,:,:)
-    real(kind=rp), target :: wlag(:,:,:,:,:)
+    class(chkp_t), intent(inout) :: this    
+    type(field_series_t), target :: ulag
+    type(field_series_t), target :: vlag
+    type(field_series_t), target :: wlag
 
     this%ulag => ulag
     this%vlag => vlag

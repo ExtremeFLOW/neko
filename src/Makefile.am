@@ -46,6 +46,7 @@ libneko_a_SOURCES = \
 	mesh/mesh.f90\
 	mesh/tet_mesh.f90\
 	field/field.f90\
+	field/field_series.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\
