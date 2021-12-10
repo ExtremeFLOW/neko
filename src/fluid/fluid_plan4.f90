@@ -1,8 +1,9 @@
 !> Classic Nek5000 PN/PN formulation for fluids
 !! Splitting scheme A.G. Tomboulides et al.
 !! Journal of Sci.Comp.,Vol. 12, No. 2, 1998
-module fluid_plan4  
+module fluid_plan4
   use ax_helm_fctry
+  use field_series    
   use fluid_method
   use facet_normal
   use neko_config
@@ -18,10 +19,8 @@ module fluid_plan4
      type(field_t) :: u_e, v_e, w_e
 
      type(field_t) :: p_res, u_res, v_res, w_res
-     
-     real(kind=rp), allocatable :: ulag(:,:,:,:,:)
-     real(kind=rp), allocatable :: vlag(:,:,:,:,:)
-     real(kind=rp), allocatable :: wlag(:,:,:,:,:)
+
+     type(field_series_t) :: ulag, vlag, wlag
 
      type(field_t) :: dp, du, dv, dw
 
@@ -83,12 +82,7 @@ contains
       call field_init(this%p_res, dm_Xh, "p_res")
       call field_init(this%u_res, dm_Xh, "u_res")
       call field_init(this%v_res, dm_Xh, "v_res")
-      call field_init(this%w_res, dm_Xh, "w_res")
-            
-      allocate(this%ulag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
-      allocate(this%vlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
-      allocate(this%wlag(Xh_lx, Xh_ly, Xh_lz, nelv,2))
-          
+      call field_init(this%w_res, dm_Xh, "w_res")            
       call field_init(this%abx1, dm_Xh, "abx1")
       call field_init(this%aby1, dm_Xh, "aby1")
       call field_init(this%abz1, dm_Xh, "abz1")
@@ -117,6 +111,10 @@ contains
       call field_init(this%work1, dm_Xh, 'work1')
       call field_init(this%work2, dm_Xh, 'work2')
 
+      call this%ulag%init(this%u, 2)
+      call this%vlag%init(this%v, 2)
+      call this%wlag%init(this%w, 2)
+      
     end associate
     
     ! Initialize velocity surface terms in pressure rhs
@@ -193,22 +191,6 @@ contains
     call field_free(this%work1)
     call field_free(this%work2)
 
-    if (allocated(this%Ax)) then
-       deallocate(this%Ax)
-    end if
-    
-    if (allocated(this%ulag)) then
-       deallocate(this%ulag)
-    end if
-       
-    if (allocated(this%vlag)) then
-       deallocate(this%vlag)
-    end if
-    
-    if (allocated(this%wlag)) then
-       deallocate(this%wlag)
-    end if
-
     call field_free(this%abx1)
     call field_free(this%aby1)
     call field_free(this%abz1)
@@ -216,6 +198,14 @@ contains
     call field_free(this%abx2)
     call field_free(this%aby2)
     call field_free(this%abz2)
+    
+    if (allocated(this%Ax)) then
+       deallocate(this%Ax)
+    end if
+    
+    call this%ulag%free()
+    call this%vlag%free()
+    call this%wlag%free()
     
   end subroutine fluid_plan4_free
   
@@ -237,12 +227,13 @@ contains
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh)
 
-      call fluid_plan4_sumab(u_e%x, u%x,this%ulag,n,ab_bdf%ab,ab_bdf%nab)
-      call fluid_plan4_sumab(v_e%x, v%x,this%vlag,n,ab_bdf%ab,ab_bdf%nab)
+      call fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ab_bdf%ab, ab_bdf%nab)
+      call fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ab_bdf%ab, ab_bdf%nab)
       if (msh%gdim .eq. 3) then
-         call fluid_plan4_sumab(w_e%x, w%x,this%wlag,n,ab_bdf%ab,ab_bdf%nab)
+         call fluid_plan4_sumab(w_e%x, w%x, wlag,n, ab_bdf%ab, ab_bdf%nab)
       end if
 
       call f_Xh%eval()
@@ -252,28 +243,20 @@ contains
                  Xh, this%c_Xh, dm_Xh%n_dofs)
    
       call makeabf(ta1, ta2, ta3,&
-                  this%abx1%x, this%aby1%x, this%abz1%x,&
-                  this%abx2%x, this%aby2%x, this%abz2%x, &
+                  this%abx1, this%aby1, this%abz1,&
+                  this%abx2, this%aby2, this%abz2, &
                   f_Xh%u, f_Xh%v, f_Xh%w,&
                   params%rho, ab_bdf%ab, n, msh%gdim)
       call makebdf(ta1, ta2, ta3,&
-                   this%wa1%x, this%wa2%x, this%wa3%x,&
-                   c_Xh%h2, this%ulag, this%vlag, this%wlag, &
+                   this%wa1, this%wa2, this%wa3,&
+                   c_Xh%h2, ulag, vlag, wlag, &
                    f_Xh%u, f_Xh%v, f_Xh%w, u, v, w,&
                    c_Xh%B, params%rho, params%dt, &
                    ab_bdf%bd, ab_bdf%nbd, n, msh%gdim)
 
-    
-      do i = 3-1,2,-1
-         call copy(this%ulag(1,1,1,1,i), this%ulag(1,1,1,1,i-1), n)
-         call copy(this%vlag(1,1,1,1,i), this%vlag(1,1,1,1,i-1), n)
-         call copy(this%wlag(1,1,1,1,i), this%wlag(1,1,1,1,i-1), n)
-      end do
-    
-      call copy(this%ulag, u%x, n)
-      call copy(this%vlag, v%x, n)
-      call copy(this%wlag, w%x, n)
-      
+      call ulag%update()
+      call vlag%update()
+      call wlag%update()
 
       ! mask Dirichlet boundaries (velocity)
       call this%bc_apply_vel()
@@ -492,7 +475,7 @@ contains
   subroutine fluid_plan4_sumab(v,vv,vvlag,n,ab,nab)
     integer, intent(in) :: n, nab
     real(kind=rp), dimension(n), intent(inout) :: v, vv
-    real(kind=rp), dimension(n,2), intent(inout) :: vvlag
+    type(field_series_t), intent(inout) :: vvlag
     real(kind=rp), dimension(3), intent(in) :: ab
     real(kind=rp) :: ab0, ab1, ab2
 
@@ -500,8 +483,8 @@ contains
     ab1 = ab(2)
     ab2 = ab(3)
 
-    call add3s2(v,vv,vvlag(1,1),ab0,ab1,n)
-    if(nab .eq. 3) call add2s2(v,vvlag(1,2),ab2,n)
+    call add3s2(v,vv,vvlag%lf(1)%x,ab0,ab1,n)
+    if(nab .eq. 3) call add2s2(v,vvlag%lf(2)%x,ab2,n)
   end subroutine fluid_plan4_sumab
   
   !> Add contributions to F from lagged BD terms.
@@ -510,11 +493,11 @@ contains
     integer, intent(in) :: n, nbd, gdim
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(field_t), intent(in) :: u, v, w
-    real(kind=rp), intent(inout) :: tb1(n), tb2(n), tb3(n)
+    type(field_t), intent(inout) :: tb1, tb2, tb3
+    type(field_series_t), intent(in) :: ulag, vlag, wlag        
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(inout) :: h2(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(inout) :: ulag(n,nbd), vlag(n,nbd), wlag(n,nbd)
     real(kind=rp), intent(in) :: dt, rho, bd(10)
     real(kind=rp) :: const
     integer :: ilag
@@ -522,44 +505,44 @@ contains
     const = rho / dt
     call rone(h2, n)
     call cmult(h2,const,n)
-    call opcolv3c(tb1, tb2, tb3, u%x, v%x, w%x, B, bd(2), n, gdim)
+    call opcolv3c(tb1%x, tb2%x, tb3%x, u%x, v%x, w%x, B, bd(2), n, gdim)
     do ilag = 2, nbd
        call opcolv3c(ta1%x, ta2%x, ta3%x, &
-                     ulag(1,ilag-1), vlag(1,ilag-1), wlag(1,ilag-1), &
+                     ulag%lf(ilag-1)%x, vlag%lf(ilag-1)%x, wlag%lf(ilag-1)%x, &
                      B, bd(ilag+1), n, gdim)
-       call opadd2cm(tb1, tb2, tb3, ta1%x, ta2%x, ta3%x, 1.0_rp, n, gdim)
+       call opadd2cm(tb1%x, tb2%x, tb3%x, ta1%x, ta2%x, ta3%x, 1.0_rp, n, gdim)
     end do
-    call opadd2col(bfx, bfy, bfz, tb1, tb2, tb3, h2, n, gdim)
+    call opadd2col(bfx, bfy, bfz, tb1%x, tb2%x, tb3%x, h2, n, gdim)
   end subroutine makebdf
 
   !> Sum up contributions to kth order extrapolation scheme.
   subroutine makeabf(ta1, ta2, ta3, abx1, aby1, abz1, abx2, aby2, abz2, &
                      bfx, bfy, bfz, rho, ab, n, gdim)
     type(field_t), intent(inout) :: ta1, ta2, ta3
+    type(field_t), intent(inout) :: abx1, aby1, abz1
+    type(field_t), intent(inout) :: abx2, aby2, abz2
     real(kind=rp), intent(inout) :: rho, ab(10)
     integer, intent(in) :: n, gdim
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    real(kind=rp), intent(inout) :: abx1(n), aby1(n), abz1(n)
-    real(kind=rp), intent(inout) :: abx2(n), aby2(n), abz2(n)
     real(kind=rp) :: ab0, ab1, ab2
 
     ab0 = ab(1)
     ab1 = ab(2)
     ab2 = ab(3)
-    call add3s2(ta1%x, abx1, abx2, ab1, ab2, n)
-    call add3s2(ta2%x, aby1, aby2, ab1, ab2, n)
-    call copy(abx2, abx1, n)
-    call copy(aby2, aby1, n)
-    call copy(abx1, bfx, n)
-    call copy(aby1, bfy, n)
+    call add3s2(ta1%x, abx1%x, abx2%x, ab1, ab2, n)
+    call add3s2(ta2%x, aby1%x, aby2%x, ab1, ab2, n)
+    call copy(abx2%x, abx1%x, n)
+    call copy(aby2%x, aby1%x, n)
+    call copy(abx1%x, bfx, n)
+    call copy(aby1%x, bfy, n)
     call add2s1(bfx, ta1%x, ab0, n)
     call add2s1(bfy, ta2%x, ab0, n)
     call cmult(bfx, rho, n)          ! multiply by density
     call cmult(bfy, rho, n)
     if (gdim.eq.3) then
-       call add3s2(ta3%x, abz1, abz2, ab1, ab2, n)
-       call copy(abz2, abz1, n)
-       call copy(abz1, bfz, n)
+       call add3s2(ta3%x, abz1%x, abz2%x, ab1, ab2, n)
+       call copy(abz2%x, abz1%x, n)
+       call copy(abz1%x, bfz, n)
        call add2s1(bfz, ta3%x, ab0, n)
        call cmult(bfz, rho, n)
     end if
