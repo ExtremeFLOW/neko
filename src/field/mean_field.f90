@@ -8,7 +8,7 @@ module mean_field
   implicit none
   
   type, extends(stats_quant_t) ::  mean_field_t
-     type(field_t), pointer :: f
+     type(field_t), pointer :: f => null()
      type(field_t) :: mf
      real(kind=rp) :: time
    contains
