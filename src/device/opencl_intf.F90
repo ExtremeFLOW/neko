@@ -167,6 +167,24 @@ module opencl_intf
   end interface
 
   interface
+     integer (c_int) function clEnqueueCopyBuffer(queue, src_buffer, &
+          dst_buffer, src_offset, dst_offset, size, num_events_in_wait_list, &
+          event_wait_list, event) bind(c, name='clEnqueueCopyBuffer')
+       use,intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       type(c_ptr), value :: src_buffer
+       type(c_ptr), value :: dst_buffer
+       integer(c_size_t), value :: src_offset
+       integer(c_size_t), value :: dst_offset
+       integer(c_size_t), value :: size
+       integer(c_int), value :: num_events_in_wait_list
+       type(c_ptr), value :: event_wait_list
+       type(c_ptr), value :: event
+     end function clEnqueueCopyBuffer
+  end interface
+
+  interface
      integer (c_int) function clGetDeviceInfo(device, param_name, &
           param_value_size, param_value, param_value_size_ret) &
           bind(c, name='clGetDeviceInfo')
