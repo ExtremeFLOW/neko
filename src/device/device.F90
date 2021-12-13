@@ -138,7 +138,7 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
-       sync_device = .false.
+       sync_device = .true.
     end if
 
     select type(x)
@@ -176,7 +176,7 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
-       sync_device = .false.
+       sync_device = .true.
     end if
 
     select type(x)
@@ -214,7 +214,7 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
-       sync_device = .false.
+       sync_device = .true.
     end if
     
     select type(x)
@@ -252,7 +252,7 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
-       sync_device = .false.
+       sync_device = .true.
     end if
     
     select type(x)
@@ -296,16 +296,34 @@ contains
        call neko_error('Device memcpy failed (invalid direction')
     end if
 #elif HAVE_CUDA
-    if (dir .eq. HOST_TO_DEVICE) then
-       if (cudaMemcpy(x_d, ptr_h, s, cudaMemcpyHostToDevice) .ne. cudaSuccess) then
-          call neko_error('Device memcpy (host-to-device) failed')
-       end if
-    else if (dir .eq. DEVICE_TO_HOST) then       
-       if (cudaMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToHost) .ne. cudaSuccess) then
-          call neko_error('Device memcpy (device-to-host) failed')
+    if (sync_device) then
+       if (dir .eq. HOST_TO_DEVICE) then
+          if (cudaMemcpy(x_d, ptr_h, s, cudaMemcpyHostToDevice) &
+               .ne. cudaSuccess) then
+             call neko_error('Device memcpy (host-to-device) failed')
+          end if
+       else if (dir .eq. DEVICE_TO_HOST) then       
+          if (cudaMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToHost) &
+               .ne. cudaSuccess) then
+             call neko_error('Device memcpy (device-to-host) failed')
+          end if
+       else
+          call neko_error('Device memcpy failed (invalid direction')
        end if
     else
-       call neko_error('Device memcpy failed (invalid direction')
+       if (dir .eq. HOST_TO_DEVICE) then
+          if (cudaMemcpyAsync(x_d, ptr_h, s, cudaMemcpyHostToDevice) &
+               .ne. cudaSuccess) then
+             call neko_error('Device memcpy async (host-to-device) failed')
+          end if
+       else if (dir .eq. DEVICE_TO_HOST) then       
+          if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToHost) &
+               .ne. cudaSuccess) then
+             call neko_error('Device memcpy async (device-to-host) failed')
+          end if
+       else
+          call neko_error('Device memcpy failed (invalid direction')
+       end if
     end if
 #elif HAVE_OPENCL
     if (dir .eq. HOST_TO_DEVICE) then
@@ -318,9 +336,6 @@ contains
             0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
           call neko_error('Device memcpy (host-to-device) failed')
        end if
-    end if
-    if (sync_device) then
-       call device_sync
     end if
 #endif
   end subroutine device_memcpy_common
