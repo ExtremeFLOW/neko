@@ -41,7 +41,7 @@ AC_DEFUN([AX_HIP],[
 		   AC_DEFINE(HAVE_HIP,1,[Define if you have HIP.])
 		   LIBS="$HIP_LIBS $LIBS"
 		else
-		   LDFLAGS="$LDFLAGS_SAVED"		   
+		   AC_MSG_ERROR([HIP not found])
 		fi
 	        CC=$_CC
 		AC_LANG_POP([C])
