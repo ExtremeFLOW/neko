@@ -47,9 +47,7 @@ AC_DEFUN([AX_OPENCL],[
 		   AC_DEFINE(HAVE_OPENCL,1,[Define if you have OpenCL.])
 		   AC_MSG_RESULT([yes])	
 		else
-		   LDFLAGS="$LDFLAGS_SAVED"
-  		   LIBS="$LIBS_SAVED"
-		   AC_MSG_RESULT([no])	
+		   AC_MSG_ERROR([OpenCL not found])
 		fi
 		AC_LANG_POP([C])
 	fi
