@@ -31,6 +31,24 @@ __kernel void add2s2_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for add3s2
+ */
+__kernel void add3s2_kernel(__global real * __restrict__ a,
+			    __global const real * __restrict__ b,
+			    __global const real * __restrict__ c,
+			    const real c1,
+			    const real c2,
+			    const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c1 * b[i] + c2 * c[i];
+  }
+}
+
+/**
  * Device kernel for invcol1
  */
 __kernel void invcol1_kernel(__global real * __restrict__ a,
