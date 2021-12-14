@@ -13,7 +13,7 @@ module device
   integer, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
        DEVICE_TO_DEVICE = 3
 
-  !> Copy data between host and device
+  !> Copy data between host and device (or device and device)
   interface device_memcpy
      module procedure device_memcpy_r1, device_memcpy_r2, &
           device_memcpy_r3, device_memcpy_r4, device_memcpy_cptr
@@ -277,7 +277,7 @@ contains
     
   end subroutine device_memcpy_r4
 
-  !> Copy data between host and device (c-pointers)
+  !> Copy data between host and device (or device and device) (c-pointers)
   subroutine device_memcpy_cptr(dst, src, s, dir, sync)
     type(c_ptr), intent(inout) :: dst
     type(c_ptr), intent(inout) :: src
