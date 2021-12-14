@@ -54,6 +54,17 @@ module cuda_intf
   end interface
 
   interface
+     integer (c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir) &
+          bind(c, name='cudaMemcpyAsync')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_dst, ptr_src
+       integer(c_size_t), value :: s
+       integer(c_int), value :: dir
+     end function cudaMemcpyAsync
+  end interface
+  
+  interface
      integer (c_int) function cudaDeviceSynchronize() &
           bind(c, name='cudaDeviceSynchronize')
        use, intrinsic :: iso_c_binding
