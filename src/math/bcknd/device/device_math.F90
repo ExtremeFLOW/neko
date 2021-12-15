@@ -47,6 +47,18 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_add2s2
   end interface
+  
+  interface
+     subroutine hip_add3s2(a_d, b_d, c_d, c1, c2, n) &
+          bind(c, name='hip_add3s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       real(c_rp) :: c1, c2
+       integer(c_int) :: n
+     end subroutine hip_add3s2
+  end interface
 
   interface
      subroutine hip_invcol1(a_d, n) &
@@ -468,7 +480,7 @@ contains
     real(kind=rp) :: c1, c2
     integer :: n
 #ifdef HAVE_HIP
-!    call hip_add3s2(a_d, b_d, c_d, c1, c2, n)
+    call hip_add3s2(a_d, b_d, c_d, c1, c2, n)
 #elif HAVE_CUDA
     call cuda_add3s2(a_d, b_d, c_d, c1, c2, n)
 #elif HAVE_OPENCL
