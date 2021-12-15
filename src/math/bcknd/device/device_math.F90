@@ -47,6 +47,18 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_add2s2
   end interface
+  
+  interface
+     subroutine hip_add3s2(a_d, b_d, c_d, c1, c2, n) &
+          bind(c, name='hip_add3s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       real(c_rp) :: c1, c2
+       integer(c_int) :: n
+     end subroutine hip_add3s2
+  end interface
 
   interface
      subroutine hip_invcol1(a_d, n) &
@@ -173,6 +185,18 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_add3s2(a_d, b_d, c_d, c1, c2, n) &
+          bind(c, name='cuda_add3s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       real(c_rp) :: c1, c2
+       integer(c_int) :: n
+     end subroutine cuda_add3s2
+  end interface
+
+  interface
      subroutine cuda_invcol1(a_d, n) &
           bind(c, name='cuda_invcol1')
        use, intrinsic :: iso_c_binding
@@ -294,6 +318,18 @@ module device_math
        real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine opencl_add2s2
+  end interface
+
+  interface
+     subroutine opencl_add3s2(a_d, b_d, c_d, c1, c2, n) &
+          bind(c, name='opencl_add3s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       real(c_rp) :: c1, c2
+       integer(c_int) :: n
+     end subroutine opencl_add3s2
   end interface
 
   interface
@@ -438,6 +474,21 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
+
+  subroutine device_add3s2(a_d, b_d, c_d, c1, c2 ,n)
+    type(c_ptr) :: a_d, b_d, c_d
+    real(kind=rp) :: c1, c2
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_add3s2(a_d, b_d, c_d, c1, c2, n)
+#elif HAVE_CUDA
+    call cuda_add3s2(a_d, b_d, c_d, c1, c2, n)
+#elif HAVE_OPENCL
+    call opencl_add3s2(a_d, b_d, c_d, c1, c2, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_add3s2
 
   subroutine device_invcol1(a_d, n)
     type(c_ptr) :: a_d

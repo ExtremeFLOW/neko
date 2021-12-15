@@ -85,6 +85,34 @@ void opencl_add2s2(void *a, void *b, real *c1, int *n) {
 }
 
 /**
+ * Fortran wrapper for add3s2
+ * Vector addition with scalar multiplication \f$ a = c1 * b + c2 * c \f$
+ */
+void opencl_add3s2(void *a, void *b, void * c, real *c1, real *c2, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "add3s2_kernel", &err);
+
+  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
+  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
+  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c);
+  err = clSetKernelArg(kernel, 3, sizeof(real), c1);
+  err = clSetKernelArg(kernel, 4, sizeof(real), c2);
+  err = clSetKernelArg(kernel, 5, sizeof(int), n);
+  
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+			       NULL, &global_item_size, &local_item_size,
+			       0, NULL, NULL);  
+}
+
+/**
  * Fortran wrapper for invcol1
  * Invert a vector \f$ a = 1 / a \f$
  */
