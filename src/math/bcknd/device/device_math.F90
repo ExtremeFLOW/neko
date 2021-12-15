@@ -173,6 +173,18 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_add3s2(a_d, b_d, c_d, c1, c2, n) &
+          bind(c, name='cuda_add3s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       real(c_rp) :: c1, c2
+       integer(c_int) :: n
+     end subroutine cuda_add3s2
+  end interface
+
+  interface
      subroutine cuda_invcol1(a_d, n) &
           bind(c, name='cuda_invcol1')
        use, intrinsic :: iso_c_binding
@@ -458,7 +470,7 @@ contains
 #ifdef HAVE_HIP
 !    call hip_add3s2(a_d, b_d, c_d, c1, c2, n)
 #elif HAVE_CUDA
-!    call cuda_add3s2(a_d, b_d, c_d, c1, c2, n)
+    call cuda_add3s2(a_d, b_d, c_d, c1, c2, n)
 #elif HAVE_OPENCL
     call opencl_add3s2(a_d, b_d, c_d, c1, c2, n)
 #else

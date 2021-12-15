@@ -29,8 +29,8 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     add2s1_kernel<real><<<nblcks, nthrds>>>((real *) a,
-					      (real *) b,
-					      *c1, *n);
+					    (real *) b,
+					    *c1, *n);
     
   }
 
@@ -45,11 +45,29 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     add2s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
-					      (real *) b,
-					      *c1, *n);
+					    (real *) b,
+					    *c1, *n);
 
   }
 
+  /**
+   * Fortran wrapper for add3s2
+   * Vector addition with scalar multiplication \f$ a = c_1 b + c_2 c \f$
+   * (multiplication on second argument) 
+   */
+  void cuda_add3s2(void *a, void *b, void *c, real *c1, real *c2, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    add3s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					    (real *) b,
+					    (real *) c,
+					    *c1, *c2, *n);
+
+  }
+
+ 
   /**
    * Fortran wrapper for invcol1
    * Invert a vector \f$ a = 1 / a \f$
