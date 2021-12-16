@@ -18,6 +18,27 @@ extern "C" {
     hipMemsetAsync(a, 0, (*n) * sizeof(real));
   }
 
+  /** Fortran wrapper for rone
+   * Set all elements to one
+   */
+  void hip_rone(void *a, int *n) {
+    hipMemsetAsync(a, 1, (*n) * sizeof(real));
+  }
+
+  /** Fortran wrapper for cmult
+   * Multiplication by constant c \f$ a = c \cdot a \f$
+   */
+  void hip_cmult(void *a, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cmult_kernel<real>),
+		       nblcks, nthrds, 0, 0,
+		       (real *) a, *c, *n);
+    
+  }
+
   
   /**
    * Fortran wrapper for add2s1
@@ -125,8 +146,21 @@ extern "C" {
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
   }
-  
 
+  /**
+   * Fortran wrapper for subcol3
+   * Vector multiplication with 3 vectors \f$ a = b \cdot c \f$
+   */
+  void hip_subcol3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(subcol3_kernel<real>),
+		       nblcks, nthrds, 0, 0,
+		       (real *) a, (real *) b, (real *) c, *n);
+  }
+  
   /**
    * Fortran wrapper for sub3
    * Vector subtraction \f$ a = b - c \f$

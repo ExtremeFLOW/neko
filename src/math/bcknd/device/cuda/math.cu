@@ -17,6 +17,25 @@ extern "C" {
     cudaMemsetAsync(a, 0, (*n) * sizeof(real));
   }
 
+  /** Fortran wrapper for rone
+   * Set all elements to one
+   */
+  void cuda_rone(void *a, int *n) {
+    cudaMemsetAsync(a, 1, (*n) * sizeof(real));
+  }
+
+  /** Fortran wrapper for cmult
+   * Multiplication by constant c \f$ a = c \cdot a \f$
+   */
+  void cuda_cmult(void *a, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cmult_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					   *c, *n);
+
+  }
   
   /**
    * Fortran wrapper for add2s1
@@ -117,6 +136,19 @@ extern "C" {
 
     col3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					    (real *) c, *n);
+  }
+
+  /**
+   * Fortran wrapper for subcol3
+   * Vector multiplication with 3 vectors \f$ a = a - b \cdot c \f$
+   */
+  void cuda_subcol3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    subcol3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
+					     (real *) c, *n);
   }
   
 

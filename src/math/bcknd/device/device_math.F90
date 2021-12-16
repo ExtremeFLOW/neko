@@ -16,6 +16,17 @@ module device_math
   end interface
 
   interface
+     subroutine hip_cmult(a_d, c, n) &
+          bind(c, name='hip_cmult')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine hip_cmult
+  end interface
+  
+  interface
      subroutine hip_rzero(a_d, n) &
           bind(c, name='hip_rzero')
        use, intrinsic :: iso_c_binding
@@ -23,7 +34,16 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_rzero
   end interface
-
+  
+  interface
+     subroutine hip_rone(a_d, n) &
+          bind(c, name='hip_rone')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine hip_rone
+  end interface
+  
   interface
      subroutine hip_add2s1(a_d, b_d, c1, n) &
           bind(c, name='hip_add2s1')
@@ -99,6 +119,16 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_col3
   end interface
+
+  interface
+     subroutine hip_subcol3(a_d, b_d, c_d, n) &
+          bind(c, name='hip_subcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_subcol3
+  end interface
   
   interface
      subroutine hip_sub3(a_d, b_d, c_d, n) &
@@ -152,12 +182,32 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_cmult(a_d, c, n) &
+          bind(c, name='cuda_cmult')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cmult
+  end interface
+
+  interface
      subroutine cuda_rzero(a_d, n) &
           bind(c, name='cuda_rzero')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine cuda_rzero
+  end interface
+
+    interface
+     subroutine cuda_rone(a_d, n) &
+          bind(c, name='cuda_rone')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine cuda_rone
   end interface
 
   interface
@@ -235,6 +285,16 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_col3
   end interface
+
+  interface
+     subroutine cuda_subcol3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_subcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine cuda_subcol3
+  end interface
   
   interface
      subroutine cuda_sub3(a_d, b_d, c_d, n) &
@@ -288,12 +348,32 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_cmult(a_d, c, n) &
+          bind(c, name='opencl_cmult')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cmult
+  end interface
+
+  interface
      subroutine opencl_rzero(a_d, n) &
           bind(c, name='opencl_rzero')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine opencl_rzero
+  end interface
+
+  interface
+     subroutine opencl_rone(a_d, n) &
+          bind(c, name='opencl_rone')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine opencl_rone
   end interface
   
   interface
@@ -371,6 +451,16 @@ module device_math
        integer(c_int) :: n
      end subroutine opencl_col3
   end interface
+
+  interface
+     subroutine opencl_subcol3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_subcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine opencl_subcol3
+  end interface
   
   interface
      subroutine opencl_sub3(a_d, b_d, c_d, n) &
@@ -444,6 +534,35 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_rzero
+
+  subroutine device_rone(a_d, n)
+    type(c_ptr) :: a_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_rzero(a_d, n)
+#elif HAVE_CUDA
+    call cuda_rone(a_d, n)
+#elif HAVE_OPENCL
+    call opencl_rzero(a_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_rone
+
+  subroutine device_cmult(a_d, c, n)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: c
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_cmult(a_d, c, n)
+#elif HAVE_CUDA
+    call cuda_cmult(a_d, c, n)
+#elif HAVE_OPENCL
+    call opencl_cmult(a_d, c, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cmult
 
   subroutine device_add2s1(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
@@ -545,6 +664,20 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_col3
+
+  subroutine device_subcol3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_subcol3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    call cuda_subcol3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    call opencl_subcol3(a_d, b_d, c_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_subcol3
   
   subroutine device_sub3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d

@@ -1,4 +1,20 @@
 /**
+ * Device kernel for cmult
+ */
+template< typename T >
+__global__ void cmult_kernel(T * __restrict__ a,
+			     const T c,
+			     const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c * a[i];
+  }
+}
+
+/**
  * Device kernel for add2s1
  */
 template< typename T >
@@ -112,6 +128,23 @@ __global__ void col3_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] * c[i];
+  }  
+}
+
+/** 
+ * Device kernel for subcol3
+ */
+template< typename T >
+__global__ void subcol3_kernel(T * __restrict__ a,
+			       const T * __restrict__ b,
+			       const T * __restrict__ c,
+			       const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] - b[i] * c[i];
   }  
 }
 

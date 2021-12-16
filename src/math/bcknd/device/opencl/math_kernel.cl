@@ -1,4 +1,19 @@
 /**
+ * Device kernel for cmult
+ */
+__kernel void cmult_kernel(__global real * __restrict__ a,
+			   const real c,
+			   const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c * a[i];
+  } 
+}
+
+/**
  * Device kernel for add2s1
  */
 __kernel void add2s1_kernel(__global real * __restrict__ a,
@@ -105,6 +120,22 @@ __kernel void col3_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] * c[i];
+  }  
+}
+
+/** 
+ * Device kernel for subcol3
+ */
+__kernel void subcol3_kernel(__global real * __restrict__ a,
+			     __global const real * __restrict__ b,
+			     __global const real * __restrict__ c,
+			     const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] - b[i] * c[i];
   }  
 }
 
