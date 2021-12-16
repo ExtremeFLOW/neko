@@ -9,6 +9,7 @@ module advection
   use neko_config
   use operators
   use interpolation
+  use, intrinsic :: iso_c_binding
   implicit none
   private
   
@@ -19,6 +20,7 @@ module advection
 
   type, public, extends(advection_t) :: adv_no_dealias_t
      real(kind=rp), allocatable :: temp(:)
+     type(c_ptr) :: temp_d = C_NULL_PTR
    contains
      procedure, pass(this) :: apply => advab
   end type adv_no_dealias_t
@@ -66,6 +68,9 @@ contains
           if (allocated(adv%temp)) then
              deallocate(adv%temp)
           end if
+          if (c_associated(adv%temp_d)) then
+             call device_free(adv%temp_d)
+          end if
        end select
        deallocate(this)
     end if
@@ -94,6 +99,11 @@ contains
     type(coef_t) :: coef
 
     allocate(this%temp(coef%dof%n_dofs))
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_map(this%temp, this%temp_d, coef%dof%n_dofs)
+    end if
 
   end subroutine init_no_dealias
 
