@@ -2,6 +2,7 @@
 !
 module field
   use neko_config
+  use device_math
   use num_types
   use device
   use math
@@ -156,12 +157,26 @@ contains
     f%Xh%ly = g%Xh%ly
     f%Xh%lz = g%Xh%lz
     
-    if (.not. allocated(f%x)) then
-       allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv))
-    end if
-    
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    call copy(f%x, g%x, n)
+    
+    if (.not. allocated(f%x)) then
+       
+       allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv))
+       
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          call device_map(f%x, f%x_d, n)
+       end if
+       
+    end if
+
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_copy(f%x_d, g%x_d, n)
+    else
+       call copy(f%x, g%x, n)
+    end if
     
   end subroutine field_assign_field
 
