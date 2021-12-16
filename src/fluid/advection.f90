@@ -61,6 +61,12 @@ contains
     integer, intent(in) :: lxd
 
     if (allocated(this)) then
+       select type(adv => this)
+       type is(adv_no_dealias_t)
+          if (allocated(adv%temp)) then
+             deallocate(adv%temp)
+          end if
+       end select
        deallocate(this)
     end if
 
