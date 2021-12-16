@@ -36,6 +36,19 @@ extern "C" {
 					   *c, *n);
 
   }
+
+  /** Fortran wrapper for cfill
+   * Set all elements to a constant c \f$ a = c \f$
+   */
+  void cuda_cfill(void *a, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cfill_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					   *c, *n);
+
+  }
   
   /**
    * Fortran wrapper for add2s1
