@@ -153,7 +153,7 @@ module device_math
 
   interface
      subroutine cuda_cmult(a_d, c, n) &
-          bind(c, name='cuda_copy')
+          bind(c, name='cuda_cmult')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a_d
