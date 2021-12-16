@@ -348,12 +348,32 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_cmult(a_d, c, n) &
+          bind(c, name='opencl_cmult')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cmult
+  end interface
+
+  interface
      subroutine opencl_rzero(a_d, n) &
           bind(c, name='opencl_rzero')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine opencl_rzero
+  end interface
+
+  interface
+     subroutine opencl_rone(a_d, n) &
+          bind(c, name='opencl_rone')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine opencl_rone
   end interface
   
   interface
@@ -430,6 +450,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine opencl_col3
+  end interface
+
+  interface
+     subroutine opencl_subcol3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_subcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine opencl_subcol3
   end interface
   
   interface
@@ -513,7 +543,7 @@ contains
 #elif HAVE_CUDA
     call cuda_rone(a_d, n)
 #elif HAVE_OPENCL
-!    call opencl_rzero(a_d, n)
+    call opencl_rzero(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -528,7 +558,7 @@ contains
 #elif HAVE_CUDA
     call cuda_cmult(a_d, c, n)
 #elif HAVE_OPENCL
-!    call opencl_copy(a_d, b_d, n)
+    call opencl_cmult(a_d, c, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -643,7 +673,7 @@ contains
 #elif HAVE_CUDA
     call cuda_subcol3(a_d, b_d, c_d, n)
 #elif HAVE_OPENCL
-!    call opencl_col3(a_d, b_d, c_d, n)
+    call opencl_subcol3(a_d, b_d, c_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
