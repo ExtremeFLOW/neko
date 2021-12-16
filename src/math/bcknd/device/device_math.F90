@@ -16,6 +16,17 @@ module device_math
   end interface
 
   interface
+     subroutine hip_cmult(a_d, c, n) &
+          bind(c, name='hip_cmult')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine hip_cmult
+  end interface
+  
+  interface
      subroutine hip_rzero(a_d, n) &
           bind(c, name='hip_rzero')
        use, intrinsic :: iso_c_binding
@@ -23,7 +34,16 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_rzero
   end interface
-
+  
+  interface
+     subroutine hip_rone(a_d, n) &
+          bind(c, name='hip_rone')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine hip_rone
+  end interface
+  
   interface
      subroutine hip_add2s1(a_d, b_d, c1, n) &
           bind(c, name='hip_add2s1')
@@ -98,6 +118,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine hip_col3
+  end interface
+
+  interface
+     subroutine hip_subcol3(a_d, b_d, c_d, n) &
+          bind(c, name='hip_subcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_subcol3
   end interface
   
   interface
@@ -479,7 +509,7 @@ contains
     type(c_ptr) :: a_d
     integer :: n
 #ifdef HAVE_HIP
-!    call hip_rzero(a_d, n)
+    call hip_rzero(a_d, n)
 #elif HAVE_CUDA
     call cuda_rone(a_d, n)
 #elif HAVE_OPENCL
@@ -494,7 +524,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: n
 #ifdef HAVE_HIP
-!    call hip_copy(a_d, b_d, n)
+    call hip_cmult(a_d, c, n)
 #elif HAVE_CUDA
     call cuda_cmult(a_d, c, n)
 #elif HAVE_OPENCL
@@ -609,7 +639,7 @@ contains
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
 #ifdef HAVE_HIP
-!    call hip_col3(a_d, b_d, c_d, n)
+    call hip_subcol3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_subcol3(a_d, b_d, c_d, n)
 #elif HAVE_OPENCL
