@@ -152,12 +152,32 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_cmult(a_d, c, n) &
+          bind(c, name='cuda_copy')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cmult
+  end interface
+
+  interface
      subroutine cuda_rzero(a_d, n) &
           bind(c, name='cuda_rzero')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine cuda_rzero
+  end interface
+
+    interface
+     subroutine cuda_rone(a_d, n) &
+          bind(c, name='cuda_rone')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine cuda_rone
   end interface
 
   interface
@@ -234,6 +254,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine cuda_col3
+  end interface
+
+  interface
+     subroutine cuda_subcol3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_subcol3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine cuda_subcol3
   end interface
   
   interface
@@ -445,6 +475,35 @@ contains
 #endif
   end subroutine device_rzero
 
+  subroutine device_rone(a_d, n)
+    type(c_ptr) :: a_d
+    integer :: n
+#ifdef HAVE_HIP
+!    call hip_rzero(a_d, n)
+#elif HAVE_CUDA
+    call cuda_rone(a_d, n)
+#elif HAVE_OPENCL
+!    call opencl_rzero(a_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_rone
+
+  subroutine device_cmult(a_d, c, n)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: c
+    integer :: n
+#ifdef HAVE_HIP
+!    call hip_copy(a_d, b_d, n)
+#elif HAVE_CUDA
+    call cuda_cmult(a_d, c, n)
+#elif HAVE_OPENCL
+!    call opencl_copy(a_d, b_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cmult
+
   subroutine device_add2s1(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
@@ -545,6 +604,20 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_col3
+
+  subroutine device_subcol3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+#ifdef HAVE_HIP
+!    call hip_col3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    call cuda_subcol3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+!    call opencl_col3(a_d, b_d, c_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_subcol3
   
   subroutine device_sub3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
