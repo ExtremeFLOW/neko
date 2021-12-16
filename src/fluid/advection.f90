@@ -193,17 +193,37 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
+    type(c_ptr) :: bfx_d, bfy_d, bfz_d
 
-    call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-    call subcol3 (bfx, coef%B, this%temp, n)
-    call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-    call subcol3 (bfy, coef%B, this%temp, n)
-    if (coef%Xh%lz .eq. 1) then
-       call rzero (this%temp, n)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       bfx_d = device_get_ptr(bfx, n)
+       bfy_d = device_get_ptr(bfy, n)
+       bfz_d = device_get_ptr(bfz, n)
+       
+       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
+       call device_subcol3 (bfx_d, coef%B_d, this%temp_d, n)
+       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
+       call device_subcol3 (bfy_d, coef%B_d, this%temp_d, n)
+       if (coef%Xh%lz .eq. 1) then
+          call device_rzero (this%temp_d, n)
+       else
+          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
+          call device_subcol3(bfz_d, coef%B_d, this%temp_d, n)
+       end if
     else
-       call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3(bfz, coef%B, this%temp, n)
+       call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
+       call subcol3 (bfx, coef%B, this%temp, n)
+       call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
+       call subcol3 (bfy, coef%B, this%temp, n)
+       if (coef%Xh%lz .eq. 1) then
+          call rzero (this%temp, n)
+       else
+          call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
+          call subcol3(bfz, coef%B, this%temp, n)
+       end if
     end if
+
   end subroutine advab
 
 end module advection
