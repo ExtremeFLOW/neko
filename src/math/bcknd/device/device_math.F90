@@ -204,6 +204,17 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_cfill(a_d, c, n) &
+          bind(c, name='cuda_cfill')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cfill
+  end interface
+
+  interface
      subroutine cuda_rzero(a_d, n) &
           bind(c, name='cuda_rzero')
        use, intrinsic :: iso_c_binding
@@ -593,7 +604,7 @@ contains
 #ifdef HAVE_HIP
     call hip_cfill(a_d, c, n)
 #elif HAVE_CUDA
-!    call cuda_cmult(a_d, c, n)
+    call cuda_cfill(a_d, c, n)
 #elif HAVE_OPENCL
     call opencl_cfill(a_d, c, n)
 #else
