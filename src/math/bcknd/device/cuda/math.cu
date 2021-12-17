@@ -180,6 +180,18 @@ extern "C" {
   
 
   /**
+   * Fortran wrapper for sub2
+   * Vector subtraction \f$ a = a - b \f$
+   */
+  void cuda_sub2(void *a, void *b, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    sub2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b, *n);
+  }
+
+  /**
    * Fortran wrapper for sub3
    * Vector subtraction \f$ a = b - c \f$
    */
