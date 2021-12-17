@@ -244,6 +244,17 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_add2(a_d, b_d, n) &
+          bind(c, name='cuda_add2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine cuda_add2
+  end interface
+  
+  interface
      subroutine cuda_add2s1(a_d, b_d, c1, n) &
           bind(c, name='cuda_add2s1')
        use, intrinsic :: iso_c_binding
@@ -639,7 +650,7 @@ contains
 #ifdef HAVE_HIP
     call hip_add2(a_d, b_d, n)
 #elif HAVE_CUDA
-      !    call cuda_add2(a_d, b_d, n)
+    call cuda_add2(a_d, b_d, n)
 #elif HAVE_OPENCL
     call opencl_add2(a_d, b_d, n)
 #else
