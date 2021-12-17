@@ -29,6 +29,21 @@ __kernel void cfill_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for add2
+ */
+__kernel void add2_kernel(__global real * __restrict__ a,
+			  __global const real * __restrict__ b,
+			  const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + b[i];
+  } 
+}
+
+/**
  * Device kernel for add2s1
  */
 __kernel void add2s1_kernel(__global real * __restrict__ a,
