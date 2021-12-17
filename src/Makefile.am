@@ -113,6 +113,7 @@ libneko_a_SOURCES = \
 	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
+	krylov/bcknd/device/pipecg_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
@@ -189,6 +190,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	krylov/bcknd/device/cuda/pipecg_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
@@ -260,6 +262,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
 	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
+	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
