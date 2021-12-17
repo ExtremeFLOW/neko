@@ -181,6 +181,22 @@ __global__ void subcol3_kernel(T * __restrict__ a,
 }
 
 /** 
+ * Device kernel for sub2
+ */
+template< typename T >
+__global__ void sub2_kernel(T * __restrict__ a,
+			    const T * __restrict__ b,
+			    const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] - b[i];
+  }  
+}
+
+/** 
  * Device kernel for sub3
  */
 template< typename T >
