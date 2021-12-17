@@ -281,7 +281,7 @@ contains
   subroutine device_memcpy_cptr(dst, src, s, dir, sync)
     type(c_ptr), intent(inout) :: dst
     type(c_ptr), intent(inout) :: src
-    integer(c_size_t), intent(inout) :: s
+    integer(c_size_t), intent(in) :: s
     integer, intent(in), value :: dir
     logical, optional :: sync
     logical :: sync_device
