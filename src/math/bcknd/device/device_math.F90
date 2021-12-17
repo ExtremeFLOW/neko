@@ -25,6 +25,17 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_cmult
   end interface
+
+  interface
+     subroutine hip_cfill(a_d, c, n) &
+          bind(c, name='hip_cfill')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine hip_cfill
+  end interface
   
   interface
      subroutine hip_rzero(a_d, n) &
@@ -193,6 +204,17 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_cfill(a_d, c, n) &
+          bind(c, name='cuda_cfill')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cfill
+  end interface
+
+  interface
      subroutine cuda_rzero(a_d, n) &
           bind(c, name='cuda_rzero')
        use, intrinsic :: iso_c_binding
@@ -356,6 +378,17 @@ module device_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine opencl_cmult
+  end interface
+
+  interface
+     subroutine opencl_cfill(a_d, c, n) &
+          bind(c, name='opencl_cfill')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cfill
   end interface
 
   interface
@@ -563,6 +596,21 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_cmult
+
+  subroutine device_cfill(a_d, c, n)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: c
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_cfill(a_d, c, n)
+#elif HAVE_CUDA
+    call cuda_cfill(a_d, c, n)
+#elif HAVE_OPENCL
+    call opencl_cfill(a_d, c, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cfill
 
   subroutine device_add2s1(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
