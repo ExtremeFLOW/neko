@@ -52,6 +52,21 @@ extern "C" {
 		       (real *) a, *c, *n);
     
   }
+
+  /**
+   * Fortran wrapper for add2
+   * Vector addition \f$ a = a + b \f$
+   */
+  void hip_add2(void *a, void *b, int *n) {
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add2_kernel<real>),
+		       nblcks, nthrds, 0, 0,
+		       (real *) a, (real *) b, *n);
+    
+  }
   
   /**
    * Fortran wrapper for add2s1
