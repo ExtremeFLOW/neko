@@ -132,6 +132,7 @@ libneko_a_SOURCES = \
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
+	fluid/bcknd/device/device_fluid_plan4.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\

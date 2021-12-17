@@ -1,5 +1,6 @@
 !> Factory for all fluid schemes
 module fluid_fctry
+  use device_fluid_plan4
   use fluid_plan1
   use fluid_plan4
   use fluid_method
@@ -17,7 +18,12 @@ contains
     if (trim(fluid_scheme) .eq. 'plan1') then
        allocate(fluid_plan1_t::fluid)
     else if (trim(fluid_scheme) .eq. 'plan4') then
-       allocate(fluid_plan4_t::fluid)
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          allocate(device_fluid_plan4_t::fluid)
+       else
+          allocate(fluid_plan4_t::fluid)
+       end if
     else
        call neko_error('Invalid fluid scheme')
     end if
