@@ -173,6 +173,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
+	krylov/bcknd/device/hip/pipecg_aux.hip\
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
@@ -263,6 +264,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/opgrad_kernel.h\
 	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
+	krylov/bcknd/device/hip/pipecg_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
