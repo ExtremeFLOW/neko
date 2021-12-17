@@ -136,6 +136,39 @@ contains
     end if
     
   end subroutine test_device_math_cfill
+
+  @test
+  subroutine test_device_math_add2(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       do i = 1, n
+          a(i) = 40.0_rp
+          b(i) = 2.0_rp
+       end do
+       
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+       
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       call device_add2(a_d, b_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(42.0_rp, a(i))
+       end do
+    end if
+    
+  end subroutine test_device_math_add2
   
   @test
   subroutine test_device_math_add2s1(this)
@@ -376,6 +409,39 @@ contains
 
   end subroutine test_device_math_col3
 
+  @test
+  subroutine test_device_math_sub2(this)
+    class(test_device_math), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b
+    type(c_ptr) :: a_d = C_NULL_PTR
+    type(c_ptr) :: b_d = C_NULL_PTR
+    integer :: i
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       do i = 1, n
+          a(i) = 44.0_rp
+          b(i) = 2.0_rp
+       end do
+       
+       call device_map(a, a_d, size(a))
+       call device_map(b, b_d, size(b))
+
+       call device_memcpy(a, a_d, size(a), HOST_TO_DEVICE)
+       call device_memcpy(b, b_d, size(b), HOST_TO_DEVICE)
+       
+       call device_sub2(a_d, b_d, n)
+       
+       call device_memcpy(a, a_d, size(a), DEVICE_TO_HOST)
+       
+       do i = 1, n
+          @assertEqual(42.0_rp, a(i))
+       end do
+    end if
+
+  end subroutine test_device_math_sub2
+  
   @test
   subroutine test_device_math_sub3(this)
     class(test_device_math), intent(inout) :: this

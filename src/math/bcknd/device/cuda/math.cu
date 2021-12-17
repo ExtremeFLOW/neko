@@ -49,6 +49,20 @@ extern "C" {
 					   *c, *n);
 
   }
+
+  /**
+   * Fortran wrapper for add2
+   * Vector addition \f$ a = a + b \f$
+   */
+  void cuda_add2(void *a, void *b, int *n) {
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    add2_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					  (real *) b, *n);
+    
+  }
   
   /**
    * Fortran wrapper for add2s1
@@ -164,6 +178,18 @@ extern "C" {
 					     (real *) c, *n);
   }
   
+
+  /**
+   * Fortran wrapper for sub2
+   * Vector subtraction \f$ a = a - b \f$
+   */
+  void cuda_sub2(void *a, void *b, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    sub2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b, *n);
+  }
 
   /**
    * Fortran wrapper for sub3
