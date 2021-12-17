@@ -351,11 +351,11 @@ module device_math
   end interface
 
   interface
-     subroutine cuda_sub2(a_d, b_d, c_d, n) &
+     subroutine cuda_sub2(a_d, b_d, n) &
           bind(c, name='cuda_sub2')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: a_d, b_d, c_d
+       type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine cuda_sub2
   end interface
