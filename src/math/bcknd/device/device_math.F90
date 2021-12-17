@@ -183,6 +183,16 @@ module device_math
   end interface
 
   interface
+     subroutine hip_addcol4(a_d, b_d, c_d, d_d, n) &
+          bind(c, name='hip_addcol4')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d
+       integer(c_int) :: n
+     end subroutine hip_addcol4
+  end interface
+
+  interface
      real(c_rp) function hip_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='hip_glsc3')
        use, intrinsic :: iso_c_binding
@@ -381,6 +391,16 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_addcol4(a_d, b_d, c_d, d_d, n) &
+          bind(c, name='cuda_addcol4')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d
+       integer(c_int) :: n
+     end subroutine cuda_addcol4
+  end interface
+
+  interface
      real(c_rp) function cuda_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='cuda_glsc3')
        use, intrinsic :: iso_c_binding
@@ -575,6 +595,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine opencl_addcol3
+  end interface
+  
+  interface
+     subroutine opencl_addcol4(a_d, b_d, c_d, d_d, n) &
+          bind(c, name='opencl_addcol4')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d
+       integer(c_int) :: n
+     end subroutine opencl_addcol4
   end interface
 
   interface
@@ -844,6 +874,20 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_addcol3
+
+  subroutine device_addcol4(a_d, b_d, c_d, d_d, n)
+    type(c_ptr) :: a_d, b_d, c_d, d_D
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_addcol4(a_d, b_d, c_d, d_d, n)
+#elif HAVE_CUDA
+    call cuda_addcol4(a_d, b_d, c_d, d_d, n)
+#elif HAVE_OPENCL
+    call opencl_addcol4(a_d, b_d, c_d, d_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_addcol4
   
   function device_glsc3(a_d, b_d, c_d, n) result(res)
     type(c_ptr) :: a_d, b_d, c_d
