@@ -218,6 +218,19 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for addcol4
+   * \f$ a = a + b * c * d\f$
+   */
+  void cuda_addcol4(void *a, void *b, void *c, void *d, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    addcol4_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
+					     (real *) c, (real *) d, *n);
+  }
+
+  /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
    */

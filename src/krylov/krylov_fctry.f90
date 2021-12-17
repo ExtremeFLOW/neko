@@ -5,6 +5,7 @@ module krylov_fctry
   use cacg
   use pipecg
   use pipecg_sx
+  use pipecg_device
   use bicgstab
   use gmres
   use gmres_sx
