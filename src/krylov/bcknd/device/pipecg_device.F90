@@ -89,6 +89,7 @@ contains
     real(kind=rp), optional, intent(inout) :: abs_tol
     type(c_ptr) :: ptr
     type(device_ident_t), target :: M_ident
+    integer(c_size_t) :: u_size
     integer :: i
         
     call this%free()
@@ -119,14 +120,15 @@ contains
     call device_map(this%z, this%z_d, n)
     call device_map(this%mi, this%mi_d, n)
     call device_map(this%ni, this%ni_d, n)
-
     do i = 1, this%p_space+1
        this%u_d(i) = c_null_ptr
        call device_map_r1(this%u(:,i), this%u_d(i), n)
     end do
-    call device_alloc(this%u_d_d, sizeof(this%u_d))
+    !Did not work with 4 for some reason...
+    u_size = 8*(this%p_space+1)
+    call device_alloc(this%u_d_d, u_size)
     ptr = c_loc(this%u_d)
-    call device_memcpy(ptr,this%u_d_d, sizeof(this%u_d), HOST_TO_DEVICE)
+    call device_memcpy(ptr,this%u_d_d, u_size, HOST_TO_DEVICE)
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
@@ -208,7 +210,6 @@ contains
              call device_free(this%u_d(i))
           end if
        end do
-       call device_free(this%u_d)
     end if
 
 
