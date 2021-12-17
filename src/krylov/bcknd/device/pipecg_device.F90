@@ -32,7 +32,7 @@ module pipecg_device
   end type pipecg_device_t
 #ifdef HAVE_CUDA
   interface
-     subroutine device_pipecg_vecops(p_d, q_d, r_d,&
+     subroutine cuda_pipecg_vecops(p_d, q_d, r_d,&
           s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
           bind(c, name='cuda_pipecg_vecops')
        use, intrinsic :: iso_c_binding
@@ -42,20 +42,20 @@ module pipecg_device
        type(c_ptr), value :: w_d, ni_d, mi_d, z_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: alpha, beta, reduction(3)
-     end subroutine device_pipecg_vecops
+     end subroutine cuda_pipecg_vecops
   end interface
   interface
-     subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) &
+     subroutine cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) &
           bind(c, name='cuda_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
        integer(c_int) :: p_cur, n, p_space
-     end subroutine device_cg_update_xp
+     end subroutine cuda_cg_update_xp
   end interface
 #elif HAVE_HIP
   interface
-     subroutine device_pipecg_vecops(p_d, q_d, r_d,&
+     subroutine hip_pipecg_vecops(p_d, q_d, r_d,&
           s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
           bind(c, name='hip_pipecg_vecops')
        use, intrinsic :: iso_c_binding
@@ -65,21 +65,49 @@ module pipecg_device
        type(c_ptr), value :: w_d, ni_d, mi_d, z_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: alpha, beta, reduction(3)
-     end subroutine device_pipecg_vecops
+     end subroutine hip_pipecg_vecops
   end interface
   interface
-     subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) &
+     subroutine hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) &
           bind(c, name='hip_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
        integer(c_int) :: p_cur, n, p_space
-     end subroutine device_cg_update_xp
+     end subroutine hip_cg_update_xp
   end interface
 #endif
 
-contains
 
+contains
+  subroutine device_pipecg_vecops(p_d, q_d, r_d,&
+  s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+    type(c_ptr), value :: p_d, q_d, r_d, s_d, u_d1, u_d2
+    type(c_ptr), value :: w_d, ni_d, mi_d, z_d, mult_d
+    integer(c_int) :: n
+    real(c_rp) :: alpha, beta, reduction(3)
+#ifdef HAVE_HIP
+    call hip_pipecg_vecops(p_d, q_d, r_d,&
+       s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) 
+#elif HAVE_CUDA
+    call cuda_pipecg_vecops(p_d, q_d, r_d,&
+       s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) 
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_pipecg_vecops
+  subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) 
+    use, intrinsic :: iso_c_binding
+    type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
+    integer(c_int) :: p_cur, n, p_space
+#ifdef HAVE_HIP
+    call hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
+#elif HAVE_CUDA
+    call cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cg_update_xp
   !> Initialise a pipelined PCG solver
   subroutine pipecg_device_init(this, n, M, rel_tol, abs_tol)
     class(pipecg_device_t), target, intent(inout) :: this
