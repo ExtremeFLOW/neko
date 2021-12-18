@@ -59,6 +59,9 @@ module fluid_plan4
      procedure, pass(this) :: step => fluid_plan4_step
   end type fluid_plan4_t
 
+  !> @todo Move this somewhere else
+  public :: fluid_step_info
+
 contains
 
   subroutine fluid_plan4_init(this, msh, lx, param)    
@@ -547,6 +550,7 @@ contains
        call cmult(bfz, rho, n)
     end if
   end subroutine makeabf
+  
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual 
   subroutine fluid_step_info(step, t, dt, ksp_results)
