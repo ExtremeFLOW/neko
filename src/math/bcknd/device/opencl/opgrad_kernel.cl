@@ -3,23 +3,23 @@
  */
 
 #define DEFINE_OPGRAD_KERNEL(LX, CHUNKS)                                       \
-__kernel void opgrad_kernel(__global real * __restrict__ ux,                   \
-			    __global real * __restrict__ uy,                   \
-			    __global real * __restrict__ uz,                   \
-			    __global const real * __restrict__ u,              \
-			    __global const real * __restrict__ dx,             \
-			    __global const real * __restrict__ dy,             \
-			    __global const real * __restrict__ dz,             \
-			    __global const real * __restrict__ drdx,           \
-			    __global const real * __restrict__ dsdx,           \
-			    __global const real * __restrict__ dtdx,           \
-			    __global const real * __restrict__ drdy,           \
-			    __global const real * __restrict__ dsdy,           \
-			    __global const real * __restrict__ dtdy,           \
-			    __global const real * __restrict__ drdz,           \
-			    __global const real * __restrict__ dsdz,           \
-			    __global const real * __restrict__ dtdz,           \
-			    __global const real * __restrict__ w3) {           \
+__kernel void opgrad_kernel_lx##LX(__global real * __restrict__ ux,            \
+				   __global real * __restrict__ uy,	       \
+				   __global real * __restrict__ uz,	       \
+				   __global const real * __restrict__ u,       \
+				   __global const real * __restrict__ dx,      \
+				   __global const real * __restrict__ dy,      \
+				   __global const real * __restrict__ dz,      \
+				   __global const real * __restrict__ drdx,    \
+				   __global const real * __restrict__ dsdx,    \
+				   __global const real * __restrict__ dtdx,    \
+				   __global const real * __restrict__ drdy,    \
+				   __global const real * __restrict__ dsdy,    \
+				   __global const real * __restrict__ dtdy,    \
+				   __global const real * __restrict__ drdz,    \
+				   __global const real * __restrict__ dsdz,    \
+				   __global const real * __restrict__ dtdz,    \
+				   __global const real * __restrict__ w3) {    \
                                                                                \
   __local real shu[LX * LX * LX];                                              \
                                                                                \
