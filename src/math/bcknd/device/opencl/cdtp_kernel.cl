@@ -12,7 +12,7 @@ __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
 				 __global const real * __restrict__ dyt,       \
 				 __global const real * __restrict__ dzt,       \
 				 __global const real * __restrict__ B,         \
-				 __global const real * __restrict__jac) {      \
+				 __global const real * __restrict__ jac) {     \
                                                                                \
   __local real shx[LX * LX * LX];                                              \
   __local real shdr[LX * LX * LX];                                             \
