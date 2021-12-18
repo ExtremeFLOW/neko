@@ -362,7 +362,7 @@ contains
     nelv = c_Xh%msh%nelv
 
     !     this%work1=dw/dy ; this%work2=dv/dz
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
 #ifdef HAVE_HIP
     call hip_dudxyz(work1%x_d, u3%x_d, &
            c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
