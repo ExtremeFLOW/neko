@@ -45,11 +45,11 @@ contains
 #ifdef HAVE_HIP
 #elif HAVE_CUDA
 #elif HAVE_OPENCL
-    !call opencl_ax_helm(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-!         Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
-!         coef%G11_d, coef%G22_d, coef%G33_d, &
-!         coef%G12_d, coef%G13_d, coef%G23_d, &
-!         msh%nelv, Xh%lx)
+    call opencl_ax_helm(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+         Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
+         coef%G11_d, coef%G22_d, coef%G33_d, &
+         coef%G12_d, coef%G13_d, coef%G23_d, &
+         msh%nelv, Xh%lx)
 #endif
 
     if (coef%ifh2) then
