@@ -138,6 +138,7 @@ libneko_a_SOURCES = \
 	math/bcknd/cpu/ax_helm.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
+	math/bcknd/device/ax_helm_device.F90\
 	common/projection.f90\
 	comm/parmetis.F90\
 	comm/redist.f90\

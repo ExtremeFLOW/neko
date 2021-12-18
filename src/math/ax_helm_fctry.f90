@@ -1,6 +1,7 @@
 module ax_helm_fctry
   use neko_config
   use ax_product
+  use ax_helm_device
   use ax_helm_xsmm
   use ax_helm_sx
   use ax_helm
@@ -19,6 +20,9 @@ contains
        allocate(ax_helm_sx_t::Ax)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        allocate(ax_helm_xsmm_t::Ax)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+       allocate(ax_helm_device_t::Ax)
     else
        allocate(ax_helm_t::Ax)
     end if
