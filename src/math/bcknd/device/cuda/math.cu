@@ -37,6 +37,20 @@ extern "C" {
 
   }
 
+  /** Fortran wrapper for cadd
+   * Add a scalar to vector \f$ a = \sum a_i + s \f$
+   */
+  void cuda_cadd(void *a, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cadd_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					  *c, *n);
+
+  }
+
+  
   /** Fortran wrapper for cfill
    * Set all elements to a constant c \f$ a = c \f$
    */
