@@ -138,6 +138,7 @@ libneko_a_SOURCES = \
 	math/bcknd/cpu/ax_helm.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
+	math/bcknd/device/ax_helm_device.F90\
 	common/projection.f90\
 	comm/parmetis.F90\
 	comm/redist.f90\
@@ -211,6 +212,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_cdtp.c\
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
+	math/bcknd/device/opencl/ax_helm.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
@@ -275,6 +277,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
+	math/bcknd/device/opencl/ax_helm_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h

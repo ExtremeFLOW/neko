@@ -39,4 +39,7 @@ extern void *conv1_program;
 extern void *opgrad_program;
 
 /** Device Gather-Scatter kernels */
-extern void * gs_program;
+extern void *gs_program;
+
+/** Device Ax helm kernels */
+extern void *ax_helm_program;

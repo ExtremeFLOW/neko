@@ -46,6 +46,9 @@ module opencl_prgm_lib
   !> Device Gather-Scatter kernels
   type(c_ptr), bind(c) :: gs_program = C_NULL_PTR
 
+  !> Device Ax helm kernels
+  type(c_ptr), bind(c) :: ax_helm_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -139,6 +142,13 @@ contains
           call neko_error('Failed to release program')
        end if
        gs_program = C_NULL_PTR
+    end if
+
+    if (c_associated(ax_helm_program)) then
+       if(clReleaseProgram(ax_helm_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       ax_helm_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release
