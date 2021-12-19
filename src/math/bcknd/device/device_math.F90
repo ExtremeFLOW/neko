@@ -27,6 +27,17 @@ module device_math
   end interface
 
   interface
+     subroutine hip_cadd(a_d, c, n) &
+          bind(c, name='hip_cadd')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine hip_cadd
+  end interface
+
+  interface
      subroutine hip_cfill(a_d, c, n) &
           bind(c, name='hip_cfill')
        use, intrinsic :: iso_c_binding
@@ -716,7 +727,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: n
 #ifdef HAVE_HIP
-!    call hip_cmult(a_d, c, n)
+    call hip_cadd(a_d, c, n)
 #elif HAVE_CUDA
     call cuda_cadd(a_d, c, n)
 #elif HAVE_OPENCL

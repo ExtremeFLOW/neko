@@ -39,6 +39,20 @@ extern "C" {
     
   }
 
+  /** Fortran wrapper for cmult
+   * Add a scalar to vector \f$ a = \sum a_i + s \f$
+   */
+  void hip_cadd(void *a, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cadd_kernel<real>),
+		       nblcks, nthrds, 0, 0,
+		       (real *) a, *c, *n);
+    
+  }
+  
   /** Fortran wrapper for cfill
    * Multiplication by constant c \f$ a = c \cdot a \f$
    */
