@@ -14,6 +14,21 @@ __kernel void cmult_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for cadd
+ */
+__kernel void cadd_kernel(__global real * __restrict__ a,
+			  const real c,
+			  const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + c;
+  } 
+}
+
+/**
  * Device kernel for cfill
  */
 __kernel void cfill_kernel(__global real * __restrict__ a,
