@@ -187,16 +187,21 @@ contains
     integer :: n, i, j, k, l
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    do i = 1, f%msh%nelv
-       do l = 1, f%Xh%lz
-          do k = 1, f%Xh%ly
-             do j = 1, f%Xh%lx
-                f%x(j, k, l, i) = a
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_cfill(f%x_d, a, n)
+    else
+       do i = 1, f%msh%nelv
+          do l = 1, f%Xh%lz
+             do k = 1, f%Xh%ly
+                do j = 1, f%Xh%lx
+                   f%x(j, k, l, i) = a
+                end do
              end do
           end do
        end do
-    end do
-
+    end if
+    
   end subroutine field_assign_scalar
   
   !> Add \f$ F(u_1, u_2, ... , u_n) =
@@ -208,7 +213,12 @@ contains
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    call add2(f%x, g%x, n)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_add2(f%x_d, g%x_d, n)
+    else
+       call add2(f%x, g%x, n)
+    end if
 
   end subroutine field_add_field
 
@@ -221,7 +231,12 @@ contains
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    call cadd(f%x, a, n)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_cadd(f%x_d, a, n)
+    else
+       call cadd(f%x, a, n)
+    end if
 
   end subroutine field_add_scalar
 
