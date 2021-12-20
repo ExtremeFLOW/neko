@@ -54,6 +54,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 3:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -79,6 +80,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 4:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -104,6 +106,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 5:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -129,6 +132,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 6:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -154,6 +158,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 7:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -179,6 +184,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 8:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -204,6 +210,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 9:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -229,6 +236,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 10:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -254,6 +262,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 11:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,
@@ -279,6 +288,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
 				   NULL, &global_item_size, &local_item_size,
 				   0, NULL, NULL);
     }
+    break;
   case 12:
     {
       cl_kernel kernel = clCreateKernel(ax_helm_program,

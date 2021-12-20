@@ -90,16 +90,14 @@ __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
 			+ dtdz[ijk + e * LX * LX * LX] * ttmp));               \
     }                                                                          \
   }                                                                            \
-}                                                                              \
+}                                                                              
 
-DEFINE_CONV1_KERNEL(12, 256)
-DEFINE_CONV1_KERNEL(11, 256)
-DEFINE_CONV1_KERNEL(10, 256)
-DEFINE_CONV1_KERNEL(9, 256)
-DEFINE_CONV1_KERNEL(8, 256)
-DEFINE_CONV1_KERNEL(7, 256)
-DEFINE_CONV1_KERNEL(6, 256)
-DEFINE_CONV1_KERNEL(5, 256)
-DEFINE_CONV1_KERNEL(4, 256)
-DEFINE_CONV1_KERNEL(3, 256)
 DEFINE_CONV1_KERNEL(2, 256)
+DEFINE_CONV1_KERNEL(3, 256)
+DEFINE_CONV1_KERNEL(4, 256)
+DEFINE_CONV1_KERNEL(5, 256)
+DEFINE_CONV1_KERNEL(6, 256)
+DEFINE_CONV1_KERNEL(7, 256)
+DEFINE_CONV1_KERNEL(8, 256)
+DEFINE_CONV1_KERNEL(9, 256)
+
