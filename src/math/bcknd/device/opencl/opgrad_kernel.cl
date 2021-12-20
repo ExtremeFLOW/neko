@@ -80,7 +80,7 @@ __kernel void opgrad_kernel_lx##LX(__global real * __restrict__ ux,            \
                                                                                \
     }                                                                          \
   }                                                                            \
-}                                                                              \
+}                                                                              
 
 DEFINE_OPGRAD_KERNEL(12, 256)
 DEFINE_OPGRAD_KERNEL(11, 256)

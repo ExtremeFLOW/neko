@@ -92,16 +92,15 @@ __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
                                                                                \
     }                                                                          \
   }                                                                            \
-}                                                                              \
+}                                                                              
 
-DEFINE_CDTP_KERNEL(12, 256)
-DEFINE_CDTP_KERNEL(11, 256)
-DEFINE_CDTP_KERNEL(10, 256)
-DEFINE_CDTP_KERNEL(9, 256)
-DEFINE_CDTP_KERNEL(8, 256)
-DEFINE_CDTP_KERNEL(7, 256)
-DEFINE_CDTP_KERNEL(6, 256)
-DEFINE_CDTP_KERNEL(5, 256)
-DEFINE_CDTP_KERNEL(4, 256)
-DEFINE_CDTP_KERNEL(3, 256)
 DEFINE_CDTP_KERNEL(2, 256)
+DEFINE_CDTP_KERNEL(3, 256)
+DEFINE_CDTP_KERNEL(4, 256)
+DEFINE_CDTP_KERNEL(5, 256)
+DEFINE_CDTP_KERNEL(6, 256)
+DEFINE_CDTP_KERNEL(7, 256)
+DEFINE_CDTP_KERNEL(8, 256)
+
+
+

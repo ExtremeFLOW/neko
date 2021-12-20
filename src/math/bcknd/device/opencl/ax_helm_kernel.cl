@@ -32,13 +32,11 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
   __local real shus[LX*LX*LX];                                                 \
   __local real shut[LX*LX*LX];                                                 \
                                                                                \
-  real htmp, rtmp,stmp,ttmp,wijke;                                             \
-  int l,e,i,j,k,ijk,jk,iii,n,nchunks;                                          \
+  int l,i,j,k,n;                                                               \
                                                                                \
-  e = get_group_id(0);                                                         \
-  iii = get_local_id(0);                                                       \
-                                                                               \
-  nchunks = (LX * LX * LX - 1)/CHUNKS + 1;                                     \
+  const int e = get_group_id(0);					       \
+  const int iii = get_local_id(0);		   			       \
+  const int nchunks = (LX * LX * LX - 1)/CHUNKS + 1;		               \
                                                                                \
   if (iii<LX*LX) {                                                             \
     shdx[iii] = dx[iii];                                                       \
@@ -48,7 +46,7 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
   i = iii;                                                                     \
   while (i < LX * LX * LX){                                                    \
     shu[i] = u[i+e*LX*LX*LX];                                                  \
-    i = i+CHUNKS;                                                              \
+    i = i + CHUNKS;                                                            \
   }                                                                            \
                                                                                \
   barrier(CLK_LOCAL_MEM_FENCE);                                                \
@@ -60,15 +58,15 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
   }                                                                            \
                                                                                \
   for (n=0; n<nchunks; n++){                                                   \
-    ijk = iii+n*CHUNKS;                                                        \
-    jk = ijk/LX;                                                               \
+    const int ijk = iii+n*CHUNKS;                                              \
+    const int jk = ijk/LX;                                                     \
     i = ijk-jk*LX;                                                             \
     k = jk/LX;                                                                 \
     j = jk-k*LX;                                                               \
     if (i<LX && j<LX && k<LX){                                                 \
-      rtmp = 0.0;                                                              \
-      stmp = 0.0;                                                              \
-      ttmp = 0.0;                                                              \
+      real rtmp = 0.0;                                                         \
+      real stmp = 0.0;							       \
+      real ttmp = 0.0;							       \
       for (l = 0; l<LX; l++){                                                  \
 	rtmp = rtmp + shdx[i+l*LX] * shu[l+j*LX+k*LX*LX];                      \
 	stmp = stmp + shdy[j+l*LX] * shu[i+l*LX+k*LX*LX];                      \
@@ -92,13 +90,13 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
   barrier(CLK_LOCAL_MEM_FENCE);                                                \
                                                                                \
   for (n=0; n<nchunks; n++){                                                   \
-    ijk = iii+n*CHUNKS;                                                        \
-    jk = ijk/LX;                                                               \
+    const int ijk = iii+n*CHUNKS;   					       \
+    const int jk = ijk/LX;						       \
     i = ijk-jk*LX;                                                             \
     k = jk/LX;                                                                 \
     j = jk-k*LX;                                                               \
     if (i<LX && j<LX && k<LX){                                                 \
-      wijke = 0.0;                                                             \
+      real wijke = 0.0;                                                        \
       for (l = 0; l<LX; l++){                                                  \
 	wijke = wijke                                                          \
 	      + shdxt[i+l*LX] * shur[l+j*LX+k*LX*LX]                           \
@@ -108,16 +106,15 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
       w[ijk+e*LX*LX*LX] = wijke;                                               \
     }                                                                          \
   }                                                                            \
-}                                                                              \
+}
 
-DEFINE_AX_HELM_KERNEL(12, 256)
-DEFINE_AX_HELM_KERNEL(11, 256)
-DEFINE_AX_HELM_KERNEL(10, 256)
-DEFINE_AX_HELM_KERNEL(9, 256)
-DEFINE_AX_HELM_KERNEL(8, 256)
-DEFINE_AX_HELM_KERNEL(7, 256)
-DEFINE_AX_HELM_KERNEL(6, 256)
-DEFINE_AX_HELM_KERNEL(5, 256)
-DEFINE_AX_HELM_KERNEL(4, 256)
-DEFINE_AX_HELM_KERNEL(3, 256)
+DEFINE_AX_HELM_KERNEL(1, 256)
 DEFINE_AX_HELM_KERNEL(2, 256)
+DEFINE_AX_HELM_KERNEL(3, 256)
+DEFINE_AX_HELM_KERNEL(4, 256)
+DEFINE_AX_HELM_KERNEL(5, 256)
+DEFINE_AX_HELM_KERNEL(6, 256)
+DEFINE_AX_HELM_KERNEL(7, 256)
+DEFINE_AX_HELM_KERNEL(8, 256)
+DEFINE_AX_HELM_KERNEL(9, 256)
+

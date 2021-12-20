@@ -70,16 +70,14 @@ __kernel void dudxyz_kernel_lx##LX(__global real * __restrict__ du,            \
                                                                                \
     }                                                                          \
   }                                                                            \
-}                                                                              \
+}                                                                              
 
-DEFINE_DUDXYZ_KERNEL(12, 256)
-DEFINE_DUDXYZ_KERNEL(11, 256)
-DEFINE_DUDXYZ_KERNEL(10, 256)
-DEFINE_DUDXYZ_KERNEL(9, 256)
-DEFINE_DUDXYZ_KERNEL(8, 256)
-DEFINE_DUDXYZ_KERNEL(7, 256)
-DEFINE_DUDXYZ_KERNEL(6, 256)
-DEFINE_DUDXYZ_KERNEL(5, 256)
-DEFINE_DUDXYZ_KERNEL(4, 256)
-DEFINE_DUDXYZ_KERNEL(3, 256)
 DEFINE_DUDXYZ_KERNEL(2, 256)
+DEFINE_DUDXYZ_KERNEL(3, 256)
+DEFINE_DUDXYZ_KERNEL(4, 256)
+DEFINE_DUDXYZ_KERNEL(5, 256)
+DEFINE_DUDXYZ_KERNEL(6, 256)
+DEFINE_DUDXYZ_KERNEL(7, 256)
+DEFINE_DUDXYZ_KERNEL(8, 256)
+DEFINE_DUDXYZ_KERNEL(9, 256)
+
