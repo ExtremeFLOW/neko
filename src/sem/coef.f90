@@ -285,7 +285,8 @@ contains
     call rone(coef%h2,n)
     coef%ifh2 = .false.
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE)
        call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE)
     end if
@@ -296,19 +297,22 @@ contains
     call rone(coef%mult, n)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
        
     call gs_op_vector(gs_h, coef%mult, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(coef%mult, coef%mult_d, n, DEVICE_TO_HOST)
     end if
     
     call invcol1(coef%mult, n)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
     
@@ -689,9 +693,9 @@ contains
       !>  @todo cleanup once we have device math in place
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
           (NEKO_BCKND_OPENCL .eq. 1)) then 
-         call device_memcpy(dxds, c%dxds_d, n_dofs, HOST_TO_DEVICE)
-         call device_memcpy(dydr, c%dyds_d, n_dofs, HOST_TO_DEVICE)
-         call device_memcpy(dzdr, c%dzds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dxdr, c%dxdr_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dydr, c%dydr_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dzdr, c%dzdr_d, n_dofs, HOST_TO_DEVICE)
          call device_memcpy(dxds, c%dxds_d, n_dofs, HOST_TO_DEVICE)
          call device_memcpy(dyds, c%dyds_d, n_dofs, HOST_TO_DEVICE)
          call device_memcpy(dzds, c%dzds_d, n_dofs, HOST_TO_DEVICE)
@@ -798,21 +802,24 @@ contains
     call copy(c%Binv,c%B,c%dof%n_dofs)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(c%gs_h,c%Binv, c%dof%n_dofs,GS_OP_ADD)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, DEVICE_TO_HOST)
     end if
 
     call invcol1(c%Binv,c%dof%n_dofs)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(c%B, c%B_d, c%dof%n_dofs, HOST_TO_DEVICE)
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if
