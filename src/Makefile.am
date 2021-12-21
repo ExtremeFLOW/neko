@@ -253,6 +253,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/ax_helm_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
