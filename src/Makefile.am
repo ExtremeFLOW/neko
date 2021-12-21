@@ -193,6 +193,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
@@ -252,6 +253,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/ax_helm_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
