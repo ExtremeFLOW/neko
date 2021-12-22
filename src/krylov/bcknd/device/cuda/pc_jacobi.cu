@@ -9,6 +9,9 @@ __global__ void jacobi_kernel(double * __restrict__ du,
 			      const double * __restrict__ G11,
 			      const double * __restrict__ G22,
 			      const double * __restrict__ G33,
+			      const double * __restrict__ G12,
+			      const double * __restrict__ G13,
+			      const double * __restrict__ G23,
 			      const int nel) {
   const int idx = threadIdx.x + blockIdx.x * blockDim.x;
   const int e = idx / (LX*LX*LX);
@@ -39,6 +42,22 @@ __global__ void jacobi_kernel(double * __restrict__ du,
     d += g*t*t;
   }
 
+  // Corrections for deformed elements
+  if (i == 0 || i == LX-1) {
+    d += G12[i + LX*j + LX*LX*k + LX*LX*LX*e] * dxt[i + LX*i] * dyt[j + LX*j];
+    d += G13[i + LX*j + LX*LX*k + LX*LX*LX*e] * dxt[i + LX*i] * dzt[k + LX*k];
+  }
+
+  if (j == 0 || j == LX-1) {
+    d += G12[i + LX*j + LX*LX*k + LX*LX*LX*e] * dyt[i + LX*i] * dxt[j + LX*j];
+    d += G23[i + LX*j + LX*LX*k + LX*LX*LX*e] * dyt[i + LX*i] * dzt[k + LX*k];
+  }
+
+  if (k == 0 || k == LX-1) {
+    d += G13[i + LX*j + LX*LX*k + LX*LX*LX*e] * dzt[i + LX*i] * dxt[j + LX*j];
+    d += G23[i + LX*j + LX*LX*k + LX*LX*LX*e] * dzt[i + LX*i] * dyt[k + LX*k];
+  }
+
   du[idx] = d;
 }
 
@@ -59,6 +78,7 @@ extern "C" {
 	(double*)d,\
 	(double*)dxt, (double*)dyt, (double*)dzt,\
 	(double*)G11, (double*)G22, (double*)G33,\
+	(double*)G12, (double*)G13, (double*)G23,\
 	*nel);\
     break
 
