@@ -97,6 +97,23 @@ __global__ void add2s2_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for addsqr2s2
+ */
+template< typename T >
+__global__ void addsqr2s2_kernel(T * __restrict__ a,
+				 const T * __restrict__ b,
+				 const T c1,
+				 const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + c1 * (b[i] * b[i]);
+  }
+}
+
+/**
  * Device kernel for add3s2
  */
 template< typename T >

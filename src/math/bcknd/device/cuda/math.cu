@@ -104,6 +104,22 @@ extern "C" {
   }
 
   /**
+   * Fortran wrapper for addsqr2s2
+   * Vector addition with scalar multiplication \f$ a = a + c_1 (b * b) \f$
+   * (multiplication on second argument) 
+   */
+  void cuda_addsqr2s2(void *a, void *b, real *c1, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    addsqr2s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
+					       (real *) b,
+					       *c1, *n);
+
+  }
+
+  /**
    * Fortran wrapper for add3s2
    * Vector addition with scalar multiplication \f$ a = c_1 b + c_2 c \f$
    * (multiplication on second argument) 

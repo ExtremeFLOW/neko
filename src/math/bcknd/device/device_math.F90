@@ -91,7 +91,19 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_add2s2
   end interface
-  
+
+  interface
+     subroutine hip_addsqr2s2(a_d, b_d, c1, n) &
+          bind(c, name='hip_addsqr2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine hip_addsqr2s2
+  end interface
+
   interface
      subroutine hip_add3s2(a_d, b_d, c_d, c1, c2, n) &
           bind(c, name='hip_add3s2')
@@ -300,6 +312,18 @@ module device_math
        real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine cuda_add2s2
+  end interface
+
+  interface
+     subroutine cuda_addsqr2s2(a_d, b_d, c1, n) &
+          bind(c, name='cuda_addsqr2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine cuda_addsqr2s2
   end interface
 
   interface
@@ -518,6 +542,18 @@ module device_math
        real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine opencl_add2s2
+  end interface
+
+  interface
+     subroutine opencl_addsqr2s2(a_d, b_d, c1, n) &
+          bind(c, name='opencl_addsqr2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine opencl_addsqr2s2
   end interface
 
   interface
@@ -776,6 +812,21 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
+  
+  subroutine device_addsqr2s2(a_d, b_d, c1, n)
+    type(c_ptr) :: a_d, b_d
+    real(kind=rp) :: c1
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_addsqr2s2(a_d, b_d, c1, n)
+#elif HAVE_CUDA
+    call cuda_addsqr2s2(a_d, b_d, c1, n)
+#elif HAVE_OPENCL
+    call opencl_addsqr2s2(a_d, b_d, c1, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_addsqr2s2
 
   subroutine device_add3s2(a_d, b_d, c_d, c1, c2 ,n)
     type(c_ptr) :: a_d, b_d, c_d
