@@ -3,16 +3,38 @@ module mean_field_parallel
   use pfunit
   use mean_field
   use num_types
+  use device
   implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_mean_field
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_mean_field
 
 contains
 
+  subroutine setUp(this)
+    class(test_mean_field), intent(inout) :: this
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_init
+    end if
+  end subroutine setUp
+  
+  subroutine tearDown(this)
+    class(test_mean_field), intent(inout) :: this
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+ 
   subroutine test_mean_field_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
 
-    call device_init
-    
     p(1) = point_t(0d0, 0d0, 0d0)
     call p(1)%set_id(1)
     p(2) = point_t(1d0, 0d0, 0d0)
@@ -49,7 +71,7 @@ contains
   
   @test(npes=[1])
   subroutine test_mean_field_init(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_mean_field), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     integer, parameter :: LX = 4
@@ -57,8 +79,6 @@ contains
     type(mean_field_t) :: mf
     integer :: ierr
 
-    call device_init
-    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_field_gen_msh(msh)
@@ -76,7 +96,7 @@ contains
 
   @test(npes=[1])
   subroutine test_mean_field_update(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_mean_field), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     integer, parameter :: LX = 4
@@ -84,8 +104,6 @@ contains
     type(mean_field_t) :: mf, mf2
     integer :: ierr, i
 
-    call device_init
-    
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_field_gen_msh(msh)
@@ -98,7 +116,12 @@ contains
     do i = 1, 10
        call mf%update(1.0_rp)
     end do
-
+    
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), DEVICE_TO_HOST)
+    end if
+    
     @assertEqual(maxval(mf%mf%x), 42.0_rp)
     @assertEqual(mf%time, 10.0_rp)
 
@@ -108,6 +131,12 @@ contains
        f = real(i, rp)
        call mf2%update(1.0_rp)
     end do
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), DEVICE_TO_HOST)
+    end if
+
 
     @assertEqual(maxval(mf2%mf%x), 5.5_rp)
     @assertEqual(mf2%time, 10.0_rp)
