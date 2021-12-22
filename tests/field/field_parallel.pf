@@ -35,8 +35,6 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(point_t) :: p(12)
 
-    call device_init
-    
     p(1) = point_t(0d0, 0d0, 0d0)
     call p(1)%set_id(1)
     p(2) = point_t(1d0, 0d0, 0d0)
