@@ -148,7 +148,7 @@ contains
        call field_free(f)
     end if
     
-    f%Xh =>g%Xh
+    f%Xh => g%Xh
     f%msh => g%msh
     f%dof => g%dof
     
