@@ -99,9 +99,9 @@ contains
       if( tstep .gt. 5) call this%proj%project_on(p_res%x, c_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                this%bclst_prs, gs_Xh, niter)    
+                                          this%bclst_prs, gs_Xh, niter)    
       if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
-                                  this%bclst_prs, gs_Xh, n)
+                                                    this%bclst_prs, gs_Xh, n)
       call device_add2(p%x_d, dp%x_d, n)
 
       !    call ortho(this%p%x,n,this%Xh%lxyz*this%msh%glb_nelv)
@@ -144,10 +144,9 @@ contains
     type(c_ptr), intent(inout) :: h1_d
     type(c_ptr), intent(inout) :: h2_d
     real(kind=rp), intent(in) :: rho
-    real(kind=rp), parameter :: one = 1.0
-    logical, intent(inout) :: ifh2    
-    call device_rone(h1_d, n)
-    call device_cmult(h1_d, one /rho, n)
+    real(kind=rp), parameter :: one = 1.0_rp
+    logical, intent(inout) :: ifh2
+    call device_cfill(h1_d, one/rho, n)
     call device_rzero(h2_d, n)
     ifh2 = .false.
   end subroutine device_fluid_plan4_pres_setup
@@ -161,7 +160,7 @@ contains
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     logical, intent(inout) :: ifh2
-    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: one = 1.0_rp
     real(kind=rp) :: dtbd
     dtbd = rho * (bd / dt)
     call device_cfill(h1_d, (one / Re), n)
@@ -318,13 +317,12 @@ contains
     integer :: ilag
     
     const = rho / dt
-    call device_rone(h2_d, n)
-    call device_cmult(h2_d, const, n)
+    call device_cfill(h2_d, const, n)
     call device_opcolv3c(tb1%x_d, tb2%x_d, tb3%x_d, &
                          u%x_d, v%x_d, w%x_d, B_d, bd(2), n, gdim)
     do ilag = 2, nbd
        call device_opcolv3c(ta1%x_d, ta2%x_d, ta3%x_d, &
-                            ulag%lf(ilag-1)%x_d, vlag%lf(ilag-1)%x_D, &
+                            ulag%lf(ilag-1)%x_d, vlag%lf(ilag-1)%x_d, &
                             wlag%lf(ilag-1)%x_d, B_d, bd(ilag+1), n, gdim)
        call device_opadd2cm(tb1%x_d, tb2%x_d, tb3%x_d, &
                             ta1%x_d, ta2%x_D, ta3%x_d, 1.0_rp, n, gdim)
