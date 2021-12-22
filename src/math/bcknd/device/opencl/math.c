@@ -16,7 +16,7 @@
  */
 void opencl_copy(void *a, void *b, int *n) {
   cl_int err = clEnqueueCopyBuffer((cl_command_queue) glb_cmd_queue,
-				   a, b, 0, 0, (*n) * sizeof(real),
+				   b, a, 0, 0, (*n) * sizeof(real),
 				   0, NULL, NULL);
 }
 
