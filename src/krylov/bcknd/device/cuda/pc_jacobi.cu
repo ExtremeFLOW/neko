@@ -1,17 +1,17 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <device/device_config.h>
 
-template<const int LX>
-__global__ void jacobi_kernel(double * __restrict__ du,
-			      const double * __restrict__ dxt,
-			      const double * __restrict__ dyt,
-			      const double * __restrict__ dzt,
-			      const double * __restrict__ G11,
-			      const double * __restrict__ G22,
-			      const double * __restrict__ G33,
-			      const double * __restrict__ G12,
-			      const double * __restrict__ G13,
-			      const double * __restrict__ G23,
+template< typename T, const int LX >
+__global__ void jacobi_kernel(T * __restrict__ du,
+			      const T * __restrict__ dxt,
+			      const T * __restrict__ dyt,
+			      const T * __restrict__ dzt,
+			      const T * __restrict__ G11,
+			      const T * __restrict__ G22,
+			      const T * __restrict__ G33,
+			      const T * __restrict__ G12,
+			      const T * __restrict__ G13,
+			      const T * __restrict__ G23,
 			      const int nel) {
   const int idx = threadIdx.x + blockIdx.x * blockDim.x;
   const int e = idx / (LX*LX*LX);
@@ -22,23 +22,23 @@ __global__ void jacobi_kernel(double * __restrict__ du,
   if (e >= nel)
     return;
 
-  double d = 0.0;
+  T d = 0.0;
 
   for (int l = 0; l < LX; l++) {
-    double g = G11[l + LX*j + LX*LX*k + LX*LX*LX*e];
-    double t = dxt[i + LX*l];
+    T g = G11[l + LX*j + LX*LX*k + LX*LX*LX*e];
+    T t = dxt[i + LX*l];
     d += g*t*t;
   }
 
   for (int l = 0; l < LX; l++) {
-    double g = G22[i + LX*l + LX*LX*k + LX*LX*LX*e];
-    double t = dyt[j + LX*l];
+    T g = G22[i + LX*l + LX*LX*k + LX*LX*LX*e];
+    T t = dyt[j + LX*l];
     d += g*t*t;
   }
 
   for (int l = 0; l < LX; l++) {
-    double g = G33[i + LX*j + LX*LX*l + LX*LX*LX*e];
-    double t = dzt[k + LX*l];
+    T g = G33[i + LX*j + LX*LX*l + LX*LX*LX*e];
+    T t = dzt[k + LX*l];
     d += g*t*t;
   }
 
@@ -74,11 +74,11 @@ extern "C" {
 
 #define CASE(N)\
     case N:\
-    jacobi_kernel<N><<<blocks, threads>>>(\
-	(double*)d,\
-	(double*)dxt, (double*)dyt, (double*)dzt,\
-	(double*)G11, (double*)G22, (double*)G33,\
-	(double*)G12, (double*)G13, (double*)G23,\
+    jacobi_kernel<real, N><<<blocks, threads>>>(\
+	(real*)d,\
+	(real*)dxt, (real*)dyt, (real*)dzt,\
+	(real*)G11, (real*)G22, (real*)G33,\
+	(real*)G12, (real*)G13, (real*)G23,\
 	*nel);\
     break
 
