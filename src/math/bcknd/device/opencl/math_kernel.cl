@@ -91,6 +91,22 @@ __kernel void add2s2_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for addsqr2s2
+ */
+__kernel void addsqr2s2_kernel(__global real * __restrict__ a,
+			       __global const real * __restrict__ b,
+			       const real c1,
+			       const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = a[i] + c1 * (b[i] * b[i]);
+  }
+}
+
+/**
  * Device kernel for add3s2
  */
 __kernel void add3s2_kernel(__global real * __restrict__ a,
