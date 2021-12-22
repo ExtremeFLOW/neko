@@ -234,6 +234,12 @@ pkginclude_HEADERS = $(wildcard *.mod) device/device_config.h
 
 CLEANFILES = *.mod
 
+if ENABLE_OPENCL
+CLEANFILES += math/bcknd/device/opencl/*.cl.h\
+	      gs/bcknd/device/opencl/*.cl.h\
+	      bc/bcknd/device/opencl/*.cl.h
+endif
+
 if ENABLE_MAKEDEPF90
 depend:
 	$(MAKEDEPF90) $(libneko_a_SOURCES) driver.f90  > .depends
