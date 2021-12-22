@@ -1,5 +1,7 @@
 module precon_fctry
   use precon
+  use identity
+  use device_identity
   use jacobi
   use sx_jacobi
   use device_jacobi
@@ -31,6 +33,13 @@ contains
        end if
     else if (pctype(1:4) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
+    else if(trim(pctype) .eq. 'ident') then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          allocate(device_ident_t::pc)
+       else
+          allocate(ident_t::pc)
+       end if
     else
        call neko_error('Unknown preconditioner')
     end if

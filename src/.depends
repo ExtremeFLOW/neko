@@ -95,7 +95,7 @@ bc/blasius.o : bc/blasius.f90 fluid/flow_profile.o bc/bcknd/device/device_blasiu
 krylov/precon.o : krylov/precon.f90 config/num_types.o 
 krylov/krylov.o : krylov/krylov.f90 krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 
 krylov/pc_identity.o : krylov/pc_identity.f90 config/num_types.o math/ax.o krylov/precon.o common/utils.o math/math.o 
-krylov/precon_fctry.o : krylov/precon_fctry.f90 config/neko_config.o common/utils.o krylov/pc_hsmg.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o krylov/precon.o 
+krylov/precon_fctry.o : krylov/precon_fctry.f90 config/neko_config.o common/utils.o krylov/pc_hsmg.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o krylov/precon.o krylov/bcknd/device/pc_identity_device.o
 krylov/krylov_fctry.o : krylov/krylov_fctry.f90 config/neko_config.o krylov/krylov.o krylov/bcknd/sx/gmres_sx.o krylov/bcknd/cpu/gmres.o krylov/bcknd/cpu/bicgstab.o krylov/bcknd/device/pipecg_device.o krylov/bcknd/sx/pipecg_sx.o krylov/bcknd/cpu/pipecg.o krylov/bcknd/cpu/cacg.o krylov/bcknd/device/cg_device.o krylov/bcknd/sx/cg_sx.o krylov/bcknd/cpu/cg.o 
 krylov/bcknd/cpu/cg.o : krylov/bcknd/cpu/cg.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/cpu/cacg.o : krylov/bcknd/cpu/cacg.f90 config/num_types.o math/mxm_wrapper.o math/math.o krylov/krylov.o 
