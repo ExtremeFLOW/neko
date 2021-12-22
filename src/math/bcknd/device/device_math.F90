@@ -58,15 +58,6 @@ module device_math
   end interface
   
   interface
-     subroutine hip_rone(a_d, n) &
-          bind(c, name='hip_rone')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: a_d
-       integer(c_int) :: n
-     end subroutine hip_rone
-  end interface
-
-  interface
      subroutine hip_add2(a_d, b_d, n) &
           bind(c, name='hip_add2')
        use, intrinsic :: iso_c_binding
@@ -275,16 +266,7 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_rzero
   end interface
-
-    interface
-     subroutine cuda_rone(a_d, n) &
-          bind(c, name='cuda_rone')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: a_d
-       integer(c_int) :: n
-     end subroutine cuda_rone
-  end interface
-
+  
   interface
      subroutine cuda_add2(a_d, b_d, n) &
           bind(c, name='cuda_add2')
@@ -696,12 +678,11 @@ contains
   subroutine device_rone(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
-#ifdef HAVE_HIP
-    call hip_rzero(a_d, n)
-#elif HAVE_CUDA
-    call cuda_rone(a_d, n)
+    real(kind=rp) :: one = 1.0_rp
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+    call device_cfill(a_d, one, n)
 #elif HAVE_OPENCL
-    call opencl_rzero(a_d, n)
+    call opencl_rone(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif

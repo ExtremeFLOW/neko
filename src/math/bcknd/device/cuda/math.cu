@@ -17,13 +17,6 @@ extern "C" {
     cudaMemsetAsync(a, 0, (*n) * sizeof(real));
   }
 
-  /** Fortran wrapper for rone
-   * Set all elements to one
-   */
-  void cuda_rone(void *a, int *n) {
-    cudaMemsetAsync(a, 1, (*n) * sizeof(real));
-  }
-
   /** Fortran wrapper for cmult
    * Multiplication by constant c \f$ a = c \cdot a \f$
    */
