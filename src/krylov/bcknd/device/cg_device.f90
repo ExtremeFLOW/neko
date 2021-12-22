@@ -142,7 +142,7 @@ contains
     ksp_results%iter = 0
     if(rnorm .eq. zero) return
     do iter = 1, max_iter
-       call device_copy(this%z_d, this%r_d, n)
+       call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1
        rtz1 = device_glsc3(this%r_d, coef%mult_d, this%z_d, n)
        beta = rtz1 / rtz2
