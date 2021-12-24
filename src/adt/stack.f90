@@ -224,7 +224,7 @@ contains
           select type(sdp=>this%data)
           type is (tuple4_i4_t)
              do i = 1, this%top_
-                tmp(i) = sdp
+                tmp(i) = sdp(i)
              end do
           end select
        type is (struct_curve_t)
