@@ -142,3 +142,24 @@ AC_DEFUN([AX_CRAY_LIBSCI],[
 	AC_SUBST(have_cray_libsci)
 ])
 
+AC_DEFUN([AX_CRAY_CUDATOOLKIT],[
+	AC_ARG_WITH([cuda],[],
+		    [
+		    ], [with_cuda=no])
+	cuda_bcknd="0"
+	if test "x${with_cuda}" != xno; then
+	  AC_MSG_CHECKING([Cray CUDA Toolkit])
+	  if test "${CRAY_CUDATOOLKIT_VERSION}"; then
+	    AC_MSG_RESULT([yes])
+	    AC_PATH_PROG(NVCC, nvcc, "no")
+	    AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
+	    have_cuda="yes"
+	    cuda_bcknd="1"
+	  else
+	    AC_MSG_RESULT([no])
+            AC_MSG_ERROR([Cray CUDA Toolkit not found])
+	    have_cuda="no"
+	  fi
+	fi
+	AC_SUBST(cuda_bcknd)
+])
