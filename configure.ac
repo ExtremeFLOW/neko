@@ -147,7 +147,11 @@ AX_LIBXSMM
 AX_HIP
 
 # Checks for CUDA backend
-AX_CUDA
+if test "x${is_cray}" = xyes; then
+  AX_CRAY_CUDATOOLKIT
+else
+  AX_CUDA
+fi
 
 # Checks for OpenCL backend
 AX_OPENCL
