@@ -55,62 +55,67 @@ AC_DEFUN([AX_CRAY_PETSC],[
 ])
 
 AC_DEFUN([AX_CRAY_PARMETIS],[
-	AC_MSG_CHECKING([Cray ParMETIS])
-	AC_LANG_PUSH([C])
-	AC_EGREP_CPP(yes,
-	[#if defined(__CRAYXC)
-	  yes
-	 #endif
-	], [is_cray_xc="yes"], [is_cray_cx="no"])
-	if test "x${is_cray_xc}" = xyes; then
-	  if test "${CRAY_TPSL_VERSION}"; then
-	     have_cray_parmetis="yes"
-          else
-	     have_cray_parmetis="no"
-          fi
-	else
-	  if test "${CRAY_TRILINOS_VERSION}"; then
-	     have_cray_parmetis="yes"
-	  elif test "${CRAY_PETSC_VERSION}"; then
-	     have_cray_parmetis="yes"
+	AC_ARG_WITH([parmetis],[],
+		    [
+		    ], [with_parmetis=no])
+	if test "x${with_parmetis}" != xno; then
+	   AC_MSG_CHECKING([Cray ParMETIS])
+	   AC_LANG_PUSH([C])
+	   AC_EGREP_CPP(yes,
+	   [#if defined(__CRAYXC)
+	    yes
+	   #endif
+	   ], [is_cray_xc="yes"], [is_cray_cx="no"])
+	   if test "x${is_cray_xc}" = xyes; then
+	      if test "${CRAY_TPSL_VERSION}"; then
+	      	 have_cray_parmetis="yes"
+              else
+		have_cray_parmetis="no"
+              fi
+	   else
+	      if test "${CRAY_TRILINOS_VERSION}"; then
+	      	 have_cray_parmetis="yes"
+	      elif test "${CRAY_PETSC_VERSION}"; then
+	      	 have_cray_parmetis="yes"
+	      else
+	         have_cray_parmetis="no"
+	      fi
+	   fi
+	   AC_SUBST(have_cray_parmetis)
+	   if test "x${have_cray_parmetis}" = xyes; then
+
+	     have_parmetis_real64=no
+	     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+	     #include <parmetis.h>
+	     ],[
+	     #if REALTYPEWIDTH != 64
+	     #error 'Not 64'
+	     #endif
+	     ])], [have_parmetis_real64=yes])
+	     if test "x${have_parmetis_real64}" = xyes; then
+	        AC_DEFINE(HAVE_PARMETIS_REAL64,1, [ParMETIS real_t is 64bit])
+	     fi
+
+	     have_parmetis_int64=no
+	     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+	     #include <parmetis.h>
+	     ],[
+	     #if IDXTYPEWIDTH != 64
+	     #error 'Not 64'
+	     #endif
+	     ])], [have_parmetis_int64=yes])
+	     if test "x${have_parmetis_int64}" = xyes; then
+	        AC_DEFINE(HAVE_PARMETIS_INT64, 1, [ParMETIS idx_t is 64bit])
+	     fi
+
+             AC_DEFINE(HAVE_PARMETIS,1,
+	         [Define if you have the ParMETIS library])
+	     AC_MSG_RESULT([yes])
 	  else
-	     have_cray_parmetis="no"
+	     AC_MSG_RESULT([no])
 	  fi
+	  AC_LANG_POP([C])
 	fi
-	AC_SUBST(have_cray_parmetis)
-	if test "x${have_cray_parmetis}" = xyes; then
-
-	   have_parmetis_real64=no
-	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
-	   #include <parmetis.h>
-	   ],[
-	   #if REALTYPEWIDTH != 64
-	   #error 'Not 64'
-	   #endif
-	   ])], [have_parmetis_real64=yes])
-	   if test "x${have_parmetis_real64}" = xyes; then
-	      AC_DEFINE(HAVE_PARMETIS_REAL64,1, [ParMETIS real_t is 64bit])
-	   fi
-
-	   have_parmetis_int64=no
-	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
-	   #include <parmetis.h>
-	   ],[
-	   #if IDXTYPEWIDTH != 64
-	   #error 'Not 64'
-	   #endif
-	   ])], [have_parmetis_int64=yes])
-	   if test "x${have_parmetis_int64}" = xyes; then
-	      AC_DEFINE(HAVE_PARMETIS_INT64, 1, [ParMETIS idx_t is 64bit])
-	   fi
-
-           AC_DEFINE(HAVE_PARMETIS,1,
-	       [Define if you have the ParMETIS library])
-	   AC_MSG_RESULT([yes])
-	else
-	   AC_MSG_RESULT([no])
-	fi
-	AC_LANG_POP([C])
 ])
 
 AC_DEFUN([AX_CRAY_ZOLTAN],[
