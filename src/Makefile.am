@@ -174,6 +174,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
 	gs/bcknd/device/hip/gs.hip\
@@ -274,6 +275,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
+	math/bcknd/device/hip/ax_helm_kernel.h\
 	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
