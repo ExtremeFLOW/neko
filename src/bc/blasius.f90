@@ -164,7 +164,7 @@ contains
       end if
 
       call device_blasius_apply_vector(this%msk_d, x_d, y_d, z_d, &
-           blax_d, blay_d, blaz_d, size(this%msk))
+           blax_d, blay_d, blaz_d, m)
       
     end associate
 
