@@ -576,11 +576,11 @@ contains
              neigh_el = recv_buffer(j)
              recv_side = recv_buffer(j+1)
 
-             face = (/ recv_buffer(j+2), recv_buffer(j+3), &
-                  recv_buffer(j+4), recv_buffer(j+5) /)
+             face%x = (/ recv_buffer(j+2), recv_buffer(j+3), &
+                         recv_buffer(j+4), recv_buffer(j+5) /)
              
                
-             facet_data = (/ 0, 0 /)
+             facet_data%x = (/ 0, 0 /)
             
              !Check if the face is present on this PE
              if (fmp%get(face, facet_data) .eq. 0) then
