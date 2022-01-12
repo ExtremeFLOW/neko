@@ -27,238 +27,42 @@ void opencl_cdtp(void *dtx, void *x,
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
+#define STR(X) #X
+#define CASE(LX)                                                                \
+  case LX:                                                                      \
+    {                                                                           \
+      cl_kernel kernel = clCreateKernel(cdtp_program,                           \
+                                        STR(cdtp_kernel_lx##LX), &err);         \
+                                                                                \
+      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);           \
+      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);             \
+      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);            \
+      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);            \
+      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);            \
+      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);           \
+      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);           \
+      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);           \
+      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);             \
+      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);           \
+                                                                                \
+      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1, \
+                                   NULL, &global_item_size, &local_item_size,   \
+                                   0, NULL, NULL);                              \
+    }                                                                           \
+    break
+    
   switch(*lx) {
-  case 2:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx2", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
-  case 3:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx3", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
-  case 4:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx4", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
-  case 5:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx5", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
-  case 6:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx6", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
-  case 7:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx7", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
-  case 8:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx8", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
-  case 9:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx9", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;
-  case 10:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx10", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;
-  case 11:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx11", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;
-  case 12:
-    {
-      cl_kernel kernel = clCreateKernel(cdtp_program,
-					"cdtp_kernel_lx12", &err);
-
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);
-	
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				   NULL, &global_item_size, &local_item_size,
-				   0, NULL, NULL);
-    }
-    break;     
+    CASE(2);
+    CASE(3);
+    CASE(4);
+    CASE(5);
+    CASE(6);
+    CASE(7);
+    CASE(8);
+    CASE(9);
+    CASE(10);
+    CASE(11);
+    CASE(12);
   }
 } 
 
