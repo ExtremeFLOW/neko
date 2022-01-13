@@ -8,6 +8,7 @@
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
+#include <device/opencl/check.h>
 
 #include "cdtp_kernel.cl.h"
 
@@ -15,9 +16,9 @@
  * Fortran wrapper for device OpenCL \f$ D^T X \f$
  */
 void opencl_cdtp(void *dtx, void *x,
-		 void *dr, void *ds, void *dt,
-		 void *dxt, void *dyt, void *dzt,
-		 void *B, void *jac, int *nel, int *lx) {
+                 void *dr, void *ds, void *dt,
+                 void *dxt, void *dyt, void *dzt,
+                 void *B, void *jac, int *nel, int *lx) {
   cl_int err;
   
   if (cdtp_program == NULL)
@@ -33,21 +34,22 @@ void opencl_cdtp(void *dtx, void *x,
     {                                                                           \
       cl_kernel kernel = clCreateKernel(cdtp_program,                           \
                                         STR(cdtp_kernel_lx##LX), &err);         \
+      CL_CHECK(err)                                                             \
                                                                                 \
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx);           \
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x);             \
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);            \
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);            \
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);            \
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);           \
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);           \
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);           \
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B);             \
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac);           \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx))        \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x))          \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr))         \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds))         \
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt))         \
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt))        \
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt))        \
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt))        \
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B))          \
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac))        \
                                                                                 \
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1, \
-                                   NULL, &global_item_size, &local_item_size,   \
-                                   0, NULL, NULL);                              \
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
+                                      kernel, 1, NULL, &global_item_size,       \
+                                      &local_item_size, 0, NULL, NULL))         \
     }                                                                           \
     break
     

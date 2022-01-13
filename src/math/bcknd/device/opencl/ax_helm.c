@@ -8,6 +8,7 @@
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
+#include <device/opencl/check.h>
 
 #include "ax_helm_kernel.cl.h"
 
@@ -15,9 +16,9 @@
  * Fortran wrapper for device OpenCL Ax
  */
 void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
-		    void *dxt, void *dyt, void *dzt, void *h1,
-		    void *g11, void *g22, void *g33, void *g12,
-		    void *g13, void *g23, int *nelv, int *lx) {
+                    void *dxt, void *dyt, void *dzt, void *h1,
+                    void *g11, void *g22, void *g33, void *g12,
+                    void *g13, void *g23, int *nelv, int *lx) {
 
   cl_int err;
   
@@ -34,26 +35,27 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
     {                                                                           \
       cl_kernel kernel = clCreateKernel(ax_helm_program,                        \
                                         STR(ax_helm_kernel_lx##LX), &err);      \
+      CL_CHECK(err)                                                             \
                                                                                 \
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &w);             \
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u);             \
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dx);            \
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &dy);            \
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dz);            \
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt);           \
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt);           \
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt);           \
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &h1);            \
-      err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &g11);           \
-      err = clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &g22);          \
-      err = clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &g33);          \
-      err = clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &g12);          \
-      err = clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &g13);          \
-      err = clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &g23);          \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &w))          \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u))          \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dx))         \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &dy))         \
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dz))         \
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt))        \
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt))        \
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt))        \
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &h1))         \
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &g11))        \
+      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &g22))       \
+      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &g33))       \
+      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &g12))       \
+      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &g13))       \
+      CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &g23))       \
                                                                                 \
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1, \
-                                  NULL, &global_item_size, &local_item_size,    \
-                                  0, NULL, NULL);                               \
+     CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,          \
+                                     kernel, 1, NULL, &global_item_size,        \
+                                     &local_item_size, 0, NULL, NULL))          \
                                                                                 \
     }                                                                           \
     break

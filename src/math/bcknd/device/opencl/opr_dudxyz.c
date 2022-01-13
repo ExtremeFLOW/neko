@@ -8,6 +8,7 @@
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
+#include <device/opencl/check.h>
 
 #include "dudxyz_kernel.cl.h"
 
@@ -33,20 +34,21 @@ void opencl_dudxyz(void *du, void *u,
     {                                                                           \
       cl_kernel kernel = clCreateKernel(dudxyz_program,                         \
                                         STR(dudxyz_kernel_lx##LX), &err);       \
+      CL_CHECK(err)                                                             \
                                                                                 \
-      err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &du);            \
-      err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u);             \
-      err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr);            \
-      err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds);            \
-      err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt);            \
-      err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dx);            \
-      err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dy);            \
-      err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dz);            \
-      err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &jacinv);        \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &du))         \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u))          \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr))         \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds))         \
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt))         \
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dx))         \
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dy))         \
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dz))         \
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &jacinv))     \
                                                                                 \
-      err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1, \
-                                   NULL, &global_item_size, &local_item_size,   \
-                                   0, NULL, NULL);                              \
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
+                                      kernel, 1, NULL, &global_item_size,       \
+                                      &local_item_size, 0, NULL, NULL))         \
     }                                                                           \
     break                                
 
