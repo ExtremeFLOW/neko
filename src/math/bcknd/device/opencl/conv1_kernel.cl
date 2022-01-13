@@ -4,23 +4,23 @@
 
 #define DEFINE_CONV1_KERNEL(LX, CHUNKS)                                        \
 __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
-				  __global const real * __restrict__ u,        \
-				  __global const real * __restrict__ vx,       \
-				  __global const real * __restrict__ vy,       \
-				  __global const real * __restrict__ vz,       \
-				  __global const real * __restrict__ dx,       \
-				  __global const real * __restrict__ dy,       \
-				  __global const real * __restrict__ dz,       \
-				  __global const real * __restrict__ drdx,     \
-				  __global const real * __restrict__ dsdx,     \
-				  __global const real * __restrict__ dtdx,     \
-				  __global const real * __restrict__ drdy,     \
-				  __global const real * __restrict__ dsdy,     \
-				  __global const real * __restrict__ dtdy,     \
-				  __global const real * __restrict__ drdz,     \
-				  __global const real * __restrict__ dsdz,     \
-				  __global const real * __restrict__ dtdz,     \
-				  __global const real * __restrict__ jacinv) { \
+                                  __global const real * __restrict__ u,        \
+                                  __global const real * __restrict__ vx,       \
+                                  __global const real * __restrict__ vy,       \
+                                  __global const real * __restrict__ vz,       \
+                                  __global const real * __restrict__ dx,       \
+                                  __global const real * __restrict__ dy,       \
+                                  __global const real * __restrict__ dz,       \
+                                  __global const real * __restrict__ drdx,     \
+                                  __global const real * __restrict__ dsdx,     \
+                                  __global const real * __restrict__ dtdx,     \
+                                  __global const real * __restrict__ drdy,     \
+                                  __global const real * __restrict__ dsdy,     \
+                                  __global const real * __restrict__ dtdy,     \
+                                  __global const real * __restrict__ drdz,     \
+                                  __global const real * __restrict__ dsdz,     \
+                                  __global const real * __restrict__ dtdz,     \
+                                  __global const real * __restrict__ jacinv) { \
                                                                                \
   __local real shu[LX * LX * LX];                                              \
                                                                                \
@@ -72,22 +72,22 @@ __kernel void conv1_kernel_lx##LX(__global real * __restrict__ du,             \
       real rtmp = 0.0;                                                         \
       real stmp = 0.0;                                                         \
       real ttmp = 0.0;                                                         \
-      for (int l = 0; l < LX; l++) {		                               \
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	       \
-	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];              \
-	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];              \
+      for (int l = 0; l < LX; l++) {                                           \
+        rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];              \
+        stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];              \
+        ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];              \
       }                                                                        \
                                                                                \
       du[ijk + e * LX * LX * LX] = shjacinv[ijk] *                             \
-	(shvx[ijk] * (drdx[ijk + e * LX * LX * LX] * rtmp                      \
-		      + dsdx[ijk + e * LX * LX * LX] * stmp                    \
-		      + dtdx[ijk + e * LX * LX * LX] * ttmp)                   \
-	 + shvy[ijk] * (drdy[ijk + e * LX * LX * LX] * rtmp                    \
-			+ dsdy[ijk + e * LX * LX * LX] * stmp                  \
-			+ dtdy[ijk + e * LX * LX * LX] * ttmp)                 \
-	 + shvz[ijk] * (drdz[ijk + e * LX * LX * LX] * rtmp                    \
-			+ dsdz[ijk + e * LX * LX * LX] * stmp                  \
-			+ dtdz[ijk + e * LX * LX * LX] * ttmp));               \
+        (shvx[ijk] * (drdx[ijk + e * LX * LX * LX] * rtmp                      \
+                      + dsdx[ijk + e * LX * LX * LX] * stmp                    \
+                      + dtdx[ijk + e * LX * LX * LX] * ttmp)                   \
+         + shvy[ijk] * (drdy[ijk + e * LX * LX * LX] * rtmp                    \
+                        + dsdy[ijk + e * LX * LX * LX] * stmp                  \
+                        + dtdy[ijk + e * LX * LX * LX] * ttmp)                 \
+         + shvz[ijk] * (drdz[ijk + e * LX * LX * LX] * rtmp                    \
+                        + dsdz[ijk + e * LX * LX * LX] * stmp                  \
+                        + dtdz[ijk + e * LX * LX * LX] * ttmp));               \
     }                                                                          \
   }                                                                            \
 }                                                                              

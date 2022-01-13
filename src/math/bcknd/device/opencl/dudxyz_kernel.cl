@@ -4,14 +4,14 @@
                                                               
 #define DEFINE_DUDXYZ_KERNEL(LX, CHUNKS)                                       \
 __kernel void dudxyz_kernel_lx##LX(__global real * __restrict__ du,            \
-				   __global const real * __restrict__ u,       \
-				   __global const real * __restrict__ dr,      \
-				   __global const real * __restrict__ ds,      \
-				   __global const real * __restrict__ dt,      \
-				   __global const real * __restrict__ dx,      \
-				   __global const real * __restrict__ dy,      \
-				   __global const real * __restrict__ dz,      \
-				   __global const real * __restrict__ jacinv) {\
+                                   __global const real * __restrict__ u,       \
+                                   __global const real * __restrict__ dr,      \
+                                   __global const real * __restrict__ ds,      \
+                                   __global const real * __restrict__ dt,      \
+                                   __global const real * __restrict__ dx,      \
+                                   __global const real * __restrict__ dy,      \
+                                   __global const real * __restrict__ dz,      \
+                                   __global const real * __restrict__ jacinv) {\
                                                                                \
   __local real shu[LX * LX * LX];                                              \
   __local real shdr[LX * LX * LX];                                             \
@@ -59,14 +59,14 @@ __kernel void dudxyz_kernel_lx##LX(__global real * __restrict__ du,            \
       real stmp = 0.0;                                                         \
       real ttmp = 0.0;                                                         \
       for (int l = 0; l < LX; l++) {                                           \
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];              \
-	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];              \
-	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];              \
+        rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];              \
+        stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];              \
+        ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];              \
       }                                                                        \
       du[ijk + e * LX * LX * LX] = ((rtmp * shdr[ijk])                         \
-				    + (stmp * shds[ijk])                       \
-				    + (ttmp * shdt[ijk]))                      \
-	                           * shjacinv[ijk];                            \
+                                    + (stmp * shds[ijk])                       \
+                                    + (ttmp * shdt[ijk]))                      \
+                                   * shjacinv[ijk];                            \
                                                                                \
     }                                                                          \
   }                                                                            \

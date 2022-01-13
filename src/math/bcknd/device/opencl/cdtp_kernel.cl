@@ -4,15 +4,15 @@
 
 #define DEFINE_CDTP_KERNEL(LX, CHUNKS)                                         \
 __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
-				 __global const real * __restrict__ x,	       \
-				 __global const real * __restrict__ dr,	       \
-				 __global const real * __restrict__ ds,	       \
-				 __global const real * __restrict__ dt,	       \
-				 __global const real * __restrict__ dxt,       \
-				 __global const real * __restrict__ dyt,       \
-				 __global const real * __restrict__ dzt,       \
-				 __global const real * __restrict__ B,         \
-				 __global const real * __restrict__ jac) {     \
+                                 __global const real * __restrict__ x,         \
+                                 __global const real * __restrict__ dr,        \
+                                 __global const real * __restrict__ ds,        \
+                                 __global const real * __restrict__ dt,        \
+                                 __global const real * __restrict__ dxt,       \
+                                 __global const real * __restrict__ dyt,       \
+                                 __global const real * __restrict__ dzt,       \
+                                 __global const real * __restrict__ B,         \
+                                 __global const real * __restrict__ jac) {     \
                                                                                \
   __local real shx[LX * LX * LX];                                              \
   __local real shdr[LX * LX * LX];                                             \
@@ -28,8 +28,8 @@ __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
                                                                                \
   int i,j,k;                                                                   \
                                                                                \
-  const int e = get_group_id(0);   				               \
-  const int iii = get_local_id(0);					       \
+  const int e = get_group_id(0);                                               \
+  const int iii = get_local_id(0);                                             \
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;                         \
                                                                                \
   if (iii < (LX * LX)) {                                                       \
@@ -67,24 +67,24 @@ __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
       real ttmp = 0.0;                                                         \
       for (int l = 0; l < LX; l++) {                                           \
                                                                                \
-	const real ta1_r = (((shB[l + j * LX + k * LX * LX]                    \
-			      * shx[l + j * LX + k * LX * LX]) /               \
-			     shjac[l + j * LX + k * LX * LX])                  \
-			    * shdr[l + j * LX + k * LX * LX]);     	       \
+        const real ta1_r = (((shB[l + j * LX + k * LX * LX]                    \
+                              * shx[l + j * LX + k * LX * LX]) /               \
+                             shjac[l + j * LX + k * LX * LX])                  \
+                            * shdr[l + j * LX + k * LX * LX]);                 \
                                                                                \
-	const real ta1_s = (((shB[i + l * LX + k * LX * LX]                    \
-			      * shx[i + l * LX + k * LX * LX]) /               \
-			     shjac[i + l * LX + k * LX * LX])                  \
-			    * shds[i + l * LX + k * LX * LX]);                 \
+        const real ta1_s = (((shB[i + l * LX + k * LX * LX]                    \
+                              * shx[i + l * LX + k * LX * LX]) /               \
+                             shjac[i + l * LX + k * LX * LX])                  \
+                            * shds[i + l * LX + k * LX * LX]);                 \
                                                                                \
-	const real  ta1_t = (((shB[i + j * LX + l * LX * LX]                   \
-			       * shx[i + j * LX + l * LX * LX]) /              \
-			      shjac[i + j * LX + l * LX * LX])                 \
-			     * shdt[i + j * LX + l * LX * LX]);                \
-		                                                               \
-	rtmp += shdxt[i + l * LX] * ta1_r;	                               \
-	stmp += shdyt[j + l * LX] * ta1_s;                                     \
-	ttmp += shdzt[k + l * LX] * ta1_t;                                     \
+        const real  ta1_t = (((shB[i + j * LX + l * LX * LX]                   \
+                               * shx[i + j * LX + l * LX * LX]) /              \
+                              shjac[i + j * LX + l * LX * LX])                 \
+                             * shdt[i + j * LX + l * LX * LX]);                \
+                                                                               \
+        rtmp += shdxt[i + l * LX] * ta1_r;                                     \
+        stmp += shdyt[j + l * LX] * ta1_s;                                     \
+        ttmp += shdzt[k + l * LX] * ta1_t;                                     \
                                                                                \
       }                                                                        \
                                                                                \
