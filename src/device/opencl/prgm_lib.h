@@ -47,5 +47,8 @@ extern void *gs_program;
 /** Device Ax helm kernels */
 extern void *ax_helm_program;
 
+/** Device jacobi kernels */
+extern void *jacobi_program;
+
 
 #endif

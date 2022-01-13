@@ -49,6 +49,9 @@ module opencl_prgm_lib
   !> Device Ax helm kernels
   type(c_ptr), bind(c) :: ax_helm_program = C_NULL_PTR
 
+  !> Device jacobi kernels
+  type(c_ptr), bind(c) :: jacobi_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -149,6 +152,13 @@ contains
           call neko_error('Failed to release program')
        end if
        ax_helm_program = C_NULL_PTR
+    end if
+
+    if (c_associated(jacobi_program)) then
+       if(clReleaseProgram(jacobi_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       jacobi_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

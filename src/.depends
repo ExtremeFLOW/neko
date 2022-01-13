@@ -198,6 +198,7 @@ math/bcknd/device/opencl/opr_cdtp.o : math/bcknd/device/opencl/opr_cdtp.c math/b
 math/bcknd/device/opencl/opr_conv1.o : math/bcknd/device/opencl/opr_conv1.c math/bcknd/device/opencl/conv1_kernel.cl.h
 math/bcknd/device/opencl/opr_opgrad.o : math/bcknd/device/opencl/opr_opgrad.c math/bcknd/device/opencl/opgrad_kernel.cl.h
 math/bcknd/device/opencl/ax_helm.o : math/bcknd/device/opencl/ax_helm.c math/bcknd/device/opencl/ax_helm_kernel.cl.h
+krylov/bcknd/device/opencl/pc_jacobi.o : krylov/bcknd/device/opencl/pc_jacobi.c krylov/bcknd/device/opencl/jacobi_kernel.cl.h
 gs/bcknd/device/opencl/gs.o : gs/bcknd/device/opencl/gs.c gs/bcknd/device/opencl/gs_kernels.cl.h 
 bc/bcknd/device/opencl/dirichlet.o : bc/bcknd/device/opencl/dirichlet.c bc/bcknd/device/opencl/dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/inflow.o : bc/bcknd/device/opencl/inflow.c bc/bcknd/device/opencl/inflow_kernel.cl.h
