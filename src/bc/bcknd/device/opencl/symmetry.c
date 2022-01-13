@@ -18,8 +18,8 @@
  * Fortran wrapper for device symmetry apply vector
  */
 void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
-				  void *x, void *y, void *z,
-				  int *m, int *n, int *l) {
+                                  void *x, void *y, void *z,
+                                  int *m, int *n, int *l) {
 
   cl_int err;
    
@@ -27,7 +27,7 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
     opencl_kernel_jit(symmetry_kernel, (cl_program *) &symmetry_program);
   
   cl_kernel kernel = clCreateKernel(symmetry_program,
-				    "symmetry_apply_vector_kernel", &err);
+                                    "symmetry_apply_vector_kernel", &err);
   CL_CHECK(err);
  
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &xmsk));
@@ -45,6 +45,6 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				  NULL, &global_item_size, &local_item_size,
-				  0, NULL, NULL));
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
 }

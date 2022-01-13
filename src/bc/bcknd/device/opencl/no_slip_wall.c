@@ -23,7 +23,7 @@ void opencl_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
     opencl_kernel_jit(no_slip_wall_kernel, (cl_program *) &no_slip_wall_program);
   
   cl_kernel kernel = clCreateKernel(no_slip_wall_program,
-				    "no_slip_wall_apply_scalar_kernel", &err);
+                                    "no_slip_wall_apply_scalar_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
@@ -35,22 +35,22 @@ void opencl_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				  NULL, &global_item_size, &local_item_size,
-				  0, NULL, NULL));
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
 }
 
 /** 
  * Fortran wrapper for device no-slip wall apply vector
  */
 void opencl_no_slip_wall_apply_vector(void *msk, void *x, void *y,
-				      void *z, int *m) {
+                                      void *z, int *m) {
   cl_int err;
   
   if (no_slip_wall_program == NULL)
     opencl_kernel_jit(no_slip_wall_kernel, (cl_program *) &no_slip_wall_program);
   
   cl_kernel kernel = clCreateKernel(no_slip_wall_program,
-				    "no_slip_wall_apply_vector_kernel", &err);
+                                    "no_slip_wall_apply_vector_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
@@ -64,7 +64,7 @@ void opencl_no_slip_wall_apply_vector(void *msk, void *x, void *y,
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				  NULL, &global_item_size, &local_item_size,
-				  0, NULL, NULL));
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
  
 }

@@ -16,10 +16,10 @@
  * Fortran wrapper for device facet normal apply surfvec
  */
 void opencl_facet_normal_apply_surfvec(void *msk, void *facet,
-				       void *x, void *y, void *z,
-				       void *u, void *v, void *w,
-				       void *nx, void * ny, void *nz,
-				       void *area, int *lx, int *m) {
+                                       void *x, void *y, void *z,
+                                       void *u, void *v, void *w,
+                                       void *nx, void * ny, void *nz,
+                                       void *area, int *lx, int *m) {
 
   cl_int err;
   
@@ -27,7 +27,7 @@ void opencl_facet_normal_apply_surfvec(void *msk, void *facet,
     opencl_kernel_jit(facet_normal_kernel, (cl_program *) &facet_normal_program);
   
   cl_kernel kernel = clCreateKernel(facet_normal_program,
-				    "facet_normal_apply_surfvec_kernel", &err);
+                                    "facet_normal_apply_surfvec_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
@@ -50,6 +50,6 @@ void opencl_facet_normal_apply_surfvec(void *msk, void *facet,
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				  NULL, &global_item_size, &local_item_size,
-				  0, NULL, NULL));
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
 }
