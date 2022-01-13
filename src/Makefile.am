@@ -217,6 +217,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/ax_helm.c\
+        krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
@@ -239,7 +240,8 @@ CLEANFILES = *.mod
 if ENABLE_OPENCL
 CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      gs/bcknd/device/opencl/*.cl.h\
-	      bc/bcknd/device/opencl/*.cl.h
+	      bc/bcknd/device/opencl/*.cl.h\
+	      krylov/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -291,6 +293,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
 	math/bcknd/device/opencl/ax_helm_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
+	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h
