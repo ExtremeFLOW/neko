@@ -8,6 +8,7 @@
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
+#include <device/opencl/check.h>
 
 #include "facet_normal_kernel.cl.h"
 
@@ -27,27 +28,28 @@ void opencl_facet_normal_apply_surfvec(void *msk, void *facet,
   
   cl_kernel kernel = clCreateKernel(facet_normal_program,
 				    "facet_normal_apply_surfvec_kernel", &err);
+  CL_CHECK(err);
 
-  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk);
-  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &facet);
-  err = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &x);
-  err = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &y);
-  err = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &z);
-  err = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &u);
-  err = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &v);
-  err = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &w);
-  err = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &nx);
-  err = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &ny);
-  err = clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &nz);
-  err = clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &facet);
-  err = clSetKernelArg(kernel, 12, sizeof(int), lx);
-  err = clSetKernelArg(kernel, 13, sizeof(int), m);
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &facet));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &x));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &y));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &z));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &u));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &nx));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &ny));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &nz));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &facet));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), m));
   
   const int nb = ((*m) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-			       NULL, &global_item_size, &local_item_size,
-			       0, NULL, NULL);
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+				  NULL, &global_item_size, &local_item_size,
+				  0, NULL, NULL));
 }
