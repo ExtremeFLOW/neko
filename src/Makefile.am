@@ -208,6 +208,7 @@ endif
 
 if ENABLE_OPENCL
 libneko_a_SOURCES += \
+	device/opencl/check.c\
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
 	math/bcknd/device/opencl/mathops.c\
@@ -291,6 +292,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/ax_helm_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	device/opencl/jit.h\
-	device/opencl/prgm_lib.h
+	device/opencl/prgm_lib.h\
+	device/opencl/check.h
 
 include	.depends
