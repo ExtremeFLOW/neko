@@ -5,7 +5,8 @@
 #endif
 
 #include <stdio.h>
-#include <device/opencl/utils.h>
+#include <stdarg.h>
+#include <device/opencl/check.h>
 
 #define CL_ERR_STR(err) case err: return #err
 
@@ -81,10 +82,10 @@ const char *clGetError(const cl_int err) {
 /**
  * Check a OpenCL return code
  */
-const char *opencl_check(const cl_int err)
+void opencl_check(const char *fname, const int line, const cl_int err)
 {
   if (err != CL_SUCCESS) {
     const char *err_str = clGetError(err);
-    fprintf(stderr, "%s\n", err_str);
+    fprintf(stderr, "%s in %s:%d \n", err_str, fname, line);
   }						  
 }

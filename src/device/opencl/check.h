@@ -7,8 +7,8 @@
 #include <CL/cl.h>
 #endif
 
-const char *opencl_check(const cl_int  err);
+void opencl_check(const char *fname, const int line, const cl_int err);
 
-#define CL_CHECK(err) opencl_check(err);
+#define CL_CHECK(err) opencl_check(__FILE__, __LINE__, err);
 
 #endif

@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <device/device_config.h>
+#include <device/opencl/check.h>
 
 
 /**
@@ -17,8 +18,7 @@ void opencl_kernel_jit(const char *kernel, cl_program *program)
 
   (*program) = clCreateProgramWithSource((cl_context) glb_ctx, 1,
 					   &kernel, NULL, &err);
-  if (err != CL_SUCCESS)
-    fprintf(stderr, "%d\n", err);
+  CL_CHECK(err)
   
   err = clBuildProgram((*program), 1, (cl_device_id *) &glb_device_id,
 		       NULL, NULL, NULL);
