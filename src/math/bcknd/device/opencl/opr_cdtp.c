@@ -34,22 +34,22 @@ void opencl_cdtp(void *dtx, void *x,
     {                                                                           \
       cl_kernel kernel = clCreateKernel(cdtp_program,                           \
                                         STR(cdtp_kernel_lx##LX), &err);         \
-      CL_CHECK(err)                                                             \
+      CL_CHECK(err);                                                            \
                                                                                 \
-      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx))        \
-      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x))          \
-      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr))         \
-      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds))         \
-      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt))         \
-      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt))        \
-      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt))        \
-      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt))        \
-      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B))          \
-      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac))        \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dtx));       \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x));         \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &dr));        \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &ds));        \
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dt));        \
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt));       \
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt));       \
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt));       \
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B));         \
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac));       \
                                                                                 \
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
                                       kernel, 1, NULL, &global_item_size,       \
-                                      &local_item_size, 0, NULL, NULL))         \
+                                      &local_item_size, 0, NULL, NULL));        \
     }                                                                           \
     break
     
