@@ -1,5 +1,6 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 #include "mathops_kernel.h"
 
 extern "C" {
@@ -14,6 +15,7 @@ extern "C" {
 		       nblcks, nthrds, 0, 0,
 		       (real *) a1, (real *) a2, (real *) a3,
 		       *gdim, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /** Fortran wrapper for opcolv \f$ a = a * c \f$ */
@@ -26,6 +28,7 @@ extern "C" {
 		       nblcks, nthrds, 0, 0,
 		       (real *) a1, (real *) a2, (real *) a3, (real *) c,
 		       *gdim, *n);
+    HIP_CHECK(hipGetLastError());
     
   }
 
@@ -41,7 +44,8 @@ extern "C" {
 		       (real *) a1, (real *) a2, (real *) a3,
 		       (real *) b1, (real *) b2, (real *) b3,
 		       (real *) c, *d, *gdim, *n);
-
+    HIP_CHECK(hipGetLastError());
+    
   }
 
   /** Fortran wrapper for opadd2cm \f$ a(i) = a + b(i) * c \f$ */
@@ -56,7 +60,8 @@ extern "C" {
 		       (real *) a1, (real *) a2, (real *) a3,
 		       (real *) b1, (real *) b2, (real *) b3,
 		       *c, *gdim, *n);
-
+    HIP_CHECK(hipGetLastError());
+    
   }
 
   /** Fortran wrapper for opadd2col \f$ a(i) = a + b(i) * c(i) \f$ */
@@ -71,6 +76,7 @@ extern "C" {
 		       (real *) a1, (real *) a2, (real *) a3,
 		       (real *) b1, (real *) b2, (real *) b3,
 		       (real *) c, *gdim, *n);
+    HIP_CHECK(hipGetLastError());
     
   }
 
