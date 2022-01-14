@@ -459,6 +459,8 @@ contains
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
+    type is (device_jacobi_t)
+       call pcp%init(coef, dof, gs)
     type is(hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then

@@ -25,15 +25,37 @@ module device_jacobi
 
   interface
      subroutine hip_jacobi_update(d_d, dxt_d, dyt_d, dzt_d, &
-          G11_d, G22_D, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
+          G11_d, G22_d, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
           bind(c, name='hip_jacobi_update')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: d_d, dxt_d, dyt_d, dzt_d
-       type(c_ptr), value :: G11_d, G22_D, G33_d, G12_d, G13_d, G23_d
+       type(c_ptr), value :: G11_d, G22_d, G33_d, G12_d, G13_d, G23_d
        integer(c_int) :: nelv, lx
      end subroutine hip_jacobi_update
   end interface
   
+  interface
+     subroutine cuda_jacobi_update(d_d, dxt_d, dyt_d, dzt_d, &
+          G11_d, G22_d, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
+          bind(c, name='cuda_jacobi_update')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: d_d, dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: G11_d, G22_d, G33_d, G12_d, G13_d, G23_d
+       integer(c_int) :: nelv, lx
+     end subroutine cuda_jacobi_update
+  end interface
+
+  interface
+     subroutine opencl_jacobi_update(d_d, dxt_d, dyt_d, dzt_d, &
+          G11_d, G22_d, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
+          bind(c, name='opencl_jacobi_update')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: d_d, dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: G11_d, G22_d, G33_d, G12_d, G13_d, G23_d
+       integer(c_int) :: nelv, lx
+     end subroutine opencl_jacobi_update
+  end interface
+
 contains
   
   subroutine device_jacobi_init(this, coef, dof, gs_h)
@@ -104,6 +126,16 @@ contains
                              coef%G11_d, coef%G22_d, coef%G33_d, &
                              coef%G12_d, coef%G13_d, coef%G23_d, &
                              nelv, lx)
+#elif HAVE_CUDA
+      call cuda_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
+                             coef%G11_d, coef%G22_d, coef%G33_d, &
+                             coef%G12_d, coef%G13_d, coef%G23_d, &
+                             nelv, lx)
+#elif HAVE_OPENCL
+      call opencl_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
+                                coef%G11_d, coef%G22_d, coef%G33_d, &
+                                coef%G12_d, coef%G13_d, coef%G23_d, &
+                                nelv, lx)
 #endif
 
       call device_col2(this%d_d, coef%h1_d, coef%dof%n_dofs)
@@ -114,11 +146,7 @@ contains
       
       call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
 
-      if (.not. coef%ifh2) then
-         call device_col2(this%d_d, coef%mult_d, coef%dof%n_dofs)
-      end if
-      
-      call invcol1(this%d, dof%n_dofs)
+      call device_invcol1(this%d_d, dof%n_dofs)
     end associate
   end subroutine device_jacobi_update
 

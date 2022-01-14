@@ -1,3 +1,6 @@
+#ifndef __PRGM_LIB_H
+#define __PRGM_LIB_H
+
 /**
  * OpenCL program library (see prgm_lib.F90)
  */
@@ -43,3 +46,9 @@ extern void *gs_program;
 
 /** Device Ax helm kernels */
 extern void *ax_helm_program;
+
+/** Device jacobi kernels */
+extern void *jacobi_program;
+
+
+#endif

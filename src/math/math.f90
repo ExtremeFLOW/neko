@@ -126,6 +126,18 @@ contains
     end do
   end subroutine cadd
 
+  !> Set all elements to a constant c \f$ a = c \f$
+  subroutine cfill(a, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c
+    end do
+  end subroutine cfill
+
   !>Sum a vector of length n 
   function glsum(a, n) 
     integer, intent(in) :: n

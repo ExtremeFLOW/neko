@@ -13,8 +13,8 @@ __kernel void blasius_apply_vector_kernel(__global const int *msk,
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  for (int i = (idx + 1); i < m; i += str) {
-    const int k = msk[i] -1;
+  for (int i = idx; i < m; i += str) {
+    const int k = msk[i + 1] -1;
     x[k] = bla_x[i];
     y[k] = bla_y[i];
     z[k] = bla_z[i];

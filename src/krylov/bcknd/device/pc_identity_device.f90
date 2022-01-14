@@ -2,7 +2,7 @@
 module device_identity
   use utils
   use precon
-  use ax_product
+  use device
   use device_math
   use num_types
   implicit none

@@ -332,10 +332,9 @@ contains
     real(kind=rp), intent(inout) :: h1(n)
     real(kind=rp), intent(inout) :: h2(n)
     real(kind=rp), intent(in) :: rho
-    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: one = 1.0_rp
     logical, intent(inout) :: ifh2
-    call rone(h1, n)
-    call cmult(h1, one /rho, n)
+    call cfill(h1, one /rho, n)
     call rzero(h2, n)
     ifh2 = .false.
   end subroutine fluid_plan4_pres_setup
@@ -349,7 +348,7 @@ contains
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     logical, intent(inout) :: ifh2
-    real(kind=rp), parameter :: one = 1.0
+    real(kind=rp), parameter :: one = 1.0_rp
     real(kind=rp) :: dtbd    
     dtbd = rho * (bd / dt)
     h1 = (one / Re)
@@ -506,8 +505,7 @@ contains
     integer :: ilag
     
     const = rho / dt
-    call rone(h2, n)
-    call cmult(h2,const,n)
+    call cfill(h2,const,n)
     call opcolv3c(tb1%x, tb2%x, tb3%x, u%x, v%x, w%x, B, bd(2), n, gdim)
     do ilag = 2, nbd
        call opcolv3c(ta1%x, ta2%x, ta3%x, &

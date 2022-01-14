@@ -175,6 +175,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
 	krylov/bcknd/device/hip/gmres_aux.hip\
@@ -195,6 +196,8 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/ax_helm.cu\
+	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
@@ -208,6 +211,7 @@ endif
 
 if ENABLE_OPENCL
 libneko_a_SOURCES += \
+	device/opencl/check.c\
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
 	math/bcknd/device/opencl/mathops.c\
@@ -216,6 +220,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/ax_helm.c\
+        krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
@@ -234,6 +239,13 @@ neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 pkginclude_HEADERS = $(wildcard *.mod) device/device_config.h
 
 CLEANFILES = *.mod
+
+if ENABLE_OPENCL
+CLEANFILES += math/bcknd/device/opencl/*.cl.h\
+	      gs/bcknd/device/opencl/*.cl.h\
+	      bc/bcknd/device/opencl/*.cl.h\
+	      krylov/bcknd/device/opencl/*.cl.h
+endif
 
 if ENABLE_MAKEDEPF90
 depend:
@@ -255,6 +267,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/ax_helm_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
@@ -268,6 +281,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
+	math/bcknd/device/hip/ax_helm_kernel.h\
 	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
@@ -284,7 +298,9 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
 	math/bcknd/device/opencl/ax_helm_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
+	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	device/opencl/jit.h\
-	device/opencl/prgm_lib.h
+	device/opencl/prgm_lib.h\
+	device/opencl/check.h
 
 include	.depends

@@ -171,6 +171,7 @@ contains
     class(stack_t), target, intent(inout) :: this
     class(*), intent(inout) :: data !< Arbitrary typed data (same type as stack)
     class(*), allocatable :: tmp(:)
+    integer :: i
 
     if (this%top_ .eq. this%size_) then
        this%size_ = ishft(this%size_, 1)
@@ -215,12 +216,16 @@ contains
        type is (tuple_i4_t)
           select type(sdp=>this%data)
           type is (tuple_i4_t)
-             tmp(1:this%top_) = sdp
+             do i = 1, this%top_
+                tmp(i) = sdp(i)
+             end do
           end select
        type is (tuple4_i4_t)
           select type(sdp=>this%data)
           type is (tuple4_i4_t)
-             tmp(1:this%top_) = sdp
+             do i = 1, this%top_
+                tmp(i) = sdp(i)
+             end do
           end select
        type is (struct_curve_t)
           select type(sdp=>this%data)

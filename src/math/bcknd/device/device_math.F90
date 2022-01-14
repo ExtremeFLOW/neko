@@ -69,15 +69,6 @@ module device_math
   end interface
   
   interface
-     subroutine hip_rone(a_d, n) &
-          bind(c, name='hip_rone')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: a_d
-       integer(c_int) :: n
-     end subroutine hip_rone
-  end interface
-
-  interface
      subroutine hip_add2(a_d, b_d, n) &
           bind(c, name='hip_add2')
        use, intrinsic :: iso_c_binding
@@ -121,6 +112,19 @@ module device_math
        integer(c_int) :: j, n
      end subroutine hip_add2s2_many
   end interface
+
+  interface
+     subroutine hip_addsqr2s2(a_d, b_d, c1, n) &
+          bind(c, name='hip_addsqr2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine hip_addsqr2s2
+  end interface
+
   interface
      subroutine hip_add3s2(a_d, b_d, c_d, c1, c2, n) &
           bind(c, name='hip_add3s2')
@@ -318,16 +322,7 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_rzero
   end interface
-
-    interface
-     subroutine cuda_rone(a_d, n) &
-          bind(c, name='cuda_rone')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: a_d
-       integer(c_int) :: n
-     end subroutine cuda_rone
-  end interface
-
+  
   interface
      subroutine cuda_add2(a_d, b_d, n) &
           bind(c, name='cuda_add2')
@@ -361,6 +356,18 @@ module device_math
        real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine cuda_add2s2
+  end interface
+
+  interface
+     subroutine cuda_addsqr2s2(a_d, b_d, c1, n) &
+          bind(c, name='cuda_addsqr2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine cuda_addsqr2s2
   end interface
 
   interface
@@ -614,6 +621,18 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_addsqr2s2(a_d, b_d, c1, n) &
+          bind(c, name='opencl_addsqr2s2')
+       use, intrinsic :: iso_c_binding
+       import c_rp                     
+       implicit none
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c1
+       integer(c_int) :: n
+     end subroutine opencl_addsqr2s2
+  end interface
+
+  interface
      subroutine opencl_add3s2(a_d, b_d, c_d, c1, c2, n) &
           bind(c, name='opencl_add3s2')
        use, intrinsic :: iso_c_binding
@@ -771,12 +790,11 @@ contains
   subroutine device_rone(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
-#ifdef HAVE_HIP
-    call hip_rzero(a_d, n)
-#elif HAVE_CUDA
-    call cuda_rone(a_d, n)
+    real(kind=rp) :: one = 1.0_rp
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+    call device_cfill(a_d, one, n)
 #elif HAVE_OPENCL
-    call opencl_rzero(a_d, n)
+    call opencl_rone(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -886,6 +904,21 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2s2
+  
+  subroutine device_addsqr2s2(a_d, b_d, c1, n)
+    type(c_ptr) :: a_d, b_d
+    real(kind=rp) :: c1
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_addsqr2s2(a_d, b_d, c1, n)
+#elif HAVE_CUDA
+    call cuda_addsqr2s2(a_d, b_d, c1, n)
+#elif HAVE_OPENCL
+    call opencl_addsqr2s2(a_d, b_d, c1, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_addsqr2s2
 
   subroutine device_add3s2(a_d, b_d, c_d, c1, c2 ,n)
     type(c_ptr) :: a_d, b_d, c_d
