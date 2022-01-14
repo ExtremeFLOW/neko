@@ -21,8 +21,15 @@ module pipecg_device
      real(kind=rp), allocatable :: z(:)
      real(kind=rp), allocatable :: mi(:)
      real(kind=rp), allocatable :: ni(:)
-     type(c_ptr) :: p_d, q_d, r_d, s_d
-     type(c_ptr) :: u_d_d, w_d, z_d, mi_d, ni_d
+     type(c_ptr) :: p_d = C_NULL_PTR
+     type(c_ptr) :: q_d = C_NULL_PTR
+     type(c_ptr) :: r_d = C_NULL_PTR
+     type(c_ptr) :: s_d = C_NULL_PTR
+     type(c_ptr) :: u_d_d = C_NULL_PTR
+     type(c_ptr) :: w_d = C_NULL_PTR
+     type(c_ptr) :: z_d = C_NULL_PTR
+     type(c_ptr) :: mi_d = C_NULL_PTR
+     type(c_ptr) :: ni_d = C_NULL_PTR
      type(c_ptr), allocatable :: u_d(:)
      integer :: p_space
    contains
@@ -30,10 +37,11 @@ module pipecg_device
      procedure, pass(this) :: free => pipecg_device_free
      procedure, pass(this) :: solve => pipecg_device_solve
   end type pipecg_device_t
+  
 #ifdef HAVE_CUDA
   interface
-     subroutine cuda_pipecg_vecops(p_d, q_d, r_d,&
-          s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
+     subroutine cuda_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
+          w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
           bind(c, name='cuda_pipecg_vecops')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -44,8 +52,10 @@ module pipecg_device
        real(c_rp) :: alpha, beta, reduction(3)
      end subroutine cuda_pipecg_vecops
   end interface
+  
   interface
-     subroutine cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) &
+     subroutine cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
+                                  p_cur, p_space, n) &
           bind(c, name='cuda_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -55,8 +65,8 @@ module pipecg_device
   end interface
 #elif HAVE_HIP
   interface
-     subroutine hip_pipecg_vecops(p_d, q_d, r_d,&
-          s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
+     subroutine hip_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
+          w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
           bind(c, name='hip_pipecg_vecops')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -67,8 +77,10 @@ module pipecg_device
        real(c_rp) :: alpha, beta, reduction(3)
      end subroutine hip_pipecg_vecops
   end interface
+
   interface
-     subroutine hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) &
+     subroutine hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
+                                 p_cur, p_space, n) &
           bind(c, name='hip_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -77,11 +89,11 @@ module pipecg_device
      end subroutine hip_cg_update_xp
   end interface
 #endif
-
-
+  
 contains
-  subroutine device_pipecg_vecops(p_d, q_d, r_d,&
-  s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+  
+  subroutine device_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
+       w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
     type(c_ptr), value :: p_d, q_d, r_d, s_d, u_d1, u_d2
     type(c_ptr), value :: w_d, ni_d, mi_d, z_d, mult_d
     integer(c_int) :: n
@@ -96,7 +108,8 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_pipecg_vecops
-  subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n) 
+  
+  subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
     use, intrinsic :: iso_c_binding
     type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
     integer(c_int) :: p_cur, n, p_space
@@ -108,6 +121,7 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_cg_update_xp
+  
   !> Initialise a pipelined PCG solver
   subroutine pipecg_device_init(this, n, M, rel_tol, abs_tol)
     class(pipecg_device_t), target, intent(inout) :: this
@@ -134,6 +148,7 @@ contains
     allocate(this%z(n))
     allocate(this%mi(n))
     allocate(this%ni(n))
+    
     if (present(M)) then 
        this%M => M
     else 
@@ -149,7 +164,7 @@ contains
     call device_map(this%mi, this%mi_d, n)
     call device_map(this%ni, this%ni_d, n)
     do i = 1, this%p_space+1
-       this%u_d(i) = c_null_ptr
+       this%u_d(i) = C_NULL_PTR
        call device_map_r1(this%u(:,i), this%u_d(i), n)
     end do
     !Did not work with 4 for some reason...
@@ -240,9 +255,7 @@ contains
        end do
     end if
 
-
     nullify(this%M)
-
 
   end subroutine pipecg_device_free
   
@@ -266,9 +279,9 @@ contains
     type(MPI_Status) :: status
     type(c_ptr) :: f_d, alpha_d, beta_d
     f_d = device_get_ptr(f, n)
-    alpha_d = c_null_ptr
+    alpha_d = C_NULL_PTR
     call device_map(alpha, alpha_d, this%p_space)
-    beta_d = c_null_ptr
+    beta_d = C_NULL_PTR
     call device_map(beta, beta_d, this%p_space)
     
     if (present(niter)) then
