@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 
 #include "symmetry_kernel.h"
 
@@ -20,6 +21,7 @@ extern "C" {
     symmetry_apply_vector_kernel<real>
       <<<nblcks, nthrds>>>((int *) xmsk, (int *) ymsk, (int *) zmsk,
 			   (real *) x, (real *) y, (real *) z, *m, *n, *l);
+    CUDA_CHECK(cudaGetLastError());
   }
  
 }
