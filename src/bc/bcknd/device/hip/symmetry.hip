@@ -1,5 +1,6 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 #include "symmetry_kernel.h"
 
 extern "C" {
@@ -20,6 +21,7 @@ extern "C" {
 		       (int *) xmsk, (int *) ymsk, (int *) zmsk,
 		       (real *) x, (real *) y, (real *) z,
 		       *m, *n, *l);
+    HIP_CHECK(hipGetLastError());
   }
  
 }

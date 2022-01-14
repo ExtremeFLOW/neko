@@ -1,5 +1,6 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 #include "blasius_kernel.h"
 
 extern "C" {
@@ -18,6 +19,7 @@ extern "C" {
 			   (real *) x, (real *) y, (real *) z,
 			   (real *) bla_x, (real *) bla_y, (real *) bla_z,
 			   *m);
+    HIP_CHECK(hipGetLastError());
   }
  
 }
