@@ -37,6 +37,18 @@ extern "C" {
 
   }
 
+  /** Fortran wrapper for cmult2
+   * Multiplication by constant c \f$ a = c \cdot b \f$
+   */
+  void cuda_cmult2(void *a, void *b, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cmult2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
+					   *c, *n);
+
+  }
   /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a = \sum a_i + s \f$
    */
@@ -110,6 +122,14 @@ extern "C" {
 
   }
 
+  void cuda_add2s2_many(void *x, void **p, void *alpha, int *j, int *n) {
+	
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    add2s2_many_kernel<real><<<nblcks, nthrds>>>((real *) x, (const real **) p, (real *) alpha, *j, *n);
+
+  }
   /**
    * Fortran wrapper for add3s2
    * Vector addition with scalar multiplication \f$ a = c_1 b + c_2 c \f$
@@ -274,6 +294,42 @@ extern "C" {
 
     return res;
   }
+int red_s = 0;
+real * bufred;
+real * bufred_d;
+/**
+   * Fortran wrapper cg_part_2
+   * Weighted inner product \f$ a^T b c \f$
+   */
+  void cuda_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n){ 
+    int pow2 = 1;
+    while(pow2 < (*j)){
+      pow2 = 2*pow2;
+    }
+    const int nt = 1024/pow2;	
+    const dim3 nthrds(nt, pow2, 1);
+    const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
+    const int nb = ((*n) + nt - 1)/nt;
+    if((*j)>red_s){
+      red_s = *j;
+      free(bufred);
+      cudaFree(bufred_d);
+      bufred = (real *) malloc((*j)*nb * sizeof(real));
+      cudaMalloc(&bufred_d, (*j)*nb*sizeof(real));
+    }
+    glsc3_many_kernel<real><<<nblcks, nthrds>>>((const real *) w, (const real **) v, (const real *)mult, bufred_d, *j, *n);
+    cudaMemcpy(bufred, bufred_d, (*j)*nb * sizeof(real), cudaMemcpyDeviceToHost);
+    for (int k = 0; k < (*j); k++) {
+      h[k] = 0.0;
+    }
+    
+    for (int i = 0; i < nb; i++) {
+      for (int k = 0; k < (*j); k++) {
+        h[k] += bufred[i*(*j)+k];
+      }
+    }
+  }
+
 
   /**
    * Fortran wrapper glsc2

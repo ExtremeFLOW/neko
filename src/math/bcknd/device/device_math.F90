@@ -27,6 +27,17 @@ module device_math
   end interface
 
   interface
+     subroutine hip_cmult2(a_d, b_d, c, n) &
+          bind(c, name='hip_cmult')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine hip_cmult2
+  end interface
+
+  interface
      subroutine hip_cadd(a_d, c, n) &
           bind(c, name='hip_cadd')
        use, intrinsic :: iso_c_binding
@@ -100,7 +111,16 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_add2s2
   end interface
-  
+  interface
+     subroutine hip_add2s2_many(y_d,x_d_d,a_d,j,n) &
+          bind(c, name='hip_add2s2_many')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: y_d, x_d_d, a_d
+       integer(c_int) :: j, n
+     end subroutine hip_add2s2_many
+  end interface
   interface
      subroutine hip_add3s2(a_d, b_d, c_d, c1, c2, n) &
           bind(c, name='hip_add3s2')
@@ -213,6 +233,17 @@ module device_math
        integer(c_int) :: n
      end function hip_glsc3
   end interface
+  interface
+     subroutine hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n) &
+          bind(c, name='hip_glsc3_many')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: w_d, v_d_d, mult_d
+       real(kind=rp) :: h(j)
+       integer(c_int) :: j, n
+     end subroutine hip_glsc3_many
+  end interface
 
   interface
      real(c_rp) function hip_glsc2(a_d, b_d, n) &
@@ -244,6 +275,18 @@ module device_math
        integer(c_int) :: n
      end subroutine cuda_cmult
   end interface
+
+  interface
+     subroutine cuda_cmult2(a_d, b_d, c, n) &
+          bind(c, name='cuda_cmult2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cmult2
+  end interface
+
 
   interface
      subroutine cuda_cadd(a_d, c, n) &
@@ -423,6 +466,17 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_add2s2_many(y_d,x_d_d,a_d,j,n) &
+          bind(c, name='cuda_add2s2_many')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: y_d, x_d_d, a_d
+       integer(c_int) :: j, n
+     end subroutine cuda_add2s2_many
+  end interface
+
+  interface
      real(c_rp) function cuda_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='cuda_glsc3')
        use, intrinsic :: iso_c_binding
@@ -431,6 +485,17 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end function cuda_glsc3
+  end interface
+  interface
+     subroutine cuda_glsc3_many(h,w_d,v_d_d,mult_d,j,n) &
+          bind(c, name='cuda_glsc3_many')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: w_d, v_d_d, mult_d
+       real(c_rp) :: h(j)
+       integer(c_int) :: j, n
+     end subroutine cuda_glsc3_many
   end interface
 
   interface
@@ -464,6 +529,16 @@ module device_math
      end subroutine opencl_cmult
   end interface
 
+  interface
+     subroutine opencl_cmult2(a_d, b_d, c, n) &
+          bind(c, name='opencl_cmult2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cmult2
+  end interface
   interface
      subroutine opencl_cadd(a_d, c, n) &
           bind(c, name='opencl_cadd')
@@ -722,6 +797,22 @@ contains
 #endif
   end subroutine device_cmult
 
+  subroutine device_cmult2(a_d, b_d, c, n)
+    type(c_ptr) :: a_d, b_d
+    real(kind=rp), intent(in) :: c
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_cmult2(a_d, b_d, c, n)
+#elif HAVE_CUDA
+    call cuda_cmult2(a_d, b_d, c, n)
+#elif HAVE_OPENCL
+    call opencl_cmult2(a_d, b_d, c, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cmult2
+
+
   subroutine device_cadd(a_d, c, n)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
@@ -956,6 +1047,34 @@ contains
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
   end function device_glsc3
+  subroutine device_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+    type(c_ptr), value :: w_d, v_d_d, mult_d
+    integer(c_int) :: j, n
+    real(c_rp) :: h(j)
+    integer :: ierr
+#ifdef HAVE_HIP
+    call hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+#elif HAVE_CUDA
+    call cuda_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+#else
+    call neko_error('No device backend configured')
+#endif
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, h, j, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    end if
+  end subroutine device_glsc3_many
+  subroutine device_add2s2_many(y_d,x_d_d,a_d,j,n)
+    type(c_ptr), value :: y_d, x_d_d, a_d
+    integer(c_int) :: j, n
+#ifdef HAVE_HIP
+    call hip_add2s2_many(y_d,x_d_d,a_d,j,n)
+#elif HAVE_CUDA
+    call cuda_add2s2_many(y_d,x_d_d,a_d,j,n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_add2s2_many
  
   function device_glsc2(a_d, b_d, n) result(res)
     type(c_ptr) :: a_d, b_d

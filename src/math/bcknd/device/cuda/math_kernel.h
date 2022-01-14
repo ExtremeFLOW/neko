@@ -13,7 +13,22 @@ __global__ void cmult_kernel(T * __restrict__ a,
     a[i] = c * a[i];
   }
 }
+/**
+ * Device kernel for cmult2
+ */
+template< typename T >
+__global__ void cmult2_kernel(T * __restrict__ a,
+                 T * __restrict__ b, 
+			     const T c,
+			     const int n) {
 
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c * b[i];
+  }
+}
 /**
  * Device kernel for cadd
  */
@@ -78,7 +93,25 @@ __global__ void add2s1_kernel(T * __restrict__ a,
     a[i] = c1 * a[i] + b[i];
   }
 }
+template< typename T >
+__global__ void add2s2_many_kernel(T  * __restrict__  x,
+			     const T ** p,
+			     const T * alpha,
+                 const int p_cur,
+			     const int n) {
 
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+
+  for (int i = idx; i < n; i+= str) {
+    T tmp = 0.0;
+    for (int j = 0; j < p_cur; j ++) {
+      tmp += p[j][i]*alpha[j];
+    }
+    x[i] += tmp;
+  }
+}
 /**
  * Device kernel for add2s2
  */
@@ -301,7 +334,46 @@ __global__ void glsc3_kernel(const T * a,
     buf_h[blockIdx.x] = buf[0];
   }
 }
+/**
+ * Device kernel for glsc3
+ */
+template< typename T >
+__global__ void glsc3_many_kernel(const T * a,
+			     const T ** b,
+			     const T * c,
+			     T * buf_h,
+                 const int j,
+			     const int n) {
 
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  const int y = threadIdx.y;
+
+  __shared__ T buf[1024];
+  T tmp = 0;
+  if(y < j){
+  for (int i = idx; i < n; i+= str) {
+    tmp += a[i] * b[threadIdx.y][i] * c[i];
+  }
+  }
+
+  buf[threadIdx.x*j+y] = tmp;
+  __syncthreads();
+
+  int i = blockDim.x>>1;
+  while (i != 0) {
+    if (threadIdx.x < i) {
+      buf[threadIdx.x*j +y] += buf[(threadIdx.x + i)*j+y];
+    }
+    __syncthreads();
+    i = i>>1;
+  }
+  if (threadIdx.x == 0) {
+  if( y < j) {
+    buf_h[j*blockIdx.x+y] = buf[y];
+  }
+  }
+}
 /**
  * Device kernel for glsc2
  */
