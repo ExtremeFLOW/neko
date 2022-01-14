@@ -3,13 +3,13 @@
  */
 template< typename T >
 __global__ void cg_update_xp_kernel(T  * __restrict__  x,
-			     T * __restrict__ p,
-			     T ** __restrict__ u,
-			     const T * alpha,
-			     const T * beta,
-                 const int p_cur,
-                 const int p_space,
-			     const int n) {
+                                    T * __restrict__ p,
+                                    T ** __restrict__ u,
+                                    const T * alpha,
+                                    const T * beta,
+                                    const int p_cur,
+                                    const int p_space,
+                                    const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -27,28 +27,29 @@ __global__ void cg_update_xp_kernel(T  * __restrict__  x,
     u[p_space][i] = u[p_space-1][i];
   }
 }
+
 /**
  * Device kernel for pipecg_vecops
  */
 template< typename T >
 __global__ void pipecg_vecops_kernel(T  * __restrict__  p,
-			     T * __restrict__ q,
-			     T * __restrict__ r,
-			     T * __restrict__ s,
-			     T * __restrict__ u1,
-			     T * __restrict__ u2,
-			     T * __restrict__ w,
-			     T * __restrict__ z,
-			     T * __restrict__ ni,
-			     T * __restrict__ mi,
-			     const T alpha,
-			     const T beta,
-			     const T * mult,
-			     T * buf_h1,
-			     T * buf_h2,
-			     T * buf_h3,
-			     const int n) {
-
+                                     T * __restrict__ q,
+                                     T * __restrict__ r,
+                                     T * __restrict__ s,
+                                     T * __restrict__ u1,
+                                     T * __restrict__ u2,
+                                     T * __restrict__ w,
+                                     T * __restrict__ z,
+                                     T * __restrict__ ni,
+                                     T * __restrict__ mi,
+                                     const T alpha,
+                                     const T beta,
+                                     const T * mult,
+                                     T * buf_h1,
+                                     T * buf_h2,
+                                     T * buf_h3,
+                                     const int n) {
+  
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
