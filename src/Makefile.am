@@ -189,6 +189,7 @@ endif
 
 if ENABLE_CUDA
 libneko_a_SOURCES += \
+	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/mathops.cu\
 	math/bcknd/device/cuda/opr_dudxyz.cu\
@@ -298,6 +299,7 @@ EXTRA_DIST = \
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\
-	device/hip/check.h
+	device/hip/check.h\
+	device/cuda/check.h
 
 include	.depends

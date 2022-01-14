@@ -1,5 +1,6 @@
 #include "no_slip_wall_kernel.h"
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 
 extern "C" {
 
@@ -13,6 +14,7 @@ extern "C" {
 
     no_slip_wall_apply_scalar_kernel<real>
       <<<nblcks, nthrds>>>((int *) msk, (real *) x, *m);
+    CUDA_CHECK(cudaGetLastError());
   }
   
   /** 
@@ -27,6 +29,7 @@ extern "C" {
     no_slip_wall_apply_vector_kernel<real>
       <<<nblcks, nthrds>>>((int *) msk,
 			   (real *) x, (real *) y, (real *) z, *m);
+    CUDA_CHECK(cudaGetLastError());
   }
  
 }
