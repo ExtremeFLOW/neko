@@ -4,7 +4,7 @@ module generic_file
   
   !> A generic file handler
   type, abstract :: generic_file_t
-     character(len=80) :: fname
+     character(len=1024) :: fname
      integer :: counter
    contains
      procedure :: init => generic_file_init           !< Constructor

@@ -44,7 +44,7 @@ contains
     type(linear_dist_t) :: dist
     type(map_t) :: nm
     type(map_file_t) :: map_file
-    character(len=80) :: map_fname
+    character(len=1024) :: map_fname
     logical :: read_map
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
