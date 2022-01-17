@@ -29,7 +29,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     real(kind=dp) :: time
     character(len=5) :: id_str
-    character(len=80) :: fname
+    character(len=1024) :: fname
     integer :: ierr, suffix_pos, have_lag
     type(field_t), pointer :: u, v, w, p
     type(field_series_t), pointer :: ulag => null()
@@ -172,7 +172,7 @@ contains
     class(*), target, intent(inout) :: data
     type(chkp_t), pointer :: chkp
     character(len=5) :: id_str
-    character(len=80) :: fname
+    character(len=1024) :: fname
     integer :: ierr, suffix_pos
     type(field_t), pointer :: u, v, w, p
     type(field_series_t), pointer :: ulag => null()
