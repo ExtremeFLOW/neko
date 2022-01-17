@@ -352,7 +352,7 @@ __global__ void glsc3_kernel(const T * a,
   }
 }
 /**
- * Device kernel for glsc3
+ * Device kernel for glsc3 many
  */
 template< typename T >
 __global__ void glsc3_many_kernel(const T * a,

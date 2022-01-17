@@ -28,7 +28,7 @@ module device_math
 
   interface
      subroutine hip_cmult2(a_d, b_d, c, n) &
-          bind(c, name='hip_cmult')
+          bind(c, name='hip_cmult2')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: a_d, b_d

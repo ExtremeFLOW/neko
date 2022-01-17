@@ -43,6 +43,7 @@ extern "C" {
 
     cmult2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					   *c, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
   /** Fortran wrapper for cadd
@@ -123,12 +124,18 @@ extern "C" {
 
   }
 
+  /**
+   * Fortran wrapper for add2s2
+   * Vector addition with scalar multiplication \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$
+   * (multiplication on second argument) 
+   */
   void cuda_add2s2_many(void *x, void **p, void *alpha, int *j, int *n) {
 	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
     add2s2_many_kernel<real><<<nblcks, nthrds>>>((real *) x, (const real **) p, (real *) alpha, *j, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
   /**
@@ -324,12 +331,12 @@ extern "C" {
 
     return res;
   }
-int red_s = 0;
-real * bufred;
-real * bufred_d;
-/**
-   * Fortran wrapper cg_part_2
-   * Weighted inner product \f$ a^T b c \f$
+  int red_s = 0;
+  real * bufred;
+  real * bufred_d;
+  /**
+   * Fortran wrapper for doing an reduction to an array
+   * Weighted inner product \f$ w^T v(n,1:j) c \f$
    */
   void cuda_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n){ 
     int pow2 = 1;
@@ -345,10 +352,11 @@ real * bufred_d;
       free(bufred);
       cudaFree(bufred_d);
       bufred = (real *) malloc((*j)*nb * sizeof(real));
-      cudaMalloc(&bufred_d, (*j)*nb*sizeof(real));
+      CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     glsc3_many_kernel<real><<<nblcks, nthrds>>>((const real *) w, (const real **) v, (const real *)mult, bufred_d, *j, *n);
-    cudaMemcpy(bufred, bufred_d, (*j)*nb * sizeof(real), cudaMemcpyDeviceToHost);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, (*j)*nb * sizeof(real), cudaMemcpyDeviceToHost));
     for (int k = 0; k < (*j); k++) {
       h[k] = 0.0;
     }
