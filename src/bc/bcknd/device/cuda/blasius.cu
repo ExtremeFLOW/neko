@@ -1,5 +1,6 @@
 #include "blasius_kernel.h"
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 
 extern "C" {
 
@@ -17,6 +18,7 @@ extern "C" {
 			   (real *) x, (real *) y, (real *) z,
 			   (real *) bla_x, (real *) bla_y, (real *) bla_z,
 			   *m);
+    CUDA_CHECK(cudaGetLastError());
   }
  
 }

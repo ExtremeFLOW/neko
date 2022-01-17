@@ -1,5 +1,6 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 #include "math_kernel.h"
 
 extern "C" {
@@ -8,14 +9,15 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void hip_copy(void *a, void *b, int *n) {
-    hipMemcpyAsync(a, b, (*n) * sizeof(real), hipMemcpyDeviceToDevice);
+    HIP_CHECK(hipMemcpyAsync(a, b, (*n) * sizeof(real),
+			     hipMemcpyDeviceToDevice));
   }
 
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
   void hip_rzero(void *a, int *n) {
-    hipMemsetAsync(a, 0, (*n) * sizeof(real));
+    HIP_CHECK(hipMemsetAsync(a, 0, (*n) * sizeof(real)));
   }
 
   /** Fortran wrapper for cmult
@@ -29,6 +31,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cmult_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, *c, *n);
+    HIP_CHECK(hipGetLastError());
     
   }
 
@@ -57,7 +60,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cadd_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, *c, *n);
-    
+    HIP_CHECK(hipGetLastError()); 
   }
   
   /** Fortran wrapper for cfill
@@ -71,7 +74,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, *c, *n);
-    
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -86,7 +89,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(add2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, *n);
-    
+    HIP_CHECK(hipGetLastError());
   }
   
   /**
@@ -103,7 +106,7 @@ extern "C" {
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       *c1, *n);
-    
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -120,7 +123,7 @@ extern "C" {
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       *c1, *n);
-
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -137,7 +140,7 @@ extern "C" {
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       *c1, *n);
-
+    HIP_CHECK(hipGetLastError());
   }
   
   /**
@@ -154,7 +157,7 @@ extern "C" {
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c,
 		       *c1, *c2, *n);
-
+    HIP_CHECK(hipGetLastError());
   }
   
   /**
@@ -169,6 +172,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(invcol1_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -183,6 +187,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(invcol2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, *n);
+    HIP_CHECK(hipGetLastError());
   }
   
   /**
@@ -197,6 +202,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(col2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, *n);
+    HIP_CHECK(hipGetLastError());
   }
   
   /**
@@ -211,6 +217,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(col3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -225,6 +232,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(subcol3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
   }
   
   /**
@@ -239,6 +247,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(sub2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, *n);
+    HIP_CHECK(hipGetLastError());
   }
  
   /**
@@ -253,6 +262,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(sub3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -267,6 +277,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(addcol3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -281,6 +292,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(addcol4_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b, (real *) c, (real *) d, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -296,14 +308,15 @@ extern "C" {
     real * buf = (real *) malloc(nb * sizeof(real));
     real * buf_d;
 
-    hipMalloc(&buf_d, nb*sizeof(real));
+    HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       (real *) c, buf_d, *n);
+    HIP_CHECK(hipGetLastError());
 
-    hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost);
+    HIP_CHECK(hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost));
 
     real res = 0.0;
     for (int i = 0; i < nb; i++) {
@@ -311,7 +324,7 @@ extern "C" {
     }
 
     free(buf);
-    hipFree(buf_d);
+    HIP_CHECK(hipFree(buf_d));
 
     return res;
   }
@@ -329,14 +342,15 @@ extern "C" {
     real * buf = (real *) malloc(nb * sizeof(real));
     real * buf_d;
 
-    hipMalloc(&buf_d, nb*sizeof(real));
+    HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
 		       nblcks, nthrds, 0, 0,
 		       (real *) a, (real *) b,
 		       buf_d, *n);
+    HIP_CHECK(hipGetLastError());
 
-    hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost);
+    HIP_CHECK(hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost));
 
     real res = 0.0;
     for (int i = 0; i < nb; i++) {
@@ -344,7 +358,7 @@ extern "C" {
     }
 
     free(buf);
-    hipFree(buf_d);
+    HIP_CHECK(hipFree(buf_d));
 
     return res;
   }

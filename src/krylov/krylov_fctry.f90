@@ -41,6 +41,9 @@ contains
     else if (trim(solver) .eq. 'pipecg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::ksp)
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          allocate(pipecg_device_t::ksp)
        else
           allocate(pipecg_t::ksp)
        end if
@@ -70,6 +73,8 @@ contains
           call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_pipecg_t)
           call kp%init(n, M = M, abs_tol = abstol)
+       type is(pipecg_device_t)
+          call kp%init(n, M = M, abs_tol = abstol)
        type is(cacg_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(gmres_t)
@@ -90,6 +95,8 @@ contains
        type is(pipecg_t)
           call kp%init(n, abs_tol = abstol)
        type is(sx_pipecg_t)
+          call kp%init(n, abs_tol = abstol)
+       type is (pipecg_device_t)
           call kp%init(n, abs_tol = abstol)
        type is(cacg_t)
           call kp%init(n, abs_tol = abstol)
@@ -112,6 +119,8 @@ contains
           call kp%init(n, M = M)
        type is(sx_pipecg_t)
           call kp%init(n, M = M)
+       type is (pipecg_device_t)
+          call kp%init(n, M = M)
        type is(cacg_t)
           call kp%init(n, M = M)
        type is(gmres_t)
@@ -132,6 +141,8 @@ contains
        type is(pipecg_t)
           call kp%init(n)
        type is(sx_pipecg_t)
+          call kp%init(n)
+       type is (pipecg_device_t)
           call kp%init(n)
        type is(cacg_t)
           call kp%init(n)
@@ -159,6 +170,8 @@ contains
        type is(pipecg_t)
           call kp%free()
        type is(sx_pipecg_t)
+          call kp%free()
+       type is (pipecg_device_t)
           call kp%free()
        type is(cacg_t)
           call kp%free()

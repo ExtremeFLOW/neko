@@ -2,6 +2,7 @@
 #include <climits>
 #include <cstdio>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 #include "gs_kernels.h"
 
 #define GS_OP_ADD  1
@@ -23,36 +24,40 @@ extern "C" {
 
     switch (*op) {
     case GS_OP_ADD:
-      hipMemset(v, 0, (*m) * sizeof(real));
+      HIP_CHECK(hipMemset(v, 0, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
 			 (real *) u, *n, (int *) gd,
 			 *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MUL:
-      hipMemset(v, 1, (*m) * sizeof(real));
+      HIP_CHECK(hipMemset(v, 1, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
 			 (real *) u, *n, (int *) gd,
 			 *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MIN:
-      hipMemset(v, INT_MAX, (*m) * sizeof(real));
+      HIP_CHECK(hipMemset(v, INT_MAX, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
 			 (real *) u, *n, (int *) gd,
 			 *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MAX:
-      hipMemset(v, -INT_MAX, (*m) * sizeof(real));
+      HIP_CHECK(hipMemset(v, -INT_MAX, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
 			 (real *) u, *n, (int *) gd,
 			 *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
       break;
     }
   }
@@ -72,5 +77,6 @@ extern "C" {
 		       (real *) v, *m, (int *) dg,
 		       (real *) u, *n, (int *) gd,
 		       *nb, (int *) b, (int *) bo);
+    HIP_CHECK(hipGetLastError());
   }
 }

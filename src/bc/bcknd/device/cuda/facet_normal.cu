@@ -1,5 +1,6 @@
 #include "facet_normal_kernel.h"
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 
 extern "C" {
 
@@ -21,6 +22,7 @@ extern "C" {
 			   (real *) u, (real *) v, (real *) w,
 			   (real *) nx,(real *) ny, (real *) nz,
 			   (real *) area, *lx, *m);
+    CUDA_CHECK(cudaGetLastError());
   }
   
 }

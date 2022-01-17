@@ -1,5 +1,6 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
+#include <device/hip/check.h>
 #include "inflow_kernel.h"
 
 extern "C" {
@@ -22,6 +23,7 @@ extern "C" {
 		       (int *) msk, (real *) x,
 		       (real *) y, (real *) z,
 		       gx, gy, gz, *m);
+    HIP_CHECK(hipGetLastError());
   }
  
 }

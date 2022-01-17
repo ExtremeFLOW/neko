@@ -1,4 +1,5 @@
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 #include "mathops_kernel.h"
 
 extern "C" {
@@ -12,6 +13,7 @@ extern "C" {
     opchsign_kernel<real>
       <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
 			   *gdim, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /** Fortran wrapper for opcolv \f$ a = a * c \f$ */
@@ -23,6 +25,7 @@ extern "C" {
     opcolv_kernel<real>
       <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3, 
 			   (real *) c, *gdim, *n);
+    CUDA_CHECK(cudaGetLastError());
     
   }
 
@@ -37,6 +40,7 @@ extern "C" {
       <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
 			   (real *) b1, (real *) b2, (real *) b3,
 			   (real *) c, *d, *gdim, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
 
@@ -51,6 +55,7 @@ extern "C" {
       <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
 			   (real *) b1, (real *) b2, (real *) b3,
 			   *c, *gdim, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
 
@@ -65,6 +70,7 @@ extern "C" {
       <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
 			   (real *) b1, (real *) b2, (real *) b3,
 			   (real *) c, *gdim, *n);
+    CUDA_CHECK(cudaGetLastError());
     
   }
 

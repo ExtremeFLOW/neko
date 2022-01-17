@@ -41,7 +41,7 @@ contains
     character(len=132) :: hdr
     character :: rdcode(10)
     character(len=6) :: id_str
-    character(len=80) :: fname
+    character(len=1024) :: fname
     integer :: i, ierr, n, j,k,l,el, suffix_pos,tslash_pos
     integer, allocatable :: idx(:)
     type(MPI_Status) :: status

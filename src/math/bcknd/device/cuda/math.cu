@@ -1,5 +1,6 @@
 #include "math_kernel.h"
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 
 extern "C" {
 
@@ -7,14 +8,15 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void cuda_copy(void *a, void *b, int *n) {
-    cudaMemcpyAsync(a, b, (*n) * sizeof(real), cudaMemcpyDeviceToDevice);
+    CUDA_CHECK(cudaMemcpyAsync(a, b, (*n) * sizeof(real),
+			       cudaMemcpyDeviceToDevice));
   }
 
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
   void cuda_rzero(void *a, int *n) {
-    cudaMemsetAsync(a, 0, (*n) * sizeof(real));
+    CUDA_CHECK(cudaMemsetAsync(a, 0, (*n) * sizeof(real)));
   }
 
   /** Fortran wrapper for cmult
@@ -27,6 +29,7 @@ extern "C" {
 
     cmult_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					   *c, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
 
@@ -52,6 +55,7 @@ extern "C" {
 
     cadd_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					  *c, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
 
@@ -66,7 +70,8 @@ extern "C" {
 
     cfill_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					   *c, *n);
-
+    CUDA_CHECK(cudaGetLastError());
+    
   }
 
   /**
@@ -80,6 +85,7 @@ extern "C" {
 
     add2_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					  (real *) b, *n);
+    CUDA_CHECK(cudaGetLastError());
     
   }
   
@@ -96,6 +102,7 @@ extern "C" {
     add2s1_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					    (real *) b,
 					    *c1, *n);
+    CUDA_CHECK(cudaGetLastError());
     
   }
 
@@ -112,6 +119,7 @@ extern "C" {
     add2s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					    (real *) b,
 					    *c1, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
 
@@ -136,6 +144,7 @@ extern "C" {
     addsqr2s2_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					       (real *) b,
 					       *c1, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
 
@@ -153,6 +162,7 @@ extern "C" {
 					    (real *) b,
 					    (real *) c,
 					    *c1, *c2, *n);
+    CUDA_CHECK(cudaGetLastError());
 
   }
 
@@ -168,6 +178,7 @@ extern "C" {
 
     invcol1_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					     *n);
+    CUDA_CHECK(cudaGetLastError());
   }
   /**
    * Fortran wrapper for invcol2
@@ -180,6 +191,7 @@ extern "C" {
 
     invcol2_kernel<real><<<nblcks, nthrds>>>((real *) a,
 					       (real *) b, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
   
   /**
@@ -193,6 +205,7 @@ extern "C" {
 
     col2_kernel<real><<<nblcks, nthrds>>>((real *) a, 
 					    (real *) b, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
   
   /**
@@ -206,6 +219,7 @@ extern "C" {
 
     col3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					    (real *) c, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /**
@@ -219,6 +233,7 @@ extern "C" {
 
     subcol3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					     (real *) c, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
   
 
@@ -232,6 +247,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     sub2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /**
@@ -245,6 +261,7 @@ extern "C" {
 
     sub3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b, 
 					    (real *) c, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /**
@@ -258,6 +275,7 @@ extern "C" {
 
     addcol3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					       (real *) c, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /**
@@ -271,6 +289,7 @@ extern "C" {
 
     addcol4_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					     (real *) c, (real *) d, *n);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /**
@@ -286,12 +305,14 @@ extern "C" {
     real * buf = (real *) malloc(nb * sizeof(real));
     real * buf_d;
 
-    cudaMalloc(&buf_d, nb*sizeof(real));
+    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
      
     glsc3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					     (real *) c, buf_d, *n);
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaMemcpy(buf, buf_d, nb * sizeof(real), cudaMemcpyDeviceToHost);
+    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
+			  cudaMemcpyDeviceToHost));
 
     real res = 0.0;
     for (int i = 0; i < nb; i++) {
@@ -299,7 +320,7 @@ extern "C" {
     }
 
     free(buf);
-    cudaFree(buf_d);
+    CUDA_CHECK(cudaFree(buf_d));
 
     return res;
   }
@@ -353,12 +374,14 @@ real * bufred_d;
     real * buf = (real *) malloc(nb * sizeof(real));
     real * buf_d;
 
-    cudaMalloc(&buf_d, nb*sizeof(real));
+    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
      
     glsc2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
 					      buf_d, *n);
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaMemcpy(buf, buf_d, nb * sizeof(real), cudaMemcpyDeviceToHost);
+    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
+			  cudaMemcpyDeviceToHost));
 
     real res = 0.0;
     for (int i = 0; i < nb; i++) {
@@ -366,7 +389,7 @@ real * bufred_d;
     }
 
     free(buf);
-    cudaFree(buf_d);
+    CUDA_CHECK(cudaFree(buf_d));
 
     return res;
   }

@@ -1,5 +1,6 @@
 #include "conv1_kernel.h"
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 
 
 extern "C" {
@@ -18,107 +19,30 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
 
-
+#define CASE(LX)                                                                \
+    case LX:                                                                    \
+      conv1_kernel<real, LX, 1024>                                              \
+	<<<nblcks, nthrds>>>                                                    \
+	((real *) du, (real *) u,                                               \
+	 (real *) vx, (real *) vy, (real *) vz,                                 \
+	 (real *) dx, (real *) dy, (real *) dz,                                 \
+	 (real *) drdx, (real *) dsdx, (real *) dtdx,                           \
+	 (real *) drdy, (real *) dsdy, (real *) dtdy,                           \
+	 (real *) drdz, (real *) dsdz, (real *) dtdz,                           \
+	 (real *) jacinv);                                                      \
+      CUDA_CHECK(cudaGetLastError());                                           \
+      break
+      
     switch(*lx) {
-    case 2:
-      conv1_kernel<real, 2, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 3:
-      conv1_kernel<real, 3, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 4:
-      conv1_kernel<real, 4, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 5:
-      conv1_kernel<real, 5, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 6:
-      conv1_kernel<real, 6, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 7:
-      conv1_kernel<real, 7, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 8:
-      conv1_kernel<real, 8, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 9:
-      conv1_kernel<real, 9, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;     
-    case 10:
-      conv1_kernel<real, 10, 1024>
-	<<<nblcks, nthrds>>>
-	((real *) du, (real *) u,
-	 (real *) vx, (real *) vy, (real *) vz,
-	 (real *) dx, (real *) dy, (real *) dz,
-	 (real *) drdx, (real *) dsdx, (real *) dtdx,
-	 (real *) drdy, (real *) dsdy, (real *) dtdy,
-	 (real *) drdz, (real *) dsdz, (real *) dtdz,
-	 (real *) jacinv);
-      break;
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8);
+      CASE(9);
+      CASE(10);
     }
   } 
 }

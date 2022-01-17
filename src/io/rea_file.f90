@@ -45,7 +45,7 @@ contains
     type(point_t) :: p(8)
     type(re2_file_t) :: re2_file
     type(map_file_t) :: map_file
-    character(len=80) :: re2_fname, map_fname, s
+    character(len=1024) :: re2_fname, map_fname, s
     integer :: start_el, end_el, nel, edge
     type(linear_dist_t) :: dist
     type(map_t) :: nm

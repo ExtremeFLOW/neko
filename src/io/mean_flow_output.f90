@@ -25,7 +25,7 @@ contains
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     type(mean_flow_output_t) :: this
-    character(len=80) :: fname
+    character(len=1024) :: fname
 
     if (present(name) .and. present(path)) then
        fname = trim(path) // trim(name) // '.fld'

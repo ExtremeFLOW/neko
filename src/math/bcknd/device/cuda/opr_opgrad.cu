@@ -1,6 +1,6 @@
 #include "opgrad_kernel.h"
 #include <device/device_config.h>
-
+#include <device/cuda/check.h>
 
 extern "C" {
 
@@ -17,89 +17,28 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
 
-
+#define CASE(LX)                                                                \
+    case LX:                                                                    \
+      opgrad_kernel<real, LX, 1024>                                             \
+	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u, \
+			     (real *) dx, (real *) dy, (real *) dz,             \
+			     (real *) drdx, (real *) dsdx, (real *) dtdx,       \
+			     (real *) drdy, (real *) dsdy, (real *) dtdy,       \
+			     (real *) drdz, (real *) dsdz, (real *) dtdz,       \
+			     (real *) w3);                                      \
+      CUDA_CHECK(cudaGetLastError());                                           \
+      break
+    
     switch(*lx) {
-    case 2:
-      opgrad_kernel<real, 2, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 3:
-      opgrad_kernel<real, 3, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 4:
-      opgrad_kernel<real, 4, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 5:
-      opgrad_kernel<real, 5, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 6:
-      opgrad_kernel<real, 6, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 7:
-      opgrad_kernel<real, 7, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 8:
-      opgrad_kernel<real, 8, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 9:
-      opgrad_kernel<real, 9, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;     
-    case 10:
-      opgrad_kernel<real, 10, 1024>
-	<<<nblcks, nthrds>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,
-			     (real *) dx, (real *) dy, (real *) dz,
-			     (real *) drdx, (real *) dsdx, (real *) dtdx,
-			     (real *) drdy, (real *) dsdy, (real *) dtdy,
-			     (real *) drdz, (real *) dsdz, (real *) dtdz,
-			     (real *) w3);
-      break;
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8);
+      CASE(9);
+      CASE(10);
     }
   } 
 }

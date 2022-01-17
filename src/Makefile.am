@@ -169,6 +169,7 @@ endif
 
 if ENABLE_HIP
 libneko_a_SOURCES += \
+	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/mathops.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\
@@ -190,6 +191,7 @@ endif
 
 if ENABLE_CUDA
 libneko_a_SOURCES += \
+	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/mathops.cu\
 	math/bcknd/device/cuda/opr_dudxyz.cu\
@@ -301,6 +303,8 @@ EXTRA_DIST = \
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
-	device/opencl/check.h
+	device/opencl/check.h\
+	device/hip/check.h\
+	device/cuda/check.h
 
 include	.depends
