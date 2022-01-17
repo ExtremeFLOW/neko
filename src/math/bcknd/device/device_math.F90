@@ -244,7 +244,7 @@ module device_math
        import c_rp
        implicit none
        type(c_ptr), value :: w_d, v_d_d, mult_d
-       real(kind=rp) :: h(j)
+       real(c_rp) :: h(j)
        integer(c_int) :: j, n
      end subroutine hip_glsc3_many
   end interface

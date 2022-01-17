@@ -374,13 +374,13 @@ __global__ void glsc3_many_kernel(const T * a,
   }
   }
 
-  buf[threadIdx.x*j+y] = tmp;
+  buf[threadIdx.x*blockDim.y+y] = tmp;
   __syncthreads();
 
   int i = blockDim.x>>1;
   while (i != 0) {
     if (threadIdx.x < i) {
-      buf[threadIdx.x*j +y] += buf[(threadIdx.x + i)*j+y];
+      buf[threadIdx.x*blockDim.y +y] += buf[(threadIdx.x + i)*blockDim.y+y];
     }
     __syncthreads();
     i = i>>1;
