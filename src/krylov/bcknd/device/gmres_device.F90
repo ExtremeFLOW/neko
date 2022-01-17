@@ -32,15 +32,14 @@ module gmres_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_gmres_part2(alpha,w_d,v_d_d,h_d,mult_d,j,n) &
+     real(c_rp) function hip_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) &
           bind(c, name='hip_gmres_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
-       type(c_ptr), value ::  h_d, w_d, v_d_d
+       type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
        integer(c_int) :: j, n
-       real(c_rp) ::  alpha
-     end subroutine hip_gmres_part2
+     end function hip_gmres_part2
   end interface
 #elif HAVE_CUDA
   
@@ -64,7 +63,7 @@ contains
      real(c_rp) :: alpha
      integer :: ierr
 #ifdef HAVE_HIP
-     alpha = hip_gmres_part2(alpha,w_d,v_d_d,h_d_d,mult_d,j,n)
+     alpha = hip_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
 #elif HAVE_CUDA
      alpha = cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
 #else
