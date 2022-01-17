@@ -3,6 +3,7 @@ module cg_device
   use krylov
   use device_math    
   use num_types
+  use device_identity
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -31,6 +32,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    type(device_ident_t), target :: M_ident
     
     call this%free()
     
@@ -46,7 +48,10 @@ contains
     
     if (present(M)) then 
        this%M => M
+    else 
+       this%M => M_ident
     end if
+
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)

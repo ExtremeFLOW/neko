@@ -5,7 +5,7 @@ extern "C" {
 real * gmres_bf1;
 real * gmres_bfd1;
   
-  real cuda_gmres_part2(void *w, void **v, void *h, void * mult, int *j, int *n) {
+  real cuda_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
 	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);

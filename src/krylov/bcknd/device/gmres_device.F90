@@ -269,11 +269,19 @@ contains
           v_d => this%v_d, w_d => this%w_d, r_d => this%r_d)
 
        norm_fac = 1.0_rp / sqrt(coef%volume)
+       call rzero(gam, this%m_restart + 1)
+       call rone(s, this%m_restart)
+       call rone(c, this%m_restart)
+       call rzero(h, this%m_restart * this%m_restart)
        call device_rzero(x%x_d, n)
        call device_rzero(this%gam_d, this%m_restart + 1)
        call device_rone(this%s_d, this%m_restart)
        call device_rone(this%c_d, this%m_restart)
-       call device_rzero(this%h_d(1), this%m_restart * this%m_restart)
+
+       call rzero(this%h, this%m_restart**2)
+       do j = 1, this%m_restart
+          call device_rzero(this%h_d(j), this%m_restart)
+       end do
        do while (.not. conv .and. iter .lt. niter)
 
           if(iter.eq.0) then               
@@ -305,6 +313,7 @@ contains
              call gs_op(gs_h, w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
              call device_glsc3_many(h(1,j), w_d, this%v_d_d,coef%mult_d, j, n) 
+             print *, h(:,j)
             
              call device_memcpy_r1(h(:,j), this%h_d(j), j, HOST_TO_DEVICE)
 
