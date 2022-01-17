@@ -313,7 +313,6 @@ contains
              call gs_op(gs_h, w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
              call device_glsc3_many(h(1,j), w_d, this%v_d_d,coef%mult_d, j, n) 
-             print *, h(:,j)
             
              call device_memcpy_r1(h(:,j), this%h_d(j), j, HOST_TO_DEVICE)
 
