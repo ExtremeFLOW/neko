@@ -21,9 +21,15 @@ module gmres_device
      real(kind=rp), allocatable :: v(:,:)
      real(kind=rp), allocatable :: s(:)
      real(kind=rp), allocatable :: gam(:)
-     type(c_ptr) :: w_d, c_d, r_d, s_d, gam_d
+     type(c_ptr) :: w_d = C_NULL_PTR
+     type(c_ptr) :: c_d = C_NULL_PTR
+     type(c_ptr) :: r_d = C_NULL_PTR
+     type(c_ptr) :: s_d = C_NULL_PTR
+     type(c_ptr) :: gam_d = C_NULL_PTR
      type(c_ptr), allocatable :: z_d(:), h_d(:), v_d(:)
-     type(c_ptr) :: z_d_d, h_d_d, v_d_d
+     type(c_ptr) :: z_d_d = C_NULL_PTR
+     type(c_ptr) :: h_d_d = C_NULL_PTR
+     type(c_ptr) :: v_d_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gmres_device_init
      procedure, pass(this) :: free => gmres_device_free
