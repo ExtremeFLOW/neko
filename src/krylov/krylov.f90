@@ -134,6 +134,7 @@ contains
     if (associated(this%M)) then
        select type(pc => this%M)
        type is (ident_t)
+       type is (device_ident_t)
        class default
           call neko_error('Preconditioner already defined')
        end select
