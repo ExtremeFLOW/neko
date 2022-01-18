@@ -48,6 +48,7 @@ contains
        this%M => M
     end if
 
+
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
     else if (present(rel_tol)) then

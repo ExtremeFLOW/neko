@@ -10,6 +10,8 @@ module krylov
   use utils
   use bc
   use identity
+  use device_identity
+  use neko_config
   implicit none
 
   integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
@@ -85,7 +87,7 @@ contains
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
-    type(ident_t), target :: M_ident
+    class(pc_t), allocatable, target :: M_ident
     
     call krylov_free(this)
 
@@ -105,6 +107,12 @@ contains
        this%M => M
     else
        if (.not. associated(this%M)) then
+          if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+               .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+             allocate(device_ident_t::M_ident)
+          else
+             allocate(ident_t::M_ident)
+          end if
           this%M => M_ident
        end if
     end if
@@ -127,6 +135,7 @@ contains
     if (associated(this%M)) then
        select type(pc => this%M)
        type is (ident_t)
+       type is (device_ident_t)
        class default
           call neko_error('Preconditioner already defined')
        end select

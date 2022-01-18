@@ -14,6 +14,22 @@ __kernel void cmult_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for cmult2
+ */
+__kernel void cmult2_kernel(__global real * __restrict__ a,
+               __global real * __restrict__ b,
+			   const real c,
+			   const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c * b[i];
+  } 
+}
+
+/**
  * Device kernel for cadd
  */
 __kernel void cadd_kernel(__global real * __restrict__ a,
