@@ -5,7 +5,6 @@ module pipecg_device
   use num_types
   use device
   use device_math    
-  use device_identity
   
   use, intrinsic :: iso_c_binding
   implicit none
@@ -130,7 +129,6 @@ contains
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
     type(c_ptr) :: ptr
-    type(device_ident_t), target :: M_ident
     integer(c_size_t) :: u_size
     integer :: i
         
@@ -151,8 +149,6 @@ contains
     
     if (present(M)) then 
        this%M => M
-    else 
-       this%M => M_ident
     end if
 
     call device_map(this%p, this%p_d, n)
