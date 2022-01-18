@@ -52,6 +52,9 @@ contains
     else if (trim(solver) .eq. 'gmres') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_gmres_t::ksp)
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          allocate(gmres_device_t::ksp)
        else
           allocate(gmres_t::ksp)
        end if
@@ -81,6 +84,8 @@ contains
           call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_gmres_t)
           call kp%init(n, M = M, abs_tol = abstol)
+       type is(gmres_device_t)
+          call kp%init(n, M = M, abs_tol = abstol)
        type is(bicgstab_t)
           call kp%init(n, M = M, abs_tol = abstol)
        end select
@@ -103,6 +108,8 @@ contains
        type is(gmres_t)
           call kp%init(n, abs_tol = abstol)
        type is(sx_gmres_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(gmres_device_t)
           call kp%init(n, abs_tol = abstol)
        type is(bicgstab_t)
           call kp%init(n, abs_tol = abstol)
@@ -127,6 +134,8 @@ contains
           call kp%init(n, M = M)
        type is(sx_gmres_t)
           call kp%init(n, M = M)
+       type is(gmres_device_t)
+          call kp%init(n, M = M)
        type is(bicgstab_t)
           call kp%init(n, M = M)
        end select
@@ -150,6 +159,8 @@ contains
           call kp%init(n)
        type is(sx_gmres_t)
           call kp%init(n)
+       type is(gmres_device_t)
+          call kp%init(n)
        type is(bicgstab_t)
           call kp%init(n)
        end select
@@ -166,6 +177,8 @@ contains
        type is(cg_t)
           call kp%free()
        type is(sx_cg_t)
+          call kp%free()
+       type is(cg_device_t)
           call kp%free()       
        type is(pipecg_t)
           call kp%free()
@@ -178,6 +191,8 @@ contains
        type is(gmres_t)
           call kp%free()
        type is(sx_gmres_t)
+          call kp%free()
+       type is(gmres_device_t)
           call kp%free()
        type is(bicgstab_t)
           call kp%free()
