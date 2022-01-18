@@ -20,8 +20,8 @@ extern "C" {
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gmres_part2_kernel<real>),
-		       nblcks, nthrds,(real *) w, (real **) v, (real *) mult,
-		       (real *) h, gmres_bfd1, *j, *n);
+		       nblcks, nthrds, 0, 0, (real *) w, (real **) v,
+		       (real *) mult, (real *) h, gmres_bfd1, *j, *n);
     HIP_CHECK(hipGetLastError());
 
     HIP_CHECK(hipMemcpy(gmres_bf1, gmres_bfd1, nb * sizeof(real),
