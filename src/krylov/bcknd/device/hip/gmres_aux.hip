@@ -1,11 +1,12 @@
 #include <stdio.h>
-#include <device/hip/check.h>
 #include <hip/hip_runtime.h>
 #include "gmres_kernel.h"
 #include <device/device_config.h>
+#include <device/hip/check.h>
+
 extern "C" {
-real * gmres_bf1;
-real * gmres_bfd1;
+  real * gmres_bf1;
+  real * gmres_bfd1;
   
   real hip_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
 	
@@ -15,14 +16,16 @@ real * gmres_bfd1;
     
     if (!gmres_bf1){
       gmres_bf1 = (real *) malloc(nb * sizeof(real));
-      hipMalloc(&gmres_bfd1, nb*sizeof(real));
+      HIP_CHECK(hipMalloc(&gmres_bfd1, nb*sizeof(real)));
     }
      
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(gmres_part2_kernel<real>),nblcks, nthrds,(real *) w, (real **) v,
-                                                 (real *) mult,(real *) h,
-                                                 gmres_bfd1, *j, *n);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(gmres_part2_kernel<real>),
+		       nblcks, nthrds,(real *) w, (real **) v, (real *) mult,
+		       (real *) h, gmres_bfd1, *j, *n);
+    HIP_CHECK(hipGetLastError());
 
-    hipMemcpy(gmres_bf1, gmres_bfd1, nb * sizeof(real), hipMemcpyDeviceToHost);
+    HIP_CHECK(hipMemcpy(gmres_bf1, gmres_bfd1, nb * sizeof(real),
+			hipMemcpyDeviceToHost));
 
     real res1 = 0.0;
     for (int i = 0; i < nb; i++) {

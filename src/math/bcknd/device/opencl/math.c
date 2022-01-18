@@ -51,19 +51,20 @@ void opencl_cmult2(void *a, void *b, real *c, int *n) {
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
   
   cl_kernel kernel = clCreateKernel(math_program, "cmult2_kernel", &err);
+  CL_CHECK(err);
 
-  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a);
-  err = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b);
-  err = clSetKernelArg(kernel, 2, sizeof(real), c);
-  err = clSetKernelArg(kernel, 3, sizeof(int), n);
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  err = clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-			       NULL, &global_item_size, &local_item_size,
-			       0, NULL, NULL);  
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+				  NULL, &global_item_size, &local_item_size,
+				  0, NULL, NULL));  
 }
 
 

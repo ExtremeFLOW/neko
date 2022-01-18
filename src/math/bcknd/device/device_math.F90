@@ -102,6 +102,7 @@ module device_math
        integer(c_int) :: n
      end subroutine hip_add2s2
   end interface
+  
   interface
      subroutine hip_add2s2_many(y_d,x_d_d,a_d,j,n) &
           bind(c, name='hip_add2s2_many')
@@ -237,6 +238,7 @@ module device_math
        integer(c_int) :: n
      end function hip_glsc3
   end interface
+  
   interface
      subroutine hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n) &
           bind(c, name='hip_glsc3_many')
@@ -1080,6 +1082,7 @@ contains
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
   end function device_glsc3
+  
   subroutine device_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
     type(c_ptr), value :: w_d, v_d_d, mult_d
     integer(c_int) :: j, n
@@ -1097,6 +1100,7 @@ contains
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
   end subroutine device_glsc3_many
+  
   subroutine device_add2s2_many(y_d,x_d_d,a_d,j,n)
     type(c_ptr), value :: y_d, x_d_d, a_d
     integer(c_int) :: j, n

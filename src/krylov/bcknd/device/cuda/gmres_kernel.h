@@ -1,17 +1,14 @@
 /**
  * Kernel for back-substitution of x and update of p
  */
-
-
-
 template< typename T >
 __global__ void gmres_part2_kernel(T  * __restrict__  w,
-			     T ** __restrict__ v,
-                 T * const mult,
-                 T * const h,
-			     T * buf_h1,
-                 const int j,
-			     const int n) {
+                                   T ** __restrict__ v,
+                                   T * const mult,
+                                   T * const h,
+                                   T * buf_h1,
+                                   const int j,
+                                   const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
