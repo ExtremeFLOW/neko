@@ -126,7 +126,7 @@ fluid/fluid_fctry.o : fluid/fluid_fctry.f90 common/utils.o config/neko_config.o 
 fluid/mean_flow.o : fluid/mean_flow.f90 field/mean_field.o 
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/mean_sqr_field.o 
 fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o 
-fluid/flow_ic.o : fluid/flow_ic.f90 common/utils.o field/field.o common/parameters.o fluid/flow_profile.o 
+fluid/flow_ic.o : fluid/flow_ic.f90 common/utils.o field/field.o common/parameters.o fluid/flow_profile.o config/neko_config.o math/math.o math/bcknd/device/device_math.o sem/coef.o gs/gather_scatter.o common/user_intf.o
 fluid/advection.o : fluid/advection.f90 sem/interpolation.o math/operators.o config/neko_config.o sem/coef.o field/field.o sem/space.o common/utils.o math/math.o config/num_types.o 
 fluid/bcknd/device/device_fluid_plan4.o : fluid/bcknd/device/device_fluid_plan4.f90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o fluid/advection.o common/log.o common/projection.o common/abbdf.o bc/facet_normal.o field/field_series.o fluid/fluid_method.o fluid/fluid_plan4.o math/ax_helm_fctry.o 
 simulation.o : simulation.f90 common/jobctrl.o common/log.o io/file.o common/abbdf.o case.o 
