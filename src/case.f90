@@ -156,21 +156,13 @@ contains
     ! 
     if (len_trim(initial_condition) .gt. 0) then
        if (trim(initial_condition) .ne. 'user') then
-          call set_flow_ic(C%fluid%u, C%fluid%v, &
-               C%fluid%w, C%fluid%p, initial_condition, C%params)
+          call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+               C%fluid%c_Xh, C%fluid%gs_Xh, initial_condition, C%params)
        else
-          call C%usr%fluid_usr_ic(C%fluid%u, C%fluid%v, &
-               C%fluid%w, C%fluid%p, C%params)
+          call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+               C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_usr_ic, C%params)
        end if
     end if
-
-    ! Ensure continuity across elements for initial conditions
-    call gs_op_vector(C%fluid%gs_Xh, C%fluid%u%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
-    call col2(C%fluid%u%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
-    call gs_op_vector(C%fluid%gs_Xh, C%fluid%v%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
-    call col2(C%fluid%v%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
-    call gs_op_vector(C%fluid%gs_Xh, C%fluid%w%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
-    call col2(C%fluid%w%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
 
     ! Add initial conditions to BDF scheme (if present)
     select type(f => C%fluid)
