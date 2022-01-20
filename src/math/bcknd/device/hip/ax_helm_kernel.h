@@ -63,7 +63,7 @@ __global__ void ax_helm_kernel(T * __restrict__ w,
     i = ijk-jk*LX;                                                             
     k = jk/LX;                                                                 
     j = jk-k*LX;                                                               
-    if (i<LX && j<LX && k<LX){                                                 
+    if (i<LX && j<LX && k<LX && ijk < LX*LX*LX){                                                 
       T rtmp = 0.0;                                                         
       T stmp = 0.0;							       
       T ttmp = 0.0;							       
@@ -77,13 +77,13 @@ __global__ void ax_helm_kernel(T * __restrict__ w,
 		   + g12[ijk+e*LX*LX*LX] * stmp                                
 		   + g13[ijk+e*LX*LX*LX] * ttmp);                              
       shus[ijk] = h1[ijk+e*LX*LX*LX]                                           
-	        * (g12[ijk+e*LX*LX*LX] * stmp                                  
-		   + g22[ijk+e*LX*LX*LX] * rtmp                                
+	        * (g12[ijk+e*LX*LX*LX] * rtmp                                  
+		   + g22[ijk+e*LX*LX*LX] * stmp                                
 		   + g23[ijk+e*LX*LX*LX] * ttmp);                              
       shut[ijk] = h1[ijk+e*LX*LX*LX]                                           
-	        * (g13[ijk+e*LX*LX*LX] * ttmp                                  
-		   + g23[ijk+e*LX*LX*LX] * rtmp                                
-		   + g33[ijk+e*LX*LX*LX] * stmp);                              
+	        * (g13[ijk+e*LX*LX*LX] * rtmp                                  
+		   + g23[ijk+e*LX*LX*LX] * stmp                                
+		   + g33[ijk+e*LX*LX*LX] * ttmp);                              
     }                                                                          
   }                                                                            
                                                                                
@@ -95,7 +95,7 @@ __global__ void ax_helm_kernel(T * __restrict__ w,
     i = ijk-jk*LX;                                                             
     k = jk/LX;                                                                 
     j = jk-k*LX;                                                               
-    if (i<LX && j<LX && k<LX){                                                 
+    if (i<LX && j<LX && k<LX && ijk <LX*LX*LX){                                                 
       T wijke = 0.0;                                                        
       for (l = 0; l<LX; l++){                                                  
 	wijke = wijke                                                          
