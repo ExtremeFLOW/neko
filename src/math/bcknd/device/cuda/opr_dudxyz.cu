@@ -17,7 +17,7 @@ extern "C" {
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
-      dudxyz_kernel<real, 2, 1024>                                              \
+      dudxyz_kernel<real, LX, 1024>                                              \
         <<<nblcks, nthrds>>>((real *) du, (real *) u,                           \
                              (real *) dr, (real *) ds, (real *) dt,             \
                              (real *) dx, (real *) dy, (real *) dz,             \
