@@ -30,7 +30,7 @@ contains
     type(ksp_monitor_t) :: ksp_results(4)
     real(kind=rp), parameter :: one = 1.0
     n = this%dm_Xh%n_dofs
-    niter = 1000
+    niter = 3000
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
@@ -73,6 +73,7 @@ contains
       call vlag%update()
       call wlag%update()
 
+
       ! mask Dirichlet boundaries (velocity)
       call this%bc_apply_vel()
 
@@ -80,7 +81,6 @@ contains
       call this%bc_apply_prs()
       call device_fluid_plan4_pres_setup(c_Xh%h1_d, c_Xh%h2_d, params%rho, &
                                          dm_Xh%n_dofs, c_Xh%ifh2)    
-
       call device_fluid_plan4_pres_residual(p, p_res, u, v, w, &
                                             u_e, v_e, w_e, &
                                             ta1, ta2, ta3, &
@@ -96,11 +96,11 @@ contains
 
       call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
 
-      if( tstep .gt. 5) call this%proj%project_on(p_res%x, c_Xh, n)
+      if( tstep .lt. -1) call this%proj%project_on(p_res%x, c_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                           this%bclst_prs, gs_Xh, niter)    
-      if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
+      if( tstep .lt. -1) call this%proj%project_back(dp%x, Ax, c_Xh, &
                                                     this%bclst_prs, gs_Xh, n)
       call device_add2(p%x_d, dp%x_d, n)
 
@@ -133,9 +133,14 @@ contains
 
       call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
                            du%x_d, dv%x_d, dw%x_d, one, n, msh%gdim)
+
      
       call fluid_step_info(tstep, t, params%dt, ksp_results)
-      
+      call device_memcpy(p%x, p%x_d, n, DEVICE_TO_HOST)
+      call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST)
+      call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST)
+      call device_memcpy(w%x, w%x_d, n, DEVICE_TO_HOST)
+     
     end associate
   end subroutine device_fluid_plan4_step
   
@@ -187,7 +192,6 @@ contains
     end if
 
     call device_opchsign(u_res%x_d, v_res%x_d, w_res%x_d, msh%gdim, n)
-
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
     
     call device_opadd2cm(u_res%x_d, v_res%x_d, w_res%x_d, &
@@ -253,13 +257,18 @@ contains
        call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
        call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-       call device_addcol4(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
+       !call device_addcol4(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
+       call device_add2(wa1%x_d,wa2%x_d,n)
+       call device_add2(wa1%x_d,wa3%x_d,n)
+       call device_add2(p_res%x_d,wa1%x_d,n)
     else
        call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
        call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
 
-       call device_addcol3(p_res%x_d, wa1%x_d, wa2%x_d, n)
+       call device_add2(wa1%x_d,wa2%x_d,n)
+       call device_add2(p_res%x_d,wa1%x_d,n)
     endif
+
 
 
     !
@@ -269,11 +278,12 @@ contains
     call device_rzero(ta1%x_d, n)
     call device_rzero(ta2%x_d, n)
     call device_rzero(ta3%x_d, n)
-    call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
+    call bc_prs_surface%apply_surfvec_dev(ta1%x_d, ta2%x_d, ta3%x_d, u%x_d, v%x_d, w%x_d)
     call device_add2(ta1%x_d, ta2%x_d, n)
     call device_add2(ta1%x_d, ta3%x_d, n)    
     call device_cmult(ta1%x_d, dtbd, n)
     call device_sub2(p_res%x_d, ta1%x_d, n)
+
         
 !    call ortho(p_res,n,glb_n) ! Orthogonalize wrt null space, if present
 

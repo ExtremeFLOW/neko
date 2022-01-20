@@ -26,6 +26,8 @@ module symmetry
      procedure, pass(this) :: init_msk => symmetry_init_msk
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
+     procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
      final :: symmetry_free
   end type symmetry_t
 
@@ -133,17 +135,17 @@ contains
        end do
        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
           call device_map(this%xaxis_msk, this%xaxis_msk_d, msk_size + 1)
+          call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
+               msk_size + 1, HOST_TO_DEVICE)
        end if
     else
        allocate(this%xaxis_msk(0:1))
        this%xaxis_msk(0) = 0
        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
           call device_map(this%xaxis_msk, this%xaxis_msk_d, 2)
+          call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
+               2, HOST_TO_DEVICE)
        end if
-    end if
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
-            size(this%xaxis_msk), HOST_TO_DEVICE)
     end if
 
     msk_size = ymsk%size()
@@ -156,17 +158,17 @@ contains
        end do
        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
           call device_map(this%yaxis_msk, this%yaxis_msk_d, msk_size + 1)
+          call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
+               msk_size + 1, HOST_TO_DEVICE)
        end if
     else
        allocate(this%yaxis_msk(0:1))
        this%yaxis_msk(0) = 0
        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
           call device_map(this%yaxis_msk, this%yaxis_msk_d, 2)
+          call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
+               2, HOST_TO_DEVICE)
        end if
-    end if
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
-            size(this%yaxis_msk), HOST_TO_DEVICE)
     end if
 
     msk_size = zmsk%size()
@@ -179,18 +181,18 @@ contains
        end do
        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
           call device_map(this%zaxis_msk, this%zaxis_msk_d, msk_size + 1)
+          call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
+               msk_size + 1, HOST_TO_DEVICE)
        end if
     else
        allocate(this%zaxis_msk(0:1))
        this%zaxis_msk(0) = 0
        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
           call device_map(this%zaxis_msk, this%zaxis_msk_d, 2)
+          call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
+               2, HOST_TO_DEVICE)
        end if
     end if    
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
-            size(this%zaxis_msk), HOST_TO_DEVICE)
-    end if
 
     call xmsk%free()
     call ymsk%free()
@@ -282,9 +284,10 @@ contains
 
     call device_symmetry_apply_vector(this%xaxis_msk_d, this%yaxis_msk_d, &
                                       this%zaxis_msk_d, x_d, y_d, z_d, &
-                                      size(this%xaxis_msk), &
-                                      size(this%yaxis_msk), &
-                                      size(this%zaxis_msk))
+                                      this%xaxis_msk(0), &
+                                      this%yaxis_msk(0), &
+                                      this%zaxis_msk(0))
+
 
   end subroutine symmetry_apply_vector_dev
       
