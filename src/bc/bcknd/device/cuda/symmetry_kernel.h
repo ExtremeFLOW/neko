@@ -16,18 +16,18 @@ __global__ void symmetry_apply_vector_kernel(const int * __restrict__ xmsk,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = (idx + 1); i < m; i += str) {
-    const int k = (xmsk[i] - 1);
+  for (int i = idx; i < m; i += str) {
+    const int k = (xmsk[i+1] - 1);
     x[k] = 0.0;
   }
 
-  for (int i = (idx + 1); i < n; i += str) {
-    const int k = (ymsk[i] - 1);
+  for (int i = idx ; i < n; i += str) {
+    const int k = (ymsk[i+1] - 1);
     y[k] = 0.0;
   }
 
-  for (int i = (idx + 1); i < l; i += str) {
-    const int k = (zmsk[i] - 1);
+  for (int i = idx; i < l; i += str) {
+    const int k = (zmsk[i+1] - 1);
     z[k] = 0.0;
   }
   
