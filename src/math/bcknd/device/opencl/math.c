@@ -556,7 +556,8 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 0, NULL, NULL));
-    
+  CL_CHECK(clFinish(glb_cmd_queue));
+	   
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += buf[i];
@@ -603,6 +604,7 @@ real opencl_glsc2(void *a, void *b, int *n) {
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE, 0,
                                nb * sizeof(real), buf, 0, NULL, NULL));
+  CL_CHECK(clFinish(glb_cmd_queue));
     
   real res = 0.0;
   for (i = 0; i < nb; i++) {
