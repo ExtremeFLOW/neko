@@ -27,8 +27,7 @@ void opencl_conv1(void *du, void *u,
   if (conv1_program == NULL)
     opencl_kernel_jit(conv1_kernel, (cl_program *) &conv1_program);
   
-  const int nb = ((*nel) + 256 - 1) / 256;
-  const size_t global_item_size = 256 * nb;
+  const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;    
 
 #define STR(X) #X
