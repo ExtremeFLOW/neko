@@ -63,7 +63,7 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
     i = ijk-jk*LX;                                                             \
     k = jk/LX;                                                                 \
     j = jk-k*LX;                                                               \
-    if (i<LX && j<LX && k<LX){                                                 \
+    if (i<LX && j<LX && k<LX && ijk < LX*LX*LX) {                              \
       real rtmp = 0.0;                                                         \
       real stmp = 0.0;                                                         \
       real ttmp = 0.0;                                                         \
@@ -77,13 +77,13 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
                    + g12[ijk+e*LX*LX*LX] * stmp                                \
                    + g13[ijk+e*LX*LX*LX] * ttmp);                              \
       shus[ijk] = h1[ijk+e*LX*LX*LX]                                           \
-                * (g12[ijk+e*LX*LX*LX] * stmp                                  \
-                   + g22[ijk+e*LX*LX*LX] * rtmp                                \
+                * (g12[ijk+e*LX*LX*LX] * rtmp                                  \
+                   + g22[ijk+e*LX*LX*LX] * stmp                                \
                    + g23[ijk+e*LX*LX*LX] * ttmp);                              \
       shut[ijk] = h1[ijk+e*LX*LX*LX]                                           \
-                * (g13[ijk+e*LX*LX*LX] * ttmp                                  \
-                   + g23[ijk+e*LX*LX*LX] * rtmp                                \
-                   + g33[ijk+e*LX*LX*LX] * stmp);                              \
+                * (g13[ijk+e*LX*LX*LX] * rtmp                                  \
+                   + g23[ijk+e*LX*LX*LX] * stmp                                \
+                   + g33[ijk+e*LX*LX*LX] * ttmp);                              \
     }                                                                          \
   }                                                                            \
                                                                                \
@@ -95,7 +95,7 @@ __kernel void ax_helm_kernel_lx##LX(__global real * __restrict__ w,            \
     i = ijk-jk*LX;                                                             \
     k = jk/LX;                                                                 \
     j = jk-k*LX;                                                               \
-    if (i<LX && j<LX && k<LX){                                                 \
+    if (i<LX && j<LX && k<LX && ijk <LX*LX*LX) {                               \
       real wijke = 0.0;                                                        \
       for (l = 0; l<LX; l++){                                                  \
         wijke = wijke                                                          \
