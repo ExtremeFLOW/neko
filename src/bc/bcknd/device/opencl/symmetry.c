@@ -41,7 +41,8 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), l));
   
   const int max_len = MAX(MAX(*m, *n), *l);
-  const size_t global_item_size = 256 * max_len;
+  const int nb = (max_len + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
