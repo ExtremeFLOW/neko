@@ -86,10 +86,12 @@ contains
     s%lx = lx
     s%ly = ly
     s%t = t
-    if (present(lz) .and. lz .ne. 1) then
-       s%lz = lz
-       if (lx .ne. ly .or. lx .ne. lz) then
-          call neko_error("Unsupported polynomial dimension")
+    if (present(lz)) then
+       if (lz .ne. 1) then
+          s%lz = lz
+          if (lx .ne. ly .or. lx .ne. lz) then
+             call neko_error("Unsupported polynomial dimension")
+          end if
        end if
     else
        if (lx .ne. ly) then
