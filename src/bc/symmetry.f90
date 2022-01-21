@@ -133,7 +133,8 @@ contains
        do i = 1, msk_size
           this%xaxis_msk(i) = sp(i)
        end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%xaxis_msk, this%xaxis_msk_d, msk_size + 1)
           call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
                msk_size + 1, HOST_TO_DEVICE)
@@ -141,7 +142,8 @@ contains
     else
        allocate(this%xaxis_msk(0:1))
        this%xaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%xaxis_msk, this%xaxis_msk_d, 2)
           call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
                2, HOST_TO_DEVICE)
@@ -156,7 +158,8 @@ contains
        do i = 1, msk_size
           this%yaxis_msk(i) = sp(i)
        end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%yaxis_msk, this%yaxis_msk_d, msk_size + 1)
           call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
                msk_size + 1, HOST_TO_DEVICE)
@@ -164,7 +167,8 @@ contains
     else
        allocate(this%yaxis_msk(0:1))
        this%yaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%yaxis_msk, this%yaxis_msk_d, 2)
           call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
                2, HOST_TO_DEVICE)
@@ -179,7 +183,8 @@ contains
        do i = 1, msk_size
           this%zaxis_msk(i) = sp(i)
        end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%zaxis_msk, this%zaxis_msk_d, msk_size + 1)
           call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
                msk_size + 1, HOST_TO_DEVICE)
@@ -187,7 +192,8 @@ contains
     else
        allocate(this%zaxis_msk(0:1))
        this%zaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%zaxis_msk, this%zaxis_msk_d, 2)
           call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
                2, HOST_TO_DEVICE)

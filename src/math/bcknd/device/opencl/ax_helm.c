@@ -25,8 +25,7 @@ void opencl_ax_helm(void *w, void *u, void *dx, void *dy, void *dz,
   if (ax_helm_program == NULL)
       opencl_kernel_jit(ax_helm_kernel, (cl_program *) &ax_helm_program);
   
-  const int nb = ((*nelv) + 256 - 1) / 256;
-  const size_t global_item_size = 256 * nb;
+  const size_t global_item_size = 256 * (*nelv);
   const size_t local_item_size = 256;    
 
 #define STR(X) #X

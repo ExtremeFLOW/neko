@@ -26,8 +26,7 @@ void opencl_opgrad(void *ux, void *uy, void *uz, void *u,
   if (opgrad_program == NULL)
     opencl_kernel_jit(opgrad_kernel, (cl_program *) &opgrad_program);
   
-  const int nb = ((*nel) + 256 - 1) / 256;
-  const size_t global_item_size = 256 * nb;
+  const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
 #define STR(X) #X

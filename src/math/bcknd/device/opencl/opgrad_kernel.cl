@@ -63,17 +63,17 @@ __kernel void opgrad_kernel_lx##LX(__global real * __restrict__ ux,            \
         ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];              \
       }                                                                        \
                                                                                \
-      ux[ijk + e * LX * LX * LX] = w3[ijk + e * LX * LX * LX]                  \
+      ux[ijk + e * LX * LX * LX] = w3[ijk]                                     \
         * (drdx[ijk + e * LX * LX * LX] * rtmp                                 \
            + dsdx[ijk + e * LX * LX * LX] * stmp                               \
            + dtdx[ijk + e * LX * LX * LX] * ttmp);                             \
                                                                                \
-      uy[ijk + e * LX * LX * LX] = w3[ijk + e * LX * LX * LX]                  \
+      uy[ijk + e * LX * LX * LX] = w3[ijk]                                     \
         * (drdy[ijk + e * LX * LX * LX] * rtmp                                 \
            + dsdy[ijk + e * LX * LX * LX] * stmp                               \
            + dtdy[ijk + e * LX * LX * LX] * ttmp);                             \
                                                                                \
-      uz[ijk + e * LX * LX * LX] = w3[ijk + e * LX * LX * LX]                  \
+      uz[ijk + e * LX * LX * LX] = w3[ijk]                                     \
         * (drdz[ijk + e * LX * LX * LX] * rtmp                                 \
            + dsdz[ijk + e * LX * LX * LX] * stmp                               \
            + dtdz[ijk + e * LX * LX * LX] * ttmp);                             \

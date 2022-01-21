@@ -166,7 +166,7 @@ math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd
 math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h
 math/bcknd/device/hip/opr_opgrad.o : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
 math/bcknd/device/hip/ax_helm.o : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
-krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip krylov/bcknd/device/hip/pc_jacobi_kernel.h
+krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip
 krylov/bcknd/device/cuda/pipecg_aux.o : krylov/bcknd/device/cuda/pipecg_aux.cu krylov/bcknd/device/cuda/pipecg_kernel.h
 krylov/bcknd/device/cuda/gmres_aux.o : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
 krylov/bcknd/device/hip/pipecg_aux.o : krylov/bcknd/device/hip/pipecg_aux.hip krylov/bcknd/device/hip/pipecg_kernel.h
