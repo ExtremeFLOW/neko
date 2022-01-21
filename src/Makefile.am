@@ -284,7 +284,6 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
-	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
