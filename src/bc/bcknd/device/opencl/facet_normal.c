@@ -41,7 +41,7 @@ void opencl_facet_normal_apply_surfvec(void *msk, void *facet,
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &nx));
   CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &ny));
   CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &nz));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &facet));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &area));
   CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), lx));
   CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), m));
   
