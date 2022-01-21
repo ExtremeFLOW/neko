@@ -35,7 +35,7 @@ void opencl_rzero(void *a, int *n) {
  * Set all elements to one
  */
 void opencl_rone(void *a, int *n) {
-  real one = 1;
+  real one = 1.0;
   CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
                                a, &one, sizeof(real), 0,
                                (*n) * sizeof(real), 0, NULL, NULL));
@@ -63,8 +63,8 @@ void opencl_cmult2(void *a, void *b, real *c, int *n) {
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				  NULL, &global_item_size, &local_item_size,
-				  0, NULL, NULL));  
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));  
 }
 
 
@@ -554,9 +554,9 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
-  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE, 0,
-                               nb * sizeof(real), buf, 0, NULL, NULL));
-	   
+  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE,
+                               0, nb * sizeof(real), buf, 0, NULL, NULL));
+           
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += buf[i];
@@ -601,8 +601,8 @@ real opencl_glsc2(void *a, void *b, int *n) {
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 
-  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE, 0,
-                               nb * sizeof(real), buf, 0, NULL, NULL));
+  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE,
+                               0, nb * sizeof(real), buf, 0, NULL, NULL));
     
   real res = 0.0;
   for (i = 0; i < nb; i++) {
