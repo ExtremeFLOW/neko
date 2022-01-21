@@ -37,10 +37,10 @@ void opencl_opgrad(void *ux, void *uy, void *uz, void *u,
                                         STR(opgrad_kernel_lx##LX), &err);       \
       CL_CHECK(err);                                                            \
                                                                                 \
-      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &u));         \
-      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &ux));        \
-      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &uy));        \
-      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &uz));        \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &ux));        \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &uy));        \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &uz));        \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &u));         \
       CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dx));        \
       CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dy));        \
       CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dz));        \
