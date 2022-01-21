@@ -96,11 +96,11 @@ contains
 
       call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
 
-      if( tstep .lt. -1) call this%proj%project_on(p_res%x, c_Xh, n)
+      if( tstep .gt. 5) call this%proj%project_on(p_res%x, c_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                           this%bclst_prs, gs_Xh, niter)    
-      if( tstep .lt. -1) call this%proj%project_back(dp%x, Ax, c_Xh, &
+      if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
                                                     this%bclst_prs, gs_Xh, n)
       call device_add2(p%x_d, dp%x_d, n)
 
