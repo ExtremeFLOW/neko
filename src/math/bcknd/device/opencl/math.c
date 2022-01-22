@@ -25,20 +25,26 @@ void opencl_copy(void *a, void *b, int *n) {
  * Zero a real vector
  */
 void opencl_rzero(void *a, int *n) {
-  real zero = 0;
+  cl_event wait_kern;
+  real zero = 0.0;
+
   CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
                                a, &zero, sizeof(real), 0,
-                               (*n) * sizeof(real), 0, NULL, NULL));
+                               (*n) * sizeof(real), 0, NULL, &wait_kern));
+  CL_CHECK(clWaitForEvents(1, &wait_kern));
 }
 
 /** Fortran wrapper for rone
  * Set all elements to one
  */
 void opencl_rone(void *a, int *n) {
-  real one = 1;
+  cl_event wait_kern;
+  real one = 1.0;
+  
   CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
                                a, &one, sizeof(real), 0,
-                               (*n) * sizeof(real), 0, NULL, NULL));
+                               (*n) * sizeof(real), 0, NULL, &wait_kern));
+  CL_CHECK(clWaitForEvents(1, &wait_kern));
 }
 
 /** Fortran wrapper for cmult2
@@ -63,8 +69,8 @@ void opencl_cmult2(void *a, void *b, real *c, int *n) {
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-				  NULL, &global_item_size, &local_item_size,
-				  0, NULL, NULL));  
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));  
 }
 
 
@@ -223,6 +229,37 @@ void opencl_add2s2(void *a, void *b, real *c1, int *n) {
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));  
+}
+
+/**
+ * Fortran wrapper for add2s2
+ * Vector addition with scalar multiplication 
+ * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$
+ * (multiplication on second argument) 
+ */
+void opencl_add2s2_many(void *x, void *p, void *alpha, int *j, int *n) {
+  cl_int err;
+  
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "add2s2_many_kernel", &err);
+  CL_CHECK(err);
+  
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &x));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &p));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &alpha));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), j));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
+  
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+  
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  
 }
 
 /**
@@ -526,6 +563,7 @@ void opencl_addcol4(void *a, void *b, void *c, void *d, int *n) {
  */
 real opencl_glsc3(void *a, void *b, void *c, int *n) {
   cl_int err;
+  cl_event kern_wait;
   int i;
 
   if (math_program == NULL)
@@ -552,21 +590,86 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
   
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));
-
-  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE, 0,
-                               nb * sizeof(real), buf, 0, NULL, NULL));
-  CL_CHECK(clFinish(glb_cmd_queue));
-	   
+                                  0, NULL, &kern_wait));
+  
+  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE,
+                               0, nb * sizeof(real), buf, 1, &kern_wait, NULL));
+           
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += buf[i];
   }
-  
+
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
   
   return res;
+}
+
+/** @todo cleanup this mess */
+int red_s = 0;
+real *bufred;
+cl_mem bufred_d = NULL;
+
+/**
+ * Fortran wrapper for doing a reduction to an array
+ * Weighted inner product \f$ w^T v(n,1:j) c \f$
+ */
+void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){ 
+  cl_int err;
+  cl_event kern_wait;
+  
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+  
+  int pow2 = 1;
+  while(pow2 < (*j)){
+    pow2 = 2*pow2;
+  }
+
+  const int nt = 256 / pow2;
+  const int nb = ((*n) + nt - 1) / nt;
+  const size_t local_item_size[2] = {nt, pow2};
+  const size_t global_item_size[2] = {nb * nt, pow2};
+
+  if((*j) > red_s) {
+    red_s = *j;
+    free(bufred);
+    if (bufred_d != NULL)
+      CL_CHECK(clReleaseMemObject(bufred_d));
+    bufred = (real *) malloc((*j)*nb * sizeof(real));
+    bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                              (*j) * nb * sizeof(real), NULL, &err);
+    CL_CHECK(err);
+  }
+  
+  cl_kernel kernel = clCreateKernel(math_program, "glsc3_many_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mult));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &bufred_d));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), j));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), n));
+  
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 2,
+                                  NULL, global_item_size, local_item_size,
+                                  0, NULL, &kern_wait));
+    
+  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,
+                               bufred_d, CL_TRUE, 0, nb * sizeof(real),
+                               bufred, 1, &kern_wait, NULL));
+
+  for (int k = 0; k < (*j); k++) {
+    h[k] = 0.0;
+  }
+    
+  for (int i = 0; i < nb; i++) {
+    for (int k = 0; k < (*j); k++) {
+        h[k] += bufred[i*(*j)+k];
+    }
+  }
 }
 
 /**
@@ -575,8 +678,9 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
  */
 real opencl_glsc2(void *a, void *b, int *n) {
   cl_int err;
+  cl_event kern_wait;
   int i;
-  
+
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
     
@@ -600,17 +704,17 @@ real opencl_glsc2(void *a, void *b, int *n) {
   
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));
+                                  0, NULL, &kern_wait));
 
-  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE, 0,
-                               nb * sizeof(real), buf, 0, NULL, NULL));
-  CL_CHECK(clFinish(glb_cmd_queue));
+  
+  CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE,
+                               0, nb * sizeof(real), buf, 1, &kern_wait, NULL));
     
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += buf[i];
   }
-  
+
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
   

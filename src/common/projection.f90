@@ -62,7 +62,8 @@ contains
     allocate(this%xbar(n))
     allocate(this%xx_d(this%L))
     allocate(this%bb_d(this%L))
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        
        call device_map(this%xbar, this%xbar_d,n)
        call device_alloc(this%alpha_d, int(rp*this%L,c_size_t))
@@ -132,7 +133,8 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef   
     real(kind=rp), intent(inout), dimension(n) :: b 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_project_on(this, b, coef, n)
     else
        call cpu_project_on(this, b, coef, n)
@@ -150,7 +152,8 @@ contains
 
     this%m = min(this%m+1,this%L)
     
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        x_d = device_get_ptr(x,n)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
        if (this%m .eq. this%L) this%m = 1
@@ -165,7 +168,8 @@ contains
     call gs_op_vector(gs_h, this%bb(1,this%m), n, GS_OP_ADD)
     call bc_list_apply_scalar(bclst, this%bb(1,this%m), n)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
 
     else

@@ -2,8 +2,8 @@
  * Device kernel for cmult
  */
 __kernel void cmult_kernel(__global real * __restrict__ a,
-			   const real c,
-			   const int n) {
+                           const real c,
+                           const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -18,8 +18,8 @@ __kernel void cmult_kernel(__global real * __restrict__ a,
  */
 __kernel void cmult2_kernel(__global real * __restrict__ a,
                __global real * __restrict__ b,
-			   const real c,
-			   const int n) {
+                           const real c,
+                           const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -33,8 +33,8 @@ __kernel void cmult2_kernel(__global real * __restrict__ a,
  * Device kernel for cadd
  */
 __kernel void cadd_kernel(__global real * __restrict__ a,
-			  const real c,
-			  const int n) {
+                          const real c,
+                          const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -48,8 +48,8 @@ __kernel void cadd_kernel(__global real * __restrict__ a,
  * Device kernel for cfill
  */
 __kernel void cfill_kernel(__global real * __restrict__ a,
-			   const real c,
-			   const int n) {
+                           const real c,
+                           const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -63,8 +63,8 @@ __kernel void cfill_kernel(__global real * __restrict__ a,
  * Device kernel for add2
  */
 __kernel void add2_kernel(__global real * __restrict__ a,
-			  __global const real * __restrict__ b,
-			  const int n) {
+                          __global const real * __restrict__ b,
+                          const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -78,9 +78,9 @@ __kernel void add2_kernel(__global real * __restrict__ a,
  * Device kernel for add2s1
  */
 __kernel void add2s1_kernel(__global real * __restrict__ a,
-			    __global const real * __restrict__ b,
-			    const real c1,
-			    const int n) {
+                            __global const real * __restrict__ b,
+                            const real c1,
+                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -94,9 +94,9 @@ __kernel void add2s1_kernel(__global real * __restrict__ a,
  * Device kernel for add2s2
  */
 __kernel void add2s2_kernel(__global real * __restrict__ a,
-			    __global const real * __restrict__ b,
-			    const real c1,
-			    const int n) {
+                            __global const real * __restrict__ b,
+                            const real c1,
+                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -107,12 +107,33 @@ __kernel void add2s2_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for add2s2 many
+ */
+__kernel void add2s2_many_kernel(__global  real * __restrict__  x,
+                                 __global const real * __restrict__  p,
+                                 __global const real * __restrict__ alpha,
+                                 const int p_cur,
+                                 const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_local_size(0) * get_num_groups(0);
+
+  for (int i = idx; i < n; i+= str) {
+    real tmp = 0.0;
+    for (int j = 0; j < p_cur; j ++) {
+      tmp += p[j * n + i]*alpha[j];
+    }
+    x[i] += tmp;
+  }
+}
+
+/**
  * Device kernel for addsqr2s2
  */
 __kernel void addsqr2s2_kernel(__global real * __restrict__ a,
-			       __global const real * __restrict__ b,
-			       const real c1,
-			       const int n) {
+                               __global const real * __restrict__ b,
+                               const real c1,
+                               const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -126,11 +147,11 @@ __kernel void addsqr2s2_kernel(__global real * __restrict__ a,
  * Device kernel for add3s2
  */
 __kernel void add3s2_kernel(__global real * __restrict__ a,
-			    __global const real * __restrict__ b,
-			    __global const real * __restrict__ c,
-			    const real c1,
-			    const real c2,
-			    const int n) {
+                            __global const real * __restrict__ b,
+                            __global const real * __restrict__ c,
+                            const real c1,
+                            const real c2,
+                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -144,13 +165,14 @@ __kernel void add3s2_kernel(__global real * __restrict__ a,
  * Device kernel for invcol1
  */
 __kernel void invcol1_kernel(__global real * __restrict__ a,
-			     const int n) {
+                             const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
-
+  const real one = 1.0;
+  
   for (int i = idx; i < n; i += str) {
-    a[i] = 1 / a[i];
+    a[i] = one / a[i];
   }
 }
 
@@ -158,8 +180,8 @@ __kernel void invcol1_kernel(__global real * __restrict__ a,
  * Device kernel for invcol2
  */
 __kernel void invcol2_kernel(__global real * __restrict__ a,
-			     __global const real * __restrict__ b,
-			     const int n) {
+                             __global const real * __restrict__ b,
+                             const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -173,8 +195,8 @@ __kernel void invcol2_kernel(__global real * __restrict__ a,
  * Device kernel for col2
  */
 __kernel void col2_kernel(__global real * __restrict__ a,
-			  __global const real * __restrict__ b,
-			  const int n) {
+                          __global const real * __restrict__ b,
+                          const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -188,9 +210,9 @@ __kernel void col2_kernel(__global real * __restrict__ a,
  * Device kernel for col3
  */
 __kernel void col3_kernel(__global real * __restrict__ a,
-			  __global const real * __restrict__ b,
-			  __global const real * __restrict__ c,
-			  const int n) {
+                          __global const real * __restrict__ b,
+                          __global const real * __restrict__ c,
+                          const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -204,9 +226,9 @@ __kernel void col3_kernel(__global real * __restrict__ a,
  * Device kernel for subcol3
  */
 __kernel void subcol3_kernel(__global real * __restrict__ a,
-			     __global const real * __restrict__ b,
-			     __global const real * __restrict__ c,
-			     const int n) {
+                             __global const real * __restrict__ b,
+                             __global const real * __restrict__ c,
+                             const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -220,8 +242,8 @@ __kernel void subcol3_kernel(__global real * __restrict__ a,
  * Device kernel for sub2
  */
 __kernel void sub2_kernel(__global real * __restrict__ a,
-			  __global const real * __restrict__ b,
-			  const int n) {
+                          __global const real * __restrict__ b,
+                          const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -235,9 +257,9 @@ __kernel void sub2_kernel(__global real * __restrict__ a,
  * Device kernel for sub3
  */
 __kernel void sub3_kernel(__global real * __restrict__ a,
-			  __global const real * __restrict__ b,
-			  __global const real * __restrict__ c,
-			  const int n) {
+                          __global const real * __restrict__ b,
+                          __global const real * __restrict__ c,
+                          const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -251,9 +273,9 @@ __kernel void sub3_kernel(__global real * __restrict__ a,
  * Device kernel for addcol3
  */
 __kernel void addcol3_kernel(__global real * __restrict__ a,
-			     __global const real * __restrict__ b,
-			     __global const real * __restrict__ c,
-			     const int n) {
+                             __global const real * __restrict__ b,
+                             __global const real * __restrict__ c,
+                             const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -267,10 +289,10 @@ __kernel void addcol3_kernel(__global real * __restrict__ a,
  * Device kernel for addcol4
  */
 __kernel void addcol4_kernel(__global real * __restrict__ a,
-			     __global const real * __restrict__ b,
-			     __global const real * __restrict__ c,
-			     __global const real * __restrict__ d,
-			     const int n) {
+                             __global const real * __restrict__ b,
+                             __global const real * __restrict__ c,
+                             __global const real * __restrict__ d,
+                             const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -284,10 +306,10 @@ __kernel void addcol4_kernel(__global real * __restrict__ a,
  * Device kernel for glsc3
  */
 __kernel void glsc3_kernel(__global const real * __restrict__ a,
-			   __global const real * __restrict__ b,
-			   __global const real * __restrict__ c,
-			   __global real * __restrict__ buf_h,
-			   const int n) {
+                           __global const real * __restrict__ b,
+                           __global const real * __restrict__ c,
+                           __global real * __restrict__ buf_h,
+                           const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -317,12 +339,54 @@ __kernel void glsc3_kernel(__global const real * __restrict__ a,
 }
 
 /**
+ * Device kernel for glsc3 many
+ */
+__kernel void glsc3_many_kernel(__global const real * __restrict__ a,
+                                __global const real * __restrict__ b,
+                                __global const real * __restrict__ c,
+                                __global real * __restrict__ buf_h,
+                                const int j,
+                                const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+  const int y = get_local_id(1);
+
+  __local real buf[256]; /* Make this nice...*/
+  real tmp = 0;
+  if(y < j){
+    for (int i = idx; i < n; i+= str) {
+      tmp += a[i] * b[get_local_id(1) * n + i] * c[i];
+    }
+  }
+
+  buf[get_local_id(0) * get_local_size(1) + y] = tmp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  int i = get_local_size(0)>>1;
+  while (i != 0) {
+    if (get_local_id(0) < i) {
+      buf[get_local_id(0) * get_local_size(1) + y] +=
+        buf[(get_local_id(0) + i) * get_local_size(1) + y];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i = i>>1;
+  }
+  
+  if (get_local_id(0) == 0) {
+    if( y < j) {
+      buf_h[j * get_group_id(0) + y] = buf[y];
+    }
+  }
+}
+
+/**
  * Device kernel for glsc2
  */
 __kernel void glsc2_kernel(__global const real * __restrict__ a,
-			   __global const real * __restrict__ b,
-			   __global real * __restrict__ buf_h,
-			   const int n) {
+                           __global const real * __restrict__ b,
+                           __global real * __restrict__ buf_h,
+                           const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);

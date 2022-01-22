@@ -623,6 +623,17 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_add2s2_many(y_d,x_d_d,a_d,j,n) &
+          bind(c, name='opencl_add2s2_many')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: y_d, x_d_d, a_d
+       integer(c_int) :: j, n
+     end subroutine opencl_add2s2_many
+  end interface
+
+  interface
      subroutine opencl_addsqr2s2(a_d, b_d, c1, n) &
           bind(c, name='opencl_addsqr2s2')
        use, intrinsic :: iso_c_binding
@@ -745,6 +756,18 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end function opencl_glsc3
+  end interface
+
+  interface
+     subroutine opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n) &
+          bind(c, name='opencl_glsc3_many')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: w_d, v_d_d, mult_d
+       real(c_rp) :: h(j)
+       integer(c_int) :: j, n
+     end subroutine opencl_glsc3_many
   end interface
 
   interface
@@ -1092,6 +1115,8 @@ contains
     call hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
 #elif HAVE_CUDA
     call cuda_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+#elif HAVE_OPENCL
+    call opencl_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -1108,6 +1133,8 @@ contains
     call hip_add2s2_many(y_d,x_d_d,a_d,j,n)
 #elif HAVE_CUDA
     call cuda_add2s2_many(y_d,x_d_d,a_d,j,n)
+#elif HAVE_OPENCL
+    call opencl_add2s2_many(y_d,x_d_d,a_d,j,n)
 #else
     call neko_error('No device backend configured')
 #endif
