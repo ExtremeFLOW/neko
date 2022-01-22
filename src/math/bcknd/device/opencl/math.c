@@ -616,6 +616,7 @@ cl_mem bufred_d = NULL;
  * Weighted inner product \f$ w^T v(n,1:j) c \f$
  */
 void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){ 
+  int i, k;
   cl_int err;
   cl_event kern_wait;
   
@@ -661,12 +662,12 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
                                bufred_d, CL_TRUE, 0, nb * sizeof(real),
                                bufred, 1, &kern_wait, NULL));
 
-  for (int k = 0; k < (*j); k++) {
+  for (k = 0; k < (*j); k++) {
     h[k] = 0.0;
   }
     
-  for (int i = 0; i < nb; i++) {
-    for (int k = 0; k < (*j); k++) {
+  for (i = 0; i < nb; i++) {
+    for (k = 0; k < (*j); k++) {
         h[k] += bufred[i*(*j)+k];
     }
   }
