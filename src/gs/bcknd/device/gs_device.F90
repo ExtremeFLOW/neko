@@ -280,7 +280,9 @@ contains
 #else
          call neko_error('No device backend configured')
 #endif
-         
+         if (this%nshared .eq. m) then
+            call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
+         end if
        end associate
     end if
 
@@ -319,6 +321,9 @@ contains
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo_d=>this%shared_blk_off_d)
+
+         call device_memcpy(v, v_d, m, HOST_TO_DEVICE)
+         
 #ifdef HAVE_HIP
          call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
 #elif HAVE_CUDA
