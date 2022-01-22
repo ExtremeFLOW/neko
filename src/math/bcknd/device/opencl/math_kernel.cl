@@ -107,6 +107,27 @@ __kernel void add2s2_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for add2s2 many
+ */
+__kernel void add2s2_many_kernel(__global  real * __restrict__  x,
+                                 __global const real * __restrict__  p,
+                                 __global const real * __restrict__ alpha,
+                                 const int p_cur,
+                                 const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_local_size(0) * get_num_groups(0);
+
+  for (int i = idx; i < n; i+= str) {
+    real tmp = 0.0;
+    for (int j = 0; j < p_cur; j ++) {
+      tmp += p[j * n + i]*alpha[j];
+    }
+    x[i] += tmp;
+  }
+}
+
+/**
  * Device kernel for addsqr2s2
  */
 __kernel void addsqr2s2_kernel(__global real * __restrict__ a,
@@ -315,6 +336,48 @@ __kernel void glsc3_kernel(__global const real * __restrict__ a,
     buf_h[get_group_id(0)] = buf[0];
   }
 
+}
+
+/**
+ * Device kernel for glsc3 many
+ */
+__kernel void glsc3_many_kernel(__global const real * __restrict__ a,
+                                __global const real * __restrict__ b,
+                                __global const real * __restrict__ c,
+                                __global real * __restrict__ buf_h,
+                                const int j,
+                                const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+  const int y = get_local_id(1);
+
+  __local real buf[256]; /* Make this nice...*/
+  real tmp = 0;
+  if(y < j){
+    for (int i = idx; i < n; i+= str) {
+      tmp += a[i] * b[get_local_id(1) * n + i] * c[i];
+    }
+  }
+
+  buf[get_local_id(0) * get_local_size(1) + y] = tmp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  int i = get_local_size(0)>>1;
+  while (i != 0) {
+    if (get_local_id(0) < i) {
+      buf[get_local_id(0) * get_local_size(1) + y] +=
+        buf[(get_local_id(0) + i) * get_local_size(1) + y];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i = i>>1;
+  }
+  
+  if (get_local_id(0) == 0) {
+    if( y < j) {
+      buf_h[j * get_group_id(0) + y] = buf[y];
+    }
+  }
 }
 
 /**
