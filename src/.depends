@@ -59,15 +59,16 @@ math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_s
 math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o math/bcknd/sx/sx_cdtp.o math/bcknd/sx/sx_conv1.o math/bcknd/sx/sx_opgrad.o math/bcknd/sx/sx_dudxyz.o 
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
 math/bcknd/device/opr_device.o : math/bcknd/device/opr_device.F90 common/utils.o math/mathops.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o device/device.o math/bcknd/device/device_math.o config/num_types.o gs/gather_scatter.o 
-math/tensor.o : math/tensor.f90 config/neko_config.o math/mxm_wrapper.o config/num_types.o math/bcknd/sx/tensor_sx.o math/bcknd/cpu/tensor_cpu.o math/bcknd/xsmm/tensor_xsmm.o 
+math/tensor.o : math/tensor.f90 config/neko_config.o device/device.o math/mxm_wrapper.o config/num_types.o math/bcknd/sx/tensor_sx.o math/bcknd/device/tensor_device.o math/bcknd/cpu/tensor_cpu.o math/bcknd/xsmm/tensor_xsmm.o 
 math/bcknd/cpu/tensor_cpu.o : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.o config/num_types.o 
 math/bcknd/sx/tensor_sx.o : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.o config/num_types.o 
 math/bcknd/xsmm/tensor_xsmm.o : math/bcknd/xsmm/tensor_xsmm.F90 math/mxm_wrapper.o config/num_types.o 
-math/fdm.o : math/fdm.f90 math/bcknd/cpu/fdm_cpu.o math/bcknd/xsmm/fdm_xsmm.o math/bcknd/sx/fdm_sx.o math/tensor.o math/fast3d.o gs/gather_scatter.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o config/neko_config.o 
+math/fdm.o : math/fdm.f90 math/bcknd/cpu/fdm_cpu.o math/bcknd/device/fdm_device.o math/bcknd/xsmm/fdm_xsmm.o math/bcknd/sx/fdm_sx.o math/tensor.o math/fast3d.o gs/gather_scatter.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o config/neko_config.o 
 math/bcknd/cpu/fdm_cpu.o : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.o config/num_types.o 
+math/bcknd/device/fdm_device.o : math/bcknd/device/fdm_device.F90 common/utils.o config/num_types.o device/device.o 
 math/bcknd/sx/fdm_sx.o : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.o config/num_types.o 
 math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.o config/num_types.o 
-math/schwarz.o : math/schwarz.f90 math/fdm.o math/fast3d.o gs/gather_scatter.o bc/dirichlet.o bc/bc.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o 
+math/schwarz.o : math/schwarz.f90 math/fdm.o math/bcknd/device/device_schwarz.o math/fast3d.o gs/gather_scatter.o bc/dirichlet.o bc/bc.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o device/device.o 
 common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o field/field_series.o config/num_types.o 
 io/generic_file.o : io/generic_file.f90 config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
@@ -149,6 +150,8 @@ device/opencl_intf.o : device/opencl_intf.F90 common/utils.o
 device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/opencl_intf.o 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 
 math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 comm/comm.o common/utils.o config/num_types.o 
+math/bcknd/device/tensor_device.o : math/bcknd/device/tensor_device.F90 comm/comm.o common/utils.o config/num_types.o 
+math/bcknd/device/device_schwarz.o : math/bcknd/device/device_schwarz.F90 common/utils.o config/num_types.o 
 math/bcknd/device/device_mathops.o : math/bcknd/device/device_mathops.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_dirichlet.o : bc/bcknd/device/device_dirichlet.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_inflow.o : bc/bcknd/device/device_inflow.F90 common/utils.o config/num_types.o 
