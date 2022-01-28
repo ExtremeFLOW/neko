@@ -3,9 +3,11 @@ module tensor
   use tensor_xsmm
   use tensor_cpu
   use tensor_sx
+  use tensor_device
   use num_types
   use mxm_wrapper
   use neko_config
+  use device
   implicit none
   private
 
@@ -118,11 +120,21 @@ contains
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
+   
 
     if (NEKO_BCKND_SX .eq. 1) then
        call tnsr3d_sx(v, nv, u, nu, A, Bt, Ct, nelv)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call tnsr3d_xsmm(v, nv, u, nu, A, Bt, Ct, nelv)
+    else if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+      ! The length nelv should not matter here. It is just a stapleholder
+       v_d = device_get_ptr(v,nelv)
+       u_d = device_get_ptr(u,nelv)
+       A_d = device_get_ptr(A,nelv)
+       Bt_d = device_get_ptr(Bt,nelv)
+       Ct_d = device_get_ptr(Ct,nelv)
+       call tnsr3d_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
     else
        call tnsr3d_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     end if
