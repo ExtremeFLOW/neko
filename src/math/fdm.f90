@@ -12,15 +12,21 @@ module fdm
   use fdm_sx    
   use fdm_xsmm
   use fdm_cpu
+  use fdm_device
+  use device
+  use, intrinsic :: iso_c_binding
   implicit none  
 
   type, public :: fdm_t
      real(kind=rp), allocatable :: s(:,:,:,:)
      real(kind=rp), allocatable :: d(:,:)
+     type(c_ptr) :: s_d = C_NULL_PTR
+     type(c_ptr) :: d_d = C_NULL_PTR
      real(kind=rp), allocatable :: len_lr(:), len_ls(:), len_lt(:)
      real(kind=rp), allocatable :: len_mr(:), len_ms(:), len_mt(:)
      real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
      real(kind=rp), allocatable :: swplen(:,:,:,:)
+     type(c_ptr) :: swplen_d = C_NULL_PTR
      type(space_t), pointer :: Xh
      type(dofmap_t), pointer :: dof
      type(gs_t), pointer :: gs_h
@@ -57,6 +63,12 @@ contains
     allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
+ 
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv) 
+       call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv) 
+       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv) 
+    end if
 
     call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
     this%Xh => Xh
@@ -68,6 +80,11 @@ contains
 
     call fdm_setup_fast(this, ah, bh, nl, n)
 
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call device_memcpy(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+       call device_memcpy(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+       call device_memcpy(this%swplen, this%swplen_d,Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE) 
+    end if
   end subroutine fdm_init
 
   subroutine swap_lengths(this, x, y, z, nelv, gdim)
@@ -105,7 +122,14 @@ contains
                end do
             end do
          end do
-         call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
+         else
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         end if
+
          do e = 1,nelv
             llr(e) = l(1,2,2,e) - lmr(e)
             lrr(e) = l(n,2,2,e) - lmr(e)
@@ -123,7 +147,14 @@ contains
                l(j,n,1,e) = lms(e)
             end do
          end do
-         call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
+         else
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         end if
+
          do e = 1,nelv
             llr(e) = l(1,2,1,e) - lmr(e)
             lrr(e) = l(n,2,1,e) - lmr(e)
@@ -524,6 +555,9 @@ contains
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call fdm_do_fast_xsmm(e, r, this%s, this%d, &
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+    else if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call fdm_do_fast_device(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else
        call fdm_do_fast_cpu(e, r, this%s, this%d, &
