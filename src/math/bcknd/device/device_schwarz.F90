@@ -21,7 +21,7 @@ module device_schwarz
        import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d 
-       integer(c_int) :: nc, nelv
+       integer(c_int) :: nx, nelv
      end subroutine hip_schwarz_toext3d
      subroutine hip_schwarz_toreg3d(b_d,a_d,nx, nelv) &
        bind(c, name='hip_schwarz_toreg3d')
@@ -29,7 +29,7 @@ module device_schwarz
        import c_rp
        implicit none
        type(c_ptr), value :: a_d, b_d 
-       integer(c_int) :: nc, nelv
+       integer(c_int) :: nx, nelv
      end subroutine hip_schwarz_toreg3d
   end interface
 #elif HAVE_CUDA
