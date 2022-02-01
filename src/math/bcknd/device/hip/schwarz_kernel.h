@@ -6,6 +6,8 @@
  * with the shell of a2 that is l2 steps in and scale with f3.
  * Right now we just thorw away all arrays that are not
  * on the first face of dimension (nx-2)(nx-2)
+ * It should be noted that a1, a2 are often the same array.
+ * If l1,l2 are not the same or if one is not 0 this might lead to a race.
  */
 template< typename T>
 __global__ void schwarz_extrude_kernel(T * a1,
@@ -16,33 +18,47 @@ __global__ void schwarz_extrude_kernel(T * a1,
                                        const T f2,
                                        const int nx) {
 
-  const int ijk = threadIdx.x;
+  const int idx = threadIdx.x;
   const int el = blockIdx.x*nx*nx*nx;
-  
-  if (ijk < (nx-2)*(nx-2)){
-     int j2 = ijk/(nx-2);
-     int i2 = ijk - (nx-2)*j2;
-     int j = j2 + 1;
-     int i = i2 + 1;
-
-     int idx1 = l1 + i*nx + j*nx*nx + el;
-     int idx2 = l2 + i*nx + j*nx*nx + el;
-     a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-     idx1 = nx-l1-1 + i*nx + j*nx*nx + el;
-     idx2 = nx-l2-1 + i*nx + j*nx*nx +el;
-     a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-     idx1 = i+(l1)*nx+j*nx*nx+el;
-     idx2 = i+(l2)*nx+j*nx*nx+el;
-     a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-     idx1 = i+(nx-l1-1)*nx+j*nx*nx+el;
-     idx2 = i+(nx-l2-1)*nx+j*nx*nx+el;
-     a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-     idx1 = i+j*nx+(l1)*nx*nx+el;
-     idx2 = i+j*nx+(l2)*nx*nx+el;
-     a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
-     idx1 = i+j*nx+(nx-l1-1)*nx*nx+el;
-     idx2 = i+j*nx+(nx-l2-1)*nx*nx+el;
-     a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+  const int str = blockDim.x;
+  for(int ijk = idx; ijk<nx*nx*nx; ijk+=blockDim.x){
+     int jk = ijk/nx;
+     int i = ijk - nx*jk;
+     int k = jk/nx;
+     int j = jk -k*nx;
+     if(j>0 && j< nx-1 && k > 0 && k < nx -1){
+       int idx1 = i + j*nx + k*nx*nx + el;
+       if(i == l1){
+         int idx2 = l2 + j*nx + k*nx*nx + el;
+         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+       }
+       if(i == nx-1-l1){
+         int idx2 = nx-1-l2 + j*nx + k*nx*nx + el;
+         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+       }
+     }
+     if( i > 0 && i < nx-1 && k > 0 && k < nx -1){
+       int idx1 = i + j*nx + k*nx*nx + el;
+       if(j == l1){
+         int idx2 = i + l2*nx + k*nx*nx + el;
+         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+       }
+       if(j == nx-1-l1){
+         int idx2 = i + (nx-1-l2)*nx + k*nx*nx + el;
+         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+       }
+     }
+     if( i > 0 && i < nx-1 && j>0 && j< nx-1 ){
+       int idx1 = i + j*nx + k*nx*nx + el;
+       if(k == l1){
+         int idx2 = i + j*nx + l2*nx*nx + el;
+         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+       }
+       if(k == nx-1-l1){
+         int idx2 = i + j*nx + (nx-l2-1)*nx*nx + el;
+         a1[idx1] = f1*a1[idx1] + f2*a2[idx2];
+       }
+     }
   }    
 }
 
