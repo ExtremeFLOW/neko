@@ -121,5 +121,6 @@ void opencl_check(const char *fname, const int line, const cl_int err)
   if (err != CL_SUCCESS) {
     const char *err_str = clGetError(err);
     fprintf(stderr, "%s in %s:%d \n", err_str, fname, line);
-  }                                               
+    exit(1);
+  }						  
 }

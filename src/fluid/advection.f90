@@ -31,6 +31,19 @@ module advection
      type(interpolator_t) :: GLL_to_GL
      type(space_t) :: Xh_GL
      type(space_t), pointer :: Xh_GLL
+     real(kind=rp), allocatable :: temp(:), tbf(:)
+     type(c_ptr) :: temp_d = C_NULL_PTR
+     type(c_ptr) :: tbf_d = C_NULL_PTR
+     real(kind=rp), allocatable :: tx(:), ty(:), tz(:)
+     real(kind=rp), allocatable :: vr(:), vs(:), vt(:)
+     type(c_ptr) :: tx_d = C_NULL_PTR
+     type(c_ptr) :: ty_d = C_NULL_PTR
+     type(c_ptr) :: tz_d = C_NULL_PTR
+     type(c_ptr) :: vr_d = C_NULL_PTR
+     type(c_ptr) :: vs_d = C_NULL_PTR
+     type(c_ptr) :: vt_d = C_NULL_PTR
+
+
    contains
      procedure, pass(this) :: apply => apply_adv_dealias
      procedure, pass(this) :: init => init_dealias
@@ -111,7 +124,7 @@ contains
     class(adv_dealias_t), intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
-    integer :: nel
+    integer :: nel, n_GL, n
 
     call space_init(this%Xh_GL,GL, lxd, lxd, lxd)
     this%Xh_GLL => coef%Xh
@@ -121,6 +134,8 @@ contains
     call coef_init(this%coef_GL, this%Xh_GL,coef%msh)
 
     nel = coef%msh%nelv
+    n_GL = nel*this%Xh_GL%lxyz
+    n = nel*coef%Xh%lxyz
     call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
@@ -130,6 +145,26 @@ contains
     call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       allocate(this%temp(n_GL))
+       allocate(this%tbf(n_GL))
+       allocate(this%tx(n_GL))
+       allocate(this%ty(n_GL))
+       allocate(this%tz(n_GL))
+       allocate(this%vr(n_GL))
+       allocate(this%vs(n_GL))
+       allocate(this%vt(n_GL))
+       call device_map(this%temp, this%temp_d, n_GL)
+       call device_map(this%tbf, this%tbf_d, n_GL)
+       call device_map(this%tx, this%tx_d, n_GL)
+       call device_map(this%ty, this%ty_d, n_GL)
+       call device_map(this%tz, this%tz_d, n_GL)
+       call device_map(this%vr, this%vr_d, n_GL)
+       call device_map(this%vs, this%vs_d, n_GL)
+       call device_map(this%vt, this%vt_d, n_GL)
+    end if
+
 
   end subroutine init_dealias
   
@@ -146,38 +181,74 @@ contains
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tbfx, tbfy, tbfz 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
-    integer :: e, i, idx
+    type(c_ptr) :: bfx_d, bfy_d, bfz_d
+    integer :: e, i, idx, nel, n_GL
+    nel = coef%msh%nelv
+    n_GL = nel * this%Xh_GL%lxyz
+    !This is extremely primitive and unoptimized  on the device //Karp
     associate(c_GL => this%coef_GL)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       bfx_d = device_get_ptr(bfx, n)
+       bfy_d = device_get_ptr(bfy, n)
+       bfz_d = device_get_ptr(bfz, n)
+       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
-      do e = 1, coef%msh%nelv
-         call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
-         call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+       call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
+       call device_col3(this%tbf_d,this%vr_d,this%tx_d,n_GL)
+       call device_addcol3(this%tbf_d,this%vs_d,this%ty_d,n_GL)
+       call device_addcol3(this%tbf_d,this%vt_d,this%tz_d,n_GL)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       call device_sub2(bfx_d, this%temp_d,n)
 
-         call opgrad(vr, vs, vt, tx, c_GL, e, e)
-         do i = 1, this%Xh_GL%lxyz
-            tbfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-         end do
 
-         call opgrad(vr, vs, vt, ty, c_GL, e, e)
-         do i = 1, this%Xh_GL%lxyz
-            tbfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-         end do
+       call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
+       call device_col3(this%tbf_d,this%vr_d,this%tx_d,n_GL)
+       call device_addcol3(this%tbf_d,this%vs_d,this%ty_d,n_GL)
+       call device_addcol3(this%tbf_d,this%vt_d,this%tz_d,n_GL)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       call device_sub2(bfy_d, this%temp_d,n)
 
-         call opgrad(vr, vs, vt, tz, c_GL, e, e)
-         do i = 1, this%Xh_GL%lxyz
-            tbfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
-         end do
+       call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
+       call device_col3(this%tbf_d,this%vr_d,this%tx_d,n_GL)
+       call device_addcol3(this%tbf_d,this%vs_d,this%ty_d,n_GL)
+       call device_addcol3(this%tbf_d,this%vt_d,this%tz_d,n_GL)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       call device_sub2(bfz_d, this%temp_d,n)
 
-         call this%GLL_to_GL%map(tempx, tbfx, 1, this%Xh_GLL)
-         call this%GLL_to_GL%map(tempy, tbfy, 1, this%Xh_GLL)
-         call this%GLL_to_GL%map(tempz, tbfz, 1, this%Xh_GLL)
+    else
+       do e = 1, coef%msh%nelv
+          call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
+          call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
+          call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
 
-         idx = (e-1)*this%Xh_GLL%lxyz+1
-         call sub2(bfx(idx), tempx,this%Xh_GLL%lxyz)
-         call sub2(bfy(idx), tempy,this%Xh_GLL%lxyz)
-         call sub2(bfz(idx), tempz,this%Xh_GLL%lxyz)
-      end do
+          call opgrad(vr, vs, vt, tx, c_GL, e, e)
+          do i = 1, this%Xh_GL%lxyz
+             tbfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+          end do
+
+          call opgrad(vr, vs, vt, ty, c_GL, e, e)
+          do i = 1, this%Xh_GL%lxyz
+             tbfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+          end do
+
+          call opgrad(vr, vs, vt, tz, c_GL, e, e)
+          do i = 1, this%Xh_GL%lxyz
+             tbfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+          end do
+
+          call this%GLL_to_GL%map(tempx, tbfx, 1, this%Xh_GLL)
+          call this%GLL_to_GL%map(tempy, tbfy, 1, this%Xh_GLL)
+          call this%GLL_to_GL%map(tempz, tbfz, 1, this%Xh_GLL)
+
+          idx = (e-1)*this%Xh_GLL%lxyz+1
+          call sub2(bfx(idx), tempx,this%Xh_GLL%lxyz)
+          call sub2(bfy(idx), tempy,this%Xh_GLL%lxyz)
+          call sub2(bfz(idx), tempz,this%Xh_GLL%lxyz)
+       end do
+    end if
     end associate
 
   end subroutine apply_adv_dealias

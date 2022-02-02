@@ -154,6 +154,9 @@ libneko_a_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
+	math/bcknd/device/device_schwarz.F90\
+	math/bcknd/device/tensor_device.F90\
+	math/bcknd/device/fdm_device.F90\
 	math/bcknd/device/device_mathops.F90\
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
@@ -171,6 +174,9 @@ if ENABLE_HIP
 libneko_a_SOURCES += \
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
+	math/bcknd/device/hip/schwarz.hip\
+	math/bcknd/device/hip/tensor.hip\
+	math/bcknd/device/hip/fdm.hip\
 	math/bcknd/device/hip/mathops.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\
 	math/bcknd/device/hip/opr_cdtp.hip\
@@ -193,6 +199,9 @@ if ENABLE_CUDA
 libneko_a_SOURCES += \
 	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
+	math/bcknd/device/cuda/schwarz.cu\
+	math/bcknd/device/cuda/tensor.cu\
+	math/bcknd/device/cuda/fdm.cu\
 	math/bcknd/device/cuda/mathops.cu\
 	math/bcknd/device/cuda/opr_dudxyz.cu\
 	math/bcknd/device/cuda/opr_cdtp.cu\
@@ -264,7 +273,10 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/blasius_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
+	math/bcknd/device/cuda/tensor_kernel.h\
+	math/bcknd/device/cuda/fdm_kernel.h\
 	math/bcknd/device/cuda/mathops_kernel.h\
+	math/bcknd/device/cuda/schwarz_kernel.h\
 	math/bcknd/device/cuda/dudxyz_kernel.h\
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
@@ -278,6 +290,9 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/blasius_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/hip/tensor_kernel.h\
+	math/bcknd/device/hip/schwarz_kernel.h\
+	math/bcknd/device/hip/fdm_kernel.h\
 	math/bcknd/device/hip/mathops_kernel.h\
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\

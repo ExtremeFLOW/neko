@@ -49,9 +49,11 @@ __global__ void jacobi_kernel(T * __restrict__ du,
 			      const int nel) {
   const int idx = threadIdx.x + blockIdx.x * blockDim.x;
   const int e = idx / (LX*LX*LX);
-  const int k = idx / (LX*LX) % LX;
-  const int j = idx / LX % LX;
-  const int i = idx % LX;
+  const int ijk = idx - e*LX*LX*LX;
+  const int jk = ijk / LX;
+  const int i = ijk - jk * LX;
+  const int k = jk / LX;
+  const int j = jk - k * LX;
 
   if (e >= nel)
     return;
@@ -83,13 +85,13 @@ __global__ void jacobi_kernel(T * __restrict__ du,
   }
 
   if (j == 0 || j == LX-1) {
-    d += G12[i + LX*j + LX*LX*k + LX*LX*LX*e] * dyt[i + LX*i] * dxt[j + LX*j];
-    d += G23[i + LX*j + LX*LX*k + LX*LX*LX*e] * dyt[i + LX*i] * dzt[k + LX*k];
+    d += G12[i + LX*j + LX*LX*k + LX*LX*LX*e] * dyt[j + LX*j] * dxt[i + LX*i];
+    d += G23[i + LX*j + LX*LX*k + LX*LX*LX*e] * dyt[j + LX*j] * dzt[k + LX*k];
   }
 
   if (k == 0 || k == LX-1) {
-    d += G13[i + LX*j + LX*LX*k + LX*LX*LX*e] * dzt[i + LX*i] * dxt[j + LX*j];
-    d += G23[i + LX*j + LX*LX*k + LX*LX*LX*e] * dzt[i + LX*i] * dyt[k + LX*k];
+    d += G13[i + LX*j + LX*LX*k + LX*LX*LX*e] * dzt[k + LX*k] * dxt[i + LX*i];
+    d += G23[i + LX*j + LX*LX*k + LX*LX*LX*e] * dzt[k + LX*k] * dyt[j + LX*j];
   }
 
   du[idx] = d;
@@ -140,5 +142,6 @@ extern "C" {
     if (err != cudaSuccess) {
       fprintf(stderr, __FILE__ ": %s\n", cudaGetErrorString(err));
     }
+
   }
 }
