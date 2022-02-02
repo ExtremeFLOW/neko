@@ -35,6 +35,9 @@ extern "C" {
       CASE(7);
       CASE(8);
       CASE(9);
+      CASE(10);
+      CASE(11);
+      CASE(12);
     }
   } 
 }

@@ -3,8 +3,6 @@
 #include <device/hip/check.h>
 #include "cdtp_kernel.h"
 
-
-
 extern "C" {
 
   /** 
@@ -39,6 +37,8 @@ extern "C" {
       CASE(8);
       CASE(9);
       CASE(10);
+      CASE(11);
+      CASE(12);
     }
   } 
 }
