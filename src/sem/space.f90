@@ -34,13 +34,13 @@ module space
 
      real(kind=rp), allocatable :: w3(:,:,:)
 
-     real(kind=rp), allocatable :: dx(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dy(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dz(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dx(:,:) !< Derivative operator D
+     real(kind=rp), allocatable :: dy(:,:) !< Derivative operator D
+     real(kind=rp), allocatable :: dz(:,:) !< Derivative operator D
 
-     real(kind=rp), allocatable :: dxt(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
+     real(kind=rp), allocatable :: dxt(:,:) !< Transposed derivative operator D^T
+     real(kind=rp), allocatable :: dyt(:,:) !< Transposed derivative operator D^T
+     real(kind=rp), allocatable :: dzt(:,:) !< Transposed derivative operator D^T
 
      !
      ! Device pointers (if present)
