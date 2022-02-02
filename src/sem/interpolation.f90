@@ -7,6 +7,7 @@ module interpolation
   use fast3d
   use tensor
   use space
+  use device
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -16,6 +17,11 @@ module interpolation
      type(space_t), pointer :: Yh
      real(kind=rp), allocatable :: Xh_to_Yh(:,:), Xh_to_YhT(:,:)
      real(kind=rp), allocatable :: Yh_to_Xh(:,:), Yh_to_XhT(:,:)
+     type(c_ptr) :: Xh_Yh_d = C_NULL_PTR
+     type(c_ptr) :: Xh_YhT_d = C_NULL_PTR
+     type(c_ptr) :: Yh_Xh_d = C_NULL_PTR
+     type(c_ptr) :: Yh_XhT_d = C_NULL_PTR
+
    contains
      procedure, pass(this) :: init => interp_init
      procedure, pass(this) :: free => interp_free
@@ -50,6 +56,17 @@ contains
 
     this%Xh => Xh
     this%Yh => Yh
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_map(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx)
+       call device_map(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx)
+       call device_map(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx)
+       call device_map(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx)
+       call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
+       call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
+       call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
+       call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
+    end if
 
   end subroutine interp_init
 
@@ -67,6 +84,18 @@ contains
     end if
     if (allocated(this%Yh_to_XhT)) then
        deallocate(this%Yh_to_XhT)
+    end if
+    if (c_associated(this%Yh_Xh_d)) then
+       call device_free(this%Yh_Xh_d)
+    end if
+    if (c_associated(this%Yh_XhT_d)) then
+       call device_free(this%Yh_XhT_d)
+    end if
+    if (c_associated(this%Xh_Yh_d)) then
+       call device_free(this%Xh_Yh_d)
+    end if
+    if (c_associated(this%Xh_YhT_d)) then
+       call device_free(this%Xh_YhT_d)
     end if
 
   end subroutine interp_free

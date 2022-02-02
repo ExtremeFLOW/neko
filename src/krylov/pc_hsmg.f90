@@ -17,6 +17,9 @@ module hsmg
   use tensor
   use jacobi
   use sx_jacobi
+  use device_jacobi
+  use device
+  use device_math
   implicit none
   private
 
@@ -51,6 +54,8 @@ module hsmg
      type(interpolator_t) :: interp_fine_mid
      type(interpolator_t) :: interp_mid_crs
      real(kind=rp), allocatable :: w(:) !< work array
+     type(c_ptr) :: w_d = C_NULL_PTR
+     type(c_ptr) :: r_d = C_NULL_PTR
   contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: free => hsmg_free
@@ -105,16 +110,11 @@ contains
        allocate(sx_jacobi_t::this%pc_crs)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        allocate(jacobi_t::this%pc_crs)
+    else if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       allocate(device_jacobi_t::this%pc_crs)
     else
        allocate(jacobi_t::this%pc_crs)
     end if
-
-    select type(pc => this%pc_crs)
-    type is (jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    type is (sx_jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    end select
 
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
@@ -162,6 +162,20 @@ contains
                         this%e_crs, this%grids, 1) 
                  
     call hsmg_set_h(this)
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call device_map(this%w, this%w_d, n)
+       call device_map(this%r, this%r_d, n)
+    end if
+    select type(pc => this%pc_crs)
+    type is (jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (sx_jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (device_jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    end select
+
+
 
   end subroutine hsmg_init
   
@@ -171,6 +185,9 @@ contains
    !Yeah I dont really know what to do here. For incompressible flow not much happens
     this%grids(1)%coef%ifh2 = .false.
     call copy(this%grids(1)%coef%h1, this%grids(3)%coef%h1, this%grids(1)%dof%n_dofs)
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+        call device_copy(this%grids(1)%coef%h1_d,this%grids(3)%coef%h1_d,this%grids(1)%dof%n_dofs)
+    end if
   end subroutine hsmg_set_h
 
 
@@ -250,47 +267,93 @@ contains
     class(hsmg_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
+    type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
-    
-    !We should not work with the input 
-    call copy(this%r, r, n)
+     
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       z_d = device_get_ptr(z,n)
+       r_d = device_get_ptr(r,n)
+       !We should not work with the input 
+       call device_copy(this%r_d, r_d, n)
 
-    !OVERLAPPING Schwarz exchange and solve
-    call this%grids(3)%schwarz%compute(z, this%r)      
-    ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
-    call col2(this%r, this%grids(3)%coef%mult, &
-                 this%grids(3)%dof%n_dofs)
-    !Restrict to middle level
-    call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
-    call gs_op_vector(this%grids(2)%gs_h, this%w, &
-                      this%grids(2)%dof%n_dofs, GS_OP_ADD)
-    !OVERLAPPING Schwarz exchange and solve
-    call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
-    call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%n_dofs)
-    !restrict residual to crs
-    call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
-    !Crs solve
+       !OVERLAPPING Schwarz exchange and solve
+       call this%grids(3)%schwarz%compute(z, this%r)      
+       !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
+       call device_col2(this%r_d, this%grids(3)%coef%mult_d, &
+                    this%grids(3)%dof%n_dofs)
+       !Restrict to middle level
+       call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
+       call gs_op_vector(this%grids(2)%gs_h, this%w, &
+                         this%grids(2)%dof%n_dofs, GS_OP_ADD)
+       !OVERLAPPING Schwarz exchange and solve
+       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
+       call device_col2(this%w_d, this%grids(2)%coef%mult_d, this%grids(2)%dof%n_dofs)
+       !restrict residual to crs
+       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
+       !Crs solve
 
-    call gs_op_vector(this%grids(1)%gs_h, this%r, &
-                      this%grids(1)%dof%n_dofs, GS_OP_ADD)
-    call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
-                              this%grids(1)%dof%n_dofs)
-    crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                 this%grids(1)%dof%n_dofs, &
-                                 this%grids(1)%coef, &
-                                 this%grids(1)%bclst, &
-                                 this%grids(1)%gs_h, this%niter)    
-    call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                              this%grids(1)%dof%n_dofs)
+       call gs_op_vector(this%grids(1)%gs_h, this%r, &
+                         this%grids(1)%dof%n_dofs, GS_OP_ADD)
+       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
+                                 this%grids(1)%dof%n_dofs)
+       crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
+                                    this%grids(1)%dof%n_dofs, &
+                                    this%grids(1)%coef, &
+                                    this%grids(1)%bclst, &
+                                    this%grids(1)%gs_h, this%niter)          
+       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
+                                 this%grids(1)%dof%n_dofs)
 
 
-    call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
-    call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%n_dofs)
+       call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
+       call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%n_dofs)
 
-    call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
-    call add2(z, this%w, this%grids(3)%dof%n_dofs)
-    call gs_op_vector(this%grids(3)%gs_h, z, &
-                      this%grids(3)%dof%n_dofs, GS_OP_ADD)
-    call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%n_dofs)
+       call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
+       call device_add2(z_d, this%w_d, this%grids(3)%dof%n_dofs)
+       call gs_op_vector(this%grids(3)%gs_h, z, &
+                         this%grids(3)%dof%n_dofs, GS_OP_ADD)
+       call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%n_dofs)
+    else
+       !We should not work with the input 
+       call copy(this%r, r, n)
+
+       !OVERLAPPING Schwarz exchange and solve
+       call this%grids(3)%schwarz%compute(z, this%r)      
+       ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
+       call col2(this%r, this%grids(3)%coef%mult, &
+                    this%grids(3)%dof%n_dofs)
+       !Restrict to middle level
+       call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
+       call gs_op_vector(this%grids(2)%gs_h, this%w, &
+                         this%grids(2)%dof%n_dofs, GS_OP_ADD)
+       !OVERLAPPING Schwarz exchange and solve
+       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
+       call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%n_dofs)
+       !restrict residual to crs
+       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
+       !Crs solve
+
+       call gs_op_vector(this%grids(1)%gs_h, this%r, &
+                         this%grids(1)%dof%n_dofs, GS_OP_ADD)
+       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
+                                 this%grids(1)%dof%n_dofs)
+       crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
+                                    this%grids(1)%dof%n_dofs, &
+                                    this%grids(1)%coef, &
+                                    this%grids(1)%bclst, &
+                                    this%grids(1)%gs_h, this%niter)    
+       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
+                                 this%grids(1)%dof%n_dofs)
+
+
+       call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
+       call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%n_dofs)
+
+       call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
+       call add2(z, this%w, this%grids(3)%dof%n_dofs)
+       call gs_op_vector(this%grids(3)%gs_h, z, &
+                         this%grids(3)%dof%n_dofs, GS_OP_ADD)
+       call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%n_dofs)
+    end if
   end subroutine hsmg_solve
 end module hsmg
