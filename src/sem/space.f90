@@ -34,13 +34,19 @@ module space
 
      real(kind=rp), allocatable :: w3(:,:,:)
 
-     real(kind=rp), allocatable :: dx(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dy(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dz(:,:) !< Derivative operator
+     !> Derivative operator \f$ D_1 \f$
+     real(kind=rp), allocatable :: dx(:,:)
+     !> Derivative operator \f$ D_2 \f$
+     real(kind=rp), allocatable :: dy(:,:)
+     !> Derivative operator \f$ D_3 \f$
+     real(kind=rp), allocatable :: dz(:,:)
 
-     real(kind=rp), allocatable :: dxt(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
+     !> Transposed derivative operator \f$ D_1^T \f$
+     real(kind=rp), allocatable :: dxt(:,:)
+     !> Transposed derivative operator \f$ D_2^T \f$
+     real(kind=rp), allocatable :: dyt(:,:)
+     !> Transposed derivative operator \f$ D_3^T \f$
+     real(kind=rp), allocatable :: dzt(:,:)
 
      !
      ! Device pointers (if present)

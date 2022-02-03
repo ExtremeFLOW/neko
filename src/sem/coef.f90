@@ -12,14 +12,21 @@ module coefs
   implicit none
   private
   
-  !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple
-  type, public :: coef_t     
-     real(kind=rp), allocatable :: G11(:,:,:,:) !< Geometric data at index 1,1
-     real(kind=rp), allocatable :: G22(:,:,:,:) !< Geometric data at index 2,2
-     real(kind=rp), allocatable :: G33(:,:,:,:) !< Geometric data at index 3,3
-     real(kind=rp), allocatable :: G12(:,:,:,:) !< Geometric data at index 1,2
-     real(kind=rp), allocatable :: G13(:,:,:,:) !< Geometric data at index 1,3
-     real(kind=rp), allocatable :: G23(:,:,:,:) !< Geometric data at index 2,3
+  !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple.
+  !! Arrays use indices (i,j,k,e): element e, local coordinate (i,j,k).
+  type, public :: coef_t
+     !> Geometric factors \f$ G_{11} \f$
+     real(kind=rp), allocatable :: G11(:,:,:,:)
+     !> Geometric factors \f$ G_{22} \f$
+     real(kind=rp), allocatable :: G22(:,:,:,:)
+     !> Geometric factors \f$ G_{33} \f$
+     real(kind=rp), allocatable :: G33(:,:,:,:)
+     !> Geometric factors \f$ G_{12} \f$
+     real(kind=rp), allocatable :: G12(:,:,:,:)
+     !> Geometric factors \f$ G_{13} \f$
+     real(kind=rp), allocatable :: G13(:,:,:,:)
+     !> Geometric factors \f$ G_{23} \f$
+     real(kind=rp), allocatable :: G23(:,:,:,:)
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      ! generate mapping data between element and reference element 
@@ -36,9 +43,9 @@ module coefs
      real(kind=rp), allocatable :: dsdx(:,:,:,:), dsdy(:,:,:,:), dsdz(:,:,:,:)
      real(kind=rp), allocatable :: dtdx(:,:,:,:), dtdy(:,:,:,:), dtdz(:,:,:,:) 
      
-     real(kind=rp), allocatable :: h1(:,:,:,:) 
-     real(kind=rp), allocatable :: h2(:,:,:,:)
-     logical :: ifh2
+     real(kind=rp), allocatable :: h1(:,:,:,:) !< Stiffness scaling
+     real(kind=rp), allocatable :: h2(:,:,:,:) !< Mass scaling
+     logical :: ifh2 !< True if h2 .ne. 0
      
      real(kind=rp), allocatable :: jac(:,:,:,:) !< Jacobian
      real(kind=rp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
