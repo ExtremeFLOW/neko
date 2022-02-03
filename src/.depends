@@ -79,7 +79,7 @@ io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.
 io/chkp_file.o : io/chkp_file.f90 comm/mpi_types.o mesh/mesh.o common/utils.o field/field.o config/num_types.o common/checkpoint.o field/field_series.o io/generic_file.o 
 io/file.o : io/file.f90 io/vtk_file.o io/fld_file.o io/re2_file.o io/rea_file.o io/map_file.o io/chkp_file.o io/nmsh_file.o io/generic_file.o common/utils.o 
 io/output.o : io/output.f90 io/file.o config/num_types.o 
-io/fluid_output.o : io/fluid_output.f90 io/output.o fluid/fluid_method.o 
+io/fluid_output.o : io/fluid_output.f90 io/output.o fluid/fluid_method.o config/neko_config.o device/device.o
 io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o 
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o config/num_types.o fluid/mean_flow.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 

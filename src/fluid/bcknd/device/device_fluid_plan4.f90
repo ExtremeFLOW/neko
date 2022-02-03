@@ -136,10 +136,6 @@ contains
 
      
       call fluid_step_info(tstep, t, params%dt, ksp_results)
-      call device_memcpy(p%x, p%x_d, n, DEVICE_TO_HOST)
-      call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST)
-      call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST)
-      call device_memcpy(w%x, w%x_d, n, DEVICE_TO_HOST)
      
     end associate
   end subroutine device_fluid_plan4_step
