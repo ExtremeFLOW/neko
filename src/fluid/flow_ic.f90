@@ -101,9 +101,18 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     real(kind=rp), intent(in) :: uinf(3)
+    integer :: n
     u = uinf(1)
     v = uinf(2)
     w = uinf(3)
+    n = u%dof%n_dofs
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call cfill(u%x,uinf(1),n)
+       call cfill(v%x,uinf(2),n)
+       call cfill(w%x,uinf(3),n)
+    end if
+
   end subroutine set_flow_ic_uniform
 
   !> Set a Blasius profile as initial condition
