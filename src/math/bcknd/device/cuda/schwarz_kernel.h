@@ -20,7 +20,7 @@ __global__ void schwarz_extrude_kernel(T * a1,
 
   const int idx = threadIdx.x;
   const int el = blockIdx.x*nx*nx*nx;
-  const int str = blockDim.x;
+
   for(int ijk = idx; ijk<nx*nx*nx; ijk+=blockDim.x){
      int jk = ijk/nx;
      int i = ijk - nx*jk;
