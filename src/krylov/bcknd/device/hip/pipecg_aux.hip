@@ -20,7 +20,6 @@ extern "C" {
         
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-    const int nb = ((*n) + 1024 - 1) / 1024;
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cg_update_xp_kernel<real>),
                        nblcks, nthrds, 0, 0,

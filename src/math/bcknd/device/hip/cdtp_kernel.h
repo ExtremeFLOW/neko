@@ -14,11 +14,6 @@ __global__ void cdtp_kernel(T * __restrict__ dtx,
 			    const T * __restrict__ B,
 			    const T * __restrict__ jac) { 
   
-  __shared__ T shx[LX * LX * LX];
-  __shared__ T shdr[LX * LX * LX];
-  __shared__ T shds[LX * LX * LX];
-  __shared__ T shdt[LX * LX * LX];
-
   __shared__ T shdxt[LX * LX];
   __shared__ T shdyt[LX * LX];
   __shared__ T shdzt[LX * LX];
