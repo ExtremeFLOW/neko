@@ -112,6 +112,7 @@ contains
       ns = enx*eny*enz*msh%nelv
       
       call rone(work2, ns)
+      call rzero(work1, ns)
  
       !   Sum overlap region (border excluded)
       !   Cred to PFF for this, very clever
