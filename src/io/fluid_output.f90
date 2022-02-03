@@ -33,6 +33,8 @@
 !> Defines an output for a fluid
 module fluid_output
   use fluid_method
+  use neko_config
+  use device
   use output
   implicit none
   private
@@ -75,6 +77,22 @@ contains
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+
+       associate(p => this%fluid%p, u =>this%fluid%u, v => this%fluid%v, &
+            w => this%fluid%w, dm_Xh => this%fluid%dm_Xh)
+       
+         call device_memcpy(p%x, p%x_d, dm_Xh%size(), DEVICE_TO_HOST)
+         call device_memcpy(u%x, u%x_d, dm_Xh%size(), DEVICE_TO_HOST)
+         call device_memcpy(v%x, v%x_d, dm_Xh%size(), DEVICE_TO_HOST)
+         call device_memcpy(w%x, w%x_d, dm_Xh%size(), DEVICE_TO_HOST)
+         
+       end associate
+       
+    end if
+       
     call this%file_%write(this%fluid, t)
 
   end subroutine fluid_output_sample
