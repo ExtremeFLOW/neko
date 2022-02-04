@@ -313,6 +313,9 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
 	math/bcknd/device/opencl/ax_helm_kernel.cl\
+	math/bcknd/device/opencl/cdtp_kernel.cl\
+	math/bcknd/device/opencl/opgrad_kernel.cl\
+	math/bcknd/device/opencl/conv1_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	device/opencl/jit.h\
