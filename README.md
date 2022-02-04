@@ -38,4 +38,4 @@ make html
 ```
 
 ## Acknowledgments
-The development of Neko was supported by the European Commission Horizon 2020 project grant "EPiGRAM-HS: Exascale Programming Models for Heterogeneous Systems" (grant reference 801039), the Swedish Research Council project grant "Efficient Algorithms for Exascale Computational Fluid Dynamics" (grant reference 2019-04723) and the SeRC Exascale Simulation Software Initiative (SESSI).
+The development of Neko was supported by the European Commission Horizon 2020 project grant *EPiGRAM-HS: Exascale Programming Models for Heterogeneous Systems* (grant reference 801039), the Swedish Research Council project grant *Efficient Algorithms for Exascale Computational Fluid Dynamics* (grant reference 2019-04723) and the SeRC Exascale Simulation Software Initiative (SESSI).
