@@ -1,3 +1,35 @@
+! Copyright (c) 2021, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Fortran HIP interface
 module hip_intf
   use utils
@@ -73,12 +105,50 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir) &
+          bind(c, name='hipMemcpyAsync')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_dst, ptr_src
+       integer(c_size_t), value :: s
+       integer(c_int), value :: dir
+     end function hipMemcpyAsync
+  end interface
+  
+  interface
      integer (c_int) function hipDeviceSynchronize() &
           bind(c, name='hipDeviceSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
      end function hipDeviceSynchronize
   end interface
+
+  interface
+     integer (c_int) function hipDeviceGetName(name, len, device) &
+          bind(c, name='hipDeviceGetName')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: name
+       integer(c_int), value :: len
+       integer(c_int), value :: device
+     end function hipDeviceGetName
+  end interface
+
+contains
+
+  subroutine hip_device_name(name)
+    character(len=*), intent(inout) :: name
+    character(kind=c_char, len=1024), target :: c_name
+    integer :: end_pos
+    
+    if (hipDeviceGetName(c_loc(c_name), 1024, 0) .ne. hipSuccess) then
+       call neko_error('Failed to query device')
+    end if
+
+    end_pos = scan(c_name, C_NULL_CHAR)
+    name(1:end_pos) = c_name(1:end_pos)
+    
+  end subroutine hip_device_name
 
 #endif
  

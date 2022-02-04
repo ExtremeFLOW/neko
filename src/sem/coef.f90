@@ -1,3 +1,35 @@
+! Copyright (c) 2020-2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Coefficients 
 module coefs
   use gather_scatter
@@ -12,14 +44,21 @@ module coefs
   implicit none
   private
   
-  !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple
-  type, public :: coef_t     
-     real(kind=rp), allocatable :: G11(:,:,:,:) !< Geometric data at index 1,1
-     real(kind=rp), allocatable :: G22(:,:,:,:) !< Geometric data at index 2,2
-     real(kind=rp), allocatable :: G33(:,:,:,:) !< Geometric data at index 3,3
-     real(kind=rp), allocatable :: G12(:,:,:,:) !< Geometric data at index 1,2
-     real(kind=rp), allocatable :: G13(:,:,:,:) !< Geometric data at index 1,3
-     real(kind=rp), allocatable :: G23(:,:,:,:) !< Geometric data at index 2,3
+  !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple.
+  !! Arrays use indices (i,j,k,e): element e, local coordinate (i,j,k).
+  type, public :: coef_t
+     !> Geometric factors \f$ G_{11} \f$
+     real(kind=rp), allocatable :: G11(:,:,:,:)
+     !> Geometric factors \f$ G_{22} \f$
+     real(kind=rp), allocatable :: G22(:,:,:,:)
+     !> Geometric factors \f$ G_{33} \f$
+     real(kind=rp), allocatable :: G33(:,:,:,:)
+     !> Geometric factors \f$ G_{12} \f$
+     real(kind=rp), allocatable :: G12(:,:,:,:)
+     !> Geometric factors \f$ G_{13} \f$
+     real(kind=rp), allocatable :: G13(:,:,:,:)
+     !> Geometric factors \f$ G_{23} \f$
+     real(kind=rp), allocatable :: G23(:,:,:,:)
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      ! generate mapping data between element and reference element 
@@ -36,9 +75,9 @@ module coefs
      real(kind=rp), allocatable :: dsdx(:,:,:,:), dsdy(:,:,:,:), dsdz(:,:,:,:)
      real(kind=rp), allocatable :: dtdx(:,:,:,:), dtdy(:,:,:,:), dtdz(:,:,:,:) 
      
-     real(kind=rp), allocatable :: h1(:,:,:,:) 
-     real(kind=rp), allocatable :: h2(:,:,:,:)
-     logical :: ifh2
+     real(kind=rp), allocatable :: h1(:,:,:,:) !< Stiffness scaling
+     real(kind=rp), allocatable :: h2(:,:,:,:) !< Mass scaling
+     logical :: ifh2 !< True if h2 .ne. 0
      
      real(kind=rp), allocatable :: jac(:,:,:,:) !< Jacobian
      real(kind=rp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
@@ -285,7 +324,8 @@ contains
     call rone(coef%h2,n)
     coef%ifh2 = .false.
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE)
        call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE)
     end if
@@ -296,19 +336,22 @@ contains
     call rone(coef%mult, n)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
        
     call gs_op_vector(gs_h, coef%mult, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(coef%mult, coef%mult_d, n, DEVICE_TO_HOST)
     end if
     
     call invcol1(coef%mult, n)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
     
@@ -689,9 +732,9 @@ contains
       !>  @todo cleanup once we have device math in place
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
           (NEKO_BCKND_OPENCL .eq. 1)) then 
-         call device_memcpy(dxds, c%dxds_d, n_dofs, HOST_TO_DEVICE)
-         call device_memcpy(dydr, c%dyds_d, n_dofs, HOST_TO_DEVICE)
-         call device_memcpy(dzdr, c%dzds_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dxdr, c%dxdr_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dydr, c%dydr_d, n_dofs, HOST_TO_DEVICE)
+         call device_memcpy(dzdr, c%dzdr_d, n_dofs, HOST_TO_DEVICE)
          call device_memcpy(dxds, c%dxds_d, n_dofs, HOST_TO_DEVICE)
          call device_memcpy(dyds, c%dyds_d, n_dofs, HOST_TO_DEVICE)
          call device_memcpy(dzds, c%dzds_d, n_dofs, HOST_TO_DEVICE)
@@ -798,21 +841,24 @@ contains
     call copy(c%Binv,c%B,c%dof%n_dofs)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if
     
     call gs_op_vector(c%gs_h,c%Binv, c%dof%n_dofs,GS_OP_ADD)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then 
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, DEVICE_TO_HOST)
     end if
 
     call invcol1(c%Binv,c%dof%n_dofs)
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(c%B, c%B_d, c%dof%n_dofs, HOST_TO_DEVICE)
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if

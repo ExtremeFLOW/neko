@@ -1,6 +1,7 @@
 #include <climits>
 #include <cstdio>
 #include <device/device_config.h>
+#include <device/cuda/check.h>
 #include "gs_kernels.h"
 
 #define GS_OP_ADD  1
@@ -27,6 +28,7 @@ extern "C" {
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
 			     *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MUL:
       cudaMemset(v, 1, (*m) * sizeof(real));
@@ -34,6 +36,7 @@ extern "C" {
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
 			     *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MIN:
       cudaMemset(v, INT_MAX, (*m) * sizeof(real));
@@ -41,6 +44,7 @@ extern "C" {
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
 			     *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MAX:
       cudaMemset(v, -INT_MAX, (*m) * sizeof(real));
@@ -48,6 +52,7 @@ extern "C" {
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
 			     *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
       break;
     }
   }
@@ -66,5 +71,6 @@ extern "C" {
       <<<nblcks, nthrds>>>((real *) v, *m, (int *) dg,
 			   (real *) u, *n, (int *) gd,
 			   *nb, (int *) b, (int *) bo);
+    CUDA_CHECK(cudaGetLastError());
   }
 }

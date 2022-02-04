@@ -1,3 +1,62 @@
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+!
+! The UChicago Argonne, LLC as Operator of Argonne National
+! Laboratory holds copyright in the Software. The copyright holder
+! reserves all rights except those expressly granted to licensees,
+! and U.S. Government license rights.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+! 1. Redistributions of source code must retain the above copyright
+! notice, this list of conditions and the disclaimer below.
+!
+! 2. Redistributions in binary form must reproduce the above copyright
+! notice, this list of conditions and the disclaimer (as noted below)
+! in the documentation and/or other materials provided with the
+! distribution.
+!
+! 3. Neither the name of ANL nor the names of its contributors
+! may be used to endorse or promote products derived from this software
+! without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+!
+! Additional BSD Notice
+! ---------------------
+! 1. This notice is required to be provided under our contract with
+! the U.S. Department of Energy (DOE). This work was produced at
+! Argonne National Laboratory under Contract 
+! No. DE-AC02-06CH11357 with the DOE.
+!
+! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
+! LLC nor any of their employees, makes any warranty, 
+! express or implied, or assumes any liability or responsibility for the
+! accuracy, completeness, or usefulness of any information, apparatus,
+! product, or process disclosed, or represents that its use would not
+! infringe privately-owned rights.
+!
+! 3. Also, reference herein to any specific commercial products, process, 
+! or services by trade name, trademark, manufacturer or otherwise does 
+! not necessarily constitute or imply its endorsement, recommendation, 
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
+! The views and opinions of authors expressed 
+! herein do not necessarily state or reflect those of the United States 
+! Government or UCHICAGO ARGONNE, LLC, and shall 
+! not be used for advertising or product endorsement purposes.
+!
 !> Overlapping schwarz solves
 module schwarz
   use num_types
@@ -9,12 +68,16 @@ module schwarz
   use dirichlet
   use gather_scatter
   use fast3d
+  use device_schwarz
   use fdm
   implicit none  
   type, public :: schwarz_t
     real(kind=rp), allocatable :: work1(:)
     real(kind=rp), allocatable :: work2(:)
     real(kind=rp), allocatable :: wt(:,:,:,:,:)
+    type(c_ptr) :: work1_d = C_NULL_PTR
+    type(c_ptr) :: work2_d = C_NULL_PTR
+    type(c_ptr) :: wt_d = C_NULL_PTR
     type(space_t) :: Xh_schwarz !< needed to init gs
     type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
     type(dofmap_t) :: dm_schwarz !< needed to init gs
@@ -56,10 +119,19 @@ contains
     this%bclst => bclst
     this%dm => dm
     this%gs_h => gs_h
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call device_map(this%work1, this%work1_d,this%dm_schwarz%n_dofs) 
+       call device_map(this%work2, this%work2_d,this%dm_schwarz%n_dofs) 
+    end if
 
 
     call schwarz_setup_wt(this)
-
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call device_alloc(this%wt_d,int(this%dm%n_dofs*rp,8)) 
+       call rone(this%work1, this%dm%n_dofs)
+       call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
+       call device_memcpy(this%work1, this%wt_d, this%dm%n_dofs, HOST_TO_DEVICE)
+    end if
   end subroutine schwarz_init
  
   subroutine schwarz_free(this)
@@ -99,11 +171,18 @@ contains
       ns = enx*eny*enz*msh%nelv
       
       call rone(work2, ns)
+      call rzero(work1, ns)
  
       !   Sum overlap region (border excluded)
       !   Cred to PFF for this, very clever
       call schwarz_extrude(work1, 0, zero, work2, 0, one , enx, eny, enz, msh%nelv)
-      call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
+      if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+         call device_memcpy(work2, this%work2_d, ns,HOST_TO_DEVICE)
+         call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
+         call device_memcpy(work2, this%work2_d, ns,DEVICE_TO_HOST)
+      else
+         call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
+      end if
       call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, msh%nelv)
       call schwarz_extrude(work2, 2, one, work2, 0, one, enx, eny, enz, msh%nelv)
 
@@ -113,8 +192,14 @@ contains
       call schwarz_toreg3d(work1, work2, Xh%lx, msh%nelv)
       ! endif
 
-      call gs_op_vector(this%gs_h, work1, n, GS_OP_ADD) 
-   
+      if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+         call device_memcpy(work1, this%work1_d, n,HOST_TO_DEVICE)
+         call gs_op_vector(this%gs_h, work1, n, GS_OP_ADD) 
+         call device_memcpy(work1, this%work1_d, n,DEVICE_TO_HOST)
+      else
+          call gs_op_vector(this%gs_h, work1, n, GS_OP_ADD) 
+      end if
+
       k = 1
       do ie = 1,msh%nelv
          if (msh%gdim .eq. 2) then
@@ -233,7 +318,7 @@ contains
     i0=2
     i1=nx-1
     
-    if(nelv .ne. 3) then
+    if(nz .eq. 1) then
        do ie = 1,nelv
           do j = i0,i1
              arr1(l1+1 ,j,1,ie) = f1*arr1(l1+1 ,j,1,ie) &
@@ -284,7 +369,9 @@ contains
     integer :: n, enx, eny, enz, ns
     real(kind=rp), parameter :: zero = 0.0
     real(kind=rp), parameter :: one = 1.0
-    associate(work1 => this%work1, work2 => this%work2)
+    type(c_ptr) :: e_d, r_d
+    associate(work1 => this%work1, work1_d => this%work1_d,&
+              work2 => this%work2, work2_d => this%work2_d)
 
     n  = this%dm%n_dofs
     enx=this%Xh_schwarz%lx
@@ -292,43 +379,64 @@ contains
     enz=this%Xh_schwarz%lz
     if(.not. this%msh%gdim .eq. 3) enz=1
     ns = enx*eny*enz*this%msh%nelv
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       r_d = device_get_ptr(r,n)
+       e_d = device_get_ptr(e,n)
+       call bc_list_apply_scalar(this%bclst, r, n)
+       call device_schwarz_toext3d(work1_d,r_d,this%Xh%lx, this%msh%nelv)
+       call device_schwarz_extrude(work1_d,0,zero,work1_d,2,one ,enx,eny,enz, this%msh%nelv)
+       call gs_op_vector(this%gs_schwarz, work1, ns, GS_OP_ADD) 
+       call device_schwarz_extrude(work1_d,0,one,work1_d,2,-one,enx,eny,enz, this%msh%nelv)
+       
+       call this%fdm%compute(work2, work1) ! do local solves
 
-    call bc_list_apply_scalar(this%bclst, r, n)
-    !if (if3d) then ! extended array 
-      call schwarz_toext3d(work1,r,this%Xh%lx, this%msh%nelv)
-    !  else
-    !     call hsmg_schwarz_toext2d(mg_work,r,mg_nh(l))
-    !  endif
+       call device_schwarz_extrude(work1_d,0,zero,work2_d,0,one,enx,eny,enz, this%msh%nelv)
+       call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
+       call device_schwarz_extrude(work2_d,0,one,work1_d,0,-one,enx,eny,enz, this%msh%nelv)
+       call device_schwarz_extrude(work2_d,2,one,work2_d,0,one,enx,eny,enz, this%msh%nelv)
+       call device_schwarz_toreg3d(e_d,work2_d,this%Xh%lx, this%msh%nelv)
+
+       call gs_op_vector(this%gs_h, e, n, GS_OP_ADD) 
+       call bc_list_apply_scalar(this%bclst, e, n)
+       call device_col2(e_d,this%wt_d,n)
+    else
+       call bc_list_apply_scalar(this%bclst, r, n)
+       !if (if3d) then ! extended array 
+         call schwarz_toext3d(work1,r,this%Xh%lx, this%msh%nelv)
+       !  else
+       !     call hsmg_schwarz_toext2d(mg_work,r,mg_nh(l))
+       !  endif
 
  
 
-!  exchange interior nodes
-   call schwarz_extrude(work1,0,zero,work1,2,one ,enx,eny,enz, this%msh%nelv)
-   call gs_op_vector(this%gs_schwarz, work1, ns, GS_OP_ADD) 
-   call schwarz_extrude(work1,0,one,work1,2,-one,enx,eny,enz, this%msh%nelv)
-   
-   call this%fdm%compute(work2, work1) ! do local solves
+       !  exchange interior nodes
+       call schwarz_extrude(work1,0,zero,work1,2,one ,enx,eny,enz, this%msh%nelv)
+       call gs_op_vector(this%gs_schwarz, work1, ns, GS_OP_ADD) 
+       call schwarz_extrude(work1,0,one,work1,2,-one,enx,eny,enz, this%msh%nelv)
+       
+       call this%fdm%compute(work2, work1) ! do local solves
 
-   !   Sum overlap region (border excluded)
-    call schwarz_extrude(work1,0,zero,work2,0,one,enx,eny,enz, this%msh%nelv)
-    call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
-    call schwarz_extrude(work2,0,one,work1,0,-one,enx,eny,enz, this%msh%nelv)
-    call schwarz_extrude(work2,2,one,work2,0,one,enx,eny,enz, this%msh%nelv)
+       !   Sum overlap region (border excluded)
+       call schwarz_extrude(work1,0,zero,work2,0,one,enx,eny,enz, this%msh%nelv)
+       call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
+       call schwarz_extrude(work2,0,one,work1,0,-one,enx,eny,enz, this%msh%nelv)
+       call schwarz_extrude(work2,2,one,work2,0,one,enx,eny,enz, this%msh%nelv)
 
-   ! if(.not.if3d) then ! Go back to regular size array
-   !    call hsmg_schwarz_toreg2d(mg_work,mg_work(i),mg_nh(l))
-   ! else
-       call schwarz_toreg3d(e,work2,this%Xh%lx, this%msh%nelv)
-   ! endif
+       ! if(.not.if3d) then ! Go back to regular size array
+       !    call hsmg_schwarz_toreg2d(mg_work,mg_work(i),mg_nh(l))
+       ! else
+           call schwarz_toreg3d(e,work2,this%Xh%lx, this%msh%nelv)
+       ! endif
 
 
-   ! sum border nodes
-   call gs_op_vector(this%gs_h, e, n, GS_OP_ADD) 
-   call bc_list_apply_scalar(this%bclst, e, n)
+       ! sum border nodes
+       call gs_op_vector(this%gs_h, e, n, GS_OP_ADD) 
+       call bc_list_apply_scalar(this%bclst, e, n)
 
-  ! if(.not.if3d) call hsmg_schwarz_wt2d(e,mg_schwarz_wt(mg_schwarz_wt_index(l,mg_fld)),mg_nh(l))
-   !if(if3d) 
-   call schwarz_wt3d(e,this%wt,this%Xh%lx,this%msh%nelv)
+       ! if(.not.if3d) call hsmg_schwarz_wt2d(e,mg_schwarz_wt(mg_schwarz_wt_index(l,mg_fld)),mg_nh(l))
+       !if(if3d) 
+       call schwarz_wt3d(e,this%wt,this%Xh%lx,this%msh%nelv)
+    end if
   end associate
   end subroutine schwarz_compute
 

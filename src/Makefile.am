@@ -46,6 +46,7 @@ libneko_a_SOURCES = \
 	mesh/mesh.f90\
 	mesh/tet_mesh.f90\
 	field/field.f90\
+	field/field_series.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\
@@ -112,6 +113,8 @@ libneko_a_SOURCES = \
 	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
+	krylov/bcknd/device/pipecg_device.F90\
+	krylov/bcknd/device/gmres_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
@@ -130,11 +133,13 @@ libneko_a_SOURCES = \
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
+	fluid/bcknd/device/device_fluid_plan4.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
+	math/bcknd/device/ax_helm_device.F90\
 	common/projection.f90\
 	comm/parmetis.F90\
 	comm/redist.f90\
@@ -149,12 +154,16 @@ libneko_a_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
+	math/bcknd/device/device_schwarz.F90\
+	math/bcknd/device/tensor_device.F90\
+	math/bcknd/device/fdm_device.F90\
 	math/bcknd/device/device_mathops.F90\
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
 	bc/bcknd/device/device_wall.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
+	bc/bcknd/device/device_blasius.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
@@ -163,39 +172,57 @@ endif
 
 if ENABLE_HIP
 libneko_a_SOURCES += \
+	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
+	math/bcknd/device/hip/schwarz.hip\
+	math/bcknd/device/hip/tensor.hip\
+	math/bcknd/device/hip/fdm.hip\
 	math/bcknd/device/hip/mathops.hip\
 	math/bcknd/device/hip/opr_dudxyz.hip\
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
+	krylov/bcknd/device/hip/pipecg_aux.hip\
+	krylov/bcknd/device/hip/gmres_aux.hip\
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
 	bc/bcknd/device/hip/no_slip_wall.hip\
 	bc/bcknd/device/hip/symmetry.hip\
-	bc/bcknd/device/hip/facet_normal.hip
+	bc/bcknd/device/hip/facet_normal.hip\
+	bc/bcknd/device/hip/blasius.hip
 endif
 
 if ENABLE_CUDA
 libneko_a_SOURCES += \
+	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
+	math/bcknd/device/cuda/schwarz.cu\
+	math/bcknd/device/cuda/tensor.cu\
+	math/bcknd/device/cuda/fdm.cu\
 	math/bcknd/device/cuda/mathops.cu\
 	math/bcknd/device/cuda/opr_dudxyz.cu\
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/ax_helm.cu\
+	krylov/bcknd/device/cuda/pc_jacobi.cu\
+	krylov/bcknd/device/cuda/pipecg_aux.cu\
+	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/no_slip_wall.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
-	bc/bcknd/device/cuda/facet_normal.cu
+	bc/bcknd/device/cuda/facet_normal.cu\
+	bc/bcknd/device/cuda/blasius.cu
 endif
 
 if ENABLE_OPENCL
 libneko_a_SOURCES += \
+	device/opencl/check.c\
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
 	math/bcknd/device/opencl/mathops.c\
@@ -203,12 +230,15 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_cdtp.c\
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
+	math/bcknd/device/opencl/ax_helm.c\
+        krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
 	bc/bcknd/device/opencl/no_slip_wall.c\
 	bc/bcknd/device/opencl/symmetry.c\
-	bc/bcknd/device/opencl/facet_normal.c
+	bc/bcknd/device/opencl/facet_normal.c\
+	bc/bcknd/device/opencl/blasius.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -220,6 +250,13 @@ neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 pkginclude_HEADERS = $(wildcard *.mod) device/device_config.h
 
 CLEANFILES = *.mod
+
+if ENABLE_OPENCL
+CLEANFILES += math/bcknd/device/opencl/*.cl.h\
+	      gs/bcknd/device/opencl/*.cl.h\
+	      bc/bcknd/device/opencl/*.cl.h\
+	      krylov/bcknd/device/opencl/*.cl.h
+endif
 
 if ENABLE_MAKEDEPF90
 depend:
@@ -233,36 +270,55 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
+	bc/bcknd/device/cuda/blasius_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
+	math/bcknd/device/cuda/tensor_kernel.h\
+	math/bcknd/device/cuda/fdm_kernel.h\
 	math/bcknd/device/cuda/mathops_kernel.h\
+	math/bcknd/device/cuda/schwarz_kernel.h\
 	math/bcknd/device/cuda/dudxyz_kernel.h\
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/ax_helm_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
+	bc/bcknd/device/hip/blasius_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/hip/tensor_kernel.h\
+	math/bcknd/device/hip/schwarz_kernel.h\
+	math/bcknd/device/hip/fdm_kernel.h\
 	math/bcknd/device/hip/mathops_kernel.h\
 	math/bcknd/device/hip/dudxyz_kernel.h\
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
-	krylov/bcknd/device/hip/pc_jacobi_kernel.h\
+	math/bcknd/device/hip/ax_helm_kernel.h\
+	krylov/bcknd/device/cuda/pipecg_kernel.h\
+	krylov/bcknd/device/hip/pipecg_kernel.h\
+	krylov/bcknd/device/cuda/gmres_kernel.h\
+	krylov/bcknd/device/hip/gmres_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
+	bc/bcknd/device/opencl/blasius_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
+	math/bcknd/device/opencl/ax_helm_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
+	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	device/opencl/jit.h\
-	device/opencl/prgm_lib.h
+	device/opencl/prgm_lib.h\
+	device/opencl/check.h\
+	device/hip/check.h\
+	device/cuda/check.h
 
 include	.depends

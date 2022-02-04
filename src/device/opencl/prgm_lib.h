@@ -1,3 +1,6 @@
+#ifndef __PRGM_LIB_H
+#define __PRGM_LIB_H
+
 /**
  * OpenCL program library (see prgm_lib.F90)
  */
@@ -23,6 +26,9 @@ extern void *symmetry_program;
 /** Device Facet normal kernels */
 extern void *facet_normal_program;
 
+/** Device Blasius profile kernel */
+extern void *blasius_program;
+
 /** Device Derivative kernels */
 extern void *dudxyz_program;
 
@@ -36,4 +42,13 @@ extern void *conv1_program;
 extern void *opgrad_program;
 
 /** Device Gather-Scatter kernels */
-extern void * gs_program;
+extern void *gs_program;
+
+/** Device Ax helm kernels */
+extern void *ax_helm_program;
+
+/** Device jacobi kernels */
+extern void *jacobi_program;
+
+
+#endif

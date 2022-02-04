@@ -1,3 +1,35 @@
+! Copyright (c) 2020-2021, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Defines a simulation case
 module case
   use num_types
@@ -156,28 +188,24 @@ contains
     ! 
     if (len_trim(initial_condition) .gt. 0) then
        if (trim(initial_condition) .ne. 'user') then
-          call set_flow_ic(C%fluid%u, C%fluid%v, &
-               C%fluid%w, C%fluid%p, initial_condition, C%params)
+          call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+               C%fluid%c_Xh, C%fluid%gs_Xh, initial_condition, C%params)
        else
-          call C%usr%fluid_usr_ic(C%fluid%u, C%fluid%v, &
-               C%fluid%w, C%fluid%p, C%params)
+          call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+               C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_usr_ic, C%params)
        end if
     end if
-
-    ! Ensure continuity across elements for initial conditions
-    call gs_op_vector(C%fluid%gs_Xh, C%fluid%u%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
-    call col2(C%fluid%u%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
-    call gs_op_vector(C%fluid%gs_Xh, C%fluid%v%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
-    call col2(C%fluid%v%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
-    call gs_op_vector(C%fluid%gs_Xh, C%fluid%w%x, C%fluid%dm_Xh%n_dofs, GS_OP_ADD) 
-    call col2(C%fluid%w%x, C%fluid%c_Xh%mult,C%fluid%dm_Xh%n_dofs) 
 
     ! Add initial conditions to BDF scheme (if present)
     select type(f => C%fluid)
     type is(fluid_plan4_t)
-       call copy(f%ulag, C%fluid%u%x, C%fluid%dm_Xh%n_dofs)
-       call copy(f%vlag, C%fluid%v%x, C%fluid%dm_Xh%n_dofs)
-       call copy(f%wlag, C%fluid%w%x, C%fluid%dm_Xh%n_dofs)
+       call f%ulag%set(f%u)
+       call f%vlag%set(f%v)
+       call f%wlag%set(f%w)
+    type is(device_fluid_plan4_t)
+       call f%ulag%set(f%u)
+       call f%vlag%set(f%v)
+       call f%wlag%set(f%w)
     end select
 
     !

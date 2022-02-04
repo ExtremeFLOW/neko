@@ -1,6 +1,39 @@
+! Copyright (c) 2021, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Defines a checkpoint
 module checkpoint
   use num_types
+  use field_series
   use field
   use utils
   implicit none
@@ -15,9 +48,9 @@ module checkpoint
      !
      ! Optional payload
      !
-     real(kind=rp), pointer :: ulag(:,:,:,:,:) => null()
-     real(kind=rp), pointer :: vlag(:,:,:,:,:) => null()
-     real(kind=rp), pointer :: wlag(:,:,:,:,:) => null()
+     type(field_series_t), pointer :: ulag => null()
+     type(field_series_t), pointer :: vlag => null()
+     type(field_series_t), pointer :: wlag => null()
 
      real(kind=dp) :: t         !< Restart time (valid after load)
    contains
@@ -75,10 +108,10 @@ contains
 
   !> Add lagged velocity terms
   subroutine chkp_add_lag(this, ulag, vlag, wlag)
-    class(chkp_t), intent(inout) :: this
-    real(kind=rp), target :: ulag(:,:,:,:,:)
-    real(kind=rp), target :: vlag(:,:,:,:,:)
-    real(kind=rp), target :: wlag(:,:,:,:,:)
+    class(chkp_t), intent(inout) :: this    
+    type(field_series_t), target :: ulag
+    type(field_series_t), target :: vlag
+    type(field_series_t), target :: wlag
 
     this%ulag => ulag
     this%vlag => vlag

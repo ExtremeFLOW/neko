@@ -1,8 +1,70 @@
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+!
+! The UChicago Argonne, LLC as Operator of Argonne National
+! Laboratory holds copyright in the Software. The copyright holder
+! reserves all rights except those expressly granted to licensees,
+! and U.S. Government license rights.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+! 1. Redistributions of source code must retain the above copyright
+! notice, this list of conditions and the disclaimer below.
+!
+! 2. Redistributions in binary form must reproduce the above copyright
+! notice, this list of conditions and the disclaimer (as noted below)
+! in the documentation and/or other materials provided with the
+! distribution.
+!
+! 3. Neither the name of ANL nor the names of its contributors
+! may be used to endorse or promote products derived from this software
+! without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+!
+! Additional BSD Notice
+! ---------------------
+! 1. This notice is required to be provided under our contract with
+! the U.S. Department of Energy (DOE). This work was produced at
+! Argonne National Laboratory under Contract 
+! No. DE-AC02-06CH11357 with the DOE.
+!
+! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
+! LLC nor any of their employees, makes any warranty, 
+! express or implied, or assumes any liability or responsibility for the
+! accuracy, completeness, or usefulness of any information, apparatus,
+! product, or process disclosed, or represents that its use would not
+! infringe privately-owned rights.
+!
+! 3. Also, reference herein to any specific commercial products, process, 
+! or services by trade name, trademark, manufacturer or otherwise does 
+! not necessarily constitute or imply its endorsement, recommendation, 
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
+! The views and opinions of authors expressed 
+! herein do not necessarily state or reflect those of the United States 
+! Government or UCHICAGO ARGONNE, LLC, and shall 
+! not be used for advertising or product endorsement purposes.
+!
 !> Adams-Bashforth coefs for Backward Differentiation schemes
 module abbdf
+  use neko_config
   use num_types
   use math
   use utils
+  use device
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -13,14 +75,30 @@ module abbdf
      integer :: nab = 0
      integer :: nbd = 0
      integer :: time_order  !< Default is 3
+     type(c_ptr) :: ab_d = C_NULL_PTR !< dev. ptr for coefficients
+     type(c_ptr) :: bd_d = C_NULL_PTR !< dev. ptr for coefficients
    contains
      procedure, pass(this) :: set_bd => abbdf_set_bd
      procedure, pass(this) :: set_abbd => abbdf_set_abbd
      procedure, pass(this) :: set_time_order => abbdf_set_time_order
+     final :: abbdf_free
   end type abbdf_t
 
 
 contains
+
+  subroutine abbdf_free(this)
+    type(abbdf_t), intent(inout) :: this
+
+    if (c_associated(this%ab_d)) then
+       call device_free(this%ab_d)
+    end if
+       
+    if (c_associated(this%bd_d)) then
+       call device_free(this%bd_d)
+    end if
+    
+  end subroutine abbdf_free
 
   subroutine abbdf_set_time_order(this,torder)
     integer, intent(in) :: torder
@@ -31,6 +109,13 @@ contains
        this%time_order = 3
        call neko_warning('Invalid time order, defaulting to 3')
     end if
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_map(this%ab, this%ab_d, 10)
+       call device_map(this%bd, this%bd_d, 10)
+    end if
+
   end subroutine abbdf_set_time_order
 
   !>Compute backward-differentiation coefficients of order NBD
@@ -39,13 +124,14 @@ contains
     real(kind=rp), intent(inout), dimension(10) :: dtbd
     real(kind=rp), dimension(10,10) :: bdmat
     real(kind=rp), dimension(10) :: bdrhs
+    real(kind=rp), dimension(10) :: bd_old
     real(kind=rp) :: bdf
     integer, parameter :: ldim = 10
     integer, dimension(10) :: ir, ic
     integer :: ibd, nsys, i
 
-    associate(nbd => this%nbd, bd => this%bd)
-    
+    associate(nbd => this%nbd, bd => this%bd, bd_d => this%bd_d)
+      bd_old = bd
       nbd = nbd + 1
       nbd = min(nbd, this%time_order)
       call rzero(bd, 10)
@@ -71,7 +157,14 @@ contains
       do ibd= 1, nbd + 1
          bd(ibd) = bd(ibd)/bdf
       end do
+
+      if (c_associated(bd_d)) then
+         if (maxval(abs(bd - bd_old)) .gt. 1e-10_rp) then
+            call device_memcpy(bd, bd_d, 10, HOST_TO_DEVICE)
+         end if
+      end if
     end associate
+    
   end subroutine abbdf_set_bd
 
   !>
@@ -88,9 +181,9 @@ contains
     class(abbdf_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dtlag
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
-
-    associate(nab => this%nab, nbd => this%nbd, ab => this%ab)
-
+    real(kind=rp), dimension(10) :: ab_old
+    associate(nab => this%nab, nbd => this%nbd, ab => this%ab, ab_d => this%ab_d)
+      ab_old = ab
       nab = nab + 1
       nab = min(nab, this%time_order)
     
@@ -131,6 +224,12 @@ contains
             ab(1) =  1.0_rp - ab(2) - ab(3)
          endif
       endif
+
+      if (c_associated(ab_d)) then
+         if (maxval(abs(ab - ab_old)) .gt. 1e-10_rp) then
+            call device_memcpy(ab, ab_d, 10, HOST_TO_DEVICE)
+         end if
+      end if
     end associate
     
   end subroutine abbdf_set_abbd

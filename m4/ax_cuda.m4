@@ -43,7 +43,7 @@ AC_DEFUN([AX_CUDA],[
 		   AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
 		   LIBS="$CUDA_LIBS $LIBS"
 		else
-		   LDFLAGS="$LDFLAGS_SAVED"		   
+		   AC_MSG_ERROR([CUDA not found])
 		fi
 	        CC=$_CC
 		AC_LANG_POP([C])

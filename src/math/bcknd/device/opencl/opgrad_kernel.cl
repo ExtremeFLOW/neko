@@ -1,25 +1,59 @@
+/*
+ Copyright (c) 2021-2022, The Neko Authors
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+   * Redistributions in binary form must reproduce the above
+     copyright notice, this list of conditions and the following
+     disclaimer in the documentation and/or other materials provided
+     with the distribution.
+
+   * Neither the name of the authors nor the names of its
+     contributors may be used to endorse or promote products derived
+     from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+*/
+
 /**
  * Device kernel for velocity gradients
  */
 
 #define DEFINE_OPGRAD_KERNEL(LX, CHUNKS)                                       \
-__kernel void opgrad_kernel(__global real * __restrict__ ux,                   \
-			    __global real * __restrict__ uy,                   \
-			    __global real * __restrict__ uz,                   \
-			    __global const real * __restrict__ u,              \
-			    __global const real * __restrict__ dx,             \
-			    __global const real * __restrict__ dy,             \
-			    __global const real * __restrict__ dz,             \
-			    __global const real * __restrict__ drdx,           \
-			    __global const real * __restrict__ dsdx,           \
-			    __global const real * __restrict__ dtdx,           \
-			    __global const real * __restrict__ drdy,           \
-			    __global const real * __restrict__ dsdy,           \
-			    __global const real * __restrict__ dtdy,           \
-			    __global const real * __restrict__ drdz,           \
-			    __global const real * __restrict__ dsdz,           \
-			    __global const real * __restrict__ dtdz,           \
-			    __global const real * __restrict__ w3) {           \
+__kernel void opgrad_kernel_lx##LX(__global real * __restrict__ ux,            \
+                                   __global real * __restrict__ uy,            \
+                                   __global real * __restrict__ uz,            \
+                                   __global const real * __restrict__ u,       \
+                                   __global const real * __restrict__ dx,      \
+                                   __global const real * __restrict__ dy,      \
+                                   __global const real * __restrict__ dz,      \
+                                   __global const real * __restrict__ drdx,    \
+                                   __global const real * __restrict__ dsdx,    \
+                                   __global const real * __restrict__ dtdx,    \
+                                   __global const real * __restrict__ drdy,    \
+                                   __global const real * __restrict__ dsdy,    \
+                                   __global const real * __restrict__ dtdy,    \
+                                   __global const real * __restrict__ drdz,    \
+                                   __global const real * __restrict__ dsdz,    \
+                                   __global const real * __restrict__ dtdz,    \
+                                   __global const real * __restrict__ w3) {    \
                                                                                \
   __local real shu[LX * LX * LX];                                              \
                                                                                \
@@ -57,30 +91,30 @@ __kernel void opgrad_kernel(__global real * __restrict__ ux,                   \
       real rtmp = 0.0;                                                         \
       real stmp = 0.0;                                                         \
       real ttmp = 0.0;                                                         \
-      for (int l = 0; l < LX; l++) {		                               \
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	       \
-	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];              \
-	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];              \
+      for (int l = 0; l < LX; l++) {                                           \
+        rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];              \
+        stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];              \
+        ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];              \
       }                                                                        \
                                                                                \
-      ux[ijk + e * LX * LX * LX] = w3[ijk + e * LX * LX * LX]                  \
-	* (drdx[ijk + e * LX * LX * LX] * rtmp                                 \
-	   + dsdx[ijk + e * LX * LX * LX] * stmp                               \
-	   + dtdx[ijk + e * LX * LX * LX] * ttmp);                             \
+      ux[ijk + e * LX * LX * LX] = w3[ijk]                                     \
+        * (drdx[ijk + e * LX * LX * LX] * rtmp                                 \
+           + dsdx[ijk + e * LX * LX * LX] * stmp                               \
+           + dtdx[ijk + e * LX * LX * LX] * ttmp);                             \
                                                                                \
-      uy[ijk + e * LX * LX * LX] = w3[ijk + e * LX * LX * LX]                  \
-	* (drdy[ijk + e * LX * LX * LX] * rtmp                                 \
-	   + dsdy[ijk + e * LX * LX * LX] * stmp                               \
-	   + dtdy[ijk + e * LX * LX * LX] * ttmp);                             \
+      uy[ijk + e * LX * LX * LX] = w3[ijk]                                     \
+        * (drdy[ijk + e * LX * LX * LX] * rtmp                                 \
+           + dsdy[ijk + e * LX * LX * LX] * stmp                               \
+           + dtdy[ijk + e * LX * LX * LX] * ttmp);                             \
                                                                                \
-      uz[ijk + e * LX * LX * LX] = w3[ijk + e * LX * LX * LX]                  \
-	* (drdz[ijk + e * LX * LX * LX] * rtmp                                 \
-	   + dsdz[ijk + e * LX * LX * LX] * stmp                               \
-	   + dtdz[ijk + e * LX * LX * LX] * ttmp);                             \
+      uz[ijk + e * LX * LX * LX] = w3[ijk]                                     \
+        * (drdz[ijk + e * LX * LX * LX] * rtmp                                 \
+           + dsdz[ijk + e * LX * LX * LX] * stmp                               \
+           + dtdz[ijk + e * LX * LX * LX] * ttmp);                             \
                                                                                \
     }                                                                          \
   }                                                                            \
-}                                                                              \
+}                                                                              
 
 DEFINE_OPGRAD_KERNEL(12, 256)
 DEFINE_OPGRAD_KERNEL(11, 256)

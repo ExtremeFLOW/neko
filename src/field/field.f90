@@ -1,7 +1,40 @@
+! Copyright (c) 2018-2021, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Defines a field
 !
 module field
   use neko_config
+  use device_math
   use num_types
   use device
   use math
@@ -147,7 +180,7 @@ contains
        call field_free(f)
     end if
     
-    f%Xh =>g%Xh
+    f%Xh => g%Xh
     f%msh => g%msh
     f%dof => g%dof
     
@@ -156,12 +189,26 @@ contains
     f%Xh%ly = g%Xh%ly
     f%Xh%lz = g%Xh%lz
     
-    if (.not. allocated(f%x)) then
-       allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv))
-    end if
-    
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    call copy(f%x, g%x, n)
+    
+    if (.not. allocated(f%x)) then
+       
+       allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv))
+       
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          call device_map(f%x, f%x_d, n)
+       end if
+       
+    end if
+
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_copy(f%x_d, g%x_d, n)
+    else
+       call copy(f%x, g%x, n)
+    end if
     
   end subroutine field_assign_field
 
@@ -172,16 +219,21 @@ contains
     integer :: n, i, j, k, l
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    do i = 1, f%msh%nelv
-       do l = 1, f%Xh%lz
-          do k = 1, f%Xh%ly
-             do j = 1, f%Xh%lx
-                f%x(j, k, l, i) = a
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_cfill(f%x_d, a, n)
+    else
+       do i = 1, f%msh%nelv
+          do l = 1, f%Xh%lz
+             do k = 1, f%Xh%ly
+                do j = 1, f%Xh%lx
+                   f%x(j, k, l, i) = a
+                end do
              end do
           end do
        end do
-    end do
-
+    end if
+    
   end subroutine field_assign_scalar
   
   !> Add \f$ F(u_1, u_2, ... , u_n) =
@@ -193,7 +245,12 @@ contains
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    call add2(f%x, g%x, n)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_add2(f%x_d, g%x_d, n)
+    else
+       call add2(f%x, g%x, n)
+    end if
 
   end subroutine field_add_field
 
@@ -206,7 +263,12 @@ contains
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    call cadd(f%x, a, n)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_cadd(f%x_d, a, n)
+    else
+       call cadd(f%x, a, n)
+    end if
 
   end subroutine field_add_scalar
 

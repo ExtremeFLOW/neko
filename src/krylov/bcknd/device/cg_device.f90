@@ -1,3 +1,35 @@
+! Copyright (c) 2021-2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
   use krylov
@@ -12,7 +44,10 @@ module cg_device
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: p(:)
      real(kind=rp), allocatable :: z(:)
-     type(c_ptr) :: w_d, r_d, p_d, z_d
+     type(c_ptr) :: w_d = C_NULL_PTR
+     type(c_ptr) :: r_d = C_NULL_PTR
+     type(c_ptr) :: p_d = C_NULL_PTR
+     type(c_ptr) :: z_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init => cg_device_init
      procedure, pass(this) :: free => cg_device_free
@@ -21,7 +56,7 @@ module cg_device
 
 contains
 
-  !> Initialise a DEVICE based PCG solver
+  !> Initialise a device based PCG solver
   subroutine cg_device_init(this, n, M, rel_tol, abs_tol)
     class(cg_device_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
@@ -44,6 +79,7 @@ contains
     if (present(M)) then 
        this%M => M
     end if
+
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(rel_tol, abs_tol)
@@ -139,7 +175,7 @@ contains
     ksp_results%iter = 0
     if(rnorm .eq. zero) return
     do iter = 1, max_iter
-       call device_copy(this%z_d, this%r_d, n)
+       call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1
        rtz1 = device_glsc3(this%r_d, coef%mult_d, this%z_d, n)
        beta = rtz1 / rtz2

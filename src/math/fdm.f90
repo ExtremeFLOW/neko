@@ -1,3 +1,62 @@
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+!
+! The UChicago Argonne, LLC as Operator of Argonne National
+! Laboratory holds copyright in the Software. The copyright holder
+! reserves all rights except those expressly granted to licensees,
+! and U.S. Government license rights.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+! 1. Redistributions of source code must retain the above copyright
+! notice, this list of conditions and the disclaimer below.
+!
+! 2. Redistributions in binary form must reproduce the above copyright
+! notice, this list of conditions and the disclaimer (as noted below)
+! in the documentation and/or other materials provided with the
+! distribution.
+!
+! 3. Neither the name of ANL nor the names of its contributors
+! may be used to endorse or promote products derived from this software
+! without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+!
+! Additional BSD Notice
+! ---------------------
+! 1. This notice is required to be provided under our contract with
+! the U.S. Department of Energy (DOE). This work was produced at
+! Argonne National Laboratory under Contract 
+! No. DE-AC02-06CH11357 with the DOE.
+!
+! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
+! LLC nor any of their employees, makes any warranty, 
+! express or implied, or assumes any liability or responsibility for the
+! accuracy, completeness, or usefulness of any information, apparatus,
+! product, or process disclosed, or represents that its use would not
+! infringe privately-owned rights.
+!
+! 3. Also, reference herein to any specific commercial products, process, 
+! or services by trade name, trademark, manufacturer or otherwise does 
+! not necessarily constitute or imply its endorsement, recommendation, 
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
+! The views and opinions of authors expressed 
+! herein do not necessarily state or reflect those of the United States 
+! Government or UCHICAGO ARGONNE, LLC, and shall 
+! not be used for advertising or product endorsement purposes.
+!
 !> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
 module fdm
   use neko_config
@@ -12,15 +71,21 @@ module fdm
   use fdm_sx    
   use fdm_xsmm
   use fdm_cpu
+  use fdm_device
+  use device
+  use, intrinsic :: iso_c_binding
   implicit none  
 
   type, public :: fdm_t
      real(kind=rp), allocatable :: s(:,:,:,:)
      real(kind=rp), allocatable :: d(:,:)
+     type(c_ptr) :: s_d = C_NULL_PTR
+     type(c_ptr) :: d_d = C_NULL_PTR
      real(kind=rp), allocatable :: len_lr(:), len_ls(:), len_lt(:)
      real(kind=rp), allocatable :: len_mr(:), len_ms(:), len_mt(:)
      real(kind=rp), allocatable :: len_rr(:), len_rs(:), len_rt(:)
      real(kind=rp), allocatable :: swplen(:,:,:,:)
+     type(c_ptr) :: swplen_d = C_NULL_PTR
      type(space_t), pointer :: Xh
      type(dofmap_t), pointer :: dof
      type(gs_t), pointer :: gs_h
@@ -57,6 +122,12 @@ contains
     allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
+ 
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv) 
+       call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv) 
+       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv) 
+    end if
 
     call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
     this%Xh => Xh
@@ -68,6 +139,11 @@ contains
 
     call fdm_setup_fast(this, ah, bh, nl, n)
 
+    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call device_memcpy(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+       call device_memcpy(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+       call device_memcpy(this%swplen, this%swplen_d,Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE) 
+    end if
   end subroutine fdm_init
 
   subroutine swap_lengths(this, x, y, z, nelv, gdim)
@@ -105,7 +181,14 @@ contains
                end do
             end do
          end do
-         call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
+         else
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         end if
+
          do e = 1,nelv
             llr(e) = l(1,2,2,e) - lmr(e)
             lrr(e) = l(n,2,2,e) - lmr(e)
@@ -123,7 +206,14 @@ contains
                l(j,n,1,e) = lms(e)
             end do
          end do
-         call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
+         else
+            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+         end if
+
          do e = 1,nelv
             llr(e) = l(1,2,1,e) - lmr(e)
             lrr(e) = l(n,2,1,e) - lmr(e)
@@ -524,6 +614,9 @@ contains
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call fdm_do_fast_xsmm(e, r, this%s, this%d, &
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+    else if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+       call fdm_do_fast_device(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else
        call fdm_do_fast_cpu(e, r, this%s, this%d, &

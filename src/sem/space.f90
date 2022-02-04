@@ -1,3 +1,35 @@
+! Copyright (c) 2019-2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Defines a function space
 module space
   use neko_config
@@ -34,13 +66,19 @@ module space
 
      real(kind=rp), allocatable :: w3(:,:,:)
 
-     real(kind=rp), allocatable :: dx(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dy(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dz(:,:) !< Derivative operator
+     !> Derivative operator \f$ D_1 \f$
+     real(kind=rp), allocatable :: dx(:,:)
+     !> Derivative operator \f$ D_2 \f$
+     real(kind=rp), allocatable :: dy(:,:)
+     !> Derivative operator \f$ D_3 \f$
+     real(kind=rp), allocatable :: dz(:,:)
 
-     real(kind=rp), allocatable :: dxt(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dyt(:,:) !< Derivative operator
-     real(kind=rp), allocatable :: dzt(:,:) !< Derivative operator
+     !> Transposed derivative operator \f$ D_1^T \f$
+     real(kind=rp), allocatable :: dxt(:,:)
+     !> Transposed derivative operator \f$ D_2^T \f$
+     real(kind=rp), allocatable :: dyt(:,:)
+     !> Transposed derivative operator \f$ D_3^T \f$
+     real(kind=rp), allocatable :: dzt(:,:)
 
      !
      ! Device pointers (if present)
@@ -86,10 +124,12 @@ contains
     s%lx = lx
     s%ly = ly
     s%t = t
-    if (present(lz) .and. lz .ne. 1) then
-       s%lz = lz
-       if (lx .ne. ly .or. lx .ne. lz) then
-          call neko_error("Unsupported polynomial dimension")
+    if (present(lz)) then
+       if (lz .ne. 1) then
+          s%lz = lz
+          if (lx .ne. ly .or. lx .ne. lz) then
+             call neko_error("Unsupported polynomial dimension")
+          end if
        end if
     else
        if (lx .ne. ly) then

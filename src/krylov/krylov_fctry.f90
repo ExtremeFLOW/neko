@@ -1,3 +1,35 @@
+! Copyright (c) 2021-2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 module krylov_fctry
   use cg
   use cg_sx
@@ -5,9 +37,11 @@ module krylov_fctry
   use cacg
   use pipecg
   use pipecg_sx
+  use pipecg_device
   use bicgstab
   use gmres
   use gmres_sx
+  use gmres_device
   use krylov
   use neko_config
   implicit none
@@ -30,7 +64,8 @@ contains
     if (trim(solver) .eq. 'cg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_cg_t::ksp)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           allocate(cg_device_t::ksp)
        else
           allocate(cg_t::ksp)
@@ -38,6 +73,9 @@ contains
     else if (trim(solver) .eq. 'pipecg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::ksp)
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          allocate(pipecg_device_t::ksp)
        else
           allocate(pipecg_t::ksp)
        end if
@@ -46,6 +84,9 @@ contains
     else if (trim(solver) .eq. 'gmres') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_gmres_t::ksp)
+       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
+          allocate(gmres_device_t::ksp)
        else
           allocate(gmres_t::ksp)
        end if
@@ -67,11 +108,15 @@ contains
           call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_pipecg_t)
           call kp%init(n, M = M, abs_tol = abstol)
+       type is(pipecg_device_t)
+          call kp%init(n, M = M, abs_tol = abstol)
        type is(cacg_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(gmres_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_gmres_t)
+          call kp%init(n, M = M, abs_tol = abstol)
+       type is(gmres_device_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(bicgstab_t)
           call kp%init(n, M = M, abs_tol = abstol)
@@ -88,11 +133,15 @@ contains
           call kp%init(n, abs_tol = abstol)
        type is(sx_pipecg_t)
           call kp%init(n, abs_tol = abstol)
+       type is (pipecg_device_t)
+          call kp%init(n, abs_tol = abstol)
        type is(cacg_t)
           call kp%init(n, abs_tol = abstol)
        type is(gmres_t)
           call kp%init(n, abs_tol = abstol)
        type is(sx_gmres_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(gmres_device_t)
           call kp%init(n, abs_tol = abstol)
        type is(bicgstab_t)
           call kp%init(n, abs_tol = abstol)
@@ -109,11 +158,15 @@ contains
           call kp%init(n, M = M)
        type is(sx_pipecg_t)
           call kp%init(n, M = M)
+       type is (pipecg_device_t)
+          call kp%init(n, M = M)
        type is(cacg_t)
           call kp%init(n, M = M)
        type is(gmres_t)
           call kp%init(n, M = M)
        type is(sx_gmres_t)
+          call kp%init(n, M = M)
+       type is(gmres_device_t)
           call kp%init(n, M = M)
        type is(bicgstab_t)
           call kp%init(n, M = M)
@@ -130,11 +183,15 @@ contains
           call kp%init(n)
        type is(sx_pipecg_t)
           call kp%init(n)
+       type is (pipecg_device_t)
+          call kp%init(n)
        type is(cacg_t)
           call kp%init(n)
        type is(gmres_t)
           call kp%init(n)
        type is(sx_gmres_t)
+          call kp%init(n)
+       type is(gmres_device_t)
           call kp%init(n)
        type is(bicgstab_t)
           call kp%init(n)
@@ -152,16 +209,22 @@ contains
        type is(cg_t)
           call kp%free()
        type is(sx_cg_t)
+          call kp%free()
+       type is(cg_device_t)
           call kp%free()       
        type is(pipecg_t)
           call kp%free()
        type is(sx_pipecg_t)
+          call kp%free()
+       type is (pipecg_device_t)
           call kp%free()
        type is(cacg_t)
           call kp%free()
        type is(gmres_t)
           call kp%free()
        type is(sx_gmres_t)
+          call kp%free()
+       type is(gmres_device_t)
           call kp%free()
        type is(bicgstab_t)
           call kp%free()

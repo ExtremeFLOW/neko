@@ -1,3 +1,35 @@
+! Copyright (c) 2021, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Fortran OpenCL interface
 module opencl_intf
   use utils
@@ -52,6 +84,11 @@ module opencl_intf
 
   enum, bind(c)
      enumerator :: CL_CONTEXT_PLATFORM = int(Z'1084')
+  end enum
+
+  !> Enum device info
+  enum, bind(c)
+     enumerator :: CL_DEVICE_NAME = 4139
   end enum
 
   !> Device types
@@ -162,6 +199,38 @@ module opencl_intf
   end interface
 
   interface
+     integer (c_int) function clEnqueueCopyBuffer(queue, src_buffer, &
+          dst_buffer, src_offset, dst_offset, size, num_events_in_wait_list, &
+          event_wait_list, event) bind(c, name='clEnqueueCopyBuffer')
+       use,intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       type(c_ptr), value :: src_buffer
+       type(c_ptr), value :: dst_buffer
+       integer(c_size_t), value :: src_offset
+       integer(c_size_t), value :: dst_offset
+       integer(c_size_t), value :: size
+       integer(c_int), value :: num_events_in_wait_list
+       type(c_ptr), value :: event_wait_list
+       type(c_ptr), value :: event
+     end function clEnqueueCopyBuffer
+  end interface
+
+  interface
+     integer (c_int) function clGetDeviceInfo(device, param_name, &
+          param_value_size, param_value, param_value_size_ret) &
+          bind(c, name='clGetDeviceInfo')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: device
+       integer(c_int), value :: param_name
+       integer(c_size_t), value :: param_value_size
+       type(c_ptr), value :: param_value
+       type(c_ptr), value :: param_value_size_ret
+     end function clGetDeviceInfo
+  end interface
+       
+  interface
      integer (c_int) function clReleaseContext(context) &
           bind(c, name='clReleaseContext')
        use, intrinsic :: iso_c_binding
@@ -235,7 +304,7 @@ contains
 
     if (clGetPlatformIDs(1, c_loc(platform_id), &
          num_platforms) .ne. CL_SUCCESS) then
-       call neko_error('Faield to get a platform id')
+       call neko_error('Failed to get a platform id')
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &
@@ -293,6 +362,20 @@ contains
     end if
     
   end subroutine opencl_finalize
+
+  subroutine opencl_device_name(name)
+    character(len=*), intent(inout) :: name
+    character(kind=c_char, len=1024), target :: c_name
+    integer(c_size_t), target :: name_len
+
+    if (clGetDeviceInfo(glb_device_id, CL_DEVICE_NAME, int(1024, 8), &
+         c_loc(c_name), c_loc(name_len)) .ne. CL_SUCCESS) then
+       call neko_error('Failed to query device')
+    end if
+        
+    name(1:name_len) = c_name(1:name_len)
+    
+  end subroutine opencl_device_name
   
 #endif
   

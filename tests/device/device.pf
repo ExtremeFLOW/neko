@@ -176,7 +176,7 @@ subroutine test_device_memcpy
   use pfunit
   use device
   implicit none
-  type(c_ptr) :: x_d, dev
+  type(c_ptr) :: x_d, y_d, dev
   integer(c_size_t) :: size_
   integer :: x(42), i
   logical :: same_ptr
@@ -198,12 +198,24 @@ subroutine test_device_memcpy
 
      x = 0
 
-     call device_memcpy(x, x_d, size(X), DEVICE_TO_HOST)
+     call device_memcpy(x, x_d, size(x), DEVICE_TO_HOST)
      
      do i = 1, size(x)
         @assertEqual(x(i), i)
      end do
 
+     call device_alloc(y_d, size_)
+
+     call device_memcpy(y_d, x_d, size_, DEVICE_TO_DEVICE)
+
+     x = 0
+
+     call device_memcpy(x, y_d, size(x), DEVICE_TO_HOST)
+     
+     do i = 1, size(x)
+        @assertEqual(x(i), i)
+     end do
+     
   end if
 
 end subroutine test_device_memcpy

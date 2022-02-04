@@ -28,6 +28,9 @@ module opencl_prgm_lib
   !> Device Facet normal kernels
   type(c_ptr), bind(c) :: facet_normal_program = C_NULL_PTR
 
+  !> Device Blasius profile kernel
+  type(c_ptr), bind(c) :: blasius_program = C_NULL_PTR
+
   !> Device Derivative kernels
   type(c_ptr), bind(c) :: dudxyz_program = C_NULL_PTR
 
@@ -42,6 +45,12 @@ module opencl_prgm_lib
 
   !> Device Gather-Scatter kernels
   type(c_ptr), bind(c) :: gs_program = C_NULL_PTR
+
+  !> Device Ax helm kernels
+  type(c_ptr), bind(c) :: ax_helm_program = C_NULL_PTR
+
+  !> Device jacobi kernels
+  type(c_ptr), bind(c) :: jacobi_program = C_NULL_PTR
 
 contains
 
@@ -96,6 +105,13 @@ contains
        facet_normal_program = C_NULL_PTR
     end if
 
+    if (c_associated(blasius_program)) then
+       if(clReleaseProgram(blasius_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       blasius_program = C_NULL_PTR
+    end if
+
     if (c_associated(dudxyz_program)) then
        if(clReleaseProgram(dudxyz_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -129,6 +145,20 @@ contains
           call neko_error('Failed to release program')
        end if
        gs_program = C_NULL_PTR
+    end if
+
+    if (c_associated(ax_helm_program)) then
+       if(clReleaseProgram(ax_helm_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       ax_helm_program = C_NULL_PTR
+    end if
+
+    if (c_associated(jacobi_program)) then
+       if(clReleaseProgram(jacobi_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       jacobi_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

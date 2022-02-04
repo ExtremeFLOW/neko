@@ -1,7 +1,40 @@
+! Copyright (c) 2021-2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Neko checkpoint file format
 !! @details this module defines interface to read/write Neko's ceckpoint files
 module chkp_file
   use generic_file
+  use field_series
   use checkpoint    
   use num_types
   use field
@@ -28,19 +61,19 @@ contains
     real(kind=rp), intent(in), optional :: t
     real(kind=dp) :: time
     character(len=5) :: id_str
-    character(len=80) :: fname
+    character(len=1024) :: fname
     integer :: ierr, suffix_pos, have_lag
     type(field_t), pointer :: u, v, w, p
-    real(kind=rp), pointer :: ulag(:,:,:,:,:) => null()
-    real(kind=rp), pointer :: vlag(:,:,:,:,:) => null()
-    real(kind=rp), pointer :: wlag(:,:,:,:,:) => null()
+    type(field_series_t), pointer :: ulag => null()
+    type(field_series_t), pointer :: vlag => null()
+    type(field_series_t), pointer :: wlag => null()
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=8) :: n_glb_dofs, dof_offset
-    integer(kind=8) :: n_lag, n_glb_lag, lag_offset
     logical write_lag
+    integer :: i
 
     if (present(t)) then
        time = real(t,dp)
@@ -132,31 +165,31 @@ contains
     !
 
     if (write_lag) then
-       
-       n_lag = int(size(ulag) / u%dof%size(), 8)
-       n_glb_lag = int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8) * &
-            int(msh%glb_nelv, 8)
-       lag_offset = int(msh%offset_el, 8) * &
-            int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8)
 
-       byte_offset = mpi_offset + &            
-                lag_offset * int(MPI_REAL_PREC_SIZE, 8)
-       call MPI_File_write_at_all(fh, byte_offset, ulag, size(ulag), &
-            MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + n_glb_lag * int(MPI_REAL_PREC_SIZE, 8)
+       do i = 1, ulag%size()
+          byte_offset = mpi_offset + &
+               dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+          call MPI_File_write_at_all(fh, byte_offset, ulag%lf(i)%x, &
+               ulag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+       end do
 
-       byte_offset = mpi_offset + &            
-                lag_offset * int(MPI_REAL_PREC_SIZE, 8)
-       call MPI_File_write_at_all(fh, byte_offset, vlag, size(vlag), &
-            MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + n_glb_lag * int(MPI_REAL_PREC_SIZE, 8)
+       do i = 1, vlag%size()
+          byte_offset = mpi_offset + &
+               dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+          call MPI_File_write_at_all(fh, byte_offset, vlag%lf(i)%x, &
+               vlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+       end do
 
-       byte_offset = mpi_offset + &            
-            lag_offset * int(MPI_REAL_PREC_SIZE, 8)
-       call MPI_File_write_at_all(fh, byte_offset, wlag, size(wlag), &
-            MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + n_glb_lag * int(MPI_REAL_PREC_SIZE, 8)
-       
+       do i = 1, wlag%size()
+          byte_offset = mpi_offset + &
+               dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+          call MPI_File_write_at_all(fh, byte_offset, wlag%lf(i)%x, &
+               wlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+       end do
+              
     end if
     
     call MPI_File_close(fh, ierr)
@@ -171,20 +204,20 @@ contains
     class(*), target, intent(inout) :: data
     type(chkp_t), pointer :: chkp
     character(len=5) :: id_str
-    character(len=80) :: fname
+    character(len=1024) :: fname
     integer :: ierr, suffix_pos
     type(field_t), pointer :: u, v, w, p
-    real(kind=rp), pointer :: ulag(:,:,:,:,:) => null()
-    real(kind=rp), pointer :: vlag(:,:,:,:,:) => null()
-    real(kind=rp), pointer :: wlag(:,:,:,:,:) => null()
+    type(field_series_t), pointer :: ulag => null()
+    type(field_series_t), pointer :: vlag => null()
+    type(field_series_t), pointer :: wlag => null()
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=8) :: n_glb_dofs, dof_offset
-    integer(kind=8) :: n_lag, n_glb_lag, lag_offset
     integer :: glb_nelv, gdim, lx, have_lag
     logical read_lag
+    integer :: i
     
     select type(data)
     type is (chkp_t)       
@@ -272,30 +305,30 @@ contains
     !
 
     if (read_lag) then
+
+       do i = 1, ulag%size()
+          byte_offset = mpi_offset + &
+               dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+          call MPI_File_read_at_all(fh, byte_offset, ulag%lf(i)%x, &
+               ulag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+       end do
+
+       do i = 1, vlag%size()
+          byte_offset = mpi_offset + &
+               dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+          call MPI_File_read_at_all(fh, byte_offset, vlag%lf(i)%x, &
+               vlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+       end do
        
-       n_lag = int(size(ulag) / u%dof%size(), 8)
-       n_glb_lag = int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8) * &
-            int(msh%glb_nelv, 8)
-       lag_offset = int(msh%offset_el, 8) * &
-            int(n_lag * (u%Xh%lx * u%Xh%ly * u%Xh%lz), 8)
-
-       byte_offset = mpi_offset + &            
-                lag_offset * int(MPI_REAL_PREC_SIZE, 8)
-       call MPI_File_read_at_all(fh, byte_offset, ulag, size(ulag), &
-            MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + n_glb_lag * int(MPI_REAL_PREC_SIZE, 8)
-
-       byte_offset = mpi_offset + &            
-                lag_offset * int(MPI_REAL_PREC_SIZE, 8)
-       call MPI_File_read_at_all(fh, byte_offset, vlag, size(vlag), &
-            MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + n_glb_lag * int(MPI_REAL_PREC_SIZE, 8)
-
-       byte_offset = mpi_offset + &            
-            lag_offset * int(MPI_REAL_PREC_SIZE, 8)
-       call MPI_File_read_at_all(fh, byte_offset, wlag, size(wlag), &
-            MPI_REAL_PRECISION, status, ierr)
-       mpi_offset = mpi_offset + n_glb_lag * int(MPI_REAL_PREC_SIZE, 8)
+       do i = 1, wlag%size()
+          byte_offset = mpi_offset + &
+               dof_offset * int(MPI_REAL_PREC_SIZE, 8)
+          call MPI_File_read_at_all(fh, byte_offset, wlag%lf(i)%x, &
+               wlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, 8)
+       end do
        
     end if
     

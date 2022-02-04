@@ -1,3 +1,35 @@
+! Copyright (c) 2020-2021, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Mixed Dirichlet-Neumann axis aligned symmetry plane
 module symmetry
   use device_symmetry
@@ -26,6 +58,8 @@ module symmetry
      procedure, pass(this) :: init_msk => symmetry_init_msk
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
+     procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
      final :: symmetry_free
   end type symmetry_t
 
@@ -131,19 +165,21 @@ contains
        do i = 1, msk_size
           this%xaxis_msk(i) = sp(i)
        end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%xaxis_msk, this%xaxis_msk_d, msk_size + 1)
+          call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
+               msk_size + 1, HOST_TO_DEVICE)
        end if
     else
        allocate(this%xaxis_msk(0:1))
        this%xaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%xaxis_msk, this%xaxis_msk_d, 2)
+          call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
+               2, HOST_TO_DEVICE)
        end if
-    end if
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
-            size(this%xaxis_msk), HOST_TO_DEVICE)
     end if
 
     msk_size = ymsk%size()
@@ -154,19 +190,21 @@ contains
        do i = 1, msk_size
           this%yaxis_msk(i) = sp(i)
        end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%yaxis_msk, this%yaxis_msk_d, msk_size + 1)
+          call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
+               msk_size + 1, HOST_TO_DEVICE)
        end if
     else
        allocate(this%yaxis_msk(0:1))
        this%yaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%yaxis_msk, this%yaxis_msk_d, 2)
+          call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
+               2, HOST_TO_DEVICE)
        end if
-    end if
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
-            size(this%yaxis_msk), HOST_TO_DEVICE)
     end if
 
     msk_size = zmsk%size()
@@ -177,20 +215,22 @@ contains
        do i = 1, msk_size
           this%zaxis_msk(i) = sp(i)
        end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%zaxis_msk, this%zaxis_msk_d, msk_size + 1)
+          call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
+               msk_size + 1, HOST_TO_DEVICE)
        end if
     else
        allocate(this%zaxis_msk(0:1))
        this%zaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+            (NEKO_BCKND_OPENCL .eq. 1)) then
           call device_map(this%zaxis_msk, this%zaxis_msk_d, 2)
+          call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
+               2, HOST_TO_DEVICE)
        end if
     end if    
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-       call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
-            size(this%zaxis_msk), HOST_TO_DEVICE)
-    end if
 
     call xmsk%free()
     call ymsk%free()
@@ -282,9 +322,10 @@ contains
 
     call device_symmetry_apply_vector(this%xaxis_msk_d, this%yaxis_msk_d, &
                                       this%zaxis_msk_d, x_d, y_d, z_d, &
-                                      size(this%xaxis_msk), &
-                                      size(this%yaxis_msk), &
-                                      size(this%zaxis_msk))
+                                      this%xaxis_msk(0), &
+                                      this%yaxis_msk(0), &
+                                      this%zaxis_msk(0))
+
 
   end subroutine symmetry_apply_vector_dev
       

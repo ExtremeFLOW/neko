@@ -17,7 +17,7 @@ AC_DEFUN([AX_METIS],[
 		METIS_LDFLAGS="-L$ac_metis_path/lib"  
 		METIS_CPPFLAGS="-I$ac_metis_path/include"
 	fi
-	],)
+	],[with_metis=no])
 
 	AC_ARG_WITH([metis-libdir],
 	AS_HELP_STRING([--with-metis-libdir=LIBDIR],
@@ -40,25 +40,26 @@ AC_DEFUN([AX_METIS],[
 	   export CPPFLAGS
 	   export LDFLAGS
 	fi
-			
-	AC_LANG(C)
-	AC_CHECK_HEADER([metis.h],[have_metis_h=yes],[have_metis_h=no])
-	if test x"${have_metis_h}" = xno; then
+	if test "x${with_metis}" != xno; then			
+	   AC_LANG(C)
+	   AC_CHECK_HEADER([metis.h],[have_metis_h=yes],[have_metis_h=no])
+	   if test x"${have_metis_h}" = xno; then
 		if test -d "$ac_metis_path"; then	
 		   CPPFLAGS="$CPPFLAGS_SAVED"
 		fi
-	fi
-	AC_LANG(Fortran)
+	   fi
+	   AC_LANG(Fortran)
 
-	AC_CHECK_LIB(metis, METIS_PartGraphKway,
-			       [have_metis=yes;METIS_LIBS="-lmetis"],
-			       [have_metis=no],[-lmetis])
-	AC_SUBST(METIS_LIBS)
-	if test x"${have_metis}" = xyes; then
-	   AC_DEFINE(HAVE_METIS,1,[Define if you have the Metis library.])
-	else
-	   if test -d "$ac_metis_path"; then	
-	      LDFLAGS="$LDFLAGS_SAVED"
+	   AC_CHECK_LIB(metis, METIS_PartGraphKway,
+			[have_metis=yes;METIS_LIBS="-lmetis"],
+			[have_metis=no],[-lmetis])
+	   AC_SUBST(METIS_LIBS)
+	   if test x"${have_metis}" = xyes; then
+	      AC_DEFINE(HAVE_METIS,1,[Define if you have the Metis library.])
+	   else
+	      if test -d "$ac_metis_path"; then	
+	      	 LDFLAGS="$LDFLAGS_SAVED"
+	      fi
 	   fi
 	fi
 

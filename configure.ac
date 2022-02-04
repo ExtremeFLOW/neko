@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.2.2])
+AC_INIT([neko],[0.3.0])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -147,7 +147,11 @@ AX_LIBXSMM
 AX_HIP
 
 # Checks for CUDA backend
-AX_CUDA
+if test "x${is_cray}" = xyes; then
+  AX_CRAY_CUDATOOLKIT
+else
+  AX_CUDA
+fi
 
 # Checks for OpenCL backend
 AX_OPENCL
