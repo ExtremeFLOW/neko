@@ -1,3 +1,36 @@
+! Copyright (c) 2020-2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Operators
 module operators
   use neko_config
   use num_types  
@@ -16,17 +49,13 @@ module operators
   
 contains
   
+  !> Compute dU/dx or dU/dy or dU/dz 
   subroutine dudxyz (du,u,dr,ds,dt,coef)
-!--------------------------------------------------------------
-!
-!     du  - dU/dx or dU/dy or dU/dz
-!     u   - a field variable defined on mesh 1
-!     dr  - dr/dx or dr/dy or dr/dz  
-!     ds  - ds/dx or ds/dy or ds/dz
-!     dt  - dt/dx or dt/dy or dt/dz
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
+         intent(inout) ::  du
+    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
+         intent(in) ::  u, dr, ds, dt
 
     if (NEKO_BCKND_SX .eq. 1) then 
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
@@ -42,10 +71,7 @@ contains
   end subroutine dudxyz
 
   !> Equals wgradm1 in nek5000. Gradient of velocity vectors.
-  subroutine opgrad(ux,uy,uz,u,coef, es, ee) ! weak form of grad 
-
-  !Compute gradient of T -- mesh 1 to mesh 1 (vel. to vel.)
-    
+  subroutine opgrad(ux,uy,uz,u,coef, es, ee) ! weak form of grad     
     type(coef_t), intent(in) :: coef  
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
@@ -114,7 +140,7 @@ contains
     
   end subroutine cdtp
    
-  subroutine conv1(du,u, vx, vy, vz, Xh, coef, es, ee)  ! used to be conv1n
+  subroutine conv1(du,u, vx, vy, vz, Xh, coef, es, ee)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz,coef%msh%nelv)
