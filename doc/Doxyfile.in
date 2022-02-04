@@ -51,7 +51,7 @@ PROJECT_BRIEF          =
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = @top_srcdir@/doc/neko-logo.png
+# PROJECT_LOGO           = @top_srcdir@/doc/neko-logo.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -2105,7 +2105,7 @@ HAVE_DOT               = YES
 # Minimum value: 0, maximum value: 32, default value: 0.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-DOT_NUM_THREADS        = 2
+DOT_NUM_THREADS        = 0
 
 # When you want a differently looking font in the dot files that doxygen
 # generates you can specify the font name using DOT_FONTNAME. You need to make
