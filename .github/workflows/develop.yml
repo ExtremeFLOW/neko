@@ -96,5 +96,30 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --enable-real=${RP}
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
+  CUDA:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        precision: [sp, dp]
+    env:
+     FC: gfortran-10
+     CC: gcc-10
+     RP: ${{ matrix.precision }}
+    name: gfortrain-10 / CUDA / ${{ matrix.precision }}
+    steps:
+      - name: Setup env.
+        run: |
+          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui nvidia-cuda-toolkit
+          printenv >> $GITHUB_ENV
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+           fetch-depth: 1
+      - name: Build
+        run: |
+          ./regen.sh
+          FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda
+          make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 
  
