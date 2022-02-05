@@ -52,6 +52,9 @@ module opencl_prgm_lib
   !> Device jacobi kernels
   type(c_ptr), bind(c) :: jacobi_program = C_NULL_PTR
 
+  !> Device gmres kernels
+  type(c_ptr), bind(c) :: gmres_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -159,6 +162,13 @@ contains
           call neko_error('Failed to release program')
        end if
        jacobi_program = C_NULL_PTR
+    end if
+
+    if (c_associated(gmres_program)) then
+       if(clReleaseProgram(gmres_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       gmres_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

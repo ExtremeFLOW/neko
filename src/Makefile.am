@@ -232,6 +232,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/ax_helm.c\
         krylov/bcknd/device/opencl/pc_jacobi.c\
+	krylov/bcknd/device/opencl/gmres_aux.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
@@ -318,6 +319,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/conv1_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
+	krylov/bcknd/device/opencl/gmres_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

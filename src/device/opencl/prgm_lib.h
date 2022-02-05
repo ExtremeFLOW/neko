@@ -50,5 +50,8 @@ extern void *ax_helm_program;
 /** Device jacobi kernels */
 extern void *jacobi_program;
 
+/** Device gmres kernels */
+extern void *gmres_program;
+
 
 #endif

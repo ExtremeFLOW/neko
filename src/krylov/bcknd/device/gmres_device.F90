@@ -79,8 +79,7 @@ module gmres_device
        integer(c_int) :: j, n
      end function hip_gmres_part2
   end interface
-#elif HAVE_CUDA
-  
+#elif HAVE_CUDA  
   interface
      real(c_rp) function cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) &
           bind(c, name='cuda_gmres_part2')
@@ -90,6 +89,17 @@ module gmres_device
        type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
        integer(c_int) :: j, n
      end function cuda_gmres_part2
+  end interface
+#elif HAVE_OPENCL
+  interface
+     real(c_rp) function opencl_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) &
+          bind(c, name='opencl_gmres_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
+       integer(c_int) :: j, n
+     end function opencl_gmres_part2
   end interface
 #endif
 
@@ -104,6 +114,8 @@ contains
      alpha = hip_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
 #elif HAVE_CUDA
      alpha = cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
+#elif HAVE_OPENCL
+     alpha = opencl_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
 #else
      call neko_error('No device backend configured')
 #endif
