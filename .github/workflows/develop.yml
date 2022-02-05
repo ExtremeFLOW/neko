@@ -105,12 +105,16 @@ jobs:
     env:
      FC: gfortran-10
      CC: gcc-10
+     OMPI_FC: gfortran-10
+     OMPI_ALLOW_RUN_AS_ROOT: 1
+     OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+     OMPI_MCA_btl_vader_single_copy_mechanism: none
      RP: ${{ matrix.precision }}
-    name: gfortrain-10 / CUDA / ${{ matrix.precision }}
+    name: gfortran-10 / CUDA / ${{ matrix.precision }}
     steps:
       - name: Setup env.
         run: |
-          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui nvidia-cuda-toolkit
+          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 nvidia-cuda-toolkit
           printenv >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
@@ -119,7 +123,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 
  
