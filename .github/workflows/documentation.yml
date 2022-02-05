@@ -14,17 +14,11 @@ jobs:
     - name: Setup env.
       run: |
         sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen graphviz
-    - name: Configure Neko
+    - name: Doxygen
       run: |
         ./regen.sh
         ./configure FC=${FC}
-        
-    # Build the HTML documentation
-    - name: Doxygen Action
-      uses: mattnotmitt/doxygen-action@v1.1.0
-      with:
-          doxyfile-path: ./Doxyfile
-          working-directory: .
+        make html
     
     # Deploy the HTML documentation to GitHub Pages
     - name: GH Pages Deployment
