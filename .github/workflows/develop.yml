@@ -125,6 +125,6 @@ jobs:
         run: |
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
-          make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
+          make -j$(nproc)
 
  
