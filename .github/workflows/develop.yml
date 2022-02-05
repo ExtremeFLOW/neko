@@ -115,6 +115,7 @@ jobs:
       - name: Setup env.
         run: |
           sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 nvidia-cuda-toolkit
+          echo `which nvcc`
           printenv >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
@@ -123,7 +124,7 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
 
  
