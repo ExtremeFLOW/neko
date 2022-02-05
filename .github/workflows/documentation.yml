@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup env.
       run: |
-        sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui doxygen dot
+        sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen graphviz
     - name: Configure Neko
       run: |
         ./regen.sh
