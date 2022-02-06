@@ -35,24 +35,24 @@
 /**
  * Kernel for back-substitution of x and update of p
  */
-__kernel void gmres_kernel(__global real * __restrict__ w,
-			   __global const real * __restrict__ v,
-			   __global const real * __restrict__ mult,
-			   __global const real * __restrict__ h,
-			   __global real * buf_h1,
-			   const int j,
-			   const int n) {
+__kernel void gmres_part2_kernel(__global real * w,
+                                 __global const real * __restrict__ v,
+                                 __global const real * __restrict__ mult,
+                                 __global const real * __restrict__ h,
+                                 __global real * __restrict__ buf_h1,
+                                 const int j,
+                                 const int n) {
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
-  
+
   __local real buf1[256];
   real tmp1 = 0.0;
 
   for (int i = idx; i < n; i+= str) {
     real tmp = 0.0;
     for (int k = 0; k < j; k ++) {
-      tmp += -h[k]*v[k * n + i];
+      tmp += -h[k]*v[(k * n) + i];
     }
     w[i] += tmp;
     tmp1 += w[i]*w[i]*mult[i];
@@ -65,13 +65,14 @@ __kernel void gmres_kernel(__global real * __restrict__ w,
     if (get_local_id(0) < i) {
       buf1[get_local_id(0)] += buf1[get_local_id(0) + i];
     }
-      barrier(CLK_LOCAL_MEM_FENCE);
+    barrier(CLK_LOCAL_MEM_FENCE);
     i = i>>1;
   }
  
   if (get_local_id(0) == 0) {
     buf_h1[get_group_id(0)] = buf1[0];
   }
+
 }
 
 

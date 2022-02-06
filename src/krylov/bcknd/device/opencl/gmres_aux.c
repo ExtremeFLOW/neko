@@ -51,8 +51,8 @@ cl_mem gmres_bfd1 = NULL;
 /** 
  * Fortran wrapper for device gmres part2
  */
-void opencl_gmres_part2(void *w, void *v, void *h,
-			void *mult, int *j, int *n) {
+real opencl_gmres_part2(void *w, void *v, void *h,
+                        void *mult, int *j, int *n) {
   cl_int err;
   cl_event kern_wait;
   
@@ -60,19 +60,19 @@ void opencl_gmres_part2(void *w, void *v, void *h,
     opencl_kernel_jit(gmres_kernel, (cl_program *) &gmres_program);
 
   const int nb = ((*n) + 256 - 1) / 256; 
-  const size_t global_item_size = 256 * nb;				       
+  const size_t global_item_size = 256 * nb;                                    
   const size_t local_item_size = 256;
 
-  if (!gmres_bf1){
+  if (gmres_bf1 == NULL){
     gmres_bf1 = (real *) malloc(nb * sizeof(real));
     gmres_bfd1 = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,                    
-			        nb * sizeof(real), NULL, &err);
+                                nb * sizeof(real), NULL, &err);
   }
       
-  cl_kernel kernel = clCreateKernel(gmres_program, gmres_kernel, &err);
+  cl_kernel kernel = clCreateKernel(gmres_program, "gmres_part2_kernel", &err);
   CL_CHECK(err);                                                           
                                                                                
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &w));	       
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &w));            
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v));      
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &h));      
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &mult));
@@ -81,16 +81,16 @@ void opencl_gmres_part2(void *w, void *v, void *h,
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(int), n));      
     
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,        
-				  kernel, 1, NULL, &global_item_size,      
-				  &local_item_size, 0, NULL, &kern_wait));
+                                  kernel, 1, NULL, &global_item_size,      
+                                  &local_item_size, 0, NULL, &kern_wait));
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,             
                                gmres_bfd1, CL_TRUE, 0, nb * sizeof(real),      
-			       gmres_bf1, 1, &kern_wait, NULL));
+                               gmres_bf1, 1, &kern_wait, NULL));
 
   real res1 = 0.0;
   for (int i = 0; i < nb; i++) {
     res1 += gmres_bf1[i];
   }
-  
+  return res1;
 }
