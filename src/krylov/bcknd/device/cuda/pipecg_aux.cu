@@ -71,7 +71,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    if (!buf1){
+    if (buf1 == NULL){
       buf1 = (real *) malloc(nb * sizeof(real));
       buf2 = (real *) malloc(nb * sizeof(real));
       buf3 = (real *) malloc(nb * sizeof(real));

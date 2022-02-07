@@ -39,8 +39,8 @@
 
 extern "C" {
 
-  real * gmres_bf1;
-  real * gmres_bfd1;
+  real * gmres_bf1 = NULL;
+  real * gmres_bfd1 = NULL;
   
   real cuda_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
         
@@ -48,7 +48,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    if (!gmres_bf1){
+    if (gmres_bf1 == NULL){
       gmres_bf1 = (real *) malloc(nb * sizeof(real));
       CUDA_CHECK(cudaMalloc(&gmres_bfd1, nb*sizeof(real)));
     }
