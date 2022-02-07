@@ -642,7 +642,7 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
 
 /** @todo cleanup this mess */
 int red_s = 0;
-real *bufred;
+real *bufred = NULL;
 cl_mem bufred_d = NULL;
 
 /**
@@ -669,9 +669,10 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
 
   if((*j) > red_s) {
     red_s = *j;
-    free(bufred);
-    if (bufred_d != NULL)
+    if (bufred != NULL) {
+      free(bufred);    
       CL_CHECK(clReleaseMemObject(bufred_d));
+    }
     bufred = (real *) malloc((*j)*nb * sizeof(real));
     bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
                               (*j) * nb * sizeof(real), NULL, &err);

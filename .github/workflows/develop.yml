@@ -96,5 +96,42 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --enable-real=${RP}
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
+  CUDA:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        precision: [sp, dp]
+    env:
+     FC: gfortran-10
+     CC: gcc-10
+     OMPI_FC: gfortran-10
+     OMPI_ALLOW_RUN_AS_ROOT: 1
+     OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+     OMPI_MCA_btl_vader_single_copy_mechanism: none
+     RP: ${{ matrix.precision }}
+    name: gfortran-10 / CUDA / ${{ matrix.precision }}
+    steps:
+      - name: Setup env.
+        run: |
+          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 nvidia-cuda-toolkit
+          printenv >> $GITHUB_ENV
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+           fetch-depth: 1
+      - name: Build
+        run: |
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
+          make -j$(nproc)
+      - name: Dist
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
+          make -j $(nproc)
 
  
