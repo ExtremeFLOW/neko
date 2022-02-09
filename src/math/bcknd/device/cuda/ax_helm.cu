@@ -32,6 +32,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdio.h>
 #include "ax_helm_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
@@ -70,6 +71,15 @@ extern "C" {
       CASE(10);
       CASE(11);
       CASE(12);
+      CASE(13);
+      CASE(14);
+      CASE(15);
+      CASE(16);
+    default:
+      {
+	fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+	exit(1);
+      }
     }
   }
 }
