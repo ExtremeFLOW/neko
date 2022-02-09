@@ -32,6 +32,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdio.h>
 #include "cdtp_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
@@ -72,6 +73,11 @@ extern "C" {
       CASE(10);
       CASE(11);
       CASE(12);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
     }
   } 
 }
