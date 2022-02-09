@@ -1,6 +1,10 @@
+# See INPUT and FILE_PATTERNS in Doxyfile.in
+INPUT := $(shell find @top_srcdir@/src @top_srcdir@/contrib/rea2nbin \
+	-iname '*.f90' -or -name '*.c' -or -name '*.h' -or -name '*.hip' \
+	-or -name '*.cu')
 
-doxygen.stamp: Doxyfile
-	$(DOXYGEN) $<
+doxygen.stamp: Doxyfile $(INPUT)
+	$(DOXYGEN) $^
 	date > $@
 
 CLEANFILES = doxygen.stamp
