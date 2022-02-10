@@ -37,6 +37,8 @@ make check
 ```
 
 ## Documentation
+Documentation for Neko is available at https://extremeflow.github.io/neko/.
+
 To generate the documentation, you need to have both doxygen and dot installed (they will be picked up by configure). Once installed, you should be able to generate the documentation with
 ```bash
 make html
