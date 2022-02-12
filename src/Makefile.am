@@ -125,6 +125,7 @@ libneko_a_SOURCES = \
 	case.f90\
 	common/user_intf.f90\
 	fluid/fluid_method.f90\
+	fluid/fluid_aux.f90\
 	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
 	fluid/fluid_fctry.f90\
