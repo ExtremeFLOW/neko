@@ -129,6 +129,7 @@ fluid/fluid_abbdf_fctry.o : fluid/fluid_abbdf_fctry.f90 fluid/fluid_abbdf.o flui
 fluid/fluid_abbdf.o : fluid/fluid_abbdf.f90 field/field.o field/field_series.o config/num_types.o
 fluid/pnpn_res_fctry.o : fluid/pnpn_res_fctry.f90 fluid/pnpn_res.o fluid/bcknd/cpu/pnpn_res_cpu.o fluid/bcknd/sx/pnpn_res_sx.o config/neko_config.o
 fluid/pnpn_res.o : fluid/pnpn_res.f90 gs/gather_scatter.o field/field.o math/ax.o sem/coef.o common/source.o bc/facet_normal.o mesh/mesh.o sem/space.o config/num_types.o
+fluid/bcknd/cpu/fluid_abbdf_cpu.o : fluid/bcknd/cpu/fluid_abbdf_cpu.f90 fluid/fluid_abbdf.o
 fluid/bcknd/cpu/pnpn_res_cpu.o : fluid/bcknd/cpu/pnpn_res_cpu.f90 fluid/pnpn_res.o math/operators.o
 fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 fluid/pnpn_res.o math/operators.o
 fluid/mean_flow.o : fluid/mean_flow.f90 field/mean_field.o 
