@@ -118,10 +118,7 @@ module fluid_plan4
      procedure, pass(this) :: free => fluid_plan4_free
      procedure, pass(this) :: step => fluid_plan4_step
   end type fluid_plan4_t
-
-  !> @todo Move this somewhere else
-  public :: fluid_step_info
-
+  
 contains
 
   subroutine fluid_plan4_init(this, msh, lx, param)    

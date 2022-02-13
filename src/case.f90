@@ -198,6 +198,10 @@ contains
 
     ! Add initial conditions to BDF scheme (if present)
     select type(f => C%fluid)
+    type is(fluid_pnpn_t)
+       call f%ulag%set(f%u)
+       call f%vlag%set(f%v)
+       call f%wlag%set(f%w)
     type is(fluid_plan4_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)

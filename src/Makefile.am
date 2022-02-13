@@ -128,12 +128,20 @@ libneko_a_SOURCES = \
 	fluid/fluid_aux.f90\
 	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
+	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
+	fluid/fluid_abbdf.f90\
+	fluid/fluid_abbdf_fctry.f90\
+	fluid/pnpn_res.f90\
+	fluid/pnpn_res_fctry.f90\
 	fluid/mean_flow.f90\
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
+	fluid/bcknd/cpu/fluid_abbdf_cpu.f90\
+	fluid/bcknd/cpu/pnpn_res_cpu.f90\
+	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\

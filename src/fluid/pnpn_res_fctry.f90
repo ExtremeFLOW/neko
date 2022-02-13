@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,39 +30,45 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Factory for all fluid schemes
-module fluid_fctry
-  use device_fluid_plan4, only : device_fluid_plan4_t
-  use fluid_method, only : fluid_scheme_t
-  use fluid_plan1, only : fluid_plan1_t
-  use fluid_plan4, only : fluid_plan4_t
-  use fluid_pnpn, only : fluid_pnpn_t    
+!> Defines Pressure residual factory for the Pn-Pn formulation
+module pnpn_res_fctry
   use neko_config
-  use utils
+  use pnpn_residual
+  use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t
+  use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
   implicit none
 
 contains
 
-  !> Initialise a fluid scheme
-  subroutine fluid_scheme_factory(fluid, fluid_scheme)
-    class(fluid_scheme_t), intent(inout), allocatable :: fluid
-    character(len=*) :: fluid_scheme
+  subroutine pnpn_prs_res_factory(prs_res)
+    class(pnpn_prs_res_t), allocatable, intent(inout) :: prs_res
 
-    if (trim(fluid_scheme) .eq. 'plan1') then
-       allocate(fluid_plan1_t::fluid)
-    else if (trim(fluid_scheme) .eq. 'plan4') then
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          allocate(device_fluid_plan4_t::fluid)
-       else
-          allocate(fluid_plan4_t::fluid)
-       end if
-    else if (trim(fluid_scheme) .eq. 'pnpn') then
-       allocate(fluid_pnpn_t::fluid)
+    if (allocated(prs_res)) then
+       deallocate(prs_res)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(pnpn_prs_res_sx_t::prs_res)
     else
-       call neko_error('Invalid fluid scheme')
+       allocate(pnpn_prs_res_cpu_t::prs_res)
     end if
     
-  end subroutine fluid_scheme_factory
+  end subroutine pnpn_prs_res_factory
+  
+  subroutine pnpn_vel_res_factory(vel_res)
+    class(pnpn_vel_res_t), allocatable, intent(inout) :: vel_res
 
-end module fluid_fctry
+    if (allocated(vel_res)) then
+       deallocate(vel_res)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(pnpn_vel_res_sx_t::vel_res)
+    else
+       allocate(pnpn_vel_res_cpu_t::vel_res)
+    end if
+       
+    
+  end subroutine pnpn_vel_res_factory
+  
+end module pnpn_res_fctry
