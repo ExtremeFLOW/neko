@@ -5,6 +5,7 @@ module device_fluid_plan4
   use fluid_method
   use field_series
   use facet_normal
+  use fluid_aux
   use abbdf
   use projection
   use logger
