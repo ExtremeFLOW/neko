@@ -1,0 +1,19 @@
+&NEKO_CASE
+mesh_file= '32768.nmsh'
+fluid_scheme='plan4'
+lx = 8
+source_term = 'noforce'
+initial_condition = 'user'
+/
+&NEKO_PARAMETERS
+dt = 1d-3
+T_end = 20
+nsamples = 2
+rho = 1
+Re = 1600
+abstol_vel = 1d-9
+abstol_prs = 1d-9
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+proj_dim = 20
+/
