@@ -33,7 +33,6 @@
 module tensor_device
   use num_types
   use utils
-  use comm
   use, intrinsic :: iso_c_binding
   implicit none
 #ifdef HAVE_HIP
