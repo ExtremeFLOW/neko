@@ -47,7 +47,7 @@ jobs:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Build pFUnit
-        if: steps.cache-pfunit.outputs.cache-hit != 'true'
+        if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
         run: |
           git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
           cd pFUnit && mkdir b && cd b
@@ -67,16 +67,16 @@ jobs:
         if: matrix.backend == 'cuda'
         run: |
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP} --with-cuda=/usr
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-cuda=/usr
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP} --with-opencl
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-opencl
           make -j$(nproc)
       - name: Check
-        if: matrix.backend != 'cuda'
+        if: matrix.backend == 'cpu'
         run: |
           make -j$(nproc) check
       - name: Dist (CPU backend)
