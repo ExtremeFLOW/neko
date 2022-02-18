@@ -298,6 +298,8 @@ EXTRA_DIST = \
 	fluid/bcknd/device/cuda/sumab_kernel.h\
 	fluid/bcknd/device/cuda/makeabf_kernel.h\
 	fluid/bcknd/device/cuda/makebdf_kernel.h\
+	fluid/bcknd/device/cuda/prs_res_kernel.h\
+	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
