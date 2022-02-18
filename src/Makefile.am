@@ -143,6 +143,7 @@ libneko_a_SOURCES = \
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
+	fluid/bcknd/device/fluid_abbdf_device.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
@@ -226,7 +227,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/no_slip_wall.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
-	bc/bcknd/device/cuda/blasius.cu
+	bc/bcknd/device/cuda/blasius.cu\
+	fluid/bcknd/device/cuda/fluid_abbdf_cuda.cu
 endif
 
 if ENABLE_OPENCL
@@ -291,6 +293,9 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
+	fluid/bcknd/device/cuda/sumab_kernel.h\
+	fluid/bcknd/device/cuda/makeabf_kernel.h\
+	fluid/bcknd/device/cuda/makebdf_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
