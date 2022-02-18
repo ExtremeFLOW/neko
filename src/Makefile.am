@@ -143,7 +143,7 @@ libneko_a_SOURCES = \
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
-	fluid/bcknd/device/fluid_abbdf_device.f90\
+	fluid/bcknd/device/fluid_abbdf_device.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
