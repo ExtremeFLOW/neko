@@ -56,40 +56,54 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-      - name: Build
+      - name: Build (CPU backend)
+        if: matrix.backend == 'cpu
         run: |
-          ./regen.sh
-        if: matrix.backend == 'cpu'
-        run: |
+          ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP}
+          make -j$(nproc)
+      - name: Build (CUDA backend)        
         if: matrix.backend == 'cuda'
         run: |
+          ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP} --with-cuda=/usr
-        if:matrix.backend == 'opencl'
+          make -j$(nproc)
+      - name: Build (OpenCL backend)
+        if: matrix.backend == 'opencl'
         run: |
+          ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP} --with-opencl
-        run: |
           make -j$(nproc)
       - name: Check
         if: matrix.backend != 'cuda'
         run: |
           make -j$(nproc) check
-      - name: Dist
+      - name: Dist (CPU backend)
+        if: matrix.backend == 'cpu'
         run: |
           make dist
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-        if: matrix.backend == 'cpu'
-        run: |
           ./configure FC=${FC} --enable-real=${RP}
+          make -j $(nproc)
+      - name: Dist (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
+          make -j $(nproc)
+      - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-opencl
-        run: |
           make -j $(nproc)
     
   Intel:
