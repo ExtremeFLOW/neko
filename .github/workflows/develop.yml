@@ -15,13 +15,17 @@ jobs:
       matrix:
         os: [ubuntu-20.04, macos-latest]
         compiler: [gfortran-10, gfortran-11]
+        backend: [cpu, cuda, opencl]
         precision: [sp, dp]
         exclude:
         - os: ubuntu-20.04
           compiler: gfortran-11
+          backend: opencl
+        - os: macos-latest
+          backend: cuda
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui nvidia-cuda-toolkit
         - os: macos-latest
           setup-env: brew update && brew install openmpi && brew install automake
     env:
@@ -31,7 +35,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.precision }}
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
@@ -55,9 +59,19 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
+        if: matrix.backend == 'cpu'
+        run: |
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP}
+        if: matrix.backend == 'cuda'
+        run: |
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP} --with-cuda=/usr
+        if:matrix.backend == 'opencl'
+        run: |
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP} --with-opencl
+        run: |
           make -j$(nproc)
       - name: Check
+        if: matrix.backend != 'cuda'
         run: |
           make -j$(nproc) check
       - name: Dist
@@ -66,7 +80,16 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
+        if: matrix.backend == 'cpu'
+        run: |
           ./configure FC=${FC} --enable-real=${RP}
+        if: matrix.backend == 'cuda'
+        run: |
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
+        if: matrix.backend == 'opencl'
+        run: |
+          ./configure FC=${FC} --enable-real=${RP} --with-opencl
+        run: |
           make -j $(nproc)
     
   Intel:
@@ -77,6 +100,7 @@ jobs:
         os: [ubuntu-20.04]
         compiler: [ifort, ifx]
         precision: [sp, dp]
+        backend: [cpu]
         exclude:
         - os: ubuntu-20.04
           compiler: ifx
@@ -87,7 +111,7 @@ jobs:
       CC: icc
       FC: ${{ matrix.compiler }}
       RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.precision }}
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
@@ -101,42 +125,5 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
             
-  CUDA:
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        precision: [sp, dp]
-    env:
-     FC: gfortran-10
-     CC: gcc-10
-     OMPI_FC: gfortran-10
-     OMPI_ALLOW_RUN_AS_ROOT: 1
-     OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-     OMPI_MCA_btl_vader_single_copy_mechanism: none
-     RP: ${{ matrix.precision }}
-    name: gfortran-10 / CUDA / ${{ matrix.precision }}
-    steps:
-      - name: Setup env.
-        run: |
-          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 nvidia-cuda-toolkit
-          printenv >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-           fetch-depth: 1
-      - name: Build
-        run: |
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
-          make -j$(nproc)
-      - name: Dist
-        run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
-          make -j $(nproc)
-
+            
  
