@@ -57,7 +57,7 @@ jobs:
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
-        if: matrix.backend == 'cpu
+        if: matrix.backend == 'cpu'
         run: |
           ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP}
