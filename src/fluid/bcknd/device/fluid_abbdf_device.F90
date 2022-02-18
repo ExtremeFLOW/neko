@@ -110,7 +110,6 @@ contains
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
     real(kind=rp), dimension(3), intent(in) :: ab
     integer, intent(in) :: nab
-    integer :: i, n
 
 #ifdef HAVE_HIP
 #elif HAVE_CUDA

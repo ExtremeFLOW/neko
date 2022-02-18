@@ -34,6 +34,7 @@
 module pnpn_res_fctry
   use neko_config
   use pnpn_residual
+  use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
   use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t
   use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
   implicit none
@@ -47,8 +48,12 @@ contains
        deallocate(prs_res)
     end if
 
+    
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(pnpn_prs_res_sx_t::prs_res)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       allocate(pnpn_prs_res_device_t::prs_res)
     else
        allocate(pnpn_prs_res_cpu_t::prs_res)
     end if
@@ -64,6 +69,9 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(pnpn_vel_res_sx_t::vel_res)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       allocate(pnpn_vel_res_device_t::vel_res)
     else
        allocate(pnpn_vel_res_cpu_t::vel_res)
     end if

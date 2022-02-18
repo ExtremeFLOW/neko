@@ -5,6 +5,8 @@ module fluid_pnpn
   use fluid_method
   use field_series  
   use facet_normal
+  use device_math
+  use device_mathops
   use fluid_aux    
   use abbdf
   use projection
@@ -264,12 +266,12 @@ contains
      
       call f_Xh%eval()
 
-!      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-!           (NEKO_BCKND_OPENCL .eq. 1)) then
-!         call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
-!      else
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
+      else
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
-!      end if
+      end if
       
       call this%adv%apply(this%u, this%v, this%w, &
                           f_Xh%u, f_Xh%v, f_Xh%w, &
@@ -313,13 +315,13 @@ contains
       if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
                                   this%bclst_prs, gs_Xh, n)
 
-!      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-!            (NEKO_BCKND_OPENCL .eq. 1)) then
-!          call device_add2(p%x_d, dp%x_d,n)
-!       else
-          call add2(p%x, dp%x,n)
-!       end if
-          
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_add2(p%x_d, dp%x_d,n)
+      else
+         call add2(p%x, dp%x,n)
+      end if
+      
 
       ! compute velocity
       call vel_res%compute(Ax, u, v, w, &
@@ -344,14 +346,14 @@ contains
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       
-!      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-!           (NEKO_BCKND_OPENCL .eq. 1)) then
-!         call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
-!                              du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
-!      else
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
+              du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
+      else
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
-!      end if
-           
+      end if
+      
       call fluid_step_info(tstep, t, params%dt, ksp_results)
       
     end associate
