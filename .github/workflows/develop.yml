@@ -79,32 +79,15 @@ jobs:
         precision: [sp, dp]
         include:
         - os: ubuntu-20.04
-          setup-env: cd /tmp && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" && sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic && source /opt/intel/oneapi/setvars.sh && sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake && printenv >> $GITHUB_ENV
+          setup-env: cd /tmp && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" && sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic && source /opt/intel/oneapi/setvars.sh && sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates && printenv >> $GITHUB_ENV
     env:
       CC: icc
       FC: ${{ matrix.compiler }}
-#      OMPI_FC: ${{ matrix.compiler }}
-#      OMPI_ALLOW_RUN_AS_ROOT: 1
-#      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-#      OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
     name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
-      - name: Cache pFUnit
-        id: cache-pfunit
-        uses: actions/cache@v2
-        with:
-          path: ~/pkg/pfunit
-          key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Build pFUnit
-        if: steps.cache-pfunit.outputs.cache-hit != 'true'
-        run: |
-          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
-          cd pFUnit && mkdir b && cd b
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
-          make -j$(nproc) && make install && cd ../../
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -112,19 +95,8 @@ jobs:
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --enable-real=${RP} --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
+          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
-      - name: Check
-        run: |
-          make -j$(nproc) check
-      - name: Dist
-        run: |
-          make dist
-          mkdir releng
-          tar xf neko-*.tar.gz -C releng
-          cd releng/neko-*
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --enable-real=${RP}
-          make -j $(nproc)
             
   CUDA:
     runs-on: ubuntu-20.04
