@@ -144,6 +144,7 @@ libneko_a_SOURCES = \
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
 	fluid/bcknd/device/fluid_abbdf_device.F90\
+	fluid/bcknd/device/pnpn_res_device.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
@@ -228,7 +229,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/blasius.cu\
-	fluid/bcknd/device/cuda/fluid_abbdf_cuda.cu
+	fluid/bcknd/device/cuda/fluid_abbdf_cuda.cu\
+	fluid/bcknd/device/cuda/pnpn_res_cuda.cu
 endif
 
 if ENABLE_OPENCL
