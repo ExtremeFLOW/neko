@@ -105,19 +105,19 @@ jobs:
           cd pFUnit && mkdir b && cd b
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
           make -j$(nproc) && make install && cd ../../
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-    - name: Build
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Build
         run: |
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --enable-real=${RP} --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
-    - name: Check
+      - name: Check
         run: |
           make -j$(nproc) check
-    - name: Dist
+      - name: Dist
         run: |
           make dist
           mkdir releng
