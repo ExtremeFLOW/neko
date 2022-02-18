@@ -245,16 +245,13 @@ contains
     call gs_op(gs_Xh, ta2, GS_OP_ADD) 
     call gs_op(gs_Xh, ta3, GS_OP_ADD) 
 
-    call device_col2(ta1%x_d, c_Xh%Binv_d, n)
-    call device_col2(ta2%x_d, c_Xh%Binv_d, n)
-    call device_col2(ta3%x_d, c_Xh%Binv_d, n)
+    call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_D, c_Xh%Binv_d, gdim, n)
 
     if (gdim .eq. 3) then
        call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
        call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
        call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-       !call device_addcol4(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
        call device_add2(wa1%x_d,wa2%x_d,n)
        call device_add2(wa1%x_d,wa3%x_d,n)
        call device_add2(p_res%x_d,wa1%x_d,n)
