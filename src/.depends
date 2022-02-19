@@ -139,7 +139,7 @@ fluid/bcknd/cpu/pnpn_res_cpu.o : fluid/bcknd/cpu/pnpn_res_cpu.f90 math/operators
 fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 math/operators.o fluid/pnpn_res.o gs/gather_scatter.o 
 fluid/bcknd/device/device_fluid_plan4.o : fluid/bcknd/device/device_fluid_plan4.f90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o fluid/advection.o common/log.o common/projection.o common/abbdf.o fluid/fluid_aux.o bc/facet_normal.o field/field_series.o fluid/fluid_method.o fluid/fluid_plan4.o math/ax_helm_fctry.o 
 fluid/bcknd/device/fluid_abbdf_device.o : fluid/bcknd/device/fluid_abbdf_device.F90 common/utils.o device/device.o fluid/fluid_abbdf.o
-fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 math/operators.o fluid/pnpn_res.o gs/gather_scatter.o device/device.o
+fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 math/operators.o fluid/pnpn_res.o gs/gather_scatter.o device/device.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o
 simulation.o : simulation.f90 common/jobctrl.o common/log.o io/file.o common/abbdf.o case.o 
 math/ax_helm_fctry.o : math/ax_helm_fctry.f90 math/bcknd/cpu/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o math/bcknd/device/ax_helm_device.o math/ax.o config/neko_config.o 
 math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/ax.o 
