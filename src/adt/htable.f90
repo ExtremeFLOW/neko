@@ -306,6 +306,10 @@ contains
     integer index, i
 
     index = this%hash(key)
+    if (index .lt. 0) then
+       call neko_error("Invalid hash generated")
+    end if
+    
     i = this%size - 1
     
     do while (i .ge. 0)
@@ -339,6 +343,8 @@ contains
        allocate(htable_i4t4_t::tmp)
     type is (h_cptr_t)
        allocate(htable_cptr_t::tmp)
+    class default
+       call neko_error('Invalid htable key')
     end select
 
     call htable_init(tmp, ishft(this%size, 1), key, data)
@@ -456,7 +462,9 @@ contains
        select type(hdp)
        type is (h_cptr_t)
           hdp = data
-       end select          
+       end select
+    class default
+       call neko_error('Invalid htable data (set)')
     end select
   end subroutine htable_set_data
 
@@ -502,6 +510,8 @@ contains
        type is (h_cptr_t)
           data = hdp
        end select
+    class default
+       call neko_error('Invalid htable data (get)')
     end select
   end subroutine htable_get_data
 
@@ -596,6 +606,8 @@ contains
        type is (h_cptr_t)
           kp = key
        end select
+    class default
+       call neko_error('Invalid htable key (set)')
     end select
   end subroutine htable_set_key
 
@@ -666,6 +678,8 @@ contains
        type is (h_cptr_t)
           data = hdp
        end select
+    class default
+       call neko_error('Invalid htable data (iter)')
     end select
     
   end subroutine htable_iter_data
@@ -763,7 +777,7 @@ contains
     type is (integer)
        value => hdp
     class default
-       call neko_error('Key and data of different kind')
+       call neko_error('Key and data of different kind (i4)')
     end select
     
   end function htable_iter_i4_value
@@ -776,6 +790,8 @@ contains
     select type (kp => this%t%t(this%n)%key)
     type is (integer)
        key => kp
+    class default
+       call neko_error('Invalid key (i4)')
     end select
     
   end function htable_iter_i4_key
@@ -877,7 +893,7 @@ contains
     type is (integer(8))
        value => hdp
     class default
-       call neko_error('Key and data of different kind')
+       call neko_error('Key and data of different kind (i8)')
     end select
     
   end function htable_iter_i8_value
@@ -890,6 +906,8 @@ contains
     select type (kp => this%t%t(this%n)%key)
     type is (integer(8))
        key => kp
+    class default
+       call neko_error('Invalid key (i8)')
     end select
     
   end function htable_iter_i8_key
@@ -976,7 +994,7 @@ contains
     type is (double precision)
        value => hdp
     class default
-       call neko_error('Key and data of different kind')
+       call neko_error('Key and data of different kind (r8)')
     end select
     
   end function htable_iter_r8_value
@@ -989,6 +1007,8 @@ contains
     select type (kp => this%t%t(this%n)%key)
     type is (double precision)
        key => kp
+    class default
+       call neko_error('Invalid key (r8)')
     end select
     
   end function htable_iter_r8_key
@@ -1077,7 +1097,7 @@ contains
     type is (point_t)
        value => hdp
     class default
-       call neko_error('Key and data of different kind')
+       call neko_error('Key and data of different kind (pt)')
     end select
     
   end function htable_iter_pt_value
@@ -1090,6 +1110,8 @@ contains
     select type (kp => this%t%t(this%n)%key)
     type is (point_t)
        key => kp
+    class default
+       call neko_error('Invalid key (pt)')
     end select
     
   end function htable_iter_pt_key
@@ -1195,7 +1217,7 @@ contains
     type is (tuple_i4_t)
        value => hdp
     class default
-       call neko_error('Key and data of different kind')
+       call neko_error('Key and data of different kind (i4t2)')
     end select
     
   end function htable_iter_i4t2_value
@@ -1208,6 +1230,8 @@ contains
     select type (kp => this%t%t(this%n)%key)
     type is (tuple_i4_t)
        key => kp
+    class default
+       call neko_error('Invalid key (i4t2)')
     end select
     
   end function htable_iter_i4t2_key
@@ -1313,7 +1337,7 @@ contains
     type is (tuple4_i4_t)
        value => hdp
     class default
-       call neko_error('Key and data of different kind')
+       call neko_error('Key and data of different kind (i4t4)')
     end select
     
   end function htable_iter_i4t4_value
@@ -1326,6 +1350,8 @@ contains
     select type (kp => this%t%t(this%n)%key)
     type is (tuple4_i4_t)
        key => kp
+    class default
+       call neko_error('Invalid key (i4t4)')
     end select
     
   end function htable_iter_i4t4_key
@@ -1415,7 +1441,7 @@ contains
     type is (h_cptr_t)
        value => hdp
     class default
-       call neko_error('Key and data of different kind')
+       call neko_error('Key and data of different kind (cptr)')
     end select
     
   end function htable_iter_cptr_value
@@ -1430,6 +1456,8 @@ contains
     select type (kp)
     type is (h_cptr_t)
        key => kp
+    class default
+       call neko_error('Invalid key (cptr)')
     end select
     
   end function htable_iter_cptr_key
