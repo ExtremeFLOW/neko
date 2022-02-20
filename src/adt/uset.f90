@@ -361,7 +361,16 @@ contains
   function uset_i8_iter_value(this) result(value)
     class(uset_i8_t), target, intent(inout) :: this
     integer(kind=8), pointer :: value
-    value => this%it%value()    
+
+    ! We should not need this extra select block, and it works great
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray
+    ! (>11.0.x) when using high opt. levels.
+    select type(hp => this)
+    type is (uset_i8_t)
+       value => hp%it%value()
+    class default
+        call neko_error('Invalid uset htable iter (i8)')
+    end select
   end function uset_i8_iter_value
   
   !> Initialize an empty double precision based unordered set

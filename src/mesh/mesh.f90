@@ -728,7 +728,7 @@ contains
     type(mesh_t), target, intent(inout) :: m
     type(htable_iter_i4t2_t), target :: it
     type(tuple_i4_t), pointer :: edge
-    type(uset_i8_t) :: edge_idx, ghost, owner
+    type(uset_i8_t), target :: edge_idx, ghost, owner
     type(stack_i8_t) :: send_buff
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
@@ -937,7 +937,7 @@ contains
 
   !> Generate a unique facet numbering
   subroutine mesh_generate_facet_numbering(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     type(htable_iter_i4t4_t), target :: face_it
     type(htable_iter_i4t2_t), target :: edge_it
     type(tuple4_i4_t), pointer :: face, fd(:)

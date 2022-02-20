@@ -886,8 +886,9 @@ contains
 
   !> Return the current value of the integer*8 based hash table iterator
   function htable_iter_i8_value(this) result(value)
-    class(htable_iter_i8_t), intent(inout) :: this
+    class(htable_iter_i8_t), target, intent(inout) :: this
     integer(kind=8), pointer :: value
+
 
     select type (hdp => this%t%t(this%n)%data)
     type is (integer(8))
@@ -903,11 +904,19 @@ contains
     class(htable_iter_i8_t), intent(inout) :: this
     integer(kind=8), pointer :: key
 
-    select type (kp => this%t%t(this%n)%key)
-    type is (integer(8))
-       key => kp
+    ! We should not need this extra select block, and it works great
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray
+    ! (>11.0.x) when using high opt. levels.
+    select type(hti => this)
+    type is(htable_iter_i8_t)
+       select type (kp => hti%t%t(this%n)%key)
+       type is (integer(8))
+          key => kp
+       class default
+          call neko_error('Invalid key (i8)')
+       end select
     class default
-       call neko_error('Invalid key (i8)')
+       call neko_error('Corrupt htable iter. (i8)')
     end select
     
   end function htable_iter_i8_key
@@ -1344,14 +1353,22 @@ contains
 
   !> Return the current key of integer based 4-tuple hash table iterator
   function htable_iter_i4t4_key(this) result(key)
-    class(htable_iter_i4t4_t), intent(inout) :: this
+    class(htable_iter_i4t4_t), target, intent(inout) :: this
     type(tuple4_i4_t), pointer :: key
 
-    select type (kp => this%t%t(this%n)%key)
-    type is (tuple4_i4_t)
-       key => kp
+    ! We should not need this extra select block, and it works great
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray
+    ! (>11.0.x) when using high opt. levels.
+    select type(hti => this)
+    type is(htable_iter_i4t4_t)
+       select type (kp => hti%t%t(this%n)%key)
+       type is (tuple4_i4_t)
+          key => kp
+       class default
+          call neko_error('Invalid key (i4t4)')
+       end select
     class default
-       call neko_error('Invalid key (i4t4)')
+       call neko_error('Corrupt htable iter. (i4t4)')
     end select
     
   end function htable_iter_i4t4_key
