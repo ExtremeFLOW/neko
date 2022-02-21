@@ -83,7 +83,7 @@ extern "C" {
                           void *bfx, void *bfy, void *bfz,
                           void *u, void *v, void *w, void *B, 
                           real *rho, real *dt, real *bd2,
-                          real *bd3, real *bd4, real *nbd, int *n) {
+                          real *bd3, real *bd4, int *nbd, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
