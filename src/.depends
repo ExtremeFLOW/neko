@@ -195,6 +195,8 @@ bc/bcknd/device/hip/no_slip_wall.o : bc/bcknd/device/hip/no_slip_wall.hip bc/bck
 bc/bcknd/device/hip/symmetry.o : bc/bcknd/device/hip/symmetry.hip bc/bcknd/device/hip/symmetry_kernel.h
 bc/bcknd/device/hip/facet_normal.o : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h
 bc/bcknd/device/hip/blasius.o : bc/bcknd/device/hip/blasius.hip bc/bcknd/device/hip/blasius_kernel.h
+fluid/bcknd/device/hip/fluid_abbdf.o : fluid/bcknd/device/hip/fluid_abbdf.hip fluid/bcknd/device/hip/sumab_kernel.h fluid/bcknd/device/hip/makeabf_kernel.h fluid/bcknd/device/hip/makebdf_kernel.h
+fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h 
 device/cuda/check.o : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.o : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
@@ -215,8 +217,8 @@ bc/bcknd/device/cuda/no_slip_wall.o : bc/bcknd/device/cuda/no_slip_wall.cu bc/bc
 bc/bcknd/device/cuda/symmetry.o : bc/bcknd/device/cuda/symmetry.cu bc/bcknd/device/cuda/symmetry_kernel.h
 bc/bcknd/device/cuda/facet_normal.o : bc/bcknd/device/cuda/facet_normal.cu bc/bcknd/device/cuda/facet_normal_kernel.h
 bc/bcknd/device/cuda/blasius.o : bc/bcknd/device/cuda/blasius.cu bc/bcknd/device/cuda/blasius_kernel.h
-fluid/bcknd/device/cuda/fluid_abbdf_cuda.o : fluid/bcknd/device/cuda/fluid_abbdf_cuda.cu fluid/bcknd/device/cuda/sumab_kernel.h fluid/bcknd/device/cuda/makeabf_kernel.h fluid/bcknd/device/cuda/makebdf_kernel.h
-fluid/bcknd/device/cuda/pnpn_res_cuda.o : fluid/bcknd/device/cuda/pnpn_res_cuda.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h 
+fluid/bcknd/device/cuda/fluid_abbdf.o : fluid/bcknd/device/cuda/fluid_abbdf.cu fluid/bcknd/device/cuda/sumab_kernel.h fluid/bcknd/device/cuda/makeabf_kernel.h fluid/bcknd/device/cuda/makebdf_kernel.h
+fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h 
 device/opencl/check.o : device/opencl/check.c device/opencl/check.h
 device/opencl/jit.o : device/opencl/jit.c  
 math/bcknd/device/opencl/math.o : math/bcknd/device/opencl/math.c math/bcknd/device/opencl/math_kernel.cl.h
