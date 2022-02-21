@@ -45,9 +45,9 @@ __global__ void sumab_kernel(T * __restrict__ u,
                              const T * __restrict__ vlag2,
                              const T * __restrict__ wlag1,
                              const T * __restrict__ wlag2,
-                             const real ab1,
-                             const real ab2,
-                             const real ab3,
+                             const T ab1,
+                             const T ab2,
+                             const T ab3,
                              const int nab,
                              const int n) {
   

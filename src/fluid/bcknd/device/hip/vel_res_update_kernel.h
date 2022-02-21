@@ -34,15 +34,15 @@
 
 template< typename T >
 __global__ void vel_res_update_kernel(T * __restrict__ u_res,
-				      T * __restrict__ v_res,
-				      T * __restrict__ w_res,
-				      const T * __restrict__ ta1,
-				      const T * __restrict__ ta2,
-				      const T * __restrict__ ta3,
-				      const T * __restrict__ f_u,
-				      const T * __restrict__ f_v,
-				      const T * __restrict__ f_w,
-				      const int n) {
+                                      T * __restrict__ v_res,
+                                      T * __restrict__ w_res,
+                                      const T * __restrict__ ta1,
+                                      const T * __restrict__ ta2,
+                                      const T * __restrict__ ta3,
+                                      const T * __restrict__ f_u,
+                                      const T * __restrict__ f_v,
+                                      const T * __restrict__ f_w,
+                                      const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;

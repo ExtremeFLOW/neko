@@ -45,10 +45,10 @@ __global__ void makeabf_kernel(T * __restrict__ ta1,
                                T * __restrict__ bfx,
                                T * __restrict__ bfy,
                                T * __restrict__ bfz,
-                               const real rho,
-                               const real ab1,
-                               const real ab2,
-                               const real ab3,
+                               const T rho,
+                               const T ab1,
+                               const T ab2,
+                               const T ab3,
                                const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
