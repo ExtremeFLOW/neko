@@ -395,8 +395,8 @@ contains
 
     len(1:2) = 1
     len(3) = 5
-    len(4) = 4
-    type(1:2) = MPI_INTEGER
+    len(4) = 8
+    type(1:2) = MPI_DOUBLE_PRECISION
     type(3) = MPI_DOUBLE_PRECISION
     type(4) = MPI_CHARACTER
 
@@ -455,8 +455,8 @@ contains
 
     len(1:2) = 1
     len(3) = 5
-    len(4) = 4
-    type(1:2) = MPI_INTEGER
+    len(4) = 8
+    type(1:2) = MPI_DOUBLE_PRECISION
     type(3) = MPI_DOUBLE_PRECISIOn
     type(4) = MPI_CHARACTER
 
