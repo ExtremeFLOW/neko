@@ -139,7 +139,7 @@ contains
 #ifdef HAVE_HIP
 #elif HAVE_CUDA
     call fluid_makeabf_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
-         abx1%x_d, aby1%x_d, abz1%x_d, abx1%x_d, aby1%x_d, abz1%x_d, &
+         abx1%x_d, aby1%x_d, abz1%x_d, abx2%x_d, aby2%x_d, abz2%x_d, &
          bfx_d, bfy_d, bfz_d, rho, ab(1), ab(2), ab(3), n)
 #elif HAVE_OPENCL
 #endif
