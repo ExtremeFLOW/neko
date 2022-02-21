@@ -50,5 +50,11 @@ extern void *ax_helm_program;
 /** Device jacobi kernels */
 extern void *jacobi_program;
 
+/** Device abbdf kernels */
+extern void *abbdf_program;
+
+/** Device pnpn residual kernels */
+extern void *pnpn_res_program;
+
 
 #endif
