@@ -160,15 +160,28 @@ contains
 
     !> @todo Add support for curved side data
     !! Skip curved side data
-    call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_offset + MPI_INTEGER_SIZE 
-    call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
-    mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+    if (v2_format) then
+       call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
+       ncurv = t2
+       mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
+       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+       call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
+       nbcs = t2
+       mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
 
-    call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_offset + MPI_INTEGER_SIZE
+       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+    else 
+       call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
+       mpi_offset = mpi_offset + MPI_INTEGER_SIZE
+       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+       call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
+       mpi_offset = mpi_offset + MPI_INTEGER_SIZE
 
-    call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+
+    end if
 
     call MPI_FILE_close(fh, ierr)
     call mesh_finalize(msh)
@@ -296,7 +309,6 @@ contains
     element_offset = dist%start_idx()
 
     call htp%init(2**ndim * nel, ndim)
-
     pt_idx = 0
     if (ndim .eq. 2) then
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size          
@@ -496,8 +508,9 @@ contains
     !> @todo Use element offset in parallel
     if (v2_format) then ! V2 format
        do i = 1, nbcs
-          el_idx = re2v2_data_bc(i)%elem - dist%start_idx()
-          sym_facet = facet_map(re2v2_data_bc(i)%face)
+          el_idx = int(re2v2_data_bc(i)%elem) - dist%start_idx()
+          sym_facet = facet_map(int(re2v2_data_bc(i)%face))
+
           select case(trim(re2v2_data_bc(i)%type))
           case ('W')
              call mesh_mark_wall_facet(msh, sym_facet, el_idx)
@@ -524,7 +537,7 @@ contains
           do j = 1, 3
              do i = 1, nbcs
                 el_idx = re2v2_data_bc(i)%elem - dist%start_idx()
-                sym_facet = facet_map(re2v2_data_bc(i)%face)
+                sym_facet = facet_map(int(re2v2_data_bc(i)%face))
                 select case(trim(re2v2_data_bc(i)%type))
                 case ('P')
                    p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
