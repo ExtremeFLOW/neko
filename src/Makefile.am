@@ -253,7 +253,9 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/no_slip_wall.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
-	bc/bcknd/device/opencl/blasius.c
+	bc/bcknd/device/opencl/blasius.c\
+	fluid/bcknd/device/opencl/fluid_abbdf.c\
+	fluid/bcknd/device/opencl/pnpn_res.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -270,7 +272,8 @@ if ENABLE_OPENCL
 CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      gs/bcknd/device/opencl/*.cl.h\
 	      bc/bcknd/device/opencl/*.cl.h\
-	      krylov/bcknd/device/opencl/*.cl.h
+	      krylov/bcknd/device/opencl/*.cl.h\
+	      fluid/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -341,6 +344,8 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
+	fluid/bcknd/device/opencl/abbdf_kernel.cl\
+	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	device/opencl/jit.h\
