@@ -518,6 +518,8 @@ contains
              call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
           case ('O', 'o')
              call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+          case ('ON', 'on')
+             call mesh_mark_outlet_normal_facet(msh, sym_facet, el_idx)
           case ('SYM')
              call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
           case ('P')
@@ -527,6 +529,8 @@ contains
              call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
+          case default
+             write (*,*) re2v2_data_bc(i)%type, 'label not supported yet'
           end select
        end do
     

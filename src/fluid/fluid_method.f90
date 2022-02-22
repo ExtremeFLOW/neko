@@ -205,6 +205,9 @@ contains
        
        call this%bc_inflow%init(this%dm_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
+       if (msh%outlet_normal%size .gt. 0) then
+          call this%bc_inflow%mark_zone(msh%outlet_normal)
+       end if
        call this%bc_inflow%finalize()
        call this%bc_inflow%set_inflow(params%uinf)
        call bc_list_add(this%bclst_vel, this%bc_inflow)
@@ -270,6 +273,15 @@ contains
        call bdry_mask%set_g(real(5d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%outlet_normal)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(real(6d0,rp))
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+
+
     end if
     
   end subroutine fluid_scheme_init_common
@@ -318,9 +330,14 @@ contains
     ! Setup pressure boundary conditions
     !
     call bc_list_init(this%bclst_prs)
-    if (msh%outlet%size .gt. 0) then
+    if (msh%outlet%size .gt. 0 .or. msh%outlet_normal%size .gt. 0) then
        call this%bc_prs%init(this%dm_Xh)
-       call this%bc_prs%mark_zone(msh%outlet)
+       if (msh%outlet%size .gt. 0) then
+          call this%bc_prs%mark_zone(msh%outlet)
+       end if
+       if (msh%outlet_normal%size .gt. 0) then
+          call this%bc_prs%mark_zone(msh%outlet_normal)
+       end if
        call this%bc_prs%finalize()
        call this%bc_prs%set_g(real(0d0,rp))
        call bc_list_add(this%bclst_prs, this%bc_prs)

@@ -186,6 +186,7 @@ contains
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_crs%mark_zone(msh%outlet)
+    call this%bc_crs%mark_zone(msh%outlet_normal)
     call this%bc_crs%finalize()
     call this%bc_crs%set_g(real(0d0,rp))
     call bc_list_init(this%bclst_crs)
@@ -199,6 +200,7 @@ contains
     
     call this%bc_mg%init(this%dm_mg)
     call this%bc_mg%mark_zone(msh%outlet)
+    call this%bc_mg%mark_zone(msh%outlet_normal)
     call this%bc_mg%finalize()
     call this%bc_mg%set_g(0.0_rp)
     call bc_list_init(this%bclst_mg)

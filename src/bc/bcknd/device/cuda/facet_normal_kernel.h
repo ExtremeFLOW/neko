@@ -46,10 +46,12 @@
  */
 __device__
 void nonlinear_index(const int idx, const int lx, int *index) {
-  index[3] = idx/(lx * lx * lx);
-  index[2] = (idx - (lx*lx*lx)*index[3])/(lx * lx);
-  index[1] = (idx - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) / lx;
-  index[0] = (idx - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) - lx*index[1];
+  const int idx2 = idx -1;
+  index[3] = idx2/(lx * lx * lx) ;
+  index[2] = (idx2 - (lx*lx*lx)*index[3])/(lx * lx);
+  index[1] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) / lx;
+  index[0] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) - lx*index[1];
+  index[0]++;
   index[1]++;
   index[2]++;
   index[3]++;
