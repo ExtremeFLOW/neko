@@ -58,6 +58,12 @@ module opencl_prgm_lib
   !> Device pnpn residual kernels
   type(c_ptr), bind(c) :: pnpn_res_program = C_NULL_PTR
 
+  !> Device fdm kernels
+  type(c_ptr), bind(c) :: fdm_program = C_NULL_PTR
+
+  !> Device tensor kernels
+  type(c_ptr), bind(c) :: tensor_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -179,6 +185,20 @@ contains
           call neko_error('Failed to release program')
        end if
        pnpn_res_program = C_NULL_PTR
+    end if
+
+    if (c_associated(fdm_program)) then
+       if(clReleaseProgram(fdm_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       fdm_program = C_NULL_PTR
+    end if
+
+    if (c_associated(tensor_program)) then
+       if(clReleaseProgram(tensor_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       tensor_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

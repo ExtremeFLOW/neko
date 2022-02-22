@@ -56,5 +56,11 @@ extern void *abbdf_program;
 /** Device pnpn residual kernels */
 extern void *pnpn_res_program;
 
+/** Device fdm kernels */
+extern void *fdm_program;
+
+/** Device tensor kernels */
+extern void *tensor_program;
+
 
 #endif
