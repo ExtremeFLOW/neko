@@ -209,6 +209,7 @@ contains
               el_idx .le. msh%nelv) then             
              call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
           end if
+             
        end do
        
        deallocate(nmsh_curve)

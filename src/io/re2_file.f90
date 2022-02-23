@@ -396,12 +396,12 @@ contains
     real(kind=dp), allocatable :: curve_data(:,:,:)
     integer, allocatable :: curve_type(:,:)
     logical, allocatable :: curve_element(:)
-    character(len=4) :: chtemp
+    character(len=1) :: chtemp
     logical :: curve_skip = .false.
  
-    allocate(curve_data(5,8,msh%nelv))
+    allocate(curve_data(5,12,msh%nelv))
     allocate(curve_element(msh%nelv))
-    allocate(curve_type(8,msh%nelv))
+    allocate(curve_type(12,msh%nelv))
     do i = 1, msh%nelv
        curve_element(i) = .false.
        do j = 1, 8
@@ -425,14 +425,14 @@ contains
     do i = 1, ncurve
        if(v2_format) then
           el_idx = re2v2_data_curve(i)%elem - dist%start_idx()
-          id = re2v2_data_curve(i)%face
+          id = re2v2_data_curve(i)%zone
           chtemp = re2v2_data_curve(i)%type
           do j = 1, 5 
              curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j)
           enddo
        else 
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
-          id = re2v1_data_curve(i)%face
+          id = re2v1_data_curve(i)%zone
           chtemp = re2v1_data_curve(i)%type
           do j = 1, 5 
              curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp) 
@@ -454,6 +454,11 @@ contains
          exit
        case ('C')
          curve_type(id,el_idx) = 3
+       case ('m')
+         curve_type(id,el_idx) = 4
+       case default
+         write(*,*) chtemp,'curve type not supported yet, treating mesh as non-curved', id, el_idx
+         curve_skip = .true.
        end select
     end do
 

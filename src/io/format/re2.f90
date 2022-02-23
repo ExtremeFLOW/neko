@@ -30,7 +30,7 @@ module re2
   !> NEKTON re2 curve data (version 1)
   type, public :: re2v1_curve_t
      integer :: elem
-     integer :: face
+     integer :: zone
      real(kind=sp), dimension(5) :: point
      character(len=4) :: type
   end type re2v1_curve_t
@@ -64,7 +64,7 @@ module re2
   !> NEKTON re2 curve data (version 2)
   type, public :: re2v2_curve_t
      real(kind=dp) :: elem
-     real(kind=dp) :: face
+     real(kind=dp) :: zone
      real(kind=dp), dimension(5) :: point
      character(len=8) :: type
   end type re2v2_curve_t
