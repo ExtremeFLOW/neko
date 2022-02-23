@@ -62,5 +62,8 @@ extern void *fdm_program;
 /** Device tensor kernels */
 extern void *tensor_program;
 
+/** Device schwarz kernels */
+extern void *schwarz_program;
+
 
 #endif

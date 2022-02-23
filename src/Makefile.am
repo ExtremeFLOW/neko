@@ -240,6 +240,7 @@ libneko_a_SOURCES += \
 	device/opencl/check.c\
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
+	math/bcknd/device/opencl/schwarz.c\
 	math/bcknd/device/opencl/tensor.c\
 	math/bcknd/device/opencl/fdm.c\
 	math/bcknd/device/opencl/mathops.c\
@@ -340,6 +341,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/blasius_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
+	math/bcknd/device/opencl/schwarz_kernel.cl\
 	math/bcknd/device/opencl/tensor_kernel.cl\
 	math/bcknd/device/opencl/fdm_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\
