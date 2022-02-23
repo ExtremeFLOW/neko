@@ -36,6 +36,7 @@ module fluid_pnpn
      type(projection_t) :: proj
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
+     type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_residual  
 
@@ -144,7 +145,11 @@ contains
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
-
+    ! Initialize symmetry surface terms in pressure rhs
+    call this%bc_sym_surface%init(this%dm_Xh)
+    call this%bc_sym_surface%mark_zone(msh%sympln)
+    call this%bc_sym_surface%finalize()
+    call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize boundary condition for velocity residual
     call this%bc_vel_residual%init(this%dm_Xh)
     call this%bc_vel_residual%mark_zone(msh%inlet)
@@ -170,6 +175,7 @@ contains
     call this%scheme_free()
 
     call this%bc_prs_surface%free()  
+    call this%bc_sym_surface%free()  
     call bc_list_free(this%bclst_vel_residual)
     call this%proj%free()
    
@@ -302,8 +308,8 @@ contains
                            ta1, ta2, ta3, wa1, wa2, wa3, &
                            this%work1, this%work2, f_Xh, &
                            c_Xh, gs_Xh, this%bc_prs_surface, &
-                           Ax, ab_bdf%bd(1), params%dt, &
-                           params%Re, params%rho)
+                           this%bc_sym_surface, Ax, ab_bdf%bd(1), &
+                           params%dt, params%Re, params%rho)
 
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
