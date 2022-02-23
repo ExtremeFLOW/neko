@@ -213,7 +213,7 @@ contains
 
   subroutine pnpn_prs_res_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
        ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_Xh, gs_Xh, &
-       bc_prs_surface, Ax, bd, dt, Re, rho)
+       bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: ta1, ta2, ta3
@@ -224,6 +224,7 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
+    type(facet_normal_t), intent(inout) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
@@ -276,7 +277,21 @@ contains
 
     !
     ! Surface velocity terms
-    !
+    call device_rzero(wa1%x_d, n)
+    call device_rzero(wa2%x_d, n)
+    call device_rzero(wa3%x_d, n)
+    dtbd = 1.0_rp
+
+    call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, ta1%x_d, ta2%x_d, ta3%x_d)
+
+#ifdef HAVE_HIP
+    call pnpn_prs_res_part3_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+#elif HAVE_CUDA
+    call pnpn_prs_res_part3_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+#elif HAVE_OPENCL
+    call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+#endif
+   !
     dtbd = bd / dt
 
     call device_rzero(ta1%x_d, n)

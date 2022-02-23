@@ -20,7 +20,7 @@ contains
 
   subroutine pnpn_prs_res_sx_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
        ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_Xh, gs_Xh, &
-       bc_prs_surface, Ax, bd, dt, Re, rho)
+       bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: ta1, ta2, ta3
@@ -31,6 +31,7 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
+    type(facet_normal_t), intent(inout) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
@@ -86,6 +87,12 @@ contains
     !
     ! Surface velocity terms
     !
+    do i = 1, n
+       wa1%x(i,1,1,1) = 0.0_rp
+       wa2%x(i,1,1,1) = 0.0_rp
+       wa3%x(i,1,1,1) = 0.0_rp
+    enddo
+    call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
     dtbd = bd / dt
     do i = 1, n
        ta1%x(i,1,1,1) = 0.0_rp
@@ -97,7 +104,8 @@ contains
 
     do i = 1, n
        p_res%x(i,1,1,1) = p_res%x(i,1,1,1) &
-            - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))
+            - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
+            - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
 
   end subroutine pnpn_prs_res_sx_compute
