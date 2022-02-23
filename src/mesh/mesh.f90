@@ -1340,8 +1340,8 @@ contains
   subroutine mesh_mark_curve_element(m, e, curve_data, curve_type)
     type(mesh_t), intent(inout) :: m
     integer, intent(in) :: e
-    real(kind=dp), dimension(5,8), intent(in) :: curve_data 
-    integer, dimension(8), intent(in) :: curve_type 
+    real(kind=dp), dimension(5,12), intent(in) :: curve_data 
+    integer, dimension(12), intent(in) :: curve_type 
 
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
