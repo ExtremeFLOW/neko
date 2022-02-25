@@ -287,7 +287,6 @@ contains
        k = this%zaxis_msk(i)
        z(k) = 0d0
     end do
-    print *, m
     
   end subroutine symmetry_apply_vector
 
