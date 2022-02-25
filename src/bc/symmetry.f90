@@ -41,7 +41,6 @@ module symmetry
   use math
   use utils
   use stack
-  use htable
   use, intrinsic :: iso_c_binding
   implicit none
   private
