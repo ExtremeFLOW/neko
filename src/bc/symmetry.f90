@@ -41,7 +41,6 @@ module symmetry
   use math
   use utils
   use stack
-  use htable
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -70,7 +69,6 @@ contains
     class(symmetry_t), intent(inout) :: this
     type(coef_t), intent(in) :: c
     type(stack_i4_t) :: xmsk, ymsk, zmsk
-    type(htable_i4_t) :: algnf 
     integer :: i, m, j, k, l, idx(4), facet, ntype, msk_size
     integer, pointer :: sp(:)        
     real(kind=rp) :: sx,sy,sz
@@ -81,77 +79,62 @@ contains
     call xmsk%init()
     call ymsk%init()
     call zmsk%init()
-    call algnf%init(128)
     
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
       m = this%msk(0)
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
-
-         if (algnf%get(facet, ntype) .gt. 0) then         
-            idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
-            sx = 0d0
-            sy = 0d0
-            sz = 0d0
-            select case (facet)               
-            case(1,2)
-               do l = 2, c%Xh%lx - 1
-                  do j = 2, c%Xh%lx -1
-                     sx = sx + abs(abs(nx(idx(2), idx(3), facet, idx(4))) - 1d0)
-                     sy = sy + abs(abs(ny(idx(2), idx(3), facet, idx(4))) - 1d0)
-                     sz = sz + abs(abs(nz(idx(2), idx(3), facet, idx(4))) - 1d0)
-                  end do
+         idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
+         sx = 0d0
+         sy = 0d0
+         sz = 0d0
+         select case (facet)               
+         case(1,2)
+            do l = 2, c%Xh%lx - 1
+               do j = 2, c%Xh%lx -1
+                  sx = sx + abs(abs(nx(l, j, facet, idx(4))) - 1d0)
+                  sy = sy + abs(abs(ny(l, j, facet, idx(4))) - 1d0)
+                  sz = sz + abs(abs(nz(l, j, facet, idx(4))) - 1d0)
                end do
-            case(3,4)
-               do l = 2, c%Xh%lx - 1
-                  do j = 2, c%Xh%lx - 1
-                     sx = sx + abs(abs(nx(idx(1), idx(3), facet, idx(4))) - 1d0)
-                     sy = sy + abs(abs(ny(idx(1), idx(3), facet, idx(4))) - 1d0)
-                     sz = sz + abs(abs(nz(idx(1), idx(3), facet, idx(4))) - 1d0)
-                  end do
+            end do
+         case(3,4)
+            do l = 2, c%Xh%lx - 1
+               do j = 2, c%Xh%lx - 1
+                  sx = sx + abs(abs(nx(l, j, facet, idx(4))) - 1d0)
+                  sy = sy + abs(abs(ny(l, j, facet, idx(4))) - 1d0)
+                  sz = sz + abs(abs(nz(l, j, facet, idx(4))) - 1d0)
                end do
-            case(5,6)
-               do l = 2, c%Xh%lx - 1
-                  do j = 2, c%Xh%lx - 1
-                     sx = sx + abs(abs(nx(idx(1), idx(2), facet, idx(4))) - 1d0)
-                     sy = sy + abs(abs(ny(idx(1), idx(2), facet, idx(4))) - 1d0)
-                     sz = sz + abs(abs(nz(idx(1), idx(2), facet, idx(4))) - 1d0)
-                  end do
-               end do               
-            end select
-            sx = sx / (c%Xh%lx - 2)**2
-            sy = sy / (c%Xh%lx - 2)**2
-            sz = sz / (c%Xh%lx - 2)**2
+            end do
+         case(5,6)
+            do l = 2, c%Xh%lx - 1
+               do j = 2, c%Xh%lx - 1
+                  sx = sx + abs(abs(nx(l, j, facet, idx(4))) - 1d0)
+                  sy = sy + abs(abs(ny(l, j, facet, idx(4))) - 1d0)
+                  sz = sz + abs(abs(nz(l, j, facet, idx(4))) - 1d0)
+               end do
+            end do               
+         end select
+         sx = sx / (c%Xh%lx - 2)**2
+         sy = sy / (c%Xh%lx - 2)**2
+         sz = sz / (c%Xh%lx - 2)**2
 
-            ntype = 0
-            if (sx .lt. TOL) then
-               ntype = iand(ntype, 1)
-               call xmsk%push(k)
-            end if
-
-            if (sy .lt. TOL) then
-               ntype = iand(ntype, 2)
-               call ymsk%push(k)
-            end if
-
-            if (sz .lt. TOL) then
-               ntype = iand(ntype, 4)
-               call zmsk%push(k)
-            end if
-
-            call algnf%set(facet, ntype)
-         else
-            if (iand(ntype, 1) .eq. 1) then
-               call xmsk%push(k)
-            end if
-            if (iand(ntype, 2) .eq. 2) then
-               call ymsk%push(k)
-            end if
-            if (iand(ntype, 4) .eq. 4) then
-               call zmsk%push(k)
-            end if
+         ntype = 0
+         if (sx .lt. TOL) then
+            ntype = iand(ntype, 1)
+            call xmsk%push(k)
          end if
+
+         if (sy .lt. TOL) then
+            ntype = iand(ntype, 2)
+            call ymsk%push(k)
+         end if
+
+         if (sz .lt. TOL) then
+            ntype = iand(ntype, 4)
+            call zmsk%push(k)
+         end if
+
       end do
     end associate
 
@@ -235,7 +218,6 @@ contains
     call xmsk%free()
     call ymsk%free()
     call zmsk%free()
-    call algnf%free()
     
   end subroutine symmetry_init_msk
   
