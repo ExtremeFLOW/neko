@@ -96,7 +96,7 @@ module mesh
      type(zone_t) :: wall                 !< Zone of wall facets
      type(zone_t) :: inlet                !< Zone of inlet facets
      type(zone_t) :: outlet               !< Zone of outlet facets
-     type(zone_t) :: outlet_normal               !< Zone of outlet normal facets
+     type(zone_t) :: outlet_normal        !< Zone of outlet normal facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
      type(zone_periodic_t) :: periodic    !< Zone of periodic facets
      type(curve_t) :: curve               !< Set of curved elements

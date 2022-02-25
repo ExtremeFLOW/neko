@@ -62,7 +62,7 @@ contains
        ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho - wa1%x(i,1,1,1)
        ta2%x(i,1,1,1) = f_Xh%v(i,1,1,1) / rho - wa2%x(i,1,1,1)
        ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho - wa3%x(i,1,1,1)
-    enddo
+    end do
      
     call gs_op(gs_Xh, ta1, GS_OP_ADD) 
     call gs_op(gs_Xh, ta2, GS_OP_ADD) 
@@ -72,7 +72,7 @@ contains
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
-    enddo
+    end do
     
     call Ax%compute(p_res%x,p%x,c_Xh,p%msh,p%Xh)
 
@@ -82,7 +82,7 @@ contains
     do i = 1, n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
                         + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
-    enddo
+    end do
 
     !
     ! Surface velocity terms
@@ -91,14 +91,16 @@ contains
        wa1%x(i,1,1,1) = 0.0_rp
        wa2%x(i,1,1,1) = 0.0_rp
        wa3%x(i,1,1,1) = 0.0_rp
-    enddo
+    end do
+    
     call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
+    
     dtbd = bd / dt
     do i = 1, n
        ta1%x(i,1,1,1) = 0.0_rp
        ta2%x(i,1,1,1) = 0.0_rp
        ta3%x(i,1,1,1) = 0.0_rp
-    enddo
+    end do
     
     call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
 
