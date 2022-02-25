@@ -126,7 +126,7 @@ fluid/fluid_plan1.o : fluid/fluid_plan1.f90 fluid/fluid_method.o
 fluid/fluid_pnpn.o : fluid/fluid_pnpn.f90 fluid/advection.o common/log.o common/projection.o common/abbdf.o fluid/fluid_aux.o bc/facet_normal.o field/field_series.o fluid/fluid_method.o fluid/fluid_abbdf_fctry.o math/ax_helm_fctry.o fluid/pnpn_res_fctry.o  math/bcknd/device/device_math.o math/bcknd/device/device_mathops.o
 fluid/fluid_fctry.o : fluid/fluid_fctry.f90 common/utils.o config/neko_config.o fluid/fluid_pnpn.o fluid/fluid_plan4.o fluid/fluid_plan1.o fluid/fluid_method.o fluid/bcknd/device/device_fluid_plan4.o 
 fluid/fluid_abbdf.o : fluid/fluid_abbdf.f90 field/field.o field/field_series.o config/num_types.o 
-fluid/fluid_abbdf_fctry.o : fluid/fluid_abbdf_fctry.f90 config/neko_config.o fluid/bcknd/device/fluid_abbdf_device.o fluid/bcknd/cpu/fluid_abbdf_cpu.o fluid/fluid_abbdf.o 
+fluid/fluid_abbdf_fctry.o : fluid/fluid_abbdf_fctry.f90 config/neko_config.o fluid/bcknd/device/fluid_abbdf_device.o fluid/bcknd/cpu/fluid_abbdf_cpu.o fluid/bcknd/sx/fluid_abbdf_sx.o fluid/fluid_abbdf.o 
 fluid/pnpn_res.o : fluid/pnpn_res.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o common/source.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
 fluid/pnpn_res_fctry.o : fluid/pnpn_res_fctry.f90 fluid/bcknd/sx/pnpn_res_sx.o fluid/bcknd/cpu/pnpn_res_cpu.o fluid/bcknd/device/pnpn_res_device.o fluid/pnpn_res.o config/neko_config.o 
 fluid/mean_flow.o : fluid/mean_flow.f90 field/mean_field.o 
@@ -136,6 +136,7 @@ fluid/flow_ic.o : fluid/flow_ic.f90 common/user_intf.o math/math.o sem/coef.o co
 fluid/advection.o : fluid/advection.f90 sem/interpolation.o math/operators.o config/neko_config.o sem/coef.o field/field.o sem/space.o common/utils.o math/math.o config/num_types.o 
 fluid/bcknd/cpu/fluid_abbdf_cpu.o : fluid/bcknd/cpu/fluid_abbdf_cpu.f90 fluid/fluid_abbdf.o 
 fluid/bcknd/cpu/pnpn_res_cpu.o : fluid/bcknd/cpu/pnpn_res_cpu.f90 math/operators.o fluid/pnpn_res.o gs/gather_scatter.o 
+fluid/bcknd/sx/fluid_abbdf_sx.o : fluid/bcknd/sx/fluid_abbdf_sx.f90 fluid/fluid_abbdf.o 
 fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 math/operators.o fluid/pnpn_res.o gs/gather_scatter.o 
 fluid/bcknd/device/device_fluid_plan4.o : fluid/bcknd/device/device_fluid_plan4.f90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o fluid/advection.o common/log.o common/projection.o common/abbdf.o fluid/fluid_aux.o bc/facet_normal.o field/field_series.o fluid/fluid_method.o fluid/fluid_plan4.o math/ax_helm_fctry.o 
 fluid/bcknd/device/fluid_abbdf_device.o : fluid/bcknd/device/fluid_abbdf_device.F90 common/utils.o device/device.o fluid/fluid_abbdf.o
