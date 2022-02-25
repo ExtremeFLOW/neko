@@ -96,6 +96,7 @@ module mesh
      type(zone_t) :: wall                 !< Zone of wall facets
      type(zone_t) :: inlet                !< Zone of inlet facets
      type(zone_t) :: outlet               !< Zone of outlet facets
+     type(zone_t) :: outlet_normal               !< Zone of outlet normal facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
      type(zone_periodic_t) :: periodic    !< Zone of periodic facets
      type(curve_t) :: curve               !< Set of curved elements
@@ -244,6 +245,7 @@ contains
     call m%wall%init(m%nelv)
     call m%inlet%init(m%nelv)
     call m%outlet%init(m%nelv)
+    call m%outlet_normal%init(m%nelv)
     call m%sympln%init(m%nelv)
     call m%periodic%init(m%nelv)
     call m%curve%init(m%nelv)
@@ -309,6 +311,7 @@ contains
     call m%wall%free()
     call m%inlet%free()
     call m%outlet%free()
+    call m%outlet_normal%free()
     call m%sympln%free()
     call m%periodic%free()
     
@@ -324,6 +327,7 @@ contains
     call m%wall%finalize()
     call m%inlet%finalize()
     call m%outlet%finalize()
+    call m%outlet_normal%finalize()
     call m%sympln%finalize()
     call m%periodic%finalize()
     call m%curve%finalize()
@@ -1336,8 +1340,8 @@ contains
   subroutine mesh_mark_curve_element(m, e, curve_data, curve_type)
     type(mesh_t), intent(inout) :: m
     integer, intent(in) :: e
-    real(kind=dp), dimension(5,8), intent(in) :: curve_data 
-    integer, dimension(8), intent(in) :: curve_type 
+    real(kind=dp), dimension(5,12), intent(in) :: curve_data 
+    integer, dimension(12), intent(in) :: curve_type 
 
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
@@ -1369,6 +1373,26 @@ contains
     
   end subroutine mesh_mark_inlet_facet
   
+  !> Mark facet @a f in element @a e as an outlet normal
+  subroutine mesh_mark_outlet_normal_facet(m, f, e)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+    m%facet_type(f, e) = 1
+    call m%outlet_normal%add_facet(f, e)
+    
+  end subroutine mesh_mark_outlet_normal_facet
+
+
   !> Mark facet @a f in element @a e as an outlet
   subroutine mesh_mark_outlet_facet(m, f, e)
     type(mesh_t), intent(inout) :: m

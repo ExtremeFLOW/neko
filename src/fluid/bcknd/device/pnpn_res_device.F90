@@ -51,6 +51,57 @@ module pnpn_res_device
   end type pnpn_vel_res_device_t
 
 #ifdef HAVE_HIP
+    interface
+     subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
+          B_d, h1_d, Re, rho, n) &
+          bind(c, name='pnpn_prs_res_part1_hip')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       type(c_ptr), value :: B_d, h1_d
+       real(c_rp) :: Re, rho
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part1_hip
+  end interface
+
+  interface
+     subroutine pnpn_prs_res_part2_hip(p_res_d, wa1_d, wa2_d, wa3_d, n) &
+          bind(c, name='pnpn_prs_res_part2_hip')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part2_hip
+  end interface
+
+  interface
+     subroutine pnpn_prs_res_part3_hip(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
+          bind(c, name='pnpn_prs_res_part3_hip')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p_res_d, ta1_d, ta2_d, ta3_d
+       real(c_rp) :: dtbd
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part3_hip
+  end interface
+  
+  interface
+     subroutine pnpn_vel_res_update_hip(u_res_d, v_res_d, w_res_d, &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
+          bind(c, name='pnpn_vel_res_update_hip')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u_res_d, v_res_d, w_res_d
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       integer(c_int) :: n
+     end subroutine pnpn_vel_res_update_hip
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine pnpn_prs_res_part1_cuda(ta1_d, ta2_d, ta3_d, &
@@ -104,6 +155,57 @@ module pnpn_res_device
      end subroutine pnpn_vel_res_update_cuda
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
+          B_d, h1_d, Re, rho, n) &
+          bind(c, name='pnpn_prs_res_part1_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       type(c_ptr), value :: B_d, h1_d
+       real(c_rp) :: Re, rho
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part1_opencl
+  end interface
+
+  interface
+     subroutine pnpn_prs_res_part2_opencl(p_res_d, wa1_d, wa2_d, wa3_d, n) &
+          bind(c, name='pnpn_prs_res_part2_opencl')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part2_opencl
+  end interface
+
+  interface
+     subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
+          bind(c, name='pnpn_prs_res_part3_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p_res_d, ta1_d, ta2_d, ta3_d
+       real(c_rp) :: dtbd
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part3_opencl
+  end interface
+  
+  interface
+     subroutine pnpn_vel_res_update_opencl(u_res_d, v_res_d, w_res_d, &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
+          bind(c, name='pnpn_vel_res_update_opencl')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u_res_d, v_res_d, w_res_d
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       integer(c_int) :: n
+     end subroutine pnpn_vel_res_update_opencl
+  end interface
 #endif
 
   
@@ -111,7 +213,7 @@ contains
 
   subroutine pnpn_prs_res_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
        ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_Xh, gs_Xh, &
-       bc_prs_surface, Ax, bd, dt, Re, rho)
+       bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: ta1, ta2, ta3
@@ -122,6 +224,7 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
+    type(facet_normal_t), intent(inout) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
@@ -137,11 +240,18 @@ contains
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
 #ifdef HAVE_HIP
+    call pnpn_prs_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, &
+         c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
+
 #elif HAVE_CUDA
     call pnpn_prs_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, &
          c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
 #elif HAVE_OPENCL
+    call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, &
+         c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
 #endif
      c_Xh%ifh2 = .false.
          
@@ -158,14 +268,30 @@ contains
     call Ax%compute(p_res%x,p%x,c_Xh,p%msh,p%Xh)
 
 #ifdef HAVE_HIP
+    call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
 #elif HAVE_CUDA
     call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
 #elif HAVE_OPENCL
+    call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
 #endif
 
     !
     ! Surface velocity terms
-    !
+    call device_rzero(wa1%x_d, n)
+    call device_rzero(wa2%x_d, n)
+    call device_rzero(wa3%x_d, n)
+    dtbd = 1.0_rp
+
+    call bc_sym_surface%apply_surfvec_dev(wa1%x_d, wa2%x_d, wa3%x_d, ta1%x_d, ta2%x_d, ta3%x_d)
+
+#ifdef HAVE_HIP
+    call pnpn_prs_res_part3_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+#elif HAVE_CUDA
+    call pnpn_prs_res_part3_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+#elif HAVE_OPENCL
+    call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n);
+#endif
+   !
     dtbd = bd / dt
 
     call device_rzero(ta1%x_d, n)
@@ -176,9 +302,11 @@ contains
          u%x_d, v%x_d, w%x_d)
 
 #ifdef HAVE_HIP
+    call pnpn_prs_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n);
 #elif HAVE_CUDA
     call pnpn_prs_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n);
 #elif HAVE_OPENCL
+    call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n);
 #endif
         
   end subroutine pnpn_prs_res_device_compute
@@ -211,10 +339,14 @@ contains
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
 #ifdef HAVE_HIP
+    call pnpn_vel_res_update_hip(u_res%x_d, v_res%x_d, w_res%x_d, &
+         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
 #elif HAVE_CUDA
     call pnpn_vel_res_update_cuda(u_res%x_d, v_res%x_d, w_res%x_d, &
          ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
 #elif HAVE_OPENCL
+    call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
+         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
 #endif
     
   end subroutine pnpn_vel_res_device_compute

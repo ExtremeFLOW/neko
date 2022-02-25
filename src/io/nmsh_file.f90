@@ -169,6 +169,8 @@ contains
              case(5)
                 call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
+             case(6)
+                call mesh_mark_outlet_normal_facet(msh, nmsh_zone(i)%f, el_idx)
              end select
           end if
        end do
@@ -207,6 +209,7 @@ contains
               el_idx .le. msh%nelv) then             
              call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
           end if
+             
        end do
        
        deallocate(nmsh_curve)
@@ -303,7 +306,7 @@ contains
     end if
 
     nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + &
-         msh%sympln%size + msh%periodic%size 
+         msh%sympln%size + msh%periodic%size + msh%outlet_normal%size
 
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
@@ -350,6 +353,12 @@ contains
           nmsh_zone(j)%p_f = msh%periodic%p_facet_el(i)%x(1)
           nmsh_zone(j)%glb_pt_ids = msh%periodic%p_ids(i)%x
           nmsh_zone(j)%type = 5
+          j = j + 1
+       end do
+       do i = 1, msh%outlet_normal%size
+          nmsh_zone(j)%e = msh%outlet_normal%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone(j)%f = msh%outlet_normal%facet_el(i)%x(1)
+          nmsh_zone(j)%type = 6
           j = j + 1
        end do
        

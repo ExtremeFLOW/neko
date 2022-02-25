@@ -32,26 +32,43 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-template< typename T >
-__global__ void vel_res_update_kernel(T * __restrict__ u_res,
-                                      T * __restrict__ v_res,
-                                      T * __restrict__ w_res,
-                                      const T * __restrict__ ta1,
-                                      const T * __restrict__ ta2,
-                                      const T * __restrict__ ta3,
-                                      const T * __restrict__ f_u,
-                                      const T * __restrict__ f_v,
-                                      const T * __restrict__ f_w,
-                                      const int n) {
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
+#include <CL/cl.h>
+#endif
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+#include <stdio.h>
+#include <device/device_config.h>
+#include <device/opencl/jit.h>
+#include <device/opencl/prgm_lib.h>
+#include <device/opencl/check.h>
 
-  for (int i = idx; i < n; i += str) {
-    u_res[i] = (-u_res[i]) - ta1[i] + f_u[i];
-    v_res[i] = (-v_res[i]) - ta2[i] + f_v[i];
-    w_res[i] = (-w_res[i]) - ta3[i] + f_w[i];
-  }
+#include "tensor_kernel.cl.h"
 
+void opencl_tnsr3d(void *v, int *nv, void *u, int *nu,
+                   void *A, void *Bt, void *Ct, int *nel) {
+  cl_int err;
+
+  if (tensor_program == NULL)
+    opencl_kernel_jit(tensor_kernel, (cl_program *) &tensor_program);
+  
+  cl_kernel kernel = clCreateKernel(tensor_program, "tnsr3d_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), nv));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &u));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), nu));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &A));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &Bt));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &Ct));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), nel));
+  
+  const size_t global_item_size = 256 * (*nel);
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
 }
-

@@ -229,8 +229,8 @@ contains
     end do
 
     len(1) = 1
-    len(2) = 5*8
-    len(3) = 8
+    len(2) = 5*12
+    len(3) = 12
     type(1) = MPI_INTEGER
     type(2) = MPI_DOUBLE_PRECISION
     type(3) = MPI_INTEGER
@@ -358,7 +358,7 @@ contains
     !
     
     call MPI_Get_address(re2v1_data%elem, disp(1), ierr)
-    call MPI_Get_address(re2v1_data%face, disp(2), ierr)
+    call MPI_Get_address(re2v1_data%zone, disp(2), ierr)
     call MPI_Get_address(re2v1_data%point, disp(3), ierr)
     call MPI_Get_address(re2v1_data%type, disp(4), ierr)
 
@@ -383,7 +383,7 @@ contains
     !
     
     call MPI_Get_address(re2v2_data%elem, disp(1), ierr)
-    call MPI_Get_address(re2v2_data%face, disp(2), ierr)
+    call MPI_Get_address(re2v2_data%zone, disp(2), ierr)
     call MPI_Get_address(re2v2_data%point, disp(3), ierr)
     call MPI_Get_address(re2v2_data%type, disp(4), ierr)
 
@@ -395,8 +395,8 @@ contains
 
     len(1:2) = 1
     len(3) = 5
-    len(4) = 4
-    type(1:2) = MPI_INTEGER
+    len(4) = 8
+    type(1:2) = MPI_DOUBLE_PRECISION
     type(3) = MPI_DOUBLE_PRECISION
     type(4) = MPI_CHARACTER
 
@@ -455,8 +455,8 @@ contains
 
     len(1:2) = 1
     len(3) = 5
-    len(4) = 4
-    type(1:2) = MPI_INTEGER
+    len(4) = 8
+    type(1:2) = MPI_DOUBLE_PRECISION
     type(3) = MPI_DOUBLE_PRECISIOn
     type(4) = MPI_CHARACTER
 

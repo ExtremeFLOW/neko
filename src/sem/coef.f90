@@ -933,7 +933,7 @@ contains
           do j = 1, coef%Xh%lx
              weight = coef%Xh%wx(j) * coef%Xh%wy(k)
              coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
-             coef%area(j, k, 6, e) = sqrt(dot(j, j, lx, e)) * weight
+             coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
              coef%nx(j,k, 5, e) = -A(j, k, 1, e)
              coef%nx(j,k, 6, e) =  A(j, k, lx, e)
              coef%ny(j,k, 5, e) = -B(j, k, 1, e)

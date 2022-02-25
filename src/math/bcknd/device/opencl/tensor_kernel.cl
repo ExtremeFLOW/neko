@@ -32,41 +32,59 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-template< typename T >
-__global__ void sumab_kernel(T * __restrict__ u,
-                             T * __restrict__ v,
-                             T * __restrict__ w,
-                             const T * __restrict__ uu,
-                             const T * __restrict__ vv,
-                             const T * __restrict__ ww,
-                             const T * __restrict__ ulag1,
-                             const T * __restrict__ ulag2,
-                             const T * __restrict__ vlag1,
-                             const T * __restrict__ vlag2,
-                             const T * __restrict__ wlag1,
-                             const T * __restrict__ wlag2,
-                             const T ab1,
-                             const T ab2,
-                             const T ab3,
-                             const int nab,
-                             const int n) {
+__kernel void tnsr3d_kernel(__global real  * __restrict__  v,
+                            const int nv,
+                            __global const real * __restrict__ u,
+                            const int nu,
+                            __global const real * __restrict__ A,
+                            __global const real * __restrict__ Bt,
+                            __global const real * __restrict__ Ct) {
+  __local real shwork[2048];
+  __local real shwork2[2048];
   
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    u[i] = ab1 * uu[i] + ab2 * ulag1[i];
-    v[i] = ab1 * vv[i] + ab2 * vlag1[i];
-    w[i] = ab1 * ww[i] + ab2 * wlag1[i];
+  const int idx = get_local_id(0);
+  const int str = get_local_size(0);
+  const int e = get_group_id(0);
+  
+  for (int ii = idx; ii< nu*nu*nv; ii += str){
+    real tmp = 0.0;
+    int j = ii/nv;
+    int i = ii - j*nv;
+    for( int l = 0; l < nu; l++){
+      tmp += A[i+l*nv]*u[l+nu*j+e*nu*nu*nu];
+    }
+    shwork[ii] = tmp;
   }
 
-  if (nab == 3) {
-    for (int i = idx; i < n; i += str) {
-      u[i] = u[i] + ab3 * ulag2[i];
-      v[i] = v[i] + ab3 * vlag2[i];
-      w[i] = w[i] + ab3 * wlag2[i];
-    } 
-  }
+  barrier(CLK_LOCAL_MEM_FENCE);
   
+  for (int ijk = idx; ijk< nu*nv*nv; ijk += str){
+    const int jk = ijk / nv;
+    const int i = ijk - jk * nv;
+    const int k = jk / nv;
+    const int j = jk - k * nv;
+    real tmp = 0.0;
+    const int ik2 = i + k*nv*nu; 
+    for( int l = 0; l < nu; l++){
+      tmp += Bt[l+j*nu]*shwork[l*nv+ik2];
+    }
+    shwork2[ijk] = tmp;
+  }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+  
+  for (int ijk = idx; ijk< nv*nv*nv; ijk += str){
+    const int jk = ijk / nv;
+    const int i = ijk - jk * nv;
+    const int k = jk / nv;
+    const int j = jk - k * nv;
+    real tmp = 0.0;
+    const int ij2 = i + j*nv; 
+    for( int l = 0; l < nu; l++){
+      tmp += Ct[l+k*nu]*shwork2[ij2 + l*nv*nv];
+    }
+    v[ijk+e*nv*nv*nv] = tmp;
+  }
 }
+
 

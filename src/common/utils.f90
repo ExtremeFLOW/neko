@@ -90,11 +90,13 @@ contains
   pure function nonlinear_index(linear_index,lx,ly,lz) result(index)
     integer, intent(in) :: linear_index, lx, ly, lz
     integer :: index(4)
-    
-    index(4) = linear_index/(lx*ly*lz) 
-    index(3) = (linear_index-(lx*ly*lz)*index(4))/(lx*ly)
-    index(2) = (linear_index-(lx*ly*lz)*index(4)-(lx*ly)*index(3))/lx
-    index(1) = (linear_index-(lx*ly*lz)*index(4)-(lx*ly)*index(3)-lx*index(2))
+    integer :: lin_idx
+    lin_idx = linear_index -1
+    index(4) = lin_idx/(lx*ly*lz) 
+    index(3) = (lin_idx-(lx*ly*lz)*index(4))/(lx*ly)
+    index(2) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3))/lx
+    index(1) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3)-lx*index(2))
+    index(1) = index(1) + 1
     index(2) = index(2) + 1
     index(3) = index(3) + 1
     index(4) = index(4) + 1
