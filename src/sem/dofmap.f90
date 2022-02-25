@@ -659,14 +659,15 @@ contains
     logical :: midpoint
     integer :: n_edge, curve_type(12)
 
+    msh => this%msh
+    Xh => this%Xh
+    
     if (msh%gdim .eq. 3) then
        n_edge = 12
     else
        n_edge = 4
     end if
 
-    msh => this%msh
-    Xh => this%Xh
     do i = 1, msh%nelv       
        call dofmap_xyzlin(Xh,msh, msh%elements(i)%e,this%x(1,1,1,i),this%y(1,1,1,i), this%z(1,1,1,i)) 
     end do
