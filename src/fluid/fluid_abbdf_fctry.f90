@@ -1,6 +1,7 @@
 module fluid_abbdf_fctry
   use fluid_abbdf
   use fluid_abbdf_cpu
+  use fluid_abbdf_sx
   use fluid_abbdf_device
   use neko_config
   implicit none
@@ -14,7 +15,9 @@ contains
        deallocate(sumab)
     end if
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(fluid_sumab_sx_t::sumab)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &         
          (NEKO_BCKND_OPENCL .eq. 1)) then
        allocate(fluid_sumab_device_t::sumab)
     else
@@ -29,8 +32,10 @@ contains
     if (allocated(makeabf)) then
        deallocate(makeabf)
     end if
-
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+    
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(fluid_makeabf_sx_t::makeabf)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        allocate(fluid_makeabf_device_t::makeabf)
     else
@@ -46,7 +51,9 @@ contains
        deallocate(makebdf)
     end if
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(fluid_makebdf_sx_t::makebdf)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        allocate(fluid_makebdf_device_t::makebdf)
     else       

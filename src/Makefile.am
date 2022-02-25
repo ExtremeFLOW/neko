@@ -140,6 +140,7 @@ libneko_a_SOURCES = \
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	fluid/bcknd/cpu/fluid_abbdf_cpu.f90\
+	fluid/bcknd/sx/fluid_abbdf_sx.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
