@@ -91,6 +91,7 @@ bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/de
 bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/inflow.o sem/coef.o config/num_types.o 
 bc/facet_normal.o : bc/facet_normal.f90 common/utils.o math/math.o sem/coef.o bc/dirichlet.o config/num_types.o bc/bcknd/device/device_facet_normal.o 
 bc/symmetry.o : bc/symmetry.f90 adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/bcknd/device/device_symmetry.o 
+bc/non_normal.o : bc/non_normal.f90 bc/symmetry.o adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/bcknd/device/device_symmetry.o 
 bc/blasius.o : bc/blasius.f90 fluid/flow_profile.o bc/bcknd/device/device_blasius.o device/device.o bc/inflow.o common/utils.o sem/coef.o config/num_types.o 
 krylov/precon.o : krylov/precon.f90 config/num_types.o 
 krylov/krylov.o : krylov/krylov.f90 config/neko_config.o krylov/bcknd/device/pc_identity_device.o krylov/pc_identity.o bc/bc.o common/utils.o field/field.o mesh/mesh.o sem/coef.o krylov/precon.o config/num_types.o math/ax.o gs/gather_scatter.o 

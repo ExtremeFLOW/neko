@@ -96,6 +96,7 @@ libneko_a_SOURCES = \
 	bc/usr_inflow.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
+	bc/non_normal.f90\
 	bc/blasius.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
