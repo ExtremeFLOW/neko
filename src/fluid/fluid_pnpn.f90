@@ -38,6 +38,7 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
+     type(non_normal_t) :: bc_vel_residual_non_normal   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_residual  
 
      class(advection_t), allocatable :: adv 
@@ -150,7 +151,12 @@ contains
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%finalize()
     call this%bc_sym_surface%set_coef(this%c_Xh)
-    ! Initialize boundary condition for velocity residual
+    ! Initialize dirichlet bcs for velocity residual
+    call this%bc_vel_residual_non_normal%init(this%dm_Xh)
+    call this%bc_vel_residual_non_normal%mark_zone(msh%outlet_normal)
+    call this%bc_vel_residual_non_normal%finalize()
+    call this%bc_vel_residual_non_normal%init_msk(this%c_Xh)    
+
     call this%bc_vel_residual%init(this%dm_Xh)
     call this%bc_vel_residual%mark_zone(msh%inlet)
     call this%bc_vel_residual%mark_zone(msh%wall)
@@ -158,6 +164,8 @@ contains
     call this%bc_vel_residual%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_residual)
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
+    call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual_non_normal)
+    call bc_list_add(this%bclst_vel_residual, this%bc_sym)
 
     !Intialize projection space thingy
     call this%proj%init(this%dm_Xh%n_dofs, param%proj_dim)
