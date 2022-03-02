@@ -51,6 +51,7 @@ module fluid_method
   use blasius
   use dirichlet
   use symmetry
+  use non_normal
   use krylov_fctry
   use precon_fctry
   use bc
@@ -205,9 +206,6 @@ contains
        
        call this%bc_inflow%init(this%dm_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
-       if (msh%outlet_normal%size .gt. 0) then
-          call this%bc_inflow%mark_zone(msh%outlet_normal)
-       end if
        call this%bc_inflow%finalize()
        call this%bc_inflow%set_inflow(params%uinf)
        call bc_list_add(this%bclst_vel, this%bc_inflow)

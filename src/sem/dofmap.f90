@@ -648,7 +648,6 @@ contains
 
   end function dofmap_facetidx
 
-
   !> Generate x,y,z-coordinates for all dofs
   !! @note Assumes \f$ X_{h_x} = X_{h_y} = X_{h_z} \f$
   subroutine dofmap_generate_xyz(this)
@@ -656,67 +655,35 @@ contains
     integer :: i,j,k, el_idx
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
-    real(kind=rp) :: xyzb(2,2,2,3), zgml(this%Xh%lx, 3)
-    real(kind=rp) :: jx(this%Xh%lx*2), jy(this%Xh%lx*2), jz(this%Xh%lx*2)
-    real(kind=rp) :: jxt(this%Xh%lx*2), jyt(this%Xh%lx*2), jzt(this%Xh%lx*2)
-    real(kind=rp) :: w(4*this%Xh%lx**3), tmp(this%Xh%lx, this%Xh%lx, this%Xh%lx)
-    real(kind=rp) :: rp_curve_data(5)
-    real(kind=rp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
-    
+    real(kind=rp) :: rp_curve_data(5), curve_data_tot(5,12)
+    logical :: midpoint
+    integer :: n_edge, curve_type(12)
 
     msh => this%msh
     Xh => this%Xh
-    zgml = 0d0
-    xyzb = 0d0
+    
+    if (msh%gdim .eq. 3) then
+       n_edge = 12
+    else
+       n_edge = 4
+    end if
+
     do i = 1, msh%nelv       
-
-       w = 0d0
-       call copy(zgml(1,1), Xh%zg(1,1), Xh%lx)                               
-       call copy(zgml(1,2), Xh%zg(1,2), Xh%ly)
-       if (msh%gdim .gt. 2) then
-          call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
-       end if
-       
-       k = 1
-       do j = 1, Xh%lx
-          call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
-          call fd_weights_full(zgml(j,2),zlin,1,0,jyt(k))
-          if (msh%gdim .gt. 2) then
-             call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
-          end if
-          k = k + 2
-       end do
-       call trsp(jx, Xh%lx, jxt, 2)
-
-       if (msh%gdim .eq. 2) then
-          jzt = 1d0
-       end if
-
-       do j = 1, msh%gdim
-          xyzb(1,1,1,j) = msh%elements(i)%e%pts(1)%p%x(j)
-          xyzb(2,1,1,j) = msh%elements(i)%e%pts(2)%p%x(j)
-          xyzb(1,2,1,j) = msh%elements(i)%e%pts(4)%p%x(j)
-          xyzb(2,2,1,j) = msh%elements(i)%e%pts(3)%p%x(j)
-
-          if (msh%gdim .gt. 2) then
-             xyzb(1,1,2,j) = msh%elements(i)%e%pts(5)%p%x(j)
-             xyzb(2,1,2,j) = msh%elements(i)%e%pts(6)%p%x(j)
-             xyzb(1,2,2,j) = msh%elements(i)%e%pts(8)%p%x(j)
-             xyzb(2,2,2,j) = msh%elements(i)%e%pts(7)%p%x(j)
+       call dofmap_xyzlin(Xh,msh, msh%elements(i)%e,this%x(1,1,1,i),this%y(1,1,1,i), this%z(1,1,1,i)) 
+    end do
+    do i =1, msh%curve%size 
+       el_idx = msh%curve%curve_el(i)%el_idx
+       curve_type = msh%curve%curve_el(i)%curve_type
+       curve_data_tot = msh%curve%curve_el(i)%curve_data
+       do j = 1, n_edge
+          if (curve_type(j) .eq. 4) then
+             midpoint = .true.
           end if
        end do
-       if (msh%gdim .eq. 3) then
-          call tensr3(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
-          call copy(this%x(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
-          call tensr3(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
-          call copy(this%y(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
-          call tensr3(tmp, Xh%lz, xyzb(1,1,1,3), 2, jx, jyt, jzt, w)
-          call copy(this%z(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
-       else
-          call tnsr2d_el(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt)
-          call copy(this%x(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
-          call tnsr2d_el(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt)
-          call copy(this%y(1,1,1,i), tmp, Xh%lx*Xh%ly*Xh%lz)
+       if (midpoint .and. Xh%lx .gt. 2) then
+          call dofmap_xyzquad(Xh, msh, msh%elements(el_idx)%e, &
+                              this%x(1,1,1,el_idx), this%y(1,1,1,el_idx),&
+                              this%z(1,1,1,el_idx),curve_type, curve_data_tot)
        end if
     end do
     do i =1, msh%curve%size 
@@ -731,7 +698,358 @@ contains
        end do
     enddo
   end subroutine dofmap_generate_xyz
+
+  subroutine dofmap_xyzlin(Xh, msh, element, x, y, z)
+    type(mesh_t), pointer, intent(in) :: msh
+    type(space_t), intent(in) :: Xh
+    class(element_t), intent(in) :: element
+    real(kind=rp), intent(inout) :: x(Xh%lx,Xh%ly,Xh%lz), y(Xh%lx,Xh%ly,Xh%lz), z(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp) :: xyzb(2,2,2,3), zgml(Xh%lx, 3)
+    real(kind=rp) :: jx(Xh%lx*2), jy(Xh%lx*2), jz(Xh%lx*2)
+    real(kind=rp) :: jxt(Xh%lx*2), jyt(Xh%lx*2), jzt(Xh%lx*2)
+    real(kind=rp) :: w(4*Xh%lx**3), tmp(Xh%lx, Xh%lx, Xh%lx)
+    real(kind=rp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
+    
+    integer :: j, k
+
+    zgml = 0d0
+    xyzb = 0d0
  
+    w = 0d0
+    call copy(zgml(1,1), Xh%zg(1,1), Xh%lx)                               
+    call copy(zgml(1,2), Xh%zg(1,2), Xh%ly)
+    if (msh%gdim .gt. 2) then
+       call copy(zgml(1,3), Xh%zg(1,3), Xh%lz)
+    end if
+    
+    k = 1
+    do j = 1, Xh%lx
+       call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
+       call fd_weights_full(zgml(j,2),zlin,1,0,jyt(k))
+       if (msh%gdim .gt. 2) then
+          call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
+       end if
+       k = k + 2
+    end do
+    call trsp(jx, Xh%lx, jxt, 2)
+
+    if (msh%gdim .eq. 2) then
+       jzt = 1d0
+    end if
+
+    do j = 1, msh%gdim
+       xyzb(1,1,1,j) = element%pts(1)%p%x(j)
+       xyzb(2,1,1,j) = element%pts(2)%p%x(j)
+       xyzb(1,2,1,j) = element%pts(4)%p%x(j)
+       xyzb(2,2,1,j) = element%pts(3)%p%x(j)
+
+       if (msh%gdim .gt. 2) then
+          xyzb(1,1,2,j) = element%pts(5)%p%x(j)
+          xyzb(2,1,2,j) = element%pts(6)%p%x(j)
+          xyzb(1,2,2,j) = element%pts(8)%p%x(j)
+          xyzb(2,2,2,j) = element%pts(7)%p%x(j)
+       end if
+    end do
+    if (msh%gdim .eq. 3) then
+       call tensr3(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
+       call copy(x, tmp, Xh%lx*Xh%ly*Xh%lz)
+       call tensr3(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt, jzt, w)
+       call copy(y, tmp, Xh%lx*Xh%ly*Xh%lz)
+       call tensr3(tmp, Xh%lz, xyzb(1,1,1,3), 2, jx, jyt, jzt, w)
+       call copy(z, tmp, Xh%lx*Xh%ly*Xh%lz)
+    else
+       call tnsr2d_el(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt)
+       call copy(x, tmp, Xh%lx*Xh%ly*Xh%lz)
+       call tnsr2d_el(tmp, Xh%ly, xyzb(1,1,1,2), 2, jx, jyt)
+       call copy(y, tmp, Xh%lx*Xh%ly*Xh%lz)
+    end if
+  end subroutine dofmap_xyzlin
+
+  subroutine dofmap_xyzquad(Xh, msh, element, x, y, z, curve_type, curve_data)
+    type(mesh_t), pointer, intent(in) :: msh
+    type(space_t), intent(in) :: Xh
+    class(element_t), intent(in) :: element
+    real(kind=rp), intent(inout) :: x(Xh%lx,Xh%ly,Xh%lz), y(Xh%lx,Xh%ly,Xh%lz), z(Xh%lx,Xh%ly,Xh%lz)
+    integer :: curve_type(12), eindx(12)
+    real(kind=rp) :: curve_data(5,12), x3(3,3,3), y3(3,3,3), z3(3,3,3)
+    type(space_t), target :: Xh3
+    real(kind=rp), dimension(3), parameter :: zquad = (/-1d0, 0d0,1d0/)
+    real(kind=rp) :: zg(3)
+    real(kind=rp), dimension(Xh%lx,Xh%lx,Xh%lx) :: tmp
+    real(kind=rp) :: jx(Xh%lx*3), jy(Xh%lx*3), jz(Xh%lx*3)
+    real(kind=rp) :: jxt(Xh%lx*3), jyt(Xh%lx*3), jzt(Xh%lx*3)
+    real(kind=rp) :: w(4*Xh%lxyz,2)
+    real(kind=rp), dimension(Xh%lx,3) :: zgml
+    integer :: j, k, n, n_edges
+    eindx = (/2 ,  6 ,  8 ,  4, &
+              20 , 24 , 26 , 22, &
+              10 , 12 , 18 , 16 /)
+
+    w = 0d0
+    if (msh%gdim .eq. 3) then
+       n_edges = 12
+       call space_init(Xh3, GLL, 3, 3, 3)
+    else
+       n_edges = 4
+       call space_init(Xh3, GLL, 3, 3)
+    end if
+    call dofmap_xyzlin(Xh3, msh, element, x3, y3, z3)
+
+    do k = 1, n_edges
+       if (curve_type(k) .eq. 4) then
+          x3(eindx(k),1,1) = curve_data(1,k)
+          y3(eindx(k),1,1) = curve_data(2,k)
+          z3(eindx(k),1,1) = curve_data(3,k)
+       end if
+    end do 
+    zg(1) = -1
+    zg(2) =  0 
+    zg(3) =  1
+    if (msh%gdim .eq. 3) then
+       call gh_face_extend_3d(x3,zg,3,2,w(1,1),w(1,2)) ! 2 --> edge extend
+       call gh_face_extend_3d(y3,zg,3,2,w(1,1),w(1,2))
+       call gh_face_extend_3d(z3,zg,3,2,w(1,1),w(1,2))
+    else
+       call neko_warning(' m deformation not supported for 2d yet')
+       call gh_face_extend_2d(x3,zg,3,2,w(1,1),w(1,2)) ! 2 --> edge extend
+       call gh_face_extend_2d(y3,zg,3,2,w(1,1),w(1,2))
+    endif
+    k =1 
+    do j = 1, Xh%lx
+       call fd_weights_full(Xh%zg(j,1),zquad,2,0,jxt(k))
+       call fd_weights_full(Xh%zg(j,2),zquad,2,0,jyt(k))
+       if (msh%gdim .gt. 2) then
+          call fd_weights_full(Xh%zg(j,3),zquad,2,0,jzt(k))
+       end if
+       k = k + 3
+    end do
+    call trsp(jx, Xh%lx, jxt, 3)
+    if (msh%gdim .eq. 3) then
+       call tensr3(tmp, Xh%lx, x3, 3, jx, jyt, jzt, w)
+       call copy(x, tmp, Xh%lx*Xh%ly*Xh%lz)
+       call tensr3(tmp, Xh%ly, y3, 3, jx, jyt, jzt, w)
+       call copy(y, tmp, Xh%lx*Xh%ly*Xh%lz)
+       call tensr3(tmp, Xh%lz, z3, 3, jx, jyt, jzt, w)
+       call copy(z, tmp, Xh%lx*Xh%ly*Xh%lz)
+    else
+       call tnsr2d_el(tmp, Xh%lx, x3, 3, jx, jyt)
+       call copy(x, tmp, Xh%lx*Xh%ly*Xh%lz)
+       call tnsr2d_el(tmp, Xh%ly, y3, 3, jx, jyt)
+       call copy(y, tmp, Xh%lx*Xh%ly*Xh%lz)
+    end if
+
+    call space_free(Xh3)
+  end subroutine dofmap_xyzquad
+ !> Extend faces into interior via gordon hall
+ !! gh_type:  1 - vertex only                   
+ !!           2 - vertex and edges
+ !!           3 - vertex, edges, and faces      
+ !! Original in Nek5000/core/navier5.f
+    
+ subroutine gh_face_extend_3d(x,zg,n,gh_type,e,v)
+   integer, intent(in) :: n
+   real(kind=rp), intent(inout) ::  x(n,n,n)
+   real(kind=rp), intent(in) ::  zg(n)
+   real(kind=rp), intent(inout) ::  e(n,n,n)
+   real(kind=rp), intent(inout) ::  v(n,n,n)
+   integer :: gh_type, ntot, kk, jj, ii, k, j, i
+   real(kind=rp) :: si, sj, sk, hi, hj, hk
+   
+!
+!  Build vertex interpolant
+!
+   ntot=n*n*n
+   call rzero(v,ntot)
+   do kk=1,n,n-1
+   do jj=1,n,n-1
+   do ii=1,n,n-1
+      do k=1,n
+      do j=1,n
+      do i=1,n
+         si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+         sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+         sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+         v(i,j,k) = v(i,j,k) + si*sj*sk*x(ii,jj,kk)
+      enddo
+      enddo
+      enddo
+   enddo
+   enddo
+   enddo
+   if (gh_type.eq.1) then
+      call copy(x,v,ntot)
+      return
+   endif
+!
+!
+!  Extend 12 edges
+   call rzero(e,ntot)
+!
+!  x-edges
+!
+   do kk=1,n,n-1
+   do jj=1,n,n-1
+      do k=1,n
+      do j=1,n
+      do i=1,n
+         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+         e(i,j,k) = e(i,j,k) + hj*hk*(x(i,jj,kk)-v(i,jj,kk))
+      enddo
+      enddo
+      enddo
+   enddo
+   enddo
+!
+!  y-edges
+!
+   do kk=1,n,n-1
+   do ii=1,n,n-1
+      do k=1,n
+      do j=1,n
+      do i=1,n
+         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+         e(i,j,k) = e(i,j,k) + hi*hk*(x(ii,j,kk)-v(ii,j,kk))
+      enddo
+      enddo
+      enddo
+   enddo
+   enddo
+!
+!  z-edges
+!
+   do jj=1,n,n-1
+   do ii=1,n,n-1
+      do k=1,n
+      do j=1,n
+      do i=1,n
+         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+         e(i,j,k) = e(i,j,k) + hi*hj*(x(ii,jj,k)-v(ii,jj,k))
+      enddo
+      enddo
+      enddo
+   enddo
+   enddo
+   call add2(e,v,ntot)
+   if (gh_type.eq.2) then
+      call copy(x,e,ntot)
+      return
+   endif
+!
+!  Extend faces
+!
+   call rzero(v,ntot)
+!
+!  x-edges
+!
+   do ii=1,n,n-1
+      do k=1,n
+      do j=1,n
+      do i=1,n
+         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+         v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
+      enddo
+      enddo
+      enddo
+   enddo
+!
+! y-edges
+!
+   do jj=1,n,n-1
+      do k=1,n
+      do j=1,n
+      do i=1,n
+         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+         v(i,j,k) = v(i,j,k) + hj*(x(i,jj,k)-e(i,jj,k))
+      enddo
+      enddo
+      enddo
+   enddo
+! 
+!  z-edges
+! 
+   do kk=1,n,n-1
+      do k=1,n
+      do j=1,n
+      do i=1,n
+         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+         v(i,j,k) = v(i,j,k) + hk*(x(i,j,kk)-e(i,j,kk))
+      enddo
+      enddo
+      enddo
+   enddo
+   call add2(v,e,ntot)
+   call copy(x,v,ntot)
+
+  end subroutine gh_face_extend_3d
+
+  !> Extend 2D faces into interior via gordon hall
+  !! gh_type:  1 - vertex only
+  !!           2 - vertex and faces
+  subroutine gh_face_extend_2d(x,zg,n,gh_type,e,v)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: x(n,n)
+    real(kind=rp), intent(in) :: zg(n)
+    real(kind=rp), intent(inout) :: e(n,n)
+    real(kind=rp), intent(inout) :: v(n,n)
+    integer, intent(in) :: gh_type
+    integer :: i,j , jj, ii, ntot
+    real(kind=rp) :: si, sj, hi, hj 
+
+    !Build vertex interpolant
+
+    ntot=n*n
+    call rzero(v,ntot)
+    do jj=1,n,n-1
+    do ii=1,n,n-1
+       do j=1,n
+       do i=1,n
+          si     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+          sj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+          v(i,j) = v(i,j) + si*sj*x(ii,jj)
+       enddo
+       enddo
+    enddo
+    enddo
+    if (gh_type.eq.1) then
+       call copy(x,v,ntot)
+       return
+    endif
+
+
+    !Extend 4 edges
+    call rzero(e,ntot)
+
+    !x-edges
+
+    do jj=1,n,n-1
+       do j=1,n
+       do i=1,n
+          hj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+          e(i,j) = e(i,j) + hj*(x(i,jj)-v(i,jj))
+       enddo
+       enddo
+    enddo
+
+    !y-edges
+
+    do ii=1,n,n-1
+       do j=1,n
+       do i=1,n
+          hi     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+          e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))
+       enddo
+       enddo
+    enddo
+
+    call add3(x,e,v,ntot)
+
+  end subroutine gh_face_extend_2d
+
+
+
   subroutine arc_surface(isid,curve_data,x,y,z, Xh, element, gdim)
     integer, intent(in) :: isid, gdim
     type(space_t), intent(in) :: Xh

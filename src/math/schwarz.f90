@@ -119,14 +119,16 @@ contains
     this%bclst => bclst
     this%dm => dm
     this%gs_h => gs_h
-    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_map(this%work1, this%work1_d,this%dm_schwarz%n_dofs) 
        call device_map(this%work2, this%work2_d,this%dm_schwarz%n_dofs) 
     end if
 
 
     call schwarz_setup_wt(this)
-    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_alloc(this%wt_d,int(this%dm%n_dofs*rp,8)) 
        call rone(this%work1, this%dm%n_dofs)
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
@@ -176,7 +178,8 @@ contains
       !   Sum overlap region (border excluded)
       !   Cred to PFF for this, very clever
       call schwarz_extrude(work1, 0, zero, work2, 0, one , enx, eny, enz, msh%nelv)
-      if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+      if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+           .or. (NEKO_BCKND_OPENCL .eq. 1)) then
          call device_memcpy(work2, this%work2_d, ns,HOST_TO_DEVICE)
          call gs_op_vector(this%gs_schwarz, work2, ns, GS_OP_ADD) 
          call device_memcpy(work2, this%work2_d, ns,DEVICE_TO_HOST)
@@ -191,8 +194,9 @@ contains
       ! else
       call schwarz_toreg3d(work1, work2, Xh%lx, msh%nelv)
       ! endif
-
-      if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+      
+      if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+           .or. (NEKO_BCKND_OPENCL .eq. 1)) then
          call device_memcpy(work1, this%work1_d, n,HOST_TO_DEVICE)
          call gs_op_vector(this%gs_h, work1, n, GS_OP_ADD) 
          call device_memcpy(work1, this%work1_d, n,DEVICE_TO_HOST)
@@ -379,7 +383,8 @@ contains
     enz=this%Xh_schwarz%lz
     if(.not. this%msh%gdim .eq. 3) enz=1
     ns = enx*eny*enz*this%msh%nelv
-    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        r_d = device_get_ptr(r,n)
        e_d = device_get_ptr(e,n)
        call bc_list_apply_scalar(this%bclst, r, n)

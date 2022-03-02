@@ -38,8 +38,8 @@ module nmsh
    !> Neko curve data
   type, public :: nmsh_curve_el_t
      integer :: e                                !< Element id (global)
-     real(kind=dp), dimension(5,8) :: curve_data !< Save 6 values for each edge
-     integer, dimension(8) :: type               !< type of curve for each edge
+     real(kind=dp), dimension(5,12) :: curve_data !< Save 6 values for each edge
+     integer, dimension(12) :: type               !< type of curve for each edge
   end type nmsh_curve_el_t
   
 

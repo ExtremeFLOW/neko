@@ -37,8 +37,8 @@ __kernel void fdm_do_fast_kernel(__global real * __restrict__ e,
                                  __global real * __restrict__ s,
                                  __global real * __restrict__ d,
                                    const int nl) {
-  __local real shwork[2048];
-  __local real shwork2[2048];
+  __local real shwork[1024];
+  __local real shwork2[1024];
   __local real A[256];
   __local real Bt[256];
   __local real Ct[256];

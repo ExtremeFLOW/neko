@@ -30,9 +30,9 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Mixed Dirichlet-Neumann axis aligned symmetry plane
-module symmetry
-  use device_symmetry
+!> Dirichlet condition on axis aligned plane in the non normal direction
+module non_normal
+  use symmetry
   use neko_config
   use num_types
   use dirichlet
@@ -45,28 +45,18 @@ module symmetry
   implicit none
   private
 
-  !> Mixed Dirichlet-Neumann symmetry plane condition
-  type, public, extends(dirichlet_t) :: symmetry_t
-     integer, allocatable :: xaxis_msk(:)
-     integer, allocatable :: zaxis_msk(:)
-     integer, allocatable :: yaxis_msk(:)
-     type(c_ptr) :: xaxis_msk_d = C_NULL_PTR
-     type(c_ptr) :: yaxis_msk_d = C_NULL_PTR
-     type(c_ptr) :: zaxis_msk_d = C_NULL_PTR
+  !> Dirichlet condition in non normal direction of a plane
+  type, public, extends(symmetry_t) :: non_normal_t
    contains
-     procedure, pass(this) :: init_msk => symmetry_init_msk
-     procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
-     procedure, pass(this) :: apply_vector => symmetry_apply_vector
-     procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
-     procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
-     final :: symmetry_free
-  end type symmetry_t
+     procedure, pass(this) :: init_msk => non_normal_init_msk
+     final :: non_normal_free
+  end type non_normal_t
 
 contains
 
   !> Initialize symmetry mask for each axis
-  subroutine symmetry_init_msk(this, c)
-    class(symmetry_t), intent(inout) :: this
+  subroutine non_normal_init_msk(this, c)
+    class(non_normal_t), intent(inout) :: this
     type(coef_t), intent(in) :: c
     type(stack_i4_t) :: xmsk, ymsk, zmsk
     integer :: i, m, j, k, l, idx(4), facet, ntype, msk_size
@@ -74,7 +64,7 @@ contains
     real(kind=rp) :: sx,sy,sz
     real(kind=rp), parameter :: TOL = 1d-3
     
-    call symmetry_free(this)
+    call non_normal_free(this)
 
     call xmsk%init()
     call ymsk%init()
@@ -122,17 +112,20 @@ contains
          ntype = 0
          if (sx .lt. TOL) then
             ntype = iand(ntype, 1)
-            call xmsk%push(k)
+            call ymsk%push(k)
+            call zmsk%push(k)
          end if
 
          if (sy .lt. TOL) then
             ntype = iand(ntype, 2)
-            call ymsk%push(k)
+            call xmsk%push(k)
+            call zmsk%push(k)
          end if
 
          if (sz .lt. TOL) then
             ntype = iand(ntype, 4)
-            call zmsk%push(k)
+            call xmsk%push(k)
+            call ymsk%push(k)
          end if
 
       end do
@@ -219,10 +212,11 @@ contains
     call ymsk%free()
     call zmsk%free()
     
-  end subroutine symmetry_init_msk
-  
-  subroutine symmetry_free(this)
-    type(symmetry_t), intent(inout) :: this
+  end subroutine non_normal_init_msk
+
+ 
+  subroutine non_normal_free(this)
+    type(non_normal_t), intent(inout) :: this
 
     if (allocated(this%xaxis_msk)) then
        deallocate(this%xaxis_msk)
@@ -251,64 +245,5 @@ contains
        this%zaxis_msk_d = C_NULL_PTR
     end if
 
-  end subroutine symmetry_free
-  
-  !> No-op scalar apply
-  subroutine symmetry_apply_scalar(this, x, n)
-    class(symmetry_t), intent(inout) :: this
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: x
-  end subroutine symmetry_apply_scalar
-
-  !> Apply symmetry conditions (axis aligned)
-  subroutine symmetry_apply_vector(this, x, y, z, n)
-    class(symmetry_t), intent(inout) :: this
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
-    integer :: i, m, k
-
-    m = this%xaxis_msk(0)
-    do i = 1, m
-       k = this%xaxis_msk(i)
-       x(k) = 0d0
-    end do
-
-    m = this%yaxis_msk(0)
-    do i = 1, m
-       k = this%yaxis_msk(i)
-       y(k) = 0d0
-    end do
-
-    m = this%zaxis_msk(0)
-    do i = 1, m
-       k = this%zaxis_msk(i)
-       z(k) = 0d0
-    end do
-    
-  end subroutine symmetry_apply_vector
-
-  !> No-op scalar apply (device version)
-  subroutine symmetry_apply_scalar_dev(this, x_d)
-    class(symmetry_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-  end subroutine symmetry_apply_scalar_dev
-
-  !> Apply symmetry conditions (axis aligned) (device version)
-  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d)
-    class(symmetry_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-
-    call device_symmetry_apply_vector(this%xaxis_msk_d, this%yaxis_msk_d, &
-                                      this%zaxis_msk_d, x_d, y_d, z_d, &
-                                      this%xaxis_msk(0), &
-                                      this%yaxis_msk(0), &
-                                      this%zaxis_msk(0))
-
-
-  end subroutine symmetry_apply_vector_dev
-      
-end module symmetry
+  end subroutine non_normal_free
+ end module non_normal

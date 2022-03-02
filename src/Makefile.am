@@ -96,6 +96,7 @@ libneko_a_SOURCES = \
 	bc/usr_inflow.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
+	bc/non_normal.f90\
 	bc/blasius.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
@@ -140,6 +141,7 @@ libneko_a_SOURCES = \
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	fluid/bcknd/cpu/fluid_abbdf_cpu.f90\
+	fluid/bcknd/sx/fluid_abbdf_sx.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
@@ -240,6 +242,7 @@ libneko_a_SOURCES += \
 	device/opencl/check.c\
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
+	math/bcknd/device/opencl/schwarz.c\
 	math/bcknd/device/opencl/tensor.c\
 	math/bcknd/device/opencl/fdm.c\
 	math/bcknd/device/opencl/mathops.c\
@@ -340,6 +343,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/blasius_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
+	math/bcknd/device/opencl/schwarz_kernel.cl\
 	math/bcknd/device/opencl/tensor_kernel.cl\
 	math/bcknd/device/opencl/fdm_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\

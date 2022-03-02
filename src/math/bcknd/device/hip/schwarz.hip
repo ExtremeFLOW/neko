@@ -60,7 +60,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-                                \
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_toext3d_kernel<real>),
                                        nblcks, nthrds, 0, 0,
                                        (real *) a,(real *) b, * nx);
