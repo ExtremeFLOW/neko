@@ -98,14 +98,14 @@ module mesh
      type(zone_t) :: outlet               !< Zone of outlet facets
      type(zone_t) :: outlet_normal        !< Zone of outlet normal facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
-     type(zone_periodic_t) :: periodic    !< Zone of periodic facets
+     type(zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
+     type(zone_periodic_t) :: periodic !< Zones with periodic facets
+     integer :: max_labels = 20
      type(curve_t) :: curve               !< Set of curved elements
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
      logical :: lnumr = .false.                !< valid numbering
-
-     
 
   end type mesh_t
 
@@ -248,6 +248,12 @@ contains
     call m%outlet_normal%init(m%nelv)
     call m%sympln%init(m%nelv)
     call m%periodic%init(m%nelv)
+
+    allocate(m%labeled_zones(m%max_labels))
+    do i = 1, m%max_labels
+       call m%labeled_zones(i)%init(m%nelv)
+    end do
+
     call m%curve%init(m%nelv)
    
     call distdata_init(m%ddata)
@@ -307,6 +313,13 @@ contains
     if (allocated(m%facet_type)) then
        deallocate(m%facet_type)
     end if
+    if (allocated(m%labeled_zones)) then
+       do i = 1, m%max_labels
+          call m%labeled_zones(i)%free()
+       end do
+       deallocate(m%labeled_zones)
+    end if
+
 
     call m%wall%free()
     call m%inlet%free()
@@ -319,6 +332,7 @@ contains
 
   subroutine mesh_finalize(m)
     type(mesh_t), intent(inout) :: m
+    integer :: i
 
 
     call mesh_generate_flags(m)
@@ -330,6 +344,9 @@ contains
     call m%outlet_normal%finalize()
     call m%sympln%finalize()
     call m%periodic%finalize()
+    do i = 1, m%max_labels
+       call m%labeled_zones(i)%finalize()
+    end do
     call m%curve%finalize()
 
   end subroutine mesh_finalize
@@ -1372,7 +1389,28 @@ contains
     call m%inlet%add_facet(f, e)
     
   end subroutine mesh_mark_inlet_facet
-  
+ 
+  !> Mark facet @a f in element @a e with label 
+  subroutine mesh_mark_labeled_facet(m, f, e, label)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+    integer, intent(inout) :: label
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+    call m%labeled_zones(label)%add_facet(f, e)
+    m%facet_type(f,e) = -label
+    
+  end subroutine mesh_mark_labeled_facet
+
+ 
   !> Mark facet @a f in element @a e as an outlet normal
   subroutine mesh_mark_outlet_normal_facet(m, f, e)
     type(mesh_t), intent(inout) :: m
