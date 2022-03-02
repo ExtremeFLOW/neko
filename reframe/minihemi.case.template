@@ -1,0 +1,23 @@
+&NEKO_CASE
+mesh_file= 'examples/hemi/hemi.nmsh'
+fluid_scheme='$fluid_scheme'
+lx = 6
+source_term = 'noforce'
+initial_condition = 'uniform'
+/
+&NEKO_PARAMETERS
+dt = 1d-3
+T_end = 2d-3
+nsamples = 100
+uinf= 1.0,0.0,0.0
+output_bdry = .true.
+rho = 1
+Re = 1400
+abstol_vel = $abstol_vel
+abstol_prs = $abstol_prs
+ksp_vel = 'cg'
+ksp_prs = 'gmres'
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+/
+
