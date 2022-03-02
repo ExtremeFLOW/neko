@@ -71,6 +71,7 @@ module parameters
      integer :: lxd                    !< Size of dealiased space
      real(kind=rp) :: delta !< Boundary layer thickness \f$ \delta \f$
      character(len=10) :: blasius_approx !< Type of approximate Blasius profile
+     character(len=3) :: bc_labels(20) !< Type of bc for each label
   end type param_t
 
   type param_io_t
@@ -129,6 +130,8 @@ contains
     logical :: dealias = .true.
     integer :: dealias_lx  = 0
     character(len=10) :: blasius_approx = 'sin'
+    character(len=3) :: bc_labels(20) = 'not'
+
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -136,7 +139,7 @@ contains
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
-         delta, blasius_approx
+         delta, blasius_approx, bc_labels
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -175,6 +178,7 @@ contains
     param%p%lxd = dealias_lx
     param%p%delta = delta
     param%p%blasius_approx = blasius_approx
+    param%p%bc_labels = bc_labels
 
   end subroutine param_read
 
@@ -200,6 +204,7 @@ contains
     integer :: dealias_lx
     logical :: dealias
     character(len=10) :: blasius_approx
+    character(len=3) :: bc_labels(20)
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -207,7 +212,7 @@ contains
          proj_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
-         delta, blasius_approx
+         delta, blasius_approx, bc_labels
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -244,9 +249,9 @@ contains
     dealias = param%p%dealias
     delta = param%p%delta
     blasius_approx = param%p%blasius_approx
+    bc_labels = param%p%bc_labels
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
-
         
   end subroutine param_write
 
