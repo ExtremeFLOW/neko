@@ -37,11 +37,11 @@
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
  */
 template< typename T >
-__global__ void gather_kernel_add(double * __restrict__ v,
+__global__ void gather_kernel_add(T * __restrict__ v,
 				  const int m,
 				  const int o,
 				  const int * __restrict__ dg,
-				  const double * __restrict__ u,
+				  const T * __restrict__ u,
 				  const int n,
 				  const int * __restrict__ gd,
 				  const int nb,
@@ -69,7 +69,7 @@ __global__ void gather_kernel_add(double * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	double tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
+	T tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
 	v[dg[i] - 1] = tmp;
       }
     }
@@ -82,11 +82,11 @@ __global__ void gather_kernel_add(double * __restrict__ v,
  * \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
  */
 template< typename T >
-__global__ void gather_kernel_mul(double * __restrict__ v,
+__global__ void gather_kernel_mul(T * __restrict__ v,
 				  const int m,
 				  const int o,
 				  const int * __restrict__ dg,
-				  const double * __restrict__ u,
+				  const T * __restrict__ u,
 				  const int n,
 				  const int * __restrict__ gd,
 				  const int nb,
@@ -114,7 +114,7 @@ __global__ void gather_kernel_mul(double * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	double tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
+	T tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
 	v[dg[i] - 1] = tmp;
       }
     }
@@ -127,11 +127,11 @@ __global__ void gather_kernel_mul(double * __restrict__ v,
  * \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
  */
 template< typename T >
-__global__ void gather_kernel_min(double * __restrict__ v,
+__global__ void gather_kernel_min(T * __restrict__ v,
 				  const int m,
 				  const int o,
 				  const int * __restrict__ dg,
-				  const double * __restrict__ u,
+				  const T * __restrict__ u,
 				  const int n,
 				  const int * __restrict__ gd,
 				  const int nb,
@@ -159,7 +159,7 @@ __global__ void gather_kernel_min(double * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	double tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
+	T tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
 	v[dg[i] - 1] = tmp;
       }
     }
@@ -172,11 +172,11 @@ __global__ void gather_kernel_min(double * __restrict__ v,
  * \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
  */
 template< typename T >
-__global__ void gather_kernel_max(double * __restrict__ v,
+__global__ void gather_kernel_max(T * __restrict__ v,
 				  const int m,
 				  const int o,
 				  const int * __restrict__ dg,
-				  const double * __restrict__ u,
+				  const T * __restrict__ u,
 				  const int n,
 				  const int * __restrict__ gd,
 				  const int nb,
@@ -204,7 +204,7 @@ __global__ void gather_kernel_max(double * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	double tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
+	T tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
 	v[dg[i] - 1] = tmp;
       }
     }
@@ -217,10 +217,10 @@ __global__ void gather_kernel_max(double * __restrict__ v,
  * \f$ u(gd(i) = v(dg(i)) \f$
  */
 template< typename T >
-__global__ void scatter_kernel(double * __restrict__ v,
+__global__ void scatter_kernel(T * __restrict__ v,
 			       const int m,
 			       const int * __restrict__ dg,
-			       double * __restrict__ u,
+			       T * __restrict__ u,
 			       const int n,
 			       const int * __restrict__ gd,
 			       const int nb,
