@@ -98,7 +98,7 @@ contains
        write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
     end if
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    if (hdr_ver .eq. '#v002') then
+    if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
        v2_format = .true.
        call MPI_Type_size(MPI_RE2V2_DATA_XY, re2_data_xy_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_XYZ, re2_data_xyz_size, ierr)
@@ -322,6 +322,7 @@ contains
                      real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              
              call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
           end do
@@ -336,6 +337,7 @@ contains
                      re2v2_data_xy(i)%y(j), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              
              call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
           end do
@@ -354,7 +356,7 @@ contains
                      real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              call mesh_add_element(msh, i, &
                   p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           end do
@@ -371,6 +373,7 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              call mesh_add_element(msh, i, &
                   p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           end do
@@ -490,7 +493,7 @@ contains
     logical, intent(in) :: v2_format
     type(MPI_Status) :: status
     integer :: pids(4)
-    integer :: sym_facet
+    integer :: sym_facet, label
     integer :: p_el_idx, p_facet
     integer :: i, j, ierr, pt_idx, el_idx
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
@@ -534,8 +537,12 @@ contains
              call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
+          case ('MSH', 'msh')
+             label = int(re2v2_data_bc(i)%bc_data(5))
+             call mesh_mark_labeled_facet(msh, sym_facet, el_idx, label)
           case default
-             write (*,*) re2v2_data_bc(i)%type, 'label not supported yet'
+              write (*,*) re2v2_data_bc(i)%type, 'bc type not supported yet'
+             write (*,*) re2v2_data_bc(i)%bc_data
           end select
        end do
     
@@ -579,6 +586,13 @@ contains
              call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
+          case ('MSH', 'msh')
+             label = int(re2v1_data_bc(i)%bc_data(5))
+             call mesh_mark_labeled_facet(msh, sym_facet, el_idx, label)
+          case default
+              write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
+             write (*,*) re2v1_data_bc(i)%bc_data
+
           end select
        end do
        
