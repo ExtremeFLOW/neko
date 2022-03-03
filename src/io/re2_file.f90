@@ -134,8 +134,7 @@ contains
     end if
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
-    nelv = dist%num_local()
-    call mesh_init(msh, ndim, nelv)
+    call mesh_init(msh, ndim, dist)
 
     ! Set offset (header)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
