@@ -259,9 +259,7 @@ contains
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-    if (pe_rank .eq. 0) then
-       write(*, '(A,A)') " Writing data as a binary Neko file ", this%fname
-    end if
+    call neko_log%message('Writing data as a binary Neko file ' // this%fname)
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
@@ -394,7 +392,7 @@ contains
     end if
    
     call MPI_File_close(fh, ierr)
-    if (pe_rank .eq. 0) write(*,*) 'Done'
+    call neko_log%message('Done')
 
   end subroutine nmsh_file_write
   

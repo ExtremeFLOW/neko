@@ -45,6 +45,7 @@ module rea_file
   use comm
   use datadist
   use htable
+  use logger
   implicit none
   private
 
@@ -86,6 +87,7 @@ contains
     integer :: off
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
     logical :: curve_skip = .false.
+    character(len=LOG_SIZE) :: log_buf
 
     select type(data)
     type is (rea_t)
@@ -109,9 +111,7 @@ contains
           
     
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    if (pe_rank .eq. 0) then
-       write(*, '(A,A)') " Reading NEKTON file ", this%fname
-    end if
+    call neko_log%message('Reading NEKTON file ' // this%fname)
     
     read(9, *)
     read(9, *)
@@ -152,8 +152,9 @@ contains
        call re2_file%init(re2_fname)
        call re2_file%read(msh)
     else       
-       if (pe_rank .eq. 0) write(*,1) ndim, nelgv
-1      format(1x,'ndim = ', i1, ', nelements =', i7)
+       write(log_buf,1) ndim, nelgv
+1      format('gdim = ', i1, ', nelements =', i7)
+       call neko_log%message(log_Buf)
 
        call filename_chsuffix(this%fname, map_fname, 'map')
        inquire(file=map_fname, exist=read_map)
@@ -162,7 +163,7 @@ contains
           call map_file%init(map_fname)
           call map_file%read(nm)
        else
-          if (pe_rank .eq. 0) call neko_warning('No NEKTON map file found')
+          call neko_log%warning('No NEKTON map file found')
        end if
 
        ! Use a load-balanced linear distribution
@@ -244,7 +245,7 @@ contains
           end select
        end do
        if (curve_skip) then
-          call neko_warning('Curve type: s, e are not supported, treating mesh as non-curved.')
+          call neko_log%warning('Curve type: s, e are not supported, treating mesh as non-curved.')
        else
           do el_idx = 1, nelgv
              if (curve_element(el_idx)) then
@@ -349,7 +350,7 @@ contains
 
        call mesh_finalize(msh)
        
-       if (pe_rank .eq. 0) write(*,*) 'Done'       
+       call neko_log%message('Done')
        close(9)
     endif
     

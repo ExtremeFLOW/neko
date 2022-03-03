@@ -40,7 +40,8 @@ module vtk_file
   use field
   use dofmap
   use mesh_field
-  use tet_mesh    
+  use tet_mesh
+  use logger
   use comm
   implicit none
   private
@@ -82,7 +83,7 @@ contains
     type is (tet_mesh_t)
        tet_msh => data
     class default
-       call neko_error('Invalid data')
+       call neko_log%error('Invalid data')
     end select
 
     if (pe_size .gt. 1) then
@@ -188,9 +189,7 @@ contains
     if ( (fld%Xh%lx - 1 .gt. 1) .or. &
          (fld%Xh%ly - 1 .gt. 1) .or. &
          (fld%Xh%lz - 1 .gt. 1)) then
-       if (pe_rank .eq. 0) then
-          call neko_warning("Interpolate high-order data onto a low-order mesh")
-       end if
+       call neko_log%warning("Interpolate high-order data onto a low-order mesh")
     end if
 
     write(unit, fmt='(A,I8)') 'POINT_DATA', fld%msh%mpts

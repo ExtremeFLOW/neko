@@ -46,6 +46,7 @@ module re2_file
   use map
   use map_file
   use htable
+  use logger
   implicit none
   private
   
@@ -83,7 +84,7 @@ contains
     integer :: re2_data_cv_size
     integer :: re2_data_bc_size
     logical :: v2_format
-
+    character(len=LOG_SIZE) :: log_buf
     
     select type(data)
     type is (mesh_t)
@@ -94,9 +95,7 @@ contains
 
     v2_format = .false.
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    if (pe_rank .eq. 0) then
-       write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
-    end if
+    call neko_log%message('Reading binary NEKTON file ' // this%fname)
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
     if (hdr_ver .eq. '#v002') then
        v2_format = .true.
@@ -111,8 +110,9 @@ contains
        call MPI_Type_size(MPI_RE2V1_DATA_BC, re2_data_bc_size, ierr)    
     end if
 
-    if (pe_rank .eq. 0) write(*,1) ndim, nelv
-1   format(1x,'ndim = ', i1, ', nelements =', i7)
+    write(log_buf,1) ndim, nelv
+1   format('gdim = ', i1, ', nelements =', i7)
+    call neko_log%message(log_buf)
     close(9)
 
     call filename_chsuffix(this%fname, map_fname,'map')
@@ -123,14 +123,14 @@ contains
        call map_file%init(map_fname)
        call map_file%read(nm)
     else
-       if (pe_rank .eq. 0) call neko_warning('No NEKTON map file found')
+       call neko_log%warning('No NEKTON map file found')
     end if
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     
     if (ierr .ne. 0) then
-       call neko_error("Can't open binary NEKTON file ")
+       call neko_log%error("Can't open binary NEKTON file ")
     end if
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
@@ -187,7 +187,7 @@ contains
     call mesh_finalize(msh)
 
 
-    if (pe_rank .eq. 0) write(*,*) 'Done'
+    call neko_log%message('Done')
 
     
   end subroutine re2_file_read
@@ -208,7 +208,8 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
-        
+    character(len=LOG_SIZE) :: log_buf
+    
     select type(data)
     type is (mesh_t)
        msh => data
@@ -224,10 +225,11 @@ contains
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
+    call neko_log%message('Writing data as a binary NEKTON file ' // this%fname)
+
     if (pe_rank .eq. 0) then
        open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
-       write(*, '(A,A)') " Writing data as a binary NEKTON file ", this%fname
-       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
+              write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
             nelgv, RE2_HDR_STR
        close(9)
     end if
@@ -276,7 +278,7 @@ contains
     end if
         
     call MPI_FILE_close(fh, ierr)
-    write(*,*) 'Done'
+    call neko_log%message('Done')
 
     !> @todo Add support for curved side data
     
@@ -444,12 +446,12 @@ contains
        select case(trim(chtemp))
        case ('s')
          curve_type(id,el_idx) = 1
-         call neko_warning('curve type s not supported, treating mesh as non-curved')
+         call neko_log%warning('curve type s not supported, treating mesh as non-curved')
          curve_skip = .true.
          exit
        case ('e')
          curve_type(id,el_idx) = 2
-         call neko_warning('curve type e not supported, treating mesh as non-curved')
+         call neko_log%warning('curve type e not supported, treating mesh as non-curved')
          curve_skip = .true.
          exit
        case ('C')
@@ -457,7 +459,8 @@ contains
        case ('m')
          curve_type(id,el_idx) = 4
        case default
-         write(*,*) chtemp,'curve type not supported yet, treating mesh as non-curved', id, el_idx
+          write(*,*) chtemp, 'curve type not supported yet, treating mesh as non-curved',id, el_idx
+
          curve_skip = .true.
        end select
     end do
