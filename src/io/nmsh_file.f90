@@ -70,7 +70,7 @@ contains
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     class(element_t), pointer :: ep
     integer :: nelv, gdim, nread, nzones, ncurves
-    integer :: el_idx, ids(4)
+    integer :: el_idx, ids(4), bcs(7), thing
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
@@ -171,6 +171,8 @@ contains
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              case(6)
                 call mesh_mark_outlet_normal_facet(msh, nmsh_zone(i)%f, el_idx)
+             case(7)
+                call mesh_mark_labeled_facet(msh, nmsh_zone(i)%f, el_idx,nmsh_zone(i)%p_f)
              end select
           end if
        end do
@@ -236,7 +238,7 @@ contains
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
-    integer :: i, j, ierr, nelgv, element_offset
+    integer :: i, j, ierr, nelgv, element_offset, k
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
     integer :: nzones, ncurves 
     class(element_t), pointer :: ep
@@ -304,8 +306,11 @@ contains
     end if
 
     nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + &
-         msh%sympln%size + msh%periodic%size + msh%outlet_normal%size
+         msh%sympln%size + msh%periodic%size + msh%outlet_normal%size 
 
+    do i = 1, msh%max_labels
+       nzones = nzones + msh%labeled_zones(i)%size
+    end do
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
          nzones, 1, MPI_INTEGER, status, ierr)
@@ -359,6 +364,16 @@ contains
           nmsh_zone(j)%type = 6
           j = j + 1
        end do
+       do k = 1, msh%max_labels
+          do i = 1, msh%labeled_zones(k)%size
+             nmsh_zone(j)%e = msh%labeled_zones(k)%facet_el(i)%x(2) + msh%offset_el
+             nmsh_zone(j)%f = msh%labeled_zones(k)%facet_el(i)%x(1)
+             nmsh_zone(j)%p_f = k
+             nmsh_zone(j)%type = 7
+             j = j + 1
+          end do
+       end do
+  
        
        mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
        call MPI_File_write_at_all(fh, mpi_offset, &

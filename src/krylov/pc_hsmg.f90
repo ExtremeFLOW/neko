@@ -159,6 +159,11 @@ contains
     call field_init(this%e_crs, this%dm_crs,'work crs')
     call coef_init(this%c_crs, this%gs_crs)
     
+    call space_init(this%Xh_mg, GLL, 4, 4, 4)
+    this%dm_mg = dofmap_t(msh, this%Xh_mg) 
+    call gs_init(this%gs_mg, this%dm_mg)
+    call field_init(this%e_mg, this%dm_mg,'work midl')
+    call coef_init(this%c_mg, this%gs_mg)
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax)
 
@@ -186,22 +191,18 @@ contains
     end if
 
     call this%bc_crs%init(this%dm_crs)
-    call this%bc_crs%mark_zone(msh%outlet)
-    call this%bc_crs%mark_zone(msh%outlet_normal)
+    call this%bc_mg%init(this%dm_mg)
+    if (bclst%n .gt. 0) then
+       call this%bc_crs%mark_facets(bclst%bc(1)%bcp%marked_facet)
+       call this%bc_mg%mark_facets(bclst%bc(1)%bcp%marked_facet)
+    end if
+
     call this%bc_crs%finalize()
     call this%bc_crs%set_g(real(0d0,rp))
     call bc_list_init(this%bclst_crs)
     call bc_list_add(this%bclst_crs, this%bc_crs)
 
-    call space_init(this%Xh_mg, GLL, 4, 4, 4)
-    this%dm_mg = dofmap_t(msh, this%Xh_mg) 
-    call gs_init(this%gs_mg, this%dm_mg)
-    call field_init(this%e_mg, this%dm_mg,'work midl')
-    call coef_init(this%c_mg, this%gs_mg)
     
-    call this%bc_mg%init(this%dm_mg)
-    call this%bc_mg%mark_zone(msh%outlet)
-    call this%bc_mg%mark_zone(msh%outlet_normal)
     call this%bc_mg%finalize()
     call this%bc_mg%set_g(0.0_rp)
     call bc_list_init(this%bclst_mg)

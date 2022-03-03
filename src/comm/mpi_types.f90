@@ -468,7 +468,7 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer, parameter :: n_param = 35
+    integer, parameter :: n_param = 36
     type(MPI_Datatype) :: type(n_param)
     integer(kind=MPI_ADDRESS_KIND) :: disp(n_param), base    
     integer :: len(n_param), ierr
@@ -509,6 +509,7 @@ contains
     call MPI_Get_address(param_data%lxd, disp(33), ierr)
     call MPI_Get_address(param_data%delta, disp(34), ierr)
     call MPI_Get_address(param_data%blasius_approx, disp(35), ierr)
+    call MPI_Get_address(param_data%bc_labels, disp(36), ierr)
     
     base = disp(1)
     do i = 1, n_param
@@ -529,6 +530,7 @@ contains
     len(33) = 1
     len(34) = 1
     len(35) = 10
+    len(36) = 60
     
     type(1) = MPI_INTEGER
     type(2:4) = MPI_LOGICAL
@@ -547,6 +549,7 @@ contains
     type(33) = MPI_INTEGER
     type(34) = MPI_REAL_PRECISION
     type(35) = MPI_CHARACTER
+    type(36) = MPI_CHARACTER
     
     call MPI_Type_create_struct(n_param, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)

@@ -74,7 +74,7 @@ contains
     class(fluid_pnpn_t), intent(inout) :: this
     type(mesh_t), intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: param     
+    type(param_t), intent(inout) :: param    
 
     call this%free()
     
@@ -144,22 +144,32 @@ contains
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%dm_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
+    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
+                        'v', this%params%bc_labels, msh%max_labels)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init(this%dm_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
+    call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
+                        'sym', this%params%bc_labels, msh%max_labels)
     call this%bc_sym_surface%finalize()
     call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_residual_non_normal%init(this%dm_Xh)
     call this%bc_vel_residual_non_normal%mark_zone(msh%outlet_normal)
+    call this%bc_vel_residual_non_normal%mark_zones_from_list(msh%labeled_zones,&
+                        'on', this%params%bc_labels, msh%max_labels)
     call this%bc_vel_residual_non_normal%finalize()
     call this%bc_vel_residual_non_normal%init_msk(this%c_Xh)    
 
     call this%bc_vel_residual%init(this%dm_Xh)
     call this%bc_vel_residual%mark_zone(msh%inlet)
     call this%bc_vel_residual%mark_zone(msh%wall)
+    call this%bc_vel_residual%mark_zones_from_list(msh%labeled_zones,&
+                        'v', this%params%bc_labels, msh%max_labels)
+    call this%bc_vel_residual%mark_zones_from_list(msh%labeled_zones,&
+                        'w', this%params%bc_labels, msh%max_labels)
     call this%bc_vel_residual%finalize()
     call this%bc_vel_residual%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_residual)
@@ -182,7 +192,7 @@ contains
     !Deallocate velocity and pressure fields
     call this%scheme_free()
 
-    call this%bc_prs_surface%free()  
+    call this%bc_prs_surface%free() 
     call this%bc_sym_surface%free()  
     call bc_list_free(this%bclst_vel_residual)
     call this%proj%free()

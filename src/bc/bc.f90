@@ -61,6 +61,7 @@ module bc
      procedure, pass(this) :: free => bc_free
      procedure, pass(this) :: mark_facet => bc_mark_facet
      procedure, pass(this) :: mark_facets => bc_mark_facets
+     procedure, pass(this) :: mark_zones_from_list => bc_mark_zones_from_list
      procedure, pass(this) :: mark_zone => bc_mark_zone
      procedure, pass(this) :: finalize => bc_finalize
      procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
@@ -211,6 +212,38 @@ contains
     end do
   end subroutine bc_mark_zone
 
+  !> Mark all facets from a list of zones, also marks type of bc in mesh
+  !! The facet_type in mesh is because of the fdm from Nek5000
+  subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels, n_zones)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: n_zones
+    class(zone_t),  intent(inout) :: bc_zones(n_zones)
+    character(len=*) :: bc_key
+    character(len=3) :: bc_labels(n_zones)
+    integer :: i, j, k, msh_bc_type 
+    
+    msh_bc_type = 0
+    if(trim(bc_key) .eq. 'o') msh_bc_type = 1
+    if(trim(bc_key) .eq. 'on') msh_bc_type = 1
+    if(trim(bc_key) .eq. 'w') msh_bc_type = 2
+    if(trim(bc_key) .eq. 'v') msh_bc_type = 2
+    if(trim(bc_key) .eq. 'sym') msh_bc_type = 2
+
+    do i = 1, n_zones
+       if (trim(bc_key) .eq. trim(bc_labels(i))) then
+          call bc_mark_zone(this, bc_zones(i))
+          do j = 1,this%msh%nelv
+             do k = 1, 2 * this%msh%gdim
+                if (this%msh%facet_type(k,j) .eq. -i) then
+                   this%msh%facet_type(k,j) = msh_bc_type
+                end if
+             end do
+          end do
+       end if
+    end do
+  end subroutine bc_mark_zones_from_list
+
+
   !> Finalize a boundary condition
   !! @details This will linearize the marked facet's indicies in msk
   subroutine bc_finalize(this)
@@ -351,6 +384,8 @@ contains
     class(bc_t), intent(inout), target :: bc
     type(bcp_t), allocatable :: tmp(:)
     integer :: i 
+    !> Do not add if bc is empty
+    if(bc%marked_facet%size() .eq. 0) return
 
     if (bclst%n .ge. bclst%size) then
        bclst%size = bclst%size * 2

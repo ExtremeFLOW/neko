@@ -46,7 +46,7 @@ Comments can be added by prepending a `!`.
 Name                    | Description
 ----                    | -----------
 `mesh_file`             | Path to the mesh file (`.nmsh` extension)
-`fluid_scheme`          | Solver scheme (``'plan1'`` or ``'plan4'``)
+`fluid_scheme`          | Solver scheme (``'plan4'`` or ``'pnpn'``)
 `lx`                    | Number of quadrature points points per element and direction, i.e. polynomial degree + 1
 `source_term`           | Source term \f$ f \f$: default ``'noforce'`` for \f$ f=0 \f$, or ``'user'`` for user defined function
 `initial_condition`     | Initial condition: ``'uniform'``, ``'blasius'`` or ``'user'``
@@ -90,3 +90,4 @@ Name                    | Description                                           
 `lxd`                   | Size of dealiased space                                                                                       | `0`
 `delta`                 | Boundary layer thickness \f$ \delta \f$                                                                       | `1d0`
 `blasius_approx`        | Type of approximate Blasius profile (``'linear'``, ``'quadratic'``, ``'cubic'``, ``'quartic'``, ``'sin'``)    | ``'sin'``
+`bc_labels`             | Type of boundary condition for each label                      | -
