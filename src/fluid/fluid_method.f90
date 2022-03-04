@@ -188,7 +188,7 @@ contains
     call this%bc_sym%init(this%dm_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
-                        'sym', this%params%bc_labels, msh%max_labels)
+                        'sym', this%params%bc_labels)
     call this%bc_sym%finalize()
     call this%bc_sym%init_msk(this%c_Xh)    
     call bc_list_add(this%bclst_vel, this%bc_sym)
@@ -206,7 +206,7 @@ contains
     call this%bc_inflow%init(this%dm_Xh)
     call this%bc_inflow%mark_zone(msh%inlet)
     call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
-                        'v', this%params%bc_labels, msh%max_labels)
+                        'v', this%params%bc_labels)
     call this%bc_inflow%finalize()
     call this%bc_inflow%set_inflow(params%uinf)
     call bc_list_add(this%bclst_vel, this%bc_inflow)
@@ -229,7 +229,7 @@ contains
     call this%bc_wall%init(this%dm_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
-                        'w', this%params%bc_labels, msh%max_labels)
+                        'w', this%params%bc_labels)
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
        
@@ -240,7 +240,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'w', this%params%bc_labels, msh%max_labels)
+                      'w', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(1d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -249,7 +249,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'v', this%params%bc_labels, msh%max_labels)
+                      'v', this%params%bc_labels)
 
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(2d0,rp))
@@ -259,7 +259,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'o', this%params%bc_labels, msh%max_labels)
+                      'o', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(3d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -268,7 +268,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'sym', this%params%bc_labels, msh%max_labels)
+                      'sym', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(4d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -284,7 +284,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet_normal)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'on', this%params%bc_labels, msh%max_labels)
+                      'on', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(6d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -341,9 +341,9 @@ contains
     call bc_list_init(this%bclst_prs)
     call this%bc_prs%init(this%dm_Xh)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'o', this%params%bc_labels, msh%max_labels)
+                        'o', this%params%bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'on', this%params%bc_labels, msh%max_labels)
+                        'on', this%params%bc_labels)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)

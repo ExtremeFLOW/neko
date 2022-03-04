@@ -214,22 +214,27 @@ contains
 
   !> Mark all facets from a list of zones, also marks type of bc in mesh
   !! The facet_type in mesh is because of the fdm from Nek5000
-  subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels, n_zones)
+  subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    integer, intent(in) :: n_zones
-    class(zone_t),  intent(inout) :: bc_zones(n_zones)
+    class(zone_t),  intent(inout) :: bc_zones(NEKO_MSH_MAX_ZLBLS)
     character(len=*) :: bc_key
-    character(len=3) :: bc_labels(n_zones)
+    character(len=3) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     integer :: i, j, k, msh_bc_type 
     
     msh_bc_type = 0
-    if(trim(bc_key) .eq. 'o') msh_bc_type = 1
-    if(trim(bc_key) .eq. 'on') msh_bc_type = 1
-    if(trim(bc_key) .eq. 'w') msh_bc_type = 2
-    if(trim(bc_key) .eq. 'v') msh_bc_type = 2
-    if(trim(bc_key) .eq. 'sym') msh_bc_type = 2
+    if(trim(bc_key) .eq. 'o') then
+       msh_bc_type = 1
+    else if(trim(bc_key) .eq. 'on') then
+       msh_bc_type = 1
+    else if(trim(bc_key) .eq. 'w') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'v') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'sym') then
+       msh_bc_type = 2
+    end if
 
-    do i = 1, n_zones
+    do i = 1, NEKO_MSH_MAX_ZLBLS
        if (trim(bc_key) .eq. trim(bc_labels(i))) then
           call bc_mark_zone(this, bc_zones(i))
           do j = 1,this%msh%nelv
