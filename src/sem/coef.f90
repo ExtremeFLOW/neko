@@ -341,7 +341,7 @@ contains
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
        
-    call gs_op_vector(gs_h, coef%mult, n, GS_OP_ADD)
+    call gs_op(gs_h, coef%mult, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
@@ -846,7 +846,7 @@ contains
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(c%gs_h,c%Binv, c%dof%n_dofs,GS_OP_ADD)
+    call gs_op(c%gs_h, c%Binv, c%dof%n_dofs, GS_OP_ADD)
 
     !>  @todo cleanup once we have device math in place
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &

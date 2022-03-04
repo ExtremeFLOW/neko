@@ -85,7 +85,7 @@ module gather_scatter
   private :: gs_init_mapping, gs_schedule
   
   interface gs_op
-     module procedure gs_op_fld, gs_op_vector
+     module procedure gs_op_fld, gs_op_r4, gs_op_vector
   end interface gs_op
 
 contains
@@ -1143,6 +1143,17 @@ contains
     call gs_op_vector(gs, u%x, n, op)
     
   end subroutine gs_op_fld
+  
+  !> Gather-scatter operation on a rank 4 array
+  subroutine gs_op_r4(gs, u, n, op)
+    type(gs_t), intent(inout) :: gs
+    integer, intent(inout) :: n
+    real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+    integer :: op
+
+    call gs_op_vector(gs, u, n, op)
+    
+  end subroutine gs_op_r4
   
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op)

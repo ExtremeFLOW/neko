@@ -185,10 +185,10 @@ contains
          end do
          if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
          else
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
          end if
 
          do e = 1,nelv
@@ -212,10 +212,10 @@ contains
          if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
               .or. (NEKO_BCKND_OPENCL .eq. 1)) then
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
          else
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
          end if
 
          do e = 1,nelv

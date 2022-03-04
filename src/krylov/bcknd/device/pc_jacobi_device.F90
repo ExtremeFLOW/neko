@@ -176,7 +176,7 @@ contains
          call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%n_dofs)
       end if
       
-      call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
+      call gs_op(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
 
       call device_invcol1(this%d_d, dof%n_dofs)
     end associate
