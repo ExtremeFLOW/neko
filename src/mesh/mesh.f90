@@ -52,6 +52,8 @@ module mesh
   use curve
   implicit none
 
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
+
   type, private :: mesh_element_t
      class(element_t), allocatable :: e
   end type mesh_element_t
@@ -99,9 +101,8 @@ module mesh
      type(zone_t) :: outlet_normal        !< Zone of outlet normal facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
      type(zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
-     type(zone_periodic_t) :: periodic !< Zones with periodic facets
-     integer :: max_labels = 20
-     type(curve_t) :: curve               !< Set of curved elements
+     type(zone_periodic_t) :: periodic             !< Zones with periodic facets
+     type(curve_t) :: curve                        !< Set of curved elements
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
@@ -249,8 +250,8 @@ contains
     call m%sympln%init(m%nelv)
     call m%periodic%init(m%nelv)
 
-    allocate(m%labeled_zones(m%max_labels))
-    do i = 1, m%max_labels
+    allocate(m%labeled_zones(NEKO_MSH_MAX_ZLBLS))
+    do i = 1, NEKO_MSH_MAX_ZLBLS
        call m%labeled_zones(i)%init(m%nelv)
     end do
 
@@ -314,7 +315,7 @@ contains
        deallocate(m%facet_type)
     end if
     if (allocated(m%labeled_zones)) then
-       do i = 1, m%max_labels
+       do i = 1, NEKO_MSH_MAX_ZLBLS
           call m%labeled_zones(i)%free()
        end do
        deallocate(m%labeled_zones)
@@ -344,7 +345,7 @@ contains
     call m%outlet_normal%finalize()
     call m%sympln%finalize()
     call m%periodic%finalize()
-    do i = 1, m%max_labels
+    do i = 1, NEKO_MSH_MAX_ZLBLS
        call m%labeled_zones(i)%finalize()
     end do
     call m%curve%finalize()
