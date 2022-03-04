@@ -39,7 +39,7 @@ NEKO_SCHEME=plan4,pnpn
 ## How to add a new system
 
 The `settings.py` file defines how to run the suite on different systems.
-Reference: https://reframe-hpc.readthedocs.io/en/stable/config\_reference.html.
+Reference: https://reframe-hpc.readthedocs.io/en/stable/config_reference.html.
 
 CPU partitions require processor information which can be automatically
 generated using `reframe --detect-host-topology`. GPU partitions require a

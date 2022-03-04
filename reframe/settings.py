@@ -12,7 +12,7 @@ site_configuration = {
                     'scheduler': 'squeue',
                     'launcher': 'srun',
                     'access': ['-w dt0', '--exclusive'],
-                    'environs': ['cray'],
+                    'environs': ['PrgEnv-cray'],
                     'processor': {
                         'num_cpus': 256,
                         'num_cpus_per_core': 2,
@@ -26,7 +26,7 @@ site_configuration = {
                     'scheduler': 'squeue',
                     'launcher': 'srun',
                     'access': ['-w dt2', '--exclusive'],
-                    'environs': ['cray'],
+                    'environs': ['PrgEnv-cray'],
                     'modules': ['rocm/rocm'],
                     'devices': [
                         {
@@ -34,7 +34,10 @@ site_configuration = {
                             'arch': 'amd',
                             'num_devices': 2
                         }
-                    ]
+                    ],
+                    'extras': {
+                        'select_device': './rocm_select_gpu_device'
+                    }
                 }
 
             ],
@@ -43,7 +46,7 @@ site_configuration = {
     ],
     'environments': [
         {
-            'name': 'cray',
+            'name': 'PrgEnv-cray',
             'modules': ['PrgEnv-cray'],
             'cc': 'cc',
             'cxx': 'CC',

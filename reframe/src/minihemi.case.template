@@ -1,5 +1,5 @@
 &NEKO_CASE
-mesh_file= 'examples/hemi/hemi.nmsh'
+mesh_file= '$mesh_file'
 fluid_scheme='$fluid_scheme'
 lx = 6
 source_term = 'noforce'
