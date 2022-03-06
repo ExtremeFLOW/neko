@@ -207,6 +207,8 @@ contains
     call this%bc_inflow%mark_zone(msh%inlet)
     call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%params%bc_labels, msh%max_labels)
+    call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
+                        'on', this%params%bc_labels, msh%max_labels)
     call this%bc_inflow%finalize()
     call this%bc_inflow%set_inflow(params%uinf)
     call bc_list_add(this%bclst_vel, this%bc_inflow)
