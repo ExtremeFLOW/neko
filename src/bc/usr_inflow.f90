@@ -55,6 +55,8 @@ module usr_inflow
      procedure, pass(this) :: set_coef => usr_inflow_set_coef
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
+     procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
+     final :: usr_inflow_free
   end type usr_inflow_t
 
   !> Abstract interface defining a user defined inflow condition (pointwise)
@@ -81,6 +83,23 @@ module usr_inflow
 
 contains
      
+  subroutine usr_inflow_free(this)
+    type(usr_inflow_t), intent(inout) :: this
+
+    if (c_associated(this%usr_x_d)) then
+       call device_free(this%usr_x_d)
+    end if
+    
+    if (c_associated(this%usr_y_d)) then
+       call device_free(this%usr_y_d)
+    end if
+
+    if (c_associated(this%usr_z_d)) then
+       call device_free(this%usr_z_d)
+    end if
+    
+  end subroutine usr_inflow_free
+  
   !> No-op scalar apply
   subroutine usr_inflow_apply_scalar(this, x, n)
     class(usr_inflow_t), intent(inout) :: this
