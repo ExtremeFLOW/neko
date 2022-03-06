@@ -38,8 +38,10 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_vel_dir   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_residual_non_normal   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_residual  
+     type(bc_list_t) :: bclst_vel_dir  
 
      class(advection_t), allocatable :: adv 
 
@@ -283,7 +285,7 @@ contains
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf)
          
-
+      
 
       call sumab%compute(u_e, v_e, w_e, u, v, w, &
                          ulag, vlag, wlag, ab_bdf%ab, ab_bdf%nab)
@@ -315,8 +317,11 @@ contains
       call ulag%update()
       call vlag%update()
       call wlag%update()
-
-      ! mask Dirichlet boundaries (velocity)
+      !> We assume that no change of boundary conditions 
+      !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
+      !> Apply dirichlet
+      call bc_list_apply_vector(this%bclst_vel_residual,&
+         u%x, v%x, w%x, this%dm_Xh%n_dofs)
       call this%bc_apply_vel()
       
       ! compute pressure
