@@ -38,10 +38,8 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_vel_dir   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_residual_non_normal   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_residual  
-     type(bc_list_t) :: bclst_vel_dir  
 
      class(advection_t), allocatable :: adv 
 
