@@ -308,7 +308,7 @@ contains
     nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + &
          msh%sympln%size + msh%periodic%size + msh%outlet_normal%size 
 
-    do i = 1, msh%max_labels
+    do i = 1, NEKO_MSH_MAX_ZLBLS
        nzones = nzones + msh%labeled_zones(i)%size
     end do
     mpi_offset = mpi_el_offset
@@ -364,7 +364,7 @@ contains
           nmsh_zone(j)%type = 6
           j = j + 1
        end do
-       do k = 1, msh%max_labels
+       do k = 1, NEKO_MSH_MAX_ZLBLS
           do i = 1, msh%labeled_zones(k)%size
              nmsh_zone(j)%e = msh%labeled_zones(k)%facet_el(i)%x(2) + msh%offset_el
              nmsh_zone(j)%f = msh%labeled_zones(k)%facet_el(i)%x(1)

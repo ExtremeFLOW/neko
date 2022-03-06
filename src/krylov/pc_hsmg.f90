@@ -351,7 +351,7 @@ contains
                     this%grids(3)%dof%n_dofs)
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
-       call gs_op_vector(this%grids(2)%gs_h, this%w, &
+       call gs_op(this%grids(2)%gs_h, this%w, &
                          this%grids(2)%dof%n_dofs, GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
@@ -360,7 +360,7 @@ contains
        call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
        !Crs solve
 
-       call gs_op_vector(this%grids(1)%gs_h, this%r, &
+       call gs_op(this%grids(1)%gs_h, this%r, &
                          this%grids(1)%dof%n_dofs, GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%n_dofs)
@@ -378,7 +378,7 @@ contains
 
        call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%n_dofs)
-       call gs_op_vector(this%grids(3)%gs_h, z, &
+       call gs_op(this%grids(3)%gs_h, z, &
                          this%grids(3)%dof%n_dofs, GS_OP_ADD)
        call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%n_dofs)
     else
@@ -392,7 +392,7 @@ contains
                     this%grids(3)%dof%n_dofs)
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
-       call gs_op_vector(this%grids(2)%gs_h, this%w, &
+       call gs_op(this%grids(2)%gs_h, this%w, &
                          this%grids(2)%dof%n_dofs, GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
@@ -401,7 +401,7 @@ contains
        call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
        !Crs solve
 
-       call gs_op_vector(this%grids(1)%gs_h, this%r, &
+       call gs_op(this%grids(1)%gs_h, this%r, &
                          this%grids(1)%dof%n_dofs, GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%n_dofs)
@@ -419,7 +419,7 @@ contains
 
        call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
        call add2(z, this%w, this%grids(3)%dof%n_dofs)
-       call gs_op_vector(this%grids(3)%gs_h, z, &
+       call gs_op(this%grids(3)%gs_h, z, &
                          this%grids(3)%dof%n_dofs, GS_OP_ADD)
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%n_dofs)
     end if
