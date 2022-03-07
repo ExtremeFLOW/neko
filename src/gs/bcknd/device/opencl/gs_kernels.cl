@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -37,15 +37,15 @@
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
  */
 __kernel void gather_kernel_add(__global real * __restrict__ v,
-				const int m,
-				const int o,
-				__global const int * __restrict__ dg,
-				__global const real * __restrict__ u,
-			        const int n,
-				__global const int * __restrict__ gd,
-				const int nb,
-				__global const int * __restrict__ b,
-				__global const int * __restrict__ bo) {
+                                const int m,
+                                const int o,
+                                __global const int * __restrict__ dg,
+                                __global const real * __restrict__ u,
+                                const int n,
+                                __global const int * __restrict__ gd,
+                                const int nb,
+                                __global const int * __restrict__ b,
+                                __global const int * __restrict__ bo) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -68,8 +68,8 @@ __kernel void gather_kernel_add(__global real * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	real tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
-	v[dg[i] - 1] = tmp;
+        real tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -81,15 +81,15 @@ __kernel void gather_kernel_add(__global real * __restrict__ v,
  * \f$ v(dg(i)) = v(dg(i)) \cdot u(gd(i)) \f$
  */
 __kernel void gather_kernel_mul(__global real * __restrict__ v,
-				const int m,
-				const int o,
-				__global const int * __restrict__ dg,
-				__global const real * __restrict__ u,
-				const int n,
-				__global const int * __restrict__ gd,
-				const int nb,
-				__global const int * __restrict__ b,
-				__global const int * __restrict__ bo) { 
+                                const int m,
+                                const int o,
+                                __global const int * __restrict__ dg,
+                                __global const real * __restrict__ u,
+                                const int n,
+                                __global const int * __restrict__ gd,
+                                const int nb,
+                                __global const int * __restrict__ b,
+                                __global const int * __restrict__ bo) { 
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -112,8 +112,8 @@ __kernel void gather_kernel_mul(__global real * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	real tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
-	v[dg[i] - 1] = tmp;
+        real tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -125,15 +125,15 @@ __kernel void gather_kernel_mul(__global real * __restrict__ v,
  * \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
  */
 __kernel void gather_kernel_min(__global real * __restrict__ v,
-				const int m,
-				const int o,
-				__global const int * __restrict__ dg,
-				__global const real * __restrict__ u,
-				const int n,
-				__global const int * __restrict__ gd,
-				const int nb,
-				__global const int * __restrict__ b,
-				__global const int * __restrict__ bo) {
+                                const int m,
+                                const int o,
+                                __global const int * __restrict__ dg,
+                                __global const real * __restrict__ u,
+                                const int n,
+                                __global const int * __restrict__ gd,
+                                const int nb,
+                                __global const int * __restrict__ b,
+                                __global const int * __restrict__ bo) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -156,8 +156,8 @@ __kernel void gather_kernel_min(__global real * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	real tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
-	v[dg[i] - 1] = tmp;
+        real tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -169,15 +169,15 @@ __kernel void gather_kernel_min(__global real * __restrict__ v,
  * \f$ v(dg(i)) = \max(v(dg(i)), u(gd(i))) \f$
  */
 __kernel void gather_kernel_max(__global real * __restrict__ v,
-				const int m,
-				const int o,
-				__global const int * __restrict__ dg,
-				__global const real * __restrict__ u,
-				const int n,
-				__global const int * __restrict__ gd,
-				const int nb,
-				__global const int *b,
-				__global const int *bo) {
+                                const int m,
+                                const int o,
+                                __global const int * __restrict__ dg,
+                                __global const real * __restrict__ u,
+                                const int n,
+                                __global const int * __restrict__ gd,
+                                const int nb,
+                                __global const int *b,
+                                __global const int *bo) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -200,8 +200,8 @@ __kernel void gather_kernel_max(__global real * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	real tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
-	v[dg[i] - 1] = tmp;
+        real tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -213,14 +213,14 @@ __kernel void gather_kernel_max(__global real * __restrict__ v,
  * \f$ u(gd(i) = v(dg(i)) \f$
  */
 __kernel void scatter_kernel(__global real * __restrict__ v,
-			     const int m,
-			     __global const int * __restrict__ dg,
-			     __global real *u,
-			     const int n,
-			     __global const int * __restrict__ gd,
-			     const int nb,
-			     __global const int * __restrict__ b,
-			     __global const int * __restrict__ bo) {
+                             const int m,
+                             __global const int * __restrict__ dg,
+                             __global real *u,
+                             const int n,
+                             __global const int * __restrict__ gd,
+                             const int nb,
+                             __global const int * __restrict__ b,
+                             __global const int * __restrict__ bo) {
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
@@ -238,6 +238,290 @@ __kernel void scatter_kernel(__global real * __restrict__ v,
   
   for (int i = ((facet_offset - 1) + idx); i < m; i += str) {
     u[gd[i] - 1] = v[dg[i] - 1];
+  }
+  
+}
+
+/**
+ * Device gather kernel for addition of data (many version)
+ * \f$ v_n(dg(i)) = v_n(dg(i)) + u_n(gd(i)) \f$
+ */
+__kernel void gather_many_kernel_add(__global real * __restrict__ v1,
+                                     __global real * __restrict__ v2,
+                                     __global real * __restrict__ v3,
+                                     const int m,
+                                     const int o,
+                                     __global const int * __restrict__ dg,
+                                     __global const real * __restrict__ u1,
+                                     __global const real * __restrict__ u2,
+                                     __global const real * __restrict__ u3,
+                                     const int n,
+                                     __global const int * __restrict__ gd,
+                                     const int nb,
+                                     __global const int * __restrict__ b,
+                                     __global const int * __restrict__ bo) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < nb; i += str) {
+    const int blk_len = b[i];
+    const int k = bo[i];
+    real tmp1 = u1[gd[k] - 1];
+    real tmp2 = u2[gd[k] - 1];
+    real tmp3 = u3[gd[k] - 1];
+    for (int j = 1; j < blk_len; j++) {
+      tmp1 += u1[gd[k + j] - 1];
+      tmp2 += u2[gd[k + j] - 1];
+      tmp3 += u3[gd[k + j] - 1];
+    }
+    v1[dg[k] - 1] = tmp1;
+    v2[dg[k] - 1] = tmp2;
+    v3[dg[k] - 1] = tmp3;
+  }
+  
+  if (o < 0) {
+    for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
+      v1[dg[i] - 1] = u[gd[i] - 1];
+      v2[dg[i] - 1] = u[gd[i] - 1];
+      v3[dg[i] - 1] = u[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+        real tmp1 = u1[gd[i] - 1] + u1[gd[i+1] - 1];
+        real tmp2 = u2[gd[i] - 1] + u2[gd[i+1] - 1];
+        real tmp3 = u3[gd[i] - 1] + u3[gd[i+1] - 1];
+        v1[dg[i] - 1] = tmp1;
+        v2[dg[i] - 1] = tmp2;
+        v3[dg[i] - 1] = tmp3;
+      }
+    }
+  }
+  
+}
+
+/**
+ * Device gather kernel for multiplication of data (many version)
+ * \f$ v_n(dg(i)) = v_n(dg(i)) \cdot u_n(gd(i)) \f$
+ */
+__kernel void gather_many_kernel_mul(__global real * __restrict__ v1,
+                                     __global real * __restrict__ v2,
+                                     __global real * __restrict__ v3,
+                                     const int m,
+                                     const int o,
+                                     __global const int * __restrict__ dg,
+                                     __global const real * __restrict__ u1,
+                                     __global const real * __restrict__ u2,
+                                     __global const real * __restrict__ u3,                                  
+                                     const int n,
+                                     __global const int * __restrict__ gd,
+                                     const int nb,
+                                     __global const int * __restrict__ b,
+                                     __global const int * __restrict__ bo) { 
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < nb; i += str) {
+    const int blk_len = b[i];
+    const int k = bo[i];
+    real tmp1 = u1[gd[k] - 1];
+    real tmp2 = u2[gd[k] - 1];
+    real tmp3 = u3[gd[k] - 1];
+    for (int j = 1; j < blk_len; j++) {
+      tmp1 *= u1[gd[k + j] - 1];
+      tmp2 *= u2[gd[k + j] - 1];
+      tmp3 *= u3[gd[k + j] - 1];
+    }
+    v1[dg[k] - 1] = tmp1;
+    v2[dg[k] - 1] = tmp2;
+    v3[dg[k] - 1] = tmp3;
+  }
+  
+  if (o < 0) {
+    for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
+      v1[dg[i] - 1] = u1[gd[i] - 1];
+      v2[dg[i] - 1] = u2[gd[i] - 1];
+      v3[dg[i] - 1] = u3[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+        real tmp1 = u1[gd[i] - 1] * u1[gd[i+1] - 1];
+        real tmp2 = u2[gd[i] - 1] * u2[gd[i+1] - 1];
+        real tmp3 = u3[gd[i] - 1] * u3[gd[i+1] - 1];
+        v1[dg[i] - 1] = tmp1;
+        v2[dg[i] - 1] = tmp2;
+        v3[dg[i] - 1] = tmp3;
+      }
+    }
+  }
+
+}
+
+/**
+ * Device gather kernel for minimum of data (many version)
+ * \f$ v_n(dg(i)) = \min(v_n(dg(i)), u_n(gd(i))) \f$
+ */
+__kernel void gather_many_kernel_min(__global real * __restrict__ v1,
+                                     __global real * __restrict__ v2,
+                                     __global real * __restrict__ v3,
+                                     const int m,
+                                     const int o,
+                                     __global const int * __restrict__ dg,
+                                     __global const real * __restrict__ u1,
+                                     __global const real * __restrict__ u2,
+                                     __global const real * __restrict__ u3,
+                                     const int n,
+                                     __global const int * __restrict__ gd,
+                                     const int nb,
+                                     __global const int * __restrict__ b,
+                                     __global const int * __restrict__ bo) {
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < nb; i += str) {
+    const int blk_len = b[i];
+    const int k = bo[i];
+    real tmp1 = u1[gd[k] - 1];
+    real tmp2 = u2[gd[k] - 1];
+    real tmp3 = u3[gd[k] - 1];
+    for (int j = 1; j < blk_len; j++) {
+      tmp1 = min(u1[gd[k + j] - 1], tmp1);
+      tmp2 = min(u2[gd[k + j] - 1], tmp2);
+      tmp3 = min(u3[gd[k + j] - 1], tmp3);
+    }
+    v1[dg[k] - 1] = tmp1;
+    v2[dg[k] - 1] = tmp2;
+    v3[dg[k] - 1] = tmp3;
+  }
+  
+  if (o < 0) {
+    for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
+      v1[dg[i] - 1] = u1[gd[i] - 1];
+      v2[dg[i] - 1] = u2[gd[i] - 1];
+      v3[dg[i] - 1] = u3[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+        real tmp1 = min(u1[gd[i] - 1], u1[gd[i+1] - 1]);
+        real tmp2 = min(u2[gd[i] - 1], u2[gd[i+1] - 1]);
+        real tmp3 = min(u3[gd[i] - 1], u3[gd[i+1] - 1]);
+        v1[dg[i] - 1] = tmp1;
+        v2[dg[i] - 1] = tmp2;
+        v3[dg[i] - 1] = tmp3;
+      }
+    }
+  }
+  
+}
+
+/**
+ * Device gather kernel for maximum of data (many version)
+ * \f$ v_n(dg(i)) = \max(v_n(dg(i)), u_n(gd(i))) \f$
+ */
+__kernel void gather_many_kernel_max(__global real * __restrict__ v1,
+                                     __global real * __restrict__ v2,
+                                     __global real * __restrict__ v3,
+                                     const int m,
+                                     const int o,
+                                     __global const int * __restrict__ dg,
+                                     __global const real * __restrict__ u1,
+                                     __global const real * __restrict__ u2,
+                                     __global const real * __restrict__ u3,
+                                     const int n,
+                                     __global const int * __restrict__ gd,
+                                     const int nb,
+                                     __global const int *b,
+                                     __global const int *bo) {
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < nb; i += str) {
+    const int blk_len = b[i];
+    const int k = bo[i];
+    real tmp1 = u1[gd[k] - 1];
+    real tmp2 = u2[gd[k] - 1];
+    real tmp3 = u3[gd[k] - 1];
+    for (int j = 1; j < blk_len; j++) {
+      tmp1 = max(u1[gd[k + j] - 1], tmp1);
+      tmp2 = max(u2[gd[k + j] - 1], tmp2);
+      tmp3 = max(u3[gd[k + j] - 1], tmp3);
+    }
+    v1[dg[k] - 1] = tmp1;
+    v2[dg[k] - 1] = tmp2;
+    v3[dg[k] - 1] = tmp3;
+  }
+  
+  if (o < 0) {
+    for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
+      v1[dg[i] - 1] = u1[gd[i] - 1];
+      v2[dg[i] - 1] = u2[gd[i] - 1];
+      v3[dg[i] - 1] = u3[gd[i] - 1];
+    }
+  }
+  else {
+    if ((idx%2 == 0)) {
+      for (int i = ((o - 1) + idx); i < m ; i += str) {
+        real tmp1 = max(u1[gd[i] - 1], u1[gd[i+1] - 1]);
+        real tmp2 = max(u2[gd[i] - 1], u2[gd[i+1] - 1]);
+        real tmp3 = max(u3[gd[i] - 1], u3[gd[i+1] - 1]);
+        v1[dg[i] - 1] = tmp1;
+        v2[dg[i] - 1] = tmp2;
+        v3[dg[i] - 1] = tmp3;   
+      }
+    }
+  }
+  
+}
+
+/**
+ * Device scatter many kernel 
+ * \f$ u_n(gd(i) = v_n(dg(i)) \f$
+ */
+__kernel void scatter_many_kernel(__global real * __restrict__ v1,
+                                  __global real * __restrict__ v2,
+                                  __global real * __restrict__ v3,
+                                  const int m,
+                                  __global const int * __restrict__ dg,
+                                  __global real *u1,
+                                  __global real *u2,
+                                  __global real *u3,
+                                  const int n,
+                                  __global const int * __restrict__ gd,
+                                  const int nb,
+                                  __global const int * __restrict__ b,
+                                  __global const int * __restrict__ bo) {
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+  
+  for (int i = idx; i < nb; i += str) {
+    const int blk_len = b[i];
+    const int k = bo[i];
+    real tmp1 = v1[dg[k] - 1];
+    real tmp2 = v2[dg[k] - 1];
+    real tmp3 = v3[dg[k] - 1];
+    for (int j = 0; j < blk_len; j++) {
+      u1[gd[k + j] - 1] = tmp1;
+      u2[gd[k + j] - 1] = tmp2;
+      u3[gd[k + j] - 1] = tmp3;
+    }      
+  }
+
+  const int facet_offset = bo[nb - 1] + b[nb - 1];
+  
+  for (int i = ((facet_offset - 1) + idx); i < m; i += str) {
+    u1[gd[i] - 1] = v1[dg[i] - 1];
+    u2[gd[i] - 1] = v2[dg[i] - 1];
+    u3[gd[i] - 1] = v3[dg[i] - 1];
   }
   
 }

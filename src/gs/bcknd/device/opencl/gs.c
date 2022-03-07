@@ -214,3 +214,210 @@ void opencl_scatter_kernel(void *v, int *m, void *dg,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 }
+
+/** 
+ * Fortran wrapper for device gather many kernels
+ */
+void opencl_gather_many_kernel(void *v1, void *v2, void *v3, int *m, int *o,
+                               void *dg, void *u1, void *u2, void *u3, int *n,
+                               void *gd, int *nb, void *b, void *bo, int *op) {
+  cl_int err;
+  
+  if (gs_program == NULL)
+    opencl_kernel_jit(gs_kernels, (cl_program *) &gs_program);
+  
+  const int nblks = ((*m) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nblks;
+  const size_t local_item_size = 256;
+  
+  
+  switch (*op) {
+  case GS_OP_ADD:
+    {
+      const real zero = 0;
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v1, &zero, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v2, &zero, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v3, &zero, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      
+      cl_kernel kernel = clCreateKernel(gs_program,
+                                        "gather_many_kernel_add", &err);
+      CL_CHECK(err);
+  
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &v1));
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v2));
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v3));
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), o));
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dg));
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &u1));
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &u2));
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &u3));
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), n));
+      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &gd));
+      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), nb));
+      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &b));
+      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &bo));
+    
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+                                      1, NULL, &global_item_size,
+                                      &local_item_size, 0, NULL, NULL));
+    }
+    break;
+  case GS_OP_MUL:
+    {
+      const real one = 0;
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v1, &one, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v2, &one, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v3, &one, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      
+      cl_kernel kernel = clCreateKernel(gs_program,
+                                        "gather_many_kernel_mul", &err);
+      CL_CHECK(err);
+      
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &v1));
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v2));
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v3));
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), o));
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dg));
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &u1));
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &u2));
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &u3));
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), n));
+      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &gd));
+      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), nb));
+      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &b));
+      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &bo));
+    
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+                                      1, NULL, &global_item_size,
+                                      &local_item_size, 0, NULL, NULL));
+    }
+    break;
+  case GS_OP_MIN:
+    {
+      const real rmax = (real) INT_MAX;
+      
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v1, &rmax, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v2, &rmax, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v3, &rmax, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      
+      cl_kernel kernel = clCreateKernel(gs_program,
+                                        "gather_many_kernel_min", &err);
+      CL_CHECK(err);
+        
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &v1));
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v2));
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v3));
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), o));
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dg));
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &u1));
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &u2));
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &u3));
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), n));
+      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &gd));
+      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), nb));
+      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &b));
+      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &bo));
+    
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+                                      1, NULL, &global_item_size,
+                                      &local_item_size, 0, NULL, NULL));
+    }
+    break;
+  case GS_OP_MAX:
+    {
+      const real rmin = (real) -INT_MAX;
+      
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v1, &rmin, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v2, &rmin, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
+                                   v3, &rmin, sizeof(real), 0,
+                                   (*m) * sizeof(real), 0, NULL, NULL));
+      
+      cl_kernel kernel = clCreateKernel(gs_program,
+                                        "gather_many_kernel_max", &err);
+      CL_CHECK(err);
+      
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &v1));
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v2));
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v3));       
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), o));
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dg));
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &u1));
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &u2));
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &u3));
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), n));
+      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &gd));
+      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), nb));
+      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &b));
+      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &bo));
+    
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+                                      1, NULL, &global_item_size,
+                                      &local_item_size, 0, NULL, NULL));
+    }
+    break;
+  }
+}
+
+/**
+ * Fortran wrapper for device scatter many kernel
+ */
+void opencl_scatter_many_kernel(void *v1, void *v2, void *v3, int *m, void *dg,
+                                void *u1, void *u2, void *u3, int *n, void *gd,
+                                int *nb, void *b, void *bo) {
+  cl_int err;
+
+  if (gs_program == NULL)
+    opencl_kernel_jit(gs_kernels, (cl_program *) &gs_program);
+  
+  cl_kernel kernel = clCreateKernel(gs_program, "scatter_many_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &v1));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v2));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &v3));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dg));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &u1));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &u2));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &u3));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &gd));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(int), nb));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &bo));
+  
+  const int nblks = ((*m) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nblks;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
