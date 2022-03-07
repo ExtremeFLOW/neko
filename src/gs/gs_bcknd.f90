@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,8 @@ module gs_bcknd
      procedure(gs_backend_free), pass(this), deferred :: free
      procedure(gs_gather), pass(this), deferred :: gather
      procedure(gs_scatter), pass(this), deferred :: scatter
+     procedure(gs_gather_many), pass(this), deferred :: gather_many
+     procedure(gs_scatter_many), pass(this), deferred :: scatter_many
   end type gs_bcknd_t
 
   !> Abstract interface for initialising a Gather-Scatter backend
@@ -106,6 +108,57 @@ module gs_bcknd
        integer :: i, j, k, blk_len
        real(kind=rp) :: tmp       
      end subroutine gs_scatter
+  end interface
+
+  !> Abstract interface for the Gather kernel (multiple vectors)
+  !! \f$ v_n(dg(i)) = op(v_n(dg(i)), u_n(gd(i)) \f$
+  abstract interface
+     subroutine gs_gather_many(this, v1, v2, v3, m, o, dg, &
+                                     u1, u2, u3, n, gd, nb, b, op)
+       import gs_bcknd_t       
+       import rp
+       integer, intent(inout) :: m
+       integer, intent(inout) :: n
+       integer, intent(inout) :: nb
+       class(gs_bcknd_t), intent(inout) :: this
+       real(kind=rp), dimension(m), intent(inout) :: v1
+       real(kind=rp), dimension(m), intent(inout) :: v2
+       real(kind=rp), dimension(m), intent(inout) :: v3
+       integer, dimension(m), intent(inout) :: dg
+       real(kind=rp), dimension(n), intent(inout) :: u1
+       real(kind=rp), dimension(n), intent(inout) :: u2
+       real(kind=rp), dimension(n), intent(inout) :: u3
+       integer, dimension(m), intent(inout) :: gd
+       integer, dimension(nb), intent(inout) :: b
+       integer, intent(inout) :: o
+       integer :: op
+    
+     end subroutine gs_gather_many
+  end interface
+  
+  !> Abstract interface for the Scatter kernel (multiple vectors)
+  !! \f$ u_n(gd(i) = v_n(dg(i)) \f$
+  abstract interface
+     subroutine gs_scatter_many(this, v1, v2, v3, m, dg, &
+                                      u1, u2, u3, n, gd, nb, b)
+       import gs_bcknd_t       
+       import rp
+       integer, intent(in) :: m
+       integer, intent(in) :: n
+       integer, intent(in) :: nb
+       class(gs_bcknd_t), intent(inout) :: this              
+       real(kind=rp), dimension(m), intent(inout) :: v1
+       real(kind=rp), dimension(m), intent(inout) :: v2
+       real(kind=rp), dimension(m), intent(inout) :: v3
+       integer, dimension(m), intent(inout) :: dg
+       real(kind=rp), dimension(n), intent(inout) :: u1
+       real(kind=rp), dimension(n), intent(inout) :: u2
+       real(kind=rp), dimension(n), intent(inout) :: u3
+       integer, dimension(m), intent(inout) :: gd
+       integer, dimension(nb), intent(inout) :: b
+       integer :: i, j, k, blk_len
+       real(kind=rp) :: tmp       
+     end subroutine gs_scatter_many
   end interface
 
   

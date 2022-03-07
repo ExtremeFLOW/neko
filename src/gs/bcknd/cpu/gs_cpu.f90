@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,8 @@ module gs_cpu
      procedure, pass(this) :: free => gs_cpu_free
      procedure, pass(this) :: gather => gs_gather_cpu
      procedure, pass(this) :: scatter => gs_scatter_cpu
+     procedure, pass(this) :: gather_many => gs_gather_many_cpu
+     procedure, pass(this) :: scatter_many => gs_scatter_many_cpu
   end type gs_cpu_t
   
 contains
@@ -290,5 +292,68 @@ contains
     end do
 
   end subroutine gs_scatter_kernel
+  
+  !> Gather kernel many
+  subroutine gs_gather_many_cpu(this, v1, v2, v3, m, o, dg, &
+                                      u1, u2, u3, n, gd, nb, b, op)
+    integer, intent(inout) :: m
+    integer, intent(inout) :: n
+    integer, intent(inout) :: nb
+    class(gs_cpu_t), intent(inout) :: this
+    real(kind=rp), dimension(m), intent(inout) :: v1
+    real(kind=rp), dimension(m), intent(inout) :: v2
+    real(kind=rp), dimension(m), intent(inout) :: v3
+    integer, dimension(m), intent(inout) :: dg
+    real(kind=rp), dimension(n), intent(inout) :: u1
+    real(kind=rp), dimension(n), intent(inout) :: u2
+    real(kind=rp), dimension(n), intent(inout) :: u3
+    integer, dimension(m), intent(inout) :: gd
+    integer, dimension(nb), intent(inout) :: b
+    integer, intent(inout) :: o
+    integer :: op
+   
+    select case(op)
+    case (GS_OP_ADD)
+       call gs_gather_kernel_add(v1, m, o, dg, u1, n, gd, nb, b)
+       call gs_gather_kernel_add(v2, m, o, dg, u2, n, gd, nb, b)
+       call gs_gather_kernel_add(v3, m, o, dg, u3, n, gd, nb, b)
+    case (GS_OP_MUL)
+       call gs_gather_kernel_mul(v1, m, o, dg, u1, n, gd, nb, b)
+       call gs_gather_kernel_mul(v2, m, o, dg, u2, n, gd, nb, b)
+       call gs_gather_kernel_mul(v3, m, o, dg, u3, n, gd, nb, b)
+    case (GS_OP_MIN)
+       call gs_gather_kernel_min(v1, m, o, dg, u1, n, gd, nb, b)
+       call gs_gather_kernel_min(v2, m, o, dg, u2, n, gd, nb, b)
+       call gs_gather_kernel_min(v3, m, o, dg, u3, n, gd, nb, b)
+    case (GS_OP_MAX)
+       call gs_gather_kernel_max(v1, m, o, dg, u1, n, gd, nb, b)
+       call gs_gather_kernel_max(v2, m, o, dg, u2, n, gd, nb, b)
+       call gs_gather_kernel_max(v3, m, o, dg, u3, n, gd, nb, b)
+    end select
+    
+  end subroutine gs_gather_many_cpu
+
+  !> Scatter kernel many  @todo Make the kernel abstract
+  subroutine gs_scatter_many_cpu(this, v1, v2, v3, m, dg, &
+                                       u1, u2, u3, n, gd, nb, b)
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
+    class(gs_cpu_t), intent(inout) :: this
+    real(kind=rp), dimension(m), intent(inout) :: v1
+    real(kind=rp), dimension(m), intent(inout) :: v2
+    real(kind=rp), dimension(m), intent(inout) :: v3
+    integer, dimension(m), intent(inout) :: dg
+    real(kind=rp), dimension(n), intent(inout) :: u1
+    real(kind=rp), dimension(n), intent(inout) :: u2
+    real(kind=rp), dimension(n), intent(inout) :: u3
+    integer, dimension(m), intent(inout) :: gd
+    integer, dimension(nb), intent(inout) :: b
+        
+    call gs_scatter_kernel(v1, m, dg, u1, n, gd, nb, b)
+    call gs_scatter_kernel(v2, m, dg, u2, n, gd, nb, b)
+    call gs_scatter_kernel(v3, m, dg, u3, n, gd, nb, b)
+
+  end subroutine gs_scatter_many_cpu
 
 end module gs_cpu
