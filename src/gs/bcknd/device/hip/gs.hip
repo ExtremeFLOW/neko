@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -50,8 +50,8 @@ extern "C" {
    * Fortran wrapper for device gather kernels
    */
   void hip_gather_kernel(void *v, int *m, int *o, void *dg,
-			 void *u, int *n, void *gd, int *nb,
-			 void *b, void *bo, int *op) {
+                         void *u, int *n, void *gd, int *nb,
+                         void *b, void *bo, int *op) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
@@ -60,37 +60,37 @@ extern "C" {
     case GS_OP_ADD:
       HIP_CHECK(hipMemset(v, 0, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MUL:
       HIP_CHECK(hipMemset(v, 1, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MIN:
       HIP_CHECK(hipMemset(v, INT_MAX, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MAX:
       HIP_CHECK(hipMemset(v, -INT_MAX, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     }
@@ -100,17 +100,94 @@ extern "C" {
    * Fortran wrapper for device scatter kernel
    */
   void hip_scatter_kernel(void *v, int *m, void *dg,
-			  void *u, int *n, void *gd,
-			  int *nb, void *b, void *bo) {
+                          void *u, int *n, void *gd,
+                          int *nb, void *b, void *bo) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_kernel<real>),
-		       nblcks, nthrds, 0, 0,
-		       (real *) v, *m, (int *) dg,
-		       (real *) u, *n, (int *) gd,
-		       *nb, (int *) b, (int *) bo);
+                       nblcks, nthrds, 0, 0,
+                       (real *) v, *m, (int *) dg,
+                       (real *) u, *n, (int *) gd,
+                       *nb, (int *) b, (int *) bo);
     HIP_CHECK(hipGetLastError());
   }
+
+  /** 
+   * Fortran wrapper for device gather many kernels
+   */
+  void hip_gather_many_kernel(void *v1, void *v2, void * v3, int *m, int *o,
+                              void *dg, void *u1, void *u2, void *u3, int *n,
+                              void *gd, int *nb, void *b, void *bo, int *op) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
+
+    switch (*op) {
+    case GS_OP_ADD:
+      HIP_CHECK(hipMemset(v1, 0, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v2, 0, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v3, 0, (*m) * sizeof(real)));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_many_kernel_add<real>),
+                         nblcks, nthrds, 0, 0,
+                         (real *) v1, (real *) v2, (real *) v3, *m, *o,
+                         (int *) dg, (real *) u1, (real *) u2, (real *) u3, *n,
+                         (int *) gd, *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
+      break;
+    case GS_OP_MUL:
+      HIP_CHECK(hipMemset(v1, 1, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v2, 1, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v3, 1, (*m) * sizeof(real)));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_many_kernel_mul<real>),
+                         nblcks, nthrds, 0, 0,
+                         (real *) v1, (real *) v2, (real *) v3, *m, *o,
+                         (int *) dg, (real *) u1, (real *) u2, (real *) u3, *n,
+                         (int *) gd, *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
+      break;
+    case GS_OP_MIN:
+      HIP_CHECK(hipMemset(v1, INT_MAX, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v2, INT_MAX, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v3, INT_MAX, (*m) * sizeof(real)));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_many_kernel_min<real>),
+                         nblcks, nthrds, 0, 0,
+                         (real *) v1, (real *) v2, (real *) v3, *m, *o,
+                         (int *) dg, (real *) u1, (real *) u2, (real *) u3, *n,
+                         (int *) gd, *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
+      break;
+    case GS_OP_MAX:
+      HIP_CHECK(hipMemset(v1, -INT_MAX, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v2, -INT_MAX, (*m) * sizeof(real)));
+      HIP_CHECK(hipMemset(v3, -INT_MAX, (*m) * sizeof(real)));
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_many_kernel_max<real>),
+                         nblcks, nthrds, 0, 0,
+                         (real *) v1, (real *) v2, (real *) v3, *m, *o,
+                         (int *) dg, (real *) u1, (real *) u2, (real *) u3, *n,
+                         (int *) gd, *nb, (int *) b, (int *) bo);
+      HIP_CHECK(hipGetLastError());
+      break;
+    }
+  }
+
+  /**
+   * Fortran wrapper for device scatter many kernel
+   */
+  void hip_scatter_many_kernel(void *v1, void *v2, void *v3, int *m, void *dg,
+                               void *u1, void *u2, void *u3, int *n, void *gd,
+                               int *nb, void *b, void *bo) {
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_many_kernel<real>),
+                       nblcks, nthrds, 0, 0,
+                       (real *) v1, (real *) v2, (real *) v3, *m, (int *) dg,
+                       (real *) u1, (real *) u2, (real *) u3, *n, (int *) gd,
+                       *nb, (int *) b, (int *) bo);
+    HIP_CHECK(hipGetLastError());
+  }
+
 }

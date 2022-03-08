@@ -90,6 +90,27 @@ module gs_device
      end subroutine hip_scatter_kernel
   end interface
 
+  interface
+     subroutine hip_gather_many_kernel(v1, v2, v3, m, o, dg, &
+                                        u1, u2, u3, n, gd, nb, b, bo, op) &
+          bind(c, name='hip_gather_many_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb, o, op
+       type(c_ptr), value :: v1, v2, v3, u1, u2, u3, dg, gd, b, bo
+     end subroutine hip_gather_many_kernel
+  end interface
+
+  interface
+     subroutine hip_scatter_many_kernel(v1, v2, v3, m, dg, &
+                                         u1, u2, u3, n, gd, nb, b, bo) &
+          bind(c, name='hip_scatter_many_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb
+       type(c_ptr), value :: v1, v2, v3, u1, u2, u3, dg, gd, b, bo
+     end subroutine hip_scatter_many_kernel
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op) &
@@ -505,12 +526,8 @@ contains
          end if
          
 #ifdef HAVE_HIP
-         call hip_gather_kernel(v1_d, m, o, dg_d, u1_d, n, gd_d, &
-                                nb, b_d, bo_d, op)
-         call hip_gather_kernel(v2_d, m, o, dg_d, u2_d, n, gd_d, &
-                                nb, b_d, bo_d, op)
-         call hip_gather_kernel(v3_d, m, o, dg_d, u3_d, n, gd_d, &
-                                nb, b_d, bo_d, op)
+         call hip_gather_many_kernel(v1_d, v2_d, v3_d, m, o, dg_d, &
+              u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d, op)
 #elif HAVE_CUDA
          call cuda_gather_many_kernel(v1_d, v2_d, v3_d, m, o, dg_d, &
               u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d, op)
@@ -560,8 +577,8 @@ contains
 
          
 #ifdef HAVE_HIP   
-         call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
-                                nb, b_d, bo_d, op)
+         call hip_gather_many_kernel(v1_d, v2_d, v3_d, m, o, &
+              dg_d, u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d, op)
 #elif HAVE_CUDA
          call cuda_gather_many_kernel(v1_d, v2_d, v3_d, m, o, &
               dg_d, u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d, op)
@@ -609,9 +626,8 @@ contains
             gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
             bo_d=>this%local_blk_off_d)
 #ifdef HAVE_HIP
-         call hip_scatter_kernel(v1_d, m, dg_d, u1_d, n, gd_d, nb, b_d, bo_d)
-         call hip_scatter_kernel(v2_d, m, dg_d, u2_d, n, gd_d, nb, b_d, bo_d)
-         call hip_scatter_kernel(v3_d, m, dg_d, u3_d, n, gd_d, nb, b_d, bo_d)
+         call hip_scatter_many_kernel(v1_d, v2_d, v3_d, m, dg_d, &
+              u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d)
 #elif HAVE_CUDA
          call cuda_scatter_many_kernel(v1_d, v2_d, v3_d, m, dg_d, &
               u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d)
@@ -633,9 +649,8 @@ contains
          call device_memcpy(v3, v3_d, m, HOST_TO_DEVICE)
          
 #ifdef HAVE_HIP
-         call hip_scatter_kernel(v1_d, m, dg_d, u1_d, n, gd_d, nb, b_d, bo_d)
-         call hip_scatter_kernel(v2_d, m, dg_d, u2_d, n, gd_d, nb, b_d, bo_d)
-         call hip_scatter_kernel(v3_d, m, dg_d, u3_d, n, gd_d, nb, b_d, bo_d)
+         call hip_scatter_many_kernel(v1_d, v2_d, v3_d, m, dg_d, &
+              u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d)
 #elif HAVE_CUDA
          call cuda_scatter_many_kernel(v1_d, v2_d, v3_d, m, dg_d, &
               u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d)
