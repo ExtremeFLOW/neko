@@ -130,6 +130,28 @@ module gs_device
        type(c_ptr), value :: v, u, dg, gd, b, bo
      end subroutine opencl_scatter_kernel
   end interface
+
+  interface
+     subroutine opencl_gather_many_kernel(v1, v2, v3, m, o, dg, &
+                                          u1, u2, u3, n, gd, nb, b, bo, op) &
+          bind(c, name='opencl_gather_many_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb, o, op
+       type(c_ptr), value :: v1, v2, v3, u1, u2, u3, dg, gd, b, bo
+     end subroutine opencl_gather_many_kernel
+  end interface
+
+  interface
+     subroutine opencl_scatter_many_kernel(v1, v2, v3, m, dg, &
+                                           u1, u2, u3, n, gd, nb, b, bo) &
+          bind(c, name='opencl_scatter_many_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb
+       type(c_ptr), value :: v1, v2, v3, u1, u2, u3, dg, gd, b, bo
+     end subroutine opencl_scatter_many_kernel
+  end interface
 #endif
 
 contains
@@ -475,12 +497,8 @@ contains
          call cuda_gather_kernel(v3_d, m, o, dg_d, u3_d, n, gd_d, &
                                  nb, b_d, bo_d, op)
 #elif HAVE_OPENCL
-         call opencl_gather_kernel(v1_d, m, o, dg_d, u1_d, n, gd_d, &
-                                   nb, b_d, bo_d, op)
-         call opencl_gather_kernel(v2_d, m, o, dg_d, u2_d, n, gd_d, &
-                                   nb, b_d, bo_d, op)
-         call opencl_gather_kernel(v3_d, m, o, dg_d, u3_d, n, gd_d, &
-                                   nb, b_d, bo_d, op)                           
+         call opencl_gather_many_kernel(v1_d, v2_d, v3_d, m, o, dg_d, &
+              u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -530,8 +548,8 @@ contains
          call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op)
 #elif HAVE_OPENCL
-         call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
-                                   nb, b_d, bo_d, op)
+         call opencl_gather_many_kernel(v1_d, v2_d, v3_d, m, o, &
+              dg_d, u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -581,9 +599,8 @@ contains
          call cuda_scatter_kernel(v2_d, m, dg_d, u2_d, n, gd_d, nb, b_d, bo_d)
          call cuda_scatter_kernel(v3_d, m, dg_d, u3_d, n, gd_d, nb, b_d, bo_d)
 #elif HAVE_OPENCL
-         call opencl_scatter_kernel(v1_d, m, dg_d, u1_d, n, gd_d, nb, b_d, bo_d)
-         call opencl_scatter_kernel(v2_d, m, dg_d, u2_d, n, gd_d, nb, b_d, bo_d)
-         call opencl_scatter_kernel(v3_d, m, dg_d, u3_d, n, gd_d, nb, b_d, bo_d)
+         call opencl_scatter_many_kernel(v1_d, v2_d, v3_d, m, dg_d, &
+              u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -607,9 +624,8 @@ contains
          call cuda_scatter_kernel(v2_d, m, dg_d, u2_d, n, gd_d, nb, b_d, bo_d)
          call cuda_scatter_kernel(v3_d, m, dg_d, u3_d, n, gd_d, nb, b_d, bo_d)
 #elif HAVE_OPENCL
-         call opencl_scatter_kernel(v1_d, m, dg_d, u1_d, n, gd_d, nb, b_d, bo_d)
-         call opencl_scatter_kernel(v2_d, m, dg_d, u2_d, n, gd_d, nb, b_d, bo_d)
-         call opencl_scatter_kernel(v3_d, m, dg_d, u3_d, n, gd_d, nb, b_d, bo_d)
+         call opencl_scatter_many_kernel(v1_d, v2_d, v3_d, m, dg_d, &
+              u1_d, u2_d, u3_d, n, gd_d, nb, b_d, bo_d)
 #else
          call neko_error('No device backend configured')
 #endif
