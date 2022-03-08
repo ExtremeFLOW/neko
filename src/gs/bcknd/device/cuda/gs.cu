@@ -107,4 +107,76 @@ extern "C" {
 			   *nb, (int *) b, (int *) bo);
     CUDA_CHECK(cudaGetLastError());
   }
+
+  /** 
+   * Fortran wrapper for device gather many kernels
+   */
+  void cuda_gather_many_kernel(void *v1, void *v2, void *v3, int *m, int *o, 
+			       void *dg, void *u1, void *u2, void *u3, int *n, 
+			       void *gd, int *nb, void *b, void *bo, int *op) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
+
+    switch (*op) {
+    case GS_OP_ADD:
+      cudaMemset(v1, 0, (*m) * sizeof(real));
+      cudaMemset(v2, 0, (*m) * sizeof(real));
+      cudaMemset(v3, 0, (*m) * sizeof(real));
+      gather_many_kernel_add<real>
+	<<<nblcks, nthrds>>>((real *) v1, (real *) v2, (real *) v3, *m, *o, 
+			     (int *) dg, (real *) u1, (real *) u2, (real *) u3, 
+			     *n, (int *) gd, *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
+      break;
+    case GS_OP_MUL:
+      cudaMemset(v1, 1, (*m) * sizeof(real));
+      cudaMemset(v2, 1, (*m) * sizeof(real));
+      cudaMemset(v3, 1, (*m) * sizeof(real));
+      gather_many_kernel_mul<real>
+	<<<nblcks, nthrds>>>((real *) v1, (real *) v2, (real *) v3, *m, *o, 
+			     (int *) dg, (real *) u1, (real *) u2, (real *) u3, 
+			     *n, (int *) gd, *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
+      break;
+    case GS_OP_MIN:
+      cudaMemset(v1, INT_MAX, (*m) * sizeof(real));
+      cudaMemset(v2, INT_MAX, (*m) * sizeof(real));
+      cudaMemset(v3, INT_MAX, (*m) * sizeof(real));
+      gather_many_kernel_min<real>
+	<<<nblcks, nthrds>>>((real *) v1, (real *) v2, (real *) v3, *m, *o, 
+			     (int *) dg, (real *) u1, (real *) u2, (real *) u3, 
+			     *n, (int *) gd, *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
+      break;
+    case GS_OP_MAX:
+      cudaMemset(v1, -INT_MAX, (*m) * sizeof(real));
+      cudaMemset(v2, -INT_MAX, (*m) * sizeof(real));
+      cudaMemset(v3, -INT_MAX, (*m) * sizeof(real));
+      gather_many_kernel_max<real>
+	<<<nblcks, nthrds>>>((real *) v1, (real *) v2, (real *) v3, *m, *o, 
+			     (int *) dg, (real *) u1, (real *) u2, (real *) u3, 
+			     *n, (int *) gd, *nb, (int *) b, (int *) bo);
+      CUDA_CHECK(cudaGetLastError());
+      break;
+    }
+  }
+
+  /**
+   * Fortran wrapper for device scatter many kernel
+   */
+  void cuda_scatter_many_kernel(void *v1, void *v2, void *v3, int *m, void *dg,
+				void *u1, void *u2, void *u3, int *n, void *gd,
+				int *nb, void *b, void *bo) {
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    scatter_many_kernel<real>
+      <<<nblcks, nthrds>>>((real *) v1, (real *) v2, (real *) v3, *m, (int *) dg,
+			   (real *) u1, (real *) u2, (real *) u3, *n, (int *) gd,
+			   *nb, (int *) b, (int *) bo);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
 }
