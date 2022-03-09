@@ -282,9 +282,9 @@ __kernel void gather_many_kernel_add(__global real * __restrict__ v1,
   
   if (o < 0) {
     for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
-      v1[dg[i] - 1] = u[gd[i] - 1];
-      v2[dg[i] - 1] = u[gd[i] - 1];
-      v3[dg[i] - 1] = u[gd[i] - 1];
+      v1[dg[i] - 1] = u1[gd[i] - 1];
+      v2[dg[i] - 1] = u2[gd[i] - 1];
+      v3[dg[i] - 1] = u3[gd[i] - 1];
     }
   }
   else {
