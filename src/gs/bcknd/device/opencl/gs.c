@@ -71,11 +71,6 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
   switch (*op) {
   case GS_OP_ADD:
     {
-      const real zero = 0;
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v, &zero, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-            
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_kernel_add", &err);
       CL_CHECK(err);
@@ -98,11 +93,6 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
     break;
   case GS_OP_MUL:
     {
-      const real one = 0;
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v, &one, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_kernel_mul", &err);
       CL_CHECK(err);
@@ -125,12 +115,6 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
     break;
   case GS_OP_MIN:
     {
-      const real rmax = (real) INT_MAX;
-      
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v, &rmax, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_kernel_min", &err);
       CL_CHECK(err);
@@ -153,12 +137,6 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
     break;
   case GS_OP_MAX:
     {
-      const real rmin = (real) -INT_MAX;
-      
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v, &rmin, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_kernel_max", &err);
       CL_CHECK(err);

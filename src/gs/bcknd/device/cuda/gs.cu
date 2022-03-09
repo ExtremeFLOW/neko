@@ -57,7 +57,6 @@ extern "C" {
 
     switch (*op) {
     case GS_OP_ADD:
-      cudaMemset(v, 0, (*m) * sizeof(real));
       gather_kernel_add<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
@@ -65,7 +64,6 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MUL:
-      cudaMemset(v, 1, (*m) * sizeof(real));
       gather_kernel_mul<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
@@ -73,7 +71,6 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MIN:
-      cudaMemset(v, INT_MAX, (*m) * sizeof(real));
       gather_kernel_min<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
@@ -81,7 +78,6 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MAX:
-      cudaMemset(v, -INT_MAX, (*m) * sizeof(real));
       gather_kernel_max<real>
 	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
 			     (real *) u, *n, (int *) gd,
