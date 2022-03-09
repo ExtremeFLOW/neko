@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -212,17 +212,6 @@ void opencl_gather_many_kernel(void *v1, void *v2, void *v3, int *m, int *o,
   switch (*op) {
   case GS_OP_ADD:
     {
-      const real zero = 0;
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v1, &zero, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v2, &zero, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v3, &zero, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_many_kernel_add", &err);
       CL_CHECK(err);
@@ -249,17 +238,6 @@ void opencl_gather_many_kernel(void *v1, void *v2, void *v3, int *m, int *o,
     break;
   case GS_OP_MUL:
     {
-      const real one = 0;
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v1, &one, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v2, &one, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v3, &one, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_many_kernel_mul", &err);
       CL_CHECK(err);
@@ -286,18 +264,6 @@ void opencl_gather_many_kernel(void *v1, void *v2, void *v3, int *m, int *o,
     break;
   case GS_OP_MIN:
     {
-      const real rmax = (real) INT_MAX;
-      
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v1, &rmax, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v2, &rmax, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v3, &rmax, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_many_kernel_min", &err);
       CL_CHECK(err);
@@ -324,18 +290,6 @@ void opencl_gather_many_kernel(void *v1, void *v2, void *v3, int *m, int *o,
     break;
   case GS_OP_MAX:
     {
-      const real rmin = (real) -INT_MAX;
-      
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v1, &rmin, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v2, &rmin, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
-                                   v3, &rmin, sizeof(real), 0,
-                                   (*m) * sizeof(real), 0, NULL, NULL));
-      
       cl_kernel kernel = clCreateKernel(gs_program,
                                         "gather_many_kernel_max", &err);
       CL_CHECK(err);
