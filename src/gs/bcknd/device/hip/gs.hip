@@ -58,7 +58,6 @@ extern "C" {
 
     switch (*op) {
     case GS_OP_ADD:
-      HIP_CHECK(hipMemset(v, 0, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
@@ -67,7 +66,6 @@ extern "C" {
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MUL:
-      HIP_CHECK(hipMemset(v, 1, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
@@ -76,7 +74,6 @@ extern "C" {
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MIN:
-      HIP_CHECK(hipMemset(v, INT_MAX, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
@@ -85,7 +82,6 @@ extern "C" {
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MAX:
-      HIP_CHECK(hipMemset(v, -INT_MAX, (*m) * sizeof(real)));
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<real>),
 			 nblcks, nthrds, 0, 0,
 			 (real *) v, *m, *o, (int *) dg,
