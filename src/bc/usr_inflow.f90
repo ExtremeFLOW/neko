@@ -36,7 +36,7 @@ module usr_inflow
   use coefs
   use inflow
   use device
-  use device_blasius
+  use device_inhom_dirichlet
   use utils
   implicit none
   private
@@ -234,7 +234,7 @@ contains
          deallocate(x, y, z)
       end if
 
-      call device_blasius_apply_vector(this%msk_d, x_d, y_d, z_d, &
+      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
            usr_x_d, usr_y_d, usr_z_d, m)
       
     end associate
