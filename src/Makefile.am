@@ -91,6 +91,7 @@ libneko_a_SOURCES = \
 	common/sampler.f90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
+	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
 	bc/usr_inflow.f90\
