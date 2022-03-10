@@ -226,6 +226,8 @@ contains
        msh_bc_type = 1
     else if(trim(bc_key) .eq. 'on') then
        msh_bc_type = 1
+    else if(trim(bc_key) .eq. 'do') then
+       msh_bc_type = 1
     else if(trim(bc_key) .eq. 'w') then
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'v') then
