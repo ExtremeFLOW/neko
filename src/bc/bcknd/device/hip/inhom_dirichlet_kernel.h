@@ -33,7 +33,7 @@
 */
 
 /**
- * Device kernel for vector apply for a Blasius profile
+ * Device kernel for vector apply for an inhomogeneous Dirichlet condition
  */
 template< typename T >
 __global__ void inhom_dirichlet_apply_vector_kernel(const int * __restrict__ msk,
