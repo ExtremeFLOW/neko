@@ -44,22 +44,22 @@
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "blasius_kernel.cl.h"
+#include "inhom_dirichlet_kernel.cl.h"
 
 /** 
  * Fortran wrapper for device dirichlet apply vector
  */
-void opencl_blasius_apply_vector(void *msk,
+void opencl_inhom_dirichlet_apply_vector(void *msk,
                                  void *x, void *y, void *z,
                                  void *bla_x, void *bla_y, void *bla_z,
                                  int *m) {
   cl_int err;
   
-  if (blasius_program == NULL)
-    opencl_kernel_jit(blasius_kernel, (cl_program *) &blasius_program);
+  if (inhom_dirichlet_program == NULL)
+    opencl_kernel_jit(inhom_dirichlet_kernel, (cl_program *) &inhom_dirichlet_program);
   
-  cl_kernel kernel = clCreateKernel(blasius_program,
-                                    "blasius_apply_vector_kernel", &err);
+  cl_kernel kernel = clCreateKernel(inhom_dirichlet_program,
+                                    "inhom_dirichlet_apply_vector_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));

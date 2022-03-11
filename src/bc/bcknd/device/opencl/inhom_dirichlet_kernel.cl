@@ -33,9 +33,9 @@
 */
 
 /**
- * Device kernel for vector apply for a Blasius profile
+ * Device kernel for vector apply for a inhomogeneous Dirichlet condition
  */
-__kernel void blasius_apply_vector_kernel(__global const int *msk,
+__kernel void inhom_dirichlet_apply_vector_kernel(__global const int *msk,
 					  __global real *x,
 					  __global real *y,
 					  __global real *z,

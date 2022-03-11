@@ -176,7 +176,7 @@ libneko_a_SOURCES = \
 	bc/bcknd/device/device_wall.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
-	bc/bcknd/device/device_blasius.F90\
+	bc/bcknd/device/device_inhom_dirichlet.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
@@ -205,7 +205,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/no_slip_wall.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
-	bc/bcknd/device/hip/blasius.hip\
+	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	fluid/bcknd/device/hip/fluid_abbdf.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip
 endif
@@ -232,7 +232,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/no_slip_wall.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
-	bc/bcknd/device/cuda/blasius.cu\
+	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	fluid/bcknd/device/cuda/fluid_abbdf.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu
 endif
@@ -258,7 +258,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/no_slip_wall.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
-	bc/bcknd/device/opencl/blasius.c\
+	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	fluid/bcknd/device/opencl/fluid_abbdf.c\
 	fluid/bcknd/device/opencl/pnpn_res.c
 
@@ -293,7 +293,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
-	bc/bcknd/device/cuda/blasius_kernel.h\
+	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
@@ -315,7 +315,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
-	bc/bcknd/device/hip/blasius_kernel.h\
+	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/tensor_kernel.h\
@@ -341,7 +341,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
-	bc/bcknd/device/opencl/blasius_kernel.cl\
+	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/schwarz_kernel.cl\
 	math/bcknd/device/opencl/tensor_kernel.cl\

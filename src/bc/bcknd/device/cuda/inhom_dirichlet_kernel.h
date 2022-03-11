@@ -33,17 +33,17 @@
 */
 
 /**
- * Device kernel for vector apply for a Blasius profile
+ * Device kernel for vector apply for an inhomogeneous Dirichlet condition
  */
 template< typename T >
-__global__ void blasius_apply_vector_kernel(const int * __restrict__ msk,
-					    T * __restrict__ x,
-					    T * __restrict__ y,
-					    T * __restrict__ z,
-					    const T * __restrict__ bla_x,
-					    const T * __restrict__ bla_y,
-					    const T * __restrict__ bla_z,
-					    const int m) {
+__global__ void inhom_dirichlet_apply_vector_kernel(const int * __restrict__ msk,
+                                            T * __restrict__ x,
+                                            T * __restrict__ y,
+                                            T * __restrict__ z,
+                                            const T * __restrict__ bla_x,
+                                            const T * __restrict__ bla_y,
+                                            const T * __restrict__ bla_z,
+                                            const int m) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
