@@ -178,7 +178,9 @@ contains
     ! Setup source term
     ! 
     if (trim(source_term) .eq. 'user') then
-       call C%fluid%set_source(trim(source_term), C%usr%fluid_usr_f)
+       call C%fluid%set_source(trim(source_term), usr_f=C%usr%fluid_usr_f)
+    else if (trim(source_term) .eq. 'user_vector') then
+       call C%fluid%set_source(trim(source_term), usr_f_vec=C%usr%fluid_usr_f_vector)
     else
        call C%fluid%set_source(trim(source_term))
     end if
