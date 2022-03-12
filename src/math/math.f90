@@ -720,5 +720,56 @@ contains
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc4
-  
+  !> Use Heap Sort (p 231 Num. Rec., 1st Ed.)
+  subroutine sort(a,ind,n)
+    real(kind=rp), intent(inout) :: a(n)
+    integer, intent(inout) :: ind(n)
+    integer, intent(in) :: n
+    real(kind=rp) :: aa
+    integer :: j, ir, i, ii, l
+    do j = 1, n
+       ind(j)=j
+    end do
+
+    if (n.le.1) return
+    
+    l=n/2+1
+    ir=n
+    do while (.true.) 
+       if (l.gt.1) then
+          l=l-1
+          aa  = a  (l)
+          ii  = ind(l)
+       else
+               aa =   a(ir)
+               ii = ind(ir)
+            a(ir) =   a( 1)
+          ind(ir) = ind( 1)
+          ir=ir-1
+          if (ir.eq.1) then
+               a(1) = aa
+             ind(1) = ii
+             return
+          endif
+       endif
+       i=l
+       j=l+l
+       do while (j .le. ir) 
+          if (j.lt.ir) then
+             if ( a(j).lt.a(j+1) ) j=j+1
+          endif
+          if (aa.lt.a(j)) then
+               a(i) = a(j)
+             ind(i) = ind(j)
+             i=j
+             j=j+j
+          else
+             j=ir+1
+          endif
+       end do
+       a(i) = aa
+       ind(i) = ii
+    end do
+  end subroutine sort
+
 end module math
