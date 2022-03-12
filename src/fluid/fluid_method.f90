@@ -543,16 +543,19 @@ contains
   end subroutine fluid_scheme_precon_factory
 
   !> Initialize source term
-  subroutine fluid_scheme_set_source(this, source_term, usr_f)
+  subroutine fluid_scheme_set_source(this, source_term_type, usr_f, usr_f_vec)
     class(fluid_scheme_t), intent(inout) :: this
-    character(len=*) :: source_term
+    character(len=*) :: source_term_type
     procedure(source_term_pw), optional :: usr_f
+    procedure(source_term), optional :: usr_f_vec
 
-    if (trim(source_term) .eq. 'noforce') then
+    if (trim(source_term_type) .eq. 'noforce') then
        call source_set_type(this%f_Xh, source_eval_noforce)
-    else if (trim(source_term) .eq. 'user' .and. present(usr_f)) then
+    else if (trim(source_term_type) .eq. 'user' .and. present(usr_f)) then
        call source_set_pw_type(this%f_Xh, usr_f)
-    else if (trim(source_term) .eq. '') then
+    else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
+       call source_set_type(this%f_Xh, usr_f_vec)
+    else if (trim(source_term_type) .eq. '') then
        if (pe_rank .eq. 0) then
           call neko_warning('No source term defined, using default (noforce)')
        end if
