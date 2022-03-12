@@ -69,10 +69,10 @@ module source
        real(kind=rp), intent(inout) :: u
        real(kind=rp), intent(inout) :: v
        real(kind=rp), intent(inout) :: w
-       integer, intent(inout) :: j
-       integer, intent(inout) :: k
-       integer, intent(inout) :: l
-       integer, intent(inout) :: e
+       integer, intent(in) :: j
+       integer, intent(in) :: k
+       integer, intent(in) :: l
+       integer, intent(in) :: e
      end subroutine source_term_pw
   end interface
   
