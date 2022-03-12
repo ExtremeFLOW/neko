@@ -722,9 +722,9 @@ contains
   end function glsc4
   !> Use Heap Sort (p 231 Num. Rec., 1st Ed.)
   subroutine sort(a,ind,n)
+    integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(n)
     integer, intent(inout) :: ind(n)
-    integer, intent(in) :: n
     real(kind=rp) :: aa
     integer :: j, ir, i, ii, l
     do j = 1, n
