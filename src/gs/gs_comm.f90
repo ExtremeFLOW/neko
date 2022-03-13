@@ -36,7 +36,7 @@ module gs_comm
   use stack
   implicit none  
 
-  integer, public, parameter :: GS_COMM_MPI = 1
+  integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2
 
   !> Gather-scatter communication method
   type, public, abstract :: gs_comm_t

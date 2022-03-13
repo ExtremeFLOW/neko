@@ -40,6 +40,7 @@ module gather_scatter
   use gs_ops
   use gs_comm
   use gs_mpi
+  use gs_device_mpi
   use mesh
   use dofmap
   use field

@@ -26,7 +26,8 @@ gs/bcknd/device/gs_device.o : gs/bcknd/device/gs_device.F90 gs/gs_ops.o device/d
 gs/gs_ops.o : gs/gs_ops.f90 
 gs/gs_comm.o : gs/gs_comm.f90 adt/stack.o config/num_types.o 
 gs/gs_mpi.o : gs/gs_mpi.f90 comm/comm.o adt/stack.o gs/gs_ops.o gs/gs_comm.o config/num_types.o config/neko_config.o 
-gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stack.o adt/htable.o config/num_types.o field/field.o sem/dofmap.o mesh/mesh.o gs/gs_mpi.o gs/gs_comm.o gs/gs_ops.o gs/bcknd/cpu/gs_cpu.o gs/bcknd/sx/gs_sx.o gs/bcknd/device/gs_device.o gs/gs_bcknd.o config/neko_config.o 
+gs/bcknd/device/gs_device_mpi.o : gs/bcknd/device/gs_device_mpi.F90 comm/comm.o adt/stack.o device/device.o gs/gs_ops.o gs/gs_comm.o config/num_types.o config/neko_config.o 
+gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stack.o adt/htable.o config/num_types.o field/field.o sem/dofmap.o mesh/mesh.o gs/bcknd/device/gs_device_mpi.o gs/gs_mpi.o gs/gs_comm.o gs/gs_ops.o gs/bcknd/cpu/gs_cpu.o gs/bcknd/sx/gs_sx.o gs/bcknd/device/gs_device.o gs/gs_bcknd.o config/neko_config.o 
 mesh/entity.o : mesh/entity.f90 
 mesh/point.o : mesh/point.f90 mesh/entity.o math/math.o config/num_types.o 
 mesh/element.o : mesh/element.f90 mesh/point.o adt/tuple.o mesh/entity.o config/num_types.o 
@@ -90,7 +91,7 @@ bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_wall.o 
 bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_inflow.o 
-bc/usr_inflow.o : bc/usr_inflow.f90 bc/bcknd/device/device_inhom_dirichlet.o device/device.o common/utils.o bc/inflow.o sem/coef.o config/num_types.o 
+bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/bcknd/device/device_inhom_dirichlet.o device/device.o bc/inflow.o sem/coef.o config/num_types.o 
 bc/facet_normal.o : bc/facet_normal.f90 common/utils.o math/math.o sem/coef.o bc/dirichlet.o config/num_types.o bc/bcknd/device/device_facet_normal.o 
 bc/symmetry.o : bc/symmetry.f90 adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/bcknd/device/device_symmetry.o 
 bc/non_normal.o : bc/non_normal.f90 adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/symmetry.o 
