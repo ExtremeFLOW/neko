@@ -107,8 +107,24 @@ module mesh
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
      logical :: lnumr = .false.                !< valid numbering
-
+     !< enables user to specify a deformation
+     !! that is applied to all x,y,z coordinates generated with this mesh
+     procedure(mesh_deform), pass(msh), pointer  :: apply_deform => null()
   end type mesh_t
+
+  abstract interface
+     subroutine mesh_deform(msh, x, y, z, lx, ly, lz)
+       import mesh_t       
+       import rp
+       class(mesh_t) :: msh
+       integer, intent(in) :: lx, ly, lz
+       real(kind=rp), intent(inout) :: x(lx, ly, lz, msh%nelv)
+       real(kind=rp), intent(inout) :: y(lx, ly, lz, msh%nelv)
+       real(kind=rp), intent(inout) :: z(lx, ly, lz, msh%nelv)
+     end subroutine mesh_deform
+  end interface
+
+
 
   !> Initialise a mesh
   interface mesh_init

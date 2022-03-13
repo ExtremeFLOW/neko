@@ -15,5 +15,5 @@ rho = 1
 Re = 360
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
-proj_dim = 8
+proj_prs_dim = 8
 /
