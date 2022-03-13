@@ -29,6 +29,8 @@ libneko_a_SOURCES = \
 	gs/bcknd/sx/gs_sx.f90\
 	gs/bcknd/device/gs_device.F90\
 	gs/gs_ops.f90\
+	gs/gs_comm.f90\
+	gs/gs_mpi.f90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
 	mesh/point.f90\

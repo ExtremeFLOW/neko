@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,8 @@ module gather_scatter
   use gs_sx
   use gs_cpu
   use gs_ops
+  use gs_comm
+  use gs_mpi
   use mesh
   use dofmap
   use field
@@ -49,13 +51,6 @@ module gather_scatter
   use logger
   implicit none
 
-  type, private :: gs_comm_t
-     type(MPI_Status) :: status
-     type(MPI_Request) :: request
-     logical :: flag
-     real(kind=rp), allocatable :: data(:)
-  end type gs_comm_t
-  
   type gs_t
      real(kind=rp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
@@ -65,12 +60,8 @@ module gather_scatter
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:)        !< Shared non-facet blocks
-     integer, allocatable :: send_pe(:)               !< Send order
-     integer, allocatable :: recv_pe(:)               !< Recv order
      type(stack_i4_t), allocatable :: send_dof(:)     !< Send dof to shared-gs
      type(stack_i4_t), allocatable :: recv_dof(:)     !< Recv dof to shared-gs
-     type(gs_comm_t), allocatable :: send_buf(:)      !< Comm. buffers
-     type(gs_comm_t), allocatable :: recv_buf(:)      !< Comm. buffers
      type(dofmap_t), pointer ::dofmap                 !< Dofmap for gs-ops
      type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
@@ -80,6 +71,7 @@ module gather_scatter
      integer :: local_facet_offset                    !< offset for loc. facets
      integer :: shared_facet_offset                   !< offset for shr. facets
      class(gs_bcknd_t), allocatable :: bcknd          !< Gather-scatter backend
+     class(gs_comm_t), allocatable :: comm            !< Comm. method
   end type gs_t
 
   private :: gs_init_mapping, gs_schedule
@@ -112,6 +104,8 @@ contains
        call gs%send_dof(i)%init()
        call gs%recv_dof(i)%init()
     end do
+
+    allocate(gs_mpi_t::gs%comm)
 
     call gs_init_mapping(gs)
 
@@ -168,7 +162,7 @@ contains
     call neko_log%end_section()
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
-    
+  
   end subroutine gs_init
 
   !> Deallocate a gather-scatter kernel
@@ -231,36 +225,14 @@ contains
        deallocate(gs%recv_dof)
     end if
 
-    if (allocated(gs%send_pe)) then
-       deallocate(gs%send_pe)
-    end if
-
-    if (allocated(gs%recv_pe)) then
-       deallocate(gs%recv_pe)
-    end if
-
-    if (allocated(gs%send_buf)) then
-       do i = 1, size(gs%send_buf)
-          if (allocated(gs%send_buf(i)%data)) then
-             deallocate(gs%send_buf(i)%data)
-          end if
-       end do
-       deallocate(gs%send_buf)
-    end if
-
-
-    if (allocated(gs%recv_buf)) then
-       do i = 1, size(gs%recv_buf)
-          if (allocated(gs%recv_buf(i)%data)) then
-             deallocate(gs%recv_buf(i)%data)
-          end if
-       end do
-       deallocate(gs%recv_buf)
-    end if
-
     if (allocated(gs%bcknd)) then
        call gs%bcknd%free()
        deallocate(gs%bcknd)
+    end if
+
+    if (allocated(gs%comm)) then
+       call gs%comm%free()
+       deallocate(gs%comm)
     end if
     
   end subroutine gs_free
@@ -1104,23 +1076,7 @@ contains
        
     end do
 
-    allocate(gs%send_pe(send_pe%size()))
-    allocate(gs%send_buf(send_pe%size()))
-    
-    sp => send_pe%array()
-    do i = 1, send_pe%size()
-       gs%send_pe(i) = sp(i)
-       allocate(gs%send_buf(i)%data(gs%send_dof(sp(i))%size()))
-    end do
-
-    allocate(gs%recv_pe(recv_pe%size()))
-    allocate(gs%recv_buf(recv_pe%size()))
-    
-    rp => recv_pe%array()
-    do i = 1, recv_pe%size()
-       gs%recv_pe(i) = rp(i)
-       allocate(gs%recv_buf(i)%data(gs%recv_dof(rp(i))%size()))
-    end do
+    call gs%comm%init(send_pe, gs%send_dof, recv_pe, gs%recv_dof)
     
     call send_pe%free()
     call recv_pe%free()
@@ -1170,12 +1126,12 @@ contains
     ! Gather shared dofs
     if (pe_size .gt. 1) then
 
-       call gs_nbrecv(gs)
+       call gs%comm%nbrecv()
 
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
 
-       call gs_nbsend(gs, gs%shared_gs, l)
+       call gs%comm%nbsend(gs%send_dof, gs%shared_gs, l)
        
     end if
     
@@ -1189,111 +1145,12 @@ contains
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
 
-       call gs_nbwait(gs, gs%shared_gs, l, op)
+       call gs%comm%nbwait(gs%send_dof, gs%recv_dof, gs%shared_gs, l, op)
 
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
     end if
        
   end subroutine gs_op_vector
-  
-  !> Post non-blocking receive operations
-  subroutine gs_nbrecv(gs)
-    type(gs_t), intent(inout) :: gs
-    integer :: i, ierr
-
-    do i = 1, size(gs%recv_pe)
-       call MPI_IRecv(gs%recv_buf(i)%data, size(gs%recv_buf(i)%data), &
-            MPI_REAL_PRECISION, gs%recv_pe(i), 0, &
-            NEKO_COMM, gs%recv_buf(i)%request, ierr)
-       gs%recv_buf(i)%flag = .false.
-    end do
-    
-  end subroutine gs_nbrecv
-
-  !> Post non-blocking send operations
-  subroutine gs_nbsend(gs, u, n)
-    type(gs_t), intent(inout) :: gs
-    integer, intent(in) :: n        
-    real(kind=rp), dimension(n), intent(inout) :: u
-    integer ::  i, j, ierr, dst
-    integer , pointer :: sp(:)
-
-    do i = 1, size(gs%send_pe)
-       dst = gs%send_pe(i)
-       sp => gs%send_dof(dst)%array()
-       do j = 1, gs%send_dof(dst)%size()
-          gs%send_buf(i)%data(j) = u(sp(j))
-       end do
-
-       call MPI_Isend(gs%send_buf(i)%data, size(gs%send_buf(i)%data), &
-            MPI_REAL_PRECISION, gs%send_pe(i), 0, &
-            NEKO_COMM, gs%send_buf(i)%request, ierr)
-       gs%send_buf(i)%flag = .false.
-    end do
-    
-  end subroutine gs_nbsend
-
-  !> Wait for non-blocking operations
-  subroutine gs_nbwait(gs, u, n, op)
-    type(gs_t), intent(inout) ::gs
-    integer, intent(in) :: n    
-    real(kind=rp), dimension(n), intent(inout) :: u
-    integer :: i, j, src, ierr
-    integer :: op
-    integer , pointer :: sp(:)
-    integer :: nreqs
-
-    nreqs = size(gs%recv_pe)
-
-    do while (nreqs .gt. 0) 
-       do i = 1, size(gs%recv_pe)
-          if (.not. gs%recv_buf(i)%flag) then
-             call MPI_Test(gs%recv_buf(i)%request, gs%recv_buf(i)%flag, &
-                  gs%recv_buf(i)%status, ierr)
-             if (gs%recv_buf(i)%flag) then
-                nreqs = nreqs - 1
-                !> @todo Check size etc against status
-                src = gs%recv_pe(i)
-                sp => gs%recv_dof(src)%array()
-                select case(op)
-                case (GS_OP_ADD)
-                   !NEC$ IVDEP
-                   do j = 1, gs%send_dof(src)%size()
-                      u(sp(j)) = u(sp(j)) + gs%recv_buf(i)%data(j)
-                   end do
-                case (GS_OP_MUL)
-                   !NEC$ IVDEP
-                   do j = 1, gs%send_dof(src)%size()
-                      u(sp(j)) = u(sp(j)) * gs%recv_buf(i)%data(j)
-                   end do
-                case (GS_OP_MIN)
-                   !NEC$ IVDEP
-                   do j = 1, gs%send_dof(src)%size()
-                      u(sp(j)) = min(u(sp(j)), gs%recv_buf(i)%data(j))
-                   end do
-                case (GS_OP_MAX)
-                   !NEC$ IVDEP
-                   do j = 1, gs%send_dof(src)%size()
-                      u(sp(j)) = max(u(sp(j)), gs%recv_buf(i)%data(j))
-                   end do
-                end select
-             end if
-          end if
-       end do
-    end do
-
-    nreqs = size(gs%send_pe)
-    do while (nreqs .gt. 0) 
-       do i = 1, size(gs%send_pe)
-          if (.not. gs%send_buf(i)%flag) then
-             call MPI_Test(gs%send_buf(i)%request, gs%send_buf(i)%flag, &
-                  MPI_STATUS_IGNORE, ierr)
-             if (gs%send_buf(i)%flag) nreqs = nreqs - 1
-          end if
-       end do
-    end do
-    
-  end subroutine gs_nbwait
   
 end module gather_scatter

@@ -82,13 +82,13 @@ module user_intf
      procedure(usermsh), nopass, pointer :: usr_msh_setup => null()
      procedure(usercheck), nopass, pointer :: usr_chk => null()
      procedure(source_term_pw), nopass, pointer :: fluid_usr_f => null()
+     procedure(source_term), nopass, pointer :: fluid_usr_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_usr_if => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
   
 contains
-
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
@@ -99,6 +99,9 @@ contains
 
     if (.not. associated(u%fluid_usr_f)) then
        u%fluid_usr_f => dummy_user_f
+    end if
+    if (.not. associated(u%fluid_usr_f_vector)) then
+       u%fluid_usr_f_vector => dummy_user_f_vector
     end if
 
     if (.not. associated(u%usr_msh_setup)) then
@@ -127,15 +130,21 @@ contains
     call neko_error('Dummy user defined initial condition set')    
   end subroutine dummy_user_ic
 
+  subroutine dummy_user_f_vector(f)
+     class(source_t) :: f
+    call neko_error('Dummy user defined vector valued forcing set')    
+  end subroutine dummy_user_f_vector
+
+
   !> Dummy user forcing
   subroutine dummy_user_f(u, v, w, j, k, l, e)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
-    integer, intent(inout) :: j
-    integer, intent(inout) :: k
-    integer, intent(inout) :: l
-    integer, intent(inout) :: e
+    integer, intent(in) :: j
+    integer, intent(in) :: k
+    integer, intent(in) :: l
+    integer, intent(in) :: e
     call neko_error('Dummy user defined forcing set')    
   end subroutine dummy_user_f
  
