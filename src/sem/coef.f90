@@ -142,7 +142,7 @@ module coefs
      module procedure coef_init_empty, coef_init_all
   end interface coef_init
   
-  public :: coef_init, coef_free
+  public :: coef_init, coef_free, coef_get_normal
   
 contains
   
@@ -865,6 +865,27 @@ contains
 
     c%volume = glsum(c%B,c%dof%n_dofs)
   end subroutine coef_generate_mass
+
+  pure function coef_get_normal(coef, i, j, k, e, facet) result(normal)
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: i, j, k, e, facet
+    real(kind=rp) :: normal(3)
+      
+    select case (facet)               
+      case(1,2)
+        normal(1) = coef%nx(j, k, facet, e)
+        normal(2) = coef%ny(j, k, facet, e)
+        normal(3) = coef%nz(j, k, facet, e)
+      case(3,4)
+        normal(1) = coef%nx(i, k, facet, e)
+        normal(2) = coef%ny(i, k, facet, e)
+        normal(3) = coef%nz(i, j, facet, e)
+      case(5,6)
+        normal(1) = coef%nx(i, j, facet, e)
+        normal(2) = coef%ny(i, j, facet, e)
+        normal(3) = coef%nz(i, j, facet, e)
+      end select
+  end function coef_get_normal
 
   !> Generate facet area and surface normals
   subroutine coef_generate_area_and_normal(coef)
