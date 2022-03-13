@@ -9,7 +9,6 @@ initial_condition = 'user'
 dt = 1d-2
 T_end = 20
 nsamples = 100
-dealias=.false.
 uinf= 0.0,0.0,0.0
 output_bdry = .true.
 rho = 1
