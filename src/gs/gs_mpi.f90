@@ -64,12 +64,10 @@ module gs_mpi
 contains
 
   !> Initialise MPI based communication method
-  subroutine gs_mpi_init(this, send_pe, send_dof, recv_pe, recv_dof)
+  subroutine gs_mpi_init(this, send_pe, recv_pe)
     class(gs_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
-    type(stack_i4_t), allocatable, intent(inout) :: send_dof(:)
     type(stack_i4_t), intent(inout) :: recv_pe       
-    type(stack_i4_t), allocatable, intent(inout) :: recv_dof(:)
     integer, pointer :: sp(:), rp(:)
     integer :: i
     
@@ -79,14 +77,14 @@ contains
 
     sp => send_pe%array()
     do i = 1, send_pe%size()
-       allocate(this%send_buf(i)%data(send_dof(sp(i))%size()))
+       allocate(this%send_buf(i)%data(this%send_dof(sp(i))%size()))
     end do
 
     allocate(this%recv_buf(recv_pe%size()))
 
     rp => recv_pe%array()
     do i = 1, recv_pe%size()
-       allocate(this%recv_buf(i)%data(recv_dof(rp(i))%size()))
+       allocate(this%recv_buf(i)%data(this%recv_dof(rp(i))%size()))
     end do
 
   end subroutine gs_mpi_init
@@ -113,13 +111,13 @@ contains
     end if
 
     call this%free_order()
+    call this%free_dofs()
     
   end subroutine gs_mpi_free
 
   !> Post non-blocking send operations
-  subroutine gs_nbsend_mpi(this, send_dof, u, n)
+  subroutine gs_nbsend_mpi(this, u, n)
     class(gs_mpi_t), intent(inout) :: this
-    type(stack_i4_t), allocatable, intent(inout) :: send_dof(:)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     integer ::  i, j, ierr, dst
@@ -127,8 +125,8 @@ contains
 
     do i = 1, size(this%send_pe)
        dst = this%send_pe(i)
-       sp => send_dof(dst)%array()
-       do j = 1, send_dof(dst)%size()
+       sp => this%send_dof(dst)%array()
+       do j = 1, this%send_dof(dst)%size()
           this%send_buf(i)%data(j) = u(sp(j))
        end do
 
@@ -154,10 +152,8 @@ contains
   end subroutine gs_nbrecv_mpi
 
   !> Wait for non-blocking operations
-  subroutine gs_nbwait_mpi(this, send_dof, recv_dof, u, n, op)
+  subroutine gs_nbwait_mpi(this, u, n, op)
     class(gs_mpi_t), intent(inout) :: this
-    type(stack_i4_t), allocatable, intent(inout) :: send_dof(:)
-    type(stack_i4_t), allocatable, intent(inout) :: recv_dof(:)
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: u
     integer :: i, j, src, ierr
@@ -176,26 +172,26 @@ contains
                 nreqs = nreqs - 1
                 !> @todo Check size etc against status
                 src = this%recv_pe(i)
-                sp => recv_dof(src)%array()
+                sp => this%recv_dof(src)%array()
                 select case(op)
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
-                   do j = 1, send_dof(src)%size()
+                   do j = 1, this%send_dof(src)%size()
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
                    !NEC$ IVDEP
-                   do j = 1, send_dof(src)%size()
+                   do j = 1, this%send_dof(src)%size()
                       u(sp(j)) = u(sp(j)) * this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MIN)
                    !NEC$ IVDEP
-                   do j = 1, send_dof(src)%size()
+                   do j = 1, this%send_dof(src)%size()
                       u(sp(j)) = min(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
                 case (GS_OP_MAX)
                    !NEC$ IVDEP
-                   do j = 1, send_dof(src)%size()
+                   do j = 1, this%send_dof(src)%size()
                       u(sp(j)) = max(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
                 end select
