@@ -551,7 +551,8 @@ contains
     type(33) = MPI_INTEGER
     type(34) = MPI_REAL_PRECISION
     type(35) = MPI_CHARACTER
-    type(37) = MPI_CHARACTER
+    type(36) = MPI_CHARACTER
+    type(37) = MPI_INTEGER
     
     call MPI_Type_create_struct(n_param, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
