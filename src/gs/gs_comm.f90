@@ -33,6 +33,7 @@
 !> Defines a gather-scatter communication method
 module gs_comm
   use num_types
+  use comm
   use stack
   implicit none  
 
@@ -40,28 +41,30 @@ module gs_comm
 
   !> Gather-scatter communication method
   type, public, abstract :: gs_comm_t
-     integer, allocatable :: send_pe(:) !< Send order
-     integer, allocatable :: recv_pe(:) !< Recv order
+     type(stack_i4_t), allocatable :: send_dof(:)     !< Send dof to shared-gs
+     type(stack_i4_t), allocatable :: recv_dof(:)     !< Recv dof to shared-gs
+     integer, allocatable :: send_pe(:)               !< Send order
+     integer, allocatable :: recv_pe(:)               !< Recv order
    contains
      procedure(gs_comm_init), pass(this), deferred :: init
      procedure(gs_comm_free), pass(this), deferred :: free
      procedure(gs_nbsend), pass(this), deferred :: nbsend
      procedure(gs_nbrecv), pass(this), deferred :: nbrecv
      procedure(gs_nbwait), pass(this), deferred :: nbwait
+     procedure, pass(this) :: init_dofs
+     procedure, pass(this) :: free_dofs
      procedure, pass(this) :: init_order
      procedure, pass(this) :: free_order
   end type gs_comm_t
 
   !> Abstract interface for initialising a Gather-scatter communication method
   abstract interface
-     subroutine gs_comm_init(this, send_pe, send_dof, recv_pe, recv_dof)
+     subroutine gs_comm_init(this, send_pe, recv_pe)
        import gs_comm_t
        import stack_i4_t       
        class(gs_comm_t), intent(inout) :: this
        type(stack_i4_t), intent(inout) :: send_pe
-       type(stack_i4_t), allocatable, intent(inout) :: send_dof(:)
        type(stack_i4_t), intent(inout) :: recv_pe       
-       type(stack_i4_t), allocatable, intent(inout) :: recv_dof(:)
      end subroutine gs_comm_init
   end interface
 
@@ -75,12 +78,11 @@ module gs_comm
 
   !> Abstract interface for initiating non-blocking send operations
   abstract interface
-     subroutine gs_nbsend(this, send_dof, u, n)
+     subroutine gs_nbsend(this, u, n)
        import gs_comm_t
        import stack_i4_t
        import rp
        class(gs_comm_t), intent(inout) :: this
-       type(stack_i4_t), allocatable, intent(inout) :: send_dof(:)
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
      end subroutine gs_nbsend
@@ -96,13 +98,11 @@ module gs_comm
 
   !> Abstract interface for watining on non-blocking operations
   abstract interface
-     subroutine gs_nbwait(this, send_dof, recv_dof, u, n, op)
+     subroutine gs_nbwait(this, u, n, op)
        import gs_comm_t
        import stack_i4_t
        import rp
        class(gs_comm_t), intent(inout) :: this
-       type(stack_i4_t), allocatable, intent(inout) :: send_dof(:)
-       type(stack_i4_t), allocatable, intent(inout) :: recv_dof(:)
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
        integer :: op
@@ -110,6 +110,42 @@ module gs_comm
   end interface
 
 contains
+
+  subroutine init_dofs(this)
+    class(gs_comm_t), intent(inout) :: this
+    integer :: i
+
+    call this%free_dofs()
+
+    allocate(this%send_dof(0:pe_size-1))
+    allocate(this%recv_dof(0:pe_size-1))
+
+    do i = 0, pe_size -1
+       call this%send_dof(i)%init()
+       call this%recv_dof(i)%init()
+    end do
+    
+  end subroutine init_dofs
+
+  subroutine free_dofs(this)
+    class(gs_comm_t), intent(inout) :: this
+    integer :: i
+
+    if (allocated(this%send_dof)) then
+       do i = 0, pe_size - 1
+          call this%send_dof(i)%free()
+       end do
+       deallocate(this%send_dof)
+    end if
+
+    if (allocated(this%recv_dof)) then
+       do i = 0, pe_size - 1
+          call this%recv_dof(i)%free()
+       end do
+       deallocate(this%recv_dof)
+    end if
+    
+  end subroutine free_dofs
 
   subroutine init_order(this, send_pe, recv_pe)
     class(gs_comm_t), intent(inout) :: this

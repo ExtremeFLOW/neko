@@ -61,8 +61,6 @@ module gather_scatter
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:)        !< Shared non-facet blocks
-     type(stack_i4_t), allocatable :: send_dof(:)     !< Send dof to shared-gs
-     type(stack_i4_t), allocatable :: recv_dof(:)     !< Recv dof to shared-gs
      type(dofmap_t), pointer ::dofmap                 !< Dofmap for gs-ops
      type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
@@ -98,15 +96,9 @@ contains
     
     gs%dofmap => dofmap
     
-    allocate(gs%send_dof(0:pe_size-1))
-    allocate(gs%recv_dof(0:pe_size-1))
-
-    do i = 0, pe_size -1
-       call gs%send_dof(i)%init()
-       call gs%recv_dof(i)%init()
-    end do
-
     allocate(gs_mpi_t::gs%comm)
+
+    call gs%comm%init_dofs()
 
     call gs_init_mapping(gs)
 
@@ -211,20 +203,6 @@ contains
     gs%nshared_blks = 0
 
     call gs%shared_dofs%free()
-
-    if (allocated(gs%send_dof)) then
-       do i = 0, pe_size - 1
-          call gs%send_dof(i)%free()
-       end do
-       deallocate(gs%send_dof)
-    end if
-
-    if (allocated(gs%recv_dof)) then
-       do i = 0, pe_size - 1
-          call gs%recv_dof(i)%free()
-       end do
-       deallocate(gs%recv_dof)
-    end if
 
     if (allocated(gs%bcknd)) then
        call gs%bcknd%free()
@@ -1052,11 +1030,12 @@ contains
        do j = 1, n_recv
           shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
           if (shared_flg(j) .eq. 0) then
-             call gs%recv_dof(src)%push(shared_gs_id)
+             !> @todo don't touch others data...
+             call gs%comm%recv_dof(src)%push(shared_gs_id)
           end if
        end do
 
-       if (gs%recv_dof(src)%size() .gt. 0) then
+       if (gs%comm%recv_dof(src)%size() .gt. 0) then
           call recv_pe%push(src)
        end if
 
@@ -1067,17 +1046,18 @@ contains
        do j = 1, n_recv
           if (recv_flg(j) .eq. 0) then
              tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
-             call gs%send_dof(dst)%push(shared_gs_id)
+             !> @todo don't touch others data...
+             call gs%comm%send_dof(dst)%push(shared_gs_id)
           end if
        end do
 
-       if (gs%send_dof(dst)%size() .gt. 0) then
+       if (gs%comm%send_dof(dst)%size() .gt. 0) then
           call send_pe%push(dst)
        end if
        
     end do
 
-    call gs%comm%init(send_pe, gs%send_dof, recv_pe, gs%recv_dof)
+    call gs%comm%init(send_pe, recv_pe)
     
     call send_pe%free()
     call recv_pe%free()
@@ -1132,7 +1112,7 @@ contains
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
 
-       call gs%comm%nbsend(gs%send_dof, gs%shared_gs, l)
+       call gs%comm%nbsend(gs%shared_gs, l)
        
     end if
     
@@ -1146,7 +1126,7 @@ contains
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
 
-       call gs%comm%nbwait(gs%send_dof, gs%recv_dof, gs%shared_gs, l, op)
+       call gs%comm%nbwait(gs%shared_gs, l, op)
 
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
