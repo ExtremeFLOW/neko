@@ -63,6 +63,10 @@ contains
     if (len_trim(C%params%restart_file) .gt. 0) then
        call simulation_restart(C, t)
     end if
+
+    call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
+                                 C%fluid%p, C%fluid%c_Xh, C%params)
+                
     
     call neko_log%newline()
 
