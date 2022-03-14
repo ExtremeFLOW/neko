@@ -245,14 +245,16 @@ class NekoTestBase(rfm.RegressionTest):
         self.perf_variables['total_runtime'] = pf
 
         if self.dofs != 0:
+            pes = self.num_tasks
+
             def workrate():
                 end = sn.count(timesteps) - 1
                 time = timesteps[end] - timesteps[self.first_workrate_timestep]
                 dofs = 8**3 * 32**3
                 iters = end - self.first_workrate_timestep
-                return 1e-3 * dofs * iters / time
+                return 1e-3 * dofs * iters / time / pes
 
-            pf = sn.make_performance_function(workrate, 'Mdofs/s')
+            pf = sn.make_performance_function(workrate, 'Mdofs/s/pe')
             self.perf_variables['workrate'] = pf
 
 class GetTgvDns(rfm.RunOnlyRegressionTest):
@@ -318,10 +320,10 @@ class Tgv8(TgvBase):
         if self.neko_build.real == 'dp':
             self.reference = {
                 'dt:gpu': {
-                    'total_runtime': (90, -0.50, 0.05, 's'),
+                    'total_runtime': (45, -0.50, 0.10, 's'),
                 },
                 'dt:cpu': {
-                    'total_runtime': (16, -0.50, 0.05, 's'),
+                    'total_runtime': (16, -0.50, 0.10, 's'),
                 },
             }
 
@@ -342,7 +344,7 @@ class Tgv32(TgvBase):
         if self.neko_build.real == 'dp':
             self.reference = {
                 'dt:gpu': {
-                    'total_runtime': (4980, -0.50, 0.05, 's'),
+                    'total_runtime': (4800, -0.50, 0.05, 's'),
                 }
             }
 
