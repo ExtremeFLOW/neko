@@ -697,6 +697,9 @@ contains
        end if
        end do
     enddo
+    if (associated(msh%apply_deform)) then
+       call msh%apply_deform(this%x, this%y, this%z, Xh%lx, Xh%ly, Xh%lz)
+    end if
   end subroutine dofmap_generate_xyz
 
   subroutine dofmap_xyzlin(Xh, msh, element, x, y, z)
