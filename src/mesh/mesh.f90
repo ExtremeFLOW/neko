@@ -107,7 +107,7 @@ module mesh
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
      logical :: lnumr = .false.                !< valid numbering
-     !< enables user to specify a deformation
+     !> enables user to specify a deformation
      !! that is applied to all x,y,z coordinates generated with this mesh
      procedure(mesh_deform), pass(msh), pointer  :: apply_deform => null()
   end type mesh_t
