@@ -33,13 +33,18 @@ module fluid_pnpn
 
      class(ax_t), allocatable :: Ax
      
-     type(projection_t) :: proj
+     type(projection_t) :: proj_prs
+     type(projection_t) :: proj_u
+     type(projection_t) :: proj_v
+     type(projection_t) :: proj_w
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_prs_residual   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_residual_non_normal   !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_residual  
+     type(bc_list_t) :: bclst_prs_residual  
 
      class(advection_t), allocatable :: adv 
 
@@ -163,6 +168,18 @@ contains
     call this%bc_vel_residual_non_normal%finalize()
     call this%bc_vel_residual_non_normal%init_msk(this%c_Xh)    
 
+    call this%bc_prs_residual%init(this%dm_Xh)
+    call this%bc_prs_residual%mark_zones_from_list(msh%labeled_zones,&
+                        'o', this%params%bc_labels)
+    call this%bc_prs_residual%mark_zones_from_list(msh%labeled_zones,&
+                        'on', this%params%bc_labels)
+    call this%bc_prs_residual%mark_zones_from_list(msh%labeled_zones,&
+                        'do', this%params%bc_labels)
+    call this%bc_prs_residual%finalize()
+    call this%bc_prs_residual%set_g(0.0_rp)
+    call bc_list_init(this%bclst_prs_residual)
+    call bc_list_add(this%bclst_prs_residual, this%bc_prs_residual)
+
     call this%bc_vel_residual%init(this%dm_Xh)
     call this%bc_vel_residual%mark_zone(msh%inlet)
     call this%bc_vel_residual%mark_zone(msh%wall)
@@ -178,7 +195,12 @@ contains
     call bc_list_add(this%bclst_vel_residual, this%bc_sym)
 
     !Intialize projection space thingy
-    call this%proj%init(this%dm_Xh%n_dofs, param%proj_dim)
+    call this%proj_prs%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
+    if (param%proj_vel_dim .gt. 0) then
+       call this%proj_u%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
+       call this%proj_v%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
+       call this%proj_w%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
+    end if
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
@@ -195,7 +217,11 @@ contains
     call this%bc_prs_surface%free() 
     call this%bc_sym_surface%free()  
     call bc_list_free(this%bclst_vel_residual)
-    call this%proj%free()
+    call bc_list_free(this%bclst_prs_residual)
+    call this%proj_prs%free()
+    call this%proj_u%free()
+    call this%proj_v%free()
+    call this%proj_w%free()
    
     call field_free(this%u_e)
     call field_free(this%v_e)
@@ -296,7 +322,7 @@ contains
       else
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       end if
-      
+
       call this%adv%apply(this%u, this%v, this%w, &
                           f_Xh%u, f_Xh%v, f_Xh%w, &
                           Xh, this%c_Xh, dm_Xh%n_dofs)
@@ -335,11 +361,11 @@ contains
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
 
-      if( tstep .gt. 5) call this%proj%project_on(p_res%x, c_Xh, n)
+      if( tstep .gt. 5) call this%proj_prs%project_on(p_res%x, c_Xh, n)
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                 this%bclst_prs, gs_Xh, niter)    
-      if( tstep .gt. 5) call this%proj%project_back(dp%x, Ax, c_Xh, &
+      if( tstep .gt. 5) call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                   this%bclst_prs, gs_Xh, n)
 
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
@@ -364,6 +390,13 @@ contains
 
       call bc_list_apply_vector(this%bclst_vel_residual,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%n_dofs)
+      
+      if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
+         call this%proj_u%project_on(u_res%x, c_Xh, n)
+         call this%proj_v%project_on(v_res%x, c_Xh, n)
+         call this%proj_w%project_on(w_res%x, c_Xh, n)
+      end if
+
       call this%pc_vel%update()
 
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
@@ -372,6 +405,15 @@ contains
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_vel_residual, gs_Xh, niter)
+
+      if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
+         call this%proj_u%project_back(du%x, Ax, c_Xh, &
+                                  this%bclst_vel_residual, gs_Xh, n)
+         call this%proj_v%project_back(dv%x, Ax, c_Xh, &
+                                  this%bclst_vel_residual, gs_Xh, n)
+         call this%proj_w%project_back(dw%x, Ax, c_Xh, &
+                                  this%bclst_vel_residual, gs_Xh, n)
+      end if
       
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
            (NEKO_BCKND_OPENCL .eq. 1)) then

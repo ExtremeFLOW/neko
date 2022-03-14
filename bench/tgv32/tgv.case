@@ -15,5 +15,5 @@ abstol_vel = 1d-9
 abstol_prs = 1d-9
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
-proj_dim = 20
+proj_prs_dim = 20
 /
