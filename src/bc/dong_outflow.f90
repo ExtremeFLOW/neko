@@ -112,15 +112,6 @@ end subroutine dong_outflow_apply_scalar
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
-    integer :: i, m, k
-
-   ! m = this%msk(0)
-   ! do i = 1, m
-   !    k = this%msk(i)
-   !    x(k) = this%g
-   !    y(k) = this%g
-   !    z(k) = this%g
-   ! end do
     
   end subroutine dong_outflow_apply_vector
 
@@ -130,8 +121,9 @@ end subroutine dong_outflow_apply_scalar
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
 
-    !call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
-    !                                   this%g, size(this%msk))
+    !call device_dong_outflow_apply_scalar(this%msk_d,x_d, this%facet_d,&
+    !                                      this%u%x_d, this%v%x_d, this%w%x_d,&
+    !                                      this%msk(0))
     
   end subroutine dong_outflow_apply_scalar_dev
   
