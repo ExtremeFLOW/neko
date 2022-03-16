@@ -76,7 +76,8 @@ Name                    | Description                                           
 `avflow`                | Use averaged flow for forced volume flow                              | `.true.`
 `loadb`                 | Use load-balancing                                                    | `.false.`
 `flow_rate`             | Volume flow speed                                                     | `0d0`
-`proj_dim`              | Projection space for pressure solution                                | `20`
+`proj_prs_dim`          | Projection space for pressure solution                                | `20`
+`proj_vel_dim`          | Projection space for velocity solution                                | `0`
 `time_order`            | Order of the time stepping                                            | `3`
 `jlimit`                | Job limit in ``'HH:MM:SS'``                                           | -
 `restart_file`          | Checkpoint filename                                                   | -

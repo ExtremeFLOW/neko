@@ -193,7 +193,7 @@ contains
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
 
     !Intialize projection space thingy
-    call this%proj%init(this%dm_Xh%n_dofs, param%proj_dim)
+    call this%proj%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
 
     !Initialize vol_flow (if there is a forced voume flow)
     this%flow_dir = param%vol_flow_dir

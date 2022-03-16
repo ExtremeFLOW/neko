@@ -57,7 +57,7 @@ module parameters
      logical :: avflow       !< If we should use the averaged flow for vol_flow
      logical :: loadb        !< Load-balancing
      real(kind=rp) :: flow_rate !< Volume flow speed
-     integer :: proj_dim     !< Projection space for pressure solution
+     integer :: proj_prs_dim     !< Projection space for pressure solution
      integer :: time_order   !< Order of the time stepping
      character(len=8) :: jlimit !< Job limit in HH:MM:SS
      character(len=80) :: restart_file !< Checkpoint filename
@@ -72,6 +72,7 @@ module parameters
      real(kind=rp) :: delta !< Boundary layer thickness \f$ \delta \f$
      character(len=10) :: blasius_approx !< Type of approximate Blasius profile
      character(len=3) :: bc_labels(20) !< Type of bc for each label
+     integer :: proj_vel_dim     !< Projection space for velocity solution
   end type param_t
 
   type param_io_t
@@ -117,7 +118,8 @@ contains
     logical :: avflow = .true.
     logical :: loadb = .false.
     real(kind=rp) :: flow_rate = 0d0
-    integer :: proj_dim = 20
+    integer :: proj_prs_dim = 20
+    integer :: proj_vel_dim = 0
     integer :: time_order = 3
     character(len=8) :: jlimit = '00:00:00'
     character(len=80) :: restart_file = ''
@@ -136,7 +138,7 @@ contains
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, loadb, avflow, flow_rate, &
-         proj_dim, time_order, jlimit, restart_file, stats_begin, &
+         proj_prs_dim,  proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels
@@ -164,7 +166,8 @@ contains
     param%p%avflow = avflow
     param%p%loadb = loadb
     param%p%flow_rate = flow_rate
-    param%p%proj_dim = proj_dim
+    param%p%proj_prs_dim = proj_prs_dim
+    param%p%proj_vel_dim = proj_vel_dim
     param%p%time_order = time_order
     param%p%jlimit = jlimit
     param%p%restart_file = restart_file
@@ -197,7 +200,7 @@ contains
     logical :: output_part, output_bdry, output_chkp
     logical :: avflow, loadb, stats_mean_flow, output_mean_flow
     logical :: stats_mean_sqr_flow, output_mean_sqr_flow
-    integer :: nsamples, vol_flow_dir, proj_dim, time_order
+    integer :: nsamples, vol_flow_dir, proj_prs_dim, proj_vel_dim, time_order
     character(len=8) :: jlimit    
     character(len=80) :: restart_file
     character(len=1024) :: output_dir
@@ -209,7 +212,7 @@ contains
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
-         proj_dim, time_order, jlimit, restart_file, stats_begin, &
+         proj_prs_dim, proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels
@@ -235,7 +238,8 @@ contains
     avflow = param%p%avflow
     loadb = param%p%loadb
     flow_rate = param%p%flow_rate
-    proj_dim = param%p%proj_dim
+    proj_prs_dim = param%p%proj_prs_dim
+    proj_vel_dim = param%p%proj_vel_dim
     time_order = param%p%time_order
     jlimit = param%p%jlimit
     restart_file = param%p%restart_file
