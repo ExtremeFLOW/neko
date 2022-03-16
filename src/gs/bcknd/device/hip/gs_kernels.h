@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -245,5 +245,41 @@ __global__ void scatter_kernel(T * __restrict__ v,
     u[gd[i] - 1] = v[dg[i] - 1];
   }
   
+}
+
+template< typename T >
+__global__ void gs_pack_kernel(const T * __restrict__ u,
+			       const int n,
+			       const int32_t **dof_ptrs,
+			       T **buf_ptrs,
+			       const int *ndofs) {
+
+  const int i = blockIdx.x;
+
+  const int ndof = ndofs[i];
+  const int32_t *__restrict__ dof = dof_ptrs[i];
+  T *__restrict__ buf = buf_ptrs[i];
+
+  for (int j = threadIdx.x; j < ndof; j += blockDim.x) {
+    buf[j] = u[dof[j]-1];
+  }
+}
+
+
+template< typename T >
+__global__ void gs_unpack_add_kernel(T * __restrict__ u,
+				     const T * __restrict__ buf,
+				     const int32_t * __restrict__ dof,
+				     const int ndof) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= ndof)
+    return;
+
+  // Note: we assume no other kernel is concurrently modifying u.
+  // To support parallelization over PEs, use atomics?
+  u[dof[j]-1] += buf[j];
+  //atomicAdd(&u[dof[j]-1], buf[j]);
 }
 

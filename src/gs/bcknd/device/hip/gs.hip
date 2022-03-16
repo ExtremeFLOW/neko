@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021, The Neko Authors
+ Copyright (c) 2021-2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -107,6 +107,41 @@ extern "C" {
 		       (real *) v, *m, (int *) dg,
 		       (real *) u, *n, (int *) gd,
 		       *nb, (int *) b, (int *) bo);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void device_gs_pack(void *dof_ptrs_d, void *buf_ptrs_d,
+		      void *ndofs_d, int *npe, void *u_d, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(*npe, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
+		       nblcks, nthrds, 0, 0,
+		       (real *) u_d, *n,
+		       (const int **) dof_ptrs_d, (real **) buf_ptrs_d,
+		       (int *) ndofs_d);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void device_gs_unpack(void *buf_d, void *dof_d, int *ndofs,
+			void *u_d, int *op) {
+
+    const int nthrds = 1024;
+    const int nblcks = (*ndofs + nthrds - 1) / nthrds;
+
+    switch (*op) {
+    case GS_OP_ADD:
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
+			 nblcks, nthrds, 0, 0,
+			 (real *) u_d, (real *) buf_d,
+			 (int *) dof_d, *ndofs);
+      break;
+    default:
+      printf("%s: unknown gs op %d\n", __FILE__, *op);
+      abort();
+    }
+
     HIP_CHECK(hipGetLastError());
   }
 }

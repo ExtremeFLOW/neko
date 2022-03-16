@@ -187,6 +187,9 @@ contains
     type is (double precision)
        s = n * 8
        ptr_h = c_loc(x)
+    type is (c_ptr)
+       s = n * c_intptr_t
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -224,6 +227,9 @@ contains
        ptr_h = c_loc(x)
     type is (double precision)
        s = n * 8
+       ptr_h = c_loc(x)
+    type is (c_ptr)
+       s = n * c_intptr_t
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -263,6 +269,9 @@ contains
     type is (double precision)
        s = n * 8
        ptr_h = c_loc(x)
+    type is (c_ptr)
+       s = n * c_intptr_t
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -300,6 +309,9 @@ contains
        ptr_h = c_loc(x)
     type is (double precision)
        s = n * 8
+       ptr_h = c_loc(x)
+    type is (c_ptr)
+       s = n * c_intptr_t
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
