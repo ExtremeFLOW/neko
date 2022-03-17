@@ -311,7 +311,7 @@ contains
     call cuda_gs_pack(this%send_dof_ptrs_d, this%send_buf_ptrs_d, &
                       this%send_ndofs_d, size(this%send_pe), u_d, n)
 #else
-#error
+    call neko_error('gs_device_mpi: no backend')
 #endif
 
     call device_sync()
@@ -369,7 +369,7 @@ contains
                                     this%recv_buf(i)%ndofs, &
                                     u_d, op)
 #else
-#error
+                call neko_error('gs_device_mpi: no backend')
 #endif
              end if
           end if

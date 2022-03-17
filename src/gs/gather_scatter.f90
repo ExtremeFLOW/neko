@@ -96,8 +96,7 @@ contains
     
     gs%dofmap => dofmap
     
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-      (NEKO_BCKND_OPENCL .eq. 1)) then
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
        allocate(gs_device_mpi_t::gs%comm)
     else
        allocate(gs_mpi_t::gs%comm)
