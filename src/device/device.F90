@@ -310,6 +310,8 @@ contains
   end subroutine device_memcpy_r4
 
   !> Copy data between host and device (or device and device) (c-pointers)
+  !! @note For host-device copies @a dst is the host pointer and @a src is the
+  !! device pointer (regardless of @a dir)
   subroutine device_memcpy_cptr(dst, src, s, dir, sync)
     type(c_ptr), intent(inout) :: dst
     type(c_ptr), intent(inout) :: src

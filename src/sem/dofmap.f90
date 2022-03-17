@@ -672,6 +672,7 @@ contains
        call dofmap_xyzlin(Xh,msh, msh%elements(i)%e,this%x(1,1,1,i),this%y(1,1,1,i), this%z(1,1,1,i)) 
     end do
     do i =1, msh%curve%size 
+       midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
        curve_type = msh%curve%curve_el(i)%curve_type
        curve_data_tot = msh%curve%curve_el(i)%curve_data
@@ -697,6 +698,9 @@ contains
        end if
        end do
     enddo
+    if (associated(msh%apply_deform)) then
+       call msh%apply_deform(this%x, this%y, this%z, Xh%lx, Xh%ly, Xh%lz)
+    end if
   end subroutine dofmap_generate_xyz
 
   subroutine dofmap_xyzlin(Xh, msh, element, x, y, z)
