@@ -40,6 +40,7 @@ module gather_scatter
   use gs_ops
   use gs_comm
   use gs_mpi
+  use gs_device_mpi
   use mesh
   use dofmap
   use field
@@ -95,7 +96,11 @@ contains
     
     gs%dofmap => dofmap
     
-    allocate(gs_mpi_t::gs%comm)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+       allocate(gs_device_mpi_t::gs%comm)
+    else
+       allocate(gs_mpi_t::gs%comm)
+    end if
 
     call gs%comm%init_dofs()
 
@@ -1130,7 +1135,7 @@ contains
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
     end if
-       
+
   end subroutine gs_op_vector
   
 end module gather_scatter

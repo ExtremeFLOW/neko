@@ -100,6 +100,7 @@ contains
              deallocate(this%send_buf(i)%data)
           end if
        end do
+       deallocate(this%send_buf)
     end if
 
     if (allocated(this%recv_buf)) then
@@ -108,6 +109,7 @@ contains
              deallocate(this%recv_buf(i)%data)
           end if
        end do
+       deallocate(this%recv_buf)
     end if
 
     call this%free_order()

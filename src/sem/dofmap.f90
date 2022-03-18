@@ -672,6 +672,7 @@ contains
        call dofmap_xyzlin(Xh,msh, msh%elements(i)%e,this%x(1,1,1,i),this%y(1,1,1,i), this%z(1,1,1,i)) 
     end do
     do i =1, msh%curve%size 
+       midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
        curve_type = msh%curve%curve_el(i)%curve_type
        curve_data_tot = msh%curve%curve_el(i)%curve_data

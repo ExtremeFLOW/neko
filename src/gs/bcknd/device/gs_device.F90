@@ -32,6 +32,7 @@
 !
 !> Generic Gather-scatter backend for accelerators
 module gs_device
+  use neko_config
   use num_types
   use gs_bcknd
   use device    
@@ -312,9 +313,13 @@ contains
 #else
          call neko_error('No device backend configured')
 #endif
-         if (this%nshared .eq. m) then
-            call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
+
+         if ((NEKO_BCKND_HIP .eq. 0) .and. (NEKO_BCKND_CUDA .eq. 0)) then
+            if (this%nshared .eq. m) then
+               call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
+            end if
          end if
+
        end associate
     end if
 
@@ -354,7 +359,9 @@ contains
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo_d=>this%shared_blk_off_d)
 
-         call device_memcpy(v, v_d, m, HOST_TO_DEVICE)
+         if ((NEKO_BCKND_HIP .eq. 0) .and. (NEKO_BCKND_CUDA .eq. 0)) then
+            call device_memcpy(v, v_d, m, HOST_TO_DEVICE)
+         end if
          
 #ifdef HAVE_HIP
          call hip_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, bo_d)
