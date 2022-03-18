@@ -53,6 +53,8 @@ extern "C" {
 			 void *u, int *n, void *gd, int *nb,
 			 void *b, void *bo, int *op) {
 
+    if ((*m) == 0) return;
+    
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
 
@@ -98,7 +100,9 @@ extern "C" {
   void hip_scatter_kernel(void *v, int *m, void *dg,
 			  void *u, int *n, void *gd,
 			  int *nb, void *b, void *bo) {
-    
+
+    if ((*m) == 0) return;
+	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
