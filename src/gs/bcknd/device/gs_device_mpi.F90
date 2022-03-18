@@ -44,21 +44,22 @@ module gs_device_mpi
 
   !> MPI buffer for non-blocking operations
   type, private :: gs_comm_device_mpi_t
-     type(c_ptr) :: request = C_NULL_PTR
-     logical :: flag
-     type(c_ptr) :: buf_d = C_NULL_PTR
-     type(c_ptr) :: dof_d = C_NULL_PTR
+     type(c_ptr) :: request = C_NULL_PTR        !< MPI_Request in C
+     type(c_ptr) :: buf_d = C_NULL_PTR          !< MPI send/recv buffer
+     type(c_ptr) :: dof_d = C_NULL_PTR          !< buf->dof mapping (1-indexed)
      integer :: ndofs
+     logical :: flag                            !< Request done flag
   end type gs_comm_device_mpi_t
 
-  !> Gather-scatter communication using MPI
+  !> Gather-scatter communication using device MPI.
+  !! The arrays are indexed per PE like @a send_pe and @ recv_pe.
   type, extends(gs_comm_t) :: gs_device_mpi_t
-     type(gs_comm_device_mpi_t), allocatable :: send_buf(:)     !< Comm. buffers
-     type(gs_comm_device_mpi_t), allocatable :: recv_buf(:)     !< Comm. buffers
+     type(gs_comm_device_mpi_t), allocatable :: send_buf(:)
+     type(gs_comm_device_mpi_t), allocatable :: recv_buf(:)
 
-     type(c_ptr) :: send_buf_ptrs_d = C_NULL_PTR
-     type(c_ptr) :: send_dof_ptrs_d = C_NULL_PTR
-     type(c_ptr) :: send_ndofs_d = C_NULL_PTR
+     type(c_ptr) :: send_buf_ptrs_d = C_NULL_PTR    !< Array of buf pointers
+     type(c_ptr) :: send_dof_ptrs_d = C_NULL_PTR    !< Array of dof pointers
+     type(c_ptr) :: send_ndofs_d = C_NULL_PTR       !< Array of ndofs
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free

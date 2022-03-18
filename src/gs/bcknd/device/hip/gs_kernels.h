@@ -280,5 +280,4 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
   // Note: we assume no other kernel is concurrently modifying u.
   // To support parallelization over PEs, use atomics?
   u[dof[j]-1] += buf[j];
-  //atomicAdd(&u[dof[j]-1], buf[j]);
 }
