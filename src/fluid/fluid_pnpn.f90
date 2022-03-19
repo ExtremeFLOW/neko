@@ -344,8 +344,6 @@ contains
       !> We assume that no change of boundary conditions 
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
-      call bc_list_apply_vector(this%bclst_vel_residual,&
-         u%x, v%x, w%x, this%dm_Xh%n_dofs)
       call this%bc_apply_vel()
       
       ! compute pressure
