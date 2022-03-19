@@ -314,7 +314,7 @@ contains
          call neko_error('No device backend configured')
 #endif
 
-         if ((NEKO_BCKND_HIP .eq. 0) .and. (NEKO_BCKND_CUDA .eq. 0)) then
+         if (.not. NEKO_DEVICE_MPI) then
             if (this%nshared .eq. m) then
                call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
             end if
@@ -359,7 +359,7 @@ contains
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo_d=>this%shared_blk_off_d)
 
-         if ((NEKO_BCKND_HIP .eq. 0) .and. (NEKO_BCKND_CUDA .eq. 0)) then
+         if (.not. NEKO_DEVICE_MPI) then
             call device_memcpy(v, v_d, m, HOST_TO_DEVICE)
          end if
          
