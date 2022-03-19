@@ -18,9 +18,14 @@ AC_ARG_ENABLE(real,
 	            dp -- REAL(kind=8) (default)
 	            qp -- REAL(kind=16)]),
 	        [enable_real=${enableval}], [enable_real=dp])
+
 AC_ARG_ENABLE(blk_size,
               AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
               [blk_size=${enableval}], [blk_size="10000"])
+
+AC_ARG_ENABLE(device-mpi,
+	      AC_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
+	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
@@ -155,6 +160,17 @@ fi
 
 # Checks for OpenCL backend
 AX_OPENCL
+
+# Check if device aware MPI is requested
+if (test "x${have_cuda}" = xyes ||
+    test "x${have_hip}" = xyes  ||
+    test "x${have_opencl}" = xyes); then
+   if test "x${enable_device_mpi}" = xyes; then
+         AC_SUBST(device_mpi, .true.)
+   fi
+else
+   AC_SUBST(device_mpi, .false.)
+fi
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
