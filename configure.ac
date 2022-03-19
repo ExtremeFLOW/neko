@@ -166,7 +166,9 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
-         AC_SUBST(device_mpi, .true.)
+      AC_SUBST(device_mpi, .true.)
+   else
+      AC_SUBST(device_mpi, .false.)
    fi
 else
    AC_SUBST(device_mpi, .false.)
