@@ -254,17 +254,14 @@ __global__ void gs_pack_kernel(const T * __restrict__ u,
 			       T **buf_ptrs,
 			       const int *ndofs) {
 
-  const int i = blockIdx.y;
-  const int stride = blockDim.x * gridDim.x;
-  int j = threadIdx.x + blockIdx.x * blockDim.x;
+  const int i = blockIdx.x;
 
   const int ndof = ndofs[i];
   const int32_t *__restrict__ dof = dof_ptrs[i];
   T *__restrict__ buf = buf_ptrs[i];
 
-  while (j < ndof) {
+  for (int j = threadIdx.x; j < ndof; j += blockDim.x) {
     buf[j] = u[dof[j]-1];
-    j += stride;
   }
 }
 

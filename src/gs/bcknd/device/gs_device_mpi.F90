@@ -60,7 +60,6 @@ module gs_device_mpi
      type(c_ptr) :: send_buf_ptrs_d = C_NULL_PTR    !< Array of buf pointers
      type(c_ptr) :: send_dof_ptrs_d = C_NULL_PTR    !< Array of dof pointers
      type(c_ptr) :: send_ndofs_d = C_NULL_PTR       !< Array of ndofs
-     integer :: send_ndofs_max                      !< Max ndofs
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -70,23 +69,21 @@ module gs_device_mpi
   end type gs_device_mpi_t
 
   interface
-     subroutine hip_gs_pack(dof_ptrs_d, buf_ptrs_d, ndofs_d, npe, u_d, n, &
-                            ndofs_max) &
+     subroutine hip_gs_pack(dof_ptrs_d, buf_ptrs_d, ndofs_d, npe, u_d, n) &
           bind(c, name='hip_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: npe, n, ndofs_max
+       integer(c_int) :: npe, n
        type(c_ptr), value :: dof_ptrs_d, buf_ptrs_d, ndofs_d, u_d
      end subroutine hip_gs_pack
   end interface
 
   interface
-     subroutine cuda_gs_pack(dof_ptrs_d, buf_ptrs_d, ndofs_d, npe, u_d, n, &
-                             ndofs_max) &
+     subroutine cuda_gs_pack(dof_ptrs_d, buf_ptrs_d, ndofs_d, npe, u_d, n) &
           bind(c, name='cuda_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: npe, n, ndofs_max
+       integer(c_int) :: npe, n
        type(c_ptr), value :: dof_ptrs_d, buf_ptrs_d, ndofs_d, u_d
      end subroutine cuda_gs_pack
   end interface
@@ -179,16 +176,10 @@ contains
     allocate(dof_ptrs(send_pe%size()))
     allocate(ndofs(send_pe%size()))
 
-    this%send_ndofs_max = 0
-
     pe => send_pe%array()
     do i = 1, send_pe%size()
        ndof = this%send_dof(pe(i))%size()
        ndofs(i) = ndof
-
-       if (ndof .gt. this%send_ndofs_max) then
-          this%send_ndofs_max = ndof
-       end if
 
        sz = rp * ndof
        call device_alloc(buf_ptrs(i), sz)
@@ -316,12 +307,10 @@ contains
 
 #ifdef HAVE_HIP
     call hip_gs_pack(this%send_dof_ptrs_d, this%send_buf_ptrs_d, &
-                     this%send_ndofs_d, size(this%send_pe), u_d, n, &
-                     this%send_ndofs_max)
+                     this%send_ndofs_d, size(this%send_pe), u_d, n)
 #elif HAVE_CUDA
     call cuda_gs_pack(this%send_dof_ptrs_d, this%send_buf_ptrs_d, &
-                      this%send_ndofs_d, size(this%send_pe), u_d, n, &
-                      this%send_ndofs_max)
+                      this%send_ndofs_d, size(this%send_pe), u_d, n)
 #else
     call neko_error('gs_device_mpi: no backend')
 #endif

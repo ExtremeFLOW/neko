@@ -108,23 +108,17 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void cuda_gs_pack(void *dof_ptrs_d, void *buf_ptrs_d, void *ndofs_d,
-		    int *npe, void *u_d, int *n, int *ndofs_max) {
+  void cuda_gs_pack(void *dof_ptrs_d, void *buf_ptrs_d,
+		   void *ndofs_d, int *npe, void *u_d, int *n) {
 
-    // We want enough blocks to saturate the card but no more, also not more
-    // threads than there are dofs. The magic number 400 is a very rough
-    // estimation of number of CUs * number of concurrent blocks per CU.
-    const int threads = 256;
-    const int max_blocks = (*ndofs_max + threads - 1) / threads;
-    int blocks_per_pe = max(1, 400 / *npe);
-    blocks_per_pe = min(max_blocks, blocks_per_pe);
-    const dim3 grid(blocks_per_pe, *npe, 1);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(*npe, 1, 1);
 
     gs_pack_kernel<real>
-      <<<grid, threads>>>((real *) u_d, *n,
-			  (const int **) dof_ptrs_d,
-			  (real **) buf_ptrs_d,
-			  (int *) ndofs_d);
+      <<<nblcks, nthrds>>>((real *) u_d, *n,
+			   (const int **) dof_ptrs_d,
+			   (real **) buf_ptrs_d,
+			   (int *) ndofs_d);
     CUDA_CHECK(cudaGetLastError());
   }
 
