@@ -5,7 +5,7 @@ program prepart
   character(len=NEKO_FNAME_LEN) :: fname, nprtschr, output_
   type(mesh_t) :: msh, new_msh
   type(file_t) :: new_msh_file, nmsh_file
-  integer :: argc, nprts, i, j, tmp, sum, idx, p_idx, rank
+  integer :: argc, nprts, i, j, tmp, sum, idx, p_idx, rank, label
   integer, allocatable :: new_el(:), idx_cntr(:), idx_map(:)
   type(mesh_fld_t) :: parts
 
@@ -102,18 +102,22 @@ program prepart
      call mesh_mark_sympln_facet(new_msh, msh%sympln%facet_el(i)%x(1), idx)
   end do
 
-  do i =1, msh%periodic%size
+  do i = 1, msh%periodic%size
      idx = idx_map(msh%periodic%facet_el(i)%x(2))
      p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
      call mesh_mark_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
           msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
   end do
-  do i =1, msh%periodic%size
-     idx = idx_map(msh%periodic%facet_el(i)%x(2))
-     p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
-     call mesh_apply_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
-          msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
+
+  do j = 1, NEKO_MSH_MAX_ZLBLS
+     do i = 1, msh%labeled_zones(j)%size
+        idx = idx_map(msh%labeled_zones(j)%facet_el(i)%x(2))
+        label = j ! adhere to standards...
+        call mesh_mark_labeled_facet(new_msh, &
+             msh%labeled_zones(j)%facet_el(i)%x(1), idx, label)
+     end do
   end do
+  
 
 
   call mesh_finalize(new_msh)
