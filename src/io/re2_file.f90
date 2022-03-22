@@ -409,7 +409,7 @@ contains
     allocate(curve_type(12,msh%nelv))
     do i = 1, msh%nelv
        curve_element(i) = .false.
-       do j = 1, 8
+       do j = 1, 12
           curve_type(j,i) = 0
           do l = 1, 5
              curve_data(l,j,i) = 0d0
