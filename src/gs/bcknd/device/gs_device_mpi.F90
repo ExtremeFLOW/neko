@@ -388,6 +388,8 @@ contains
        end do
     end do
 
+    call device_sync()
+
   end subroutine gs_device_mpi_nbwait
 
 end module gs_device_mpi
