@@ -32,8 +32,10 @@
 !
 !> Defines a checkpoint
 module checkpoint
+  use neko_config
   use num_types
   use field_series
+  use device
   use field
   use utils
   implicit none
@@ -55,6 +57,8 @@ module checkpoint
      real(kind=dp) :: t         !< Restart time (valid after load)
    contains
      procedure, pass(this) :: init => chkp_init
+     procedure, pass(this) :: sync_host => chkp_sync_host
+     procedure, pass(this) :: sync_device => chkp_sync_device
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: restart_time => chkp_restart_time
      final :: chkp_free
@@ -105,6 +109,82 @@ contains
     nullify(this%wlag)
     
   end subroutine chkp_free
+
+  !> Synchronize checkpoint with device
+  subroutine chkp_sync_host(this)
+    class(chkp_t), intent(inout) :: this
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       associate(u=>this%u, v=>this%v, w=>this%w, &
+            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag)
+
+         if (associated(this%u) .and. associated(this%v) .and. &
+              associated(this%w)) then
+            call device_memcpy(u%x, u%x_d, u%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(v%x, v%x_d, v%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST)
+         end if
+         
+         if (associated(this%ulag) .and. associated(this%vlag) .and. &
+              associated(this%wlag)) then
+            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
+                               u%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
+                               u%dof%size(), DEVICE_TO_HOST)
+  
+            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
+                               v%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
+                               v%dof%size(), DEVICE_TO_HOST)
+    
+            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
+                               w%dof%size(), DEVICE_TO_HOST)
+         end if
+       end associate
+    end if
+         
+  end subroutine chkp_sync_host
+
+  !> Synchronize device with checkpoint
+  subroutine chkp_sync_device(this)
+    class(chkp_t), intent(inout) :: this
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       associate(u=>this%u, v=>this%v, w=>this%w, &
+            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag)
+
+         if (associated(this%u) .and. associated(this%v) .and. &
+              associated(this%w)) then
+            call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
+         end if
+         
+         if (associated(this%ulag) .and. associated(this%vlag) .and. &
+              associated(this%wlag)) then
+            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
+                               u%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
+                               u%dof%size(), HOST_TO_DEVICE)
+  
+            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
+                               v%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
+                               v%dof%size(), HOST_TO_DEVICE)
+    
+            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
+                               w%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
+                               w%dof%size(), HOST_TO_DEVICE)
+         end if
+       end associate
+    end if
+         
+  end subroutine chkp_sync_device
 
   !> Add lagged velocity terms
   subroutine chkp_add_lag(this, ulag, vlag, wlag)

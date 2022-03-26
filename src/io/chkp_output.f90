@@ -75,6 +75,7 @@ contains
     class(chkp_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
 
+    call this%chkp%sync_host()
     call this%file_%write(this%chkp, t)
 
   end subroutine chkp_output_sample
