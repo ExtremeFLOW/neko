@@ -145,7 +145,7 @@ contains
 
       rtz1 = 1.0_rp
       call rzero(x%x, n)
-      call rzero(p, n)
+      call rzero(p(1,CG_P_SPACE), n)
       call copy(r, f, n)
 
       rtr = glsc3(r, coef%mult, r, n)

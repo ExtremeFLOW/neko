@@ -178,7 +178,8 @@ contains
     call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
+         (NEKO_BCKND_XSMM .eq. 1)) then
        allocate(this%temp(n_GL))
        allocate(this%tbf(n_GL))
        allocate(this%tx(n_GL))
@@ -187,6 +188,10 @@ contains
        allocate(this%vr(n_GL))
        allocate(this%vs(n_GL))
        allocate(this%vt(n_GL))
+    end if
+    
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then       
        call device_map(this%temp, this%temp_d, n_GL)
        call device_map(this%tbf, this%tbf_d, n_GL)
        call device_map(this%tx, this%tx_d, n_GL)
@@ -196,7 +201,6 @@ contains
        call device_map(this%vs, this%vs_d, n_GL)
        call device_map(this%vt, this%vt_d, n_GL)
     end if
-
 
   end subroutine init_dealias
   
@@ -250,7 +254,36 @@ contains
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
        call device_sub2(bfz_d, this%temp_d,n)
 
+    else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+
+       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+
+       call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
+       call col3(this%tbf, this%vr,this%tx, n_GL)
+       call addcol3(this%tbf, this%vs, this%ty, n_GL)
+       call addcol3(this%tbf, this%vt, this%tz, n_GL)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       call sub2(bfx, this%temp, n)
+
+
+       call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
+       call col3(this%tbf, this%vr, this%tx, n_GL)
+       call addcol3(this%tbf, this%vs, this%ty, n_GL)
+       call addcol3(this%tbf, this%vt, this%tz, n_GL)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       call sub2(bfy, this%temp, n)
+
+       call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
+       call col3(this%tbf, this%vr, this%tx,n_GL)
+       call addcol3(this%tbf, this%vs, this%ty, n_GL)
+       call addcol3(this%tbf, this%vt, this%tz, n_GL)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       call sub2(bfz, this%temp, n)
+       
     else
+
        do e = 1, coef%msh%nelv
           call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
           call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)

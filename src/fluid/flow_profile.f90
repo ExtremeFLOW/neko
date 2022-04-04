@@ -63,7 +63,7 @@ contains
   end function blasius_linear
 
   !> Quadratic approximate Blasius Profile
-  !! \f$ \fract{u}{U} = 2 \frac{y}{\delta} - \frac{y}{delta}^2 \f$
+  !! \f$ \frac{u}{U} = 2 \frac{y}{\delta} - (\frac{y}{\delta})^2 \f$
   function blasius_quadratic(y, delta, u)
     real(kind=rp), intent(in) :: y, delta, u
     real(kind=rp) :: blasius_quadratic
@@ -80,7 +80,7 @@ contains
   end function blasius_quadratic
 
   !> Cubic approximate Blasius Profile
-  !! \f$ \fract{u}{U} = 3/2 \frac{y}{\delta} - 1/2\frac{y}{delta}^3 \f$
+  !! \f$ \frac{u}{U} = 3/2 \frac{y}{\delta} - 1/2(\frac{y}{\delta})^3 \f$
   function blasius_cubic(y, delta, u)
     real(kind=rp), intent(in) :: y, delta, u
     real(kind=rp) :: blasius_cubic
@@ -97,8 +97,8 @@ contains
   end function blasius_cubic
 
   !> Quartic approximate Blasius Profile
-  !! \f$ \fract{u}{U} = 2 \frac{y}{\delta} - 2\frac{y}{delta}^3 +
-  !! frac{y}{delta}^4 \f$
+  !! \f$ \frac{u}{U} = 2 \frac{y}{\delta} - 2(\frac{y}{\delta})^3 +
+  !! (\frac{y}{\delta})^4 \f$
   function blasius_quartic(y, delta, u)
     real(kind=rp), intent(in) :: y, delta, u
     real(kind=rp) :: blasius_quartic
@@ -115,7 +115,7 @@ contains
   end function blasius_quartic
 
   !> Sinusoidal approximate Blasius Profile
-  !! \f$ \frac{u}{U} = \sin(\frac{\pi}{2}\frac{y}{\delta})
+  !! \f$ \frac{u}{U} = \sin(\frac{\pi}{2}\frac{y}{\delta}) \f$
   function blasius_sin(y, delta, u)
     real(kind=rp), intent(in) :: y, delta, u
     real(kind=rp) :: blasius_sin

@@ -110,9 +110,9 @@ contains
     end if
     
     ! Ensure continuity across elements for initial conditions
-    call gs_op_vector(gs, u%x, u%dof%n_dofs, GS_OP_ADD) 
-    call gs_op_vector(gs, v%x, v%dof%n_dofs, GS_OP_ADD) 
-    call gs_op_vector(gs, w%x, w%dof%n_dofs, GS_OP_ADD) 
+    call gs_op(gs, u%x, u%dof%n_dofs, GS_OP_ADD) 
+    call gs_op(gs, v%x, v%dof%n_dofs, GS_OP_ADD) 
+    call gs_op(gs, w%x, w%dof%n_dofs, GS_OP_ADD) 
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then

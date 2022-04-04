@@ -51,6 +51,7 @@ module fluid_method
   use blasius
   use dirichlet
   use symmetry
+  use non_normal
   use krylov_fctry
   use precon_fctry
   use bc
@@ -149,6 +150,7 @@ contains
     type(param_t), intent(inout), target :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
+    integer :: i, j, k
     
     call neko_log%section('Fluid')
     call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
@@ -183,54 +185,53 @@ contains
     !
     call bc_list_init(this%bclst_vel)
 
-    if (msh%sympln%size .gt. 0) then
-       call this%bc_sym%init(this%dm_Xh)
-       call this%bc_sym%mark_zone(msh%sympln)
-       call this%bc_sym%finalize()
-       call this%bc_sym%init_msk(this%c_Xh)    
-       call bc_list_add(this%bclst_vel, this%bc_sym)
-    end if
+    call this%bc_sym%init(this%dm_Xh)
+    call this%bc_sym%mark_zone(msh%sympln)
+    call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
+                        'sym', this%params%bc_labels)
+    call this%bc_sym%finalize()
+    call this%bc_sym%init_msk(this%c_Xh)    
+    call bc_list_add(this%bclst_vel, this%bc_sym)
 
-    if (msh%inlet%size .gt. 0) then
-
-       if (trim(params%fluid_inflow) .eq. "default") then
-          allocate(inflow_t::this%bc_inflow)
-       else if (trim(params%fluid_inflow) .eq. "blasius") then
-          allocate(blasius_t::this%bc_inflow)
-       else if (trim(params%fluid_inflow) .eq. "user") then
-          allocate(usr_inflow_t::this%bc_inflow)
-       else
-          call neko_error('Invalid Inflow condition')
-       end if
-       
-       call this%bc_inflow%init(this%dm_Xh)
-       call this%bc_inflow%mark_zone(msh%inlet)
-       call this%bc_inflow%finalize()
-       call this%bc_inflow%set_inflow(params%uinf)
-       call bc_list_add(this%bclst_vel, this%bc_inflow)
-
-       if (trim(params%fluid_inflow) .eq. "blasius") then
-          select type(bc_if => this%bc_inflow)
-          type is(blasius_t)
-             call bc_if%set_coef(this%C_Xh)
-             call bc_if%set_params(params%delta, params%blasius_approx)
-          end select
-       end if
-       
-       if (trim(params%fluid_inflow) .eq. "user") then
-          select type(bc_if => this%bc_inflow)
-          type is(usr_inflow_t)
-             call bc_if%set_coef(this%C_Xh)
-          end select
-       end if
+    if (trim(params%fluid_inflow) .eq. "default") then
+       allocate(inflow_t::this%bc_inflow)
+    else if (trim(params%fluid_inflow) .eq. "blasius") then
+       allocate(blasius_t::this%bc_inflow)
+    else if (trim(params%fluid_inflow) .eq. "user") then
+       allocate(usr_inflow_t::this%bc_inflow)
+    else
+       call neko_error('Invalid Inflow condition')
     end if
     
-    if (msh%wall%size .gt. 0 ) then
-       call this%bc_wall%init(this%dm_Xh)
-       call this%bc_wall%mark_zone(msh%wall)
-       call this%bc_wall%finalize()
-       call bc_list_add(this%bclst_vel, this%bc_wall)
+    call this%bc_inflow%init(this%dm_Xh)
+    call this%bc_inflow%mark_zone(msh%inlet)
+    call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
+                        'v', this%params%bc_labels)
+    call this%bc_inflow%finalize()
+    call this%bc_inflow%set_inflow(params%uinf)
+    call bc_list_add(this%bclst_vel, this%bc_inflow)
+
+    if (trim(params%fluid_inflow) .eq. "blasius") then
+       select type(bc_if => this%bc_inflow)
+       type is(blasius_t)
+          call bc_if%set_coef(this%C_Xh)
+          call bc_if%set_params(params%delta, params%blasius_approx)
+       end select
     end if
+    
+    if (trim(params%fluid_inflow) .eq. "user") then
+       select type(bc_if => this%bc_inflow)
+       type is(usr_inflow_t)
+          call bc_if%set_coef(this%C_Xh)
+       end select
+    end if
+    
+    call this%bc_wall%init(this%dm_Xh)
+    call this%bc_wall%mark_zone(msh%wall)
+    call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
+                        'w', this%params%bc_labels)
+    call this%bc_wall%finalize()
+    call bc_list_add(this%bclst_vel, this%bc_wall)
        
     if (params%output_bdry) then       
        call field_init(this%bdry, this%dm_Xh, 'bdry')
@@ -238,6 +239,8 @@ contains
        
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
+       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
+                      'w', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(1d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -245,6 +248,9 @@ contains
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%inlet)
+       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
+                      'v', this%params%bc_labels)
+
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(2d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -252,6 +258,8 @@ contains
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet)
+       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
+                      'o', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(3d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -259,6 +267,8 @@ contains
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%sympln)
+       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
+                      'sym', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(real(4d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
@@ -270,6 +280,16 @@ contains
        call bdry_mask%set_g(real(5d0,rp))
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
+
+       call bdry_mask%init(this%dm_Xh)
+       call bdry_mask%mark_zone(msh%outlet_normal)
+       call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
+                      'on', this%params%bc_labels)
+       call bdry_mask%finalize()
+       call bdry_mask%set_g(real(6d0,rp))
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%free()
+
     end if
     
   end subroutine fluid_scheme_init_common
@@ -306,6 +326,7 @@ contains
     type(param_t), intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
+    integer :: i, j, k
 
     call fluid_scheme_init_common(this, msh, lx, params)
     
@@ -318,13 +339,22 @@ contains
     ! Setup pressure boundary conditions
     !
     call bc_list_init(this%bclst_prs)
+    call this%bc_prs%init(this%dm_Xh)
+    call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
+                        'o', this%params%bc_labels)
+    call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
+                        'on', this%params%bc_labels)
+
     if (msh%outlet%size .gt. 0) then
-       call this%bc_prs%init(this%dm_Xh)
        call this%bc_prs%mark_zone(msh%outlet)
-       call this%bc_prs%finalize()
-       call this%bc_prs%set_g(real(0d0,rp))
-       call bc_list_add(this%bclst_prs, this%bc_prs)
     end if
+    if (msh%outlet_normal%size .gt. 0) then
+       call this%bc_prs%mark_zone(msh%outlet_normal)
+    end if
+
+    call this%bc_prs%finalize()
+    call this%bc_prs%set_g(real(0d0,rp))
+    call bc_list_add(this%bclst_prs, this%bc_prs)
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
@@ -511,16 +541,19 @@ contains
   end subroutine fluid_scheme_precon_factory
 
   !> Initialize source term
-  subroutine fluid_scheme_set_source(this, source_term, usr_f)
+  subroutine fluid_scheme_set_source(this, source_term_type, usr_f, usr_f_vec)
     class(fluid_scheme_t), intent(inout) :: this
-    character(len=*) :: source_term
+    character(len=*) :: source_term_type
     procedure(source_term_pw), optional :: usr_f
+    procedure(source_term), optional :: usr_f_vec
 
-    if (trim(source_term) .eq. 'noforce') then
+    if (trim(source_term_type) .eq. 'noforce') then
        call source_set_type(this%f_Xh, source_eval_noforce)
-    else if (trim(source_term) .eq. 'user' .and. present(usr_f)) then
+    else if (trim(source_term_type) .eq. 'user' .and. present(usr_f)) then
        call source_set_pw_type(this%f_Xh, usr_f)
-    else if (trim(source_term) .eq. '') then
+    else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
+       call source_set_type(this%f_Xh, usr_f_vec)
+    else if (trim(source_term_type) .eq. '') then
        if (pe_rank .eq. 0) then
           call neko_warning('No source term defined, using default (noforce)')
        end if
@@ -536,14 +569,12 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
 
-    if (this%msh%inlet%size .gt. 0) then
-       select type(bc_if => this%bc_inflow)
-       type is(usr_inflow_t)
-          call bc_if%set_eval(usr_eval)
-       class default
-          call neko_error("Not a user defined inflow condition")
-       end select
-    end if
+    select type(bc_if => this%bc_inflow)
+    type is(usr_inflow_t)
+      call bc_if%set_eval(usr_eval)
+    class default
+      call neko_error("Not a user defined inflow condition")
+    end select
     
   end subroutine fluid_scheme_set_usr_inflow
 

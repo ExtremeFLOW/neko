@@ -169,6 +169,8 @@ contains
        allocate(nmsh_zone_t::this%data(this%size_))
     type is (stack_nc_t)
        allocate(nmsh_curve_el_t::this%data(this%size_))
+    class default
+       call neko_error('Invalid data type')
     end select
 
   end subroutine stack_init
@@ -228,7 +230,10 @@ contains
           allocate(nmsh_zone_t::tmp(this%size_))
        type is (nmsh_curve_el_t)
           allocate(nmsh_curve_el_t::tmp(this%size_))
+       class default
+          call neko_error('Invalid data type (stack_push)')
        end select
+       
        select type(tmp)
        type is (integer)
           select type(sdp=>this%data)
@@ -284,6 +289,8 @@ contains
           type is(nmsh_curve_el_t)
              tmp(1:this%top_) = sdp
           end select
+       class default
+          call neko_error('Invalid data type (stack_push tmp)')
        end select
        call move_alloc(tmp, this%data)
     end if
@@ -341,6 +348,8 @@ contains
        type is (nmsh_curve_el_t)
           sdp(this%top_) = data
        end select
+    class default
+       call neko_error('Invalid data type in stack (stack_push)')
     end select
   end subroutine stack_push
 
@@ -352,6 +361,8 @@ contains
     select type (sdp=>this%data)
     type is (integer)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (i4 pop)')
     end select
     this%top_ = this%top_ - 1
   end function stack_i4_pop
@@ -364,6 +375,8 @@ contains
     select type (sdp=>this%data)
     type is (integer)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (i4 array)')
     end select
   end function stack_i4_data
 
@@ -375,6 +388,8 @@ contains
     select type (sdp=>this%data)
     type is (integer(8))       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (i8 pop)')
     end select
     this%top_ = this%top_ - 1
   end function stack_i8_pop
@@ -387,6 +402,8 @@ contains
     select type (sdp=>this%data)
     type is (integer(8))       
        data => sdp
+    class default
+       call neko_error('Invalid data type (i8 array)')
     end select
   end function stack_i8_data
 
@@ -398,6 +415,8 @@ contains
     select type (sdp=>this%data)
     type is (double precision)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (r8 pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_r8_pop
@@ -410,6 +429,8 @@ contains
     select type (sdp=>this%data)
     type is (double precision)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (i8 array)')
     end select
   end function stack_r8_data
 
@@ -421,6 +442,8 @@ contains
     select type (sdp=>this%data)
     type is (tuple_i4_t)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (i4t2 pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_i4t2_pop
@@ -433,6 +456,8 @@ contains
     select type (sdp=>this%data)
     type is (tuple_i4_t)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (i4t2 array)')
     end select
   end function stack_i4t2_data
 
@@ -444,6 +469,8 @@ contains
     select type (sdp=>this%data)
     type is (tuple4_i4_t)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (i4t4 pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_i4t4_pop
@@ -456,6 +483,8 @@ contains
     select type (sdp=>this%data)
     type is (tuple4_i4_t)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (i4t4 array)')
     end select
   end function stack_i4t4_data
  
@@ -467,6 +496,8 @@ contains
     select type (sdp=>this%data)
     type is (struct_curve_t)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (curve pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_curve_element_pop
@@ -479,6 +510,8 @@ contains
     select type (sdp=>this%data)
     type is (struct_curve_t)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (curve array)')
     end select
   end function stack_curve_element_data
 
@@ -490,6 +523,8 @@ contains
     select type (sdp=>this%data)
     type is (nmsh_quad_t)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (nq pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_nq_pop
@@ -502,6 +537,8 @@ contains
     select type (sdp=>this%data)
     type is (nmsh_quad_t)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (nq array)')
     end select
   end function stack_nq_data
 
@@ -513,6 +550,8 @@ contains
     select type (sdp=>this%data)
     type is (nmsh_hex_t)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (nh pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_nh_pop
@@ -525,6 +564,8 @@ contains
     select type (sdp => this%data)
     type is (nmsh_hex_t)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (nh array)')
     end select
   end function stack_nh_data
 
@@ -536,6 +577,8 @@ contains
     select type (sdp=>this%data)
     type is (nmsh_zone_t)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (nz pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_nz_pop
@@ -548,6 +591,8 @@ contains
     select type (sdp=>this%data)
     type is (nmsh_zone_t)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (nz array)')
     end select
   end function stack_nz_data
 
@@ -559,6 +604,8 @@ contains
     select type (sdp=>this%data)
     type is (nmsh_curve_el_t)       
        data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (nc pop)')
     end select
     this%top_ = this%top_ -1
   end function stack_nc_pop
@@ -571,6 +618,8 @@ contains
     select type (sdp=>this%data)
     type is (nmsh_curve_el_t)       
        data => sdp
+    class default
+       call neko_error('Invalid data type (nc array)')
     end select
   end function stack_nc_data
   

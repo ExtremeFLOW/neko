@@ -33,7 +33,6 @@
 module tensor_device
   use num_types
   use utils
-  use comm
   use, intrinsic :: iso_c_binding
   implicit none
 #ifdef HAVE_HIP
@@ -54,6 +53,15 @@ module tensor_device
        integer(c_int) :: nu, nv, nelv
      end subroutine cuda_tnsr3d
   end interface
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
+          bind(c, name='opencl_tnsr3d')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d
+       integer(c_int) :: nu, nv, nelv
+     end subroutine opencl_tnsr3d
+  end interface
 #endif
 contains
 
@@ -64,6 +72,8 @@ contains
     call hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
 #elif HAVE_CUDA
     call cuda_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
+#elif HAVE_OPENCL
+    call opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
 #else
     call neko_error('No device backend configured')
 #endif

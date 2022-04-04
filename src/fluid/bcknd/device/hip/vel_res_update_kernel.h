@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,25 +32,26 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * Device kernel for vector apply for a Blasius profile
- */
-__kernel void blasius_apply_vector_kernel(__global const int *msk,
-					  __global real *x,
-					  __global real *y,
-					  __global real *z,
-					  __global real *bla_x,
-					  __global real *bla_y,
-					  __global real *bla_z,
-					  const int m) {
-  
-  const int idx = get_global_id(0);
-  const int str = get_global_size(0);
+template< typename T >
+__global__ void vel_res_update_kernel(T * __restrict__ u_res,
+                                      T * __restrict__ v_res,
+                                      T * __restrict__ w_res,
+                                      const T * __restrict__ ta1,
+                                      const T * __restrict__ ta2,
+                                      const T * __restrict__ ta3,
+                                      const T * __restrict__ f_u,
+                                      const T * __restrict__ f_v,
+                                      const T * __restrict__ f_w,
+                                      const int n) {
 
-  for (int i = idx; i < m; i += str) {
-    const int k = msk[i + 1] -1;
-    x[k] = bla_x[i];
-    y[k] = bla_y[i];
-    z[k] = bla_z[i];
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    u_res[i] = (-u_res[i]) - ta1[i] + f_u[i];
+    v_res[i] = (-v_res[i]) - ta2[i] + f_v[i];
+    w_res[i] = (-w_res[i]) - ta3[i] + f_w[i];
   }
+
 }
+

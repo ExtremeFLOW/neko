@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,26 +32,41 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * Device kernel for vector apply for a Blasius profile
- */
 template< typename T >
-__global__ void blasius_apply_vector_kernel(const int * __restrict__ msk,
-					    T * __restrict__ x,
-					    T * __restrict__ y,
-					    T * __restrict__ z,
-					    const T * __restrict__ bla_x,
-					    const T * __restrict__ bla_y,
-					    const T * __restrict__ bla_z,
-					    const int m) {
-
+__global__ void sumab_kernel(T * __restrict__ u,
+                             T * __restrict__ v,
+                             T * __restrict__ w,
+                             const T * __restrict__ uu,
+                             const T * __restrict__ vv,
+                             const T * __restrict__ ww,
+                             const T * __restrict__ ulag1,
+                             const T * __restrict__ ulag2,
+                             const T * __restrict__ vlag1,
+                             const T * __restrict__ vlag2,
+                             const T * __restrict__ wlag1,
+                             const T * __restrict__ wlag2,
+                             const T ab1,
+                             const T ab2,
+                             const T ab3,
+                             const int nab,
+                             const int n) {
+  
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
-    const int k = msk[i + 1] - 1;
-    x[k] = bla_x[i];
-    y[k] = bla_y[i];
-    z[k] = bla_z[i];
+  for (int i = idx; i < n; i += str) {
+    u[i] = ab1 * uu[i] + ab2 * ulag1[i];
+    v[i] = ab1 * vv[i] + ab2 * vlag1[i];
+    w[i] = ab1 * ww[i] + ab2 * wlag1[i];
   }
+
+  if (nab == 3) {
+    for (int i = idx; i < n; i += str) {
+      u[i] = u[i] + ab3 * ulag2[i];
+      v[i] = v[i] + ab3 * vlag2[i];
+      w[i] = w[i] + ab3 * wlag2[i];
+    } 
+  }
+  
 }
+

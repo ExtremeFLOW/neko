@@ -37,7 +37,7 @@ module blasius
   use utils
   use inflow
   use device
-  use device_blasius
+  use device_inhom_dirichlet
   use flow_profile
   use, intrinsic :: iso_c_binding
   implicit none
@@ -195,7 +195,7 @@ contains
          deallocate(bla_x, bla_y, bla_z)
       end if
 
-      call device_blasius_apply_vector(this%msk_d, x_d, y_d, z_d, &
+      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
            blax_d, blay_d, blaz_d, m)
       
     end associate

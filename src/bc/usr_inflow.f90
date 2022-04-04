@@ -35,6 +35,8 @@ module usr_inflow
   use num_types
   use coefs
   use inflow
+  use device
+  use device_inhom_dirichlet
   use utils
   implicit none
   private
@@ -43,12 +45,18 @@ module usr_inflow
   type, public, extends(inflow_t) :: usr_inflow_t
      type(coef_t), pointer :: c => null()
      procedure(usr_inflow_eval), nopass, pointer :: eval => null()
+     type(c_ptr), private :: usr_x_d = C_NULL_PTR
+     type(c_ptr), private :: usr_y_d = C_NULL_PTR
+     type(c_ptr), private :: usr_z_d = C_NULL_PTR
    contains
      procedure, pass(this) :: apply_scalar => usr_inflow_apply_scalar
      procedure, pass(this) :: apply_vector => usr_inflow_apply_vector
      procedure, pass(this) :: validate => usr_inflow_validate
      procedure, pass(this) :: set_coef => usr_inflow_set_coef
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
+     procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
+     procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
+     final :: usr_inflow_free
   end type usr_inflow_t
 
   !> Abstract interface defining a user defined inflow condition (pointwise)
@@ -75,6 +83,23 @@ module usr_inflow
 
 contains
      
+  subroutine usr_inflow_free(this)
+    type(usr_inflow_t), intent(inout) :: this
+
+    if (c_associated(this%usr_x_d)) then
+       call device_free(this%usr_x_d)
+    end if
+    
+    if (c_associated(this%usr_y_d)) then
+       call device_free(this%usr_y_d)
+    end if
+
+    if (c_associated(this%usr_z_d)) then
+       call device_free(this%usr_z_d)
+    end if
+    
+  end subroutine usr_inflow_free
+  
   !> No-op scalar apply
   subroutine usr_inflow_apply_scalar(this, x, n)
     class(usr_inflow_t), intent(inout) :: this
@@ -132,6 +157,97 @@ contains
     end associate
     
   end subroutine usr_inflow_apply_vector
+
+  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d)
+    class(usr_inflow_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+    integer :: i, m, k, idx(4), facet
+    integer(c_size_t) :: s
+    real(kind=rp), allocatable :: x(:)
+    real(kind=rp), allocatable :: y(:)
+    real(kind=rp), allocatable :: z(:)
+
+    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
+         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
+         lx => this%c%Xh%lx, usr_x_d => this%usr_x_d, usr_y_d => this%usr_y_d, &
+         usr_z_d => this%usr_z_d)
+
+      m = this%msk(0)
+
+
+      ! Pretabulate values during first call to apply
+      if (.not. c_associated(usr_x_d)) then
+         allocate(x(m), y(m), z(m)) ! Temp arrays
+         
+         s = m*rp
+
+         call device_alloc(usr_x_d, s)
+         call device_alloc(usr_y_d, s)
+         call device_alloc(usr_z_d, s)
+
+         associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
+                   nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
+                   lx => this%c%Xh%lx)
+           do i = 1, m
+              k = this%msk(i)
+              facet = this%facet(i)
+              idx = nonlinear_index(k, lx, lx, lx)
+              select case(facet)
+              case(1,2)          
+                 call this%eval(x(i), y(i), z(i), &
+                      xc(idx(1), idx(2), idx(3), idx(4)), &
+                      yc(idx(1), idx(2), idx(3), idx(4)), &
+                      zc(idx(1), idx(2), idx(3), idx(4)), &
+                      nx(idx(2), idx(3), facet, idx(4)), &
+                      ny(idx(2), idx(3), facet, idx(4)), &
+                      nz(idx(2), idx(3), facet, idx(4)), &
+                      idx(1), idx(2), idx(3), idx(4))
+              case(3,4)
+                 call this%eval(x(i), y(i), z(i), &
+                      xc(idx(1), idx(2), idx(3), idx(4)), &
+                      yc(idx(1), idx(2), idx(3), idx(4)), &
+                      zc(idx(1), idx(2), idx(3), idx(4)), &       
+                      nx(idx(1), idx(3), facet, idx(4)), &
+                      ny(idx(1), idx(3), facet, idx(4)), &
+                      nz(idx(1), idx(3), facet, idx(4)), &
+                      idx(1), idx(2), idx(3), idx(4))
+              case(5,6)
+                 call this%eval(x(i), y(i), z(i), &
+                      xc(idx(1), idx(2), idx(3), idx(4)), &
+                      yc(idx(1), idx(2), idx(3), idx(4)), &
+                      zc(idx(1), idx(2), idx(3), idx(4)), &                     
+                      nx(idx(1), idx(2), facet, idx(4)), &
+                      ny(idx(1), idx(2), facet, idx(4)), &
+                      nz(idx(1), idx(2), facet, idx(4)), &
+                      idx(1), idx(2), idx(3), idx(4))
+              end select
+           end do
+         end associate
+ 
+        
+         call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE)
+         call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE)
+         call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE)
+
+         deallocate(x, y, z)
+      end if
+
+      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+           usr_x_d, usr_y_d, usr_z_d, m)
+      
+    end associate
+
+  end subroutine usr_inflow_apply_vector_dev
+
+  !> No-op scalar apply (device version)
+  subroutine usr_inflow_apply_scalar_dev(this, x_d)
+    class(usr_inflow_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+  end subroutine usr_inflow_apply_scalar_dev
+  
+
 
   !> Assign coefficients (facet normals etc)
   subroutine usr_inflow_set_coef(this, c)

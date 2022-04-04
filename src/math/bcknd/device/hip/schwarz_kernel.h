@@ -110,6 +110,7 @@ __global__ void schwarz_toext3d_kernel(T * __restrict__ a,
   for(int i = idx; i<nx2*nx2*nx2; i+=blockDim.x){
     a[i+el2] = 0.0;
   }
+  __syncthreads();
   for(int ijk = idx; ijk<nx*nx*nx; ijk+=blockDim.x){
     const int jk = ijk / nx;
     const int i = ijk - jk * nx;

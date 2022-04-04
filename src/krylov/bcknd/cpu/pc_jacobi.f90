@@ -169,7 +169,7 @@ contains
       end do
       call col2(this%d,coef%h1,coef%dof%n_dofs)
       if (coef%ifh2) call addcol3(this%d,coef%h2,coef%B,coef%dof%n_dofs)
-      call gs_op_vector(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
+      call gs_op(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
       call invcol1(this%d,dof%n_dofs)
     end associate
   end subroutine jacobi_update

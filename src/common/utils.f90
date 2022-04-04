@@ -85,16 +85,42 @@ contains
     index = (i + lx * ((j - 1) + ly * ((k - 1) + lz * ((l - 1)))))
   end function linear_index
 
+  pure function index_is_on_facet(i, j, k, lx, ly, lz, facet) result(is_on)
+    integer, intent(in) :: i, j, k, lx, ly, lz, facet
+    logical :: is_on
+
+    is_on = .false.
+    select case(facet)
+    case(1)
+       if (i .eq. 1) is_on = .true.
+    case(2)
+       if (i .eq. lx) is_on = .true.
+    case(3)
+       if (j .eq. 1) is_on = .true.
+    case(4)
+       if (j .eq. ly) is_on = .true.
+    case(5)
+       if (k .eq. 1) is_on = .true.
+    case(6)
+       if (k .eq. lz) is_on = .true.
+    end select
+  
+
+  end function index_is_on_facet
+  
+ 
   !> Compute (i,j,k,l) array given linear index
   !! with sizes (1:lx, 1:ly, 1:lz, :)
   pure function nonlinear_index(linear_index,lx,ly,lz) result(index)
     integer, intent(in) :: linear_index, lx, ly, lz
     integer :: index(4)
-    
-    index(4) = linear_index/(lx*ly*lz) 
-    index(3) = (linear_index-(lx*ly*lz)*index(4))/(lx*ly)
-    index(2) = (linear_index-(lx*ly*lz)*index(4)-(lx*ly)*index(3))/lx
-    index(1) = (linear_index-(lx*ly*lz)*index(4)-(lx*ly)*index(3)-lx*index(2))
+    integer :: lin_idx
+    lin_idx = linear_index -1
+    index(4) = lin_idx/(lx*ly*lz) 
+    index(3) = (lin_idx-(lx*ly*lz)*index(4))/(lx*ly)
+    index(2) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3))/lx
+    index(1) = (lin_idx-(lx*ly*lz)*index(4)-(lx*ly)*index(3)-lx*index(2))
+    index(1) = index(1) + 1
     index(2) = index(2) + 1
     index(3) = index(3) + 1
     index(4) = index(4) + 1

@@ -80,7 +80,6 @@ module opr_xsmm
     type(libxsmm_dmmfunction), private :: lgrad_xmm1
     type(libxsmm_dmmfunction), private :: lgrad_xmm2
     type(libxsmm_dmmfunction), private :: lgrad_xmm3
-    logical, save :: lgrad_xsmm_init = .false.
 #endif
     
 contains
@@ -146,11 +145,14 @@ contains
     real(kind=rp) :: ur(coef%Xh%lxyz)
     real(kind=rp) :: us(coef%Xh%lxyz)
     real(kind=rp) :: ut(coef%Xh%lxyz)
+    logical, save :: lgrad_xsmm_init = .false.
+    integer, save :: init_size = 0
     integer :: e, i, N
     N = coef%Xh%lx - 1
 
 #ifdef HAVE_LIBXSMM
-    if (.not. lgrad_xsmm_init) then
+    if ((.not. lgrad_xsmm_init) .or. &
+         (init_size .gt. 0 .and. init_size .ne. N)) then
        call libxsmm_dispatch(lgrad_xmm1, (N+1), (N+1)**2, (N+1), &
             alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
        call libxsmm_dispatch(lgrad_xmm2, (N+1), (N+1), (N+1), &
@@ -158,9 +160,10 @@ contains
        call libxsmm_dispatch(lgrad_xmm3, (N+1)**2, (N+1), (N+1), &
             alpha=1d0, beta=0d0, prefetch=LIBXSMM_PREFETCH_AUTO)
        lgrad_xsmm_init = .true.
+       init_size = N
     end if
 #endif
-    
+
     do e=1,coef%msh%nelv
        if(coef%msh%gdim .eq. 3) then
           call local_grad3_xsmm(ur, us, ut, u(1,e), N, coef%Xh%dx, coef%Xh%dxt)

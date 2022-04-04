@@ -372,8 +372,8 @@ extern "C" {
   }
   
   int red_s = 0;
-  real * bufred;
-  real * bufred_d;
+  real * bufred = NULL;
+  real * bufred_d = NULL;
   /**
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
@@ -389,8 +389,10 @@ extern "C" {
     const int nb = ((*n) + nt - 1)/nt;
     if((*j)>red_s){
       red_s = *j;
-      free(bufred);
-      CUDA_CHECK(cudaFree(bufred_d));
+      if (bufred != NULL) {
+	free(bufred);
+	CUDA_CHECK(cudaFree(bufred_d));
+      }
       bufred = (real *) malloc((*j)*nb * sizeof(real));
       CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }

@@ -32,6 +32,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdio.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
@@ -73,7 +74,12 @@ extern "C" {
       CASE(9);
       CASE(10);
       CASE(11);
-      CASE(12);         
+      CASE(12);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
     }
   }
 }

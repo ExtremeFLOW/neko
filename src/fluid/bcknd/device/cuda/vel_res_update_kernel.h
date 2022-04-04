@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,28 +32,26 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
-#include <device/device_config.h>
-#include <device/hip/check.h>
-#include "blasius_kernel.h"
+template< typename T >
+__global__ void vel_res_update_kernel(T * __restrict__ u_res,
+                                      T * __restrict__ v_res,
+                                      T * __restrict__ w_res,
+                                      const T * __restrict__ ta1,
+                                      const T * __restrict__ ta2,
+                                      const T * __restrict__ ta3,
+                                      const T * __restrict__ f_u,
+                                      const T * __restrict__ f_v,
+                                      const T * __restrict__ f_w,
+                                      const int n) {
 
-extern "C" {
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
 
-  /** 
-   * Fortran wrapper for device blasius apply vector
-   */
-  void hip_blasius_apply_vector(void *msk, void *x, void *y, void *z,
-				 void *bla_x, void *bla_y, void *bla_z, int *m) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(blasius_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, 0, (int *) msk, 
-			   (real *) x, (real *) y, (real *) z,
-			   (real *) bla_x, (real *) bla_y, (real *) bla_z,
-			   *m);
-    HIP_CHECK(hipGetLastError());
+  for (int i = idx; i < n; i += str) {
+    u_res[i] = (-u_res[i]) - ta1[i] + f_u[i];
+    v_res[i] = (-v_res[i]) - ta2[i] + f_v[i];
+    w_res[i] = (-w_res[i]) - ta3[i] + f_w[i];
   }
- 
+
 }
+

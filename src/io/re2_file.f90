@@ -46,6 +46,7 @@ module re2_file
   use map
   use map_file
   use htable
+  use logger
   implicit none
   private
   
@@ -83,7 +84,7 @@ contains
     integer :: re2_data_cv_size
     integer :: re2_data_bc_size
     logical :: v2_format
-
+    character(len=LOG_SIZE) :: log_buf
     
     select type(data)
     type is (mesh_t)
@@ -94,11 +95,9 @@ contains
 
     v2_format = .false.
     open(unit=9,file=trim(this%fname), status='old', iostat=ierr)
-    if (pe_rank .eq. 0) then
-       write(*, '(A,A)') " Reading binary NEKTON file ", this%fname
-    end if
+    call neko_log%message('Reading binary NEKTON file ' // this%fname)
     read(9, '(a5,i9,i3,i9,a54)') hdr_ver, nel, ndim, nelv, hdr_str
-    if (hdr_ver .eq. '#v002') then
+    if (hdr_ver .eq. '#v002' .or. hdr_ver .eq. '#v003') then
        v2_format = .true.
        call MPI_Type_size(MPI_RE2V2_DATA_XY, re2_data_xy_size, ierr)
        call MPI_Type_size(MPI_RE2V2_DATA_XYZ, re2_data_xyz_size, ierr)
@@ -111,8 +110,9 @@ contains
        call MPI_Type_size(MPI_RE2V1_DATA_BC, re2_data_bc_size, ierr)    
     end if
 
-    if (pe_rank .eq. 0) write(*,1) ndim, nelv
-1   format(1x,'ndim = ', i1, ', nelements =', i7)
+    write(log_buf,1) ndim, nelv
+1   format('gdim = ', i1, ', nelements =', i7)
+    call neko_log%message(log_buf)
     close(9)
 
     call filename_chsuffix(this%fname, map_fname,'map')
@@ -123,14 +123,14 @@ contains
        call map_file%init(map_fname)
        call map_file%read(nm)
     else
-       if (pe_rank .eq. 0) call neko_warning('No NEKTON map file found')
+       call neko_log%warning('No NEKTON map file found')
     end if
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
     
     if (ierr .ne. 0) then
-       call neko_error("Can't open binary NEKTON file ")
+       call neko_log%error("Can't open binary NEKTON file ")
     end if
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
@@ -160,21 +160,34 @@ contains
 
     !> @todo Add support for curved side data
     !! Skip curved side data
-    call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_offset + MPI_INTEGER_SIZE 
-    call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
-    mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+    if (v2_format) then
+       call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
+       ncurv = t2
+       mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
+       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+       call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
+       nbcs = t2
+       mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
 
-    call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_offset + MPI_INTEGER_SIZE
+       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+    else 
+       call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
+       mpi_offset = mpi_offset + MPI_INTEGER_SIZE
+       call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
+       mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+       call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
+       mpi_offset = mpi_offset + MPI_INTEGER_SIZE
 
-    call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+       call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
+
+    end if
 
     call MPI_FILE_close(fh, ierr)
     call mesh_finalize(msh)
 
 
-    if (pe_rank .eq. 0) write(*,*) 'Done'
+    call neko_log%message('Done')
 
     
   end subroutine re2_file_read
@@ -195,7 +208,8 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
-        
+    character(len=LOG_SIZE) :: log_buf
+    
     select type(data)
     type is (mesh_t)
        msh => data
@@ -211,10 +225,11 @@ contains
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
+    call neko_log%message('Writing data as a binary NEKTON file ' // this%fname)
+
     if (pe_rank .eq. 0) then
        open(unit=9,file=trim(this%fname), status='new', iostat=ierr)
-       write(*, '(A,A)') " Writing data as a binary NEKTON file ", this%fname
-       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
+              write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
             nelgv, RE2_HDR_STR
        close(9)
     end if
@@ -263,7 +278,7 @@ contains
     end if
         
     call MPI_FILE_close(fh, ierr)
-    write(*,*) 'Done'
+    call neko_log%message('Done')
 
     !> @todo Add support for curved side data
     
@@ -296,7 +311,6 @@ contains
     element_offset = dist%start_idx()
 
     call htp%init(2**ndim * nel, ndim)
-
     pt_idx = 0
     if (ndim .eq. 2) then
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size          
@@ -310,6 +324,7 @@ contains
                      real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              
              call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
           end do
@@ -324,6 +339,7 @@ contains
                      re2v2_data_xy(i)%y(j), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              
              call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
           end do
@@ -342,7 +358,7 @@ contains
                      real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              call mesh_add_element(msh, i, &
                   p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           end do
@@ -359,6 +375,7 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              
+             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              call mesh_add_element(msh, i, &
                   p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           end do
@@ -384,15 +401,15 @@ contains
     real(kind=dp), allocatable :: curve_data(:,:,:)
     integer, allocatable :: curve_type(:,:)
     logical, allocatable :: curve_element(:)
-    character(len=4) :: chtemp
+    character(len=1) :: chtemp
     logical :: curve_skip = .false.
  
-    allocate(curve_data(5,8,msh%nelv))
+    allocate(curve_data(5,12,msh%nelv))
     allocate(curve_element(msh%nelv))
-    allocate(curve_type(8,msh%nelv))
+    allocate(curve_type(12,msh%nelv))
     do i = 1, msh%nelv
        curve_element(i) = .false.
-       do j = 1, 8
+       do j = 1, 12
           curve_type(j,i) = 0
           do l = 1, 5
              curve_data(l,j,i) = 0d0
@@ -413,14 +430,14 @@ contains
     do i = 1, ncurve
        if(v2_format) then
           el_idx = re2v2_data_curve(i)%elem - dist%start_idx()
-          id = re2v2_data_curve(i)%face
+          id = re2v2_data_curve(i)%zone
           chtemp = re2v2_data_curve(i)%type
           do j = 1, 5 
              curve_data(j,id, el_idx) = re2v2_data_curve(i)%point(j)
           enddo
        else 
           el_idx = re2v1_data_curve(i)%elem - dist%start_idx()
-          id = re2v1_data_curve(i)%face
+          id = re2v1_data_curve(i)%zone
           chtemp = re2v1_data_curve(i)%type
           do j = 1, 5 
              curve_data(j,id, el_idx) = real(re2v1_data_curve(i)%point(j),dp) 
@@ -432,16 +449,22 @@ contains
        select case(trim(chtemp))
        case ('s')
          curve_type(id,el_idx) = 1
-         call neko_warning('curve type s not supported, treating mesh as non-curved')
+         call neko_log%warning('curve type s not supported, treating mesh as non-curved')
          curve_skip = .true.
          exit
        case ('e')
          curve_type(id,el_idx) = 2
-         call neko_warning('curve type e not supported, treating mesh as non-curved')
+         call neko_log%warning('curve type e not supported, treating mesh as non-curved')
          curve_skip = .true.
          exit
        case ('C')
          curve_type(id,el_idx) = 3
+       case ('m')
+         curve_type(id,el_idx) = 4
+       case default
+          write(*,*) chtemp, 'curve type not supported yet, treating mesh as non-curved',id, el_idx
+
+         curve_skip = .true.
        end select
     end do
 
@@ -473,7 +496,7 @@ contains
     logical, intent(in) :: v2_format
     type(MPI_Status) :: status
     integer :: pids(4)
-    integer :: sym_facet
+    integer :: sym_facet, label
     integer :: p_el_idx, p_facet
     integer :: i, j, ierr, pt_idx, el_idx
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
@@ -496,8 +519,9 @@ contains
     !> @todo Use element offset in parallel
     if (v2_format) then ! V2 format
        do i = 1, nbcs
-          el_idx = re2v2_data_bc(i)%elem - dist%start_idx()
-          sym_facet = facet_map(re2v2_data_bc(i)%face)
+          el_idx = int(re2v2_data_bc(i)%elem) - dist%start_idx()
+          sym_facet = facet_map(int(re2v2_data_bc(i)%face))
+
           select case(trim(re2v2_data_bc(i)%type))
           case ('W')
              call mesh_mark_wall_facet(msh, sym_facet, el_idx)
@@ -505,6 +529,8 @@ contains
              call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
           case ('O', 'o')
              call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+          case ('ON', 'on')
+             call mesh_mark_outlet_normal_facet(msh, sym_facet, el_idx)
           case ('SYM')
              call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
           case ('P')
@@ -514,6 +540,12 @@ contains
              call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
+          case ('MSH', 'msh')
+             label = int(re2v2_data_bc(i)%bc_data(5))
+             call mesh_mark_labeled_facet(msh, sym_facet, el_idx, label)
+          case default
+              write (*,*) re2v2_data_bc(i)%type, 'bc type not supported yet'
+             write (*,*) re2v2_data_bc(i)%bc_data
           end select
        end do
     
@@ -524,7 +556,7 @@ contains
           do j = 1, 3
              do i = 1, nbcs
                 el_idx = re2v2_data_bc(i)%elem - dist%start_idx()
-                sym_facet = facet_map(re2v2_data_bc(i)%face)
+                sym_facet = facet_map(int(re2v2_data_bc(i)%face))
                 select case(trim(re2v2_data_bc(i)%type))
                 case ('P')
                    p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
@@ -557,6 +589,13 @@ contains
              call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
              call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
+          case ('MSH', 'msh')
+             label = int(re2v1_data_bc(i)%bc_data(5))
+             call mesh_mark_labeled_facet(msh, sym_facet, el_idx, label)
+          case default
+              write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
+             write (*,*) re2v1_data_bc(i)%bc_data
+
           end select
        end do
        

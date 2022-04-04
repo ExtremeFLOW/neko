@@ -27,7 +27,7 @@ extern void *symmetry_program;
 extern void *facet_normal_program;
 
 /** Device Blasius profile kernel */
-extern void *blasius_program;
+extern void *inhom_dirichlet_program;
 
 /** Device Derivative kernels */
 extern void *dudxyz_program;
@@ -49,6 +49,21 @@ extern void *ax_helm_program;
 
 /** Device jacobi kernels */
 extern void *jacobi_program;
+
+/** Device abbdf kernels */
+extern void *abbdf_program;
+
+/** Device pnpn residual kernels */
+extern void *pnpn_res_program;
+
+/** Device fdm kernels */
+extern void *fdm_program;
+
+/** Device tensor kernels */
+extern void *tensor_program;
+
+/** Device schwarz kernels */
+extern void *schwarz_program;
 
 
 #endif

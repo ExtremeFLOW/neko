@@ -53,6 +53,24 @@ module user_intf
      end subroutine useric
   end interface
 
+  !> Abstract interface for initilialization of modules
+  abstract interface
+     subroutine user_initialize_modules(t, u, v, w, p, c_Xh, params)
+       import field_t
+       import param_t
+       import coef_t
+       import rp
+       real(kind=rp) :: t
+       type(field_t), intent(inout) :: u
+       type(field_t), intent(inout) :: v
+       type(field_t), intent(inout) :: w
+       type(field_t), intent(inout) :: p
+       type(coef_t), intent(inout) :: c_Xh
+       type(param_t), intent(inout) :: params
+     end subroutine user_initialize_modules
+  end interface
+
+
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
      subroutine usermsh(msh)
@@ -79,16 +97,17 @@ module user_intf
 
   type :: user_t
      procedure(useric), nopass, pointer :: fluid_usr_ic => null()
+     procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: usr_msh_setup => null()
      procedure(usercheck), nopass, pointer :: usr_chk => null()
      procedure(source_term_pw), nopass, pointer :: fluid_usr_f => null()
+     procedure(source_term), nopass, pointer :: fluid_usr_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_usr_if => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
   
 contains
-
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
@@ -100,6 +119,9 @@ contains
     if (.not. associated(u%fluid_usr_f)) then
        u%fluid_usr_f => dummy_user_f
     end if
+    if (.not. associated(u%fluid_usr_f_vector)) then
+       u%fluid_usr_f_vector => dummy_user_f_vector
+    end if
 
     if (.not. associated(u%usr_msh_setup)) then
        u%usr_msh_setup => dummy_user_mesh_setup
@@ -107,6 +129,9 @@ contains
 
     if (.not. associated(u%usr_chk)) then
        u%usr_chk => dummy_user_check
+    end if
+    if (.not. associated(u%user_init_modules)) then
+       u%user_init_modules => dummy_user_init_no_modules
     end if
     
   end subroutine user_intf_init
@@ -127,15 +152,21 @@ contains
     call neko_error('Dummy user defined initial condition set')    
   end subroutine dummy_user_ic
 
+  subroutine dummy_user_f_vector(f)
+     class(source_t) :: f
+    call neko_error('Dummy user defined vector valued forcing set')    
+  end subroutine dummy_user_f_vector
+
+
   !> Dummy user forcing
   subroutine dummy_user_f(u, v, w, j, k, l, e)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
-    integer, intent(inout) :: j
-    integer, intent(inout) :: k
-    integer, intent(inout) :: l
-    integer, intent(inout) :: e
+    integer, intent(in) :: j
+    integer, intent(in) :: k
+    integer, intent(in) :: l
+    integer, intent(in) :: e
     call neko_error('Dummy user defined forcing set')    
   end subroutine dummy_user_f
  
@@ -155,5 +186,14 @@ contains
     type(field_t), intent(inout) :: p
   end subroutine dummy_user_check
 
+  subroutine dummy_user_init_no_modules(t, u, v, w, p, c_Xh, params)
+    real(kind=rp) :: t
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(coef_t), intent(inout) :: c_Xh
+    type(param_t), intent(inout) :: params
+  end subroutine dummy_user_init_no_modules
 
 end module user_intf

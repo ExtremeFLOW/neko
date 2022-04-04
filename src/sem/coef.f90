@@ -341,7 +341,7 @@ contains
        call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
     end if
        
-    call gs_op_vector(gs_h, coef%mult, n, GS_OP_ADD)
+    call gs_op(gs_h, coef%mult, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
@@ -846,7 +846,7 @@ contains
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(c%gs_h,c%Binv, c%dof%n_dofs,GS_OP_ADD)
+    call gs_op(c%gs_h, c%Binv, c%dof%n_dofs, GS_OP_ADD)
 
     !>  @todo cleanup once we have device math in place
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
@@ -933,7 +933,7 @@ contains
           do j = 1, coef%Xh%lx
              weight = coef%Xh%wx(j) * coef%Xh%wy(k)
              coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
-             coef%area(j, k, 6, e) = sqrt(dot(j, j, lx, e)) * weight
+             coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
              coef%nx(j,k, 5, e) = -A(j, k, 1, e)
              coef%nx(j,k, 6, e) =  A(j, k, lx, e)
              coef%ny(j,k, 5, e) = -B(j, k, 1, e)

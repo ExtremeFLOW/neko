@@ -63,6 +63,10 @@ contains
     if (len_trim(C%params%restart_file) .gt. 0) then
        call simulation_restart(C, t)
     end if
+
+    call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
+                                 C%fluid%p, C%fluid%c_Xh, C%params)
+                
     
     call neko_log%newline()
 
@@ -138,9 +142,10 @@ contains
     type(file_t) :: chkpf
     character(len=LOG_SIZE) :: log_buf   
 
+
     chkpf = file_t(trim(C%params%restart_file))
     call chkpf%read(C%fluid%chkp)
-
+    call C%fluid%chkp%sync_device()
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf,'(A,A)') 'File :   ', &
@@ -161,6 +166,7 @@ contains
     type(file_t) :: chkpf
     character(len=LOG_SIZE) :: log_buf
 
+    call C%fluid%chkp%sync_host()
     chkpf = file_t('joblimit.chkp')
     call chkpf%write(C%fluid%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'

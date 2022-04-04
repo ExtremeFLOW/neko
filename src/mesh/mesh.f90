@@ -52,6 +52,8 @@ module mesh
   use curve
   implicit none
 
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
+
   type, private :: mesh_element_t
      class(element_t), allocatable :: e
   end type mesh_element_t
@@ -96,17 +98,34 @@ module mesh
      type(zone_t) :: wall                 !< Zone of wall facets
      type(zone_t) :: inlet                !< Zone of inlet facets
      type(zone_t) :: outlet               !< Zone of outlet facets
+     type(zone_t) :: outlet_normal        !< Zone of outlet normal facets
      type(zone_t) :: sympln               !< Zone of symmetry plane facets
-     type(zone_periodic_t) :: periodic    !< Zone of periodic facets
-     type(curve_t) :: curve               !< Set of curved elements
+     type(zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
+     type(zone_periodic_t) :: periodic             !< Zones with periodic facets
+     type(curve_t) :: curve                        !< Set of curved elements
 
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
      logical :: lnumr = .false.                !< valid numbering
 
-     
-
+     !> enables user to specify a deformation
+     !! that is applied to all x,y,z coordinates generated with this mesh
+     procedure(mesh_deform), pass(msh), pointer  :: apply_deform => null()
   end type mesh_t
+
+  abstract interface
+     subroutine mesh_deform(msh, x, y, z, lx, ly, lz)
+       import mesh_t       
+       import rp
+       class(mesh_t) :: msh
+       integer, intent(in) :: lx, ly, lz
+       real(kind=rp), intent(inout) :: x(lx, ly, lz, msh%nelv)
+       real(kind=rp), intent(inout) :: y(lx, ly, lz, msh%nelv)
+       real(kind=rp), intent(inout) :: z(lx, ly, lz, msh%nelv)
+     end subroutine mesh_deform
+  end interface
+
+
 
   !> Initialise a mesh
   interface mesh_init
@@ -244,8 +263,15 @@ contains
     call m%wall%init(m%nelv)
     call m%inlet%init(m%nelv)
     call m%outlet%init(m%nelv)
+    call m%outlet_normal%init(m%nelv)
     call m%sympln%init(m%nelv)
     call m%periodic%init(m%nelv)
+
+    allocate(m%labeled_zones(NEKO_MSH_MAX_ZLBLS))
+    do i = 1, NEKO_MSH_MAX_ZLBLS
+       call m%labeled_zones(i)%init(m%nelv)
+    end do
+
     call m%curve%init(m%nelv)
    
     call distdata_init(m%ddata)
@@ -305,10 +331,18 @@ contains
     if (allocated(m%facet_type)) then
        deallocate(m%facet_type)
     end if
+    if (allocated(m%labeled_zones)) then
+       do i = 1, NEKO_MSH_MAX_ZLBLS
+          call m%labeled_zones(i)%free()
+       end do
+       deallocate(m%labeled_zones)
+    end if
+
 
     call m%wall%free()
     call m%inlet%free()
     call m%outlet%free()
+    call m%outlet_normal%free()
     call m%sympln%free()
     call m%periodic%free()
     
@@ -316,6 +350,7 @@ contains
 
   subroutine mesh_finalize(m)
     type(mesh_t), intent(inout) :: m
+    integer :: i
 
 
     call mesh_generate_flags(m)
@@ -324,8 +359,12 @@ contains
     call m%wall%finalize()
     call m%inlet%finalize()
     call m%outlet%finalize()
+    call m%outlet_normal%finalize()
     call m%sympln%finalize()
     call m%periodic%finalize()
+    do i = 1, NEKO_MSH_MAX_ZLBLS
+       call m%labeled_zones(i)%finalize()
+    end do
     call m%curve%finalize()
 
   end subroutine mesh_finalize
@@ -728,7 +767,7 @@ contains
     type(mesh_t), target, intent(inout) :: m
     type(htable_iter_i4t2_t), target :: it
     type(tuple_i4_t), pointer :: edge
-    type(uset_i8_t) :: edge_idx, ghost, owner
+    type(uset_i8_t), target :: edge_idx, ghost, owner
     type(stack_i8_t) :: send_buff
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
@@ -937,7 +976,7 @@ contains
 
   !> Generate a unique facet numbering
   subroutine mesh_generate_facet_numbering(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     type(htable_iter_i4t4_t), target :: face_it
     type(htable_iter_i4t2_t), target :: edge_it
     type(tuple4_i4_t), pointer :: face, fd(:)
@@ -1336,8 +1375,8 @@ contains
   subroutine mesh_mark_curve_element(m, e, curve_data, curve_type)
     type(mesh_t), intent(inout) :: m
     integer, intent(in) :: e
-    real(kind=dp), dimension(5,8), intent(in) :: curve_data 
-    integer, dimension(8), intent(in) :: curve_type 
+    real(kind=dp), dimension(5,12), intent(in) :: curve_data 
+    integer, dimension(12), intent(in) :: curve_type 
 
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
@@ -1368,7 +1407,48 @@ contains
     call m%inlet%add_facet(f, e)
     
   end subroutine mesh_mark_inlet_facet
-  
+ 
+  !> Mark facet @a f in element @a e with label 
+  subroutine mesh_mark_labeled_facet(m, f, e, label)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+    integer, intent(inout) :: label
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+    call m%labeled_zones(label)%add_facet(f, e)
+    m%facet_type(f,e) = -label
+    
+  end subroutine mesh_mark_labeled_facet
+
+ 
+  !> Mark facet @a f in element @a e as an outlet normal
+  subroutine mesh_mark_outlet_normal_facet(m, f, e)
+    type(mesh_t), intent(inout) :: m
+    integer, intent(inout) :: f
+    integer, intent(inout) :: e
+
+    if (e .gt. m%nelv) then
+       call neko_error('Invalid element index')
+    end if
+
+    if ((m%gdim .eq. 2 .and. f .gt. 4) .or. &
+         (m%gdim .eq. 3 .and. f .gt. 6)) then
+       call neko_error('Invalid facet index')
+    end if
+    m%facet_type(f, e) = 1
+    call m%outlet_normal%add_facet(f, e)
+    
+  end subroutine mesh_mark_outlet_normal_facet
+
+
   !> Mark facet @a f in element @a e as an outlet
   subroutine mesh_mark_outlet_facet(m, f, e)
     type(mesh_t), intent(inout) :: m

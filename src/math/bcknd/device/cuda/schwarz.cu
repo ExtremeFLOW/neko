@@ -60,7 +60,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-                                \
+
     schwarz_toext3d_kernel<real>
     <<<nblcks, nthrds>>>((real *) a,(real *) b, * nx);  
     CUDA_CHECK(cudaGetLastError());
@@ -70,7 +70,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-                                \
+
     schwarz_toreg3d_kernel<real>
     <<<nblcks, nthrds>>>((real *) b,(real *) a, * nx);  
     CUDA_CHECK(cudaGetLastError());

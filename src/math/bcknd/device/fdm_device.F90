@@ -54,6 +54,15 @@ module fdm_device
        integer(c_int) :: nl, nelv
      end subroutine cuda_fdm_do_fast
   end interface
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv) &
+          bind(c, name='opencl_fdm_do_fast')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: e_d, r_d, s_d, d_d
+       integer(c_int) :: nl, nelv
+     end subroutine opencl_fdm_do_fast
+  end interface
 #endif
 contains
 
@@ -76,6 +85,8 @@ contains
     call hip_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv)
 #elif HAVE_CUDA
     call cuda_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv)
+#elif HAVE_OPENCL
+    call opencl_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv)
 #else
     call neko_error('No device backend configured')
 #endif

@@ -534,8 +534,8 @@ module device_math
        import c_rp
        implicit none
        type(c_ptr), value :: w_d, v_d_d, mult_d
-       real(c_rp) :: h(j)
        integer(c_int) :: j, n
+       real(c_rp) :: h(j)
      end subroutine cuda_glsc3_many
   end interface
 
@@ -796,9 +796,9 @@ module device_math
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
+       integer(c_int) :: j, n
        type(c_ptr), value :: w_d, v_d_d, mult_d
        real(c_rp) :: h(j)
-       integer(c_int) :: j, n
      end subroutine opencl_glsc3_many
   end interface
 

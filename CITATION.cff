@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use Neko, please cite it as below."
+preferred-citation:
+  type: generic
+  authors:
+  - family-names: "Jansson"
+    given-names: "Niclas"
+  - family-names: "Karp"
+    given-names: "Martin"
+  - family-names: "Podobas"
+    given-names: "Artur"
+  - family-names: "Markidis"
+    given-names: "Stefano"
+  - family-names: "Schlatter"
+    given-names: "Philipp"
+  title: "Neko: A Modern, Portable, and Scalable Framework for High-Fidelity Computational Fluid Dynamics"
+  year: 2021
+  url: "https://arxiv.org/abs/2107.01243"

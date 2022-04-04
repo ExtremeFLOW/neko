@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_blasius
+module device_inhom_dirichlet
   use num_types
   use utils
   use, intrinsic :: iso_c_binding
@@ -38,55 +38,55 @@ module device_blasius
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_blasius_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m) &
-          bind(c, name='hip_blasius_apply_vector')
+     subroutine hip_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m) &
+          bind(c, name='hip_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z, bla_x, bla_y, bla_z
-     end subroutine hip_blasius_apply_vector
+     end subroutine hip_inhom_dirichlet_apply_vector
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_blasius_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m) &
-          bind(c, name='cuda_blasius_apply_vector')
+     subroutine cuda_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m) &
+          bind(c, name='cuda_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z, bla_x, bla_y, bla_z
-     end subroutine cuda_blasius_apply_vector
+     end subroutine cuda_inhom_dirichlet_apply_vector
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_blasius_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m) &
-          bind(c, name='opencl_blasius_apply_vector')
+     subroutine opencl_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m) &
+          bind(c, name='opencl_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z, bla_x, bla_y, bla_z
-     end subroutine opencl_blasius_apply_vector
+     end subroutine opencl_inhom_dirichlet_apply_vector
   end interface
 #endif
 
 contains
 
-  subroutine device_blasius_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
+  subroutine device_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, y, z, bla_x, bla_y, bla_z
 
 #ifdef HAVE_HIP
-    call hip_blasius_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
+    call hip_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
 #elif HAVE_CUDA
-    call cuda_blasius_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
+    call cuda_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
 #elif HAVE_OPENCL
-    call opencl_blasius_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
+    call opencl_inhom_dirichlet_apply_vector(msk, x, y, z, bla_x, bla_y, bla_z, m)
 #else
     call neko_error('No device backend configured')
 #endif
     
-  end subroutine device_blasius_apply_vector
+  end subroutine device_inhom_dirichlet_apply_vector
   
-end module device_blasius
+end module device_inhom_dirichlet

@@ -28,7 +28,11 @@ libneko_a_SOURCES = \
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
 	gs/bcknd/device/gs_device.F90\
+	gs/bcknd/device/device_mpi.c\
 	gs/gs_ops.f90\
+	gs/gs_comm.f90\
+	gs/gs_mpi.f90\
+	gs/bcknd/device/gs_device_mpi.F90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
@@ -96,6 +100,7 @@ libneko_a_SOURCES = \
 	bc/usr_inflow.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
+	bc/non_normal.f90\
 	bc/blasius.f90\
 	krylov/precon.f90\
 	krylov/krylov.f90\
@@ -125,15 +130,27 @@ libneko_a_SOURCES = \
 	case.f90\
 	common/user_intf.f90\
 	fluid/fluid_method.f90\
+	fluid/fluid_aux.f90\
 	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
+	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
+	fluid/fluid_abbdf.f90\
+	fluid/fluid_abbdf_fctry.f90\
+	fluid/pnpn_res.f90\
+	fluid/pnpn_res_fctry.f90\
 	fluid/mean_flow.f90\
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
+	fluid/bcknd/cpu/fluid_abbdf_cpu.f90\
+	fluid/bcknd/sx/fluid_abbdf_sx.f90\
+	fluid/bcknd/cpu/pnpn_res_cpu.f90\
+	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
+	fluid/bcknd/device/fluid_abbdf_device.F90\
+	fluid/bcknd/device/pnpn_res_device.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
@@ -163,7 +180,7 @@ libneko_a_SOURCES = \
 	bc/bcknd/device/device_wall.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
-	bc/bcknd/device/device_blasius.F90\
+	bc/bcknd/device/device_inhom_dirichlet.F90\
 	neko.f90
 
 if ENABLE_PARMETIS
@@ -192,7 +209,9 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/no_slip_wall.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
-	bc/bcknd/device/hip/blasius.hip
+	bc/bcknd/device/hip/inhom_dirichlet.hip\
+	fluid/bcknd/device/hip/fluid_abbdf.hip\
+	fluid/bcknd/device/hip/pnpn_res.hip
 endif
 
 if ENABLE_CUDA
@@ -217,7 +236,9 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/no_slip_wall.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
-	bc/bcknd/device/cuda/blasius.cu
+	bc/bcknd/device/cuda/inhom_dirichlet.cu\
+	fluid/bcknd/device/cuda/fluid_abbdf.cu\
+	fluid/bcknd/device/cuda/pnpn_res.cu
 endif
 
 if ENABLE_OPENCL
@@ -225,6 +246,9 @@ libneko_a_SOURCES += \
 	device/opencl/check.c\
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
+	math/bcknd/device/opencl/schwarz.c\
+	math/bcknd/device/opencl/tensor.c\
+	math/bcknd/device/opencl/fdm.c\
 	math/bcknd/device/opencl/mathops.c\
 	math/bcknd/device/opencl/opr_dudxyz.c\
 	math/bcknd/device/opencl/opr_cdtp.c\
@@ -238,7 +262,9 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/no_slip_wall.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
-	bc/bcknd/device/opencl/blasius.c
+	bc/bcknd/device/opencl/inhom_dirichlet.c\
+	fluid/bcknd/device/opencl/fluid_abbdf.c\
+	fluid/bcknd/device/opencl/pnpn_res.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -255,7 +281,8 @@ if ENABLE_OPENCL
 CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      gs/bcknd/device/opencl/*.cl.h\
 	      bc/bcknd/device/opencl/*.cl.h\
-	      krylov/bcknd/device/opencl/*.cl.h
+	      krylov/bcknd/device/opencl/*.cl.h\
+	      fluid/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -270,7 +297,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
-	bc/bcknd/device/cuda/blasius_kernel.h\
+	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
@@ -282,12 +309,17 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
+	fluid/bcknd/device/cuda/sumab_kernel.h\
+	fluid/bcknd/device/cuda/makeabf_kernel.h\
+	fluid/bcknd/device/cuda/makebdf_kernel.h\
+	fluid/bcknd/device/cuda/prs_res_kernel.h\
+	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
-	bc/bcknd/device/hip/blasius_kernel.h\
+	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/tensor_kernel.h\
@@ -299,6 +331,11 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
+	fluid/bcknd/device/hip/sumab_kernel.h\
+	fluid/bcknd/device/hip/makeabf_kernel.h\
+	fluid/bcknd/device/hip/makebdf_kernel.h\
+	fluid/bcknd/device/hip/prs_res_kernel.h\
+	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
@@ -308,11 +345,19 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
-	bc/bcknd/device/opencl/blasius_kernel.cl\
+	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
+	math/bcknd/device/opencl/schwarz_kernel.cl\
+	math/bcknd/device/opencl/tensor_kernel.cl\
+	math/bcknd/device/opencl/fdm_kernel.cl\
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
 	math/bcknd/device/opencl/ax_helm_kernel.cl\
+	math/bcknd/device/opencl/cdtp_kernel.cl\
+	math/bcknd/device/opencl/opgrad_kernel.cl\
+	math/bcknd/device/opencl/conv1_kernel.cl\
+	fluid/bcknd/device/opencl/abbdf_kernel.cl\
+	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	device/opencl/jit.h\

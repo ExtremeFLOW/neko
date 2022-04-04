@@ -70,7 +70,7 @@ contains
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     class(element_t), pointer :: ep
     integer :: nelv, gdim, nread, nzones, ncurves
-    integer :: el_idx, ids(4)
+    integer :: el_idx, ids(4), bcs(7), thing
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
@@ -169,6 +169,10 @@ contains
              case(5)
                 call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
+             case(6)
+                call mesh_mark_outlet_normal_facet(msh, nmsh_zone(i)%f, el_idx)
+             case(7)
+                call mesh_mark_labeled_facet(msh, nmsh_zone(i)%f, el_idx,nmsh_zone(i)%p_f)
              end select
           end if
        end do
@@ -207,6 +211,7 @@ contains
               el_idx .le. msh%nelv) then             
              call mesh_mark_curve_element(msh, el_idx, nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
           end if
+             
        end do
        
        deallocate(nmsh_curve)
@@ -233,7 +238,7 @@ contains
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
-    integer :: i, j, ierr, nelgv, element_offset
+    integer :: i, j, ierr, nelgv, element_offset, k
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
     integer :: nzones, ncurves 
     class(element_t), pointer :: ep
@@ -256,9 +261,7 @@ contains
     call MPI_Exscan(msh%nelv, element_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-    if (pe_rank .eq. 0) then
-       write(*, '(A,A)') " Writing data as a binary Neko file ", this%fname
-    end if
+    call neko_log%message('Writing data as a binary Neko file ' // this%fname)
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
@@ -303,8 +306,11 @@ contains
     end if
 
     nzones = msh%wall%size + msh%inlet%size + msh%outlet%size + &
-         msh%sympln%size + msh%periodic%size 
+         msh%sympln%size + msh%periodic%size + msh%outlet_normal%size 
 
+    do i = 1, NEKO_MSH_MAX_ZLBLS
+       nzones = nzones + msh%labeled_zones(i)%size
+    end do
     mpi_offset = mpi_el_offset
     call MPI_File_write_at_all(fh, mpi_offset, &
          nzones, 1, MPI_INTEGER, status, ierr)
@@ -352,6 +358,22 @@ contains
           nmsh_zone(j)%type = 5
           j = j + 1
        end do
+       do i = 1, msh%outlet_normal%size
+          nmsh_zone(j)%e = msh%outlet_normal%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone(j)%f = msh%outlet_normal%facet_el(i)%x(1)
+          nmsh_zone(j)%type = 6
+          j = j + 1
+       end do
+       do k = 1, NEKO_MSH_MAX_ZLBLS
+          do i = 1, msh%labeled_zones(k)%size
+             nmsh_zone(j)%e = msh%labeled_zones(k)%facet_el(i)%x(2) + msh%offset_el
+             nmsh_zone(j)%f = msh%labeled_zones(k)%facet_el(i)%x(1)
+             nmsh_zone(j)%p_f = k
+             nmsh_zone(j)%type = 7
+             j = j + 1
+          end do
+       end do
+  
        
        mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
        call MPI_File_write_at_all(fh, mpi_offset, &
@@ -385,7 +407,7 @@ contains
     end if
    
     call MPI_File_close(fh, ierr)
-    if (pe_rank .eq. 0) write(*,*) 'Done'
+    call neko_log%message('Done')
 
   end subroutine nmsh_file_write
   

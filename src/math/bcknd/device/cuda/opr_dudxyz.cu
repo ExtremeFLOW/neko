@@ -32,6 +32,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdio.h>
 #include "dudxyz_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
@@ -51,7 +52,7 @@ extern "C" {
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
-      dudxyz_kernel<real, LX, 1024>                                              \
+      dudxyz_kernel<real, LX, 1024>                                             \
         <<<nblcks, nthrds>>>((real *) du, (real *) u,                           \
                              (real *) dr, (real *) ds, (real *) dt,             \
                              (real *) dx, (real *) dy, (real *) dz,             \
@@ -69,6 +70,11 @@ extern "C" {
       CASE(8);
       CASE(9);
       CASE(10);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
     }
   } 
 }

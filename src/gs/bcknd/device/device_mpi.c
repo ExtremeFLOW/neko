@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -33,25 +33,33 @@
 */
 
 /**
- * Device kernel for vector apply for a Blasius profile
+ * C wrapper for MPI calls, since passing device pointers does not work in the
+ * Fortran MPI interface.
+ * @note We use @c MPI_COMM_WORLD which @e should be equal to @c NEKO_COMM.
  */
-template< typename T >
-__global__ void blasius_apply_vector_kernel(const int * __restrict__ msk,
-                                            T * __restrict__ x,
-                                            T * __restrict__ y,
-                                            T * __restrict__ z,
-                                            const T * __restrict__ bla_x,
-                                            const T * __restrict__ bla_y,
-                                            const T * __restrict__ bla_z,
-                                            const int m) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+#include <stdlib.h>
+#include <mpi.h>
 
-  for (int i = idx; i < m; i += str) {
-    const int k = msk[i + 1] - 1;
-    x[k] = bla_x[i];
-    y[k] = bla_y[i];
-    z[k] = bla_z[i];
-  }
+void device_mpi_init_request(void **req_out) {
+  MPI_Request *req = malloc(sizeof(MPI_Request));
+  *req_out = req;
+}
+
+void device_mpi_free_request(void *req) {
+  free(req);
+}
+
+void device_mpi_isend(void *buf_d, int *nbytes, int *rank, void *req) {
+  MPI_Isend(buf_d, *nbytes, MPI_BYTE, *rank, 0, MPI_COMM_WORLD, req);
+}
+
+void device_mpi_irecv(void *buf_d, int *nbytes, int *rank, void *req) {
+  MPI_Irecv(buf_d, *nbytes, MPI_BYTE, *rank, 0, MPI_COMM_WORLD, req);
+}
+
+int device_mpi_test(void *req) {
+  int flag = 0;
+  MPI_Test(req, &flag, MPI_STATUS_IGNORE);
+  return flag;
 }

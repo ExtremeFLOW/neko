@@ -122,8 +122,13 @@ contains
     allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
+
+    ! Zeroing here enables easier debugging since then
+    ! MPI messages in GS are deterministic
+    call rzero(this%swplen, Xh%lxyz * dm%msh%nelv)
  
-    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv) 
        call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv) 
        call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv) 
@@ -139,7 +144,8 @@ contains
 
     call fdm_setup_fast(this, ah, bh, nl, n)
 
-    if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
        call device_memcpy(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
        call device_memcpy(this%swplen, this%swplen_d,Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE) 
@@ -183,10 +189,10 @@ contains
          end do
          if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
          else
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
          end if
 
          do e = 1,nelv
@@ -206,12 +212,14 @@ contains
                l(j,n,1,e) = lms(e)
             end do
          end do
-         if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+
+         if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+              .or. (NEKO_BCKND_OPENCL .eq. 1)) then
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
          else
-            call gs_op_vector(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
          end if
 
          do e = 1,nelv
@@ -615,7 +623,8 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call fdm_do_fast_xsmm(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
-    else if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+    else if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call fdm_do_fast_device(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else

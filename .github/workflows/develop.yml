@@ -13,12 +13,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
-        compiler: [gfortran-10]
+        os: [ubuntu-20.04, macos-latest]
+        compiler: [gfortran-10, gfortran-11]
+        backend: [cpu, cuda, opencl]
         precision: [sp, dp]
+        exclude:
+        - os: ubuntu-20.04
+          compiler: gfortran-11
+        - os: ubuntu-20.04
+          backend: opencl
+        - os: macos-latest
+          compiler: gfortran-10
+        - os: macos-latest
+          backend: cuda
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 cmake-curses-gui
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui nvidia-cuda-toolkit
+        - os: macos-latest
+          setup-env: brew update && brew install openmpi && brew install automake
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -26,7 +38,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.precision }}
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
@@ -37,7 +49,7 @@ jobs:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Build pFUnit
-        if: steps.cache-pfunit.outputs.cache-hit != 'true'
+        if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
         run: |
           git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
           cd pFUnit && mkdir b && cd b
@@ -47,15 +59,30 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-      - name: Build
+      - name: Build (CPU backend)
+        if: matrix.backend == 'cpu'
         run: |
-          ./regen.sh
+          ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.2 --enable-real=${RP}
           make -j$(nproc)
+      - name: Build (CUDA backend)        
+        if: matrix.backend == 'cuda'
+        run: |
+          ./regen.sh 
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-cuda=/usr
+          make -j$(nproc)
+      - name: Build (OpenCL backend)
+        if: matrix.backend == 'opencl'
+        run: |
+          ./regen.sh 
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-opencl
+          make -j$(nproc)
       - name: Check
+        if: matrix.backend == 'cpu'
         run: |
           make -j$(nproc) check
-      - name: Dist
+      - name: Dist (CPU backend)
+        if: matrix.backend == 'cpu'
         run: |
           make dist
           mkdir releng
@@ -63,38 +90,57 @@ jobs:
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP}
           make -j $(nproc)
-
+      - name: Dist (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
+          make -j $(nproc)
+      - name: Dist (OpenCL backend)
+        if: matrix.backend == 'opencl'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP} --with-opencl
+          make -j $(nproc)
+    
   Intel:
-    runs-on: ubuntu-20.04
+    runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-20.04]
+        compiler: [ifort, ifx]
         precision: [sp, dp]
+        backend: [cpu]
+        exclude:
+        - os: ubuntu-20.04
+          compiler: ifx
+        include:
+        - os: ubuntu-20.04
+          setup-env: cd /tmp && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" && sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic && source /opt/intel/oneapi/setvars.sh && sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates && printenv >> $GITHUB_ENV
     env:
-     FC: ifort
-     CC: icc
-     RP: ${{ matrix.precision }}
-    name: Intel Fortran / ${{ matrix.precision }}
+      CC: icc
+      FC: ${{ matrix.compiler }}
+      RP: ${{ matrix.precision }}
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
-        run: |
-          cd /tmp
-          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-          sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-          sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
-          source /opt/intel/oneapi/setvars.sh
-          sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
-          printenv >> $GITHUB_ENV
+        run: ${{ matrix.setup-env }}
       - name: Checkout
         uses: actions/checkout@v2
         with:
-           fetch-depth: 1
+          fetch-depth: 1
       - name: Build
         run: |
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} MPIFC=mpiifort --enable-real=${RP}
+          ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
-
+            
+            
  
