@@ -41,25 +41,35 @@
 #include <stdlib.h>
 #include <mpi.h>
 
-void device_mpi_init_request(void **req_out) {
-  MPI_Request *req = malloc(sizeof(MPI_Request));
-  *req_out = req;
+void device_mpi_init_reqs(int n, void **reqs_out) {
+  MPI_Request *reqs = malloc(n * sizeof(MPI_Request));
+  *reqs_out = reqs;
 }
 
-void device_mpi_free_request(void *req) {
-  free(req);
+void device_mpi_free_reqs(void **reqs) {
+  free(*reqs);
+  *reqs = NULL;
 }
 
-void device_mpi_isend(void *buf_d, int *nbytes, int *rank, void *req) {
-  MPI_Isend(buf_d, *nbytes, MPI_BYTE, *rank, 0, MPI_COMM_WORLD, req);
+void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
+		      void *vreqs, int i) {
+  MPI_Request *reqs = vreqs;
+  MPI_Isend(buf_d+offset, nbytes, MPI_BYTE, rank, 0, MPI_COMM_WORLD, &reqs[i-1]);
 }
 
-void device_mpi_irecv(void *buf_d, int *nbytes, int *rank, void *req) {
-  MPI_Irecv(buf_d, *nbytes, MPI_BYTE, *rank, 0, MPI_COMM_WORLD, req);
+void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
+		      void *vreqs, int i) {
+  MPI_Request *reqs = vreqs;
+  MPI_Irecv(buf_d+offset, nbytes, MPI_BYTE, rank, 0, MPI_COMM_WORLD, &reqs[i-1]);
 }
 
 int device_mpi_test(void *req) {
   int flag = 0;
   MPI_Test(req, &flag, MPI_STATUS_IGNORE);
   return flag;
+}
+
+void device_mpi_waitall(int n, void *vreqs) {
+  MPI_Request *reqs = vreqs;
+  MPI_Waitall(n, reqs, MPI_STATUSES_IGNORE);
 }
