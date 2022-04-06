@@ -273,6 +273,11 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
   if (j >= n)
     return;
 
-  //u[dof[j]-1] += buf[j];
-  atomicAdd(&u[dof[j]-1], buf[j]);
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+  if (idx < 0) {
+    atomicAdd(&u[-idx-1], val);
+  } else {
+    u[idx-1] += val;
+  }
 }

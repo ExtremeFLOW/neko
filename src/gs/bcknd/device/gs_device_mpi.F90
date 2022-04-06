@@ -169,13 +169,16 @@ module gs_device_mpi
 
 contains
 
-  subroutine gs_device_mpi_buf_init(this, pe_order, dof_stack)
+  subroutine gs_device_mpi_buf_init(this, pe_order, dof_stack, mark_dupes)
     class(gs_device_mpi_buf_t), intent(inout) :: this
     integer, allocatable, intent(inout) :: pe_order(:)
     type(stack_i4_t), allocatable, intent(inout) :: dof_stack(:)
+    logical, intent(in) :: mark_dupes
     integer, allocatable :: dofs(:)
     integer :: i, j, total
     integer(c_size_t) :: sz
+    type(htable_i4_t) :: doftable
+    integer :: dupe, marked, k
 
     call device_mpi_init_reqs(size(pe_order), this%reqs)
 
@@ -197,13 +200,31 @@ contains
     sz = 4 * total
     call device_alloc(this%dof_d, sz)
 
+    if (mark_dupes) call doftable%init(2*total)
     allocate(dofs(total))
+
+    marked = 0
     do i = 1, size(pe_order)
        ! %array() breaks on cray
        select type (arr => dof_stack(pe_order(i))%data)
        type is (integer)
          do j = 1, this%ndofs(i)
-            dofs(this%offset(i) + j) = arr(j)
+            k = this%offset(i) + j
+            if (mark_dupes) then
+               if (doftable%get(arr(j), dupe) .eq. 0) then
+                  if (dofs(dupe) .gt. 0) then
+                     dofs(dupe) = -dofs(dupe)
+                     marked = marked + 1
+                  end if
+                  dofs(k) = -arr(j)
+                  marked = marked + 1
+               else
+                  call doftable%set(arr(j), k)
+                  dofs(k) = arr(j)
+               end if
+            else
+               dofs(k) = arr(j)
+            end if
          end do
        end select
     end do
@@ -211,6 +232,7 @@ contains
     call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE)
 
     deallocate(dofs)
+    call doftable%free()
 
   end subroutine gs_device_mpi_buf_init
 
@@ -226,8 +248,8 @@ contains
 
     call this%init_order(send_pe, recv_pe)
 
-    call this%send_buf%init(this%send_pe, this%send_dof)
-    call this%recv_buf%init(this%recv_pe, this%recv_dof)
+    call this%send_buf%init(this%send_pe, this%send_dof, .false.)
+    call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
   end subroutine gs_device_mpi_init
 
