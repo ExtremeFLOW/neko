@@ -108,34 +108,30 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void cuda_gs_pack(void *dof_ptrs_d, void *buf_ptrs_d,
-		   void *ndofs_d, int *npe, void *u_d, int *n) {
+  void cuda_gs_pack(void *u_d, void *buf_d, void *dof_d, int n) {
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(*npe, 1, 1);
+    const int nthrds = 1024;
+    const int nblcks = (n + nthrds - 1) / nthrds;
 
     gs_pack_kernel<real>
-      <<<nblcks, nthrds>>>((real *) u_d, *n,
-			   (const int **) dof_ptrs_d,
-			   (real **) buf_ptrs_d,
-			   (int *) ndofs_d);
+      <<<nblcks, nthrds>>>((real *) u_d, (real *) buf_d,
+			   (int *) dof_d, n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void cuda_gs_unpack(void *buf_d, void *dof_d, int *ndofs,
-		     void *u_d, int *op) {
+  void cuda_gs_unpack(void *u_d, int op, void *buf_d, int *dof_d, int n) {
 
     const int nthrds = 1024;
-    const int nblcks = (*ndofs + nthrds - 1) / nthrds;
+    const int nblcks = (n + nthrds - 1) / nthrds;
 
-    switch (*op) {
+    switch (op) {
     case GS_OP_ADD:
       gs_unpack_add_kernel<real>
 	<<<nblcks, nthrds>>>((real *) u_d, (real *) buf_d,
-			     (int *) dof_d, *ndofs);
+			     (int *) dof_d, n);
       break;
     default:
-      printf("%s: unknown gs op %d\n", __FILE__, *op);
+      printf("%s: unknown gs op %d\n", __FILE__, op);
       abort();
     }
 

@@ -79,12 +79,12 @@ module gs_device_mpi
   end interface
 
   interface
-     subroutine cuda_gs_pack(dof_ptrs_d, buf_ptrs_d, ndofs_d, npe, u_d, n) &
+    subroutine cuda_gs_pack(u_d, buf_d, dof_d, n) &
           bind(c, name='cuda_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: npe, n
-       type(c_ptr), value :: dof_ptrs_d, buf_ptrs_d, ndofs_d, u_d
+       integer(c_int), value :: n
+       type(c_ptr), value :: u_d, buf_d, dof_d
      end subroutine cuda_gs_pack
   end interface
 
@@ -99,12 +99,12 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine cuda_gs_unpack(buf_d, dof_d, ndofs, u_d, op) &
+    subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, n) &
           bind(c, name='cuda_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: ndofs, op
-       type(c_ptr), value :: buf_d, dof_d, u_d
+       integer(c_int), value :: op, n
+       type(c_ptr), value :: u_d, buf_d, dof_d
      end subroutine cuda_gs_unpack
   end interface
 
@@ -282,8 +282,10 @@ contains
                      this%send_buf%dof_d, &
                      this%send_buf%total)
 #elif HAVE_CUDA
-    call cuda_gs_pack(this%send_dof_ptrs_d, this%send_buf_ptrs_d, &
-                      this%send_ndofs_d, size(this%send_pe), u_d, n)
+    call cuda_gs_pack(u_d, &
+                      this%send_buf%buf_d, &
+                      this%send_buf%dof_d, &
+                      this%send_buf%total)
 #else
     call neko_error('gs_device_mpi: no backend')
 #endif
@@ -331,10 +333,10 @@ contains
                        this%recv_buf%dof_d, &
                        this%recv_buf%total)
 #elif HAVE_CUDA
-                call cuda_gs_unpack(this%recv_buf(i)%buf_d, &
-                                    this%recv_buf(i)%dof_d, &
-                                    this%recv_buf(i)%ndofs, &
-                                    u_d, op)
+    call cuda_gs_unpack(u_d, op, &
+                        this%recv_buf%buf_d, &
+                        this%recv_buf%dof_d, &
+                        this%recv_buf%total)
 #else
                 call neko_error('gs_device_mpi: no backend')
 #endif
