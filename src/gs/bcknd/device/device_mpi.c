@@ -73,3 +73,15 @@ void device_mpi_waitall(int n, void *vreqs) {
   MPI_Request *reqs = vreqs;
   MPI_Waitall(n, reqs, MPI_STATUSES_IGNORE);
 }
+
+int device_mpi_waitany(int n, void *vreqs, int *i) {
+  MPI_Request *reqs = vreqs;
+  int j;
+  MPI_Waitany(n, reqs, &j, MPI_STATUSES_IGNORE);
+  if (j == MPI_UNDEFINED) {
+    return 0;
+  } else {
+    *i = j + 1;
+    return 1;
+  }
+}
