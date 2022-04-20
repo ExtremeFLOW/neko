@@ -51,8 +51,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -127,8 +127,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -203,8 +203,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -279,8 +279,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -355,8 +355,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -431,8 +431,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -507,8 +507,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -583,8 +583,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -659,8 +659,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -735,8 +735,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -811,8 +811,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -887,8 +887,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -963,8 +963,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     
@@ -1039,8 +1039,8 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudr
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  duds
     real(kind=rp), dimension(lx,lx,lx,nelv) ::  dudt
-    real(kind=rp) :: wr, ws, wt, www
-    integer :: e, i, j, k, ii, jj, kk    
+    real(kind=rp) :: wr, ws, wt
+    integer :: e, i, j, k, jj, kk    
 
     do i = 1, lx
        do jj = 1, lx * lx * nelv     

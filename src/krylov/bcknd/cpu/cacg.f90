@@ -127,7 +127,7 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: i, j, k, l, iter, max_iter, s, ierr, it
-    real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1, tmp
+    real(kind=rp) :: rnorm, rtr, rtz1, tmp
     real(kind=rp) :: beta(this%s+1), alpha(this%s+1), alpha1, alpha2, norm_fac
     real(kind=rp), dimension(4*this%s+1,4*this%s+1) :: Tt, G, GTt, temp, temp2
     real(kind=rp) :: p_c(4*this%s+1,this%s+1)

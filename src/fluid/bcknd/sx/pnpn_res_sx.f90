@@ -38,7 +38,7 @@ contains
     real(kind=rp), intent(in) :: Re
     real(kind=rp), intent(in) :: rho
     real(kind=rp) :: dtbd
-    integer :: n, gdim
+    integer :: n
     integer :: i
 
     n = c_Xh%dof%size()

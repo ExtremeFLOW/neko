@@ -1416,7 +1416,7 @@ contains
   pure function htable_cptr_hash(this, k) result(hash)
     class(htable_cptr_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer :: i, tmp, mult, hash
+    integer :: hash
     integer(kind=8) :: k_int
 
     select type(k)
