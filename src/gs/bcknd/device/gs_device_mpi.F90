@@ -260,7 +260,7 @@ contains
 
     call this%init_order(send_pe, recv_pe)
 
-    this%batched_unpack = .false.
+    this%batched_unpack = .true.
 
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
     call this%recv_buf%init(this%recv_pe, this%recv_dof, this%batched_unpack)
