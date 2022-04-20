@@ -295,7 +295,7 @@ contains
     logical :: conv
     type(c_ptr) :: f_d, x_d
 
-    f_d = device_get_ptr(f,n)
+    f_d = device_get_ptr(f)
     x_d = x%x_d
 
     conv = .false.

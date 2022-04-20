@@ -154,7 +154,7 @@ contains
     real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
     type(c_ptr) :: f_d
     
-    f_d = device_get_ptr(f, n)
+    f_d = device_get_ptr(f)
 
     if (present(niter)) then
        max_iter = niter

@@ -303,7 +303,7 @@ contains
     integer ::  i
     type(c_ptr) :: u_d
 
-    u_d = device_get_ptr(u, n)
+    u_d = device_get_ptr(u)
 
 #ifdef HAVE_HIP
     call hip_gs_pack(this%send_dof_ptrs_d, this%send_buf_ptrs_d, &
@@ -348,7 +348,7 @@ contains
     integer :: nreqs
     type(c_ptr) :: u_d
 
-    u_d = device_get_ptr(u, n)
+    u_d = device_get_ptr(u)
 
     nreqs = size(this%recv_pe)
     do while (nreqs .gt. 0)

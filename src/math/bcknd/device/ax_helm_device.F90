@@ -95,8 +95,8 @@ contains
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     type(c_ptr) :: u_d, w_d
 
-    u_d = device_get_ptr(u, size(u))
-    w_d = device_get_ptr(w, size(u))
+    u_d = device_get_ptr(u)
+    w_d = device_get_ptr(w)
 
 #ifdef HAVE_HIP
     call hip_ax_helm(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &

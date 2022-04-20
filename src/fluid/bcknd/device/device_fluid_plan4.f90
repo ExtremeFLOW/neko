@@ -27,7 +27,7 @@ contains
     real(kind=rp), intent(inout) :: t
     type(abbdf_t), intent(inout) :: ab_bdf
     integer, intent(inout) :: tstep
-    integer :: n, i, niter
+    integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
     real(kind=rp), parameter :: one = 1.0
     n = this%dm_Xh%n_dofs
@@ -218,8 +218,7 @@ contains
     real(kind=rp), intent(in) :: rho
     real(kind=rp) :: dtbd
     integer :: n, gdim
-    integer :: i        
-
+ 
     n = c_Xh%dof%size()
     gdim = c_Xh%msh%gdim
 
@@ -296,8 +295,8 @@ contains
     ab1 = ab(2)
     ab2 = ab(3)
 
-    v_d = device_get_ptr(v, n)
-    vv_d = device_get_ptr(vv, n)
+    v_d = device_get_ptr(v)
+    vv_d = device_get_ptr(vv)
        
     call device_add3s2(v_d, vv_d, vvlag%lf(1)%x_d, ab0, ab1, n)
     if(nab .eq. 3) call device_add2s2(v_d, vvlag%lf(2)%x_d, ab2, n)

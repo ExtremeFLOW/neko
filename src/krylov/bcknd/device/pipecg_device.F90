@@ -306,7 +306,7 @@ contains
     type(MPI_Request) :: request
     type(MPI_Status) :: status
     type(c_ptr) :: f_d, alpha_d, beta_d
-    f_d = device_get_ptr(f, n)
+    f_d = device_get_ptr(f)
     alpha_d = C_NULL_PTR
     call device_map(alpha, alpha_d, this%p_space)
     beta_d = C_NULL_PTR

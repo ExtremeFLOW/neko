@@ -385,8 +385,8 @@ contains
     ns = enx*eny*enz*this%msh%nelv
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       r_d = device_get_ptr(r,n)
-       e_d = device_get_ptr(e,n)
+       r_d = device_get_ptr(r)
+       e_d = device_get_ptr(e)
        call bc_list_apply_scalar(this%bclst, r, n)
        call device_schwarz_toext3d(work1_d,r_d,this%Xh%lx, this%msh%nelv)
        call device_schwarz_extrude(work1_d,0,zero,work1_d,2,one ,enx,eny,enz, this%msh%nelv)
