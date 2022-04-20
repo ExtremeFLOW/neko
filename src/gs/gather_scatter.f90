@@ -88,7 +88,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
     integer, optional :: bcknd
-    integer :: i, ierr, bcknd_, glb_nshared, glb_nlocal
+    integer :: ierr, bcknd_, glb_nshared, glb_nlocal
 
     call gs_free(gs)
 
@@ -165,7 +165,6 @@ contains
   !> Deallocate a gather-scatter kernel
   subroutine gs_free(gs)
     type(gs_t), intent(inout) :: gs
-    integer :: i
 
     nullify(gs%dofmap)
 
@@ -994,8 +993,6 @@ contains
     integer :: i, j, max_recv, src, dst, ierr, n_recv
     integer :: tmp, shared_gs_id
     integer :: nshared_unique
-    integer, pointer :: sp(:), rp(:)
-
 
     nshared_unique = gs%shared_dofs%num_entries()
     

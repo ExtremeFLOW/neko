@@ -75,9 +75,6 @@ contains
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
-    real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
-    integer :: ie, i, j, k, l, ii, jj
-    integer :: nunu, nvnu, nvnv
 
     if (nu .eq. 2 .and. nv .eq. 4) then
        call tnsr3d_nu2nv4_sx(v, u, A, Bt, Ct, nelv)
@@ -254,11 +251,6 @@ contains
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
-    real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
-    integer :: e, e0, ee, es, iu, iv, nu3, nv3
-    integer :: i, j, k, l, ii, jj, kk
-    integer :: nunu, nvnu, nvnv
-    real(kind=rp) :: tmp
 
 
     if (nu .eq. 4 .and. nv .eq. 2) then
@@ -353,8 +345,8 @@ contains
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv,nelv), work2(nu*nv**2,nelv)
-    integer :: ie, e0, ee, es, iu, iv
-    integer :: i, j, k, l, ii, jj, kk
+    integer :: ie, iu, iv
+    integer :: i, j, k, l, ii, jj
     real(kind=rp) :: tmp
 
     do j = 1, nunu

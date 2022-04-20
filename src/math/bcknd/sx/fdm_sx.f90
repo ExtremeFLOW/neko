@@ -205,7 +205,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -388,7 +388,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -563,7 +563,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -730,7 +730,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -889,7 +889,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1040,7 +1040,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1183,7 +1183,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1318,7 +1318,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1445,7 +1445,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1564,7 +1564,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1675,7 +1675,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1778,7 +1778,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n
@@ -1873,7 +1873,7 @@ contains
     real(kind=rp), intent(inout) :: s(n,n,2,3, nelv)
     real(kind=rp), intent(inout) :: d(n**3, nelv)
     real(kind=rp) :: wrk(n**3, nelv), wrk2(n**3, nelv)
-    integer ::  ie, i, j, k, l, ii, jj
+    integer ::  ie, i, j, l, ii, jj
        
     do j = 1, nn
        do i = 1, n

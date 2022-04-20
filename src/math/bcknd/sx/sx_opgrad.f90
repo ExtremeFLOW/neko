@@ -51,7 +51,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -128,7 +128,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -205,7 +205,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -282,7 +282,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -359,7 +359,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -436,7 +436,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -513,7 +513,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -590,7 +590,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -667,7 +667,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -744,7 +744,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -821,7 +821,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -898,7 +898,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -975,7 +975,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -1052,7 +1052,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -1129,7 +1129,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -1206,7 +1206,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -1283,7 +1283,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n
@@ -1360,7 +1360,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx, n)
     real(kind=rp) :: ut(lx,lx,lx, n)
     real(kind=rp) :: wr, ws, wt
-    integer :: e, i, j, k, ii, jj, kk
+    integer :: e, i, j, k, jj, kk
 
     do i = 1, lx
        do jj = 1, lx * lx * n

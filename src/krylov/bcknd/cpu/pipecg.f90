@@ -152,7 +152,6 @@ contains
     real(kind=rp) :: tmp1, tmp2, tmp3, x_plus(NEKO_BLK_SIZE)
     type(MPI_Request) :: request
     type(MPI_Status) :: status
-    logical :: p_update = .false.
     
     if (present(niter)) then
        max_iter = niter
