@@ -67,7 +67,7 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5) :: hdr_ver
     character(len=54) :: hdr_str
-    integer :: i, j, k, nel, ndim, nelv, ierr, pt_idx, el_idx
+    integer :: nel, ndim, nelv, ierr
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -201,7 +201,7 @@ contains
     type(mesh_t), pointer :: msh
     character(len=5), parameter :: RE2_HDR_VER = '#v001'
     character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
-    integer :: i, j, k, ierr, pt_idx, nelgv
+    integer :: i, j, ierr, nelgv
     type(MPI_Status) :: status
     type(MPI_File) :: fh    
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -394,8 +394,7 @@ contains
     type(MPI_File), intent(inout) :: fh
     logical, intent(in) :: v2_format
     type(MPI_Status) :: status
-    integer :: p_el_idx, p_facet
-    integer :: i, j, l, ierr, pt_idx, el_idx, id
+    integer :: i, j, l, ierr, el_idx, id
     type(re2v1_curve_t), allocatable :: re2v1_data_curve(:)
     type(re2v2_curve_t), allocatable :: re2v2_data_curve(:)    
     real(kind=dp), allocatable :: curve_data(:,:,:)
@@ -498,7 +497,7 @@ contains
     integer :: pids(4)
     integer :: sym_facet, label
     integer :: p_el_idx, p_facet
-    integer :: i, j, ierr, pt_idx, el_idx
+    integer :: i, j, ierr, el_idx
     integer, parameter, dimension(6) :: facet_map = (/3, 2, 4, 1, 5, 6/)
     logical :: periodic
     type(re2v1_bc_t), allocatable :: re2v1_data_bc(:)

@@ -63,7 +63,7 @@ contains
   !> Set a job's time limit (in walltime 'HH:MM:SS')
   subroutine jobctrl_set_time_limit_str(limit_str)
     character(len=*) limit_str
-    integer :: str_len, i, sep_h, h, m, s, jlimit
+    integer :: str_len, sep_h, h, m, s
 
     str_len = len_trim(limit_str)
     

@@ -404,7 +404,6 @@ contains
   !> Set all elements as if they are deformed
   subroutine mesh_all_deformed(m)
     type(mesh_t), intent(inout) :: m
-    integer :: e
     m%dfrmd_el = .true.
   end subroutine mesh_all_deformed
   
@@ -415,7 +414,7 @@ contains
     type(tuple4_i4_t) :: face 
     type(tuple_i4_t) :: facet_data
 
-    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, l, l2, temp
+    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
 
     if (m%lconn) return
 
@@ -550,8 +549,8 @@ contains
     type(stack_i4_t) :: buffer
     type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l, l2
-    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el, temp
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l
+    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
 
 
     if (m%gdim .eq. 2) then
@@ -695,14 +694,11 @@ contains
   !> Generate element-element connectivity via points between PEs
   subroutine mesh_generate_external_point_conn(m)
     type(mesh_t), intent(inout) :: m
-    type(tuple_i4_t) :: edge
-    type(tuple4_i4_t) :: face
-    type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: send_buffer
     type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
-    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
+    integer :: i, j, k
+    integer :: max_recv, ierr, src, dst, n_recv, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
     integer, pointer :: neighs(:)
 
@@ -1496,13 +1492,6 @@ contains
     integer, intent(inout) :: pe
     integer, intent(inout) :: pids(4)
     integer, dimension(4) :: org_ids
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
-                                                       1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
-                                                       (/4,6/))
     
     call mesh_get_facet_ids(m, f, e, org_ids)
     call m%periodic%add_periodic_facet(f, e, pf, pe, pids, org_ids)
@@ -1536,7 +1525,7 @@ contains
   !> Reset ids of periodic points to their original ids
   subroutine mesh_reset_periodic_ids(m)
     type(mesh_t), intent(inout) :: m
-    integer :: i,j, id_temp
+    integer :: i,j
     integer :: f
     integer :: e
     integer :: pf
@@ -1653,7 +1642,7 @@ contains
     integer, intent(inout) :: pe
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
-    integer :: i, id, p_local_idx, temp_id
+    integer :: i, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
     integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&

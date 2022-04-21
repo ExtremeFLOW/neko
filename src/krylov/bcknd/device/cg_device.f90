@@ -151,7 +151,7 @@ contains
     real(kind=rp), parameter :: zero = 0.0
     integer :: iter, max_iter
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=rp) :: beta, pap, alpha, alphm, eps, norm_fac
+    real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
     type(c_ptr) :: f_d
     
     f_d = device_get_ptr(f)

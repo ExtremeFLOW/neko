@@ -274,7 +274,7 @@ contains
     real(kind=rp), intent(inout) :: t
     type(abbdf_t), intent(inout) :: ab_bdf
     integer, intent(inout) :: tstep
-    integer :: n, i, niter
+    integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
     real(kind=rp), parameter :: one = 1.0
     n = this%dm_Xh%n_dofs

@@ -301,8 +301,7 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef   
     real(kind=rp), intent(inout), dimension(n) :: b 
-    integer :: i, j, k, ierr
-    real(kind=rp) :: work(this%L), alpha(this%L)
+    real(kind=rp) :: alpha(this%L)
     type(c_ptr) :: b_d
     b_d = device_get_ptr(b)
 
@@ -382,7 +381,7 @@ contains
     real(kind=rp), dimension(n, this%L), intent(inout) :: xx, bb
     real(kind=rp), dimension(n), intent(inout) :: w
     real(kind=rp) :: nrm, scl1, scl2, c, s
-    real(kind=rp) :: work(this%L), alpha(this%L), beta(this%L)
+    real(kind=rp) :: alpha(this%L), beta(this%L)
     integer :: i, j, k, h, ierr
 
     associate(m => this%m)
