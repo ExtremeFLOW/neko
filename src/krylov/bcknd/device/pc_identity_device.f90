@@ -56,8 +56,8 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     
-    z_d = device_get_ptr(z, n)
-    r_d = device_get_ptr(r, n)
+    z_d = device_get_ptr(z)
+    r_d = device_get_ptr(r)
     
     call device_copy(z_d, r_d, n)
     

@@ -414,7 +414,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
-       x_d = device_get_ptr(x, n)
+       x_d = device_get_ptr(x)
        do i = 1, bclst%n
           call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
        end do
@@ -440,9 +440,9 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
-       x_d = device_get_ptr(x, n)
-       y_d = device_get_ptr(y, n)
-       z_d = device_get_ptr(z, n)
+       x_d = device_get_ptr(x)
+       y_d = device_get_ptr(y)
+       z_d = device_get_ptr(z)
        do i = 1, bclst%n
           call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
        end do       

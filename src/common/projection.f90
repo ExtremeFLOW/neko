@@ -216,7 +216,7 @@ contains
     
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       x_d = device_get_ptr(x,n)
+       x_d = device_get_ptr(x)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
        if (this%m .eq. this%L) this%m = 1
        call device_copy(this%xx_d(this%m),x_d,n)   ! Update (X,B)
@@ -304,7 +304,7 @@ contains
     integer :: i, j, k, ierr
     real(kind=rp) :: work(this%L), alpha(this%L)
     type(c_ptr) :: b_d
-    b_d = device_get_ptr(b, n)
+    b_d = device_get_ptr(b)
 
     associate(xbar_d => this%xbar_d, xx_d => this%xx_d, xx_d_d => this%xx_d_d, &
               bb_d => this%bb_d, bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)

@@ -463,8 +463,7 @@ contains
   end subroutine device_memcpy_common
 
   !> Associate a Fortran rank 1 array to a (allocated) device pointer
-  subroutine device_associate_r1(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r1(x, x_d)
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -489,8 +488,7 @@ contains
   end subroutine device_associate_r1
 
   !> Associate a Fortran rank 2 array to a (allocated) device pointer
-  subroutine device_associate_r2(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r2(x, x_d)
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -515,8 +513,7 @@ contains
   end subroutine device_associate_r2
 
   !> Associate a Fortran rank 3 array to a (allocated) device pointer
-  subroutine device_associate_r3(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r3(x, x_d)
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -541,8 +538,7 @@ contains
   end subroutine device_associate_r3
 
   !> Associate a Fortran rank 4 array to a (allocated) device pointer
-  subroutine device_associate_r4(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r4(x, x_d)
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -591,7 +587,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r1
 
@@ -620,7 +616,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r2
 
@@ -649,7 +645,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r3
 
@@ -678,7 +674,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r4
 
@@ -791,8 +787,7 @@ contains
   end function device_associated_r4
 
   !> Return the device pointer for an associated Fortran rank 1 array
-  function device_get_ptr_r1(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r1(x)
     class(*), intent(in), target :: x(:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r1
@@ -820,8 +815,7 @@ contains
   end function device_get_ptr_r1
 
   !> Return the device pointer for an associated Fortran rank 2 array
-  function device_get_ptr_r2(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r2(x)
     class(*), intent(in), target :: x(:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r2
@@ -849,8 +843,7 @@ contains
   end function device_get_ptr_r2
 
   !> Return the device pointer for an associated Fortran rank 3 array
-  function device_get_ptr_r3(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r3(x)
     class(*), intent(in), target :: x(:,:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r3
@@ -878,8 +871,7 @@ contains
   end function device_get_ptr_r3
 
   !> Return the device pointer for an associated Fortran rank 4 array
-  function device_get_ptr_r4(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r4(x)
     class(*), intent(in), target :: x(:,:,:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r4

@@ -339,8 +339,8 @@ contains
      
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       z_d = device_get_ptr(z,n)
-       r_d = device_get_ptr(r,n)
+       z_d = device_get_ptr(z)
+       r_d = device_get_ptr(r)
        !We should not work with the input 
        call device_copy(this%r_d, r_d, n)
 
