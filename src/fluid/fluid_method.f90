@@ -150,7 +150,6 @@ contains
     type(param_t), intent(inout), target :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
-    integer :: i, j, k
     
     call neko_log%section('Fluid')
     call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
@@ -326,7 +325,6 @@ contains
     type(param_t), intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
-    integer :: i, j, k
 
     call fluid_scheme_init_common(this, msh, lx, params)
     

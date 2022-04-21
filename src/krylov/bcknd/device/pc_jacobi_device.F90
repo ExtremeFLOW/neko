@@ -145,7 +145,7 @@ contains
 
   subroutine device_jacobi_update(this)
     class(device_jacobi_t), intent(inout) :: this
-    integer :: i, j, k, l, e, lz, ly, lx
+    integer :: lz, ly, lx
     associate(dof => this%dof, coef => this%coef, Xh => this%dof%Xh, &
          gs_h => this%gs_h, nelv => this%dof%msh%nelv)
 

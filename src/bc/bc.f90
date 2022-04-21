@@ -388,7 +388,7 @@ contains
     type(bc_list_t), intent(inout) :: bclst
     class(bc_t), intent(inout), target :: bc
     type(bcp_t), allocatable :: tmp(:)
-    integer :: i 
+
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
 

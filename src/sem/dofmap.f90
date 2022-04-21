@@ -652,7 +652,7 @@ contains
   !! @note Assumes \f$ X_{h_x} = X_{h_y} = X_{h_z} \f$
   subroutine dofmap_generate_xyz(this)
     type(dofmap_t), target :: this
-    integer :: i,j,k, el_idx
+    integer :: i, j, el_idx
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
     real(kind=rp) :: rp_curve_data(5), curve_data_tot(5,12)
@@ -709,7 +709,7 @@ contains
     class(element_t), intent(in) :: element
     real(kind=rp), intent(inout) :: x(Xh%lx,Xh%ly,Xh%lz), y(Xh%lx,Xh%ly,Xh%lz), z(Xh%lx,Xh%ly,Xh%lz)
     real(kind=rp) :: xyzb(2,2,2,3), zgml(Xh%lx, 3)
-    real(kind=rp) :: jx(Xh%lx*2), jy(Xh%lx*2), jz(Xh%lx*2)
+    real(kind=rp) :: jx(Xh%lx*2)
     real(kind=rp) :: jxt(Xh%lx*2), jyt(Xh%lx*2), jzt(Xh%lx*2)
     real(kind=rp) :: w(4*Xh%lx**3), tmp(Xh%lx, Xh%lx, Xh%lx)
     real(kind=rp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
@@ -773,18 +773,17 @@ contains
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
     class(element_t), intent(in) :: element
-    real(kind=rp), intent(inout) :: x(Xh%lx,Xh%ly,Xh%lz), y(Xh%lx,Xh%ly,Xh%lz), z(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z
     integer :: curve_type(12), eindx(12)
     real(kind=rp) :: curve_data(5,12), x3(3,3,3), y3(3,3,3), z3(3,3,3)
     type(space_t), target :: Xh3
     real(kind=rp), dimension(3), parameter :: zquad = (/-1d0, 0d0,1d0/)
     real(kind=rp) :: zg(3)
     real(kind=rp), dimension(Xh%lx,Xh%lx,Xh%lx) :: tmp
-    real(kind=rp) :: jx(Xh%lx*3), jy(Xh%lx*3), jz(Xh%lx*3)
+    real(kind=rp) :: jx(Xh%lx*3)
     real(kind=rp) :: jxt(Xh%lx*3), jyt(Xh%lx*3), jzt(Xh%lx*3)
     real(kind=rp) :: w(4*Xh%lxyz,2)
-    real(kind=rp), dimension(Xh%lx,3) :: zgml
-    integer :: j, k, n, n_edges
+    integer :: j, k, n_edges
     eindx = (/2 ,  6 ,  8 ,  4, &
               20 , 24 , 26 , 22, &
               10 , 12 , 18 , 16 /)
@@ -1061,7 +1060,7 @@ contains
     real(kind=rp), dimension(5), intent(in) :: curve_data
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z 
     real(kind=rp) :: pt1x, pt1y, pt2x, pt2y, pt12x, pt12y
-    real(kind=rp) :: radius, gap, xz, yz, xyz, dtheta, r, xys 
+    real(kind=rp) :: radius, gap, dtheta, r, xys 
     real(kind=rp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
     real(kind=rp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
     integer :: isid1, ixt, iyt, izt, ix, isidt

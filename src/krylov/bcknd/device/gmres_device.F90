@@ -289,8 +289,7 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter 
-    integer :: i, j, k, l, ierr 
-    real(kind=rp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
+    integer :: i, j, k
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
     type(c_ptr) :: f_d, x_d
