@@ -34,7 +34,7 @@
 module redist
   use mesh_field
   use mpi_types
-  use mpi_f08    
+  use mpi
   use htable
   use point
   use stack
@@ -66,7 +66,7 @@ contains
     type(nmsh_curve_el_t), allocatable :: recv_buf_curve(:)
     class(element_t), pointer :: ep
     integer, allocatable :: recv_buf_idx(:), send_buf_idx(:)
-    type(MPI_Status) :: status
+    integer :: status(MPI_STATUS_SIZE)
     integer :: i, j, k, ierr, max_recv_idx
     integer :: src, dst, recv_size, gdim, tmp, new_el_idx, new_pel_idx
     integer :: max_recv(3)

@@ -150,8 +150,8 @@ contains
     real(kind=rp) :: alpha(PIPECG_P_SPACE), beta(PIPECG_P_SPACE)
     real(kind=rp) :: gamma1, gamma2, delta
     real(kind=rp) :: tmp1, tmp2, tmp3, x_plus(NEKO_BLK_SIZE)
-    type(MPI_Request) :: request
-    type(MPI_Status) :: status
+    integer :: request
+    integer :: status(MPI_STATUS_SIZE)
     
     if (present(niter)) then
        max_iter = niter

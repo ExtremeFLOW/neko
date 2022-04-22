@@ -37,7 +37,7 @@ module gs_device_mpi
   use gs_comm
   use gs_ops
   use stack
-  use mpi_f08
+  use mpi
   use comm
   use device
   implicit none

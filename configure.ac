@@ -49,7 +49,7 @@ if test "x${have_mpi}" != xno; then
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
 fi
-AX_MPIF08
+#AX_MPIF08
 AX_MPI_DTYPE
 
 AC_FC_PP_SRCEXT([F90])

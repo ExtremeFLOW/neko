@@ -1,16 +1,13 @@
 module comm
-  use mpi_f08
+  use mpi
   implicit none
   
   !> MPI communicator
-  type(MPI_Comm) :: NEKO_COMM
+  integer ::  NEKO_COMM
 
   !> MPI type for working precision of REAL types
-#ifdef HAVE_MPI_PARAM_DTYPE
-  type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
-#else
-  type(MPI_Datatype) :: MPI_REAL_PRECISION
-#endif
+  integer, parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+
   
   !> MPI rank
   integer :: pe_rank
@@ -36,9 +33,7 @@ contains
        call MPI_Init(ierr)       
     end if
 
-#ifndef HAVE_MPI_PARAM_DTYPE
-    MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
-#endif
+!    MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
 
     call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
 

@@ -303,8 +303,8 @@ contains
     real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac
     real(kind=rp) :: alpha(this%p_space), beta(this%p_space), gamma1, gamma2, delta
     real(kind=rp) :: tmp1, tmp2, tmp3
-    type(MPI_Request) :: request
-    type(MPI_Status) :: status
+    integer :: request
+    integer :: status(MPI_STATUS_SIZE)
     type(c_ptr) :: f_d, alpha_d, beta_d
     f_d = device_get_ptr(f)
     alpha_d = C_NULL_PTR

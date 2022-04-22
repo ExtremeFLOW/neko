@@ -45,7 +45,7 @@ module gather_scatter
   use dofmap
   use field
   use num_types
-  use mpi_f08
+  use mpi
   use htable
   use stack
   use utils
@@ -989,7 +989,7 @@ contains
     integer(kind=2), allocatable :: shared_flg(:), recv_flg(:)
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
-    type(MPI_Status) :: status
+    integer :: status(MPI_STATUS_SIZE)
     integer :: i, j, max_recv, src, dst, ierr, n_recv
     integer :: tmp, shared_gs_id
     integer :: nshared_unique

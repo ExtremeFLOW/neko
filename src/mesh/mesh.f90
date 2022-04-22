@@ -33,7 +33,7 @@
 !> Defines a mesh
 module mesh
   use num_types
-  use mpi_f08
+  use mpi
   use point
   use element
   use hex
@@ -547,7 +547,7 @@ contains
     type(tuple4_i4_t) :: face,  face2
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: buffer
-    type(MPI_Status) :: status
+    integer :: status(MPI_STATUS_SIZE)
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
@@ -695,7 +695,7 @@ contains
   subroutine mesh_generate_external_point_conn(m)
     type(mesh_t), intent(inout) :: m
     type(stack_i4_t) :: send_buffer
-    type(MPI_Status) :: status
+    integer :: status(MPI_STATUS_SIZE)
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k
     integer :: max_recv, ierr, src, dst, n_recv, neigh_el
@@ -766,7 +766,7 @@ contains
     type(uset_i8_t), target :: edge_idx, ghost, owner
     type(stack_i8_t) :: send_buff
     type(htable_i8_t) :: glb_to_loc
-    type(MPI_Status) :: status
+    integer :: status(MPI_STATUS_SIZE)
     integer, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
@@ -985,7 +985,7 @@ contains
     type(stack_i4t2_t) :: edge_owner
     type(htable_i4t2_t) :: edge_ghost
     type(stack_i4_t) :: send_buff
-    type(MPI_Status) :: status
+    integer :: status(MPI_STATUS_SIZE)
     integer, allocatable :: recv_buff(:)
     integer :: non_shared_facets, shared_facets, facet_offset    
     integer :: id, glb_nshared, shared_offset, owned_facets

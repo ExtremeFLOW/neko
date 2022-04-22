@@ -37,14 +37,14 @@ module gs_mpi
   use gs_comm
   use gs_ops
   use stack
-  use mpi_f08
+  use mpi
   use comm
   implicit none
 
   !> MPI buffer for non-blocking operations
   type, private :: gs_comm_mpi_t
-     type(MPI_Status) :: status
-     type(MPI_Request) :: request
+     integer :: status(MPI_STATUS_SIZE)
+     integer :: request
      logical :: flag
      real(kind=rp), allocatable :: data(:)
   end type  gs_comm_mpi_t

@@ -43,7 +43,7 @@ module fld_file
   use utils
   use comm
   use mpi_types
-  use mpi_f08    
+  use mpi
   implicit none
   private
 
@@ -76,8 +76,8 @@ contains
     character(len=1024) :: fname
     integer :: i, ierr, n, j,k,l,el, suffix_pos,tslash_pos
     integer, allocatable :: idx(:)
-    type(MPI_Status) :: status
-    type(MPI_File) :: fh
+    integer :: status(MPI_STATUS_SIZE)
+    integer :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     real(kind=dp), allocatable :: tmp_dp(:)
     real(kind=sp), allocatable :: tmp_sp(:)

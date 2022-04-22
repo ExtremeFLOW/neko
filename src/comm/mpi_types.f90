@@ -35,27 +35,27 @@ module mpi_types
   use comm
   use re2
   use nmsh
-  use mpi_f08  
+  use mpi
   use parameters
   implicit none
   private
 
-  type(MPI_Datatype) :: MPI_NMSH_HEX    !< MPI dervied type for 3D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_ZONE   !< MPI dervied type for Neko nmsh zone data
-  type(MPI_Datatype) :: MPI_NMSH_CURVE   !< MPI dervied type for Neko nmsh curved elements
+  integer :: MPI_NMSH_HEX    !< MPI dervied type for 3D Neko nmsh data
+  integer :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
+  integer :: MPI_NMSH_ZONE   !< MPI dervied type for Neko nmsh zone data
+  integer :: MPI_NMSH_CURVE   !< MPI dervied type for Neko nmsh curved elements
 
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+  integer :: MPI_RE2V1_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
+  integer :: MPI_RE2V1_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  integer :: MPI_RE2V1_DATA_CV  !< MPI derived type for NEKTON re2 cv data
+  integer :: MPI_RE2V1_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
 
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+  integer :: MPI_RE2V2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
+  integer :: MPI_RE2V2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  integer :: MPI_RE2V2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
+  integer :: MPI_RE2V2_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
 
-  type(MPI_Datatype) :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
+  integer :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
 
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
@@ -110,7 +110,7 @@ contains
   !> Define a MPI dervied type for a 3d nmsh hex
   subroutine mpi_type_nmsh_hex_init
     type(nmsh_hex_t) :: nmsh_hex
-    type(MPI_Datatype) :: type(17)
+    integer :: type(17)
     integer(kind=MPI_ADDRESS_KIND) :: disp(17), base
     integer :: len(17), i, ierr
 
@@ -152,7 +152,7 @@ contains
   !> Define a MPI dervied type for a 2d nmsh quad
   subroutine mpi_type_nmsh_quad_init
     type(nmsh_quad_t) :: nmsh_quad
-    type(MPI_Datatype) :: type(9)
+    integer :: type(9)
     integer(kind=MPI_ADDRESS_KIND) :: disp(9), base
     integer :: len(9), i, ierr
 
@@ -186,7 +186,7 @@ contains
   !> Define a MPI derived type for a nmsh zone
   subroutine mpi_type_nmsh_zone_init
     type(nmsh_zone_t) :: nmsh_zone
-    type(MPI_Datatype) :: type(6)
+    integer :: type(6)
     integer(kind=MPI_ADDRESS_KIND) :: disp(6), base
     integer :: len(6), i, ierr
 
@@ -215,7 +215,7 @@ contains
   !> Define a MPI derived type for a nmsh curved element
   subroutine mpi_type_nmsh_curve_init
     type(nmsh_curve_el_t) :: nmsh_curve_el
-    type(MPI_Datatype) :: type(3)
+    integer :: type(3)
     integer(kind=MPI_ADDRESS_KIND) :: disp(3), base
     integer :: len(3), i, ierr
 
@@ -245,7 +245,7 @@ contains
   subroutine mpi_type_re2_xyz_init
     type(re2v1_xyz_t) :: re2v1_data
     type(re2v2_xyz_t) :: re2v2_data
-    type(MPI_Datatype) :: type(4)
+    integer :: type(4)
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base    
     integer :: len(4), ierr, i
 
@@ -297,7 +297,7 @@ contains
   subroutine mpi_type_re2_xy_init
     type(re2v1_xy_t) :: re2v1_data
     type(re2v2_xy_t) :: re2v2_data
-    type(MPI_Datatype) :: type(3)
+    integer :: type(3)
     integer(kind=MPI_ADDRESS_KIND) :: disp(3), base    
     integer :: len(3), ierr, i
 
@@ -347,7 +347,7 @@ contains
   subroutine mpi_type_re2_cv_init
     type(re2v1_curve_t) :: re2v1_data
     type(re2v2_curve_t) :: re2v2_data
-    type(MPI_Datatype) :: type(4)
+    integer :: type(4)
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
     integer :: len(4), ierr, i
 
@@ -405,7 +405,7 @@ contains
   subroutine mpi_type_re2_bc_init
     type(re2v1_bc_t) :: re2v1_data
     type(re2v2_bc_t) :: re2v2_data
-    type(MPI_Datatype) :: type(4)
+    integer :: type(4)
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
     integer :: len(4), ierr, i
 
@@ -463,7 +463,7 @@ contains
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
     integer, parameter :: n_param = 37
-    type(MPI_Datatype) :: type(n_param)
+    integer :: type(n_param)
     integer(kind=MPI_ADDRESS_KIND) :: disp(n_param), base    
     integer :: len(n_param), ierr
     integer :: i

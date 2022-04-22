@@ -41,7 +41,7 @@ module chkp_file
   use utils
   use mesh
   use mpi_types
-  use mpi_f08
+  use mpi
   implicit none
   private
 
@@ -68,8 +68,8 @@ contains
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
     type(mesh_t), pointer :: msh
-    type(MPI_Status) :: status
-    type(MPI_File) :: fh
+    integer :: status(MPI_STATUS_SIZE)
+    integer :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=8) :: n_glb_dofs, dof_offset
     logical write_lag
@@ -211,8 +211,8 @@ contains
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
     type(mesh_t), pointer :: msh
-    type(MPI_Status) :: status
-    type(MPI_File) :: fh
+    integer :: status(MPI_STATUS_SIZE)
+    integer :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=8) :: n_glb_dofs, dof_offset
     integer :: glb_nelv, gdim, lx, have_lag

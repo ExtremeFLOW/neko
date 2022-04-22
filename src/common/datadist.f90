@@ -32,12 +32,12 @@
 !
 !> Defines practical data distributions
 module datadist
-  use mpi_f08
+  use mpi
   implicit none
   private
 
   type dist_t
-     type(MPI_Comm) :: comm !< Communicator on which the dist. is defined
+     integer :: comm        !< Communicator on which the dist. is defined
      integer :: pe_rank     !< Pe's rank in the given distribution
      integer :: pe_size     !< Size of communicator in the given dist.
      integer :: L               
@@ -67,7 +67,7 @@ contains
     integer, intent(in) :: n    !< Total size
     integer :: rank             !< PE's rank to define the dist. over
     integer :: size             !< Size of comm where the dist. is def. on
-    type(MPI_Comm) :: comm      !< comm. to define the dist. over
+    integer :: comm             !< comm. to define the dist. over
     type(linear_dist_t), target :: this
 
     this%M = n
