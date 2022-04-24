@@ -86,14 +86,14 @@ module parmetis
 #ifdef HAVE_PARMETIS
 #ifdef HAVE_PARMETIS_REAL64
 #define M_REAL c_double
-#define parmetis_real(i) real((i), 8)
+#define parmetis_real(i) real((i), i8)
 #else
 #define M_REAL c_float
 #define parmetis_real(i) real((i), 4)
 #endif
 #ifdef HAVE_PARMETIS_INT64
 #define M_INT c_int64_t
-#define parmetis_idx(i) int((i), 8)
+#define parmetis_idx(i) int((i), i8)
 #define neko_idx(i) int((i), 4)
 #else
 #define M_INT c_int32_t

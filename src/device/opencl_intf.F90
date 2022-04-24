@@ -97,7 +97,7 @@ module opencl_intf
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_GPU = 4
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_ACCELERATOR = 8
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_CUSTOM = 16
-  integer(c_int64_t), parameter :: CL_DEVICE_TYPE_ALL = int(Z'FFFFFFFF', 8)
+  integer(c_int64_t), parameter :: CL_DEVICE_TYPE_ALL = int(Z'FFFFFFFF', i8)
     
   interface
      integer (c_int) function clGetPlatformIDs(num_entries, &
@@ -368,7 +368,7 @@ contains
     character(kind=c_char, len=1024), target :: c_name
     integer(c_size_t), target :: name_len
 
-    if (clGetDeviceInfo(glb_device_id, CL_DEVICE_NAME, int(1024, 8), &
+    if (clGetDeviceInfo(glb_device_id, CL_DEVICE_NAME, int(1024, i8), &
          c_loc(c_name), c_loc(name_len)) .ne. CL_SUCCESS) then
        call neko_error('Failed to query device')
     end if

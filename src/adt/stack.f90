@@ -159,7 +159,7 @@ contains
     type is(stack_i4_t)
        allocate(integer::this%data(this%size_))
     type is(stack_i8_t)
-       allocate(integer(8)::this%data(this%size_))
+       allocate(integer(i8)::this%data(this%size_))
     type is (stack_r8_t)
        allocate(double precision::this%data(this%size_))
     type is (stack_i4t2_t)
@@ -221,8 +221,8 @@ contains
        select type(data)
        type is(integer)
           allocate(integer::tmp(this%size_))
-       type is(integer(8))
-          allocate(integer(8)::tmp(this%size_))
+       type is(integer(i8))
+          allocate(integer(i8)::tmp(this%size_))
        type is(double precision)          
           allocate(double precision::tmp(this%size_))
        type is(tuple_i4_t)
@@ -251,9 +251,9 @@ contains
           type is (integer)
              tmp(1:this%top_) = sdp
           end select
-       type is (integer(8))
+       type is (integer(i8))
           select type(sdp=>this%data)
-          type is (integer(8))
+          type is (integer(i8))
              tmp(1:this%top_) = sdp
           end select
        type is (double precision)
@@ -321,9 +321,9 @@ contains
        type is (integer)
           sdp(this%top_) = data
        end select
-    type is (integer(8))
+    type is (integer(i8))
        select type(data)
-       type is (integer(8))
+       type is (integer(i8))
           sdp(this%top_) = data
        end select
     type is (double precision)
@@ -406,10 +406,10 @@ contains
   !> Pop an integer*8 of the stack
   function stack_i8_pop(this) result(data)
     class(stack_i8_t), target, intent(inout) :: this
-    integer(kind=8) :: data
+    integer(kind=i8) :: data
 
     select type (sdp=>this%data)
-    type is (integer(8))       
+    type is (integer(i8))       
        data = sdp(this%top_)
     class default
        call neko_error('Invalid data type (i8 pop)')
@@ -420,10 +420,10 @@ contains
   !> Return a pointer to the internal integer*8 array
   function stack_i8_data(this) result(data)
     class(stack_i8_t), target, intent(inout) :: this
-    integer(kind=8), pointer :: data(:)
+    integer(kind=i8), pointer :: data(:)
 
     select type (sdp=>this%data)
-    type is (integer(8))       
+    type is (integer(i8))       
        data => sdp
     class default
        call neko_error('Invalid data type (i8 array)')
@@ -453,7 +453,7 @@ contains
     type is (double precision)       
        data => sdp
     class default
-       call neko_error('Invalid data type (i8 array)')
+       call neko_error('Invalid data type (r8 array)')
     end select
   end function stack_r8_data
 

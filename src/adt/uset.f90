@@ -305,11 +305,11 @@ contains
   function uset_i8_element(this, key) result(res)
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
-    integer(kind=8) :: data
+    integer(kind=i8) :: data
     logical :: res
 
     select type(key)
-    type is (integer(8))
+    type is (integer(i8))
        res = (this%t%get(key, data) .eq. 0)
     class default
        res = .false.
@@ -320,10 +320,10 @@ contains
   subroutine uset_i8_add(this, key)
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
-    integer(kind=8) :: data
+    integer(kind=i8) :: data
 
     select type(key)
-    type is (integer(8))
+    type is (integer(i8))
        data = key 
        call this%t%set(key, data)
     class default
@@ -337,7 +337,7 @@ contains
     class(*), intent(inout) :: key
 
     select type(key)
-    type is (integer(8))
+    type is (integer(i8))
        call this%t%remove(key)
     class default
        call neko_error("Invalid key")
@@ -360,7 +360,7 @@ contains
   !> Return the current value of an integer*8 based set iterator
   function uset_i8_iter_value(this) result(value)
     class(uset_i8_t), target, intent(inout) :: this
-    integer(kind=8), pointer :: value
+    integer(kind=i8), pointer :: value
 
     ! We should not need this extra select block, and it works great
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray

@@ -129,7 +129,7 @@ contains
     call schwarz_setup_wt(this)
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_alloc(this%wt_d,int(this%dm%n_dofs*rp,8)) 
+       call device_alloc(this%wt_d,int(this%dm%n_dofs*rp, i8)) 
        call rone(this%work1, this%dm%n_dofs)
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dm%n_dofs, HOST_TO_DEVICE)
