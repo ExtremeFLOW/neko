@@ -143,7 +143,7 @@ __kernel void gather_kernel_min(__global real * __restrict__ v,
     const int k = bo[i];
     real tmp = u[gd[k] - 1];
     for (int j = 1; j < blk_len; j++) {
-      tmp = min(u[gd[k + j] - 1], tmp);
+      tmp = fmin(u[gd[k + j] - 1], tmp);
     }
     v[dg[k] - 1] = tmp;
   }
@@ -156,7 +156,7 @@ __kernel void gather_kernel_min(__global real * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	real tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
+	real tmp = fmin(u[gd[i] - 1], u[gd[i+1] - 1]);
 	v[dg[i] - 1] = tmp;
       }
     }
@@ -187,7 +187,7 @@ __kernel void gather_kernel_max(__global real * __restrict__ v,
     const int k = bo[i];
     real tmp = u[gd[k] - 1];
     for (int j = 1; j < blk_len; j++) {
-      tmp = max(u[gd[k + j] - 1], tmp);
+      tmp = fmax(u[gd[k + j] - 1], tmp);
     }
     v[dg[k] - 1] = tmp;
   }
@@ -200,7 +200,7 @@ __kernel void gather_kernel_max(__global real * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	real tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
+	real tmp = fmax(u[gd[i] - 1], u[gd[i+1] - 1]);
 	v[dg[i] - 1] = tmp;
       }
     }
