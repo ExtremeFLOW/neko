@@ -422,17 +422,17 @@ contains
 #elif HAVE_OPENCL
     if (sync_device) then
        if (dir .eq. HOST_TO_DEVICE) then
-          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_8, s, ptr_h, &
+          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
-          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_8, s, ptr_h, &
+          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
-          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_8, 0_8, s, &
+          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
           end if
@@ -441,17 +441,17 @@ contains
        end if
     else
        if (dir .eq. HOST_TO_DEVICE) then
-          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_8, s, ptr_h, &
+          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
-          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_8, s, ptr_h, &
+          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
-          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_8, 0_8, s, &
+          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
           end if
