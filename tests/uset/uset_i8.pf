@@ -27,20 +27,21 @@ end subroutine test_uset_free_i8
 subroutine test_uset_size_i8
   use pfunit
   use uset
+  use num_types, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
-  integer(kind=8) :: data
+  integer(kind=i8) :: data
 
   call s%init()
   do i = 1, 64
-     data = int(i, 8)
+     data = int(i, i8)
      call s%add(data)
   end do
   @assertEqual(s%size(), 64)
 
   do i = 1, 2
-     data = int(i + 64, 8)
+     data = int(i + 64, i8)
      call s%add(data)
   end do
   @assertEqual(s%size(), 66)
@@ -51,21 +52,22 @@ end subroutine test_uset_size_i8
 subroutine test_uset_clear_i8
   use pfunit
   use uset
+  use num_types, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
-  integer(kind=8) :: data
+  integer(kind=i8) :: data
 
   call s%init()
   do i = 1, 64
-     data = int(i, 8)
+     data = int(i, i8)
      call s%add(data)
   end do
   call s%clear()
   @assertEqual(s%size(), 0)
 
   do i = 1, 42
-     data = int(i, 8)
+     data = int(i, i8)
      call s%add(data)
   end do
   @assertEqual(s%size(), 42)
@@ -76,29 +78,30 @@ end subroutine test_uset_clear_i8
 subroutine test_uset_element_i8
   use pfunit
   use uset
+  use num_types, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
-  integer(kind=8) :: data
+  integer(kind=i8) :: data
 
   call s%init()
   do i = 1, 64
-     data = int(i, 8)
+     data = int(i, i8)
      call s%add(data)
   end do
   
   do i = 1, 64
-     data = int(i, 8)
+     data = int(i, i8)
      @assertTrue(s%element(data))
   end do
 
   do i = 1, 2
-     data = int(i + 64, 8)
+     data = int(i + 64, i8)
      call s%add(data)
   end do
   
   do i = 1, 66
-     data = int(i, 8)
+     data = int(i, i8)
      @assertTrue(s%element(data))
   end do
 
@@ -109,40 +112,41 @@ end subroutine test_uset_element_i8
 subroutine test_uset_remove_i8
   use pfunit
   use uset
+  use num_types, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i
-  integer(kind=8) :: data
+  integer(kind=i8) :: data
 
   call s%init()
   do i = 1, 64
-     data = int(i, 8)
+     data = int(i, i8)
      call s%add(data)
   end do
   
   do i = 1, 64
-     data = int(i, 8)
+     data = int(i, i8)
      @assertTrue(s%element(data))
   end do
 
   do i = 64, 1
-     data = int(i, 8)
+     data = int(i, i8)
      @assertTrue(s%element(data))
   end do
 
   do i = 1, 64, 2
-     data = int(i, 8)
+     data = int(i, i8)
      call s%remove(data)
   end do
   @assertEqual(s%size(), 32)
   
   do i = 1, 64, 2
-     data = int(i, 8)
+     data = int(i, i8)
      @assertFalse(s%element(data))
   end do
   
   do i = 2, 64, 2
-     data = int(i, 8)
+     data = int(i, i8)
      @assertTrue(s%element(data))
   end do
   
@@ -152,14 +156,15 @@ end subroutine test_uset_remove_i8
 subroutine test_uset_iter_i8
   use pfunit
   use uset
+  use num_types, only : i8
   implicit none
   type(uset_i8_t) :: s
   integer :: i, n_entries
-  integer(kind=8) :: data
+  integer(kind=i8) :: data
 
   call s%init()
   do i = 1, 64
-     data = int(i,8)
+     data = int(i, i8)
      call s%add(data)
   end do
 

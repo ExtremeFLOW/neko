@@ -8,7 +8,7 @@ subroutine test_htable_init_i4t4
   implicit none
   type(htable_i4t4_t) :: h
   integer :: data_i4
-  integer(kind=8) :: data_i8
+  integer(kind=i8) :: data_i8
   real(kind=dp) :: data_r8
   type(tuple_i4_t) :: data_ti4
   type(tuple4_i4_t) :: data_t4i4
@@ -45,7 +45,7 @@ subroutine test_htable_add_i4t4
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
-  integer(kind=8) :: data_i8
+  integer(kind=i8) :: data_i8
   real(kind=dp) :: data_r8
   type(tuple_i4_t) :: data_ti4
   type(tuple4_i4_t) :: data_t4i4, key
@@ -61,7 +61,7 @@ subroutine test_htable_add_i4t4
   do i = 1, 6
      key = (/i, i**2, i**3, i**4/)
      data_i4 = -i
-     data_i8 = int(-i, 8)
+     data_i8 = int(-i, i8)
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
@@ -85,7 +85,7 @@ subroutine test_htable_add_i4t4
   do i = 6, 8
      key = (/i, i**2, i**3, i**4/)
      data_i4 = -i
-     data_i8 = int(-i, 8)
+     data_i8 = int(-i, i8)
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
@@ -166,7 +166,7 @@ subroutine test_htable_get_i4t4
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
-  integer(kind=8) :: data_i8
+  integer(kind=i8) :: data_i8
   real(kind=dp) :: data_r8
   type(tuple_i4_t) :: data_ti4, ti4
   type(tuple4_i4_t) :: data_t4i4, t4i4, key
@@ -182,7 +182,7 @@ subroutine test_htable_get_i4t4
   do i = 1, 42
      key = (/i, i**2, i**3, i**4/)
      data_i4 = -i
-     data_i8 = int(-i, 8)
+     data_i8 = int(-i, i8)
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
@@ -210,7 +210,7 @@ subroutine test_htable_get_i4t4
      pt = point_t(dble(i), dble(-i), dble(i*i))
      
      @assertEqual(data_i4, -i)
-     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
      @assertTrue(data_ti4 .eq. ti4)
      @assertTrue(data_t4i4 .eq. t4i4)
@@ -231,7 +231,7 @@ subroutine test_htable_get_i4t4
      pt = point_t(dble(i), dble(-i), dble(i*i))
      
      @assertEqual(data_i4, -i)
-     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
      @assertTrue(data_ti4 .eq. ti4)
      @assertTrue(data_t4i4 .eq. t4i4)
@@ -252,7 +252,7 @@ subroutine test_htable_get_i4t4
      pt = point_t(dble(i), dble(-i), dble(i*i))
      
      @assertEqual(data_i4, -i)
-     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
      @assertTrue(data_ti4 .eq. ti4)
      @assertTrue(data_t4i4 .eq. t4i4)
@@ -273,7 +273,7 @@ subroutine test_htable_remove_i4t4
   type(htable_i4t4_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
-  integer(kind=8) :: data_i8
+  integer(kind=i8) :: data_i8
   real(kind=dp) :: data_r8
   type(tuple_i4_t) :: data_ti4, ti4
   type(tuple4_i4_t) :: data_t4i4, t4i4, key
@@ -289,7 +289,7 @@ subroutine test_htable_remove_i4t4
   do i = 1, 42
      key = (/i, i**2, i**3, i**4/)
      data_i4 = -i
-     data_i8 = int(-i, 8)
+     data_i8 = int(-i, i8)
      data_r8 = dble(-i)
      data_ti4 = (/-i, i/)
      data_t4i4 = (/-i, i, -i , i/)
@@ -333,7 +333,7 @@ subroutine test_htable_remove_i4t4
      pt = point_t(dble(i), dble(-i), dble(i*i))
      
      @assertEqual(data_i4, -i)
-     @assertEqual(data_i8, int(-i, 8))
+     @assertEqual(data_i8, int(-i, i8))
      @assertEqual(data_r8, dble(-i))
      @assertTrue(data_ti4 .eq. ti4)
      @assertTrue(data_t4i4 .eq. t4i4)

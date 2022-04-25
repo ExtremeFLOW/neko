@@ -888,7 +888,7 @@ contains
     !> Register a unique dof
     function gs_mapping_add_dof(map_, dof, max_id) result(id)
       type(htable_i8_t), intent(inout) :: map_
-      integer(kind=8), intent(inout) :: dof
+      integer(kind=i8), intent(inout) :: dof
       integer, intent(inout) :: max_id
       integer :: id
 
@@ -985,8 +985,8 @@ contains
   !> Schedule shared gather-scatter operations
   subroutine gs_schedule(gs)
     type(gs_t), intent(inout) :: gs
-    integer(kind=8), allocatable :: send_buf(:), recv_buf(:)
-    integer(kind=2), allocatable :: shared_flg(:), recv_flg(:)
+    integer(kind=i8), allocatable :: send_buf(:), recv_buf(:)
+    integer(kind=i2), allocatable :: shared_flg(:), recv_flg(:)
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
     integer :: status(MPI_STATUS_SIZE)

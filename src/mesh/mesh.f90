@@ -770,9 +770,9 @@ contains
     integer, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
-    integer(kind=8) :: C, glb_max, glb_id
-    integer(kind=8), pointer :: glb_ptr
-    integer(kind=8), allocatable :: recv_buff(:)
+    integer(kind=i8) :: C, glb_max, glb_id
+    integer(kind=i8), pointer :: glb_ptr
+    integer(kind=i8), allocatable :: recv_buff(:)
     logical :: shared_edge
     type(stack_i4_t) :: non_shared_edges
     integer :: max_recv, src, dst, n_recv
@@ -791,13 +791,13 @@ contains
     ! Determine/ constants used to generate unique global edge numbers
     ! for shared edges 
     !
-    C = int(m%glb_nelv, 8) * int(NEKO_HEX_NEDS,8)
+    C = int(m%glb_nelv, i8) * int(NEKO_HEX_NEDS, i8)
 
     num_edge_glb = 2* m%meds
     call MPI_Allreduce(MPI_IN_PLACE, num_edge_glb, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM,  ierr)
 
-    glb_max = int(num_edge_glb, 8)
+    glb_max = int(num_edge_glb, i8)
 
     call non_shared_edges%init(m%hte%num_entries())
 
@@ -828,7 +828,7 @@ contains
        ! ((e1 * C) + e2 )) + glb_max if e1 > e2
        ! ((e2 * C) + e1 )) + glb_max if e2 > e1     
        if (shared_edge) then
-          glb_id = ((int(edge%x(1), 8)) + int(edge%x(2), 8)*C) + glb_max
+          glb_id = ((int(edge%x(1), i8)) + int(edge%x(2), i8)*C) + glb_max
           call glb_to_loc%set(glb_id, id)
           call edge_idx%add(glb_id)
           call owner%add(glb_id) ! Always assume the PE is the owner
@@ -871,7 +871,7 @@ contains
        ! GNU, Intel and NEC, but it breaks horribly on Cray when using
        ! certain data types
        select type(sbarray=>send_buff%data)
-       type is (integer(8))
+       type is (integer(i8))
           call MPI_Sendrecv(sbarray, send_buff%size(), &
                MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
                NEKO_COMM, status, ierr)
@@ -906,9 +906,9 @@ contains
           call distdata_set_local_to_global_edge(m%ddata, id, shared_offset)
 
           ! Add new number to send data as [old_glb_id new_glb_id] for each edge
-          call send_buff%push(glb_ptr)   ! Old glb_id integer*8
-          glb_id = int(shared_offset, 8) ! Waste some space here...
-          call send_buff%push(glb_id)    ! New glb_id integer*4
+          call send_buff%push(glb_ptr)    ! Old glb_id integer*8
+          glb_id = int(shared_offset, i8) ! Waste some space here...
+          call send_buff%push(glb_id)     ! New glb_id integer*4
 
           shared_offset = shared_offset + 1
        else
@@ -941,7 +941,7 @@ contains
        ! GNU, Intel and NEC, but it breaks horribly on Cray when using
        ! certain data types
        select type(sbarray=>send_buff%data)
-       type is (integer(8))
+       type is (integer(i8))
           call MPI_Sendrecv(sbarray, send_buff%size(), &
                MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
                NEKO_COMM, status, ierr)

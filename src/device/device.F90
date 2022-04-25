@@ -178,7 +178,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -216,7 +216,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -254,7 +254,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -292,7 +292,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -471,7 +471,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -496,7 +496,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -521,7 +521,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -546,7 +546,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -576,7 +576,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -605,7 +605,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -634,7 +634,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -663,7 +663,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -687,7 +687,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -714,7 +714,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -741,7 +741,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -768,7 +768,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -797,7 +797,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -825,7 +825,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -853,7 +853,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -881,7 +881,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)

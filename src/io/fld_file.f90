@@ -190,10 +190,10 @@ contains
     mpi_offset = mpi_offset  + MPI_REAL_SIZE
 
     byte_offset = mpi_offset + &
-         int(msh%offset_el, 8) * int(MPI_INTEGER_SIZE, 8)
+         int(msh%offset_el, i8) * int(MPI_INTEGER_SIZE, i8)
     call MPI_File_write_at_all(fh, byte_offset, idx, msh%nelv, &
          MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * int(MPI_INTEGER_SIZE, 8)
+    mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
 
     deallocate(idx)
     
@@ -207,9 +207,9 @@ contains
        
     if (write_mesh) then
 
-       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-            (int(msh%gdim*Xh%lxyz, 8) * &
-            int(FLD_DATA_SIZE, 8))
+       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
+            (int(msh%gdim*Xh%lxyz, i8) * &
+            int(FLD_DATA_SIZE, i8))
        
        if (this%dp_precision) then
           i = 1
@@ -281,15 +281,15 @@ contains
           
        end if
 
-       mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
-            (int(msh%gdim *Xh%lxyz, 8) * & 
-            int(FLD_DATA_SIZE, 8))
+       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
+            (int(msh%gdim *Xh%lxyz, i8) * & 
+            int(FLD_DATA_SIZE, i8))
     end if
 
     if (write_velocity) then
-       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(FLD_DATA_SIZE, 8))
+       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
+            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), i8) * &
+            int(FLD_DATA_SIZE, i8))
 
        if (this%dp_precision) then
           i = 1
@@ -361,16 +361,16 @@ contains
 
        end if
        
-       mpi_offset = mpi_offset + int(msh%glb_nelv, 8) * &
-            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(FLD_DATA_SIZE, 8))
+       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
+            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), i8) * &
+            int(FLD_DATA_SIZE, i8))
        
     end if
  
     if (write_pressure) then
-       byte_offset = mpi_offset + int(msh%offset_el, 8) * &
-            (int((Xh%lx * Xh%ly * Xh%lz), 8) * &
-            int(FLD_DATA_SIZE, 8))
+       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
+            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+            int(FLD_DATA_SIZE, i8))
       
        if (.not. this%dp_precision) then
 

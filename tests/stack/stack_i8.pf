@@ -6,7 +6,7 @@ subroutine test_stack_i8_init
   use num_types, only :rp
   implicit none
   type(stack_i8_t) :: s1, s2, s3
-    integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
+  integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
 
   call s1%init()
   @assertTrue(allocated(s1%data))
@@ -54,22 +54,23 @@ end subroutine test_stack_i8_free
 subroutine test_stack_i8_push
   use pfunit
   use stack
+  use num_types, only : i8
   implicit none
   type(stack_i8_t) :: s
   integer :: i
-  integer(kind=8) :: data
-  integer(kind=8), pointer :: dp(:)
+  integer(kind=i8) :: data
+  integer(kind=i8), pointer :: dp(:)
 
   call s%init()  
   do i = 1, 64
-     data = int(i, 8)
+     data = int(i, i8)
      call s%push(data)
   end do
   @assertEqual(s%size_, 64, message='Unnecessary reallocation')
   @assertEqual(s%top_, s%size_, message='Corrupt size')
 
   do i = 1, 2
-     data = int(i + 64, 8)
+     data = int(i + 64, i8)
      call s%push(data)
   end do
   @assertEqual(s%size_, 128, message='Unnecessary reallocation')
@@ -77,7 +78,7 @@ subroutine test_stack_i8_push
 
   dp => s%array()
   do i = 1, 66
-     @assertEqual(dp(i), int(i, 8))
+     @assertEqual(dp(i), int(i, i8))
   end do
  
 end subroutine test_stack_i8_push
@@ -86,19 +87,20 @@ end subroutine test_stack_i8_push
 subroutine test_stack_i8_pop
   use pfunit
   use stack
+  use num_types, only : i8
   implicit none
   type(stack_i8_t) :: s
   integer :: i
-  integer(kind=8) :: data
+  integer(kind=i8) :: data
 
   call s%init()
   do i = 1, 66
-     data = int(i, 8)
+     data = int(i, i8)
      call s%push(data)
   end do
 
   do i = 66, 1, -1
-     @assertEqual(s%pop(), int(i, 8))
+     @assertEqual(s%pop(), int(i, i8))
   end do
 
   @assertEqual(s%top_, 0, message='Leftover data')
@@ -110,14 +112,15 @@ end subroutine test_stack_i8_pop
 subroutine test_stack_i8_clear
   use pfunit
   use stack
+  use num_types, only : i8
   implicit none
   type(stack_i8_t) :: s
   integer :: i
-  integer(kind=8) :: data
+  integer(kind=i8) :: data
 
   call s%init()
   do i = 1, 66
-     data = int(i, 8)
+     data = int(i, i8)
      call s%push(data)
   end do
   call s%clear()

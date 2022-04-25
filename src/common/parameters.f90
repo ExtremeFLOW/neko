@@ -90,10 +90,10 @@ contains
 
   subroutine param_read(param, unit, iotype, v_list, iostat, iomsg)
     class(param_io_t), intent(inout) ::  param
-    integer(kind=4), intent(in) :: unit
+    integer(kind=i4), intent(in) :: unit
     character(len=*), intent(in) :: iotype
     integer, intent(in) :: v_list(:)
-    integer(kind=4), intent(out) :: iostat
+    integer(kind=i4), intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
     integer :: nsamples = 0
@@ -187,10 +187,10 @@ contains
 
   subroutine param_write(param, unit, iotype, v_list, iostat, iomsg)
     class(param_io_t), intent(in) ::  param
-    integer(kind=4), intent(in) :: unit
+    integer(kind=i4), intent(in) :: unit
     character(len=*), intent(in) :: iotype
     integer, intent(in) :: v_list(:)
-    integer(kind=4), intent(out) :: iostat
+    integer(kind=i4), intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
     real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate

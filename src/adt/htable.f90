@@ -331,7 +331,7 @@ contains
     select type(key)
     type is (integer)
        allocate(htable_i4_t::tmp)
-    type is (integer(8))
+    type is (integer(i8))
        allocate(htable_i8_t::tmp)
     type is (double precision)
        allocate(htable_r8_t::tmp)
@@ -433,9 +433,9 @@ contains
        type is (integer)
           hdp = data
        end select
-    type is (integer(8))
+    type is (integer(i8))
        select type(hdp)
-       type is (integer(8))
+       type is (integer(i8))
           hdp = data
        end select
     type is (double precision)
@@ -480,9 +480,9 @@ contains
        type is (integer)
           data = hdp
        end select
-    type is (integer(8))
+    type is (integer(i8))
        select type(data)
-       type is (integer(8))
+       type is (integer(i8))
           data = hdp
        end select
     type is (double precision)
@@ -529,9 +529,9 @@ contains
        type is (integer)
           res = (kp .eq. key)
        end select
-    type is (integer(8))
+    type is (integer(i8))
        select type(key)
-       type is (integer(8))
+       type is (integer(i8))
           res = (kp .eq. key)
        end select
     type is (double precision)
@@ -576,9 +576,9 @@ contains
        type is (integer)
           kp = key
        end select
-    type is (integer(8))
+    type is (integer(i8))
        select type(kp)
-       type is (integer(8))
+       type is (integer(i8))
           kp = key
        end select
     type is (double precision)
@@ -648,9 +648,9 @@ contains
        type is (integer)
           data = hdp
        end select
-    type is (integer(8))
+    type is (integer(i8))
        select type (data)
-       type is (integer(8))
+       type is (integer(i8))
           data = hdp
        end select
     type is (double precision)
@@ -804,7 +804,7 @@ contains
     class(htable_i8_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
-    integer(kind=8) :: key
+    integer(kind=i8) :: key
 
     if (present(data)) then
        call htable_init(this, size, key, data)
@@ -817,7 +817,7 @@ contains
   !> Insert an integer*8 into the hash table
   subroutine htable_i8_set(this, key, data) 
     class(htable_i8_t), intent(inout) :: this
-    integer(kind=8), intent(inout) :: key   !< Table key
+    integer(kind=i8), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
 
     call htable_set(this, key, data)
@@ -827,7 +827,7 @@ contains
   !> Retrive an integer*8 with key @a key from the hash table
   function htable_i8_get(this, key, data) result(rcode)
     class(htable_i8_t), intent(inout) :: this
-    integer(kind=8), intent(inout) :: key   !< Key to retrieve
+    integer(kind=i8), intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
 
@@ -840,25 +840,25 @@ contains
     class(htable_i8_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: hash
-    integer(kind=8) :: tmp
-    integer(kind=8), parameter :: M1 = int(Z'7ed55d15', 8)
-    integer(kind=8), parameter :: M2 = int(Z'c761c23c', 8)
-    integer(kind=8), parameter :: M3 = int(Z'165667b1', 8)
-    integer(kind=8), parameter :: M4 = int(Z'd3a2646c', 8)
-    integer(kind=8), parameter :: M5 = int(Z'fd7046c5', 8)
-    integer(kind=8), parameter :: M6 = int(Z'b55a4f09', 8)
+    integer(kind=i8) :: tmp
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
 
     select type(k)
-    type is (integer(8))
+    type is (integer(i8))
        tmp = (k + M1) + ishft(k, 12)
        tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
        tmp = (tmp + M3) + ishft(tmp, 5)
        tmp = ieor((tmp + M4), ishft(tmp, 9))
        tmp = (tmp + M5) + ishft(tmp, 3)
        tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
-       hash = int(modulo(tmp, int(this%size, 8)), 4)
+       hash = int(modulo(tmp, int(this%size, i8)), i4)
        !> @note I think this hash might be better
-       hash = int(modulo(k * 2654435761_8, int(this%size, 8)), 4)
+       hash = int(modulo(k * 2654435761_i8, int(this%size, i8)), i4)
 
     class default
        hash = -1
@@ -868,7 +868,7 @@ contains
   !> Remove an integer*8 with key @a key from the hash table
   subroutine htable_i8_remove(this, key) 
     class(htable_i8_t), intent(inout) :: this
-    integer(kind=8), intent(inout) :: key   !< Table key
+    integer(kind=i8), intent(inout) :: key   !< Table key
 
     call htable_remove(this, key)
 
@@ -887,11 +887,11 @@ contains
   !> Return the current value of the integer*8 based hash table iterator
   function htable_iter_i8_value(this) result(value)
     class(htable_iter_i8_t), target, intent(inout) :: this
-    integer(kind=8), pointer :: value
+    integer(kind=i8), pointer :: value
 
 
     select type (hdp => this%t%t(this%n)%data)
-    type is (integer(8))
+    type is (integer(i8))
        value => hdp
     class default
        call neko_error('Key and data of different kind (i8)')
@@ -902,7 +902,7 @@ contains
   !> Return the current key of the integer*8 based hash table iterator
   function htable_iter_i8_key(this) result(key)
     class(htable_iter_i8_t), intent(inout) :: this
-    integer(kind=8), pointer :: key
+    integer(kind=i8), pointer :: key
 
     ! We should not need this extra select block, and it works great
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray
@@ -910,7 +910,7 @@ contains
     select type(hti => this)
     type is(htable_iter_i8_t)
        select type (kp => hti%t%t(this%n)%key)
-       type is (integer(8))
+       type is (integer(i8))
           key => kp
        class default
           call neko_error('Invalid key (i8)')
@@ -1417,12 +1417,12 @@ contains
     class(htable_cptr_t), intent(in) :: this
     class(*), intent(in) :: k
     integer :: hash
-    integer(kind=8) :: k_int
+    integer(kind=i8) :: k_int
 
     select type(k)
     type is (h_cptr_t)
        k_int = transfer(k%ptr, k_int)
-       hash = int(modulo(k_int * 2654435761_8, int(this%size, 8)), 4)
+       hash = int(modulo(k_int * 2654435761_i8, int(this%size, i8)), i4)
     class default
        hash = -1
     end select
