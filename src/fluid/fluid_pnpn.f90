@@ -76,10 +76,10 @@ module fluid_pnpn
 contains
   
   subroutine fluid_pnpn_init(this, msh, lx, param)    
-    class(fluid_pnpn_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: param    
+    type(param_t), target, intent(inout) :: param    
 
     call this%free()
     

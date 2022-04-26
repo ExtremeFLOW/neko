@@ -57,7 +57,7 @@ contains
 
   !> Initialise a standard PCG solver
   subroutine cg_init(this, n, M, rel_tol, abs_tol)
-    class(cg_t), intent(inout) :: this
+    class(cg_t), intent(inout), target :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol

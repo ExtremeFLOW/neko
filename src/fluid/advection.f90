@@ -153,7 +153,7 @@ contains
   end subroutine init_no_dealias
 
   subroutine init_dealias(this, lxd, coef)
-    class(adv_dealias_t), intent(inout) :: this
+    class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
     integer :: nel, n_GL, n

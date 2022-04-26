@@ -126,7 +126,7 @@ contains
   
   !> @note I do not think we actually use the same grids as they do in the original!
   subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, crs_pctype)
-    class(hsmg_t), intent(inout) :: this
+    class(hsmg_t), intent(inout), target :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
     type(coef_t), intent(inout), target :: coef

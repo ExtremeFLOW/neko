@@ -58,9 +58,10 @@ module krylov
 
   !> Base type for a canonical Krylov method, solving \f$ Ax = f \f$
   type, public, abstract :: ksp_t
-     class(pc_t), pointer :: M            !< Preconditioner
-     real(kind=rp) :: rel_tol   !< Relative tolerance
-     real(kind=rp) :: abs_tol   !< Absolute tolerance
+     class(pc_t), pointer :: M => null() !< Preconditioner
+     real(kind=rp) :: rel_tol            !< Relative tolerance
+     real(kind=rp) :: abs_tol            !< Absolute tolerance
+     class(pc_t), allocatable :: M_ident !< Internal preconditioner (Identity)
    contains
      procedure, pass(this) :: ksp_init => krylov_init
      procedure, pass(this) :: ksp_free => krylov_free
@@ -115,11 +116,10 @@ contains
 
   !> Create a krylov solver
   subroutine krylov_init(this, rel_tol, abs_tol, M)    
-    class(ksp_t), intent(inout) :: this
+    class(ksp_t), target, intent(inout) :: this
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
-    class(pc_t), allocatable, target :: M_ident
     
     call krylov_free(this)
 
@@ -141,11 +141,11 @@ contains
        if (.not. associated(this%M)) then
           if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
                .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-             allocate(device_ident_t::M_ident)
+             allocate(device_ident_t::this%M_ident)
           else
-             allocate(ident_t::M_ident)
+             allocate(ident_t::this%M_ident)
           end if
-          this%M => M_ident
+          this%M => this%M_ident
        end if
     end if
 
@@ -162,7 +162,7 @@ contains
   !> Setup a Krylov solvers preconditioners
   subroutine krylov_set_pc(this, M)
     class(ksp_t), intent(inout) :: this
-    class(pc_t), optional, target, intent(in) :: M
+    class(pc_t), target, intent(in) :: M
 
     if (associated(this%M)) then
        select type(pc => this%M)
