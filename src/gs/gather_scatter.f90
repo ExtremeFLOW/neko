@@ -99,7 +99,7 @@ contains
 
     call gs_init_mapping(gs)
     
-    use_device_mpi = NEKO_DEVICE_MPI .and. gs%nshared .gt. 20000
+    use_device_mpi = NEKO_DEVICE_MPI !.and. gs%nshared .gt. 20000
     if (use_device_mpi) then
        call neko_log%message('Comm         : Device MPI')
        allocate(gs_device_mpi_t::gs%comm)

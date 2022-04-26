@@ -63,9 +63,10 @@ void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
   MPI_Irecv(buf_d+offset, nbytes, MPI_BYTE, rank, 0, MPI_COMM_WORLD, &reqs[i-1]);
 }
 
-int device_mpi_test(void *req) {
+int device_mpi_test(void *vreqs, int i) {
+  MPI_Request *reqs = vreqs;
   int flag = 0;
-  MPI_Test(req, &flag, MPI_STATUS_IGNORE);
+  MPI_Test(&reqs[i-1], &flag, MPI_STATUS_IGNORE);
   return flag;
 }
 
