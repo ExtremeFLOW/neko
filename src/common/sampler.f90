@@ -36,6 +36,7 @@ module sampler
   use output
   use comm
   use logger
+  use utils
   implicit none
   private
 
@@ -136,9 +137,19 @@ contains
     if (t .ge. (this%nsample * this%T)) then
 
        sample_start_time = MPI_WTIME()
-       do i = 1, this%n
-          call this%output_list(i)%outp%sample(t)
-       end do
+
+       ! We should not need this extra select block, and it works great
+       ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
+       ! (>11.0.x) when using high opt. levels.  
+       select type (samp => this)
+       type is (sampler_t)
+          do i = 1, this%n
+             call samp%output_list(i)%outp%sample(t)
+          end do
+       class default
+          call neko_error('Invalid sampler output list')
+       end select
+       
        sample_end_time = MPI_WTIME()
        this%nsample = this%nsample + 1
 
