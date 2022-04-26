@@ -94,7 +94,7 @@ module schwarz
   end type schwarz_t
 contains
   subroutine schwarz_init(this, Xh, dm, gs_h, bclst, msh)
-    class(schwarz_t), intent(inout) :: this
+    class(schwarz_t), target, intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
     type(dofmap_t), target, intent(inout) :: dm
     type(gs_t), target, intent(inout) :: gs_h

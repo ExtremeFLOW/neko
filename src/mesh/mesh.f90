@@ -761,10 +761,10 @@ contains
   !! @attention only for elements where facet .ne. edges
   subroutine mesh_generate_edge_conn(m)
     type(mesh_t), target, intent(inout) :: m
-    type(htable_iter_i4t2_t), target :: it
+    type(htable_iter_i4t2_t) :: it
     type(tuple_i4_t), pointer :: edge
     type(uset_i8_t), target :: edge_idx, ghost, owner
-    type(stack_i8_t) :: send_buff
+    type(stack_i8_t), target :: send_buff
     type(htable_i8_t) :: glb_to_loc
     integer :: status(MPI_STATUS_SIZE)
     integer, pointer :: p1(:), p2(:), ns_id(:)
@@ -774,7 +774,7 @@ contains
     integer(kind=i8), pointer :: glb_ptr
     integer(kind=i8), allocatable :: recv_buff(:)
     logical :: shared_edge
-    type(stack_i4_t) :: non_shared_edges
+    type(stack_i4_t), target :: non_shared_edges
     integer :: max_recv, src, dst, n_recv
 
 
@@ -851,7 +851,8 @@ contains
        call distdata_set_local_to_global_edge(m%ddata, ns_id(i), edge_offset)
        edge_offset = edge_offset + 1          
     end do
-
+    nullify(ns_id)
+    
     !
     ! Renumber shared edges into integer range
     !
@@ -1127,6 +1128,7 @@ contains
              shared_offset = shared_offset + 1
           end if
        end do
+       nullify(fd)
        
     end if
 

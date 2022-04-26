@@ -68,7 +68,7 @@ contains
   subroutine symmetry_init_msk(this, c)
     class(symmetry_t), intent(inout) :: this
     type(coef_t), intent(in) :: c
-    type(stack_i4_t) :: xmsk, ymsk, zmsk
+    type(stack_i4_t), target :: xmsk, ymsk, zmsk
     integer :: i, m, j, k, l, idx(4), facet, ntype, msk_size
     integer, pointer :: sp(:)        
     real(kind=rp) :: sx,sy,sz
@@ -215,6 +215,7 @@ contains
        end if
     end if    
 
+    nullify(sp)
     call xmsk%free()
     call ymsk%free()
     call zmsk%free()

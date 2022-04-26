@@ -224,9 +224,9 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dofmap
-    type(stack_i4_t) :: local_dof, dof_local, shared_dof, dof_shared
-    type(stack_i4_t) :: local_face_dof, face_dof_local
-    type(stack_i4_t) :: shared_face_dof, face_dof_shared
+    type(stack_i4_t), target :: local_dof, dof_local, shared_dof, dof_shared
+    type(stack_i4_t), target :: local_face_dof, face_dof_local
+    type(stack_i4_t), target :: shared_face_dof, face_dof_shared
     integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid, dm_size
     integer, pointer :: sp(:)
     type(htable_i8_t) :: dm
@@ -799,6 +799,7 @@ contains
     do i = 1, j
        gs%local_dof_gs(i) = sp(i)
     end do
+    nullify(sp)
     call local_dof%free()
 
     ! Add dofs on faces
@@ -806,6 +807,7 @@ contains
     do i = 1, local_face_dof%size()
        gs%local_dof_gs(i + j) = sp(i)
     end do
+    nullify(sp)
     call local_face_dof%free()
 
     ! Finalize local gather-scatter index to dof
@@ -817,12 +819,14 @@ contains
     do i = 1, j
        gs%local_gs_dof(i) = sp(i)
     end do
+    nullify(sp)
     call dof_local%free()
 
     sp => face_dof_local%array()
     do i = 1, face_dof_local%size()
        gs%local_gs_dof(i+j) = sp(i)
     end do
+    nullify(sp)
     call face_dof_local%free()
        
     call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
@@ -846,6 +850,7 @@ contains
     do i = 1, j
        gs%shared_dof_gs(i) = sp(i)
     end do
+    nullify(sp)
     call shared_dof%free()
 
     ! Add shared dofs on faces
@@ -853,6 +858,7 @@ contains
     do i = 1, shared_face_dof%size()
        gs%shared_dof_gs(i + j) = sp(i)
     end do
+    nullify(sp)
     call shared_face_dof%free()
     
     ! Finalize shared gather-scatter index to dof
@@ -864,12 +870,14 @@ contains
     do i = 1, j
        gs%shared_gs_dof(i) = sp(i)
     end do
+    nullify(sp)
     call dof_shared%free()
 
     sp => face_dof_shared%array()
     do i = 1, face_dof_shared%size()
        gs%shared_gs_dof(i + j) = sp(i)
     end do
+    nullify(sp)
     call face_dof_shared%free()
 
     ! Allocate buffer for shared gs-ops
@@ -951,7 +959,7 @@ contains
       integer, intent(inout) :: nblks
       integer :: i, j
       integer :: id, count, len
-      type(stack_i4_t) :: blks
+      type(stack_i4_t), target :: blks
       integer, pointer :: bp(:)
       
       call blks%init()
@@ -975,7 +983,8 @@ contains
       do i = 1, blks%size()
          blk_len(i) = bp(i)
       end do      
-
+      nullify(bp)
+      
       call blks%free()
       
     end subroutine gs_find_blks
@@ -984,7 +993,7 @@ contains
 
   !> Schedule shared gather-scatter operations
   subroutine gs_schedule(gs)
-    type(gs_t), intent(inout) :: gs
+    type(gs_t), target, intent(inout) :: gs
     integer(kind=i8), allocatable :: send_buf(:), recv_buf(:)
     integer(kind=i2), allocatable :: shared_flg(:), recv_flg(:)
     type(htable_iter_i8_t) :: it

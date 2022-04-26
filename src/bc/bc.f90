@@ -252,7 +252,7 @@ contains
   !> Finalize a boundary condition
   !! @details This will linearize the marked facet's indicies in msk
   subroutine bc_finalize(this)
-    class(bc_t), intent(inout) :: this
+    class(bc_t), target, intent(inout) :: this
     type(tuple_i4_t), pointer :: bfp(:)
     type(tuple_i4_t) :: bc_facet
     integer :: facet_size, facet, el

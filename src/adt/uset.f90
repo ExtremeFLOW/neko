@@ -247,7 +247,7 @@ contains
 
   !> Initialise an integer based set iterator
   subroutine uset_i4_iter_init(this)
-    class(uset_i4_t), intent(inout) :: this
+    class(uset_i4_t), target, intent(inout) :: this
     call this%it%init(this%t)    
   end subroutine uset_i4_iter_init
 
@@ -346,7 +346,7 @@ contains
 
   !> Initialise an integer based set iterator*8
   subroutine uset_i8_iter_init(this)
-    class(uset_i8_t), intent(inout) :: this
+    class(uset_i8_t), target, intent(inout) :: this
     call this%it%init(this%t)    
   end subroutine uset_i8_iter_init
 
@@ -455,7 +455,7 @@ contains
 
   !> Initialise a double precision based set iterator
   subroutine uset_r8_iter_init(this)
-    class(uset_r8_t), intent(inout) :: this
+    class(uset_r8_t), target, intent(inout) :: this
     call this%it%init(this%t)    
   end subroutine uset_r8_iter_init
 
