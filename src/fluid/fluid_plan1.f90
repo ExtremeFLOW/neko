@@ -19,10 +19,10 @@ module fluid_plan1
 contains
 
   subroutine fluid_plan1_init(this, msh, lx, param)
-    class(fluid_plan1_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_plan1_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: param        
+    type(param_t), target, intent(inout) :: param        
     integer :: lx2
 
     call this%free()

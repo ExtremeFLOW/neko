@@ -78,7 +78,7 @@ module neko
 contains
 
   subroutine neko_init(C)
-    type(case_t), intent(inout), optional :: C
+    type(case_t), target, intent(inout), optional :: C
     character(len=NEKO_FNAME_LEN) :: case_file
     character(len=LOG_SIZE) :: log_buf
     character(len=10) :: suffix

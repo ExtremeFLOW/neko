@@ -112,10 +112,10 @@ module fluid_method
        import fluid_scheme_t
        import param_t
        import mesh_t
-       class(fluid_scheme_t), intent(inout) :: this
-       type(mesh_t), intent(inout) :: msh       
+       class(fluid_scheme_t), target, intent(inout) :: this
+       type(mesh_t), target, intent(inout) :: msh       
        integer, intent(inout) :: lx
-       type(param_t), intent(inout) :: param              
+       type(param_t), target, intent(inout) :: param              
      end subroutine fluid_method_init
   end interface
 
@@ -144,10 +144,10 @@ contains
 
   !> Initialize common data for the current scheme
   subroutine fluid_scheme_init_common(this, msh, lx, params)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout), target :: msh
+    class(fluid_scheme_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout), target :: params
+    type(param_t), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     
@@ -295,10 +295,10 @@ contains
 
   !> Initialize all velocity related components of the current scheme
   subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_scheme_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: params
+    type(param_t), target, intent(inout) :: params
     logical :: kspv_init
 
     call fluid_scheme_init_common(this, msh, lx, params)
@@ -319,10 +319,10 @@ contains
 
   !> Initialize all components of the current scheme
   subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_scheme_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: params
+    type(param_t), target, intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
 
@@ -493,7 +493,7 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine fluid_scheme_solver_factory(ksp, n, solver, abstol)
-    class(ksp_t), allocatable, intent(inout) :: ksp
+    class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=20), intent(inout) :: solver
     real(kind=rp) :: abstol
@@ -504,12 +504,12 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
-    class(pc_t), allocatable, intent(inout), target :: pc
-    class(ksp_t), allocatable, intent(inout) :: ksp
-    type(coef_t), intent(inout) :: coef
-    type(dofmap_t), intent(inout) :: dof
-    type(gs_t), intent(inout) :: gs
-    type(bc_list_t), intent(inout) :: bclst
+    class(pc_t), allocatable, target, intent(inout) :: pc
+    class(ksp_t), target, intent(inout) :: ksp
+    type(coef_t), target, intent(inout) :: coef
+    type(dofmap_t), target, intent(inout) :: dof
+    type(gs_t), target, intent(inout) :: gs
+    type(bc_list_t), target, intent(inout) :: bclst
     character(len=20) :: pctype
     
     call precon_factory(pc, pctype)
