@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -82,6 +82,16 @@ module tuple
      procedure, pass(this) :: assign_vector => tuple_r8_assign_vector
      procedure, pass(this) :: equal => tuple_r8_equal
   end type tuple_r8_t
+
+  !> Mixed integer (\f$ x \f$) double precision (\f$ y \f$) 2-tuple \f$(x, y)\f$
+  type, extends(tuple_t), public :: tuple_i4r8_t
+     integer :: x
+     real(kind=dp) :: y
+   contains
+     procedure, pass(this) :: assign_tuple => tuple_i4r8_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple_i4r8_assign_vector
+     procedure, pass(this) :: equal => tuple_i4r8_equal
+  end type tuple_i4r8_t
 
   !> Abstract intf. for assigning a tuple to a tuple
   abstract interface
@@ -267,5 +277,49 @@ contains
        end if
     end select
   end function tuple_r8_equal
+
+    !> Assign a mixed integer-double precision 2-tuple to a tuple
+  subroutine tuple_i4r8_assign_tuple(this, other)
+    class(tuple_i4r8_t), intent(inout) :: this
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is(tuple_i4r8_t)       
+       this%x = other%x
+       this%y = other%y
+    end select
+  end subroutine tuple_i4r8_assign_tuple
+
+  !> Assign a mixed intreger-double precision vector to a tuple
+  subroutine tuple_i4r8_assign_vector(this, x)
+    class(tuple_i4r8_t), intent(inout) :: this
+    class(*), dimension(:), intent(in) :: x
+
+    select type(x)
+    type is (integer)
+       this%x = x(1)
+       this%y = dble(x(2))
+    type is (double precision)
+       this%x = int(x(1))
+       this%y = x(2)
+    end select
+
+  end subroutine tuple_i4r8_assign_vector
+
+  !> Check if two mixed integer-double precision tuples are equal
+  pure function tuple_i4r8_equal(this, other) result(res)
+    class(tuple_i4r8_t), intent(in) :: this
+    class(tuple_t), intent(in) :: other
+    logical :: res
+
+    res = .false.
+    select type(other)
+    type is(tuple_i4r8_t)
+       if ((this%x .eq. other%x) .and. &
+            abscmp(this%y, other%y)) then
+          res = .true.          
+       end if
+    end select
+  end function tuple_i4r8_equal
    
 end module tuple

@@ -40,6 +40,7 @@ module gather_scatter
   use gs_ops
   use gs_comm
   use gs_mpi
+  use gs_device_mpi
   use mesh
   use dofmap
   use field
@@ -60,8 +61,6 @@ module gather_scatter
      integer, allocatable :: shared_dof_gs(:)         !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:)         !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:)        !< Shared non-facet blocks
-     type(stack_i4_t), allocatable :: send_dof(:)     !< Send dof to shared-gs
-     type(stack_i4_t), allocatable :: recv_dof(:)     !< Recv dof to shared-gs
      type(dofmap_t), pointer ::dofmap                 !< Dofmap for gs-ops
      type(htable_i8_t) :: shared_dofs                 !< Htable of shared dofs
      integer :: nlocal                                !< Local gs-ops
@@ -89,7 +88,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
     integer, optional :: bcknd
-    integer :: i, ierr, bcknd_, glb_nshared, glb_nlocal
+    integer :: ierr, bcknd_, glb_nshared, glb_nlocal
 
     call gs_free(gs)
 
@@ -97,15 +96,13 @@ contains
     
     gs%dofmap => dofmap
     
-    allocate(gs%send_dof(0:pe_size-1))
-    allocate(gs%recv_dof(0:pe_size-1))
+    if (NEKO_DEVICE_MPI) then
+       allocate(gs_device_mpi_t::gs%comm)
+    else
+       allocate(gs_mpi_t::gs%comm)
+    end if
 
-    do i = 0, pe_size -1
-       call gs%send_dof(i)%init()
-       call gs%recv_dof(i)%init()
-    end do
-
-    allocate(gs_mpi_t::gs%comm)
+    call gs%comm%init_dofs()
 
     call gs_init_mapping(gs)
 
@@ -168,7 +165,6 @@ contains
   !> Deallocate a gather-scatter kernel
   subroutine gs_free(gs)
     type(gs_t), intent(inout) :: gs
-    integer :: i
 
     nullify(gs%dofmap)
 
@@ -211,20 +207,6 @@ contains
 
     call gs%shared_dofs%free()
 
-    if (allocated(gs%send_dof)) then
-       do i = 0, pe_size - 1
-          call gs%send_dof(i)%free()
-       end do
-       deallocate(gs%send_dof)
-    end if
-
-    if (allocated(gs%recv_dof)) then
-       do i = 0, pe_size - 1
-          call gs%recv_dof(i)%free()
-       end do
-       deallocate(gs%recv_dof)
-    end if
-
     if (allocated(gs%bcknd)) then
        call gs%bcknd%free()
        deallocate(gs%bcknd)
@@ -242,9 +224,9 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dofmap
-    type(stack_i4_t) :: local_dof, dof_local, shared_dof, dof_shared
-    type(stack_i4_t) :: local_face_dof, face_dof_local
-    type(stack_i4_t) :: shared_face_dof, face_dof_shared
+    type(stack_i4_t), target :: local_dof, dof_local, shared_dof, dof_shared
+    type(stack_i4_t), target :: local_face_dof, face_dof_local
+    type(stack_i4_t), target :: shared_face_dof, face_dof_shared
     integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid, dm_size
     integer, pointer :: sp(:)
     type(htable_i8_t) :: dm
@@ -817,6 +799,7 @@ contains
     do i = 1, j
        gs%local_dof_gs(i) = sp(i)
     end do
+    nullify(sp)
     call local_dof%free()
 
     ! Add dofs on faces
@@ -824,6 +807,7 @@ contains
     do i = 1, local_face_dof%size()
        gs%local_dof_gs(i + j) = sp(i)
     end do
+    nullify(sp)
     call local_face_dof%free()
 
     ! Finalize local gather-scatter index to dof
@@ -835,12 +819,14 @@ contains
     do i = 1, j
        gs%local_gs_dof(i) = sp(i)
     end do
+    nullify(sp)
     call dof_local%free()
 
     sp => face_dof_local%array()
     do i = 1, face_dof_local%size()
        gs%local_gs_dof(i+j) = sp(i)
     end do
+    nullify(sp)
     call face_dof_local%free()
        
     call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
@@ -864,6 +850,7 @@ contains
     do i = 1, j
        gs%shared_dof_gs(i) = sp(i)
     end do
+    nullify(sp)
     call shared_dof%free()
 
     ! Add shared dofs on faces
@@ -871,6 +858,7 @@ contains
     do i = 1, shared_face_dof%size()
        gs%shared_dof_gs(i + j) = sp(i)
     end do
+    nullify(sp)
     call shared_face_dof%free()
     
     ! Finalize shared gather-scatter index to dof
@@ -882,12 +870,14 @@ contains
     do i = 1, j
        gs%shared_gs_dof(i) = sp(i)
     end do
+    nullify(sp)
     call dof_shared%free()
 
     sp => face_dof_shared%array()
     do i = 1, face_dof_shared%size()
        gs%shared_gs_dof(i + j) = sp(i)
     end do
+    nullify(sp)
     call face_dof_shared%free()
 
     ! Allocate buffer for shared gs-ops
@@ -906,7 +896,7 @@ contains
     !> Register a unique dof
     function gs_mapping_add_dof(map_, dof, max_id) result(id)
       type(htable_i8_t), intent(inout) :: map_
-      integer(kind=8), intent(inout) :: dof
+      integer(kind=i8), intent(inout) :: dof
       integer, intent(inout) :: max_id
       integer :: id
 
@@ -969,7 +959,7 @@ contains
       integer, intent(inout) :: nblks
       integer :: i, j
       integer :: id, count, len
-      type(stack_i4_t) :: blks
+      type(stack_i4_t), target :: blks
       integer, pointer :: bp(:)
       
       call blks%init()
@@ -993,7 +983,8 @@ contains
       do i = 1, blks%size()
          blk_len(i) = bp(i)
       end do      
-
+      nullify(bp)
+      
       call blks%free()
       
     end subroutine gs_find_blks
@@ -1002,17 +993,15 @@ contains
 
   !> Schedule shared gather-scatter operations
   subroutine gs_schedule(gs)
-    type(gs_t), intent(inout) :: gs
-    integer(kind=8), allocatable :: send_buf(:), recv_buf(:)
-    integer(kind=2), allocatable :: shared_flg(:), recv_flg(:)
+    type(gs_t), target, intent(inout) :: gs
+    integer(kind=i8), allocatable :: send_buf(:), recv_buf(:)
+    integer(kind=i2), allocatable :: shared_flg(:), recv_flg(:)
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
     type(MPI_Status) :: status
     integer :: i, j, max_recv, src, dst, ierr, n_recv
     integer :: tmp, shared_gs_id
     integer :: nshared_unique
-    integer, pointer :: sp(:), rp(:)
-
 
     nshared_unique = gs%shared_dofs%num_entries()
     
@@ -1051,11 +1040,12 @@ contains
        do j = 1, n_recv
           shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
           if (shared_flg(j) .eq. 0) then
-             call gs%recv_dof(src)%push(shared_gs_id)
+             !> @todo don't touch others data...
+             call gs%comm%recv_dof(src)%push(shared_gs_id)
           end if
        end do
 
-       if (gs%recv_dof(src)%size() .gt. 0) then
+       if (gs%comm%recv_dof(src)%size() .gt. 0) then
           call recv_pe%push(src)
        end if
 
@@ -1066,17 +1056,18 @@ contains
        do j = 1, n_recv
           if (recv_flg(j) .eq. 0) then
              tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
-             call gs%send_dof(dst)%push(shared_gs_id)
+             !> @todo don't touch others data...
+             call gs%comm%send_dof(dst)%push(shared_gs_id)
           end if
        end do
 
-       if (gs%send_dof(dst)%size() .gt. 0) then
+       if (gs%comm%send_dof(dst)%size() .gt. 0) then
           call send_pe%push(dst)
        end if
        
     end do
 
-    call gs%comm%init(send_pe, gs%send_dof, recv_pe, gs%recv_dof)
+    call gs%comm%init(send_pe, recv_pe)
     
     call send_pe%free()
     call recv_pe%free()
@@ -1131,7 +1122,7 @@ contains
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
 
-       call gs%comm%nbsend(gs%send_dof, gs%shared_gs, l)
+       call gs%comm%nbsend(gs%shared_gs, l)
        
     end if
     
@@ -1145,12 +1136,12 @@ contains
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
 
-       call gs%comm%nbwait(gs%send_dof, gs%recv_dof, gs%shared_gs, l, op)
+       call gs%comm%nbwait(gs%shared_gs, l, op)
 
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
     end if
-       
+
   end subroutine gs_op_vector
   
 end module gather_scatter

@@ -72,13 +72,12 @@ contains
     real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
     real(kind=rp), intent(inout) :: d(nl**ldim, nelv)    
-    integer ::  ie, nn, i
     type(c_ptr) :: e_d, r_d, s_d, d_d
 
-    e_d = device_get_ptr(e, nelv)
-    r_d = device_get_ptr(r, nelv)
-    s_d = device_get_ptr(s, nelv)
-    d_d = device_get_ptr(d, nelv)
+    e_d = device_get_ptr(e)
+    r_d = device_get_ptr(r)
+    s_d = device_get_ptr(s)
+    d_d = device_get_ptr(d)
     if (ldim .ne. 3) call neko_error('fdm dim not supported')
 
 #ifdef HAVE_HIP

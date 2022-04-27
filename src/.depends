@@ -24,9 +24,10 @@ gs/bcknd/cpu/gs_cpu.o : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.o gs/gs_bcknd.o config
 gs/bcknd/sx/gs_sx.o : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.o gs/gs_bcknd.o config/num_types.o 
 gs/bcknd/device/gs_device.o : gs/bcknd/device/gs_device.F90 gs/gs_ops.o device/device.o gs/gs_bcknd.o config/num_types.o 
 gs/gs_ops.o : gs/gs_ops.f90 
-gs/gs_comm.o : gs/gs_comm.f90 adt/stack.o config/num_types.o 
+gs/gs_comm.o : gs/gs_comm.f90 adt/stack.o comm/comm.o config/num_types.o 
 gs/gs_mpi.o : gs/gs_mpi.f90 comm/comm.o adt/stack.o gs/gs_ops.o gs/gs_comm.o config/num_types.o config/neko_config.o 
-gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stack.o adt/htable.o config/num_types.o field/field.o sem/dofmap.o mesh/mesh.o gs/gs_mpi.o gs/gs_comm.o gs/gs_ops.o gs/bcknd/cpu/gs_cpu.o gs/bcknd/sx/gs_sx.o gs/bcknd/device/gs_device.o gs/gs_bcknd.o config/neko_config.o 
+gs/bcknd/device/gs_device_mpi.o : gs/bcknd/device/gs_device_mpi.F90 comm/comm.o adt/stack.o device/device.o gs/gs_ops.o gs/gs_comm.o config/num_types.o config/neko_config.o 
+gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stack.o adt/htable.o config/num_types.o field/field.o sem/dofmap.o mesh/mesh.o gs/bcknd/device/gs_device_mpi.o gs/gs_mpi.o gs/gs_comm.o gs/gs_ops.o gs/bcknd/cpu/gs_cpu.o gs/bcknd/sx/gs_sx.o gs/bcknd/device/gs_device.o gs/gs_bcknd.o config/neko_config.o 
 mesh/entity.o : mesh/entity.f90 
 mesh/point.o : mesh/point.f90 mesh/entity.o math/math.o config/num_types.o 
 mesh/element.o : mesh/element.f90 mesh/point.o adt/tuple.o mesh/entity.o config/num_types.o 
@@ -70,7 +71,7 @@ math/bcknd/cpu/fdm_cpu.o : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.
 math/bcknd/sx/fdm_sx.o : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.o config/num_types.o 
 math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.o config/num_types.o 
 math/schwarz.o : math/schwarz.f90 math/fdm.o math/bcknd/device/device_schwarz.o math/fast3d.o gs/gather_scatter.o bc/dirichlet.o bc/dong_outflow.f90 bc/bc.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o 
-common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o field/field_series.o config/num_types.o 
+common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o field/field_series.o config/num_types.o config/neko_config.o device/device.o
 io/generic_file.o : io/generic_file.f90 config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
@@ -85,12 +86,12 @@ io/fluid_output.o : io/fluid_output.f90 io/output.o device/device.o config/neko_
 io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o 
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o config/num_types.o fluid/mean_flow.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
-common/sampler.o : common/sampler.f90 common/log.o comm/comm.o io/output.o config/num_types.o 
+common/sampler.o : common/sampler.f90 common/log.o comm/comm.o io/output.o config/num_types.o common/utils.o
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_wall.o 
 bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_inflow.o 
-bc/usr_inflow.o : bc/usr_inflow.f90 bc/bcknd/device/device_inhom_dirichlet.o device/device.o common/utils.o bc/inflow.o sem/coef.o config/num_types.o 
+bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/bcknd/device/device_inhom_dirichlet.o device/device.o bc/inflow.o sem/coef.o config/num_types.o 
 bc/facet_normal.o : bc/facet_normal.f90 common/utils.o math/math.o sem/coef.o bc/dirichlet.o config/num_types.o bc/bcknd/device/device_facet_normal.o 
 bc/symmetry.o : bc/symmetry.f90 adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o bc/bcknd/device/device_symmetry.o 
 bc/dong_outflow.o : bc/dong_outflow.f90 adt/stack.o common/utils.o math/math.o sem/coef.o device/device.o bc/dirichlet.o config/num_types.o config/neko_config.o 
@@ -161,7 +162,7 @@ common/sighdl.o : common/sighdl.c
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
 device/cuda_intf.o : device/cuda_intf.F90 common/utils.o 
 device/hip_intf.o : device/hip_intf.F90 common/utils.o 
-device/opencl_intf.o : device/opencl_intf.F90 common/utils.o 
+device/opencl_intf.o : device/opencl_intf.F90 common/utils.o config/num_types.o
 device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/opencl_intf.o 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 
 math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 comm/comm.o common/utils.o config/num_types.o 

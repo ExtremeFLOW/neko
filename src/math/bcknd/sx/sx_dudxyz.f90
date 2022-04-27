@@ -45,9 +45,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -105,9 +105,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -165,9 +165,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -225,9 +225,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -285,9 +285,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -345,9 +345,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -405,9 +405,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -465,9 +465,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -525,9 +525,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -585,9 +585,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -645,9 +645,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -705,9 +705,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -765,9 +765,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
@@ -825,9 +825,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx,lx,lx,nel) :: drst
-    integer :: e, k, lxy, lyz, lxyz
-    integer :: i, j, ii, jj, kk, nelv 
-    real(kind=rp) :: wr, ws, wt, www
+    integer :: e, k
+    integer :: i, j, jj, kk 
+    real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel

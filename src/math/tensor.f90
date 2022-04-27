@@ -188,11 +188,11 @@ contains
        call tnsr3d_xsmm(v, nv, u, nu, A, Bt, Ct, nelv)
     else if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
       ! The length nelv should not matter here. It is just a stapleholder
-       v_d = device_get_ptr(v,nelv)
-       u_d = device_get_ptr(u,nelv)
-       A_d = device_get_ptr(A,nelv)
-       Bt_d = device_get_ptr(Bt,nelv)
-       Ct_d = device_get_ptr(Ct,nelv)
+       v_d = device_get_ptr(v)
+       u_d = device_get_ptr(u)
+       A_d = device_get_ptr(A)
+       Bt_d = device_get_ptr(Bt)
+       Ct_d = device_get_ptr(Ct)
        call tnsr3d_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
     else
        call tnsr3d_cpu(v, nv, u, nu, A, Bt, Ct, nelv)

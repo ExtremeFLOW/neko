@@ -78,6 +78,7 @@ EXTRA_DIST = \
 	stack/stack_i4t4.pf\
 	stack/stack_i4.pf\
 	stack/stack_i4t2.pf\
+	stack/stack_i4r8t2.pf\
 	stack/stack_i8.pf\
 	stack/stack_nq.pf\
 	stack/stack_nh.pf\

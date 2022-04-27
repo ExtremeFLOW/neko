@@ -1,7 +1,7 @@
 !> Main driver for TurboNeko
 program turboneko
   use neko
-  type(case_t) :: C
+  type(case_t), target :: C
   
   call neko_init(C)
   call neko_solve(C)

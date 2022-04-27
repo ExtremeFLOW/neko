@@ -91,6 +91,13 @@ module stack
      procedure, public, pass(this) :: pop => stack_i4t4_pop
      procedure, public, pass(this) :: array => stack_i4t4_data
   end type stack_i4t4_t
+
+  !> Mixed integer-double precision 2-tuple based stack
+  type, public, extends(stack_t) :: stack_i4r8t2_t
+   contains
+     procedure, public, pass(this) :: pop => stack_i4r8t2_pop
+     procedure, public, pass(this) :: array => stack_i4r8t2_data
+  end type stack_i4r8t2_t
   
   !> Curved element stack
   type, public, extends(stack_t) :: stack_curve_t
@@ -152,13 +159,15 @@ contains
     type is(stack_i4_t)
        allocate(integer::this%data(this%size_))
     type is(stack_i8_t)
-       allocate(integer(8)::this%data(this%size_))
+       allocate(integer(i8)::this%data(this%size_))
     type is (stack_r8_t)
        allocate(double precision::this%data(this%size_))
     type is (stack_i4t2_t)
        allocate(tuple_i4_t::this%data(this%size_))
     type is (stack_i4t4_t)
        allocate(tuple4_i4_t::this%data(this%size_))
+    type is (stack_i4r8t2_t)
+       allocate(tuple_i4r8_t::this%data(this%size_))
     type is (stack_curve_t)
        allocate(struct_curve_t::this%data(this%size_))
     type is (stack_nq_t)
@@ -212,14 +221,16 @@ contains
        select type(data)
        type is(integer)
           allocate(integer::tmp(this%size_))
-       type is(integer(8))
-          allocate(integer(8)::tmp(this%size_))
+       type is(integer(i8))
+          allocate(integer(i8)::tmp(this%size_))
        type is(double precision)          
           allocate(double precision::tmp(this%size_))
        type is(tuple_i4_t)
           allocate(tuple_i4_t::tmp(this%size_))
        type is(tuple4_i4_t)
           allocate(tuple4_i4_t::tmp(this%size_))
+       type is(tuple_i4r8_t)
+          allocate(tuple_i4r8_t::tmp(this%size_))
        type is(struct_curve_t)
           allocate(struct_curve_t::tmp(this%size_))
        type is (nmsh_quad_t)
@@ -240,9 +251,9 @@ contains
           type is (integer)
              tmp(1:this%top_) = sdp
           end select
-       type is (integer(8))
+       type is (integer(i8))
           select type(sdp=>this%data)
-          type is (integer(8))
+          type is (integer(i8))
              tmp(1:this%top_) = sdp
           end select
        type is (double precision)
@@ -260,6 +271,13 @@ contains
        type is (tuple4_i4_t)
           select type(sdp=>this%data)
           type is (tuple4_i4_t)
+             do i = 1, this%top_
+                tmp(i) = sdp(i)
+             end do
+          end select
+       type is (tuple_i4r8_t)
+          select type(sdp=>this%data)
+          type is (tuple_i4r8_t)
              do i = 1, this%top_
                 tmp(i) = sdp(i)
              end do
@@ -303,9 +321,9 @@ contains
        type is (integer)
           sdp(this%top_) = data
        end select
-    type is (integer(8))
+    type is (integer(i8))
        select type(data)
-       type is (integer(8))
+       type is (integer(i8))
           sdp(this%top_) = data
        end select
     type is (double precision)
@@ -321,6 +339,11 @@ contains
     type is (tuple4_i4_t)
        select type(data)
        type is (tuple4_i4_t)
+          sdp(this%top_) = data
+       end select
+    type is (tuple_i4r8_t)
+       select type(data)
+       type is (tuple_i4r8_t)
           sdp(this%top_) = data
        end select
     type is (struct_curve_t)
@@ -383,10 +406,10 @@ contains
   !> Pop an integer*8 of the stack
   function stack_i8_pop(this) result(data)
     class(stack_i8_t), target, intent(inout) :: this
-    integer(kind=8) :: data
+    integer(kind=i8) :: data
 
     select type (sdp=>this%data)
-    type is (integer(8))       
+    type is (integer(i8))       
        data = sdp(this%top_)
     class default
        call neko_error('Invalid data type (i8 pop)')
@@ -397,10 +420,10 @@ contains
   !> Return a pointer to the internal integer*8 array
   function stack_i8_data(this) result(data)
     class(stack_i8_t), target, intent(inout) :: this
-    integer(kind=8), pointer :: data(:)
+    integer(kind=i8), pointer :: data(:)
 
     select type (sdp=>this%data)
-    type is (integer(8))       
+    type is (integer(i8))       
        data => sdp
     class default
        call neko_error('Invalid data type (i8 array)')
@@ -430,7 +453,7 @@ contains
     type is (double precision)       
        data => sdp
     class default
-       call neko_error('Invalid data type (i8 array)')
+       call neko_error('Invalid data type (r8 array)')
     end select
   end function stack_r8_data
 
@@ -487,6 +510,33 @@ contains
        call neko_error('Invalid data type (i4t4 array)')
     end select
   end function stack_i4t4_data
+
+  !> Pop a mixed integer-double precision  2-tuple of the stack
+  function stack_i4r8t2_pop(this) result(data)
+    class(stack_i4r8t2_t), target, intent(inout) :: this
+    type(tuple_i4r8_t) :: data
+    
+    select type (sdp=>this%data)
+    type is (tuple_i4r8_t)       
+       data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (i4r8t2 pop)')
+    end select
+    this%top_ = this%top_ -1
+  end function stack_i4r8t2_pop
+
+  !> Return a pointer to the internal 2-tuple array
+  function stack_i4r8t2_data(this) result(data)
+    class(stack_i4r8t2_t), target, intent(inout) :: this
+    type(tuple_i4r8_t), pointer :: data(:)
+
+    select type (sdp=>this%data)
+    type is (tuple_i4r8_t)       
+       data => sdp
+    class default
+       call neko_error('Invalid data type (i4r8t2 array)')
+    end select
+  end function stack_i4r8t2_data
  
   !> Pop a curve element of the stack
   function stack_curve_element_pop(this) result(data)

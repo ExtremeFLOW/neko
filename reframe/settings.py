@@ -27,7 +27,7 @@ site_configuration = {
                     'launcher': 'srun',
                     'access': ['-w dt2', '--exclusive'],
                     'environs': ['PrgEnv-cray'],
-                    'modules': ['rocm/rocm'],
+                    'modules': ['rocm/rocm', 'craype-accel-amd-gfx908'],
                     'devices': [
                         {
                             'type': 'gpu',
@@ -37,7 +37,10 @@ site_configuration = {
                     ],
                     'extras': {
                         'select_device': './rocm_select_gpu_device'
-                    }
+                    },
+                    'variables': [
+                        ['MPICH_GPU_SUPPORT_ENABLED', '1']
+                    ]
                 }
 
             ],

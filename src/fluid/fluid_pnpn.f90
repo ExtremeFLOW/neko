@@ -76,10 +76,10 @@ module fluid_pnpn
 contains
   
   subroutine fluid_pnpn_init(this, msh, lx, param)    
-    class(fluid_pnpn_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: param    
+    type(param_t), target, intent(inout) :: param    
 
     call this%free()
     
@@ -291,7 +291,7 @@ contains
     real(kind=rp), intent(inout) :: t
     type(abbdf_t), intent(inout) :: ab_bdf
     integer, intent(inout) :: tstep
-    integer :: n, i, niter
+    integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
     n = this%dm_Xh%n_dofs
     niter = 1000
@@ -344,25 +344,7 @@ contains
       !> We assume that no change of boundary conditions 
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
-      ta1 = 0.0_rp
-      ta2 = 0.0_rp
-      ta3 = 0.0_rp
-      call bc_list_apply_vector(this%bclst_vel,&
-         ta1%x, ta2%x, ta2%x, this%dm_Xh%n_dofs)
-      call gs_op_vector(gs_Xh,ta1%x,n,GS_OP_MAX)
-      call gs_op_vector(gs_Xh,ta2%x,n,GS_OP_MAX)
-      call gs_op_vector(gs_Xh,ta3%x,n,GS_OP_MAX)
-      call bc_list_apply_vector(this%bclst_vel,&
-         ta1%x, ta2%x, ta2%x, this%dm_Xh%n_dofs)
-      call gs_op_vector(gs_Xh,ta1%x,n,GS_OP_MIN)
-      call gs_op_vector(gs_Xh,ta2%x,n,GS_OP_MIN)
-      call gs_op_vector(gs_Xh,ta3%x,n,GS_OP_MIN)
-      call bc_list_apply_vector(this%bclst_vel_residual,&
-         u%x, v%x, w%x, this%dm_Xh%n_dofs)
       call this%bc_apply_vel()
-      !call device_add2(u%x_d,ta1%x_d,n)
-      !call device_add2(v%x_d,ta2%x_d,n)
-      !call device_add2(w%x_d,ta3%x_d,n)
       
       ! compute pressure
       call this%bc_apply_prs()

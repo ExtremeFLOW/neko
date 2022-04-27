@@ -94,7 +94,7 @@ module schwarz
   end type schwarz_t
 contains
   subroutine schwarz_init(this, Xh, dm, gs_h, bclst, msh)
-    class(schwarz_t), intent(inout) :: this
+    class(schwarz_t), target, intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
     type(dofmap_t), target, intent(inout) :: dm
     type(gs_t), target, intent(inout) :: gs_h
@@ -129,7 +129,7 @@ contains
     call schwarz_setup_wt(this)
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_alloc(this%wt_d,int(this%dm%n_dofs*rp,8)) 
+       call device_alloc(this%wt_d,int(this%dm%n_dofs*rp, i8)) 
        call rone(this%work1, this%dm%n_dofs)
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dm%n_dofs, HOST_TO_DEVICE)
@@ -385,8 +385,8 @@ contains
     ns = enx*eny*enz*this%msh%nelv
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       r_d = device_get_ptr(r,n)
-       e_d = device_get_ptr(e,n)
+       r_d = device_get_ptr(r)
+       e_d = device_get_ptr(e)
        call bc_list_apply_scalar(this%bclst, r, n)
        call device_schwarz_toext3d(work1_d,r_d,this%Xh%lx, this%msh%nelv)
        call device_schwarz_extrude(work1_d,0,zero,work1_d,2,one ,enx,eny,enz, this%msh%nelv)

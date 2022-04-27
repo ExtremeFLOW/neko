@@ -179,12 +179,12 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter, glb_n
+    integer :: iter, glb_n
     integer :: i, j, k, ierr 
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp) :: rnorm 
     real(kind=rp) ::  alpha, temp, l
-    real(kind=rp) :: ratio, div0, norm_fac, tolpss
+    real(kind=rp) :: ratio, div0, norm_fac
     logical :: conv
     integer outer
 

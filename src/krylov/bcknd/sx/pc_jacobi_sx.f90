@@ -92,7 +92,7 @@ contains
 
   subroutine sx_jacobi_update(this)
     class(sx_jacobi_t), intent(inout) :: this
-    integer :: i, j, k, l, e, lz, ly, lx
+    integer :: lz, ly, lx
     associate(dof => this%dof, coef => this%coef, &
          gs_h => this%gs_h, nelv => this%dof%msh%nelv)
 
@@ -165,8 +165,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -245,8 +244,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -325,8 +323,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -405,8 +402,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -485,8 +481,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -565,8 +560,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -645,8 +639,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -725,8 +718,7 @@ contains
     real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
     real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
-    real(kind=rp) :: tmp
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -805,8 +797,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
     do l = 1,lx
        do k = 1,lz
@@ -885,8 +876,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
     do l = 1,lx
        do k = 1,lz
@@ -965,8 +955,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
     do l = 1,lx
        do k = 1,lz
@@ -1045,8 +1034,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
     do l = 1,lx
        do k = 1,lz
@@ -1125,8 +1113,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx
@@ -1205,8 +1192,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx)
     real(kind=rp), intent(in) :: dyt(lx,lx)
     real(kind=rp), intent(in) :: dzt(lx,lx)
-
-    integer :: i, j, k, l, e, jj
+    integer :: i, j, k, l, e
 
 
     do l = 1,lx

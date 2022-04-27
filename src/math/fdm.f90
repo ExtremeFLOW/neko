@@ -122,6 +122,10 @@ contains
     allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
+
+    ! Zeroing here enables easier debugging since then
+    ! MPI messages in GS are deterministic
+    call rzero(this%swplen, Xh%lxyz * dm%msh%nelv)
  
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then

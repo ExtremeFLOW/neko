@@ -108,6 +108,9 @@ __kernel void schwarz_toext3d_kernel(__global real * __restrict__ a,
   for(int i = idx; i<nx2*nx2*nx2; i+=get_local_size(0)){
     a[i+el2] = 0.0;
   }
+
+  barrier(CLK_LOCAL_MEM_FENCE);
+  
   for(int ijk = idx; ijk<nx*nx*nx; ijk+=get_local_size(0)){
     const int jk = ijk / nx;
     const int i = ijk - jk * nx;

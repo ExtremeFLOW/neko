@@ -66,11 +66,10 @@ contains
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
-    integer :: i, j, ierr, nelgv, element_offset
+    integer :: i, j, ierr, element_offset
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
-    class(element_t), pointer :: ep
-    integer :: nelv, gdim, nread, nzones, ncurves
-    integer :: el_idx, ids(4), bcs(7), thing
+    integer :: nelv, gdim, nzones, ncurves
+    integer :: el_idx
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
