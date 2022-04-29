@@ -427,7 +427,7 @@ contains
   !> Validate that all fields, solvers etc necessary for
   !! performing time-stepping are defined
   subroutine fluid_scheme_validate(this)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_t), target, intent(inout) :: this
 
     if ( (.not. allocated(this%u%x)) .or. &
          (.not. allocated(this%v%x)) .or. &

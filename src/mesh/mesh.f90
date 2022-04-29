@@ -349,7 +349,7 @@ contains
   end subroutine mesh_free
 
   subroutine mesh_finalize(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     integer :: i
 
 
@@ -409,7 +409,7 @@ contains
   
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face 
     type(tuple_i4_t) :: facet_data
@@ -916,7 +916,8 @@ contains
           call neko_error('Invalid edge id')
        end if
     end do
-
+    nullify(glb_ptr)
+       
     ! Determine total number of unique edges in the mesh
     ! (This can probably be done in a clever way...)
     m%glb_meds = shared_offset -1 
