@@ -149,3 +149,35 @@ subroutine test_tuple_i4r8
   @assertTrue(t1 .eq. t2)
     
 end subroutine test_tuple_i4r8
+
+@test
+subroutine test_tuple_2i4r8
+  use pfunit
+  use tuple
+  use num_types
+  implicit none
+  type(tuple_2i4r8_t) :: t1, t2
+  integer :: i
+  real(kind=dp) :: x(3) = (/2d0, 2d0, 2d0/)
+
+  t1 = (/1, 2, 3/)
+  t2 = (/1d0, 2d0, 3d0/)
+
+  @assertEqual(t1%x, t2%x)
+  @assertEqual(t1%y, t2%y)
+  @assertEqual(t1%z, t2%z)
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2d0, 2d0, 2d0/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = x
+  @assertTrue(t1 .eq. t2)
+
+  t2 = (/2d0, 3d0, 4d0/)
+  @assertFalse(t1 .eq. t2)
+
+  t1 = t2
+  @assertTrue(t1 .eq. t2)
+    
+end subroutine test_tuple_2i4r8
