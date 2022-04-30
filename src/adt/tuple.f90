@@ -93,6 +93,16 @@ module tuple
      procedure, pass(this) :: equal => tuple_i4r8_equal
   end type tuple_i4r8_t
 
+  !> Mixed integer (\f$ x, y \f$) double precision (\f$ z \f$) 3-tuple 
+  type, extends(tuple_t), public :: tuple_2i4r8_t
+     integer :: x, y     
+     real(kind=dp) :: z
+   contains
+     procedure, pass(this) :: assign_tuple => tuple_2i4r8_assign_tuple
+     procedure, pass(this) :: assign_vector => tuple_2i4r8_assign_vector
+     procedure, pass(this) :: equal => tuple_2i4r8_equal
+  end type tuple_2i4r8_t
+
   !> Abstract intf. for assigning a tuple to a tuple
   abstract interface
      subroutine tuple_assign_tuple(this, other)
@@ -278,7 +288,7 @@ contains
     end select
   end function tuple_r8_equal
 
-    !> Assign a mixed integer-double precision 2-tuple to a tuple
+  !> Assign a mixed integer-double precision 2-tuple to a tuple
   subroutine tuple_i4r8_assign_tuple(this, other)
     class(tuple_i4r8_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
@@ -321,5 +331,53 @@ contains
        end if
     end select
   end function tuple_i4r8_equal
+
+  !> Assign a mixed integer-double precision 3-tuple to a tuple
+  subroutine tuple_2i4r8_assign_tuple(this, other)
+    class(tuple_2i4r8_t), intent(inout) :: this
+    class(tuple_t), intent(in) :: other
+
+    select type(other)
+    type is(tuple_2i4r8_t)       
+       this%x = other%x
+       this%y = other%y
+       this%z = other%z
+    end select
+  end subroutine tuple_2i4r8_assign_tuple
+
+  !> Assign a mixed intreger-double precision vector to a tuple
+  subroutine tuple_2i4r8_assign_vector(this, x)
+    class(tuple_2i4r8_t), intent(inout) :: this
+    class(*), dimension(:), intent(in) :: x
+
+    select type(x)
+    type is (integer)
+       this%x = x(1)
+       this%y = x(2)
+       this%z = dble(x(3))
+    type is (double precision)
+       this%x = int(x(1))
+       this%y = int(x(2))
+       this%z = x(3)
+    end select
+
+  end subroutine tuple_2i4r8_assign_vector
+
+  !> Check if two mixed integer-double precision tuples are equal
+  pure function tuple_2i4r8_equal(this, other) result(res)
+    class(tuple_2i4r8_t), intent(in) :: this
+    class(tuple_t), intent(in) :: other
+    logical :: res
+
+    res = .false.
+    select type(other)
+    type is(tuple_2i4r8_t)
+       if ((this%x .eq. other%x) .and. &
+            (this%y .eq. other%y) .and. &
+            abscmp(this%z, other%z)) then
+          res = .true.          
+       end if
+    end select
+  end function tuple_2i4r8_equal
    
 end module tuple
