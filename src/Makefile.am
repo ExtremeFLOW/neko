@@ -370,4 +370,8 @@ EXTRA_DIST = \
 	device/hip/check.h\
 	device/cuda/check.h
 
+# Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
+
+# Device deps. (manually updated)
+include .depends_device
