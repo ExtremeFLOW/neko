@@ -2,7 +2,7 @@ include $(top_srcdir)/hip.mk
 include $(top_srcdir)/cuda.mk
 
 lib_LIBRARIES = libneko.a
-libneko_a_SOURCES = \
+neko_fortran_SOURCES = \
 	config/num_types.f90\
 	common/structs.f90\
 	common/parameters.f90\
@@ -28,7 +28,6 @@ libneko_a_SOURCES = \
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
 	gs/bcknd/device/gs_device.F90\
-	gs/bcknd/device/device_mpi.c\
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
@@ -163,7 +162,6 @@ libneko_a_SOURCES = \
 	sem/interpolation.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
-	common/sighdl.c\
 	common/jobctrl.f90\
 	device/cuda_intf.F90\
 	device/hip_intf.F90\
@@ -182,6 +180,12 @@ libneko_a_SOURCES = \
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	neko.f90
+
+neko_c_SOURCES = common/sighdl.c\
+                 gs/bcknd/device/device_mpi.c
+
+libneko_a_SOURCES = $(neko_fortran_SOURCES)\
+                    $(neko_c_SOURCES)
 
 if ENABLE_PARMETIS
 libneko_a_SOURCES += comm/parmetis_wrapper.c
@@ -287,7 +291,7 @@ endif
 
 if ENABLE_MAKEDEPF90
 depend:
-	$(MAKEDEPF90) $(libneko_a_SOURCES) driver.f90  > .depends
+	$(MAKEDEPF90) $(neko_fortran_SOURCES) driver.f90  > .depends
 endif
 
 # Note we need to list any headers etc here for the dist. script
