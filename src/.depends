@@ -22,11 +22,11 @@ sem/coef.o : sem/coef.f90 math/mxm_wrapper.o device/device.o mesh/mesh.o math/ma
 gs/gs_bcknd.o : gs/gs_bcknd.f90 config/num_types.o 
 gs/bcknd/cpu/gs_cpu.o : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.o gs/gs_bcknd.o config/num_types.o 
 gs/bcknd/sx/gs_sx.o : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.o gs/gs_bcknd.o config/num_types.o 
-gs/bcknd/device/gs_device.o : gs/bcknd/device/gs_device.F90 gs/gs_ops.o device/device.o gs/gs_bcknd.o config/num_types.o 
+gs/bcknd/device/gs_device.o : gs/bcknd/device/gs_device.F90 gs/gs_ops.o device/device.o gs/gs_bcknd.o config/num_types.o config/neko_config.o 
 gs/gs_ops.o : gs/gs_ops.f90 
 gs/gs_comm.o : gs/gs_comm.f90 adt/stack.o comm/comm.o config/num_types.o 
 gs/gs_mpi.o : gs/gs_mpi.f90 comm/comm.o adt/stack.o gs/gs_ops.o gs/gs_comm.o config/num_types.o config/neko_config.o 
-gs/bcknd/device/gs_device_mpi.o : gs/bcknd/device/gs_device_mpi.F90 comm/comm.o adt/stack.o device/device.o gs/gs_ops.o gs/gs_comm.o config/num_types.o config/neko_config.o 
+gs/bcknd/device/gs_device_mpi.o : gs/bcknd/device/gs_device_mpi.F90 device/device.o comm/comm.o adt/stack.o gs/gs_ops.o gs/gs_comm.o config/num_types.o config/neko_config.o 
 gs/gather_scatter.o : gs/gather_scatter.f90 common/log.o common/utils.o adt/stack.o adt/htable.o config/num_types.o field/field.o sem/dofmap.o mesh/mesh.o gs/bcknd/device/gs_device_mpi.o gs/gs_mpi.o gs/gs_comm.o gs/gs_ops.o gs/bcknd/cpu/gs_cpu.o gs/bcknd/sx/gs_sx.o gs/bcknd/device/gs_device.o gs/gs_bcknd.o config/neko_config.o 
 mesh/entity.o : mesh/entity.f90 
 mesh/point.o : mesh/point.f90 mesh/entity.o math/math.o config/num_types.o 
@@ -71,7 +71,7 @@ math/bcknd/cpu/fdm_cpu.o : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.
 math/bcknd/sx/fdm_sx.o : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.o config/num_types.o 
 math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.o config/num_types.o 
 math/schwarz.o : math/schwarz.f90 math/fdm.o math/bcknd/device/device_schwarz.o math/fast3d.o gs/gather_scatter.o bc/dirichlet.o bc/bc.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o 
-common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o field/field_series.o config/num_types.o config/neko_config.o device/device.o
+common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o device/device.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
@@ -86,7 +86,7 @@ io/fluid_output.o : io/fluid_output.f90 io/output.o device/device.o config/neko_
 io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o 
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o config/num_types.o fluid/mean_flow.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
-common/sampler.o : common/sampler.f90 common/log.o comm/comm.o io/output.o config/num_types.o common/utils.o
+common/sampler.o : common/sampler.f90 common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_wall.o 
@@ -157,11 +157,10 @@ comm/redist.o : comm/redist.f90 mesh/zone.o io/format/nmsh.o mesh/mesh.o comm/co
 sem/interpolation.o : sem/interpolation.f90 sem/space.o math/tensor.o math/fast3d.o math/math.o common/utils.o device/device.o sem/speclib.o 
 krylov/pc_hsmg.o : krylov/pc_hsmg.f90 math/bcknd/device/device_math.o device/device.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/tensor.o math/schwarz.o math/fdm.o bc/dirichlet.o bc/bc.o sem/interpolation.o math/fast3d.o gs/gather_scatter.o krylov/krylov_fctry.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o math/math.o config/neko_config.o 
 common/signal.o : common/signal.f90 common/utils.o 
-common/sighdl.o : common/sighdl.c 
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
 device/cuda_intf.o : device/cuda_intf.F90 common/utils.o 
 device/hip_intf.o : device/hip_intf.F90 common/utils.o 
-device/opencl_intf.o : device/opencl_intf.F90 common/utils.o config/num_types.o
+device/opencl_intf.o : device/opencl_intf.F90 common/utils.o config/num_types.o 
 device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/opencl_intf.o 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 
 math/bcknd/device/device_math.o : math/bcknd/device/device_math.F90 comm/comm.o common/utils.o config/num_types.o 
@@ -176,74 +175,4 @@ bc/bcknd/device/device_symmetry.o : bc/bcknd/device/device_symmetry.F90 common/u
 bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_inhom_dirichlet.o : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.o config/num_types.o 
 neko.o : neko.f90 device/device.o common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
-comm/parmetis_wrapper.o : comm/parmetis_wrapper.c
-device/hip/check.o : device/hip/check.hip device/hip/check.h
-math/bcknd/device/hip/math.o : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h
-math/bcknd/device/hip/mathops.o : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
-math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h
-math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
-math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h
-math/bcknd/device/hip/opr_opgrad.o : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
-math/bcknd/device/hip/ax_helm.o : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
-math/bcknd/device/hip/schwarz.o : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
-math/bcknd/device/hip/tensor.o : math/bcknd/device/hip/tensor.hip math/bcknd/device/hip/tensor_kernel.h
-math/bcknd/device/hip/fdm.o : math/bcknd/device/hip/fdm.hip math/bcknd/device/hip/fdm_kernel.h
-krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip
-krylov/bcknd/device/cuda/pipecg_aux.o : krylov/bcknd/device/cuda/pipecg_aux.cu krylov/bcknd/device/cuda/pipecg_kernel.h
-krylov/bcknd/device/cuda/gmres_aux.o : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
-krylov/bcknd/device/hip/pipecg_aux.o : krylov/bcknd/device/hip/pipecg_aux.hip krylov/bcknd/device/hip/pipecg_kernel.h
-krylov/bcknd/device/hip/gmres_aux.o : krylov/bcknd/device/hip/gmres_aux.hip krylov/bcknd/device/hip/gmres_kernel.h
-gs/bcknd/device/hip/gs.o : gs/bcknd/device/hip/gs.hip gs/bcknd/device/hip/gs_kernels.h
-bc/bcknd/device/hip/dirichlet.o : bc/bcknd/device/hip/dirichlet.hip bc/bcknd/device/hip/dirichlet_kernel.h
-bc/bcknd/device/hip/inflow.o : bc/bcknd/device/hip/inflow.hip bc/bcknd/device/hip/inflow_kernel.h
-bc/bcknd/device/hip/no_slip_wall.o : bc/bcknd/device/hip/no_slip_wall.hip bc/bcknd/device/hip/no_slip_wall_kernel.h
-bc/bcknd/device/hip/symmetry.o : bc/bcknd/device/hip/symmetry.hip bc/bcknd/device/hip/symmetry_kernel.h
-bc/bcknd/device/hip/facet_normal.o : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h
-bc/bcknd/device/hip/inhom_dirichlet.o : bc/bcknd/device/hip/inhom_dirichlet.hip bc/bcknd/device/hip/inhom_dirichlet_kernel.h
-fluid/bcknd/device/hip/fluid_abbdf.o : fluid/bcknd/device/hip/fluid_abbdf.hip fluid/bcknd/device/hip/sumab_kernel.h fluid/bcknd/device/hip/makeabf_kernel.h fluid/bcknd/device/hip/makebdf_kernel.h
-fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h 
-device/cuda/check.o : device/cuda/check.cu device/cuda/check.h
-math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
-math/bcknd/device/cuda/mathops.o : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
-math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h
-math/bcknd/device/cuda/opr_cdtp.o : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
-math/bcknd/device/cuda/opr_conv1.o : math/bcknd/device/cuda/opr_conv1.cu math/bcknd/device/cuda/conv1_kernel.h
-math/bcknd/device/cuda/opr_opgrad.o : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h
-math/bcknd/device/cuda/ax_helm.o : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h
-math/bcknd/device/cuda/schwarz.o : math/bcknd/device/cuda/schwarz.cu math/bcknd/device/cuda/schwarz_kernel.h
-math/bcknd/device/cuda/tensor.o : math/bcknd/device/cuda/tensor.cu math/bcknd/device/cuda/tensor_kernel.h
-math/bcknd/device/cuda/fdm.o : math/bcknd/device/cuda/fdm.cu math/bcknd/device/cuda/fdm_kernel.h
-krylov/bcknd/device/cuda/pc_jacobi.o : krylov/bcknd/device/cuda/pc_jacobi.cu
-krylov/bcknd/device/cuda/pipecg_aux.o : krylov/bcknd/device/cuda/pipecg_aux.cu krylov/bcknd/device/cuda/pipecg_kernel.h
-gs/bcknd/device/cuda/gs.o : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h 
-bc/bcknd/device/cuda/dirichlet.o : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h
-bc/bcknd/device/cuda/inflow.o : bc/bcknd/device/cuda/inflow.cu bc/bcknd/device/cuda/inflow_kernel.h
-bc/bcknd/device/cuda/no_slip_wall.o : bc/bcknd/device/cuda/no_slip_wall.cu bc/bcknd/device/cuda/no_slip_wall_kernel.h
-bc/bcknd/device/cuda/symmetry.o : bc/bcknd/device/cuda/symmetry.cu bc/bcknd/device/cuda/symmetry_kernel.h
-bc/bcknd/device/cuda/facet_normal.o : bc/bcknd/device/cuda/facet_normal.cu bc/bcknd/device/cuda/facet_normal_kernel.h
-bc/bcknd/device/cuda/inhom_dirichlet.o : bc/bcknd/device/cuda/inhom_dirichlet.cu bc/bcknd/device/cuda/inhom_dirichlet_kernel.h
-fluid/bcknd/device/cuda/fluid_abbdf.o : fluid/bcknd/device/cuda/fluid_abbdf.cu fluid/bcknd/device/cuda/sumab_kernel.h fluid/bcknd/device/cuda/makeabf_kernel.h fluid/bcknd/device/cuda/makebdf_kernel.h
-fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h 
-device/opencl/check.o : device/opencl/check.c device/opencl/check.h
-device/opencl/jit.o : device/opencl/jit.c  
-math/bcknd/device/opencl/math.o : math/bcknd/device/opencl/math.c math/bcknd/device/opencl/math_kernel.cl.h
-math/bcknd/device/opencl/schwarz.o : math/bcknd/device/opencl/schwarz.c math/bcknd/device/opencl/schwarz_kernel.cl.h
-math/bcknd/device/opencl/tensor.o : math/bcknd/device/opencl/tensor.c math/bcknd/device/opencl/tensor_kernel.cl.h
-math/bcknd/device/opencl/fdm.o : math/bcknd/device/opencl/fdm.c math/bcknd/device/opencl/fdm_kernel.cl.h
-math/bcknd/device/opencl/mathops.o : math/bcknd/device/opencl/mathops.c math/bcknd/device/opencl/mathops_kernel.cl.h
-math/bcknd/device/opencl/opr_dudxyz.o : math/bcknd/device/opencl/opr_dudxyz.c math/bcknd/device/opencl/dudxyz_kernel.cl.h
-math/bcknd/device/opencl/opr_cdtp.o : math/bcknd/device/opencl/opr_cdtp.c math/bcknd/device/opencl/cdtp_kernel.cl.h
-math/bcknd/device/opencl/opr_conv1.o : math/bcknd/device/opencl/opr_conv1.c math/bcknd/device/opencl/conv1_kernel.cl.h
-math/bcknd/device/opencl/opr_opgrad.o : math/bcknd/device/opencl/opr_opgrad.c math/bcknd/device/opencl/opgrad_kernel.cl.h
-math/bcknd/device/opencl/ax_helm.o : math/bcknd/device/opencl/ax_helm.c math/bcknd/device/opencl/ax_helm_kernel.cl.h
-krylov/bcknd/device/opencl/pc_jacobi.o : krylov/bcknd/device/opencl/pc_jacobi.c krylov/bcknd/device/opencl/jacobi_kernel.cl.h
-gs/bcknd/device/opencl/gs.o : gs/bcknd/device/opencl/gs.c gs/bcknd/device/opencl/gs_kernels.cl.h 
-bc/bcknd/device/opencl/dirichlet.o : bc/bcknd/device/opencl/dirichlet.c bc/bcknd/device/opencl/dirichlet_kernel.cl.h
-bc/bcknd/device/opencl/inflow.o : bc/bcknd/device/opencl/inflow.c bc/bcknd/device/opencl/inflow_kernel.cl.h
-bc/bcknd/device/opencl/no_slip_wall.o : bc/bcknd/device/opencl/no_slip_wall.c bc/bcknd/device/opencl/no_slip_wall_kernel.cl.h
-bc/bcknd/device/opencl/symmetry.o : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h
-bc/bcknd/device/opencl/facet_normal.o : bc/bcknd/device/opencl/facet_normal.c bc/bcknd/device/opencl/facet_normal_kernel.cl.h
-bc/bcknd/device/opencl/inhom_dirichlet.o : bc/bcknd/device/opencl/inhom_dirichlet.c bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl.h
-fluid/bcknd/device/opencl/fluid_abbdf.o : fluid/bcknd/device/opencl/fluid_abbdf.c fluid/bcknd/device/opencl/abbdf_kernel.cl.h
-fluid/bcknd/device/opencl/pnpn_res.o : fluid/bcknd/device/opencl/pnpn_res.c fluid/bcknd/device/opencl/pnpn_res_kernel.cl.h
 driver.o : driver.f90 neko.o 
