@@ -103,7 +103,7 @@ contains
   
   subroutine advection_factory(this, coef, dealias, lxd)
     class(advection_t), allocatable, intent(inout) :: this
-    type(coef_t) :: coef
+    type(coef_t), target :: coef
     logical, intent(in) :: dealias
     integer, intent(in) :: lxd
 
@@ -153,7 +153,7 @@ contains
   end subroutine init_no_dealias
 
   subroutine init_dealias(this, lxd, coef)
-    class(adv_dealias_t), intent(inout) :: this
+    class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
     integer :: nel, n_GL, n
@@ -225,9 +225,9 @@ contains
     associate(c_GL => this%coef_GL)
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       bfx_d = device_get_ptr(bfx, n)
-       bfy_d = device_get_ptr(bfy, n)
-       bfz_d = device_get_ptr(bfz, n)
+       bfx_d = device_get_ptr(bfx)
+       bfy_d = device_get_ptr(bfy)
+       bfz_d = device_get_ptr(bfz)
        call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
        call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
        call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
@@ -333,9 +333,9 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       bfx_d = device_get_ptr(bfx, n)
-       bfy_d = device_get_ptr(bfy, n)
-       bfz_d = device_get_ptr(bfz, n)
+       bfx_d = device_get_ptr(bfx)
+       bfy_d = device_get_ptr(bfy)
+       bfz_d = device_get_ptr(bfz)
        
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
        call device_subcol3 (bfx_d, coef%B_d, this%temp_d, n)

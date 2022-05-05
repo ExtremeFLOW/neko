@@ -349,7 +349,7 @@ contains
   end subroutine mesh_free
 
   subroutine mesh_finalize(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     integer :: i
 
 
@@ -404,18 +404,17 @@ contains
   !> Set all elements as if they are deformed
   subroutine mesh_all_deformed(m)
     type(mesh_t), intent(inout) :: m
-    integer :: e
     m%dfrmd_el = .true.
   end subroutine mesh_all_deformed
   
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face 
     type(tuple_i4_t) :: facet_data
 
-    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, l, l2, temp
+    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
 
     if (m%lconn) return
 
@@ -550,8 +549,8 @@ contains
     type(stack_i4_t) :: buffer
     type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l, l2
-    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el, temp
+    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l
+    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
 
 
     if (m%gdim .eq. 2) then
@@ -695,14 +694,11 @@ contains
   !> Generate element-element connectivity via points between PEs
   subroutine mesh_generate_external_point_conn(m)
     type(mesh_t), intent(inout) :: m
-    type(tuple_i4_t) :: edge
-    type(tuple4_i4_t) :: face
-    type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: send_buffer
     type(MPI_Status) :: status
     integer, allocatable :: recv_buffer(:)
-    integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element
-    integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
+    integer :: i, j, k
+    integer :: max_recv, ierr, src, dst, n_recv, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
     integer, pointer :: neighs(:)
 
@@ -765,20 +761,20 @@ contains
   !! @attention only for elements where facet .ne. edges
   subroutine mesh_generate_edge_conn(m)
     type(mesh_t), target, intent(inout) :: m
-    type(htable_iter_i4t2_t), target :: it
+    type(htable_iter_i4t2_t) :: it
     type(tuple_i4_t), pointer :: edge
     type(uset_i8_t), target :: edge_idx, ghost, owner
-    type(stack_i8_t) :: send_buff
+    type(stack_i8_t), target :: send_buff
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
     integer, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
-    integer(kind=8) :: C, glb_max, glb_id
-    integer(kind=8), pointer :: glb_ptr
-    integer(kind=8), allocatable :: recv_buff(:)
+    integer(kind=i8) :: C, glb_max, glb_id
+    integer(kind=i8), pointer :: glb_ptr
+    integer(kind=i8), allocatable :: recv_buff(:)
     logical :: shared_edge
-    type(stack_i4_t) :: non_shared_edges
+    type(stack_i4_t), target :: non_shared_edges
     integer :: max_recv, src, dst, n_recv
 
 
@@ -795,13 +791,13 @@ contains
     ! Determine/ constants used to generate unique global edge numbers
     ! for shared edges 
     !
-    C = int(m%glb_nelv, 8) * int(NEKO_HEX_NEDS,8)
+    C = int(m%glb_nelv, i8) * int(NEKO_HEX_NEDS, i8)
 
     num_edge_glb = 2* m%meds
     call MPI_Allreduce(MPI_IN_PLACE, num_edge_glb, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM,  ierr)
 
-    glb_max = int(num_edge_glb, 8)
+    glb_max = int(num_edge_glb, i8)
 
     call non_shared_edges%init(m%hte%num_entries())
 
@@ -832,7 +828,7 @@ contains
        ! ((e1 * C) + e2 )) + glb_max if e1 > e2
        ! ((e2 * C) + e1 )) + glb_max if e2 > e1     
        if (shared_edge) then
-          glb_id = ((int(edge%x(1), 8)) + int(edge%x(2), 8)*C) + glb_max
+          glb_id = ((int(edge%x(1), i8)) + int(edge%x(2), i8)*C) + glb_max
           call glb_to_loc%set(glb_id, id)
           call edge_idx%add(glb_id)
           call owner%add(glb_id) ! Always assume the PE is the owner
@@ -855,7 +851,8 @@ contains
        call distdata_set_local_to_global_edge(m%ddata, ns_id(i), edge_offset)
        edge_offset = edge_offset + 1          
     end do
-
+    nullify(ns_id)
+    
     !
     ! Renumber shared edges into integer range
     !
@@ -875,7 +872,7 @@ contains
        ! GNU, Intel and NEC, but it breaks horribly on Cray when using
        ! certain data types
        select type(sbarray=>send_buff%data)
-       type is (integer(8))
+       type is (integer(i8))
           call MPI_Sendrecv(sbarray, send_buff%size(), &
                MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
                NEKO_COMM, status, ierr)
@@ -910,16 +907,17 @@ contains
           call distdata_set_local_to_global_edge(m%ddata, id, shared_offset)
 
           ! Add new number to send data as [old_glb_id new_glb_id] for each edge
-          call send_buff%push(glb_ptr)   ! Old glb_id integer*8
-          glb_id = int(shared_offset, 8) ! Waste some space here...
-          call send_buff%push(glb_id)    ! New glb_id integer*4
+          call send_buff%push(glb_ptr)    ! Old glb_id integer*8
+          glb_id = int(shared_offset, i8) ! Waste some space here...
+          call send_buff%push(glb_id)     ! New glb_id integer*4
 
           shared_offset = shared_offset + 1
        else
           call neko_error('Invalid edge id')
        end if
     end do
-
+    nullify(glb_ptr)
+       
     ! Determine total number of unique edges in the mesh
     ! (This can probably be done in a clever way...)
     m%glb_meds = shared_offset -1 
@@ -945,7 +943,7 @@ contains
        ! GNU, Intel and NEC, but it breaks horribly on Cray when using
        ! certain data types
        select type(sbarray=>send_buff%data)
-       type is (integer(8))
+       type is (integer(i8))
           call MPI_Sendrecv(sbarray, send_buff%size(), &
                MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
                NEKO_COMM, status, ierr)
@@ -1131,6 +1129,7 @@ contains
              shared_offset = shared_offset + 1
           end if
        end do
+       nullify(fd)
        
     end if
 
@@ -1496,13 +1495,6 @@ contains
     integer, intent(inout) :: pe
     integer, intent(inout) :: pids(4)
     integer, dimension(4) :: org_ids
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
-                                                       1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
-                                                       (/4,6/))
     
     call mesh_get_facet_ids(m, f, e, org_ids)
     call m%periodic%add_periodic_facet(f, e, pf, pe, pids, org_ids)
@@ -1536,7 +1528,7 @@ contains
   !> Reset ids of periodic points to their original ids
   subroutine mesh_reset_periodic_ids(m)
     type(mesh_t), intent(inout) :: m
-    integer :: i,j, id_temp
+    integer :: i,j
     integer :: f
     integer :: e
     integer :: pf
@@ -1653,7 +1645,7 @@ contains
     integer, intent(inout) :: pe
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
-    integer :: i, id, p_local_idx, temp_id
+    integer :: i, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
     integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&

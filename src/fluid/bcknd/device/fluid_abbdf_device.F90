@@ -225,9 +225,9 @@ contains
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     type(c_ptr) :: bfx_d, bfy_d, bfz_d
 
-    bfx_d = device_get_ptr(bfx, n)
-    bfy_d = device_get_ptr(bfy, n)
-    bfz_d = device_get_ptr(bfz, n)
+    bfx_d = device_get_ptr(bfx)
+    bfy_d = device_get_ptr(bfy)
+    bfz_d = device_get_ptr(bfz)
 
 #ifdef HAVE_HIP
     call fluid_makeabf_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
@@ -258,10 +258,10 @@ contains
     real(kind=rp), intent(in) :: dt, rho, bd(10)
     type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d
 
-    bfx_d = device_get_ptr(bfx, n)
-    bfy_d = device_get_ptr(bfy, n)
-    bfz_d = device_get_ptr(bfz, n)
-    B_d = device_get_ptr(B, n)
+    bfx_d = device_get_ptr(bfx)
+    bfy_d = device_get_ptr(bfy)
+    bfz_d = device_get_ptr(bfz)
+    B_d = device_get_ptr(B)
     
 #ifdef HAVE_HIP
     call fluid_makebdf_hip(ta1%x_d, ta2%x_d, ta3%x_d, &

@@ -178,7 +178,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -216,7 +216,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -254,7 +254,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -292,7 +292,7 @@ contains
     type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        s = n * 8
        ptr_h = c_loc(x)
     type is (real)
@@ -422,17 +422,17 @@ contains
 #elif HAVE_OPENCL
     if (sync_device) then
        if (dir .eq. HOST_TO_DEVICE) then
-          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_8, s, ptr_h, &
+          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
-          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_8, s, ptr_h, &
+          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
-          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_8, 0_8, s, &
+          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
           end if
@@ -441,17 +441,17 @@ contains
        end if
     else
        if (dir .eq. HOST_TO_DEVICE) then
-          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_8, s, ptr_h, &
+          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
-          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_8, s, ptr_h, &
+          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, ptr_h, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
-          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_8, 0_8, s, &
+          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
                0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
           end if
@@ -463,8 +463,7 @@ contains
   end subroutine device_memcpy_common
 
   !> Associate a Fortran rank 1 array to a (allocated) device pointer
-  subroutine device_associate_r1(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r1(x, x_d)
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -472,7 +471,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -489,8 +488,7 @@ contains
   end subroutine device_associate_r1
 
   !> Associate a Fortran rank 2 array to a (allocated) device pointer
-  subroutine device_associate_r2(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r2(x, x_d)
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -498,7 +496,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -515,8 +513,7 @@ contains
   end subroutine device_associate_r2
 
   !> Associate a Fortran rank 3 array to a (allocated) device pointer
-  subroutine device_associate_r3(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r3(x, x_d)
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -524,7 +521,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -541,8 +538,7 @@ contains
   end subroutine device_associate_r3
 
   !> Associate a Fortran rank 4 array to a (allocated) device pointer
-  subroutine device_associate_r4(x, x_d, n)
-    integer, intent(in) :: n
+  subroutine device_associate_r4(x, x_d)
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
@@ -550,7 +546,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))       
+    type is (integer(i8))       
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -580,7 +576,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -591,7 +587,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r1
 
@@ -609,7 +605,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -620,7 +616,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r2
 
@@ -638,7 +634,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -649,7 +645,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r3
 
@@ -667,7 +663,7 @@ contains
     select type(x)
     type is (integer)
        s = n * 4
-    type is (integer(8))
+    type is (integer(i8))
        s = n * 8
     type is (real)
        s = n * 4
@@ -678,7 +674,7 @@ contains
     end select
 
     call device_alloc(x_d, s)
-    call device_associate(x, x_d, n)
+    call device_associate(x, x_d)
 
   end subroutine device_map_r4
 
@@ -691,7 +687,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -718,7 +714,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -745,7 +741,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -772,7 +768,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -791,8 +787,7 @@ contains
   end function device_associated_r4
 
   !> Return the device pointer for an associated Fortran rank 1 array
-  function device_get_ptr_r1(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r1(x)
     class(*), intent(in), target :: x(:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r1
@@ -802,7 +797,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -820,8 +815,7 @@ contains
   end function device_get_ptr_r1
 
   !> Return the device pointer for an associated Fortran rank 2 array
-  function device_get_ptr_r2(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r2(x)
     class(*), intent(in), target :: x(:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r2
@@ -831,7 +825,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -849,8 +843,7 @@ contains
   end function device_get_ptr_r2
 
   !> Return the device pointer for an associated Fortran rank 3 array
-  function device_get_ptr_r3(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r3(x)
     class(*), intent(in), target :: x(:,:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r3
@@ -860,7 +853,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)
@@ -878,8 +871,7 @@ contains
   end function device_get_ptr_r3
 
   !> Return the device pointer for an associated Fortran rank 4 array
-  function device_get_ptr_r4(x, n)
-    integer, intent(in) :: n
+  function device_get_ptr_r4(x)
     class(*), intent(in), target :: x(:,:,:,:)
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
     type(c_ptr) :: device_get_ptr_r4
@@ -889,7 +881,7 @@ contains
     select type(x)
     type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-    type is (integer(8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
     type is (real)
        htbl_ptr_h%ptr = c_loc(x)

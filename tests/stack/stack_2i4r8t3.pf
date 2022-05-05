@@ -1,11 +1,11 @@
 @test
-subroutine test_stack_i8_init
+subroutine test_stack_2i4r8t3_init
   use pfunit
   use stack
   use math, only : NEKO_M_LN2
   use num_types, only :rp
   implicit none
-  type(stack_i8_t) :: s1, s2, s3
+  type(stack_2i4r8t3_t) :: s1, s2, s3
   integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
 
   call s1%init()
@@ -32,14 +32,14 @@ subroutine test_stack_i8_init
   @assertEqual(s3%top_, s3%size())
   @assertLessThan(s3%size(), size(s3%array()))
 
-end subroutine test_stack_i8_init
+end subroutine test_stack_2i4r8t3_init
 
 @test
-subroutine test_stack_i8_free
+subroutine test_stack_2i4r8t3_free
   use pfunit
   use stack
   implicit none
-  type(stack_i8_t) :: s
+  type(stack_2i4r8t3_t) :: s
 
   call s%init()
   call s%free()
@@ -48,29 +48,29 @@ subroutine test_stack_i8_free
   @assertEqual(s%top_, 0)
   @assertEqual(s%size(), 0)
   
-end subroutine test_stack_i8_free
+end subroutine test_stack_2i4r8t3_free
 
 @test
-subroutine test_stack_i8_push
+subroutine test_stack_2i4r8t3_push
   use pfunit
   use stack
-  use num_types, only : i8
+  use tuple
   implicit none
-  type(stack_i8_t) :: s
+  type(stack_2i4r8t3_t) :: s
   integer :: i
-  integer(kind=i8) :: data
-  integer(kind=i8), pointer :: dp(:)
+  type(tuple_2i4r8_t) :: data
+  type(tuple_2i4r8_t), pointer :: dp(:)
 
   call s%init()  
   do i = 1, 64
-     data = int(i, i8)
+     data = (/i , -i, i/)
      call s%push(data)
   end do
   @assertEqual(s%size_, 64, message='Unnecessary reallocation')
   @assertEqual(s%top_, s%size_, message='Corrupt size')
 
   do i = 1, 2
-     data = int(i + 64, i8)
+     data = (/i + 64, -(i + 64), i/)
      call s%push(data)
   end do
   @assertEqual(s%size_, 128, message='Unnecessary reallocation')
@@ -78,53 +78,55 @@ subroutine test_stack_i8_push
 
   dp => s%array()
   do i = 1, 66
-     @assertEqual(dp(i), int(i, i8))
+     data = (/i, -i, i/)
+     @assertTrue(dp(i) .eq. data)
   end do
  
-end subroutine test_stack_i8_push
+end subroutine test_stack_2i4r8t3_push
 
 @test
-subroutine test_stack_i8_pop
+subroutine test_stack_2i4r8t3_pop
   use pfunit
   use stack
-  use num_types, only : i8
+  use tuple
   implicit none
-  type(stack_i8_t) :: s
+  type(stack_2i4r8t3_t) :: s
   integer :: i
-  integer(kind=i8) :: data
+  type(tuple_2i4r8_t) :: data
 
   call s%init()
   do i = 1, 66
-     data = int(i, i8)
+     data = (/i, -i, i/)
      call s%push(data)
   end do
 
   do i = 66, 1, -1
-     @assertEqual(s%pop(), int(i, i8))
+     data = (/i, -i, i/)
+     @assertTrue(s%pop() .eq. data)
   end do
 
   @assertEqual(s%top_, 0, message='Leftover data')
   @assertEqual(s%size_, 128, message='Corrupt size')
   
-end subroutine test_stack_i8_pop
+end subroutine test_stack_2i4r8t3_pop
 
 @test 
-subroutine test_stack_i8_clear
+subroutine test_stack_2i4r8t3_clear
   use pfunit
   use stack
-  use num_types, only : i8
+  use tuple
   implicit none
-  type(stack_i8_t) :: s
+  type(stack_2i4r8t3_t) :: s
   integer :: i
-  integer(kind=i8) :: data
+  type(tuple_2i4r8_t) :: data
 
   call s%init()
   do i = 1, 66
-     data = int(i, i8)
+     data = (/i, -i, i/)
      call s%push(data)
   end do
   call s%clear()
   @assertEqual(s%size(), s%top_)
   @assertEqual(s%top_, 0, message='Corrupt top marker')
 
-end subroutine test_stack_i8_clear
+end subroutine test_stack_2i4r8t3_clear

@@ -50,7 +50,7 @@ contains
 
   !> Initialize an interative Krylov solver
   subroutine krylov_solver_factory(ksp, n, solver, abstol, M)
-    class(ksp_t), allocatable, intent(inout) :: ksp
+    class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*) :: solver
     real(kind=rp), optional :: abstol

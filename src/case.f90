@@ -76,7 +76,7 @@ contains
 
   !> Initialize a case from an input file @a case_file
   subroutine case_init(C, case_file)
-    type(case_t), intent(inout) :: C
+    type(case_t), target, intent(inout) :: C
     character(len=*), intent(in) :: case_file
 
     ! Namelist for case description

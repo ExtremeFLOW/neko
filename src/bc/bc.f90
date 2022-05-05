@@ -252,7 +252,7 @@ contains
   !> Finalize a boundary condition
   !! @details This will linearize the marked facet's indicies in msk
   subroutine bc_finalize(this)
-    class(bc_t), intent(inout) :: this
+    class(bc_t), target, intent(inout) :: this
     type(tuple_i4_t), pointer :: bfp(:)
     type(tuple_i4_t) :: bc_facet
     integer :: facet_size, facet, el
@@ -388,7 +388,7 @@ contains
     type(bc_list_t), intent(inout) :: bclst
     class(bc_t), intent(inout), target :: bc
     type(bcp_t), allocatable :: tmp(:)
-    integer :: i 
+
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
 
@@ -414,7 +414,7 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
-       x_d = device_get_ptr(x, n)
+       x_d = device_get_ptr(x)
        do i = 1, bclst%n
           call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
        end do
@@ -440,9 +440,9 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
-       x_d = device_get_ptr(x, n)
-       y_d = device_get_ptr(y, n)
-       z_d = device_get_ptr(z, n)
+       x_d = device_get_ptr(x)
+       y_d = device_get_ptr(y)
+       z_d = device_get_ptr(z)
        do i = 1, bclst%n
           call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
        end do       

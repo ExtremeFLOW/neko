@@ -326,7 +326,6 @@ contains
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
-    integer :: i
     
     call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)

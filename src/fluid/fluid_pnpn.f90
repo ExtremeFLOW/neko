@@ -76,10 +76,10 @@ module fluid_pnpn
 contains
   
   subroutine fluid_pnpn_init(this, msh, lx, param)    
-    class(fluid_pnpn_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: param    
+    type(param_t), target, intent(inout) :: param    
 
     call this%free()
     
@@ -291,7 +291,7 @@ contains
     real(kind=rp), intent(inout) :: t
     type(abbdf_t), intent(inout) :: ab_bdf
     integer, intent(inout) :: tstep
-    integer :: n, i, niter
+    integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
     n = this%dm_Xh%n_dofs
     niter = 1000
