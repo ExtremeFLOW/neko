@@ -1,3 +1,4 @@
 *.pf linguist-language=fortran
+*.f90.in linguist-language=fortran
 *.hip linguist-language=C++
 
