@@ -5,6 +5,7 @@ math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/b
 math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
 math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h
 math/bcknd/device/hip/opr_opgrad.o : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
+math/bcknd/device/hip/opr_cfl.o : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h
 math/bcknd/device/hip/ax_helm.o : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
 math/bcknd/device/hip/schwarz.o : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
 math/bcknd/device/hip/tensor.o : math/bcknd/device/hip/tensor.hip math/bcknd/device/hip/tensor_kernel.h

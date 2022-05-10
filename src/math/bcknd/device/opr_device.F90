@@ -102,6 +102,21 @@ module opr_device
      end subroutine hip_opgrad
   end interface
 
+  interface
+     real(c_rp) function hip_cfl(dt, u_d, v_d, w_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
+          jacinv_d, nel, lx) &
+          bind(c, name='hip_cfl')
+       use, intrinsic :: iso_c_binding
+       import c_rp       
+       type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
+       real(c_rp) :: dt
+       integer(c_int) :: nel, lx
+     end function hip_cfl
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
@@ -563,6 +578,12 @@ contains
     w_d = device_get_ptr(w)
 
 #ifdef HAVE_HIP
+    cfl  = hip_cfl(dt, u_d, v_d, w_d, &
+                   coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                   coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                   coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                   Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+                   coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_CUDA
     cfl  = cuda_cfl(dt, u_d, v_d, w_d, &
                     coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
