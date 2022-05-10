@@ -243,6 +243,22 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine opencl_opgrad
   end interface
+
+  interface
+     real(c_rp) function opencl_cfl(dt, u_d, v_d, w_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
+          jacinv_d, nel, lx) &
+          bind(c, name='opencl_cfl')
+       use, intrinsic :: iso_c_binding
+       import c_rp       
+       type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
+       real(c_rp) :: dt
+       integer(c_int) :: nel, lx
+     end function opencl_cfl
+  end interface
 #endif  
   
 contains
@@ -592,6 +608,12 @@ contains
                     Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
                     coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_OPENCL
+    cfl  = opencl_cfl(dt, u_d, v_d, w_d, &
+                      coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                      coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                      coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                      Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+                      coef%jacinv_d, nelv, Xh%lx)
 #else
     cfl = 0.0_rp
     call neko_error('No device backend configured')

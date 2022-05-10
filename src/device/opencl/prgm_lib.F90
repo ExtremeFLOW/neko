@@ -39,6 +39,9 @@ module opencl_prgm_lib
 
   !> Device onvective kernels
   type(c_ptr), bind(c) :: conv1_program = C_NULL_PTR
+  
+  !> Device CFL kernels
+  type(c_ptr), bind(c) :: cfl_program = C_NULL_PTR
 
   !> Device Velocity gradient kernels
   type(c_ptr), bind(c) :: opgrad_program = C_NULL_PTR
@@ -146,6 +149,13 @@ contains
           call neko_error('Failed to release program')
        end if
        conv1_program = C_NULL_PTR
+    end if
+
+    if (c_associated(cfl_program)) then
+       if(clReleaseProgram(cfl_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       cfl_program = C_NULL_PTR
     end if
 
     if (c_associated(opgrad_program)) then
