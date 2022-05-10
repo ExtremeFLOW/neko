@@ -593,6 +593,7 @@ contains
                     coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_OPENCL
 #else
+    cfl = 0.0_rp
     call neko_error('No device backend configured')
 #endif
   end function opr_device_cfl
