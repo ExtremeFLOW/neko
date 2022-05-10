@@ -30,6 +30,7 @@ math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/
 math/bcknd/device/cuda/opr_cdtp.o : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
 math/bcknd/device/cuda/opr_conv1.o : math/bcknd/device/cuda/opr_conv1.cu math/bcknd/device/cuda/conv1_kernel.h
 math/bcknd/device/cuda/opr_opgrad.o : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h
+math/bcknd/device/cuda/opr_cfl.o : math/bcknd/device/cuda/opr_cfl.cu math/bcknd/device/cuda/cfl_kernel.h
 math/bcknd/device/cuda/ax_helm.o : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h
 math/bcknd/device/cuda/schwarz.o : math/bcknd/device/cuda/schwarz.cu math/bcknd/device/cuda/schwarz_kernel.h
 math/bcknd/device/cuda/tensor.o : math/bcknd/device/cuda/tensor.cu math/bcknd/device/cuda/tensor_kernel.h

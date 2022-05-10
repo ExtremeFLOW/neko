@@ -472,11 +472,11 @@ contains
     integer :: nelv, gdim
     real(kind=rp) :: dt
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
-    real(kind=rp) :: cflr, cfls, cflt, cflm, cfl_temp(1)
+    real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
     integer :: i, j, k, e
-    cfl_temp(1) = 0d0
+    cfl = 0d0
     if (gdim .eq. 3) then
        do e = 1,nelv
           do k = 1,Xh%lz
@@ -497,7 +497,7 @@ contains
                    cflt = abs(dt*ut*Xh%dt_inv(k))
  
                    cflm = cflr + cfls + cflt
-                   cfl_temp(1)  = max(cfl_temp(1),cflm)
+                   cfl  = max(cfl,cflm)
                 end do
              end do
           end do
@@ -515,13 +515,12 @@ contains
                 cfls = abs(dt*us*Xh%ds_inv(j))
                 
                 cflm = cflr + cfls
-                cfl_temp(1)  = max(cfl_temp(1),cflm)
+                cfl  = max(cfl,cflm)
 
              end do
           end do
        end do
     end if
-    cfl = glmax(cfl_temp,1)
   end function opr_cpu_cfl
 
 end module opr_cpu

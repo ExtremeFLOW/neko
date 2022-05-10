@@ -209,8 +209,17 @@ contains
     real(kind=rp) :: dt
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
     real(kind=rp) :: cfl
+    integer :: ierr
 
-    cfl = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then  
+       cfl = opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+    else
+       cfl = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+    end if
+
+    call MPI_Allreduce(MPI_IN_PLACE, cfl, 1, &
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     
   end function cfl
   

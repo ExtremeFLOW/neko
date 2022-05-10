@@ -230,6 +230,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
