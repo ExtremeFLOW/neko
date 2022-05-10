@@ -203,6 +203,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	math/bcknd/device/hip/opr_cfl.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
@@ -230,6 +231,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
@@ -258,6 +260,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_cdtp.c\
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
+	math/bcknd/device/opencl/opr_cfl.c\
 	math/bcknd/device/opencl/ax_helm.c\
         krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
@@ -312,6 +315,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	fluid/bcknd/device/cuda/sumab_kernel.h\
 	fluid/bcknd/device/cuda/makeabf_kernel.h\
@@ -334,6 +338,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
+	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	fluid/bcknd/device/hip/sumab_kernel.h\
 	fluid/bcknd/device/hip/makeabf_kernel.h\
@@ -360,6 +365,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
+	math/bcknd/device/opencl/cfl_kernel.cl\
 	fluid/bcknd/device/opencl/abbdf_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\

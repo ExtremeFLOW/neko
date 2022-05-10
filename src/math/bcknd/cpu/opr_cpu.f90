@@ -48,7 +48,7 @@ module opr_cpu
   private
 
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
-       opr_cpu_conv1, opr_cpu_curl
+       opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl
   
 contains
 
@@ -466,6 +466,61 @@ contains
 
   end subroutine opr_cpu_curl
 
+  function opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    integer :: nelv, gdim
+    real(kind=rp) :: dt
+    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=rp) :: ur, us, ut
+    real(kind=rp) :: cfl
+    integer :: i, j, k, e
+    cfl = 0d0
+    if (gdim .eq. 3) then
+       do e = 1,nelv
+          do k = 1,Xh%lz
+             do j = 1,Xh%ly
+                do i = 1,Xh%lx
+                   ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
+                      +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
+                      +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                   us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &
+                      +   v(i,j,k,e)*coef%dsdy(i,j,k,e) &
+                      +   w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                   ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
+                      +   v(i,j,k,e)*coef%dtdy(i,j,k,e) &
+                      +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+ 
+                   cflr = abs(dt*ur*Xh%dr_inv(i))
+                   cfls = abs(dt*us*Xh%ds_inv(j))
+                   cflt = abs(dt*ut*Xh%dt_inv(k))
+ 
+                   cflm = cflr + cfls + cflt
+                   cfl  = max(cfl,cflm)
+                end do
+             end do
+          end do
+       end do
+    else
+       do e = 1,nelv
+          do j = 1,Xh%ly
+             do i = 1,Xh%lx
+                ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
+                   +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
+                us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
+                   +   v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
 
+                cflr = abs(dt*ur*Xh%dr_inv(i))
+                cfls = abs(dt*us*Xh%ds_inv(j))
+                
+                cflm = cflr + cfls
+                cfl  = max(cfl,cflm)
+
+             end do
+          end do
+       end do
+    end if
+  end function opr_cpu_cfl
 
 end module opr_cpu

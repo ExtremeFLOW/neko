@@ -5,6 +5,7 @@ math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/b
 math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
 math/bcknd/device/hip/opr_conv1.o : math/bcknd/device/hip/opr_conv1.hip math/bcknd/device/hip/conv1_kernel.h
 math/bcknd/device/hip/opr_opgrad.o : math/bcknd/device/hip/opr_opgrad.hip math/bcknd/device/hip/opgrad_kernel.h
+math/bcknd/device/hip/opr_cfl.o : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h
 math/bcknd/device/hip/ax_helm.o : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
 math/bcknd/device/hip/schwarz.o : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
 math/bcknd/device/hip/tensor.o : math/bcknd/device/hip/tensor.hip math/bcknd/device/hip/tensor_kernel.h
@@ -30,6 +31,7 @@ math/bcknd/device/cuda/opr_dudxyz.o : math/bcknd/device/cuda/opr_dudxyz.cu math/
 math/bcknd/device/cuda/opr_cdtp.o : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
 math/bcknd/device/cuda/opr_conv1.o : math/bcknd/device/cuda/opr_conv1.cu math/bcknd/device/cuda/conv1_kernel.h
 math/bcknd/device/cuda/opr_opgrad.o : math/bcknd/device/cuda/opr_opgrad.cu math/bcknd/device/cuda/opgrad_kernel.h
+math/bcknd/device/cuda/opr_cfl.o : math/bcknd/device/cuda/opr_cfl.cu math/bcknd/device/cuda/cfl_kernel.h
 math/bcknd/device/cuda/ax_helm.o : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h
 math/bcknd/device/cuda/schwarz.o : math/bcknd/device/cuda/schwarz.cu math/bcknd/device/cuda/schwarz_kernel.h
 math/bcknd/device/cuda/tensor.o : math/bcknd/device/cuda/tensor.cu math/bcknd/device/cuda/tensor_kernel.h
@@ -56,6 +58,7 @@ math/bcknd/device/opencl/opr_dudxyz.o : math/bcknd/device/opencl/opr_dudxyz.c ma
 math/bcknd/device/opencl/opr_cdtp.o : math/bcknd/device/opencl/opr_cdtp.c math/bcknd/device/opencl/cdtp_kernel.cl.h
 math/bcknd/device/opencl/opr_conv1.o : math/bcknd/device/opencl/opr_conv1.c math/bcknd/device/opencl/conv1_kernel.cl.h
 math/bcknd/device/opencl/opr_opgrad.o : math/bcknd/device/opencl/opr_opgrad.c math/bcknd/device/opencl/opgrad_kernel.cl.h
+math/bcknd/device/opencl/opr_cfl.o : math/bcknd/device/opencl/opr_cfl.c math/bcknd/device/opencl/cfl_kernel.cl.h
 math/bcknd/device/opencl/ax_helm.o : math/bcknd/device/opencl/ax_helm.c math/bcknd/device/opencl/ax_helm_kernel.cl.h
 krylov/bcknd/device/opencl/pc_jacobi.o : krylov/bcknd/device/opencl/pc_jacobi.c krylov/bcknd/device/opencl/jacobi_kernel.cl.h
 gs/bcknd/device/opencl/gs.o : gs/bcknd/device/opencl/gs.c gs/bcknd/device/opencl/gs_kernels.cl.h 
