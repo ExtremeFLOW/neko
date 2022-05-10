@@ -314,6 +314,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	fluid/bcknd/device/cuda/sumab_kernel.h\
 	fluid/bcknd/device/cuda/makeabf_kernel.h\
@@ -336,6 +337,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
+	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	fluid/bcknd/device/hip/sumab_kernel.h\
 	fluid/bcknd/device/hip/makeabf_kernel.h\
