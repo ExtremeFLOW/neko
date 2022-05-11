@@ -168,7 +168,9 @@ contains
     integer, pointer :: pe(:)
     integer :: i, ndof
     integer(c_size_t) :: sz
-
+    real(c_rp) :: rp_dummy
+    integer(c_int) :: i4_dummy
+ 
     call this%init_order(send_pe, recv_pe)
 
     allocate(this%send_buf(send_pe%size()))
@@ -181,10 +183,10 @@ contains
        ndof = this%send_dof(pe(i))%size()
        ndofs(i) = ndof
 
-       sz = rp * ndof
+       sz = c_sizeof(rp_dummy) * ndof
        call device_alloc(buf_ptrs(i), sz)
 
-       sz = 4 * ndof
+       sz = c_sizeof(i4_dummy) * ndof
        call device_alloc(dof_ptrs(i), sz)
 
        ! %array() breaks on cray
@@ -226,10 +228,10 @@ contains
     do i = 1, recv_pe%size()
        ndof = this%recv_dof(pe(i))%size()
 
-       sz = rp * ndof
+       sz = c_sizeof(rp_dummy) * ndof
        call device_alloc(this%recv_buf(i)%buf_d, sz)
 
-       sz = 4 * ndof
+       sz = c_sizeof(i4_dummy) * ndof
        call device_alloc(this%recv_buf(i)%dof_d, sz)
 
        ! %array() breaks on cray

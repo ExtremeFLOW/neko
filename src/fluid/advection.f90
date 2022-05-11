@@ -103,7 +103,7 @@ contains
   
   subroutine advection_factory(this, coef, dealias, lxd)
     class(advection_t), allocatable, intent(inout) :: this
-    type(coef_t) :: coef
+    type(coef_t), target :: coef
     logical, intent(in) :: dealias
     integer, intent(in) :: lxd
 

@@ -236,14 +236,14 @@ contains
        
     if (params%output_bdry) then       
        call field_init(this%bdry, this%dm_Xh, 'bdry')
-       this%bdry = real(0d0,rp)
+       this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'w', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(1d0,rp))
+       call bdry_mask%set_g(1.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -253,7 +253,7 @@ contains
                       'v', this%params%bc_labels)
 
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(2d0,rp))
+       call bdry_mask%set_g(2.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -262,7 +262,7 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'o', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(3d0,rp))
+       call bdry_mask%set_g(3.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -271,14 +271,14 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'sym', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(4d0,rp))
+       call bdry_mask%set_g(4.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(5d0,rp))
+       call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -287,7 +287,7 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'on', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(6d0,rp))
+       call bdry_mask%set_g(6.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -353,7 +353,7 @@ contains
     end if
 
     call this%bc_prs%finalize()
-    call this%bc_prs%set_g(real(0d0,rp))
+    call this%bc_prs%set_g(0.0_rp)
     call bc_list_add(this%bclst_prs, this%bc_prs)
     call this%bc_dong%init(this%dm_Xh)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
@@ -439,7 +439,7 @@ contains
   !> Validate that all fields, solvers etc necessary for
   !! performing time-stepping are defined
   subroutine fluid_scheme_validate(this)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_t), target, intent(inout) :: this
 
     if ( (.not. allocated(this%u%x)) .or. &
          (.not. allocated(this%v%x)) .or. &

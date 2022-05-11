@@ -154,7 +154,7 @@ class MakeNeko(rfm.core.buildsystems.BuildSystem):
 
 class NekoTestBase(rfm.RegressionTest):
     valid_systems = ['*']
-    valid_prog_environs = ['PrgEnv-cray']
+    valid_prog_environs = ['PrgEnv-cray', 'PrgEnv-gnu', 'PrgEnv-intel']
     neko_build = fixture(BuildNeko, scope='environment')
 
     scheme = parameter(os.getenv('NEKO_SCHEME', 'plan4,pnpn').split(','))
