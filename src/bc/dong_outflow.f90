@@ -44,15 +44,18 @@ module dong_outflow
   implicit none
   private
 
-  !> Generic Dirichlet boundary condition
-  !! \f$ x = g \f$ on \f$\partial \Omega\f$
+  !> Dong outflow condition
+  !! Follows 
+  !! "A Convective-like Energy-Stable Open Boundary Condition for
+  !! Simulations of Incompressible Flows"
+  !! by S. Dong
   type, public, extends(dirichlet_t) :: dong_outflow_t
      type(field_t), pointer :: u
      type(field_t), pointer :: v
      type(field_t), pointer :: w
      type(coef_t), pointer :: c_Xh
      real(kind=rp) :: delta 
-     real(kind=rp) :: uinf(3)  
+     real(kind=rp) :: uinf  
      type(c_ptr) :: normal_x_d
      type(c_ptr) :: normal_y_d
      type(c_ptr) :: normal_z_d
@@ -65,11 +68,12 @@ module dong_outflow
   end type dong_outflow_t
 
 contains
-    subroutine dong_outflow_set_vars(this, c_Xh, u, v, w, uinf)
+    subroutine dong_outflow_set_vars(this, c_Xh, u, v, w, uinf, delta)
       class(dong_outflow_t), intent(inout) :: this
       type(coef_t), target, intent(in) :: c_Xh
       type(field_t), target, intent(in) :: u, v, w
-      real(kind=rp), intent(in) :: uinf(3)
+      real(kind=rp), intent(in) :: uinf
+      real(kind=rp), optional, intent(in) :: delta
       real(kind=rp), allocatable :: temp_x(:)
       real(kind=rp), allocatable :: temp_y(:)
       real(kind=rp), allocatable :: temp_z(:)
@@ -77,8 +81,11 @@ contains
       real(kind=rp) :: normal_xyz(3)
       
 
-
-      this%delta = 0.1
+      if (present(delta)) then
+         this%delta = delta
+      else 
+         this%delta = 0.01
+      end if
       this%uinf = uinf
       this%u => u
       this%v => v
@@ -128,7 +135,7 @@ contains
        idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
        normal_xyz = coef_get_normal(this%c_Xh,idx(1), idx(2), idx(3), idx(4),facet)       
        vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3) 
-       S0 = 0.5_rp*(1.0_rp - tanh(vn / this%uinf(1) / this%delta))
+       S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
                                      
        x(k)=-0.5*(ux*ux+uy*uy+uz*uz)*S0
     end do
@@ -154,7 +161,7 @@ end subroutine dong_outflow_apply_scalar
     call device_dong_outflow_apply_scalar(this%msk_d,x_d, this%normal_x_d, &
                                           this%normal_y_d, this%normal_z_d,&
                                           this%u%x_d, this%v%x_d, this%w%x_d,&
-                                          this%uinf(1), this%delta,&
+                                          this%uinf, this%delta,&
                                           this%msk(0))
     
   end subroutine dong_outflow_apply_scalar_dev
