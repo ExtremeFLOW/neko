@@ -39,6 +39,7 @@ module dong_outflow
   use field
   use dofmap
   use coefs
+  use device_dong_outflow
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -52,20 +53,29 @@ module dong_outflow
      type(coef_t), pointer :: c_Xh
      real(kind=rp) :: delta 
      real(kind=rp) :: uinf(3)  
+     type(c_ptr) :: normal_x_d
+     type(c_ptr) :: normal_y_d
+     type(c_ptr) :: normal_z_d
    contains
      procedure, pass(this) :: apply_scalar => dong_outflow_apply_scalar
      procedure, pass(this) :: apply_vector => dong_outflow_apply_vector
      procedure, pass(this) :: apply_scalar_dev => dong_outflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => dong_outflow_apply_vector_dev
-     procedure, pass(this) :: init_vars => dong_outflow_init_vars
+     procedure, pass(this) :: set_vars => dong_outflow_set_vars
   end type dong_outflow_t
 
 contains
-    subroutine dong_outflow_init_vars(this, c_Xh, u, v, w, uinf)
+    subroutine dong_outflow_set_vars(this, c_Xh, u, v, w, uinf)
       class(dong_outflow_t), intent(inout) :: this
       type(coef_t), target, intent(in) :: c_Xh
       type(field_t), target, intent(in) :: u, v, w
       real(kind=rp), intent(in) :: uinf(3)
+      real(kind=rp), allocatable :: temp_x(:)
+      real(kind=rp), allocatable :: temp_y(:)
+      real(kind=rp), allocatable :: temp_z(:)
+      integer :: i, m, k, facet, idx(4)
+      real(kind=rp) :: normal_xyz(3)
+      
 
 
       this%delta = 0.1
@@ -74,8 +84,30 @@ contains
       this%v => v
       this%c_Xh=> c_Xh
       this%w => w
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+         call device_alloc(this%normal_x_d,sizeof(1.0_rp)*this%msk(0))
+         call device_alloc(this%normal_y_d,sizeof(1.0_rp)*this%msk(0))
+         call device_alloc(this%normal_z_d,sizeof(1.0_rp)*this%msk(0))
+         m = this%msk(0)
+         allocate(temp_x(m))
+         allocate(temp_y(m))
+         allocate(temp_z(m))
+         do i = 1, m
+            k = this%msk(i)
+            facet = this%facet(i)
+            idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
+            normal_xyz = coef_get_normal(this%c_Xh,idx(1), idx(2), idx(3), idx(4),facet)
+            temp_x(i) = normal_xyz(1)
+            temp_y(i) = normal_xyz(2)
+            temp_z(i) = normal_xyz(3)
+         end do
+         call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE)
+         call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE)
+         call device_memcpy(temp_z, this%normal_z_d, m, HOST_TO_DEVICE)
+         deallocate( temp_x, temp_y, temp_z)
+      end if
 
-  end subroutine dong_outflow_init_vars
+  end subroutine dong_outflow_set_vars
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x
@@ -94,11 +126,9 @@ contains
        uy = this%v%x(k,1,1,1)
        uz = this%w%x(k,1,1,1)
        idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-
-       normal_xyz = coef_get_normal(this%c_Xh,idx(1), idx(2), idx(3), idx(4),facet)
-                
+       normal_xyz = coef_get_normal(this%c_Xh,idx(1), idx(2), idx(3), idx(4),facet)       
        vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3) 
-       S0 = 0.5*(1.0 - tanh(vn / this%uinf(1) / this%delta))
+       S0 = 0.5_rp*(1.0_rp - tanh(vn / this%uinf(1) / this%delta))
                                      
        x(k)=-0.5*(ux*ux+uy*uy+uz*uz)*S0
     end do
@@ -121,9 +151,11 @@ end subroutine dong_outflow_apply_scalar
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
 
-    !call device_dong_outflow_apply_scalar(this%msk_d,x_d, this%facet_d,&
-    !                                      this%u%x_d, this%v%x_d, this%w%x_d,&
-    !                                      this%msk(0))
+    call device_dong_outflow_apply_scalar(this%msk_d,x_d, this%normal_x_d, &
+                                          this%normal_y_d, this%normal_z_d,&
+                                          this%u%x_d, this%v%x_d, this%w%x_d,&
+                                          this%uinf(1), this%delta,&
+                                          this%msk(0))
     
   end subroutine dong_outflow_apply_scalar_dev
   
