@@ -157,8 +157,6 @@ contains
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%params%bc_labels)
-    call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-        'o+dong', this%params%bc_labels)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
