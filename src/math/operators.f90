@@ -211,7 +211,9 @@ contains
     real(kind=rp) :: cfl
     integer :: ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
+    if (NEKO_BCKND_SX .eq. 1) then
+       cfl = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then  
        cfl = opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
     else
