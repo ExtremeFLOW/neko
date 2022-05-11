@@ -879,7 +879,7 @@ contains
       case(3,4)
         normal(1) = coef%nx(i, k, facet, e)
         normal(2) = coef%ny(i, k, facet, e)
-        normal(3) = coef%nz(i, j, facet, e)
+        normal(3) = coef%nz(i, k, facet, e)
       case(5,6)
         normal(1) = coef%nx(i, j, facet, e)
         normal(2) = coef%ny(i, j, facet, e)
