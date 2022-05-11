@@ -62,6 +62,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
 	math/bcknd/sx/sx_opgrad.f90\
+	math/bcknd/sx/sx_cfl.f90\
 	math/operators.f90\
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
