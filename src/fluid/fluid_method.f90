@@ -50,6 +50,7 @@ module fluid_method
   use usr_inflow
   use blasius
   use dirichlet
+  use dong_outflow
   use symmetry
   use non_normal
   use krylov_fctry
@@ -81,6 +82,7 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(dong_outflow_t) :: bc_dong               !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
@@ -353,6 +355,16 @@ contains
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(real(0d0,rp))
     call bc_list_add(this%bclst_prs, this%bc_prs)
+    call this%bc_dong%init(this%dm_Xh)
+    call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
+                        'o+dong', this%params%bc_labels)
+    call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
+                        'on+dong', this%params%bc_labels)
+    call this%bc_dong%finalize()
+    call this%bc_dong%set_vars(this%c_Xh, this%u, this%v, this%w,&
+         params%dong_uchar, params%dong_delta)
+
+    call bc_list_add(this%bclst_prs, this%bc_dong)
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
