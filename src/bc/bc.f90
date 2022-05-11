@@ -216,7 +216,7 @@ contains
   !! The facet_type in mesh is because of the fdm from Nek5000
   subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    class(zone_t),  intent(inout) :: bc_zones(NEKO_MSH_MAX_ZLBLS)
+    class(zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=3) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     integer :: i, j, k, msh_bc_type 
