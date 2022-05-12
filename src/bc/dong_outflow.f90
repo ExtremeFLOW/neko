@@ -77,6 +77,7 @@ contains
       real(kind=rp), allocatable :: temp_x(:)
       real(kind=rp), allocatable :: temp_y(:)
       real(kind=rp), allocatable :: temp_z(:)
+      real(c_rp) :: dummy
       integer :: i, m, k, facet, idx(4)
       real(kind=rp) :: normal_xyz(3)
       
@@ -92,9 +93,9 @@ contains
       this%c_Xh=> c_Xh
       this%w => w
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
-         call device_alloc(this%normal_x_d,sizeof(1.0_rp)*this%msk(0))
-         call device_alloc(this%normal_y_d,sizeof(1.0_rp)*this%msk(0))
-         call device_alloc(this%normal_z_d,sizeof(1.0_rp)*this%msk(0))
+         call device_alloc(this%normal_x_d,c_sizeof(dummy)*this%msk(0))
+         call device_alloc(this%normal_y_d,c_sizeof(dummy)*this%msk(0))
+         call device_alloc(this%normal_z_d,c_sizeof(dummy)*this%msk(0))
          m = this%msk(0)
          allocate(temp_x(m))
          allocate(temp_y(m))
