@@ -90,6 +90,7 @@ io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_t
 common/sampler.o : common/sampler.f90 common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
+bc/dong_outflow.o : bc/dong_outflow.f90 bc/bcknd/device/device_dong_outflow.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o 
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_wall.o 
 bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_inflow.o 
 bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/bcknd/device/device_inhom_dirichlet.o device/device.o bc/inflow.o sem/coef.o config/num_types.o 
@@ -124,7 +125,7 @@ common/statistics.o : common/statistics.f90 common/stats_quant.o config/num_type
 config/neko_config.o : config/neko_config.f90 
 case.o : case.f90 common/user_intf.o common/jobctrl.o common/log.o common/abbdf.o comm/comm.o mesh/mesh.o common/utils.o io/file.o common/statistics.o fluid/flow_ic.o common/sampler.o comm/redist.o comm/parmetis.o field/mesh_field.o comm/mpi_types.o common/parameters.o io/mean_flow_output.o io/mean_sqr_flow_output.o io/chkp_output.o io/fluid_output.o fluid/fluid_fctry.o config/num_types.o 
 common/user_intf.o : common/user_intf.f90 config/num_types.o common/parameters.o bc/usr_inflow.o sem/coef.o common/source.o field/field.o 
-fluid/fluid_method.o : fluid/fluid_method.f90 common/log.o math/operators.o math/mathops.o common/abbdf.o math/math.o mesh/mesh.o bc/bc.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/non_normal.o bc/symmetry.o bc/dirichlet.o bc/blasius.o bc/usr_inflow.o bc/inflow.o bc/wall.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o common/source.o config/num_types.o fluid/mean_flow.o common/checkpoint.o common/parameters.o config/neko_config.o fluid/mean_sqr_flow.o gs/gather_scatter.o 
+fluid/fluid_method.o : fluid/fluid_method.f90 common/log.o math/operators.o math/mathops.o common/abbdf.o math/math.o mesh/mesh.o bc/bc.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/non_normal.o bc/symmetry.o bc/dong_outflow.o bc/dirichlet.o bc/blasius.o bc/usr_inflow.o bc/inflow.o bc/wall.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o common/source.o config/num_types.o fluid/mean_flow.o common/checkpoint.o common/parameters.o config/neko_config.o fluid/mean_sqr_flow.o gs/gather_scatter.o 
 fluid/fluid_aux.o : fluid/fluid_aux.f90 krylov/krylov.o config/num_types.o common/log.o 
 fluid/fluid_plan4.o : fluid/fluid_plan4.f90 fluid/advection.o common/log.o common/projection.o common/abbdf.o fluid/fluid_aux.o config/neko_config.o bc/facet_normal.o fluid/fluid_method.o field/field_series.o math/ax_helm_fctry.o 
 fluid/fluid_plan1.o : fluid/fluid_plan1.f90 fluid/fluid_method.o 
@@ -175,5 +176,6 @@ bc/bcknd/device/device_wall.o : bc/bcknd/device/device_wall.F90 common/utils.o c
 bc/bcknd/device/device_symmetry.o : bc/bcknd/device/device_symmetry.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_inhom_dirichlet.o : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.o config/num_types.o 
+bc/bcknd/device/device_dong_outflow.o : bc/bcknd/device/device_dong_outflow.F90 common/utils.o config/num_types.o 
 neko.o : neko.f90 device/device.o common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
 driver.o : driver.f90 neko.o 

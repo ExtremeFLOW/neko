@@ -213,18 +213,18 @@ contains
   end subroutine bc_mark_zone
 
   !> Mark all facets from a list of zones, also marks type of bc in mesh
-  !! The facet_type in mesh is because of the fdm from Nek5000
+  !! The facet_type in mesh is because of the fdm from Nek5000...
+  !! That is a hack that should be removed at some point...
   subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
     class(zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
-    character(len=3) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    character(len=20) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
     integer :: i, j, k, msh_bc_type 
     
     msh_bc_type = 0
-    if(trim(bc_key) .eq. 'o') then
-       msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'on') then
+    if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
+       .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
        msh_bc_type = 1
     else if(trim(bc_key) .eq. 'w') then
        msh_bc_type = 2

@@ -101,8 +101,8 @@ module hsmg
      type(space_t) :: Xh_crs, Xh_mg !< spaces for lower levels
      type(dofmap_t) :: dm_crs, dm_mg 
      type(coef_t) :: c_crs, c_mg 
-     type(dirichlet_t) :: bc_crs, bc_mg
-     type(bc_list_t) :: bclst_crs, bclst_mg
+     type(dirichlet_t) :: bc_crs, bc_mg, bc_reg
+     type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
@@ -134,7 +134,7 @@ contains
     type(gs_t), intent(inout), target :: gs_h 
     type(bc_list_t), intent(inout), target :: bclst
     character(len=*), optional :: crs_pctype
-    integer :: n
+    integer :: n, i
     
     call this%free()
     if(Xh%lx .lt. 5) then
@@ -192,10 +192,18 @@ contains
 
     call this%bc_crs%init(this%dm_crs)
     call this%bc_mg%init(this%dm_mg)
+    call this%bc_reg%init(dof)
     if (bclst%n .gt. 0) then
-       call this%bc_crs%mark_facets(bclst%bc(1)%bcp%marked_facet)
-       call this%bc_mg%mark_facets(bclst%bc(1)%bcp%marked_facet)
+       do i = 1, bclst%n
+          call this%bc_reg%mark_facets(bclst%bc(i)%bcp%marked_facet)
+          call this%bc_crs%mark_facets(bclst%bc(i)%bcp%marked_facet)
+          call this%bc_mg%mark_facets(bclst%bc(i)%bcp%marked_facet)
+       end do
     end if
+    call this%bc_reg%finalize()
+    call this%bc_reg%set_g(real(0d0,rp))
+    call bc_list_init(this%bclst_reg)
+    call bc_list_add(this%bclst_reg, this%bc_reg)
 
     call this%bc_crs%finalize()
     call this%bc_crs%set_g(real(0d0,rp))
@@ -208,14 +216,14 @@ contains
     call bc_list_init(this%bclst_mg)
     call bc_list_add(this%bclst_mg, this%bc_mg)
 
-    call this%schwarz%init(Xh, dof, gs_h, bclst, msh)
+    call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
                               this%bclst_mg, msh)
 
     call this%interp_fine_mid%init(Xh,this%Xh_mg)
     call this%interp_mid_crs%init(this%Xh_mg,this%Xh_crs)
 
-    call hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, this%schwarz, &
+    call hsmg_fill_grid(dof, gs_h, Xh, coef, this%bclst_reg, this%schwarz, &
                         this%e, this%grids, 3) 
     call hsmg_fill_grid(this%dm_mg, this%gs_mg, this%Xh_mg, this%c_mg, &
                         this%bclst_mg, this%schwarz_mg, this%e_mg, &
@@ -422,6 +430,7 @@ contains
        call gs_op(this%grids(3)%gs_h, z, &
                          this%grids(3)%dof%n_dofs, GS_OP_ADD)
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%n_dofs)
+
     end if
   end subroutine hsmg_solve
 end module hsmg

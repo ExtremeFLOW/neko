@@ -95,6 +95,7 @@ neko_fortran_SOURCES = \
 	common/sampler.f90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
+	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
 	bc/usr_inflow.f90\
@@ -180,6 +181,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
+	bc/bcknd/device/device_dong_outflow.F90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
@@ -216,6 +218,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
+	bc/bcknd/device/hip/dong_outflow.hip\
 	fluid/bcknd/device/hip/fluid_abbdf.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip
 endif
@@ -244,6 +247,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
+	bc/bcknd/device/cuda/dong_outflow.cu\
 	fluid/bcknd/device/cuda/fluid_abbdf.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu
 endif
@@ -306,6 +310,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
+	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
@@ -329,6 +334,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
+	bc/bcknd/device/hip/dong_outflow_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/tensor_kernel.h\
