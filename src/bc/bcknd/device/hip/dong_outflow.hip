@@ -51,7 +51,7 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(dong_outflow_apply_scalar_kernel<real>),
-		       nblcks, nthreds, 0, 0,(int *) msk,
+		       nblcks, nthrds, 0, 0,(int *) msk,
 		       (real *) x, (real *) normal_x, (real *) normal_y,
 		       (real *) normal_z, (real *) u, (real *) v, (real *) w, 
 		       *uinf, *delta, *m);
