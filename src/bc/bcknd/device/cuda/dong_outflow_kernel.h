@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -33,24 +33,25 @@
 */
 
 /**
- * Device kernel for vector apply for an inhomogeneous Dirichlet condition
+ * Device kernel for vector apply for a dong outflow
  */
 template< typename T >
-__global__ void dong_outflow_apply_scalar_kernel(const int * __restrict__ msk,
-                                            T * __restrict__ x,
-                                            const T * normal_x,
-                                            const T * normal_y,
-                                            const T * normal_z,
-                                            const T * u,
-                                            const T * v,
-                                            const T * w,
-                                            const T uinf,
-                                            const T delta,
-                                            const int m) {
+__global__
+void dong_outflow_apply_scalar_kernel(const int * __restrict__ msk,
+				      T * __restrict__ x,
+				      const T * normal_x,
+				      const T * normal_y,
+				      const T * normal_z,
+				      const T * u,
+				      const T * v,
+				      const T * w,
+				      const T uinf,
+				      const T delta,
+				      const int m) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-
+  
   for (int i = idx; i < m; i += str) {
     const int k = msk[i + 1] - 1;
     const T uk = u[k];

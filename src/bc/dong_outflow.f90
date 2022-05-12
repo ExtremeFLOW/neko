@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a dirichlet boundary condition
+!> Defines a dong outflow condition
 module dong_outflow
   use dirichlet
   use device
@@ -104,7 +104,8 @@ contains
             k = this%msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-            normal_xyz = coef_get_normal(this%c_Xh,idx(1), idx(2), idx(3), idx(4),facet)
+            normal_xyz = coef_get_normal(this%c_Xh, &
+                 idx(1), idx(2), idx(3), idx(4),facet)
             temp_x(i) = normal_xyz(1)
             temp_y(i) = normal_xyz(2)
             temp_z(i) = normal_xyz(3)
@@ -134,7 +135,8 @@ contains
        uy = this%v%x(k,1,1,1)
        uz = this%w%x(k,1,1,1)
        idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-       normal_xyz = coef_get_normal(this%c_Xh,idx(1), idx(2), idx(3), idx(4),facet)       
+       normal_xyz = coef_get_normal(this%c_Xh, &
+            idx(1), idx(2), idx(3), idx(4),facet)       
        vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3) 
        S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
                                      

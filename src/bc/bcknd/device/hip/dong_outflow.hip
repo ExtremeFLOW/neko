@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2022, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -42,18 +42,19 @@ extern "C" {
   /** 
    * Fortran wrapper for device dong apply scalar
    */
-  void hip_dong_outflow_apply_scalar(void *msk, void *x, void *normal_x, void *normal_y, void *normal_z,
-                                      void *u, void *v, void *w, real *uinf, real *delta, int* m) {
+  void hip_dong_outflow_apply_scalar(void *msk, void *x, void *normal_x,
+				     void *normal_y, void *normal_z,
+				     void *u, void *v, void *w,
+				     real *uinf, real *delta, int* m) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(dong_outflow_apply_scalar_kernel<real>),
-                           nblcks, nthreds, 0, 0,(int *) msk,
-                           (real *) x, (real *) normal_x, (real *) normal_y,
-                           (real *) normal_z, (real *) u, (real *) v, (real *) w, 
-                           *uinf, *delta, *m);
+		       nblcks, nthreds, 0, 0,(int *) msk,
+		       (real *) x, (real *) normal_x, (real *) normal_y,
+		       (real *) normal_z, (real *) u, (real *) v, (real *) w, 
+		       *uinf, *delta, *m);
     HIP_CHECK(hipGetLastError());
-  }
- 
+  } 
 }

@@ -408,12 +408,18 @@ contains
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%n_dofs)
 
-      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) call this%proj_prs%project_on(p_res%x, c_Xh, n)
+      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
+         call this%proj_prs%project_on(p_res%x, c_Xh, n)
+      end if
+      
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                 this%bclst_dp, gs_Xh, niter)    
-      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
-                                  this%bclst_dp, gs_Xh, n)
+
+      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
+         call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
+                                         this%bclst_dp, gs_Xh, n)
+      end if
 
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
            (NEKO_BCKND_OPENCL .eq. 1)) then
