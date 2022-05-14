@@ -275,6 +275,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
+	bc/bcknd/device/opencl/dong_outflow.c\
 	fluid/bcknd/device/opencl/fluid_abbdf.c\
 	fluid/bcknd/device/opencl/pnpn_res.c
 
@@ -362,6 +363,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
+	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/schwarz_kernel.cl\
 	math/bcknd/device/opencl/tensor_kernel.cl\
