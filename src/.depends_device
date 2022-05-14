@@ -23,6 +23,7 @@ bc/bcknd/device/hip/inhom_dirichlet.o : bc/bcknd/device/hip/inhom_dirichlet.hip 
 bc/bcknd/device/hip/dong_outflow.o : bc/bcknd/device/hip/dong_outflow.hip bc/bcknd/device/hip/dong_outflow_kernel.h
 fluid/bcknd/device/hip/fluid_abbdf.o : fluid/bcknd/device/hip/fluid_abbdf.hip fluid/bcknd/device/hip/sumab_kernel.h fluid/bcknd/device/hip/makeabf_kernel.h fluid/bcknd/device/hip/makebdf_kernel.h
 fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h 
+sem/bcknd/device/hip/coef.o : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
 device/cuda/check.o : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.o : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.o : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h

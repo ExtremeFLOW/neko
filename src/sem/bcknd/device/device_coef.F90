@@ -37,6 +37,20 @@ module device_coef
   implicit none
 
 #ifdef HAVE_HIP
+    interface
+     subroutine hip_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
+          drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
+          jacinv, w3, nel, lx, gdim) &
+          bind(c, name='hip_coef_generate_geo')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: G11, G12, G13, G22, G23, G33
+       type(c_ptr), value :: drdx, drdy, drdz
+       type(c_ptr), value :: dsdx, dsdy, dsdz 
+       type(c_ptr), value :: dtdx, dtdy, dtdz
+       type(c_ptr), value :: jacinv, w3
+       integer(c_int) :: nel, gdim, lx
+     end subroutine hip_coef_generate_geo
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
@@ -68,6 +82,9 @@ contains
     integer :: nel, gdim, lx
 
 #ifdef HAVE_HIP
+    call hip_coef_generate_geo(G11_d, G12_d, G13_d, G22_d, G23_d, &
+         G33_d, drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, &
+         dtdx_d, dtdy_d, dtdz_d, jacinv_d, w3_d, nel, lx, gdim)
 #elif HAVE_CUDA
     call cuda_coef_generate_geo(G11_d, G12_d, G13_d, G22_d, G23_d, &
          G33_d, drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, &

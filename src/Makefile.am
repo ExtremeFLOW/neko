@@ -221,7 +221,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
 	fluid/bcknd/device/hip/fluid_abbdf.hip\
-	fluid/bcknd/device/hip/pnpn_res.hip
+	fluid/bcknd/device/hip/pnpn_res.hip\
+	sem/bcknd/device/hip/coef.hip
 endif
 
 if ENABLE_CUDA
