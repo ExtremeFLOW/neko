@@ -24,6 +24,8 @@ neko_fortran_SOURCES = \
 	sem/space.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
+	sem/interpolation.f90\
+	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
@@ -161,7 +163,6 @@ neko_fortran_SOURCES = \
 	common/projection.f90\
 	comm/parmetis.F90\
 	comm/redist.f90\
-	sem/interpolation.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
 	common/jobctrl.f90\
@@ -249,7 +250,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	fluid/bcknd/device/cuda/fluid_abbdf.cu\
-	fluid/bcknd/device/cuda/pnpn_res.cu
+	fluid/bcknd/device/cuda/pnpn_res.cu\
+	sem/bcknd/device/cuda/coef.cu
 endif
 
 if ENABLE_OPENCL
