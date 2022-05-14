@@ -86,15 +86,15 @@ contains
     type(c_ptr) :: msk, x, u, v, w, normal_x, normal_y, normal_z
 
 #ifdef HAVE_HIP
-    call hip_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
+    call hip_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
                                               normal_z, u, v, w, uinf, delta, m)
 #elif HAVE_CUDA
-    call cuda_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
+    call cuda_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
                                               normal_z, u, v, w, uinf, delta, m)
 #elif HAVE_OPENCL
-    !call opencl_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
-    !                                          normal_z, u, v, w, uinf, delta, m)
-    call neko_error('No opencl device backend support for dong')
+    call opencl_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
+         normal_z, u, v, w, uinf, delta, m)
+
 #else
     call neko_error('No device backend configured')
 #endif

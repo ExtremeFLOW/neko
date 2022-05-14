@@ -68,5 +68,8 @@ extern void *tensor_program;
 /** Device schwarz kernels */
 extern void *schwarz_program;
 
+/** Device dong kernels */
+extern void *dong_program;
+
 
 #endif
