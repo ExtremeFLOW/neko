@@ -698,6 +698,7 @@ contains
          call device_memcpy(dsdz, c%dsdz_d, n_dofs, DEVICE_TO_HOST)
          call device_memcpy(dtdx, c%dtdx_d, n_dofs, DEVICE_TO_HOST)
          call device_memcpy(dtdy, c%dtdy_d, n_dofs, DEVICE_TO_HOST)
+         call device_memcpy(dtdz, c%dtdz_d, n_dofs, DEVICE_TO_HOST)
          call device_memcpy(jac, c%jac_d, n_dofs, DEVICE_TO_HOST)
          call device_memcpy(jacinv, c%jacinv_d, n_dofs, DEVICE_TO_HOST)
 
