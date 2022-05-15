@@ -215,9 +215,10 @@ __global__ void invcol1_kernel(T * __restrict__ a,
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
+  const T one = 1.0;
 
   for (int i = idx; i < n; i += str) {
-    a[i] = 1 / a[i];
+    a[i] = one / a[i];
   }
 }
 

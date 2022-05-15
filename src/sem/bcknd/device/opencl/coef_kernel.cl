@@ -286,6 +286,7 @@ __kernel void coef_generate_drst_kernel(__global real * __restrict__ jac,
                                 
   const int idx = get_global_id(0);
   const int str = get_local_size(0) * get_num_groups(0);
+  const real one = 1.0;
 
   for (int i = idx; i < n; i += str) {
     jac[i] = (dxdr[i] * dyds[i] * dzdt[i])
@@ -294,7 +295,7 @@ __kernel void coef_generate_drst_kernel(__global real * __restrict__ jac,
            - (dxdr[i] * dydt[i] * dzds[i])
            - (dxds[i] * dydr[i] * dzdt[i])
            - (dxdt[i] * dyds[i] * dzdr[i]);
-    jacinv[i] = 1.0 / jac[i];    
+    jacinv[i] = one / jac[i];    
 
     drdx[i] = dyds[i]*dzdt[i] - dydt[i]*dzds[i];
     drdy[i] = dxdt[i]*dzds[i] - dxds[i]*dzdt[i];

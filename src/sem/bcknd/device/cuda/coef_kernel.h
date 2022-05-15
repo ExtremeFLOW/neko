@@ -257,6 +257,7 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
 				
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
+  const T one = 1.0;
 
   for (int i = idx; i < n; i += str) {
     jac[i] = (dxdr[i] * dyds[i] * dzdt[i])
@@ -265,7 +266,7 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
            - (dxdr[i] * dydt[i] * dzds[i])
            - (dxds[i] * dydr[i] * dzdt[i])
            - (dxdt[i] * dyds[i] * dzdr[i]);
-    jacinv[i] = 1.0 / jac[i];    
+    jacinv[i] = one / jac[i];    
 
     drdx[i] = dyds[i]*dzdt[i] - dydt[i]*dzds[i];
     drdy[i] = dxdt[i]*dzds[i] - dxds[i]*dzdt[i];
