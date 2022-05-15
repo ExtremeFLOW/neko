@@ -43,6 +43,7 @@ module device_coef
           jacinv, w3, nel, lx, gdim) &
           bind(c, name='hip_coef_generate_geo')
        use, intrinsic :: iso_c_binding
+       implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
        type(c_ptr), value :: drdx, drdy, drdz
        type(c_ptr), value :: dsdx, dsdy, dsdz 
@@ -51,6 +52,25 @@ module device_coef
        integer(c_int) :: nel, gdim, lx
      end subroutine hip_coef_generate_geo
   end interface
+
+  interface
+     subroutine hip_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
+          dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
+          dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
+          bind(c, name='hip_coef_generate_dxyzdrst')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: drdx, drdy, drdz
+       type(c_ptr), value :: dsdx, dsdy, dsdz
+       type(c_ptr), value :: dtdx, dtdy, dtdz
+       type(c_ptr), value :: dxdr, dydr, dzdr
+       type(c_ptr), value :: dxds, dyds, dzds
+       type(c_ptr), value :: dxdt, dydt, dzdt
+       type(c_ptr), value :: dx, dy, dz, x, y, z
+       type(c_ptr), value :: jacinv, jac
+       integer(c_int) :: lx, nel
+     end subroutine hip_coef_generate_dxyzdrst
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
@@ -58,6 +78,7 @@ module device_coef
           jacinv, w3, nel, lx, gdim) &
           bind(c, name='cuda_coef_generate_geo')
        use, intrinsic :: iso_c_binding
+       implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
        type(c_ptr), value :: drdx, drdy, drdz
        type(c_ptr), value :: dsdx, dsdy, dsdz 
@@ -73,6 +94,7 @@ module device_coef
           dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
           bind(c, name='cuda_coef_generate_dxyzdrst')
        use, intrinsic :: iso_c_binding
+       implicit none
        type(c_ptr), value :: drdx, drdy, drdz
        type(c_ptr), value :: dsdx, dsdy, dsdz
        type(c_ptr), value :: dtdx, dtdy, dtdz
@@ -81,7 +103,7 @@ module device_coef
        type(c_ptr), value :: dxdt, dydt, dzdt
        type(c_ptr), value :: dx, dy, dz, x, y, z
        type(c_ptr), value :: jacinv, jac
-       integer(c_int) :: lx, nelf
+       integer(c_int) :: lx, nel
      end subroutine cuda_coef_generate_dxyzdrst
   end interface
 #elif HAVE_OPENCL
@@ -91,6 +113,7 @@ module device_coef
           jacinv, w3, nel, lx, gdim) &
           bind(c, name='opencl_coef_generate_geo')
        use, intrinsic :: iso_c_binding
+       implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
        type(c_ptr), value :: drdx, drdy, drdz
        type(c_ptr), value :: dsdx, dsdy, dsdz 
@@ -106,6 +129,7 @@ module device_coef
           dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
           bind(c, name='opencl_coef_generate_dxyzdrst')
        use, intrinsic :: iso_c_binding
+       implicit none
        type(c_ptr), value :: drdx, drdy, drdz
        type(c_ptr), value :: dsdx, dsdy, dsdz
        type(c_ptr), value :: dtdx, dtdy, dtdz
@@ -114,7 +138,7 @@ module device_coef
        type(c_ptr), value :: dxdt, dydt, dzdt
        type(c_ptr), value :: dx, dy, dz, x, y, z
        type(c_ptr), value :: jacinv, jac
-       integer(c_int) :: lx, nelf
+       integer(c_int) :: lx, nel
      end subroutine opencl_coef_generate_dxyzdrst
   end interface
 #endif
@@ -164,6 +188,10 @@ contains
     integer :: lx, nel
 
 #ifdef HAVE_HIP
+    call hip_coef_generate_dxyzdrst(drdx_d, drdy_d, drdz_d, dsdx_d, &
+         dsdy_d, dsdz_d, dtdx_d, dtdy_d, dtdz_d, dxdr_d, dydr_d, &
+         dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
+         dx_d, dy_d, dz_d, x_d, y_d, z_d, jacinv_d, jac_d, lx, nel)
 #elif HAVE_CUDA
     call cuda_coef_generate_dxyzdrst(drdx_d, drdy_d, drdz_d, dsdx_d, &
          dsdy_d, dsdz_d, dtdx_d, dtdy_d, dtdz_d, dxdr_d, dydr_d, &
