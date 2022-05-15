@@ -24,6 +24,8 @@ neko_fortran_SOURCES = \
 	sem/space.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
+	sem/interpolation.f90\
+	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
@@ -161,7 +163,6 @@ neko_fortran_SOURCES = \
 	common/projection.f90\
 	comm/parmetis.F90\
 	comm/redist.f90\
-	sem/interpolation.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
 	common/jobctrl.f90\
@@ -220,7 +221,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
 	fluid/bcknd/device/hip/fluid_abbdf.hip\
-	fluid/bcknd/device/hip/pnpn_res.hip
+	fluid/bcknd/device/hip/pnpn_res.hip\
+	sem/bcknd/device/hip/coef.hip
 endif
 
 if ENABLE_CUDA
@@ -249,7 +251,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	fluid/bcknd/device/cuda/fluid_abbdf.cu\
-	fluid/bcknd/device/cuda/pnpn_res.cu
+	fluid/bcknd/device/cuda/pnpn_res.cu\
+	sem/bcknd/device/cuda/coef.cu
 endif
 
 if ENABLE_OPENCL
@@ -277,7 +280,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
 	fluid/bcknd/device/opencl/fluid_abbdf.c\
-	fluid/bcknd/device/opencl/pnpn_res.c
+	fluid/bcknd/device/opencl/pnpn_res.c\
+	sem/bcknd/device/opencl/coef.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -295,7 +299,8 @@ CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      gs/bcknd/device/opencl/*.cl.h\
 	      bc/bcknd/device/opencl/*.cl.h\
 	      krylov/bcknd/device/opencl/*.cl.h\
-	      fluid/bcknd/device/opencl/*.cl.h
+	      fluid/bcknd/device/opencl/*.cl.h\
+              sem/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -329,6 +334,7 @@ EXTRA_DIST = \
 	fluid/bcknd/device/cuda/makebdf_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
+	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
@@ -357,6 +363,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
+	sem/bcknd/device/hip/coef_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
@@ -379,6 +386,7 @@ EXTRA_DIST = \
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
+	sem/bcknd/device/opencl/coef_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

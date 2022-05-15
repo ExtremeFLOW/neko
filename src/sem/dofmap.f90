@@ -33,6 +33,7 @@
 !> Defines a mapping of the degrees of freedom
 !! @details A mapping defined based on a function space and a mesh
 module dofmap
+  use neko_config
   use mesh
   use space
   use tuple
@@ -40,7 +41,9 @@ module dofmap
   use utils
   use fast3d
   use tensor
+  use device
   use math
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -54,6 +57,13 @@ module dofmap
 
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
+
+     !
+     ! Device pointers (if present)
+     !
+     type(c_ptr) :: x_d = C_NULL_PTR
+     type(c_ptr) :: y_d = C_NULL_PTR
+     type(c_ptr) :: z_d = C_NULL_PTR
 
    contains
      procedure, pass(this) :: size => dofmap_size
@@ -118,6 +128,17 @@ contains
     !> @note should be intialised differently in acissymmetric case
 
     call dofmap_generate_xyz(this)    
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+        (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_map(this%x, this%x_d, this%n_dofs)
+       call device_map(this%y, this%y_d, this%n_dofs)
+       call device_map(this%z, this%z_d, this%n_dofs)
+
+       call device_memcpy(this%x, this%x_d, this%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%y, this%y_d, this%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%z, this%z_d, this%n_dofs, HOST_TO_DEVICE)
+    end if
     
   end function dofmap_init
 
@@ -147,6 +168,21 @@ contains
 
     nullify(this%msh)
     nullify(this%Xh)
+
+    !
+    ! Cleanup the device (if present)
+    !
+    if (c_associated(this%x_d)) then
+       call device_free(this%x_d)
+    end if
+
+    if (c_associated(this%y_d)) then
+       call device_free(this%y_d)
+    end if
+
+    if (c_associated(this%z_d)) then
+       call device_free(this%z_d)
+    end if
     
   end subroutine dofmap_free
 
