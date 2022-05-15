@@ -66,6 +66,24 @@ module device_coef
        integer(c_int) :: nel, gdim, lx
      end subroutine cuda_coef_generate_geo
   end interface
+
+  interface
+     subroutine cuda_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
+          dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
+          dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
+          bind(c, name='cuda_coef_generate_dxyzdrst')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: drdx, drdy, drdz
+       type(c_ptr), value :: dsdx, dsdy, dsdz
+       type(c_ptr), value :: dtdx, dtdy, dtdz
+       type(c_ptr), value :: dxdr, dydr, dzdr
+       type(c_ptr), value :: dxds, dyds, dzds
+       type(c_ptr), value :: dxdt, dydt, dzdt
+       type(c_ptr), value :: dx, dy, dz, x, y, z
+       type(c_ptr), value :: jacinv, jac
+       integer(c_int) :: lx, nelf
+     end subroutine cuda_coef_generate_dxyzdrst
+  end interface
 #elif HAVE_OPENCL
   interface
      subroutine opencl_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
@@ -112,5 +130,31 @@ contains
 #endif
 
   end subroutine device_coef_generate_geo
+
+  subroutine device_coef_generate_dxydrst(drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d,&
+       dsdz_d, dtdx_d, dtdy_d, dtdz_d, dxdr_d, dydr_d, dzdr_d, dxds_d, &
+       dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, dx_d, dy_d, dz_d, &
+       x_d, y_d, z_d, jacinv_d, jac_d, lx, nel)
+    type(c_ptr) :: drdx_d, drdy_d, drdz_d
+    type(c_ptr) :: dsdx_d, dsdy_d, dsdz_d
+    type(c_ptr) :: dtdx_d, dtdy_d, dtdz_d
+    type(c_ptr) :: dxdr_d, dydr_d, dzdr_d
+    type(c_ptr) :: dxds_d, dyds_d, dzds_d
+    type(c_ptr) :: dxdt_d, dydt_d, dzdt_d
+    type(c_ptr) :: dx_d, dy_d, dz_d, x_d, y_d, z_d
+    type(c_ptr) :: jacinv_d, jac_d
+    integer :: lx, nel
+
+#ifdef HAVE_HIP
+#elif HAVE_CUDA
+    call cuda_coef_generate_dxyzdrst(drdx_d, drdy_d, drdz_d, dsdx_d, &
+         dsdy_d, dsdz_d, dtdx_d, dtdy_d, dtdz_d, dxdr_d, dydr_d, &
+         dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, &
+         dx_d, dy_d, dz_d, x_d, y_d, z_d, jacinv_d, jac_d, lx, nel)
+#elif HAVE_OPENCL
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_coef_generate_dxydrst
 
 end module device_coef
