@@ -280,7 +280,8 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
 	fluid/bcknd/device/opencl/fluid_abbdf.c\
-	fluid/bcknd/device/opencl/pnpn_res.c
+	fluid/bcknd/device/opencl/pnpn_res.c\
+	sem/bcknd/device/opencl/coef.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -298,7 +299,8 @@ CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      gs/bcknd/device/opencl/*.cl.h\
 	      bc/bcknd/device/opencl/*.cl.h\
 	      krylov/bcknd/device/opencl/*.cl.h\
-	      fluid/bcknd/device/opencl/*.cl.h
+	      fluid/bcknd/device/opencl/*.cl.h\
+              sem/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90

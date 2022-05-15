@@ -71,5 +71,8 @@ extern void *schwarz_program;
 /** Device dong kernels */
 extern void *dong_program;
 
+/** Device coef kernels */
+extern void *coef_program;
+
 
 #endif
