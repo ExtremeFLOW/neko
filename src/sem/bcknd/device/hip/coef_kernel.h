@@ -37,32 +37,29 @@
  */
 template< typename T, const int LX, const int CHUNKS >
 __global__ void coef_generate_geo_kernel(T * __restrict__ G11,
-                                         T * __restrict__ G12, 
-                                         T * __restrict__ G13,
-                                         T * __restrict__ G22,
-                                         T * __restrict__ G23, 
-                                         T * __restrict__ G33,
-                                         const T * __restrict__ drdx, 
-                                         const T * __restrict__ drdy, 
-                                         const T * __restrict__ drdz,
-                                         const T * __restrict__ dsdx, 
-                                         const T * __restrict__ dsdy, 
-                                         const T * __restrict__ dsdz, 
-                                         const T * __restrict__ dtdx,
-                                         const T * __restrict__ dtdy, 
-                                         const T * __restrict__ dtdz,
-                                         const T * __restrict__ jacinv, 
-                                         const T * __restrict__ w3,
-                                         const int gdim) {
+					 T * __restrict__ G12, 
+					 T * __restrict__ G13,
+					 T * __restrict__ G22,
+					 T * __restrict__ G23, 
+					 T * __restrict__ G33,
+					 const T * __restrict__ drdx, 
+					 const T * __restrict__ drdy, 
+					 const T * __restrict__ drdz,
+					 const T * __restrict__ dsdx, 
+					 const T * __restrict__ dsdy, 
+					 const T * __restrict__ dsdz, 
+					 const T * __restrict__ dtdx,
+					 const T * __restrict__ dtdy, 
+					 const T * __restrict__ dtdz,
+					 const T * __restrict__ jacinv, 
+					 const T * __restrict__ w3,
+					 const int gdim) {
 
   int i,j,k;
   
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
 
   __shared__ T shw3[LX * LX * LX];
 
@@ -100,4 +97,187 @@ __global__ void coef_generate_geo_kernel(T * __restrict__ G11,
       G33[ijk + e * LX * LX * LX] *= shw3[ijk];
     }
   }
+}
+
+/**
+ * Device kernel for coef dxyz
+ */
+template< typename T, const int LX, const int CHUNKS >
+__global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr, 
+					  T * __restrict__ dydr, 
+					  T * __restrict__ dzdr, 
+					  T * __restrict__ dxds, 
+					  T * __restrict__ dyds, 
+					  T * __restrict__ dzds, 
+					  T * __restrict__ dxdt, 
+					  T * __restrict__ dydt, 
+					  T * __restrict__ dzdt,
+					  const T * __restrict__ dx, 
+					  const T * __restrict__ dy, 
+					  const T * __restrict__ dz, 
+					  const T * __restrict__ x, 
+					  const T * __restrict__ y, 
+					  const T * __restrict__ z) {
+
+  int i,j,k;
+  
+  const int e = blockIdx.x;
+  const int iii = threadIdx.x;
+  const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
+
+  __shared__ T shdx[LX * LX];
+  __shared__ T shdy[LX * LX];
+  __shared__ T shdz[LX * LX];
+
+  __shared__ T shu[LX * LX * LX];
+
+  if (iii < (LX * LX)) {
+    shdx[iii] = dx[iii];
+    shdy[iii] = dy[iii];
+    shdz[iii] = dz[iii];
+  }
+
+  j = iii;
+  while(j < (LX * LX * LX)) {
+    shu[iii] = x[j + e * LX * LX * LX];
+    j = j + CHUNKS;
+  }
+
+  __syncthreads();
+   
+  for (int n = 0; n < nchunks; n++) {
+    const int ijk = iii + n * CHUNKS;
+    const int jk = ijk / LX;
+    i = ijk - jk * LX;
+    k = jk / LX;
+    j = jk - k * LX;
+    if ( i < LX && j < LX && k < LX) {
+      T rtmp = 0.0;
+      T stmp = 0.0;
+      T ttmp = 0.0;
+      for (int l = 0; l < LX; l++) {		
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
+	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];	
+      } 
+      dxdr[ijk + e * LX * LX * LX] = rtmp;
+      dxds[ijk + e * LX * LX * LX] = stmp;
+      dxdt[ijk + e * LX * LX * LX] = ttmp;
+    }
+  }
+
+  __syncthreads();
+
+  j = iii;
+  while(j < (LX * LX * LX)) {
+    shu[iii] = y[j + e * LX * LX * LX];
+    j = j + CHUNKS;
+  }
+
+  __syncthreads();
+   
+  for (int n = 0; n < nchunks; n++) {
+    const int ijk = iii + n * CHUNKS;
+    const int jk = ijk / LX;
+    i = ijk - jk * LX;
+    k = jk / LX;
+    j = jk - k * LX;
+    if ( i < LX && j < LX && k < LX) {
+      T rtmp = 0.0;
+      T stmp = 0.0;
+      T ttmp = 0.0;
+      for (int l = 0; l < LX; l++) {		
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
+	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];	
+      } 
+      dydr[ijk + e * LX * LX * LX] = rtmp;
+      dyds[ijk + e * LX * LX * LX] = stmp;
+      dydt[ijk + e * LX * LX * LX] = ttmp;
+    }
+  }
+
+  __syncthreads();
+
+  j = iii;
+  while(j < (LX * LX * LX)) {
+    shu[iii] = z[j + e * LX * LX * LX];
+    j = j + CHUNKS;
+  }
+
+  __syncthreads();
+   
+  for (int n = 0; n < nchunks; n++) {
+    const int ijk = iii + n * CHUNKS;
+    const int jk = ijk / LX;
+    i = ijk - jk * LX;
+    k = jk / LX;
+    j = jk - k * LX;
+    if ( i < LX && j < LX && k < LX) {
+      T rtmp = 0.0;
+      T stmp = 0.0;
+      T ttmp = 0.0;
+      for (int l = 0; l < LX; l++) {		
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
+	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];	
+      } 
+      dzdr[ijk + e * LX * LX * LX] = rtmp;
+      dzds[ijk + e * LX * LX * LX] = stmp;
+      dzdt[ijk + e * LX * LX * LX] = ttmp;
+    }
+  }
+}
+
+/**
+ * Device kernel for coef drst
+ */
+template< typename T >
+__global__ void coef_generate_drst_kernel(T * __restrict__ jac,
+					  T * __restrict__ jacinv,
+					  T * __restrict__ drdx,
+					  T * __restrict__ drdy,
+					  T * __restrict__ drdz,
+					  T * __restrict__ dsdx,
+					  T * __restrict__ dsdy,
+					  T * __restrict__ dsdz,
+					  T * __restrict__ dtdx,
+					  T * __restrict__ dtdy,
+					  T * __restrict__ dtdz,
+					  const T * __restrict__ dxdr, 
+					  const T * __restrict__ dydr, 
+					  const T * __restrict__ dzdr, 
+					  const T * __restrict__ dxds, 
+					  const T * __restrict__ dyds, 
+					  const T * __restrict__ dzds, 
+					  const T * __restrict__ dxdt, 
+					  const T * __restrict__ dydt, 
+					  const T * __restrict__ dzdt,
+					  const int n) {
+				
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  const T one = 1.0;
+
+  for (int i = idx; i < n; i += str) {
+    jac[i] = (dxdr[i] * dyds[i] * dzdt[i])
+           + (dxdt[i] * dydr[i] * dzds[i])
+           + (dxds[i] * dydt[i] * dzdr[i])
+           - (dxdr[i] * dydt[i] * dzds[i])
+           - (dxds[i] * dydr[i] * dzdt[i])
+           - (dxdt[i] * dyds[i] * dzdr[i]);
+    jacinv[i] = one / jac[i];    
+
+    drdx[i] = dyds[i]*dzdt[i] - dydt[i]*dzds[i];
+    drdy[i] = dxdt[i]*dzds[i] - dxds[i]*dzdt[i];
+    drdz[i] = dxds[i]*dydt[i] - dxdt[i]*dyds[i];
+    dsdx[i] = dydt[i]*dzdr[i] - dydr[i]*dzdt[i];
+    dsdy[i] = dxdr[i]*dzdt[i] - dxdt[i]*dzdr[i];
+    dsdz[i] = dxdt[i]*dydr[i] - dxdr[i]*dydt[i];
+    dtdx[i] = dydr[i]*dzds[i] - dyds[i]*dzdr[i];
+    dtdy[i] = dxds[i]*dzdr[i] - dxdr[i]*dzds[i];
+    dtdz[i] = dxdr[i]*dyds[i] - dxds[i]*dydr[i];
+
+  }
+
 }

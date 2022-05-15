@@ -54,7 +54,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
 
-#define CASE(LX)                                                                \
+#define GEO_CASE(LX)                                                            \
     case LX:                                                                    \
       hipLaunchKernelGGL(                                                       \
                HIP_KERNEL_NAME(coef_generate_geo_kernel<real, LX, 1024>),       \
@@ -69,24 +69,92 @@ extern "C" {
       break
     
     switch(*lx) {
-      CASE(2);
-      CASE(3);
-      CASE(4);
-      CASE(5);
-      CASE(6);
-      CASE(7);
-      CASE(8);
-      CASE(9);
-      CASE(10);
-      CASE(11);
-      CASE(12);
-      CASE(13);
-      CASE(14);
+      GEO_CASE(2);
+      GEO_CASE(3);
+      GEO_CASE(4);
+      GEO_CASE(5);
+      GEO_CASE(6);
+      GEO_CASE(7);
+      GEO_CASE(8);
+      GEO_CASE(9);
+      GEO_CASE(10);
+      GEO_CASE(11);
+      GEO_CASE(12);
+      GEO_CASE(13);
+      GEO_CASE(14);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
         exit(1);
       }
     }
+  }
+
+  /** 
+   * Fortran wrapper for generating geometric factors
+   */
+  void hip_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz, 
+				  void *dsdx, void *dsdy, void *dsdz, 
+				  void *dtdx, void *dtdy, void *dtdz, 
+				  void *dxdr, void *dydr, void *dzdr, 
+				  void *dxds, void *dyds, void *dzds, 
+				  void *dxdt, void *dydt, void *dzdt,
+				  void *dx, void *dy, void *dz, 
+				  void *x, void *y, void *z,
+				  void *jacinv, void *jac,
+				  int *lx, int *nel)  {
+    
+    const int n = (*nel) * (*lx) * (*lx) * (*lx);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks_dxyz((*nel), 1, 1);
+    const dim3 nblcks_drst((n + 1024 - 1)/ 1024, 1, 1);
+
+#define DXYZDRST_CASE(LX)					               \
+    case LX:								       \
+      hipLaunchKernelGGL(						       \
+               HIP_KERNEL_NAME(coef_generate_dxyz_kernel<real, LX, 1024>),     \
+	       nblcks_dxyz, nthrds, 0, 0,				       \
+  	       (real *) dxdr, (real *) dydr, (real *) dzdr,		       \
+	       (real *) dxds, (real *) dyds, (real *) dzds,		       \
+	       (real *) dxdt, (real *) dydt, (real *) dzdt,		       \
+	       (real *) dx, (real *) dy, (real *) dz,			       \
+	       (real *) x, (real *) y, (real *) z);			       \
+      HIP_CHECK(hipGetLastError());					       \
+      break
+
+    switch(*lx) {
+      DXYZDRST_CASE(2);
+      DXYZDRST_CASE(3);
+      DXYZDRST_CASE(4);
+      DXYZDRST_CASE(5);
+      DXYZDRST_CASE(6);
+      DXYZDRST_CASE(7);
+      DXYZDRST_CASE(8);
+      DXYZDRST_CASE(9);
+      DXYZDRST_CASE(10);
+      DXYZDRST_CASE(11);
+      DXYZDRST_CASE(12);
+      DXYZDRST_CASE(13);
+      DXYZDRST_CASE(14);
+      DXYZDRST_CASE(15);
+      DXYZDRST_CASE(16);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
+    }
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(coef_generate_drst_kernel<real>),
+		       nblcks_drst, nthrds, 0, 0,
+		       (real *) jac, (real *) jacinv, 
+		       (real *) drdx, (real *) drdy, (real *) drdz,
+		       (real *) dsdx, (real *) dsdy, (real *) dsdz,
+		       (real *) dtdx, (real *) dtdy, (real *) dtdz,
+		       (real *) dxdr, (real *) dydr, (real *) dzdr, 
+		       (real *) dxds, (real *) dyds, (real *) dzds, 
+		       (real *) dxdt, (real *) dydt, (real *) dzdt, n);
+    HIP_CHECK(hipGetLastError());
+
   }
 }
