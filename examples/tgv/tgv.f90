@@ -1,5 +1,6 @@
 module user
   use neko
+  use cpr
   implicit none
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -71,8 +72,40 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(field_t) :: omg1, omg2, omg3, w1, w2
+    type(cpr_t) :: cpr_u
     integer :: n, i
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo
+    character(len=LOG_SIZE) :: log_buf 
+
+
+    !========== Test compression  =============
+
+    if (mod(tstep,10).ne.0) return
+    
+    call neko_log%section('Compression')       
+
+    ! Initialize the fields and transform matrices
+    call cpr_init(cpr_u,u)
+
+    ! truncate the spectral coefficients
+    call cpr_truncate_wn(cpr_u,coef)
+  
+    ! just to check, go to physical space and compare
+    call cpr_goto_space(cpr_u,'phys') !< 'spec' / 'phys'
+    ! chech that the copy is fine in one entry
+    do i=1,10
+      write(log_buf, '(A,E15.7,A,E15.7)') &
+            'u value:', cpr_u%fld%x(i,1,1,10), &
+            ' reconstructed u value:', &
+            cpr_u%fldhat(i,1,1,10)
+      call neko_log%message(log_buf)
+    enddo
+
+    ! Free the memory allocated for the fields
+    call cpr_free(cpr_u)
+
+    !=========================================
+
     n = u%dof%n_dofs
 
     if (mod(tstep,50).ne.0) return
