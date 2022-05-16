@@ -110,4 +110,5 @@ To offload the computation to the device, must obtain the device pointers of `x`
 ~~~~~~~~~~~~~~~
 @note Most derived types in Neko already contain one or several device pointers associated with its internal data. Thus the `device_get_ptr` call can often be omitted.
 
-However, for type bound procedures, such as computing the matrix-vector product derived from `ax_t`, one should **always** call the same type bound procedure (in this case `compute`) as on the host. Derived types contain all the logic such that the fastest backend is always selected. 
+However, for type bound procedures, such as computing the matrix-vector product derived from `ax_t`, one should **always** call the same type bound procedure (in this case `compute`) as on the host. This is because derived types contain all the logic such that the fastest backend is always selected or is instantiated as a backend-specific type during initialisation (see for example ax_helm_fctry.f90)
+
