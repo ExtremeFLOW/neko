@@ -96,7 +96,7 @@ For example, we call the `math::add2` routine to add two arrays together on the 
   ...
   call add2(x, y, n)
 ~~~~~~~~~~~~~~~
-To offload the computation to the device, must obtain the device pointers of `x` and `y`, and instead call device_math::device_add2
+To offload the computation to the device, one must obtain the device pointers of `x` and `y`, and instead call device_math::device_add2
 ~~~~~~~~~~~~~~~{.f90}
   integer, allocatable :: x(:), y(:)
   type(c_ptr) :: x_d, y_d
