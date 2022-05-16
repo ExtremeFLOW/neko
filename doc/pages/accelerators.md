@@ -104,8 +104,8 @@ To offload the computation to the device, one must obtain the device pointers of
   ...
   allocate(x(n), y(n))
   ...
-  x_d = device_get_ptr(x_d)
-  y_d = device_get_ptr(y_d)
+  x_d = device_get_ptr(x)
+  y_d = device_get_ptr(y)
   call device_add2(x_d, y_d, n)
 ~~~~~~~~~~~~~~~
 @note Most derived types in Neko already contain one or several device pointers associated with its internal data. Thus the `device_get_ptr` call can often be omitted.
