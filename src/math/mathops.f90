@@ -64,43 +64,43 @@ module mathops
 contains
 
   !> \f$ a = -a \f$
-  subroutine opchsign (a1,a2,a3,gdim,n)
+  subroutine opchsign(a1, a2, a3, gdim, n)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
     integer :: i
 
     if (gdim .eq. 3) then
-       do i=1,n
-          a1(i)=-a1(i)
-          a2(i)=-a2(i)
-          a3(i)=-a3(i)
+       do i = 1, n
+          a1(i) = -a1(i)
+          a2(i) = -a2(i)
+          a3(i) = -a3(i)
        end do
     else
-       do i=1,n
-          a1(i)=-a1(i)
-          a2(i)=-a2(i)
+       do i = 1, n
+          a1(i) = -a1(i)
+          a2(i) = -a2(i)
        end do
     end if
 
   end subroutine opchsign
   
   !> \f$ a = a * c \f$
-  subroutine opcolv (a1,a2,a3,c,gdim,n)
+  subroutine opcolv(a1, a2, a3, c, gdim, n)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
     if (gdim .eq. 3) then
-       do i=1,n
-          a1(i)=a1(i)*c(i)
-          a2(i)=a2(i)*c(i)
-          a3(i)=a3(i)*c(i)
+       do i = 1, n
+          a1(i) = a1(i)*c(i)
+          a2(i) = a2(i)*c(i)
+          a3(i) = a3(i)*c(i)
        end do
     else
-       do i=1,n
-          a1(i)=a1(i)*c(i)
-          a2(i)=a2(i)*c(i)
+       do i = 1, n
+          a1(i) = a1(i)*c(i)
+          a2(i) = a2(i)*c(i)
        end do
     end if
 
@@ -115,13 +115,13 @@ contains
     integer :: i
 
     if (gdim .eq. 3) then
-       do i=1,n
+       do i = 1, n
           a1(i) = b1(i)*c(i)*d
           a2(i) = b2(i)*c(i)*d
           a3(i) = b3(i)*c(i)*d
        end do
     else
-       do i=1,n
+       do i = 1, n
           a1(i) =  b1(i)*c(i)*d
           a2(i) =  b2(i)*c(i)*d
        end do
@@ -138,7 +138,7 @@ contains
     integer :: i
 
     if (gdim .eq. 3) then
-       do i = 1,n
+       do i = 1, n
           a1(i) = a1(i) + b1(i)*c
           a2(i) = a2(i) + b2(i)*c
           a3(i) = a3(i) + b3(i)*c
@@ -161,13 +161,13 @@ contains
     integer :: i
     
     if (gdim .eq. 3) then
-       do i=1,n
+       do i = 1, n
           a1(i) = a1(i) + b1(i)*c(i)
           a2(i) = a2(i) + b2(i)*c(i)
           a3(i) = a3(i) + b3(i)*c(i)
        end do
     else
-       do i=1,n
+       do i = 1, n
           a1(i) = a1(i) + b1(i)*c(i)
           a2(i) = a2(i) + b2(i)*c(i)
        end do

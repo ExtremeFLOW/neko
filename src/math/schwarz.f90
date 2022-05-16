@@ -223,13 +223,13 @@ contains
     real(kind=rp), intent(inout) :: wt(n,4,2,nelv)
     real(kind=rp), intent(inout) :: work(n,n)
     integer :: ie,i,j
-    do j = 1,n
+    do j = 1, n
        wt(j,1,1,ie) = 1d0/work(1,j)
        wt(j,2,1,ie) = 1d0/work(2,j)
        wt(j,3,1,ie) = 1d0/work(n-1,j)
        wt(j,4,1,ie) = 1d0/work(n,j)
     end do
-    do i = 1,n
+    do i = 1, n
        wt(i,1,2,ie) = 1d0/work(i,1)
        wt(i,2,2,ie) = 1d0/work(i,2)
        wt(i,3,2,ie) = 1d0/work(i,n-1)
@@ -240,7 +240,7 @@ contains
   end subroutine schwarz_setup_schwarz_wt2d_2
 
   !>Setup schwarz weights, 3d, second step
-  subroutine schwarz_setup_schwarz_wt3d_2(wt,ie,n,work, nelv)
+  subroutine schwarz_setup_schwarz_wt3d_2(wt, ie, n, work, nelv)
     integer, intent(in) ::n, nelv, ie
     real(kind=rp), intent(inout) :: wt(n,n,4,3,nelv)
     real(kind=rp), intent(inout) :: work(n,n,n)      
@@ -281,29 +281,28 @@ contains
     real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv)
     real(kind=rp), intent(inout) :: b(n,n,n,nelv)
     integer :: i, j, k, ie
-    do ie = 1,nelv
-       do k = 1,n
-          do j = 1,n
-             do i = 1,n
+    do ie = 1, nelv
+       do k = 1, n
+          do j = 1, n
+             do i = 1, n
                 b(i,j,k,ie) = a(i,j,k,ie)
              end do
           end do
        end do
     end do
-    return
   end subroutine schwarz_toreg3d
 
   !> convert array a from original size to size extended array with border
-  subroutine schwarz_toext3d(a,b,n, nelv)
+  subroutine schwarz_toext3d(a, b, n, nelv)
     integer, intent(in) :: n, nelv
     real (kind=rp), intent(inout) :: a(0:n+1,0:n+1,0:n+1,nelv),b(n,n,n,nelv)
     integer :: i,j,k,ie
 
-    call rzero(a,(n+2)*(n+2)*(n+2)*nelv)
-    do ie = 1,nelv
-       do k = 1,n
-          do j = 1,n
-             do i = 1,n
+    call rzero(a, (n+2)*(n+2)*(n+2)*nelv)
+    do ie = 1, nelv
+       do k = 1, n
+          do j = 1, n
+             do i = 1, n
                 a(i,j,k,ie) = b(i,j,k,ie)
              end do
           end do
