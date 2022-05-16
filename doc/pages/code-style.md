@@ -35,3 +35,8 @@ end module example
 ~~~~~~~~~~~~~~~
 
 Please note that the maximum line length in Neko should not exceed 80 columns.
+
+## Data types
+For portability reasons, it is essential to only use data type kinds defined in .num_types.f90 and avoid legacy constructs like `real*8` or `integer(kind=8)`
+
+Floating-point numbers should be declared using `real` with the kind `rp`, which is the configured working precision for Neko (defaults to double). If single, double or quad precision is explicitly needed, use the kinds `sp`, `dp` or `qp`, respectively. For 16, 32, or 64-bit integers, Neko has defined the kinds ` i2`, `i4` or `i8`, respectively; however, for standard integers, it is perfectly fine to use a plain `integer`.
