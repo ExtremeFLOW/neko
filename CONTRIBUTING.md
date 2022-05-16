@@ -15,11 +15,11 @@ module example
   use mod
   implicit none
 
-  type :: dervied_t
+  type :: derived_t
      integer :: x
    contains
      procedure, pass(this) :: bar     
-  end type dervied_t
+  end type derived_t
 
 contains
 
