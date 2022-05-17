@@ -146,68 +146,71 @@ contains
     real(kind=rp) :: delta(cpr%Xh%lx)
     integer :: i, kj, j, j2, kk
     character(len=LOG_SIZE) :: log_buf 
+
+    associate(Xh => cpr%Xh, v=> cpr%v, vt => cpr%vt, &
+         vinv => cpr%vinv, vinvt => cpr%vinvt, w => cpr%w)
+      ! Get the Legendre polynomials for each point
+      ! Then proceed to compose the transform matrix
+      kj = 0
+      do j = 1, Xh%lx
+         L(0) = 1.
+         L(1) = Xh%zg(j,1)
+         do j2 = 2, Xh%lx-1
+            L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
+                 - (j2-1) * L(j2-2) ) / j2 
+         end do
+         do kk = 1, Xh%lx
+            kj = kj+1
+            v(kj,1) = L(KK-1)
+         end do
+      end do
+      
+      ! transpose the matrix
+      call trsp1(v, Xh%lx) !< non orthogonal wrt weights
+
+      ! Calculate the nominal scaling factors
+      do i = 1, Xh%lx
+         delta(i) = 2.0_rp / (2*(i-1)+1)
+      end do
+      ! modify last entry  
+      delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
+      
+      ! calculate the inverse to multiply the matrix
+      do i = 1, Xh%lx
+         delta(i) = sqrt(1.0_rp / delta(i))
+      end do
+      ! scale the matrix      
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+         end do
+      end do
     
-    ! Get the Legendre polynomials for each point
-    ! Then proceed to compose the transform matrix
-    kj = 0
-    do j = 1, cpr%Xh%lx
-       L(0) = 1.
-       L(1) = cpr%Xh%zg(j,1)
-       do j2 = 2, cpr%Xh%lx-1
-          L(j2) = ( (2*j2-1) * cpr%Xh%zg(j,1) * L(j2-1) &
-               - (j2-1) * L(j2-2) ) / j2 
-       end do
-       do kk = 1, cpr%Xh%lx
-          kj = kj+1
-          cpr%v(kj,1) = L(KK-1)
-       end do
-    end do
-
-    ! transpose the matrix
-    call trsp1(cpr%v, cpr%Xh%lx) !< non orthogonal wrt weights
-
-    ! Calculate the nominal scaling factors
-    do i = 1, cpr%Xh%lx
-       delta(i) = 2.0_rp / (2*(i-1)+1)
-    end do
-    ! modify last entry  
-    delta(cpr%Xh%lx) = 2.0_rp / (cpr%Xh%lx-1)
-
-    ! calculate the inverse to multiply the matrix
-    do i = 1, cpr%Xh%lx
-       delta(i) = sqrt(1.0_rp / delta(i))
-    end do
-    ! scale the matrix      
-    do i = 1, cpr%Xh%lx
-       do j = 1, cpr%Xh%lx
-          cpr%v(i,j) = cpr%v(i,j) * delta(j) ! orthogonal wrt weights
-       end do
-    end do
-
-    ! get the trasposed
-    call copy(cpr%vt, cpr%v, cpr%Xh%lx*cpr%Xh%lx)
-    call trsp1(cpr%vt, cpr%Xh%lx)
-
-    !populate the mass matrix
-    kk = 1
-    do i = 1, cpr%Xh%lx
-       do j = 1, cpr%Xh%lx
-          if (i .eq. j) then
-             cpr%w(i,j) = cpr%Xh%wx(kk)
-             kk = kk+1
-          else
-             cpr%w(i,j) = 0
-          end if
-       end do
-    end do
-
-    !Get the inverse of the transform matrix
-    call mxm(cpr%vt, cpr%Xh%lx, cpr%w, cpr%Xh%lx, cpr%vinv, cpr%Xh%lx)
-
-    !get the transposed of the inverse
-    call copy(cpr%vinvt, cpr%vinv, cpr%Xh%lx*cpr%Xh%lx)
-    call trsp1(cpr%vinvt, cpr%Xh%lx)
-
+      ! get the trasposed
+      call copy(vt, v, Xh%lx * Xh%lx)
+      call trsp1(vt, Xh%lx)
+      
+      !populate the mass matrix
+      kk = 1
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            if (i .eq. j) then
+               w(i,j) = Xh%wx(kk)
+               kk = kk+1
+            else
+               cpr%w(i,j) = 0
+            end if
+         end do
+      end do
+      
+      !Get the inverse of the transform matrix
+      call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+      
+      !get the transposed of the inverse
+      call copy(vinvt, vinv, Xh%lx * Xh%lx)
+      call trsp1(vinvt, Xh%lx)
+    end associate
+    
   end subroutine cpr_generate_specmat
 
 
