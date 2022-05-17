@@ -469,26 +469,26 @@ contains
       kutz=0
       kuty=0
       kutx=0
-    endif
+    end if
     if (kut.gt.0.and.kut.le.(lx-1)) then
       kutz=kut
       kuty=0
       kutx=0
-    endif
+    end if
     if (kut.gt.(lx-1).and.kut.le.(lx-1)*2) then
       kutz=lx-1
       kuty=kut-(lx-1)
       kutx=0
-    endif
+    end if
     if (kut.gt.(lx-1)*2.and.kut.le.(lx-1)*3) then
       kutz=lx-1
       kuty=lx-1
       kutx=kut-(lx-1)*2
-    endif
+    end if
 
     ! create identity matrices
-    do i=1,lx
-      do j=1,lx
+    do i = 1, lx
+      do j = 1, lx
         if (i.eq.j) then
           fx(i,j)=1
           fy(i,j)=1
@@ -497,26 +497,26 @@ contains
           fx(i,j)=0
           fy(i,j)=0
           fz(i,j)=0
-        endif
-      enddo
-    enddo
+        end if
+      end do
+    end do
     
     ! truncate the matrices acording to input kut
     k0=lx-kutx
-    do k=k0+1,lx
+    do k = k0+1, lx
       kk= k+lx*(k-1)
       fx(kk,1)=0
-    enddo
+    end do
     k0=lx-kuty
-    do k=k0+1,lx
+    do k = k0+1, lx
       kk= k+lx*(k-1)
       fy(kk,1)=0
-    enddo
+    end do
     k0=lx-kutz
-    do k=k0+1,lx
+    do k = k0+1, lx
       kk= k+lx*(k-1)
       fz(kk,1)=0
-    enddo
+    end do
 
   end subroutine build_filter_tf    
 
