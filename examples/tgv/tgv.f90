@@ -1,6 +1,5 @@
 module user
   use neko
-  use cpr
   implicit none
 contains
   ! Register user defined functions (see user_intf.f90)
