@@ -33,6 +33,7 @@
 !> Defines a mapping of the degrees of freedom
 !! @details A mapping defined based on a function space and a mesh
 module dofmap
+  use neko_config
   use mesh
   use space
   use tuple
@@ -40,12 +41,14 @@ module dofmap
   use utils
   use fast3d
   use tensor
+  use device
   use math
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
   type, public :: dofmap_t
-     integer(kind=8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
+     integer(kind=i8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
      logical, allocatable :: shared_dof(:,:,:,:)   !< True if the dof is shared
      real(kind=rp), allocatable :: x(:,:,:,:)      !< Mapping to x-coordinates
      real(kind=rp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
@@ -54,6 +57,13 @@ module dofmap
 
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
+
+     !
+     ! Device pointers (if present)
+     !
+     type(c_ptr) :: x_d = C_NULL_PTR
+     type(c_ptr) :: y_d = C_NULL_PTR
+     type(c_ptr) :: z_d = C_NULL_PTR
 
    contains
      procedure, pass(this) :: size => dofmap_size
@@ -118,6 +128,17 @@ contains
     !> @note should be intialised differently in acissymmetric case
 
     call dofmap_generate_xyz(this)    
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+        (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_map(this%x, this%x_d, this%n_dofs)
+       call device_map(this%y, this%y_d, this%n_dofs)
+       call device_map(this%z, this%z_d, this%n_dofs)
+
+       call device_memcpy(this%x, this%x_d, this%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%y, this%y_d, this%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%z, this%z_d, this%n_dofs, HOST_TO_DEVICE)
+    end if
     
   end function dofmap_init
 
@@ -147,6 +168,21 @@ contains
 
     nullify(this%msh)
     nullify(this%Xh)
+
+    !
+    ! Cleanup the device (if present)
+    !
+    if (c_associated(this%x_d)) then
+       call device_free(this%x_d)
+    end if
+
+    if (c_associated(this%y_d)) then
+       call device_free(this%y_d)
+    end if
+
+    if (c_associated(this%z_d)) then
+       call device_free(this%z_d)
+    end if
     
   end subroutine dofmap_free
 
@@ -169,13 +205,13 @@ contains
     if (msh%gdim .eq. 2) then
        do i = 1, msh%nelv
           this%dof(1, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(1)%p%id(), 8)
+               int(msh%elements(i)%e%pts(1)%p%id(), i8)
           this%dof(Xh%lx, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(2)%p%id(), 8)
+               int(msh%elements(i)%e%pts(2)%p%id(), i8)
           this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), 8)
+               int(msh%elements(i)%e%pts(4)%p%id(), i8)
           this%dof(Xh%lx, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(3)%p%id(), 8)
+               int(msh%elements(i)%e%pts(3)%p%id(), i8)
 
           this%shared_dof(1, 1, 1, i) = &
                mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
@@ -192,22 +228,22 @@ contains
     else    
        do i = 1, msh%nelv
           this%dof(1, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(1)%p%id(), 8)
+               int(msh%elements(i)%e%pts(1)%p%id(), i8)
           this%dof(Xh%lx, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(2)%p%id(), 8)
+               int(msh%elements(i)%e%pts(2)%p%id(), i8)
           this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), 8)
+               int(msh%elements(i)%e%pts(4)%p%id(), i8)
           this%dof(Xh%lx, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(3)%p%id(), 8)
+               int(msh%elements(i)%e%pts(3)%p%id(), i8)
 
           this%dof(1, 1, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(5)%p%id(), 8)
+               int(msh%elements(i)%e%pts(5)%p%id(), i8)
           this%dof(Xh%lx, 1, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(6)%p%id(), 8)
+               int(msh%elements(i)%e%pts(6)%p%id(), i8)
           this%dof(1, Xh%ly, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(8)%p%id(), 8)
+               int(msh%elements(i)%e%pts(8)%p%id(), i8)
           this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(7)%p%id(), 8)
+               int(msh%elements(i)%e%pts(7)%p%id(), i8)
 
           this%shared_dof(1, 1, 1, i) = &
                mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
@@ -244,18 +280,18 @@ contains
     integer :: i,j,k
     integer :: global_id        
     type(tuple_i4_t) :: edge
-    integer(kind=8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
-    integer(kind=8) :: edge_id, edge_offset
+    integer(kind=i8) :: num_dofs_edges(3) ! #dofs for each dir (r, s, t)
+    integer(kind=i8) :: edge_id, edge_offset
     logical :: shared_dof
         
     msh => this%msh
     Xh => this%Xh
     
     ! Number of dofs on an edge excluding end-points
-    num_dofs_edges(1) =  int(Xh%lx - 2, 8)
-    num_dofs_edges(2) =  int(Xh%ly - 2, 8)
-    num_dofs_edges(3) =  int(Xh%lz - 2, 8)
-    edge_offset = int(msh%glb_mpts, 8) + int(1, 4)
+    num_dofs_edges(1) =  int(Xh%lx - 2, i8)
+    num_dofs_edges(2) =  int(Xh%ly - 2, i8)
+    num_dofs_edges(3) =  int(Xh%lz - 2, i8)
+    edge_offset = int(msh%glb_mpts, i8) + int(1, 4)
 
     do i = 1, msh%nelv
        
@@ -267,11 +303,11 @@ contains
           call ep%edge_id(edge, 1)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
           do j = 2, Xh%lx - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,1,1,i)) k = Xh%lx+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%lx+1-j
              this%dof(k, 1, 1, i) = edge_id
              this%shared_dof(k, 1, 1, i) = shared_dof
              edge_id = edge_id + 1
@@ -280,10 +316,10 @@ contains
           call ep%edge_id(edge, 3)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,1,Xh%lz,i)) k = Xh%lx+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,1,Xh%lz,i)) k = Xh%lx+1-j
              this%dof(k, 1, Xh%lz, i) = edge_id
              this%shared_dof(k, 1, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
@@ -292,10 +328,10 @@ contains
           call ep%edge_id(edge, 2)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lx+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lx+1-j
              this%dof(k, Xh%ly, 1, i) = edge_id
              this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              edge_id = edge_id + 1
@@ -304,10 +340,10 @@ contains
           call ep%edge_id(edge, 4)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,Xh%ly,Xh%lz,i)) k = Xh%lx+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,Xh%lz,i)) k = Xh%lx+1-j
              this%dof(k, Xh%ly, Xh%lz, i) = edge_id
              this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
@@ -320,10 +356,10 @@ contains
           call ep%edge_id(edge, 5)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,1,1,i)) k = Xh%ly+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%ly+1-j
              this%dof(1, k, 1, i) = edge_id
              this%shared_dof(1, k, 1, i) = shared_dof
              edge_id = edge_id + 1
@@ -332,10 +368,10 @@ contains
           call ep%edge_id(edge, 7)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,1,Xh%lz,i)) k = Xh%ly+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,1,Xh%lz,i)) k = Xh%ly+1-j
              this%dof(1, k, Xh%lz, i) = edge_id
              this%shared_dof(1, k, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
@@ -344,22 +380,22 @@ contains
           call ep%edge_id(edge, 6)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%ly+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%ly+1-j
              this%dof(Xh%lx, k, 1, i) = edge_id
              this%shared_dof(Xh%lx, k, 1, i) = shared_dof
              edge_id = edge_id + 1
           end do
 
-          call ep%edge_id(edge, 8)
+          call ep%edge_id(edge, i8)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(Xh%lx,1,Xh%lz,i)) k = Xh%lz+1-j 
+             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,Xh%lz,i)) k = Xh%lz+1-j 
              this%dof(Xh%lx, k, Xh%lz, i) = edge_id
              this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
              edge_id = edge_id + 1
@@ -371,10 +407,10 @@ contains
           call ep%edge_id(edge, 9)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,1,1,i)) k = Xh%lz+1-j 
+             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%lz+1-j 
              this%dof(1, 1, k, i) = edge_id
              this%shared_dof(1, 1, k, i) = shared_dof
              edge_id = edge_id + 1
@@ -383,10 +419,10 @@ contains
           call ep%edge_id(edge, 10)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%lz+1-j 
+             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%lz+1-j 
              this%dof(Xh%lx, 1, k, i) = edge_id
              this%shared_dof(Xh%lx, 1, k, i) = shared_dof
              edge_id = edge_id + 1
@@ -395,10 +431,10 @@ contains
           call ep%edge_id(edge, 11)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lz+1-j 
+             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lz+1-j 
              this%dof(1, Xh%ly, k, i) = edge_id
              this%shared_dof(1, Xh%ly, k, i) = shared_dof
              edge_id = edge_id + 1
@@ -407,10 +443,10 @@ contains
           call ep%edge_id(edge, 12)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(3)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(Xh%lx,Xh%ly,1,i)) k = Xh%lz+1-j 
+             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,Xh%ly,1,i)) k = Xh%lz+1-j 
              this%dof(Xh%lx, Xh%ly, k, i) = edge_id
              this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
              edge_id = edge_id + 1
@@ -422,11 +458,11 @@ contains
           call ep%facet_id(edge, 3)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
           do j = 2, Xh%lx - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,1,1,i)) k = Xh%lx+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%lx+1-j
              this%dof(k, 1, 1, i) = edge_id
              this%shared_dof(k, 1, 1, i) = shared_dof
              edge_id = edge_id + 1
@@ -435,10 +471,10 @@ contains
           call ep%facet_id(edge, 4)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(1)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lx+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lx+1-j
              this%dof(k, Xh%ly, 1, i) = edge_id
              this%shared_dof(k, Xh%ly, 1, i) = shared_dof
              edge_id = edge_id + 1
@@ -450,10 +486,10 @@ contains
           call ep%facet_id(edge, 1)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(1,1,1,i)) k = Xh%ly+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%ly+1-j
              this%dof(1, k, 1, i) = edge_id
              this%shared_dof(1, k, 1, i) = shared_dof
              edge_id = edge_id + 1
@@ -462,10 +498,10 @@ contains
           call ep%facet_id(edge, 2)
           shared_dof = mesh_is_shared(msh, edge)
           global_id = mesh_get_global(msh, edge)
-          edge_id = edge_offset + int((global_id - 1), 8) * num_dofs_edges(2)
+          edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
-             if(int(edge%x(1),8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%ly+1-j
+             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%ly+1-j
              this%dof(Xh%lx, k, 1, i) = edge_id
              this%shared_dof(Xh%lx, k, 1, i) = shared_dof
              edge_id = edge_id + 1
@@ -484,21 +520,21 @@ contains
     integer :: i,j,k
     integer :: global_id
     type(tuple4_i4_t) :: face, face_order
-    integer(kind=8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)        
-    integer(kind=8) :: facet_offset, facet_id
+    integer(kind=i8) :: num_dofs_faces(3) ! #dofs for each dir (r, s, t)        
+    integer(kind=i8) :: facet_offset, facet_id
     logical :: shared_dof        
 
     msh => this%msh
     Xh => this%Xh
 
     !> @todo don't assume lx = ly = lz
-    facet_offset = int(msh%glb_mpts, 8) + &
-         int(msh%glb_meds, 8) * int(Xh%lx-2, 8) + int(1,8)
+    facet_offset = int(msh%glb_mpts, i8) + &
+         int(msh%glb_meds, i8) * int(Xh%lx-2, i8) + int(1, i8)
 
     ! Number of dofs on an edge excluding end-points
-    num_dofs_faces(1) =  int((Xh%ly - 2) * (Xh%lz - 2), 8)
-    num_dofs_faces(2) =  int((Xh%lx - 2) * (Xh%lz - 2), 8)
-    num_dofs_faces(3) =  int((Xh%lx - 2) * (Xh%ly - 2), 8)
+    num_dofs_faces(1) =  int((Xh%ly - 2) * (Xh%lz - 2), i8)
+    num_dofs_faces(2) =  int((Xh%lx - 2) * (Xh%lz - 2), i8)
+    num_dofs_faces(3) =  int((Xh%lx - 2) * (Xh%ly - 2), i8)
 
     do i = 1, msh%nelv
        
@@ -509,7 +545,7 @@ contains
        call msh%elements(i)%e%facet_order(face_order, 1)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(1)
+       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(1, j, k, i) = &
@@ -522,7 +558,7 @@ contains
        call msh%elements(i)%e%facet_order(face_order, 2)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(1)
+       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
              this%dof(Xh%lx, j, k, i) = &
@@ -539,7 +575,7 @@ contains
        call msh%elements(i)%e%facet_order(face_order, 3)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(2)
+       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, 1, k, i) = &
@@ -552,7 +588,7 @@ contains
        call msh%elements(i)%e%facet_order(face_order, 4)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(2)
+       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
              this%dof(j, Xh%ly, k, i) = &
@@ -569,7 +605,7 @@ contains
        call msh%elements(i)%e%facet_order(face_order, 5)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(3)
+       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, 1, i) = &
@@ -582,7 +618,7 @@ contains
        call msh%elements(i)%e%facet_order(face_order, 6)
        shared_dof = mesh_is_shared(msh, face)
        global_id = mesh_get_global(msh, face)
-       facet_id = facet_offset + int((global_id - 1), 8) * num_dofs_faces(3)
+       facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
              this%dof(j, k, Xh%lz, i) = &
@@ -597,7 +633,7 @@ contains
  !> Get idx for GLL point on face depending on face ordering k and j
   function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, lj1) result(facet_idx)
      type(tuple4_i4_t) :: face_order, face
-     integer(8) :: facet_idx, facet_id
+     integer(kind=i8) :: facet_idx, facet_id
      integer :: k1, j1, lk1, lj1
      integer :: k,j,lk,lj
      
@@ -625,26 +661,26 @@ contains
          facet_idx = facet_id + j + k*lj 
        else
          facet_idx = facet_id + j*lk + k 
-       endif
+      end if
      else  if(face_order%x(2) .eq. face%x(1)) then
        if(face_order%x(3) .lt. face_order%x(1)) then
          facet_idx = facet_id + lk*(lj-1-j) + k 
        else
          facet_idx = facet_id + (lj-1-j) + k*lj
-       endif
+      end if
      else if(face_order%x(3) .eq. face%x(1)) then
        if(face_order%x(4) .lt. face_order%x(2)) then
          facet_idx = facet_id + (lj-1-j) + lj*(lk-1-k) 
        else
          facet_idx = facet_id + lk*(lj-1-j) + (lk-1-k)
-       endif
+      end if
      else if(face_order%x(4) .eq. face%x(1)) then
        if(face_order%x(1) .lt. face_order%x(3)) then
          facet_idx = facet_id + lk*j + (lk-1-k) 
        else
          facet_idx = facet_id + j + lj*(lk-1-k)
-       endif     
-     endif 
+      end if
+   end if
 
   end function dofmap_facetidx
 
@@ -652,7 +688,7 @@ contains
   !! @note Assumes \f$ X_{h_x} = X_{h_y} = X_{h_z} \f$
   subroutine dofmap_generate_xyz(this)
     type(dofmap_t), target :: this
-    integer :: i,j,k, el_idx
+    integer :: i, j, el_idx
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
     real(kind=rp) :: rp_curve_data(5), curve_data_tot(5,12)
@@ -690,14 +726,16 @@ contains
     do i =1, msh%curve%size 
        el_idx = msh%curve%curve_el(i)%el_idx
        do j = 1, 8
-       if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
-          rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
-          call arc_surface(j, rp_curve_data, &
-                           this%x(1,1,1,el_idx), this%y(1,1,1,el_idx), this%z(1,1,1, el_idx), &
-                           Xh, msh%elements(el_idx)%e, msh%gdim) 
-       end if
+          if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
+             rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
+             call arc_surface(j, rp_curve_data, &
+                              this%x(1,1,1,el_idx), &
+                              this%y(1,1,1,el_idx), &
+                              this%z(1,1,1, el_idx), &
+                              Xh, msh%elements(el_idx)%e, msh%gdim) 
+          end if
        end do
-    enddo
+    end do
     if (associated(msh%apply_deform)) then
        call msh%apply_deform(this%x, this%y, this%z, Xh%lx, Xh%ly, Xh%lz)
     end if
@@ -709,7 +747,7 @@ contains
     class(element_t), intent(in) :: element
     real(kind=rp), intent(inout) :: x(Xh%lx,Xh%ly,Xh%lz), y(Xh%lx,Xh%ly,Xh%lz), z(Xh%lx,Xh%ly,Xh%lz)
     real(kind=rp) :: xyzb(2,2,2,3), zgml(Xh%lx, 3)
-    real(kind=rp) :: jx(Xh%lx*2), jy(Xh%lx*2), jz(Xh%lx*2)
+    real(kind=rp) :: jx(Xh%lx*2)
     real(kind=rp) :: jxt(Xh%lx*2), jyt(Xh%lx*2), jzt(Xh%lx*2)
     real(kind=rp) :: w(4*Xh%lx**3), tmp(Xh%lx, Xh%lx, Xh%lx)
     real(kind=rp), dimension(2), parameter :: zlin = (/-1d0, 1d0/)
@@ -773,18 +811,17 @@ contains
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
     class(element_t), intent(in) :: element
-    real(kind=rp), intent(inout) :: x(Xh%lx,Xh%ly,Xh%lz), y(Xh%lx,Xh%ly,Xh%lz), z(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z
     integer :: curve_type(12), eindx(12)
     real(kind=rp) :: curve_data(5,12), x3(3,3,3), y3(3,3,3), z3(3,3,3)
     type(space_t), target :: Xh3
     real(kind=rp), dimension(3), parameter :: zquad = (/-1d0, 0d0,1d0/)
     real(kind=rp) :: zg(3)
     real(kind=rp), dimension(Xh%lx,Xh%lx,Xh%lx) :: tmp
-    real(kind=rp) :: jx(Xh%lx*3), jy(Xh%lx*3), jz(Xh%lx*3)
+    real(kind=rp) :: jx(Xh%lx*3)
     real(kind=rp) :: jxt(Xh%lx*3), jyt(Xh%lx*3), jzt(Xh%lx*3)
     real(kind=rp) :: w(4*Xh%lxyz,2)
-    real(kind=rp), dimension(Xh%lx,3) :: zgml
-    integer :: j, k, n, n_edges
+    integer :: j, k, n_edges
     eindx = (/2 ,  6 ,  8 ,  4, &
               20 , 24 , 26 , 22, &
               10 , 12 , 18 , 16 /)
@@ -817,7 +854,7 @@ contains
        call neko_warning(' m deformation not supported for 2d yet')
        call gh_face_extend_2d(x3,zg,3,2,w(1,1),w(1,2)) ! 2 --> edge extend
        call gh_face_extend_2d(y3,zg,3,2,w(1,1),w(1,2))
-    endif
+    end if
     k =1 
     do j = 1, Xh%lx
        call fd_weights_full(Xh%zg(j,1),zquad,2,0,jxt(k))
@@ -850,154 +887,158 @@ contains
  !!           3 - vertex, edges, and faces      
  !! Original in Nek5000/core/navier5.f
     
- subroutine gh_face_extend_3d(x,zg,n,gh_type,e,v)
+ subroutine gh_face_extend_3d(x, zg, n, gh_type, e, v)
    integer, intent(in) :: n
-   real(kind=rp), intent(inout) ::  x(n,n,n)
+   real(kind=rp), intent(inout) ::  x(n, n, n)
    real(kind=rp), intent(in) ::  zg(n)
-   real(kind=rp), intent(inout) ::  e(n,n,n)
-   real(kind=rp), intent(inout) ::  v(n,n,n)
+   real(kind=rp), intent(inout) ::  e(n, n, n)
+   real(kind=rp), intent(inout) ::  v(n, n, n)
    integer :: gh_type, ntot, kk, jj, ii, k, j, i
    real(kind=rp) :: si, sj, sk, hi, hj, hk
    
 !
 !  Build vertex interpolant
 !
-   ntot=n*n*n
-   call rzero(v,ntot)
-   do kk=1,n,n-1
-   do jj=1,n,n-1
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         v(i,j,k) = v(i,j,k) + si*sj*sk*x(ii,jj,kk)
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
-   enddo
-   if (gh_type.eq.1) then
-      call copy(x,v,ntot)
+   ntot = n**3
+   call rzero(v, ntot)
+   do kk = 1, n, n-1
+      do jj = 1, n, n-1
+         do ii = 1, n, n-1
+            do k = 1, n
+               do j = 1, n
+                  do i = 1, n
+                     si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                     sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                     sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+                     v(i,j,k) = v(i,j,k) + si*sj*sk*x(ii,jj,kk)
+                  end do
+               end do
+            end do
+         end do
+      end do
+   end do
+
+   if (gh_type .eq. 1) then
+      call copy(x, v, ntot)
       return
-   endif
+   end if
 !
 !
 !  Extend 12 edges
-   call rzero(e,ntot)
+   call rzero(e, ntot)
 !
 !  x-edges
 !
-   do kk=1,n,n-1
-   do jj=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hj*hk*(x(i,jj,kk)-v(i,jj,kk))
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
+   do kk = 1, n, n-1
+      do jj = 1, n, n-1
+         do k = 1, n
+            do j = 1, n
+               do i = 1, n
+                  hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                  hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+                  e(i,j,k) = e(i,j,k) + hj*hk*(x(i,jj,kk)-v(i,jj,kk))
+               end do
+            end do
+         end do
+      end do
+   end do
 !
 !  y-edges
 !
-   do kk=1,n,n-1
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hi*hk*(x(ii,j,kk)-v(ii,j,kk))
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
+   do kk = 1, n, n-1
+      do ii = 1, n, n-1
+         do k = 1, n
+            do j = 1, n
+               do i = 1, n
+                  hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                  hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+                  e(i,j,k) = e(i,j,k) + hi*hk*(x(ii,j,kk)-v(ii,j,kk))
+               end do
+            end do
+         end do
+      end do
+   end do
 !
 !  z-edges
 !
-   do jj=1,n,n-1
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hi*hj*(x(ii,jj,k)-v(ii,jj,k))
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
-   call add2(e,v,ntot)
-   if (gh_type.eq.2) then
-      call copy(x,e,ntot)
+   do jj = 1, n, n-1
+      do ii = 1, n, n-1
+         do k = 1, n
+            do j = 1, n
+               do i = 1, n
+                  hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                  hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                  e(i,j,k) = e(i,j,k) + hi*hj*(x(ii,jj,k)-v(ii,jj,k))
+               end do
+            end do
+         end do
+      end do
+   end do
+   
+   call add2(e, v, ntot)
+   
+   if (gh_type .eq. 2) then
+      call copy(x, e, ntot)
       return
-   endif
+   end if
 !
 !  Extend faces
 !
-   call rzero(v,ntot)
+   call rzero(v, ntot)
 !
 !  x-edges
 !
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
-      enddo
-      enddo
-      enddo
-   enddo
+   do ii = 1, n, n-1
+      do k = 1, n
+         do j = 1, n
+            do i = 1, n
+               hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+               v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
+            end do
+         end do
+      end do
+   end do
 !
 ! y-edges
 !
-   do jj=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hj*(x(i,jj,k)-e(i,jj,k))
-      enddo
-      enddo
-      enddo
-   enddo
+   do jj = 1, n, n-1
+      do k = 1, n
+         do j = 1, n
+            do i = 1, n
+               hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+               v(i,j,k) = v(i,j,k) + hj*(x(i,jj,k)-e(i,jj,k))
+            end do
+         end do
+      end do
+   end do
 ! 
 !  z-edges
 ! 
-   do kk=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hk*(x(i,j,kk)-e(i,j,kk))
-      enddo
-      enddo
-      enddo
-   enddo
-   call add2(v,e,ntot)
-   call copy(x,v,ntot)
+   do kk= 1 , n, n-1
+      do k = 1, n
+         do j = 1, n
+            do i = 1, n
+               hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+               v(i,j,k) = v(i,j,k) + hk*(x(i,j,kk)-e(i,j,kk))
+            end do
+         end do
+      end do
+   end do
+   
+   call add2(v, e, ntot)
+   call copy(x, v ,ntot)
 
   end subroutine gh_face_extend_3d
 
   !> Extend 2D faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and faces
-  subroutine gh_face_extend_2d(x,zg,n,gh_type,e,v)
+  subroutine gh_face_extend_2d(x, zg, n, gh_type, e, v)
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: x(n,n)
+    real(kind=rp), intent(inout) :: x(n, n)
     real(kind=rp), intent(in) :: zg(n)
-    real(kind=rp), intent(inout) :: e(n,n)
-    real(kind=rp), intent(inout) :: v(n,n)
+    real(kind=rp), intent(inout) :: e(n, n)
+    real(kind=rp), intent(inout) :: v(n, n)
     integer, intent(in) :: gh_type
     integer :: i,j , jj, ii, ntot
     real(kind=rp) :: si, sj, hi, hj 
@@ -1006,62 +1047,61 @@ contains
 
     ntot=n*n
     call rzero(v,ntot)
-    do jj=1,n,n-1
-    do ii=1,n,n-1
-       do j=1,n
-       do i=1,n
-          si     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-          sj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-          v(i,j) = v(i,j) + si*sj*x(ii,jj)
-       enddo
-       enddo
-    enddo
-    enddo
-    if (gh_type.eq.1) then
+    do jj = 1, n, n-1
+       do ii = 1, n, n-1
+          do j = 1, n
+             do i = 1, n
+                si     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                sj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                v(i,j) = v(i,j) + si*sj*x(ii,jj)
+             end do
+          end do
+       end do
+    end do
+    if (gh_type .eq. 1) then
        call copy(x,v,ntot)
        return
-    endif
-
+    end if
 
     !Extend 4 edges
     call rzero(e,ntot)
 
     !x-edges
 
-    do jj=1,n,n-1
-       do j=1,n
-       do i=1,n
-          hj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-          e(i,j) = e(i,j) + hj*(x(i,jj)-v(i,jj))
-       enddo
-       enddo
-    enddo
+    do jj = 1, n, n-1
+       do j = 1, n
+          do i = 1, n
+             hj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+             e(i,j) = e(i,j) + hj*(x(i,jj)-v(i,jj))
+          end do
+       end do
+    end do
 
     !y-edges
 
-    do ii=1,n,n-1
-       do j=1,n
-       do i=1,n
-          hi     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-          e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))
-       enddo
-       enddo
-    enddo
+    do ii = 1, n, n-1
+       do j = 1, n
+          do i = 1, n
+             hi     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+             e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))
+          end do
+       end do
+    end do
 
-    call add3(x,e,v,ntot)
+    call add3(x, e, v, ntot)
 
   end subroutine gh_face_extend_2d
 
 
 
-  subroutine arc_surface(isid,curve_data,x,y,z, Xh, element, gdim)
+  subroutine arc_surface(isid, curve_data, x, y, z, Xh, element, gdim)
     integer, intent(in) :: isid, gdim
     type(space_t), intent(in) :: Xh
     class(element_t) :: element
     real(kind=rp), dimension(5), intent(in) :: curve_data
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz), intent(inout) :: x, y, z 
     real(kind=rp) :: pt1x, pt1y, pt2x, pt2y, pt12x, pt12y
-    real(kind=rp) :: radius, gap, xz, yz, xyz, dtheta, r, xys 
+    real(kind=rp) :: radius, gap, dtheta, r, xys 
     real(kind=rp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
     real(kind=rp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
     integer :: isid1, ixt, iyt, izt, ix, isidt
@@ -1081,7 +1121,7 @@ contains
 !   find slope of perpendicular
     radius=curve_data(1)
     gap=sqrt( (pt1x-pt2x)**2 + (pt1y-pt2y)**2 )
-    if (abs(2.0*radius).le.gap*1.00001) then
+    if (abs(2.0 * radius) .le. gap * 1.00001) then
        call neko_error('Radius to small for arced element surface')
     end if
     xs = pt2y-pt1y
@@ -1129,17 +1169,17 @@ contains
     izt = (isid-1)/4+1
     iyt = isid1-2
     ixt = isid1
-    if (isid1.le.2) then
-       call addtnsr(x,h(1,1,ixt),xcrved,h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
-       call addtnsr(y,h(1,1,ixt),ycrved,h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
+    if (isid1 .le. 2) then
+       call addtnsr(x, h(1,1,ixt), xcrved, h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(y, h(1,1,ixt), ycrved, h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
     else
-       call addtnsr(x,xcrved,h(1,2,iyt),h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
-       call addtnsr(y,ycrved,h(1,2,iyt),h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
-    endif
+       call addtnsr(x, xcrved, h(1,2,iyt), h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(y, ycrved, h(1,2,iyt), h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
+    end if
   end subroutine arc_surface
 
   subroutine compute_h(h, zgml, gdim, lx)

@@ -27,7 +27,7 @@ module fluid_abbdf
        import field_t
        import field_series_t
        import rp
-       type(field_t), intent(inout) :: u,v, w
+       type(field_t), intent(inout) :: u, v, w
        type(field_t), intent(inout) :: uu, vv, ww
        type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
        real(kind=rp), dimension(3), intent(in) :: ab

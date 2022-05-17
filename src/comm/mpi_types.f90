@@ -135,7 +135,7 @@ contains
 
     base = disp(1)
     do i = 1, 17
-       disp(i) = disp(i) - base
+       disp(i) = MPI_Aint_diff(disp(i), base)
     end do
 
     len(1) = 1
@@ -169,7 +169,7 @@ contains
 
     base = disp(1)
     do i = 1, 9
-       disp(i) = disp(i) - base
+       disp(i) = MPI_Aint_diff(disp(i), base)
     end do
 
     len(1) = 1
@@ -199,7 +199,7 @@ contains
 
     base = disp(1)
     do i = 1, 6
-       disp(i) = disp(i) - base
+       disp(i) = MPI_Aint_diff(disp(i), base)
     end do
 
     len(1:4) = 1
@@ -225,7 +225,7 @@ contains
 
     base = disp(1)
     do i = 1, 3
-       disp(i) = disp(i) - base
+       disp(i) = MPI_Aint_diff(disp(i), base)
     end do
 
     len(1) = 1
@@ -247,7 +247,7 @@ contains
     type(re2v2_xyz_t) :: re2v2_data
     type(MPI_Datatype) :: type(4)
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base    
-    integer :: len(4), ierr
+    integer :: len(4), ierr, i
 
     !
     ! Setup version 1
@@ -259,10 +259,9 @@ contains
     call MPI_Get_address(re2v1_data%z, disp(4), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
-    disp(4) = disp(4) - base
+    do i = 1, 4
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len = 8
     len(1) = 1
@@ -281,10 +280,9 @@ contains
     call MPI_Get_address(re2v2_data%z, disp(4), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
-    disp(4) = disp(4) - base
+    do i = 1, 4
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len = 8
     len(1) = 1
@@ -301,7 +299,7 @@ contains
     type(re2v2_xy_t) :: re2v2_data
     type(MPI_Datatype) :: type(3)
     integer(kind=MPI_ADDRESS_KIND) :: disp(3), base    
-    integer :: len(3), ierr
+    integer :: len(3), ierr, i
 
     !
     ! Setup version 1
@@ -312,9 +310,9 @@ contains
     call MPI_Get_address(re2v1_data%y, disp(3), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
+    do i = 1, 3
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len = 4
     len(1) = 1
@@ -332,9 +330,9 @@ contains
     call MPI_Get_address(re2v2_data%y, disp(3), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
+    do i = 1, 3
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len = 4
     len(1) = 1
@@ -351,7 +349,7 @@ contains
     type(re2v2_curve_t) :: re2v2_data
     type(MPI_Datatype) :: type(4)
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
-    integer :: len(4), ierr
+    integer :: len(4), ierr, i
 
     !
     ! Setup version 1
@@ -363,10 +361,9 @@ contains
     call MPI_Get_address(re2v1_data%type, disp(4), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
-    disp(4) = disp(4) - base
+    do i = 1, 4
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len(1:2) = 1
     len(3) = 5
@@ -388,10 +385,9 @@ contains
     call MPI_Get_address(re2v2_data%type, disp(4), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
-    disp(4) = disp(4) - base
+    do i = 1, 4
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len(1:2) = 1
     len(3) = 5
@@ -411,7 +407,7 @@ contains
     type(re2v2_bc_t) :: re2v2_data
     type(MPI_Datatype) :: type(4)
     integer(kind=MPI_ADDRESS_KIND) :: disp(4), base
-    integer :: len(4), ierr
+    integer :: len(4), ierr, i
 
     !
     ! Setup version 1
@@ -423,10 +419,9 @@ contains
     call MPI_Get_address(re2v1_data%type, disp(4), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
-    disp(4) = disp(4) - base
+    do i = 1, 4
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len(1:2) = 1
     len(3) = 5
@@ -448,10 +443,9 @@ contains
     call MPI_Get_address(re2v2_data%type, disp(4), ierr)
 
     base = disp(1)
-    disp(1) = disp(1) - base
-    disp(2) = disp(2) - base
-    disp(3) = disp(3) - base
-    disp(4) = disp(4) - base
+    do i = 1, 4
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
 
     len(1:2) = 1
     len(3) = 5
@@ -468,7 +462,7 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer, parameter :: n_param = 37
+    integer, parameter :: n_param = 39
     type(MPI_Datatype) :: type(n_param)
     integer(kind=MPI_ADDRESS_KIND) :: disp(n_param), base    
     integer :: len(n_param), ierr
@@ -511,10 +505,12 @@ contains
     call MPI_Get_address(param_data%blasius_approx, disp(35), ierr)
     call MPI_Get_address(param_data%bc_labels, disp(36), ierr)
     call MPI_Get_address(param_data%proj_vel_dim, disp(37), ierr)
+    call MPI_Get_address(param_data%dong_uchar, disp(38), ierr)
+    call MPI_Get_address(param_data%dong_delta, disp(39), ierr)
     
     base = disp(1)
     do i = 1, n_param
-       disp(i) = disp(i) - base
+       disp(i) = MPI_Aint_diff(disp(i), base)
     end do
 
 
@@ -531,8 +527,10 @@ contains
     len(33) = 1
     len(34) = 1
     len(35) = 10
-    len(36) = 60
+    len(36) = 20*20
     len(37) = 1
+    len(38) = 1
+    len(39) = 1
     
     type(1) = MPI_INTEGER
     type(2:4) = MPI_LOGICAL
@@ -553,6 +551,8 @@ contains
     type(35) = MPI_CHARACTER
     type(36) = MPI_CHARACTER
     type(37) = MPI_INTEGER
+    type(38) = MPI_REAL_PRECISION
+    type(39) = MPI_REAL_PRECISION
     
     call MPI_Type_create_struct(n_param, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)

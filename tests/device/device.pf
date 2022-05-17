@@ -83,7 +83,7 @@ subroutine test_device_associate
      size_ = size(x) * 4
      
      call device_alloc(x_d, size_)
-     call device_associate(x, x_d, size(x))
+     call device_associate(x, x_d)
      
      @assertTrue(c_associated(x_d))
 
@@ -107,7 +107,7 @@ subroutine test_device_associated
      size_ = size(x) * 4
 
      call device_alloc(x_d, size_)
-     call device_associate(x, x_d, size(x))
+     call device_associate(x, x_d)
 
      @assertTrue(device_associated(x))
 
@@ -132,9 +132,9 @@ subroutine test_device_get_ptr
      size_ = size(x) * 4
   
      call device_alloc(x_d, size_)
-     call device_associate(x, x_d, size(x))
+     call device_associate(x, x_d)
 
-     dev = device_get_ptr(x, size(x))
+     dev = device_get_ptr(x)
 
      @assertTrue(c_associated(x_d, dev))
 
@@ -161,7 +161,7 @@ subroutine test_device_map
 
      call device_map(x, x_d, size(x))
 
-     dev = device_get_ptr(x, size(x))
+     dev = device_get_ptr(x)
 
      @assertTrue(c_associated(x_d, dev))
 
@@ -188,7 +188,7 @@ subroutine test_device_memcpy
 
      call device_map(x, x_d, size(x))
 
-     dev = device_get_ptr(x, size(x))
+     dev = device_get_ptr(x)
 
      do i = 1, size(x)
         x(i) = i

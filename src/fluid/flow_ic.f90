@@ -140,9 +140,9 @@ contains
     n = u%dof%n_dofs
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call cfill(u%x,uinf(1),n)
-       call cfill(v%x,uinf(2),n)
-       call cfill(w%x,uinf(3),n)
+       call cfill(u%x, uinf(1), n)
+       call cfill(v%x, uinf(2), n)
+       call cfill(w%x, uinf(3), n)
     end if
 
   end subroutine set_flow_ic_uniform

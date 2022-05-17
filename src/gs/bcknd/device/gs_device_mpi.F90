@@ -191,6 +191,8 @@ contains
     integer(c_size_t) :: sz
     type(htable_i4_t) :: doftable
     integer :: dupe, marked, k
+    real(c_rp) :: rp_dummy
+    integer(c_int32_t) :: i4_dummy
 
     call device_mpi_init_reqs(size(pe_order), this%reqs)
 
@@ -206,15 +208,16 @@ contains
 
     this%total = total
 
-    sz = rp * total
+    sz = c_sizeof(rp_dummy) * total
     call device_alloc(this%buf_d, sz)
 
-    sz = 4 * total
+    sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
 
     if (mark_dupes) call doftable%init(2*total)
     allocate(dofs(total))
 
+    ! Copy from dof_stack into dofs, optionally marking duplicates with doftable
     marked = 0
     do i = 1, size(pe_order)
        ! %array() breaks on cray
@@ -286,7 +289,7 @@ contains
     integer ::  i
     type(c_ptr) :: u_d
 
-    u_d = device_get_ptr(u, n)
+    u_d = device_get_ptr(u)
 
 #ifdef HAVE_HIP
     call hip_gs_pack(u_d, &
@@ -333,7 +336,7 @@ contains
     integer :: op
     type(c_ptr) :: u_d
 
-    u_d = device_get_ptr(u, n)
+    u_d = device_get_ptr(u)
 
     call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
 

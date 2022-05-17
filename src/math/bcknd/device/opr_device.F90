@@ -102,6 +102,21 @@ module opr_device
      end subroutine hip_opgrad
   end interface
 
+  interface
+     real(c_rp) function hip_cfl(dt, u_d, v_d, w_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
+          jacinv_d, nel, lx) &
+          bind(c, name='hip_cfl')
+       use, intrinsic :: iso_c_binding
+       import c_rp       
+       type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
+       real(c_rp) :: dt
+       integer(c_int) :: nel, lx
+     end function hip_cfl
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
@@ -156,6 +171,22 @@ module opr_device
        type(c_ptr), value :: w3_d
        integer(c_int) :: nel, lx
      end subroutine cuda_opgrad
+  end interface
+
+  interface
+     real(c_rp) function cuda_cfl(dt, u_d, v_d, w_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
+          jacinv_d, nel, lx) &
+          bind(c, name='cuda_cfl')
+       use, intrinsic :: iso_c_binding
+       import c_rp       
+       type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
+       real(c_rp) :: dt
+       integer(c_int) :: nel, lx
+     end function cuda_cfl
   end interface
 #elif HAVE_OPENCL
   interface
@@ -212,6 +243,22 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine opencl_opgrad
   end interface
+
+  interface
+     real(c_rp) function opencl_cfl(dt, u_d, v_d, w_d, &
+          drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
+          jacinv_d, nel, lx) &
+          bind(c, name='opencl_cfl')
+       use, intrinsic :: iso_c_binding
+       import c_rp       
+       type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
+       real(c_rp) :: dt
+       integer(c_int) :: nel, lx
+     end function opencl_cfl
+  end interface
 #endif  
   
 contains
@@ -224,12 +271,12 @@ contains
          coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
     type(c_ptr) :: du_d, u_d, dr_d, ds_d, dt_d
 
-    du_d = device_get_ptr(du, size(du))
-    u_d = device_get_ptr(u, size(u))
+    du_d = device_get_ptr(du)
+    u_d = device_get_ptr(u)
 
-    dr_d = device_get_ptr(dr, size(dr))
-    ds_d = device_get_ptr(ds, size(ds))
-    dt_d = device_get_ptr(dt, size(dt))
+    dr_d = device_get_ptr(dr)
+    ds_d = device_get_ptr(ds)
+    dt_d = device_get_ptr(dt)
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
 #ifdef HAVE_HIP
@@ -259,11 +306,11 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
     type(c_ptr) :: ux_d, uy_d, uz_d, u_d
 
-    ux_d = device_get_ptr(ux, size(ux))
-    uy_d = device_get_ptr(uy, size(uy))
-    uz_d = device_get_ptr(uz, size(uz))
+    ux_d = device_get_ptr(ux)
+    uy_d = device_get_ptr(uy)
+    uz_d = device_get_ptr(uz)
 
-    u_d = device_get_ptr(u, size(u))    
+    u_d = device_get_ptr(u)
     
     associate(Xh => coef%Xh, msh => coef%msh)
 #ifdef HAVE_HIP
@@ -303,12 +350,12 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
     type(c_ptr) :: dtx_d, x_d, dr_d, ds_d, dt_d
 
-    dtx_d = device_get_ptr(dtx, size(dtx))
-    x_d = device_get_ptr(x, size(x))
+    dtx_d = device_get_ptr(dtx)
+    x_d = device_get_ptr(x)
 
-    dr_d = device_get_ptr(dr, size(dr))
-    ds_d = device_get_ptr(ds, size(ds))
-    dt_d = device_get_ptr(dt, size(dt))
+    dr_d = device_get_ptr(dr)
+    ds_d = device_get_ptr(ds)
+    dt_d = device_get_ptr(dt)
     
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
 #ifdef HAVE_HIP
@@ -341,12 +388,12 @@ contains
     real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
     type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
 
-    du_d = device_get_ptr(du, size(du))
-    u_d = device_get_ptr(u, size(u))
+    du_d = device_get_ptr(du)
+    u_d = device_get_ptr(u)
 
-    vx_d = device_get_ptr(vx, size(vx))
-    vy_d = device_get_ptr(vy, size(vy))
-    vz_d = device_get_ptr(vz, size(vz))
+    vx_d = device_get_ptr(vx)
+    vy_d = device_get_ptr(vy)
+    vz_d = device_get_ptr(vz)
     
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
 #ifdef HAVE_HIP
@@ -533,6 +580,44 @@ contains
         
   end subroutine opr_device_curl
 
+  function opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    integer :: nelv, gdim
+    real(kind=rp) :: dt
+    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w  
+    real(kind=rp) :: cfl
+    type(c_ptr) :: u_d, v_d, w_d
 
+    u_d = device_get_ptr(u)
+    v_d = device_get_ptr(v)
+    w_d = device_get_ptr(w)
+
+#ifdef HAVE_HIP
+    cfl  = hip_cfl(dt, u_d, v_d, w_d, &
+                   coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                   coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                   coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                   Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+                   coef%jacinv_d, nelv, Xh%lx)
+#elif HAVE_CUDA
+    cfl  = cuda_cfl(dt, u_d, v_d, w_d, &
+                    coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                    coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                    coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                    Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+                    coef%jacinv_d, nelv, Xh%lx)
+#elif HAVE_OPENCL
+    cfl  = opencl_cfl(dt, u_d, v_d, w_d, &
+                      coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+                      coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+                      coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+                      Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+                      coef%jacinv_d, nelv, Xh%lx)
+#else
+    cfl = 0.0_rp
+    call neko_error('No device backend configured')
+#endif
+  end function opr_device_cfl
 
 end module opr_device

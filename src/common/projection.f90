@@ -86,7 +86,7 @@ module projection
      type(c_ptr) :: xx_d_d = C_NULL_PTR
      type(c_ptr) :: bb_d_d = C_NULL_PTR
      integer :: m, L
-     real(kind=rp) :: tol = 1d-7
+     real(kind=rp) :: tol = 1e-7_rp
    contains
      procedure, pass(this) :: project_on => bcknd_project_on
      procedure, pass(this) :: project_back => bcknd_project_back
@@ -103,7 +103,8 @@ contains
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
-    
+    real(c_rp) :: dummy
+     
     call this%free()
     
     if (present(L)) then
@@ -128,7 +129,7 @@ contains
          (NEKO_BCKND_OPENCL .eq. 1)) then
        
        call device_map(this%xbar, this%xbar_d,n)
-       call device_alloc(this%alpha_d, int(rp*this%L,c_size_t))
+       call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
 
        do i = 1, this%L
           this%xx_d(i) = C_NULL_PTR
@@ -137,7 +138,7 @@ contains
           call device_map_r1(this%bb(:,i), this%bb_d(i), n)
        end do
 
-       ptr_size = 8*this%L
+       ptr_size = c_sizeof(C_NULL_PTR) * this%L
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
        call device_memcpy(ptr,this%xx_d_d, ptr_size, HOST_TO_DEVICE)
@@ -216,7 +217,7 @@ contains
     
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       x_d = device_get_ptr(x,n)
+       x_d = device_get_ptr(x)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
        if (this%m .eq. this%L) this%m = 1
        call device_copy(this%xx_d(this%m),x_d,n)   ! Update (X,B)
@@ -301,10 +302,9 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef   
     real(kind=rp), intent(inout), dimension(n) :: b 
-    integer :: i, j, k, ierr
-    real(kind=rp) :: work(this%L), alpha(this%L)
+    real(kind=rp) :: alpha(this%L)
     type(c_ptr) :: b_d
-    b_d = device_get_ptr(b, n)
+    b_d = device_get_ptr(b)
 
     associate(xbar_d => this%xbar_d, xx_d => this%xx_d, xx_d_d => this%xx_d_d, &
               bb_d => this%bb_d, bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
@@ -382,7 +382,7 @@ contains
     real(kind=rp), dimension(n, this%L), intent(inout) :: xx, bb
     real(kind=rp), dimension(n), intent(inout) :: w
     real(kind=rp) :: nrm, scl1, scl2, c, s
-    real(kind=rp) :: work(this%L), alpha(this%L), beta(this%L)
+    real(kind=rp) :: alpha(this%L), beta(this%L)
     integer :: i, j, k, h, ierr
 
     associate(m => this%m)

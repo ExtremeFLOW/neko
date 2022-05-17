@@ -221,7 +221,7 @@ contains
     integer :: op, i
     type(c_ptr) :: u_d
 
-    u_d = device_get_ptr(u, n)
+    u_d = device_get_ptr(u)
         
     if (this%nlocal .eq. m) then       
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
@@ -341,7 +341,7 @@ contains
     integer, dimension(nb), intent(inout) :: b
     type(c_ptr) :: u_d
 
-    u_d = device_get_ptr(u, n)
+    u_d = device_get_ptr(u)
 
     if (this%nlocal .eq. m) then
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &

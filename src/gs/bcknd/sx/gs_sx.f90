@@ -145,7 +145,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
-    integer :: i, j, k, blk_len
+    integer :: i
     real(kind=rp) :: tmp
 
     v = 0d0 
@@ -183,7 +183,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
-    integer :: i, j, k, blk_len
+    integer :: i
     real(kind=rp) :: tmp
     
     do i = 1, abs(o) - 1
@@ -220,7 +220,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
-    integer :: i, j, k, blk_len
+    integer :: i
     real(kind=rp) :: tmp
 
     do i = 1, abs(o) - 1
@@ -257,7 +257,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(in) :: o
-    integer :: i, j, k, blk_len
+    integer :: i
     real(kind=rp) :: tmp
 
     do i = 1, abs(o) - 1
@@ -312,8 +312,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer :: i, j, k, blk_len
-    real(kind=rp) :: tmp
+    integer :: i
     
     !NEC$ IVDEP
     do i = 1, m

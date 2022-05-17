@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ module fluid_method
   use usr_inflow
   use blasius
   use dirichlet
+  use dong_outflow
   use symmetry
   use non_normal
   use krylov_fctry
@@ -81,6 +82,7 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
@@ -112,10 +114,10 @@ module fluid_method
        import fluid_scheme_t
        import param_t
        import mesh_t
-       class(fluid_scheme_t), intent(inout) :: this
-       type(mesh_t), intent(inout) :: msh       
+       class(fluid_scheme_t), target, intent(inout) :: this
+       type(mesh_t), target, intent(inout) :: msh       
        integer, intent(inout) :: lx
-       type(param_t), intent(inout) :: param              
+       type(param_t), target, intent(inout) :: param              
      end subroutine fluid_method_init
   end interface
 
@@ -144,13 +146,12 @@ contains
 
   !> Initialize common data for the current scheme
   subroutine fluid_scheme_init_common(this, msh, lx, params)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout), target :: msh
+    class(fluid_scheme_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout), target :: params
+    type(param_t), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
-    integer :: i, j, k
     
     call neko_log%section('Fluid')
     call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
@@ -235,14 +236,14 @@ contains
        
     if (params%output_bdry) then       
        call field_init(this%bdry, this%dm_Xh, 'bdry')
-       this%bdry = real(0d0,rp)
+       this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'w', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(1d0,rp))
+       call bdry_mask%set_g(1.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -252,7 +253,7 @@ contains
                       'v', this%params%bc_labels)
 
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(2d0,rp))
+       call bdry_mask%set_g(2.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -261,7 +262,7 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'o', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(3d0,rp))
+       call bdry_mask%set_g(3.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -270,14 +271,14 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'sym', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(4d0,rp))
+       call bdry_mask%set_g(4.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(5d0,rp))
+       call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -286,7 +287,7 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'on', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(6d0,rp))
+       call bdry_mask%set_g(6.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -296,10 +297,10 @@ contains
 
   !> Initialize all velocity related components of the current scheme
   subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_scheme_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: params
+    type(param_t), target, intent(inout) :: params
     logical :: kspv_init
 
     call fluid_scheme_init_common(this, msh, lx, params)
@@ -320,13 +321,12 @@ contains
 
   !> Initialize all components of the current scheme
   subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(mesh_t), intent(inout) :: msh
+    class(fluid_scheme_t), target, intent(inout) :: this
+    type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), intent(inout) :: params
+    type(param_t), target, intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
-    integer :: i, j, k
 
     call fluid_scheme_init_common(this, msh, lx, params)
     
@@ -353,8 +353,18 @@ contains
     end if
 
     call this%bc_prs%finalize()
-    call this%bc_prs%set_g(real(0d0,rp))
+    call this%bc_prs%set_g(0.0_rp)
     call bc_list_add(this%bclst_prs, this%bc_prs)
+    call this%bc_dong%init(this%dm_Xh)
+    call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
+                        'o+dong', this%params%bc_labels)
+    call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
+                        'on+dong', this%params%bc_labels)
+    call this%bc_dong%finalize()
+    call this%bc_dong%set_vars(this%c_Xh, this%u, this%v, this%w,&
+         params%dong_uchar, params%dong_delta)
+
+    call bc_list_add(this%bclst_prs, this%bc_dong)
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
@@ -429,7 +439,7 @@ contains
   !> Validate that all fields, solvers etc necessary for
   !! performing time-stepping are defined
   subroutine fluid_scheme_validate(this)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_t), target, intent(inout) :: this
 
     if ( (.not. allocated(this%u%x)) .or. &
          (.not. allocated(this%v%x)) .or. &
@@ -495,7 +505,7 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine fluid_scheme_solver_factory(ksp, n, solver, abstol)
-    class(ksp_t), allocatable, intent(inout) :: ksp
+    class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=20), intent(inout) :: solver
     real(kind=rp) :: abstol
@@ -506,12 +516,12 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
-    class(pc_t), allocatable, intent(inout), target :: pc
-    class(ksp_t), allocatable, intent(inout) :: ksp
-    type(coef_t), intent(inout) :: coef
-    type(dofmap_t), intent(inout) :: dof
-    type(gs_t), intent(inout) :: gs
-    type(bc_list_t), intent(inout) :: bclst
+    class(pc_t), allocatable, target, intent(inout) :: pc
+    class(ksp_t), target, intent(inout) :: ksp
+    type(coef_t), target, intent(inout) :: coef
+    type(dofmap_t), target, intent(inout) :: dof
+    type(gs_t), target, intent(inout) :: gs
+    type(bc_list_t), target, intent(inout) :: bclst
     character(len=20) :: pctype
     
     call precon_factory(pc, pctype)

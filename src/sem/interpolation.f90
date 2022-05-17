@@ -63,7 +63,7 @@ module interpolation
 contains
   
   subroutine interp_init(this, Xh, Yh)
-    class(interpolator_t), intent(inout) :: this
+    class(interpolator_t), intent(inout), target :: this
     type(space_t), intent(inout), target :: Xh
     type(space_t), intent(inout), target :: Yh
     integer :: deg_derivate

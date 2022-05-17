@@ -103,7 +103,7 @@ contains
   
   subroutine advection_factory(this, coef, dealias, lxd)
     class(advection_t), allocatable, intent(inout) :: this
-    type(coef_t) :: coef
+    type(coef_t), target :: coef
     logical, intent(in) :: dealias
     integer, intent(in) :: lxd
 
@@ -129,12 +129,12 @@ contains
     select type(adv => this)
     type is(adv_dealias_t)
        if (lxd .gt. 0) then
-          call init_dealias(adv,lxd,coef) 
+          call init_dealias(adv, lxd, coef) 
        else
-          call init_dealias(adv,coef%Xh%lx*3/2, coef)
+          call init_dealias(adv, coef%Xh%lx * 3/2,  coef)
        end if
     type is(adv_no_dealias_t)
-       call init_no_dealias(adv,coef)
+       call init_no_dealias(adv, coef)
     end select
 
   end subroutine advection_factory
@@ -153,17 +153,17 @@ contains
   end subroutine init_no_dealias
 
   subroutine init_dealias(this, lxd, coef)
-    class(adv_dealias_t), intent(inout) :: this
+    class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
     integer :: nel, n_GL, n
 
-    call space_init(this%Xh_GL,GL, lxd, lxd, lxd)
+    call space_init(this%Xh_GL, GL, lxd, lxd, lxd)
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
     call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
 
-    call coef_init(this%coef_GL, this%Xh_GL,coef%msh)
+    call coef_init(this%coef_GL, this%Xh_GL, coef%msh)
 
     nel = coef%msh%nelv
     n_GL = nel*this%Xh_GL%lxyz
@@ -225,34 +225,34 @@ contains
     associate(c_GL => this%coef_GL)
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       bfx_d = device_get_ptr(bfx, n)
-       bfy_d = device_get_ptr(bfy, n)
-       bfz_d = device_get_ptr(bfz, n)
+       bfx_d = device_get_ptr(bfx)
+       bfy_d = device_get_ptr(bfy)
+       bfz_d = device_get_ptr(bfz)
        call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
        call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
        call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
        call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-       call device_col3(this%tbf_d,this%vr_d,this%tx_d,n_GL)
-       call device_addcol3(this%tbf_d,this%vs_d,this%ty_d,n_GL)
-       call device_addcol3(this%tbf_d,this%vt_d,this%tz_d,n_GL)
+       call device_col3(this%tbf_d, this%vr_d, this%tx_d, n_GL)
+       call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
+       call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(bfx_d, this%temp_d,n)
+       call device_sub2(bfx_d, this%temp_d, n)
 
 
        call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
-       call device_col3(this%tbf_d,this%vr_d,this%tx_d,n_GL)
-       call device_addcol3(this%tbf_d,this%vs_d,this%ty_d,n_GL)
-       call device_addcol3(this%tbf_d,this%vt_d,this%tz_d,n_GL)
+       call device_col3(this%tbf_d, this%vr_d, this%tx_d, n_GL)
+       call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
+       call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(bfy_d, this%temp_d,n)
+       call device_sub2(bfy_d, this%temp_d, n)
 
        call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-       call device_col3(this%tbf_d,this%vr_d,this%tx_d,n_GL)
-       call device_addcol3(this%tbf_d,this%vs_d,this%ty_d,n_GL)
-       call device_addcol3(this%tbf_d,this%vt_d,this%tz_d,n_GL)
+       call device_col3(this%tbf_d, this%vr_d, this%tx_d, n_GL)
+       call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
+       call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(bfz_d, this%temp_d,n)
+       call device_sub2(bfz_d, this%temp_d, n)
 
     else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
@@ -261,7 +261,7 @@ contains
        call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
        call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-       call col3(this%tbf, this%vr,this%tx, n_GL)
+       call col3(this%tbf, this%vr, this%tx, n_GL)
        call addcol3(this%tbf, this%vs, this%ty, n_GL)
        call addcol3(this%tbf, this%vt, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
@@ -276,7 +276,7 @@ contains
        call sub2(bfy, this%temp, n)
 
        call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-       call col3(this%tbf, this%vr, this%tx,n_GL)
+       call col3(this%tbf, this%vr, this%tx, n_GL)
        call addcol3(this%tbf, this%vs, this%ty, n_GL)
        call addcol3(this%tbf, this%vt, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
@@ -309,9 +309,9 @@ contains
           call this%GLL_to_GL%map(tempz, tbfz, 1, this%Xh_GLL)
 
           idx = (e-1)*this%Xh_GLL%lxyz+1
-          call sub2(bfx(idx), tempx,this%Xh_GLL%lxyz)
-          call sub2(bfy(idx), tempy,this%Xh_GLL%lxyz)
-          call sub2(bfz(idx), tempz,this%Xh_GLL%lxyz)
+          call sub2(bfx(idx), tempx, this%Xh_GLL%lxyz)
+          call sub2(bfy(idx), tempy, this%Xh_GLL%lxyz)
+          call sub2(bfz(idx), tempz, this%Xh_GLL%lxyz)
        end do
     end if
     end associate
@@ -333,9 +333,9 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       bfx_d = device_get_ptr(bfx, n)
-       bfy_d = device_get_ptr(bfy, n)
-       bfz_d = device_get_ptr(bfz, n)
+       bfx_d = device_get_ptr(bfx)
+       bfy_d = device_get_ptr(bfy)
+       bfz_d = device_get_ptr(bfz)
        
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
        call device_subcol3 (bfx_d, coef%B_d, this%temp_d, n)

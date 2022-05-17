@@ -78,7 +78,7 @@ module neko
 contains
 
   subroutine neko_init(C)
-    type(case_t), intent(inout), optional :: C
+    type(case_t), target, intent(inout), optional :: C
     character(len=NEKO_FNAME_LEN) :: case_file
     character(len=LOG_SIZE) :: log_buf
     character(len=10) :: suffix
@@ -178,11 +178,11 @@ contains
 
        write(log_buf, '(a)') 'Real type : '
        select case (rp)
-       case (4)
+       case (real32)
           write(log_buf(13:), '(a)') 'single precision'
-       case (8)
+       case (real64)
           write(log_buf(13:), '(a)') 'double precision'
-       case (16)
+       case (real128)
           write(log_buf(13:), '(a)') 'quad precision'
        end select
        call neko_log%message(log_buf)

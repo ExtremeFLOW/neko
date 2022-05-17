@@ -65,7 +65,6 @@ contains
     type(mesh_fld_t), pointer :: mfld => null()
     type(dofmap_t), pointer :: dm => null()
     type(tet_mesh_t), pointer :: tet_msh => null()
-    character(len=1024) :: suffix,fname
     character(len=10) :: id_str
     integer:: suffix_pos
 
