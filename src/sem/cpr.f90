@@ -150,18 +150,18 @@ contains
     ! Get the Legendre polynomials for each point
     ! Then proceed to compose the transform matrix
     kj = 0
-    do j=1,cpr%Xh%lx
+    do j = 1, cpr%Xh%lx
       L(0) = 1.
       L(1) = cpr%Xh%zg(j,1)
-      do j2=2,cpr%Xh%lx-1
+      do j2 = 2, cpr%Xh%lx-1
         L(j2) = ( (2*j2-1) * cpr%Xh%zg(j,1) * L(j2-1) &
                 - (j2-1) * L(j2-2) ) / j2 
-      enddo 
-      do kk=1,cpr%Xh%lx
+      end do 
+      do kk = 1, cpr%Xh%lx
         kj = kj+1
-        cpr%v(kj,1) = L(KK-1)
-      enddo
-    enddo
+        cpr%v(kj,1)  =  L(KK-1)
+      end do
+    end do
   
     ! transpose the matrix
     call trsp1(cpr%v,cpr%Xh%lx) !< non orthogonal wrt weights
