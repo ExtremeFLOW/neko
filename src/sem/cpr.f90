@@ -43,8 +43,8 @@ module cpr
   use coefs
   use tensor
   use mxm_wrapper
-  use, intrinsic :: iso_c_binding
   implicit none
+  private
 
   !> include information needed for compressing fields
   type :: cpr_t
