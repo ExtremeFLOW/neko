@@ -119,11 +119,10 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine device_mpi_free_reqs(n, reqs) &
+    subroutine device_mpi_free_reqs(reqs) &
           bind(c, name='device_mpi_free_reqs')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: n
        type(c_ptr) :: reqs
      end subroutine device_mpi_free_reqs
   end interface
@@ -253,6 +252,14 @@ contains
 
   subroutine gs_device_mpi_buf_free(this)
     class(gs_device_mpi_buf_t), intent(inout) :: this
+
+    if (c_associated(this%reqs)) call device_mpi_free_reqs(this%reqs)
+
+    if (allocated(this%ndofs)) deallocate(this%ndofs)
+    if (allocated(this%offset)) deallocate(this%offset)
+
+    if (c_associated(this%buf_d)) call device_free(this%buf_d)
+    if (c_associated(this%dof_d)) call device_free(this%dof_d)
   end subroutine
 
   !> Initialise MPI based communication method
