@@ -167,22 +167,22 @@ contains
     call trsp1(cpr%v,cpr%Xh%lx) !< non orthogonal wrt weights
 
     ! Calculate the nominal scaling factors
-    do i=1,cpr%Xh%lx
+    do i = 1, cpr%Xh%lx
       delta(i)=2./(2*(i-1)+1)
-    enddo
+    end do
     ! modify last entry  
     delta(cpr%Xh%lx)=2./(cpr%Xh%lx-1)
 
     ! calculate the inverse to multiply the matrix
-    do i=1,cpr%Xh%lx
+    do i = 1, cpr%Xh%lx
       delta(i)=sqrt(1./delta(i))
-    enddo
+    end do
     ! scale the matrix      
-    do i=1,cpr%Xh%lx
-      do j=1,cpr%Xh%lx
-        cpr%v(i,j)=cpr%v(i,j)*delta(j) !< orthogonal wrt weights
-      enddo
-    enddo
+    do i = 1, cpr%Xh%lx
+      do j = 1, cpr%Xh%lx
+        cpr%v(i,j) = cpr%v(i,j)*delta(j) ! orthogonal wrt weights
+      end do
+    end do
 
     ! get the trasposed
     call copy(cpr%vt,cpr%v,cpr%Xh%lx*cpr%Xh%lx)
