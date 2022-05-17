@@ -445,13 +445,13 @@ contains
     real(kind=rp) :: temp(n)
     integer :: i, jj
     
-    do i=1,n
+    do i = 1, n
       temp(i)=b(i)
-    enddo
-    do i=1,n
+    end do
+    do i = 1, n
       jj=ind(i)
       b(jj)=temp(i)
-    enddo
+    end do
 
   end subroutine reord
 
