@@ -99,12 +99,16 @@ contains
 
     call gs_init_mapping(gs)
     
-    use_device_mpi = NEKO_DEVICE_MPI !.and. gs%nshared .gt. 20000
+    ! Here one could use some heuristic or autotuning to select comm method,
+    ! such as only using device MPI when there is enough data.
+    !use_device_mpi = NEKO_DEVICE_MPI .and. gs%nshared .gt. 20000
+    use_device_mpi = NEKO_DEVICE_MPI
+
     if (use_device_mpi) then
-       call neko_log%message('Comm         : Device MPI')
+       call neko_log%message('Comm         :   Device MPI')
        allocate(gs_device_mpi_t::gs%comm)
     else
-       call neko_log%message('Comm         : MPI')
+       call neko_log%message('Comm         :          MPI')
        allocate(gs_mpi_t::gs%comm)
     end if
 

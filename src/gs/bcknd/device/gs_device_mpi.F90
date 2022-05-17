@@ -42,14 +42,14 @@ module gs_device_mpi
   use device
   implicit none
 
-  !> MPI buffer for non-blocking operations
+  !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_mpi_buf_t
-     integer, allocatable :: ndofs(:)
-     integer, allocatable :: offset(:)
-     integer :: total
-     type(c_ptr) :: reqs = C_NULL_PTR
-     type(c_ptr) :: buf_d = C_NULL_PTR
-     type(c_ptr) :: dof_d = C_NULL_PTR
+     integer, allocatable :: ndofs(:)           !< Number of dofs
+     integer, allocatable :: offset(:)          !< Offset into buf
+     integer :: total                           !< Total number of dofs
+     type(c_ptr) :: reqs = C_NULL_PTR           !< MPI request array in C
+     type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
+     type(c_ptr) :: dof_d = C_NULL_PTR          !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_mpi_buf_init
      procedure, pass(this) :: free => gs_device_mpi_buf_free
@@ -60,8 +60,6 @@ module gs_device_mpi
   type, extends(gs_comm_t) :: gs_device_mpi_t
      type(gs_device_mpi_buf_t) :: send_buf
      type(gs_device_mpi_buf_t) :: recv_buf
-     logical, allocatable :: recv_flags(:)
-     logical :: batched_unpack  !< Unpack all in parallel (using atomics)
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -262,14 +260,8 @@ contains
 
     call this%init_order(send_pe, recv_pe)
 
-    this%batched_unpack = .false.
-
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
-    call this%recv_buf%init(this%recv_pe, this%recv_dof, this%batched_unpack)
-
-    if (.not. this%batched_unpack) then
-       allocate(this%recv_flags(size(this%recv_pe)))
-    end if
+    call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
   end subroutine gs_device_mpi_init
 
@@ -331,10 +323,6 @@ contains
                              this%recv_buf%reqs, i)
     end do
 
-    if (allocated(this%recv_flags)) then
-       this%recv_flags = .false.
-    end if
-
   end subroutine gs_device_mpi_nbrecv
 
   !> Wait for non-blocking operations
@@ -342,61 +330,30 @@ contains
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    integer :: i, nreqs
     integer :: op
-    integer(c_int) :: cflag
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u, n)
 
-    if (this%batched_unpack) then
-       call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
+    call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
+
 #ifdef HAVE_HIP
-       call hip_gs_unpack(u_d, op, &
-                          this%recv_buf%buf_d, &
-                          this%recv_buf%dof_d, &
-                          0, this%recv_buf%total)
+    call hip_gs_unpack(u_d, op, &
+                       this%recv_buf%buf_d, &
+                       this%recv_buf%dof_d, &
+                       0, this%recv_buf%total)
 #elif HAVE_CUDA
-       call cuda_gs_unpack(u_d, op, &
-                           this%recv_buf%buf_d, &
-                           this%recv_buf%dof_d, &
-                           0, this%recv_buf%total)
+    call cuda_gs_unpack(u_d, op, &
+                        this%recv_buf%buf_d, &
+                        this%recv_buf%dof_d, &
+                        0, this%recv_buf%total)
 #else
-       call neko_error('gs_device_mpi: no backend')
+    call neko_error('gs_device_mpi: no backend')
 #endif
-    else
-       nreqs = size(this%recv_pe)
-       do while (nreqs .gt. 0)
-          do i = 1, size(this%recv_pe)
-            if (.not. this%recv_flags(i)) then
-               cflag = device_mpi_test(this%recv_buf%reqs, i)
-               if (cflag .ne. 0) then
-                  this%recv_flags(i) = .true.
-                  nreqs = nreqs - 1
-#ifdef HAVE_HIP
-                  call hip_gs_unpack(u_d, op, &
-                                     this%recv_buf%buf_d, &
-                                     this%recv_buf%dof_d, &
-                                     this%recv_buf%offset(i), &
-                                     this%recv_buf%ndofs(i))
-#elif HAVE_CUDA
-                  call cuda_gs_unpack(u_d, op, &
-                                      this%recv_buf%buf_d, &
-                                      this%recv_buf%dof_d, &
-                                      this%recv_buf%offset(i), &
-                                      this%recv_buf%ndofs(i))
-#else
-                  call neko_error('gs_device_mpi: no backend')
-#endif
-               end if
-            end if
-          end do
-       end do
-    end if
 
     call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
-    ! ...
+    ! Syncing here seems to prevent some race condition
     call device_sync()
 
   end subroutine gs_device_mpi_nbwait

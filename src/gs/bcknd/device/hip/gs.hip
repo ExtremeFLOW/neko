@@ -114,6 +114,9 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /**
+   * Pack send buffer on device
+   */
   void hip_gs_pack(void *u_d, void *buf_d, void *dof_d, int n) {
 
     const int nthrds = 1024;
@@ -126,6 +129,9 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /**
+   * Unpack receive buffer on device
+   */
   void hip_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d,
 		     int offset, int n) {
 

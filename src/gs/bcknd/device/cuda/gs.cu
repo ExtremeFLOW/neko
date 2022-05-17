@@ -108,6 +108,9 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
+  /**
+   * Pack send buffer on device
+   */
   void cuda_gs_pack(void *u_d, void *buf_d, void *dof_d, int n) {
 
     const int nthrds = 1024;
@@ -119,6 +122,9 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
+  /**
+   * Unpack receive buffer on device
+   */
   void cuda_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d,
 		      int offset, int n) {
 
