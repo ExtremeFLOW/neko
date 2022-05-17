@@ -190,16 +190,16 @@ contains
 
     !populate the mass matrix
     kk=1
-    do i=1,cpr%Xh%lx
-      do j=1,cpr%Xh%lx
+    do i = 1, cpr%Xh%lx
+      do j = 1, cpr%Xh%lx
         if (i.eq.j) then
           cpr%w(i,j)=cpr%Xh%wx(kk)
           kk=kk+1
         else
           cpr%w(i,j)=0
-        endif
-      enddo
-    enddo
+        end if
+      end do
+    end do
 
     !Get the inverse of the transform matrix
     call mxm(cpr%vt,cpr%Xh%lx,cpr%w,cpr%Xh%lx,cpr%vinv,cpr%Xh%lx)
