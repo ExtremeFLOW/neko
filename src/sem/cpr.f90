@@ -531,22 +531,22 @@ contains
     ! Get the volume of the element
     nxyz=coef%Xh%lx*coef%Xh%lx*coef%Xh%lx
     vole=0
-    do i=1,nxyz
+    do i = 1, nxyz
       vole=vole+coef%B(i,1,1,e)
-    enddo
+    end do
 
     ! Get the weighted l2 norm of the element
     suma=0
     if (space.eq.'spec') then
-      do i=1,nxyz
+      do i = 1, nxyz
         suma=suma+elemdata(i,1,1)*elemdata(i,1,1)*coef%jac(i,1,1,e)
-      enddo
-    endif
+      end do
+    end if
     if (space.eq.'phys') then
-      do i=1,nxyz
+      do i =1 ,n xyz
         suma=suma+elemdata(i,1,1)*elemdata(i,1,1)*coef%B(i,1,1,e)
-      enddo
-    endif
+      end do
+    end if
 
     l2e=sqrt(suma)/sqrt(vole)
 
