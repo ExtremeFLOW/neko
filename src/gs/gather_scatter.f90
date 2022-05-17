@@ -171,7 +171,7 @@ contains
     if (use_device_mpi) then
        select type(b => gs%bcknd)
        type is (gs_device_t)
-          b%host_resident = .false.
+          b%shared_on_host = .false.
        end select
     end if
   
