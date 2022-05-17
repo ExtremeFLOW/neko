@@ -71,7 +71,6 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(field_t) :: omg1, omg2, omg3, w1, w2
-    type(cpr_t) :: cpr_u
     integer :: n, i
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo
     n = u%dof%n_dofs
