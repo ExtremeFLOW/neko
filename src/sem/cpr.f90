@@ -407,15 +407,15 @@ contains
     integer :: tempind(n)
     integer :: i, jj
 
-    do i=1,n
+    do i = 1, n
       jj=n+1-i
       temp(jj)=b(i)
       tempind(jj)=ind(i)
-    enddo
-    do i=1,n
+    end do
+    do i = 1,n
       b(i)=temp(i)
       ind(i)=tempind(i)
-    enddo
+    end do
 
   end subroutine flipv
 
