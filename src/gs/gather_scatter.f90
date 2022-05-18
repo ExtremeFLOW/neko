@@ -1120,7 +1120,7 @@ contains
        call gs%comm%nbrecv()
 
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
-            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
 
        call gs%comm%nbsend(gs%shared_gs, l)
        
@@ -1129,9 +1129,9 @@ contains
     ! Gather-scatter local dofs
 
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false.)
 
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
@@ -1139,7 +1139,7 @@ contains
        call gs%comm%nbwait(gs%shared_gs, l, op)
 
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
-            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
     end if
 
   end subroutine gs_op_vector
