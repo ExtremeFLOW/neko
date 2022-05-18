@@ -67,7 +67,7 @@ contains
   subroutine symmetry_init_msk(this, c)
     class(symmetry_t), intent(inout) :: this
     type(coef_t), intent(in) :: c
-    integer :: i, m, j, k, l
+    integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
     real(kind=rp), parameter :: TOL = 1d-3
@@ -83,7 +83,6 @@ contains
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
-         k = this%msk(i)
          bc_facet = bfp(i)
          facet = bc_facet%x(1)
          el = bc_facet%x(2)

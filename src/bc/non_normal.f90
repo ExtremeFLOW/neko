@@ -75,7 +75,6 @@ contains
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
-         k = this%msk(i)
          bc_facet = bfp(i)
          facet = bc_facet%x(1)
          el = bc_facet%x(2)
