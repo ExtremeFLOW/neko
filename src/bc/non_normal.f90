@@ -36,6 +36,7 @@ module non_normal
   use neko_config
   use num_types
   use dirichlet
+  use tuple
   use device
   use coefs
   use math
@@ -58,24 +59,26 @@ contains
   subroutine non_normal_init_msk(this, c)
     class(non_normal_t), intent(inout) :: this
     type(coef_t), intent(in) :: c
-    type(stack_i4_t) :: xmsk, ymsk, zmsk
-    integer :: i, m, j, k, l, idx(4), facet, ntype, msk_size
-    integer, pointer :: sp(:)        
+    integer :: i, j, k, l 
+    type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz
     real(kind=rp), parameter :: TOL = 1d-3
+    type(tuple_i4_t) :: bc_facet
+    integer :: facet, el
     
     call non_normal_free(this)
 
-    call xmsk%init()
-    call ymsk%init()
-    call zmsk%init()
+    call this%bc_x%init(c%dof)
+    call this%bc_y%init(c%dof)
+    call this%bc_z%init(c%dof)
     
     associate(nx => c%nx, ny => c%ny, nz => c%nz)
-      m = this%msk(0)
-      do i = 1, m
+      bfp => this%marked_facet%array()
+      do i = 1, this%marked_facet%size()
          k = this%msk(i)
-         facet = this%facet(i)
-         idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
+         bc_facet = bfp(i)
+         facet = bc_facet%x(1)
+         el = bc_facet%x(2)
          sx = 0d0
          sy = 0d0
          sz = 0d0
@@ -83,25 +86,25 @@ contains
          case(1,2)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx -1
-                  sx = sx + abs(abs(nx(l, j, facet, idx(4))) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, idx(4))) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, idx(4))) - 1d0)
+                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
             end do
          case(3,4)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, idx(4))) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, idx(4))) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, idx(4))) - 1d0)
+                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
             end do
          case(5,6)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, idx(4))) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, idx(4))) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, idx(4))) - 1d0)
+                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
             end do               
          end select
@@ -109,141 +112,37 @@ contains
          sy = sy / (c%Xh%lx - 2)**2
          sz = sz / (c%Xh%lx - 2)**2
 
-         ntype = 0
          if (sx .lt. TOL) then
-            ntype = iand(ntype, 1)
-            call ymsk%push(k)
-            call zmsk%push(k)
+            call this%bc_y%mark_facet(facet, el)
+            call this%bc_z%mark_facet(facet, el)
          end if
 
          if (sy .lt. TOL) then
-            ntype = iand(ntype, 2)
-            call xmsk%push(k)
-            call zmsk%push(k)
+            call this%bc_x%mark_facet(facet, el)
+            call this%bc_z%mark_facet(facet, el)
          end if
 
          if (sz .lt. TOL) then
-            ntype = iand(ntype, 4)
-            call xmsk%push(k)
-            call ymsk%push(k)
+            call this%bc_y%mark_facet(facet, el)
+            call this%bc_x%mark_facet(facet, el)
          end if
-
       end do
     end associate
-
-    !> @note This is to prevent runtime issues with Cray ftn, gfortran and
-    !! msk:size() in the allocate call
-    msk_size = xmsk%size()
-    if (msk_size .gt. 0) then
-       allocate(this%xaxis_msk(0:msk_size))
-       this%xaxis_msk(0) = msk_size
-       sp => xmsk%array()
-       do i = 1, msk_size
-          this%xaxis_msk(i) = sp(i)
-       end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          call device_map(this%xaxis_msk, this%xaxis_msk_d, msk_size + 1)
-          call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
-               msk_size + 1, HOST_TO_DEVICE)
-       end if
-    else
-       allocate(this%xaxis_msk(0:1))
-       this%xaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          call device_map(this%xaxis_msk, this%xaxis_msk_d, 2)
-          call device_memcpy(this%xaxis_msk, this%xaxis_msk_d, &
-               2, HOST_TO_DEVICE)
-       end if
-    end if
-
-    msk_size = ymsk%size()
-    if (msk_size .gt. 0) then
-       allocate(this%yaxis_msk(0:msk_size))
-       this%yaxis_msk(0) = msk_size
-       sp => ymsk%array()
-       do i = 1, msk_size
-          this%yaxis_msk(i) = sp(i)
-       end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          call device_map(this%yaxis_msk, this%yaxis_msk_d, msk_size + 1)
-          call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
-               msk_size + 1, HOST_TO_DEVICE)
-       end if
-    else
-       allocate(this%yaxis_msk(0:1))
-       this%yaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          call device_map(this%yaxis_msk, this%yaxis_msk_d, 2)
-          call device_memcpy(this%yaxis_msk, this%yaxis_msk_d, &
-               2, HOST_TO_DEVICE)
-       end if
-    end if
-
-    msk_size = zmsk%size()
-    if (msk_size .gt. 0) then
-       allocate(this%zaxis_msk(0:msk_size))
-       this%zaxis_msk(0) = msk_size
-       sp => zmsk%array()
-       do i = 1, msk_size
-          this%zaxis_msk(i) = sp(i)
-       end do
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          call device_map(this%zaxis_msk, this%zaxis_msk_d, msk_size + 1)
-          call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
-               msk_size + 1, HOST_TO_DEVICE)
-       end if
-    else
-       allocate(this%zaxis_msk(0:1))
-       this%zaxis_msk(0) = 0
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          call device_map(this%zaxis_msk, this%zaxis_msk_d, 2)
-          call device_memcpy(this%zaxis_msk, this%zaxis_msk_d, &
-               2, HOST_TO_DEVICE)
-       end if
-    end if    
-
-    call xmsk%free()
-    call ymsk%free()
-    call zmsk%free()
-    
+    call this%bc_x%finalize()
+    call this%bc_x%set_g(0.0_rp)
+    call this%bc_y%finalize()
+    call this%bc_y%set_g(0.0_rp)
+    call this%bc_z%finalize()
+    call this%bc_z%set_g(0.0_rp)
   end subroutine non_normal_init_msk
 
  
   subroutine non_normal_free(this)
     type(non_normal_t), intent(inout) :: this
 
-    if (allocated(this%xaxis_msk)) then
-       deallocate(this%xaxis_msk)
-    end if
-    
-    if (allocated(this%yaxis_msk)) then
-       deallocate(this%yaxis_msk)
-    end if
-
-    if (allocated(this%zaxis_msk)) then
-       deallocate(this%zaxis_msk)
-    end if
-
-    if (c_associated(this%xaxis_msk_d)) then
-       call device_free(this%xaxis_msk_d)
-       this%xaxis_msk_d = C_NULL_PTR
-    end if
-
-    if (c_associated(this%yaxis_msk_d)) then
-       call device_free(this%yaxis_msk_d)
-       this%yaxis_msk_d = C_NULL_PTR
-    end if
-
-    if (c_associated(this%zaxis_msk_d)) then
-       call device_free(this%zaxis_msk_d)
-       this%zaxis_msk_d = C_NULL_PTR
-    end if
+    call this%bc_x%free()
+    call this%bc_y%free()
+    call this%bc_z%free()
 
   end subroutine non_normal_free
  end module non_normal
