@@ -450,7 +450,7 @@ extern "C" {
 
   /** 
    * Fortran wrapper glsum
-   * Sum a vector of lenght n
+   * Sum a vector of length n
    */
   real cuda_glsum(void *a, int *n) {
     const dim3 nthrds(1024, 1, 1);
