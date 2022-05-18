@@ -448,4 +448,35 @@ extern "C" {
     return res;
   }
 
+  /** 
+   * Fortran wrapper glsum
+   * Sum a vector of lenght n
+   */
+  real cuda_glsum(void *a, int *n) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
+
+    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+     
+    glsum_kernel<real><<<nblcks, nthrds>>>((real *) a, buf_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
+                          cudaMemcpyDeviceToHost));
+
+    real res = 0.0;
+    for (int i = 0; i < nb; i++) {
+      res += buf[i];
+    }
+
+    free(buf);
+    CUDA_CHECK(cudaFree(buf_d));
+
+    return res;
+  }
+
 }
