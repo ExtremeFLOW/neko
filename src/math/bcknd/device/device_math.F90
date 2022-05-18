@@ -834,6 +834,17 @@ module device_math
        integer(c_int) :: n
      end function opencl_glsc2
   end interface
+
+  interface
+     real(c_rp) function opencl_glsum(a_d, n) &
+          bind(c, name='opencl_glsum')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end function opencl_glsum
+  end interface
 #endif
   
 contains
@@ -1223,6 +1234,7 @@ contains
 #elif HAVE_CUDA
     res = cuda_glsum(a_d, n)
 #elif HAVE_OPENCL
+    res = opencl_glsum(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
