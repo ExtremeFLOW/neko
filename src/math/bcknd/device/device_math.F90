@@ -293,6 +293,17 @@ module device_math
        integer(c_int) :: n
      end function hip_glsc2
   end interface
+
+  interface
+     real(c_rp) function hip_glsum(a_d, n) &
+          bind(c, name='hip_glsum')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end function hip_glsum
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_copy(a_d, b_d, n) &
@@ -1208,6 +1219,7 @@ contains
     integer :: n, ierr
     real(kind=rp) :: res
 #ifdef HAVE_HIP
+    res = hip_glsum(a_d, n)
 #elif HAVE_CUDA
     res = cuda_glsum(a_d, n)
 #elif HAVE_OPENCL

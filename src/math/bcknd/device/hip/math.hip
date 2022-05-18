@@ -381,8 +381,8 @@ extern "C" {
     if((*j)>red_s){
       red_s = *j;
       if (bufred != NULL) {
-	free(bufred);
-	HIP_CHECK(hipFree(bufred_d));
+        free(bufred);
+        HIP_CHECK(hipFree(bufred_d));
       }      
       bufred = (real *) malloc((*j)*nb * sizeof(real));
       HIP_CHECK(hipMalloc(&bufred_d, (*j)*nb*sizeof(real)));
@@ -458,4 +458,35 @@ extern "C" {
     return res;
   }
 
+  /** 
+   * Fortran wrapper glsum
+   * Sum a vector of lenght n
+   */
+  real hip_glsum(void *a, int *n) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
+
+    HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+     
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
+                       nblcks, nthrds, 0, 0,
+                       (real *) a, buf_d, *n);
+    HIP_CHECK(hipGetLastError());
+
+    HIP_CHECK(hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost));
+
+    real res = 0.0;
+    for (int i = 0; i < nb; i++) {
+      res += buf[i];
+    }
+
+    free(buf);
+    HIP_CHECK(hipFree(buf_d));
+
+    return res;
+  }
 }
