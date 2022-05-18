@@ -57,7 +57,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -102,7 +102,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -147,7 +147,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -192,7 +192,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -237,7 +237,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -282,7 +282,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -327,7 +327,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -372,7 +372,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -417,7 +417,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -462,7 +462,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -507,7 +507,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -552,7 +552,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -597,7 +597,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
@@ -642,7 +642,7 @@ contains
     do k = 1, lx
        do j = 1, lx
           do i = 1, lx
-             do e = 1,nelv
+             do e = 1, nelv
                 ur = ( u(i,j,k,e)*drdx(i,j,k,e) &
                    +   v(i,j,k,e)*drdy(i,j,k,e) &
                    +   w(i,j,k,e)*drdz(i,j,k,e) ) * jacinv(i,j,k,e)
