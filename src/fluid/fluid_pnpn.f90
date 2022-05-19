@@ -381,6 +381,7 @@ contains
 
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
+         call this%proj_prs%write_info('Pressure')
       end if
       
       call this%pc_prs%update()
