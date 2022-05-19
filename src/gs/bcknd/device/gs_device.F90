@@ -207,7 +207,7 @@ contains
   end subroutine gs_device_free
 
   !> Gather kernel
-  subroutine gs_gather_device(this, v, m, o, dg, u, n, gd, nb, b, op)
+  subroutine gs_gather_device(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
     integer, intent(inout) :: m
     integer, intent(inout) :: n
     integer, intent(inout) :: nb
@@ -218,12 +218,14 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(inout) :: o
-    integer :: op, i
+    integer, intent(inout) :: op
+    logical, intent(in) :: shrd
+    integer :: i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
         
-    if (this%nlocal .eq. m) then       
+    if (.not. shrd) then
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
             gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
             bo=>this%local_blk_off, bo_d=>this%local_blk_off_d)
@@ -270,7 +272,7 @@ contains
 #endif
          
        end associate
-    else if (this%nshared .eq. m) then
+    else if (shrd) then
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo=>this%shared_blk_off, bo_d=>this%shared_blk_off_d)
@@ -329,7 +331,7 @@ contains
   end subroutine gs_gather_device
  
   !> Scatter kernel
-  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b)
+  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, shrd)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -339,11 +341,12 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    logical, intent(in) :: shrd
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
 
-    if (this%nlocal .eq. m) then
+    if (.not. shrd) then
        associate(v_d=>this%local_gs_d, dg_d=>this%local_dof_gs_d, &
             gd_d=>this%local_gs_dof_d, b_d=>this%local_blk_len_d, &
             bo_d=>this%local_blk_off_d)
@@ -357,7 +360,7 @@ contains
          call neko_error('No device backend configured')
 #endif
        end associate
-    else if (this%nshared .eq. m) then
+    else if (shrd) then
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo_d=>this%shared_blk_off_d)

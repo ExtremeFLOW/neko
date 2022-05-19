@@ -321,41 +321,39 @@ contains
     
     ! This is a placeholder, just for now
     ! We can probably find a prettier solution
-    call rone(coef%h1,n)
-    call rone(coef%h2,n)
-    coef%ifh2 = .false.
-
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE)
-       call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE)
+       call device_rone(coef%h1_d, n)
+       call device_rone(coef%h2_d, n)
+       call device_memcpy(coef%h1, coef%h1_d, n, DEVICE_TO_HOST)
+       call device_memcpy(coef%h2, coef%h2_d, n, DEVICE_TO_HOST)
+    else
+       call rone(coef%h1,n)
+       call rone(coef%h2,n)
     end if
+
+    coef%ifh2 = .false.
     
     !
     ! Set up multiplicity
     !
-    call rone(coef%mult, n)
-
-    !>  @todo cleanup once we have device math in place
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
-       call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
+       call device_rone(coef%mult_d, n)
+    else
+       call rone(coef%mult, n)
     end if
        
     call gs_op(gs_h, coef%mult, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_invcol1(coef%mult_d, n)
        call device_memcpy(coef%mult, coef%mult_d, n, DEVICE_TO_HOST)
+    else    
+       call invcol1(coef%mult, n)
     end if
-    
-    call invcol1(coef%mult, n)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
-       call device_memcpy(coef%mult, coef%mult_d, n, HOST_TO_DEVICE)
-    end if
-    
   end subroutine coef_init_all
 
   !> Deallocate coefficients
@@ -872,38 +870,40 @@ contains
     
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     
-    call rone(c%B,c%dof%n_dofs)
+    !> @todo rewrite this nest into a device kernel
+    call rone(c%B, c%dof%n_dofs)
     do e = 1, c%msh%nelv
        ! Here we need to handle things differently for axis symmetric elements
        call col3(c%B(1,1,1,e), c%jac(1,1,1,e), c%Xh%w3, lxyz)
     end do
     
-    call copy(c%Binv,c%B,c%dof%n_dofs)
+    call copy(c%Binv, c%B, c%dof%n_dofs)
 
-    !>  @todo cleanup once we have device math in place
+
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
+      call device_memcpy(c%B, c%B_d, c%dof%n_dofs, HOST_TO_DEVICE)
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
     end if
     
     call gs_op(c%gs_h, c%Binv, c%dof%n_dofs, GS_OP_ADD)
 
-    !>  @todo cleanup once we have device math in place
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_invcol1(c%Binv_d, c%dof%n_dofs)
        call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, DEVICE_TO_HOST)
+    else
+       call invcol1(c%Binv, c%dof%n_dofs)
     end if
-
-    call invcol1(c%Binv,c%dof%n_dofs)
 
     !>  @todo cleanup once we have device math in place
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(c%B, c%B_d, c%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(c%Binv, c%Binv_d, c%dof%n_dofs, HOST_TO_DEVICE)
+       c%volume = device_glsum(c%B_d, c%dof%n_dofs)
+    else
+       c%volume = glsum(c%B, c%dof%n_dofs)
     end if
 
-    c%volume = glsum(c%B,c%dof%n_dofs)
   end subroutine coef_generate_mass
 
   pure function coef_get_normal(coef, i, j, k, e, facet) result(normal)

@@ -70,7 +70,7 @@ module gs_bcknd
   !> Abstract interface for the Gather kernel
   !! \f$ v(dg(i)) = op(v(dg(i)), u(gd(i)) \f$
   abstract interface
-     subroutine gs_gather(this, v, m, o, dg, u, n, gd, nb, b, op)
+     subroutine gs_gather(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
        import gs_bcknd_t       
        import rp
        integer, intent(inout) :: m
@@ -83,15 +83,15 @@ module gs_bcknd
        integer, dimension(m), intent(inout) :: gd
        integer, dimension(nb), intent(inout) :: b
        integer, intent(inout) :: o
-       integer :: op
-    
+       integer, intent(inout) :: op
+       logical, intent(in) :: shrd    
      end subroutine gs_gather
   end interface
   
   !> Abstract interface for the Scatter kernel
   !! \f$ u(gd(i) = v(dg(i)) \f$
   abstract interface
-     subroutine gs_scatter(this, v, m, dg, u, n, gd, nb, b)
+     subroutine gs_scatter(this, v, m, dg, u, n, gd, nb, b, shrd)
        import gs_bcknd_t       
        import rp
        integer, intent(in) :: m
@@ -103,8 +103,7 @@ module gs_bcknd
        real(kind=rp), dimension(n), intent(inout) :: u
        integer, dimension(m), intent(inout) :: gd
        integer, dimension(nb), intent(inout) :: b
-       integer :: i, j, k, blk_len
-       real(kind=rp) :: tmp       
+       logical, intent(in) :: shrd
      end subroutine gs_scatter
   end interface
 

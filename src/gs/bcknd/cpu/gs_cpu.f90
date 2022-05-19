@@ -64,7 +64,7 @@ contains
   end subroutine gs_cpu_free
 
   !> Gather kernel
-  subroutine gs_gather_cpu(this, v, m, o, dg, u, n, gd, nb, b, op)
+  subroutine gs_gather_cpu(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
     integer, intent(inout) :: m
     integer, intent(inout) :: n
     integer, intent(inout) :: nb
@@ -75,7 +75,8 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer, intent(inout) :: o
-    integer :: op
+    integer, intent(inout) :: op
+    logical, intent(in) :: shrd
     
     select case(op)
     case (GS_OP_ADD)
@@ -247,7 +248,7 @@ contains
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter_cpu(this, v, m, dg, u, n, gd, nb, b)
+  subroutine gs_scatter_cpu(this, v, m, dg, u, n, gd, nb, b, shrd)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -257,6 +258,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    logical, intent(in) :: shrd
         
     call gs_scatter_kernel(v, m, dg, u, n, gd, nb, b)
 
