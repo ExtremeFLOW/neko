@@ -57,6 +57,7 @@ module gs_device
      type(c_ptr) :: shared_blk_off_d = C_NULL_PTR!< Dev. ptr shared blk offset
      integer :: nlocal              
      integer :: nshared
+     logical :: shared_on_host !< Shared points are handled on host
    contains
      procedure, pass(this) :: init => gs_device_init
      procedure, pass(this) :: free => gs_device_free
@@ -155,6 +156,8 @@ contains
     this%shared_gs_dof_d = C_NULL_PTR
     this%shared_blk_len_d = C_NULL_PTR
     this%shared_blk_off_d = C_NULL_PTR
+
+    this%shared_on_host = .true.
       
   end subroutine gs_device_init
 
@@ -316,7 +319,7 @@ contains
          call neko_error('No device backend configured')
 #endif
 
-         if (.not. NEKO_DEVICE_MPI) then
+         if (this%shared_on_host) then
             if (this%nshared .eq. m) then
                call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
             end if
@@ -362,7 +365,7 @@ contains
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo_d=>this%shared_blk_off_d)
 
-         if (.not. NEKO_DEVICE_MPI) then
+         if (this%shared_on_host) then
             call device_memcpy(v, v_d, m, HOST_TO_DEVICE)
          end if
          

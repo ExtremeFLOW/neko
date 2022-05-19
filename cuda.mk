@@ -1,2 +1,2 @@
 .cu.o:
-	$(NVCC) -I@top_builddir@/src -I@top_srcdir@/src -O3 -o $@ -c $<
+	$(NVCC) -arch sm_60 -I@top_builddir@/src -I@top_srcdir@/src -O3 -o $@ -c $<

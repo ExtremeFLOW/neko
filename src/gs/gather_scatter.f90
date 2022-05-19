@@ -89,22 +89,30 @@ contains
     character(len=20) :: bcknd_str
     integer, optional :: bcknd
     integer :: ierr, bcknd_, glb_nshared, glb_nlocal
+    logical :: use_device_mpi
 
     call gs_free(gs)
 
     call neko_log%section('Gather-Scatter')
     
     gs%dofmap => dofmap
+
+    call gs_init_mapping(gs)
     
-    if (NEKO_DEVICE_MPI) then
+    ! Here one could use some heuristic or autotuning to select comm method,
+    ! such as only using device MPI when there is enough data.
+    !use_device_mpi = NEKO_DEVICE_MPI .and. gs%nshared .gt. 20000
+    use_device_mpi = NEKO_DEVICE_MPI
+
+    if (use_device_mpi) then
+       call neko_log%message('Comm         :   Device MPI')
        allocate(gs_device_mpi_t::gs%comm)
     else
+       call neko_log%message('Comm         :          MPI')
        allocate(gs_mpi_t::gs%comm)
     end if
 
     call gs%comm%init_dofs()
-
-    call gs_init_mapping(gs)
 
     call gs_schedule(gs)
 
@@ -159,6 +167,13 @@ contains
     call neko_log%end_section()
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
+
+    if (use_device_mpi) then
+       select type(b => gs%bcknd)
+       type is (gs_device_t)
+          b%shared_on_host = .false.
+       end select
+    end if
   
   end subroutine gs_init
 

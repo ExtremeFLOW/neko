@@ -114,35 +114,39 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void hip_gs_pack(void *dof_ptrs_d, void *buf_ptrs_d,
-		   void *ndofs_d, int *npe, void *u_d, int *n) {
+  /**
+   * Pack send buffer on device
+   */
+  void hip_gs_pack(void *u_d, void *buf_d, void *dof_d, int n) {
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(*npe, 1, 1);
+    const int nthrds = 1024;
+    const int nblcks = (n + nthrds - 1) / nthrds;
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
 		       nblcks, nthrds, 0, 0,
-		       (real *) u_d, *n,
-		       (const int **) dof_ptrs_d, (real **) buf_ptrs_d,
-		       (int *) ndofs_d);
+		       (real *) u_d, (real *) buf_d,
+		       (int *) dof_d, n);
     HIP_CHECK(hipGetLastError());
   }
 
-  void hip_gs_unpack(void *buf_d, void *dof_d, int *ndofs,
-		     void *u_d, int *op) {
+  /**
+   * Unpack receive buffer on device
+   */
+  void hip_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d,
+		     int offset, int n) {
 
     const int nthrds = 1024;
-    const int nblcks = (*ndofs + nthrds - 1) / nthrds;
+    const int nblcks = (n + nthrds - 1) / nthrds;
 
-    switch (*op) {
+    switch (op) {
     case GS_OP_ADD:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
 			 nblcks, nthrds, 0, 0,
-			 (real *) u_d, (real *) buf_d,
-			 (int *) dof_d, *ndofs);
+			 u_d + offset, buf_d + offset,
+			 dof_d + offset, n);
       break;
     default:
-      printf("%s: unknown gs op %d\n", __FILE__, *op);
+      printf("%s: unknown gs op %d\n", __FILE__, op);
       abort();
     }
 
