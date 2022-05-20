@@ -276,7 +276,9 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
   const int32_t idx = dof[j];
   const T val = buf[j];
   if (idx < 0) {
+#if __CUDA_ARCH__ >= 600
     atomicAdd(&u[-idx-1], val);
+#endif
   } else {
     u[idx-1] += val;
   }

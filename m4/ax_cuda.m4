@@ -30,7 +30,9 @@ AC_DEFUN([AX_CUDA],[
 		   export LDFLAGS
 		   AC_PATH_PROG(NVCC, nvcc, "no")
 		fi
-
+		
+                AS_IF([test "$CUDA_CFLAGS"],[],[CUDA_CFLAGS="-O3"])
+		
 		_CC=$CC
 		AC_LANG_PUSH([C])
 		CC=$NVCC

@@ -1,5 +1,4 @@
 include $(top_srcdir)/hip.mk
-include $(top_srcdir)/cuda.mk
 
 lib_LIBRARIES = libneko.a
 neko_fortran_SOURCES = \
@@ -399,3 +398,6 @@ include	.depends
 
 # Device deps. (manually updated)
 include .depends_device
+
+.cu.o:
+	$(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
