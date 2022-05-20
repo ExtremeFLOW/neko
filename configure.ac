@@ -167,6 +167,12 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
       AC_SUBST(device_mpi, .true.)
+      
+      # Make sure we have support for atomicAdd
+      if test "x${have_cuda}" = xyes; then
+      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+      fi      
+
    else
       AC_SUBST(device_mpi, .false.)
    fi
@@ -179,7 +185,9 @@ AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 
-
+# Set device dependent flags
+AC_SUBST(CUDA_ARCH)
+AC_SUBST(CUDA_CFLAGS)
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
