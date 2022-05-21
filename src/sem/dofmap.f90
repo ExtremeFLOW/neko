@@ -67,7 +67,7 @@ module dofmap
 
    contains
      procedure, pass(this) :: size => dofmap_size
-     final :: dofmap_free
+!     final :: dofmap_free
   end type dofmap_t
 
   interface dofmap_t
