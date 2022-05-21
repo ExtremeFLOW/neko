@@ -669,9 +669,8 @@ contains
          dyt => c%Xh%dyt, dzt => c%Xh%dzt, &
          jacinv => c%jacinv, jac => c%jac, n_dofs => c%dof%n_dofs)
 
-      !> @todo enable HIP once kernels are stable
-      if ((NEKO_BCKND_CUDA .eq. 1) .or. &
-          (NEKO_BCKND_OPENCL .eq. 1)) then 
+        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
 
          call device_coef_generate_dxydrst(c%drdx_d, c%drdy_d, c%drdz_d, &
               c%dsdx_d, c%dsdy_d, c%dsdz_d, c%dtdx_d, c%dtdy_d, c%dtdz_d, &
@@ -758,30 +757,7 @@ contains
          end if
          
          call invers2(jacinv, jac, n_dofs)
-
-         !>  @todo cleanup once HIP backend works
-         if ((NEKO_BCKND_HIP .eq. 1)) then
-            call device_memcpy(dxdr, c%dxdr_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dydr, c%dydr_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dzdr, c%dzdr_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dxds, c%dxds_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dyds, c%dyds_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dzds, c%dzds_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dxdt, c%dxdt_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dydt, c%dydt_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dzdt, c%dzdt_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(drdx, c%drdx_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(drdy, c%drdy_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(drdz, c%drdz_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dsdx, c%dsdx_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dsdy, c%dsdy_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dsdz, c%dsdz_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dtdx, c%dtdx_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dtdy, c%dtdy_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(dtdz, c%dtdz_d, n_dofs, HOST_TO_DEVICE)          
-            call device_memcpy(jac, c%jac_d, n_dofs, HOST_TO_DEVICE)            
-            call device_memcpy(jacinv, c%jacinv_d, n_dofs, HOST_TO_DEVICE)      
-         end if
+         
       end if
     end associate
     
