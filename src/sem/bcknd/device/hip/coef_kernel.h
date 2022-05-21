@@ -63,10 +63,6 @@ __global__ void coef_generate_geo_kernel(T * __restrict__ G11,
 
   __shared__ T shw3[LX * LX * LX];
 
-  if (iii < (LX * LX * LX)) {
-    shw3[iii] = w3[iii];
-  }
-
   j = iii;
   while( j < (LX * LX * LX)) {
     const int i = j + e * LX * LX * LX;
@@ -77,6 +73,9 @@ __global__ void coef_generate_geo_kernel(T * __restrict__ G11,
     G12[i] = (drdx[i]*dsdx[i] + drdy[i]*dsdy[i] + drdz[i]*dsdz[i]) * jacinv[i];
     G13[i] = (drdx[i]*dtdx[i] + drdy[i]*dtdy[i] + drdz[i]*dtdz[i]) * jacinv[i];
     G23[i] = (dsdx[i]*dtdx[i] + dsdy[i]*dtdy[i] + dsdz[i]*dtdz[i]) * jacinv[i];
+
+    shw3[j] = w3[j];
+    
     j = j + CHUNKS;
   }
 
@@ -139,7 +138,7 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
 
   j = iii;
   while(j < (LX * LX * LX)) {
-    shu[iii] = x[j + e * LX * LX * LX];
+    shu[j] = x[j + e * LX * LX * LX];
     j = j + CHUNKS;
   }
 
@@ -170,7 +169,7 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
 
   j = iii;
   while(j < (LX * LX * LX)) {
-    shu[iii] = y[j + e * LX * LX * LX];
+    shu[j] = y[j + e * LX * LX * LX];
     j = j + CHUNKS;
   }
 
@@ -201,7 +200,7 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
 
   j = iii;
   while(j < (LX * LX * LX)) {
-    shu[iii] = z[j + e * LX * LX * LX];
+    shu[j] = z[j + e * LX * LX * LX];
     j = j + CHUNKS;
   }
 
