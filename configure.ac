@@ -188,6 +188,7 @@ AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
 AC_SUBST(CUDA_CFLAGS)
+AC_SUBST(HIP_HIPCC_FLAGS)
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
