@@ -170,7 +170,6 @@ contains
 
        if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
             NEKO_BCKND_OPENCL .eq. 1) then
-          write(log_buf, '(a)') 'Bcknd type: '
           write(log_buf, '(a)') 'Dev. name : '
           call device_name(log_buf(13:))
           call neko_log%message(log_buf)
