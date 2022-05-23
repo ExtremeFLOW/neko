@@ -166,6 +166,12 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
+
+      # Check that necessary acceleator modules are loaded
+      if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
+      	 AX_CRAY_ACCEL
+      fi
+
       AC_SUBST(device_mpi, .true.)
       
       # Make sure we have support for atomicAdd
