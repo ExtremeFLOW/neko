@@ -43,7 +43,6 @@ module cpr
   use tensor
   use mxm_wrapper
   implicit none
-  private
 
   !> include information needed for compressing fields
   type :: cpr_t

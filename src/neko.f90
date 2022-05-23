@@ -75,6 +75,7 @@ module neko
   use signal
   use jobctrl
   use device
+  use cpr
 contains
 
   subroutine neko_init(C)
