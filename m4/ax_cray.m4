@@ -168,3 +168,22 @@ AC_DEFUN([AX_CRAY_CUDATOOLKIT],[
 	fi
 	AC_SUBST(cuda_bcknd)
 ])
+
+AC_DEFUN([AX_CRAY_ACCEL], [
+	AC_MSG_CHECKING([Cray Accelerator Target])
+	if test "${CRAY_ACCEL_TARGET}"; then
+	   if test "x${CRAY_ACCEL_TARGET}" = "xhost"; then
+	      AC_MSG_RESULT([no])
+	      AC_MSG_ERROR([Invalid accelerator target (host)])
+	      have_cray_accel="no"	      
+	   else
+              AC_MSG_RESULT([yes])
+	      have_cray_accel="yes"
+	   fi
+	else
+	   AC_MSG_RESULT([no])
+	   AC_MSG_ERROR([Cray Accelerator Target not found])
+	   have_cray_accel="no"
+	fi
+	AC_SUBST(have_cray_accel)
+])
