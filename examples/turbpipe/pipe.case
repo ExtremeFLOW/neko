@@ -20,6 +20,6 @@ pc_prs = 'hsmg'
 vol_flow_dir = 3
 avflow = .true.
 flow_rate = 1d0
-vel_proj_dim=3
+proj_vel_dim=3
 /
 
