@@ -6,6 +6,7 @@ contains
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
     u%fluid_usr_ic => user_ic
+    u%fluid_usr_f_vector => forcing
   end subroutine user_setup
   ! User defined initial condition
   subroutine user_ic(u, v, w, p, params)
@@ -15,7 +16,7 @@ contains
     type(field_t), intent(inout) :: p
     type(param_t), intent(inout) :: params
     integer :: i
-    real(kind=dp) :: uvw(3)
+    real(kind=rp) :: uvw(3)
 
     do i = 1, u%dof%size()
        uvw = pipe_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
@@ -26,11 +27,11 @@ contains
   end subroutine user_ic
   
   function pipe_ic(x, y, z) result(uvw)
-    real(kind=dp) :: x, y, z
-    real(kind=dp) :: uvw(3)
-    real(kind=dp) :: rand, ux, uy, uz, xr, yr, rr, zo
-    real(kind=dp) :: amp_z, freq_z, freq_t, amp_tht, amp_clip, blt
-    real(kind=dp) :: phase_z, arg_tht, amp_sin, pi, th
+    real(kind=rp) :: x, y, z
+    real(kind=rp) :: uvw(3)
+    real(kind=rp) :: rand, ux, uy, uz, xr, yr, rr, zo
+    real(kind=rp) :: amp_z, freq_z, freq_t, amp_tht, amp_clip, blt
+    real(kind=rp) :: phase_z, arg_tht, amp_sin, pi, th
 
     pi = 4d0 * atan(1d0)
     xr = x
@@ -44,13 +45,13 @@ contains
 
     ! Assign a wiggly shear layer near the wall
     amp_z    = 35d-2  ! Fraction of 2pi for z-based phase modification
-    freq_z   = 4d0     ! Number of wiggles in axial- (z-) direction
-    freq_t   = 9d0     ! Frequency of wiggles in azimuthal-direction
+    freq_z   = 5d0     ! Number of wiggles in axial- (z-) direction
+    freq_t   = 6d0     ! Frequency of wiggles in azimuthal-direction
 
-    amp_tht  = 5d0     ! Amplification factor for clipped sine function
-    amp_clip = 2d-1   ! Clipped amplitude
+    amp_tht  = 10d0     ! Amplification factor for clipped sine function
+    amp_clip = 4d-1   ! Clipped amplitude
 
-    blt      = 7d-2  ! Fraction of boundary layer with momentum deficit
+    blt      = 3.5d-1  ! Fraction of boundary layer with momentum deficit
 
     phase_z = amp_z*(2d0*pi)*sin(freq_z*zo)
 
@@ -72,5 +73,27 @@ contains
 
   end function pipe_ic
 
+  !> Forcing for if not using vol_flow
+  subroutine forcing(f)
+    class(source_t) :: f
+    real(kind=rp) :: Re_tau, Re_B, w
+    integer :: i
+    Re_tau = 180_rp
+    Re_B = 5300_rp 
+    w = 2d0 * (2d0*Re_tau/Re_B)**2
 
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_rzero(f%u_d,f%dm%size())
+       call device_rzero(f%v_d,f%dm%size())
+       call device_rzero(f%w_d,f%dm%size())
+       call device_cfill(f%w_d, w, f%dm%size())
+    else
+       do i = 1, f%dm%size()
+          f%u(i,1,1,1) = 0.0_rp
+          f%v(i,1,1,1) = 0.0_rp
+          f%w(i,1,1,1) = w
+       end do
+    end if
+  end subroutine forcing
 end module user
