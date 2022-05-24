@@ -243,7 +243,6 @@ contains
     type(stack_i4_t), target :: local_face_dof, face_dof_local
     type(stack_i4_t), target :: shared_face_dof, face_dof_shared
     integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid, dm_size
-    integer, pointer :: sp(:)
     type(htable_i8_t) :: dm
     type(htable_i8_t), pointer :: sdm
 
@@ -809,39 +808,58 @@ contains
     allocate(gs%local_dof_gs(gs%nlocal))
 
     ! Add dofs on points and edges
-    sp => local_dof%array()
-    j = local_dof%size()
-    do i = 1, j
-       gs%local_dof_gs(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => local_dof%data)
+    type is (integer)
+       j = local_dof%size()
+       do i = 1, j
+          gs%local_dof_gs(i) = dof_array(i)
+       end do
+    end select
     call local_dof%free()
 
     ! Add dofs on faces
-    sp => local_face_dof%array()
-    do i = 1, local_face_dof%size()
-       gs%local_dof_gs(i + j) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => local_face_dof%data)
+    type is (integer)
+       do i = 1, local_face_dof%size()
+          gs%local_dof_gs(i + j) = dof_array(i)
+       end do
+    end select
     call local_face_dof%free()
 
     ! Finalize local gather-scatter index to dof
     allocate(gs%local_gs_dof(gs%nlocal))
 
     ! Add gather-scatter index on points and edges
-    sp => dof_local%array()
-    j = dof_local%size()
-    do i = 1, j
-       gs%local_gs_dof(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => dof_local%data)
+    type is (integer)
+       j = dof_local%size()
+       do i = 1, j
+          gs%local_gs_dof(i) = dof_array(i)
+       end do
+    end select
     call dof_local%free()
 
-    sp => face_dof_local%array()
-    do i = 1, face_dof_local%size()
-       gs%local_gs_dof(i+j) = sp(i)
-    end do
-    nullify(sp)
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => face_dof_local%data)
+    type is (integer)
+       do i = 1, face_dof_local%size()
+          gs%local_gs_dof(i+j) = dof_array(i)
+       end do
+    end select
     call face_dof_local%free()
        
     call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
@@ -860,39 +878,58 @@ contains
     allocate(gs%shared_dof_gs(gs%nshared))
 
     ! Add shared dofs on points and edges
-    sp => shared_dof%array()
-    j =  shared_dof%size()
-    do i = 1, j
-       gs%shared_dof_gs(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => shared_dof%data)
+    type is (integer)
+       j =  shared_dof%size()
+       do i = 1, j
+          gs%shared_dof_gs(i) = dof_array(i)
+       end do
+    end select
     call shared_dof%free()
 
     ! Add shared dofs on faces
-    sp => shared_face_dof%array()
-    do i = 1, shared_face_dof%size()
-       gs%shared_dof_gs(i + j) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => shared_face_dof%data)
+    type is (integer)
+       do i = 1, shared_face_dof%size()
+          gs%shared_dof_gs(i + j) = dof_array(i)
+       end do
+    end select
     call shared_face_dof%free()
     
     ! Finalize shared gather-scatter index to dof
     allocate(gs%shared_gs_dof(gs%nshared))
 
     ! Add dofs on points and edges 
-    sp => dof_shared%array()
-    j = dof_shared%size()
-    do i = 1, j
-       gs%shared_gs_dof(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => dof_shared%data)
+    type is(integer)
+       j = dof_shared%size()
+       do i = 1, j
+          gs%shared_gs_dof(i) = dof_array(i)
+       end do
+    end select
     call dof_shared%free()
 
-    sp => face_dof_shared%array()
-    do i = 1, face_dof_shared%size()
-       gs%shared_gs_dof(i + j) = sp(i)
-    end do
-    nullify(sp)
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => face_dof_shared%data)
+    type is (integer)
+       do i = 1, face_dof_shared%size()
+          gs%shared_gs_dof(i + j) = dof_array(i)
+       end do
+    end select
     call face_dof_shared%free()
 
     ! Allocate buffer for shared gs-ops
