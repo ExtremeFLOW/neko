@@ -1,6 +1,6 @@
 &NEKO_CASE
 mesh_file= 'pipe.nmsh'
-fluid_scheme='pnpn'
+fluid_scheme='plan4'
 lx = 6
 source_term = 'noforce'
 initial_condition = 'user'
