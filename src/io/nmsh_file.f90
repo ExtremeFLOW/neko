@@ -405,6 +405,7 @@ contains
        deallocate(nmsh_curve)
     end if
    
+    call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
     call neko_log%message('Done')
 
