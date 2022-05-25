@@ -136,6 +136,7 @@ contains
 
     if (t .ge. (this%nsample * this%T)) then
 
+       call MPI_Barrier(NEKO_COMM, ierr)
        sample_start_time = MPI_WTIME()
 
        ! We should not need this extra select block, and it works great
