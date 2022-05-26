@@ -96,8 +96,6 @@ contains
     call neko_log%section('Gather-Scatter')
     
     gs%dofmap => dofmap
-
-    call gs_init_mapping(gs)
     
     ! Here one could use some heuristic or autotuning to select comm method,
     ! such as only using device MPI when there is enough data.
@@ -113,6 +111,7 @@ contains
     end if
 
     call gs%comm%init_dofs()
+    call gs_init_mapping(gs)
 
     call gs_schedule(gs)
 
@@ -1010,33 +1009,31 @@ contains
       integer, allocatable, intent(inout) :: blk_len(:)
       integer, intent(inout) :: nblks
       integer :: i, j
-      integer :: id, count, len
+      integer :: id, count
       type(stack_i4_t), target :: blks
-      integer, pointer :: bp(:)
       
       call blks%init()
-
       i = 1
       do while( i .lt. m)
          id = dg(i)
          count = 1
-         j = i + 1
-         do while (dg(j) .eq. id)
+         j = i
+         do while ( j+1 .le. n .and. dg(j+1) .eq. id)
             j = j + 1
             count = count + 1
          end do
          call blks%push(count)
-         i = j
+         i = j + 1
       end do
 
-      nblks = blks%size()
-      allocate(blk_len(nblks))
-      bp => blks%array()
-      do i = 1, blks%size()
-         blk_len(i) = bp(i)
-      end do      
-      nullify(bp)
-      
+      select type(blk_array => blks%data)
+      type is(integer)
+         nblks = blks%size()
+         allocate(blk_len(nblks))
+         do i = 1, nblks
+            blk_len(i) = blk_array(i)
+         end do
+      end select
       call blks%free()
       
     end subroutine gs_find_blks
