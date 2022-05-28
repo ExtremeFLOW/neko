@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.3.2])
+AC_INIT([neko],[0.4.0])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -166,7 +166,19 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
+
+      # Check that necessary acceleator modules are loaded
+      if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
+      	 AX_CRAY_ACCEL
+      fi
+
       AC_SUBST(device_mpi, .true.)
+      
+      # Make sure we have support for atomicAdd
+      if test "x${have_cuda}" = xyes; then
+      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+      fi      
+
    else
       AC_SUBST(device_mpi, .false.)
    fi
@@ -179,7 +191,10 @@ AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 
-
+# Set device dependent flags
+AC_SUBST(CUDA_ARCH)
+AC_SUBST(CUDA_CFLAGS)
+AC_SUBST(HIP_HIPCC_FLAGS)
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\

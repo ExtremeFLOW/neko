@@ -215,9 +215,10 @@ __global__ void invcol1_kernel(T * __restrict__ a,
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
+  const T one = 1.0;
 
   for (int i = idx; i < n; i += str) {
-    a[i] = 1 / a[i];
+    a[i] = one / a[i];
   }
 }
 
@@ -451,6 +452,40 @@ __global__ void glsc2_kernel(const T * a,
 
   for (int i = idx; i < n; i+= str) {
     tmp += a[i] * b[i];
+  }
+  buf[threadIdx.x] = tmp;
+  __syncthreads();
+
+  int i = blockDim.x>>1;
+  while (i != 0) {
+    if (threadIdx.x < i) {
+      buf[threadIdx.x] += buf[threadIdx.x + i];
+    }
+    __syncthreads();
+    i = i>>1;
+  }
+ 
+  if (threadIdx.x == 0) {
+    buf_h[blockIdx.x] = buf[0];
+  }
+}
+
+/**
+ * Device kernel for glsum
+ */
+template< typename T >
+__global__ void glsum_kernel(const T * a,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  __shared__ T buf[1024];
+  T tmp = 0.0;
+
+  for (int i = idx; i < n; i+= str) {
+    tmp += a[i];
   }
   buf[threadIdx.x] = tmp;
   __syncthreads();

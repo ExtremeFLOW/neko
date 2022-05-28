@@ -40,11 +40,14 @@ module fluid_pnpn
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
-     type(dirichlet_t) :: bc_vel_residual   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_prs_residual   !< Dirichlet condition vel. res.
-     type(non_normal_t) :: bc_vel_residual_non_normal   !< Dirichlet condition vel. res.
-     type(bc_list_t) :: bclst_vel_residual  
-     type(bc_list_t) :: bclst_prs_residual  
+     type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_dp   !< Dirichlet condition vel. res.
+     type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
+     type(bc_list_t) :: bclst_vel_res  
+     type(bc_list_t) :: bclst_du
+     type(bc_list_t) :: bclst_dv
+     type(bc_list_t) :: bclst_dw
+     type(bc_list_t) :: bclst_dp  
 
      class(advection_t), allocatable :: adv 
 
@@ -161,38 +164,56 @@ contains
     call this%bc_sym_surface%finalize()
     call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_residual_non_normal%init(this%dm_Xh)
-    call this%bc_vel_residual_non_normal%mark_zone(msh%outlet_normal)
-    call this%bc_vel_residual_non_normal%mark_zones_from_list(msh%labeled_zones,&
+    call this%bc_vel_res_non_normal%init(this%dm_Xh)
+    call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
+    call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
                         'on', this%params%bc_labels)
-    call this%bc_vel_residual_non_normal%finalize()
-    call this%bc_vel_residual_non_normal%init_msk(this%c_Xh)    
+    call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
+                        'on+dong', this%params%bc_labels)
+    call this%bc_vel_res_non_normal%finalize()
+    call this%bc_vel_res_non_normal%init_msk(this%c_Xh)    
 
-    call this%bc_prs_residual%init(this%dm_Xh)
-    call this%bc_prs_residual%mark_zones_from_list(msh%labeled_zones,&
-                        'o', this%params%bc_labels)
-    call this%bc_prs_residual%mark_zones_from_list(msh%labeled_zones,&
-                        'on', this%params%bc_labels)
-    call this%bc_prs_residual%mark_zones_from_list(msh%labeled_zones,&
-                        'do', this%params%bc_labels)
-    call this%bc_prs_residual%finalize()
-    call this%bc_prs_residual%set_g(0.0_rp)
-    call bc_list_init(this%bclst_prs_residual)
-    call bc_list_add(this%bclst_prs_residual, this%bc_prs_residual)
+    call this%bc_dp%init(this%dm_Xh)
+    call this%bc_dp%mark_zones_from_list(msh%labeled_zones,&
+                        'on+dong', this%params%bc_labels)
+    call this%bc_dp%mark_zones_from_list(msh%labeled_zones,&
+                        'o+dong', this%params%bc_labels)
+    call this%bc_dp%finalize()
+    call this%bc_dp%set_g(0.0_rp)
+    call bc_list_init(this%bclst_dp)
+    call bc_list_add(this%bclst_dp, this%bc_dp)
+    !Add 0 prs bcs
+    call bc_list_add(this%bclst_dp, this%bc_prs)
 
-    call this%bc_vel_residual%init(this%dm_Xh)
-    call this%bc_vel_residual%mark_zone(msh%inlet)
-    call this%bc_vel_residual%mark_zone(msh%wall)
-    call this%bc_vel_residual%mark_zones_from_list(msh%labeled_zones,&
+    call this%bc_vel_res%init(this%dm_Xh)
+    call this%bc_vel_res%mark_zone(msh%inlet)
+    call this%bc_vel_res%mark_zone(msh%wall)
+    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones,&
                         'v', this%params%bc_labels)
-    call this%bc_vel_residual%mark_zones_from_list(msh%labeled_zones,&
+    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones,&
                         'w', this%params%bc_labels)
-    call this%bc_vel_residual%finalize()
-    call this%bc_vel_residual%set_g(0.0_rp)
-    call bc_list_init(this%bclst_vel_residual)
-    call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
-    call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual_non_normal)
-    call bc_list_add(this%bclst_vel_residual, this%bc_sym)
+    call this%bc_vel_res%finalize()
+    call this%bc_vel_res%set_g(0.0_rp)
+    call bc_list_init(this%bclst_vel_res)
+    call bc_list_add(this%bclst_vel_res, this%bc_vel_res)
+    call bc_list_add(this%bclst_vel_res, this%bc_vel_res_non_normal)
+    call bc_list_add(this%bclst_vel_res, this%bc_sym)
+
+    !Initialize bcs for u, v, w velocity components
+    call bc_list_init(this%bclst_du)
+    call bc_list_add(this%bclst_du,this%bc_sym%bc_x)
+    call bc_list_add(this%bclst_du,this%bc_vel_res_non_normal%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_vel_res)
+
+    call bc_list_init(this%bclst_dv)
+    call bc_list_add(this%bclst_dv,this%bc_sym%bc_y)
+    call bc_list_add(this%bclst_dv,this%bc_vel_res_non_normal%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_vel_res)
+
+    call bc_list_init(this%bclst_dw)
+    call bc_list_add(this%bclst_dw,this%bc_sym%bc_z)
+    call bc_list_add(this%bclst_dw,this%bc_vel_res_non_normal%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
     call this%proj_prs%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
@@ -216,8 +237,8 @@ contains
 
     call this%bc_prs_surface%free() 
     call this%bc_sym_surface%free()  
-    call bc_list_free(this%bclst_vel_residual)
-    call bc_list_free(this%bclst_prs_residual)
+    call bc_list_free(this%bclst_vel_res)
+    call bc_list_free(this%bclst_dp)
     call this%proj_prs%free()
     call this%proj_u%free()
     call this%proj_v%free()
@@ -345,10 +366,9 @@ contains
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
       call this%bc_apply_vel()
-      
-      ! compute pressure
       call this%bc_apply_prs()
 
+      ! compute pressure
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            ta1, ta2, ta3, wa1, wa2, wa3, &
                            this%work1, this%work2, f_Xh, &
@@ -357,14 +377,21 @@ contains
                            params%dt, params%Re, params%rho)
 
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
+      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%n_dofs)
 
-      if( tstep .gt. 5) call this%proj_prs%project_on(p_res%x, c_Xh, n)
+      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
+         call this%proj_prs%project_on(p_res%x, c_Xh, n)
+         call this%proj_prs%log_info('Pressure')
+      end if
+      
       call this%pc_prs%update()
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                this%bclst_prs, gs_Xh, niter)    
-      if( tstep .gt. 5) call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
-                                  this%bclst_prs, gs_Xh, n)
+                                this%bclst_dp, gs_Xh, niter)    
+
+      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
+         call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
+                                         this%bclst_dp, gs_Xh, n)
+      end if
 
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
            (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -386,7 +413,7 @@ contains
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
 
-      call bc_list_apply_vector(this%bclst_vel_residual,&
+      call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%n_dofs)
       
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
@@ -398,19 +425,19 @@ contains
       call this%pc_vel%update()
 
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_vel_residual, gs_Xh, niter)
+           c_Xh, this%bclst_du, gs_Xh, niter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_vel_residual, gs_Xh, niter)
+           c_Xh, this%bclst_dv, gs_Xh, niter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_vel_residual, gs_Xh, niter)
+           c_Xh, this%bclst_dw, gs_Xh, niter)
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
          call this%proj_u%project_back(du%x, Ax, c_Xh, &
-                                  this%bclst_vel_residual, gs_Xh, n)
+                                  this%bclst_du, gs_Xh, n)
          call this%proj_v%project_back(dv%x, Ax, c_Xh, &
-                                  this%bclst_vel_residual, gs_Xh, n)
+                                  this%bclst_dv, gs_Xh, n)
          call this%proj_w%project_back(dw%x, Ax, c_Xh, &
-                                  this%bclst_vel_residual, gs_Xh, n)
+                                  this%bclst_dw, gs_Xh, n)
       end if
       
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &

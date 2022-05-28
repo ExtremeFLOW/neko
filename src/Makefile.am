@@ -1,5 +1,3 @@
-include $(top_srcdir)/hip.mk
-include $(top_srcdir)/cuda.mk
 
 lib_LIBRARIES = libneko.a
 neko_fortran_SOURCES = \
@@ -24,6 +22,9 @@ neko_fortran_SOURCES = \
 	sem/space.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
+	sem/cpr.f90\
+	sem/interpolation.f90\
+	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
@@ -62,6 +63,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
 	math/bcknd/sx/sx_opgrad.f90\
+	math/bcknd/sx/sx_cfl.f90\
 	math/operators.f90\
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
@@ -94,6 +96,7 @@ neko_fortran_SOURCES = \
 	common/sampler.f90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
+	bc/dong_outflow.f90\
 	bc/wall.f90\
 	bc/inflow.f90\
 	bc/usr_inflow.f90\
@@ -159,7 +162,6 @@ neko_fortran_SOURCES = \
 	common/projection.f90\
 	comm/parmetis.F90\
 	comm/redist.f90\
-	sem/interpolation.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
 	common/jobctrl.f90\
@@ -179,6 +181,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
+	bc/bcknd/device/device_dong_outflow.F90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
@@ -203,6 +206,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	math/bcknd/device/hip/opr_cfl.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
@@ -214,8 +218,10 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
+	bc/bcknd/device/hip/dong_outflow.hip\
 	fluid/bcknd/device/hip/fluid_abbdf.hip\
-	fluid/bcknd/device/hip/pnpn_res.hip
+	fluid/bcknd/device/hip/pnpn_res.hip\
+	sem/bcknd/device/hip/coef.hip
 endif
 
 if ENABLE_CUDA
@@ -230,6 +236,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
 	krylov/bcknd/device/cuda/pipecg_aux.cu\
@@ -241,8 +248,10 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
+	bc/bcknd/device/cuda/dong_outflow.cu\
 	fluid/bcknd/device/cuda/fluid_abbdf.cu\
-	fluid/bcknd/device/cuda/pnpn_res.cu
+	fluid/bcknd/device/cuda/pnpn_res.cu\
+	sem/bcknd/device/cuda/coef.cu
 endif
 
 if ENABLE_OPENCL
@@ -258,6 +267,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_cdtp.c\
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
+	math/bcknd/device/opencl/opr_cfl.c\
 	math/bcknd/device/opencl/ax_helm.c\
         krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
@@ -267,8 +277,10 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
+	bc/bcknd/device/opencl/dong_outflow.c\
 	fluid/bcknd/device/opencl/fluid_abbdf.c\
-	fluid/bcknd/device/opencl/pnpn_res.c
+	fluid/bcknd/device/opencl/pnpn_res.c\
+	sem/bcknd/device/opencl/coef.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -286,7 +298,8 @@ CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      gs/bcknd/device/opencl/*.cl.h\
 	      bc/bcknd/device/opencl/*.cl.h\
 	      krylov/bcknd/device/opencl/*.cl.h\
-	      fluid/bcknd/device/opencl/*.cl.h
+	      fluid/bcknd/device/opencl/*.cl.h\
+              sem/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -302,6 +315,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
+	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
@@ -312,18 +326,21 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	fluid/bcknd/device/cuda/sumab_kernel.h\
 	fluid/bcknd/device/cuda/makeabf_kernel.h\
 	fluid/bcknd/device/cuda/makebdf_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
+	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
+	bc/bcknd/device/hip/dong_outflow_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
 	math/bcknd/device/hip/tensor_kernel.h\
@@ -334,6 +351,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
+	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	fluid/bcknd/device/hip/sumab_kernel.h\
 	fluid/bcknd/device/hip/makeabf_kernel.h\
@@ -344,12 +362,14 @@ EXTRA_DIST = \
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
+	sem/bcknd/device/hip/coef_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
+	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/schwarz_kernel.cl\
 	math/bcknd/device/opencl/tensor_kernel.cl\
@@ -360,10 +380,12 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
+	math/bcknd/device/opencl/cfl_kernel.cl\
 	fluid/bcknd/device/opencl/abbdf_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
+	sem/bcknd/device/opencl/coef_kernel.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\
@@ -375,3 +397,11 @@ include	.depends
 
 # Device deps. (manually updated)
 include .depends_device
+
+# CUDA Build rules
+.cu.o:
+	$(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+
+# HIP Build rules
+.hip.o:
+	$(HIPCC) @HIP_HIPCC_FLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<

@@ -14,3 +14,9 @@ clean-local:
 	rm -fr html 
 
 html-local: doxygen.stamp
+
+EXTRA_DIST = pages/code-style.md\
+	     pages/publication-list.md\
+	     pages/accelerators.md\
+	     pages/case-file.md\
+	     pages/index.md

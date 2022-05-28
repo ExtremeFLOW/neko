@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ module fluid_method
   use usr_inflow
   use blasius
   use dirichlet
+  use dong_outflow
   use symmetry
   use non_normal
   use krylov_fctry
@@ -81,6 +82,7 @@ module fluid_method
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
@@ -234,14 +236,14 @@ contains
        
     if (params%output_bdry) then       
        call field_init(this%bdry, this%dm_Xh, 'bdry')
-       this%bdry = real(0d0,rp)
+       this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'w', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(1d0,rp))
+       call bdry_mask%set_g(1.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -251,7 +253,7 @@ contains
                       'v', this%params%bc_labels)
 
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(2d0,rp))
+       call bdry_mask%set_g(2.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -260,7 +262,7 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'o', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(3d0,rp))
+       call bdry_mask%set_g(3.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -269,14 +271,14 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'sym', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(4d0,rp))
+       call bdry_mask%set_g(4.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(5d0,rp))
+       call bdry_mask%set_g(5.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -285,7 +287,7 @@ contains
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
                       'on', this%params%bc_labels)
        call bdry_mask%finalize()
-       call bdry_mask%set_g(real(6d0,rp))
+       call bdry_mask%set_g(6.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
        call bdry_mask%free()
 
@@ -351,8 +353,18 @@ contains
     end if
 
     call this%bc_prs%finalize()
-    call this%bc_prs%set_g(real(0d0,rp))
+    call this%bc_prs%set_g(0.0_rp)
     call bc_list_add(this%bclst_prs, this%bc_prs)
+    call this%bc_dong%init(this%dm_Xh)
+    call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
+                        'o+dong', this%params%bc_labels)
+    call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
+                        'on+dong', this%params%bc_labels)
+    call this%bc_dong%finalize()
+    call this%bc_dong%set_vars(this%c_Xh, this%u, this%v, this%w,&
+         params%dong_uchar, params%dong_delta)
+
+    call bc_list_add(this%bclst_prs, this%bc_dong)
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &

@@ -42,7 +42,7 @@ contains
     integer, intent(in) :: nel, lx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
@@ -108,7 +108,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -199,7 +199,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -287,7 +287,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -372,7 +372,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -454,7 +454,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -534,7 +534,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -610,7 +610,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -683,7 +683,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -753,7 +753,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
 
@@ -820,7 +820,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
     
@@ -884,7 +884,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
 
@@ -945,7 +945,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
 
@@ -1003,7 +1003,7 @@ contains
     integer, intent(in) :: nel
     real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
     real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
+    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
 
