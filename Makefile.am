@@ -17,6 +17,14 @@ EXTRA_DIST = \
 	makeneko.in\
 	regen.sh\
 	flinter_rc.yml\
+	reframe/checks.py\
+	reframe/settings.py\
+	reframe/README.md\
+	reframe/src/get-tgv-dns.sh\
+	reframe/src/minihemi.case.template\
+	reframe/src/rocm_select_gpu_device\
+	reframe/src/tgv.case.template\
+	reframe/src/tgv.f90\
 	examples/hemi/hemi.case\
 	examples/hemi/hemi.nmsh\
 	examples/tgv/tgv.case\
