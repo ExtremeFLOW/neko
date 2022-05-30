@@ -1,5 +1,5 @@
 &NEKO_CASE
-mesh_file= 'rot_cyl.nmsh'
+mesh_file= 'cyl.nmsh'
 fluid_scheme='pnpn'
 lx = 6
 source_term='noforce'
