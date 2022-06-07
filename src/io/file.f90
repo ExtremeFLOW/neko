@@ -132,7 +132,12 @@ contains
   subroutine file_set_counter(this, n)
     class(file_t), intent(inout) :: this
     integer, intent(in) :: n
-    call this%file_type%set_counter(n)
+
+    select type(ft => this%file_type)
+    class is (generic_file_t)
+       call ft%set_counter(n)
+    end select
+    
   end subroutine file_set_counter
 
 end module file
