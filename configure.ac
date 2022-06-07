@@ -105,6 +105,16 @@ if test "x${have_blas_lapack}" != xyes; then
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
+if test "x${have_darshan}" != xyes; then
+    AX_DARSHAN
+    if test "x${ax_darshan_ok}" != xno; then
+        LIBS="$DARSHAN_LIBS $LIBS"
+        have_darshan=yes
+    else
+        have_darshan=no
+    fi
+fi
+
 found_domain_decomp="no"
 
 # Checks for ParMetis
