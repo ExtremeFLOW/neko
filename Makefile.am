@@ -44,6 +44,12 @@ EXTRA_DIST = \
 	examples/poisson/ax_poisson.f90\
 	examples/poisson/driver.f90\
 	examples/poisson/setup.f90\
+	examples/cyl_boundary_layer/cyl_bl_rot.case\
+	examples/cyl_boundary_layer/cyl_bl.f90\
+	examples/cyl_boundary_layer/README.md\
+	examples/cyl_boundary_layer/cyl_bl_user.case\
+	examples/cyl_boundary_layer/cyl_bl_basic.case\
+	examples/cyl_boundary_layer/cyl.nmsh\
 	reframe/checks.py\
 	reframe/settings.py\
 	reframe/README.md\

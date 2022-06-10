@@ -1,0 +1,25 @@
+&NEKO_CASE
+mesh_file= 'cyl.nmsh'
+fluid_scheme='pnpn'
+lx = 6
+source_term='noforce'
+initial_condition = 'user'
+/
+&NEKO_PARAMETERS
+dt = 8d-4
+T_end = 100
+nsamples = 400
+dealias=.true.
+uinf= 1.0,0.0,0.0
+output_bdry = .true.
+rho = 1
+Re = 500
+abstol_prs = 1d-5
+abstol_vel = 1d-8
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+proj_prs_dim = 10
+proj_vel_dim = 3
+bc_labels='v','o','sym','w','on','on','w'
+fluid_inflow="user"
+/
