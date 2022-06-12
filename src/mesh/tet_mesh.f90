@@ -38,10 +38,12 @@ module tet_mesh
   use point
   use utils
   implicit none
+  private
   
-  integer, parameter :: TET_MSH_OTPV = 1, TET_MSH_FVTC = 2, TET_MSH_SVTC = 3
+  integer, public, parameter :: TET_MSH_OTPV = 1, TET_MSH_FVTC = 2, &
+       TET_MSH_SVTC = 3
 
-  type :: tet_mesh_t
+  type, public :: tet_mesh_t
      type(tet_t), allocatable :: el(:) !< Tetrahedron elements
      type(mesh_t), pointer :: msh      !< Hexahedron mesh
      integer :: nelv                   !< Number of Tetrahedrons
@@ -49,8 +51,6 @@ module tet_mesh
      procedure, pass(this) :: init => tet_mesh_init
      procedure, pass(this) :: free => tet_mesh_free
   end type tet_mesh_t
-
-  private :: tet_mesh_bisect_otpv, tet_mesh_bisect_fvtc, tet_mesh_bisect_svtc
 
 contains
 
