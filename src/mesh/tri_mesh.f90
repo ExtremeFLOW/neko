@@ -42,7 +42,7 @@ module tri_mesh
      type(tri_t), allocatable :: el(:)       !< Tetrahedron elements
      type(point_t), allocatable :: points(:) !< List of points
      integer :: nelv
-     integer, private :: mpts
+     integer :: mpts
      integer, private :: melv
    contains
      procedure, pass(this) :: init => tri_mesh_init

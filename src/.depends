@@ -83,7 +83,7 @@ io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/ge
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
 io/rea_file.o : io/rea_file.f90 common/log.o adt/htable.o common/datadist.o comm/comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
 io/fld_file.o : io/fld_file.f90 comm/mpi_types.o comm/comm.o common/utils.o mesh/mesh.o fluid/mean_sqr_flow.o fluid/mean_flow.o fluid/fluid_method.o sem/dofmap.o field/field.o io/generic_file.o 
-io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
+io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tri_mesh.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
 io/stl_file.o : io/stl_file.f90 io/format/stl.o comm/comm.o comm/mpi_types.o mesh/point.o common/log.o mesh/tri_mesh.o io/generic_file.o config/num_types.o 
 io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o io/format/nmsh.o common/utils.o mesh/mesh.o comm/comm.o io/generic_file.o 
 io/chkp_file.o : io/chkp_file.f90 comm/mpi_types.o mesh/mesh.o common/utils.o field/field.o config/num_types.o common/checkpoint.o field/field_series.o io/generic_file.o 
