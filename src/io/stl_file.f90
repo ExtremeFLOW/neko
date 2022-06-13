@@ -69,7 +69,7 @@ contains
     type(point_t) :: p(3)
     type(stl_hdr_t) :: stl_hdr
     type(stl_triangle_t), allocatable :: stl_tri(:)
-    integer :: i, ierr
+    integer :: i, p_idx, ierr
 
     select type(data)
     type is(tri_mesh_t)
@@ -92,11 +92,15 @@ contains
     call MPI_File_read_all(fh, stl_tri, stl_hdr%ntri, &
          MPI_STL_TRIANGLE, status, ierr)
 
+    p_idx = 0
     do i = 1, stl_hdr%ntri
-       p(1) = point_t(dble(stl_tri(i)%v1))
-       p(2) = point_t(dble(stl_tri(i)%v2))
-       p(3) = point_t(dble(stl_tri(i)%v3))
-       call tri_msh%add_element(p(1), p(2), p(3))       
+       p_idx = p_idx + 1
+       p(1) = point_t(dble(stl_tri(i)%v1), p_idx)
+       p_idx = p_idx + 1
+       p(2) = point_t(dble(stl_tri(i)%v2), p_idx)
+       p_idx = p_idx + 1
+       p(3) = point_t(dble(stl_tri(i)%v3), p_idx)
+       call tri_msh%add_element(p(1), p(2), p(3))
     end do
 
     deallocate(stl_tri)
