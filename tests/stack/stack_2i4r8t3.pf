@@ -70,7 +70,7 @@ subroutine test_stack_2i4r8t3_push
   @assertEqual(s%top_, s%size_, message='Corrupt size')
 
   do i = 1, 2
-     data = (/i + 64, -(i + 64), i/)
+     data = (/i + 64, -(i + 64), i + 64/)
      call s%push(data)
   end do
   @assertEqual(s%size_, 128, message='Unnecessary reallocation')
