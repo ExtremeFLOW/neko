@@ -156,7 +156,7 @@ contains
        this%nsample = this%nsample + 1
 
        sample_time = sample_end_time - sample_start_time
-       write(log_buf,'(a23,1x,e15.7,A,F8.4)') 'Sampling fields at time:', t, &
+       write(log_buf,'(A24,1x,F10.6,A,F9.6)') 'Sampling fields at time:', t, &
              ' Sample time (s): ', sample_time
        call neko_log%message(log_buf)
 
