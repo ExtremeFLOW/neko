@@ -490,6 +490,12 @@ contains
       end if
 
       if (params%vol_flow_dir .ne. 0) then
+         
+         if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+              (NEKO_BCKND_OPENCL .eq. 1)) then
+            call neko_error('Not implemented yet!')            
+         end if
+         
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               ta1, ta2, ta3, c_Xh, gs_Xh, ab_bdf, params%rho, params%Re, &
               params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
