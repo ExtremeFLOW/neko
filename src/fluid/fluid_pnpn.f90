@@ -1,7 +1,41 @@
+! Copyright (c) 2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
   use pnpn_res_fctry
   use ax_helm_fctry
   use fluid_abbdf_fctry
+  use fluid_volflow
   use fluid_method
   use field_series  
   use facet_normal
@@ -69,6 +103,9 @@ module fluid_pnpn
 
      !> Contributions to F from lagged BD terms
      class(fluid_makebdf_t), allocatable :: makebdf
+
+     !> Adjust flow volume
+     type(fluid_volflow_t) :: vol_flow
      
    contains
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -227,6 +264,8 @@ contains
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
     call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
+    call this%vol_flow%init(this%dm_Xh, param)
+    
   end subroutine fluid_pnpn_init
 
   subroutine fluid_pnpn_free(this)
@@ -300,6 +339,8 @@ contains
     if (allocated(this%makebdf)) then
        deallocate(this%makebdf)
     end if
+
+    call this%vol_flow%free()
     
     call this%ulag%free()
     call this%vlag%free()
@@ -446,6 +487,20 @@ contains
               du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
       else
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
+      end if
+
+      if (params%vol_flow_dir .ne. 0) then
+         
+         if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+              (NEKO_BCKND_OPENCL .eq. 1)) then
+            call neko_error('Not implemented yet!')            
+         end if
+         
+         call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
+              ta1, ta2, ta3, c_Xh, gs_Xh, ab_bdf, params%rho, params%Re, &
+              params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
+              this%ksp_vel, this%pc_prs, this%pc_vel, niter)
       end if
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)
