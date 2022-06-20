@@ -69,6 +69,9 @@ module fluid_volflow
   use coefs
   use abbdf
   use math    
+  use neko_config
+  use device_math
+  use device_mathops
   implicit none
   private
   
@@ -162,11 +165,17 @@ contains
       if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
       if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
 
-      do i = 1, n
-         c_Xh%h1(i,1,1,1) = 1.0_rp / rho
-         c_Xh%h2(i,1,1,1) = 0.0_rp
-      end do
-      c_Xh%ifh2 = .false.
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
+         call device_rzero(c_Xh%h2_d, n)
+      else
+         do i = 1, n
+            c_Xh%h1(i,1,1,1) = 1.0_rp / rho
+            c_Xh%h2(i,1,1,1) = 0.0_rp
+         end do
+      end if
+      c_Xh%ifh2 = .false.         
 
       !   Compute pressure
       
@@ -189,28 +198,56 @@ contains
            c_Xh, bclst_dp, gs_Xh, niter)    
 
       !   Compute velocity
+      
+      call opgrad(u_res%x, v_res%x, w_res%x, p_vol%x, c_Xh)
+         
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_opchsign(u_res%x_d, v_res%x_d, w_res%x_d, msh%gdim, n)
+         call device_copy(ta1%x_d, c_Xh%B_d, n)
+         call device_copy(ta2%x_d, c_Xh%B_d, n)
+         call device_copy(ta3%x_d, c_Xh%B_d, n)
+      else
+         call opchsign(u_res%x, v_res%x, w_res%x, msh%gdim, n)
+         call copy(ta1%x, c_Xh%B, n)
+         call copy(ta2%x, c_Xh%B, n)
+         call copy(ta3%x, c_Xh%B, n)
+      end if
+      call bc_list_apply_vector(bclst_vel_res,&
+           ta1%x, ta2%x, ta3%x, n)
+       
+      ! add forcing
 
-       call opgrad(u_res%x, v_res%x, w_res%x, p_vol%x, c_Xh)
-       call opchsign(u_res%x, v_res%x, w_res%x, msh%gdim, n)
-       call copy(ta1%x, c_Xh%B, n)
-       call copy(ta2%x, c_Xh%B, n)
-       call copy(ta3%x, c_Xh%B, n)
-       call bc_list_apply_vector(bclst_vel_res,&
-            ta1%x, ta2%x, ta3%x, n)
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         if (this%flow_dir .eq. 1) then
+            call device_add2(u_res%x_d, ta1%x_d, n) 
+         else if (this%flow_dir .eq. 2) then
+            call device_add2(v_res%x_d, ta2%x_d, n)
+         else if (this%flow_dir .eq. 3) then
+            call device_add2(w_res%x_d, ta3%x_d, n)
+         end if
+      else
+         if (this%flow_dir .eq. 1) then
+            call add2(u_res%x, ta1%x, n) 
+         else if (this%flow_dir .eq. 2) then
+            call add2(v_res%x, ta2%x, n)
+         else if (this%flow_dir .eq. 3) then
+            call add2(w_res%x, ta3%x, n)
+         end if
+      end if
 
-       if (this%flow_dir.eq.1) then
-          call add2(u_res%x, ta1%x,n) ! add forcing
-       else if (this%flow_dir.eq.2) then
-          call add2(v_res%x, ta2%x,n)
-       else if (this%flow_dir.eq.3) then
-          call add2(w_res%x, ta3%x,n)
-       end if
-
-       do i = 1, n
-          c_Xh%h1(i,1,1,1) = (1.0_rp / Re)
-          c_Xh%h2(i,1,1,1) = rho * (bd / dt)
-       end do
-       c_Xh%ifh2 = .true.
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
+         call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
+      else
+         do i = 1, n
+            c_Xh%h1(i,1,1,1) = (1.0_rp / Re)
+            c_Xh%h2(i,1,1,1) = rho * (bd / dt)
+         end do
+      end if
+      c_Xh%ifh2 = .true.
 
        call gs_op(gs_Xh, u_res, GS_OP_ADD) 
        call gs_op(gs_Xh, v_res, GS_OP_ADD) 
@@ -227,18 +264,35 @@ contains
        ksp_result = ksp_vel%solve(Ax, w_vol, w_res%x, n, &
             c_Xh, bclst_dw, gs_Xh, niter)
 
-      if (this%flow_dir .eq. 1) then
-         this%base_flow = glsc2(u_vol%x, c_Xh%B, n) / this%domain_length
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         if (this%flow_dir .eq. 1) then
+            this%base_flow = &
+                 device_glsc2(u_vol%x_d, c_Xh%B_d, n) / this%domain_length
+         end if
+         
+         if (this%flow_dir .eq. 2) then
+            this%base_flow = &
+                 device_glsc2(v_vol%x_d, c_Xh%B_d, n) / this%domain_length
+         end if
+         
+         if (this%flow_dir .eq. 3) then
+            this%base_flow = &
+                 device_glsc2(w_vol%x_d, c_Xh%B_d, n) / this%domain_length
+         end if
+      else
+         if (this%flow_dir .eq. 1) then
+            this%base_flow = glsc2(u_vol%x, c_Xh%B, n) / this%domain_length
+         end if
+         
+         if (this%flow_dir .eq. 2) then
+            this%base_flow = glsc2(v_vol%x, c_Xh%B, n) / this%domain_length
+         end if
+         
+         if (this%flow_dir .eq. 3) then
+            this%base_flow = glsc2(w_vol%x, c_Xh%B, n) / this%domain_length
+         end if
       end if
-
-      if (this%flow_dir .eq. 2) then
-         this%base_flow = glsc2(v_vol%x, c_Xh%B, n) / this%domain_length
-      end if
-
-      if (this%flow_dir .eq. 3) then
-         this%base_flow = glsc2(w_vol%x, c_Xh%B, n) / this%domain_length
-      end if
-
      end associate
 
   end subroutine fluid_vol_flow_compute
@@ -302,12 +356,26 @@ contains
               Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, niter)
       end if
       
-      if (this%flow_dir .eq. 1) then
-         current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length  ! for X
-      else if (this%flow_dir .eq. 2) then
-         current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length  ! for Y
-      else if (this%flow_dir .eq. 3) then
-         current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length  ! for Z
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         if (this%flow_dir .eq. 1) then
+            current_flow = &
+                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length  ! for X
+         else if (this%flow_dir .eq. 2) then
+            current_flow = &
+                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length  ! for Y
+         else if (this%flow_dir .eq. 3) then
+            current_flow = &
+                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length  ! for Z
+         end if
+      else
+         if (this%flow_dir .eq. 1) then
+            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length  ! for X
+         else if (this%flow_dir .eq. 2) then
+            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length  ! for Y
+         else if (this%flow_dir .eq. 3) then
+            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length  ! for Z
+         end if
       end if
 
       if (this%avflow) then
@@ -318,10 +386,18 @@ contains
       delta_flow = flow_rate - current_flow            
       scale = delta_flow / this%base_flow
       
-      call add2s2(u%x, u_vol%x, scale, n)
-      call add2s2(v%x, v_vol%x, scale, n)
-      call add2s2(w%x, w_vol%x, scale, n)
-      call add2s2(p%x, p_vol%x, scale, n)
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_add2s2(u%x_d, u_vol%x_d, scale, n)
+         call device_add2s2(v%x_d, v_vol%x_d, scale, n)
+         call device_add2s2(w%x_d, w_vol%x_d, scale, n)
+         call device_add2s2(p%x_d, p_vol%x_d, scale, n)
+      else
+         call add2s2(u%x, u_vol%x, scale, n)
+         call add2s2(v%x, v_vol%x, scale, n)
+         call add2s2(w%x, w_vol%x, scale, n)
+         call add2s2(p%x, p_vol%x, scale, n)
+      end if
     end associate
     
   end subroutine fluid_vol_flow
