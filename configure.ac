@@ -159,7 +159,11 @@ AC_SUBST(blk_size, ${blk_size})
 AX_LIBXSMM
 
 # Checks for HIP backend
-AX_HIP
+if test "x${is_hpe_cray}" = xyes; then
+   AX_CRAY_ROCM
+else
+   AX_HIP
+fi
 
 # Checks for CUDA backend
 if test "x${is_cray}" = xyes; then
