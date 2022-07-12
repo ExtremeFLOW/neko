@@ -157,6 +157,7 @@ AC_DEFUN([AX_CRAY_CUDATOOLKIT],[
 	  if test "${CRAY_CUDATOOLKIT_VERSION}"; then
 	    AC_MSG_RESULT([yes])
 	    AC_PATH_PROG(NVCC, nvcc, "no")
+	    AS_IF([test "$CUDA_CFLAGS"],[],[CUDA_CFLAGS="-O3"])
 	    AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
 	    have_cuda="yes"
 	    cuda_bcknd="1"
