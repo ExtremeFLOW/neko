@@ -80,7 +80,6 @@ jobs:
           wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
-          source /etc/profile.d/rocm.sh
           ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -fPIC"  --enable-real=${RP} --with-hip=/opt/rocm/hip
           make -j$(nproc)
@@ -119,7 +118,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/opt/rocm/hip
+          ./configure FC=${FC} FCFLAGS="-fPIC" --enable-real=${RP} --with-cuda=/opt/rocm/hip
           make -j $(nproc)
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
