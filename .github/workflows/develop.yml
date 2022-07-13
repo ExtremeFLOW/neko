@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04, macos-latest]
         compiler: [gfortran-10, gfortran-11]
-        backend: [cpu, cuda, opencl]
+        backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
         - os: ubuntu-20.04
@@ -26,9 +26,11 @@ jobs:
           compiler: gfortran-10
         - os: macos-latest
           backend: cuda
+        - os: macos-latest
+          backend: hip
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui nvidia-cuda-toolkit
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui
         - os: macos-latest
           setup-env: brew update && brew install openmpi && brew install automake
     env:
@@ -68,8 +70,18 @@ jobs:
       - name: Build (CUDA backend)        
         if: matrix.backend == 'cuda'
         run: |
+          sudo apt-get install -y nvidia-cuda-toolkit
           ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-cuda=/usr
+          make -j$(nproc)
+      - name: Build (HIP backend)        
+        if: matrix.backend == 'HIP'
+        run: |
+          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
+          echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
+          sudo apt-get update && sudo apt-get install -y rocm-dev
+          ./regen.sh 
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm/hip
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -98,6 +110,15 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
+          make -j $(nproc)
+      - name: Dist (HIP backend)
+        if: matrix.backend == 'hip'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=/opt/rocm/hip
           make -j $(nproc)
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
