@@ -111,6 +111,15 @@ jobs:
           cd releng/neko-*
           ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
           make -j $(nproc)
+      - name: Dist (HIP backend)
+        if: matrix.backend == 'hip'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/opt/rocm/hip
+          make -j $(nproc)
       - name: Dist (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
