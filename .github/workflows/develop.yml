@@ -28,7 +28,7 @@ jobs:
           backend: cuda
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui nvidia-cuda-toolkit
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui
         - os: macos-latest
           setup-env: brew update && brew install openmpi && brew install automake
     env:
@@ -68,6 +68,7 @@ jobs:
       - name: Build (CUDA backend)        
         if: matrix.backend == 'cuda'
         run: |
+          sudo apt-get install -y nvidia-cuda-toolkit
           ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-cuda=/usr
           make -j$(nproc)
