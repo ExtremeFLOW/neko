@@ -45,6 +45,11 @@ if test "x${have_mpi}" != xno; then
    else
        AC_MSG_ERROR([Can't find a suitable C MPI compiler])
    fi
+   AC_LANG(C++)
+   AX_MPI([have_mpi=yes],[have_mpi=no])
+   if  test "x${have_mpi}" != xno; then
+       CXX="$MPICXX"
+   fi
    AC_LANG(Fortran)
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
@@ -133,6 +138,9 @@ if test "x${found_domain_decomp}" != xyes; then
    fi
 fi
 
+# Checks for ADIOS2
+AX_ADIOS2
+
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
@@ -201,6 +209,7 @@ else
 fi
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
+AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])

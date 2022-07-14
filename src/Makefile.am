@@ -290,6 +290,23 @@ libneko_a_SOURCES += \
 	bash ./scripts/cltostring.sh $<
 endif
 
+if ENABLE_ADIOS2
+#
+# Fortran code related to ADIOS2 can be added directly
+# to libneko_fortran_SOURCES (as above)
+#
+# To avoid linker issues, any C++ code related to ADIOS2
+# must be added to libneko_a_LIBADD, with a manual build
+# rule as illustrated below
+#
+#io/adios2_example.o: io/adios2_example.cpp
+#	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+#
+#libneko_a_LIBADD = \
+#	io/adios2_example.o
+endif
+
+
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
