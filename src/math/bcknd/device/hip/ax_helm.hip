@@ -48,13 +48,15 @@ extern "C" {
                    void *g11, void *g22, void *g33, void *g12,
                    void *g13, void *g23, int *nelv, int *lx) {
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks((*nelv), 1, 1);
+    const dim3 nthrds_1d(1024, 1, 1);
+    const dim3 nblcks_1d((*nelv), 1, 1);
+    const dim3 nthrds_kstep((*lx), (*lx), 1);
+    const dim3 nblcks_kstep((*nelv), 1, 1);
 
-#define CASE(LX)                                                                \
+#define CASE_1D(LX)                                                             \
     case LX:                                                                    \
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( ax_helm_kernel<real, LX, 1024> ),     \
-                         nblcks, nthrds, 0, 0,                                  \
+      hipLaunchKernelGGL(HIP_KERNEL_NAME( ax_helm_kernel_1d<real, LX, 1024> ),  \
+                         nblcks_1d, nthrds_1d, 0, 0,                            \
                          (real *) w, (real *) u,                                \
                          (real *) dx, (real *) dy, (real *) dz,                 \
                          (real *) dxt, (real *) dyt, (real *) dzt, (real *) h1, \
@@ -63,18 +65,42 @@ extern "C" {
       HIP_CHECK(hipGetLastError());                                             \
       break
 
+#define CASE_KSTEP(LX)                                                               \
+    case LX:                                                                         \
+      hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_kstep<real, LX> ),         \
+                          nblcks_kstep, nthrds_kstep, 0, 0,                          \
+                          (real *) w, (real *) u,                                    \
+                          (real *) dx, (real *) dy, (real *) dz,  (real *) h1,       \
+                          (real *) g11, (real *) g22, (real *) g33,                  \
+                          (real *) g12, (real *) g13, (real *) g23);                 \
+      HIP_CHECK(hipGetLastError());                                                  \
+      break;
+
+
+ 
+#define CASE_KSTEP_PADDED(LX)                                                        \
+    case LX:                                                                         \
+      hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_kstep_padded<real, LX> ),  \
+                          nblcks_kstep, nthrds_kstep, 0, 0,                          \
+                          (real *) w, (real *) u,                                    \
+                          (real *) dx, (real *) dy, (real *) dz,  (real *) h1,       \
+                          (real *) g11, (real *) g22, (real *) g33,                  \
+                          (real *) g12, (real *) g13, (real *) g23);                 \
+      HIP_CHECK(hipGetLastError());                                                  \
+      break;
+
     switch(*lx) {
-      CASE(2);
-      CASE(3);
-      CASE(4);
-      CASE(5);
-      CASE(6);
-      CASE(7);
-      CASE(8);
-      CASE(9);
-      CASE(10);
-      CASE(11);
-      CASE(12);
+      CASE_KSTEP(2);
+      CASE_KSTEP(3);
+      CASE_KSTEP(4);
+      CASE_KSTEP(5);
+      CASE_KSTEP(6);
+      CASE_KSTEP(7);
+      CASE_KSTEP_PADDED(8);
+      CASE_KSTEP(9);
+      CASE_KSTEP(10);
+      CASE_1D(11);
+      CASE_1D(12);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
