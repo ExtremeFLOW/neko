@@ -30,7 +30,7 @@ jobs:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui nvidia-cuda-toolkit
         - os: macos-latest
-          setup-env: brew update && brew install openmpi && brew install automake
+          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@11
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}

@@ -42,15 +42,15 @@ module hip_intf
   enum, bind(c)
      enumerator :: hipSuccess = 0
      enumerator :: hipErrorInvalidContext = 1
-     enumerator :: hipErrorInvalidKernelFile = 2	
+     enumerator :: hipErrorInvalidKernelFile = 2
      enumerator :: hipErrorMemoryAllocation = 3
-     enumerator :: hipErrorInitializationError = 4	
+     enumerator :: hipErrorInitializationError = 4
      enumerator :: hipErrorLaunchFailure = 5
      enumerator :: hipErrorLaunchOutOfResources = 6
      enumerator :: hipErrorInvalidDevice = 7
-     enumerator :: hipErrorInvalidValue = 8	
+     enumerator :: hipErrorInvalidValue = 8
      enumerator :: hipErrorInvalidDevicePointer = 9
-     enumerator :: hipErrorInvalidMemcpyDirection = 10	
+     enumerator :: hipErrorInvalidMemcpyDirection = 10
      enumerator :: hipErrorUnknown = 11
      enumerator :: hipErrorInvalidResourceHandle = 12
      enumerator :: hipErrorNotReady = 13
@@ -58,10 +58,10 @@ module hip_intf
      enumerator :: hipErrorPeerAccessAlreadyEnabled = 15
      enumerator :: hipErrorPeerAccessNotEnabled = 16
      enumerator :: hipErrorRuntimeMemory = 17
-     enumerator :: hipErrorRuntimeOther = 18	
+     enumerator :: hipErrorRuntimeOther = 18
      enumerator :: hipErrorHostMemoryAlreadyRegistered = 19
      enumerator :: hipErrorHostMemoryNotRegistered = 20
-     enumerator :: hipErrorMapBufferObjectFailed = 21	
+     enumerator :: hipErrorMapBufferObjectFailed = 21
      enumerator :: hipErrorTbd = 22
   end enum
   
