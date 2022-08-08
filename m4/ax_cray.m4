@@ -179,7 +179,7 @@ AC_DEFUN([AX_CRAY_ROCM],[
 	  AC_MSG_CHECKING([Cray ROCm Toolkit])
 	  if test "${CRAY_ROCM_VERSION}"; then
 	    AC_MSG_RESULT([yes])
-	    AC_PATH_PROG(HIPCC, hipcc, "no")
+            AS_IF([test "$HIPCC"],[],[AC_PATH_PROG(HIPCC, hipcc, "no")])
             AS_IF([test "$HIP_HIPCC_FLAGS"],[],[HIP_HIPCC_FLAGS="-O3"])
 	    AC_DEFINE(HAVE_HIP,1,[Define if you have HIP.])
 	    have_hip="yes"
