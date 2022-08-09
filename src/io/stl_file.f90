@@ -38,7 +38,7 @@ module stl_file
   use logger
   use point
   use mpi_types
-  use mpi_f08
+  use mpi
   use comm
   use stl    
   implicit none
@@ -64,8 +64,8 @@ contains
     class(stl_file_t) :: this
     class(*), target, intent(inout) :: data
     type(tri_mesh_t), pointer :: tri_msh => null()    
-    type(MPI_Status) :: status
-    type(MPI_File) :: fh
+    integer :: status(MPI_STATUS_SIZE)
+    integer :: fh
     type(point_t) :: p(3)
     type(stl_hdr_t) :: stl_hdr
     type(stl_triangle_t), allocatable :: stl_tri(:)

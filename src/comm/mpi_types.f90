@@ -58,8 +58,8 @@ module mpi_types
 
   integer :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
 
-  type(MPI_Datatype) :: MPI_STL_HEADER     !< MPI Derived type for a STL header
-  type(MPI_Datatype) :: MPI_STL_TRIANGLE   !< MPI derived type for a STL triangle
+  integer :: MPI_STL_HEADER     !< MPI Derived type for a STL header
+  integer :: MPI_STL_TRIANGLE   !< MPI derived type for a STL triangle
 
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
@@ -570,7 +570,7 @@ contains
   !> Define a MPI dervied type for a STL header
   subroutine mpi_type_stl_header_init
     type(stl_hdr_t) :: stl_hdr
-    type(MPI_Datatype) :: type(2)
+    integer :: type(2)
     integer(kind=MPI_ADDRESS_KIND) :: disp(2), base
     integer :: len(2), ierr, i
 
@@ -596,7 +596,7 @@ contains
   !> Define a MPI dervied type for a STL triangle
   subroutine mpi_type_stl_triangle_init
     type(stl_triangle_t) :: tri
-    type(MPI_Datatype) :: type(5)
+    integer :: type(5)
     integer(kind=MPI_ADDRESS_KIND) :: disp(5), base
     integer :: len(5), i, ierr
 
