@@ -1,4 +1,4 @@
-AC_INIT([neko],[0.3.99])
+AC_INIT([neko],[0.4.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -44,6 +44,11 @@ if test "x${have_mpi}" != xno; then
        CC="$MPICC"
    else
        AC_MSG_ERROR([Can't find a suitable C MPI compiler])
+   fi
+   AC_LANG(C++)
+   AX_MPI([have_mpi=yes],[have_mpi=no])
+   if  test "x${have_mpi}" != xno; then
+       CXX="$MPICXX"
    fi
    AC_LANG(Fortran)
 else
@@ -105,6 +110,16 @@ if test "x${have_blas_lapack}" != xyes; then
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
+if test "x${have_darshan}" != xyes; then
+    AX_DARSHAN
+    if test "x${ax_darshan_ok}" != xno; then
+        LIBS="$DARSHAN_LIBS $LIBS"
+        have_darshan=yes
+    else
+        have_darshan=no
+    fi
+fi
+
 found_domain_decomp="no"
 
 # Checks for ParMetis
@@ -122,6 +137,9 @@ if test "x${found_domain_decomp}" != xyes; then
        found_domain_decomp="yes"
    fi
 fi
+
+# Checks for ADIOS2
+AX_ADIOS2
 
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
@@ -149,7 +167,11 @@ AC_SUBST(blk_size, ${blk_size})
 AX_LIBXSMM
 
 # Checks for HIP backend
-AX_HIP
+if test "x${is_hpe_cray}" = xyes; then
+   AX_CRAY_ROCM
+else
+   AX_HIP
+fi
 
 # Checks for CUDA backend
 if test "x${is_cray}" = xyes; then
@@ -166,7 +188,19 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
+
+      # Check that necessary acceleator modules are loaded
+      if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
+      	 AX_CRAY_ACCEL
+      fi
+
       AC_SUBST(device_mpi, .true.)
+      
+      # Make sure we have support for atomicAdd
+      if test "x${have_cuda}" = xyes; then
+      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+      fi      
+
    else
       AC_SUBST(device_mpi, .false.)
    fi
@@ -175,11 +209,15 @@ else
 fi
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
+AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 
-
+# Set device dependent flags
+AC_SUBST(CUDA_ARCH)
+AC_SUBST(CUDA_CFLAGS)
+AC_SUBST(HIP_HIPCC_FLAGS)
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\

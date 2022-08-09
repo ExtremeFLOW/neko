@@ -335,7 +335,8 @@ contains
       call device_rzero(s_d, n)
       call device_copy(r_d, f_d, n)
       !apply u=M^-1r
-      call device_copy(u_d(u_prev), r_d, n)
+      !call device_copy(u_d(u_prev), r_d, n)
+      call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
       call gs_op(gs_h, w, n, GS_OP_ADD)
       call bc_list_apply(blst, w, n)

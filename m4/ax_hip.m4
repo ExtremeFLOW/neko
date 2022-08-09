@@ -26,8 +26,10 @@ AC_DEFUN([AX_HIP],[
 		   LDFLAGS="$HIP_LDFLAGS $LDFLAGS"
 		   export CPPFLAGS
 		   export LDFLAGS
-		   AC_PATH_PROG(HIPCC, hipcc, "no")
+		   AS_IF([test "$HIPCC"],[],[AC_PATH_PROG(HIPCC, hipcc, "no")])
 		fi
+
+                AS_IF([test "$HIP_HIPCC_FLAGS"],[],[HIP_HIPCC_FLAGS="-O3"])
 
 		_CC=$CC
 		AC_LANG_PUSH([C])

@@ -36,6 +36,7 @@ module sampler
   use output
   use comm
   use logger
+  use utils
   implicit none
   private
 
@@ -129,24 +130,34 @@ contains
     class(sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     real(kind=dp) :: sample_start_time, sample_end_time
-    real(kind=dp) :: sample_time, max_sample_time
+    real(kind=dp) :: sample_time
     character(len=LOG_SIZE) :: log_buf
     integer :: i, ierr
 
     if (t .ge. (this%nsample * this%T)) then
 
+       call MPI_Barrier(NEKO_COMM, ierr)
        sample_start_time = MPI_WTIME()
-       do i = 1, this%n
-          call this%output_list(i)%outp%sample(t)
-       end do
+
+       ! We should not need this extra select block, and it works great
+       ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
+       ! (>11.0.x) when using high opt. levels.  
+       select type (samp => this)
+       type is (sampler_t)
+          do i = 1, this%n
+             call samp%output_list(i)%outp%sample(t)
+          end do
+       class default
+          call neko_error('Invalid sampler output list')
+       end select
+       
+       call MPI_Barrier(NEKO_COMM, ierr)
        sample_end_time = MPI_WTIME()
        this%nsample = this%nsample + 1
 
        sample_time = sample_end_time - sample_start_time
-       call MPI_Reduce(sample_time, max_sample_time, 1, &
-            MPI_DOUBLE_PRECISION, MPI_MAX, 0, NEKO_COMM, ierr)
-       write(log_buf,'(a23,1x,e15.7,A,F8.4)') 'Sampling fields at time:', t, &
-             ' Sample time (s): ', max_sample_time
+       write(log_buf,'(A24,1x,F10.6,A,F9.6)') 'Sampling fields at time:', t, &
+             ' Sample time (s): ', sample_time
        call neko_log%message(log_buf)
 
     end if

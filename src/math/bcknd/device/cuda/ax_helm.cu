@@ -59,6 +59,16 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());                                           \
       break
 
+#define CASE_PADDED(LX)                                                         \
+    case LX:                                                                    \
+      ax_helm_kernel_padded<real, LX>                                           \
+      <<<nblcks, nthrds>>>((real *) w, (real *) u,                              \
+                           (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
+                           (real *) g11, (real *) g22, (real *) g33,            \
+                           (real *) g12, (real *) g13, (real *) g23);           \
+      CUDA_CHECK(cudaGetLastError());                                           \
+      break
+
     switch(*lx) {
       CASE(2);
       CASE(3);
@@ -66,7 +76,7 @@ extern "C" {
       CASE(5);
       CASE(6);
       CASE(7);
-      CASE(8);
+      CASE_PADDED(8);
       CASE(9);
       CASE(10);
       CASE(11);

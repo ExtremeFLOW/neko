@@ -413,6 +413,7 @@ contains
        deallocate(tmp_sp)
     end if
     
+    call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
 
     ! Write metadata file 

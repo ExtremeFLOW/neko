@@ -33,6 +33,7 @@
 !> Defines a mapping of the degrees of freedom
 !! @details A mapping defined based on a function space and a mesh
 module dofmap
+  use neko_config
   use mesh
   use space
   use tuple
@@ -40,7 +41,9 @@ module dofmap
   use utils
   use fast3d
   use tensor
+  use device
   use math
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -55,9 +58,16 @@ module dofmap
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
 
+     !
+     ! Device pointers (if present)
+     !
+     type(c_ptr) :: x_d = C_NULL_PTR
+     type(c_ptr) :: y_d = C_NULL_PTR
+     type(c_ptr) :: z_d = C_NULL_PTR
+
    contains
      procedure, pass(this) :: size => dofmap_size
-     final :: dofmap_free
+!     final :: dofmap_free
   end type dofmap_t
 
   interface dofmap_t
@@ -118,6 +128,17 @@ contains
     !> @note should be intialised differently in acissymmetric case
 
     call dofmap_generate_xyz(this)    
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+        (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_map(this%x, this%x_d, this%n_dofs)
+       call device_map(this%y, this%y_d, this%n_dofs)
+       call device_map(this%z, this%z_d, this%n_dofs)
+
+       call device_memcpy(this%x, this%x_d, this%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%y, this%y_d, this%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%z, this%z_d, this%n_dofs, HOST_TO_DEVICE)
+    end if
     
   end function dofmap_init
 
@@ -147,6 +168,21 @@ contains
 
     nullify(this%msh)
     nullify(this%Xh)
+
+    !
+    ! Cleanup the device (if present)
+    !
+    if (c_associated(this%x_d)) then
+       call device_free(this%x_d)
+    end if
+
+    if (c_associated(this%y_d)) then
+       call device_free(this%y_d)
+    end if
+
+    if (c_associated(this%z_d)) then
+       call device_free(this%z_d)
+    end if
     
   end subroutine dofmap_free
 
@@ -625,26 +661,26 @@ contains
          facet_idx = facet_id + j + k*lj 
        else
          facet_idx = facet_id + j*lk + k 
-       endif
+      end if
      else  if(face_order%x(2) .eq. face%x(1)) then
        if(face_order%x(3) .lt. face_order%x(1)) then
          facet_idx = facet_id + lk*(lj-1-j) + k 
        else
          facet_idx = facet_id + (lj-1-j) + k*lj
-       endif
+      end if
      else if(face_order%x(3) .eq. face%x(1)) then
        if(face_order%x(4) .lt. face_order%x(2)) then
          facet_idx = facet_id + (lj-1-j) + lj*(lk-1-k) 
        else
          facet_idx = facet_id + lk*(lj-1-j) + (lk-1-k)
-       endif
+      end if
      else if(face_order%x(4) .eq. face%x(1)) then
        if(face_order%x(1) .lt. face_order%x(3)) then
          facet_idx = facet_id + lk*j + (lk-1-k) 
        else
          facet_idx = facet_id + j + lj*(lk-1-k)
-       endif     
-     endif 
+      end if
+   end if
 
   end function dofmap_facetidx
 
@@ -690,14 +726,16 @@ contains
     do i =1, msh%curve%size 
        el_idx = msh%curve%curve_el(i)%el_idx
        do j = 1, 8
-       if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
-          rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
-          call arc_surface(j, rp_curve_data, &
-                           this%x(1,1,1,el_idx), this%y(1,1,1,el_idx), this%z(1,1,1, el_idx), &
-                           Xh, msh%elements(el_idx)%e, msh%gdim) 
-       end if
+          if (msh%curve%curve_el(i)%curve_type(j) .eq. 3) then
+             rp_curve_data = msh%curve%curve_el(i)%curve_data(1:5,j)
+             call arc_surface(j, rp_curve_data, &
+                              this%x(1,1,1,el_idx), &
+                              this%y(1,1,1,el_idx), &
+                              this%z(1,1,1, el_idx), &
+                              Xh, msh%elements(el_idx)%e, msh%gdim) 
+          end if
        end do
-    enddo
+    end do
     if (associated(msh%apply_deform)) then
        call msh%apply_deform(this%x, this%y, this%z, Xh%lx, Xh%ly, Xh%lz)
     end if
@@ -816,7 +854,7 @@ contains
        call neko_warning(' m deformation not supported for 2d yet')
        call gh_face_extend_2d(x3,zg,3,2,w(1,1),w(1,2)) ! 2 --> edge extend
        call gh_face_extend_2d(y3,zg,3,2,w(1,1),w(1,2))
-    endif
+    end if
     k =1 
     do j = 1, Xh%lx
        call fd_weights_full(Xh%zg(j,1),zquad,2,0,jxt(k))
@@ -849,154 +887,158 @@ contains
  !!           3 - vertex, edges, and faces      
  !! Original in Nek5000/core/navier5.f
     
- subroutine gh_face_extend_3d(x,zg,n,gh_type,e,v)
+ subroutine gh_face_extend_3d(x, zg, n, gh_type, e, v)
    integer, intent(in) :: n
-   real(kind=rp), intent(inout) ::  x(n,n,n)
+   real(kind=rp), intent(inout) ::  x(n, n, n)
    real(kind=rp), intent(in) ::  zg(n)
-   real(kind=rp), intent(inout) ::  e(n,n,n)
-   real(kind=rp), intent(inout) ::  v(n,n,n)
+   real(kind=rp), intent(inout) ::  e(n, n, n)
+   real(kind=rp), intent(inout) ::  v(n, n, n)
    integer :: gh_type, ntot, kk, jj, ii, k, j, i
    real(kind=rp) :: si, sj, sk, hi, hj, hk
    
 !
 !  Build vertex interpolant
 !
-   ntot=n*n*n
-   call rzero(v,ntot)
-   do kk=1,n,n-1
-   do jj=1,n,n-1
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         v(i,j,k) = v(i,j,k) + si*sj*sk*x(ii,jj,kk)
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
-   enddo
-   if (gh_type.eq.1) then
-      call copy(x,v,ntot)
+   ntot = n**3
+   call rzero(v, ntot)
+   do kk = 1, n, n-1
+      do jj = 1, n, n-1
+         do ii = 1, n, n-1
+            do k = 1, n
+               do j = 1, n
+                  do i = 1, n
+                     si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                     sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                     sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+                     v(i,j,k) = v(i,j,k) + si*sj*sk*x(ii,jj,kk)
+                  end do
+               end do
+            end do
+         end do
+      end do
+   end do
+
+   if (gh_type .eq. 1) then
+      call copy(x, v, ntot)
       return
-   endif
+   end if
 !
 !
 !  Extend 12 edges
-   call rzero(e,ntot)
+   call rzero(e, ntot)
 !
 !  x-edges
 !
-   do kk=1,n,n-1
-   do jj=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hj*hk*(x(i,jj,kk)-v(i,jj,kk))
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
+   do kk = 1, n, n-1
+      do jj = 1, n, n-1
+         do k = 1, n
+            do j = 1, n
+               do i = 1, n
+                  hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                  hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+                  e(i,j,k) = e(i,j,k) + hj*hk*(x(i,jj,kk)-v(i,jj,kk))
+               end do
+            end do
+         end do
+      end do
+   end do
 !
 !  y-edges
 !
-   do kk=1,n,n-1
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hi*hk*(x(ii,j,kk)-v(ii,j,kk))
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
+   do kk = 1, n, n-1
+      do ii = 1, n, n-1
+         do k = 1, n
+            do j = 1, n
+               do i = 1, n
+                  hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                  hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+                  e(i,j,k) = e(i,j,k) + hi*hk*(x(ii,j,kk)-v(ii,j,kk))
+               end do
+            end do
+         end do
+      end do
+   end do
 !
 !  z-edges
 !
-   do jj=1,n,n-1
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         e(i,j,k) = e(i,j,k) + hi*hj*(x(ii,jj,k)-v(ii,jj,k))
-      enddo
-      enddo
-      enddo
-   enddo
-   enddo
-   call add2(e,v,ntot)
-   if (gh_type.eq.2) then
-      call copy(x,e,ntot)
+   do jj = 1, n, n-1
+      do ii = 1, n, n-1
+         do k = 1, n
+            do j = 1, n
+               do i = 1, n
+                  hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                  hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                  e(i,j,k) = e(i,j,k) + hi*hj*(x(ii,jj,k)-v(ii,jj,k))
+               end do
+            end do
+         end do
+      end do
+   end do
+   
+   call add2(e, v, ntot)
+   
+   if (gh_type .eq. 2) then
+      call copy(x, e, ntot)
       return
-   endif
+   end if
 !
 !  Extend faces
 !
-   call rzero(v,ntot)
+   call rzero(v, ntot)
 !
 !  x-edges
 !
-   do ii=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
-      enddo
-      enddo
-      enddo
-   enddo
+   do ii = 1, n, n-1
+      do k = 1, n
+         do j = 1, n
+            do i = 1, n
+               hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+               v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
+            end do
+         end do
+      end do
+   end do
 !
 ! y-edges
 !
-   do jj=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hj*(x(i,jj,k)-e(i,jj,k))
-      enddo
-      enddo
-      enddo
-   enddo
+   do jj = 1, n, n-1
+      do k = 1, n
+         do j = 1, n
+            do i = 1, n
+               hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+               v(i,j,k) = v(i,j,k) + hj*(x(i,jj,k)-e(i,jj,k))
+            end do
+         end do
+      end do
+   end do
 ! 
 !  z-edges
 ! 
-   do kk=1,n,n-1
-      do k=1,n
-      do j=1,n
-      do i=1,n
-         hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-         v(i,j,k) = v(i,j,k) + hk*(x(i,j,kk)-e(i,j,kk))
-      enddo
-      enddo
-      enddo
-   enddo
-   call add2(v,e,ntot)
-   call copy(x,v,ntot)
+   do kk= 1 , n, n-1
+      do k = 1, n
+         do j = 1, n
+            do i = 1, n
+               hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+               v(i,j,k) = v(i,j,k) + hk*(x(i,j,kk)-e(i,j,kk))
+            end do
+         end do
+      end do
+   end do
+   
+   call add2(v, e, ntot)
+   call copy(x, v ,ntot)
 
   end subroutine gh_face_extend_3d
 
   !> Extend 2D faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and faces
-  subroutine gh_face_extend_2d(x,zg,n,gh_type,e,v)
+  subroutine gh_face_extend_2d(x, zg, n, gh_type, e, v)
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: x(n,n)
+    real(kind=rp), intent(inout) :: x(n, n)
     real(kind=rp), intent(in) :: zg(n)
-    real(kind=rp), intent(inout) :: e(n,n)
-    real(kind=rp), intent(inout) :: v(n,n)
+    real(kind=rp), intent(inout) :: e(n, n)
+    real(kind=rp), intent(inout) :: v(n, n)
     integer, intent(in) :: gh_type
     integer :: i,j , jj, ii, ntot
     real(kind=rp) :: si, sj, hi, hj 
@@ -1005,55 +1047,54 @@ contains
 
     ntot=n*n
     call rzero(v,ntot)
-    do jj=1,n,n-1
-    do ii=1,n,n-1
-       do j=1,n
-       do i=1,n
-          si     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-          sj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-          v(i,j) = v(i,j) + si*sj*x(ii,jj)
-       enddo
-       enddo
-    enddo
-    enddo
-    if (gh_type.eq.1) then
+    do jj = 1, n, n-1
+       do ii = 1, n, n-1
+          do j = 1, n
+             do i = 1, n
+                si     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+                sj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+                v(i,j) = v(i,j) + si*sj*x(ii,jj)
+             end do
+          end do
+       end do
+    end do
+    if (gh_type .eq. 1) then
        call copy(x,v,ntot)
        return
-    endif
-
+    end if
 
     !Extend 4 edges
     call rzero(e,ntot)
 
     !x-edges
 
-    do jj=1,n,n-1
-       do j=1,n
-       do i=1,n
-          hj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-          e(i,j) = e(i,j) + hj*(x(i,jj)-v(i,jj))
-       enddo
-       enddo
-    enddo
+    do jj = 1, n, n-1
+       do j = 1, n
+          do i = 1, n
+             hj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+             e(i,j) = e(i,j) + hj*(x(i,jj)-v(i,jj))
+          end do
+       end do
+    end do
 
     !y-edges
 
-    do ii=1,n,n-1
-       do j=1,n
-       do i=1,n
-          hi     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-          e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))
-       enddo
-       enddo
-    enddo
+    do ii = 1, n, n-1
+       do j = 1, n
+          do i = 1, n
+             hi     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+             e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))
+          end do
+       end do
+    end do
 
-    call add3(x,e,v,ntot)
+    call add3(x, e, v, ntot)
 
   end subroutine gh_face_extend_2d
 
 
 
-  subroutine arc_surface(isid,curve_data,x,y,z, Xh, element, gdim)
+  subroutine arc_surface(isid, curve_data, x, y, z, Xh, element, gdim)
     integer, intent(in) :: isid, gdim
     type(space_t), intent(in) :: Xh
     class(element_t) :: element
@@ -1080,7 +1121,7 @@ contains
 !   find slope of perpendicular
     radius=curve_data(1)
     gap=sqrt( (pt1x-pt2x)**2 + (pt1y-pt2y)**2 )
-    if (abs(2.0*radius).le.gap*1.00001) then
+    if (abs(2.0 * radius) .le. gap * 1.00001) then
        call neko_error('Radius to small for arced element surface')
     end if
     xs = pt2y-pt1y
@@ -1128,17 +1169,17 @@ contains
     izt = (isid-1)/4+1
     iyt = isid1-2
     ixt = isid1
-    if (isid1.le.2) then
-       call addtnsr(x,h(1,1,ixt),xcrved,h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
-       call addtnsr(y,h(1,1,ixt),ycrved,h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
+    if (isid1 .le. 2) then
+       call addtnsr(x, h(1,1,ixt), xcrved, h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(y, h(1,1,ixt), ycrved, h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
     else
-       call addtnsr(x,xcrved,h(1,2,iyt),h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
-       call addtnsr(y,ycrved,h(1,2,iyt),h(1,3,izt) &
-                   ,Xh%lx,Xh%ly,Xh%lz)
-    endif
+       call addtnsr(x, xcrved, h(1,2,iyt), h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
+       call addtnsr(y, ycrved, h(1,2,iyt), h(1,3,izt) &
+                   ,Xh%lx, Xh%ly, Xh%lz)
+    end if
   end subroutine arc_surface
 
   subroutine compute_h(h, zgml, gdim, lx)

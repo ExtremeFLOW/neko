@@ -35,6 +35,7 @@ module mpi_types
   use comm
   use re2
   use nmsh
+  use stl
   use mpi
   use parameters
   implicit none
@@ -57,6 +58,9 @@ module mpi_types
 
   integer :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
 
+  type(MPI_Datatype) :: MPI_STL_HEADER     !< MPI Derived type for a STL header
+  type(MPI_Datatype) :: MPI_STL_TRIANGLE   !< MPI derived type for a STL triangle
+
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
   integer :: MPI_CHARACTER_SIZE        !< Size of MPI type character
@@ -72,7 +76,8 @@ module mpi_types
        MPI_RE2V2_DATA_CV, MPI_RE2V2_DATA_BC, &
        MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, &
-       MPI_REAL_PREC_SIZE, MPI_NEKO_PARAMS
+       MPI_REAL_PREC_SIZE, MPI_NEKO_PARAMS, &
+       MPI_STL_HEADER, MPI_STL_TRIANGLE
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -95,6 +100,9 @@ contains
     call mpi_type_re2_bc_init
 
     call mpi_type_neko_params_init
+
+    call mpi_type_stl_header_init
+    call mpi_type_stl_triangle_init
 
     ! Check sizes of MPI types
     call MPI_Type_size(MPI_REAL, MPI_REAL_SIZE, ierr)
@@ -462,7 +470,7 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer, parameter :: n_param = 37
+    integer, parameter :: n_param = 39
     integer :: type(n_param)
     integer(kind=MPI_ADDRESS_KIND) :: disp(n_param), base    
     integer :: len(n_param), ierr
@@ -505,6 +513,8 @@ contains
     call MPI_Get_address(param_data%blasius_approx, disp(35), ierr)
     call MPI_Get_address(param_data%bc_labels, disp(36), ierr)
     call MPI_Get_address(param_data%proj_vel_dim, disp(37), ierr)
+    call MPI_Get_address(param_data%dong_uchar, disp(38), ierr)
+    call MPI_Get_address(param_data%dong_delta, disp(39), ierr)
     
     base = disp(1)
     do i = 1, n_param
@@ -525,8 +535,10 @@ contains
     len(33) = 1
     len(34) = 1
     len(35) = 10
-    len(36) = 60
+    len(36) = 20*20
     len(37) = 1
+    len(38) = 1
+    len(39) = 1
     
     type(1) = MPI_INTEGER
     type(2:4) = MPI_LOGICAL
@@ -547,11 +559,68 @@ contains
     type(35) = MPI_CHARACTER
     type(36) = MPI_CHARACTER
     type(37) = MPI_INTEGER
+    type(38) = MPI_REAL_PRECISION
+    type(39) = MPI_REAL_PRECISION
     
     call MPI_Type_create_struct(n_param, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)
 
   end subroutine mpi_type_neko_params_init
+
+  !> Define a MPI dervied type for a STL header
+  subroutine mpi_type_stl_header_init
+    type(stl_hdr_t) :: stl_hdr
+    type(MPI_Datatype) :: type(2)
+    integer(kind=MPI_ADDRESS_KIND) :: disp(2), base
+    integer :: len(2), ierr, i
+
+    call MPI_Get_address(stl_hdr%hdr, disp(1), ierr)
+    call MPI_Get_address(stl_hdr%ntri, disp(2), ierr)
+
+    base = disp(1)
+    do i = 1, 2
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
+
+    len(1) = 80
+    len(2) = 1
+
+    type(1) = MPI_CHARACTER
+    type(2) = MPI_INTEGER
+
+    call MPI_Type_create_struct(2, len, disp, type, MPI_STL_HEADER, ierr)
+    call MPI_Type_commit(MPI_STL_HEADER, ierr)
+      
+  end subroutine mpi_type_stl_header_init
+
+  !> Define a MPI dervied type for a STL triangle
+  subroutine mpi_type_stl_triangle_init
+    type(stl_triangle_t) :: tri
+    type(MPI_Datatype) :: type(5)
+    integer(kind=MPI_ADDRESS_KIND) :: disp(5), base
+    integer :: len(5), i, ierr
+
+    call MPI_Get_address(tri%n, disp(1), ierr)
+    call MPI_Get_address(tri%v1, disp(2), ierr)
+    call MPI_Get_address(tri%v2, disp(3), ierr)
+    call MPI_Get_address(tri%v3, disp(4), ierr)
+    call MPI_Get_address(tri%attrib, disp(5), ierr)
+
+    base = disp(1)
+    do i = 1, 5
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
+
+    len(1:4) = 3
+    len(5) = 1
+
+    type(1:4) = MPI_REAL
+    type(5) = MPI_INTEGER2
+
+    call MPI_Type_create_struct(5, len, disp, type, MPI_STL_TRIANGLE, ierr)
+    call MPI_Type_commit(MPI_STL_TRIANGLE, ierr)
+        
+  end subroutine mpi_type_stl_triangle_init
 
   !> Deallocate all dervied MPI types
   subroutine mpi_types_free
@@ -563,6 +632,8 @@ contains
     call mpi_type_re2_xy_free
     call mpi_type_re2_bc_free
     call mpi_type_neko_params_free
+    call mpi_type_stl_header_free
+    call mpi_type_stl_triangle_free
   end subroutine mpi_types_free
 
   !> Deallocate nmsh hex derived MPI type
@@ -622,5 +693,17 @@ contains
     integer ierr
     call MPI_Type_free(MPI_NEKO_PARAMS, ierr)
   end subroutine mpi_type_neko_params_free
+
+  !> Deallocate STL header dervied MPI type
+  subroutine mpi_type_stl_header_free
+    integer ierr
+    call MPI_Type_free(MPI_STL_HEADER, ierr)
+  end subroutine mpi_type_stl_header_free
+  
+  !> Deallocate STL triangle dervied MPI type
+  subroutine mpi_type_stl_triangle_free
+    integer ierr
+    call MPI_Type_free(MPI_STL_TRIANGLE, ierr)
+  end subroutine mpi_type_stl_triangle_free
   
 end module mpi_types

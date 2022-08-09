@@ -89,6 +89,7 @@ contains
     character(len=20) :: bcknd_str
     integer, optional :: bcknd
     integer :: ierr, bcknd_, glb_nshared, glb_nlocal
+    logical :: use_device_mpi
 
     call gs_free(gs)
 
@@ -96,14 +97,20 @@ contains
     
     gs%dofmap => dofmap
     
-    if (NEKO_DEVICE_MPI) then
+    ! Here one could use some heuristic or autotuning to select comm method,
+    ! such as only using device MPI when there is enough data.
+    !use_device_mpi = NEKO_DEVICE_MPI .and. gs%nshared .gt. 20000
+    use_device_mpi = NEKO_DEVICE_MPI
+
+    if (use_device_mpi) then
+       call neko_log%message('Comm         :   Device MPI')
        allocate(gs_device_mpi_t::gs%comm)
     else
+       call neko_log%message('Comm         :          MPI')
        allocate(gs_mpi_t::gs%comm)
     end if
 
     call gs%comm%init_dofs()
-
     call gs_init_mapping(gs)
 
     call gs_schedule(gs)
@@ -159,6 +166,13 @@ contains
     call neko_log%end_section()
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
+
+    if (use_device_mpi) then
+       select type(b => gs%bcknd)
+       type is (gs_device_t)
+          b%shared_on_host = .false.
+       end select
+    end if
   
   end subroutine gs_init
 
@@ -228,7 +242,6 @@ contains
     type(stack_i4_t), target :: local_face_dof, face_dof_local
     type(stack_i4_t), target :: shared_face_dof, face_dof_shared
     integer :: i, j, k, l, lx, ly, lz, max_id, max_sid, id, lid, dm_size
-    integer, pointer :: sp(:)
     type(htable_i8_t) :: dm
     type(htable_i8_t), pointer :: sdm
 
@@ -794,39 +807,58 @@ contains
     allocate(gs%local_dof_gs(gs%nlocal))
 
     ! Add dofs on points and edges
-    sp => local_dof%array()
-    j = local_dof%size()
-    do i = 1, j
-       gs%local_dof_gs(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => local_dof%data)
+    type is (integer)
+       j = local_dof%size()
+       do i = 1, j
+          gs%local_dof_gs(i) = dof_array(i)
+       end do
+    end select
     call local_dof%free()
 
     ! Add dofs on faces
-    sp => local_face_dof%array()
-    do i = 1, local_face_dof%size()
-       gs%local_dof_gs(i + j) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => local_face_dof%data)
+    type is (integer)
+       do i = 1, local_face_dof%size()
+          gs%local_dof_gs(i + j) = dof_array(i)
+       end do
+    end select
     call local_face_dof%free()
 
     ! Finalize local gather-scatter index to dof
     allocate(gs%local_gs_dof(gs%nlocal))
 
     ! Add gather-scatter index on points and edges
-    sp => dof_local%array()
-    j = dof_local%size()
-    do i = 1, j
-       gs%local_gs_dof(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => dof_local%data)
+    type is (integer)
+       j = dof_local%size()
+       do i = 1, j
+          gs%local_gs_dof(i) = dof_array(i)
+       end do
+    end select
     call dof_local%free()
 
-    sp => face_dof_local%array()
-    do i = 1, face_dof_local%size()
-       gs%local_gs_dof(i+j) = sp(i)
-    end do
-    nullify(sp)
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => face_dof_local%data)
+    type is (integer)
+       do i = 1, face_dof_local%size()
+          gs%local_gs_dof(i+j) = dof_array(i)
+       end do
+    end select
     call face_dof_local%free()
        
     call gs_qsort_dofmap(gs%local_dof_gs, gs%local_gs_dof, &
@@ -845,39 +877,58 @@ contains
     allocate(gs%shared_dof_gs(gs%nshared))
 
     ! Add shared dofs on points and edges
-    sp => shared_dof%array()
-    j =  shared_dof%size()
-    do i = 1, j
-       gs%shared_dof_gs(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => shared_dof%data)
+    type is (integer)
+       j =  shared_dof%size()
+       do i = 1, j
+          gs%shared_dof_gs(i) = dof_array(i)
+       end do
+    end select
     call shared_dof%free()
 
     ! Add shared dofs on faces
-    sp => shared_face_dof%array()
-    do i = 1, shared_face_dof%size()
-       gs%shared_dof_gs(i + j) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => shared_face_dof%data)
+    type is (integer)
+       do i = 1, shared_face_dof%size()
+          gs%shared_dof_gs(i + j) = dof_array(i)
+       end do
+    end select
     call shared_face_dof%free()
     
     ! Finalize shared gather-scatter index to dof
     allocate(gs%shared_gs_dof(gs%nshared))
 
     ! Add dofs on points and edges 
-    sp => dof_shared%array()
-    j = dof_shared%size()
-    do i = 1, j
-       gs%shared_gs_dof(i) = sp(i)
-    end do
-    nullify(sp)
+
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => dof_shared%data)
+    type is(integer)
+       j = dof_shared%size()
+       do i = 1, j
+          gs%shared_gs_dof(i) = dof_array(i)
+       end do
+    end select
     call dof_shared%free()
 
-    sp => face_dof_shared%array()
-    do i = 1, face_dof_shared%size()
-       gs%shared_gs_dof(i + j) = sp(i)
-    end do
-    nullify(sp)
+    ! We should use the %array() procedure, which works great for
+    ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+    ! certain data types
+    select type(dof_array => face_dof_shared%data)
+    type is (integer)
+       do i = 1, face_dof_shared%size()
+          gs%shared_gs_dof(i + j) = dof_array(i)
+       end do
+    end select
     call face_dof_shared%free()
 
     ! Allocate buffer for shared gs-ops
@@ -958,33 +1009,31 @@ contains
       integer, allocatable, intent(inout) :: blk_len(:)
       integer, intent(inout) :: nblks
       integer :: i, j
-      integer :: id, count, len
+      integer :: id, count
       type(stack_i4_t), target :: blks
-      integer, pointer :: bp(:)
       
       call blks%init()
-
       i = 1
       do while( i .lt. m)
          id = dg(i)
          count = 1
-         j = i + 1
-         do while (dg(j) .eq. id)
+         j = i
+         do while ( j+1 .le. n .and. dg(j+1) .eq. id)
             j = j + 1
             count = count + 1
          end do
          call blks%push(count)
-         i = j
+         i = j + 1
       end do
 
-      nblks = blks%size()
-      allocate(blk_len(nblks))
-      bp => blks%array()
-      do i = 1, blks%size()
-         blk_len(i) = bp(i)
-      end do      
-      nullify(bp)
-      
+      select type(blk_array => blks%data)
+      type is(integer)
+         nblks = blks%size()
+         allocate(blk_len(nblks))
+         do i = 1, nblks
+            blk_len(i) = blk_array(i)
+         end do
+      end select
       call blks%free()
       
     end subroutine gs_find_blks
@@ -1120,7 +1169,7 @@ contains
        call gs%comm%nbrecv()
 
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
-            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op)
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
 
        call gs%comm%nbsend(gs%shared_gs, l)
        
@@ -1129,9 +1178,9 @@ contains
     ! Gather-scatter local dofs
 
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false.)
 
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
@@ -1139,7 +1188,7 @@ contains
        call gs%comm%nbwait(gs%shared_gs, l, op)
 
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
-            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len)
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
     end if
 
   end subroutine gs_op_vector

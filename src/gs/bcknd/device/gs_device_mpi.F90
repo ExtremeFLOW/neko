@@ -42,24 +42,24 @@ module gs_device_mpi
   use device
   implicit none
 
-  !> MPI buffer for non-blocking operations
-  type, private :: gs_comm_device_mpi_t
-     type(c_ptr) :: request = C_NULL_PTR        !< MPI_Request in C
-     type(c_ptr) :: buf_d = C_NULL_PTR          !< MPI send/recv buffer
-     type(c_ptr) :: dof_d = C_NULL_PTR          !< buf->dof mapping (1-indexed)
-     integer :: ndofs
-     logical :: flag                            !< Request done flag
-  end type gs_comm_device_mpi_t
+  !> Buffers for non-blocking communication and packing/unpacking
+  type, private :: gs_device_mpi_buf_t
+     integer, allocatable :: ndofs(:)           !< Number of dofs
+     integer, allocatable :: offset(:)          !< Offset into buf
+     integer :: total                           !< Total number of dofs
+     type(c_ptr) :: reqs = C_NULL_PTR           !< MPI request array in C
+     type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
+     type(c_ptr) :: dof_d = C_NULL_PTR          !< Dof mapping for pack/unpack
+   contains
+     procedure, pass(this) :: init => gs_device_mpi_buf_init
+     procedure, pass(this) :: free => gs_device_mpi_buf_free
+  end type gs_device_mpi_buf_t
 
   !> Gather-scatter communication using device MPI.
   !! The arrays are indexed per PE like @a send_pe and @ recv_pe.
   type, extends(gs_comm_t) :: gs_device_mpi_t
-     type(gs_comm_device_mpi_t), allocatable :: send_buf(:)
-     type(gs_comm_device_mpi_t), allocatable :: recv_buf(:)
-
-     type(c_ptr) :: send_buf_ptrs_d = C_NULL_PTR    !< Array of buf pointers
-     type(c_ptr) :: send_dof_ptrs_d = C_NULL_PTR    !< Array of dof pointers
-     type(c_ptr) :: send_ndofs_d = C_NULL_PTR       !< Array of ndofs
+     type(gs_device_mpi_buf_t) :: send_buf
+     type(gs_device_mpi_buf_t) :: recv_buf
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -69,179 +69,209 @@ module gs_device_mpi
   end type gs_device_mpi_t
 
   interface
-     subroutine hip_gs_pack(dof_ptrs_d, buf_ptrs_d, ndofs_d, npe, u_d, n) &
+    subroutine hip_gs_pack(u_d, buf_d, dof_d, n) &
           bind(c, name='hip_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: npe, n
-       type(c_ptr), value :: dof_ptrs_d, buf_ptrs_d, ndofs_d, u_d
+       integer(c_int), value :: n
+       type(c_ptr), value :: u_d, buf_d, dof_d
      end subroutine hip_gs_pack
   end interface
 
   interface
-     subroutine cuda_gs_pack(dof_ptrs_d, buf_ptrs_d, ndofs_d, npe, u_d, n) &
+    subroutine cuda_gs_pack(u_d, buf_d, dof_d, n) &
           bind(c, name='cuda_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: npe, n
-       type(c_ptr), value :: dof_ptrs_d, buf_ptrs_d, ndofs_d, u_d
+       integer(c_int), value :: n
+       type(c_ptr), value :: u_d, buf_d, dof_d
      end subroutine cuda_gs_pack
   end interface
 
   interface
-    subroutine hip_gs_unpack(buf_d, dof_d, ndofs, u_d, op) &
+    subroutine hip_gs_unpack(u_d, op, buf_d, dof_d, offset, n) &
           bind(c, name='hip_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: ndofs, op
-       type(c_ptr), value :: buf_d, dof_d, u_d
+       integer(c_int), value :: op, offset, n
+       type(c_ptr), value :: u_d, buf_d, dof_d
      end subroutine hip_gs_unpack
   end interface
 
   interface
-    subroutine cuda_gs_unpack(buf_d, dof_d, ndofs, u_d, op) &
+    subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n) &
           bind(c, name='cuda_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: ndofs, op
-       type(c_ptr), value :: buf_d, dof_d, u_d
+       integer(c_int), value :: op, offset, n
+       type(c_ptr), value :: u_d, buf_d, dof_d
      end subroutine cuda_gs_unpack
   end interface
 
   interface
-    subroutine device_mpi_init_request(req) &
-          bind(c, name='device_mpi_init_request')
+    subroutine device_mpi_init_reqs(n, reqs) &
+          bind(c, name='device_mpi_init_reqs')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr) :: req
-     end subroutine device_mpi_init_request
+       integer(c_int), value :: n
+       type(c_ptr) :: reqs
+     end subroutine device_mpi_init_reqs
   end interface
 
   interface
-    subroutine device_mpi_free_request(req) &
-          bind(c, name='device_mpi_free_request')
+    subroutine device_mpi_free_reqs(reqs) &
+          bind(c, name='device_mpi_free_reqs')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: req
-     end subroutine device_mpi_free_request
+       type(c_ptr) :: reqs
+     end subroutine device_mpi_free_reqs
   end interface
 
   interface
-    subroutine device_mpi_isend(buf_d, nbytes, rank, req) &
+    subroutine device_mpi_isend(buf_d, offset, nbytes, rank, reqs, i) &
           bind(c, name='device_mpi_isend')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: nbytes, rank
-       type(c_ptr), value :: buf_d, req
+       integer(c_int), value :: offset, nbytes, rank, i
+       type(c_ptr), value :: buf_d, reqs
      end subroutine device_mpi_isend
   end interface
 
   interface
-    subroutine device_mpi_irecv(buf_d, nbytes, rank, req) &
+    subroutine device_mpi_irecv(buf_d, offset, nbytes, rank, reqs, i) &
           bind(c, name='device_mpi_irecv')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int) :: nbytes, rank
-       type(c_ptr), value :: buf_d, req
+       integer(c_int), value :: offset, nbytes, rank, i
+       type(c_ptr), value :: buf_d, reqs
      end subroutine device_mpi_irecv
   end interface
 
   interface
-    integer(c_int) function device_mpi_test(req) &
+    integer(c_int) function device_mpi_test(reqs, i) &
           bind(c, name='device_mpi_test')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: req
+       integer(c_int), value :: i
+       type(c_ptr), value :: reqs
      end function device_mpi_test
   end interface
 
+  interface
+    subroutine device_mpi_waitall(n, reqs) &
+          bind(c, name='device_mpi_waitall')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: n
+       type(c_ptr), value :: reqs
+    end subroutine device_mpi_waitall
+  end interface
+
+  interface
+    integer(c_int) function device_mpi_waitany(n, reqs, i) &
+          bind(c, name='device_mpi_waitany')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: n
+       integer(c_int) :: i
+       type(c_ptr), value :: reqs
+    end function device_mpi_waitany
+  end interface
+
 contains
+
+  subroutine gs_device_mpi_buf_init(this, pe_order, dof_stack, mark_dupes)
+    class(gs_device_mpi_buf_t), intent(inout) :: this
+    integer, allocatable, intent(inout) :: pe_order(:)
+    type(stack_i4_t), allocatable, intent(inout) :: dof_stack(:)
+    logical, intent(in) :: mark_dupes
+    integer, allocatable :: dofs(:)
+    integer :: i, j, total
+    integer(c_size_t) :: sz
+    type(htable_i4_t) :: doftable
+    integer :: dupe, marked, k
+    real(c_rp) :: rp_dummy
+    integer(c_int32_t) :: i4_dummy
+
+    call device_mpi_init_reqs(size(pe_order), this%reqs)
+
+    allocate(this%ndofs(size(pe_order)))
+    allocate(this%offset(size(pe_order)))
+
+    total = 0
+    do i = 1, size(pe_order)
+       this%ndofs(i) = dof_stack(pe_order(i))%size()
+       this%offset(i) = total
+       total = total + this%ndofs(i)
+    end do
+
+    this%total = total
+
+    sz = c_sizeof(rp_dummy) * total
+    call device_alloc(this%buf_d, sz)
+
+    sz = c_sizeof(i4_dummy) * total
+    call device_alloc(this%dof_d, sz)
+
+    if (mark_dupes) call doftable%init(2*total)
+    allocate(dofs(total))
+
+    ! Copy from dof_stack into dofs, optionally marking duplicates with doftable
+    marked = 0
+    do i = 1, size(pe_order)
+       ! %array() breaks on cray
+       select type (arr => dof_stack(pe_order(i))%data)
+       type is (integer)
+         do j = 1, this%ndofs(i)
+            k = this%offset(i) + j
+            if (mark_dupes) then
+               if (doftable%get(arr(j), dupe) .eq. 0) then
+                  if (dofs(dupe) .gt. 0) then
+                     dofs(dupe) = -dofs(dupe)
+                     marked = marked + 1
+                  end if
+                  dofs(k) = -arr(j)
+                  marked = marked + 1
+               else
+                  call doftable%set(arr(j), k)
+                  dofs(k) = arr(j)
+               end if
+            else
+               dofs(k) = arr(j)
+            end if
+         end do
+       end select
+    end do
+
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE)
+
+    deallocate(dofs)
+    call doftable%free()
+
+  end subroutine gs_device_mpi_buf_init
+
+  subroutine gs_device_mpi_buf_free(this)
+    class(gs_device_mpi_buf_t), intent(inout) :: this
+
+    if (c_associated(this%reqs)) call device_mpi_free_reqs(this%reqs)
+
+    if (allocated(this%ndofs)) deallocate(this%ndofs)
+    if (allocated(this%offset)) deallocate(this%offset)
+
+    if (c_associated(this%buf_d)) call device_free(this%buf_d)
+    if (c_associated(this%dof_d)) call device_free(this%dof_d)
+  end subroutine
 
   !> Initialise MPI based communication method
   subroutine gs_device_mpi_init(this, send_pe, recv_pe)
     class(gs_device_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    type(c_ptr), allocatable, target :: buf_ptrs(:), dof_ptrs(:)
-    type(c_ptr) :: host_ptr
-    integer, allocatable :: ndofs(:)
-    integer, pointer :: pe(:)
-    integer :: i, ndof
-    integer(c_size_t) :: sz
 
     call this%init_order(send_pe, recv_pe)
 
-    allocate(this%send_buf(send_pe%size()))
-    allocate(buf_ptrs(send_pe%size()))
-    allocate(dof_ptrs(send_pe%size()))
-    allocate(ndofs(send_pe%size()))
-
-    pe => send_pe%array()
-    do i = 1, send_pe%size()
-       ndof = this%send_dof(pe(i))%size()
-       ndofs(i) = ndof
-
-       sz = rp * ndof
-       call device_alloc(buf_ptrs(i), sz)
-
-       sz = 4 * ndof
-       call device_alloc(dof_ptrs(i), sz)
-
-       ! %array() breaks on cray
-       select type (arr=>this%send_dof(pe(i))%data)
-       type is (integer)
-       call device_memcpy(arr, dof_ptrs(i), ndof, HOST_TO_DEVICE)
-       end select
-
-       this%send_buf(i)%buf_d = buf_ptrs(i)
-       this%send_buf(i)%dof_d = dof_ptrs(i)
-       this%send_buf(i)%ndofs = ndof
-
-       call device_mpi_init_request(this%send_buf(i)%request)
-    end do
-
-    sz = send_pe%size() * c_sizeof(C_NULL_PTR)
-    call device_alloc(this%send_buf_ptrs_d, sz)
-    host_ptr = c_loc(buf_ptrs)
-    call device_memcpy(host_ptr, this%send_buf_ptrs_d, &
-                       sz, HOST_TO_DEVICE)
-
-    sz = send_pe%size() * c_sizeof(C_NULL_PTR)
-    call device_alloc(this%send_dof_ptrs_d, sz)
-    host_ptr = c_loc(dof_ptrs)
-    call device_memcpy(host_ptr, this%send_dof_ptrs_d, &
-                       sz, HOST_TO_DEVICE)
-
-    sz = 4 * send_pe%size()
-    call device_alloc(this%send_ndofs_d, sz)
-    call device_memcpy(ndofs, this%send_ndofs_d, send_pe%size(), HOST_TO_DEVICE)
-
-    deallocate(buf_ptrs)
-    deallocate(dof_ptrs)
-    deallocate(ndofs)
-
-    allocate(this%recv_buf(recv_pe%size()))
-
-    pe => recv_pe%array()
-    do i = 1, recv_pe%size()
-       ndof = this%recv_dof(pe(i))%size()
-
-       sz = rp * ndof
-       call device_alloc(this%recv_buf(i)%buf_d, sz)
-
-       sz = 4 * ndof
-       call device_alloc(this%recv_buf(i)%dof_d, sz)
-
-       ! %array() breaks on cray
-       select type (arr=>this%recv_dof(pe(i))%data)
-       type is (integer)
-         call device_memcpy(arr, this%recv_buf(i)%dof_d, ndof, HOST_TO_DEVICE)
-       end select
-
-       this%recv_buf(i)%ndofs = ndof
-
-       call device_mpi_init_request(this%recv_buf(i)%request)
-    end do
+    call this%send_buf%init(this%send_pe, this%send_dof, .false.)
+    call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
   end subroutine gs_device_mpi_init
 
@@ -250,45 +280,8 @@ contains
     class(gs_device_mpi_t), intent(inout) :: this
     integer :: i
 
-    if (allocated(this%send_buf)) then
-       do i = 1, size(this%send_buf)
-          if (c_associated(this%send_buf(i)%request)) then
-             call device_mpi_free_request(this%send_buf(i)%request)
-          end if
-          if (c_associated(this%send_buf(i)%buf_d)) then
-             call device_free(this%send_buf(i)%buf_d)
-          end if
-          if (c_associated(this%send_buf(i)%dof_d)) then
-             call device_free(this%send_buf(i)%dof_d)
-          end if
-       end do
-       deallocate(this%send_buf)
-    end if
-
-    if (c_associated(this%send_buf_ptrs_d)) then
-       call device_free(this%send_buf_ptrs_d)
-    end if
-    if (c_associated(this%send_dof_ptrs_d)) then
-       call device_free(this%send_dof_ptrs_d)
-    end if
-    if (c_associated(this%send_ndofs_d)) then
-       call device_free(this%send_ndofs_d)
-    end if
-
-    if (allocated(this%recv_buf)) then
-       do i = 1, size(this%recv_buf)
-          if (c_associated(this%recv_buf(i)%request)) then
-             call device_mpi_free_request(this%recv_buf(i)%request)
-          end if
-          if (c_associated(this%recv_buf(i)%buf_d)) then
-             call device_free(this%recv_buf(i)%buf_d)
-          end if
-          if (c_associated(this%recv_buf(i)%dof_d)) then
-             call device_free(this%recv_buf(i)%dof_d)
-          end if
-       end do
-       deallocate(this%recv_buf)
-    end if
+    call this%send_buf%free()
+    call this%recv_buf%free()
 
     call this%free_order()
     call this%free_dofs()
@@ -306,11 +299,15 @@ contains
     u_d = device_get_ptr(u)
 
 #ifdef HAVE_HIP
-    call hip_gs_pack(this%send_dof_ptrs_d, this%send_buf_ptrs_d, &
-                     this%send_ndofs_d, size(this%send_pe), u_d, n)
+    call hip_gs_pack(u_d, &
+                     this%send_buf%buf_d, &
+                     this%send_buf%dof_d, &
+                     this%send_buf%total)
 #elif HAVE_CUDA
-    call cuda_gs_pack(this%send_dof_ptrs_d, this%send_buf_ptrs_d, &
-                      this%send_ndofs_d, size(this%send_pe), u_d, n)
+    call cuda_gs_pack(u_d, &
+                      this%send_buf%buf_d, &
+                      this%send_buf%dof_d, &
+                      this%send_buf%total)
 #else
     call neko_error('gs_device_mpi: no backend')
 #endif
@@ -318,9 +315,9 @@ contains
     call device_sync()
 
     do i = 1, size(this%send_pe)
-       call device_mpi_isend(this%send_buf(i)%buf_d, rp*this%send_buf(i)%ndofs, &
-            this%send_pe(i), this%send_buf(i)%request)
-       this%send_buf(i)%flag = .false.
+       call device_mpi_isend(this%send_buf%buf_d, rp*this%send_buf%offset(i), &
+                             rp*this%send_buf%ndofs(i), this%send_pe(i), &
+                             this%send_buf%reqs, i)
     end do
 
   end subroutine gs_device_mpi_nbsend
@@ -331,9 +328,9 @@ contains
     integer :: i
 
     do i = 1, size(this%recv_pe)
-       call device_mpi_irecv(this%recv_buf(i)%buf_d, rp*this%recv_buf(i)%ndofs, &
-            this%recv_pe(i), this%recv_buf(i)%request)
-       this%recv_buf(i)%flag = .false.
+       call device_mpi_irecv(this%recv_buf%buf_d, rp*this%recv_buf%offset(i), &
+                             rp*this%recv_buf%ndofs(i), this%recv_pe(i), &
+                             this%recv_buf%reqs, i)
     end do
 
   end subroutine gs_device_mpi_nbrecv
@@ -343,51 +340,30 @@ contains
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    integer :: i, flag
     integer :: op
-    integer :: nreqs
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
 
-    nreqs = size(this%recv_pe)
-    do while (nreqs .gt. 0)
-       do i = 1, size(this%recv_pe)
-          if (.not. this%recv_buf(i)%flag) then
-             flag = device_mpi_test(this%recv_buf(i)%request)
-             this%recv_buf(i)%flag = flag .ne. 0
+    call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
 
-             if (this%recv_buf(i)%flag) then
-                nreqs = nreqs - 1
 #ifdef HAVE_HIP
-                call hip_gs_unpack(this%recv_buf(i)%buf_d, &
-                                   this%recv_buf(i)%dof_d, &
-                                   this%recv_buf(i)%ndofs, &
-                                   u_d, op)
+    call hip_gs_unpack(u_d, op, &
+                       this%recv_buf%buf_d, &
+                       this%recv_buf%dof_d, &
+                       0, this%recv_buf%total)
 #elif HAVE_CUDA
-                call cuda_gs_unpack(this%recv_buf(i)%buf_d, &
-                                    this%recv_buf(i)%dof_d, &
-                                    this%recv_buf(i)%ndofs, &
-                                    u_d, op)
+    call cuda_gs_unpack(u_d, op, &
+                        this%recv_buf%buf_d, &
+                        this%recv_buf%dof_d, &
+                        0, this%recv_buf%total)
 #else
-                call neko_error('gs_device_mpi: no backend')
+    call neko_error('gs_device_mpi: no backend')
 #endif
-             end if
-          end if
-       end do
-    end do
 
-    nreqs = size(this%send_pe)
-    do while (nreqs .gt. 0)
-       do i = 1, size(this%send_pe)
-          if (.not. this%send_buf(i)%flag) then
-             flag = device_mpi_test(this%send_buf(i)%request)
-             this%send_buf(i)%flag = flag .ne. 0
-             if (this%send_buf(i)%flag) nreqs = nreqs - 1
-          end if
-       end do
-    end do
+    call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
+    ! Syncing here seems to prevent some race condition
     call device_sync()
 
   end subroutine gs_device_mpi_nbwait

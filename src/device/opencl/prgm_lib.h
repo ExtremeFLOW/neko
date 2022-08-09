@@ -38,6 +38,9 @@ extern void *cdtp_program;
 /** Device convective kernels */
 extern void *conv1_program;
 
+/** Device CFL kernels */
+extern void *cfl_program;
+
 /** Device Velocity gradient kernels */
 extern void *opgrad_program;
 
@@ -64,6 +67,12 @@ extern void *tensor_program;
 
 /** Device schwarz kernels */
 extern void *schwarz_program;
+
+/** Device dong kernels */
+extern void *dong_program;
+
+/** Device coef kernels */
+extern void *coef_program;
 
 
 #endif

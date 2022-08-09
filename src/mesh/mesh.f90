@@ -349,7 +349,7 @@ contains
   end subroutine mesh_free
 
   subroutine mesh_finalize(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     integer :: i
 
 
@@ -371,10 +371,10 @@ contains
 
   subroutine mesh_generate_flags(m)
     type(mesh_t), intent(inout) :: m
-    real(kind=dp) :: u(3),v(3),w(3), temp
+    real(kind=dp) :: u(3), v(3), w(3), temp
     integer :: e
 
-    do e = 1,m%nelv
+    do e = 1, m%nelv
        if (m%gdim .eq. 2) then
           m%dfrmd_el(e) = .false.
           u = m%elements(e)%e%pts(2)%p%x - m%elements(e)%e%pts(1)%p%x
@@ -409,7 +409,7 @@ contains
   
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(m)
-    type(mesh_t), intent(inout) :: m
+    type(mesh_t), target, intent(inout) :: m
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face 
     type(tuple_i4_t) :: facet_data
@@ -465,7 +465,7 @@ contains
                     facet_data%x(2) = el_glb_idx
                     m%facet_neigh(j, i) = facet_data%x(1)
                     call fmp%set(edge, facet_data)
-                  endif
+                 end if
                 else
                    facet_data%x(1) = el_glb_idx
                    m%facet_neigh(j, i) = facet_data%x(2)
@@ -476,7 +476,7 @@ contains
        end do
     type is(htable_i4t4_t)
         
-        do k = 1,2
+        do k = 1, 2
           do i = 1, m%nelv
              el_glb_idx = i + m%offset_el
              do j = 1, n_sides
@@ -501,7 +501,7 @@ contains
                     facet_data%x(2) = el_glb_idx
                     m%facet_neigh(j, i) = facet_data%x(1)
                     call fmp%set(face, facet_data)
-                  endif
+                 end if
                 else
                    facet_data%x(1) = el_glb_idx
                    m%facet_neigh(j, i) = facet_data%x(2)
@@ -612,18 +612,18 @@ contains
 
              edge = (/ recv_buffer(j+2), recv_buffer(j+3) /)
              
-             facet_data = (/ 0,0 /)
+             facet_data = (/ 0, 0 /)
              !Check if the face is present on this PE
              if (fmp%get(edge, facet_data) .eq. 0) then
                 element = facet_data%x(1) - m%offset_el
                 !Check which side is connected
-                do l = 1,n_sides
+                do l = 1, n_sides
                    call m%elements(element)%e%facet_id(edge2, l)
                    if(edge2 .eq. edge) then
                       facet = l
                       exit
                    end if
-                enddo
+                end do
                 m%facet_neigh(facet, element) = -neigh_el
                 facet_data%x(2) = -neigh_el
 
@@ -656,13 +656,13 @@ contains
              if (fmp%get(face, facet_data) .eq. 0) then
                 ! Determine opposite side and update neighbor
                 element = facet_data%x(1) - m%offset_el
-                do l = 1,6
+                do l = 1, 6
                    call m%elements(element)%e%facet_id(face2, l)
                    if(face2 .eq. face) then
                       facet = l
                       exit
                    end if
-                enddo
+                end do
                 m%facet_neigh(facet, element) = -neigh_el
                 facet_data%x(2) = -neigh_el                   
 
@@ -916,7 +916,8 @@ contains
           call neko_error('Invalid edge id')
        end if
     end do
-
+    nullify(glb_ptr)
+       
     ! Determine total number of unique edges in the mesh
     ! (This can probably be done in a clever way...)
     m%glb_meds = shared_offset -1 

@@ -128,7 +128,7 @@ contains
     gdim = msh%gdim    
     call mesh_free(msh)
 
-    max_recv(1) = 0
+    max_recv = 0
     do i = 0, pe_size - 1
        max_recv(1) = max(max_recv(1), new_mesh_dist(i)%size())
        max_recv(2) = max(max_recv(2), new_zone_dist(i)%size())

@@ -71,6 +71,7 @@ module projection
   use neko_config
   use device
   use device_math
+  use logger
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -86,10 +87,14 @@ module projection
      type(c_ptr) :: xx_d_d = C_NULL_PTR
      type(c_ptr) :: bb_d_d = C_NULL_PTR
      integer :: m, L
-     real(kind=rp) :: tol = 1d-7
+     real(kind=rp) :: tol = 1e-7_rp
+     !logging variables
+     real(kind=rp) :: proj_res
+     integer :: proj_m
    contains
      procedure, pass(this) :: project_on => bcknd_project_on
      procedure, pass(this) :: project_back => bcknd_project_back
+     procedure, pass(this) :: log_info => print_proj_info
      procedure, pass(this) :: init => projection_init
      procedure, pass(this) :: free => projection_free
   end type projection_t
@@ -103,7 +108,8 @@ contains
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
-    
+    real(c_rp) :: dummy
+     
     call this%free()
     
     if (present(L)) then
@@ -128,7 +134,7 @@ contains
          (NEKO_BCKND_OPENCL .eq. 1)) then
        
        call device_map(this%xbar, this%xbar_d,n)
-       call device_alloc(this%alpha_d, int(rp*this%L,c_size_t))
+       call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
 
        do i = 1, this%L
           this%xx_d(i) = C_NULL_PTR
@@ -137,7 +143,7 @@ contains
           call device_map_r1(this%bb(:,i), this%bb_d(i), n)
        end do
 
-       ptr_size = 8*this%L
+       ptr_size = c_sizeof(C_NULL_PTR) * this%L
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
        call device_memcpy(ptr,this%xx_d_d, ptr_size, HOST_TO_DEVICE)
@@ -256,6 +262,8 @@ contains
 
       !First round of CGS
       call rzero(alpha, this%m)
+      this%proj_res = glsc3(b,b,coef%mult,n)
+      this%proj_m = this%m
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m 
@@ -311,14 +319,16 @@ contains
       if (this%m .le. 0) return
 
 
+
+      this%proj_res = device_glsc3(b_d,b_d,coef%mult_d,n)
+      this%proj_m = this%m
       call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
       call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
       call device_rzero(xbar_d, n)
       call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
       call device_cmult(alpha_d, -1.0_rp, this%m)
-      call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
+      call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)   
       call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
- 
       call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
       call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
       call device_cmult(alpha_d, -1.0_rp, this%m)
@@ -493,5 +503,19 @@ contains
       
     return
   end subroutine givens_rotation
+
+  subroutine print_proj_info(this,string)
+    class(projection_t) :: this
+    character(len=*) :: string
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '(A,A)') 'Projection ', string
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
+    call neko_log%message(log_buf)
+    write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
+    call neko_log%message(log_buf)
+
+  end subroutine print_proj_info
 
 end module projection

@@ -14,12 +14,20 @@ AC_DEFUN([AX_OPENCL],[
 		    [
    		    if test -d "$withval"; then
 		       ac_opencl_path="$withval";
-		       OPENCL_LDFLAGS="-L$ac_opencl_path/lib"
+         	       AS_IF([test -d "$ac_opencl_path/lib64"],
+          	             [suffix="64"],[suffix=""])
+     		       OPENCL_LDFLAGS="-L$ac_opencl_path/lib$suffix"
+       		       OPENCL_CPPFLAGS="-I$ac_opencl_path/include"
+		       OPENCL_LIB="-lOpenCL"
+
+		    else
+		    # Assume we're on a Mac unless an OpenCL dir is given
+		       OPENCL_LIB="-framework OpenCL"
 		    fi
 		    ], [with_opencl=no])
 	opencl_bcknd="0"
 	if test "x${with_opencl}" != xno; then
-	        if test -d "$ac_hip_path"; then
+	        if test -d "$ac_opencl_path"; then
 	   	   CPPFLAGS_SAVED="$CPPFLAGS"
 		   LDFLAGS_SAVED="$LDFLAGS"
 		   CPPFLAGS="$OPENCL_CPPFLAGS $CPPFLAGS"
@@ -31,10 +39,14 @@ AC_DEFUN([AX_OPENCL],[
 		AC_LANG_PUSH([C])
 		AC_LANG_ASSERT([C])
 		LIBS_SAVED="$LIBS"
-		LIBS="-framework OpenCL $LIBS"
+		LIBS="$OPENCL_LIB $LIBS"
 		AC_MSG_CHECKING([for OpenCL])
 		AC_LINK_IFELSE([AC_LANG_SOURCE([
-		#include <OpenCL/opencl.h>
+                #ifdef __APPLE__
+                #include <OpenCL/opencl.h>
+		#else
+		#include <CL/cl.h>
+		#endif
 		int main(void) {
 		    clGetPlatformIDs(0, NULL, NULL);
 		}

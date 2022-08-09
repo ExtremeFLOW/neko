@@ -135,8 +135,9 @@ contains
     end if
     
     end_pos = scan(prop(1:256), C_NULL_CHAR)
-    name(1:end_pos) = prop(1:end_pos)
-    
+    if(end_pos .ge. 2) then
+       name(1:end_pos-1) = prop(1:end_pos-1)
+    endif
   end subroutine cuda_device_name
   
 #endif
