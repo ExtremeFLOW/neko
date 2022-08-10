@@ -145,6 +145,7 @@ contains
     !
 
     write_mesh = (this%counter .eq. 0)
+    write_mesh = .true.
     
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
