@@ -38,6 +38,7 @@ module interpolation
   use math
   use fast3d
   use tensor
+  use tensor_cpu
   use space
   use device
   use, intrinsic :: iso_c_binding
@@ -58,6 +59,7 @@ module interpolation
      procedure, pass(this) :: init => interp_init
      procedure, pass(this) :: free => interp_free
      procedure, pass(this) :: map => interpolate
+     procedure, pass(this) :: map_host => interpolate_host
   end type interpolator_t
   
 contains
@@ -151,5 +153,27 @@ contains
        call neko_error('Invalid interpolation')
     end if
   end subroutine interpolate
+
+  !> Interpolates array x -> y in to_space on host
+  !! Not optimized for performance, should only be used during init
+  subroutine interpolate_host(this, y, x, nel,to_space)
+    class(interpolator_t), intent(inout) :: this
+    integer :: nel
+    type(space_t) :: to_space
+    real(kind=rp), intent(inout) :: x(1,nel)
+    real(kind=rp), intent(inout) :: y(1,nel)
+    if (to_space .eq. this%Yh) then
+       call tnsr3d_cpu(y, this%Yh%lx, x, &
+                   this%Xh%lx,this%Yh_to_XhT, &
+                   this%Yh_to_Xh, this%Yh_to_Xh, nel)
+    else if (to_space .eq. this%Xh) then
+       call tnsr3d_cpu(y, this%Xh%lx, x, &
+                   this%Yh%lx,this%Yh_to_Xh, &
+                   this%Yh_to_XhT, this%Yh_to_XhT, nel)
+    else
+       call neko_error('Invalid interpolation')
+    end if
+  end subroutine interpolate_host
+
 
 end module interpolation
