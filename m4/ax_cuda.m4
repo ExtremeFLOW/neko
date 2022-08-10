@@ -34,8 +34,10 @@ AC_DEFUN([AX_CUDA],[
                 AS_IF([test "$CUDA_CFLAGS"],[],[CUDA_CFLAGS="-O3"])
 		
 		_CC=$CC
+		_LIBS=$LIBS
 		AC_LANG_PUSH([C])
 		CC=$NVCC
+		LIBS=""
 
 		AC_CHECK_LIB(cudart, cudaFree,
 		             [have_cuda=yes;CUDA_LIBS="-lcudart"],[have_cuda=no])
@@ -43,7 +45,7 @@ AC_DEFUN([AX_CUDA],[
 		if test x"${have_cuda}" = xyes; then		   
                    cuda_bcknd="1"
 		   AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
-		   LIBS="$CUDA_LIBS $LIBS"
+		   LIBS="$CUDA_LIBS $_LIBS"
 		else
 		   AC_MSG_ERROR([CUDA not found])
 		fi
