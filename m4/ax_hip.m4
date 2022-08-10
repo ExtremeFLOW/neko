@@ -32,8 +32,10 @@ AC_DEFUN([AX_HIP],[
                 AS_IF([test "$HIP_HIPCC_FLAGS"],[],[HIP_HIPCC_FLAGS="-O3"])
 
 		_CC=$CC
+		_LIBS=$LIBS
 		AC_LANG_PUSH([C])
 		CC=$HIPCC
+		LIBS=""
 
 		AC_CHECK_LIB(amdhip64, hipFree,
 		             [have_hip=yes;HIP_LIBS="-lamdhip64"],[have_hip=no])
@@ -41,7 +43,7 @@ AC_DEFUN([AX_HIP],[
 		if test x"${have_hip}" = xyes; then		   
                    hip_bcknd="1"
 		   AC_DEFINE(HAVE_HIP,1,[Define if you have HIP.])
-		   LIBS="$HIP_LIBS $LIBS"
+		   LIBS="$HIP_LIBS $_LIBS"
 		else
 		   AC_MSG_ERROR([HIP not found])
 		fi
