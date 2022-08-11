@@ -277,15 +277,9 @@ contains
     else
        call space_init(this%chkp_Xh, GLL, lx, lx)
     end if
-
-    if (this%chkp_Xh%lx .gt. this%sim_Xh%lx) then
-       call this%interp%init(this%sim_Xh, this%chkp_Xh) 
-    else
-       call this%interp%init(this%chkp_Xh, this%sim_Xh)
-    end if
-
-    dof_offset = int(msh%offset_el, i8) * int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8)
-    n_glb_dofs = int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8) * int(msh%glb_nelv, i8)    
+    call this%interp%init(this%sim_Xh, this%chkp_Xh) 
+    dof_offset = int(msh%offset_el, i8) * int(this%chkp_Xh%lxyz, i8)
+    n_glb_dofs = int(this%chkp_Xh%lxyz, i8) * int(msh%glb_nelv, i8)    
     
     !
     ! Read mandatory checkpoint data
