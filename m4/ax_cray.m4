@@ -157,6 +157,7 @@ AC_DEFUN([AX_CRAY_CUDATOOLKIT],[
 	  if test "${CRAY_CUDATOOLKIT_VERSION}"; then
 	    AC_MSG_RESULT([yes])
 	    AC_PATH_PROG(NVCC, nvcc, "no")
+	    AS_IF([test "$CUDA_CFLAGS"],[],[CUDA_CFLAGS="-O3"])
 	    AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
 	    have_cuda="yes"
 	    cuda_bcknd="1"
@@ -167,6 +168,29 @@ AC_DEFUN([AX_CRAY_CUDATOOLKIT],[
 	  fi
 	fi
 	AC_SUBST(cuda_bcknd)
+])
+
+AC_DEFUN([AX_CRAY_ROCM],[
+	AC_ARG_WITH([hip],[],
+		    [
+		    ], [with_hip=no])
+	hip_bcknd="0"
+	if test "x${with_hip}" != xno; then
+	  AC_MSG_CHECKING([Cray ROCm Toolkit])
+	  if test "${CRAY_ROCM_VERSION}"; then
+	    AC_MSG_RESULT([yes])
+            AS_IF([test "$HIPCC"],[],[AC_PATH_PROG(HIPCC, hipcc, "no")])
+            AS_IF([test "$HIP_HIPCC_FLAGS"],[],[HIP_HIPCC_FLAGS="-O3"])
+	    AC_DEFINE(HAVE_HIP,1,[Define if you have HIP.])
+	    have_hip="yes"
+	    hip_bcknd="1"
+	  else
+	    AC_MSG_RESULT([no])
+            AC_MSG_ERROR([Cray ROCm Toolkit not found])
+	    have_hip="no"
+	  fi
+	fi
+	AC_SUBST(hip_bcknd)
 ])
 
 AC_DEFUN([AX_CRAY_ACCEL], [
