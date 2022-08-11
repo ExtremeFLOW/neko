@@ -174,6 +174,7 @@ contains
 
     do i = 1, this%n
        call this%output_list(i)%outp%set_counter(this%nsample)
+       call this%output_list(i)%outp%set_start_counter(this%nsample)
     end do
     
   end subroutine sampler_set_counter
