@@ -49,6 +49,7 @@ neko_fortran_SOURCES = \
 	adt/tuple.f90\
 	mesh/zone.f90\
 	mesh/mesh.f90\
+	mesh/octree.f90\
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field.f90\
