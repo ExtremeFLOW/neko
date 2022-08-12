@@ -42,7 +42,7 @@ mesh/tet.o : mesh/tet.f90 mesh/point.o adt/tuple.o mesh/element.o config/num_typ
 mesh/tri.o : mesh/tri.f90 mesh/point.o adt/tuple.o mesh/element.o config/num_types.o 
 adt/htable.o : adt/htable.f90 math/math.o adt/tuple.o mesh/point.o common/utils.o config/num_types.o 
 adt/uset.o : adt/uset.f90 common/utils.o adt/htable.o config/num_types.o 
-adt/stack.o : adt/stack.f90 math/math.o common/structs.o common/utils.o io/format/nmsh.o adt/tuple.o config/num_types.o 
+adt/stack.o : adt/stack.f90 math/math.o common/structs.o mesh/point.o common/utils.o io/format/nmsh.o adt/tuple.o config/num_types.o 
 adt/tuple.o : adt/tuple.f90 config/num_types.o math/math.o 
 mesh/zone.o : mesh/zone.f90 common/structs.o common/utils.o adt/stack.o adt/tuple.o 
 mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/zone.o common/distdata.o common/datadist.o adt/tuple.o adt/stack.o comm/comm.o adt/htable.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
