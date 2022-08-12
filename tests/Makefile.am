@@ -83,6 +83,7 @@ EXTRA_DIST = \
 	stack/stack_i8.pf\
 	stack/stack_nq.pf\
 	stack/stack_nh.pf\
+	stack/stack_pt.pf\
 	htable/htable_i4t2.pf\
 	htable/htable_i8.pf\
 	htable/htable_pt.pf\

@@ -37,6 +37,7 @@ module stack
   use tuple
   use nmsh
   use utils
+  use point
   use structs
   use math, only : NEKO_M_LN2
   implicit none
@@ -141,6 +142,13 @@ module stack
      procedure, public, pass(this) :: array => stack_nc_data
   end type stack_nc_t
 
+  !> Point based stack
+  type, public, extends(stack_t) :: stack_pt_t
+   contains
+     procedure, public, pass(this) :: pop => stack_pt_pop
+     procedure, public, pass(this) :: array => stack_pt_data
+  end type stack_pt_t
+
 contains
 
   !> Initialize a stack of arbitrary type 
@@ -187,6 +195,8 @@ contains
        allocate(nmsh_zone_t::this%data(this%size_))
     type is (stack_nc_t)
        allocate(nmsh_curve_el_t::this%data(this%size_))
+    type is (stack_pt_t)
+       allocate(point_t::this%data(this%size_))
     class default
        call neko_error('Invalid data type')
     end select
@@ -252,6 +262,8 @@ contains
           allocate(nmsh_zone_t::tmp(this%size_))
        type is (nmsh_curve_el_t)
           allocate(nmsh_curve_el_t::tmp(this%size_))
+       type is (point_t)
+          allocate(point_t::tmp(this%size_))
        class default
           call neko_error('Invalid data type (stack_push)')
        end select
@@ -325,6 +337,11 @@ contains
           type is(nmsh_curve_el_t)
              tmp(1:this%top_) = sdp
           end select
+       type is (point_t)
+          select type(sdp=>this%data)
+          type is(point_t)
+             tmp(1:this%top_) = sdp
+          end select
        class default
           call neko_error('Invalid data type (stack_push tmp)')
        end select
@@ -392,6 +409,11 @@ contains
     type is (nmsh_curve_el_t)
        select type(data)
        type is (nmsh_curve_el_t)
+          sdp(this%top_) = data
+       end select
+    type is (point_t)
+       select type(data)
+       type is (point_t)
           sdp(this%top_) = data
        end select
     class default
@@ -722,5 +744,32 @@ contains
        call neko_error('Invalid data type (nc array)')
     end select
   end function stack_nc_data
+
+  !> Pop a point of the stack
+  function stack_pt_pop(this) result(data)
+    class(stack_pt_t), target, intent(inout) :: this
+    type(point_t) :: data
+
+    select type (sdp=>this%data)
+    type is (point_t)       
+       data = sdp(this%top_)
+    class default
+       call neko_error('Invalid data type (point pop)')
+    end select
+    this%top_ = this%top_ -1
+  end function stack_pt_pop
+
+  !> Return a pointer to the internal point array
+  function stack_pt_data(this) result(data)
+    class(stack_pt_t), target, intent(inout) :: this
+    type(point_t), pointer :: data(:)
+
+    select type (sdp=>this%data)
+    type is (point_t)       
+       data => sdp
+    class default
+       call neko_error('Invalid data type (point array)')
+    end select
+  end function stack_pt_data
   
 end module stack
