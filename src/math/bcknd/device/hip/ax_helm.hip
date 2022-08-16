@@ -32,11 +32,25 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+
 #include <stdio.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include "ax_helm_kernel.h"
+
+template < const int>
+int tune(void *w, void *u, void *dx, void *dy, void *dz,
+         void *dxt, void *dyt, void *dzt, void *h1,
+         void *g11, void *g22, void *g33, void *g12,
+         void *g13, void *g23, int *nelv, int *lx);
+
+template < const int>
+int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
+                void *dxt, void *dyt, void *dzt, void *h1,
+                void *g11, void *g22, void *g33, void *g12,
+                void *g13, void *g23, int *nelv, int *lx);
 
 extern "C" {
 
@@ -48,13 +62,14 @@ extern "C" {
                    void *g11, void *g22, void *g33, void *g12,
                    void *g13, void *g23, int *nelv, int *lx) {
 
+    static int autotune[13] = { 0 };
+
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nblcks_1d((*nelv), 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks_kstep((*nelv), 1, 1);
 
 #define CASE_1D(LX)                                                             \
-    case LX:                                                                    \
       hipLaunchKernelGGL(HIP_KERNEL_NAME( ax_helm_kernel_1d<real, LX, 1024> ),  \
                          nblcks_1d, nthrds_1d, 0, 0,                            \
                          (real *) w, (real *) u,                                \
@@ -62,45 +77,72 @@ extern "C" {
                          (real *) dxt, (real *) dyt, (real *) dzt, (real *) h1, \
                          (real *) g11, (real *) g22, (real *) g33,              \
                          (real *) g12, (real *) g13, (real *) g23);             \
-      HIP_CHECK(hipGetLastError());                                             \
-      break
+      HIP_CHECK(hipGetLastError());
 
 #define CASE_KSTEP(LX)                                                               \
-    case LX:                                                                         \
       hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_kstep<real, LX> ),         \
                           nblcks_kstep, nthrds_kstep, 0, 0,                          \
                           (real *) w, (real *) u,                                    \
                           (real *) dx, (real *) dy, (real *) dz,  (real *) h1,       \
                           (real *) g11, (real *) g22, (real *) g33,                  \
                           (real *) g12, (real *) g13, (real *) g23);                 \
-      HIP_CHECK(hipGetLastError());                                                  \
-      break;
+      HIP_CHECK(hipGetLastError());
 
 
  
 #define CASE_KSTEP_PADDED(LX)                                                        \
-    case LX:                                                                         \
       hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_kernel_kstep_padded<real, LX> ),  \
                           nblcks_kstep, nthrds_kstep, 0, 0,                          \
                           (real *) w, (real *) u,                                    \
                           (real *) dx, (real *) dy, (real *) dz,  (real *) h1,       \
                           (real *) g11, (real *) g22, (real *) g33,                  \
                           (real *) g12, (real *) g13, (real *) g23);                 \
-      HIP_CHECK(hipGetLastError());                                                  \
-      break;
+      HIP_CHECK(hipGetLastError());
+
+#define CASE(LX)                                                                     \
+     case LX:                                                                        \
+       if(autotune[LX] == 0 ) {                                                      \
+         autotune[LX]=tune<LX>( w,  u,                                               \
+                            dx,  dy, dz,                                             \
+                            dxt, dyt, dzt,h1,                                        \
+                            g11, g22, g33,                                           \
+                            g12, g13, g23, nelv, lx);                                \
+       } else if (autotune[LX] == 1 ) {                                              \
+          CASE_1D(LX);                                                               \
+       } else if (autotune[LX] == 2 ) {                                              \
+          CASE_KSTEP(LX);                                                            \
+       }                                                                             \
+     break
+
+
+#define CASE_PADDED(LX)                                                              \
+     case LX:                                                                        \
+       if(autotune[LX] == 0 ) {                                                      \
+         autotune[LX]=tune_padded<LX>(w,  u,                                         \
+                            dx,  dy, dz,                                             \
+                            dxt, dyt, dzt,h1,                                        \
+                            g11, g22, g33,                                           \
+                            g12, g13, g23,nelv,lx);                                  \
+       } else if (autotune[LX] == 1 ) {                                              \
+          CASE_1D(LX);                                                               \
+       } else if (autotune[LX] == 2 ) {                                              \
+          CASE_KSTEP_PADDED(LX);                                                     \
+       }                                                                             \
+     break
+
 
     switch(*lx) {
-      CASE_KSTEP(2);
-      CASE_KSTEP(3);
-      CASE_KSTEP(4);
-      CASE_KSTEP(5);
-      CASE_KSTEP(6);
-      CASE_KSTEP(7);
-      CASE_KSTEP_PADDED(8);
-      CASE_KSTEP(9);
-      CASE_KSTEP(10);
-      CASE_1D(11);
-      CASE_1D(12);
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE_PADDED(8);
+      CASE(9);
+      CASE(10);
+      CASE(11);
+      CASE(12);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
@@ -108,4 +150,100 @@ extern "C" {
       }
     }
   }
+
 }
+
+template < const int LX > 
+int tune(void *w, void *u, void *dx, void *dy, void *dz,
+         void *dxt, void *dyt, void *dzt, void *h1,
+         void *g11, void *g22, void *g33, void *g12,
+         void *g13, void *g23, int *nelv, int *lx) {
+   hipEvent_t start,stop;
+   float time1,time2;
+   int retval;
+
+   const dim3 nthrds_1d(1024, 1, 1);
+   const dim3 nblcks_1d((*nelv), 1, 1);
+   const dim3 nthrds_kstep((*lx), (*lx), 1);
+   const dim3 nblcks_kstep((*nelv), 1, 1);
+   
+   hipEventCreate(&start);
+   hipEventCreate(&stop);
+
+   hipEventRecord(start,0);
+   
+   for(int i=0;i<5;i++) {
+    CASE_1D(LX);
+   }
+
+   hipEventRecord(stop,0); 
+   hipEventSynchronize(stop);
+   hipEventElapsedTime(&time1, start, stop);
+
+   hipEventRecord(start,0);
+
+   for(int i=0;i<5;i++) {
+    CASE_KSTEP(LX);
+   }
+
+   hipEventRecord(stop,0); 
+   hipEventSynchronize(stop);
+   hipEventElapsedTime(&time2, start, stop);
+
+   if(time1<time2) {
+     retval=1;
+   } else {
+     retval=2;
+   }
+
+   printf("Autotune %d, chose %d\n",*lx,retval);
+   return retval;
+}
+
+template < const int LX >
+int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
+                void *dxt, void *dyt, void *dzt, void *h1,
+                void *g11, void *g22, void *g33, void *g12,
+                void *g13, void *g23, int *nelv, int *lx) {
+   hipEvent_t start,stop;
+   float time1,time2;
+   int retval;
+
+   const dim3 nthrds_1d(1024, 1, 1);
+   const dim3 nblcks_1d((*nelv), 1, 1);
+   const dim3 nthrds_kstep((*lx), (*lx), 1);
+   const dim3 nblcks_kstep((*nelv), 1, 1);
+
+   hipEventCreate(&start);
+   hipEventCreate(&stop);
+
+   hipEventRecord(start,0);
+
+   for(int i=0;i<5;i++) {
+    CASE_1D(LX);
+   }
+
+   hipEventRecord(stop,0);
+   hipEventSynchronize(stop);
+   hipEventElapsedTime(&time1, start, stop);
+
+   hipEventRecord(start,0);
+
+   for(int i=0;i<5;i++) {
+    CASE_KSTEP_PADDED(LX);
+   }
+
+   hipEventRecord(stop,0);
+   hipEventSynchronize(stop);
+   hipEventElapsedTime(&time2, start, stop);
+
+   if(time1<time2) {
+     retval=1;
+   } else {
+     retval=2;
+   }
+
+   printf("Autotune %d, chose %d\n",*lx,retval);
+   return retval;
+}
+
