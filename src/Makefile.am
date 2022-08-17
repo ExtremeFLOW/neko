@@ -412,7 +412,8 @@ EXTRA_DIST = \
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\
 	device/hip/check.h\
-	device/cuda/check.h
+	device/cuda/check.h\
+	common/neko_log.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
