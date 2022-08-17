@@ -54,6 +54,8 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
 
 extern "C" {
 
+#include <common/neko_log.h>
+  
   /** 
    * Fortran wrapper for device HIP Ax
    */
@@ -168,20 +170,24 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
    const dim3 nblcks_kstep((*nelv), 1, 1);
 
    char *env_value=NULL;
+   char neko_log_buf[80];
 
    env_value=getenv("NEKO_AUTOTUNE");
 
    if(env_value) {
      if( !strcmp(env_value,"1D") ) {
-       CASE_1D(LX);
-       printf("Autotune %d, set by env to 1\n",*lx);
+       CASE_1D(LX);       
+       sprintf(neko_log_buf,"Autotune %d, set by env to 1",*lx);
+       log_message(neko_log_buf);
        return 1;
      } else if( !strcmp(env_value,"KSTEP") ) {
        CASE_KSTEP(LX);
-       printf("Autotune %d, set by env to 2\n",*lx);
+       sprintf(neko_log_buf,"Autotune %d, set by env to 2",*lx);
+       log_message(neko_log_buf);
        return 2;
-     } else {
-       printf("ERROR : Invalid value set for NEKO_AUTOTUNE\n");
+     } else {       
+       sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
+       log_error(neko_log_buf);
      }
    }
    
@@ -214,7 +220,8 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
      retval=2;
    }
 
-   printf("Autotune %d, chose %d\n",*lx,retval);
+   sprintf(neko_log_buf, "Autotune %d, chose %d", *lx, retval);
+   log_message(neko_log_buf);
    return retval;
 }
 
@@ -233,20 +240,24 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
    const dim3 nblcks_kstep((*nelv), 1, 1);
 
    char *env_value=NULL;
+   char neko_log_buf[80];
 
    env_value=getenv("NEKO_AUTOTUNE");
 
    if(env_value) {
      if( !strcmp(env_value,"1D") ) {
        CASE_1D(LX);
-       printf("Autotune %d, set by env to 1\n",*lx);
+       sprintf(neko_log_buf, "Autotune %d, set by env to 1", *lx);
+       log_message(neko_log_buf);
        return 1;
      } else if( !strcmp(env_value,"KSTEP") ) {
        CASE_KSTEP(LX);
-       printf("Autotune %d, set by env to 2\n",*lx);
+       sprintf(neko_log_buf, "Autotune %d, set by env to 2", *lx);
+       log_message(neko_log_buf);
        return 2;
-     } else {
-       printf("ERROR : Invalid value set for NEKO_AUTOTUNE\n");
+     } else {       
+       sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
+       log_error(neko_log_buf);
      }
    }
 
@@ -280,7 +291,8 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
      retval=2;
    }
 
-   printf("Autotune %d, chose %d\n",*lx,retval);
+   sprintf(neko_log_buf, "Autotune %d, chose %d", *lx, retval);
+   log_message(neko_log_buf);
    return retval;
 }
 
