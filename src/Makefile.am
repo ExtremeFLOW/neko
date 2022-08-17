@@ -305,6 +305,13 @@ if ENABLE_ADIOS2
 #
 #libneko_a_LIBADD = \
 #	io/adios2_example.o
+#
+
+io/adios2_example.o: io/nek_adios2.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+
+libneko_a_SOURCES += \
+	io/nek_adios2.o
 endif
 
 
