@@ -32,8 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-
+#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
@@ -166,6 +166,24 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
    const dim3 nblcks_1d((*nelv), 1, 1);
    const dim3 nthrds_kstep((*lx), (*lx), 1);
    const dim3 nblcks_kstep((*nelv), 1, 1);
+
+   char *env_value=NULL;
+
+   env_value=getenv("NEKO_AUTOTUNE");
+
+   if(env_value) {
+     if( !strcmp(env_value,"1D") ) {
+       CASE_1D(LX);
+       printf("Autotune %d, set by env to 1\n",*lx);
+       return 1;
+     } else if( !strcmp(env_value,"KSTEP") ) {
+       CASE_KSTEP(LX);
+       printf("Autotune %d, set by env to 2\n",*lx);
+       return 2;
+     } else {
+       printf("ERROR : Invalid value set for NEKO_AUTOTUNE\n");
+     }
+   }
    
    hipEventCreate(&start);
    hipEventCreate(&stop);
@@ -173,7 +191,7 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
    hipEventRecord(start,0);
    
    for(int i=0;i<5;i++) {
-    CASE_1D(LX);
+     CASE_1D(LX);
    }
 
    hipEventRecord(stop,0); 
@@ -183,7 +201,7 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
    hipEventRecord(start,0);
 
    for(int i=0;i<5;i++) {
-    CASE_KSTEP(LX);
+     CASE_KSTEP(LX);
    }
 
    hipEventRecord(stop,0); 
@@ -213,6 +231,25 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
    const dim3 nblcks_1d((*nelv), 1, 1);
    const dim3 nthrds_kstep((*lx), (*lx), 1);
    const dim3 nblcks_kstep((*nelv), 1, 1);
+
+   char *env_value=NULL;
+
+   env_value=getenv("NEKO_AUTOTUNE");
+
+   if(env_value) {
+     if( !strcmp(env_value,"1D") ) {
+       CASE_1D(LX);
+       printf("Autotune %d, set by env to 1\n",*lx);
+       return 1;
+     } else if( !strcmp(env_value,"KSTEP") ) {
+       CASE_KSTEP(LX);
+       printf("Autotune %d, set by env to 2\n",*lx);
+       return 2;
+     } else {
+       printf("ERROR : Invalid value set for NEKO_AUTOTUNE\n");
+     }
+   }
+
 
    hipEventCreate(&start);
    hipEventCreate(&stop);
