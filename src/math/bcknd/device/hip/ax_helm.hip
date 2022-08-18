@@ -175,24 +175,29 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   char neko_log_buf[80];
   
   env_value=getenv("NEKO_AUTOTUNE");
+
+  sprintf(neko_log_buf, "Autotune Ax helm (lx: %d)", *lx);
+  log_section(neko_log_buf);
   
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
       CASE_1D(LX);       
-      sprintf(neko_log_buf,"Autotune %d, set by env to 1", *lx);
+      sprintf(neko_log_buf,"Set by env : 1 (1D)", *lx);
       log_message(neko_log_buf);
+      log_end_section();
       return 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
       CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Autotune %d, set by env to 2", *lx);
+      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)", *lx);
       log_message(neko_log_buf);
+      log_end_section();
       return 2;
     } else {       
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
     }
   }
-   
+
   hipEventCreate(&start);
   hipEventCreate(&stop);
   
@@ -221,9 +226,11 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   } else {
     retval = 2;
   }
-  
-  sprintf(neko_log_buf, "Autotune %d, chose %d", *lx, retval);
+
+  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
+          (retval > 1 ? "KSTEP" : "1D"));
   log_message(neko_log_buf);
+  log_end_section();
   return retval;
 }
 
@@ -246,24 +253,28 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
 
   env_value=getenv("NEKO_AUTOTUNE");
 
+  sprintf(neko_log_buf, "Autotune Ax helm (lx: %d)", *lx);
+  log_section(neko_log_buf);
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
       CASE_1D(LX);
-      sprintf(neko_log_buf, "Autotune %d, set by env to 1", *lx);
+      sprintf(neko_log_buf,"Set by env : 1 (1D)", *lx);
       log_message(neko_log_buf);
+      log_end_section();
       return 1;
      } else if( !strcmp(env_value,"KSTEP") ) {
       CASE_KSTEP(LX);
-      sprintf(neko_log_buf, "Autotune %d, set by env to 2", *lx);
+      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)", *lx);
       log_message(neko_log_buf);
+      log_end_section();
       return 2;
     } else {       
       sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
       log_error(neko_log_buf);
     }
   }
-  
-  
+    
   hipEventCreate(&start);
   hipEventCreate(&stop);
 
@@ -293,8 +304,10 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
     retval=2;
   }
 
-  sprintf(neko_log_buf, "Autotune %d, chose %d", *lx, retval);
+  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
+          (retval > 1 ? "KSTEP" : "1D"));
   log_message(neko_log_buf);
+  log_end_section();
   return retval;
 }
 
