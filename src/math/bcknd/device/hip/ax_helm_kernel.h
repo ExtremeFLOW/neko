@@ -143,18 +143,19 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
 }
 
 template< typename T, const int LX >
-__global__ void __launch_bounds__(LX*LX,3) ax_helm_kernel_kstep(T * __restrict__ w,
-        			                                const T * __restrict__ u,
-			                                        const T * __restrict__ dx,
-			                                        const T * __restrict__ dy,
-			                                        const T * __restrict__ dz,
-			                                        const T * __restrict__ h1,
-			                                        const T * __restrict__ g11,
-			                                        const T * __restrict__ g22,
-			                                        const T * __restrict__ g33,
-	     		                                        const T * __restrict__ g12,
-			                                        const T * __restrict__ g13,
-			                                        const T * __restrict__ g23) {
+__global__ void __launch_bounds__(LX*LX,3)
+  ax_helm_kernel_kstep(T * __restrict__ w,
+                       const T * __restrict__ u,
+                       const T * __restrict__ dx,
+                       const T * __restrict__ dy,
+                       const T * __restrict__ dz,
+                       const T * __restrict__ h1,
+                       const T * __restrict__ g11,
+                       const T * __restrict__ g22,
+                       const T * __restrict__ g33,
+                       const T * __restrict__ g12,
+                       const T * __restrict__ g13,
+                       const T * __restrict__ g23) {
 
   __shared__ T shdx[LX * LX];
   __shared__ T shdy[LX * LX];
@@ -211,17 +212,17 @@ __global__ void __launch_bounds__(LX*LX,3) ax_helm_kernel_kstep(T * __restrict__
       stmp += shdy[j+l*LX] * shu[i+l*LX];
     }
     shur[ij] = H1
-	     * (G00 * rtmp
-		+ G01 * stmp
-		+ G02 * ttmp);
+             * (G00 * rtmp
+                + G01 * stmp
+                + G02 * ttmp);
     shus[ij] = H1
-	     * (G01 * rtmp
-		+ G11 * stmp
-		+ G12 * ttmp);
+             * (G01 * rtmp
+                + G11 * stmp
+                + G12 * ttmp);
     rut      = H1
-	     * (G02 * rtmp
-		+ G12 * stmp 
-		+ G22 * ttmp);
+             * (G02 * rtmp
+                + G12 * stmp 
+                + G22 * ttmp);
 
     __syncthreads();
 
@@ -246,18 +247,19 @@ __global__ void __launch_bounds__(LX*LX,3) ax_helm_kernel_kstep(T * __restrict__
  */
 
 template< typename T, const int LX >
-__global__ void __launch_bounds__(LX*LX,3) ax_helm_kernel_kstep_padded(T * __restrict__ w,
-              			                                       const T * __restrict__ u,
-			                                               const T * __restrict__ dx,
-			                                               const T * __restrict__ dy,
-			                                               const T * __restrict__ dz,
- 			                                               const T * __restrict__ h1,
-                                			               const T * __restrict__ g11,
-			                    			       const T * __restrict__ g22,
-			                    			       const T * __restrict__ g33,
-						                       const T * __restrict__ g12,
-						                       const T * __restrict__ g13,
-						                       const T * __restrict__ g23) {
+__global__ void __launch_bounds__(LX*LX,3)
+  ax_helm_kernel_kstep_padded(T * __restrict__ w,
+                              const T * __restrict__ u,
+                              const T * __restrict__ dx,
+                              const T * __restrict__ dy,
+                              const T * __restrict__ dz,
+                              const T * __restrict__ h1,
+                              const T * __restrict__ g11,
+                              const T * __restrict__ g22,
+                              const T * __restrict__ g33,
+                              const T * __restrict__ g12,
+                              const T * __restrict__ g13,
+                              const T * __restrict__ g23) {
 
   __shared__ T shdx[LX * (LX+1)];
   __shared__ T shdy[LX * (LX+1)]; 
@@ -315,17 +317,17 @@ __global__ void __launch_bounds__(LX*LX,3) ax_helm_kernel_kstep_padded(T * __res
       stmp += shdy[j+l*(LX+1)] * shu[i+l*(LX+1)];
     }
     shur[ij] = H1
-	     * (G00 * rtmp
-		+ G01 * stmp
-		+ G02 * ttmp);
+             * (G00 * rtmp
+                + G01 * stmp
+                + G02 * ttmp);
     shus[ij_p] = H1
-	     * (G01 * rtmp
-		+ G11 * stmp
-		+ G12 * ttmp);
+             * (G01 * rtmp
+                + G11 * stmp
+                + G12 * ttmp);
     rut      = H1
-	     * (G02 * rtmp
-		+ G12 * stmp 
-		+ G22 * ttmp);
+             * (G02 * rtmp
+                + G12 * stmp 
+                + G22 * ttmp);
 
     __syncthreads();
 
