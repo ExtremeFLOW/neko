@@ -40,6 +40,7 @@ module chkp_file
   use field
   use utils
   use mesh
+  use interpolation
   use mpi_types
   use mpi_f08
   implicit none
@@ -47,8 +48,12 @@ module chkp_file
 
   !> Interface for Neko checkpoint files
   type, public, extends(generic_file_t) :: chkp_file_t
+     type(space_t) :: chkp_Xh
+     type(space_t), pointer :: sim_Xh
+     type(interpolator_t) :: interp
    contains
      procedure :: read => chkp_file_read
+     procedure :: read_field => chkp_read_field
      procedure :: write => chkp_file_write
   end type chkp_file_t
 
@@ -215,7 +220,7 @@ contains
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    integer :: glb_nelv, gdim, lx, have_lag
+    integer :: glb_nelv, gdim, lx, have_lag, nel
     logical read_lag
     integer :: i
     
@@ -262,14 +267,19 @@ contains
 
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
-         ( lx .ne. u%Xh%lx .or. lx .ne. u%Xh%ly .or. lx .ne. u%Xh%lz) .or. &
          ( (have_lag .eq. 1) .and. (.not. read_lag) ) ) then
        call neko_error('Checkpoint does not match case')
     end if
-    
-
-    dof_offset = int(msh%offset_el, i8) * int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8)
-    n_glb_dofs = int(u%Xh%lx * u%Xh%ly * u%Xh%lz, i8) * int(msh%glb_nelv, i8)    
+    nel = msh%nelv
+    this%sim_Xh => u%Xh
+    if (gdim .eq. 3) then
+       call space_init(this%chkp_Xh, GLL, lx, lx, lx)
+    else
+       call space_init(this%chkp_Xh, GLL, lx, lx)
+    end if
+    call this%interp%init(this%sim_Xh, this%chkp_Xh) 
+    dof_offset = int(msh%offset_el, i8) * int(this%chkp_Xh%lxyz, i8)
+    n_glb_dofs = int(this%chkp_Xh%lxyz, i8) * int(msh%glb_nelv, i8)    
     
     !
     ! Read mandatory checkpoint data
@@ -277,27 +287,23 @@ contains
     
     byte_offset = 4 * MPI_INTEGER_SIZE + MPI_DOUBLE_PRECISION_SIZE + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-    call MPI_File_read_at_all(fh, byte_offset, u%x, u%dof%size(), &
-         MPI_REAL_PRECISION, status, ierr)
+    call this%read_field(fh, byte_offset, u%x, nel)
     mpi_offset = 4 * MPI_INTEGER_SIZE + MPI_DOUBLE_PRECISION_SIZE + &
          n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
     
     byte_offset = mpi_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-    call MPI_File_read_at_all(fh, byte_offset, v%x, v%dof%size(), &
-         MPI_REAL_PRECISION, status, ierr)
+    call this%read_field(fh, byte_offset, v%x, nel)
     mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
     byte_offset = mpi_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-    call MPI_File_read_at_all(fh, byte_offset, w%x, w%dof%size(), &
-         MPI_REAL_PRECISION, status, ierr)
+    call this%read_field(fh, byte_offset, w%x, nel)
     mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
     byte_offset = mpi_offset + &
          dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-    call MPI_File_read_at_all(fh, byte_offset, p%x, p%dof%size(), &
-         MPI_REAL_PRECISION, status, ierr)
+    call this%read_field(fh, byte_offset, p%x, nel)
     mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
 
     !
@@ -309,24 +315,21 @@ contains
        do i = 1, ulag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call MPI_File_read_at_all(fh, byte_offset, ulag%lf(i)%x, &
-               ulag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          call this%read_field(fh, byte_offset, ulag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
 
        do i = 1, vlag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call MPI_File_read_at_all(fh, byte_offset, vlag%lf(i)%x, &
-               vlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          call this%read_field(fh, byte_offset, vlag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
        
        do i = 1, wlag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call MPI_File_read_at_all(fh, byte_offset, wlag%lf(i)%x, &
-               wlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          call this%read_field(fh, byte_offset, wlag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
        
@@ -335,6 +338,23 @@ contains
     call MPI_File_close(fh, ierr)      
     
   end subroutine chkp_file_read
-  
+
+  subroutine chkp_read_field(this, fh, byte_offset, x, nel)
+    class(chkp_file_t) :: this
+    type(MPI_File) :: fh
+    integer(kind=MPI_OFFSET_KIND) :: byte_offset
+    integer :: nel
+    real(kind=rp) :: x(this%sim_Xh%lxyz, nel)
+    real(kind=rp), allocatable :: read_array(:)
+    integer :: nel_stride, frac_space
+    type(MPI_Status) :: status
+    integer :: ierr
+
+    allocate(read_array(this%chkp_Xh%lxyz*nel)) 
+    call MPI_File_read_at_all(fh, byte_offset, read_array, &
+               nel*this%chkp_Xh%lxyz, MPI_REAL_PRECISION, status, ierr)
+    call this%interp%map_host(x, read_array, nel, this%sim_Xh)
+    deallocate(read_array)
+  end subroutine chkp_read_field
   
 end module chkp_file

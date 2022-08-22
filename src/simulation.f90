@@ -33,6 +33,7 @@
 !> Simulation driver
 module simulation
   use case
+  use gather_scatter
   use abbdf
   use file
   use logger
@@ -139,13 +140,42 @@ contains
   subroutine simulation_restart(C, t)
     type(case_t), intent(inout) :: C
     real(kind=rp), intent(inout) :: t
+    integer :: i
     type(file_t) :: chkpf
     character(len=LOG_SIZE) :: log_buf   
 
 
     chkpf = file_t(trim(C%params%restart_file))
     call chkpf%read(C%fluid%chkp)
+    
+    ! Make sure that continuity is maintained (important for interpolation) 
+    call col2(C%fluid%u%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
+    call col2(C%fluid%v%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
+    call col2(C%fluid%w%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
+    call col2(C%fluid%p%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
+    select type (fld => C%fluid)
+    type is(fluid_pnpn_t)
+    do i = 1, fld%ulag%size()
+       call col2(fld%ulag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
+       call col2(fld%vlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
+       call col2(fld%wlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
+    end do
+    end select
+
     call C%fluid%chkp%sync_device()
+    call gs_op(C%fluid%gs_Xh,C%fluid%u,GS_OP_ADD)
+    call gs_op(C%fluid%gs_Xh,C%fluid%v,GS_OP_ADD)
+    call gs_op(C%fluid%gs_Xh,C%fluid%w,GS_OP_ADD)
+    call gs_op(C%fluid%gs_Xh,C%fluid%p,GS_OP_ADD)
+    select type (fld => C%fluid)
+    type is(fluid_pnpn_t)
+    do i = 1, fld%ulag%size()
+       call gs_op(fld%gs_Xh,fld%ulag%lf(i),GS_OP_ADD)
+       call gs_op(fld%gs_Xh,fld%vlag%lf(i),GS_OP_ADD)
+       call gs_op(fld%gs_Xh,fld%wlag%lf(i),GS_OP_ADD)
+    end do
+    end select
+ 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf,'(A,A)') 'File :   ', &

@@ -74,6 +74,7 @@ contains
     character :: rdcode(10)
     character(len=6) :: id_str
     character(len=1024) :: fname
+    character(len=1024) :: start_field
     integer :: i, ierr, n, j,k,l,el, suffix_pos,tslash_pos
     integer, allocatable :: idx(:)
     type(MPI_Status) :: status
@@ -144,7 +145,7 @@ contains
     ! Create fld header for NEKTON's multifile output
     !
 
-    write_mesh = (this%counter .eq. 0)
+    write_mesh = (this%counter .eq. this%start_counter)
     
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
@@ -419,12 +420,13 @@ contains
     ! Write metadata file 
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
-       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//'.nek5000', &
+       write(start_field,"(I5,A8)") this%start_counter,'.nek5000'
+       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//trim(adjustl(start_field)), &
             status='replace')
        write(9, fmt='(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1),'%01d.f%05d'
-       write(9, fmt='(A)') 'firsttimestep: 0'
-       write(9, fmt='(A,i5)') 'numtimesteps: ', this%counter + 1
+       write(9, fmt='(A,i5)') 'firsttimestep: ', this%start_counter
+       write(9, fmt='(A,i5)') 'numtimesteps: ', (this%counter + 1)-this%start_counter
        write(9, fmt='(A)') 'type: binary'
        close(9)
     end if
