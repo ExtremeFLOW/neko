@@ -126,11 +126,12 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: param     
+    character(len=13), parameter :: scheme = 'plan4 (Pn/Pn)'
 
     call this%free()
     
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, param, .true., .true.)
+    call this%scheme_init(msh, lx, param, .true., .true., scheme)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
