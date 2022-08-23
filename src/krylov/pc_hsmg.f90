@@ -135,12 +135,16 @@ contains
     type(bc_list_t), intent(inout), target :: bclst
     character(len=*), optional :: crs_pctype
     integer :: n, i
+    integer :: lx_crs, lx_mid
     
     call this%free()
-    if(Xh%lx .lt. 5) then
-       call neko_error('Insufficient number of GLL points for hsmg precon. Minimum degree 4 and 5 GLL points required.')
-    end if
     this%nlvls = 3 
+    lx_crs = 2
+    if (Xh%lx .lt. 5) then
+       lx_mid = max(Xh%lx-1,3)
+    else
+       lx_mid = 4
+    end if
     this%msh => msh
     allocate(this%grids(this%nlvls))
     allocate(this%w(dof%n_dofs))
@@ -153,13 +157,13 @@ contains
     n = dof%n_dofs
     call field_init(this%e, dof,'work array')
     
-    call space_init(this%Xh_crs, GLL, 2, 2, 2)
+    call space_init(this%Xh_crs, GLL, lx_crs, lx_crs, lx_crs)
     this%dm_crs = dofmap_t(msh, this%Xh_crs) 
     call gs_init(this%gs_crs, this%dm_crs)
     call field_init(this%e_crs, this%dm_crs,'work crs')
     call coef_init(this%c_crs, this%gs_crs)
     
-    call space_init(this%Xh_mg, GLL, 4, 4, 4)
+    call space_init(this%Xh_mg, GLL, lx_mid, lx_mid, lx_mid)
     this%dm_mg = dofmap_t(msh, this%Xh_mg) 
     call gs_init(this%gs_mg, this%dm_mg)
     call field_init(this%e_mg, this%dm_mg,'work midl')
