@@ -1,0 +1,41 @@
+#!/bin/sh -e
+
+prefix=/home/adalberto/neko
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir_pkg=${prefix}/include/neko
+FC=mpif90
+FCFLAGS='-g -O2'
+
+printf "\n%s\n" 'N E K O build tool, Version 0.4.99'
+printf "%s\n" '(build: 2022-08-23 on x86_64-pc-linux-gnu using gnu)'
+
+
+if [ -z "$1" ]
+  then
+      echo "No user file provided"
+      exit 1
+fi
+printf '\n%s' "Building user NEKO ..."
+rm -f usr_driver.f90
+cat >> usr_driver.f90 << _ACEOF
+program usrneko
+  use neko
+  use user
+  type(case_t) :: C
+  
+  call user_setup(C%usr)
+  call neko_init(C)
+  call neko_solve(C)
+  call neko_finalize(C)
+
+
+end program usrneko
+_ACEOF
+
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $1 usr_driver.f90\
+    -lneko -Wl,-rpath,/home/adalberto/3rd_party_libs/adios2-installation/lib /home/adalberto/3rd_party_libs/adios2-installation/lib/libadios2_cxx11_mpi.so.2.7.1 /home/adalberto/3rd_party_libs/adios2-installation/lib/libadios2_cxx11.so.2.7.1 -Wl,-rpath-link,/home/adalberto/3rd_party_libs/adios2-installation/lib  -L/usr/lib64 -lstdc++  -llapack -lblas    -o neko
+
+rm -f usr_driver.f90
+
+printf "%s\n" ' done!'

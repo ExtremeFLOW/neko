@@ -1,5 +1,6 @@
 module user
   use neko
+  use comm
   implicit none
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -74,8 +75,12 @@ contains
     integer :: i
     character(len=LOG_SIZE) :: log_buf 
 
+    !---- For running sum - compression test
+    integer ::  nelb, nelv, nelgv, npts
+    integer ::  lglel(u%msh%nelv)
+    !----
 
-    if (mod(tstep,10).ne.0) return
+    !if (mod(tstep,10).ne.0) return
     
     call neko_log%section('Compression')       
 
@@ -86,7 +91,7 @@ contains
     call cpr_truncate_wn(cpr_u,coef)
   
     ! just to check, go to physical space and compare
-    call cpr_goto_space(cpr_u,'phys') !< 'spec' / 'phys'
+     call cpr_goto_space(cpr_u,'phys') !< 'spec' / 'phys'
     ! chech that the copy is fine in one entry
     do i = 1, 10
       write(log_buf, '(A,E15.7,A,E15.7)') &
@@ -95,6 +100,50 @@ contains
             cpr_u%fldhat(i,1,1,10)
       call neko_log%message(log_buf)
     enddo
+   
+    !---- 
+    nelv  = cpr_u%msh%nelv
+    npts  = cpr_u%Xh%lx**3
+    nelgv = cpr_u%msh%glb_nelv
+
+    write(log_buf, '(A,I5.2)') &
+          'The communicator is:', NEKO_COMM 
+      
+    call neko_log%message(log_buf)
+
+    nelb = elem_running_sum(nelv)
+        
+    nelb = nelb - nelv
+    
+    write(*,*) 'and my sum is', nelb
+    write(*,*) 'my number of points is', npts
+    write(*,*) 'my number of elements is', nelv
+    write(*,*) 'total number of elements is', nelgv
+
+
+
+    if (tstep.eq.1) then
+
+      call adios2_setup(npts,nelv,nelb,nelgv, &
+              nelgv,cpr_u%dof%x,cpr_u%dof%y,  &
+              cpr_u%dof%z,NEKO_COMM)
+
+      write(*,*) 'time step is=', tstep
+    end if
+
+    do i = 1, nelv
+
+      lglel(i) = i
+
+    end do
+
+    !call adios2_update(lglel,cpr_u%fld%x,cpr_u%fld%x, &
+    !        cpr_u%fld%x,cpr_u%fld%x, cpr_u%fld%x)
+           
+    call adios2_update(lglel,cpr_u%fldhat,cpr_u%fldhat, &
+            cpr_u%fldhat,cpr_u%fldhat, cpr_u%fldhat)
+
+    !----
 
     ! Free the memory allocated for the fields
     call cpr_free(cpr_u)
@@ -102,5 +151,18 @@ contains
 
   end subroutine usr_calc_quantities
 
+     
+  function elem_running_sum(nelv) result(rbuff)
+
+    integer, intent(in) :: nelv
+    integer ::  ierr,xbuff,wbuff,rbuff
+
+    xbuff = nelv  ! running sum
+    wbuff = nelv  ! working buff
+    rbuff = 0   ! recv buff
+
+    call mpi_scan(xbuff,rbuff,1,mpi_integer,mpi_sum,NEKO_COMM,ierr)
+
+  end function elem_running_sum
 
 end module user

@@ -165,7 +165,7 @@ extern "C" void adios2_setup_(
     // Open a global array that will be used by the compressor. 
     // As I see it, this is a buffer, where the compressor will read
     // and compress.
-    writer = io.Open("globalArray", adios2::Mode::Write);
+    //writer = io.Open("globalArray", adios2::Mode::Write);
 }
 
 extern "C" void adios2_setup_2d_(
