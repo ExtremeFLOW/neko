@@ -69,7 +69,9 @@ contains
     integer, intent(inout) :: nsamp
     real(kind=rp) :: T_end
     integer, intent(inout), optional :: size
+    character(len=LOG_SIZE) :: log_buf
     integer :: n, i
+
 
     call this%free()
 
@@ -91,6 +93,15 @@ contains
     this%nsample = 0
     this%freq = ( real(nsamp,rp) / T_end )
     this%T = real(1d0,rp) / this%freq
+
+    call neko_log%section('Sampler')
+    write(log_buf, '(A,I13)') 'Samples   :',  nsamp
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'Freq.     :',  this%freq
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'Sample t  :',  this%T
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
     
   end subroutine sampler_init
 

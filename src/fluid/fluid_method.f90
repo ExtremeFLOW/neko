@@ -145,23 +145,45 @@ module fluid_method
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params)
+  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme)
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
+    character(len=*), intent(in) :: scheme
     type(param_t), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     
     call neko_log%section('Fluid')
-    call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
+    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    if (lx .lt. 10) then
+       write(log_buf, '(A, I1)') 'lx         : ', lx
+    else if (lx .ge. 10) then
+       write(log_buf, '(A, I2)') 'lx         : ', lx
+    else
+       write(log_buf, '(A, I3)') 'lx         : ', lx
+    end if
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'Re         :',  params%Re
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'rho        :',  params%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'mu         :',  params%mu
+    call neko_log%message(log_buf)
+    call neko_log%message('Ksp vel.   : ('// trim(params%ksp_vel) // &
          ', ' // trim(params%pc_vel) // ')')
-    call neko_log%message('Ksp prs. : ('// trim(params%ksp_prs) // &
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_vel
+    call neko_log%message(log_buf)
+    call neko_log%message('Ksp prs.   : ('// trim(params%ksp_prs) // &
          ', ' // trim(params%pc_prs) // ')')
-    write(log_buf, '(A, L1)') 'Dealias  : ',  params%dealias
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_prs
     call neko_log%message(log_buf)
-    write(log_buf, '(A, L1)') 'Save bdry: ',  params%output_bdry
+    write(log_buf, '(A, L1)') 'Dealias    : ',  params%dealias
     call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'Save bdry  : ',  params%output_bdry
+    call neko_log%message(log_buf)
+
 
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -296,14 +318,15 @@ contains
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme)
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: params
     logical :: kspv_init
+    character(len=*), intent(in) :: scheme
 
-    call fluid_scheme_init_common(this, msh, lx, params)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme)
     
     call field_init(this%u, this%dm_Xh, 'u')
     call field_init(this%v, this%dm_Xh, 'v')
@@ -320,15 +343,17 @@ contains
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, &
+                                   kspv_init, kspp_init, scheme)
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
+    character(len=*), intent(in) :: scheme
 
-    call fluid_scheme_init_common(this, msh, lx, params)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme)
     
     call field_init(this%u, this%dm_Xh, 'u')
     call field_init(this%v, this%dm_Xh, 'v')
