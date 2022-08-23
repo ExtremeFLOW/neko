@@ -142,6 +142,9 @@ contains
     lx_crs = 2
     if (Xh%lx .lt. 5) then
        lx_mid = max(Xh%lx-1,3)
+       
+       if(Xh%lx .le. 2) call neko_error('Polynomial order < 2 not supported for hsmg precon')
+
     else
        lx_mid = 4
     end if
