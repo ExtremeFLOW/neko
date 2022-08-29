@@ -310,7 +310,7 @@ contains
        call neko_error("Invalid hash generated")
     end if
     
-    i = this%size - 1
+    i = (this%size - 1) / 2
     
     do while (i .ge. 0)
        if ((.not. this%t(index)%valid) .or. &
