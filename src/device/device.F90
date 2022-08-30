@@ -932,7 +932,7 @@ contains
        call neko_error('Error during stream sync')
     end if
 #elif HAVE_OPENCL
-    if (clFinish(stream) .ne. CL_SUCESS) then
+    if (clFinish(stream) .ne. CL_SUCCESS) then
        call neko_error('Error during stream sync')
     end if
 #endif
