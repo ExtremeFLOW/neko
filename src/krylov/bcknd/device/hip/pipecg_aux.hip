@@ -46,6 +46,7 @@ real *buf3 = NULL;
 real *buf_d1 = NULL;
 real *buf_d2 = NULL;
 real *buf_d3 = NULL;
+int buf_len = 0;
 
 extern "C" {
   
@@ -71,7 +72,17 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    
+
+    if (buf1 != NULL && buf_len < nb) {
+      free(buf1);
+      free(buf2);
+      free(buf3);
+      HIP_CHECK(hipFree(buf_d1));
+      HIP_CHECK(hipFree(buf_d2));
+      HIP_CHECK(hipFree(buf_d3));
+      buf1 = NULL;
+    }
+
     if (buf1 == NULL){
       buf1 = (real *) malloc(nb * sizeof(real));
       buf2 = (real *) malloc(nb * sizeof(real));
