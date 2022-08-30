@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,11 @@ module device
      module procedure device_get_ptr_r1, device_get_ptr_r2, &
           device_get_ptr_r3, device_get_ptr_r4
   end interface device_get_ptr
+
+  !> Synchronize a device or stream
+  interface device_sync
+     module procedure device_sync_device, device_sync_stream
+  end interface device_sync
       
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
@@ -899,7 +904,7 @@ contains
   end function device_get_ptr_r4
   
   !> Synchronize the device
-  subroutine device_sync()
+  subroutine device_sync_device()
 #ifdef HAVE_HIP
     if (hipDeviceSynchronize() .ne. hipSuccess) then
        call neko_error('Error during device sync')
@@ -913,6 +918,56 @@ contains
        call neko_error('Error during device sync')
     end if
 #endif
-  end subroutine device_sync
+  end subroutine device_sync_device
+
+  !> Synchronize a device stream
+  subroutine device_sync_stream(stream)
+    type(c_ptr), intent(in) :: stream
+#ifdef HAVE_HIP
+    if (hipStreamSynchronize(stream) .ne. hipSuccess) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_CUDA
+    if (cudaStreamSynchronize(stream) .ne. cudaSuccess) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_OPENCL
+    if (clFinish(stream) .ne. CL_SUCESS) then
+       call neko_error('Error during stream sync')
+    end if
+#endif
+  end subroutine device_sync_stream
+
+  !> Create a device stream/command queue
+  subroutine device_stream_create(stream)
+    type(c_ptr), intent(inout) :: stream
+#ifdef HAVE_HIP
+    if (hipStreamCreate(stream) .ne. hipSuccess) then
+       call neko_error('Error during stream create')
+    end if
+#elif HAVE_CUDA
+    if (cudaStreamCreate(stream) .ne. cudaSuccess) then
+       call neko_error('Error during stream create')
+    end if
+#elif HAVE_OPENCL
+    call neko_error('Not implemented yet')
+#endif
+  end subroutine device_stream_create
+
+  !> Destroy a device stream/command queue
+  subroutine device_stream_destroy(stream)
+    type(c_ptr), intent(inout) :: stream
+#ifdef HAVE_HIP
+    if (hipStreamDestroy(stream) .ne. hipSuccess) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_CUDA
+    if (cudaStreamDestroy(stream) .ne. cudaSuccess) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_OPENCL
+    call neko_error('Not implemented yet')
+#endif
+  end subroutine device_stream_destroy
   
 end module device
