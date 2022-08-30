@@ -90,6 +90,7 @@ extern "C" {
       HIP_CHECK(hipMalloc(&buf_d1, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d2, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d3, nb*sizeof(real)));
+      buf_len = nb;
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(pipecg_vecops_kernel<real>),
