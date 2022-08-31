@@ -133,7 +133,7 @@ extern "C" {
    * Unpack receive buffer on device
    */
   void hip_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d,
-		     int offset, int n) {
+		     int offset, int n, hipStream_t stream) {
 
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
@@ -141,7 +141,7 @@ extern "C" {
     switch (op) {
     case GS_OP_ADD:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
-			 nblcks, nthrds, 0, 0,
+			 nblcks, nthrds, 0, stream,
 			 u_d + offset, buf_d + offset,
 			 dof_d + offset, n);
       break;

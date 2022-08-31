@@ -126,7 +126,7 @@ extern "C" {
    * Unpack receive buffer on device
    */
   void cuda_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d,
-		      int offset, int n) {
+		      int offset, int n, cudaStream_t stream) {
 
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
@@ -134,8 +134,8 @@ extern "C" {
     switch (op) {
     case GS_OP_ADD:
       gs_unpack_add_kernel<real>
-	<<<nblcks, nthrds>>>(u_d + offset, buf_d + offset,
-			     dof_d + offset, n);
+	<<<nblcks, nthrds, 0, stream>>>(u_d + offset, buf_d + offset,
+                                        dof_d + offset, n);
       break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);

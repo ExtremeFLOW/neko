@@ -60,6 +60,7 @@ module gs_device_mpi
   type, extends(gs_comm_t) :: gs_device_mpi_t
      type(gs_device_mpi_buf_t) :: send_buf
      type(gs_device_mpi_buf_t) :: recv_buf
+     type(c_ptr), allocatable :: recv_strm(:)                
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -89,22 +90,22 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine hip_gs_unpack(u_d, op, buf_d, dof_d, offset, n) &
+    subroutine hip_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
           bind(c, name='hip_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
-       type(c_ptr), value :: u_d, buf_d, dof_d
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine hip_gs_unpack
   end interface
 
   interface
-    subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n) &
+    subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
           bind(c, name='cuda_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
-       type(c_ptr), value :: u_d, buf_d, dof_d
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine cuda_gs_unpack
   end interface
 
@@ -267,12 +268,18 @@ contains
     class(gs_device_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
+    integer :: i
 
     call this%init_order(send_pe, recv_pe)
 
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
     call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
+    allocate(this%recv_strm(size(this%recv_pe)))
+    do i = 1, size(this%recv_pe)
+       call device_stream_create(this%recv_strm(i))
+    end do
+    
   end subroutine gs_device_mpi_init
 
   !> Deallocate MPI based communication method
@@ -285,6 +292,13 @@ contains
 
     call this%free_order()
     call this%free_dofs()
+
+    if (allocated(this%recv_strm)) then
+       do i = 1, size(this%recv_strm)
+          call device_stream_destroy(this%recv_strm(i))
+       end do
+       deallocate(this%recv_strm)
+    end if
 
   end subroutine gs_device_mpi_free
 
@@ -340,27 +354,33 @@ contains
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    integer :: op
+    integer :: op, done_req
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
 
-    call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
-
+    do while(device_mpi_waitany(size(this%recv_pe), &
+             this%recv_buf%reqs, done_req) .ne. 0)
+       
 #ifdef HAVE_HIP
-    call hip_gs_unpack(u_d, op, &
-                       this%recv_buf%buf_d, &
-                       this%recv_buf%dof_d, &
-                       0, this%recv_buf%total)
-#elif HAVE_CUDA
-    call cuda_gs_unpack(u_d, op, &
-                        this%recv_buf%buf_d, &
-                        this%recv_buf%dof_d, &
-                        0, this%recv_buf%total)
+       call hip_gs_unpack(u_d, op, &
+                          this%recv_buf%buf_d, &
+                          this%recv_buf%dof_d, &
+                          rp*this%recv_buf%offset(done_req), &
+                          this%recv_buf%ndofs(done_req), &
+                          this%recv_strm(done_req))
+#elif HAVE_CUDA    
+       call cuda_gs_unpack(u_d, op, &
+                           this%recv_buf%buf_d, &
+                           this%recv_buf%dof_d, &
+                           rp*this%recv_buf%offset(done_req), &
+                           this%recv_buf%ndofs(done_req), &
+                           this%recv_strm(done_req))
 #else
-    call neko_error('gs_device_mpi: no backend')
+       call neko_error('gs_device_mpi: no backend')
 #endif
-
+    end do
+    
     call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
     ! Syncing here seems to prevent some race condition
