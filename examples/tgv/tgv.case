@@ -1,14 +1,14 @@
 &NEKO_CASE
-mesh_file= '512.nmsh'
-fluid_scheme='plan4'
-lx = 8
+mesh_file= '32768.nmsh'
+fluid_scheme='pnpn'
+lx = 9
 source_term = 'noforce'
 initial_condition = 'user'
 /
 &NEKO_PARAMETERS
-dt = 1d-2
-T_end = 20
-nsamples = 100
+dt = 1d-3
+T_end = 0.05
+nsamples = 0
 uinf= 0.0,0.0,0.0
 output_bdry = .true.
 rho = 1
