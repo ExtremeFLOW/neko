@@ -220,3 +220,69 @@ subroutine test_device_memcpy
 
 end subroutine test_device_memcpy
 
+@test
+subroutine test_device_stream_create
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: stream
+  
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+
+     stream = C_NULL_PTR
+     call device_stream_create(stream)
+     @assertTrue(c_associated(stream))
+
+  end if
+  
+end subroutine test_device_stream_create
+
+@test
+subroutine test_device_stream_destroy
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: stream
+  
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+
+     stream = C_NULL_PTR
+     call device_stream_create(stream)
+     @assertTrue(c_associated(stream))
+
+     call device_stream_destroy(stream)
+
+  end if
+  
+end subroutine test_device_stream_destroy
+
+@test
+subroutine test_device_sync_stream
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: stream1, stream2
+  
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+
+     stream1 = C_NULL_PTR
+     stream2 = C_NULL_PTR
+     call device_stream_create(stream1)
+     call device_stream_create(stream2)
+     @assertTrue(c_associated(stream1))
+     @assertTrue(c_associated(stream2))
+
+     call device_sync(stream1)
+     call device_sync(stream2)
+     call device_sync(stream2)
+     call device_sync(stream1)
+
+     call device_stream_destroy(stream1)
+     call device_stream_destroy(stream2)
+
+  end if
+  
+end subroutine test_device_sync_stream
