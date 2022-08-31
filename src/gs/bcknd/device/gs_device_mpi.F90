@@ -366,14 +366,14 @@ contains
        call hip_gs_unpack(u_d, op, &
                           this%recv_buf%buf_d, &
                           this%recv_buf%dof_d, &
-                          rp*this%recv_buf%offset(done_req), &
+                          this%recv_buf%offset(done_req), &
                           this%recv_buf%ndofs(done_req), &
                           this%recv_strm(done_req))
 #elif HAVE_CUDA    
        call cuda_gs_unpack(u_d, op, &
                            this%recv_buf%buf_d, &
                            this%recv_buf%dof_d, &
-                           rp*this%recv_buf%offset(done_req), &
+                           this%recv_buf%offset(done_req), &
                            this%recv_buf%ndofs(done_req), &
                            this%recv_strm(done_req))
 #else
