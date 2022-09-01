@@ -134,7 +134,7 @@ extern "C" {
     switch (op) {
     case GS_OP_ADD:
       gs_unpack_add_kernel<real>
-	<<<nblcks, nthrds, 0, stream>>>(u_d + offset, buf_d + offset,
+	<<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
                                         dof_d + offset, n);
       break;
     default:

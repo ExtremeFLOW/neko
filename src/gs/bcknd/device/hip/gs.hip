@@ -142,7 +142,7 @@ extern "C" {
     case GS_OP_ADD:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
 			 nblcks, nthrds, 0, stream,
-			 u_d + offset, buf_d + offset,
+			 u_d, buf_d + offset,
 			 dof_d + offset, n);
       break;
     default:
