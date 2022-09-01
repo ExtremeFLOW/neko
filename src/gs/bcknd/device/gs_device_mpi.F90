@@ -69,6 +69,7 @@ module gs_device_mpi
      procedure, pass(this) :: nbwait => gs_device_mpi_nbwait
   end type gs_device_mpi_t
 
+#ifdef HAVE_HIP
   interface
     subroutine hip_gs_pack(u_d, buf_d, dof_d, n) &
           bind(c, name='hip_gs_pack')
@@ -80,16 +81,6 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine cuda_gs_pack(u_d, buf_d, dof_d, n) &
-          bind(c, name='cuda_gs_pack')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int), value :: n
-       type(c_ptr), value :: u_d, buf_d, dof_d
-     end subroutine cuda_gs_pack
-  end interface
-
-  interface
     subroutine hip_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
           bind(c, name='hip_gs_unpack')
        use, intrinsic :: iso_c_binding
@@ -97,6 +88,16 @@ module gs_device_mpi
        integer(c_int), value :: op, offset, n
        type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine hip_gs_unpack
+  end interface
+#elif HAVE_CUDA  
+  interface
+    subroutine cuda_gs_pack(u_d, buf_d, dof_d, n) &
+          bind(c, name='cuda_gs_pack')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: n
+       type(c_ptr), value :: u_d, buf_d, dof_d
+     end subroutine cuda_gs_pack
   end interface
 
   interface
@@ -108,7 +109,8 @@ module gs_device_mpi
        type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine cuda_gs_unpack
   end interface
-
+#endif
+  
   interface
     subroutine device_mpi_init_reqs(n, reqs) &
           bind(c, name='device_mpi_init_reqs')
