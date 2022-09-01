@@ -50,8 +50,8 @@ extern "C" {
    * Fortran wrapper for device gather kernels
    */
   void hip_gather_kernel(void *v, int *m, int *o, void *dg,
-			 void *u, int *n, void *gd, int *nb,
-			 void *b, void *bo, int *op) {
+                         void *u, int *n, void *gd, int *nb,
+                         void *b, void *bo, int *op) {
 
     if ((*m) == 0) return;
     
@@ -61,34 +61,34 @@ extern "C" {
     switch (*op) {
     case GS_OP_ADD:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MUL:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MIN:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     case GS_OP_MAX:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<real>),
-			 nblcks, nthrds, 0, 0,
-			 (real *) v, *m, *o, (int *) dg,
-			 (real *) u, *n, (int *) gd,
-			 *nb, (int *) b, (int *) bo);
+                         nblcks, nthrds, 0, 0,
+                         (real *) v, *m, *o, (int *) dg,
+                         (real *) u, *n, (int *) gd,
+                         *nb, (int *) b, (int *) bo);
       HIP_CHECK(hipGetLastError());
       break;
     }
@@ -98,34 +98,35 @@ extern "C" {
    * Fortran wrapper for device scatter kernel
    */
   void hip_scatter_kernel(void *v, int *m, void *dg,
-			  void *u, int *n, void *gd,
-			  int *nb, void *b, void *bo) {
+                          void *u, int *n, void *gd,
+                          int *nb, void *b, void *bo) {
 
     if ((*m) == 0) return;
-	
+        
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_kernel<real>),
-		       nblcks, nthrds, 0, 0,
-		       (real *) v, *m, (int *) dg,
-		       (real *) u, *n, (int *) gd,
-		       *nb, (int *) b, (int *) bo);
+                       nblcks, nthrds, 0, 0,
+                       (real *) v, *m, (int *) dg,
+                       (real *) u, *n, (int *) gd,
+                       *nb, (int *) b, (int *) bo);
     HIP_CHECK(hipGetLastError());
   }
 
   /**
    * Pack send buffer on device
    */
-  void hip_gs_pack(void *u_d, void *buf_d, void *dof_d, int n) {
+  void hip_gs_pack(void *u_d, void *buf_d, void *dof_d,
+                   int offset, int n, hipStream_t stream) {
 
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
-		       nblcks, nthrds, 0, 0,
-		       (real *) u_d, (real *) buf_d,
-		       (int *) dof_d, n);
+                       nblcks, nthrds, 0, stream,
+                       (real *) u_d, (real *) buf_d,
+                       (int *) dof_d, n);
     HIP_CHECK(hipGetLastError());
   }
 
@@ -133,7 +134,7 @@ extern "C" {
    * Unpack receive buffer on device
    */
   void hip_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d,
-		     int offset, int n, hipStream_t stream) {
+                     int offset, int n, hipStream_t stream) {
 
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
@@ -141,9 +142,9 @@ extern "C" {
     switch (op) {
     case GS_OP_ADD:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
-			 nblcks, nthrds, 0, stream,
-			 u_d, buf_d + offset,
-			 dof_d + offset, n);
+                         nblcks, nthrds, 0, stream,
+                         u_d, buf_d + offset,
+                         dof_d + offset, n);
       break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);
