@@ -314,26 +314,27 @@ contains
 
     u_d = device_get_ptr(u)
 
-#ifdef HAVE_HIP
-    call hip_gs_pack(u_d, &
-                     this%send_buf%buf_d, &
-                     this%send_buf%dof_d, &
-                     this%send_buf%offset(i), &
-                     this%send_buf%ndofs(i), &
-                     this%stream(i))
-#elif HAVE_CUDA
     do i = 1, size(this%send_pe)
+#ifdef HAVE_HIP
+       call hip_gs_pack(u_d, &
+                        this%send_buf%buf_d, &
+                        this%send_buf%dof_d, &
+                        this%send_buf%offset(i), &
+                        this%send_buf%ndofs(i), &
+                        this%stream(i))
+#elif HAVE_CUDA
        call cuda_gs_pack(u_d, &
                          this%send_buf%buf_d, &
                          this%send_buf%dof_d, &
                          this%send_buf%offset(i), &
                          this%send_buf%ndofs(i), &
                          this%stream(i))
-    end do
 #else
-    call neko_error('gs_device_mpi: no backend')
+       call neko_error('gs_device_mpi: no backend')
 #endif
+    end do
 
+   
     ! Consider adding a poll loop here once we have device_query in place
     do i = 1, size(this%send_pe)
        call device_sync(this%stream(i))
