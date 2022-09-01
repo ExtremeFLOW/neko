@@ -182,13 +182,13 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
       CASE_1D(LX);       
-      sprintf(neko_log_buf,"Set by env : 1 (1D)", *lx);
+      sprintf(neko_log_buf,"Set by env : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
       return 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
       CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)", *lx);
+      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
       log_message(neko_log_buf);
       log_end_section();
       return 2;
@@ -259,13 +259,13 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
       CASE_1D(LX);
-      sprintf(neko_log_buf,"Set by env : 1 (1D)", *lx);
+      sprintf(neko_log_buf,"Set by env : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
       return 1;
      } else if( !strcmp(env_value,"KSTEP") ) {
       CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)", *lx);
+      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
       log_message(neko_log_buf);
       log_end_section();
       return 2;
