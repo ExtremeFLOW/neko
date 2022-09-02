@@ -378,8 +378,8 @@ extern "C" {
     const dim3 nthrds(nt, pow2, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int nb = ((*n) + nt - 1)/nt;
-    if((*j)>red_s){
-      red_s = *j;
+    if((*j)*nb>red_s){
+      red_s = (*j)*nb;
       if (bufred != NULL) {
         free(bufred);
         HIP_CHECK(hipFree(bufred_d));
