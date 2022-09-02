@@ -188,10 +188,10 @@ contains
           do i = 1, size(strtgy)          
              c%nb_strtgy = strtgy(i)
              strtgy_time(i) = MPI_Wtime()
-             do j = 1, 500
+             do j = 1, 1000
                 call gs_op_vector(gs, tmp, dofmap%n_dofs, GS_OP_ADD)
              end do
-             strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / real(500, rp)
+             strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 1000d0
           end do
 
           c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
