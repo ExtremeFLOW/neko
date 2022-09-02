@@ -184,6 +184,7 @@ contains
           allocate(tmp(dofmap%n_dofs))
           call device_map(tmp, tmp_d, dofmap%n_dofs)
           tmp = 1.0_rp
+          call device_memcpy(tmp, tmp_d, dofmap%n_dofs, HOST_TO_DEVICE)
 
           do i = 1, size(strtgy)          
              c%nb_strtgy = strtgy(i)
