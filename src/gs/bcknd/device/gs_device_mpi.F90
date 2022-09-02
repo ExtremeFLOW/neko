@@ -315,6 +315,9 @@ contains
 
     u_d = device_get_ptr(u)
 
+    ! Sync device since all streams are non-blocking
+    call device_sync()
+    
     do i = 1, size(this%send_pe)
 #ifdef HAVE_HIP
        call hip_gs_pack(u_d, &
@@ -393,8 +396,10 @@ contains
     
     call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
-    ! Syncing here seems to prevent some race condition
-    call device_sync()
+    ! Sync non-blocking streams
+    do done_req = 1, size(this%recv_pe)
+       call device_sync(this%stream(done_req))
+    end do
 
   end subroutine gs_device_mpi_nbwait
 
