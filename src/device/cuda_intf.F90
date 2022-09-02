@@ -125,7 +125,7 @@ module cuda_intf
 
   interface
      integer (c_int) function cudaStreamCreateWithFlags(stream, flags) &
-          bind(c, name='cudaStreamCreate')
+          bind(c, name='cudaStreamCreateWithFlags')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream

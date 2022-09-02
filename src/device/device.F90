@@ -944,7 +944,7 @@ contains
     integer, optional :: flags
 #ifdef HAVE_HIP
     if (present(flags)) then
-       if (hipStreamCreateWithFlags(stream, flags) .ne. cudaSuccess) then
+       if (hipStreamCreateWithFlags(stream, flags) .ne. hipSuccess) then
           call neko_error('Error during stream create (w. flags)')
        end if
     else

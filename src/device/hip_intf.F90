@@ -145,12 +145,12 @@ module hip_intf
 
   interface
      integer (c_int) function hipStreamCreateWithFlags(stream, flags) &
-          bind(c, name='hipStreamCreate')
+          bind(c, name='hipStreamCreateWithFlags')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
        integer(c_int), value :: flags
-     end function hipStreamCreate
+     end function hipStreamCreateWithFlags
   end interface
 
   interface
