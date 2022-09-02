@@ -277,9 +277,10 @@ contains
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
     call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
+    ! Create a set of non-blocking streams
     allocate(this%stream(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_stream_create(this%stream(i))
+       call device_stream_create(this%stream(i), 1)
     end do
     
   end subroutine gs_device_mpi_init
