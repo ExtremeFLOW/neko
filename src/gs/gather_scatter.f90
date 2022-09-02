@@ -202,8 +202,8 @@ contains
                              MPI_INTEGER, MPI_SUM, NEKO_COMM)
           avg_strtgy = avg_strtgy / pe_size
           
-          write(log_buf, '(A,B0.2)') 'Avg. strtgy  :         0x', &
-               strtgy(avg_strtgy)
+          write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', &
+               strtgy(avg_strtgy),']'
           call neko_log%message(log_buf)
 
           call device_free(tmp_d)
