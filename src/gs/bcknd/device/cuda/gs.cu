@@ -117,9 +117,17 @@ extern "C" {
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
 
-    gs_pack_kernel<real>
-      <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + offset,
-                           (int *) dof_d + offset, n);
+    if (stream == NULL) {
+      gs_pack_kernel<real>
+        <<<nblcks, nthrds>>>((real *) u_d, (real *) buf_d + offset,
+                             (int *) dof_d + offset, n);
+    }
+    else {
+      gs_pack_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + offset,
+                                        (int *) dof_d + offset, n);
+    }
+      
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -134,9 +142,15 @@ extern "C" {
 
     switch (op) {
     case GS_OP_ADD:
-      gs_unpack_add_kernel<real>
-        <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
-                                        dof_d + offset, n);
+      if (stream == NULL) {
+        gs_unpack_add_kernel<real>
+          <<<nblcks, nthrds>>>(u_d, buf_d + offset, dof_d + offset, n);
+      }
+      else {
+        gs_unpack_add_kernel<real>
+          <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
+                                          dof_d + offset, n);
+      }
       break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);

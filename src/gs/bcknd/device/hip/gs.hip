@@ -123,10 +123,18 @@ extern "C" {
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
-                       nblcks, nthrds, 0, stream,
-                       (real *) u_d, (real *) buf_d,
-                       (int *) dof_d, n);
+    if (stream == NULL) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
+                         nblcks, nthrds, 0, 0,
+                         (real *) u_d, (real *) buf_d,
+                         (int *) dof_d, n);
+    }
+    else {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) u_d, (real *) buf_d,
+                         (int *) dof_d, n);
+    }
     HIP_CHECK(hipGetLastError());
   }
 
@@ -141,10 +149,19 @@ extern "C" {
 
     switch (op) {
     case GS_OP_ADD:
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
-                         nblcks, nthrds, 0, stream,
-                         u_d, buf_d + offset,
-                         dof_d + offset, n);
+      if (stream == NULL) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
+                           nblcks, nthrds, 0, 0,
+                           u_d, buf_d + offset,
+                           dof_d + offset, n);
+      }
+      else {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_add_kernel<real>),
+                           nblcks, nthrds, 0, stream,
+                           u_d, buf_d + offset,
+                           dof_d + offset, n);
+
+      }
       break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);

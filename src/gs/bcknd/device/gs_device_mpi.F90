@@ -60,7 +60,8 @@ module gs_device_mpi
   type, extends(gs_comm_t) :: gs_device_mpi_t
      type(gs_device_mpi_buf_t) :: send_buf
      type(gs_device_mpi_buf_t) :: recv_buf
-     type(c_ptr), allocatable :: stream(:)                
+     type(c_ptr), allocatable :: stream(:)
+     integer :: nb_strtgy
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -282,6 +283,9 @@ contains
     do i = 1, size(this%recv_pe)
        call device_stream_create(this%stream(i), 1)
     end do
+
+
+    this%nb_strtgy = 0
     
   end subroutine gs_device_mpi_init
 
@@ -315,38 +319,68 @@ contains
 
     u_d = device_get_ptr(u)
 
-    ! Sync device since all streams are non-blocking
-    call device_sync()
-    
-    do i = 1, size(this%send_pe)
+    if (iand(this%nb_strtgy, 1) .eq. 0) then
+
 #ifdef HAVE_HIP
        call hip_gs_pack(u_d, &
                         this%send_buf%buf_d, &
                         this%send_buf%dof_d, &
-                        this%send_buf%offset(i), &
-                        this%send_buf%ndofs(i), &
-                        this%stream(i))
+                        0, this%send_buf%total, &
+                        C_NULL_PTR)
 #elif HAVE_CUDA
        call cuda_gs_pack(u_d, &
                          this%send_buf%buf_d, &
                          this%send_buf%dof_d, &
-                         this%send_buf%offset(i), &
-                         this%send_buf%ndofs(i), &
-                         this%stream(i))
+                         0, this%send_buf%total, &
+                         C_NULL_PTR)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
-    end do
 
+       call device_sync()
+       
+       do i = 1, size(this%send_pe)
+          call device_mpi_isend(this%send_buf%buf_d, &
+                                rp*this%send_buf%offset(i), &
+                                rp*this%send_buf%ndofs(i), this%send_pe(i), &
+                                this%send_buf%reqs, i)
+       end do
+       
+    else
+
+       ! Sync device since all streams are non-blocking
+       call device_sync()
+       
+       do i = 1, size(this%send_pe)
+#ifdef HAVE_HIP
+          call hip_gs_pack(u_d, &
+                           this%send_buf%buf_d, &
+                           this%send_buf%dof_d, &
+                           this%send_buf%offset(i), &
+                           this%send_buf%ndofs(i), &
+                           this%stream(i))
+#elif HAVE_CUDA
+          call cuda_gs_pack(u_d, &
+                            this%send_buf%buf_d, &
+                            this%send_buf%dof_d, &
+                            this%send_buf%offset(i), &
+                            this%send_buf%ndofs(i), &
+                            this%stream(i))
+#else
+          call neko_error('gs_device_mpi: no backend')
+#endif
+       end do
    
-    ! Consider adding a poll loop here once we have device_query in place
-    do i = 1, size(this%send_pe)
-       call device_sync(this%stream(i))
-       call device_mpi_isend(this%send_buf%buf_d, rp*this%send_buf%offset(i), &
-                             rp*this%send_buf%ndofs(i), this%send_pe(i), &
-                             this%send_buf%reqs, i)
-    end do
-
+       ! Consider adding a poll loop here once we have device_query in place
+       do i = 1, size(this%send_pe)
+          call device_sync(this%stream(i))
+          call device_mpi_isend(this%send_buf%buf_d, &
+                                rp*this%send_buf%offset(i), &
+                                rp*this%send_buf%ndofs(i), this%send_pe(i), &
+                                this%send_buf%reqs, i)
+       end do
+    end if
+    
   end subroutine gs_device_mpi_nbsend
 
   !> Post non-blocking receive operations
@@ -372,34 +406,61 @@ contains
 
     u_d = device_get_ptr(u)
 
-    do while(device_mpi_waitany(size(this%recv_pe), &
-             this%recv_buf%reqs, done_req) .ne. 0)
-       
+    if (iand(this%nb_strtgy, 2) .eq. 0) then
+       call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
+
 #ifdef HAVE_HIP
        call hip_gs_unpack(u_d, op, &
                           this%recv_buf%buf_d, &
                           this%recv_buf%dof_d, &
-                          this%recv_buf%offset(done_req), &
-                          this%recv_buf%ndofs(done_req), &
-                          this%stream(done_req))
-#elif HAVE_CUDA    
+                          0, this%recv_buf%total, &
+                          C_NULL_PTR)
+#elif HAVE_CUDA
        call cuda_gs_unpack(u_d, op, &
                            this%recv_buf%buf_d, &
                            this%recv_buf%dof_d, &
-                           this%recv_buf%offset(done_req), &
-                           this%recv_buf%ndofs(done_req), &
-                           this%stream(done_req))
+                           0, this%recv_buf%total, &
+                           C_NULL_PTR)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
-    end do
-    
-    call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
-    ! Sync non-blocking streams
-    do done_req = 1, size(this%recv_pe)
-       call device_sync(this%stream(done_req))
-    end do
+       call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
+
+       ! Syncing here seems to prevent some race condition
+       call device_sync()
+       
+    else
+
+       do while(device_mpi_waitany(size(this%recv_pe), &
+                                  this%recv_buf%reqs, done_req) .ne. 0)
+       
+#ifdef HAVE_HIP
+          call hip_gs_unpack(u_d, op, &
+                             this%recv_buf%buf_d, &
+                             this%recv_buf%dof_d, &
+                             this%recv_buf%offset(done_req), &
+                             this%recv_buf%ndofs(done_req), &
+                             this%stream(done_req))
+#elif HAVE_CUDA    
+          call cuda_gs_unpack(u_d, op, &
+                              this%recv_buf%buf_d, &
+                              this%recv_buf%dof_d, &
+                              this%recv_buf%offset(done_req), &
+                              this%recv_buf%ndofs(done_req), &
+                              this%stream(done_req))
+#else
+          call neko_error('gs_device_mpi: no backend')
+#endif
+       end do
+    
+       call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
+
+       ! Sync non-blocking streams
+       do done_req = 1, size(this%recv_pe)
+          call device_sync(this%stream(done_req))
+       end do
+    end if
 
   end subroutine gs_device_mpi_nbwait
 
