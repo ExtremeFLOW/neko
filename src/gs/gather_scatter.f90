@@ -88,8 +88,13 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
     integer, optional :: bcknd
-    integer :: ierr, bcknd_, glb_nshared, glb_nlocal
+    integer :: i, j, ierr, bcknd_, glb_nshared, glb_nlocal
     logical :: use_device_mpi
+    real(kind=rp), allocatable :: tmp(:)
+    type(c_ptr) :: tmp_d
+    integer :: strtgy(4) = (/ int(B'00'), int(B'01'), int(B'10'), int(B'11') /)
+    integer :: avg_strtgy
+    real(kind=dp) :: strtgy_time(4)
 
     call gs_free(gs)
 
@@ -163,7 +168,7 @@ contains
     write(log_buf, '(A)') 'Backend      : ' // trim(bcknd_str)
     call neko_log%message(log_buf)
     
-    call neko_log%end_section()
+
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
@@ -172,8 +177,42 @@ contains
        type is (gs_device_t)
           b%shared_on_host = .false.
        end select
+
+       ! Select fastest device MPI strategy at runtime
+       select type(c => gs%comm)
+       type is (gs_device_mpi_t)
+          allocate(tmp(dofmap%n_dofs))
+          call device_map(tmp, tmp_d, dofmap%n_dofs)
+          tmp = 1.0_rp
+          call device_memcpy(tmp, tmp_d, dofmap%n_dofs, HOST_TO_DEVICE)
+
+          do i = 1, size(strtgy)          
+             c%nb_strtgy = strtgy(i)
+             strtgy_time(i) = MPI_Wtime()
+             do j = 1, 1000
+                call gs_op_vector(gs, tmp, dofmap%n_dofs, GS_OP_ADD)
+             end do
+             strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 1000d0
+          end do
+
+          c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
+
+          avg_strtgy = minloc(strtgy_time, 1)
+          call MPI_Allreduce(MPI_IN_PLACE, avg_strtgy, 1, &
+                             MPI_INTEGER, MPI_SUM, NEKO_COMM)
+          avg_strtgy = avg_strtgy / pe_size
+          
+          write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', &
+               strtgy(avg_strtgy),']'
+          call neko_log%message(log_buf)
+
+          call device_free(tmp_d)
+          deallocate(tmp)
+       end select
     end if
-  
+
+    call neko_log%end_section()
+    
   end subroutine gs_init
 
   !> Deallocate a gather-scatter kernel

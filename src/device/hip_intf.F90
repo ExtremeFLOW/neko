@@ -144,6 +144,16 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipStreamCreateWithFlags(stream, flags) &
+          bind(c, name='hipStreamCreateWithFlags')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags
+     end function hipStreamCreateWithFlags
+  end interface
+
+  interface
      integer (c_int) function hipStreamDestroy(steam) &
           bind(c, name='hipStreamDestroy')
        use, intrinsic :: iso_c_binding

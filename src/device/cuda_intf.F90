@@ -124,6 +124,16 @@ module cuda_intf
   end interface
 
   interface
+     integer (c_int) function cudaStreamCreateWithFlags(stream, flags) &
+          bind(c, name='cudaStreamCreateWithFlags')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags
+     end function cudaStreamCreateWithFlags
+  end interface
+
+  interface
      integer (c_int) function cudaStreamDestroy(steam) &
           bind(c, name='cudaStreamDestroy')
        use, intrinsic :: iso_c_binding

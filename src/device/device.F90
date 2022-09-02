@@ -939,15 +939,28 @@ contains
   end subroutine device_sync_stream
 
   !> Create a device stream/command queue
-  subroutine device_stream_create(stream)
+  subroutine device_stream_create(stream, flags)
     type(c_ptr), intent(inout) :: stream
+    integer, optional :: flags
 #ifdef HAVE_HIP
-    if (hipStreamCreate(stream) .ne. hipSuccess) then
-       call neko_error('Error during stream create')
+    if (present(flags)) then
+       if (hipStreamCreateWithFlags(stream, flags) .ne. hipSuccess) then
+          call neko_error('Error during stream create (w. flags)')
+       end if
+    else
+       if (hipStreamCreate(stream) .ne. hipSuccess) then
+          call neko_error('Error during stream create')
+       end if
     end if
 #elif HAVE_CUDA
-    if (cudaStreamCreate(stream) .ne. cudaSuccess) then
-       call neko_error('Error during stream create')
+    if (present(flags)) then
+       if (cudaStreamCreateWithFlags(stream, flags) .ne. cudaSuccess) then
+          call neko_error('Error during stream create (w. flags)')
+       end if
+    else
+       if (cudaStreamCreate(stream) .ne. cudaSuccess) then
+          call neko_error('Error during stream create')
+       end if
     end if
 #elif HAVE_OPENCL
     call neko_error('Not implemented yet')
