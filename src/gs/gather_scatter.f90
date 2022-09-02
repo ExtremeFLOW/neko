@@ -91,7 +91,7 @@ contains
     integer :: i, j, ierr, bcknd_, glb_nshared, glb_nlocal
     logical :: use_device_mpi
     real(kind=rp), allocatable :: tmp(:)
-    type(c_ptr) :: tmp_d
+    type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = (/ int(B'00'), int(B'01'), int(B'10'), int(B'11') /)
     integer :: avg_strtgy
     real(kind=dp) :: strtgy_time(4)
