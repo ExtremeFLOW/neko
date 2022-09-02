@@ -206,6 +206,7 @@ contains
                strtgy(avg_strtgy),']'
           call neko_log%message(log_buf)
 
+          call device_deassociate(tmp)
           call device_free(tmp_d)
           deallocate(tmp)
        end select
