@@ -667,8 +667,8 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
   const size_t local_item_size[2] = {nt, pow2};
   const size_t global_item_size[2] = {nb * nt, pow2};
 
-  if((*j) > red_s) {
-    red_s = *j;
+  if((*j)*nb > red_s) {
+    red_s = (*j)*nb;
     if (bufred != NULL) {
       free(bufred);    
       CL_CHECK(clReleaseMemObject(bufred_d));
