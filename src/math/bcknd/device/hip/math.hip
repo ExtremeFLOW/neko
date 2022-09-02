@@ -329,6 +329,13 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /*
+   * Reduction buffer
+   */
+  int red_s = 0;
+  real * bufred = NULL;
+  real * bufred_d = NULL;
+  
   /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
@@ -339,32 +346,33 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
-
-    HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        free(bufred);
+        HIP_CHECK(hipFree(bufred_d));        
+      }
+      bufred = (real *) malloc(nb * sizeof(real));      
+      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
+    }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
                        nblcks, nthrds, 0, 0,
                        (real *) a, (real *) b,
-                       (real *) c, buf_d, *n);
+                       (real *) c, bufred_d, *n);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(bufred, bufred_d, nb * sizeof(real),
+                        hipMemcpyDeviceToHost));
 
     real res = 0.0;
     for (int i = 0; i < nb; i++) {
-      res += buf[i];
+      res += bufred[i];
     }
-
-    free(buf);
-    HIP_CHECK(hipFree(buf_d));
 
     return res;
   }
-  int red_s = 0;
-  real * bufred = NULL;
-  real * bufred_d = NULL;
+
   /**
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
@@ -434,26 +442,29 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
-
-    HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        free(bufred);
+        HIP_CHECK(hipFree(bufred_d));        
+      }
+      bufred = (real *) malloc(nb * sizeof(real));      
+      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
+    }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
                        nblcks, nthrds, 0, 0,
                        (real *) a, (real *) b,
-                       buf_d, *n);
+                       bufred_d, *n);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(bufred, bufred_d, nb * sizeof(real),
+                        hipMemcpyDeviceToHost));
 
     real res = 0.0;
     for (int i = 0; i < nb; i++) {
-      res += buf[i];
+      res += bufred[i];
     }
-
-    free(buf);
-    HIP_CHECK(hipFree(buf_d));
 
     return res;
   }
@@ -467,25 +478,28 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
-
-    HIP_CHECK(hipMalloc(&buf_d, nb*sizeof(real)));
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        free(bufred);
+        HIP_CHECK(hipFree(bufred_d));        
+      }
+      bufred = (real *) malloc(nb * sizeof(real));      
+      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
+    }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
                        nblcks, nthrds, 0, 0,
-                       (real *) a, buf_d, *n);
+                       (real *) a, bufred_d, *n);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(buf, buf_d, nb * sizeof(real), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(bufred, bufred_d, nb * sizeof(real),
+                        hipMemcpyDeviceToHost));
 
     real res = 0.0;
     for (int i = 0; i < nb; i++) {
-      res += buf[i];
+      res += bufred[i];
     }
-
-    free(buf);
-    HIP_CHECK(hipFree(buf_d));
 
     return res;
   }
