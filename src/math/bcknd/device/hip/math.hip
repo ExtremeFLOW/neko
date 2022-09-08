@@ -392,7 +392,7 @@ extern "C" {
         HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));
       }      
-      HIP_CHECK(hipHostMalloc(&bufred,(*j)*nb*sizeof(real),hipHostMallocDefault);
+      HIP_CHECK(hipHostMalloc(&bufred,(*j)*nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>), nblcks, nthrds,
