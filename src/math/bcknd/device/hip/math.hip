@@ -389,10 +389,10 @@ extern "C" {
     if((*j)*nb>red_s){
       red_s = (*j)*nb;
       if (bufred != NULL) {
-        free(bufred);
+        HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));
       }      
-      bufred = (real *) malloc((*j)*nb * sizeof(real));
+      HIP_CHECK(hipHostMalloc(&bufred,(*j)*nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>), nblcks, nthrds,

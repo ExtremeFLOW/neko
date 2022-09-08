@@ -396,10 +396,10 @@ extern "C" {
     if((*j)*nb>red_s){
       red_s = (*j)*nb;
       if (bufred != NULL) {
-	free(bufred);
+	CUDA_CHECK(cudaFreeHost(bufred));
 	CUDA_CHECK(cudaFree(bufred_d));
       }
-      bufred = (real *) malloc((*j)*nb * sizeof(real));
+      CUDA_CHECK(cudaMallocHost(&bufred,(*j)*nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     
