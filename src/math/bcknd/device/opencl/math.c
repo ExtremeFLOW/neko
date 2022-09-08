@@ -674,10 +674,12 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
   if((*j)*nb > red_s) {
     red_s = (*j)*nb;
     if (bufred != NULL) {
-      free(bufred);    
+      CL_CHECK(clReleaseMemObject(bufred));
       CL_CHECK(clReleaseMemObject(bufred_d));
     }
-    bufred = (real *) malloc((*j)*nb * sizeof(real));
+    bufred = clCreateBuffer(glb_ctx, CL_MEM_ALLOC_HOST_PTR,
+		    (*j) * nb * sizeof(real), NULL, &err);
+    CL_CHECK(err);
     bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
                               (*j) * nb * sizeof(real), NULL, &err);
     CL_CHECK(err);
