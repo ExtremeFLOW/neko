@@ -2,13 +2,18 @@ from ctypes import CDLL, util, c_char_p, c_int, POINTER, byref, cast, create_str
 import json
 
 neko = CDLL(util.find_library("nekointf"))
+
 neko.init.resType = None
+neko.finalize.resType = None
 
 neko.solve.argtypes = [POINTER(c_char_p), c_int]
 neko.solve.resType = None
 
 def init():
     neko.init()
+
+def finalize():
+    neko.finalize()
 
 def solve(case_json):
     cp = python_dict_to_fortran(case_json)

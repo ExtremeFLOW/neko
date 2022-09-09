@@ -267,6 +267,50 @@ contains
         
   end subroutine param_write
 
+  subroutine param_default(param)
+    type(param_t), intent(inout) :: param
+
+    param%nsamples = 0
+    param%output_bdry = .false.
+    param%output_part = .false.
+    param%output_chkp = .false.
+    param%dt = 0d0
+    param%T_end = 0d0
+    param%rho = 1d0
+    param%mu = 1d0
+    param%Re = 1d0
+    param%uinf = (/ 0d0, 0d0, 0d0 /)
+    param%abstol_vel = 1d-9
+    param%abstol_prs = 1d-9
+    param%delta = 1d0
+    param%ksp_vel = 'cg'
+    param%ksp_prs = 'gmres'
+    param%pc_vel = 'jacobi'
+    param%pc_prs = 'hsmg'
+    param%fluid_inflow = 'default'
+    param%vol_flow_dir = 0
+    param%avflow = .true.
+    param%loadb = .false.
+    param%flow_rate = 0d0
+    param%proj_prs_dim = 20
+    param%proj_vel_dim = 0
+    param%time_order = 3
+    param%jlimit = '00:00:00'
+    param%restart_file = ''
+    param%stats_begin = 0d0
+    param%stats_mean_flow = .false.
+    param%output_mean_flow = .false.
+    param%stats_mean_sqr_flow = .false.
+    param%output_mean_sqr_flow = .false.
+    param%output_dir = ''
+    param%dealias = .true.
+    param%lxd  = 0
+    param%blasius_approx = 'sin'
+    param%bc_labels(20) ='not'
+    param%dong_uchar = 1.0_rp
+    param%dong_delta = 0.01_rp
+
+  end subroutine param_default
   
 end module parameters
 
