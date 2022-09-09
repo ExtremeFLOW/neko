@@ -1,16 +1,22 @@
 AC_INIT([pyNeko],[0.0.1])
-AM_INIT_AUTOMAKE([foreign subdir-objects])
+AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
-LT_INIT([disable-static])
+
 
 PKG_CHECK_MODULES([Neko],[neko >= 0.4.99])
 FC=`pkg-config --variable=compiler neko`
 FCFLAGS=`pkg-config --cflags neko`
 LIBS=`pkg-config --libs neko`
+
+AC_PROG_FC(`pkg-config --variable=compiler neko`)
+LT_INIT([disable-static])
+
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
+LIBS="$JSON_Fortran_LIBS $LIBS"
+FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
 
 AM_PATH_PYTHON([3.5])
 if ! ${HAVE_PYTHON}; then

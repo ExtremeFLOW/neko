@@ -1,29 +1,19 @@
 module neko_intf
   use neko
+  use json_case
+  use json_module
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
 contains
 
-  subroutine neko_intf_init() bind(c, name='intf_init')
+  subroutine neko_intf_init() bind(c, name='init')
     character(len=LOG_SIZE) :: log_buf
     character(10) :: time
     character(8) :: date
 
     call neko_init()
-
-    if (pe_rank .eq. 0) then
-       write(*,*) ''
-       write(*,*) '   _  __  ____  __ __  ____ '
-       write(*,*) '  / |/ / / __/ / //_/ / __ \'
-       write(*,*) ' /    / / _/  / ,<   / /_/ /'
-       write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
-       write(*,*) ''
-       write(*,*) '(version: ', trim(NEKO_VERSION),')'
-       write(*,*) trim(NEKO_BUILD_INFO)
-       write(*,*) ''
-    end if
 
     call date_and_time(time=time, date=date)           
     call neko_log%section("Session Information")       
@@ -88,5 +78,31 @@ contains
     call neko_log%newline
 
   end subroutine neko_intf_init
+
+  subroutine neko_intf_solve(pyneko_case, ilen) bind(c, name="solve")
+    type(c_ptr) :: pyneko_case
+    integer(c_int), value :: ilen
+    character(len=:), allocatable :: fpyneko_case
+    type(json_file) :: json_case
+    type(case_t) :: neko_case
+    
+    
+
+    if (c_associated(pyneko_case)) then
+       block    
+         character(kind=c_char,len=ilen+1),pointer :: s
+         call c_f_pointer(pyneko_case, s)
+         fpyneko_case = s(1:ilen)
+         call json_case%load_from_string(fpyneko_case)
+         deallocate(fpyneko_case)
+         nullify(s)
+       end block
+    end if
+    
+    call json_case_create_neko_case(neko_case, json_case)
+    call json_case%destroy()
+
+
+  end subroutine neko_intf_solve
 
 end module neko_intf
