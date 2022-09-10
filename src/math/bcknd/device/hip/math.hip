@@ -349,10 +349,10 @@ extern "C" {
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
-        free(bufred);
+        HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));        
       }
-      bufred = (real *) malloc(nb * sizeof(real));      
+      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
     }
      
@@ -445,10 +445,10 @@ extern "C" {
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
-        free(bufred);
+        HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));        
       }
-      bufred = (real *) malloc(nb * sizeof(real));      
+      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
     }
      
@@ -481,10 +481,10 @@ extern "C" {
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
-        free(bufred);
+        HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));        
       }
-      bufred = (real *) malloc(nb * sizeof(real));      
+      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
     }
      

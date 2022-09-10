@@ -358,10 +358,10 @@ extern "C" {
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
-        free(bufred);
+        CUDA_CHECK(cudaFreeHost(bufred));
         CUDA_CHECK(cudaFree(bufred_d));        
       }
-      bufred = (real *) malloc(nb * sizeof(real));      
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
     }
      
@@ -435,10 +435,10 @@ extern "C" {
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
-        free(bufred);
+        CUDA_CHECK(cudaFreeHost(bufred));
         CUDA_CHECK(cudaFree(bufred_d));        
       }
-      bufred = (real *) malloc(nb * sizeof(real));      
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
     }
          
@@ -469,10 +469,10 @@ extern "C" {
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
-        free(bufred);
+        CUDA_CHECK(cudaFreeHost(bufred));
         CUDA_CHECK(cudaFree(bufred_d));        
       }
-      bufred = (real *) malloc(nb * sizeof(real));      
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
     }
      
