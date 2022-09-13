@@ -54,13 +54,13 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
     if (gmres_bf1 != NULL && gmres_bf_len < nb) {
-      free(gmres_bf1);
+      HIP_CHECK(hipHostFree(gmres_bf1));
       HIP_CHECK(hipFree(gmres_bfd1));
       gmres_bf1 = NULL;
     }
 
     if (gmres_bf1 == NULL){
-      gmres_bf1 = (real *) malloc(nb * sizeof(real));
+      HIP_CHECK(hipHostMalloc(&gmres_bf1, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&gmres_bfd1, nb*sizeof(real)));
       gmres_bf_len = nb;
     }
