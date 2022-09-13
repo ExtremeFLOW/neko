@@ -39,18 +39,30 @@
 #include <device/hip/check.h>
 
 extern "C" {
+
+  /**
+   * @todo Make sure that this gets deleted at some point...
+   */
   real * gmres_bf1 = NULL;
   real * gmres_bfd1 = NULL;
-  
+  int gmres_bf_len = 0;  
+
   real hip_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
 	
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
+    if (gmres_bf1 != NULL && gmres_bf_len < nb) {
+      free(gmres_bf1);
+      HIP_CHECK(hipFree(gmres_bfd1));
+      gmres_bf1 = NULL;
+    }
+
     if (gmres_bf1 == NULL){
       gmres_bf1 = (real *) malloc(nb * sizeof(real));
       HIP_CHECK(hipMalloc(&gmres_bfd1, nb*sizeof(real)));
+      gmres_bf_len = nb;
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gmres_part2_kernel<real>),
