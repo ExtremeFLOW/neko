@@ -254,7 +254,10 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    call this%proj_prs%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
+    if (param%proj_prs_dim .gt. 0) then
+       call this%proj_prs%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
+    end if
+    
     if (param%proj_vel_dim .gt. 0) then
        call this%proj_u%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
        call this%proj_v%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
