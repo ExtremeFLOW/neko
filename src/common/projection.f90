@@ -90,7 +90,7 @@ module projection
      real(kind=rp) :: tol = 1e-7_rp
      !logging variables
      real(kind=rp) :: proj_res
-     integer :: proj_m
+     integer :: proj_m = 0
    contains
      procedure, pass(this) :: project_on => bcknd_project_on
      procedure, pass(this) :: project_back => bcknd_project_back
