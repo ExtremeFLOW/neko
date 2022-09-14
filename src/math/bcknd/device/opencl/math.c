@@ -615,12 +615,11 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
   if ( nb > red_s){
     red_s = nb;
     if (bufred != NULL) {
-      CL_CHECK(clReleaseMemObject(bufred));
+      free(bufred);
       CL_CHECK(clReleaseMemObject(bufred_d));
     }
-    bufred = clCreateBuffer(glb_ctx, CL_MEM_ALLOC_HOST_PTR,
-                            nb * sizeof(real), NULL, &err);
-    CL_CHECK(err);
+    bufred = (real *) malloc(nb * sizeof(real));
+
     bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
                               nb * sizeof(real), NULL, &err);
     CL_CHECK(err);
@@ -676,12 +675,11 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
   if((*j)*nb > red_s) {
     red_s = (*j)*nb;
     if (bufred != NULL) {
-      CL_CHECK(clReleaseMemObject(bufred));
+      free(bufred);
       CL_CHECK(clReleaseMemObject(bufred_d));
     }
-    bufred = clCreateBuffer(glb_ctx, CL_MEM_ALLOC_HOST_PTR,
-		            (*j) * nb * sizeof(real), NULL, &err);
-    CL_CHECK(err);
+    bufred = (real *) malloc((*j) * nb * sizeof(real));
+
     bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
                               (*j) * nb * sizeof(real), NULL, &err);
     CL_CHECK(err);
@@ -702,7 +700,7 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
                                   0, NULL, &kern_wait));
     
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,
-                               bufred_d, CL_TRUE, 0, nb * sizeof(real),
+                               bufred_d, CL_TRUE, 0, (*j) * nb * sizeof(real),
                                bufred, 1, &kern_wait, NULL));
 
   for (k = 0; k < (*j); k++) {
