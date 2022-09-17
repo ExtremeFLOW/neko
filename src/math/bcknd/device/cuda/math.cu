@@ -408,17 +408,11 @@ extern "C" {
                                                 (const real *)mult,
                                                 bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, (*j)*nb * sizeof(real),
+    glsc3_reduce_kernel<<<(*j),1024>>> (bufred_d, nb, *j);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpy(h, bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToHost));
-    for (int k = 0; k < (*j); k++) {
-      h[k] = 0.0;
-    }
-    
-    for (int i = 0; i < nb; i++) {
-      for (int k = 0; k < (*j); k++) {
-        h[k] += bufred[i*(*j)+k];
-      }
-    }
   }
 
   /**
