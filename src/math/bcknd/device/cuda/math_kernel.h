@@ -357,6 +357,7 @@ __global__ void addcol4_kernel(T * __restrict__ a,
   }  
  
 }
+
 /**
  * Reduction kernel for glsc3
  *

@@ -359,6 +359,42 @@ __global__ void addcol4_kernel(T * __restrict__ a,
 }
 
 /**
+ * Reduction kernel for glsc3
+ *
+ */
+
+template< typename T >
+__global__ void glsc3_reduce_kernel( T * bufred,
+                                    const int n,
+                                    const int j
+                                   ) {
+   __shared__ T buf[1024] ;
+   const int idx = threadIdx.x;
+   const int y= blockIdx.x;
+   const int step = blockDim.x;
+
+   buf[idx]=0;
+   for (int i=idx ; i<n ; i+=step)
+   {
+     buf[idx] += bufred[i*j + y];
+   }
+   __syncthreads();
+
+   int i = 512;
+   while (i != 0)
+   {
+     if(threadIdx.x < i && (threadIdx.x + i) < n )
+     {
+        buf[threadIdx.x] += buf[threadIdx.x + i] ;
+     }
+     i = i>>1;
+     __syncthreads();
+   }
+
+   bufred[y] = buf[0];
+}
+
+/**
  * Device kernel for glsc3
  */
 template< typename T >

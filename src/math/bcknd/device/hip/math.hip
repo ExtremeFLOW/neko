@@ -385,33 +385,30 @@ extern "C" {
     const int nt = 1024/pow2;   
     const dim3 nthrds(nt, pow2, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
+    const dim3 nthrds_red(1024,1,1);
+    const dim3 nblcks_red( (*j),1,1);
     const int nb = ((*n) + nt - 1)/nt;
-    if((*j)*nb>red_s){
-      red_s = (*j)*nb;
+    if((*j)>red_s){
+      red_s = (*j);
       if (bufred != NULL) {
         HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));
       }      
-      HIP_CHECK(hipHostMalloc(&bufred,(*j)*nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, (*j)*nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&bufred,(*j)*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&bufred_d, (*j)*sizeof(real)));
     }
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>), nblcks, nthrds,
                        0, 0, (const real *) w, (const real **) v,
                        (const real *)mult, bufred_d, *j, *n);
     HIP_CHECK(hipGetLastError());
     
-    HIP_CHECK(hipMemcpy(bufred, bufred_d, (*j)*nb * sizeof(real),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real>), nblcks_red, nthrds_red,
+                       0, 0, bufred_d, nb, *j);
+    HIP_CHECK(hipGetLastError());
+
+
+    HIP_CHECK(hipMemcpy(h, bufred_d, (*j)* sizeof(real),
                         hipMemcpyDeviceToHost));
-    
-    for (int k = 0; k < (*j); k++) {
-      h[k] = 0.0;
-    }
-    
-    for (int i = 0; i < nb; i++) {
-      for (int k = 0; k < (*j); k++) {
-        h[k] += bufred[i*(*j)+k];
-      }
-    }
   }
 
   /**
