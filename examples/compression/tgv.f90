@@ -97,7 +97,8 @@ contains
       write(log_buf, '(A,E15.7,A,E15.7)') &
             'u value:', cpr_u%fld%x(i,1,1,10), &
             ' reconstructed u value:', &
-            cpr_u%fldhat(i,1,1,10)
+            cpr_u%fldhat%x(i,1,1,10)
+            !cpr_u%fldhat(i,1,1,10)
       call neko_log%message(log_buf)
     enddo
    
@@ -140,8 +141,10 @@ contains
     !call adios2_update(lglel,cpr_u%fld%x,cpr_u%fld%x, &
     !        cpr_u%fld%x,cpr_u%fld%x, cpr_u%fld%x)
            
-    call adios2_update(lglel,cpr_u%fldhat,cpr_u%fldhat, &
-            cpr_u%fldhat,cpr_u%fldhat, cpr_u%fldhat)
+    !call adios2_update(lglel,cpr_u%fldhat,cpr_u%fldhat, &
+    !        cpr_u%fldhat,cpr_u%fldhat, cpr_u%fldhat)
+    call adios2_update(lglel, cpr_u%fldhat%x, cpr_u%fldhat%x, &
+            cpr_u%fldhat%x, cpr_u%fldhat%x, cpr_u%fldhat%x)
 
     !----
 

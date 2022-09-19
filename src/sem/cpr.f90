@@ -47,16 +47,13 @@ module cpr
   !> include information needed for compressing fields
   type :: cpr_t
      real(kind=rp), allocatable :: v(:,:) !< Transformation matrix
-
      real(kind=rp), allocatable :: vt(:,:) !< Transformation matrix transposed
      real(kind=rp), allocatable :: vinv(:,:) !< Transformation matrix inversed 
      real(kind=rp), allocatable :: vinvt(:,:) !< Transformation matrix
      !! inversed and transposed 
      real(kind=rp), allocatable :: w(:,:) !< Diagonal matrix with weights
-
-     real(kind=rp), allocatable :: fldhat(:,:,:,:) !< transformed Field data
-
      type(field_t), pointer :: fld  => null()
+     type(field_t) :: fldhat
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
      type(dofmap_t), pointer :: dof => null()
@@ -79,6 +76,7 @@ contains
     call cpr_free(cpr)
 
     cpr%fld => u
+    cpr%fldhat = u
     cpr%msh => u%msh
     cpr%Xh => u%Xh
     cpr%dof => u%dof
@@ -90,7 +88,6 @@ contains
     allocate(cpr%vinv(cpr%Xh%lx, cpr%Xh%lx))
     allocate(cpr%vinvt(cpr%Xh%lx, cpr%Xh%lx))
     allocate(cpr%w(cpr%Xh%lx, cpr%Xh%lx))
-    allocate(cpr%fldhat(cpr%Xh%lx, cpr%Xh%ly, cpr%Xh%lz, cpr%msh%nelv))
 
     ! Initialize all the matrices
     call cpr_generate_specmat(cpr)
@@ -125,9 +122,7 @@ contains
        deallocate(cpr%w)
     end if
 
-    if(allocated(cpr%fldhat)) then
-       deallocate(cpr%fldhat)
-    end if
+    call field_free(cpr%fldhat)
 
     nullify(cpr%fld)
     nullify(cpr%msh)
@@ -244,7 +239,7 @@ contains
        if (space .eq. 'spec') then
           call copy(w2, cpr%fld%x(1,1,1,e), nxyz) ! start from phys field
        else
-          call copy(w2, cpr%fldhat(1,1,1,e), nxyz) ! start from spec coeff
+          call copy(w2, cpr%fldhat%x(1,1,1,e), nxyz) ! start from spec coeff
        endif
        ! apply the operator to the x direction, result in w1
        call mxm(specmat, cpr%Xh%lx, w2, cpr%Xh%lx, w1, cpr%Xh%lx*cpr%Xh%lx)
@@ -254,7 +249,7 @@ contains
        enddo
        ! apply matrix to z direction, result always in fldhat
        call mxm (w2, cpr%Xh%lx*cpr%Xh%lx, specmatt, cpr%Xh%lx,&
-            cpr%fldhat(1,1,1,e), cpr%Xh%lx)
+            cpr%fldhat%x(1,1,1,e), cpr%Xh%lx)
     enddo
 
   end subroutine cpr_goto_space
@@ -287,10 +282,10 @@ contains
     !truncate for every element
     do e = 1, nelv
        ! create temp vector where the trunc coeff will be
-       call copy(vtemp, cpr%fldhat(1,1,1,e), nxyz)
-       call copy(vtrunc, cpr%fldhat(1,1,1,e), nxyz)
+       call copy(vtemp, cpr%fldhat%x(1,1,1,e), nxyz)
+       call copy(vtrunc, cpr%fldhat%x(1,1,1,e), nxyz)
        ! sort the coefficients by absolute value
-       call sortcoeff(vsort, cpr%fldhat(1,1,1,e), isort, nxyz) 
+       call sortcoeff(vsort, cpr%fldhat%x(1,1,1,e), isort, nxyz) 
        ! initialize values for iterative procedure
        l2norm = 0.0_rp
        kut = 0
@@ -322,7 +317,7 @@ contains
           call reord(vtemp, isort, nxyz)
 
           ! calculate the error vector
-          call sub3(errvec, cpr%fldhat(1,1,1,e), vtemp, nxyz)
+          call sub3(errvec, cpr%fldhat%x(1,1,1,e), vtemp, nxyz)
 
           ! get the norm of the error
           l2norm = get_elem_l2norm(errvec, coef, 'spec' ,e)
@@ -330,7 +325,7 @@ contains
        end do
 
        ! copy the truncated field back to the main object
-       call copy(cpr%fldhat(1,1,1,e), vtrunc, nxyz)
+       call copy(cpr%fldhat%x(1,1,1,e), vtrunc, nxyz)
 
 
        !================debugging info
@@ -363,7 +358,7 @@ contains
           do i = 1, 10
              write(log_buf, '(A,E15.7,A,E15.7)') &
                   'org coeff:', vsort(i,1,1), ' truncated coeff', &
-                  cpr%fldhat(i,1,1,e)
+                  cpr%fldhat%x(i,1,1,e)
              call neko_log%message(log_buf)
           end do
        end if
