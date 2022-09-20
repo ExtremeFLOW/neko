@@ -388,14 +388,14 @@ extern "C" {
     const dim3 nthrds_red(1024,1,1);
     const dim3 nblcks_red( (*j),1,1);
     const int nb = ((*n) + nt - 1)/nt;
-    if((*j)>red_s){
-      red_s = (*j);
+    if((*j)*nb>red_s){
+      red_s = (*j)*nb;
       if (bufred != NULL) {
         HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));
       }      
-      HIP_CHECK(hipHostMalloc(&bufred,(*j)*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, (*j)*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&bufred,(*j)*nb*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>), nblcks, nthrds,
                        0, 0, (const real *) w, (const real **) v,

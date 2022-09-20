@@ -393,14 +393,14 @@ extern "C" {
     const dim3 nthrds(nt, pow2, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int nb = ((*n) + nt - 1)/nt;
-    if((*j)>red_s){
-      red_s = (*j);
+    if((*j)*nb>red_s){
+      red_s = (*j)*nb;
       if (bufred != NULL) {
 	CUDA_CHECK(cudaFreeHost(bufred));
 	CUDA_CHECK(cudaFree(bufred_d));
       }
-      CUDA_CHECK(cudaMallocHost(&bufred,(*j)*sizeof(real)));
-      CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*sizeof(real)));
+      CUDA_CHECK(cudaMallocHost(&bufred,(*j)*nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     
     glsc3_many_kernel<real><<<nblcks, nthrds>>>((const real *) w,
