@@ -76,6 +76,7 @@ module neko
   use jobctrl
   use device
   use cpr
+  use field_registry
 contains
 
   subroutine neko_init(C)
@@ -95,6 +96,9 @@ contains
     call device_init
 
     call neko_log%init()
+    neko_field_registry = field_registry_t()
+    
+    
 
     if (pe_rank .eq. 0) then
        write(*,*) ''

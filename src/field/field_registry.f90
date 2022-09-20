@@ -33,62 +33,62 @@
 !> Defines a registry for storing solution fields
 !
 module field_registry
-   use num_types
-   use field
+  use num_types
+  use field
 
-   implicit none
+  implicit none
 
-   type :: field_registry_t
-      type(field_t), allocatable :: fields(:) !< list of fields stored
-      integer, private :: n !< number of registered fields
+  type :: field_registry_t
+     type(field_t), allocatable :: fields(:) !< list of fields stored
+     integer, private :: n !< number of registered fields
    contains
-      procedure, pass(this) :: add_field => add_field
-      procedure, pass(this) :: n_fields => n_fields
+     procedure, pass(this) :: add_field => add_field
+     procedure, pass(this) :: n_fields => n_fields
 
-   end type field_registry_t
+  end type field_registry_t
 
-   !> Initialise the registry
-   interface field_registry_t
-      module procedure init
-   end interface field_registry_t
+  !> Initialise the registry
+  interface field_registry_t
+     module procedure init
+  end interface field_registry_t
 
-!   interface add_field
-!     module procedure add_field_external_dof
-!   end interface add_field
+  !   interface add_field
+  !     module procedure add_field_external_dof
+  !   end interface add_field
 
-   !> Global field registry
-   type(field_registry_t), public, target :: neko_field_registry
+  !> Global field registry
+  type(field_registry_t), public, target :: neko_field_registry
 
 contains
-   function init() result(this)
-      type(field_registry_t) :: this
+  function init() result(this)
+    type(field_registry_t) :: this
 
-      allocate (this%fields(10))
-      this%n = 0
+    allocate (this%fields(10))
+    this%n = 0
 
-      write (*, *) "INIT FIELD REGISTRY"
+    write (*, *) "INIT FIELD REGISTRY"
 
-   end function init
+  end function init
 
-!  subroutine add_field_external_dof(this, dof, fld_name)
-   subroutine add_field(this, dof, fld_name)
-      class(field_registry_t), intent(inout) :: this
-      type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
-      character(len=*), intent(in) :: fld_name     !< Name of the field
-      type(field_t) :: f
-      
-      write(*,*) "ADDING FIELD", fld_name
+  !  subroutine add_field_external_dof(this, dof, fld_name)
+  subroutine add_field(this, dof, fld_name)
+    class(field_registry_t), intent(inout) :: this
+    type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
+    character(len=*), intent(in) :: fld_name     !< Name of the field
+    type(field_t) :: f
 
-      call field_init(f, dof, fld_name)
-      this%n = this%n + 1
-      this%fields(this%n) = f
-   end subroutine
-   
-   pure function n_fields(this) result(n)
-      class(field_registry_t), intent(in) :: this
-      integer :: n
-         
-      n = this%n  
-   end function
+    write(*,*) "ADDING FIELD", fld_name
+
+    call field_init(f, dof, fld_name)
+    this%n = this%n + 1
+    this%fields(this%n) = f
+  end subroutine add_field
+
+  pure function n_fields(this) result(n)
+    class(field_registry_t), intent(in) :: this
+    integer :: n
+
+    n = this%n  
+  end function n_fields
 
 end module field_registry
