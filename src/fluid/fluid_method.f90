@@ -329,12 +329,12 @@ contains
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
     
-   call neko_field_registry%add_field(this%dm_Xh, 'u')
-   call neko_field_registry%add_field(this%dm_Xh, 'v')
-   call neko_field_registry%add_field(this%dm_Xh, 'w')
-   this%u => neko_field_registry%get_field('u')
-   this%v => neko_field_registry%get_field('v')
-   this%w => neko_field_registry%get_field('w')
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
