@@ -62,14 +62,15 @@ module fluid_method
   use mathops
   use operators
   use logger
+  use field_registry
   implicit none
   
   !> Base type of all fluid formulations
   type, abstract :: fluid_scheme_t
-     type(field_t) :: u         !< x-component of Velocity
-     type(field_t) :: v         !< y-component of Velocity
-     type(field_t) :: w         !< z-component of Velocity
-     type(field_t) :: p         !< Pressure
+     type(field_t), pointer :: u         !< x-component of Velocity
+     type(field_t), pointer :: v         !< y-component of Velocity
+     type(field_t), pointer :: w         !< z-component of Velocity
+     type(field_t), pointer :: p         !< Pressure
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -328,9 +329,12 @@ contains
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
     
-    call field_init(this%u, this%dm_Xh, 'u')
-    call field_init(this%v, this%dm_Xh, 'v')
-    call field_init(this%w, this%dm_Xh, 'w')
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
@@ -354,11 +358,15 @@ contains
     character(len=*), intent(in) :: scheme
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
-    
-    call field_init(this%u, this%dm_Xh, 'u')
-    call field_init(this%v, this%dm_Xh, 'v')
-    call field_init(this%w, this%dm_Xh, 'w')
-    call field_init(this%p, this%dm_Xh, 'p')
+
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    call neko_field_registry%add_field(this%dm_Xh, 'p')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
+    this%p => neko_field_registry%get_field('p')
 
     !
     ! Setup pressure boundary conditions
@@ -414,10 +422,6 @@ contains
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
 
-    call field_free(this%u)
-    call field_free(this%v)
-    call field_free(this%w)
-    call field_free(this%p)
     call field_free(this%bdry)
 
     if (allocated(this%bc_inflow)) then
