@@ -35,60 +35,183 @@
 module field_registry
   use num_types
   use field
+  use utils
 
   implicit none
 
   type :: field_registry_t
-     type(field_t), allocatable :: fields(:) !< list of fields stored
-     integer, private :: n !< number of registered fields
+     type(field_t), private, allocatable :: fields(:) !< list of fields stored
+     integer, private :: n                            !< number of registered fields
+     integer, private :: expansion_size               !< the size the fields array is increased by upon reallocation
    contains
-     procedure, pass(this) :: add_field => add_field
-     procedure, pass(this) :: n_fields => n_fields
-
+     procedure, private, pass(this) :: expand
+     procedure, pass(this) :: init
+     procedure, pass(this) :: free
+     procedure, pass(this) :: add_field
+     procedure, pass(this) :: n_fields
+     procedure, pass(this) :: get_field_by_index
+     procedure, pass(this) :: get_field_by_name
+     procedure, pass(this) :: get_expansion_size
+     procedure, pass(this) :: get_size
+     procedure, pass(this) :: field_exists
+     generic :: get_field => get_field_by_index, get_field_by_name
   end type field_registry_t
-
-  !> Initialise the registry
-  interface field_registry_t
-     module procedure init
-  end interface field_registry_t
-
-  !   interface add_field
-  !     module procedure add_field_external_dof
-  !   end interface add_field
 
   !> Global field registry
   type(field_registry_t), public, target :: neko_field_registry
 
 contains
-  function init() result(this)
-    type(field_registry_t) :: this
+  !> Constructor, optionally taking initial registry and expansion
+  !> size as argument
+  subroutine init(this, size, expansion_size)
+    class(field_registry_t), intent(inout):: this
+    integer, optional, intent(in) :: size
+    integer, optional, intent(in) :: expansion_size
 
-    allocate (this%fields(10))
+    if (present(size)) then
+       allocate (this%fields(size))
+    else
+       allocate (this%fields(50))
+    end if
+
+    if (present(expansion_size)) then
+       this%expansion_size = expansion_size
+    else
+       this%expansion_size = 50
+    end if
+
     this%n = 0
+  end subroutine init
 
-    write (*, *) "INIT FIELD REGISTRY"
+  !> Destructor
+  subroutine free(this)
+    class(field_registry_t), intent(inout):: this
+    integer :: i
 
-  end function init
+    do i=1, this%n_fields()
+       call field_free(this%fields(i))
+    end do
+    deallocate(this%fields)
+  end subroutine free
 
-  !  subroutine add_field_external_dof(this, dof, fld_name)
+  !> expand the fields array so as to accomodate more fields
+  subroutine expand(this)
+    class(field_registry_t), intent(inout) :: this
+    type(field_t), allocatable :: temp(:)  
+    integer :: i
+
+    allocate(temp(this%n + this%expansion_size))
+    temp(1:this%n) = this%fields(1:this%n)
+    call move_alloc(temp, this%fields)
+
+
+  end subroutine expand
+
   subroutine add_field(this, dof, fld_name)
     class(field_registry_t), intent(inout) :: this
-    type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
-    character(len=*), intent(in) :: fld_name     !< Name of the field
-    type(field_t) :: f
+    type(dofmap_t), target, intent(in) :: dof
+    character(len=*), target, intent(in) :: fld_name 
+    type(h_cptr_t) :: key
+    integer :: i
 
-    write(*,*) "ADDING FIELD", fld_name
+    if (this%field_exists(fld_name)) then
+       call neko_error("Field with name " // fld_name // &
+            " is already registered")
+    end if
 
-    call field_init(f, dof, fld_name)
+    if (this%n_fields() == size(this%fields)) then
+       call this%expand()
+    end if
+
     this%n = this%n + 1
-    this%fields(this%n) = f
+
+    ! initialize the field at the appropraite index
+    call field_init(this%fields(this%n), dof, fld_name)
+
+    ! generate a key for the name lookup map and assign it to the index
+    !    key%ptr = c_loc(fld_name)
+    !    call this%name_index_map%set(key, this%n)
+
+    !    write(*,*) "HTABLE DATA, ", this%name_index_map%get(key, i)
   end subroutine add_field
 
+  !> Get the number of fields stored in the registry
   pure function n_fields(this) result(n)
     class(field_registry_t), intent(in) :: this
     integer :: n
 
     n = this%n  
   end function n_fields
+
+  !> Get the size of the fields array
+  pure function get_size(this) result(n)
+    class(field_registry_t), intent(in) :: this
+    integer :: n
+
+    n = size(this%fields)
+  end function get_size
+
+  !> Get the expansion size
+  pure function get_expansion_size(this) result(n)
+    class(field_registry_t), intent(in) :: this
+    integer :: n
+
+    n = this%expansion_size
+  end function get_expansion_size
+
+  !> Get pointer to a stored field by index
+  function get_field_by_index(this, i) result(f)
+    class(field_registry_t), target, intent(in) :: this
+    integer, intent(in) :: i
+    type(field_t), pointer :: f
+
+    if (i < 1) then
+       call neko_error("Field index must be > 1")
+    else if (i > this%n_fields()) then
+       call neko_error("Field index exceeds number of stored fields")
+    endif
+
+    f => this%fields(i)
+  end function get_field_by_index
+
+  !> Get pointer to a stored field by field name
+  function get_field_by_name(this, name) result(f)
+    class(field_registry_t), target, intent(in) :: this
+    character(len=*), intent(in) ::name 
+    type(field_t), pointer :: f
+    logical :: found
+    integer :: i
+
+    do i=1, this%n_fields()
+       if (this%fields(i)%name == name) then
+          f => this%fields(i)
+          found = .true.
+          exit
+       end if
+    end do
+
+    if (.not. found) then
+       call neko_error("Field " // name // &
+            " could not be found in the registry")
+    end if
+  end function get_field_by_name
+
+  !> Check if a field with a given name is already in the registry
+  function field_exists(this, name) result(found)
+    class(field_registry_t), target, intent(in) :: this
+    character(len=*), intent(in) ::name 
+    logical :: found
+    integer :: i
+
+    found = .false.
+    do i=1, this%n_fields()
+       if (this%fields(i)%name == name) then
+          found = .true.
+          exit
+       end if
+    end do
+  end function field_exists
+
+
 
 end module field_registry

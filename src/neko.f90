@@ -96,7 +96,7 @@ contains
     call device_init
 
     call neko_log%init()
-    neko_field_registry = field_registry_t()
+    call neko_field_registry%init()
     
     
 
@@ -209,6 +209,7 @@ contains
        call case_free(C)
     end if
     
+    call neko_field_registry%free()
     call device_finalize
     call mpi_types_free
     call comm_free
