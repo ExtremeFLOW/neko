@@ -359,14 +359,14 @@ contains
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
 
-   call neko_field_registry%add_field(this%dm_Xh, 'u')
-   call neko_field_registry%add_field(this%dm_Xh, 'v')
-   call neko_field_registry%add_field(this%dm_Xh, 'w')
-   call neko_field_registry%add_field(this%dm_Xh, 'p')
-   this%u => neko_field_registry%get_field('u')
-   this%v => neko_field_registry%get_field('v')
-   this%w => neko_field_registry%get_field('w')
-   this%p => neko_field_registry%get_field('p')
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    call neko_field_registry%add_field(this%dm_Xh, 'p')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
+    this%p => neko_field_registry%get_field('p')
 
     !
     ! Setup pressure boundary conditions
