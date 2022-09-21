@@ -67,10 +67,10 @@ module fluid_method
   
   !> Base type of all fluid formulations
   type, abstract :: fluid_scheme_t
-     type(field_t), pointer :: u         !< x-component of Velocity
-     type(field_t), pointer :: v         !< y-component of Velocity
-     type(field_t), pointer :: w         !< z-component of Velocity
-     type(field_t), pointer :: p         !< Pressure
+     type(field_t), pointer :: u => null() !< x-component of Velocity
+     type(field_t), pointer :: v => null() !< y-component of Velocity
+     type(field_t), pointer :: w => null() !< z-component of Velocity
+     type(field_t), pointer :: p => null() !< Pressure
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -462,6 +462,12 @@ contains
     call bc_list_free(this%bclst_vel)
 
     nullify(this%params)
+
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%p)
+    
     
   end subroutine fluid_scheme_free
 
@@ -470,6 +476,13 @@ contains
   subroutine fluid_scheme_validate(this)
     class(fluid_scheme_t), target, intent(inout) :: this
 
+    if ( (.not. associated(this%u)) .or. &
+         (.not. associated(this%v)) .or. &
+         (.not. associated(this%w)) .or. &
+         (.not. associated(this%p))) then
+       call neko_error('Fields are not registered')
+    end if
+    
     if ( (.not. allocated(this%u%x)) .or. &
          (.not. allocated(this%v%x)) .or. &
          (.not. allocated(this%w%x)) .or. &
