@@ -36,17 +36,17 @@ module field_registry
   use num_types
   use field
   use utils
-
   implicit none
-
+  private
+  
   type :: field_registry_t
      type(field_t), private, allocatable :: fields(:) !< list of fields stored
      integer, private :: n                            !< number of registered fields
      integer, private :: expansion_size               !< the size the fields array is increased by upon reallocation
    contains
      procedure, private, pass(this) :: expand
-     procedure, pass(this) :: init
-     procedure, pass(this) :: free
+     procedure, pass(this) :: init => field_registry_init
+     procedure, pass(this) :: free => field_registry_free
      procedure, pass(this) :: add_field
      procedure, pass(this) :: n_fields
      procedure, pass(this) :: get_field_by_index
@@ -63,7 +63,7 @@ module field_registry
 contains
   !> Constructor, optionally taking initial registry and expansion
   !> size as argument
-  subroutine init(this, size, expansion_size)
+  subroutine field_registry_init(this, size, expansion_size)
     class(field_registry_t), intent(inout):: this
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
@@ -81,10 +81,10 @@ contains
     end if
 
     this%n = 0
-  end subroutine init
+  end subroutine field_registry_init
 
   !> Destructor
-  subroutine free(this)
+  subroutine field_registry_free(this)
     class(field_registry_t), intent(inout):: this
     integer :: i
 
@@ -92,7 +92,7 @@ contains
        call field_free(this%fields(i))
     end do
     deallocate(this%fields)
-  end subroutine free
+  end subroutine field_registry_free
 
   !> expand the fields array so as to accomodate more fields
   subroutine expand(this)
