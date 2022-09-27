@@ -57,13 +57,16 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall 
 ! not be used for advertising or product endorsement purposes.
 !
+
+!> Collection of vector field operations operating on \f$ a_i \f$ and \f$b_i\f$. Note that in general the indices \f$i=1 \ldots gdim\f$ and \f$j=1 \ldots n\f$. \f$gdim\f$ is assumed to be either 2 or 3 only.
+
 module mathops
   use num_types
   implicit none
 
 contains
 
-  !> \f$ a = -a \f$
+  !> \f$ a_i(j) = -a_i(j) \f$ for \f$j=1 \ldots n\f$ and \f$i=1 \ldots gdim\f$.
   subroutine opchsign(a1, a2, a3, gdim, n)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
@@ -84,7 +87,7 @@ contains
 
   end subroutine opchsign
   
-  !> \f$ a = a * c \f$
+  !> \f$ a_i(j) = a_i(j) * c \f$
   subroutine opcolv(a1, a2, a3, c, gdim, n)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
@@ -106,7 +109,7 @@ contains
 
   end subroutine opcolv
 
-  !> \f$ a(i) = b(i) * c(i) * d \f$ 
+  !> \f$ a_i(j) = b_i(j) * c(j) * d \f$ 
   subroutine opcolv3c(a1, a2, a3, b1, b2, b3, c, d, n, gdim)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
@@ -129,7 +132,7 @@ contains
 
   end subroutine opcolv3c
 
-  !> \f$ a(i) = a + b(i) * c \f$ 
+  !> \f$ a_i(j) = a_i(j) + b_i(j) * c \f$ 
   subroutine opadd2cm(a1, a2, a3, b1, b2, b3, c, n, gdim)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
@@ -152,7 +155,7 @@ contains
 
   end subroutine opadd2cm
 
-  !> \f$ a(i) = a + b(i) * c(i) \f$
+  !> \f$ a_i(j) = a_i(j) + b_i(j) * c(j) \f$
   subroutine opadd2col(a1, a2, a3, b1, b2, b3, c, n, gdim)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
