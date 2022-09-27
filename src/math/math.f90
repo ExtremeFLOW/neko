@@ -68,6 +68,9 @@ module math
   !> \f$ ln(2) \f$
   real(kind=rp), parameter :: NEKO_M_LN2 = log(2.0_rp)
 
+  !> \f$ \pi \f$
+  real(kind=rp), parameter :: pi = 4._rp*atan(1._rp)
+
   interface abscmp
      module procedure sabscmp, dabscmp, qabscmp
   end interface abscmp
