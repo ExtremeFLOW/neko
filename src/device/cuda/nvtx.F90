@@ -15,7 +15,7 @@ module nvtx
      subroutine nvtxRangePop() bind(C, name='nvtxRangePop')
      end subroutine nvtxRangePop
   end interface nvtxRangePop
-#endif
+
 
 contains
   
@@ -36,4 +36,5 @@ contains
 
 end subroutine nvtxStartRange
 
+#endif
 end module nvtx

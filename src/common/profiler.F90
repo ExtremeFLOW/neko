@@ -40,10 +40,18 @@ contains
 
   subroutine profiler_start_region(name)
     character(kind=c_char,len=*) :: name
+
+#ifdef HAVE_NVTX
     call nvtxStartRange(name)
+#endif
+    
   end subroutine profiler_start_region
   
   subroutine profiler_end_region
+
+#ifdef HAVE_NVTX
     call nvtxRangePop
+#endif
+    
   end subroutine profiler_end_region
 end module profiler
