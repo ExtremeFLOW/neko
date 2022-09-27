@@ -1492,10 +1492,10 @@ contains
   !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
   subroutine mesh_mark_periodic_facet(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: pf
-    integer, intent(inout) :: pe
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: pf
+    integer, intent(in) :: pe
     integer, intent(inout) :: pids(4)
     integer, dimension(4) :: org_ids
     
@@ -1506,8 +1506,8 @@ contains
   !> Get original ids of periodic points
   subroutine mesh_get_facet_ids(m, f, e, pids)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
+    integer, intent(in) :: f
+    integer, intent(in) :: e
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
     integer :: i
@@ -1519,7 +1519,8 @@ contains
                                                        5,6,7,8/),&
                                                        (/4,6/))
   
-    select type(ele => m%elements(e)%e)
+
+    select(ele => m%elements(e)%e)
     type is(hex_t)
        do i = 1, 4
           pi => ele%pts(face_nodes(i,f))%p
@@ -1642,10 +1643,10 @@ contains
   !! periodic points
   subroutine mesh_apply_periodic_facet(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: pf
-    integer, intent(inout) :: pe
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: pf
+    integer, intent(in) :: pe
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
     integer :: i, id, p_local_idx
