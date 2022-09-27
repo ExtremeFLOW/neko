@@ -5,17 +5,17 @@ module fluid_abbdf_cpu
   
   type, public, extends(fluid_sumab_t) :: fluid_sumab_cpu_t
    contains
-     procedure, nopass :: compute => fluid_sumab_cpu
+     procedure, nopass :: compute_fluid => fluid_sumab_cpu
   end type fluid_sumab_cpu_t
 
   type, public, extends(fluid_makeabf_t) ::  fluid_makeabf_cpu_t
    contains
-     procedure, nopass :: compute => fluid_makeabf_cpu
+     procedure, nopass :: compute_fluid => fluid_makeabf_cpu
   end type fluid_makeabf_cpu_t
 
   type, public, extends(fluid_makebdf_t) :: fluid_makebdf_cpu_t
    contains
-     procedure, nopass :: compute => fluid_makebdf_cpu
+     procedure, nopass :: compute_fluid => fluid_makebdf_cpu
   end type fluid_makebdf_cpu_t
   
 contains
@@ -46,35 +46,39 @@ contains
     
   end subroutine fluid_sumab_cpu
 
-  subroutine fluid_makeabf_cpu(ta1, ta2, ta3, abx1, aby1, abz1, &
-                               abx2, aby2, abz2, bfx, bfy, bfz, rho, ab, n)
-    type(field_t), intent(inout) :: ta1, ta2, ta3
-    type(field_t), intent(inout) :: abx1, aby1, abz1
-    type(field_t), intent(inout) :: abx2, aby2, abz2
-    real(kind=rp), intent(inout) :: rho, ab(10)
+  subroutine fluid_makeabf_cpu(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+                             fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
+                             rho, ext_coeffs, n)
+    type(field_t), intent(inout) :: temp1, temp2, temp3
+    type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
+    type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
+    real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
+    real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     integer :: i
 
     do i = 1, n
-       ta1%x(i,1,1,1) = ab(2) * abx1%x(i,1,1,1) + ab(3) * abx2%x(i,1,1,1)
-       ta2%x(i,1,1,1) = ab(2) * aby1%x(i,1,1,1) + ab(3) * aby2%x(i,1,1,1)
-       ta3%x(i,1,1,1) = ab(2) * abz1%x(i,1,1,1) + ab(3) * abz2%x(i,1,1,1)
+       temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
+                          ext_coeffs(3) * fx_laglag%x(i,1,1,1)
+       temp2%x(i,1,1,1) = ext_coeffs(2) * fy_lag%x(i,1,1,1) + &
+                          ext_coeffs(3) * fy_laglag%x(i,1,1,1)
+       temp3%x(i,1,1,1) = ext_coeffs(2) * fz_lag%x(i,1,1,1) + &
+                          ext_coeffs(3) * fz_laglag%x(i,1,1,1)
     end do
 
     do i = 1, n
-       abx2%x(i,1,1,1) = abx1%x(i,1,1,1)
-       aby2%x(i,1,1,1) = aby1%x(i,1,1,1)
-       abz2%x(i,1,1,1) = abz1%x(i,1,1,1)
-       abx1%x(i,1,1,1) = bfx(i)
-       aby1%x(i,1,1,1) = bfy(i)
-       abz1%x(i,1,1,1) = bfz(i)
+       fx_laglag%x(i,1,1,1) = fx_lag%x(i,1,1,1)
+       fy_laglag%x(i,1,1,1) = fy_lag%x(i,1,1,1)
+       fz_laglag%x(i,1,1,1) = fz_lag%x(i,1,1,1)
+       fx_lag%x(i,1,1,1) = fx(i)
+       fy_lag%x(i,1,1,1) = fy(i)
+       fz_lag%x(i,1,1,1) = fz(i)
     end do
 
     do i = 1, n
-       bfx(i) = (ab(1) * bfx(i) + ta1%x(i,1,1,1)) * rho
-       bfy(i) = (ab(1) * bfy(i) + ta2%x(i,1,1,1)) * rho
-       bfz(i) = (ab(1) * bfz(i) + ta3%x(i,1,1,1)) * rho
+       fx(i) = (ext_coeffs(1) * fx(i) + temp1%x(i,1,1,1)) * rho
+       fy(i) = (ext_coeffs(1) * fy(i) + temp2%x(i,1,1,1)) * rho
+       fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho
     end do
     
   end subroutine fluid_makeabf_cpu

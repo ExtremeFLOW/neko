@@ -58,7 +58,7 @@ module fluid_method
   use bc
   use mesh
   use math
-  use abbdf
+  use time_integration
   use mathops
   use operators
   use logger
@@ -132,14 +132,14 @@ module fluid_method
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_method_step(this, t, tstep, ab_bdf)
+     subroutine fluid_method_step(this, t, tstep, ext_bdf)
        import fluid_scheme_t
-       import abbdf_t
+       import time_integration_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
-       type(abbdf_t), intent(inout) :: ab_bdf
+       type(time_integration_t), intent(inout) :: ext_bdf
      end subroutine fluid_method_step
   end interface
 

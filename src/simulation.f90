@@ -34,7 +34,7 @@
 module simulation
   use case
   use gather_scatter
-  use abbdf
+  use time_integration
   use file
   use logger
   use jobctrl
@@ -85,9 +85,9 @@ contains
        call neko_log%message(log_buf)
 
        
-       call simulation_settime(t, C%params%dt, C%ab_bdf, C%tlag, C%dtlag, tstep)
+       call simulation_settime(t, C%params%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
        call neko_log%section('Fluid')       
-       call C%fluid%step(t, tstep, C%ab_bdf)
+       call C%fluid%step(t, tstep, C%ext_bdf)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
             'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
@@ -108,10 +108,10 @@ contains
     
   end subroutine neko_solve
 
-  subroutine simulation_settime(t, dt, ab_bdf, tlag, dtlag, step)
+  subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
     real(kind=rp), intent(inout) :: t
     real(kind=rp), intent(in) :: dt
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(time_integration_t), intent(inout) :: ext_bdf
     real(kind=rp), dimension(10) :: tlag
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
@@ -131,8 +131,8 @@ contains
 
     t = t + dt
 
-    call ab_bdf%set_bd(dtlag)
-    call ab_bdf%set_abbd(dtlag)
+    call ext_bdf%set_bd(dtlag)
+    call ext_bdf%set_abbd(dtlag)
     
   end subroutine simulation_settime
 

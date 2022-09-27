@@ -40,17 +40,17 @@ module fluid_abbdf_device
 
   type, public, extends(fluid_sumab_t) :: fluid_sumab_device_t
    contains
-     procedure, nopass :: compute => fluid_sumab_device
+     procedure, nopass :: compute_fluid => fluid_sumab_device
   end type fluid_sumab_device_t
 
   type, public, extends(fluid_makeabf_t) ::  fluid_makeabf_device_t
    contains
-     procedure, nopass :: compute => fluid_makeabf_device
+     procedure, nopass :: compute_fluid => fluid_makeabf_device
   end type fluid_makeabf_device_t
 
   type, public, extends(fluid_makebdf_t) :: fluid_makebdf_device_t
    contains
-     procedure, nopass :: compute => fluid_makebdf_device
+     procedure, nopass :: compute_fluid => fluid_makebdf_device
   end type fluid_makebdf_device_t
 
 #ifdef HAVE_HIP
@@ -215,32 +215,39 @@ contains
     
   end subroutine fluid_sumab_device
 
-  subroutine fluid_makeabf_device(ta1, ta2, ta3, abx1, aby1, abz1, &
-                               abx2, aby2, abz2, bfx, bfy, bfz, rho, ab, n)
-    type(field_t), intent(inout) :: ta1, ta2, ta3
-    type(field_t), intent(inout) :: abx1, aby1, abz1
-    type(field_t), intent(inout) :: abx2, aby2, abz2
-    real(kind=rp), intent(inout) :: rho, ab(10)
+  subroutine fluid_makeabf_device(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+                           fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
+                           rho, ext_coeffs, n)
+    type(field_t), intent(inout) :: temp1, temp2, temp3
+    type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
+    type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
+    real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    type(c_ptr) :: bfx_d, bfy_d, bfz_d
+    real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
+    type(c_ptr) :: fx_d, fy_d, fz_d
 
-    bfx_d = device_get_ptr(bfx)
-    bfy_d = device_get_ptr(bfy)
-    bfz_d = device_get_ptr(bfz)
+    fx_d = device_get_ptr(fx)
+    fy_d = device_get_ptr(fy)
+    fz_d = device_get_ptr(fz)
 
 #ifdef HAVE_HIP
-    call fluid_makeabf_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
-         abx1%x_d, aby1%x_d, abz1%x_d, abx2%x_d, aby2%x_d, abz2%x_d, &
-         bfx_d, bfy_d, bfz_d, rho, ab(1), ab(2), ab(3), n)
+    call fluid_makeabf_hip(temp1%x_d, temp2%x_d, temp3%x_d, &
+         fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
+         fx_lag_lag%x_d, fy_lag_lag%x_d, fz_lag_lag%x_d, &
+         fx_d, fy_d, fz_d, rho, &
+          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
-    call fluid_makeabf_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
-         abx1%x_d, aby1%x_d, abz1%x_d, abx2%x_d, aby2%x_d, abz2%x_d, &
-         bfx_d, bfy_d, bfz_d, rho, ab(1), ab(2), ab(3), n)
+    call fluid_makeabf_cuda(temp1%x_d, temp2%x_d, temp3%x_d, &
+         fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
+         fx_lag_lag%x_d, fy_lag_lag%x_d, fz_lag_lag%x_d, &
+         fx_d, fy_d, fz_d, rho, &
+          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
-    call fluid_makeabf_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
-         abx1%x_d, aby1%x_d, abz1%x_d, abx2%x_d, aby2%x_d, abz2%x_d, &
-         bfx_d, bfy_d, bfz_d, rho, ab(1), ab(2), ab(3), n)
+    call fluid_makeabf_opencl(temp1%x_d, temp2%x_d, temp3%x_d, &
+         fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
+         fx_lag_lag%x_d, fy_lag_lag%x_d, fz_lag_lag%x_d, &
+         fx_d, fy_d, fz_d, rho, &
+          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
     
   end subroutine fluid_makeabf_device
