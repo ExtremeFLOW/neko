@@ -58,7 +58,9 @@
 ! not be used for advertising or product endorsement purposes.
 !
 
-!> Collection of vector field operations operating on \f$ a_i \f$ and \f$b_i\f$. Note that in general the indices \f$i=1 \ldots gdim\f$ and \f$j=1 \ldots n\f$. \f$gdim\f$ is assumed to be either 2 or 3 only.
+  !> Collection of vector field operations operating on \f$ a_i \f$ and \f$b_i\f$.
+  !! Note that in general the indices \f$i=1 \ldots gdim\f$ and \f$j=1 \ldots n\f$.
+  !! \f$gdim\f$ is assumed to be either 2 or 3 only.
 
 module mathops
   use num_types
