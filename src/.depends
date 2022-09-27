@@ -96,7 +96,7 @@ io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o config/num_types.o fluid/mean_flow.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 common/sampler.o : common/sampler.f90 common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
-common/profiler.o : common/profiler.F90 config/neko_config.o 
+common/profiler.o : common/profiler.F90 device/cuda/nvtx.o config/neko_config.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
 bc/dong_outflow.o : bc/dong_outflow.f90 bc/bcknd/device/device_dong_outflow.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o 
@@ -157,7 +157,7 @@ fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 math/operators.o f
 fluid/bcknd/device/device_fluid_plan4.o : fluid/bcknd/device/device_fluid_plan4.f90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o fluid/advection.o common/log.o common/projection.o common/abbdf.o fluid/fluid_aux.o bc/facet_normal.o field/field_series.o fluid/fluid_method.o fluid/fluid_plan4.o math/ax_helm_fctry.o 
 fluid/bcknd/device/fluid_abbdf_device.o : fluid/bcknd/device/fluid_abbdf_device.F90 common/utils.o device/device.o fluid/fluid_abbdf.o 
 fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o math/operators.o gs/gather_scatter.o fluid/pnpn_res.o 
-simulation.o : simulation.f90 common/jobctrl.o common/log.o io/file.o common/abbdf.o gs/gather_scatter.o case.o 
+simulation.o : simulation.f90 common/jobctrl.o common/log.o io/file.o common/abbdf.o gs/gather_scatter.o case.o common/profiler.o
 math/ax_helm_fctry.o : math/ax_helm_fctry.f90 math/bcknd/cpu/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o math/bcknd/device/ax_helm_device.o math/ax.o config/neko_config.o 
 math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/ax.o 
 math/bcknd/sx/ax_helm_sx.o : math/bcknd/sx/ax_helm_sx.f90 config/num_types.o math/ax.o 

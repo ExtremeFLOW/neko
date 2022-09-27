@@ -174,6 +174,7 @@ neko_fortran_SOURCES = \
 	common/jobctrl.f90\
 	device/cuda_intf.F90\
 	device/hip_intf.F90\
+	device/cuda/nvtx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
 	device/device.F90\

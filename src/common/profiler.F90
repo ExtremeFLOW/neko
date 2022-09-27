@@ -33,5 +33,17 @@
 !> Profiling interface
 module profiler
   use neko_config
+  use nvtx
   implicit none
+
+contains
+
+  subroutine profiler_start_region(name)
+    character(kind=c_char,len=*) :: name
+    call nvtxStartRange(name)
+  end subroutine profiler_start_region
+  
+  subroutine profiler_end_region
+    call nvtxRangePop
+  end subroutine profiler_end_region
 end module profiler

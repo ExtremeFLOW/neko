@@ -38,6 +38,7 @@ module simulation
   use file
   use logger
   use jobctrl
+  use profiler
   implicit none
   private
 
@@ -73,6 +74,7 @@ contains
 
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()))
+       call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
        cfl = C%fluid%compute_cfl(C%params%dt)
@@ -98,12 +100,13 @@ contains
        call neko_log%end()
        call C%q%eval(t, C%params%dt)
        call C%s%sample(t)
+       call profiler_end_region
     end do
 
     if (t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
     end if
-    
+
     call neko_log%end_section('normal end.')
     
   end subroutine neko_solve
