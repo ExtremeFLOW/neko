@@ -57,7 +57,7 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall 
 ! not be used for advertising or product endorsement purposes.
 !
-module math 
+module math
   use num_types
   use comm
   implicit none
@@ -69,7 +69,7 @@ module math
   real(kind=rp), parameter :: NEKO_M_LN2 = log(2.0_rp)
 
   !> \f$ \pi \f$
-  real(kind=rp), parameter :: pi = 4._rp*atan(1.d0)
+  real(kind=rp), parameter :: pi = 4._rp*atan(1._rp)
 
   interface abscmp
      module procedure sabscmp, dabscmp, qabscmp
