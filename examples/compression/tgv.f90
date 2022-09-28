@@ -80,27 +80,107 @@ contains
     integer ::  lglel(u%msh%nelv)
     !----
 
-    !if (mod(tstep,10).ne.0) return
+    nelv  = u%msh%nelv
+    npts  = u%Xh%lx**3
+    nelgv = u%msh%glb_nelv
+
+
+    call neko_log%section('Compression')       
+   
+    if (tstep.eq.1) then
+
+      write(log_buf, '(A)') &
+            'Initialize ADIOS2' 
+
+      write(log_buf, '(A,I5.2)') &
+            'The communicator is:', NEKO_COMM 
+      
+      call neko_log%message(log_buf)
+
+      nelb = elem_running_sum(nelv)
+        
+      nelb = nelb - nelv
     
+      write(*,*) 'my sum is', nelb
+      write(*,*) 'my number of points is', npts
+      write(*,*) 'my number of elements is', nelv
+      write(*,*) 'total number of elements is', nelgv
+
+      call adios2_setup(npts,nelv,nelb,nelgv, &
+              nelgv,u%dof%x,u%dof%y,  &
+              u%dof%z,NEKO_COMM)
+
+    end if
+
+
+    call neko_log%end_section()       
+
+
+    if (mod(tstep,10).ne.0) return
+
     call neko_log%section('Compression')       
 
     ! Initialize the fields and transform matrices
     call cpr_init(cpr_u,u)
 
-    ! commented for GPU development
+    ! synchronize CPU
+    ! Move the data to the CPU to be able to write it
+    call device_memcpy(u%x,  u%x_d, &
+                       nelv*npts,                         &
+                       DEVICE_TO_HOST)
+    ! Move the data to the CPU to be able to write it
+    call device_memcpy(cpr_u%fldhat%x,  cpr_u%fldhat%x_d, &
+                       nelv*npts,                         &
+                       DEVICE_TO_HOST)
+
+    do i = 1, 10
+      write(log_buf, '(A,E15.7,A,E15.7)') &
+            'u value:', cpr_u%fld%x(i,1,1,10), &
+            ' original coeff:', &
+            cpr_u%fldhat%x(i,1,1,10)
+            !cpr_u%fldhat(i,1,1,10)
+      call neko_log%message(log_buf)
+    enddo
+
     ! truncate the spectral coefficients
-    !call cpr_truncate_wn(cpr_u,coef)
- 
+    call cpr_truncate_wn(cpr_u,coef)
+
+
+    ! synchronize CPU
+    ! Move the data to the CPU to be able to write it
+    call device_memcpy(u%x,  u%x_d, &
+                       nelv*npts,                         &
+                       DEVICE_TO_HOST)
+    ! Move the data to the CPU to be able to write it
+    call device_memcpy(cpr_u%fldhat%x,  cpr_u%fldhat%x_d, &
+                       nelv*npts,                         &
+                       DEVICE_TO_HOST)
+
+    do i = 1, 10
+      write(log_buf, '(A,E15.7,A,E15.7)') &
+            'u value:', cpr_u%fld%x(i,1,1,10), &
+            ' truncated coeff:', &
+            cpr_u%fldhat%x(i,1,1,10)
+            !cpr_u%fldhat(i,1,1,10)
+      call neko_log%message(log_buf)
+    enddo
+
+
+    do i = 1, nelv
+
+      lglel(i) = i
+
+    end do
+
+    call adios2_update(lglel, cpr_u%fldhat%x, cpr_u%fldhat%x, &
+            cpr_u%fldhat%x, cpr_u%fldhat%x, cpr_u%fldhat%x)
+
+
     ! just to check, go to physical space and compare
      call cpr_goto_space(cpr_u,'phys') !< 'spec' / 'phys'
     ! chech that the copy is fine in one entry
 
-
-    !---- 
-    nelv  = cpr_u%msh%nelv
-    npts  = cpr_u%Xh%lx**3
-    nelgv = cpr_u%msh%glb_nelv
-
+    ! synchronize CPU
     ! Move the data to the CPU to be able to write it
     call device_memcpy(u%x,  u%x_d, &
                        nelv*npts,                         &
@@ -118,49 +198,7 @@ contains
             !cpr_u%fldhat(i,1,1,10)
       call neko_log%message(log_buf)
     enddo
-   
 
-
-    write(log_buf, '(A,I5.2)') &
-          'The communicator is:', NEKO_COMM 
-      
-    call neko_log%message(log_buf)
-
-    nelb = elem_running_sum(nelv)
-        
-    nelb = nelb - nelv
-    
-    write(*,*) 'and my sum is', nelb
-    write(*,*) 'my number of points is', npts
-    write(*,*) 'my number of elements is', nelv
-    write(*,*) 'total number of elements is', nelgv
-
-
-
-    if (tstep.eq.1) then
-
-      call adios2_setup(npts,nelv,nelb,nelgv, &
-              nelgv,cpr_u%dof%x,cpr_u%dof%y,  &
-              cpr_u%dof%z,NEKO_COMM)
-
-      write(*,*) 'time step is=', tstep
-    end if
-
-    do i = 1, nelv
-
-      lglel(i) = i
-
-    end do
-
-    !call adios2_update(lglel,cpr_u%fld%x,cpr_u%fld%x, &
-    !        cpr_u%fld%x,cpr_u%fld%x, cpr_u%fld%x)
-           
-    !call adios2_update(lglel,cpr_u%fldhat,cpr_u%fldhat, &
-    !        cpr_u%fldhat,cpr_u%fldhat, cpr_u%fldhat)
-    call adios2_update(lglel, cpr_u%fldhat%x, cpr_u%fldhat%x, &
-            cpr_u%fldhat%x, cpr_u%fldhat%x, cpr_u%fldhat%x)
-
-    !----
 
     ! Free the memory allocated for the fields
     call cpr_free(cpr_u)

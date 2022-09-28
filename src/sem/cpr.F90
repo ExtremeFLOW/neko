@@ -369,100 +369,156 @@ contains
     real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: l2norm, oldl2norm, targeterr
     integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    integer :: i, j, k, e, nxyz, nelv
+    integer :: i, j, k, e, nxyz, nelv, n
+    integer :: targetkut
     integer :: kut, kutx, kuty, kutz, nx
     character(len=LOG_SIZE) :: log_buf 
+
+     !
+     ! Device pointers (if present)
+     !
+     type(c_ptr) :: fx_d = C_NULL_PTR
+     type(c_ptr) :: fy_d = C_NULL_PTR
+     type(c_ptr) :: fz_d = C_NULL_PTR
+
 
     ! define some constants
     nx = cpr%Xh%lx
     nxyz = cpr%Xh%lx*cpr%Xh%lx*cpr%Xh%lx
     nelv = cpr%msh%nelv
+    n    = nxyz*nelv
     targeterr = 1e-3_rp
+    targetkut = 6
 
-    !truncate for every element
-    do e = 1, nelv
-       ! create temp vector where the trunc coeff will be
-       call copy(vtemp, cpr%fldhat%x(1,1,1,e), nxyz)
-       call copy(vtrunc, cpr%fldhat%x(1,1,1,e), nxyz)
-       ! sort the coefficients by absolute value
-       call sortcoeff(vsort, cpr%fldhat%x(1,1,1,e), isort, nxyz) 
-       ! initialize values for iterative procedure
-       l2norm = 0.0_rp
-       kut = 0
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
+       
 
-       do while (l2norm .le. targeterr .and. kut .le. (cpr%Xh%lx-1)*3)
-          ! save value from prev it since it met requirements to enter
-          call copy(vtrunc, vtemp, nxyz)
-          oldl2norm = l2norm
+       write(*,*) 'GPU truncation'
 
-          ! advance kut
-          kut = kut+1
+       ! Map the pointers
+       call device_map(fx,  fx_d,  cpr%Xh%lxy)
+       call device_map(fy,  fy_d,  cpr%Xh%lxy)
+       call device_map(fz,  fz_d,  cpr%Xh%lxy)
+       
+       ! create filters on cpu
+       call build_filter_tf(fx, fy, fz, targetkut, cpr%Xh%lx)
 
-          ! create filters
-          call build_filter_tf(fx, fy, fz, kut, cpr%Xh%lx)
+       ! Transfer the filter to the GPU
+       call device_memcpy(fx,     fx_d,     cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(fy,     fy_d,     cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(fz,     fz_d,     cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
 
-          ! truncate, remember that transposed of diag mat is the same
-          call copy(w2, vsort, nxyz)
-          ! apply the operator to the x direction, result in w1
-          call mxm(fx, nx, w2, nx, w1, nx*nx)
-          ! apply matrix to y direction, result in w2
-          do k=1,nx
-             call mxm(w1(1,1,k), nx, fy, nx, w2(1,1,k), nx)
-          enddo
-          ! apply matrix to z direction, result in vtemp
-          call mxm (w2, nx*nx, fz, nx, vtemp, nx)
+       ! Copy the spectral coefficients to the working array in GPU
+       call device_copy(cpr%wk%x_d, cpr%fldhat%x_d, n)
 
-          ! vtemp is sorted, so bring it back to real order
-          ! by inverting the swap operation in sortcoeff
-          call reord(vtemp, isort, nxyz)
+       ! Perform the truncation in the GPU
+       call tnsr3d(cpr%fldhat%x, cpr%Xh%lx, cpr%wk%x, &
+                   cpr%Xh%lx,fx, &
+                   fy, fz, nelv)
+  
+       ! Free memory after performing actions
+       if (c_associated(fx_d)) then
+          call device_free(fx_d)
+       end if
+       if (c_associated(fy_d)) then
+          call device_free(fy_d)
+       end if
+       if (c_associated(fz_d)) then
+          call device_free(fz_d)
+       end if
 
-          ! calculate the error vector
-          call sub3(errvec, cpr%fldhat%x(1,1,1,e), vtemp, nxyz)
+    else
 
-          ! get the norm of the error
-          l2norm = get_elem_l2norm(errvec, coef, 'spec' ,e)
+       !truncate for every element
+       do e = 1, nelv
+          ! create temp vector where the trunc coeff will be
+          call copy(vtemp, cpr%fldhat%x(1,1,1,e), nxyz)
+          call copy(vtrunc, cpr%fldhat%x(1,1,1,e), nxyz)
+          ! sort the coefficients by absolute value
+          call sortcoeff(vsort, cpr%fldhat%x(1,1,1,e), isort, nxyz) 
+          ! initialize values for iterative procedure
+          l2norm = 0.0_rp
+          kut = 0
 
+          do while (l2norm .le. targeterr .and. kut .le. (cpr%Xh%lx-1)*3)
+             ! save value from prev it since it met requirements to enter
+             call copy(vtrunc, vtemp, nxyz)
+             oldl2norm = l2norm
+
+             ! advance kut
+             kut = kut+1
+
+             ! create filters
+             call build_filter_tf(fx, fy, fz, kut, cpr%Xh%lx)
+
+             ! truncate, remember that transposed of diag mat is the same
+             call copy(w2, vsort, nxyz)
+             ! apply the operator to the x direction, result in w1
+             call mxm(fx, nx, w2, nx, w1, nx*nx)
+             ! apply matrix to y direction, result in w2
+             do k=1,nx
+                call mxm(w1(1,1,k), nx, fy, nx, w2(1,1,k), nx)
+             enddo
+             ! apply matrix to z direction, result in vtemp
+             call mxm (w2, nx*nx, fz, nx, vtemp, nx)
+
+             ! vtemp is sorted, so bring it back to real order
+             ! by inverting the swap operation in sortcoeff
+             call reord(vtemp, isort, nxyz)
+
+             ! calculate the error vector
+             call sub3(errvec, cpr%fldhat%x(1,1,1,e), vtemp, nxyz)
+
+             ! get the norm of the error
+             l2norm = get_elem_l2norm(errvec, coef, 'spec' ,e)
+
+          end do
+
+          ! copy the truncated field back to the main object
+          call copy(cpr%fldhat%x(1,1,1,e), vtrunc, nxyz)
+
+
+          !================debugging info
+
+          !just to check that all is good, resort vsort
+          !if (e .eq. 50) then
+          !   write(log_buf, '(A)') &
+          !        'Debugging info for e=50. Do not forget to delete'
+          !   call neko_log%message(log_buf)
+
+          !   call reord(vsort,isort,nxyz)
+
+          !   write(log_buf, '(A)') &
+          !     'Norm'
+          !   call neko_log%message(log_buf)
+          !   !chech that the copy is fine in one entry
+          !   write(log_buf, '(A,E15.7)') &
+          !        'l2norm:', oldl2norm
+          !   call neko_log%message(log_buf)
+          !   write(log_buf, '(A)') &
+          !        'cut off level'
+          !   call neko_log%message(log_buf)
+          !   !chech that the copy is fine in one entry
+          !   write(log_buf, '(A,I5)') &
+          !        'kut:', kut
+          !   call neko_log%message(log_buf)
+          !   write(log_buf, '(A)') &
+          !        'spectral coefficients'
+          !   call neko_log%message(log_buf)
+          !   do i = 1, 10
+          !      write(log_buf, '(A,E15.7,A,E15.7)') &
+          !           'org coeff:', vsort(i,1,1), ' truncated coeff', &
+          !           cpr%fldhat%x(i,1,1,e)
+          !      call neko_log%message(log_buf)
+          !   end do
+          !end if
        end do
 
-       ! copy the truncated field back to the main object
-       call copy(cpr%fldhat%x(1,1,1,e), vtrunc, nxyz)
-
-
-       !================debugging info
-
-       !just to check that all is good, resort vsort
-       if (e .eq. 50) then
-          write(log_buf, '(A)') &
-               'Debugging info for e=50. Do not forget to delete'
-          call neko_log%message(log_buf)
-
-          call reord(vsort,isort,nxyz)
-
-          write(log_buf, '(A)') &
-               'Norm'
-          call neko_log%message(log_buf)
-          !chech that the copy is fine in one entry
-          write(log_buf, '(A,E15.7)') &
-               'l2norm:', oldl2norm
-          call neko_log%message(log_buf)
-          write(log_buf, '(A)') &
-               'cut off level'
-          call neko_log%message(log_buf)
-          !chech that the copy is fine in one entry
-          write(log_buf, '(A,I5)') &
-               'kut:', kut
-          call neko_log%message(log_buf)
-          write(log_buf, '(A)') &
-               'spectral coefficients'
-          call neko_log%message(log_buf)
-          do i = 1, 10
-             write(log_buf, '(A,E15.7,A,E15.7)') &
-                  'org coeff:', vsort(i,1,1), ' truncated coeff', &
-                  cpr%fldhat%x(i,1,1,e)
-             call neko_log%message(log_buf)
-          end do
-       end if
-    end do
+    end if
 
   end subroutine cpr_truncate_wn
 
