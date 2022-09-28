@@ -233,19 +233,19 @@ contains
 #ifdef HAVE_HIP
     call fluid_makeabf_hip(temp1%x_d, temp2%x_d, temp3%x_d, &
          fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
-         fx_lag_lag%x_d, fy_lag_lag%x_d, fz_lag_lag%x_d, &
+         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
          fx_d, fy_d, fz_d, rho, &
           ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
     call fluid_makeabf_cuda(temp1%x_d, temp2%x_d, temp3%x_d, &
          fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
-         fx_lag_lag%x_d, fy_lag_lag%x_d, fz_lag_lag%x_d, &
+         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
          fx_d, fy_d, fz_d, rho, &
           ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
     call fluid_makeabf_opencl(temp1%x_d, temp2%x_d, temp3%x_d, &
          fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
-         fx_lag_lag%x_d, fy_lag_lag%x_d, fz_lag_lag%x_d, &
+         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
          fx_d, fy_d, fz_d, rho, &
           ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
