@@ -1091,7 +1091,7 @@ contains
           mult = mult + 82520 + 8
        end do
        hash2 = hash2 + 97531
-       hash2 = modulo(hash2, this%size)
+       hash2 = modulo(hash2, int(this%size,i8))
     class default
        hash = -1
     end select
