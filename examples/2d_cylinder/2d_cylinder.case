@@ -1,0 +1,24 @@
+&NEKO_CASE
+mesh_file= 'ext_cyl.nmsh'
+fluid_scheme='pnpn'
+lx = 6
+source_term = 'noforce'
+initial_condition = 'uniform'
+/
+&NEKO_PARAMETERS
+dt = 1d-3
+T_end = 2.0
+nsamples = 100
+uinf= 1.0,0.0,0.0
+output_bdry = .true.
+rho = 1
+Re = 160
+dealias = .true.
+abstol_vel = 1d-9
+abstol_prs = 1d-6
+ksp_vel = 'cg'
+ksp_prs = 'gmres'
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+/
+
