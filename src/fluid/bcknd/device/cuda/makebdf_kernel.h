@@ -33,10 +33,7 @@
 */
 
 template< typename T >
-__global__ void makebdf_kernel(T * __restrict__ ta1,
-                               T * __restrict__ ta2,
-                               T * __restrict__ ta3,
-                               T * __restrict__ tb1,
+__global__ void makebdf_kernel(T * __restrict__ tb1,
                                T * __restrict__ tb2,
                                T * __restrict__ tb3,
                                const T * __restrict__ ulag1,
@@ -68,33 +65,24 @@ __global__ void makebdf_kernel(T * __restrict__ ta1,
     tb2[i] = v[i] * B[i] * bd2;
     tb3[i] = w[i] * B[i] * bd2;
 
-    ta1[i] = ulag1[i] * B[i] * bd3;
-    ta2[i] = vlag1[i] * B[i] * bd3;
-    ta3[i] = wlag1[i] * B[i] * bd3;
+    T ta1_val = ulag1[i] * B[i] * bd3;
+    T ta2_val = vlag1[i] * B[i] * bd3;
+    T ta3_val = wlag1[i] * B[i] * bd3;
 
-    tb1[i] += ta1[i];
-    tb2[i] += ta2[i];
-    tb3[i] += ta3[i];
-  }
+    tb1[i] += ta1_val;
+    tb2[i] += ta2_val;
+    tb3[i] += ta3_val;
 
-  if (nbd == 3) {
-    for (int i = idx; i < n; i += str) {
-      ta1[i] = ulag2[i] * B[i] * bd4;
-      ta2[i] = vlag2[i] * B[i] * bd4;
-      ta3[i] = wlag2[i] * B[i] * bd4;
-      
-      tb1[i] += ta1[i];
-      tb2[i] += ta2[i];
-      tb3[i] += ta3[i];
+    if (nbd == 3) {
+      tb1[i] += ulag2[i] * B[i] * bd4;
+      tb2[i] += vlag2[i] * B[i] * bd4;
+      tb3[i] += wlag2[i] * B[i] * bd4;
     }
-  }
-
-  for (int i = idx; i < n; i += str) {
+    
     bfx[i] = bfx[i] + tb1[i] * (rho / dt);
     bfy[i] = bfy[i] + tb2[i] * (rho / dt);
     bfz[i] = bfz[i] + tb3[i] * (rho / dt);
   }
-
-
+  
 }
 

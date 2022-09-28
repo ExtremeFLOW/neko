@@ -33,10 +33,7 @@
 */
 
 template< typename T >
-__global__ void makeabf_kernel(T * __restrict__ ta1,
-                               T * __restrict__ ta2,
-                               T * __restrict__ ta3,
-                               T * __restrict__ abx1,
+__global__ void makeabf_kernel(T * __restrict__ abx1,
                                T * __restrict__ aby1,
                                T * __restrict__ abz1,
                                T * __restrict__ abx2,
@@ -55,24 +52,20 @@ __global__ void makeabf_kernel(T * __restrict__ ta1,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    ta1[i] = ab2 * abx1[i] + ab3 * abx2[i];
-    ta2[i] = ab2 * aby1[i] + ab3 * aby2[i];
-    ta3[i] = ab2 * abz1[i] + ab3 * abz2[i];
-  }
+    T ta1_val = ab2 * abx1[i] + ab3 * abx2[i];
+    T ta2_val = ab2 * aby1[i] + ab3 * aby2[i];
+    T ta3_val = ab2 * abz1[i] + ab3 * abz2[i];
 
-  for (int i = idx; i < n; i += str) {
     abx2[i] = abx1[i];
     aby2[i] = aby1[i];
     abz2[i] = abz1[i];
     abx1[i] = bfx[i];
     aby1[i] = bfy[i];
     abz1[i] = bfz[i];
-  }
-  
-  for (int i = idx; i < n; i += str) {
-    bfx[i] = (ab1 * bfx[i] + ta1[i]) * rho;
-    bfy[i] = (ab1 * bfy[i] + ta2[i]) * rho;
-    bfz[i] = (ab1 * bfz[i] + ta3[i]) * rho;
+
+    bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
+    bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
+    bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
   } 
   
 }
