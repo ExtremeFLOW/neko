@@ -1,0 +1,9 @@
+orig.rea
+ -3                      spatial dimension
+ 1                     number of fields
+Box
+6     6     3       nelx,nely,nelz for Box)
+0. 0.06 0.25 0.5 0.75 0.94 1.   	  x0 x1 ratio 
+0. 0.06 0.25 0.5 0.75 0.94 1.     	  y0 y1 ratio 
+0. 1. 2. 3.
+W  ,W  ,W  ,v  ,P  ,P  ,    V bc's  ! NB:  3 characters each !
