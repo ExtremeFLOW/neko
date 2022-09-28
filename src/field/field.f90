@@ -176,8 +176,10 @@ contains
     type(field_t), intent(in) :: g
     integer :: n
 
-    if (allocated(f%x) .and. (f%Xh .ne. g%Xh)) then
-       call field_free(f)
+    if (allocated(f%x)) then
+       if (f%Xh .ne. g%Xh) then
+          call field_free(f)
+       end if
     end if
     
     f%Xh => g%Xh

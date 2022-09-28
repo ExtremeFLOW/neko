@@ -60,6 +60,8 @@
 !> Classic Nek5000 PN/PN formulation for fluids
 !! Splitting scheme A.G. Tomboulides et al.
 !! Journal of Sci.Comp.,Vol. 12, No. 2, 1998
+!! @deprecated The plan4 solver has been retired,
+!! bugs will not be fixed, and new features are not added.
 module fluid_plan4
   use ax_helm_fctry
   use field_series    

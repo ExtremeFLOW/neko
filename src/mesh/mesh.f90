@@ -107,6 +107,7 @@ module mesh
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
      logical :: lnumr = .false.                !< valid numbering
+     logical :: lgenc = .true.                 !< generate connectivity
 
      !> enables user to specify a deformation
      !! that is applied to all x,y,z coordinates generated with this mesh
@@ -417,6 +418,8 @@ contains
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
 
     if (m%lconn) return
+
+    if (.not. m%lgenc) return
 
     if (m%gdim .eq. 2) then
        n_sides = 4
