@@ -1065,15 +1065,37 @@ contains
   pure function htable_pt_hash(this, k) result(hash)
     class(htable_pt_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer :: hash
+    integer :: hash, i 
+    integer(kind=i8) :: hash2, tmp, mult
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d1')
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23')
+    integer(kind=i8), parameter :: M3 = int(Z'165667b')
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646')
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c')
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f0')
+
+
     select type(k)
     type is (point_t)
-       hash = modulo(floor((2d0 * &
-            abs(fraction(k%x(1)*1d-1 + k%x(2)*1d-2 + k%x(3)*1d-3)) - 1d0) * 2**30), &
-            this%size) 
+       mult = 1000003
+       hash2 = int(Z'345678')
+       do i = 1, 3
+          tmp = transfer(k%x(1), tmp)
+          tmp = (tmp + M1) + ishft(tmp, 12)
+          tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
+          tmp = (tmp + M3) + ishft(tmp, 5)
+          tmp = ieor((tmp + M4), ishft(tmp, 9))
+          tmp = (tmp + M5) + ishft(tmp, 3)
+          tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
+          hash2 = ieor(hash2, tmp) * mult
+          mult = mult + 82520 + 8
+       end do
+       hash2 = hash2 + 97531
+       hash2 = modulo(hash2, this%size)
     class default
        hash = -1
     end select
+    hash = hash2
 
   end function htable_pt_hash
 
