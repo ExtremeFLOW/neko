@@ -248,7 +248,8 @@ contains
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: depth = 1d0, coord(3)
+    real(kind=rp) :: depth = 1d0
+    real(kind=dp) :: coord(3)
     type(tuple4_i4_t) :: glb_pt_ids
 
 
