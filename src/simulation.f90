@@ -84,7 +84,7 @@ contains
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%params%dt
        call neko_log%message(log_buf)
 
-       
+       ! Fluid step 
        call simulation_settime(t, C%params%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
        call neko_log%section('Fluid')       
        call C%fluid%step(t, tstep, C%ext_bdf)
@@ -93,6 +93,17 @@ contains
             'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
             end_time-start_time
        call neko_log%end_section(log_buf)
+
+       ! Scalar step
+       start_time = MPI_WTIME()
+       call neko_log%section('Scalar')       
+       call C%scalar%step(t, tstep, C%ext_bdf)
+       end_time = MPI_WTIME()
+       write(log_buf, '(A,E15.7,A,E15.7)') &
+            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+            end_time-start_time
+       call neko_log%end_section(log_buf)
+
        call C%usr%usr_chk(t, C%params%dt, tstep,&
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
        call neko_log%end()

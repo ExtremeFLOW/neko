@@ -34,7 +34,7 @@
 module fluid_pnpn
   use pnpn_res_fctry
   use ax_helm_fctry
-  use fluid_abbdf_fctry
+  use rhs_maker_fctry
   use fluid_volflow
   use fluid_method
   use field_series  

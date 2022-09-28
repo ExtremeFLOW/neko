@@ -189,6 +189,9 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
+	scalar/scalar_method.f90\
+	scalar/scalar_pnpn.f90\
+	scalar/scalar_aux.f90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\

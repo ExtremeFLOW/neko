@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fluid abbdf factory for the Pn-Pn formulation
-module fluid_abbdf_fctry
-  use fluid_abbdf
-  use fluid_abbdf_cpu
-  use fluid_abbdf_sx
-  use fluid_abbdf_device
+module rhs_maker_fctry
+  use rhs_maker
+  use rhs_maker_cpu
+  use rhs_maker_sx
+  use rhs_maker_device
   use neko_config
   implicit none
 
@@ -95,4 +95,4 @@ contains
     
   end subroutine fluid_makebdf_fctry
   
-end module fluid_abbdf_fctry
+end module rhs_maker_fctry

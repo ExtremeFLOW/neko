@@ -16,6 +16,11 @@ module pnpn_res_cpu
      procedure, nopass :: compute => pnpn_vel_res_cpu_compute
   end type pnpn_vel_res_cpu_t
 
+  type, public, extends(pnpn_scalar_res_t) :: pnpn_scalar_res_cpu_t
+   contains
+     procedure, nopass :: compute => pnpn_scalar_res_cpu_compute
+  end type pnpn_scalar_res_cpu_t
+
 contains
 
   subroutine pnpn_prs_res_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
@@ -146,5 +151,36 @@ contains
     end do
     
   end subroutine pnpn_vel_res_cpu_compute  
+
+  subroutine pnpn_scalar_res_cpu_compute(Ax, s, s_res, &
+                                         f_Xh, c_Xh, msh, Xh, kappa, rho, bd, dt, n)
+    class(ax_t), intent(in) :: Ax
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh    
+    type(field_t), intent(inout) :: s
+    type(field_t), intent(inout) :: s_res
+    type(source_scalar_t), intent(inout) :: f_Xh
+    type(coef_t), intent(inout) :: c_Xh
+    real(kind=rp), intent(in) :: kappa
+    real(kind=rp), intent(in) :: rho
+    real(kind=rp), intent(in) :: bd
+    real(kind=rp), intent(in) :: dt
+    integer, intent(in) :: n
+    integer :: i
+
+    do i = 1, n
+       c_Xh%h1(i,1,1,1) = kappa
+       ! should not be just rho here.
+       c_Xh%h2(i,1,1,1) = rho * (bd / dt)
+    end do
+    c_Xh%ifh2 = .true.
+
+    call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
+
+    do i = 1, n
+       s_res%x(i,1,1,1) = (-s_res%x(i,1,1,1)) + f_Xh%s(i,1,1,1)
+    end do
+    
+  end subroutine pnpn_scalar_res_cpu_compute  
      
 end module pnpn_res_cpu

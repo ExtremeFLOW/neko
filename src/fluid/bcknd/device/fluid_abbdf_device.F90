@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module fluid_abbdf_device
-  use fluid_abbdf
+module rhs_maker_device
+  use rhs_maker
   use device
   use utils
   use, intrinsic :: iso_c_binding
@@ -292,4 +292,4 @@ contains
 
   end subroutine fluid_makebdf_device
   
-end module fluid_abbdf_device
+end module rhs_maker_device

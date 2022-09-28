@@ -54,6 +54,7 @@ module case
   use logger
   use jobctrl
   use user_intf  
+  use scalar_pnpn ! todo directly load the pnpn? can we have other
   implicit none
 
   type :: case_t
@@ -70,6 +71,7 @@ module case
      type(stats_t) :: q   
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
+     type(scalar_pnpn_t) :: scalar ! todo: concrete class for now
   end type case_t
 
 contains
@@ -164,8 +166,18 @@ contains
     !
     ! Setup fluid scheme
     !
+    write(*,*) "FLUID INIT"
     call fluid_scheme_factory(C%fluid, trim(fluid_scheme))
     call C%fluid%init(C%msh, lx, C%params)
+
+    !
+    ! Setup scalar scheme
+    !
+    ! todo: no factroy for now
+    !call scalar_scheme_factory(C%scalar, trim(fluid_scheme))
+    write(*,*) "SCALAR INIT"
+    call C%scalar%init(C%msh, lx, C%params)
+    write(*,*) "DONE"
 
     !
     ! Setup user defined conditions    
@@ -184,6 +196,10 @@ contains
     else
        call C%fluid%set_source(trim(source_term))
     end if
+
+    ! Setup source term for the scalar
+    ! todo: should be expanded for user sources etc. Now copies the fluid one
+    call C%scalar%set_source(trim(source_term))
 
     !
     ! Setup initial conditions
@@ -214,10 +230,13 @@ contains
        call f%wlag%set(f%w)
     end select
 
+    call C%scalar%slag%set(C%scalar%s)
+
     !
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
+    call C%scalar%validate
 
     !
     ! Set order of timestepper

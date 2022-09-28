@@ -1,5 +1,5 @@
-module fluid_abbdf_sx
-  use fluid_abbdf
+module rhs_maker_sx
+  use rhs_maker
   implicit none
   private
   
@@ -124,5 +124,5 @@ contains
 
   end subroutine fluid_makebdf_sx
 
-end module fluid_abbdf_sx
+end module rhs_maker_sx
 

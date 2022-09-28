@@ -34,7 +34,8 @@
 !! equation. Employs the EXT/BDF time integration schemes to compute
 !! the contributions coming from the explicitly extrapolated convective term
 !! and the BDF scheme applied to the time derivative.
-module fluid_abbdf
+!! Inheritance is used to define implementation for different backends.
+module rhs_maker
   use num_types
   use field_series, only : field_series_t
   use field, only : field_t
@@ -108,4 +109,4 @@ module fluid_abbdf
      end subroutine fluid_makebdf
   end interface
 
-end module fluid_abbdf
+end module rhs_maker
