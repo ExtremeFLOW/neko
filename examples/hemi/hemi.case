@@ -3,7 +3,7 @@ mesh_file= 'hemi.nmsh'
 fluid_scheme='pnpn'
 lx = 6
 source_term = 'noforce'
-initial_condition = 'uniform'
+initial_condition = 'blasius'
 /
 &NEKO_PARAMETERS
 dt = 1d-3
@@ -13,11 +13,13 @@ uinf= 1.0,0.0,0.0
 output_bdry = .true.
 rho = 1
 Re = 1400
-abstol_vel = 1d-9
-abstol_prs = 1d-9
+abstol_vel = 1d-7
+abstol_prs = 1d-7
 ksp_vel = 'cg'
 ksp_prs = 'gmres'
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
+fluid_inflow = 'blasius'
+delta = 0.6
 /
 
