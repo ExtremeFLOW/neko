@@ -413,12 +413,11 @@ contains
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
+    integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    integer, intent(inout) :: n
     type(c_ptr) :: fs_d
-
 
   end subroutine apply_scalar_advection_dealias
 
