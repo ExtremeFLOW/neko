@@ -98,7 +98,7 @@ contains
 1      format('gdim = ', i1, ', nelements =', i7)
     call neko_log%message(log_buf)
 
-    if (gdim .eq. 4) then
+    if (gdim .eq. 2) then
        call MPI_File_close(fh, ierr)
        call nmsh_file_read_2d(this, msh)
     else
@@ -188,7 +188,6 @@ contains
              el_idx = el_idx - msh%offset_el
              select case(nmsh_zone(i)%type)
              case(5)
-                print *, nmsh_zone(i)%glb_pt_ids
                 call mesh_apply_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              end select
@@ -244,12 +243,12 @@ contains
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
     integer :: i, j, ierr, element_offset, id
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
-    integer :: nelv, gdim, nzones, ncurves
+    integer :: nelv, gdim, nzones, ncurves, ids(4)
     integer :: el_idx
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: depth = 1e-5, coord(3)
+    real(kind=rp) :: depth = 1d0, coord(3)
     type(tuple4_i4_t) :: glb_pt_ids
 
 
@@ -262,8 +261,8 @@ contains
     call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
 
-    !write(log_buf,2) gdim
-    !2      format('gdim = ', i1, ', full 2d not supported (yet), extending mesh to thin 3d slab with depth 1e-5')
+    write(log_buf,2) gdim
+2      format('gdim = ', i1, ', no full 2d support, creating thin slab')
     call neko_log%message(log_buf)
     gdim = 3
     
@@ -278,7 +277,6 @@ contains
     call MPI_File_read_at_all(fh, mpi_offset, &
          nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
     do i = 1, nelv
-       print *, i
        do j = 1, 4
           coord = nmsh_quad(i)%v(j)%v_xyz
           coord(3) = 0_rp
@@ -288,7 +286,6 @@ contains
           coord = nmsh_quad(i)%v(j)%v_xyz
           coord(3) = depth
           id = nmsh_quad(i)%v(j)%v_idx+msh%glb_nelv*8
-          print *, id
           p(j+4) = point_t(coord, id)
        end do
        call mesh_add_element(msh, i, &
@@ -302,7 +299,6 @@ contains
          nzones, 1, MPI_INTEGER, status, ierr)
     if (nzones .gt. 0) then
        allocate(nmsh_zone(nzones))
-          print *, 'hey'
 
        !>
        !!@todo Fix the parallel reading in this part, let each rank read
@@ -328,10 +324,22 @@ contains
              case(4)
                 call mesh_mark_sympln_facet(msh, nmsh_zone(i)%f, el_idx)
              case(5)
-                print *, 'hey, fml'
-                print *, nmsh_zone(i)%glb_pt_ids
+                nmsh_zone(i)%glb_pt_ids(3) = nmsh_zone(i)%glb_pt_ids(1)+msh%glb_nelv*8
+                nmsh_zone(i)%glb_pt_ids(4) = nmsh_zone(i)%glb_pt_ids(2)+msh%glb_nelv*8
+                if (nmsh_zone(i)%f .eq. 1 .or. nmsh_zone(i)%f .eq. 2) then
+                   ids(1) = nmsh_zone(i)%glb_pt_ids(1)
+                   ids(2) = nmsh_zone(i)%glb_pt_ids(3)
+                   ids(3) = nmsh_zone(i)%glb_pt_ids(4)
+                   ids(4) = nmsh_zone(i)%glb_pt_ids(2)
+                else
+                   ids(1) = nmsh_zone(i)%glb_pt_ids(1)
+                   ids(2) = nmsh_zone(i)%glb_pt_ids(2)
+                   ids(3) = nmsh_zone(i)%glb_pt_ids(4)
+                   ids(4) = nmsh_zone(i)%glb_pt_ids(3)
+                end if
+                nmsh_zone(i)%glb_pt_ids = ids
                 call mesh_mark_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
-                     nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
+                     nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, ids)
              case(6)
                 call mesh_mark_outlet_normal_facet(msh, nmsh_zone(i)%f, el_idx)
              case(7)
@@ -339,13 +347,6 @@ contains
              end select
           end if
        end do
-    print *, 'lel'
-       do el_idx = 1, nelv
-          call msh%elements(el_idx)%e%facet_id(glb_pt_ids,5)
-          call mesh_mark_periodic_facet(msh, 6, el_idx, &
-               5, el_idx, glb_pt_ids%x)
-       end do
-    print *, 'lel out'
        !Apply facets, important that marking is finished
        do i = 1, nzones
           el_idx = nmsh_zone(i)%e
@@ -354,24 +355,31 @@ contains
              el_idx = el_idx - msh%offset_el
              select case(nmsh_zone(i)%type)
              case(5)
-                print *, nmsh_zone(i)%glb_pt_ids
                 call mesh_apply_periodic_facet(msh, nmsh_zone(i)%f, el_idx, &
                      nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, nmsh_zone(i)%glb_pt_ids)
              end select
           end if
        end do
-       print *, 'lel hey'
        !Do the same for extruded 3d points
        do el_idx = 1, nelv
-          call msh%elements(el_idx)%e%facet_id(glb_pt_ids,5)
-       print *, glb_pt_ids%x
+          call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
+          call mesh_mark_periodic_facet(msh, 6, el_idx, &
+               5, el_idx, glb_pt_ids%x)
+          call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
+          call mesh_mark_periodic_facet(msh, 5, el_idx, &
+               6, el_idx, glb_pt_ids%x)
+       end do
+       do el_idx = 1, nelv
+          call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
           call mesh_apply_periodic_facet(msh, 6, el_idx, &
                5, el_idx, glb_pt_ids%x)
+          call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
+          call mesh_apply_periodic_facet(msh, 5, el_idx, &
+               6, el_idx, glb_pt_ids%x)
        end do
        
        deallocate(nmsh_zone)
     end if
-    print *, 'lel2'
 
     mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE + nzones*nmsh_zone_size
     call MPI_File_read_at_all(fh, mpi_offset, &
@@ -385,7 +393,6 @@ contains
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
        do i = 1, ncurves 
-          print *, 'wow'
           el_idx = nmsh_curve(i)%e - msh%offset_el
           if (el_idx .gt. 0 .and. &
               el_idx .le. msh%nelv) then             
@@ -396,7 +403,6 @@ contains
        
        deallocate(nmsh_curve)
     end if
-          print *, id
 
     call MPI_File_close(fh, ierr)
 
@@ -539,8 +545,6 @@ contains
           nmsh_zone(j)%glb_pt_ids = msh%periodic%p_ids(i)%x
           nmsh_zone(j)%type = 5
           j = j + 1
-          print *,'perioidc'
-          print *, msh%periodic%p_ids(i)%x
        end do
        do i = 1, msh%outlet_normal%size
           nmsh_zone(j)%e = msh%outlet_normal%facet_el(i)%x(2) + msh%offset_el
