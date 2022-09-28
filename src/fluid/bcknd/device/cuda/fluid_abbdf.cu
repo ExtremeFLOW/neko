@@ -74,8 +74,7 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
   }
   
-  void fluid_makebdf_cuda(void *tb1, void *tb2, void *tb3,
-                          void *ulag1, void *ulag2, void *vlag1,
+  void fluid_makebdf_cuda(void *ulag1, void *ulag2, void *vlag1,
                           void *vlag2, void *wlag1, void *wlag2, 
                           void *bfx, void *bfy, void *bfz,
                           void *u, void *v, void *w, void *B, 
@@ -86,8 +85,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     makebdf_kernel<real>
-      <<<nblcks, nthrds>>>((real *) tb1, (real *) tb2, (real *) tb3,
-                           (real *) ulag1, (real *) ulag2, (real *) vlag1,
+      <<<nblcks, nthrds>>>((real *) ulag1, (real *) ulag2, (real *) vlag1,
                            (real *) vlag2, (real *) wlag1, (real *) wlag2, 
                            (real *) bfx, (real *) bfy, (real *) bfz,
                            (real *) u, (real *) v, (real *) w, (real *) B, 

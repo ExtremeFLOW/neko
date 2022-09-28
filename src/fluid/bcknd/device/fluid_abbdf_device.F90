@@ -128,14 +128,12 @@ module fluid_abbdf_device
   end interface
 
   interface
-     subroutine fluid_makebdf_cuda(tb1_d, tb2_d, tb3_d, ulag1_d, ulag2_d, &
-                                   vlag1_d, vlag2_d, wlag1_d, wlag2_d, &
-                                   bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-                                   rho, dt, bd2, bd3, bd4, nbd, n) &
+     subroutine fluid_makebdf_cuda(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
+          wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
+          rho, dt, bd2, bd3, bd4, nbd, n) &
                                    bind(c, name='fluid_makebdf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: tb1_d, tb2_d, tb3_d
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
        type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
@@ -273,8 +271,7 @@ contains
          bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, B_d, &
          rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_CUDA
-    call fluid_makebdf_cuda(tb1%x_d, tb2%x_d, tb3%x_d, &
-                            ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
+    call fluid_makebdf_cuda(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                             vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
                             wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
                             bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d,&
