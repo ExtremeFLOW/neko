@@ -42,7 +42,7 @@ module fluid_pnpn
   use device_math
   use device_mathops
   use fluid_aux    
-  use time_integration
+  use ext_bdf_scheme
   use projection
   use logger
   use advection
@@ -355,7 +355,7 @@ contains
   subroutine fluid_pnpn_step(this, t, tstep, ext_bdf)
     class(fluid_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(time_integration_t), intent(inout) :: ext_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)

@@ -69,7 +69,7 @@ module fluid_plan4
   use facet_normal
   use neko_config
   use fluid_aux    
-  use time_integration
+  use ext_bdf_scheme
   use projection
   use logger
   use advection
@@ -275,7 +275,7 @@ contains
   subroutine fluid_plan4_step(this, t, tstep, ext_bdf)
     class(fluid_plan4_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(time_integration_t), intent(inout) :: ext_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
@@ -615,7 +615,7 @@ contains
 !     (Tombo splitting scheme).
 
     type(fluid_plan4_t), intent(inout) :: this
-    type(time_integration_t), intent(inout) :: ext_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(in) :: niter
     integer :: n
     real(kind=rp) :: xlmin, xlmax
@@ -726,7 +726,7 @@ contains
 !
 !     pff 6/28/98
       type(fluid_plan4_t), intent(inout) :: this
-      type(time_integration_t), intent(inout) :: ext_bdf
+      type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
       integer, intent(in) :: niter
       real(kind=rp) :: ifcomp, flow_rate, xsec
       real(kind=rp) :: current_flow, delta_flow, base_flow, scale

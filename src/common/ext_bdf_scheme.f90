@@ -58,7 +58,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 !> Explicit and Backward Differentiation time-integration schemes
-module time_integration
+module ext_bdf_scheme
   use neko_config
   use num_types
   use math
@@ -70,7 +70,7 @@ module time_integration
 
   !> Class storing time-integration coefficients for the explicit extrapolation
   !! and Backward-differencing schemes. 
-  type, public :: time_integration_t
+  type, public :: ext_bdf_scheme_t
      real(kind=rp), dimension(10) :: ext
      real(kind=rp), dimension(10) :: bdf
      integer :: nab = 0
@@ -83,13 +83,13 @@ module time_integration
      procedure, pass(this) :: set_abbd => time_integration_set_ext
      procedure, pass(this) :: set_time_order => time_integration_set_time_order
      final :: time_integration_free
-  end type time_integration_t
+  end type ext_bdf_scheme_t
 
 
 contains
 
   subroutine time_integration_free(this)
-    type(time_integration_t), intent(inout) :: this
+    type(ext_bdf_scheme_t), intent(inout) :: this
 
     if (c_associated(this%ext_d)) then
        call device_free(this%ext_d)
@@ -103,7 +103,7 @@ contains
 
   subroutine time_integration_set_time_order(this,torder)
     integer, intent(in) :: torder
-    class(time_integration_t), intent(inout) :: this
+    class(ext_bdf_scheme_t), intent(inout) :: this
     if(torder .le. 3 .and. torder .gt. 0) then
        this%time_order = torder
     else
@@ -121,7 +121,7 @@ contains
 
   !>Compute backward-differentiation coefficients of order NBD
   subroutine time_integration_set_bdf(this, dtbd)
-    class(time_integration_t), intent(inout) :: this
+    class(ext_bdf_scheme_t), intent(inout) :: this
     real(kind=rp), intent(inout), dimension(10) :: dtbd
     real(kind=rp), dimension(10,10) :: bdmat
     real(kind=rp), dimension(10) :: bdrhs
@@ -179,7 +179,7 @@ contains
   !! junction with Backward Differentiation schemes (order NBD)
   !!
   subroutine time_integration_set_ext(this, dtlag)
-    class(time_integration_t), intent(inout)  :: this
+    class(ext_bdf_scheme_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dtlag
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
     real(kind=rp), dimension(10) :: ab_old
@@ -381,4 +381,4 @@ contains
   
 
   
-end module time_integration
+end module ext_bdf_scheme

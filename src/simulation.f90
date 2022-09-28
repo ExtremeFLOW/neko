@@ -34,7 +34,7 @@
 module simulation
   use case
   use gather_scatter
-  use time_integration
+  use ext_bdf_scheme
   use file
   use logger
   use jobctrl
@@ -111,7 +111,7 @@ contains
   subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
     real(kind=rp), intent(inout) :: t
     real(kind=rp), intent(in) :: dt
-    type(time_integration_t), intent(inout) :: ext_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     real(kind=rp), dimension(10) :: tlag
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step

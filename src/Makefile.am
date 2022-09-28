@@ -131,7 +131,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
 	common/source_scalar.f90\
-	common/time_integration.f90\
+	common/ext_bdf_scheme.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	config/neko_config.f90\
