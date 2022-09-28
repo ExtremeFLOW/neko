@@ -23,7 +23,7 @@ neko_fortran_SOURCES = \
 	sem/space.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
-	sem/cpr.f90\
+	sem/cpr.F90\
 	sem/interpolation.f90\
 	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\

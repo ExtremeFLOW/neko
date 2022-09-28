@@ -87,12 +87,29 @@ contains
     ! Initialize the fields and transform matrices
     call cpr_init(cpr_u,u)
 
+    ! commented for GPU development
     ! truncate the spectral coefficients
-    call cpr_truncate_wn(cpr_u,coef)
-  
+    !call cpr_truncate_wn(cpr_u,coef)
+ 
     ! just to check, go to physical space and compare
      call cpr_goto_space(cpr_u,'phys') !< 'spec' / 'phys'
     ! chech that the copy is fine in one entry
+
+
+    !---- 
+    nelv  = cpr_u%msh%nelv
+    npts  = cpr_u%Xh%lx**3
+    nelgv = cpr_u%msh%glb_nelv
+
+    ! Move the data to the CPU to be able to write it
+    call device_memcpy(u%x,  u%x_d, &
+                       nelv*npts,                         &
+                       DEVICE_TO_HOST)
+    ! Move the data to the CPU to be able to write it
+    call device_memcpy(cpr_u%fldhat%x,  cpr_u%fldhat%x_d, &
+                       nelv*npts,                         &
+                       DEVICE_TO_HOST)
+
     do i = 1, 10
       write(log_buf, '(A,E15.7,A,E15.7)') &
             'u value:', cpr_u%fld%x(i,1,1,10), &
@@ -102,10 +119,7 @@ contains
       call neko_log%message(log_buf)
     enddo
    
-    !---- 
-    nelv  = cpr_u%msh%nelv
-    npts  = cpr_u%Xh%lx**3
-    nelgv = cpr_u%msh%glb_nelv
+
 
     write(log_buf, '(A,I5.2)') &
           'The communicator is:', NEKO_COMM 
@@ -151,6 +165,7 @@ contains
     ! Free the memory allocated for the fields
     call cpr_free(cpr_u)
 
+    call neko_log%end_section()       
 
   end subroutine usr_calc_quantities
 

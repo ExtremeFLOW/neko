@@ -42,6 +42,11 @@ module cpr
   use coefs
   use tensor
   use mxm_wrapper
+  use speclib
+  use device
+  use utils
+
+  use, intrinsic :: iso_c_binding
   implicit none
 
   !> include information needed for compressing fields
@@ -52,11 +57,25 @@ module cpr
      real(kind=rp), allocatable :: vinvt(:,:) !< Transformation matrix
      !! inversed and transposed 
      real(kind=rp), allocatable :: w(:,:) !< Diagonal matrix with weights
+     real(kind=rp), allocatable :: specmat(:,:) !< Transformation matrix
+     real(kind=rp), allocatable :: specmatt(:,:) !< Transformation matrix
      type(field_t), pointer :: fld  => null()
      type(field_t) :: fldhat
+     type(field_t) :: wk
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
      type(dofmap_t), pointer :: dof => null()
+
+     !
+     ! Device pointers (if present)
+     !
+     type(c_ptr) :: v_d = C_NULL_PTR
+     type(c_ptr) :: vt_d = C_NULL_PTR
+     type(c_ptr) :: vinv_d = C_NULL_PTR
+     type(c_ptr) :: vinvt_d = C_NULL_PTR
+     type(c_ptr) :: w_d = C_NULL_PTR
+     type(c_ptr) :: specmat_d = C_NULL_PTR
+     type(c_ptr) :: specmatt_d = C_NULL_PTR
 
   end type cpr_t
 
@@ -77,6 +96,7 @@ contains
 
     cpr%fld => u
     cpr%fldhat = u
+    cpr%wk = u
     cpr%msh => u%msh
     cpr%Xh => u%Xh
     cpr%dof => u%dof
@@ -88,11 +108,14 @@ contains
     allocate(cpr%vinv(cpr%Xh%lx, cpr%Xh%lx))
     allocate(cpr%vinvt(cpr%Xh%lx, cpr%Xh%lx))
     allocate(cpr%w(cpr%Xh%lx, cpr%Xh%lx))
+    allocate(cpr%specmat(cpr%Xh%lx, cpr%Xh%lx))
+    allocate(cpr%specmatt(cpr%Xh%lx, cpr%Xh%lx))
 
     ! Initialize all the matrices
     call cpr_generate_specmat(cpr)
 
     ! Generate the uhat field (legendre coeff)
+
     call cpr_goto_space(cpr,'spec') !< 'spec' / 'phys'
 
   end subroutine cpr_init_all
@@ -121,14 +144,56 @@ contains
     if(allocated(cpr%w)) then
        deallocate(cpr%w)
     end if
+    
+    if(allocated(cpr%specmat)) then
+       deallocate(cpr%specmat)
+    end if
+    
+    if(allocated(cpr%specmatt)) then
+       deallocate(cpr%specmatt)
+    end if
 
     call field_free(cpr%fldhat)
 
+    call field_free(cpr%wk)
+    
     nullify(cpr%fld)
     nullify(cpr%msh)
     nullify(cpr%Xh)
     nullify(cpr%dof)
 
+
+    !
+    ! Cleanup the device (if present)
+    !
+    
+    if (c_associated(cpr%v_d)) then
+       call device_free(cpr%v_d)
+    end if
+
+    if (c_associated(cpr%vt_d)) then
+       call device_free(cpr%vt_d)
+    end if
+
+    if (c_associated(cpr%vinv_d)) then
+       call device_free(cpr%vinv_d)
+    end if
+
+    if (c_associated(cpr%vinvt_d)) then
+       call device_free(cpr%vinvt_d)
+    end if
+
+    if (c_associated(cpr%w_d)) then
+       call device_free(cpr%w_d)
+    end if
+    
+    if (c_associated(cpr%specmat_d)) then
+       call device_free(cpr%specmat_d)
+    end if
+
+    if (c_associated(cpr%specmatt_d)) then
+       call device_free(cpr%specmatt_d)
+    end if
 
   end subroutine cpr_free
 
@@ -204,7 +269,34 @@ contains
       call copy(vinvt, vinv, Xh%lx * Xh%lx)
       call trsp1(vinvt, Xh%lx)
     end associate
-    
+
+    ! Copy the data to the GPU
+    ! Move all this to space.f90 to for next version 
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_map(cpr%v,     cpr%v_d,     cpr%Xh%lxy)
+       call device_map(cpr%vt,    cpr%vt_d,    cpr%Xh%lxy)
+       call device_map(cpr%vinv,  cpr%vinv_d,  cpr%Xh%lxy)
+       call device_map(cpr%vinvt, cpr%vinvt_d, cpr%Xh%lxy)
+       call device_map(cpr%w,     cpr%w_d,     cpr%Xh%lxy)
+       !Map the following pointers but do not copy data for them
+       call device_map(cpr%specmat,  cpr%specmat_d,  cpr%Xh%lxy)
+       call device_map(cpr%specmatt, cpr%specmatt_d, cpr%Xh%lxy)
+
+
+       call device_memcpy(cpr%v,     cpr%v_d,     cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(cpr%vt,    cpr%vt_d,    cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(cpr%vinv,  cpr%vinv_d,  cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(cpr%vinvt, cpr%vinvt_d, cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(cpr%w,     cpr%w_d,     cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+
+    end if
+
   end subroutine cpr_generate_specmat
 
 
@@ -212,45 +304,53 @@ contains
   !the result of the transform is given in fldhat
   subroutine cpr_goto_space(cpr, space)
     type(cpr_t), intent(inout) :: cpr
-    real(kind=rp) :: w2(cpr%Xh%lx,cpr%Xh%lx,cpr%Xh%lx)
-    real(kind=rp) :: w1(cpr%Xh%lx,cpr%Xh%lx,cpr%Xh%lx)
-    real(kind=rp) :: specmat(cpr%Xh%lx,cpr%Xh%lx)
-    real(kind=rp) :: specmatt(cpr%Xh%lx,cpr%Xh%lx)
-    integer :: i, j, k, e, nxyz, nelv
+    integer :: i, j, k, e, nxyz, nelv, n
     character(len=LOG_SIZE) :: log_buf 
     character(len=4) :: space 
 
     ! define some constants
     nxyz = cpr%Xh%lx*cpr%Xh%lx*cpr%Xh%lx
     nelv = cpr%msh%nelv
+    n    = nxyz*nelv
 
-    ! Define the matrix according to which transform to do 
-    if (space .eq. 'spec') then
-       call copy(specmat, cpr%vinv, cpr%Xh%lx*cpr%Xh%lx)
-       call copy(specmatt, cpr%vinvt, cpr%Xh%lx*cpr%Xh%lx)
-    endif
-    if (space .eq. 'phys') then
-       call copy(specmat, cpr%v, cpr%Xh%lx*cpr%Xh%lx)
-       call copy(specmatt, cpr%vt, cpr%Xh%lx*cpr%Xh%lx)
-    endif
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
 
-    ! Apply the operator (transform to given space)
-    do e=1,nelv
+       write(*,*) 'Transform in the GPU'
+
+       ! Define the matrix according to which transform to do 
        if (space .eq. 'spec') then
-          call copy(w2, cpr%fld%x(1,1,1,e), nxyz) ! start from phys field
-       else
-          call copy(w2, cpr%fldhat%x(1,1,1,e), nxyz) ! start from spec coeff
+          call device_copy(cpr%specmat_d,  cpr%vinv_d,  cpr%Xh%lxy)
+          call device_copy(cpr%specmatt_d, cpr%vinvt_d, cpr%Xh%lxy)
+          call device_copy(cpr%wk%x_d, cpr%fld%x_d, n)
        endif
-       ! apply the operator to the x direction, result in w1
-       call mxm(specmat, cpr%Xh%lx, w2, cpr%Xh%lx, w1, cpr%Xh%lx*cpr%Xh%lx)
-       ! apply matrix to y direction, result in w2
-       do k=1,cpr%Xh%lx
-          call mxm(w1(1,1,k),cpr%Xh%lx,specmatt,cpr%Xh%lx,w2(1,1,k),cpr%Xh%lx)
-       enddo
-       ! apply matrix to z direction, result always in fldhat
-       call mxm (w2, cpr%Xh%lx*cpr%Xh%lx, specmatt, cpr%Xh%lx,&
-            cpr%fldhat%x(1,1,1,e), cpr%Xh%lx)
-    enddo
+       if (space .eq. 'phys') then
+          call device_copy(cpr%specmat_d,  cpr%v_d,  cpr%Xh%lxy)
+          call device_copy(cpr%specmatt_d, cpr%vt_d, cpr%Xh%lxy)
+          call device_copy(cpr%wk%x_d, cpr%fldhat%x_d, n)
+       endif
+
+    else
+       
+       write(*,*) 'Transform in the CPU'
+
+       ! Define the matrix according to which transform to do 
+       if (space .eq. 'spec') then
+          call copy(cpr%specmat, cpr%vinv, cpr%Xh%lx*cpr%Xh%lx)
+          call copy(cpr%specmatt, cpr%vinvt, cpr%Xh%lx*cpr%Xh%lx)
+          call copy(cpr%wk%x,cpr%fld%x,n)
+       endif
+       if (space .eq. 'phys') then
+          call copy(cpr%specmat, cpr%v, cpr%Xh%lx*cpr%Xh%lx)
+          call copy(cpr%specmatt, cpr%vt, cpr%Xh%lx*cpr%Xh%lx)
+          call copy(cpr%wk%x,cpr%fldhat%x,n)
+       endif
+
+    end if
+
+    call tnsr3d(cpr%fldhat%x, cpr%Xh%lx, cpr%wk%x, &
+                cpr%Xh%lx,cpr%specmat, &
+                cpr%specmatt, cpr%specmatt, nelv)
 
   end subroutine cpr_goto_space
 

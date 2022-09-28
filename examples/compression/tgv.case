@@ -7,8 +7,8 @@ initial_condition = 'user'
 /
 &NEKO_PARAMETERS
 dt = 1d-2
-T_end = 20
-nsamples = 100
+T_end = 0.5
+nsamples = 2
 uinf= 0.0,0.0,0.0
 output_bdry = .true.
 rho = 1
