@@ -35,6 +35,7 @@ module case
   use num_types
   use fluid_fctry
   use fluid_output
+  use scalar_output
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
@@ -65,6 +66,7 @@ module case
      real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
+     type(scalar_output_t) :: s_out
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
      type(mean_sqr_flow_output_t) :: f_msqrf
@@ -268,6 +270,9 @@ contains
     call C%s%init(C%params%nsamples, C%params%T_end)
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
     call C%s%add(C%f_out)
+
+    C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
+    call C%s%add(C%s_out)
 
     !
     ! Save checkpoints (if requested)

@@ -400,6 +400,8 @@ contains
        end if
     else
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
+
+       ! fs = fs - B*temp
        call subcol3 (fs, coef%B, this%temp, n)
        if (coef%Xh%lz .eq. 1) then
           call rzero (this%temp, n)

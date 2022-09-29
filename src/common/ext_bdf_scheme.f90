@@ -79,16 +79,16 @@ module ext_bdf_scheme
      type(c_ptr) :: ext_d = C_NULL_PTR !< dev. ptr for coefficients
      type(c_ptr) :: bdf_d = C_NULL_PTR !< dev. ptr for coefficients
    contains
-     procedure, pass(this) :: set_bd => time_integration_set_bdf
-     procedure, pass(this) :: set_abbd => time_integration_set_ext
-     procedure, pass(this) :: set_time_order => time_integration_set_time_order
-     final :: time_integration_free
+     procedure, pass(this) :: set_bd => ext_bdf_scheme_set_bdf
+     procedure, pass(this) :: set_abbd => ext_bdf_scheme_set_ext
+     procedure, pass(this) :: set_time_order => ext_bdf_scheme_set_time_order
+     final :: ext_bdf_scheme_free
   end type ext_bdf_scheme_t
 
 
 contains
 
-  subroutine time_integration_free(this)
+  subroutine ext_bdf_scheme_free(this)
     type(ext_bdf_scheme_t), intent(inout) :: this
 
     if (c_associated(this%ext_d)) then
@@ -99,9 +99,9 @@ contains
        call device_free(this%bdf_d)
     end if
     
-  end subroutine time_integration_free
+  end subroutine ext_bdf_scheme_free
 
-  subroutine time_integration_set_time_order(this,torder)
+  subroutine ext_bdf_scheme_set_time_order(this,torder)
     integer, intent(in) :: torder
     class(ext_bdf_scheme_t), intent(inout) :: this
     if(torder .le. 3 .and. torder .gt. 0) then
@@ -117,10 +117,10 @@ contains
        call device_map(this%bdf, this%bdf_d, 10)
     end if
 
-  end subroutine time_integration_set_time_order
+  end subroutine ext_bdf_scheme_set_time_order
 
   !>Compute backward-differentiation coefficients of order NBD
-  subroutine time_integration_set_bdf(this, dtbd)
+  subroutine ext_bdf_scheme_set_bdf(this, dtbd)
     class(ext_bdf_scheme_t), intent(inout) :: this
     real(kind=rp), intent(inout), dimension(10) :: dtbd
     real(kind=rp), dimension(10,10) :: bdmat
@@ -166,7 +166,7 @@ contains
       end if
     end associate
     
-  end subroutine time_integration_set_bdf
+  end subroutine ext_bdf_scheme_set_bdf
 
   !>
   !! Compute Adams-Bashforth coefficients (order NAB, less or equal to 3)
@@ -178,7 +178,7 @@ contains
   !! Modified Adams-Bashforth coefficients to be used in con-
   !! junction with Backward Differentiation schemes (order NBD)
   !!
-  subroutine time_integration_set_ext(this, dtlag)
+  subroutine ext_bdf_scheme_set_ext(this, dtlag)
     class(ext_bdf_scheme_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dtlag
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
@@ -233,10 +233,10 @@ contains
       end if
     end associate
     
-  end subroutine time_integration_set_ext
+  end subroutine ext_bdf_scheme_set_ext
 
   !
-  ! CLEAN UP THIS MESS BELOW, USE LAPACK OR SIMILAR
+  ! todo: CLEAN UP THIS MESS BELOW, USE LAPACK OR SIMILAR
   !
 
 

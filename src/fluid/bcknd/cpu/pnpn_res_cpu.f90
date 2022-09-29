@@ -169,7 +169,7 @@ contains
     integer :: i
 
     do i = 1, n
-       c_Xh%h1(i,1,1,1) = kappa
+       c_Xh%h1(i,1,1,1) = 1/kappa
        ! should not be just rho here.
        c_Xh%h2(i,1,1,1) = rho * (bd / dt)
     end do

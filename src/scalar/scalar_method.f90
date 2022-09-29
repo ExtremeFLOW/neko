@@ -206,6 +206,9 @@ contains
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
 
+    integer :: idx(4)
+    real :: dx,dy,dz
+
     call scalar_scheme_init_common(this, msh, lx, params, scheme)
     
     call neko_field_registry%add_field(this%dm_Xh, 's')
@@ -213,6 +216,19 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
     this%s => neko_field_registry%get_field('s')
+
+    ! todo: note, adhoc init
+    ! ADHOC INITAL VALUE SECTION FOR THE SCALAR
+    this%s%x = abs(this%dm_Xh%y) * abs(this%dm_Xh%y)
+
+    do i = 1, this%dm_Xh%size()
+      idx = nonlinear_index(i, this%Xh%lx,this%Xh%lx,this%Xh%lx)
+      dx = this%dm_Xh%x(idx(1), idx(2), idx(3), idx(4))
+      dy = this%dm_Xh%y(idx(1), idx(2), idx(3), idx(4))
+      dz = this%dm_Xh%z(idx(1), idx(2), idx(3), idx(4))
+      this%s%x(idx(1), idx(2), idx(3), idx(4)) = &
+         exp(-(dx**2 + dy**2 + dz**2))
+    end do
 
     if (kspv_init) then
        ! todo parameter file ksp tol should be added

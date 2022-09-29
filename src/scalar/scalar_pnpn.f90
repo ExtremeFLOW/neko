@@ -106,18 +106,14 @@ contains
     type(param_t), target, intent(inout) :: param
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
-    write(*,*) "FREE"
     call this%free()
     
-    write(*,*) "SCHEME_INIT"
     ! Setup fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., scheme)
 
-    write(*,*) "AXHELM"
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
 
-    write(*,*) "RESIDUAL FACTORY"
     ! Setup backend dependent vel residual routines
     call pnpn_scalar_res_factory(this%res)
 
@@ -136,6 +132,7 @@ contains
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
       call field_init(this%s_res, dm_Xh, "s_res")
+
       call field_init(this%abx1, dm_Xh, "abx1")
 
       call field_init(this%abx2, dm_Xh, "abx2")
@@ -180,7 +177,7 @@ contains
     end if
 
     ! Add lagged term to checkpoint
-    ! todo: note, adding 93 slags
+    ! todo: note, adding 3 slags
     call this%chkp%add_lag(this%slag, this%slag, this%slag)    
 
     ! todo: add dealiasing here, now hardcoded to false
@@ -264,14 +261,11 @@ contains
          sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf)
          
-      write(*,*) "STARTING SCALAR STEP"
-
       call sumab%compute_scalar(s_e, s, slag, ext_bdf%ext, ext_bdf%nab)
      
-      write(*,*) "f eval"
+      ! evaluate the source term and scale with the mass matrix
       call f_Xh%eval()
 
-      write(*,*) "col2"
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
            (NEKO_BCKND_OPENCL .eq. 1)) then
          call device_col2(f_Xh%s_d, c_Xh%B_d, n)
@@ -300,6 +294,7 @@ contains
       !> Apply dirichlet
       call this%bc_apply()
 
+      ! todo: note, passing re as kappa!
       ! compute velocity
       call res%compute(Ax, s, &
                            s_res, &
@@ -317,7 +312,6 @@ contains
       end if
 
       call this%pc%update()
-
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh, niter)
 
@@ -333,7 +327,6 @@ contains
          call add2s2(s%x, ds%x, 1.0_rp, n)
       end if
 
-      
       call scalar_step_info(tstep, t, params%dt, ksp_results)
       
     end associate

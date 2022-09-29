@@ -59,18 +59,15 @@ contains
 
     n = ss%dof%size()
 
-    write(*,*) "HII"
     do i = 1, n
        s%x(i,1,1,1) = ab(1) * ss%x(i,1,1,1) + ab(2) * sslag%lf(1)%x(i,1,1,1)
     end do
 
-    write(*,*) "HI2"
     if (nab .eq. 3) then
        do i = 1, n
           s%x(i,1,1,1) = s%x(i,1,1,1) + ab(3) * sslag%lf(2)%x(i,1,1,1)
        end do
     end if
-    write(*,*) "HI3"
     
   end subroutine scalar_sumab_cpu
 
