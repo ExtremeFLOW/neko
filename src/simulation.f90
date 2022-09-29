@@ -65,10 +65,11 @@ contains
        call simulation_restart(C, t)
     end if
 
+    !> Call both samplers and user-init before time loop
+    call C%s%sample(t)
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
-                
-    
+   
     call neko_log%newline()
 
     start_time_org = MPI_WTIME()
