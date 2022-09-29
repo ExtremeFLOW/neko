@@ -112,28 +112,28 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine fluid_makeabf_cuda(ta1_d, ta2_d, ta3_d, abx1_d, aby1_d, abz1_d, &
-          abx2_d, aby2_d, abz2_d, bfx_d, bfy_d, bfz_d, rho, ab1, ab2, ab3, n) &
+     subroutine fluid_makeabf_cuda(abx1_d, aby1_d, abz1_d, &
+                                   abx2_d, aby2_d, abz2_d, &
+                                   bfx_d, bfy_d, bfz_d, &
+                                   rho, ab1, ab2, ab3, n) &
           bind(c, name='fluid_makeabf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: ta1_d, ta2_d, ta3_D, abx1_d, aby1_d, abz1_d 
-       type(c_ptr), value :: abx2_d, aby2_d, abz2_d, bfx_d, bfy_d, bfz_d
+       type(c_ptr), value :: abx1_d, aby1_d, abz1_d 
+       type(c_ptr), value :: abx2_d, aby2_d, abz2_d
+       type(c_ptr), value :: bfx_d, bfy_d, bfz_d
        real(c_rp) :: rho, ab1, ab2, ab3
        integer(c_int) :: n
      end subroutine fluid_makeabf_cuda
   end interface
 
   interface
-     subroutine fluid_makebdf_cuda(ta1_d, ta2_d, ta3_d, tb1_d, tb2_d, tb3_d, &
-                       ulag1_d, ulag2_d, vlag1_d, vlag2_d, wlag1_d, wlag2_d, &
-                       bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-                       rho, dt, bd2, bd3, bd4, nbd, n) &
-                       bind(c, name='fluid_makebdf_cuda')
+     subroutine fluid_makebdf_cuda(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
+          wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
+          rho, dt, bd2, bd3, bd4, nbd, n) &
+                                   bind(c, name='fluid_makebdf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
-       type(c_ptr), value :: tb1_d, tb2_d, tb3_d
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
        type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
@@ -237,11 +237,10 @@ contains
          fx_d, fy_d, fz_d, rho, &
           ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
-    call fluid_makeabf_cuda(temp1%x_d, temp2%x_d, temp3%x_d, &
-         fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
-         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-         fx_d, fy_d, fz_d, rho, &
-          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
+    call fluid_makeabf_cuda(abx1%x_d, aby1%x_d, abz1%x_d, &
+                            abx2%x_d, aby2%x_d, abz2%x_d, &
+                            bfx_d, bfy_d, bfz_d, rho, &
+                            ab(1), ab(2), ab(3), n)
 #elif HAVE_OPENCL
     call fluid_makeabf_opencl(temp1%x_d, temp2%x_d, temp3%x_d, &
          fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
@@ -277,11 +276,11 @@ contains
          bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, B_d, &
          rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_CUDA
-    call fluid_makebdf_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
-         tb1%x_d, tb2%x_d, tb3%x_d, ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
-         vlag%lf(1)%x_d, vlag%lf(2)%x_d, wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
-         bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, B_d, &
-         rho, dt, bd(2), bd(3), bd(4), nbd, n)
+    call fluid_makebdf_cuda(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
+                            vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
+                            wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
+                            bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d,&
+                            B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_OPENCL
     call fluid_makebdf_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
          tb1%x_d, tb2%x_d, tb3%x_d, ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
