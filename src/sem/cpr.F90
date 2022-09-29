@@ -45,6 +45,7 @@ module cpr
   use speclib
   use device
   use utils
+  use device_cpr
 
   use, intrinsic :: iso_c_binding
   implicit none
@@ -371,15 +372,25 @@ contains
     integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv, n
     integer :: targetkut
+    real(kind=rp) :: restemp,res, restemp2, res2
     integer :: kut, kutx, kuty, kutz, nx
     character(len=LOG_SIZE) :: log_buf 
 
+
+    ! Definitions for the l2norm in device
+    real(kind=rp) :: ev(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx,cpr%msh%nelv) 
+    real(kind=rp) :: tmp(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx,cpr%msh%nelv) 
+    real(kind=rp) :: res_e(cpr%msh%nelv) 
+    
      !
      ! Device pointers (if present)
      !
      type(c_ptr) :: fx_d = C_NULL_PTR
      type(c_ptr) :: fy_d = C_NULL_PTR
      type(c_ptr) :: fz_d = C_NULL_PTR
+     type(c_ptr) :: ev_d = C_NULL_PTR
+     type(c_ptr) :: tmp_d = C_NULL_PTR
+     type(c_ptr) :: res_e_d = C_NULL_PTR
 
 
     ! define some constants
@@ -400,7 +411,14 @@ contains
        call device_map(fx,  fx_d,  cpr%Xh%lxy)
        call device_map(fy,  fy_d,  cpr%Xh%lxy)
        call device_map(fz,  fz_d,  cpr%Xh%lxy)
+       call device_map(ev,  ev_d,  n)
+       call device_map(tmp,  tmp_d,  n)
+       call device_map(res_e,  res_e_d,  nelv)
        
+
+       !Copy the untruncated coefficients to a temporal array
+       call device_copy(tmp_d, cpr%fldhat%x_d, n)
+
        ! create filters on cpu
        call build_filter_tf(fx, fy, fz, targetkut, cpr%Xh%lx)
 
@@ -415,11 +433,40 @@ contains
        ! Copy the spectral coefficients to the working array in GPU
        call device_copy(cpr%wk%x_d, cpr%fldhat%x_d, n)
 
+
        ! Perform the truncation in the GPU
        call tnsr3d(cpr%fldhat%x, cpr%Xh%lx, cpr%wk%x, &
                    cpr%Xh%lx,fx, &
                    fy, fz, nelv)
-  
+ 
+       ! Get error vector 
+       call device_sub3(ev_d,cpr%fldhat%x_d,tmp_d,n)
+
+       
+       ! Get global inner product 
+       restemp = device_glsc3(ev_d,coef%jac_d,ev_d,n)
+       write(*,*) 'Global inner product', restemp
+       
+       ! Get Get the general l2norm 
+       res= sqrt(restemp)/sqrt(coef%volume)
+       write(*,*) 'l2 norm from global spectra is', res
+
+
+       ! Get local inner products 
+       call device_glsc3_elem(res_e_d,ev_d,coef%jac_d, &
+                              ev_d, cpr%Xh%lx,nelv) 
+
+       call device_memcpy(res_e, res_e_d,     nelv, &
+                          DEVICE_TO_HOST)
+
+       res2 = 0           
+       do i= 1, nelv
+          res2 = res2 + res_e(i)
+       end do
+
+       ! Get global inner product 
+       write(*,*) 'Sum of local inner product', res2
+
        ! Free memory after performing actions
        if (c_associated(fx_d)) then
           call device_free(fx_d)
@@ -430,6 +477,22 @@ contains
        if (c_associated(fz_d)) then
           call device_free(fz_d)
        end if
+       if (c_associated(ev_d)) then
+          call device_free(ev_d)
+       end if
+       if (c_associated(tmp_d)) then
+          call device_free(tmp_d)
+       end if
+       if (c_associated(res_e_d)) then
+          call device_free(res_e_d)
+       end if
+
+       !if(allocated(temp)) then
+       !   deallocate(temp)
+       !end if
+       !if(allocated(ev)) then
+       !   deallocate(ev)
+       !end if
 
     else
 

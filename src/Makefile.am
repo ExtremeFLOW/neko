@@ -176,6 +176,7 @@ neko_fortran_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
+	math/bcknd/device/device_cpr.F90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
 	math/bcknd/device/fdm_device.F90\
@@ -233,6 +234,7 @@ if ENABLE_CUDA
 libneko_a_SOURCES += \
 	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
+	math/bcknd/device/cuda/cpr.cu\
 	math/bcknd/device/cuda/schwarz.cu\
 	math/bcknd/device/cuda/tensor.cu\
 	math/bcknd/device/cuda/fdm.cu\
@@ -347,6 +349,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
+	math/bcknd/device/cuda/cpr_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
 	math/bcknd/device/cuda/fdm_kernel.h\
 	math/bcknd/device/cuda/mathops_kernel.h\
