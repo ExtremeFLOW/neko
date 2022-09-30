@@ -34,7 +34,7 @@ contains
           stop
        end if
     end do
-    
+
   end subroutine scalar_step_info
 
 

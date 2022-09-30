@@ -119,8 +119,8 @@ module pnpn_residual
        integer, intent(in) :: n
      end subroutine vel_res
 
-     subroutine scalar_res(Ax, s, s_res, &
-                           f_Xh, c_Xh, msh, Xh, kappa, rho, bd, dt, n)
+     subroutine scalar_res(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd,&
+                dt, n)
        import field_t
        import Ax_t
        import gs_t
@@ -138,7 +138,8 @@ module pnpn_residual
        type(field_t), intent(inout) :: s_res
        type(source_scalar_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: kappa
+       real(kind=rp), intent(in) :: Pr
+       real(kind=rp), intent(in) :: Re
        real(kind=rp), intent(in) :: rho
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt

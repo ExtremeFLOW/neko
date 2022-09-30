@@ -153,7 +153,7 @@ contains
   end subroutine pnpn_vel_res_cpu_compute  
 
   subroutine pnpn_scalar_res_cpu_compute(Ax, s, s_res, &
-                                         f_Xh, c_Xh, msh, Xh, kappa, rho, bd, dt, n)
+                                         f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
@@ -161,7 +161,8 @@ contains
     type(field_t), intent(inout) :: s_res
     type(source_scalar_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: kappa
+    real(kind=rp), intent(in) :: Pr
+    real(kind=rp), intent(in) :: Re
     real(kind=rp), intent(in) :: rho
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
@@ -169,7 +170,7 @@ contains
     integer :: i
 
     do i = 1, n
-       c_Xh%h1(i,1,1,1) = 1/kappa
+       c_Xh%h1(i,1,1,1) = 1/(Pr*Re)
        ! should not be just rho here.
        c_Xh%h2(i,1,1,1) = rho * (bd / dt)
     end do

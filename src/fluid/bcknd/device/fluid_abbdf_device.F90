@@ -237,10 +237,10 @@ contains
          fx_d, fy_d, fz_d, rho, &
           ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
-    call fluid_makeabf_cuda(abx1%x_d, aby1%x_d, abz1%x_d, &
-                            abx2%x_d, aby2%x_d, abz2%x_d, &
-                            bfx_d, bfy_d, bfz_d, rho, &
-                            ab(1), ab(2), ab(3), n)
+    call fluid_makeabf_cuda(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
+                            fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
+                            fx_d, fy_d, fz_d, rho, &
+                            ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
     call fluid_makeabf_opencl(temp1%x_d, temp2%x_d, temp3%x_d, &
          fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &

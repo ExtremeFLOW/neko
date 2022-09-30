@@ -48,9 +48,8 @@ module scalar_pnpn
   implicit none
   private
 
-  
+
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t
-     type(field_t) :: s_e
 
      type(field_t) :: s_res
 
@@ -60,12 +59,12 @@ module scalar_pnpn
 
      type(field_t) :: wa1
      type(field_t) :: ta1
-     
+
      !> @todo move this to a scratch space
      type(field_t) :: work1, work2
 
      class(ax_t), allocatable :: Ax
-     
+
      type(projection_t) :: proj_s
 
      type(dirichlet_t) :: bc_res   !< Dirichlet condition vel. res.
@@ -77,7 +76,7 @@ module scalar_pnpn
      ! Time variables
      type(field_t) :: abx1
      type(field_t) :: abx2
-     
+
      !> Residual
      class(pnpn_scalar_res_t), allocatable :: res
 
@@ -98,7 +97,7 @@ module scalar_pnpn
   end type scalar_pnpn_t
 
 contains
-  
+
   subroutine scalar_pnpn_init(this, msh, lx, param)    
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -107,7 +106,7 @@ contains
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
-    
+
     ! Setup fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., scheme)
 
@@ -117,16 +116,16 @@ contains
     ! Setup backend dependent vel residual routines
     call pnpn_scalar_res_factory(this%res)
 
-   ! todo: uncomment when kernels are ready
+    ! todo: uncomment when kernels are ready
     ! Setup backend dependent summation of AB/BDF
-!    call fluid_sumab_fctry(this%sumab)
+    !    call fluid_sumab_fctry(this%sumab)
 
     ! Setup backend dependent summation of extrapolation scheme
-!    call fluid_makeabf_fctry(this%makeabf)
+    !    call fluid_makeabf_fctry(this%makeabf)
 
     ! Setup backend depenent contributions to F from lagged BD terms
-!    call fluid_makebdf_fctry(this%makebdf)
-    
+    !    call fluid_makebdf_fctry(this%makebdf)
+
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
@@ -136,31 +135,29 @@ contains
       call field_init(this%abx1, dm_Xh, "abx1")
 
       call field_init(this%abx2, dm_Xh, "abx2")
-                  
-      call field_init(this%s_e, dm_Xh, 's_e')
-    
+
       call field_init(this%wa1, dm_Xh, 'wa1')
 
       call field_init(this%ta1, dm_Xh, 'ta1')
-    
+
       call field_init(this%ds, dm_Xh, 'ds')
 
       call field_init(this%work1, dm_Xh, 'work1')
       call field_init(this%work2, dm_Xh, 'work2')
 
       call this%slag%init(this%s, 2)
-      
+
     end associate
-    
+
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
     call this%bc_res%init(this%dm_Xh)
     call this%bc_res%mark_zone(msh%inlet)
-!    call this%bc_res%mark_zone(msh%wall)
+    !    call this%bc_res%mark_zone(msh%wall)
     call this%bc_res%mark_zones_from_list(msh%labeled_zones,&
-                    't', this%params%bc_labels)
-!    call this%bc_res%mark_zones_from_list(msh%labeled_zones,&
-!                    'w', this%params%bc_labels)
+         't', this%params%bc_labels)
+    !    call this%bc_res%mark_zones_from_list(msh%labeled_zones,&
+    !                    'w', this%params%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_res)
@@ -196,23 +193,21 @@ contains
     call bc_list_free(this%bclst_res)
     write(*,*) "projs_free"
     call this%proj_s%free()
-   
-    call field_free(this%s_e)
 
     call field_free(this%s_res)        
-    
+
     call field_free(this%wa1)
 
     call field_free(this%ta1)
 
     call field_free(this%ds)
-    
+
     call field_free(this%work1)
     call field_free(this%work2)
 
     call field_free(this%abx1)
     call field_free(this%abx2)
-    
+
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
@@ -233,9 +228,9 @@ contains
        deallocate(this%makebdf)
     end if
 
-    
+
     call this%slag%free()
-    
+
   end subroutine scalar_pnpn_free
 
   subroutine scalar_pnpn_step(this, t, tstep, ext_bdf)
@@ -250,7 +245,6 @@ contains
 
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          ds => this%ds, &
-         s_e => this%s_e, &
          ta1 => this%ta1, &
          wa1 => this%wa1, &
          s_res =>this%s_res, &
@@ -260,9 +254,7 @@ contains
          params => this%params, msh => this%msh, res => this%res, &
          sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf)
-         
-      call sumab%compute_scalar(s_e, s, slag, ext_bdf%ext, ext_bdf%nab)
-     
+
       ! evaluate the source term and scale with the mass matrix
       call f_Xh%eval()
 
@@ -273,20 +265,14 @@ contains
          call col2(f_Xh%s, c_Xh%B, n)
       end if
 
-      call this%adv%apply_scalar(this%u, this%v, this%w, this%s, &
-                          f_Xh%s, &
-                          Xh, this%c_Xh, dm_Xh%n_dofs)
-   
-      call makeabf%compute_scalar(ta1, &
-                           this%abx1, &
-                           this%abx2, &
-                           f_Xh%s, &
-                           params%rho, ext_bdf%ext, n)
-      
-      call makebdf%compute_scalar(ta1, this%wa1, &
-                           slag, f_Xh%s, &
-                           s, c_Xh%B, params%rho, params%dt, &
-                           ext_bdf%bdf, ext_bdf%nbd, n)
+      call this%adv%apply_scalar(this%u, this%v, this%w, this%s, f_Xh%s, &
+                                 Xh, this%c_Xh, dm_Xh%n_dofs)
+
+      call makeabf%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
+           params%rho, ext_bdf%ext, n)
+
+      call makebdf%compute_scalar(ta1, this%wa1, slag, f_Xh%s, s, c_Xh%B, &
+           params%rho, params%dt, ext_bdf%bdf, ext_bdf%nbd, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -294,19 +280,19 @@ contains
       !> Apply dirichlet
       call this%bc_apply()
 
-      ! todo: note, passing re as kappa!
+      ! todo: note, adhoc Pr=2!
       ! compute velocity
       call res%compute(Ax, s, &
-                           s_res, &
-                           f_Xh, c_Xh, msh, Xh, &
-                           params%Re, params%rho, ext_bdf%bdf(1), &
-                           params%dt, dm_Xh%n_dofs)
-      
+           s_res, &
+           f_Xh, c_Xh, msh, Xh, &
+           2.0_rp, params%Re, params%rho, ext_bdf%bdf(1), &
+           params%dt, dm_Xh%n_dofs)
+
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
 
       call bc_list_apply_scalar(this%bclst_res,&
-                                s_res%x, dm_Xh%n_dofs)
-      
+           s_res%x, dm_Xh%n_dofs)
+
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
@@ -317,9 +303,9 @@ contains
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
-                                  this%bclst_ds, gs_Xh, n)
+              this%bclst_ds, gs_Xh, n)
       end if
-      
+
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
            (NEKO_BCKND_OPENCL .eq. 1)) then
          call device_add2s2(s%x_d, ds%x_d, 1.0_rp, n)
@@ -328,9 +314,9 @@ contains
       end if
 
       call scalar_step_info(tstep, t, params%dt, ksp_results)
-      
+
     end associate
   end subroutine scalar_pnpn_step
 
-  
+
 end module scalar_pnpn
