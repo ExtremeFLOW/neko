@@ -61,6 +61,11 @@ AX_MPI_DTYPE
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
 
+# Set necessary flags to fix issues with various compilers
+if test "x$ax_cv_fc_compiler_vendor" = xportland; then
+   FCFLAGS="$FCFLAGS  -Mbackslash"
+fi
+
 # Store build information (date, host, FC)
 AC_SUBST(NEKO_BUILD_INFO,
         ["(build: $(date +%Y-%m-%d) on $host using $ax_cv_fc_compiler_vendor)"], [])
