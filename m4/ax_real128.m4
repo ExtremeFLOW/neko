@@ -15,6 +15,7 @@ AC_LANG_PUSH([Fortran])
 AC_MSG_CHECKING([for REAL128 support])
 AC_COMPILE_IFELSE([
        module tt
+       use, intrinsic :: iso_fortran_env
        integer, parameter :: qp = REAL128
        end module tt
 
