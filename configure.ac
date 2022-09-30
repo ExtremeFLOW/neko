@@ -165,7 +165,7 @@ fi
 if test "x$have_real128" = xyes; then
    AC_SUBST(NEKO_REAL128_TYPE, "REAL128")
 else
-   AC_SUBST(NEKO_REAL128_TYPE, "selected_real_kind(2)")
+   AC_SUBST(NEKO_REAL128_TYPE, "selected_real_kind(1)")
    if test "x$enable_real" = xqp; then
       AC_MSG_ERROR([REAL128 not supported])
    fi
