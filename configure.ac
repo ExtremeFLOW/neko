@@ -32,6 +32,7 @@ AC_LANG(Fortran)
 AC_PROG_FC(,90)
 AX_COARRAY
 AX_DTYPE_IO
+AX_REAL128
 
 # Test for a working MPI compiler
 AX_MPI([have_mpi=yes], [have_mpi=no])
@@ -160,6 +161,15 @@ elif test "x$enable_real" = xqp; then
 else
    AC_MSG_ERROR([Invalid working precision])
 fi
+
+if test "x$have_real128" = xyes; then
+   AC_SUBST(NEKO_REAL128_TYPE, "REAL128")
+else
+   AC_SUBST(NEKO_REAL128_TYPE, "selected_real_kind(1)")
+   if test "x$enable_real" = xqp; then
+      AC_MSG_ERROR([REAL128 not supported])
+   fi
+fi                          
 
 AC_SUBST(blk_size, ${blk_size})
 
