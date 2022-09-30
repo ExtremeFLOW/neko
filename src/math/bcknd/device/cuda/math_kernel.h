@@ -454,20 +454,20 @@ __global__ void glsc3_many_kernel(const T * a,
     }
   }
   
-  buf[threadIdx.x+y*blockDim.x] = tmp;
+  buf[threadIdx.x*blockDim.y+y] = tmp;
   __syncthreads();
   
   int i = blockDim.x>>1;
   while (i != 0) {
     if (threadIdx.x < i) {
-      buf[threadIdx.x +y*blockDim.x] += buf[(threadIdx.x + i)+y*blockDim.x];
+      buf[threadIdx.x*blockDim.y +y] += buf[(threadIdx.x + i)*blockDim.y+y];
     }
     __syncthreads();
     i = i>>1;
   }
   if (threadIdx.x == 0) {
     if( y < j) {
-      buf_h[j*blockIdx.x+y] = buf[y*blockDim.x];
+      buf_h[j*blockIdx.x+y] = buf[y];
     }
   }
 }
