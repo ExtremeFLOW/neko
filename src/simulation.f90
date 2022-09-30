@@ -55,7 +55,7 @@ contains
 
     t = 0d0
     tstep = 0
-    call neko_log%section('Simulation')
+    call neko_log%section('Starting simulation')
     write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%params%T_end,')'
     call neko_log%message(log_buf)
     write(log_buf,'(A, E15.7)') 'dt :  ', C%params%dt
@@ -65,11 +65,13 @@ contains
        call simulation_restart(C, t)
     end if
 
-    !> Call both samplers and user-init before time loop
+    !> Call stats, samplers and user-init before time loop
+    call neko_log%section('Postprocessing')       
+    call C%q%eval(t, C%params%dt)
     call C%s%sample(t)
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
-   
+    call neko_log%end_section()
     call neko_log%newline()
 
     start_time_org = MPI_WTIME()
@@ -87,6 +89,7 @@ contains
 
        ! Fluid step 
        call simulation_settime(t, C%params%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
+
        call neko_log%section('Fluid')       
        call C%fluid%step(t, tstep, C%ext_bdf)
        end_time = MPI_WTIME()
@@ -105,18 +108,21 @@ contains
             end_time-start_time
        call neko_log%end_section(log_buf)
 
-       call C%usr%usr_chk(t, C%params%dt, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
-       call neko_log%end()
+       call neko_log%section('Postprocessing')       
        call C%q%eval(t, C%params%dt)
        call C%s%sample(t)
+       call C%usr%usr_chk(t, C%params%dt, tstep,&
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
+       call neko_log%end_section()
+       
+       call neko_log%end()
     end do
 
     if (t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
     end if
     
-    call neko_log%end_section('normal end.')
+    call neko_log%end_section('Normal end.')
     
   end subroutine neko_solve
 
