@@ -55,7 +55,7 @@ module user_intf
 
   !> Abstract interface for initilialization of modules
   abstract interface
-     subroutine user_initialize_modules(t, u, v, w, p, c_Xh, params)
+     subroutine user_initialize_modules(t, u, v, w, p, coef, params)
        import field_t
        import param_t
        import coef_t
@@ -65,7 +65,7 @@ module user_intf
        type(field_t), intent(inout) :: v
        type(field_t), intent(inout) :: w
        type(field_t), intent(inout) :: p
-       type(coef_t), intent(inout) :: c_Xh
+       type(coef_t), intent(inout) :: coef
        type(param_t), intent(inout) :: params
      end subroutine user_initialize_modules
   end interface
@@ -186,13 +186,13 @@ contains
     type(field_t), intent(inout) :: p
   end subroutine dummy_user_check
 
-  subroutine dummy_user_init_no_modules(t, u, v, w, p, c_Xh, params)
+  subroutine dummy_user_init_no_modules(t, u, v, w, p, coef, params)
     real(kind=rp) :: t
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: c_Xh
+    type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
 
