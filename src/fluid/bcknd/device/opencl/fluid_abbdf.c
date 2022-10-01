@@ -86,8 +86,7 @@ void fluid_sumab_opencl(void *u, void *v, void *w,
                                   0, NULL, NULL));  
 }
 
-void fluid_makeabf_opencl(void *ta1, void *ta2, void *ta3,
-                          void *abx1, void *aby1, void *abz1, 
+void fluid_makeabf_opencl(void *abx1, void *aby1, void *abz1, 
                           void *abx2, void *aby2, void *abz2,
                           void *bfx, void *bfy, void *bfz,
                           real *rho, real *ab1, real *ab2, real *ab3, int *n) {
@@ -99,23 +98,20 @@ void fluid_makeabf_opencl(void *ta1, void *ta2, void *ta3,
   cl_kernel kernel = clCreateKernel(abbdf_program, "makeabf_kernel", &err);
   CL_CHECK(err);
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &ta1));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &ta2));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &ta3));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &abx1));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &aby1));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &abz1));
-  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &abx2));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &aby2));
-  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &abz2));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &bfx));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &bfy));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &bfz));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(real), rho));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(real), ab1));
-  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(real), ab2));
-  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(real), ab3));
-  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &abx1));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &aby1));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &abz1));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &abx2));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &aby2));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &abz2));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &bfx));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &bfy));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &bfz));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(real), rho));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(real), ab1));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(real), ab2));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(real), ab3));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
@@ -127,9 +123,7 @@ void fluid_makeabf_opencl(void *ta1, void *ta2, void *ta3,
   
 }
 
-void fluid_makebdf_opencl(void *ta1, void *ta2, void *ta3,
-                          void *tb1, void *tb2, void *tb3,
-                          void *ulag1, void *ulag2, void *vlag1,
+void fluid_makebdf_opencl(void *ulag1, void *ulag2, void *vlag1,
                           void *vlag2, void *wlag1, void *wlag2, 
                           void *bfx, void *bfy, void *bfz,
                           void *u, void *v, void *w, void *B, 
@@ -143,32 +137,26 @@ void fluid_makebdf_opencl(void *ta1, void *ta2, void *ta3,
   cl_kernel kernel = clCreateKernel(abbdf_program, "makebdf_kernel", &err);
   CL_CHECK(err);
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &ta1));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &ta2));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &ta3));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &tb1));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &tb2));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &tb3));
-  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &ulag1));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &ulag2));
-  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &vlag1));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &vlag2));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &wlag1));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &wlag2));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &bfx));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &bfy));
-  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &bfz));
-  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &u));
-  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(cl_mem), (void *) &v));
-  CL_CHECK(clSetKernelArg(kernel, 17, sizeof(cl_mem), (void *) &w));
-  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(cl_mem), (void *) &B));
-  CL_CHECK(clSetKernelArg(kernel, 19, sizeof(real), rho));
-  CL_CHECK(clSetKernelArg(kernel, 20, sizeof(real), dt));
-  CL_CHECK(clSetKernelArg(kernel, 21, sizeof(real), bd2));
-  CL_CHECK(clSetKernelArg(kernel, 22, sizeof(real), bd3));
-  CL_CHECK(clSetKernelArg(kernel, 23, sizeof(real), bd4));
-  CL_CHECK(clSetKernelArg(kernel, 24, sizeof(int), nbd));
-  CL_CHECK(clSetKernelArg(kernel, 25, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &ulag1));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &ulag2));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &vlag1));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &vlag2));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &wlag1));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &wlag2));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &bfx));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &bfy));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &bfz));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &u));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &v));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &w));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &B));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(real), rho));
+  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(real), dt));
+  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(real), bd2));
+  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(real), bd3));
+  CL_CHECK(clSetKernelArg(kernel, 17, sizeof(real), bd4));
+  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(int), nbd));
+  CL_CHECK(clSetKernelArg(kernel, 19, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
