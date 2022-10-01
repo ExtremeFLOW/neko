@@ -61,8 +61,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void fluid_makeabf_hip(void *ta1, void *ta2, void *ta3,
-                         void *abx1, void *aby1, void *abz1, 
+  void fluid_makeabf_hip(void *abx1, void *aby1, void *abz1, 
                          void *abx2, void *aby2, void *abz2,
                          void *bfx, void *bfy, void *bfz,
                          real *rho, real *ab1, real *ab2, real *ab3, int *n) {
@@ -72,7 +71,6 @@ extern "C" {
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME( makeabf_kernel<real> ),
                        nblcks, nthrds, 0, 0,
-                       (real *) ta1, (real *) ta2, (real *) ta3,
                        (real *) abx1, (real *) aby1, (real *) abz1, 
                        (real *) abx2, (real *) aby2, (real *) abz2,
                        (real *) bfx, (real *) bfy, (real *) bfz,
@@ -80,9 +78,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
   
-  void fluid_makebdf_hip(void *ta1, void *ta2, void *ta3,
-                         void *tb1, void *tb2, void *tb3,
-                         void *ulag1, void *ulag2, void *vlag1,
+  void fluid_makebdf_hip(void *ulag1, void *ulag2, void *vlag1,
                          void *vlag2, void *wlag1, void *wlag2, 
                          void *bfx, void *bfy, void *bfz,
                          void *u, void *v, void *w, void *B, 
@@ -94,8 +90,6 @@ extern "C" {
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( makebdf_kernel<real> ),
                        nblcks, nthrds, 0, 0,
-                       (real *) ta1, (real *) ta2, (real *) ta3,
-                       (real *) tb1, (real *) tb2, (real *) tb3,
                        (real *) ulag1, (real *) ulag2, (real *) vlag1,
                        (real *) vlag2, (real *) wlag1, (real *) wlag2, 
                        (real *) bfx, (real *) bfy, (real *) bfz,
