@@ -81,17 +81,19 @@ module user_intf
 
   !> Abstract interface for user defined check functions
   abstract interface
-     subroutine usercheck(t, dt, tstep, u, v, w, p, coef)
+     subroutine usercheck(t, tstep, u, v, w, p, coef, param)
        import field_t
        import coef_t
+       import param_t
        import rp
-       real(kind=rp), intent(in) :: t, dt
+       real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-       type(coef_t), intent(inout) :: coef
        type(field_t), intent(inout) :: u
        type(field_t), intent(inout) :: v
        type(field_t), intent(inout) :: w
        type(field_t), intent(inout) :: p
+       type(coef_t), intent(inout) :: coef
+       type(param_t), intent(inout) :: param
      end subroutine usercheck
   end interface
 
@@ -176,14 +178,15 @@ contains
   end subroutine dummy_user_mesh_setup
   
   !> Dummy user check
-  subroutine dummy_user_check(t, dt, tstep, u, v, w, p, coef)
-    real(kind=rp), intent(in) :: t, dt
+  subroutine dummy_user_check(t, tstep, u, v, w, p, coef, params)
+    real(kind=rp), intent(in) :: t    
     integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
+    type(coef_t), intent(inout) :: coef
+    type(param_t), intent(inout) :: params
   end subroutine dummy_user_check
 
   subroutine dummy_user_init_no_modules(t, u, v, w, p, coef, params)
