@@ -32,7 +32,6 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 /**
  * Device kernel for cmult
  */
