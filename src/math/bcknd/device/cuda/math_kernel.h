@@ -32,7 +32,6 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cub/cub.cuh>
 
 /**
  * Device kernel for cmult
