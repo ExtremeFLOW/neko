@@ -435,16 +435,13 @@ extern "C" {
     glsc2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
                                            bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-
-    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, nb * sizeof(real),
+    reduce_kernel<<<1, 1024>>> (bufred_d, nb);
+    CUDA_CHECK(cudaGetLastError());
+    
+    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
 
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += bufred[i];
-    }
-
-    return res;
+    return bufred[0];
   }
 
   /** 
@@ -468,16 +465,13 @@ extern "C" {
      
     glsum_kernel<real><<<nblcks, nthrds>>>((real *) a, bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<<<1, 1024>>> (bufred_d, nb);
+    CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
+                          cudaMemcpyDeviceToHost));    
 
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += bufred[i];
-    }
-    
-    return res;
+    return bufred[0];
   }
 
 }
