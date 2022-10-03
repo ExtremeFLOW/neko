@@ -204,8 +204,8 @@ contains
     Xh => this%Xh
     do il = 1, msh%nelv
        do jl = 1, msh%npts
-          ix = mod(jl -1 ,2)
-          iy = mod(jl -1 ,4)/2
+          ix = mod(jl - 1, 2)
+          iy = mod(jl - 1, 4)/2
           iz = (jl - 1)/4
           this%dof(ix*(Xh%lx - 1) + 1, iy*(Xh%ly - 1) + 1, iz*(Xh%lz - 1) + 1, il) = &
                & int(msh%elements(il)%e%pts(jl)%p%id(), i8)
@@ -1047,45 +1047,55 @@ contains
     real(kind=rp) :: radius, gap, dtheta, r, xys 
     real(kind=rp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
     real(kind=rp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
-    integer :: isid1, ixt, iyt, izt, ix, isidt
+    integer :: isid1, ixt, iyt, izt, ix, itmp
+    integer(i4),  dimension(6), parameter :: fcyc_to_sym = (/3, 2, 4, 1, 5, 6/) ! cyclic to symmetric face mapping
+    integer(i4),  dimension(12), parameter :: ecyc_to_sym = (/1, 6, 2, 5, 3, 8, &
+         & 4, 7, 9, 10, 12, 11/) ! cyclic to symmetric edge mapping
+    integer, parameter, dimension(2, 12) :: edge_nodes = reshape((/1, 2, 3, 4, 5, 6, &
+         & 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8/), (/2,12/)) ! symmetric edge to vertex mapping
+                                                                           ! copy from hex as this has private attribute there
 
-    pt1x  = element%pts(isid)%p%x(1)
-    pt1y  = element%pts(isid)%p%x(2)
-    if(isid.eq.4) then
-       pt2x  = element%pts(1)%p%x(1)
-       pt2y  = element%pts(1)%p%x(2)
-    else if(isid.eq.8) then
-       pt2x  = element%pts(5)%p%x(1)
-       pt2y  = element%pts(5)%p%x(2)
-    else
-       pt2x  = element%pts(isid+1)%p%x(1)
-       pt2y  = element%pts(isid+1)%p%x(2)
-    end if
-!   find slope of perpendicular
-    radius=curve_data(1)
-    gap=sqrt( (pt1x-pt2x)**2 + (pt1y-pt2y)**2 )
-    if (abs(2.0 * radius) .le. gap * 1.00001) then
-       call neko_error('Radius to small for arced element surface')
-    end if
+    ! this subroutine is a mess of symmetric and cyclic edge/face numberring and
+    ! cannot be cleaned without changing an input format (isid seems to be
+    ! a cyclic edge number)
+    ! following according to cyclic edge numbering and orientation
+    itmp = ecyc_to_sym(isid)
+    select case(isid)
+    case(1:2,5:6)
+       pt1x = element%pts(edge_nodes(1,itmp))%p%x(1)
+       pt1y = element%pts(edge_nodes(1,itmp))%p%x(2)
+       pt2x = element%pts(edge_nodes(2,itmp))%p%x(1)
+       pt2y = element%pts(edge_nodes(2,itmp))%p%x(2)
+    case(3:4,7:8)
+       pt1x = element%pts(edge_nodes(2,itmp))%p%x(1)
+       pt1y = element%pts(edge_nodes(2,itmp))%p%x(2)
+       pt2x = element%pts(edge_nodes(1,itmp))%p%x(1)
+       pt2y = element%pts(edge_nodes(1,itmp))%p%x(2)
+    end select
+    ! find slope of perpendicular
+    radius = curve_data(1)
     xs = pt2y-pt1y
     ys = pt1x-pt2x
-!   make length radius
-    xys=sqrt(xs**2+ys**2)
-!   find center
-    dtheta = abs(asin(0.5*gap/radius))
+    ! make length radius
+    xys = sqrt(xs**2 + ys**2)
+    ! sanity check
+    if (abs(2.0 * radius) <= xys * 1.00001) &
+         & call neko_error('Radius to small for arced element surface')
+    ! find center
+    dtheta = abs(asin(0.5*xys/radius))
     pt12x  = (pt1x + pt2x)/2.0
     pt12y  = (pt1y + pt2y)/2.0
     xcenn  = pt12x - xs/xys * radius*cos(dtheta)
     ycenn  = pt12y - ys/xys * radius*cos(dtheta)
-    theta0 = atan2((pt12y-ycenn),(pt12x-xcenn))
+    theta0 = atan2((pt12y-ycenn), (pt12x-xcenn))
 !   compute perturbation of geometry
     isid1 = mod(isid+4-1, 4)+1
-    call compute_h(h, Xh%zg, gdim, Xh%lx) 
+    call compute_h(h, Xh%zg, gdim, Xh%lx)
+    if (radius < 0.0) dtheta = -dtheta
     do ix=1,Xh%lx
        ixt=ix
        if (isid1.gt.2) ixt=Xh%lx+1-ix
        r=Xh%zg(ix,1)
-       if (radius.lt.0.0) r=-r
        xcrved(ixt) = xcenn + abs(radius) * cos(theta0 + r*dtheta) &
                            - ( h(ix,1,1)*pt1x + h(ix,1,2)*pt2x )
        ycrved(ixt) = ycenn + abs(radius) * sin(theta0 + r*dtheta) &
@@ -1094,21 +1104,7 @@ contains
 !   points all set, add perturbation to current mesh.
 !   LEGACY WARNING
 !   I dont want to dive in this again, Martin Karp 2/3 - 2021
-    isidt = isid1
-    select case(isidt)
-    case (1)
-       isid1 = 3
-    case (2)
-       isid1 = 2
-    case (3)
-       isid1 = 4
-    case (4)
-       isid1 = 1
-    case (5)
-       isid1 = 5
-    case (6)
-       isid1 = 6
-    end select
+    isid1 = fcyc_to_sym(isid1)
     izt = (isid-1)/4+1
     iyt = isid1-2
     ixt = isid1
