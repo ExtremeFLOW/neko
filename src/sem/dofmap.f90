@@ -209,9 +209,9 @@ contains
           this%dof(Xh%lx, 1, 1, i) = &
                int(msh%elements(i)%e%pts(2)%p%id(), i8)
           this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, 1, i) = &
                int(msh%elements(i)%e%pts(3)%p%id(), i8)
+          this%dof(Xh%lx, Xh%ly, 1, i) = &
+               int(msh%elements(i)%e%pts(4)%p%id(), i8)
 
           this%shared_dof(1, 1, 1, i) = &
                mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
@@ -220,10 +220,10 @@ contains
                mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
 
           this%shared_dof(1, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
+               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
           
           this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
+               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
        end do
     else    
        do i = 1, msh%nelv
@@ -232,18 +232,18 @@ contains
           this%dof(Xh%lx, 1, 1, i) = &
                int(msh%elements(i)%e%pts(2)%p%id(), i8)
           this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, 1, i) = &
                int(msh%elements(i)%e%pts(3)%p%id(), i8)
+          this%dof(Xh%lx, Xh%ly, 1, i) = &
+               int(msh%elements(i)%e%pts(4)%p%id(), i8)
 
           this%dof(1, 1, Xh%lz, i) = &
                int(msh%elements(i)%e%pts(5)%p%id(), i8)
           this%dof(Xh%lx, 1, Xh%lz, i) = &
                int(msh%elements(i)%e%pts(6)%p%id(), i8)
           this%dof(1, Xh%ly, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(8)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
                int(msh%elements(i)%e%pts(7)%p%id(), i8)
+          this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
+               int(msh%elements(i)%e%pts(8)%p%id(), i8)
 
           this%shared_dof(1, 1, 1, i) = &
                mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
@@ -252,10 +252,10 @@ contains
                mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
 
           this%shared_dof(1, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
+               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
           
           this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
+               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
 
           this%shared_dof(1, 1, Xh%lz, i) = &
                mesh_is_shared(msh, msh%elements(i)%e%pts(5)%p)
@@ -264,10 +264,10 @@ contains
                mesh_is_shared(msh, msh%elements(i)%e%pts(6)%p)
 
           this%shared_dof(1, Xh%ly, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(8)%p)
+               mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
           
           this%shared_dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
+               mesh_is_shared(msh, msh%elements(i)%e%pts(8)%p)
        end do
     end if
   end subroutine dofmap_number_points
@@ -782,14 +782,14 @@ contains
     do j = 1, msh%gdim
        xyzb(1,1,1,j) = element%pts(1)%p%x(j)
        xyzb(2,1,1,j) = element%pts(2)%p%x(j)
-       xyzb(1,2,1,j) = element%pts(4)%p%x(j)
-       xyzb(2,2,1,j) = element%pts(3)%p%x(j)
+       xyzb(1,2,1,j) = element%pts(3)%p%x(j)
+       xyzb(2,2,1,j) = element%pts(4)%p%x(j)
 
        if (msh%gdim .gt. 2) then
           xyzb(1,1,2,j) = element%pts(5)%p%x(j)
           xyzb(2,1,2,j) = element%pts(6)%p%x(j)
-          xyzb(1,2,2,j) = element%pts(8)%p%x(j)
-          xyzb(2,2,2,j) = element%pts(7)%p%x(j)
+          xyzb(1,2,2,j) = element%pts(7)%p%x(j)
+          xyzb(2,2,2,j) = element%pts(8)%p%x(j)
        end if
     end do
     if (msh%gdim .eq. 3) then

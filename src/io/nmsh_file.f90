@@ -119,7 +119,8 @@ contains
           do j = 1, 4
              p(j) = point_t(nmsh_quad(i)%v(j)%v_xyz, nmsh_quad(i)%v(j)%v_idx)
           end do
-          call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
+          ! swap vertices to keep symmetric vertex numbering in neko
+          call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
        end do
        deallocate(nmsh_quad)
        mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_quad_size
@@ -132,8 +133,9 @@ contains
           do j = 1, 8
              p(j) = point_t(nmsh_hex(i)%v(j)%v_xyz, nmsh_hex(i)%v(j)%v_idx)
           end do
+          ! swap vertices to keep symmetric vertex numbering in neko
           call mesh_add_element(msh, i, &
-               p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+               p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
        end do
        deallocate(nmsh_hex)
        mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_hex_size
@@ -289,8 +291,9 @@ contains
           id = nmsh_quad(i)%v(j)%v_idx+msh%glb_nelv*8
           p(j+4) = point_t(coord, id)
        end do
+       ! swap vertices to keep symmetric vertex numbering in neko
        call mesh_add_element(msh, i, &
-            p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+            p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
     end do
     deallocate(nmsh_quad)
     mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_quad_size
