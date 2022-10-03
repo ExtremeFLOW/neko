@@ -196,80 +196,23 @@ contains
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
     type(dofmap_t), target :: this
-    integer :: i
+    integer :: il, jl, ix, iy, iz
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
 
     msh => this%msh
     Xh => this%Xh
-    if (msh%gdim .eq. 2) then
-       do i = 1, msh%nelv
-          this%dof(1, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(1)%p%id(), i8)
-          this%dof(Xh%lx, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(2)%p%id(), i8)
-          this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(3)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), i8)
-
-          this%shared_dof(1, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
-          
-          this%shared_dof(Xh%lx, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
-
-          this%shared_dof(1, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
-          
-          this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
+    do il = 1, msh%nelv
+       do jl = 1, msh%npts
+          ix = mod(jl -1 ,2)
+          iy = mod(jl -1 ,4)/2
+          iz = (jl - 1)/4
+          this%dof(ix*(Xh%lx - 1) + 1, iy*(Xh%ly - 1) + 1, iz*(Xh%lz - 1) + 1, il) = &
+               & int(msh%elements(il)%e%pts(jl)%p%id(), i8)
+          this%shared_dof(ix*(Xh%lx - 1) + 1, iy*(Xh%ly - 1) + 1, iz*(Xh%lz - 1) + 1, il) = &
+               & mesh_is_shared(msh, msh%elements(il)%e%pts(jl)%p)
        end do
-    else    
-       do i = 1, msh%nelv
-          this%dof(1, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(1)%p%id(), i8)
-          this%dof(Xh%lx, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(2)%p%id(), i8)
-          this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(3)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), i8)
-
-          this%dof(1, 1, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(5)%p%id(), i8)
-          this%dof(Xh%lx, 1, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(6)%p%id(), i8)
-          this%dof(1, Xh%ly, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(7)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(8)%p%id(), i8)
-
-          this%shared_dof(1, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
-          
-          this%shared_dof(Xh%lx, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
-
-          this%shared_dof(1, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
-          
-          this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
-
-          this%shared_dof(1, 1, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(5)%p)
-          
-          this%shared_dof(Xh%lx, 1, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(6)%p)
-
-          this%shared_dof(1, Xh%ly, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
-          
-          this%shared_dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(8)%p)
-       end do
-    end if
+    end do
   end subroutine dofmap_number_points
 
   !> Assing numbers to dofs on edges
