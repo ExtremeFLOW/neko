@@ -527,27 +527,27 @@ __global__ void glsc2_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0.0;
-
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+  
+  __shared__ T shared[32];  
+  T sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    tmp += a[i] * b[i];
+    sum += a[i] * b[i];
   }
-  buf[threadIdx.x] = tmp;
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
   __syncthreads();
 
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x] += buf[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
-  }
- 
-  if (threadIdx.x == 0) {
-    buf_h[blockIdx.x] = buf[0];
-  }
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+  
 }
 
 /**
@@ -561,25 +561,26 @@ __global__ void glsum_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0.0;
-
-  for (int i = idx; i < n; i+= str) {
-    tmp += a[i];
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+  
+  __shared__ T shared[32];
+  T sum = 0;    
+  for (int i = idx; i<n ; i += str) 
+  {
+    sum += a[i];
   }
-  buf[threadIdx.x] = tmp;
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
   __syncthreads();
 
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x] += buf[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
-  }
- 
-  if (threadIdx.x == 0) {
-    buf_h[blockIdx.x] = buf[0];
-  }
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+  
 }
