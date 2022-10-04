@@ -49,7 +49,7 @@ module quad
   !! @verbatim
   !! Node numbering (NEKTON preprocessor notation)
   !!
-  !!      3+-----+4    ^ s                 
+  !!      4+-----+3    ^ s                 
   !!       |     |     |                   
   !!       |     |     |                   
   !!      1+-----+2    +----> r            
@@ -78,10 +78,10 @@ module quad
   !!       +------+      +-----> r            
   !!          3
   !! @endverbatim
-  integer, parameter, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
-                                                                2,4,&
+  integer, parameter, dimension(2, 4) :: edge_nodes = reshape((/1,4,&
+                                                                2,3,&
                                                                 1,2,&
-                                                                3,4 /),&
+                                                                4,3 /),&
                                                                 (/2,4/))
   
 contains

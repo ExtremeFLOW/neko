@@ -188,8 +188,7 @@ contains
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp),real(0d0,dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
-                ! swap vertices to keep symmetric vertex numbering in neko
-                call mesh_add_element(msh, el_idx, p(1), p(2), p(4), p(3))
+                call mesh_add_element(msh, el_idx, p(1), p(2), p(3), p(4))
              end if
           else if (ndim .eq. 3) then
              read(9, *) (xc(j),j=1,4)
@@ -203,9 +202,8 @@ contains
                    p(j) = point_t(real(xc(j),dp), real(yc(j),dp), real(zc(j),dp))
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
-                ! swap vertices to keep symmetric vertex numbering in neko
                 call mesh_add_element(msh, el_idx, &
-                     p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
+                     p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
              end if
           end if
           if (i .ge. start_el .and. i .le. end_el) then

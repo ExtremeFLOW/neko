@@ -119,8 +119,7 @@ contains
           do j = 1, 4
              p(j) = point_t(nmsh_quad(i)%v(j)%v_xyz, nmsh_quad(i)%v(j)%v_idx)
           end do
-          ! swap vertices to keep symmetric vertex numbering in neko
-          call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
+          call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
        end do
        deallocate(nmsh_quad)
        mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_quad_size
@@ -133,9 +132,8 @@ contains
           do j = 1, 8
              p(j) = point_t(nmsh_hex(i)%v(j)%v_xyz, nmsh_hex(i)%v(j)%v_idx)
           end do
-          ! swap vertices to keep symmetric vertex numbering in neko
           call mesh_add_element(msh, i, &
-               p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
+               p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
        end do
        deallocate(nmsh_hex)
        mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_hex_size
@@ -291,9 +289,8 @@ contains
           id = nmsh_quad(i)%v(j)%v_idx+msh%glb_nelv*8
           p(j+4) = point_t(coord, id)
        end do
-       ! swap vertices to keep symmetric vertex numbering in neko
        call mesh_add_element(msh, i, &
-            p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
+            p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     end do
     deallocate(nmsh_quad)
     mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_quad_size
@@ -434,8 +431,6 @@ contains
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
     integer :: nzones, ncurves 
     class(element_t), pointer :: ep
-    integer(i4),  dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, 5, &
-         & 6, 8, 7/) ! cyclic to symmetric vertex mapping
 
     select type(data)
     type is (mesh_t)
@@ -471,8 +466,8 @@ contains
           ep => msh%elements(i)%e
           nmsh_quad(i)%el_idx = ep%id()
           do j = 1, 4
-             nmsh_quad(i)%v(j)%v_idx = ep%pts(vcyc_to_sym(j))%p%id()
-             nmsh_quad(i)%v(j)%v_xyz = ep%pts(vcyc_to_sym(j))%p%x
+             nmsh_quad(i)%v(j)%v_idx = ep%pts(j)%p%id()
+             nmsh_quad(i)%v(j)%v_xyz = ep%pts(j)%p%x
           end do
        end do
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
@@ -486,8 +481,8 @@ contains
           ep => msh%elements(i)%e
           nmsh_hex(i)%el_idx = ep%id()
           do j = 1, 8
-             nmsh_hex(i)%v(j)%v_idx = ep%pts(vcyc_to_sym(j))%p%id()
-             nmsh_hex(i)%v(j)%v_xyz = ep%pts(vcyc_to_sym(j))%p%x
+             nmsh_hex(i)%v(j)%v_idx = ep%pts(j)%p%id()
+             nmsh_hex(i)%v(j)%v_xyz = ep%pts(j)%p%x
           end do
        end do
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_hex_size
