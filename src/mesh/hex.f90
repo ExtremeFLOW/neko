@@ -51,10 +51,10 @@ module hex
   !! @verbatim
   !! Node numbering (NEKTON preprocessor notation)
   !!
-  !!          3+-----+4    ^ s                 
+  !!          4+-----+3    ^ s                 
   !!          /     /|     |                   
   !!         /     / |     |                   
-  !!       7+-----+8 +2    +----> r            
+  !!       8+-----+7 +2    +----> r            
   !!        |     | /     /                    
   !!        |     |/     /                     
   !!       5+-----+6    t
@@ -90,12 +90,12 @@ module hex
   !!
   !! @endverbatim
   !! @note Local node numbering (points)
-  integer, parameter, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
-                                                                2,6,8,4,&
+  integer, parameter, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
+                                                                2,6,7,3,&
                                                                 1,2,6,5,&
-                                                                3,4,8,7,&
-                                                                1,2,4,3,&
-                                                                5,6,8,7/),&
+                                                                4,3,7,8,&
+                                                                1,2,3,4,&
+                                                                5,6,7,8/),&
                                                                 (/4,6/))
   
   !> Edge node ids
@@ -117,17 +117,17 @@ module hex
   !!
   !! @endverbatim
   integer, parameter, dimension(2, 12) :: edge_nodes = reshape((/1,2,&
-                                                                3,4,&
+                                                                4,3,&
                                                                 5,6,&
-                                                                7,8,&
-                                                                1,3,&
-                                                                2,4,&
-                                                                5,7,&
-                                                                6,8,&
+                                                                8,7,&
+                                                                1,4,&
+                                                                2,3,&
+                                                                5,8,&
+                                                                6,7,&
                                                                 1,5,&
                                                                 2,6,&
-                                                                3,7,&
-                                                                4,8/),&
+                                                                4,8,&
+                                                                3,7/),&
                                                                 (/2,12/))
   
 contains
@@ -244,10 +244,10 @@ contains
     p8 => this%p(8)
 
     do i = 1, NEKO_HEX_GDIM
-       d1 = d1 + (p8%x(i) - p1%x(i))**2
-       d2 = d2 + (p7%x(i) - p2%x(i))**2
-       d3 = d3 + (p5%x(i) - p4%x(i))**2
-       d4 = d4 + (p6%x(i) - p3%x(i))**2
+       d1 = d1 + (p7%x(i) - p1%x(i))**2
+       d2 = d2 + (p8%x(i) - p2%x(i))**2
+       d3 = d3 + (p5%x(i) - p3%x(i))**2
+       d4 = d4 + (p6%x(i) - p4%x(i))**2
     end do
 
     res = sqrt(max(max(d1, d2), max(d3, d4)))

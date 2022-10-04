@@ -325,8 +325,8 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
-             ! swap vertices to keep symmetric vertex numbering in neko
-             call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
+             
+             call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
           end do
           deallocate(re2v1_data_xy)
        else
@@ -340,8 +340,8 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
-             ! swap vertices to keep symmetric vertex numbering in neko
-             call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
+             
+             call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
           end do
           deallocate(re2v2_data_xy)
        end if
@@ -359,9 +359,8 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
-             ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, &
-                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
+                  p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           end do
           deallocate(re2v1_data_xyz)
        else
@@ -377,9 +376,8 @@ contains
              end do
              
              if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
-             ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, &
-                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
+                  p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
           end do
           deallocate(re2v2_data_xyz)
        end if
