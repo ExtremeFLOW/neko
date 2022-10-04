@@ -228,7 +228,7 @@ contains
     fz_d = device_get_ptr(fz)
 
 #ifdef HAVE_HIP
-    call fluid_makeabf_hip(fx_lag%x_d, fy_lag1%x_d, fz_lag%x_d, &
+    call fluid_makeabf_hip(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
                            fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
                            fx_d, fy_d, fz_d, rho, &
                            ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
