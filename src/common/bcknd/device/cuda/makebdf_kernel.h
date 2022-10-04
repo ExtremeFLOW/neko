@@ -83,3 +83,35 @@ __global__ void makebdf_kernel(const T * __restrict__ ulag1,
   
 }
 
+template< typename T >
+__global__ void scalar makebdf_kernel(const T * __restrict__ s_lag,
+                                      const T * __restrict__ s_laglag,
+                                      T * __restrict__ fs,
+                                      const T * __restrict__ s,
+                                      const T * __restrict__ B,
+                                      const T rho,
+                                      const T dt,
+                                      const T bd2,
+                                      const T bd3,
+                                      const T bd4,
+                                      const int nbd,
+                                      const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    T tb1_val = s[i] * B[i] * bd2;
+
+    T ta1_val = s_lag[i] * B[i] * bd3;
+
+    tb1_val += ta1_val;
+
+    if (nbd == 3) {
+      tb1_val += s_laglag[i] * B[i] * bd4;
+    }
+    
+    fs[i] = fs[i] + tb1_val * (rho / dt);
+  }
+  
+}

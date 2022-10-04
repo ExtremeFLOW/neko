@@ -56,7 +56,7 @@ contains
     else
        allocate(rhs_maker_sumab_cpu_t::sumab)
     end if
-    
+
   end subroutine rhs_maker_sumab_fctry
 
   subroutine rhs_maker_ext_fctry(makeabf)
@@ -65,7 +65,7 @@ contains
     if (allocated(makeabf)) then
        deallocate(makeabf)
     end if
-    
+
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(rhs_maker_ext_sx_t::makeabf)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
@@ -74,7 +74,7 @@ contains
     else
        allocate(rhs_maker_ext_cpu_t::makeabf)
     end if
-    
+
   end subroutine rhs_maker_ext_fctry
 
   subroutine rhs_maker_bdf_fctry(makebdf)
@@ -92,7 +92,7 @@ contains
     else       
        allocate(rhs_maker_bdf_cpu_t::makebdf)
     end if
-    
+
   end subroutine rhs_maker_bdf_fctry
-  
+
 end module rhs_maker_fctry

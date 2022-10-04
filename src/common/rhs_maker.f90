@@ -78,8 +78,8 @@ module rhs_maker
 
   abstract interface
      subroutine rhs_maker_ext(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
-                              fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
-                              rho, ext_coeffs, n)
+          fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
+          rho, ext_coeffs, n)
        import field_t
        import rp
        type(field_t), intent(inout) :: temp1, temp2, temp3
@@ -93,8 +93,8 @@ module rhs_maker
 
   abstract interface
      subroutine rhs_maker_bdf(ta1, ta2, ta3, tb1, tb2, tb3, &
-                              ulag, vlag, wlag, bfx, bfy, bfz, &
-                              u, v, w, B, rho, dt, bd, nbd, n)
+          ulag, vlag, wlag, bfx, bfy, bfz, &
+          u, v, w, B, rho, dt, bd, nbd, n)
        import field_series_t
        import field_t
        import rp

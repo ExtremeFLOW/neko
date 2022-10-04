@@ -37,7 +37,7 @@ module pnpn_res_fctry
   use pnpn_residual
   use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
   use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t, &
-                           pnpn_scalar_res_cpu_t
+       pnpn_scalar_res_cpu_t
   use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
   implicit none
 
@@ -50,7 +50,7 @@ contains
        deallocate(prs_res)
     end if
 
-    
+
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(pnpn_prs_res_sx_t::prs_res)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
@@ -59,9 +59,9 @@ contains
     else
        allocate(pnpn_prs_res_cpu_t::prs_res)
     end if
-    
+
   end subroutine pnpn_prs_res_factory
-  
+
   subroutine pnpn_vel_res_factory(vel_res)
     class(pnpn_vel_res_t), allocatable, intent(inout) :: vel_res
 
@@ -77,10 +77,10 @@ contains
     else
        allocate(pnpn_vel_res_cpu_t::vel_res)
     end if
-       
-    
+
+
   end subroutine pnpn_vel_res_factory
-  
+
   subroutine pnpn_scalar_res_factory(scalar_res)
     class(pnpn_scalar_res_t), allocatable, intent(inout) :: scalar_res
 
@@ -90,15 +90,15 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        call neko_error("Not implemented")
-!       allocate(pnpn_scalar_res_sx_t::scalar_res)
+       !       allocate(pnpn_scalar_res_sx_t::scalar_res)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call neko_error("Not implemented")
-!       allocate(pnpn_scalar_res_device_t::scalar_res)
+       !       allocate(pnpn_scalar_res_device_t::scalar_res)
     else
        allocate(pnpn_scalar_res_cpu_t::scalar_res)
     end if
-       
-    
+
+
   end subroutine pnpn_scalar_res_factory
 end module pnpn_res_fctry
