@@ -434,6 +434,8 @@ contains
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
     integer :: nzones, ncurves 
     class(element_t), pointer :: ep
+    integer(i4),  dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, 5, &
+         & 6, 8, 7/) ! cyclic to symmetric vertex mapping
 
     select type(data)
     type is (mesh_t)
@@ -469,8 +471,8 @@ contains
           ep => msh%elements(i)%e
           nmsh_quad(i)%el_idx = ep%id()
           do j = 1, 4
-             nmsh_quad(i)%v(j)%v_idx = ep%pts(j)%p%id()
-             nmsh_quad(i)%v(j)%v_xyz = ep%pts(j)%p%x
+             nmsh_quad(i)%v(j)%v_idx = ep%pts(vcyc_to_sym(j))%p%id()
+             nmsh_quad(i)%v(j)%v_xyz = ep%pts(vcyc_to_sym(j))%p%x
           end do
        end do
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
@@ -484,8 +486,8 @@ contains
           ep => msh%elements(i)%e
           nmsh_hex(i)%el_idx = ep%id()
           do j = 1, 8
-             nmsh_hex(i)%v(j)%v_idx = ep%pts(j)%p%id()
-             nmsh_hex(i)%v(j)%v_xyz = ep%pts(j)%p%x
+             nmsh_hex(i)%v(j)%v_idx = ep%pts(vcyc_to_sym(j))%p%id()
+             nmsh_hex(i)%v(j)%v_xyz = ep%pts(vcyc_to_sym(j))%p%x
           end do
        end do
        mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_hex_size
