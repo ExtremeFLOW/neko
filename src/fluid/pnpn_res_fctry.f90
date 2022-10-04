@@ -33,6 +33,7 @@
 !> Defines Pressure residual factory for the Pn-Pn formulation
 module pnpn_res_fctry
   use neko_config
+  use utils
   use pnpn_residual
   use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
   use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t, &
