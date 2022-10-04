@@ -30,69 +30,75 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Fluid abbdf factory for the Pn-Pn formulation
-module rhs_maker_fctry
-  use rhs_maker
-  use rhs_maker_cpu
-  use rhs_maker_sx
-  use rhs_maker_device
+!> Defines Pressure residual factory for the Pn-Pn formulation
+module pnpn_res_fctry
   use neko_config
+  use utils
+  use pnpn_residual
+  use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
+  use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t, &
+                           pnpn_scalar_res_cpu_t
+  use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
   implicit none
 
 contains
 
-  subroutine fluid_sumab_fctry(sumab)
-    class(fluid_sumab_t), allocatable, intent(inout) :: sumab
+  subroutine pnpn_prs_res_factory(prs_res)
+    class(pnpn_prs_res_t), allocatable, intent(inout) :: prs_res
 
-    if (allocated(sumab)) then
-       deallocate(sumab)
+    if (allocated(prs_res)) then
+       deallocate(prs_res)
     end if
 
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(fluid_sumab_sx_t::sumab)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &         
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(fluid_sumab_device_t::sumab)
-    else
-       allocate(fluid_sumab_cpu_t::sumab)
-    end if
-    
-  end subroutine fluid_sumab_fctry
-
-  subroutine fluid_makeabf_fctry(makeabf)
-    class(fluid_makeabf_t), allocatable, intent(inout) :: makeabf
-
-    if (allocated(makeabf)) then
-       deallocate(makeabf)
-    end if
     
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(fluid_makeabf_sx_t::makeabf)
+       allocate(pnpn_prs_res_sx_t::prs_res)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(fluid_makeabf_device_t::makeabf)
+       allocate(pnpn_prs_res_device_t::prs_res)
     else
-       allocate(fluid_makeabf_cpu_t::makeabf)
+       allocate(pnpn_prs_res_cpu_t::prs_res)
     end if
     
-  end subroutine fluid_makeabf_fctry
-
-  subroutine fluid_makebdf_fctry(makebdf)
-    class(fluid_makebdf_t), allocatable, intent(inout) :: makebdf
-
-    if (allocated(makebdf)) then
-       deallocate(makebdf)
-    end if
-
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(fluid_makebdf_sx_t::makebdf)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(fluid_makebdf_device_t::makebdf)
-    else       
-       allocate(fluid_makebdf_cpu_t::makebdf)
-    end if
-    
-  end subroutine fluid_makebdf_fctry
+  end subroutine pnpn_prs_res_factory
   
-end module rhs_maker_fctry
+  subroutine pnpn_vel_res_factory(vel_res)
+    class(pnpn_vel_res_t), allocatable, intent(inout) :: vel_res
+
+    if (allocated(vel_res)) then
+       deallocate(vel_res)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(pnpn_vel_res_sx_t::vel_res)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       allocate(pnpn_vel_res_device_t::vel_res)
+    else
+       allocate(pnpn_vel_res_cpu_t::vel_res)
+    end if
+       
+    
+  end subroutine pnpn_vel_res_factory
+  
+  subroutine pnpn_scalar_res_factory(scalar_res)
+    class(pnpn_scalar_res_t), allocatable, intent(inout) :: scalar_res
+
+    if (allocated(scalar_res)) then
+       deallocate(scalar_res)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       call neko_error("Not implemented")
+!       allocate(pnpn_scalar_res_sx_t::scalar_res)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call neko_error("Not implemented")
+!       allocate(pnpn_scalar_res_device_t::scalar_res)
+    else
+       allocate(pnpn_scalar_res_cpu_t::scalar_res)
+    end if
+       
+    
+  end subroutine pnpn_scalar_res_factory
+end module pnpn_res_fctry

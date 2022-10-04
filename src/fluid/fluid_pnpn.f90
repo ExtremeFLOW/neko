@@ -96,13 +96,13 @@ module fluid_pnpn
      class(pnpn_vel_res_t), allocatable :: vel_res
 
      !> Summation of AB/BDF contributions
-     class(fluid_sumab_t), allocatable :: sumab
+     class(rhs_maker_sumab_t), allocatable :: sumab
 
      !> Contributions to kth order extrapolation scheme
-     class(fluid_makeabf_t), allocatable :: makeabf
+     class(rhs_maker_ext_t), allocatable :: makeabf
 
      !> Contributions to F from lagged BD terms
-     class(fluid_makebdf_t), allocatable :: makebdf
+     class(rhs_maker_bdf_t), allocatable :: makebdf
 
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
@@ -137,13 +137,13 @@ contains
     call pnpn_vel_res_factory(this%vel_res)
 
     ! Setup backend dependent summation of AB/BDF
-    call fluid_sumab_fctry(this%sumab)
+    call rhs_maker_sumab_fctry(this%sumab)
 
     ! Setup backend dependent summation of extrapolation scheme
-    call fluid_makeabf_fctry(this%makeabf)
+    call rhs_maker_ext_fctry(this%makeabf)
 
     ! Setup backend depenent contributions to F from lagged BD terms
-    call fluid_makebdf_fctry(this%makebdf)
+    call rhs_maker_bdf_fctry(this%makebdf)
     
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &

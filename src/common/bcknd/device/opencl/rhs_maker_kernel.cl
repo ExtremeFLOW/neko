@@ -69,7 +69,7 @@ __kernel void sumab_kernel(__global real * __restrict__ u,
   
 }
 
-__kernel void makeabf_kernel(__global real * __restrict__ abx1,
+__kernel void makeext_kernel(__global real * __restrict__ abx1,
                              __global real * __restrict__ aby1,
                              __global real * __restrict__ abz1,
                              __global real * __restrict__ abx2,

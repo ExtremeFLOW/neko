@@ -33,7 +33,7 @@
 */
 
 template< typename T >
-__global__ void makeabf_kernel(T * __restrict__ abx1,
+__global__ void makeext_kernel(T * __restrict__ abx1,
                                T * __restrict__ aby1,
                                T * __restrict__ abz1,
                                T * __restrict__ abx2,
@@ -66,7 +66,7 @@ __global__ void makeabf_kernel(T * __restrict__ abx1,
     bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
     bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
     bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
-  } 
+  }
   
 }
 

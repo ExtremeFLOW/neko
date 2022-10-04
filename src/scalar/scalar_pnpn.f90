@@ -82,13 +82,13 @@ module scalar_pnpn
 
      ! todo: use abstract base class here when kernels are ready
      !> Summation of EXT/BDF contributions
-     class(fluid_sumab_cpu_t), allocatable :: sumab
+     class(rhs_maker_sumab_cpu_t), allocatable :: sumab
 
      !> Contributions to kth order extrapolation scheme
-     class(fluid_makeabf_cpu_t), allocatable :: makeabf
+     class(rhs_maker_ext_cpu_t), allocatable :: makeabf
 
      !> Contributions to F from lagged BD terms
-     class(fluid_makebdf_cpu_t), allocatable :: makebdf
+     class(rhs_maker_bdf_cpu_t), allocatable :: makebdf
 
    contains
      procedure, pass(this) :: init => scalar_pnpn_init
@@ -118,13 +118,13 @@ contains
 
     ! todo: uncomment when kernels are ready
     ! Setup backend dependent summation of AB/BDF
-    !    call fluid_sumab_fctry(this%sumab)
+    !    call rhs_maker_sumab_fctry(this%sumab)
 
     ! Setup backend dependent summation of extrapolation scheme
-    !    call fluid_makeabf_fctry(this%makeabf)
+    !    call rhs_maker_ext_fctry(this%makeabf)
 
     ! Setup backend depenent contributions to F from lagged BD terms
-    !    call fluid_makebdf_fctry(this%makebdf)
+    !    call rhs_maker_bdf_fctry(this%makebdf)
 
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &

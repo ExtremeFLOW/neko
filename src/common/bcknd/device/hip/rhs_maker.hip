@@ -37,11 +37,11 @@
 #include <device/hip/check.h>
 
 #include "sumab_kernel.h"
-#include "makeabf_kernel.h"
+#include "makeext_kernel.h"
 #include "makebdf_kernel.h"
 
 extern "C" {
-  void fluid_sumab_hip(void *u, void *v, void *w,
+  void rhs_maker_sumab_hip(void *u, void *v, void *w,
                        void *uu, void *vv, void *ww,
                        void *ulag1, void *ulag2, void *vlag1,
                        void *vlag2, void *wlag1, void *wlag2,
@@ -61,7 +61,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void fluid_makeabf_hip(void *abx1, void *aby1, void *abz1, 
+  void rhs_maker_ext_hip(void *abx1, void *aby1, void *abz1, 
                          void *abx2, void *aby2, void *abz2,
                          void *bfx, void *bfy, void *bfz,
                          real *rho, real *ab1, real *ab2, real *ab3, int *n) {
@@ -69,7 +69,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( makeabf_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( makeext_kernel<real> ),
                        nblcks, nthrds, 0, 0,
                        (real *) abx1, (real *) aby1, (real *) abz1, 
                        (real *) abx2, (real *) aby2, (real *) abz2,
@@ -78,7 +78,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
   
-  void fluid_makebdf_hip(void *ulag1, void *ulag2, void *vlag1,
+  void rhs_maker_bdf_hip(void *ulag1, void *ulag2, void *vlag1,
                          void *vlag2, void *wlag1, void *wlag2, 
                          void *bfx, void *bfy, void *bfz,
                          void *u, void *v, void *w, void *B, 

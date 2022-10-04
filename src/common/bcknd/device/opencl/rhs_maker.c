@@ -44,13 +44,13 @@
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "abbdf_kernel.cl.h"
+#include "rhs_maker.cl.h"
 
-void fluid_sumab_opencl(void *u, void *v, void *w,
-                        void *uu, void *vv, void *ww,
-                        void *ulag1, void *ulag2, void *vlag1,
-                        void *vlag2, void *wlag1, void *wlag2,
-                        real *ab1, real *ab2, real *ab3, int *nab, int *n) {
+void rhs_maker_sumab_opencl(void *u, void *v, void *w,
+                            void *uu, void *vv, void *ww,
+                            void *ulag1, void *ulag2, void *vlag1,
+                            void *vlag2, void *wlag1, void *wlag2,
+                            real *ab1, real *ab2, real *ab3, int *nab, int *n) {
   cl_int err;
   
   if (abbdf_program == NULL)
@@ -86,7 +86,7 @@ void fluid_sumab_opencl(void *u, void *v, void *w,
                                   0, NULL, NULL));  
 }
 
-void fluid_makeabf_opencl(void *abx1, void *aby1, void *abz1, 
+void rhs_maker_ext_opencl(void *abx1, void *aby1, void *abz1, 
                           void *abx2, void *aby2, void *abz2,
                           void *bfx, void *bfy, void *bfz,
                           real *rho, real *ab1, real *ab2, real *ab3, int *n) {
@@ -95,7 +95,7 @@ void fluid_makeabf_opencl(void *abx1, void *aby1, void *abz1,
   if (abbdf_program == NULL)
     opencl_kernel_jit(abbdf_kernel, (cl_program *) &abbdf_program);
   
-  cl_kernel kernel = clCreateKernel(abbdf_program, "makeabf_kernel", &err);
+  cl_kernel kernel = clCreateKernel(abbdf_program, "makeext_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &abx1));
@@ -123,7 +123,7 @@ void fluid_makeabf_opencl(void *abx1, void *aby1, void *abz1,
   
 }
 
-void fluid_makebdf_opencl(void *ulag1, void *ulag2, void *vlag1,
+void rhs_maker_bdf_opencl(void *ulag1, void *ulag2, void *vlag1,
                           void *vlag2, void *wlag1, void *wlag2, 
                           void *bfx, void *bfy, void *bfz,
                           void *u, void *v, void *w, void *B, 

@@ -1,29 +1,27 @@
-module rhs_maker_cpu
+module rhs_maker_sx
   use rhs_maker
   implicit none
   private
   
-  type, public, extends(fluid_sumab_t) :: fluid_sumab_cpu_t
+  type, public, extends(rhs_maker_sumab_t) :: rhs_maker_sumab_sx_t
    contains
-     procedure, nopass :: compute_fluid => fluid_sumab_cpu
-     procedure, nopass :: compute_scalar => scalar_sumab_cpu
-  end type fluid_sumab_cpu_t
+     procedure, nopass :: compute_fluid => rhs_maker_sumab_sx
+  end type rhs_maker_sumab_sx_t
 
-  type, public, extends(fluid_makeabf_t) ::  fluid_makeabf_cpu_t
+  type, public, extends(rhs_maker_ext_t) ::  rhs_maker_ext_sx_t
    contains
-     procedure, nopass :: compute_fluid => fluid_makeabf_cpu
-     procedure, nopass :: compute_scalar => scalar_makeabf_cpu
-  end type fluid_makeabf_cpu_t
+     procedure, nopass :: compute_fluid => rhs_maker_ext_sx
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_ext_sx
+  end type rhs_maker_ext_sx_t
 
-  type, public, extends(fluid_makebdf_t) :: fluid_makebdf_cpu_t
+  type, public, extends(rhs_maker_bdf_t) :: rhs_maker_bdf_sx_t
    contains
-     procedure, nopass :: compute_fluid => fluid_makebdf_cpu
-     procedure, nopass :: compute_scalar => scalar_makebdf_cpu
-  end type fluid_makebdf_cpu_t
+     procedure, nopass :: compute_fluid => rhs_maker_bdf_sx
+  end type rhs_maker_bdf_sx_t
   
 contains
 
-  subroutine fluid_sumab_cpu(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
+  subroutine rhs_maker_sumab_sx(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
     type(field_t), intent(inout) :: u,v, w
     type(field_t), intent(inout) :: uu, vv, ww
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
@@ -47,32 +45,9 @@ contains
        end do
     end if
     
-  end subroutine fluid_sumab_cpu
+  end subroutine rhs_maker_sumab_sx
 
-  subroutine scalar_sumab_cpu(s, ss, sslag, ab, nab)
-    type(field_t), intent(inout) :: s
-    type(field_t), intent(inout) :: ss
-    type(field_series_t), intent(inout) :: sslag
-    real(kind=rp), dimension(3), intent(in) :: ab
-    integer, intent(in) :: nab
-    integer :: i, n
-
-    n = ss%dof%size()
-
-    do i = 1, n
-       s%x(i,1,1,1) = ab(1) * ss%x(i,1,1,1) + ab(2) * sslag%lf(1)%x(i,1,1,1)
-    end do
-
-    if (nab .eq. 3) then
-       do i = 1, n
-          s%x(i,1,1,1) = s%x(i,1,1,1) + ab(3) * sslag%lf(2)%x(i,1,1,1)
-       end do
-    end if
-    
-  end subroutine scalar_sumab_cpu
-
-
-  subroutine fluid_makeabf_cpu(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+  subroutine rhs_maker_ext_sx(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
                              fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
                              rho, ext_coeffs, n)
     type(field_t), intent(inout) :: temp1, temp2, temp3
@@ -107,9 +82,9 @@ contains
        fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho
     end do
     
-  end subroutine fluid_makeabf_cpu
+  end subroutine rhs_maker_ext_sx
 
-  subroutine scalar_makeabf_cpu(temp, fs_lag, fs_laglag, fs, rho, ext_coeffs, &
+  subroutine scalar_rhs_maker_ext_sx(temp, fs_lag, fs_laglag, fs, rho, ext_coeffs, &
                                 n)
     type(field_t), intent(inout) :: temp
     type(field_t), intent(inout) :: fs_lag
@@ -133,9 +108,9 @@ contains
        fs(i) = (ext_coeffs(1) * fs(i) + temp%x(i,1,1,1)) * rho
     end do
     
-  end subroutine scalar_makeabf_cpu
+  end subroutine scalar_rhs_maker_ext_sx
 
-  subroutine fluid_makebdf_cpu(ta1, ta2, ta3, tb1, tb2, tb3, &
+  subroutine rhs_maker_bdf_sx(ta1, ta2, ta3, tb1, tb2, tb3, &
                                ulag, vlag, wlag, bfx, bfy, bfz, &
                                u, v, w, B, rho, dt, bd, nbd, n)    
     integer, intent(in) :: n, nbd
@@ -174,9 +149,9 @@ contains
        bfz(i) = bfz(i) + tb3%x(i,1,1,1) * (rho / dt)
     end do
 
-  end subroutine fluid_makebdf_cpu
+  end subroutine rhs_maker_bdf_sx
 
-  subroutine scalar_makebdf_cpu(ta1, tb1, slag, bfs, s, B, rho, dt, bd, nbd, n)    
+  subroutine scalar_rhs_maker_bdf_sx(ta1, tb1, slag, bfs, s, B, rho, dt, bd, nbd, n)    
     integer, intent(in) :: n, nbd
     type(field_t), intent(inout) :: ta1
     type(field_t), intent(in) :: s
@@ -205,7 +180,7 @@ contains
        bfs(i) = bfs(i) + tb1%x(i,1,1,1) * (rho / dt)
     end do
 
-  end subroutine scalar_makebdf_cpu
+  end subroutine scalar_rhs_maker_bdf_sx
 
-end module rhs_maker_cpu
+end module rhs_maker_sx
 

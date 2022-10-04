@@ -42,29 +42,29 @@ module rhs_maker
   implicit none 
 
   !> Abstract type to sum up AB/BDF contributions
-  type, abstract :: fluid_sumab_t
+  type, abstract :: rhs_maker_sumab_t
    contains
-     procedure(fluid_sumab), nopass, deferred :: compute_fluid
+     procedure(rhs_maker_sumab), nopass, deferred :: compute_fluid
      generic :: compute => compute_fluid
 
-  end type fluid_sumab_t
+  end type rhs_maker_sumab_t
 
   !> Abstract type to sum up contributions to kth order extrapolation scheme
-  type, abstract :: fluid_makeabf_t
+  type, abstract :: rhs_maker_ext_t
    contains
-     procedure(fluid_makeabf), nopass, deferred :: compute_fluid
+     procedure(rhs_maker_ext), nopass, deferred :: compute_fluid
      generic :: compute => compute_fluid
-  end type fluid_makeabf_t
+  end type rhs_maker_ext_t
 
   !> Abstract type to add contributions to F from lagged BD terms
-  type, abstract :: fluid_makebdf_t
+  type, abstract :: rhs_maker_bdf_t
    contains
-     procedure(fluid_makebdf), nopass, deferred :: compute_fluid
+     procedure(rhs_maker_bdf), nopass, deferred :: compute_fluid
      generic :: compute => compute_fluid
-  end type fluid_makebdf_t
+  end type rhs_maker_bdf_t
 
   abstract interface
-     subroutine fluid_sumab(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
+     subroutine rhs_maker_sumab(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
        import field_t
        import field_series_t
        import rp
@@ -73,11 +73,11 @@ module rhs_maker
        type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
        real(kind=rp), dimension(3), intent(in) :: ab
        integer, intent(in) :: nab
-     end subroutine fluid_sumab
+     end subroutine rhs_maker_sumab
   end interface
 
   abstract interface
-     subroutine fluid_makeabf(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+     subroutine rhs_maker_ext(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
                               fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
                               rho, ext_coeffs, n)
        import field_t
@@ -88,11 +88,11 @@ module rhs_maker
        real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
-     end subroutine fluid_makeabf
+     end subroutine rhs_maker_ext
   end interface
 
   abstract interface
-     subroutine fluid_makebdf(ta1, ta2, ta3, tb1, tb2, tb3, &
+     subroutine rhs_maker_bdf(ta1, ta2, ta3, tb1, tb2, tb3, &
                               ulag, vlag, wlag, bfx, bfy, bfz, &
                               u, v, w, B, rho, dt, bd, nbd, n)
        import field_series_t
@@ -106,7 +106,7 @@ module rhs_maker
        real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
        real(kind=rp), intent(in) :: B(n)
        real(kind=rp), intent(in) :: dt, rho, bd(10)
-     end subroutine fluid_makebdf
+     end subroutine rhs_maker_bdf
   end interface
 
 end module rhs_maker
