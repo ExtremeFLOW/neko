@@ -368,7 +368,7 @@ extern "C" {
     glsc3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
                                            (real *) c, bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<<<1, 1024>>> (bufred_d, nb);
+    reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
@@ -435,7 +435,7 @@ extern "C" {
     glsc2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
                                            bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<<<1, 1024>>> (bufred_d, nb);
+    reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
     
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
@@ -465,7 +465,7 @@ extern "C" {
      
     glsum_kernel<real><<<nblcks, nthrds>>>((real *) a, bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<<<1, 1024>>> (bufred_d, nb);
+    reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
