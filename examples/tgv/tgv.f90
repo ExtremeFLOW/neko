@@ -92,17 +92,17 @@ contains
     call field_init(w2, u%dof, 'work1')
 
     ! call usercheck also for tstep=0
-    dt = params%dt
     tstep = 0
-    call user_calc_quantities(t, dt, tstep, u, v, w, p, coef)
+    call user_calc_quantities(t, tstep, u, v, w, p, coef, params)
 
   end subroutine user_initialize
  
   ! User-defined routine called at the end of every time step
-  subroutine user_calc_quantities(t, dt, tstep,u, v, w, p, coef)
-    real(kind=rp), intent(in) :: t, dt
+  subroutine user_calc_quantities(t, tstep, u, v, w, p, coef, params)
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
+    type(param_t), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w

@@ -62,10 +62,11 @@ contains
     uvw(3)   = zero
   end function tgv_ic
 
-  subroutine usr_calc_quantities( t, dt, tstep,u, v, w, p, coef)
-    real(kind=rp), intent(in) :: t, dt
+  subroutine usr_calc_quantities( t, tstep, u, v, w, p, coef, params)
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
+    type(param_t), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w

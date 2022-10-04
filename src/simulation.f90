@@ -111,8 +111,8 @@ contains
        call neko_log%section('Postprocessing')       
        call C%q%eval(t, C%params%dt)
        call C%s%sample(t)
-       call C%usr%usr_chk(t, C%params%dt, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh)
+       call C%usr%usr_chk(t, tstep,&
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
        call neko_log%end_section()
        
        call neko_log%end()

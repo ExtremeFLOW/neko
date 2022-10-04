@@ -379,21 +379,21 @@ contains
        if (m%gdim .eq. 2) then
           m%dfrmd_el(e) = .false.
           u = m%elements(e)%e%pts(2)%p%x - m%elements(e)%e%pts(1)%p%x
-          v = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(1)%p%x
+          v = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
        else
           m%dfrmd_el(e) = .false.
           u = m%elements(e)%e%pts(2)%p%x - m%elements(e)%e%pts(1)%p%x
-          v = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(1)%p%x
+          v = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(1)%p%x
           w = m%elements(e)%e%pts(5)%p%x - m%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
-          u = m%elements(e)%e%pts(8)%p%x - m%elements(e)%e%pts(7)%p%x
-          v = m%elements(e)%e%pts(6)%p%x - m%elements(e)%e%pts(7)%p%x
-          w = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(7)%p%x
+          u = m%elements(e)%e%pts(7)%p%x - m%elements(e)%e%pts(8)%p%x
+          v = m%elements(e)%e%pts(6)%p%x - m%elements(e)%e%pts(8)%p%x
+          w = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(8)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
@@ -1543,17 +1543,17 @@ contains
     integer :: pe
     integer :: org_ids(4), pids(4)
     type(point_t), pointer :: pi
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
-    integer, dimension(2, 4) :: edge_nodes = reshape((/1,4,&
-                                                                2,3,&
+    integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+                                                                2,4,&
                                                                 1,2,&
-                                                                4,3 /),&
+                                                                3,4 /),&
                                                                 (/2,4/))
  
     do i = 1, m%periodic%size
@@ -1596,17 +1596,17 @@ contains
     integer :: i, j, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
-    integer, dimension(2, 4) :: edge_nodes = reshape((/1,4,&
-                                                                2,3,&
+    integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+                                                                2,4,&
                                                                 1,2,&
-                                                                4,3 /),&
+                                                                3,4 /),&
                                                                 (/2,4/))
   
     select type(ele => m%elements(e)%e)
@@ -1700,12 +1700,12 @@ contains
     integer :: i, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
   
     select type(ele => m%elements(e)%e)
