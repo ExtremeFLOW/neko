@@ -32,7 +32,7 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
 module scalar_pnpn
-  use pnpn_res_fctry
+  use scalar_residual_fctry
   use ax_helm_fctry
   use rhs_maker_fctry
   use scalar
@@ -78,7 +78,7 @@ module scalar_pnpn
      type(field_t) :: abx2
 
      !> Residual
-     class(pnpn_scalar_res_t), allocatable :: res
+     class(scalar_residual_t), allocatable :: res
 
      ! todo: use abstract base class here when kernels are ready
      !> Summation of EXT/BDF contributions
@@ -113,8 +113,8 @@ contains
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
 
-    ! Setup backend dependent vel residual routines
-    call pnpn_scalar_res_factory(this%res)
+    ! Setup backend dependent scalar residual routines
+    call scalar_residual_factory(this%res)
 
     ! todo: uncomment when kernels are ready
     ! Setup backend dependent summation of AB/BDF

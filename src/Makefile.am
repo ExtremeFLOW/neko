@@ -190,9 +190,14 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
+	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_method.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_aux.f90\
+	scalar/scalar_residual.f90\
+	scalar/scalar_residual_fctry.f90\
+	scalar/bcknd/cpu/scalar_residual_cpu.f90\
+	scalar/bcknd/sx/scalar_residual_sx.f90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
@@ -232,6 +237,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
+	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip
 endif
 
@@ -262,6 +268,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
+	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu
 endif
 
@@ -291,6 +298,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/dong_outflow.c\
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
+	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c
 
 %.cl.h: %.cl
@@ -327,6 +335,7 @@ CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      bc/bcknd/device/opencl/*.cl.h\
 	      krylov/bcknd/device/opencl/*.cl.h\
 	      fluid/bcknd/device/opencl/*.cl.h\
+	      scalar/bcknd/device/opencl/*.cl.h\
               sem/bcknd/device/opencl/*.cl.h
 endif
 
@@ -359,8 +368,9 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/sumab_kernel.h\
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
-	common/bcknd/device/cuda/prs_res_kernel.h\
-	common/bcknd/device/cuda/vel_res_update_kernel.h\
+	fluid/bcknd/device/cuda/prs_res_kernel.h\
+	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
+	scalar/bcknd/device/cuda/scalar_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
@@ -386,6 +396,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/makebdf_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
+	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
@@ -411,6 +422,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cfl_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
+	scalar/bcknd/device/opencl/sclar_residual_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
