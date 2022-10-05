@@ -38,6 +38,7 @@ module profiler
 
 contains
 
+  !> Started a named (@a name) profiler region
   subroutine profiler_start_region(name)
     character(kind=c_char,len=*) :: name
 
@@ -46,7 +47,8 @@ contains
 #endif
     
   end subroutine profiler_start_region
-  
+
+  !> End the most recently started profiler region
   subroutine profiler_end_region
 
 #ifdef HAVE_NVTX
@@ -54,4 +56,5 @@ contains
 #endif
     
   end subroutine profiler_end_region
+  
 end module profiler
