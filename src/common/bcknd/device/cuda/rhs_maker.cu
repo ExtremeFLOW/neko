@@ -118,9 +118,11 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     scalar_makebdf_kernel<real>
-      <<<nblcks, nthrds>>>((real *) slag, 
+      <<<nblcks, nthrds>>>((real *) s_lag, 
+                           (real *) s_laglag,
                            (real *) fs,
-                           (real *) s, (real *) B, 
+                           (real *) s,
+                           (real *) B, 
                            *rho, *dt, *bd2, *bd3, *bd4, *nbd,  *n);
     CUDA_CHECK(cudaGetLastError());
   }

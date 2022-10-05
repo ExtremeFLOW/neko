@@ -82,13 +82,13 @@ module scalar_pnpn
 
      ! todo: use abstract base class here when kernels are ready
      !> Summation of EXT/BDF contributions
-     class(rhs_maker_sumab_cpu_t), allocatable :: sumab
+     class(rhs_maker_sumab_t), allocatable :: sumab
 
      !> Contributions to kth order extrapolation scheme
-     class(rhs_maker_ext_cpu_t), allocatable :: makeabf
+     class(rhs_maker_ext_t), allocatable :: makeext
 
      !> Contributions to F from lagged BD terms
-     class(rhs_maker_bdf_cpu_t), allocatable :: makebdf
+     class(rhs_maker_bdf_t), allocatable :: makebdf
 
    contains
      procedure, pass(this) :: init => scalar_pnpn_init
@@ -118,13 +118,13 @@ contains
 
     ! todo: uncomment when kernels are ready
     ! Setup backend dependent summation of AB/BDF
-    !    call rhs_maker_sumab_fctry(this%sumab)
+    call rhs_maker_sumab_fctry(this%sumab)
 
     ! Setup backend dependent summation of extrapolation scheme
-    !    call rhs_maker_ext_fctry(this%makeabf)
+    call rhs_maker_ext_fctry(this%makeext)
 
     ! Setup backend depenent contributions to F from lagged BD terms
-    !    call rhs_maker_bdf_fctry(this%makebdf)
+    call rhs_maker_bdf_fctry(this%makebdf)
 
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
@@ -220,8 +220,8 @@ contains
        deallocate(this%sumab)
     end if
 
-    if (allocated(this%makeabf)) then
-       deallocate(this%makeabf)
+    if (allocated(this%makeext)) then
+       deallocate(this%makeext)
     end if
 
     if (allocated(this%makebdf)) then
@@ -253,7 +253,7 @@ contains
          slag => this%slag, &
          params => this%params, msh => this%msh, res => this%res, &
          sumab => this%sumab, &
-         makeabf => this%makeabf, makebdf => this%makebdf)
+         makeext => this%makeext, makebdf => this%makebdf)
 
       ! evaluate the source term and scale with the mass matrix
       call f_Xh%eval()
@@ -268,7 +268,7 @@ contains
       call this%adv%apply_scalar(this%u, this%v, this%w, this%s, f_Xh%s, &
                                  Xh, this%c_Xh, dm_Xh%n_dofs)
 
-      call makeabf%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
+      call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
            params%rho, ext_bdf%ext, n)
 
       call makebdf%compute_scalar(ta1, this%wa1, slag, f_Xh%s, s, c_Xh%B, &

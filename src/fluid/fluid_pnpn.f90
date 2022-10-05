@@ -377,8 +377,8 @@ contains
          
       
 
-      call sumab%compute(u_e, v_e, w_e, u, v, w, &
-                         ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
+      call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+           ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
      
       call f_Xh%eval()
 

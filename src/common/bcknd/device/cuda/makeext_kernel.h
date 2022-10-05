@@ -73,7 +73,7 @@ __global__ void makeext_kernel(T * __restrict__ abx1,
 template< typename T >
 __global__ void scalar_makeext_kernel(T * __restrict__ fs_lag,
                                       T * __restrict__ fs_laglag,
-                                      T * __restrict__ bfs,
+                                      T * __restrict__ fs,
                                       const T rho,
                                       const T ext1,
                                       const T ext2,
@@ -84,12 +84,12 @@ __global__ void scalar_makeext_kernel(T * __restrict__ fs_lag,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    T ta1_val = ab2 * fs_lag[i] + ab3 * fs_laglag[i];
+    T ta1_val = ext2 * fs_lag[i] + ext3 * fs_laglag[i];
 
     fs_laglag[i] = fs_lag[i];
     fs_lag[i] = fs[i];
 
-    fs[i] = (ab1 * fs[i] + ta1_val) * rho;
+    fs[i] = (ext1 * fs[i] + ta1_val) * rho;
   } 
   
 }

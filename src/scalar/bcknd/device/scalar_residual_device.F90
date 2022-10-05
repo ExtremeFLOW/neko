@@ -111,11 +111,11 @@ contains
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
 
 #ifdef HAVE_HIP
-    call scalar_residual_update_hip(s_res%x_d, ta1%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_hip(s_res%x_d, f_Xh%s_d, n)
 #elif HAVE_CUDA
-    call scalar_residual_update_cuda(s_res%x_d, ta1%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_cuda(s_res%x_d, f_Xh%s_d, n)
 #elif HAVE_OPENCL
-    call scalar_residual_update_opencl(s_res%x_d, ta1%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_opencl(s_res%x_d, f_Xh%s_d, n)
 #endif
     
   end subroutine scalar_residual_device_compute

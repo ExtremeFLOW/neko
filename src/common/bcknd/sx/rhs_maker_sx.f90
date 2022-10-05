@@ -17,6 +17,7 @@ module rhs_maker_sx
   type, public, extends(rhs_maker_bdf_t) :: rhs_maker_bdf_sx_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_bdf_sx
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_sx
   end type rhs_maker_bdf_sx_t
   
 contains
@@ -84,9 +85,9 @@ contains
     
   end subroutine rhs_maker_ext_sx
 
-  subroutine scalar_rhs_maker_ext_sx(temp, fs_lag, fs_laglag, fs, rho, ext_coeffs, &
-                                n)
-    type(field_t), intent(inout) :: temp
+  subroutine scalar_rhs_maker_ext_sx(temp1, fs_lag, fs_laglag, fs, rho, &
+       ext_coeffs, n)
+    type(field_t), intent(inout) :: temp1
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
     real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
@@ -95,7 +96,7 @@ contains
     integer :: i
 
     do i = 1, n
-       temp%x(i,1,1,1) = ext_coeffs(2) * fs_lag%x(i,1,1,1) + &
+       temp1%x(i,1,1,1) = ext_coeffs(2) * fs_lag%x(i,1,1,1) + &
                           ext_coeffs(3) * fs_laglag%x(i,1,1,1)
     end do
 
@@ -105,7 +106,7 @@ contains
     end do
 
     do i = 1, n
-       fs(i) = (ext_coeffs(1) * fs(i) + temp%x(i,1,1,1)) * rho
+       fs(i) = (ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)) * rho
     end do
     
   end subroutine scalar_rhs_maker_ext_sx
@@ -151,33 +152,33 @@ contains
 
   end subroutine rhs_maker_bdf_sx
 
-  subroutine scalar_rhs_maker_bdf_sx(ta1, tb1, slag, bfs, s, B, rho, dt, bd, nbd, n)    
+  subroutine scalar_rhs_maker_bdf_sx(temp1, temp2, s_lag, fs, s, B, rho, dt, &
+       bd, nbd, n)
     integer, intent(in) :: n, nbd
-    type(field_t), intent(inout) :: ta1
+    type(field_t), intent(inout) :: temp1, temp2
     type(field_t), intent(in) :: s
-    type(field_t), intent(inout) :: tb1
-    type(field_series_t), intent(in) :: slag
-    real(kind=rp), intent(inout) :: bfs(n)
+    type(field_series_t), intent(in) :: s_lag
+    real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(10)
     integer :: i, ilag
 
     do i = 1, n
-       tb1%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
+       temp2%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
     end do
 
     do ilag = 2, nbd
        do i = 1, n
-          ta1%x(i,1,1,1) = slag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1)
+          temp1%x(i,1,1,1) = s_lag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1)
        end do
 
        do i = 1, n
-          tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + ta1%x(i,1,1,1)
+          temp2%x(i,1,1,1) = temp2%x(i,1,1,1) + temp1%x(i,1,1,1)
        end do
     end do
 
     do i = 1, n
-       bfs(i) = bfs(i) + tb1%x(i,1,1,1) * (rho / dt)
+       fs(i) = fs(i) + temp2%x(i,1,1,1) * (rho / dt)
     end do
 
   end subroutine scalar_rhs_maker_bdf_sx

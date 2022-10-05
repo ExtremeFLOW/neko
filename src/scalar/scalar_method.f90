@@ -219,7 +219,6 @@ contains
 
     ! todo: note, adhoc init
     ! ADHOC INITAL VALUE SECTION FOR THE SCALAR
-    this%s%x = abs(this%dm_Xh%y) * abs(this%dm_Xh%y)
 
     do i = 1, this%dm_Xh%size()
       idx = nonlinear_index(i, this%Xh%lx,this%Xh%lx,this%Xh%lx)
@@ -229,6 +228,12 @@ contains
       this%s%x(idx(1), idx(2), idx(3), idx(4)) = &
          exp(-(dx**2 + dy**2 + dz**2))
     end do
+
+      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+           (NEKO_BCKND_OPENCL .eq. 1)) then
+         call device_memcpy(this%s%x, this%s%x_d, this%s%dof%n_dofs, &
+                            HOST_TO_DEVICE)
+      end if
 
     if (kspv_init) then
        ! todo parameter file ksp tol should be added

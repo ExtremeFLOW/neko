@@ -39,15 +39,14 @@
 
 extern "C" {
 
-  void scalar_residual_update_cuda(void *s_res, void *ta1, void *f_u, int *n) {
+  void scalar_residual_update_cuda(void *s_res, void *f_s, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     scalar_residual_update_kernel<real>
-      <<<nblcks, nthrds>>>((real *) u_res, (real *) v_res, (real *) w_res,
-                           (real *) ta1, (real *) ta2, (real *) ta3,
-                           (real *) f_u, (real *) f_v, (real *) f_w, *n);
+      <<<nblcks, nthrds>>>((real *) s_res,
+                           (real *) f_s, *n);
     CUDA_CHECK(cudaGetLastError());
   }
     

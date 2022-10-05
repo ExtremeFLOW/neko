@@ -84,7 +84,7 @@ __global__ void makebdf_kernel(const T * __restrict__ ulag1,
 }
 
 template< typename T >
-__global__ void scalar makebdf_kernel(const T * __restrict__ s_lag,
+__global__ void scalar_makebdf_kernel(const T * __restrict__ s_lag,
                                       const T * __restrict__ s_laglag,
                                       T * __restrict__ fs,
                                       const T * __restrict__ s,

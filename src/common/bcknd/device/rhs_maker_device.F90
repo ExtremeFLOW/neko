@@ -52,6 +52,7 @@ module rhs_maker_device
   type, public, extends(rhs_maker_bdf_t) :: rhs_maker_bdf_device_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_bdf_device
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_device
   end type rhs_maker_bdf_device_t
 
 #ifdef HAVE_HIP
@@ -69,6 +70,19 @@ module rhs_maker_device
   end interface
 
   interface
+!     subroutine rhs_maker_ext_hip(fx_lag_d, fy_lag_d, fz_lag_d, &
+!                                  fx_laglag_d, fy_laglag_d, fz_laglag_d, &
+!                                  fx_d, fy_d, fz_d, &
+!                                  rho, ext1, ext2, ext3, n) &
+!                                  bind(c, name='rhs_maker_ext_hip')
+!       use, intrinsic :: iso_c_binding
+!       import c_rp
+!       type(c_ptr), value :: fx_lag_d, fy_lag_d, fz_lag_d 
+!       type(c_ptr), value :: fx_laglag_d, fy_laglag_d, fz_laglag_d
+!       type(c_ptr), value :: fx_d, fy_d, fz_d
+!       real(c_rp) :: rho, ext1, ext2, ext3
+!       integer(c_int) :: n
+!     end subroutine rhs_maker_ext_hip
      subroutine rhs_maker_ext_hip(abx1_d, aby1_d, abz1_d, &
                                   abx2_d, aby2_d, abz2_d, &
                                   bfx_d, bfy_d, bfz_d, &
@@ -136,7 +150,7 @@ module rhs_maker_device
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d 
        real(c_rp) :: rho, ext1, ext2, ext3
        integer(c_int) :: n
-     end subroutine rhs_maker_ext_cuda
+     end subroutine scalar_rhs_maker_ext_cuda
   end interface
 
   interface
@@ -152,14 +166,14 @@ module rhs_maker_device
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_cuda
   end interface  
-
+  
   interface
-     subroutine scalar_rhs_maker_bdf_cuda(slag_d, s_laglag_d, fs_d, s_d, B_d, &
+     subroutine scalar_rhs_maker_bdf_cuda(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name='scalar_rhs_maker_bdf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: s_lag_d, s_laglag_d,
+       type(c_ptr), value :: s_lag_d, s_laglag_d
        type(c_ptr), value :: fs_d, s_d, B_d
        reaL(c_rp) :: rho, dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
@@ -337,13 +351,13 @@ contains
 
   end subroutine rhs_maker_bdf_device
 
-  subroutine scalar_rhs_maker_bdf_device(ta1, tb1, slag, fs, s, B, rho, dt, &
+  subroutine scalar_rhs_maker_bdf_device(temp1, temp2, s_lag, fs, s, B, rho, dt, &
                                          bd, nbd, n)    
     integer, intent(in) :: n, nbd
-    type(field_t), intent(inout) :: ta1
+    type(field_t), intent(inout) :: temp1
     type(field_t), intent(in) :: s 
-    type(field_t), intent(inout) :: tb1
-    type(field_series_t), intent(in) :: slag
+    type(field_t), intent(inout) :: temp2
+    type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(10)
@@ -353,15 +367,15 @@ contains
     B_d = device_get_ptr(B)
     
 #ifdef HAVE_HIP
-    call scalar_rhs_maker_bdf_hip(slag%lf(1)%x_d, slag%lf(2)%x_d, &
+    call scalar_rhs_maker_bdf_hip(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
                            fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
                            nbd, n)
 #elif HAVE_CUDA
-    call scalar_rhs_maker_bdf_cuda(slag%lf(1)%x_d, slag%lf(2)%x_d, &
+    call scalar_rhs_maker_bdf_cuda(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
                            fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
                            nbd, n)
 #elif HAVE_OPENCL
-    call scalar_rhs_maker_bdf_opencl(slag%lf(1)%x_d, slag%lf(2)%x_d, &
+    call scalar_rhs_maker_bdf_opencl(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
                            fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
                            nbd, n)
 #endif
