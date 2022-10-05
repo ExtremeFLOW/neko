@@ -214,14 +214,14 @@ contains
 
        point_data(id(1)) = real(fld%x(1,1,1,i),dp)
        point_data(id(2)) = real(fld%x(lx,1,1,i),dp)
-       point_data(id(4)) = real(fld%x(1,ly,1,i),dp)
-       point_data(id(3)) = real(fld%x(lx,ly,1,i),dp)       
+       point_data(id(3)) = real(fld%x(1,ly,1,i),dp)
+       point_data(id(4)) = real(fld%x(lx,ly,1,i),dp)       
 
        if (fld%msh%gdim .eq. 3) then
           point_data(id(5)) = real(fld%x(1,1,lz,i),dp)
           point_data(id(6)) = real(fld%x(lx,1,lz,i),dp)
-          point_data(id(8)) = real(fld%x(1,ly,lz,i),dp)
-          point_data(id(7)) = real(fld%x(lx,ly,lz,i),dp)    
+          point_data(id(7)) = real(fld%x(1,ly,lz,i),dp)
+          point_data(id(8)) = real(fld%x(lx,ly,lz,i),dp)    
        end if
 
     end do
