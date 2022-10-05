@@ -69,10 +69,7 @@ __kernel void sumab_kernel(__global real * __restrict__ u,
   
 }
 
-__kernel void makeabf_kernel(__global real * __restrict__ ta1,
-                             __global real * __restrict__ ta2,
-                             __global real * __restrict__ ta3,
-                             __global real * __restrict__ abx1,
+__kernel void makeabf_kernel(__global real * __restrict__ abx1,
                              __global real * __restrict__ aby1,
                              __global real * __restrict__ abz1,
                              __global real * __restrict__ abx2,
@@ -91,35 +88,25 @@ __kernel void makeabf_kernel(__global real * __restrict__ ta1,
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) {
-    ta1[i] = ab2 * abx1[i] + ab3 * abx2[i];
-    ta2[i] = ab2 * aby1[i] + ab3 * aby2[i];
-    ta3[i] = ab2 * abz1[i] + ab3 * abz2[i];
-  }
+    real ta1_val = ab2 * abx1[i] + ab3 * abx2[i];
+    real ta2_val = ab2 * aby1[i] + ab3 * aby2[i];
+    real ta3_val = ab2 * abz1[i] + ab3 * abz2[i];
 
-  for (int i = idx; i < n; i += str) {
     abx2[i] = abx1[i];
     aby2[i] = aby1[i];
     abz2[i] = abz1[i];
     abx1[i] = bfx[i];
     aby1[i] = bfy[i];
     abz1[i] = bfz[i];
+
+    bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
+    bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
+    bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
   }
-  
-  for (int i = idx; i < n; i += str) {
-    bfx[i] = (ab1 * bfx[i] + ta1[i]) * rho;
-    bfy[i] = (ab1 * bfy[i] + ta2[i]) * rho;
-    bfz[i] = (ab1 * bfz[i] + ta3[i]) * rho;
-  } 
-  
+    
 }
 
-__kernel void makebdf_kernel(__global real * __restrict__ ta1,
-                             __global real * __restrict__ ta2,
-                             __global real * __restrict__ ta3,
-                             __global real * __restrict__ tb1,
-                             __global real * __restrict__ tb2,
-                             __global real * __restrict__ tb3,
-                             __global const real * __restrict__ ulag1,
+__kernel void makebdf_kernel(__global const real * __restrict__ ulag1,
                              __global const real * __restrict__ ulag2,
                              __global const real * __restrict__ vlag1,
                              __global const real * __restrict__ vlag2,
@@ -144,37 +131,29 @@ __kernel void makebdf_kernel(__global real * __restrict__ ta1,
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) {
-    tb1[i] = u[i] * B[i] * bd2;
-    tb2[i] = v[i] * B[i] * bd2;
-    tb3[i] = w[i] * B[i] * bd2;
+    real tb1_val = u[i] * B[i] * bd2;
+    real tb2_val = v[i] * B[i] * bd2;
+    real tb3_val = w[i] * B[i] * bd2;
 
-    ta1[i] = ulag1[i] * B[i] * bd3;
-    ta2[i] = vlag1[i] * B[i] * bd3;
-    ta3[i] = wlag1[i] * B[i] * bd3;
+    real ta1_val = ulag1[i] * B[i] * bd3;
+    real ta2_val = vlag1[i] * B[i] * bd3;
+    real ta3_val = wlag1[i] * B[i] * bd3;
 
-    tb1[i] += ta1[i];
-    tb2[i] += ta2[i];
-    tb3[i] += ta3[i];
-  }
+    tb1_val += ta1_val;
+    tb2_val += ta2_val;
+    tb3_val += ta3_val;
 
-  if (nbd == 3) {
-    for (int i = idx; i < n; i += str) {
-      ta1[i] = ulag2[i] * B[i] * bd4;
-      ta2[i] = vlag2[i] * B[i] * bd4;
-      ta3[i] = wlag2[i] * B[i] * bd4;
-      
-      tb1[i] += ta1[i];
-      tb2[i] += ta2[i];
-      tb3[i] += ta3[i];
+    if (nbd == 3) {
+      tb1_val += ulag2[i] * B[i] * bd4;
+      tb2_val += vlag2[i] * B[i] * bd4;
+      tb3_val += wlag2[i] * B[i] * bd4;
     }
+    
+    bfx[i] = bfx[i] + tb1_val * (rho / dt);
+    bfy[i] = bfy[i] + tb2_val * (rho / dt);
+    bfz[i] = bfz[i] + tb3_val * (rho / dt);
   }
-
-  for (int i = idx; i < n; i += str) {
-    bfx[i] = bfx[i] + tb1[i] * (rho / dt);
-    bfy[i] = bfy[i] + tb2[i] * (rho / dt);
-    bfz[i] = bfz[i] + tb3[i] * (rho / dt);
-  }
-
+  
 }
 
 
