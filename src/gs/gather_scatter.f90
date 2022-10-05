@@ -50,6 +50,7 @@ module gather_scatter
   use stack
   use utils
   use logger
+  use profiler
   implicit none
 
   type gs_t
@@ -1203,6 +1204,7 @@ contains
     m = gs%nlocal
     l = gs%nshared
 
+    call profiler_start_region("gather-scatter")
     ! Gather shared dofs
     if (pe_size .gt. 1) then
 
@@ -1231,6 +1233,8 @@ contains
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
     end if
 
+    call profiler_end_region
+    
   end subroutine gs_op_vector
   
 end module gather_scatter

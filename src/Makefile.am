@@ -99,6 +99,7 @@ neko_fortran_SOURCES = \
 	io/mean_flow_output.f90\
 	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
+	common/profiler.F90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
 	bc/dong_outflow.f90\
@@ -173,6 +174,7 @@ neko_fortran_SOURCES = \
 	common/jobctrl.f90\
 	device/cuda_intf.F90\
 	device/hip_intf.F90\
+	device/cuda/nvtx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
 	device/device.F90\
