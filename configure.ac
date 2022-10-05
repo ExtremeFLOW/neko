@@ -232,6 +232,9 @@ AX_RCCL
 # Checks for NVTX profiling
 AX_NVTX
 
+# Checks for ROCTX profiling
+AX_ROCTX
+
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
