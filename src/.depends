@@ -147,7 +147,7 @@ fluid/fluid_plan1.o : fluid/fluid_plan1.f90 fluid/fluid_method.o
 fluid/fluid_pnpn.o : fluid/fluid_pnpn.f90 fluid/advection.o common/log.o common/projection.o common/ext_bdf_scheme.o fluid/fluid_aux.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o bc/facet_normal.o field/field_series.o fluid/fluid_method.o fluid/fluid_volflow.o common/rhs_maker_fctry.o math/ax_helm_fctry.o fluid/pnpn_res_fctry.o 
 fluid/fluid_fctry.o : fluid/fluid_fctry.f90 common/utils.o config/neko_config.o fluid/fluid_pnpn.o fluid/fluid_plan4.o fluid/fluid_plan1.o fluid/fluid_method.o fluid/bcknd/device/device_fluid_plan4.o 
 fluid/fluid_volflow.o : fluid/fluid_volflow.f90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o config/neko_config.o math/math.o common/ext_bdf_scheme.o sem/coef.o field/field.o sem/dofmap.o krylov/precon.o krylov/krylov.o math/mathops.o config/num_types.o math/operators.o common/parameters.o 
-fluid/pnpn_res.o : fluid/pnpn_res.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o common/source_scalar.o common/source.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
+fluid/pnpn_res.o : fluid/pnpn_res.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o common/source.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
 fluid/pnpn_res_fctry.o : fluid/pnpn_res_fctry.f90 fluid/bcknd/sx/pnpn_res_sx.o fluid/bcknd/cpu/pnpn_res_cpu.o fluid/bcknd/device/pnpn_res_device.o fluid/pnpn_res.o common/utils.o config/neko_config.o 
 fluid/mean_flow.o : fluid/mean_flow.f90 field/mean_field.o 
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/mean_sqr_field.o 
@@ -194,6 +194,6 @@ scalar/scalar_aux.o : scalar/scalar_aux.f90 krylov/krylov.o config/num_types.o c
 scalar/scalar_residual.o : scalar/scalar_residual.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o common/source_scalar.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
 scalar/scalar_residual_fctry.o : scalar/scalar_residual_fctry.f90 scalar/bcknd/sx/scalar_residual_sx.o scalar/bcknd/cpu/scalar_residual_cpu.o scalar/bcknd/device/scalar_residual_device.o scalar/scalar_residual.o config/neko_config.o 
 scalar/bcknd/cpu/scalar_residual_cpu.o : scalar/bcknd/cpu/scalar_residual_cpu.f90 math/operators.o scalar/scalar_residual.o gs/gather_scatter.o 
-scalar/bcknd/sx/scalar_residual_sx.o : scalar/bcknd/sx/scalar_residual_sx.f90 math/operators.o fluid/pnpn_res.o gs/gather_scatter.o 
+scalar/bcknd/sx/scalar_residual_sx.o : scalar/bcknd/sx/scalar_residual_sx.f90 math/operators.o scalar/scalar_residual.o gs/gather_scatter.o 
 neko.o : neko.f90 field/field_registry.o sem/cpr.o device/device.o common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o common/parameters.o config/num_types.o 
 driver.o : driver.f90 neko.o 

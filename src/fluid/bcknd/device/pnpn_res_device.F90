@@ -50,11 +50,6 @@ module pnpn_res_device
      procedure, nopass :: compute => pnpn_vel_res_device_compute
   end type pnpn_vel_res_device_t
 
-  type, public, extends(pnpn_scalar_res_t) :: pnpn_scalar_res_device_t
-   contains
-     procedure, nopass :: compute => pnpn_scalar_res_device_compute
-  end type pnpn_scalar_res_device_t
-
 #ifdef HAVE_HIP
     interface
      subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
@@ -355,42 +350,4 @@ contains
     
   end subroutine pnpn_vel_res_device_compute
 
-  subroutine pnpn_scalar_res_device_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-             Pr, Re, rho, bd, dt, n)
-    class(ax_t), intent(in) :: Ax
-    type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
-    type(field_t), intent(inout) :: s
-    type(field_t), intent(inout) :: s_res
-    type(source_scalar_t), intent(inout) :: f_Xh
-    type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: Pr
-    real(kind=rp), intent(in) :: Re
-    real(kind=rp), intent(in) :: rho
-    real(kind=rp), intent(in) :: bd
-    real(kind=rp), intent(in) :: dt
-    integer, intent(in) :: n
-    
-    call device_cfill(c_Xh%h1_d, (1.0_rp / (Pr * Re)), n)
-    call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
-    c_Xh%ifh2 = .true.
-    
-    call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
-
-#ifdef HAVE_HIP
-     call neko_error("Scalar residual no implemented for device")
-!    call pnpn_vel_res_update_hip(u_res%x_d, v_res%x_d, w_res%x_d, &
-!         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
-#elif HAVE_CUDA
-     call neko_error("Scalar residual no implemented for device")
-!    call pnpn_vel_res_update_cuda(u_res%x_d, v_res%x_d, w_res%x_d, &
-!         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
-#elif HAVE_OPENCL
-     call neko_error("Scalar residual no implemented for device")
-!    call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
-!         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
-#endif
-    
-  end subroutine pnpn_scalar_res_device_compute
-  
 end module pnpn_res_device

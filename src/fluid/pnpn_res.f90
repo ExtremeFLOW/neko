@@ -37,7 +37,6 @@ module pnpn_residual
   use field, only : field_t
   use coefs, only : coef_t
   use source, only : source_t
-  use source_scalar, only : source_scalar_t
   use facet_normal, only : facet_normal_t
   use space, only : space_t
   use mesh, only : mesh_t
@@ -56,11 +55,6 @@ module pnpn_residual
      procedure(vel_res), nopass, deferred :: compute
   end type pnpn_vel_res_t
 
-  !> Abstract type to compute scalar residual
-  type, abstract :: pnpn_scalar_res_t
-   contains
-     procedure(scalar_res), nopass, deferred :: compute
-  end type pnpn_scalar_res_t
     
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, &
@@ -119,32 +113,6 @@ module pnpn_residual
        integer, intent(in) :: n
      end subroutine vel_res
 
-     subroutine scalar_res(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd,&
-                dt, n)
-       import field_t
-       import Ax_t
-       import gs_t
-       import facet_normal_t
-       import source_t
-       import source_scalar_t
-       import space_t              
-       import coef_t
-       import mesh_t
-       import rp
-       class(ax_t), intent(in) :: Ax
-       type(mesh_t), intent(inout) :: msh
-       type(space_t), intent(inout) :: Xh    
-       type(field_t), intent(inout) :: s
-       type(field_t), intent(inout) :: s_res
-       type(source_scalar_t), intent(inout) :: f_Xh
-       type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: Pr
-       real(kind=rp), intent(in) :: Re
-       real(kind=rp), intent(in) :: rho
-       real(kind=rp), intent(in) :: bd
-       real(kind=rp), intent(in) :: dt
-       integer, intent(in) :: n
-     end subroutine scalar_res
   end interface
  
 end module pnpn_residual
