@@ -96,7 +96,7 @@ io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o config/num_types.o fluid/mean_flow.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 common/sampler.o : common/sampler.f90 common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
-common/profiler.o : common/profiler.F90 device/cuda/nvtx.o common/utils.o device/cuda_intf.o config/neko_config.o 
+common/profiler.o : common/profiler.F90 device/cuda/nvtx.o device/hip/roctx.o common/utils.o device/device.o config/neko_config.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
 bc/dong_outflow.o : bc/dong_outflow.f90 bc/bcknd/device/device_dong_outflow.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o 
@@ -171,7 +171,8 @@ common/signal.o : common/signal.f90 common/utils.o
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
 device/cuda_intf.o : device/cuda_intf.F90 common/utils.o 
 device/hip_intf.o : device/hip_intf.F90 common/utils.o 
-device/cuda/nvtx.o : device/cuda/nvtx.F90 
+device/cuda/nvtx.o : device/cuda/nvtx.F90
+device/hip/roctx.o : device/hip/roctx.F90 
 device/opencl_intf.o : device/opencl_intf.F90 common/utils.o config/num_types.o 
 device/opencl/prgm_lib.o : device/opencl/prgm_lib.F90 common/utils.o device/opencl_intf.o 
 device/device.o : device/device.F90 device/opencl/prgm_lib.o common/utils.o adt/htable.o device/hip_intf.o device/cuda_intf.o device/opencl_intf.o config/num_types.o 

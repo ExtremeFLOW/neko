@@ -1084,5 +1084,23 @@ contains
     call neko_error('Not implemented yet')
 #endif
   end subroutine device_stream_destroy
+
+  !> Start device profiling
+  subroutine device_profiler_start()
+#if HAVE_CUDA
+    if (cudaProfilerStart() .ne. cudaSuccess) then
+       call neko_error('Error starting profiler')
+    end if
+#endif
+  end subroutine device_profiler_start
   
+  !> Stop device profiling
+  subroutine device_profiler_stop()
+#if HAVE_CUDA
+    if (cudaProfilerStop() .ne. cudaSuccess) then
+       call neko_error('Error stopping profiler')
+    end if
+#endif
+  end subroutine device_profiler_stop
+
 end module device

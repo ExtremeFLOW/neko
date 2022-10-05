@@ -33,29 +33,30 @@
 !> Profiling interface
 module profiler
   use neko_config
-  use cuda_intf
+  use device
   use utils
   use nvtx
+  use roctx
   implicit none
 
 contains
 
   !> Start profiling
   subroutine profiler_start
-#ifdef HAVE_CUDA
-    if (cudaProfilerStart() .ne. cudaSuccess) then
-       call neko_error('Error starting CUDA profiler')
-    end if
+    if ((NEKO_BCKND_CUDA .eq. 1)) then
+#if defined(HAVE_NVTX) 
+       call device_profiler_start
 #endif
+    end if
   end subroutine profiler_start
 
   !> Stop profiling
   subroutine profiler_stop
-#ifdef HAVE_CUDA
-    if (cudaProfilerStart() .ne. cudaSuccess) then
-       call neko_error('Error stopping CUDA profiler')
-    end if
+    if ((NEKO_BCKND_CUDA .eq. 1)) then
+#if defined(HAVE_NVTX)
+       call device_profiler_stop
 #endif
+    end if
   end subroutine profiler_stop
   
   !> Started a named (@a name) profiler region
@@ -64,6 +65,8 @@ contains
 
 #ifdef HAVE_NVTX
     call nvtxStartRange(name)
+#elif HAVE_ROCTX
+    call roctxStartRange(name)
 #endif
     
   end subroutine profiler_start_region
@@ -73,6 +76,8 @@ contains
 
 #ifdef HAVE_NVTX
     call nvtxRangePop
+#elif HAVE_ROCTX
+    call roctxRangePop
 #endif
     
   end subroutine profiler_end_region
