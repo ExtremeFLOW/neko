@@ -33,11 +33,31 @@
 !> Profiling interface
 module profiler
   use neko_config
+  use cuda_intf
+  use utils
   use nvtx
   implicit none
 
 contains
 
+  !> Start profiling
+  subroutine profiler_start
+#ifdef HAVE_CUDA
+    if (cudaProfilerStart() .ne. cudaSuccess) then
+       call neko_error('Error starting CUDA profiler')
+    end if
+#endif
+  end subroutine profiler_start
+
+  !> Stop profiling
+  subroutine profiler_stop
+#ifdef HAVE_CUDA
+    if (cudaProfilerStart() .ne. cudaSuccess) then
+       call neko_error('Error stopping CUDA profiler')
+    end if
+#endif
+  end subroutine profiler_stop
+  
   !> Started a named (@a name) profiler region
   subroutine profiler_start_region(name)
     character(kind=c_char,len=*) :: name

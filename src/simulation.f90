@@ -72,6 +72,8 @@ contains
     
     call neko_log%newline()
 
+    call profiler_start
+
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
@@ -102,6 +104,8 @@ contains
        call C%s%sample(t)
        call profiler_end_region
     end do
+
+    call profiler_stop
 
     if (t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
