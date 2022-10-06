@@ -76,5 +76,5 @@ bc/bcknd/device/opencl/inhom_dirichlet.o : bc/bcknd/device/opencl/inhom_dirichle
 bc/bcknd/device/opencl/dong_outflow.o : bc/bcknd/device/opencl/dong_outflow.c bc/bcknd/device/opencl/dong_outflow_kernel.cl.h
 common/bcknd/device/opencl/rhs_maker.o : common/bcknd/device/opencl/rhs_maker.c common/bcknd/device/opencl/rhs_maker_kernel.cl.h
 fluid/bcknd/device/opencl/pnpn_res.o : fluid/bcknd/device/opencl/pnpn_res.c fluid/bcknd/device/opencl/pnpn_res_kernel.cl.h
-scalar/bcknd/device/opencl/sclar_residual.o : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
+scalar/bcknd/device/opencl/scalar_residual.o : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.o : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
