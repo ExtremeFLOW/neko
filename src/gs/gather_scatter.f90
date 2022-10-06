@@ -189,11 +189,13 @@ contains
 
           do i = 1, size(strtgy)          
              c%nb_strtgy = strtgy(i)
+             call device_sync
+             call MPI_Barrier(NEKO_COMM)
              strtgy_time(i) = MPI_Wtime()
-             do j = 1, 1000
+             do j = 1, 100
                 call gs_op_vector(gs, tmp, dofmap%n_dofs, GS_OP_ADD)
              end do
-             strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 1000d0
+             strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
           end do
 
           c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
