@@ -100,6 +100,7 @@ neko_fortran_SOURCES = \
 	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
 	common/profiler.F90\
+	common/craypat.F90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
 	bc/dong_outflow.f90\
