@@ -69,11 +69,9 @@ module scalar_residual_device
      end subroutine scalar_residual_update_cuda
   end interface
 #elif HAVE_OPENCL
-  interface
   
   interface
      subroutine scalar_residual_update_opencl(s_res_d,f_s_d, n) &
-          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
           bind(c, name='scalar_residual_update_opencl')
        use, intrinsic :: iso_c_binding
        implicit none

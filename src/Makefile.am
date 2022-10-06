@@ -291,7 +291,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/opr_cfl.c\
 	math/bcknd/device/opencl/ax_helm.c\
-        krylov/bcknd/device/opencl/pc_jacobi.c\
+	krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
@@ -340,7 +340,7 @@ CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      krylov/bcknd/device/opencl/*.cl.h\
 	      fluid/bcknd/device/opencl/*.cl.h\
 	      scalar/bcknd/device/opencl/*.cl.h\
-              sem/bcknd/device/opencl/*.cl.h
+	      sem/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
