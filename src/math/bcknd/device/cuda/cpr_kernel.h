@@ -33,10 +33,10 @@
 */
 
 /**
- * Device kernel for glsc3
+ * Device kernel for lcsc3
  */
 template< typename T, const int NXYZ >
-__global__ void glsc3_elem_kernel(const T * a,
+__global__ void lcsc3_kernel(const T * a,
                              const T * b,
                              const T * c,
                              T * buf_h) {
@@ -65,3 +65,198 @@ __global__ void glsc3_elem_kernel(const T * a,
   }
 }
 
+
+/**
+ * Device kernel for lcsum
+ */
+template< typename T, const int NXYZ >
+__global__ void lcsum_kernel(const T * a,
+                             T * buf_h) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  __shared__ T buf[NXYZ];
+  T tmp = 0.0;
+
+  tmp += a[idx];
+  
+  buf[threadIdx.x] = tmp;
+  __syncthreads();
+
+  int i = blockDim.x>>1;
+  while (i != 0) {
+    if (threadIdx.x < i) {
+      buf[threadIdx.x] += buf[threadIdx.x + i];
+    }
+    __syncthreads();
+    i = i>>1;
+  }
+ 
+  if (threadIdx.x == 0) {
+    buf_h[blockIdx.x] = buf[0];
+  }
+}
+
+
+/**
+ * Device kernel for lcmin
+ */
+template< typename T, const int NXYZ >
+__global__ void lcmin_kernel(const T * a,
+                             T * buf_h) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  __shared__ T buf[NXYZ];
+  T tmp = 0.0;
+  T tmp1 = 0.0;
+  T tmp2 = 0.0;
+
+  tmp += a[idx];
+  
+  buf[threadIdx.x] = tmp;
+  __syncthreads();
+
+  int i = blockDim.x>>1;
+  while (i != 0) {
+    if (threadIdx.x < i) {
+      tmp1 = buf[threadIdx.x];
+      tmp2 = buf[threadIdx.x+i];
+      if (tmp1>tmp2) {
+        buf[threadIdx.x] = buf[threadIdx.x + i];
+      }
+    }
+    __syncthreads();
+    i = i>>1;
+  }
+ 
+  if (threadIdx.x == 0) {
+    buf_h[blockIdx.x] = buf[0];
+  }
+}
+
+
+/**
+ * Device kernel for lcmax
+ */
+template< typename T, const int NXYZ >
+__global__ void lcmax_kernel(const T * a,
+                             T * buf_h) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  __shared__ T buf[NXYZ];
+  T tmp = 0.0;
+  T tmp1 = 0.0;
+  T tmp2 = 0.0;
+
+  tmp += a[idx];
+  
+  buf[threadIdx.x] = tmp;
+  __syncthreads();
+
+  int i = blockDim.x>>1;
+  while (i != 0) {
+    if (threadIdx.x < i) {
+      tmp1 = buf[threadIdx.x];
+      tmp2 = buf[threadIdx.x+i];
+      if (tmp1<tmp2) {
+        buf[threadIdx.x] = buf[threadIdx.x + i];
+      }
+    }
+    __syncthreads();
+    i = i>>1;
+  }
+ 
+  if (threadIdx.x == 0) {
+    buf_h[blockIdx.x] = buf[0];
+  }
+}
+
+
+/**
+ * Device kernel for lcsort_abs
+ * Sort with absolute values
+ * Using slow bubble sort with one thread sorting per block
+ * buf_h and buf_k must be same size as a and key
+ */
+template< typename T, const int NXYZ >
+__global__ void lcsort_abs_kernel(const T * a,
+		             const T * key,
+                             T * buf_h,
+			     T * buf_i,) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  __shared__ T buf[NXYZ];
+  __shared__ T buf_k[NXYZ];
+  T tmp = 0.0;
+  T tmp1 = 0.0;
+  T tmp2 = 0.0;
+  T tmp3 = 0.0;
+ 
+  buf[threadIdx.x]   = a[idx];
+  buf_k[threadIdx.x] = key[idx];
+  __syncthreads();
+
+  if (threadIdx.x == 0) {
+    for (int i = 0; i< NXYZ; i += 1) {
+
+      for (int j = 0; j < (NXYZ-i-1); i += 1) {
+
+      	tmp  = buf[j];
+        tmp1 = buf[j+1];
+        tmp2 = buf_k[j];
+        tmp3 = buf_k[j+1];
+        if (abs(tmp)>abs(tmp1)) {
+          buf[j]     = temp1;
+          buf[j+1]   = temp;
+          buf_k[j]   = temp3;
+          buf_k[j+1] = temp2;
+        }
+      } 
+    }
+  }  
+  __syncthreads();
+
+  buf_h[idx] = buf[threadIdx.x];
+  buf_i[idx] = buf_k[threadIdx.x]; 
+}
+
+
+/**
+ * Device kernel for lcsort_bykey
+ * Put entries in the order given by the key contents
+ * buf_h and buf_k must be same size as a and key
+ */
+template< typename T, const int NXYZ >
+__global__ void lcsort_bykey_kernel(const T * a,
+		             const T * key,
+                             T * buf_h,
+			     T * buf_i,) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  __shared__ T buf[NXYZ];
+  __shared__ T buf_k[NXYZ];
+  T tmp = 0.0;
+  T tmp1 = 0.0;
+  T tmp2 = 0.0;
+  T tmp3 = 0.0;
+ 
+  buf[threadIdx.x]   = a[idx];
+  buf_k[threadIdx.x] = key[idx];
+  __syncthreads();
+
+  for (int i = 0; i< NXYZ; i += 1) {
+
+      	tmp  = buf_k[i];
+
+        if (threadIdx == temp) {
+          buf_h[idx]= buf[threadIdx.x];
+          buf_i[idx]= buf_k[threadIdx.x];
+        }
+  }
+  __syncthreads();
+
+}
