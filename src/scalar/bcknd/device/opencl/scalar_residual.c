@@ -45,8 +45,8 @@
 void scalar_residual_update_opencl(void *s_res, void *f_s, int *n) {
   cl_int err;
   
-  if (pnpn_res_program == NULL)
-    opencl_kernel_jit(scalar_residual_kernel, (cl_program *) &pnpn_res_program);
+  if (scalar_residual_program == NULL)
+    opencl_kernel_jit(scalar_residual_kernel, (cl_program *) &scalar_residual_program);
 
   cl_kernel kernel = clCreateKernel(scalar_residual_program,
                                     "scalar_residual_update_kernel", &err);

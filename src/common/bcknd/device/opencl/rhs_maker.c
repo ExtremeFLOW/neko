@@ -53,10 +53,10 @@ void rhs_maker_sumab_opencl(void *u, void *v, void *w,
                             real *ab1, real *ab2, real *ab3, int *nab, int *n) {
   cl_int err;
   
-  if (abbdf_program == NULL)
-    opencl_kernel_jit(abbdf_kernel, (cl_program *) &abbdf_program);
+  if (rhs_maker_program == NULL)
+    opencl_kernel_jit(rhs_maker_kernel, (cl_program *) &rhs_maker_program);
 
-  cl_kernel kernel = clCreateKernel(abbdf_program, "sumab_kernel", &err);
+  cl_kernel kernel = clCreateKernel(rhs_maker_program, "sumab_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &u));
@@ -92,10 +92,10 @@ void rhs_maker_ext_opencl(void *abx1, void *aby1, void *abz1,
                           real *rho, real *ab1, real *ab2, real *ab3, int *n) {
   cl_int err;
   
-  if (abbdf_program == NULL)
-    opencl_kernel_jit(abbdf_kernel, (cl_program *) &abbdf_program);
+  if (rhs_maker_program == NULL)
+    opencl_kernel_jit(rhs_maker_kernel, (cl_program *) &rhs_maker_program);
   
-  cl_kernel kernel = clCreateKernel(abbdf_program, "makeext_kernel", &err);
+  cl_kernel kernel = clCreateKernel(rhs_maker_program, "makeext_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &abx1));
@@ -131,10 +131,10 @@ void rhs_maker_bdf_opencl(void *ulag1, void *ulag2, void *vlag1,
                           real *bd3, real *bd4, int *nbd, int *n) {
   cl_int err;
   
-  if (abbdf_program == NULL)
-    opencl_kernel_jit(abbdf_kernel, (cl_program *) &abbdf_program);
+  if (rhs_maker_program == NULL)
+    opencl_kernel_jit(rhs_maker_kernel, (cl_program *) &rhs_maker_program);
 
-  cl_kernel kernel = clCreateKernel(abbdf_program, "makebdf_kernel", &err);
+  cl_kernel kernel = clCreateKernel(rhs_maker_program, "makebdf_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &ulag1));
