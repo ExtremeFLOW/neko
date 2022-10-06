@@ -99,6 +99,18 @@ module rhs_maker_device
   end interface
 
   interface
+     subroutine scalar_rhs_maker_ext_hip(fs_lag_d, fs_laglag_d, fs_d, rho, &
+                                          ext1, ext2, ext3, n) &
+                                          bind(c, name='scalar_rhs_maker_ext_hip')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d 
+       real(c_rp) :: rho, ext1, ext2, ext3
+       integer(c_int) :: n
+     end subroutine scalar_rhs_maker_ext_hip
+  end interface
+
+  interface
      subroutine rhs_maker_bdf_hip(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name='rhs_maker_bdf_hip')
@@ -111,6 +123,19 @@ module rhs_maker_device
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_hip
   end interface 
+
+  interface
+     subroutine scalar_rhs_maker_bdf_hip(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
+          rho, dt, bd2, bd3, bd4, nbd, n) &
+          bind(c, name='scalar_rhs_maker_bdf_hip')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: s_lag_d, s_laglag_d
+       type(c_ptr), value :: fs_d, s_d, B_d
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       integer(c_int) :: nbd, n
+     end subroutine scalar_rhs_maker_bdf_hip
+  end interface  
 #elif HAVE_CUDA
   interface
      subroutine rhs_maker_sumab_cuda(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
@@ -210,6 +235,18 @@ module rhs_maker_device
   end interface
 
   interface
+     subroutine scalar_rhs_maker_ext_opencl(fs_lag_d, fs_laglag_d, fs_d, rho, &
+                                          ext1, ext2, ext3, n) &
+                                          bind(c, name='scalar_rhs_maker_ext_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d 
+       real(c_rp) :: rho, ext1, ext2, ext3
+       integer(c_int) :: n
+     end subroutine scalar_rhs_maker_ext_opencl
+  end interface
+
+  interface
      subroutine rhs_maker_bdf_opencl(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name='rhs_maker_bdf_opencl')
@@ -222,6 +259,19 @@ module rhs_maker_device
        integer(c_int) :: nbd, n
      end subroutine rhs_maker_bdf_opencl
   end interface 
+
+  interface
+     subroutine scalar_rhs_maker_bdf_opencl(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
+          rho, dt, bd2, bd3, bd4, nbd, n) &
+          bind(c, name='scalar_rhs_maker_bdf_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: s_lag_d, s_laglag_d
+       type(c_ptr), value :: fs_d, s_d, B_d
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       integer(c_int) :: nbd, n
+     end subroutine scalar_rhs_maker_bdf_opencl
+  end interface  
 #endif
 
 contains
