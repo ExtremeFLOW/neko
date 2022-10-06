@@ -280,13 +280,10 @@ contains
       !> Apply dirichlet
       call this%bc_apply()
 
-      ! todo: note, adhoc Pr=2!
-      ! compute velocity
-      call res%compute(Ax, s, &
-           s_res, &
-           f_Xh, c_Xh, msh, Xh, &
-           2.0_rp, params%Re, params%rho, ext_bdf%bdf(1), &
-           params%dt, dm_Xh%n_dofs)
+      ! compute scalar residual
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
+          params%Re, params%rho, ext_bdf%bdf(1), params%dt, &
+          dm_Xh%n_dofs)
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
 
