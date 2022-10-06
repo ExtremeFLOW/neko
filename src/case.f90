@@ -175,12 +175,10 @@ contains
     !
     ! Setup scalar scheme
     !
-    ! todo: no factroy for now
-    !call scalar_scheme_factory(C%scalar, trim(fluid_scheme))
-    write(*,*) "SCALAR INIT"
-    call C%scalar%init(C%msh, lx, C%params)
-    write(*,*) "DONE"
-
+    ! todo: no scalar factroy for now, probably not needed
+    if (C%params%scalar) then
+       call C%scalar%init(C%msh, lx, C%params)
+    end if
     !
     ! Setup user defined conditions    
     !
@@ -201,7 +199,9 @@ contains
 
     ! Setup source term for the scalar
     ! todo: should be expanded for user sources etc. Now copies the fluid one
-    call C%scalar%set_source(trim(source_term))
+    if (C%params%scalar) then
+       call C%scalar%set_source(trim(source_term))
+    end if
 
     !
     ! Setup initial conditions
@@ -232,13 +232,16 @@ contains
        call f%wlag%set(f%w)
     end select
 
-    call C%scalar%slag%set(C%scalar%s)
 
     !
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
-    call C%scalar%validate
+
+    if (C%params%scalar) then
+       call C%scalar%slag%set(C%scalar%s)
+       call C%scalar%validate
+    end if
 
     !
     ! Set order of timestepper
@@ -271,8 +274,10 @@ contains
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
     call C%s%add(C%f_out)
 
-    C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
-    call C%s%add(C%s_out)
+    if (C%params%scalar) then
+       C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
+       call C%s%add(C%s_out)
+    end if
 
     !
     ! Save checkpoints (if requested)
