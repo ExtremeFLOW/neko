@@ -151,6 +151,23 @@ module cuda_intf
      end function cudaStreamSynchronize
   end interface
 
+  interface
+     integer (c_int) function cudaProfilerStart() &
+          bind(c, name='cudaProfilerStart')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cudaProfilerStart
+  end interface
+
+  interface
+     integer (c_int) function cudaProfilerStop() &
+          bind(c, name='cudaProfilerStop')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cudaProfilerStop
+  end interface
+
+
 contains
 
   subroutine cuda_device_name(name)

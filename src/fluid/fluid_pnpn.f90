@@ -46,6 +46,7 @@ module fluid_pnpn
   use projection
   use logger
   use advection
+  use profiler
   implicit none
   private
 
@@ -375,7 +376,6 @@ contains
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf)
          
-      
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
@@ -430,8 +430,10 @@ contains
       end if
       
       call this%pc_prs%update()
+      call profiler_start_region('Pressure')
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                this%bclst_dp, gs_Xh, niter)    
+                                          this%bclst_dp, gs_Xh, niter)
+      call profiler_end_region
 
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
          call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
@@ -469,12 +471,14 @@ contains
 
       call this%pc_vel%update()
 
+      call profiler_start_region("Velocity")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
            c_Xh, this%bclst_du, gs_Xh, niter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
            c_Xh, this%bclst_dv, gs_Xh, niter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh, niter)
+      call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
          call this%proj_u%project_back(du%x, Ax, c_Xh, &
