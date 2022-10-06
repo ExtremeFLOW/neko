@@ -33,7 +33,7 @@
 */
 
 template< typename T >
-__global__ void scalar_residual_update_kernel(T * __restrict__ usres,
+__global__ void scalar_residual_update_kernel(T * __restrict__ s_res,
                                               const T * __restrict__ f_s,
                                               const int n) {
 

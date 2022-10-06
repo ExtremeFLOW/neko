@@ -48,7 +48,7 @@ extern "C" {
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_residual_update_kernel<real> ),
                        nblcks, nthrds, 0, 0,
-                       (real *) u_res, (real *) f_u, *n);
+                       (real *) s_res, (real *) f_s, *n);
     HIP_CHECK(hipGetLastError());
   }
     
