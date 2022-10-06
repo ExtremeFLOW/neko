@@ -37,6 +37,7 @@ module profiler
   use utils
   use nvtx
   use roctx
+  use craypat
   implicit none
 
 contains
@@ -47,6 +48,10 @@ contains
 #if defined(HAVE_NVTX) 
        call device_profiler_start
 #endif
+    else
+#ifdef CRAYPAT
+       call craypat_record_start
+#endif
     end if
   end subroutine profiler_start
 
@@ -55,6 +60,10 @@ contains
     if ((NEKO_BCKND_CUDA .eq. 1)) then
 #if defined(HAVE_NVTX)
        call device_profiler_stop
+#endif
+    else
+#ifdef CRAYPAT
+       call craypat_record_stop
 #endif
     end if
   end subroutine profiler_stop
@@ -67,6 +76,8 @@ contains
     call nvtxStartRange(name)
 #elif HAVE_ROCTX
     call roctxStartRange(name)
+#elif CRAYPAT
+    call craypat_region_begin(name)
 #endif
     
   end subroutine profiler_start_region
@@ -78,6 +89,8 @@ contains
     call nvtxRangePop
 #elif HAVE_ROCTX
     call roctxRangePop
+#elif CRAYPAT
+    call craypat_region_end
 #endif
     
   end subroutine profiler_end_region

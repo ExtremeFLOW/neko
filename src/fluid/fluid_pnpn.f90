@@ -430,7 +430,7 @@ contains
       end if
       
       call this%pc_prs%update()
-      call profiler_start_region('Presure')
+      call profiler_start_region('Pressure')
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                           this%bclst_dp, gs_Xh, niter)
       call profiler_end_region
