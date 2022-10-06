@@ -374,7 +374,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/makebdf_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
-	scalar/bcknd/device/cuda/scalar_update_kernel.h\
+	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
