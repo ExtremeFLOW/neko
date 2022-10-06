@@ -75,6 +75,7 @@ module parameters
      integer :: proj_vel_dim     !< Projection space for velocity solution
      real(kind=rp) :: dong_uchar     !< Characteristic velocity for dong outflow
      real(kind=rp) :: dong_delta     !< Small constant for dong outflow
+     real(kind=rp) :: Pr        !< Prandtl number
   end type param_t
 
   type param_io_t
@@ -138,6 +139,7 @@ contains
     integer :: i
     real(kind=rp) :: dong_uchar = 1.0_rp
     real(kind=rp) :: dong_delta = 0.01_rp
+    real(kind=rp) :: Pr = 1d0
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -145,7 +147,7 @@ contains
          proj_prs_dim,  proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
-         delta, blasius_approx, bc_labels, dong_uchar, dong_delta
+         delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -158,6 +160,7 @@ contains
     param%p%rho = rho
     param%p%mu = mu
     param%p%Re = Re
+    param%p%Pr = Pr 
     param%p%uinf = uinf
     param%p%abstol_vel = abstol_vel
     param%p%abstol_prs = abstol_prs
@@ -199,7 +202,7 @@ contains
     integer(kind=i4), intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
+    real(kind=rp) :: dt, T_End, rho, mu, Re, Pr, abstol_vel, abstol_prs, flow_rate
     real(kind=rp) :: stats_begin, delta, dong_uchar, dong_delta
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
     real(kind=rp), dimension(3) :: uinf
@@ -216,7 +219,7 @@ contains
     character(len=20) :: bc_labels(20)
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
-         dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
+         dt, T_end, rho, mu, Re, Pr, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
          proj_prs_dim, proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
@@ -232,6 +235,7 @@ contains
     rho = param%p%rho
     mu = param%p%mu
     Re = param%p%Re
+    Pr = param%p%Pr
     uinf = param%p%uinf
     abstol_vel = param%p%abstol_vel
     abstol_prs = param%p%abstol_prs
