@@ -44,7 +44,7 @@
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "rhs_maker.cl.h"
+#include "rhs_maker_kernel.cl.h"
 
 void rhs_maker_sumab_opencl(void *u, void *v, void *w,
                             void *uu, void *vv, void *ww,
