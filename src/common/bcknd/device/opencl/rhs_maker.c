@@ -135,13 +135,13 @@ void scalar_rhs_maker_ext_opencl(void *fs_lag, void *fs_laglag, void *fs,
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &fs_lag));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &fs_laglag));
-  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &fs));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(real), rho));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(real), ext1));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(real), ext2));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(real), ext3));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &fs_laglag));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &fs));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), rho));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), ext1));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), ext2));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(real), ext3));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
