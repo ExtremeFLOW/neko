@@ -49,7 +49,7 @@ module hex
   !! @details
   !! 3D element composed of 8 points
   !! @verbatim
-  !! Node numbering (NEKTON preprocessor notation)
+  !! Node numbering (NEKTON symmetric notation)
   !!
   !!          3+-----+4    ^ s                 
   !!          /     /|     |                   

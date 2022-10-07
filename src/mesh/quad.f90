@@ -47,7 +47,7 @@ module quad
   !! @details
   !! 2D element composed of 4 points
   !! @verbatim
-  !! Node numbering (NEKTON preprocessor notation)
+  !! Node numbering (NEKTON symmetric notation)
   !!
   !!      3+-----+4    ^ s                 
   !!       |     |     |                   
