@@ -52,7 +52,23 @@ jobs:
         if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
         run: |
           git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
-          cd pFUnit && mkdir b && cd b
+          cd pFUnit
+          cat >> pfunit_error_stop.patch << _ACEOF
+          diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
+          index 7df7b65..4f7dbf5 100644
+          --- a/src/funit/FUnit.F90
+          +++ b/src/funit/FUnit.F90
+          @@ -168,7 +168,7 @@ contains
+           #if defined(PGI)
+                    call exit(-1)
+           #else
+          -         stop '*** Encountered 1 or more failures/errors during testing. ***'
+          +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
+           #endif
+                 end if
+           
+          _ACEOF
+          git apply pfunit_error_stop.patch && mkdir b && cd b
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
           make -j$(nproc) && make install && cd ../../
       - name: Checkout
