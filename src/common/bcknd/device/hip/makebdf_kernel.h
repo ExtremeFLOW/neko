@@ -101,14 +101,14 @@ __global__ void scalar_makebdf_kernel(const T * __restrict__ s_lag,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    T tb1_val = u[i] * B[i] * bd2;
+    T tb1_val = s[i] * B[i] * bd2;
 
-    T ta1_val = ulag1[i] * B[i] * bd3;
+    T ta1_val = s_lag[i] * B[i] * bd3;
 
     tb1_val += ta1_val;
 
     if (nbd == 3) {
-      tb1_val += ulag2[i] * B[i] * bd4;
+      tb1_val += s_laglag[i] * B[i] * bd4;
     }
     
     // todo: probably not just rho here
