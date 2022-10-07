@@ -89,7 +89,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
     integer, optional :: bcknd
-    integer :: i, j, ierr, bcknd_, glb_nshared, glb_nlocal
+    integer :: i, j, ierr, bcknd_
+    integer(i8) :: glb_nshared, glb_nlocal
     logical :: use_device_mpi
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
@@ -121,11 +122,22 @@ contains
 
     call gs_schedule(gs)
 
-    call MPI_Reduce(gs%nlocal, glb_nlocal, 1, &
-         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
-
-    call MPI_Reduce(gs%nshared, glb_nshared, 1, &
-         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+    glb_nlocal = int(gs%nlocal, i8)
+    glb_nshared = int(gs%nshared, i8)
+    
+    if (pe_rank .eq. 0) then
+       call MPI_Reduce(MPI_IN_PLACE, glb_nlocal, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+       
+       call MPI_Reduce(MPI_IN_PLACE, glb_nshared, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+    else
+       call MPI_Reduce(glb_nlocal, glb_nlocal, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+       
+       call MPI_Reduce(glb_nshared, glb_nshared, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+    end if
 
     write(log_buf, '(A,I12)') 'Avg. internal: ', glb_nlocal/pe_size
     call neko_log%message(log_buf)
