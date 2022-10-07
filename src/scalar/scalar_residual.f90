@@ -30,54 +30,51 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines Pressure residual factory for the Pn-Pn formulation
-module pnpn_res_fctry
-  use neko_config
-  use utils
-  use pnpn_residual
-  use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
-  use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t
-  use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
+!> Defines the residual for the scalar transport equation
+module scalar_residual
+  use gather_scatter, only : gs_t  
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use source_scalar, only : source_scalar_t
+  use facet_normal, only : facet_normal_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp
   implicit none
-
-contains
-
-  subroutine pnpn_prs_res_factory(prs_res)
-    class(pnpn_prs_res_t), allocatable, intent(inout) :: prs_res
-
-    if (allocated(prs_res)) then
-       deallocate(prs_res)
-    end if
-
-    
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(pnpn_prs_res_sx_t::prs_res)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(pnpn_prs_res_device_t::prs_res)
-    else
-       allocate(pnpn_prs_res_cpu_t::prs_res)
-    end if
-    
-  end subroutine pnpn_prs_res_factory
   
-  subroutine pnpn_vel_res_factory(vel_res)
-    class(pnpn_vel_res_t), allocatable, intent(inout) :: vel_res
-
-    if (allocated(vel_res)) then
-       deallocate(vel_res)
-    end if
-
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(pnpn_vel_res_sx_t::vel_res)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(pnpn_vel_res_device_t::vel_res)
-    else
-       allocate(pnpn_vel_res_cpu_t::vel_res)
-    end if
-       
+  !> Abstract type to compute scalar residual
+  type, abstract :: scalar_residual_t
+   contains
+     procedure(scalar_residual_interface), nopass, deferred :: compute
+  end type scalar_residual_t
     
-  end subroutine pnpn_vel_res_factory
-  
-end module pnpn_res_fctry
+  abstract interface
+     subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd,&
+                dt, n)
+       import field_t
+       import Ax_t
+       import gs_t
+       import facet_normal_t
+       import source_scalar_t
+       import space_t              
+       import coef_t
+       import mesh_t
+       import rp
+       class(ax_t), intent(in) :: Ax
+       type(mesh_t), intent(inout) :: msh
+       type(space_t), intent(inout) :: Xh    
+       type(field_t), intent(inout) :: s
+       type(field_t), intent(inout) :: s_res
+       type(source_scalar_t), intent(inout) :: f_Xh
+       type(coef_t), intent(inout) :: c_Xh
+       real(kind=rp), intent(in) :: Pr
+       real(kind=rp), intent(in) :: Re
+       real(kind=rp), intent(in) :: rho
+       real(kind=rp), intent(in) :: bd
+       real(kind=rp), intent(in) :: dt
+       integer, intent(in) :: n
+     end subroutine scalar_residual_interface
+  end interface
+ 
+end module scalar_residual

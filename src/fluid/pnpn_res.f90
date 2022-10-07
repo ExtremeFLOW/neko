@@ -54,6 +54,7 @@ module pnpn_residual
    contains
      procedure(vel_res), nopass, deferred :: compute
   end type pnpn_vel_res_t
+
     
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, &
@@ -111,6 +112,7 @@ module pnpn_residual
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n
      end subroutine vel_res
+
   end interface
  
 end module pnpn_residual

@@ -31,53 +31,33 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
-module pnpn_res_fctry
+module scalar_residual_fctry
   use neko_config
-  use utils
-  use pnpn_residual
-  use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
-  use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t
-  use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
+  use scalar_residual
+  use scalar_residual_device, only : scalar_residual_device_t
+  use scalar_residual_cpu, only : scalar_residual_cpu_t
+  use scalar_residual_sx, only : scalar_residual_sx_t
   implicit none
 
 contains
 
-  subroutine pnpn_prs_res_factory(prs_res)
-    class(pnpn_prs_res_t), allocatable, intent(inout) :: prs_res
-
-    if (allocated(prs_res)) then
-       deallocate(prs_res)
-    end if
-
-    
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(pnpn_prs_res_sx_t::prs_res)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(pnpn_prs_res_device_t::prs_res)
-    else
-       allocate(pnpn_prs_res_cpu_t::prs_res)
-    end if
-    
-  end subroutine pnpn_prs_res_factory
   
-  subroutine pnpn_vel_res_factory(vel_res)
-    class(pnpn_vel_res_t), allocatable, intent(inout) :: vel_res
+  subroutine scalar_residual_factory(scalar_res)
+    class(scalar_residual_t), allocatable, intent(inout) :: scalar_res
 
-    if (allocated(vel_res)) then
-       deallocate(vel_res)
+    if (allocated(scalar_res)) then
+       deallocate(scalar_res)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(pnpn_vel_res_sx_t::vel_res)
+       allocate(scalar_residual_sx_t::scalar_res)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(pnpn_vel_res_device_t::vel_res)
+       allocate(scalar_residual_device_t::scalar_res)
     else
-       allocate(pnpn_vel_res_cpu_t::vel_res)
+       allocate(scalar_residual_cpu_t::scalar_res)
     end if
        
     
-  end subroutine pnpn_vel_res_factory
-  
-end module pnpn_res_fctry
+  end subroutine scalar_residual_factory
+end module scalar_residual_fctry

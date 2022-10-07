@@ -30,54 +30,69 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines Pressure residual factory for the Pn-Pn formulation
-module pnpn_res_fctry
+!> Fluid abbdf factory for the Pn-Pn formulation
+module rhs_maker_fctry
+  use rhs_maker
+  use rhs_maker_cpu
+  use rhs_maker_sx
+  use rhs_maker_device
   use neko_config
-  use utils
-  use pnpn_residual
-  use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
-  use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t
-  use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
   implicit none
 
 contains
 
-  subroutine pnpn_prs_res_factory(prs_res)
-    class(pnpn_prs_res_t), allocatable, intent(inout) :: prs_res
+  subroutine rhs_maker_sumab_fctry(sumab)
+    class(rhs_maker_sumab_t), allocatable, intent(inout) :: sumab
 
-    if (allocated(prs_res)) then
-       deallocate(prs_res)
-    end if
-
-    
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(pnpn_prs_res_sx_t::prs_res)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(pnpn_prs_res_device_t::prs_res)
-    else
-       allocate(pnpn_prs_res_cpu_t::prs_res)
-    end if
-    
-  end subroutine pnpn_prs_res_factory
-  
-  subroutine pnpn_vel_res_factory(vel_res)
-    class(pnpn_vel_res_t), allocatable, intent(inout) :: vel_res
-
-    if (allocated(vel_res)) then
-       deallocate(vel_res)
+    if (allocated(sumab)) then
+       deallocate(sumab)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(pnpn_vel_res_sx_t::vel_res)
+       allocate(rhs_maker_sumab_sx_t::sumab)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &         
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       allocate(rhs_maker_sumab_device_t::sumab)
+    else
+       allocate(rhs_maker_sumab_cpu_t::sumab)
+    end if
+
+  end subroutine rhs_maker_sumab_fctry
+
+  subroutine rhs_maker_ext_fctry(makeabf)
+    class(rhs_maker_ext_t), allocatable, intent(inout) :: makeabf
+
+    if (allocated(makeabf)) then
+       deallocate(makeabf)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(rhs_maker_ext_sx_t::makeabf)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(pnpn_vel_res_device_t::vel_res)
+       allocate(rhs_maker_ext_device_t::makeabf)
     else
-       allocate(pnpn_vel_res_cpu_t::vel_res)
+       allocate(rhs_maker_ext_cpu_t::makeabf)
     end if
-       
-    
-  end subroutine pnpn_vel_res_factory
-  
-end module pnpn_res_fctry
+
+  end subroutine rhs_maker_ext_fctry
+
+  subroutine rhs_maker_bdf_fctry(makebdf)
+    class(rhs_maker_bdf_t), allocatable, intent(inout) :: makebdf
+
+    if (allocated(makebdf)) then
+       deallocate(makebdf)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(rhs_maker_bdf_sx_t::makebdf)
+    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       allocate(rhs_maker_bdf_device_t::makebdf)
+    else       
+       allocate(rhs_maker_bdf_cpu_t::makebdf)
+    end if
+
+  end subroutine rhs_maker_bdf_fctry
+
+end module rhs_maker_fctry

@@ -349,5 +349,5 @@ contains
 #endif
     
   end subroutine pnpn_vel_res_device_compute
-  
+
 end module pnpn_res_device
