@@ -146,9 +146,12 @@ contains
 
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
-       call device_memcpy(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
-       call device_memcpy(this%swplen, this%swplen_d,Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE) 
+       call device_memcpy(this%s, this%s_d, &
+            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+       call device_memcpy(this%d, this%d_d, &
+            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+       call device_memcpy(this%swplen, this%swplen_d, &
+            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE) 
     end if
   end subroutine fdm_init
 
@@ -188,11 +191,11 @@ contains
             end do
          end do
          if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
-            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), HOST_TO_DEVICE)
+            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), DEVICE_TO_HOST)
          else
-            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
          end if
 
          do e = 1,nelv
@@ -215,11 +218,11 @@ contains
 
          if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
               .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,HOST_TO_DEVICE)
-            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%n_dofs,DEVICE_TO_HOST)
+            call device_memcpy(l, this%swplen_d, this%dof%size(),HOST_TO_DEVICE)
+            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
+            call device_memcpy(l, this%swplen_d, this%dof%size(),DEVICE_TO_HOST)
          else
-            call gs_op(this%gs_h, l, this%dof%n_dofs, GS_OP_ADD)
+            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
          end if
 
          do e = 1,nelv

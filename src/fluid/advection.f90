@@ -92,7 +92,7 @@ module advection
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        type(field_t), intent(inout) :: vx, vy, vz
-       integer, intent(inout) :: n
+       integer, intent(in) :: n
        real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
      end subroutine apply_adv
   end interface
@@ -143,11 +143,11 @@ contains
     class(adv_no_dealias_t) :: this
     type(coef_t) :: coef
 
-    allocate(this%temp(coef%dof%n_dofs))
+    allocate(this%temp(coef%dof%size()))
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_map(this%temp, this%temp_d, coef%dof%n_dofs)
+       call device_map(this%temp, this%temp_d, coef%dof%size())
     end if
 
   end subroutine init_no_dealias
@@ -211,7 +211,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tbfx, tbfy, tbfz 
@@ -327,7 +327,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
     type(c_ptr) :: bfx_d, bfy_d, bfz_d
 

@@ -208,17 +208,17 @@ contains
 
   !> Gather kernel
   subroutine gs_gather_device(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
-    integer, intent(inout) :: m
-    integer, intent(inout) :: n
-    integer, intent(inout) :: nb
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     class(gs_device_t), intent(inout) :: this
     real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(inout) :: o
-    integer, intent(inout) :: op
+    integer, intent(in) :: o
+    integer, intent(in) :: op
     logical, intent(in) :: shrd
     integer :: i
     type(c_ptr) :: u_d

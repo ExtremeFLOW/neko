@@ -95,7 +95,7 @@ contains
             coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv, Xh%lx)
     end select
     
-    if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%n_dofs)
+    if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())
     
  
   end subroutine ax_helm_compute

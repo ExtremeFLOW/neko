@@ -196,7 +196,7 @@ contains
     call bc_list_add(this%bclst_vel_residual, this%bc_vel_residual)
 
     !Intialize projection space thingy
-    call this%proj%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
+    call this%proj%init(this%dm_Xh%size(), param%proj_prs_dim)
 
     !Initialize vol_flow (if there is a forced voume flow)
     this%flow_dir = param%vol_flow_dir
@@ -280,7 +280,7 @@ contains
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
     real(kind=rp), parameter :: one = 1.0
-    n = this%dm_Xh%n_dofs
+    n = this%dm_Xh%size()
     niter = 1000
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -303,7 +303,7 @@ contains
       call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       call this%adv%apply(this%u, this%v, this%w, &
                  f_Xh%u, f_Xh%v, f_Xh%w, &
-                 Xh, this%c_Xh, dm_Xh%n_dofs)
+                 Xh, this%c_Xh, dm_Xh%size())
    
       call makeabf(ta1, ta2, ta3,&
                   this%abx1, this%aby1, this%abz1,&
@@ -327,7 +327,7 @@ contains
       ! compute pressure
       call this%bc_apply_prs()
       call fluid_plan4_pres_setup(c_Xh%h1, c_Xh%h2, params%rho, &
-                                  dm_Xh%n_dofs, c_Xh%ifh2)    
+                                  dm_Xh%size(), c_Xh%ifh2)    
       call fluid_plan4_pres_residual(p, p_res%x, u, v, w, &
                                      u_e, v_e, w_e, &
                                      ta1, ta2, ta3, &
@@ -340,7 +340,7 @@ contains
       !Sets tolerances
       !call ctolspl  (tolspl,respr)
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%n_dofs)
+      call bc_list_apply_scalar(this%bclst_prs, p_res%x, p%dof%size())
 
       if( tstep .gt. 5) call this%proj%project_on(p_res%x, c_Xh, n)
       call this%pc_prs%update()
@@ -354,19 +354,19 @@ contains
       !We only need to update h2 once I think then use the flag to switch on/off
       call fluid_plan4_vel_setup(c_Xh%h1, c_Xh%h2, &
                                  params%Re, params%rho, ab_bdf%bd(1), &
-                                 params%dt, dm_Xh%n_dofs, c_Xh%ifh2)
+                                 params%dt, dm_Xh%size(), c_Xh%ifh2)
     
       call fluid_plan4_vel_residual(Ax, u, v, w, &
                                     u_res, v_res, w_res, &
                                     p, ta1, ta2, ta3, &
-                                    f_Xh, c_Xh, msh, Xh, dm_Xh%n_dofs)
+                                    f_Xh, c_Xh, msh, Xh, dm_Xh%size())
 
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_residual,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, dm_Xh%size())
       call this%pc_vel%update()
 
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
@@ -454,7 +454,7 @@ contains
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(field_t), intent(inout) :: wa1, wa2, wa3
     type(field_t), intent(inout) :: work1, work2
-    real(kind=rp), intent(inout) :: p_res(p%dof%n_dofs)
+    real(kind=rp), intent(inout) :: p_res(p%dof%size())
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
@@ -690,7 +690,7 @@ contains
       call gs_op(this%gs_Xh, w_res, GS_OP_ADD) 
       
       call bc_list_apply_vector(this%bclst_vel,&
-                                u_res%x, v_res%x, w_res%x, this%dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, this%dm_Xh%size())
       call this%pc_vel%update()
 
       ksp_result = this%ksp_vel%solve(this%Ax, this%u_vol, u_res%x, n, &
@@ -732,7 +732,7 @@ contains
       real(kind=rp) :: current_flow, delta_flow, base_flow, scale
       integer :: n, ierr
 
-      n = this%dm_Xh%n_dofs
+      n = this%dm_Xh%size()
 
 !     If either dt or the backwards difference coefficient change,
 !     then recompute base flow solution corresponding to unit forcing:
