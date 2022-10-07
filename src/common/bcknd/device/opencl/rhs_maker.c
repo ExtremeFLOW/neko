@@ -212,16 +212,16 @@ void scalar_rhs_maker_bdf_opencl(void *s_lag, void *s_laglag, void *fs,
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &s_lag));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &s_laglag));
-  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &fs));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &s));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &B));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(real), rho));
-  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(real), dt));
-  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(real), bd2));
-  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(real), bd3));
-  CL_CHECK(clSetKernelArg(kernel, 17, sizeof(real), bd4));
-  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(int), nbd));
-  CL_CHECK(clSetKernelArg(kernel, 19, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &fs));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &s));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &B));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), rho));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(real), dt));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(real), bd2));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(real), bd3));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(real), bd4));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(int), nbd));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
