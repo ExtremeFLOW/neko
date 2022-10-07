@@ -88,7 +88,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makeext_kernel<real> ),
                        nblcks, nthrds, 0, 0,
                        (real *) fs_lag, (real *) fs_laglag, (real *) fs, 
-                       (real *) fs, *rho, *ext1, *ext2, *ext3, *n);      
+                       *rho, *ext1, *ext2, *ext3, *n);      
     HIP_CHECK(hipGetLastError());
   }
   
