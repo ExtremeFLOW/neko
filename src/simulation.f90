@@ -103,16 +103,16 @@ contains
        call neko_log%end_section(log_buf)
 
        ! Scalar step
-       start_time = MPI_WTIME()
-       call neko_log%section('Scalar')       
        if (C%params%scalar) then
+          start_time = MPI_WTIME()
+          call neko_log%section('Scalar')       
           call C%scalar%step(t, tstep, C%ext_bdf)
-       end if
-       end_time = MPI_WTIME()
-       write(log_buf, '(A,E15.7,A,E15.7)') &
-            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-            end_time-start_time
-       call neko_log%end_section(log_buf)
+          end_time = MPI_WTIME()
+          write(log_buf, '(A,E15.7,A,E15.7)') &
+               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+               end_time-start_time
+          call neko_log%end_section(log_buf)
+       end if                 
 
        call neko_log%section('Postprocessing')       
        call C%q%eval(t, C%params%dt)
