@@ -168,7 +168,6 @@ contains
     !
     ! Setup fluid scheme
     !
-    write(*,*) "FLUID INIT"
     call fluid_scheme_factory(C%fluid, trim(fluid_scheme))
     call C%fluid%init(C%msh, lx, C%params)
 
