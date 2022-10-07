@@ -1,4 +1,4 @@
-!> Residuals in the Pn-Pn formulation (CPU version)
+!> Residuals in the Pn-Pn formulation (SX version)
 module scalar_residual_sx
   use gather_scatter
   use scalar_residual
