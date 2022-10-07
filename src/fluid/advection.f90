@@ -48,13 +48,15 @@ module advection
   type, public, abstract :: advection_t
    contains
      procedure(apply_adv), pass(this), deferred :: apply
+     procedure(apply_scalar_adv), pass(this), deferred :: apply_scalar
   end type advection_t
 
   type, public, extends(advection_t) :: adv_no_dealias_t
      real(kind=rp), allocatable :: temp(:)
      type(c_ptr) :: temp_d = C_NULL_PTR
    contains
-     procedure, pass(this) :: apply => advab
+     procedure, pass(this) :: apply => apply_advection_no_dealias
+     procedure, pass(this) :: apply_scalar => apply_scalar_advection_no_dealias
   end type adv_no_dealias_t
 
   type, public, extends(advection_t) :: adv_dealias_t
@@ -75,14 +77,14 @@ module advection
      type(c_ptr) :: vs_d = C_NULL_PTR
      type(c_ptr) :: vt_d = C_NULL_PTR
 
-
    contains
-     procedure, pass(this) :: apply => apply_adv_dealias
+     procedure, pass(this) :: apply => apply_advection_dealias
+     procedure, pass(this) :: apply_scalar => apply_scalar_advection_dealias
      procedure, pass(this) :: init => init_dealias
   end type adv_dealias_t
 
   abstract interface
-     subroutine apply_adv(this, vx, vy, vz, bfx, bfy, bfz, Xh, coef, n)
+     subroutine apply_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
        import :: advection_t
        import :: coef_t
        import :: space_t
@@ -93,8 +95,22 @@ module advection
        type(coef_t), intent(inout) :: coef
        type(field_t), intent(inout) :: vx, vy, vz
        integer, intent(in) :: n
-       real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
+       real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
      end subroutine apply_adv
+     subroutine apply_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
+       import :: advection_t
+       import :: coef_t
+       import :: space_t
+       import :: field_t
+       import :: rp
+       class(advection_t), intent(inout) :: this
+       type(field_t), intent(inout) :: vx, vy, vz
+       type(field_t), intent(inout) :: s
+       real(kind=rp), intent(inout), dimension(n) :: fs
+       type(space_t), intent(inout) :: Xh
+       type(coef_t), intent(inout) :: coef
+       integer, intent(inout) :: n
+     end subroutine apply_scalar_adv
   end interface
 
   public :: advection_factory
@@ -206,18 +222,18 @@ contains
   
   !> Eulerian scheme, add convection term to forcing function
   !! at current time step.
-  subroutine apply_adv_dealias(this, vx, vy, vz, bfx, bfy, bfz, Xh, coef, n)
+  subroutine apply_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
+    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
-    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tbfx, tbfy, tbfz 
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vr, vs, vt
     real(kind=rp), dimension(this%Xh_GLL%lxyz) :: tempx, tempy, tempz
-    type(c_ptr) :: bfx_d, bfy_d, bfz_d
+    type(c_ptr) :: fx_d, fy_d, fz_d
     integer :: e, i, idx, nel, n_GL
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
@@ -225,9 +241,9 @@ contains
     associate(c_GL => this%coef_GL)
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       bfx_d = device_get_ptr(bfx)
-       bfy_d = device_get_ptr(bfy)
-       bfz_d = device_get_ptr(bfz)
+       fx_d = device_get_ptr(fx)
+       fy_d = device_get_ptr(fy)
+       fz_d = device_get_ptr(fz)
        call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
        call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
        call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
@@ -237,7 +253,7 @@ contains
        call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
        call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(bfx_d, this%temp_d, n)
+       call device_sub2(fx_d, this%temp_d, n)
 
 
        call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
@@ -245,14 +261,14 @@ contains
        call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
        call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(bfy_d, this%temp_d, n)
+       call device_sub2(fy_d, this%temp_d, n)
 
        call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
        call device_col3(this%tbf_d, this%vr_d, this%tx_d, n_GL)
        call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
        call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call device_sub2(bfz_d, this%temp_d, n)
+       call device_sub2(fz_d, this%temp_d, n)
 
     else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
@@ -265,7 +281,7 @@ contains
        call addcol3(this%tbf, this%vs, this%ty, n_GL)
        call addcol3(this%tbf, this%vt, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call sub2(bfx, this%temp, n)
+       call sub2(fx, this%temp, n)
 
 
        call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
@@ -273,14 +289,14 @@ contains
        call addcol3(this%tbf, this%vs, this%ty, n_GL)
        call addcol3(this%tbf, this%vt, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call sub2(bfy, this%temp, n)
+       call sub2(fy, this%temp, n)
 
        call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
        call col3(this%tbf, this%vr, this%tx, n_GL)
        call addcol3(this%tbf, this%vs, this%ty, n_GL)
        call addcol3(this%tbf, this%vt, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
-       call sub2(bfz, this%temp, n)
+       call sub2(fz, this%temp, n)
        
     else
 
@@ -291,75 +307,120 @@ contains
 
           call opgrad(vr, vs, vt, tx, c_GL, e, e)
           do i = 1, this%Xh_GL%lxyz
-             tbfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+             tfx(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
           end do
 
           call opgrad(vr, vs, vt, ty, c_GL, e, e)
           do i = 1, this%Xh_GL%lxyz
-             tbfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+             tfy(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
           end do
 
           call opgrad(vr, vs, vt, tz, c_GL, e, e)
           do i = 1, this%Xh_GL%lxyz
-             tbfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
+             tfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
           end do
 
-          call this%GLL_to_GL%map(tempx, tbfx, 1, this%Xh_GLL)
-          call this%GLL_to_GL%map(tempy, tbfy, 1, this%Xh_GLL)
-          call this%GLL_to_GL%map(tempz, tbfz, 1, this%Xh_GLL)
+          call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
+          call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
+          call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
           idx = (e-1)*this%Xh_GLL%lxyz+1
-          call sub2(bfx(idx), tempx, this%Xh_GLL%lxyz)
-          call sub2(bfy(idx), tempy, this%Xh_GLL%lxyz)
-          call sub2(bfz(idx), tempz, this%Xh_GLL%lxyz)
+          call sub2(fx(idx), tempx, this%Xh_GLL%lxyz)
+          call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
+          call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
        end do
     end if
     end associate
 
-  end subroutine apply_adv_dealias
+  end subroutine apply_advection_dealias
 
 
 
   !> Eulerian scheme, add convection term to forcing function
   !! at current time step.
-  subroutine advab(this, vx, vy, vz, bfx, bfy, bfz, Xh, coef, n)
+  subroutine apply_advection_no_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: bfx, bfy, bfz
-    type(c_ptr) :: bfx_d, bfy_d, bfz_d
+    real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
+    type(c_ptr) :: fx_d, fy_d, fz_d
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       bfx_d = device_get_ptr(bfx)
-       bfy_d = device_get_ptr(bfy)
-       bfz_d = device_get_ptr(bfz)
+       fx_d = device_get_ptr(fx)
+       fy_d = device_get_ptr(fy)
+       fz_d = device_get_ptr(fz)
        
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (bfx_d, coef%B_d, this%temp_d, n)
+       call device_subcol3 (fx_d, coef%B_d, this%temp_d, n)
        call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call device_subcol3 (bfy_d, coef%B_d, this%temp_d, n)
+       call device_subcol3 (fy_d, coef%B_d, this%temp_d, n)
        if (coef%Xh%lz .eq. 1) then
           call device_rzero (this%temp_d, n)
        else
           call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call device_subcol3(bfz_d, coef%B_d, this%temp_d, n)
+          call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
        end if
     else
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (bfx, coef%B, this%temp, n)
+       call subcol3 (fx, coef%B, this%temp, n)
        call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (bfy, coef%B, this%temp, n)
+       call subcol3 (fy, coef%B, this%temp, n)
        if (coef%Xh%lz .eq. 1) then
           call rzero (this%temp, n)
        else
           call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call subcol3(bfz, coef%B, this%temp, n)
+          call subcol3(fz, coef%B, this%temp, n)
        end if
     end if
 
-  end subroutine advab
+  end subroutine apply_advection_no_dealias
+
+  subroutine apply_scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
+                                               coef, n)
+    class(adv_no_dealias_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: s
+    integer, intent(inout) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fs
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(c_ptr) :: fs_d
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       fs_d = device_get_ptr(fs)
+       
+       call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
+       call device_subcol3 (fs_d, coef%B_d, this%temp_d, n)
+       if (coef%Xh%lz .eq. 1) then
+          call device_rzero (this%temp_d, n)
+       end if
+    else
+       call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
+
+       ! fs = fs - B*temp
+       call subcol3 (fs, coef%B, this%temp, n)
+       if (coef%Xh%lz .eq. 1) then
+          call rzero (this%temp, n)
+       end if
+    end if
+
+  end subroutine apply_scalar_advection_no_dealias
+
+  subroutine apply_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
+                                            coef, n)
+    class(adv_dealias_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: s
+    integer, intent(inout) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fs
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    type(c_ptr) :: fs_d
+
+  end subroutine apply_scalar_advection_dealias
 
 end module advection

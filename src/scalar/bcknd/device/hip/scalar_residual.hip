@@ -32,41 +32,25 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-template< typename T >
-__global__ void makeabf_kernel(T * __restrict__ abx1,
-                               T * __restrict__ aby1,
-                               T * __restrict__ abz1,
-                               T * __restrict__ abx2,
-                               T * __restrict__ aby2,
-                               T * __restrict__ abz2,
-                               T * __restrict__ bfx,
-                               T * __restrict__ bfy,
-                               T * __restrict__ bfz,
-                               const T rho,
-                               const T ab1,
-                               const T ab2,
-                               const T ab3,
-                               const int n) {
+#include <hip/hip_runtime.h>
+#include <device/device_config.h>
+#include <device/hip/check.h>
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+#include "scalar_residual_update_kernel.h"
 
-  for (int i = idx; i < n; i += str) {
-    T ta1_val = ab2 * abx1[i] + ab3 * abx2[i];
-    T ta2_val = ab2 * aby1[i] + ab3 * aby2[i];
-    T ta3_val = ab2 * abz1[i] + ab3 * abz2[i];
+extern "C" {
 
-    abx2[i] = abx1[i];
-    aby2[i] = aby1[i];
-    abz2[i] = abz1[i];
-    abx1[i] = bfx[i];
-    aby1[i] = bfy[i];
-    abz1[i] = bfz[i];
-
-    bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
-    bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
-    bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
-  }
   
+  void scalar_residual_update_hip(void *s_res, void *f_s,int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_residual_update_kernel<real> ),
+                       nblcks, nthrds, 0, 0,
+                       (real *) s_res, (real *) f_s, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+    
 }
 

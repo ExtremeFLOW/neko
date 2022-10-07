@@ -37,6 +37,7 @@ module fld_file
   use field
   use dofmap
   use fluid_method
+  use scalar
   use mean_flow
   use mean_sqr_flow
   use mesh
@@ -95,6 +96,16 @@ contains
     select type(data)
     type is (field_t)
        p => data
+       msh => p%msh
+       Xh => p%Xh
+       dof => p%dof
+       write_pressure = .true.
+       write_velocity = .false.
+    class is (scalar_scheme_t)
+       u => data%s
+       v => data%s
+       w => data%s
+       p => data%s
        msh => p%msh
        Xh => p%Xh
        dof => p%dof

@@ -57,8 +57,8 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall 
 ! not be used for advertising or product endorsement purposes.
 !
-!> Adams-Bashforth coefs for Backward Differentiation schemes
-module abbdf
+!> Explicit and Backward Differentiation time-integration schemes
+module ext_bdf_scheme
   use neko_config
   use num_types
   use math
@@ -68,41 +68,42 @@ module abbdf
   implicit none
   private
 
-  !> AB-BDF coefficeints
-  type, public :: abbdf_t
-     real(kind=rp), dimension(10) :: ab
-     real(kind=rp), dimension(10) :: bd
+  !> Class storing time-integration coefficients for the explicit extrapolation
+  !! and Backward-differencing schemes. 
+  type, public :: ext_bdf_scheme_t
+     real(kind=rp), dimension(10) :: ext
+     real(kind=rp), dimension(10) :: bdf
      integer :: nab = 0
      integer :: nbd = 0
      integer :: time_order  !< Default is 3
-     type(c_ptr) :: ab_d = C_NULL_PTR !< dev. ptr for coefficients
-     type(c_ptr) :: bd_d = C_NULL_PTR !< dev. ptr for coefficients
+     type(c_ptr) :: ext_d = C_NULL_PTR !< dev. ptr for coefficients
+     type(c_ptr) :: bdf_d = C_NULL_PTR !< dev. ptr for coefficients
    contains
-     procedure, pass(this) :: set_bd => abbdf_set_bd
-     procedure, pass(this) :: set_abbd => abbdf_set_abbd
-     procedure, pass(this) :: set_time_order => abbdf_set_time_order
-     final :: abbdf_free
-  end type abbdf_t
+     procedure, pass(this) :: set_bd => ext_bdf_scheme_set_bdf
+     procedure, pass(this) :: set_abbd => ext_bdf_scheme_set_ext
+     procedure, pass(this) :: set_time_order => ext_bdf_scheme_set_time_order
+     final :: ext_bdf_scheme_free
+  end type ext_bdf_scheme_t
 
 
 contains
 
-  subroutine abbdf_free(this)
-    type(abbdf_t), intent(inout) :: this
+  subroutine ext_bdf_scheme_free(this)
+    type(ext_bdf_scheme_t), intent(inout) :: this
 
-    if (c_associated(this%ab_d)) then
-       call device_free(this%ab_d)
+    if (c_associated(this%ext_d)) then
+       call device_free(this%ext_d)
     end if
        
-    if (c_associated(this%bd_d)) then
-       call device_free(this%bd_d)
+    if (c_associated(this%bdf_d)) then
+       call device_free(this%bdf_d)
     end if
     
-  end subroutine abbdf_free
+  end subroutine ext_bdf_scheme_free
 
-  subroutine abbdf_set_time_order(this,torder)
+  subroutine ext_bdf_scheme_set_time_order(this,torder)
     integer, intent(in) :: torder
-    class(abbdf_t), intent(inout) :: this
+    class(ext_bdf_scheme_t), intent(inout) :: this
     if(torder .le. 3 .and. torder .gt. 0) then
        this%time_order = torder
     else
@@ -112,15 +113,15 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_map(this%ab, this%ab_d, 10)
-       call device_map(this%bd, this%bd_d, 10)
+       call device_map(this%ext, this%ext_d, 10)
+       call device_map(this%bdf, this%bdf_d, 10)
     end if
 
-  end subroutine abbdf_set_time_order
+  end subroutine ext_bdf_scheme_set_time_order
 
   !>Compute backward-differentiation coefficients of order NBD
-  subroutine abbdf_set_bd(this, dtbd)
-    class(abbdf_t), intent(inout) :: this
+  subroutine ext_bdf_scheme_set_bdf(this, dtbd)
+    class(ext_bdf_scheme_t), intent(inout) :: this
     real(kind=rp), intent(inout), dimension(10) :: dtbd
     real(kind=rp), dimension(10,10) :: bdmat
     real(kind=rp), dimension(10) :: bdrhs
@@ -130,7 +131,7 @@ contains
     integer, dimension(10) :: ir, ic
     integer :: ibd, nsys, i
 
-    associate(nbd => this%nbd, bd => this%bd, bd_d => this%bd_d)
+    associate(nbd => this%nbd, bd => this%bdf, bdf_d => this%bdf_d)
       bd_old = bd
       nbd = nbd + 1
       nbd = min(nbd, this%time_order)
@@ -158,14 +159,14 @@ contains
          bd(ibd) = bd(ibd)/bdf
       end do
 
-      if (c_associated(bd_d)) then
+      if (c_associated(bdf_d)) then
          if (maxval(abs(bd - bd_old)) .gt. 1e-10_rp) then
-            call device_memcpy(bd, bd_d, 10, HOST_TO_DEVICE)
+            call device_memcpy(bd, bdf_d, 10, HOST_TO_DEVICE)
          end if
       end if
     end associate
     
-  end subroutine abbdf_set_bd
+  end subroutine ext_bdf_scheme_set_bdf
 
   !>
   !! Compute Adams-Bashforth coefficients (order NAB, less or equal to 3)
@@ -177,31 +178,31 @@ contains
   !! Modified Adams-Bashforth coefficients to be used in con-
   !! junction with Backward Differentiation schemes (order NBD)
   !!
-  subroutine abbdf_set_abbd(this, dtlag)
-    class(abbdf_t), intent(inout)  :: this
+  subroutine ext_bdf_scheme_set_ext(this, dtlag)
+    class(ext_bdf_scheme_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dtlag
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
     real(kind=rp), dimension(10) :: ab_old
-    associate(nab => this%nab, nbd => this%nbd, ab => this%ab, ab_d => this%ab_d)
-      ab_old = ab
+    associate(nab => this%nab, nbd => this%nbd, ext => this%ext, ext_d => this%ext_d)
+      ab_old = ext
       nab = nab + 1
       nab = min(nab, this%time_order)
     
       dt0 = dtlag(1)
       dt1 = dtlag(2)
       dt2 = dtlag(3)
-      call rzero(ab, 10)
+      call rzero(ext, 10)
       
       if (nab .eq. 1) then
-         ab(1) = 1.0_rp
+         ext(1) = 1.0_rp
       else if (nab .eq. 2) then
          dta =  dt0 / dt1
          if (nbd .eq. 1) then
-            ab(2) = -0.5_rp * dta
-            ab(1) =  1.0_rp - ab(2)
+            ext(2) = -0.5_rp * dta
+            ext(1) =  1.0_rp - ext(2)
          else if (nbd .eq. 2) then
-            ab(2) = -dta
-            ab(1) =  1.0_rp - ab(2)
+            ext(2) = -dta
+            ext(1) =  1.0_rp - ext(2)
          endif
       else if (nab .eq. 3) then
          dts =  dt1 + dt2
@@ -211,31 +212,31 @@ contains
          dtd =  dts / dt1
          dte =  dt0 / dts
          if (nbd .eq. 1) then
-            ab(3) =  dte*( 0.5d0*dtb + dtc/3d0 )
-            ab(2) = -0.5_rp * dta - ab(3) * dtd
-            ab(1) =  1.0_rp - ab(2) - ab(3)
+            ext(3) =  dte*( 0.5d0*dtb + dtc/3d0 )
+            ext(2) = -0.5_rp * dta - ext(3) * dtd
+            ext(1) =  1.0_rp - ext(2) - ext(3)
          elseif (nbd .eq. 2) then
-            ab(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
-            ab(2) = -dta - ab(3) * dtd
-            ab(1) =  1.0_rp - ab(2) - ab(3)
+            ext(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
+            ext(2) = -dta - ext(3) * dtd
+            ext(1) =  1.0_rp - ext(2) - ext(3)
          elseif (nbd .eq. 3) then
-            ab(3) =  dte * (dtb + dtc)
-            ab(2) = -dta * (1.0_rp + dtb + dtc)
-            ab(1) =  1.0_rp - ab(2) - ab(3)
+            ext(3) =  dte * (dtb + dtc)
+            ext(2) = -dta * (1.0_rp + dtb + dtc)
+            ext(1) =  1.0_rp - ext(2) - ext(3)
          endif
       endif
 
-      if (c_associated(ab_d)) then
-         if (maxval(abs(ab - ab_old)) .gt. 1e-10_rp) then
-            call device_memcpy(ab, ab_d, 10, HOST_TO_DEVICE)
+      if (c_associated(ext_d)) then
+         if (maxval(abs(ext - ab_old)) .gt. 1e-10_rp) then
+            call device_memcpy(ext, ext_d, 10, HOST_TO_DEVICE)
          end if
       end if
     end associate
     
-  end subroutine abbdf_set_abbd
+  end subroutine ext_bdf_scheme_set_ext
 
   !
-  ! CLEAN UP THIS MESS BELOW, USE LAPACK OR SIMILAR
+  ! todo: CLEAN UP THIS MESS BELOW, USE LAPACK OR SIMILAR
   !
 
 
@@ -380,4 +381,4 @@ contains
   
 
   
-end module abbdf
+end module ext_bdf_scheme

@@ -6,7 +6,7 @@ module device_fluid_plan4
   use field_series
   use facet_normal
   use fluid_aux
-  use abbdf
+  use ext_bdf_scheme
   use projection
   use logger
   use advection
@@ -22,10 +22,10 @@ module device_fluid_plan4
 
 contains
 
-  subroutine device_fluid_plan4_step(this, t, tstep, ab_bdf)
+  subroutine device_fluid_plan4_step(this, t, tstep, ext_bdf)
     class(device_fluid_plan4_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
@@ -43,10 +43,10 @@ contains
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh)
 
-      call device_fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ab_bdf%ab, ab_bdf%nab)
-      call device_fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ab_bdf%ab, ab_bdf%nab)
+      call device_fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ext_bdf%ext, ext_bdf%nab)
+      call device_fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ext_bdf%ext, ext_bdf%nab)
       if (msh%gdim .eq. 3) then
-         call device_fluid_plan4_sumab(w_e%x, w%x, wlag,n, ab_bdf%ab, ab_bdf%nab)
+         call device_fluid_plan4_sumab(w_e%x, w%x, wlag,n, ext_bdf%ext, ext_bdf%nab)
       end if
 
       call f_Xh%eval()
@@ -62,13 +62,13 @@ contains
                           this%abx1, this%aby1, this%abz1,&
                           this%abx2, this%aby2, this%abz2, &
                           f_Xh%u_d, f_Xh%v_d, f_Xh%w_d,&
-                          params%rho, ab_bdf%ab, n, msh%gdim)
+                          params%rho, ext_bdf%ext, n, msh%gdim)
       call device_makebdf(ta1, ta2, ta3,&
                           this%wa1, this%wa2, this%wa3,&
                           c_Xh%h2_d, ulag, vlag, wlag, &
                           f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, u, v, w,&
                           c_Xh%B_d, params%rho, params%dt, &
-                          ab_bdf%bd, ab_bdf%nbd, n, msh%gdim)
+                          ext_bdf%bdf, ext_bdf%nbd, n, msh%gdim)
 
       call ulag%update()
       call vlag%update()
@@ -88,7 +88,7 @@ contains
                                             this%wa1, this%wa2, this%wa3, &
                                             this%work1, this%work2, f_Xh, &
                                             c_Xh, gs_Xh, this%bc_prs_surface, &
-                                            Ax, ab_bdf%bd(1), params%dt, &
+                                            Ax, ext_bdf%bdf(1), params%dt, &
                                             params%Re, params%rho)
 
       !Sets tolerances
@@ -109,7 +109,7 @@ contains
 
       !We only need to update h2 once I think then use the flag to switch on/off
       call device_fluid_plan4_vel_setup(c_Xh%h1_d, c_Xh%h2_d, &
-                                        params%Re, params%rho, ab_bdf%bd(1), &
+                                        params%Re, params%rho, ext_bdf%bd(1), &
                                         params%dt, dm_Xh%size(), c_Xh%ifh2)
     
       call device_fluid_plan4_vel_residual(Ax, u, v, w, &

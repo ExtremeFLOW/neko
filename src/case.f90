@@ -35,6 +35,7 @@ module case
   use num_types
   use fluid_fctry
   use fluid_output
+  use scalar_output
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
@@ -50,26 +51,29 @@ module case
   use utils
   use mesh
   use comm
-  use abbdf
+  use ext_bdf_scheme
   use logger
   use jobctrl
   use user_intf  
+  use scalar_pnpn ! todo directly load the pnpn? can we have other
   implicit none
 
   type :: case_t
      type(mesh_t) :: msh
      type(param_t) :: params
-     type(abbdf_t) :: ab_bdf
+     type(ext_bdf_scheme_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
+     type(scalar_output_t) :: s_out
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
      type(mean_sqr_flow_output_t) :: f_msqrf
      type(stats_t) :: q   
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
+     type(scalar_pnpn_t) :: scalar ! todo: concrete class for now
   end type case_t
 
 contains
@@ -168,6 +172,13 @@ contains
     call C%fluid%init(C%msh, lx, C%params)
 
     !
+    ! Setup scalar scheme
+    !
+    ! todo: no scalar factroy for now, probably not needed
+    if (C%params%scalar) then
+       call C%scalar%init(C%msh, lx, C%params)
+    end if
+    !
     ! Setup user defined conditions    
     !
     if (trim(C%params%fluid_inflow) .eq. 'user') then
@@ -183,6 +194,12 @@ contains
        call C%fluid%set_source(trim(source_term), usr_f_vec=C%usr%fluid_usr_f_vector)
     else
        call C%fluid%set_source(trim(source_term))
+    end if
+
+    ! Setup source term for the scalar
+    ! todo: should be expanded for user sources etc. Now copies the fluid one
+    if (C%params%scalar) then
+       call C%scalar%set_source(trim(source_term))
     end if
 
     !
@@ -214,15 +231,21 @@ contains
        call f%wlag%set(f%w)
     end select
 
+
     !
     ! Validate that the case is properly setup for time-stepping
     !
     call C%fluid%validate
 
+    if (C%params%scalar) then
+       call C%scalar%slag%set(C%scalar%s)
+       call C%scalar%validate
+    end if
+
     !
     ! Set order of timestepper
     !
-    call C%ab_bdf%set_time_order(C%params%time_order)
+    call C%ext_bdf%set_time_order(C%params%time_order)
 
     !
     ! Save boundary markings for fluid (if requested)
@@ -249,6 +272,11 @@ contains
     call C%s%init(C%params%nsamples, C%params%T_end)
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
     call C%s%add(C%f_out)
+
+    if (C%params%scalar) then
+       C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
+       call C%s%add(C%s_out)
+    end if
 
     !
     ! Save checkpoints (if requested)

@@ -69,7 +69,7 @@ module fluid_plan4
   use facet_normal
   use neko_config
   use fluid_aux    
-  use abbdf
+  use ext_bdf_scheme
   use projection
   use logger
   use advection
@@ -272,10 +272,10 @@ contains
     
   end subroutine fluid_plan4_free
   
-  subroutine fluid_plan4_step(this, t, tstep, ab_bdf)
+  subroutine fluid_plan4_step(this, t, tstep, ext_bdf)
     class(fluid_plan4_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
@@ -293,10 +293,10 @@ contains
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh)
 
-      call fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ab_bdf%ab, ab_bdf%nab)
-      call fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ab_bdf%ab, ab_bdf%nab)
+      call fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ext_bdf%ext, ext_bdf%nab)
+      call fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ext_bdf%ext, ext_bdf%nab)
       if (msh%gdim .eq. 3) then
-         call fluid_plan4_sumab(w_e%x, w%x, wlag,n, ab_bdf%ab, ab_bdf%nab)
+         call fluid_plan4_sumab(w_e%x, w%x, wlag,n, ext_bdf%ext, ext_bdf%nab)
       end if
 
       call f_Xh%eval()
@@ -309,13 +309,13 @@ contains
                   this%abx1, this%aby1, this%abz1,&
                   this%abx2, this%aby2, this%abz2, &
                   f_Xh%u, f_Xh%v, f_Xh%w,&
-                  params%rho, ab_bdf%ab, n, msh%gdim)
+                  params%rho, ext_bdf%ext, n, msh%gdim)
       call makebdf(ta1, ta2, ta3,&
                    this%wa1, this%wa2, this%wa3,&
                    c_Xh%h2, ulag, vlag, wlag, &
                    f_Xh%u, f_Xh%v, f_Xh%w, u, v, w,&
                    c_Xh%B, params%rho, params%dt, &
-                   ab_bdf%bd, ab_bdf%nbd, n, msh%gdim)
+                   ext_bdf%bdf, ext_bdf%nbd, n, msh%gdim)
 
       call ulag%update()
       call vlag%update()
@@ -334,7 +334,7 @@ contains
                                      this%wa1, this%wa2, this%wa3, &
                                      this%work1, this%work2, f_Xh, &
                                      c_Xh, gs_Xh, this%bc_prs_surface, &
-                                     Ax, ab_bdf%bd(1), params%dt, &
+                                     Ax, ext_bdf%bdf(1), params%dt, &
                                      params%Re, params%rho)
 
       !Sets tolerances
@@ -353,7 +353,7 @@ contains
     
       !We only need to update h2 once I think then use the flag to switch on/off
       call fluid_plan4_vel_setup(c_Xh%h1, c_Xh%h2, &
-                                 params%Re, params%rho, ab_bdf%bd(1), &
+                                 params%Re, params%rho, ext_bdf%bd(1), &
                                  params%dt, dm_Xh%size(), c_Xh%ifh2)
     
       call fluid_plan4_vel_residual(Ax, u, v, w, &
@@ -379,7 +379,7 @@ contains
       call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, one, n, msh%gdim)
      
       if (this%flow_dir .ne. 0) then
-         call plan4_vol_flow(this, ab_bdf, niter)
+         call plan4_vol_flow(this, ext_bdf, niter)
       end if
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)
@@ -609,13 +609,13 @@ contains
     end if
   end subroutine makeabf
   
-  subroutine plan4_compute_vol_flow(this, ab_bdf, niter)
+  subroutine plan4_compute_vol_flow(this, ext_bdf, niter)
 
 !     Compute pressure and velocity using fractional step method.
 !     (Tombo splitting scheme).
 
     type(fluid_plan4_t), intent(inout) :: this
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(in) :: niter
     integer :: n
     real(kind=rp) :: xlmin, xlmax
@@ -683,7 +683,7 @@ contains
 
       call fluid_plan4_vel_setup(c%h1, c%h2, &
                                  this%params%Re, this%params%rho,&
-                                 ab_bdf%bd(1), &
+                                 ext_bdf%bdf(1), &
                                  this%params%dt, n, c%ifh2)
       call gs_op(this%gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(this%gs_Xh, v_res, GS_OP_ADD) 
@@ -716,7 +716,7 @@ contains
     
   end subroutine  plan4_compute_vol_flow
 
-  subroutine plan4_vol_flow(this, ab_bdf, niter)
+  subroutine plan4_vol_flow(this, ext_bdf, niter)
 !     Adust flow volume at end of time step to keep flow rate fixed by
 !     adding an appropriate multiple of the linear solution to the Stokes
 !     problem arising from a unit forcing in the X-direction.  This assumes
@@ -726,7 +726,7 @@ contains
 !
 !     pff 6/28/98
       type(fluid_plan4_t), intent(inout) :: this
-      type(abbdf_t), intent(inout) :: ab_bdf
+      type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
       integer, intent(in) :: niter
       real(kind=rp) :: ifcomp, flow_rate, xsec
       real(kind=rp) :: current_flow, delta_flow, base_flow, scale
@@ -739,17 +739,17 @@ contains
 
       ifcomp = 0.0_rp
 
-      if (this%params%dt .ne. this%dtlag .or. ab_bdf%bd(1) .ne. this%bdlag) then
+      if (this%params%dt .ne. this%dtlag .or. ext_bdf%bdf(1) .ne. this%bdlag) then
          ifcomp = 1.0_rp
       end if
 
       this%dtlag = this%params%dt
-      this%bdlag = ab_bdf%bd(1)
+      this%bdlag = ext_bdf%bdf(1)
 
       call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       if (ifcomp .gt. 0d0) then
-         call plan4_compute_vol_flow(this, ab_bdf, niter)
+         call plan4_compute_vol_flow(this, ext_bdf, niter)
       end if
 
       if (this%flow_dir .eq. 1) then
