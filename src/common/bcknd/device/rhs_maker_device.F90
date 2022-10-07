@@ -70,19 +70,6 @@ module rhs_maker_device
   end interface
 
   interface
-!     subroutine rhs_maker_ext_hip(fx_lag_d, fy_lag_d, fz_lag_d, &
-!                                  fx_laglag_d, fy_laglag_d, fz_laglag_d, &
-!                                  fx_d, fy_d, fz_d, &
-!                                  rho, ext1, ext2, ext3, n) &
-!                                  bind(c, name='rhs_maker_ext_hip')
-!       use, intrinsic :: iso_c_binding
-!       import c_rp
-!       type(c_ptr), value :: fx_lag_d, fy_lag_d, fz_lag_d 
-!       type(c_ptr), value :: fx_laglag_d, fy_laglag_d, fz_laglag_d
-!       type(c_ptr), value :: fx_d, fy_d, fz_d
-!       real(c_rp) :: rho, ext1, ext2, ext3
-!       integer(c_int) :: n
-!     end subroutine rhs_maker_ext_hip
      subroutine rhs_maker_ext_hip(abx1_d, aby1_d, abz1_d, &
                                   abx2_d, aby2_d, abz2_d, &
                                   bfx_d, bfy_d, bfz_d, &
