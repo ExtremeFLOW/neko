@@ -170,7 +170,7 @@ contains
     ! todo: not param stuff again, using velocity stuff
     !Intialize projection space thingy
     if (param%proj_vel_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
+       call this%proj_s%init(this%dm_Xh%size(), param%proj_vel_dim)
     end if
 
     ! Add lagged term to checkpoint
@@ -240,7 +240,7 @@ contains
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(1)
-    n = this%dm_Xh%n_dofs
+    n = this%dm_Xh%size()
     niter = 1000
 
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
@@ -266,7 +266,7 @@ contains
       end if
 
       call this%adv%apply_scalar(this%u, this%v, this%w, this%s, f_Xh%s, &
-                                 Xh, this%c_Xh, dm_Xh%n_dofs)
+                                 Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
            params%rho, ext_bdf%ext, n)
@@ -283,12 +283,12 @@ contains
       ! compute scalar residual
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
           params%Re, params%rho, ext_bdf%bdf(1), params%dt, &
-          dm_Xh%n_dofs)
+          dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
 
       call bc_list_apply_scalar(this%bclst_res,&
-           s_res%x, dm_Xh%n_dofs)
+           s_res%x, dm_Xh%size())
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
          call this%proj_s%project_on(s_res%x, c_Xh, n)

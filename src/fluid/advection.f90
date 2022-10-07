@@ -97,6 +97,9 @@ module advection
        integer, intent(in) :: n
        real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
      end subroutine apply_adv
+  end interface
+
+  abstract interface
      subroutine apply_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
        import :: advection_t
        import :: coef_t
@@ -109,7 +112,7 @@ module advection
        real(kind=rp), intent(inout), dimension(n) :: fs
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
-       integer, intent(inout) :: n
+       integer, intent(in) :: n
      end subroutine apply_scalar_adv
   end interface
 
@@ -383,7 +386,7 @@ contains
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
@@ -415,7 +418,7 @@ contains
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef

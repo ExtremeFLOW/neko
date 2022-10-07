@@ -109,7 +109,7 @@ contains
 
       !We only need to update h2 once I think then use the flag to switch on/off
       call device_fluid_plan4_vel_setup(c_Xh%h1_d, c_Xh%h2_d, &
-                                        params%Re, params%rho, ext_bdf%bd(1), &
+                                        params%Re, params%rho, ext_bdf%bdf(1), &
                                         params%dt, dm_Xh%size(), c_Xh%ifh2)
     
       call device_fluid_plan4_vel_residual(Ax, u, v, w, &

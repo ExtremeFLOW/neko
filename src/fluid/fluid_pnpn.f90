@@ -453,7 +453,7 @@ contains
                            u_res, v_res, w_res, &
                            p, ta1, ta2, ta3, &
                            f_Xh, c_Xh, msh, Xh, &
-                           params%Re, params%rho, ext_bdf%bd(1), &
+                           params%Re, params%rho, ext_bdf%bdf(1), &
                            params%dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
