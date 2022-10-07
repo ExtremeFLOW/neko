@@ -106,6 +106,35 @@ __kernel void makeext_kernel(__global real * __restrict__ abx1,
     
 }
 
+__kernel void scalar_makeext_kernel(__global real * __restrict__ abx1,
+                             __global real * __restrict__ aby1,
+                             __global real * __restrict__ abz1,
+                             __global real * __restrict__ abx2,
+                             __global real * __restrict__ aby2,
+                             __global real * __restrict__ abz2,
+                             __global real * __restrict__ bfx,
+                             __global real * __restrict__ bfy,
+                             __global real * __restrict__ bfz,
+                             const real rho,
+                             const real ab1,
+                             const real ab2,
+                             const real ab3,
+                             const int n) {
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    real ta1_val = ext2 * fs_lag[i] + ext3 * fs_laglag[i];
+
+    fs_laglag[i] = fs_lag[i];
+    fs_lag[i] = fs[i];
+
+    fs[i] = (ext1 * fs[i] + ta1_val) * rho;
+  }
+    
+}
+
 __kernel void makebdf_kernel(__global const real * __restrict__ ulag1,
                              __global const real * __restrict__ ulag2,
                              __global const real * __restrict__ vlag1,
@@ -152,6 +181,38 @@ __kernel void makebdf_kernel(__global const real * __restrict__ ulag1,
     bfx[i] = bfx[i] + tb1_val * (rho / dt);
     bfy[i] = bfy[i] + tb2_val * (rho / dt);
     bfz[i] = bfz[i] + tb3_val * (rho / dt);
+  }
+  
+}
+
+__kernel void scalar_makebdf_kernel(__global const real * __restrict__ s_lag,
+                                    __global const real * __restrict__ s_laglag,
+                                    __global real * __restrict__ fs,
+                                    __global const real * __restrict__ s,
+                                    __global const real * __restrict__ B,
+                                    const real rho,
+                                    const real dt,
+                                    const real bd2,
+                                    const real bd3,
+                                    const real bd4,
+                                    const int nbd,
+                                    const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    real tb1_val = s[i] * B[i] * bd2;
+
+    real ta1_val = s_lag[i] * B[i] * bd3;
+
+    tb1_val += ta1_val;
+
+    if (nbd == 3) {
+      tb1_val += s_laglag[i] * B[i] * bd4;
+    }
+    
+    fs[i] = fs[i] + tb1_val * (rho / dt);
   }
   
 }
