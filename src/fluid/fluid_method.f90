@@ -267,7 +267,7 @@ contains
                       'w', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(1.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -277,7 +277,7 @@ contains
 
        call bdry_mask%finalize()
        call bdry_mask%set_g(2.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -286,7 +286,7 @@ contains
                       'o', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(3.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -295,14 +295,14 @@ contains
                       'sym', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(4.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
        call bdry_mask%set_g(5.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -311,7 +311,7 @@ contains
                       'on', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(6.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
     end if
@@ -534,14 +534,14 @@ contains
   subroutine fluid_scheme_bc_apply_vel(this)
     class(fluid_scheme_t), intent(inout) :: this
     call bc_list_apply_vector(this%bclst_vel,&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%n_dofs)
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size())
   end subroutine fluid_scheme_bc_apply_vel
   
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_prs(this)
     class(fluid_scheme_t), intent(inout) :: this
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, this%p%dof%n_dofs)
+    call bc_list_apply_scalar(this%bclst_prs, this%p%x, this%p%dof%size())
   end subroutine fluid_scheme_bc_apply_prs
   
   !> Initialize a linear solver

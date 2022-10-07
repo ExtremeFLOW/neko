@@ -65,17 +65,17 @@ contains
 
   !> Gather kernel
   subroutine gs_gather_cpu(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
-    integer, intent(inout) :: m
-    integer, intent(inout) :: n
-    integer, intent(inout) :: nb
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     class(gs_cpu_t), intent(inout) :: this
     real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(inout) :: o
-    integer, intent(inout) :: op
+    integer, intent(in) :: o
+    integer, intent(in) :: op
     logical, intent(in) :: shrd
     
     select case(op)

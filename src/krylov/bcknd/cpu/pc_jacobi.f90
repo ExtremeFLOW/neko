@@ -83,7 +83,7 @@ contains
   !> The jacobi preconditioner \f$ J z = r \f$
   !! \f$ z = J^{-1}r\f$ where \f$ J^{-1} ~= 1/diag(A) \f$
   subroutine jacobi_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(jacobi_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
@@ -167,10 +167,10 @@ contains
             end do
          end if
       end do
-      call col2(this%d,coef%h1,coef%dof%n_dofs)
-      if (coef%ifh2) call addcol3(this%d,coef%h2,coef%B,coef%dof%n_dofs)
-      call gs_op(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
-      call invcol1(this%d,dof%n_dofs)
+      call col2(this%d,coef%h1,coef%dof%size())
+      if (coef%ifh2) call addcol3(this%d,coef%h2,coef%B,coef%dof%size())
+      call gs_op(gs_h, this%d, dof%size(), GS_OP_ADD)
+      call invcol1(this%d,dof%size())
     end associate
   end subroutine jacobi_update
 

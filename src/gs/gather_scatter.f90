@@ -194,10 +194,10 @@ contains
        ! Select fastest device MPI strategy at runtime
        select type(c => gs%comm)
        type is (gs_device_mpi_t)
-          allocate(tmp(dofmap%n_dofs))
-          call device_map(tmp, tmp_d, dofmap%n_dofs)
+          allocate(tmp(dofmap%size()))
+          call device_map(tmp, tmp_d, dofmap%size())
           tmp = 1.0_rp
-          call device_memcpy(tmp, tmp_d, dofmap%n_dofs, HOST_TO_DEVICE)
+          call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
 
           do i = 1, size(strtgy)          
              c%nb_strtgy = strtgy(i)
@@ -205,7 +205,7 @@ contains
              call MPI_Barrier(NEKO_COMM)
              strtgy_time(i) = MPI_Wtime()
              do j = 1, 100
-                call gs_op_vector(gs, tmp, dofmap%n_dofs, GS_OP_ADD)
+                call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
              end do
              strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
           end do
@@ -307,12 +307,12 @@ contains
     lx = dofmap%Xh%lx
     ly = dofmap%Xh%ly
     lz = dofmap%Xh%lz
-    dm_size = dofmap%n_dofs/lx
+    dm_size = dofmap%size()/lx
 
     call dm%init(dm_size, i)
     !>@note this might be a bit overkill,
     !!but having many collisions makes the init take too long.
-    call sdm%init(dofmap%n_dofs, i)
+    call sdm%init(dofmap%size(), i)
     
 
     call local_dof%init()
@@ -1198,7 +1198,7 @@ contains
   !> Gather-scatter operation on a rank 4 array
   subroutine gs_op_r4(gs, u, n, op)
     type(gs_t), intent(inout) :: gs
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
     integer :: op
 
@@ -1209,7 +1209,7 @@ contains
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op)
     type(gs_t), intent(inout) :: gs
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     integer :: m, l, op, lo, so
     

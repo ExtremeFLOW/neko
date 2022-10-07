@@ -231,7 +231,7 @@ contains
 
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
            (NEKO_BCKND_OPENCL .eq. 1)) then
-         call device_memcpy(this%s%x, this%s%x_d, this%s%dof%n_dofs, &
+         call device_memcpy(this%s%x, this%s%x_d, this%s%dof%size(), &
                             HOST_TO_DEVICE)
       end if
 
@@ -332,7 +332,7 @@ contains
   !! @todo Why can't we call the interface here?
   subroutine scalar_scheme_bc_apply(this)
     class(scalar_scheme_t), intent(inout) :: this
-    call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%n_dofs)
+    call bc_list_apply_scalar(this%bclst, this%s%x, this%dm_Xh%size())
   end subroutine scalar_scheme_bc_apply
   
   !> Initialize a linear solver

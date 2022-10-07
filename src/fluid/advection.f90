@@ -94,9 +94,12 @@ module advection
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        type(field_t), intent(inout) :: vx, vy, vz
-       integer, intent(inout) :: n
+       integer, intent(in) :: n
        real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
      end subroutine apply_adv
+  end interface
+
+  abstract interface
      subroutine apply_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
        import :: advection_t
        import :: coef_t
@@ -109,7 +112,7 @@ module advection
        real(kind=rp), intent(inout), dimension(n) :: fs
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
-       integer, intent(inout) :: n
+       integer, intent(in) :: n
      end subroutine apply_scalar_adv
   end interface
 
@@ -159,11 +162,11 @@ contains
     class(adv_no_dealias_t) :: this
     type(coef_t) :: coef
 
-    allocate(this%temp(coef%dof%n_dofs))
+    allocate(this%temp(coef%dof%size()))
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_map(this%temp, this%temp_d, coef%dof%n_dofs)
+       call device_map(this%temp, this%temp_d, coef%dof%size())
     end if
 
   end subroutine init_no_dealias
@@ -227,7 +230,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz 
@@ -343,7 +346,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     type(c_ptr) :: fx_d, fy_d, fz_d
 
@@ -383,7 +386,7 @@ contains
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
@@ -415,7 +418,7 @@ contains
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef

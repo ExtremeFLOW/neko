@@ -256,13 +256,13 @@ contains
 
     !Intialize projection space thingy
     if (param%proj_prs_dim .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
+       call this%proj_prs%init(this%dm_Xh%size(), param%proj_prs_dim)
     end if
     
     if (param%proj_vel_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
-       call this%proj_v%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
-       call this%proj_w%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
+       call this%proj_u%init(this%dm_Xh%size(), param%proj_vel_dim)
+       call this%proj_v%init(this%dm_Xh%size(), param%proj_vel_dim)
+       call this%proj_w%init(this%dm_Xh%size(), param%proj_vel_dim)
     end if
 
     ! Add lagged term to checkpoint
@@ -360,7 +360,7 @@ contains
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
-    n = this%dm_Xh%n_dofs
+    n = this%dm_Xh%size()
     niter = 1000
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -391,7 +391,7 @@ contains
 
       call this%adv%apply(this%u, this%v, this%w, &
                           f_Xh%u, f_Xh%v, f_Xh%w, &
-                          Xh, this%c_Xh, dm_Xh%n_dofs)
+                          Xh, this%c_Xh, dm_Xh%size())
    
       call makeabf%compute_fluid(ta1, ta2, ta3,&
                            this%abx1, this%aby1, this%abz1,&
@@ -422,7 +422,7 @@ contains
                            params%dt, params%Re, params%rho)
 
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%n_dofs)
+      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
 
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
@@ -454,14 +454,14 @@ contains
                            p, ta1, ta2, ta3, &
                            f_Xh, c_Xh, msh, Xh, &
                            params%Re, params%rho, ext_bdf%bdf(1), &
-                           params%dt, dm_Xh%n_dofs)
+                           params%dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_res,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, dm_Xh%size())
       
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
          call this%proj_u%project_on(u_res%x, c_Xh, n)
