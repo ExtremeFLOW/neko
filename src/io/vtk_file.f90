@@ -141,7 +141,8 @@ contains
     integer :: unit
     type(mesh_t), intent(inout) :: msh
     integer :: i, j, vtk_type
-
+    integer,  dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, &
+                                                         5, 6, 8, 7/)
     ! Dump coordinates
     write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
     do i = 1, msh%mpts
@@ -153,7 +154,8 @@ contains
     j = 0
     do i = 1, msh%nelv
        write(unit, fmt='(I8,8I8)') msh%npts, &
-            (mesh_get_local_point(msh, msh%elements(i)%e%pts(j)%p) - 1, &
+            (mesh_get_local_point(msh, &
+                                  msh%elements(i)%e%pts(vcyc_to_sym(j))%p) - 1, &
             j=1, msh%npts)
     end do
 
