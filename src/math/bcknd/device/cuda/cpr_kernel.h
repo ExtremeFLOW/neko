@@ -36,10 +36,10 @@
  * Device kernel for lcsc3
  */
 template< typename T, const int NXYZ >
-__global__ void lcsc3_kernel(const T * a,
+__global__ void lcsc3_kernel(T * buf_h,
+		             const T * a,
                              const T * b,
-                             const T * c,
-                             T * buf_h) {
+                             const T * c) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -70,8 +70,8 @@ __global__ void lcsc3_kernel(const T * a,
  * Device kernel for lcsum
  */
 template< typename T, const int NXYZ >
-__global__ void lcsum_kernel(const T * a,
-                             T * buf_h) {
+__global__ void lcsum_kernel(T * buf_h,
+		           const T * a) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -102,8 +102,8 @@ __global__ void lcsum_kernel(const T * a,
  * Device kernel for lcmin
  */
 template< typename T, const int NXYZ >
-__global__ void lcmin_kernel(const T * a,
-                             T * buf_h) {
+__global__ void lcmin_kernel(T * buf_h,
+		             const T * a) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -140,8 +140,8 @@ __global__ void lcmin_kernel(const T * a,
  * Device kernel for lcmax
  */
 template< typename T, const int NXYZ >
-__global__ void lcmax_kernel(const T * a,
-                             T * buf_h) {
+__global__ void lcmax_kernel(T * buf_h,
+		             const T * a) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -181,15 +181,15 @@ __global__ void lcmax_kernel(const T * a,
  * buf_h and buf_k must be same size as a and key
  */
 template< typename T, const int NXYZ >
-__global__ void lcsort_abs_kernel(const T * a,
-		             const T * key,
-                             T * buf_h,
-			     T * buf_i,) {
+__global__ void lcsort_abs_kernel(T * buf_h,
+		                  int * buf_i,
+		             const T * a,
+		             const int * key) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   __shared__ T buf[NXYZ];
-  __shared__ T buf_k[NXYZ];
+  __shared__ int buf_k[NXYZ];
   T tmp = 0.0;
   T tmp1 = 0.0;
   T tmp2 = 0.0;
@@ -230,15 +230,15 @@ __global__ void lcsort_abs_kernel(const T * a,
  * buf_h and buf_k must be same size as a and key
  */
 template< typename T, const int NXYZ >
-__global__ void lcsort_bykey_kernel(const T * a,
-		             const T * key,
-                             T * buf_h,
-			     T * buf_i,) {
+__global__ void lcsort_bykey_kernel(T * buf_h,
+		                    int * buf_i,
+				    const T * a,
+		                    const int * key) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
   __shared__ T buf[NXYZ];
-  __shared__ T buf_k[NXYZ];
+  __shared__ int buf_k[NXYZ];
   T tmp = 0.0;
   T tmp1 = 0.0;
   T tmp2 = 0.0;
@@ -252,7 +252,7 @@ __global__ void lcsort_bykey_kernel(const T * a,
 
       	tmp  = buf_k[i];
 
-        if (threadIdx == temp) {
+        if (threadIdx.x == temp) {
           buf_h[idx]= buf[threadIdx.x];
           buf_i[idx]= buf_k[threadIdx.x];
         }

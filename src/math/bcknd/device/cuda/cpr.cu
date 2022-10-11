@@ -42,7 +42,7 @@ extern "C" {
    * Fortran wrapper that  
    * Weighted inner product \f$ a^T b c \f$
    */
-  void cuda_glsc3_elem(void *res, void *a, void *b, void *c,int *lx, int *nelv) {
+  void cuda_lcsc3(void *res, void *a, void *b, void *c,int *lx, int *nelv) {
     const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
     const dim3 nblcks((*nelv), 1, 1);
     const int nb = (*nelv);
@@ -52,12 +52,10 @@ extern "C" {
     real * buf_d;
     CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
      
-    glsc3_elem_kernel<real, 512><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                             (real *) c, buf_d);
+    lcsc3_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a, 
+		                               (real *) b,
+                                               (real *) c);
     CUDA_CHECK(cudaGetLastError());
-
-    //CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
-    //                      cudaMemcpyDeviceToHost));
 
     CUDA_CHECK(cudaMemcpyAsync(res, buf_d, nb * sizeof(real),cudaMemcpyDeviceToDevice));    
 
@@ -66,6 +64,114 @@ extern "C" {
 
   }
   
+
+  /**
+   * Fortran wrapper that  
+   * local sum$
+   */
+  void cuda_lcsum(void *res, void *a,int *lx, int *nelv) {
+    const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
+    const dim3 nblcks((*nelv), 1, 1);
+    const int nb = (*nelv);
+    //const int nxyz = (*lx)*(*lx)*(*lx);
+    
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
+    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+     
+    lcsum_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpyAsync(res, buf_d, nb * sizeof(real),cudaMemcpyDeviceToDevice));    
+
+    free(buf);
+    CUDA_CHECK(cudaFree(buf_d));
+
+  }
+
+
+  /**
+   * Fortran wrapper that  
+   * local min$
+   */
+  void cuda_lcmin(void *res, void *a,int *lx, int *nelv) {
+    const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
+    const dim3 nblcks((*nelv), 1, 1);
+    const int nb = (*nelv);
+    //const int nxyz = (*lx)*(*lx)*(*lx);
+    
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
+    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+     
+    lcmin_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpyAsync(res, buf_d, nb * sizeof(real),cudaMemcpyDeviceToDevice));    
+
+    free(buf);
+    CUDA_CHECK(cudaFree(buf_d));
+
+  }
+
+
+  /**
+   * Fortran wrapper that  
+   * local max$
+   */
+  void cuda_lcmax(void *res, void *a,int *lx, int *nelv) {
+    const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
+    const dim3 nblcks((*nelv), 1, 1);
+    const int nb = (*nelv);
+    //const int nxyz = (*lx)*(*lx)*(*lx);
+    
+    real * buf = (real *) malloc(nb * sizeof(real));
+    real * buf_d;
+    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+     
+    lcmax_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpyAsync(res, buf_d, nb * sizeof(real),cudaMemcpyDeviceToDevice));    
+
+    free(buf);
+    CUDA_CHECK(cudaFree(buf_d));
+
+  }
+
+
+  /**
+   * Fortran wrapper that  
+   * local sort acending order$
+   */
+  void cuda_lcsort_abs(void *asort,void *keysort, void *a, void *key,int *lx, int *nelv) {
+    const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
+    const dim3 nblcks((*nelv), 1, 1);
+    const int nb = (*nelv);
+    //const int nxyz = (*lx)*(*lx)*(*lx);
+     
+    lcsort_abs_kernel<real, 512><<<nblcks, nthrds>>>((real *) asort, (int *) keysort, (real *) a, (int *) key);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+
+  /**
+   * Fortran wrapper that  
+   * local sort by key$
+   */
+  void cuda_lcsort_bykey(void *asort,void *keysort, void *a, void *key,int *lx, int *nelv) {
+    const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
+    const dim3 nblcks((*nelv), 1, 1);
+    const int nb = (*nelv);
+    //const int nxyz = (*lx)*(*lx)*(*lx);
+     
+    lcsort_bykey_kernel<real, 512><<<nblcks, nthrds>>>((real *) asort, (int *) keysort, (real *) a, (int *) key);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+
 
 
 
