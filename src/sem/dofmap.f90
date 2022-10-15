@@ -204,13 +204,12 @@ contains
     Xh => this%Xh
     do il = 1, msh%nelv
        do jl = 1, msh%npts
-          ix = mod(jl - 1, 2)
-          iy = mod(jl - 1, 4)/2
-          iz = (jl - 1)/4
-          this%dof(ix*(Xh%lx - 1) + 1, iy*(Xh%ly - 1) + 1, iz*(Xh%lz - 1) + 1, il) = &
-               & int(msh%elements(il)%e%pts(jl)%p%id(), i8)
-          this%shared_dof(ix*(Xh%lx - 1) + 1, iy*(Xh%ly - 1) + 1, iz*(Xh%lz - 1) + 1, il) = &
-               & mesh_is_shared(msh, msh%elements(il)%e%pts(jl)%p)
+          ix = mod(jl - 1, 2) * (Xh%lx - 1) + 1
+          iy = (mod(jl - 1, 4)/2) *(Xh%ly - 1) + 1
+          iz = ((jl - 1)/4) * (Xh%lz - 1) + 1
+          this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
+          this%shared_dof(ix, iy, iz, il) = &
+               mesh_is_shared(msh, msh%elements(il)%e%pts(jl)%p)
        end do
     end do
   end subroutine dofmap_number_points
