@@ -126,6 +126,7 @@ contains
     type(c_ptr) :: ptr
     integer(c_size_t) :: z_size
     integer :: i
+    real(c_rp) :: dummy
 
     if (present(m_restart)) then
        this%m_restart = m_restart
@@ -142,10 +143,12 @@ contains
        this%M => M_ident
     end if
 
-    allocate(this%w(n))
-    allocate(this%r(n))
-    call device_map(this%w, this%w_d, n)
-    call device_map(this%r, this%r_d, n)
+    allocate(this%w(1))
+    allocate(this%r(1))
+    call device_alloc(this%w_d, int(c_sizeof(dummy) * n, c_size_t))
+    call device_alloc(this%r_d, int(c_sizeof(dummy) * n, c_size_t))
+    call device_associate(this%w, this%w_d)
+    call device_associate(this%r, this%r_d)
     
     allocate(this%c(this%m_restart))
     allocate(this%s(this%m_restart))
@@ -154,22 +157,26 @@ contains
     call device_map(this%s, this%s_d, this%m_restart)
     call device_map(this%gam, this%gam_d, this%m_restart+1)
     
-    allocate(this%z(n,this%m_restart))
-    allocate(this%v(n,this%m_restart))
+    allocate(this%z(1,this%m_restart))
+    allocate(this%v(1,this%m_restart))
     allocate(this%h(this%m_restart,this%m_restart))
     allocate(this%z_d(this%m_restart))
     allocate(this%v_d(this%m_restart))
     allocate(this%h_d(this%m_restart))
     do i = 1, this%m_restart
        this%z_d(i) = c_null_ptr
-       call device_map_r1(this%z(:,i), this%z_d(i), n)
+       call device_alloc(this%z_d(i), int(c_sizeof(dummy) * n, c_size_t))
+       call device_associate(this%z(:,i), this%z_d(i))
+
        this%v_d(i) = c_null_ptr
-       call device_map_r1(this%v(:,i), this%v_d(i), n)
+       call device_alloc(this%v_d(i), int(c_sizeof(dummy) * n, c_size_t))
+       call device_associate(this%v(:,i), this%v_d(i))
+
        this%h_d(i) = c_null_ptr
-       call device_map_r1(this%h(:,i), this%h_d(i), this%m_restart)
+       call device_map(this%h(:,i), this%h_d(i), this%m_restart)
     end do
     
-    z_size = 8*(this%m_restart)
+    z_size = c_sizeof(C_NULL_PTR) * (this%m_restart)
     call device_alloc(this%z_d_d, z_size)
     call device_alloc(this%v_d_d, z_size)
     call device_alloc(this%h_d_d, z_size)
@@ -292,17 +299,17 @@ contains
     integer :: i, j, k
     real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
     logical :: conv
-    type(c_ptr) :: f_d, x_d
+    type(c_ptr) :: f_d
 
     f_d = device_get_ptr(f)
-    x_d = x%x_d
 
     conv = .false.
     iter = 0
 
      associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-          v => this%v, s => this%s, gam => this%gam, &
-          v_d => this%v_d, w_d => this%w_d, r_d => this%r_d)
+          v => this%v, s => this%s, gam => this%gam, v_d => this%v_d, &
+          w_d => this%w_d, r_d => this%r_d, h_d => this%h_d, v_d_d => this%v_d_d, &
+          x_d => x%x_d, z_d_d => this%z_d_d, c_d => this%c_d)
 
        norm_fac = 1.0_rp / sqrt(coef%volume)
        call rzero(gam, this%m_restart + 1)
@@ -316,7 +323,7 @@ contains
 
        call rzero(this%h, this%m_restart**2)
        do j = 1, this%m_restart
-          call device_rzero(this%h_d(j), this%m_restart)
+          call device_rzero(h_d(j), this%m_restart)
        end do
        do while (.not. conv .and. iter .lt. niter)
 
@@ -348,11 +355,11 @@ contains
              call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
              call gs_op(gs_h, w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
-             call device_glsc3_many(h(1,j), w_d, this%v_d_d,coef%mult_d, j, n) 
+             call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n) 
             
-             call device_memcpy_r1(h(:,j), this%h_d(j), j, HOST_TO_DEVICE)
+             call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
 
-             alpha2 = device_gmres_part2(w_d, this%v_d_d, this%h_d(j), coef%mult_d, j, n)
+             alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
              
              alpha = sqrt(alpha2)
              do i=1,j-1
@@ -372,7 +379,7 @@ contains
              c(j) = h(j,j) * temp
              s(j) = alpha  * temp
              h(j,j) = lr
-             call device_memcpy_r1(h(:,j), this%h_d(j), j, HOST_TO_DEVICE)
+             call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
              gam(j+1) = -s(j) * gam(j)
              gam(j)   =  c(j) * gam(j)
              
@@ -399,8 +406,8 @@ contains
              end do
              c(k) = temp / h(k,k)
           end do
-          call device_memcpy(c, this%c_d, j, HOST_TO_DEVICE)
-          call device_add2s2_many(x_d, this%z_d_d,this%c_d, j, n)
+          call device_memcpy(c, c_d, j, HOST_TO_DEVICE)
+          call device_add2s2_many(x_d, z_d_d, c_d, j, n)
        end do
 
      end associate
