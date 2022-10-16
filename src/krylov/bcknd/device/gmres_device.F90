@@ -126,7 +126,6 @@ contains
     type(c_ptr) :: ptr
     integer(c_size_t) :: z_size
     integer :: i
-    real(c_rp) :: dummy
 
     if (present(m_restart)) then
        this%m_restart = m_restart
