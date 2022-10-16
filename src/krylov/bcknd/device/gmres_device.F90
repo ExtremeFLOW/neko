@@ -143,12 +143,10 @@ contains
        this%M => M_ident
     end if
 
-    allocate(this%w(1))
-    allocate(this%r(1))
-    call device_alloc(this%w_d, int(c_sizeof(dummy) * n, c_size_t))
-    call device_alloc(this%r_d, int(c_sizeof(dummy) * n, c_size_t))
-    call device_associate(this%w, this%w_d)
-    call device_associate(this%r, this%r_d)
+    allocate(this%w(n))
+    allocate(this%r(n))
+    call device_map(this%w, this%w_d, n)
+    call device_map(this%r, this%r_d, n)
     
     allocate(this%c(this%m_restart))
     allocate(this%s(this%m_restart))
@@ -157,20 +155,18 @@ contains
     call device_map(this%s, this%s_d, this%m_restart)
     call device_map(this%gam, this%gam_d, this%m_restart+1)
     
-    allocate(this%z(1,this%m_restart))
-    allocate(this%v(1,this%m_restart))
+    allocate(this%z(n,this%m_restart))
+    allocate(this%v(n,this%m_restart))
     allocate(this%h(this%m_restart,this%m_restart))
     allocate(this%z_d(this%m_restart))
     allocate(this%v_d(this%m_restart))
     allocate(this%h_d(this%m_restart))
     do i = 1, this%m_restart
        this%z_d(i) = c_null_ptr
-       call device_alloc(this%z_d(i), int(c_sizeof(dummy) * n, c_size_t))
-       call device_associate(this%z(:,i), this%z_d(i))
+       call device_map(this%z(:,i), this%z_d(i), n)
 
        this%v_d(i) = c_null_ptr
-       call device_alloc(this%v_d(i), int(c_sizeof(dummy) * n, c_size_t))
-       call device_associate(this%v(:,i), this%v_d(i))
+       call device_map(this%v(:,i), this%v_d(i), n)
 
        this%h_d(i) = c_null_ptr
        call device_map(this%h(:,i), this%h_d(i), this%m_restart)
