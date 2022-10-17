@@ -37,10 +37,10 @@
  */
 template< typename T >
 __global__ void gmres_part2_kernel(T  * __restrict__  w,
-                                   T ** __restrict__ v,
-                                   T * const mult,
-                                   T * const h,
-                                   T * buf_h1,
+                                   T * const * __restrict__ v,
+                                   const T * __restrict__ mult,
+                                   const T * __restrict__ h,
+                                   T * __restrict__ buf_h1,
                                    const int j,
                                    const int n) {
 
