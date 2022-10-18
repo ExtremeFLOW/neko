@@ -1,4 +1,4 @@
-##Simulation of flow over a hemispherical roughness on a flat plate
+## Simulation of flow over a hemispherical roughness on a flat plate
 The simulation is carried out with a blasius inflow. Symmetry BC at the lateral boundaries and at the top of the channel. Inspired by the original Nek5000 example and the following research works.
 
 [1] M.S. Acalar and C.R. Smith, "A study of hairpin vortices in a laminar 
