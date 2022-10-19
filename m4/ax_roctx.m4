@@ -8,7 +8,7 @@
 #
 AC_DEFUN([AX_ROCTX],[
         AC_ARG_WITH([roctx],
-                    AC_HELP_STRING([--with-roctx=DIR],
+                    AS_HELP_STRING([--with-roctx=DIR],
                     [Compile with support for ROCTX]),
                     [
                     if test -d "$withval"; then

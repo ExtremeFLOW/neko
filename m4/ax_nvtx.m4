@@ -8,7 +8,7 @@
 #
 AC_DEFUN([AX_NVTX],[
         AC_ARG_WITH([nvtx],
-                    AC_HELP_STRING([--with-nvtx=DIR],
+                    AS_HELP_STRING([--with-nvtx=DIR],
                     [Compile with support for NVTX]),
                     [
                     if test -d "$withval"; then
