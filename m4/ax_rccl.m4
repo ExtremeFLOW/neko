@@ -8,7 +8,7 @@
 #
 AC_DEFUN([AX_RCCL],[
         AC_ARG_WITH([rccl],
-                    AC_HELP_STRING([--with-rccl=DIR],
+                    AS_HELP_STRING([--with-rccl=DIR],
                     [Compile with support for RCCL]),
                     [
                     if test -d "$withval"; then
