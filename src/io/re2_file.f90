@@ -134,10 +134,8 @@ contains
     end if
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
-    print *, 'init mesh'
 
     call mesh_init(msh, ndim, dist)
-    print *, 'inited mesh'
 
     ! Set offset (header)
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE
@@ -307,16 +305,13 @@ contains
     type(htable_pt_t) :: htp
     type(point_t) :: p(8)
     integer :: pt_idx, nelv
-    integer :: i, j, ierr, pt_size
+    integer :: i, j, ierr
 
     
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
-    print *, 'not dead'
-    pt_size = nel
     call htp%init(nel, ndim)
-    print *, 'not dead'
     pt_idx = 0
     if (ndim .eq. 2) then
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size          
@@ -371,7 +366,6 @@ contains
           end do
           deallocate(re2v1_data_xyz)
        else
-          print *, 'not dead2'
           allocate(re2v2_data_xyz(nelv))
           call MPI_File_read_at_all(fh, mpi_offset, &
                re2v2_data_xyz, nelv, MPI_RE2V2_DATA_XYZ, status, ierr)
@@ -382,12 +376,6 @@ contains
                      re2v2_data_xyz(i)%z(j))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             if (htp%get_size() .ne. pt_size) then
-                print *, htp%get_size()
-                pt_size = htp%get_size()
-                print *, log(1.0/pt_size)/log(0.6)
-                print *, i, 'elements'
-             end if
              if(mod(i,nelv/20) .eq. 0) write(*,*) i, 'elements read'
              ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, &
