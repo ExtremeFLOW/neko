@@ -74,7 +74,7 @@ contains
     type(field_t) :: omg1, omg2, omg3, w1, w2
     integer :: n, i
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo
-    n = u%dof%n_dofs
+    n = u%dof%size()
 
     if (mod(tstep,50).ne.0) return
 
