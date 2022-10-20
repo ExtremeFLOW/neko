@@ -217,44 +217,50 @@ contains
           allocate(hex_t::m%elements(i)%e)
        end do
        m%npts = NEKO_HEX_NPTS
+       !> Only intialize if we generate connectivity
+       if (m%lgenc) then
+          allocate(htable_i4t4_t::m%facet_map)
+          select type (fmp => m%facet_map)
+          type is(htable_i4t4_t)
+             call fmp%init(m%nelv, facet_data)
+          end select
 
-       allocate(htable_i4t4_t::m%facet_map)
-       select type (fmp => m%facet_map)
-       type is(htable_i4t4_t)
-          call fmp%init(m%nelv, facet_data)
-       end select
+          allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
 
-       allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
-
-       call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
-       call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+          call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
+          call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+       end if
     else if (m%gdim .eq. 2) then
        do i = 1, m%nelv
           allocate(quad_t::m%elements(i)%e)
        end do
        m%npts = NEKO_QUAD_NPTS
+       if (m%lgenc) then
+          allocate(htable_i4t2_t::m%facet_map)       
+          select type (fmp => m%facet_map)
+          type is(htable_i4t2_t)
+             call fmp%init(m%nelv, facet_data)
+          end select
 
-       allocate(htable_i4t2_t::m%facet_map)       
-       select type (fmp => m%facet_map)
-       type is(htable_i4t2_t)
-          call fmp%init(m%nelv, facet_data)
-       end select
+          allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
 
-       allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
-
-       call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+          call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+       end if
     else
        call neko_error("Invalid dimension")
     end if
 
     !> @todo resize onces final size is known
-    allocate(m%points(m%gdim*m%npts*m%nelv))
+    allocate(m%points(m%npts*m%nelv))
 
     !> @todo resize onces final size is known
-    allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
-    do i = 1, m%gdim*m%npts*m%nelv
-       call m%point_neigh(i)%init()
-    end do
+    !! Only init if we generate connectivity
+    if (m%lgenc) then
+       allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
+       do i = 1, m%gdim*m%npts*m%nelv
+          call m%point_neigh(i)%init()
+       end do
+    end if
 
     allocate(m%facet_type(2 * m%gdim, m%nelv))
     m%facet_type = 0
@@ -1280,12 +1286,12 @@ contains
 
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
-
-    do i = 1, NEKO_HEX_NPTS
-       p_local_idx = mesh_get_local(m, m%points(p(i)))
-       call m%point_neigh(p_local_idx)%push(el_glb_idx)
-    end do
-    
+    if (m%lgenc) then
+       do i = 1, NEKO_HEX_NPTS
+          p_local_idx = mesh_get_local(m, m%points(p(i)))
+          call m%point_neigh(p_local_idx)%push(el_glb_idx)
+       end do
+    end if
     select type(ep)
     type is (hex_t)
        call ep%init(el_glb_idx, &
@@ -1293,16 +1299,18 @@ contains
             m%points(p(3)), m%points(p(4)), &
             m%points(p(5)), m%points(p(6)), &
             m%points(p(7)), m%points(p(8)))
+       
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ep%facet_id(f, i)
+             call mesh_add_face(m, f)
+          end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ep%facet_id(f, i)
-          call mesh_add_face(m, f)
-       end do
-
-       do i = 1, NEKO_HEX_NEDS
-          call ep%edge_id(e, i)
-          call mesh_add_edge(m, e)
-       end do
+          do i = 1, NEKO_HEX_NEDS
+             call ep%edge_id(e, i)
+             call mesh_add_edge(m, e)
+          end do
+       end if
        
     class default
        call neko_error('Invalid element type')
@@ -1628,27 +1636,31 @@ contains
                 call pi%set_id(id)
                 call pj%set_id(id)
                 p_local_idx = mesh_get_local(m, m%points(id))
-                id = ele%id()
-                call m%point_neigh(p_local_idx)%push(id)
-                id = elp%id()
-                call m%point_neigh(p_local_idx)%push(id)
+                if (m%lgenc) then
+                   id = ele%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                   id = elp%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                end if
              end if
           end do
        end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ele%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-          call elp%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-       end do
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ele%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+             call elp%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+          end do
 
-       do i = 1, NEKO_HEX_NEDS
-          call ele%edge_id(et, i)
-          call mesh_add_edge(m, et)
-          call elp%edge_id(et, i)
-          call mesh_add_edge(m, et)
-       end do
+          do i = 1, NEKO_HEX_NEDS
+             call ele%edge_id(et, i)
+             call mesh_add_edge(m, et)
+             call elp%edge_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
     end select
     type is(quad_t)
     select type(elp => m%elements(pe)%e)
@@ -1669,20 +1681,23 @@ contains
                 call pi%set_id(id)
                 call pj%set_id(id)
                 p_local_idx = mesh_get_local(m, m%points(id))
-                id = ele%id()
-                call m%point_neigh(p_local_idx)%push(id)
-                id = elp%id()
-                call m%point_neigh(p_local_idx)%push(id)
+                if (m%lgenc) then
+                   id = ele%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                   id = elp%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                end if
              end if
           end do
        end do
-
-       do i = 1, NEKO_QUAD_NEDS
-          call ele%facet_id(et, i)
-          call mesh_add_edge(m, et)
-          call elp%facet_id(et, i)
-          call mesh_add_edge(m, et)
-       end do
+       if (m%lgenc) then
+          do i = 1, NEKO_QUAD_NEDS
+             call ele%facet_id(et, i)
+             call mesh_add_edge(m, et)
+             call elp%facet_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
     end select
     end select
   end subroutine mesh_create_periodic_ids
