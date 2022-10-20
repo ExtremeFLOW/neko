@@ -235,7 +235,7 @@ class NekoTestBase(rfm.RegressionTest):
 
     @sanity_function
     def normal_end(self):
-        return sn.assert_found('normal end.', self.stdout)
+        return sn.assert_found('Normal end.', self.stdout)
 
     @run_before('performance')
     def set_time_perf(self):
