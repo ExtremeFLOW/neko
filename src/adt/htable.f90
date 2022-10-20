@@ -61,6 +61,7 @@ module htable
      procedure, public, pass(this) :: clear => htable_clear
      procedure, public, pass(this) :: free => htable_free
      procedure, public, pass(this) :: num_entries => htable_num_entries
+     procedure, public, pass(this) :: get_size => htable_size
   end type htable_t
 
   abstract interface
@@ -298,6 +299,14 @@ contains
     entries = this%entries
   end function htable_num_entries
 
+  !> Return total size of htable
+  pure function htable_size(this) result(size)
+    class(htable_t), intent(in) :: this
+    integer :: size
+    size = this%size
+  end function htable_size
+
+
   !> Insert tuple @a (key, value) into the hash table
   recursive subroutine htable_set(this, key, data) 
     class(htable_t), intent(inout) :: this
@@ -307,14 +316,16 @@ contains
     integer index, i, c
 
     c = 0
-    i = (this%size - 1) / 2
+    i = log(1.0/this%size)/log(0.6)
+    !i = (this%size-1)/10
+    index = 0
     
     do while (i .ge. 0)
        index = this%hash(key, c**2)
        if (index .lt. 0) then
           call neko_error("Invalid hash generated")
        end if
-             
+       !> Check if entry at this index is empty or if key matches
        if ((.not. this%t(index)%valid) .or. &
             htable_eq_key(this, index, key)) then
           call htable_set_key(this, index, key)
@@ -1088,7 +1099,7 @@ contains
        mult = 1000003
        hash2 = int(Z'345678')
        do i = 1, 3
-          tmp = transfer(k%x(1), tmp)
+          tmp = transfer(k%x(i), tmp)
           tmp = (tmp + M1) + ishft(tmp, 12)
           tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
           tmp = (tmp + M3) + ishft(tmp, 5)
