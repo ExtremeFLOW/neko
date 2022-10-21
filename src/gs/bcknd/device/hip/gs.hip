@@ -126,14 +126,14 @@ extern "C" {
     if (stream == NULL) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
                          nblcks, nthrds, 0, 0,
-                         (real *) u_d, (real *) buf_d,
-                         (int *) dof_d, n);
+                         (real *) u_d, (real *) buf_d + offset,
+                         (int *) dof_d + offset, n);
     }
     else {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_pack_kernel<real>),
                          nblcks, nthrds, 0, stream,
-                         (real *) u_d, (real *) buf_d,
-                         (int *) dof_d, n);
+                         (real *) u_d, (real *) buf_d + offset,
+                         (int *) dof_d + offset, n);
     }
     HIP_CHECK(hipGetLastError());
   }

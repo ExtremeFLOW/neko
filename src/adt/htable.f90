@@ -61,13 +61,15 @@ module htable
      procedure, public, pass(this) :: clear => htable_clear
      procedure, public, pass(this) :: free => htable_free
      procedure, public, pass(this) :: num_entries => htable_num_entries
+     procedure, public, pass(this) :: get_size => htable_size
   end type htable_t
 
   abstract interface
-     pure function htable_hash(this, k) result(hash)
+     pure function htable_hash(this, k, c) result(hash)
        import htable_t
        class(htable_t), intent(in) :: this
        class(*), intent(in) :: k
+       integer, value :: c
        integer :: hash
      end function htable_hash
   end interface
@@ -297,22 +299,33 @@ contains
     entries = this%entries
   end function htable_num_entries
 
+  !> Return total size of htable
+  pure function htable_size(this) result(size)
+    class(htable_t), intent(in) :: this
+    integer :: size
+    size = this%size
+  end function htable_size
+
+
   !> Insert tuple @a (key, value) into the hash table
   recursive subroutine htable_set(this, key, data) 
     class(htable_t), intent(inout) :: this
     class(*), intent(inout) :: key   !< Table key
     class(*), intent(inout) ::  data !< Data associated with @a key
     class(htable_t), allocatable :: tmp
-    integer index, i
+    integer index, i, c
 
-    index = this%hash(key)
-    if (index .lt. 0) then
-       call neko_error("Invalid hash generated")
-    end if
-    
-    i = (this%size - 1) / 2
+    c = 0
+    i = log(1.0/this%size)/log(0.6)
+    !i = (this%size-1)/10
+    index = 0
     
     do while (i .ge. 0)
+       index = this%hash(key, c**2)
+       if (index .lt. 0) then
+          call neko_error("Invalid hash generated")
+       end if
+       !> Check if entry at this index is empty or if key matches
        if ((.not. this%t(index)%valid) .or. &
             htable_eq_key(this, index, key)) then
           call htable_set_key(this, index, key)
@@ -324,8 +337,8 @@ contains
           this%t(index)%skip = .false.
           return
        end if
-       index = modulo((index + 1), this%size)
        i = i - 1
+       c = c + 1
     end do
 
     select type(key)
@@ -367,16 +380,17 @@ contains
     class(*), intent(inout) :: key  !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
-    integer :: index, i
+    integer :: index, i, c
 
-    index = this%hash(key)
-    if (index .lt. 0) then
-       call neko_error("Invalid hash generated")
-    end if
-
+    c = 0
     i = this%size - 1
     
     do while (i .ge. 0)
+       index = this%hash(key, c**2)
+       if (index .lt. 0) then
+          call neko_error("Invalid hash generated")
+       end if
+
        if (.not. this%t(index)%valid .and. &
             .not. this%t(index)%skip) then
           rcode = 1
@@ -387,8 +401,8 @@ contains
           rcode = 0
           return
        end if
-       index = modulo((index + 1), this%size)
-       i = i - 1 
+       i = i - 1
+       c = c + 1
     end do
     rcode = 1
   end function htable_get
@@ -397,16 +411,17 @@ contains
   subroutine htable_remove(this, key)
     class(htable_t), intent(inout) :: this
     class(*), intent(inout) :: key  !< Key to remove
-    integer :: index, i
+    integer :: index, i, c
 
-    index = this%hash(key)
-    if (index .lt. 0) then
-       call neko_error("Invalid hash generated")
-    end if
-
+    c = 0
     i = this%size - 1
     
     do while (i .ge. 0)
+       index = this%hash(key, c**2)
+       if (index .lt. 0) then
+          call neko_error("Invalid hash generated")
+       end if
+
        if ((this%t(index)%valid) .and. &
             htable_eq_key(this, index, key)) then
           this%t(index)%valid = .false.
@@ -414,8 +429,8 @@ contains
           this%entries = this%entries - 1
           return
        end if
-       index = modulo((index + 1), this%size)
-       i = i - 1 
+       i = i - 1
+       c = c + 1
     end do
   end subroutine htable_remove
 
@@ -724,26 +739,30 @@ contains
   end function htable_i4_get
 
   !> Hash function for an integer based hash table
-  pure function htable_i4_hash(this, k) result(hash)
+  pure function htable_i4_hash(this, k, c) result(hash)
     class(htable_i4_t), intent(in) :: this
     class(*), intent(in) :: k
+    integer, value :: c
     integer :: hash
-    integer, parameter :: M1 = int(Z'7ed55d1')
-    integer, parameter :: M2 = int(Z'c761c23')
-    integer, parameter :: M3 = int(Z'165667b')
-    integer, parameter :: M4 = int(Z'd3a2646')
-    integer, parameter :: M5 = int(Z'fd7046c')
-    integer, parameter :: M6 = int(Z'b55a4f0')
+    integer(kind=i8) :: tmp
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
 
     select type(k)
     type is (integer)
-       hash = (k + M1) + ishft(k, 12)
-       hash = ieor(ieor(hash, M2), ishft(hash, -19))
-       hash = (hash + M3) + ishft(hash, 5)
-       hash = ieor((hash + M4), ishft(hash, 9))
-       hash = (hash + M5) + ishft(hash, 3)
-       hash = ieor(ieor(hash, M6), ishft(hash, -16))
-       hash = modulo(hash, this%size)
+       tmp = int(k, i8)
+       tmp = (k + M1) + ishft(k, 12)
+       tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
+       tmp = (tmp + M3) + ishft(tmp, 5)
+       tmp = ieor((tmp + M4), ishft(tmp, 9))
+       tmp = (tmp + M5) + ishft(tmp, 3)
+       tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
+       tmp = modulo(tmp + int(c, i8), int(this%size, i8))
+       hash = int(tmp, i4)
     class default
        hash = -1
     end select
@@ -836,9 +855,10 @@ contains
   end function htable_i8_get
 
   !> Hash function for an integer*8 based hash table
-  pure function htable_i8_hash(this, k) result(hash)
+  pure function htable_i8_hash(this, k, c) result(hash)
     class(htable_i8_t), intent(in) :: this
     class(*), intent(in) :: k
+    integer, value :: c
     integer :: hash
     integer(kind=i8) :: tmp
     integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
@@ -858,8 +878,8 @@ contains
        tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
        hash = int(modulo(tmp, int(this%size, i8)), i4)
        !> @note I think this hash might be better
-       hash = int(modulo(k * 2654435761_i8, int(this%size, i8)), i4)
-
+       hash = int(modulo((k * 2654435761_i8) + int(c, i8), &
+            int(this%size, i8)), i4)
     class default
        hash = -1
     end select
@@ -962,13 +982,14 @@ contains
   end function htable_r8_get
 
   !> Hash function for a double precision based hash table
-  pure function htable_r8_hash(this, k) result(hash)
+  pure function htable_r8_hash(this, k, c) result(hash)
     class(htable_r8_t), intent(in) :: this
     class(*), intent(in) :: k
+    integer, value :: c
     integer :: hash
     select type(k)
     type is (double precision)
-       hash = modulo(floor((2d0 * abs(fraction(k)) - 1d0) * 2**16), this%size)
+       hash = modulo(floor((2d0 * abs(fraction(k)) - 1d0) * 2**16) + c, this%size)
     class default
        hash = -1
     end select
@@ -1062,25 +1083,25 @@ contains
   end function htable_pt_get
 
   !> Hash function for a point based hash table
-  pure function htable_pt_hash(this, k) result(hash)
+  pure function htable_pt_hash(this, k, c) result(hash)
     class(htable_pt_t), intent(in) :: this
     class(*), intent(in) :: k
+    integer, value :: c
     integer :: hash, i 
     integer(kind=i8) :: hash2, tmp, mult
-    integer(kind=i8), parameter :: M1 = int(Z'7ed55d1')
-    integer(kind=i8), parameter :: M2 = int(Z'c761c23')
-    integer(kind=i8), parameter :: M3 = int(Z'165667b')
-    integer(kind=i8), parameter :: M4 = int(Z'd3a2646')
-    integer(kind=i8), parameter :: M5 = int(Z'fd7046c')
-    integer(kind=i8), parameter :: M6 = int(Z'b55a4f0')
-
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
 
     select type(k)
     type is (point_t)
        mult = 1000003
        hash2 = int(Z'345678')
        do i = 1, 3
-          tmp = transfer(k%x(1), tmp)
+          tmp = transfer(k%x(i), tmp)
           tmp = (tmp + M1) + ishft(tmp, 12)
           tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
           tmp = (tmp + M3) + ishft(tmp, 5)
@@ -1091,11 +1112,11 @@ contains
           mult = mult + 82520 + 8
        end do
        hash2 = hash2 + 97531
-       hash2 = modulo(hash2, int(this%size,i8))
+       hash2 = modulo(hash2 + int(c, i8), int(this%size,i8))
+       hash = int(hash2, i4)
     class default
        hash = -1
     end select
-    hash = hash2
 
   end function htable_pt_hash
 
@@ -1187,34 +1208,37 @@ contains
   end function htable_i4t2_get
 
   !> Hash function for an integer 2-tuple hash table
-  pure function htable_i4t2_hash(this, k) result(hash)
+  pure function htable_i4t2_hash(this, k, c) result(hash)
     class(htable_i4t2_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = int(Z'7ed55d1')
-    integer, parameter :: M2 = int(Z'c761c23')
-    integer, parameter :: M3 = int(Z'165667b')
-    integer, parameter :: M4 = int(Z'd3a2646')
-    integer, parameter :: M5 = int(Z'fd7046c')
-    integer, parameter :: M6 = int(Z'b55a4f0')
+    integer, value :: c
+    integer :: i, hash
+    integer(kind=i8) :: tmp, hash2, mult
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
 
     select type(k)
     type is (tuple_i4_t)
-       mult = 1000003
-       hash = int(Z'345678')
+       mult = int(1000003, i8)
+       hash2 = int(Z'345678', i8)
        do i = 1, 2
-          tmp = k%x(i)
+          tmp = int(k%x(i), i8)
           tmp = (tmp + M1) + ishft(tmp, 12)
           tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
           tmp = (tmp + M3) + ishft(tmp, 5)
           tmp = ieor((tmp + M4), ishft(tmp, 9))
           tmp = (tmp + M5) + ishft(tmp, 3)
           tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
-          hash = ieor(hash, tmp) * mult
-          mult = mult + 82520 + 4
+          hash2 = ieor(hash2, tmp) * mult
+          mult = mult + 82520_i8 + 4_i8
        end do
-       hash = hash + 97531
-       hash = modulo(hash, this%size)
+       hash2 = hash2 + 97531_i8
+       hash2 = modulo(hash2 + int(c, i8), int(this%size, i8))
+       hash = int(hash2, i4)
     class default
        hash = -1
     end select
@@ -1307,34 +1331,37 @@ contains
   end function htable_i4t4_get
 
   !> Hash function for an integer 4-tuple hash table
-  pure function htable_i4t4_hash(this, k) result(hash)
+  pure function htable_i4t4_hash(this, k, c) result(hash)
     class(htable_i4t4_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = int(Z'7ed55d1')
-    integer, parameter :: M2 = int(Z'c761c23')
-    integer, parameter :: M3 = int(Z'165667b')
-    integer, parameter :: M4 = int(Z'd3a2646')
-    integer, parameter :: M5 = int(Z'fd7046c')
-    integer, parameter :: M6 = int(Z'b55a4f0')
-
+    integer, value :: c
+    integer :: i, hash
+    integer(kind=i8) :: tmp, hash2, mult
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
+    
     select type(k)
     type is (tuple4_i4_t)
-       mult = 1000003
-       hash = int(Z'345678')
+       mult = int(1000003, i8)
+       hash2 = int(Z'345678', i8)
        do i = 1, 4
-          tmp = k%x(i)
+          tmp = int(k%x(i), i8)
           tmp = (tmp + M1) + ishft(tmp, 12)
           tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
           tmp = (tmp + M3) + ishft(tmp, 5)
           tmp = ieor((tmp + M4), ishft(tmp, 9))
           tmp = (tmp + M5) + ishft(tmp, 3)
           tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
-          hash = ieor(hash, tmp) * mult
-          mult = mult + 82520 + 8
+          hash2 = ieor(hash2, tmp) * mult
+          mult = mult + 82520_i8 + 8_i8
        end do
-       hash = hash + 97531
-       hash = modulo(hash, this%size)
+       hash2 = hash2 + 97531_i8
+       hash2 = modulo(hash2 + int(c, i8), int(this%size, i8))
+       hash = int(hash2, i4)
     class default
        hash = -1
     end select
@@ -1435,16 +1462,18 @@ contains
   end function htable_cptr_get
 
   !> Hash function for an integer 4-tuple hash table
-  pure function htable_cptr_hash(this, k) result(hash)
+  pure function htable_cptr_hash(this, k, c) result(hash)
     class(htable_cptr_t), intent(in) :: this
     class(*), intent(in) :: k
+    integer, value :: c
     integer :: hash
     integer(kind=i8) :: k_int
 
     select type(k)
     type is (h_cptr_t)
        k_int = transfer(k%ptr, k_int)
-       hash = int(modulo(k_int * 2654435761_i8, int(this%size, i8)), i4)
+       hash = int(modulo(k_int * 2654435761_i8 + int(c, i8),&
+            int(this%size, i8)), i4)
     class default
        hash = -1
     end select

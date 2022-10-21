@@ -31,68 +31,68 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fluid abbdf factory for the Pn-Pn formulation
-module fluid_abbdf_fctry
-  use fluid_abbdf
-  use fluid_abbdf_cpu
-  use fluid_abbdf_sx
-  use fluid_abbdf_device
+module rhs_maker_fctry
+  use rhs_maker
+  use rhs_maker_cpu
+  use rhs_maker_sx
+  use rhs_maker_device
   use neko_config
   implicit none
 
 contains
 
-  subroutine fluid_sumab_fctry(sumab)
-    class(fluid_sumab_t), allocatable, intent(inout) :: sumab
+  subroutine rhs_maker_sumab_fctry(sumab)
+    class(rhs_maker_sumab_t), allocatable, intent(inout) :: sumab
 
     if (allocated(sumab)) then
        deallocate(sumab)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(fluid_sumab_sx_t::sumab)
+       allocate(rhs_maker_sumab_sx_t::sumab)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &         
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(fluid_sumab_device_t::sumab)
+       allocate(rhs_maker_sumab_device_t::sumab)
     else
-       allocate(fluid_sumab_cpu_t::sumab)
+       allocate(rhs_maker_sumab_cpu_t::sumab)
     end if
-    
-  end subroutine fluid_sumab_fctry
 
-  subroutine fluid_makeabf_fctry(makeabf)
-    class(fluid_makeabf_t), allocatable, intent(inout) :: makeabf
+  end subroutine rhs_maker_sumab_fctry
+
+  subroutine rhs_maker_ext_fctry(makeabf)
+    class(rhs_maker_ext_t), allocatable, intent(inout) :: makeabf
 
     if (allocated(makeabf)) then
        deallocate(makeabf)
     end if
-    
+
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(fluid_makeabf_sx_t::makeabf)
+       allocate(rhs_maker_ext_sx_t::makeabf)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(fluid_makeabf_device_t::makeabf)
+       allocate(rhs_maker_ext_device_t::makeabf)
     else
-       allocate(fluid_makeabf_cpu_t::makeabf)
+       allocate(rhs_maker_ext_cpu_t::makeabf)
     end if
-    
-  end subroutine fluid_makeabf_fctry
 
-  subroutine fluid_makebdf_fctry(makebdf)
-    class(fluid_makebdf_t), allocatable, intent(inout) :: makebdf
+  end subroutine rhs_maker_ext_fctry
+
+  subroutine rhs_maker_bdf_fctry(makebdf)
+    class(rhs_maker_bdf_t), allocatable, intent(inout) :: makebdf
 
     if (allocated(makebdf)) then
        deallocate(makebdf)
     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
-       allocate(fluid_makebdf_sx_t::makebdf)
+       allocate(rhs_maker_bdf_sx_t::makebdf)
     else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
-       allocate(fluid_makebdf_device_t::makebdf)
+       allocate(rhs_maker_bdf_device_t::makebdf)
     else       
-       allocate(fluid_makebdf_cpu_t::makebdf)
+       allocate(rhs_maker_bdf_cpu_t::makebdf)
     end if
-    
-  end subroutine fluid_makebdf_fctry
-  
-end module fluid_abbdf_fctry
+
+  end subroutine rhs_maker_bdf_fctry
+
+end module rhs_maker_fctry

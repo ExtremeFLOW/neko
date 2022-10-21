@@ -55,8 +55,8 @@ module opencl_prgm_lib
   !> Device jacobi kernels
   type(c_ptr), bind(c) :: jacobi_program = C_NULL_PTR
 
-  !> Device abbdf kernels
-  type(c_ptr), bind(c) :: abbdf_program = C_NULL_PTR
+  !> Device rhs_maker kernels
+  type(c_ptr), bind(c) :: rhs_maker_program = C_NULL_PTR
 
   !> Device pnpn residual kernels
   type(c_ptr), bind(c) :: pnpn_res_program = C_NULL_PTR
@@ -75,6 +75,9 @@ module opencl_prgm_lib
 
   !> Device coef kernels
   type(c_ptr), bind(c) :: coef_program = C_NULL_PTR
+
+  !> Device scalar residual kernels
+  type(c_ptr), bind(c) :: scalar_residual_program = C_NULL_PTR
 
 contains
 
@@ -192,11 +195,11 @@ contains
        jacobi_program = C_NULL_PTR
     end if
 
-    if (c_associated(abbdf_program)) then
-       if(clReleaseProgram(abbdf_program) .ne. CL_SUCCESS) then
+    if (c_associated(rhs_maker_program)) then
+       if(clReleaseProgram(rhs_maker_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       abbdf_program = C_NULL_PTR
+       rhs_maker_program = C_NULL_PTR
     end if
 
     if (c_associated(pnpn_res_program)) then
@@ -239,6 +242,13 @@ contains
           call neko_error('Failed to release program')
        end if
        coef_program = C_NULL_PTR
+    end if
+
+    if (c_associated(scalar_residual_program)) then
+       if(clReleaseProgram(scalar_residual_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       scalar_residual_program = C_NULL_PTR
     end if
     
   end subroutine opencl_prgm_lib_release

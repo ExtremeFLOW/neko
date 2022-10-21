@@ -217,44 +217,50 @@ contains
           allocate(hex_t::m%elements(i)%e)
        end do
        m%npts = NEKO_HEX_NPTS
+       !> Only intialize if we generate connectivity
+       if (m%lgenc) then
+          allocate(htable_i4t4_t::m%facet_map)
+          select type (fmp => m%facet_map)
+          type is(htable_i4t4_t)
+             call fmp%init(m%nelv, facet_data)
+          end select
 
-       allocate(htable_i4t4_t::m%facet_map)
-       select type (fmp => m%facet_map)
-       type is(htable_i4t4_t)
-          call fmp%init(m%nelv, facet_data)
-       end select
+          allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
 
-       allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
-
-       call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
-       call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+          call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
+          call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+       end if
     else if (m%gdim .eq. 2) then
        do i = 1, m%nelv
           allocate(quad_t::m%elements(i)%e)
        end do
        m%npts = NEKO_QUAD_NPTS
+       if (m%lgenc) then
+          allocate(htable_i4t2_t::m%facet_map)       
+          select type (fmp => m%facet_map)
+          type is(htable_i4t2_t)
+             call fmp%init(m%nelv, facet_data)
+          end select
 
-       allocate(htable_i4t2_t::m%facet_map)       
-       select type (fmp => m%facet_map)
-       type is(htable_i4t2_t)
-          call fmp%init(m%nelv, facet_data)
-       end select
+          allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
 
-       allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
-
-       call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+          call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+       end if
     else
        call neko_error("Invalid dimension")
     end if
 
     !> @todo resize onces final size is known
-    allocate(m%points(m%gdim*m%npts*m%nelv))
+    allocate(m%points(m%npts*m%nelv))
 
     !> @todo resize onces final size is known
-    allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
-    do i = 1, m%gdim*m%npts*m%nelv
-       call m%point_neigh(i)%init()
-    end do
+    !! Only init if we generate connectivity
+    if (m%lgenc) then
+       allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
+       do i = 1, m%gdim*m%npts*m%nelv
+          call m%point_neigh(i)%init()
+       end do
+    end if
 
     allocate(m%facet_type(2 * m%gdim, m%nelv))
     m%facet_type = 0
@@ -379,21 +385,21 @@ contains
        if (m%gdim .eq. 2) then
           m%dfrmd_el(e) = .false.
           u = m%elements(e)%e%pts(2)%p%x - m%elements(e)%e%pts(1)%p%x
-          v = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(1)%p%x
+          v = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
        else
           m%dfrmd_el(e) = .false.
           u = m%elements(e)%e%pts(2)%p%x - m%elements(e)%e%pts(1)%p%x
-          v = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(1)%p%x
+          v = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(1)%p%x
           w = m%elements(e)%e%pts(5)%p%x - m%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
-          u = m%elements(e)%e%pts(8)%p%x - m%elements(e)%e%pts(7)%p%x
-          v = m%elements(e)%e%pts(6)%p%x - m%elements(e)%e%pts(7)%p%x
-          w = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(7)%p%x
+          u = m%elements(e)%e%pts(7)%p%x - m%elements(e)%e%pts(8)%p%x
+          v = m%elements(e)%e%pts(6)%p%x - m%elements(e)%e%pts(8)%p%x
+          w = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(8)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
@@ -1280,12 +1286,12 @@ contains
 
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
-
-    do i = 1, NEKO_HEX_NPTS
-       p_local_idx = mesh_get_local(m, m%points(p(i)))
-       call m%point_neigh(p_local_idx)%push(el_glb_idx)
-    end do
-    
+    if (m%lgenc) then
+       do i = 1, NEKO_HEX_NPTS
+          p_local_idx = mesh_get_local(m, m%points(p(i)))
+          call m%point_neigh(p_local_idx)%push(el_glb_idx)
+       end do
+    end if
     select type(ep)
     type is (hex_t)
        call ep%init(el_glb_idx, &
@@ -1293,16 +1299,18 @@ contains
             m%points(p(3)), m%points(p(4)), &
             m%points(p(5)), m%points(p(6)), &
             m%points(p(7)), m%points(p(8)))
+       
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ep%facet_id(f, i)
+             call mesh_add_face(m, f)
+          end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ep%facet_id(f, i)
-          call mesh_add_face(m, f)
-       end do
-
-       do i = 1, NEKO_HEX_NEDS
-          call ep%edge_id(e, i)
-          call mesh_add_edge(m, e)
-       end do
+          do i = 1, NEKO_HEX_NEDS
+             call ep%edge_id(e, i)
+             call mesh_add_edge(m, e)
+          end do
+       end if
        
     class default
        call neko_error('Invalid element type')
@@ -1543,17 +1551,17 @@ contains
     integer :: pe
     integer :: org_ids(4), pids(4)
     type(point_t), pointer :: pi
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
-    integer, dimension(2, 4) :: edge_nodes = reshape((/1,4,&
-                                                                2,3,&
+    integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+                                                                2,4,&
                                                                 1,2,&
-                                                                4,3 /),&
+                                                                3,4 /),&
                                                                 (/2,4/))
  
     do i = 1, m%periodic%size
@@ -1596,17 +1604,17 @@ contains
     integer :: i, j, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
-    integer, dimension(2, 4) :: edge_nodes = reshape((/1,4,&
-                                                                2,3,&
+    integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+                                                                2,4,&
                                                                 1,2,&
-                                                                4,3 /),&
+                                                                3,4 /),&
                                                                 (/2,4/))
   
     select type(ele => m%elements(e)%e)
@@ -1628,27 +1636,31 @@ contains
                 call pi%set_id(id)
                 call pj%set_id(id)
                 p_local_idx = mesh_get_local(m, m%points(id))
-                id = ele%id()
-                call m%point_neigh(p_local_idx)%push(id)
-                id = elp%id()
-                call m%point_neigh(p_local_idx)%push(id)
+                if (m%lgenc) then
+                   id = ele%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                   id = elp%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                end if
              end if
           end do
        end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ele%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-          call elp%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-       end do
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ele%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+             call elp%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+          end do
 
-       do i = 1, NEKO_HEX_NEDS
-          call ele%edge_id(et, i)
-          call mesh_add_edge(m, et)
-          call elp%edge_id(et, i)
-          call mesh_add_edge(m, et)
-       end do
+          do i = 1, NEKO_HEX_NEDS
+             call ele%edge_id(et, i)
+             call mesh_add_edge(m, et)
+             call elp%edge_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
     end select
     type is(quad_t)
     select type(elp => m%elements(pe)%e)
@@ -1669,20 +1681,23 @@ contains
                 call pi%set_id(id)
                 call pj%set_id(id)
                 p_local_idx = mesh_get_local(m, m%points(id))
-                id = ele%id()
-                call m%point_neigh(p_local_idx)%push(id)
-                id = elp%id()
-                call m%point_neigh(p_local_idx)%push(id)
+                if (m%lgenc) then
+                   id = ele%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                   id = elp%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                end if
              end if
           end do
        end do
-
-       do i = 1, NEKO_QUAD_NEDS
-          call ele%facet_id(et, i)
-          call mesh_add_edge(m, et)
-          call elp%facet_id(et, i)
-          call mesh_add_edge(m, et)
-       end do
+       if (m%lgenc) then
+          do i = 1, NEKO_QUAD_NEDS
+             call ele%facet_id(et, i)
+             call mesh_add_edge(m, et)
+             call elp%facet_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
     end select
     end select
   end subroutine mesh_create_periodic_ids
@@ -1700,12 +1715,12 @@ contains
     integer :: i, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
   
     select type(ele => m%elements(e)%e)

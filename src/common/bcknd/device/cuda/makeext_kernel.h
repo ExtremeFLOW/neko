@@ -33,53 +33,63 @@
 */
 
 template< typename T >
-__global__ void makebdf_kernel(const T * __restrict__ ulag1,
-                               const T * __restrict__ ulag2,
-                               const T * __restrict__ vlag1,
-                               const T * __restrict__ vlag2,
-                               const T * __restrict__ wlag1,
-                               const T * __restrict__ wlag2,
+__global__ void makeext_kernel(T * __restrict__ abx1,
+                               T * __restrict__ aby1,
+                               T * __restrict__ abz1,
+                               T * __restrict__ abx2,
+                               T * __restrict__ aby2,
+                               T * __restrict__ abz2,
                                T * __restrict__ bfx,
                                T * __restrict__ bfy,
                                T * __restrict__ bfz,
-                               const T * __restrict__ u,
-                               const T * __restrict__ v,
-                               const T * __restrict__ w,
-                               const T * __restrict__ B,
                                const T rho,
-                               const T dt,
-                               const T bd2,
-                               const T bd3,
-                               const T bd4,
-                               const int nbd,
+                               const T ab1,
+                               const T ab2,
+                               const T ab3,
                                const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    T tb1_val = u[i] * B[i] * bd2;
-    T tb2_val = v[i] * B[i] * bd2;
-    T tb3_val = w[i] * B[i] * bd2;
+    T ta1_val = ab2 * abx1[i] + ab3 * abx2[i];
+    T ta2_val = ab2 * aby1[i] + ab3 * aby2[i];
+    T ta3_val = ab2 * abz1[i] + ab3 * abz2[i];
 
-    T ta1_val = ulag1[i] * B[i] * bd3;
-    T ta2_val = vlag1[i] * B[i] * bd3;
-    T ta3_val = wlag1[i] * B[i] * bd3;
+    abx2[i] = abx1[i];
+    aby2[i] = aby1[i];
+    abz2[i] = abz1[i];
+    abx1[i] = bfx[i];
+    aby1[i] = bfy[i];
+    abz1[i] = bfz[i];
 
-    tb1_val += ta1_val;
-    tb2_val += ta2_val;
-    tb3_val += ta3_val;
-
-    if (nbd == 3) {
-      tb1_val += ulag2[i] * B[i] * bd4;
-      tb2_val += vlag2[i] * B[i] * bd4;
-      tb3_val += wlag2[i] * B[i] * bd4;
-    }
-    
-    bfx[i] = bfx[i] + tb1_val * (rho / dt);
-    bfy[i] = bfy[i] + tb2_val * (rho / dt);
-    bfz[i] = bfz[i] + tb3_val * (rho / dt);
-  }
-
+    bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
+    bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
+    bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
+  } 
+  
 }
 
+template< typename T >
+__global__ void scalar_makeext_kernel(T * __restrict__ fs_lag,
+                                      T * __restrict__ fs_laglag,
+                                      T * __restrict__ fs,
+                                      const T rho,
+                                      const T ext1,
+                                      const T ext2,
+                                      const T ext3,
+                                      const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    T ta1_val = ext2 * fs_lag[i] + ext3 * fs_laglag[i];
+
+    fs_laglag[i] = fs_lag[i];
+    fs_lag[i] = fs[i];
+
+    fs[i] = (ext1 * fs[i] + ta1_val) * rho;
+  } 
+  
+}

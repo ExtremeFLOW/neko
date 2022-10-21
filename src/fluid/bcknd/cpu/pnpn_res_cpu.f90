@@ -146,5 +146,5 @@ contains
     end do
     
   end subroutine pnpn_vel_res_cpu_compute  
-     
+
 end module pnpn_res_cpu

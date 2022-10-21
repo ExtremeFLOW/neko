@@ -361,16 +361,14 @@ extern "C" {
                        (real *) a, (real *) b,
                        (real *) c, bufred_d, *n);
     HIP_CHECK(hipGetLastError());
-
-    HIP_CHECK(hipMemcpy(bufred, bufred_d, nb * sizeof(real),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0, 0,
+                       bufred_d, nb);
+    HIP_CHECK(hipGetLastError());
+    
+    HIP_CHECK(hipMemcpy(bufred, bufred_d, sizeof(real),
                         hipMemcpyDeviceToHost));
-
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += bufred[i];
-    }
-
-    return res;
+    return bufred[0];
   }
 
   /**
@@ -454,16 +452,14 @@ extern "C" {
                        (real *) a, (real *) b,
                        bufred_d, *n);
     HIP_CHECK(hipGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0, 0,
+                       bufred_d, nb);
+    HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(bufred, bufred_d, nb * sizeof(real),
+    HIP_CHECK(hipMemcpy(bufred, bufred_d, sizeof(real),
                         hipMemcpyDeviceToHost));
-
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += bufred[i];
-    }
-
-    return res;
+    return bufred[0];
   }
 
   /** 
@@ -489,15 +485,14 @@ extern "C" {
                        nblcks, nthrds, 0, 0,
                        (real *) a, bufred_d, *n);
     HIP_CHECK(hipGetLastError());
-
-    HIP_CHECK(hipMemcpy(bufred, bufred_d, nb * sizeof(real),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0, 0,
+                       bufred_d, nb);
+    HIP_CHECK(hipGetLastError());
+    
+    HIP_CHECK(hipMemcpy(bufred, bufred_d,sizeof(real),
                         hipMemcpyDeviceToHost));
 
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += bufred[i];
-    }
-
-    return res;
+    return bufred[0];
   }
 }

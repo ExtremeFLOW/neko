@@ -73,17 +73,17 @@ module gs_bcknd
      subroutine gs_gather(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
        import gs_bcknd_t       
        import rp
-       integer, intent(inout) :: m
-       integer, intent(inout) :: n
-       integer, intent(inout) :: nb
+       integer, intent(in) :: m
+       integer, intent(in) :: n
+       integer, intent(in) :: nb
        class(gs_bcknd_t), intent(inout) :: this
        real(kind=rp), dimension(m), intent(inout) :: v
        integer, dimension(m), intent(inout) :: dg
        real(kind=rp), dimension(n), intent(inout) :: u
        integer, dimension(m), intent(inout) :: gd
        integer, dimension(nb), intent(inout) :: b
-       integer, intent(inout) :: o
-       integer, intent(inout) :: op
+       integer, intent(in) :: o
+       integer, intent(in) :: op
        logical, intent(in) :: shrd    
      end subroutine gs_gather
   end interface

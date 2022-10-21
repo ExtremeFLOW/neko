@@ -49,7 +49,7 @@ module identity
 contains
   !> The (default) naive preconditioner \f$ I z = r \f$
   subroutine ident_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(ident_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r

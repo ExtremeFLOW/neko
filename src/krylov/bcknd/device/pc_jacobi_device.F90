@@ -130,7 +130,7 @@ contains
   !> The jacobi preconditioner \f$ J z = r \f$
   !! \f$ z = J^{-1}r\f$ where \f$ J^{-1} ~= 1/diag(A) \f$
   subroutine device_jacobi_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(device_jacobi_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
@@ -170,15 +170,15 @@ contains
                                 nelv, lx)
 #endif
 
-      call device_col2(this%d_d, coef%h1_d, coef%dof%n_dofs)
+      call device_col2(this%d_d, coef%h1_d, coef%dof%size())
 
       if (coef%ifh2) then
-         call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%n_dofs)
+         call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%size())
       end if
       
-      call gs_op(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
+      call gs_op(gs_h, this%d, dof%size(), GS_OP_ADD)
 
-      call device_invcol1(this%d_d, dof%n_dofs)
+      call device_invcol1(this%d_d, dof%size())
     end associate
   end subroutine device_jacobi_update
 

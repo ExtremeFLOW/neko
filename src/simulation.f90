@@ -34,10 +34,11 @@
 module simulation
   use case
   use gather_scatter
-  use abbdf
+  use ext_bdf_scheme
   use file
   use logger
   use jobctrl
+  use profiler
   implicit none
   private
 
@@ -74,8 +75,11 @@ contains
     call neko_log%end_section()
     call neko_log%newline()
 
+    call profiler_start
+
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()))
+       call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
        cfl = C%fluid%compute_cfl(C%params%dt)
@@ -86,15 +90,29 @@ contains
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%params%dt
        call neko_log%message(log_buf)
- 
-       call simulation_settime(t, C%params%dt, C%ab_bdf, C%tlag, C%dtlag, tstep)
+
+       ! Fluid step 
+       call simulation_settime(t, C%params%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
+
        call neko_log%section('Fluid')       
-       call C%fluid%step(t, tstep, C%ab_bdf)
+       call C%fluid%step(t, tstep, C%ext_bdf)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7,A,E15.7)') &
             'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
             end_time-start_time
        call neko_log%end_section(log_buf)
+
+       ! Scalar step
+       if (C%params%scalar) then
+          start_time = MPI_WTIME()
+          call neko_log%section('Scalar')       
+          call C%scalar%step(t, tstep, C%ext_bdf)
+          end_time = MPI_WTIME()
+          write(log_buf, '(A,E15.7,A,E15.7)') &
+               'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
+               end_time-start_time
+          call neko_log%end_section(log_buf)
+       end if                 
 
        call neko_log%section('Postprocessing')       
        call C%q%eval(t, C%params%dt)
@@ -104,7 +122,10 @@ contains
        call neko_log%end_section()
        
        call neko_log%end()
+       call profiler_end_region
     end do
+
+    call profiler_stop
 
     if (t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
@@ -114,10 +135,10 @@ contains
     
   end subroutine neko_solve
 
-  subroutine simulation_settime(t, dt, ab_bdf, tlag, dtlag, step)
+  subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
     real(kind=rp), intent(inout) :: t
     real(kind=rp), intent(in) :: dt
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     real(kind=rp), dimension(10) :: tlag
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
@@ -137,8 +158,8 @@ contains
 
     t = t + dt
 
-    call ab_bdf%set_bd(dtlag)
-    call ab_bdf%set_abbd(dtlag)
+    call ext_bdf%set_bd(dtlag)
+    call ext_bdf%set_abbd(dtlag)
     
   end subroutine simulation_settime
 

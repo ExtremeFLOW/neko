@@ -9,7 +9,7 @@
 
 AC_DEFUN([AX_CUDA],[
 	AC_ARG_WITH([cuda],
-		    AC_HELP_STRING([--with-cuda=DIR],
+		    AS_HELP_STRING([--with-cuda=DIR],
 		    [Compile with CUDA backend]),
 		    [
 		    if test -d "$withval"; then

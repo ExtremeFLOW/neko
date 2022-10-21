@@ -93,7 +93,7 @@ contains
        call device_cmult(this%mf%x_d, 1.0_rp / this%time, size(this%mf%x))
     else
        this%mf%x = this%mf%x * this%time
-       call add2s2(this%mf%x, this%f%x, k, this%mf%dof%n_dofs)
+       call add2s2(this%mf%x, this%f%x, k, this%mf%dof%size())
        this%time = this%time + k
        this%mf%x = this%mf%x / this%time
     end if

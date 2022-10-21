@@ -8,7 +8,7 @@
 #
 AC_DEFUN([AX_NCCL],[
         AC_ARG_WITH([nccl],
-                    AC_HELP_STRING([--with-nccl=DIR],
+                    AS_HELP_STRING([--with-nccl=DIR],
                     [Compile with support for NCCL]),
                     [
                     if test -d "$withval"; then

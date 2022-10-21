@@ -1,3 +1,4 @@
+AC_PREREQ([2.69])
 AC_INIT([neko],[0.4.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
@@ -8,23 +9,22 @@ AC_PROG_RANLIB
 AC_PROG_INSTALL
 
 AC_ARG_ENABLE(contrib,
-              AC_HELP_STRING([--enable-contrib],
-              [Compile various tools]), 
+              AS_HELP_STRING([--enable-contrib],[Compile various tools]), 
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
 AC_ARG_ENABLE(real,
-	      AC_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
+	      AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
                     sp -- REAL(kind=4)
 	            dp -- REAL(kind=8) (default)
 	            qp -- REAL(kind=16)]),
 	        [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
-              AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
+              AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
               [blk_size=${enableval}], [blk_size="10000"])
 
 AC_ARG_ENABLE(device-mpi,
-	      AC_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
+	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
 	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
 # Test for a sane fortran environment (^-^)
@@ -228,6 +228,12 @@ AX_NCCL
 
 # Checks for RCCL backend
 AX_RCCL
+
+# Checks for NVTX profiling
+AX_NVTX
+
+# Checks for ROCTX profiling
+AX_ROCTX
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])

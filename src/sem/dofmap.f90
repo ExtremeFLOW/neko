@@ -49,11 +49,11 @@ module dofmap
 
   type, public :: dofmap_t
      integer(kind=i8), allocatable :: dof(:,:,:,:)  !< Mapping to unique dof
-     logical, allocatable :: shared_dof(:,:,:,:)   !< True if the dof is shared
-     real(kind=rp), allocatable :: x(:,:,:,:)      !< Mapping to x-coordinates
-     real(kind=rp), allocatable :: y(:,:,:,:)      !< Mapping to y-coordinates
-     real(kind=rp), allocatable :: z(:,:,:,:)      !< Mapping to z-coordinates
-     integer :: n_dofs                             !< Total number of dofs
+     logical, allocatable :: shared_dof(:,:,:,:)    !< True if the dof is shared
+     real(kind=rp), allocatable :: x(:,:,:,:)       !< Mapping to x-coordinates
+     real(kind=rp), allocatable :: y(:,:,:,:)       !< Mapping to y-coordinates
+     real(kind=rp), allocatable :: z(:,:,:,:)       !< Mapping to z-coordinates
+     integer, private :: ntot                       !< Total number of dofs
 
      type(mesh_t), pointer :: msh
      type(space_t), pointer :: Xh
@@ -92,7 +92,7 @@ contains
     this%msh => msh
     this%Xh => Xh
 
-    this%n_dofs = Xh%lx* Xh%ly * Xh%lz * msh%nelv
+    this%ntot = Xh%lx* Xh%ly * Xh%lz * msh%nelv
         
     !
     ! Assign a unique id for all dofs
@@ -131,13 +131,13 @@ contains
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
         (NEKO_BCKND_OPENCL .eq. 1)) then 
-       call device_map(this%x, this%x_d, this%n_dofs)
-       call device_map(this%y, this%y_d, this%n_dofs)
-       call device_map(this%z, this%z_d, this%n_dofs)
+       call device_map(this%x, this%x_d, this%ntot)
+       call device_map(this%y, this%y_d, this%ntot)
+       call device_map(this%z, this%z_d, this%ntot)
 
-       call device_memcpy(this%x, this%x_d, this%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(this%y, this%y_d, this%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(this%z, this%z_d, this%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%x, this%x_d, this%ntot, HOST_TO_DEVICE)
+       call device_memcpy(this%y, this%y_d, this%ntot, HOST_TO_DEVICE)
+       call device_memcpy(this%z, this%z_d, this%ntot, HOST_TO_DEVICE)
     end if
     
   end function dofmap_init
@@ -190,86 +190,28 @@ contains
   pure function dofmap_size(this) result(res)
     class(dofmap_t), intent(in) :: this
     integer :: res
-    res = this%n_dofs
+    res = this%ntot
   end function dofmap_size
 
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
     type(dofmap_t), target :: this
-    integer :: i
+    integer :: il, jl, ix, iy, iz
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
 
     msh => this%msh
     Xh => this%Xh
-    if (msh%gdim .eq. 2) then
-       do i = 1, msh%nelv
-          this%dof(1, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(1)%p%id(), i8)
-          this%dof(Xh%lx, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(2)%p%id(), i8)
-          this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(3)%p%id(), i8)
-
-          this%shared_dof(1, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
-          
-          this%shared_dof(Xh%lx, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
-
-          this%shared_dof(1, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
-          
-          this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
+    do il = 1, msh%nelv
+       do jl = 1, msh%npts
+          ix = mod(jl - 1, 2) * (Xh%lx - 1) + 1
+          iy = (mod(jl - 1, 4)/2) *(Xh%ly - 1) + 1
+          iz = ((jl - 1)/4) * (Xh%lz - 1) + 1
+          this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
+          this%shared_dof(ix, iy, iz, il) = &
+               mesh_is_shared(msh, msh%elements(il)%e%pts(jl)%p)
        end do
-    else    
-       do i = 1, msh%nelv
-          this%dof(1, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(1)%p%id(), i8)
-          this%dof(Xh%lx, 1, 1, i) = &
-               int(msh%elements(i)%e%pts(2)%p%id(), i8)
-          this%dof(1, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(4)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, 1, i) = &
-               int(msh%elements(i)%e%pts(3)%p%id(), i8)
-
-          this%dof(1, 1, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(5)%p%id(), i8)
-          this%dof(Xh%lx, 1, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(6)%p%id(), i8)
-          this%dof(1, Xh%ly, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(8)%p%id(), i8)
-          this%dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-               int(msh%elements(i)%e%pts(7)%p%id(), i8)
-
-          this%shared_dof(1, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(1)%p)
-          
-          this%shared_dof(Xh%lx, 1, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(2)%p)
-
-          this%shared_dof(1, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(4)%p)
-          
-          this%shared_dof(Xh%lx, Xh%ly, 1, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(3)%p)
-
-          this%shared_dof(1, 1, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(5)%p)
-          
-          this%shared_dof(Xh%lx, 1, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(6)%p)
-
-          this%shared_dof(1, Xh%ly, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(8)%p)
-          
-          this%shared_dof(Xh%lx, Xh%ly, Xh%lz, i) = &
-               mesh_is_shared(msh, msh%elements(i)%e%pts(7)%p)
-       end do
-    end if
+    end do
   end subroutine dofmap_number_points
 
   !> Assing numbers to dofs on edges
@@ -782,14 +724,14 @@ contains
     do j = 1, msh%gdim
        xyzb(1,1,1,j) = element%pts(1)%p%x(j)
        xyzb(2,1,1,j) = element%pts(2)%p%x(j)
-       xyzb(1,2,1,j) = element%pts(4)%p%x(j)
-       xyzb(2,2,1,j) = element%pts(3)%p%x(j)
+       xyzb(1,2,1,j) = element%pts(3)%p%x(j)
+       xyzb(2,2,1,j) = element%pts(4)%p%x(j)
 
        if (msh%gdim .gt. 2) then
           xyzb(1,1,2,j) = element%pts(5)%p%x(j)
           xyzb(2,1,2,j) = element%pts(6)%p%x(j)
-          xyzb(1,2,2,j) = element%pts(8)%p%x(j)
-          xyzb(2,2,2,j) = element%pts(7)%p%x(j)
+          xyzb(1,2,2,j) = element%pts(7)%p%x(j)
+          xyzb(2,2,2,j) = element%pts(8)%p%x(j)
        end if
     end do
     if (msh%gdim .eq. 3) then
@@ -1104,45 +1046,55 @@ contains
     real(kind=rp) :: radius, gap, dtheta, r, xys 
     real(kind=rp) :: theta0, xcenn, ycenn, h(Xh%lx, 3, 2)
     real(kind=rp) :: xcrved(Xh%lx), ycrved(Xh%lx), xs, ys
-    integer :: isid1, ixt, iyt, izt, ix, isidt
+    integer :: isid1, ixt, iyt, izt, ix, itmp
+    integer(i4),  dimension(6), parameter :: fcyc_to_sym = (/3, 2, 4, 1, 5, 6/) ! cyclic to symmetric face mapping
+    integer(i4),  dimension(12), parameter :: ecyc_to_sym = (/1, 6, 2, 5, 3, 8, &
+         & 4, 7, 9, 10, 12, 11/) ! cyclic to symmetric edge mapping
+    integer, parameter, dimension(2, 12) :: edge_nodes = reshape((/1, 2, 3, 4, 5, 6, &
+         & 7, 8, 1, 3, 2, 4, 5, 7, 6, 8, 1, 5, 2, 6, 3, 7, 4, 8/), (/2,12/)) ! symmetric edge to vertex mapping
+                                                                           ! copy from hex as this has private attribute there
 
-    pt1x  = element%pts(isid)%p%x(1)
-    pt1y  = element%pts(isid)%p%x(2)
-    if(isid.eq.4) then
-       pt2x  = element%pts(1)%p%x(1)
-       pt2y  = element%pts(1)%p%x(2)
-    else if(isid.eq.8) then
-       pt2x  = element%pts(5)%p%x(1)
-       pt2y  = element%pts(5)%p%x(2)
-    else
-       pt2x  = element%pts(isid+1)%p%x(1)
-       pt2y  = element%pts(isid+1)%p%x(2)
-    end if
-!   find slope of perpendicular
-    radius=curve_data(1)
-    gap=sqrt( (pt1x-pt2x)**2 + (pt1y-pt2y)**2 )
-    if (abs(2.0 * radius) .le. gap * 1.00001) then
-       call neko_error('Radius to small for arced element surface')
-    end if
+    ! this subroutine is a mess of symmetric and cyclic edge/face numberring and
+    ! cannot be cleaned without changing an input format (isid seems to be
+    ! a cyclic edge number)
+    ! following according to cyclic edge numbering and orientation
+    itmp = ecyc_to_sym(isid)
+    select case(isid)
+    case(1:2,5:6)
+       pt1x = element%pts(edge_nodes(1,itmp))%p%x(1)
+       pt1y = element%pts(edge_nodes(1,itmp))%p%x(2)
+       pt2x = element%pts(edge_nodes(2,itmp))%p%x(1)
+       pt2y = element%pts(edge_nodes(2,itmp))%p%x(2)
+    case(3:4,7:8)
+       pt1x = element%pts(edge_nodes(2,itmp))%p%x(1)
+       pt1y = element%pts(edge_nodes(2,itmp))%p%x(2)
+       pt2x = element%pts(edge_nodes(1,itmp))%p%x(1)
+       pt2y = element%pts(edge_nodes(1,itmp))%p%x(2)
+    end select
+    ! find slope of perpendicular
+    radius = curve_data(1)
     xs = pt2y-pt1y
     ys = pt1x-pt2x
-!   make length radius
-    xys=sqrt(xs**2+ys**2)
-!   find center
-    dtheta = abs(asin(0.5*gap/radius))
+    ! make length radius
+    xys = sqrt(xs**2 + ys**2)
+    ! sanity check
+    if (abs(2.0 * radius) <= xys * 1.00001) &
+         & call neko_error('Radius to small for arced element surface')
+    ! find center
+    dtheta = abs(asin(0.5*xys/radius))
     pt12x  = (pt1x + pt2x)/2.0
     pt12y  = (pt1y + pt2y)/2.0
     xcenn  = pt12x - xs/xys * radius*cos(dtheta)
     ycenn  = pt12y - ys/xys * radius*cos(dtheta)
-    theta0 = atan2((pt12y-ycenn),(pt12x-xcenn))
+    theta0 = atan2((pt12y-ycenn), (pt12x-xcenn))
 !   compute perturbation of geometry
     isid1 = mod(isid+4-1, 4)+1
-    call compute_h(h, Xh%zg, gdim, Xh%lx) 
+    call compute_h(h, Xh%zg, gdim, Xh%lx)
+    if (radius < 0.0) dtheta = -dtheta
     do ix=1,Xh%lx
        ixt=ix
        if (isid1.gt.2) ixt=Xh%lx+1-ix
        r=Xh%zg(ix,1)
-       if (radius.lt.0.0) r=-r
        xcrved(ixt) = xcenn + abs(radius) * cos(theta0 + r*dtheta) &
                            - ( h(ix,1,1)*pt1x + h(ix,1,2)*pt2x )
        ycrved(ixt) = ycenn + abs(radius) * sin(theta0 + r*dtheta) &
@@ -1151,21 +1103,7 @@ contains
 !   points all set, add perturbation to current mesh.
 !   LEGACY WARNING
 !   I dont want to dive in this again, Martin Karp 2/3 - 2021
-    isidt = isid1
-    select case(isidt)
-    case (1)
-       isid1 = 3
-    case (2)
-       isid1 = 2
-    case (3)
-       isid1 = 4
-    case (4)
-       isid1 = 1
-    case (5)
-       isid1 = 5
-    case (6)
-       isid1 = 6
-    end select
+    isid1 = fcyc_to_sym(isid1)
     izt = (isid-1)/4+1
     iyt = isid1-2
     ixt = isid1

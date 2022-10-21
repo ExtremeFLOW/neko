@@ -47,9 +47,9 @@ module quad
   !! @details
   !! 2D element composed of 4 points
   !! @verbatim
-  !! Node numbering (NEKTON preprocessor notation)
+  !! Node numbering (NEKTON symmetric notation)
   !!
-  !!      4+-----+3    ^ s                 
+  !!      3+-----+4    ^ s                 
   !!       |     |     |                   
   !!       |     |     |                   
   !!      1+-----+2    +----> r            
@@ -78,10 +78,10 @@ module quad
   !!       +------+      +-----> r            
   !!          3
   !! @endverbatim
-  integer, parameter, dimension(2, 4) :: edge_nodes = reshape((/1,4,&
-                                                                2,3,&
+  integer, parameter, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+                                                                2,4,&
                                                                 1,2,&
-                                                                4,3 /),&
+                                                                3,4 /),&
                                                                 (/2,4/))
   
 contains

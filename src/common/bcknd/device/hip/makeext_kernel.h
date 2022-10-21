@@ -33,7 +33,7 @@
 */
 
 template< typename T >
-__global__ void makeabf_kernel(T * __restrict__ abx1,
+__global__ void makeext_kernel(T * __restrict__ abx1,
                                T * __restrict__ aby1,
                                T * __restrict__ abz1,
                                T * __restrict__ abx2,
@@ -66,7 +66,30 @@ __global__ void makeabf_kernel(T * __restrict__ abx1,
     bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
     bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
     bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
-  } 
+  }
   
 }
 
+template< typename T >
+__global__ void scalar_makeext_kernel(T * __restrict__ fs_lag,
+                                      T * __restrict__ fs_laglag,
+                                      T * __restrict__ fs,
+                                      const T rho,
+                                      const T ext1,
+                                      const T ext2,
+                                      const T ext3,
+                                      const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    T ta1_val = ext2 * fs_lag[i] + ext3 * fs_laglag[i];
+
+    fs_laglag[i] = fs_lag[i];
+    fs_lag[i] = fs[i];
+
+    fs[i] = (ext1 * fs[i] + ta1_val) * rho;
+  } 
+  
+}
