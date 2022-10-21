@@ -137,7 +137,7 @@ contains
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
 
        call device_rzero(this%xbar_d, n)
-       call device_rzero(this%alpha_d, n)
+       call device_rzero(this%alpha_d, this%L)
 
        do i = 1, this%L
           this%xx_d(i) = C_NULL_PTR
