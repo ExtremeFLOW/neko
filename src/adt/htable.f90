@@ -744,22 +744,25 @@ contains
     class(*), intent(in) :: k
     integer, value :: c
     integer :: hash
-    integer, parameter :: M1 = int(Z'7ed55d1')
-    integer, parameter :: M2 = int(Z'c761c23')
-    integer, parameter :: M3 = int(Z'165667b')
-    integer, parameter :: M4 = int(Z'd3a2646')
-    integer, parameter :: M5 = int(Z'fd7046c')
-    integer, parameter :: M6 = int(Z'b55a4f0')
+    integer(kind=i8) :: tmp
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
 
     select type(k)
     type is (integer)
-       hash = (k + M1) + ishft(k, 12)
-       hash = ieor(ieor(hash, M2), ishft(hash, -19))
-       hash = (hash + M3) + ishft(hash, 5)
-       hash = ieor((hash + M4), ishft(hash, 9))
-       hash = (hash + M5) + ishft(hash, 3)
-       hash = ieor(ieor(hash, M6), ishft(hash, -16))
-       hash = modulo(hash + c, this%size)
+       tmp = int(k, i8)
+       tmp = (k + M1) + ishft(k, 12)
+       tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
+       tmp = (tmp + M3) + ishft(tmp, 5)
+       tmp = ieor((tmp + M4), ishft(tmp, 9))
+       tmp = (tmp + M5) + ishft(tmp, 3)
+       tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
+       tmp = modulo(tmp + int(c, i8), int(this%size, i8))
+       hash = int(tmp, i4)
     class default
        hash = -1
     end select
@@ -1086,13 +1089,12 @@ contains
     integer, value :: c
     integer :: hash, i 
     integer(kind=i8) :: hash2, tmp, mult
-    integer(kind=i8), parameter :: M1 = int(Z'7ed55d1')
-    integer(kind=i8), parameter :: M2 = int(Z'c761c23')
-    integer(kind=i8), parameter :: M3 = int(Z'165667b')
-    integer(kind=i8), parameter :: M4 = int(Z'd3a2646')
-    integer(kind=i8), parameter :: M5 = int(Z'fd7046c')
-    integer(kind=i8), parameter :: M6 = int(Z'b55a4f0')
-
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
 
     select type(k)
     type is (point_t)
@@ -1111,10 +1113,10 @@ contains
        end do
        hash2 = hash2 + 97531
        hash2 = modulo(hash2 + int(c, i8), int(this%size,i8))
+       hash = int(hash2, i4)
     class default
        hash = -1
     end select
-    hash = hash2
 
   end function htable_pt_hash
 
@@ -1210,31 +1212,33 @@ contains
     class(htable_i4t2_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
-    integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = int(Z'7ed55d1')
-    integer, parameter :: M2 = int(Z'c761c23')
-    integer, parameter :: M3 = int(Z'165667b')
-    integer, parameter :: M4 = int(Z'd3a2646')
-    integer, parameter :: M5 = int(Z'fd7046c')
-    integer, parameter :: M6 = int(Z'b55a4f0')
+    integer :: i, hash
+    integer(kind=i8) :: tmp, hash2, mult
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
 
     select type(k)
     type is (tuple_i4_t)
-       mult = 1000003
-       hash = int(Z'345678')
+       mult = int(1000003, i8)
+       hash2 = int(Z'345678', i8)
        do i = 1, 2
-          tmp = k%x(i)
+          tmp = int(k%x(i), i8)
           tmp = (tmp + M1) + ishft(tmp, 12)
           tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
           tmp = (tmp + M3) + ishft(tmp, 5)
           tmp = ieor((tmp + M4), ishft(tmp, 9))
           tmp = (tmp + M5) + ishft(tmp, 3)
           tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
-          hash = ieor(hash, tmp) * mult
-          mult = mult + 82520 + 4
+          hash2 = ieor(hash2, tmp) * mult
+          mult = mult + 82520_i8 + 4_i8
        end do
-       hash = hash + 97531
-       hash = modulo(hash + c, this%size)
+       hash2 = hash2 + 97531_i8
+       hash2 = modulo(hash2 + int(c, i8), int(this%size, i8))
+       hash = int(hash2, i4)
     class default
        hash = -1
     end select
@@ -1331,31 +1335,33 @@ contains
     class(htable_i4t4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
-    integer :: i, tmp, mult, hash
-    integer, parameter :: M1 = int(Z'7ed55d1')
-    integer, parameter :: M2 = int(Z'c761c23')
-    integer, parameter :: M3 = int(Z'165667b')
-    integer, parameter :: M4 = int(Z'd3a2646')
-    integer, parameter :: M5 = int(Z'fd7046c')
-    integer, parameter :: M6 = int(Z'b55a4f0')
-
+    integer :: i, hash
+    integer(kind=i8) :: tmp, hash2, mult
+    integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
+    integer(kind=i8), parameter :: M2 = int(Z'c761c23c', i8)
+    integer(kind=i8), parameter :: M3 = int(Z'165667b1', i8)
+    integer(kind=i8), parameter :: M4 = int(Z'd3a2646c', i8)
+    integer(kind=i8), parameter :: M5 = int(Z'fd7046c5', i8)
+    integer(kind=i8), parameter :: M6 = int(Z'b55a4f09', i8)
+    
     select type(k)
     type is (tuple4_i4_t)
-       mult = 1000003
-       hash = int(Z'345678')
+       mult = int(1000003, i8)
+       hash2 = int(Z'345678', i8)
        do i = 1, 4
-          tmp = k%x(i)
+          tmp = int(k%x(i), i8)
           tmp = (tmp + M1) + ishft(tmp, 12)
           tmp = ieor(ieor(tmp, M2), ishft(tmp, -19))
           tmp = (tmp + M3) + ishft(tmp, 5)
           tmp = ieor((tmp + M4), ishft(tmp, 9))
           tmp = (tmp + M5) + ishft(tmp, 3)
           tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
-          hash = ieor(hash, tmp) * mult
-          mult = mult + 82520 + 8
+          hash2 = ieor(hash2, tmp) * mult
+          mult = mult + 82520_i8 + 8_i8
        end do
-       hash = hash + 97531
-       hash = modulo(hash + c, this%size)
+       hash2 = hash2 + 97531_i8
+       hash2 = modulo(hash2 + int(c, i8), int(this%size, i8))
+       hash = int(hash2, i4)
     class default
        hash = -1
     end select
