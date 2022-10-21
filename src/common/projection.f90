@@ -138,9 +138,11 @@ contains
 
        do i = 1, this%L
           this%xx_d(i) = C_NULL_PTR
-          call device_map_r1(this%xx(:,i), this%xx_d(i), n)
+          call device_map(this%xx(:,i), this%xx_d(i), n)
+          call device_rzero(this%xx_d(i), n)
           this%bb_d(i) = C_NULL_PTR
-          call device_map_r1(this%bb(:,i), this%bb_d(i), n)
+          call device_map(this%bb(:,i), this%bb_d(i), n)
+          call device_rzero(this%bb_d(i), n)
        end do
 
        ptr_size = c_sizeof(C_NULL_PTR) * this%L
