@@ -483,38 +483,37 @@ __global__ void glsc3_many_kernel(const T * a,
                                   T * buf_h,
                                   const int j,
                                   const int n) {
-  
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-  const int y = threadIdx.y;
-  
+
+  const int idx = blockIdx.x * blockDim.y + threadIdx.y;
+  const int str = blockDim.y * gridDim.x;
+  const int y = threadIdx.x;
+
   __shared__ T buf[1024];
   T tmp = 0;
-  
   if(y < j){
     for (int i = idx; i < n; i+= str) {
-      tmp += a[i] * b[threadIdx.y][i] * c[i];
+      tmp += a[i] * b[threadIdx.x][i] * c[i];
     }
   }
 
-  buf[threadIdx.x*blockDim.y+y] = tmp;
+  buf[threadIdx.y*blockDim.x+y] = tmp;
   __syncthreads();
 
-  int i = blockDim.x>>1;
+  int i = blockDim.y>>1;
   while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x*blockDim.y +y] += buf[(threadIdx.x + i)*blockDim.y+y];
+    if (threadIdx.y < i) {
+      buf[threadIdx.y*blockDim.x +y] += buf[(threadIdx.y + i)*blockDim.x+y];
     }
     __syncthreads();
     i = i>>1;
   }
-  
-  if (threadIdx.x == 0) {
+  if (threadIdx.y == 0) {
     if( y < j) {
       buf_h[j*blockIdx.x+y] = buf[y];
     }
   }
 }
+
 
 /**
  * Device kernel for glsc2

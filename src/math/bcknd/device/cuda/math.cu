@@ -386,7 +386,7 @@ extern "C" {
       pow2 = 2*pow2;
     }
     const int nt = 1024/pow2;   
-    const dim3 nthrds(nt, pow2, 1);
+    const dim3 nthrds(pow2, nt, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int nb = ((*n) + nt - 1)/nt;
     if((*j)*nb>red_s){
