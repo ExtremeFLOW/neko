@@ -1408,8 +1408,8 @@ contains
   !> Mark facet @a f in element @a e as an inlet
   subroutine mesh_mark_inlet_facet(m, f, e)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
+    integer, intent(in) :: f
+    integer, intent(in) :: e
 
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
@@ -1427,9 +1427,9 @@ contains
   !> Mark facet @a f in element @a e with label 
   subroutine mesh_mark_labeled_facet(m, f, e, label)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: label
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: label
 
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
@@ -1595,10 +1595,10 @@ contains
   !> Creates common ids for matching periodic points.
   subroutine mesh_create_periodic_ids(m, f, e, pf, pe)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: pf
-    integer, intent(inout) :: pe
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: pf
+    integer, intent(in) :: pe
     type(point_t), pointer :: pi, pj
     real(kind=dp) :: L(3)
     integer :: i, j, id, p_local_idx
