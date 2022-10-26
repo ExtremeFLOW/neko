@@ -288,6 +288,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
+		    contrib/genmeshbox/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

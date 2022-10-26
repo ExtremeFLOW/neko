@@ -1,2 +1,3 @@
 SUBDIRS = rea2nbin\
-	  prepart
+	  prepart\
+	  genmeshbox
