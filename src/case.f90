@@ -199,7 +199,7 @@ contains
     ! Setup source term for the scalar
     ! todo: should be expanded for user sources etc. Now copies the fluid one
     if (C%params%scalar) then
-       call C%scalar%set_source(trim(source_term))
+       call C%scalar%set_source('noforce')
     end if
 
     !
