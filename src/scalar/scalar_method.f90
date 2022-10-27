@@ -66,6 +66,7 @@ module scalar
   use operators
   use logger
   use field_registry
+  implicit none
 
   type, abstract :: scalar_scheme_t
      type(field_t), pointer :: u         !< x-component of Velocity
@@ -80,7 +81,8 @@ module scalar
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     type(dirichlet_t) :: bc_inflow           !< Dirichlet condition for scalar
+     type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
+     integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
      type(param_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
@@ -183,19 +185,52 @@ contains
     !else
     !   call neko_error('Invalid Inflow condition')
     !end if
-    
-    call this%bc_inflow%init(this%dm_Xh)
-    ! todo: add scalar zones to mesh
-    call this%bc_inflow%mark_zone(msh%inlet)
-    ! todo: add scalar labeled zones to mesh
-    call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
-                        't', this%params%bc_labels)
-    call this%bc_inflow%finalize()
-    !call this%bc_inflow%set_inflow(params%uinf)
-    call bc_list_add(this%bclst, this%bc_inflow)
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
 
-    call bc_list_add(this%bclst, this%bc_wall)
   end subroutine scalar_scheme_init_common
+
+  subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
+    class(scalar_scheme_t), intent(inout) :: this 
+    type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
+    character(len=20), intent(in) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    character(len=20) :: bc_label
+    integer :: i, j, bc_idx
+    real(kind=rp) :: dir_value
+    logical :: bc_exists
+
+
+    do i = 1, NEKO_MSH_MAX_ZLBLS
+       bc_label = bc_labels(i)
+       if (bc_label(1:1) .eq. 'd') then
+          bc_exists = .false.
+          bc_idx = 0
+          do j = 1, i-1
+             if (bc_label .eq. bc_labels(j)) then
+                bc_exists = .true. 
+                bc_idx = j
+             end if
+         end do
+
+         if (bc_exists) then
+            call this%dir_bcs(j)%mark_zone(zones(i))
+         else
+            this%n_dir_bcs = this%n_dir_bcs + 1
+            call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+            call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
+            read(bc_label(3:), *) dir_value
+            call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
+         end if
+       else
+          call neko_warning(bc_label)
+       end if
+    end do
+
+    do i = 1, this%n_dir_bcs
+       call this%dir_bcs(i)%finalize()
+       call bc_list_add(this%bclst, this%dir_bcs(i))
+    end do
+
+  end subroutine scalar_scheme_add_bcs
 
   !> Initialize all velocity related components of the current scheme
   subroutine scalar_scheme_init(this, msh, lx, params, kspv_init, scheme)
@@ -220,14 +255,14 @@ contains
     ! todo: note, adhoc init
     ! ADHOC INITAL VALUE SECTION FOR THE SCALAR
 
-    do i = 1, this%dm_Xh%size()
-      idx = nonlinear_index(i, this%Xh%lx,this%Xh%lx,this%Xh%lx)
-      dx = this%dm_Xh%x(idx(1), idx(2), idx(3), idx(4))
-      dy = this%dm_Xh%y(idx(1), idx(2), idx(3), idx(4))
-      dz = this%dm_Xh%z(idx(1), idx(2), idx(3), idx(4))
-      this%s%x(idx(1), idx(2), idx(3), idx(4)) = &
-         exp(-(dx**2 + dy**2 + dz**2))
-    end do
+    !do i = 1, this%dm_Xh%size()
+    !  idx = nonlinear_index(i, this%Xh%lx,this%Xh%lx,this%Xh%lx)
+    !  dx = this%dm_Xh%x(idx(1), idx(2), idx(3), idx(4))
+    !  dy = this%dm_Xh%y(idx(1), idx(2), idx(3), idx(4))
+    !  dz = this%dm_Xh%z(idx(1), idx(2), idx(3), idx(4))
+    !  this%s%x(idx(1), idx(2), idx(3), idx(4)) = &
+    !     exp(-(dx**2 + dy**2 + dz**2))
+    !end do
 
       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
            (NEKO_BCKND_OPENCL .eq. 1)) then
