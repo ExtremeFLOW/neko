@@ -67,8 +67,7 @@ module scalar_pnpn
 
      type(projection_t) :: proj_s
 
-     type(dirichlet_t) :: bc_res   !< Dirichlet condition vel. res.
-     type(bc_list_t) :: bclst_res  
+     type(dirichlet_t) :: bc_res   !< Dirichlet condition for scala 
      type(bc_list_t) :: bclst_ds
 
      class(advection_t), allocatable :: adv 
@@ -103,6 +102,7 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: param
+    integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
@@ -152,18 +152,11 @@ contains
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
     call this%bc_res%init(this%dm_Xh)
-    call this%bc_res%mark_zone(msh%inlet)
-    !    call this%bc_res%mark_zone(msh%wall)
-    call this%bc_res%mark_zones_from_list(msh%labeled_zones,&
-         't', this%params%bc_labels)
-    !    call this%bc_res%mark_zones_from_list(msh%labeled_zones,&
-    !                    'w', this%params%bc_labels)
+    do i = 1, this%n_dir_bcs
+       call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
+    end do
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
-    call bc_list_init(this%bclst_res)
-    call bc_list_add(this%bclst_res, this%bc_res)
-
-    !Initialize bcs for scalar diff
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
 
@@ -190,7 +183,7 @@ contains
     call this%scheme_free()
 
     write(*,*) "bclist_free"
-    call bc_list_free(this%bclst_res)
+    call bc_list_free(this%bclst_ds)
     write(*,*) "projs_free"
     call this%proj_s%free()
 
@@ -287,7 +280,7 @@ contains
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
 
-      call bc_list_apply_scalar(this%bclst_res,&
+      call bc_list_apply_scalar(this%bclst_ds,&
            s_res%x, dm_Xh%size())
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 

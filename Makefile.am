@@ -57,7 +57,10 @@ EXTRA_DIST = \
 	reframe/src/minihemi.case.template\
 	reframe/src/rocm_select_gpu_device\
 	reframe/src/tgv.case.template\
-	reframe/src/tgv.f90
+	reframe/src/tgv.f90\
+	examples/rayleigh-benard/rayleigh.case\
+	examples/rayleigh-benard/rayleigh.f90\
+	examples/rayleigh-benard/box.nmsh
 
 if ENABLE_FLINT
 lint:
