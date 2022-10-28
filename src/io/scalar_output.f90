@@ -84,9 +84,6 @@ contains
        associate(s=> this%scalar%s, dm_Xh => this%scalar%dm_Xh)
        
          call device_memcpy(s%x, s%x_d, dm_Xh%size(), DEVICE_TO_HOST)
-         call device_memcpy(s%x, s%x_d, dm_Xh%size(), DEVICE_TO_HOST)
-         call device_memcpy(s%x, s%x_d, dm_Xh%size(), DEVICE_TO_HOST)
-         call device_memcpy(s%x, s%x_d, dm_Xh%size(), DEVICE_TO_HOST)
          
        end associate
        
