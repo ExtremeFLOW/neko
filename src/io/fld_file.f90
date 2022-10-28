@@ -101,16 +101,6 @@ contains
        dof => p%dof
        write_pressure = .true.
        write_velocity = .false.
-    class is (scalar_scheme_t)
-       u => data%s
-       v => data%s
-       w => data%s
-       p => data%s
-       msh => p%msh
-       Xh => p%Xh
-       dof => p%dof
-       write_pressure = .true.
-       write_velocity = .false.
     class is (fluid_scheme_t)
        u => data%u
        v => data%v
@@ -141,6 +131,16 @@ contains
        dof => p%dof
        write_pressure = .true.
        write_velocity = .true.
+    class is (scalar_scheme_t)
+       u => data%u
+       v => data%v
+       w => data%w
+       p => data%s
+       msh => p%msh
+       Xh => p%Xh
+       dof => p%dof
+       write_pressure = .true.
+       write_velocity = .false.
     class default
        call neko_error('Invalid data')
     end select
