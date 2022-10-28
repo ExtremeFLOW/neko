@@ -155,7 +155,8 @@ contains
     else
        write(log_buf, '(A, I3)') 'lx         : ', lx
     end if
-
+    call neko_log%message(log_buf)
+    
     ! can reuse the same as the velocity
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -200,7 +201,7 @@ contains
 
 
     do i = 1, NEKO_MSH_MAX_ZLBLS
-       bc_label = bc_labels(i)
+       bc_label = trim(bc_labels(i))
        if (bc_label(1:1) .eq. 'd') then
           bc_exists = .false.
           bc_idx = 0
@@ -210,7 +211,7 @@ contains
                 bc_idx = j
              end if
          end do
-
+         
          if (bc_exists) then
             call this%dir_bcs(j)%mark_zone(zones(i))
          else
@@ -220,8 +221,6 @@ contains
             read(bc_label(3:), *) dir_value
             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
          end if
-       else
-          call neko_warning(bc_label)
        end if
     end do
 
@@ -252,24 +251,6 @@ contains
     this%w => neko_field_registry%get_field('w')
     this%s => neko_field_registry%get_field('s')
 
-    ! todo: note, adhoc init
-    ! ADHOC INITAL VALUE SECTION FOR THE SCALAR
-
-    !do i = 1, this%dm_Xh%size()
-    !  idx = nonlinear_index(i, this%Xh%lx,this%Xh%lx,this%Xh%lx)
-    !  dx = this%dm_Xh%x(idx(1), idx(2), idx(3), idx(4))
-    !  dy = this%dm_Xh%y(idx(1), idx(2), idx(3), idx(4))
-    !  dz = this%dm_Xh%z(idx(1), idx(2), idx(3), idx(4))
-    !  this%s%x(idx(1), idx(2), idx(3), idx(4)) = &
-    !     exp(-(dx**2 + dy**2 + dz**2))
-    !end do
-
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
-         call device_memcpy(this%s%x, this%s%x_d, this%s%dof%size(), &
-                            HOST_TO_DEVICE)
-      end if
-
     if (kspv_init) then
        ! todo parameter file ksp tol should be added
        call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
@@ -286,11 +267,6 @@ contains
   subroutine scalar_scheme_free(this)
     class(scalar_scheme_t), intent(inout) :: this
 
-!    if (allocated(this%bc_inflow)) then
-!       call this%bc_inflow%free()
-!    end if
-
-    write(*,*) "this Xh"
     call space_free(this%Xh)    
 
     if (allocated(this%ksp)) then
@@ -338,11 +314,6 @@ contains
     if (.not. associated(this%params)) then
        call neko_error('No parameters defined')
     end if
-
-!    select type(ip => this%bc_inflow)
-!    type is(usr_inflow_t)
-!       call ip%validate
-!    end select
 
     !
     ! Setup checkpoint structure (if everything is fine)
@@ -441,19 +412,5 @@ contains
     end if
 
   end subroutine scalar_scheme_set_source
-
-  !> Initialize a user defined inflow condition
-!  subroutine scalar_scheme_set_usr_inflow(this, usr_eval)
-!    class(scalar_scheme_t), intent(inout) :: this
-!    procedure(usr_inflow_eval) :: usr_eval
-
-!    select type(bc_if => this%bc_inflow)
-!    type is(usr_inflow_t)
-!      call bc_if%set_eval(usr_eval)
-!    class default
-!      call neko_error("Not a user defined inflow condition")
-!    end select
-    
-!  end subroutine scalar_scheme_set_usr_inflow
      
 end module scalar

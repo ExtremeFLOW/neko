@@ -50,7 +50,7 @@ module scalar_pnpn
 
 
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t
-
+     
      type(field_t) :: s_res
 
      type(field_series_t) :: slag
@@ -179,12 +179,9 @@ contains
     class(scalar_pnpn_t), intent(inout) :: this
 
     !Deallocate scalar field
-    write(*,*) "scheme_free"
     call this%scheme_free()
 
-    write(*,*) "bclist_free"
     call bc_list_free(this%bclst_ds)
-    write(*,*) "projs_free"
     call this%proj_s%free()
 
     call field_free(this%s_res)        
