@@ -79,7 +79,6 @@ module scalar_pnpn
      !> Residual
      class(scalar_residual_t), allocatable :: res
 
-     ! todo: use abstract base class here when kernels are ready
      !> Summation of EXT/BDF contributions
      class(rhs_maker_sumab_t), allocatable :: sumab
 
@@ -97,10 +96,11 @@ module scalar_pnpn
 
 contains
 
-  subroutine scalar_pnpn_init(this, msh, lx, param)    
+  subroutine scalar_pnpn_init(this, msh, coef, gs, param)    
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    type(coef_t), target, intent(inout) :: coef
+    type(gs_t), target, intent(inout) :: gs
     type(param_t), target, intent(inout) :: param
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
@@ -108,7 +108,7 @@ contains
     call this%free()
 
     ! Setup fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, param, .true., scheme)
+    call this%scheme_init(msh, coef, gs, param, scheme)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -116,7 +116,6 @@ contains
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
 
-    ! todo: uncomment when kernels are ready
     ! Setup backend dependent summation of AB/BDF
     call rhs_maker_sumab_fctry(this%sumab)
 
@@ -160,17 +159,17 @@ contains
     call bc_list_init(this%bclst_ds)
     call bc_list_add(this%bclst_ds, this%bc_res)
 
-    ! todo: not param stuff again, using velocity stuff
-    !Intialize projection space thingy
+    ! @todo not param stuff again, using velocity stuff
+    ! Intialize projection space thingy
     if (param%proj_vel_dim .gt. 0) then
        call this%proj_s%init(this%dm_Xh%size(), param%proj_vel_dim)
     end if
 
     ! Add lagged term to checkpoint
-    ! todo: note, adding 3 slags
-    call this%chkp%add_lag(this%slag, this%slag, this%slag)    
-
-    ! todo: add dealiasing here, now hardcoded to false
+    ! @todo Init chkp object, note, adding 3 slags
+    ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
+    
+    ! @todo add dealiasing here, now hardcoded to false
     call advection_factory(this%adv, this%c_Xh, .false., param%lxd)
 
   end subroutine scalar_pnpn_init

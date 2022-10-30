@@ -35,11 +35,9 @@
 ! todo: module name
 module scalar
   use gather_scatter
-  use mean_sqr_flow    
   use neko_config
   use parameters
   use checkpoint
-  use mean_flow
   use num_types
   use source
   use source_scalar
@@ -48,39 +46,28 @@ module scalar
   use dofmap
   use krylov
   use coefs
-  use wall
-  use inflow
-  use usr_inflow
-  use blasius
   use dirichlet
-  use dong_outflow
-  use symmetry
-  use non_normal
   use krylov_fctry
   use precon_fctry
   use bc
   use mesh
-  use math
   use ext_bdf_scheme
-  use mathops
-  use operators
   use logger
   use field_registry
   implicit none
 
   type, abstract :: scalar_scheme_t
-     type(field_t), pointer :: u         !< x-component of Velocity
-     type(field_t), pointer :: v         !< y-component of Velocity
-     type(field_t), pointer :: w         !< z-component of Velocity
-     type(field_t), pointer :: s         !< the scalar
-     type(space_t) :: Xh        !< Function space \f$ X_h \f$
-     type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
-     type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
-     type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
+     type(field_t), pointer :: u       !< x-component of Velocity
+     type(field_t), pointer :: v       !< y-component of Velocity
+     type(field_t), pointer :: w       !< z-component of Velocity
+     type(field_t), pointer :: s       !< the scalar
+     type(space_t), pointer :: Xh      !< Function space \f$ X_h \f$
+     type(dofmap_t), pointer :: dm_Xh  !< Dofmap associated with \f$ X_h \f$
+     type(gs_t), pointer :: gs_Xh      !< Gather-scatter associated with \f$ X_h \f$
+     type(coef_t), pointer  :: c_Xh    !< Coefficients associated with \f$ X_h \f$
      type(source_scalar_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
      class(pc_t), allocatable :: pc            !< Preconditioner
-     type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
@@ -101,13 +88,16 @@ module scalar
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_method_init(this, msh, lx, param)
+     subroutine scalar_method_init(this, msh, coef, gs, param)
        import scalar_scheme_t
        import param_t
+       import coef_t
+       import gs_t
        import mesh_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh       
-       integer, intent(inout) :: lx
+       type(coef_t), target, intent(inout) :: coef
+       type(gs_t), target, intent(inout) :: gs
        type(param_t), target, intent(inout) :: param              
      end subroutine scalar_method_init
   end interface
@@ -134,62 +124,8 @@ module scalar
   end interface
 
 contains
-    
-  !> Initialize common data for the current scheme
-  subroutine scalar_scheme_init_common(this, msh, lx, params, scheme)
-    class(scalar_scheme_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
-    character(len=*), intent(in) :: scheme
-    type(param_t), target, intent(inout) :: params
-    type(dirichlet_t) :: bdry_mask
-    character(len=LOG_SIZE) :: log_buf
-    
-    call neko_log%section('Scalar')
-    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
-    call neko_log%message(log_buf)
-    if (lx .lt. 10) then
-       write(log_buf, '(A, I1)') 'lx         : ', lx
-    else if (lx .ge. 10) then
-       write(log_buf, '(A, I2)') 'lx         : ', lx
-    else
-       write(log_buf, '(A, I3)') 'lx         : ', lx
-    end if
-    call neko_log%message(log_buf)
-    
-    ! can reuse the same as the velocity
-    if (msh%gdim .eq. 2) then
-       call space_init(this%Xh, GLL, lx, lx)
-    else
-       call space_init(this%Xh, GLL, lx, lx, lx)
-    end if
 
-    this%dm_Xh = dofmap_t(msh, this%Xh)
-
-    this%params => params
-
-    this%msh => msh
-
-    call gs_init(this%gs_Xh, this%dm_Xh)
-
-    call coef_init(this%c_Xh, this%gs_Xh)
-
-    call source_scalar_init(this%f_Xh, this%dm_Xh)
-
-    !
-    ! Setup scalar boundary conditions
-    !
-    call bc_list_init(this%bclst)
-
-    !if (trim(params%scalar_inflow) .eq. "default") then
-    !   allocate(inflow_t::this%bc_inflow)
-    !else
-    !   call neko_error('Invalid Inflow condition')
-    !end if
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
-
-  end subroutine scalar_scheme_init_common
-
+  !> Initialize boundary conditions
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
     class(scalar_scheme_t), intent(inout) :: this 
     type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
@@ -198,7 +134,6 @@ contains
     integer :: i, j, bc_idx
     real(kind=rp) :: dir_value
     logical :: bc_exists
-
 
     do i = 1, NEKO_MSH_MAX_ZLBLS
        bc_label = trim(bc_labels(i))
@@ -231,34 +166,53 @@ contains
 
   end subroutine scalar_scheme_add_bcs
 
-  !> Initialize all velocity related components of the current scheme
-  subroutine scalar_scheme_init(this, msh, lx, params, kspv_init, scheme)
+  !> Initialize all related components of the current scheme
+  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    type(coef_t), target, intent(inout) :: c_Xh
+    type(gs_t), target, intent(inout) :: gs_Xh
     type(param_t), target, intent(inout) :: params
-    logical :: kspv_init
     character(len=*), intent(in) :: scheme
+    character(len=LOG_SIZE) :: log_buf
 
-    integer :: idx(4)
-    real :: dx,dy,dz
-
-    call scalar_scheme_init_common(this, msh, lx, params, scheme)
-    
-    call neko_field_registry%add_field(this%dm_Xh, 's')
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
+
+    call neko_log%section('Scalar')
+    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    call neko_log%message('Ksp scalar : ('// trim(params%ksp_vel) // &
+         ', ' // trim(params%pc_vel) // ')')
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_vel
+    call neko_log%message(log_buf)
+
+    this%Xh => this%u%Xh
+    this%dm_Xh => this%u%dof
+    this%params => params
+    this%msh => msh
+    call neko_field_registry%add_field(this%dm_Xh, 's')
     this%s => neko_field_registry%get_field('s')
 
-    if (kspv_init) then
-       ! todo parameter file ksp tol should be added
-       call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-            params%ksp_vel, params%abstol_vel)
-       call scalar_scheme_precon_factory(this%pc, this%ksp, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, params%pc_vel)
-    end if
+    this%gs_Xh => gs_Xh
+    this%c_Xh => c_Xh
 
+    call source_scalar_init(this%f_Xh, this%dm_Xh)
+
+    !
+    ! Setup scalar boundary conditions
+    !
+    call bc_list_init(this%bclst)
+
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
+  
+    ! todo parameter file ksp tol should be added
+    call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
+         params%ksp_vel, params%abstol_vel)
+    call scalar_scheme_precon_factory(this%pc, this%ksp, &
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, params%pc_vel)
+  
     call neko_log%end_section()
   end subroutine scalar_scheme_init
 
@@ -267,7 +221,11 @@ contains
   subroutine scalar_scheme_free(this)
     class(scalar_scheme_t), intent(inout) :: this
 
-    call space_free(this%Xh)    
+    nullify(this%Xh)
+    nullify(this%dm_Xh)
+    nullify(this%gs_Xh)
+    nullify(this%c_Xh)
+    nullify(this%params)
 
     if (allocated(this%ksp)) then
        call krylov_solver_destroy(this%ksp)
@@ -279,16 +237,10 @@ contains
        deallocate(this%pc)
     end if
 
-    call gs_free(this%gs_Xh)
-
-    call coef_free(this%c_Xh)
-
     call source_scalar_free(this%f_Xh)
 
     call bc_list_free(this%bclst)
 
-    nullify(this%params)
-    
   end subroutine scalar_scheme_free
 
   !> Validate that all fields, solvers etc necessary for
@@ -306,6 +258,18 @@ contains
     if (.not. allocated(this%ksp)) then
        call neko_error('No Krylov solver for velocity defined')
     end if
+
+    if (.not. associated(this%Xh)) then
+       call neko_error('No function space defined')
+    end if
+
+    if (.not. associated(this%dm_Xh)) then
+       call neko_error('No dofmap defined')
+    end if
+
+    if (.not. associated(this%c_Xh)) then
+       call neko_error('No coefficients defined')
+    end if
     
     if (.not. associated(this%f_Xh%eval)) then
        call neko_error('No source term defined')
@@ -320,17 +284,6 @@ contains
     !
 !    @todo no io for now
 !    call this%chkp%init(this%u, this%v, this%w, this%p)
-
-    !
-    ! Setup mean flow fields if requested
-    !
-!    if (this%params%stats_mean_flow) then
-!       call this%mean%init(this%u, this%v, this%w, this%p)
-!    end if
-
-!    if (this%params%stats_mean_sqr_flow) then
-!       call this%mean_sqr%init(this%u, this%v, this%w, this%p)
-!    end if
 
   end subroutine scalar_scheme_validate
 
