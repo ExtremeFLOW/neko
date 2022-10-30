@@ -174,9 +174,9 @@ contains
     !
     ! Setup scalar scheme
     !
-    ! todo: no scalar factroy for now, probably not needed
+    ! @todo no scalar factroy for now, probably not needed
     if (C%params%scalar) then
-       call C%scalar%init(C%msh, lx, C%params)
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
     end if
     !
     ! Setup user defined conditions    
@@ -197,7 +197,7 @@ contains
     end if
 
     ! Setup source term for the scalar
-    ! todo: should be expanded for user sources etc. Now copies the fluid one
+    ! @todo should be expanded for user sources etc. Now copies the fluid one
     if (C%params%scalar) then
        call C%scalar%set_source('noforce')
     end if
