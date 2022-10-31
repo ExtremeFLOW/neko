@@ -78,8 +78,7 @@ contains
     class(scalar_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
 
        associate(s=> this%scalar%s, dm_Xh => this%scalar%dm_Xh)
        

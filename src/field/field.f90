@@ -137,8 +137,7 @@ contains
        f%name = "Field"
     end if
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        n = lx * ly * lz * nelv           
        call device_map(f%x, f%x_d, n)
     end if
@@ -197,16 +196,14 @@ contains
        
        allocate(f%x(f%Xh%lx, f%Xh%ly, f%Xh%lz, f%msh%nelv))
        
-       if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(f%x, f%x_d, n)
        end if
        
     end if
 
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(f%x_d, g%x_d, n)
     else
        call copy(f%x, g%x, n)
@@ -221,8 +218,7 @@ contains
     integer :: n, i, j, k, l
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(f%x_d, a, n)
     else
        do i = 1, f%msh%nelv
@@ -247,8 +243,7 @@ contains
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(f%x_d, g%x_d, n)
     else
        call add2(f%x, g%x, n)
@@ -265,8 +260,7 @@ contains
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd(f%x_d, a, n)
     else
        call cadd(f%x, a, n)

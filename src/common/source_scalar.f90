@@ -85,8 +85,7 @@ contains
 
     f%s = 0d0
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(f%s, f%s_d, dm%size())
     end if
     
@@ -119,8 +118,7 @@ contains
   subroutine source_scalar_set_pw_type(f, f_eval_pw)
     type(source_scalar_t), intent(inout) :: f
     procedure(source_scalar_term_pw) :: f_eval_pw
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_error('Pointwise source_scalar terms not supported on accelerators')
     end if
     f%eval => source_scalar_eval_pw
@@ -131,8 +129,7 @@ contains
   !! @note Maybe this should be cache, avoding zeroing at each time-step
   subroutine source_scalar_eval_noforce(f)
     class(source_scalar_t) :: f
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%s_d, f%dm%size())
     else
        f%s = 0d0

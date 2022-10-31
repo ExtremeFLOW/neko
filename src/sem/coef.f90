@@ -261,8 +261,7 @@ contains
     !
     
     n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(coef%G11, coef%G11_d, n)
        call device_map(coef%G22, coef%G22_d, n)
        call device_map(coef%G33, coef%G33_d, n)
@@ -321,8 +320,7 @@ contains
     
     ! This is a placeholder, just for now
     ! We can probably find a prettier solution
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rone(coef%h1_d, n)
        call device_rone(coef%h2_d, n)
        call device_memcpy(coef%h1, coef%h1_d, n, DEVICE_TO_HOST)
@@ -337,8 +335,7 @@ contains
     !
     ! Set up multiplicity
     !
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rone(coef%mult_d, n)
     else
        call rone(coef%mult, n)
@@ -346,8 +343,7 @@ contains
        
     call gs_op(gs_h, coef%mult, n, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(coef%mult_d, n)
        call device_memcpy(coef%mult, coef%mult_d, n, DEVICE_TO_HOST)
     else    
@@ -670,8 +666,7 @@ contains
          dyt => c%Xh%dyt, dzt => c%Xh%dzt, &
          jacinv => c%jacinv, jac => c%jac)
 
-        if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+        if (NEKO_BCKND_DEVICE .eq. 1) then
 
          call device_coef_generate_dxydrst(c%drdx_d, c%drdy_d, c%drdz_d, &
               c%dsdx_d, c%dsdy_d, c%dsdz_d, c%dtdx_d, c%dtdy_d, c%dtdz_d, &
@@ -780,8 +775,7 @@ contains
          dtdx => c%dtdx, dtdy => c%dtdy, dtdz => c%dtdz, &
          jacinv => c%jacinv, w3 => c%Xh%w3)
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then 
+      if (NEKO_BCKND_DEVICE .eq. 1) then
 
          call device_coef_generate_geo(c%G11_d, c%G12_d, c%G13_d, &
                                        c%G22_d, c%G23_d, c%G33_d, &
@@ -859,16 +853,14 @@ contains
     call copy(c%Binv, c%B, ntot)
 
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
-      call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE)
        call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE)
     end if
     
     call gs_op(c%gs_h, c%Binv, ntot, GS_OP_ADD)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(c%Binv_d, ntot)
        call device_memcpy(c%Binv, c%Binv_d, ntot, DEVICE_TO_HOST)
     else
@@ -876,8 +868,7 @@ contains
     end if
 
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        c%volume = device_glsum(c%B_d, ntot)
     else
        c%volume = glsum(c%B, ntot)
@@ -1001,8 +992,7 @@ contains
     deallocate(b)
     deallocate(a)
     !>  @todo cleanup once we have device math in place
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        n = size(coef%area)
        call device_memcpy(coef%area, coef%area_d, n, HOST_TO_DEVICE)
        call device_memcpy(coef%nx, coef%nx_d, n, HOST_TO_DEVICE)

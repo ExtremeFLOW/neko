@@ -164,8 +164,7 @@ contains
 
     allocate(this%temp(coef%dof%size()))
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%temp, this%temp_d, coef%dof%size())
     end if
 
@@ -209,8 +208,7 @@ contains
        allocate(this%vt(n_GL))
     end if
     
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then       
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%temp, this%temp_d, n_GL)
        call device_map(this%tbf, this%tbf_d, n_GL)
        call device_map(this%tx, this%tx_d, n_GL)
@@ -242,8 +240,7 @@ contains
     n_GL = nel * this%Xh_GL%lxyz
     !This is extremely primitive and unoptimized  on the device //Karp
     associate(c_GL => this%coef_GL)
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        fx_d = device_get_ptr(fx)
        fy_d = device_get_ptr(fy)
        fz_d = device_get_ptr(fz)
@@ -350,8 +347,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     type(c_ptr) :: fx_d, fy_d, fz_d
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        fx_d = device_get_ptr(fx)
        fy_d = device_get_ptr(fy)
        fz_d = device_get_ptr(fz)
@@ -392,8 +388,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(c_ptr) :: fs_d
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        fs_d = device_get_ptr(fs)
        
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)

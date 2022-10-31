@@ -114,8 +114,7 @@ contains
   subroutine chkp_sync_host(this)
     class(chkp_t), intent(inout) :: this
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
             ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag)
 
@@ -152,8 +151,7 @@ contains
   subroutine chkp_sync_device(this)
     class(chkp_t), intent(inout) :: this
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(u=>this%u, v=>this%v, w=>this%w, &
             ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag)
 

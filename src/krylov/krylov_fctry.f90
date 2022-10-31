@@ -64,8 +64,7 @@ contains
     if (trim(solver) .eq. 'cg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_cg_t::ksp)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(cg_device_t::ksp)
        else
           allocate(cg_t::ksp)
@@ -73,8 +72,7 @@ contains
     else if (trim(solver) .eq. 'pipecg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::ksp)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(pipecg_device_t::ksp)
        else
           allocate(pipecg_t::ksp)
@@ -84,8 +82,7 @@ contains
     else if (trim(solver) .eq. 'gmres') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_gmres_t::ksp)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(gmres_device_t::ksp)
        else
           allocate(gmres_t::ksp)

@@ -88,8 +88,7 @@ contains
 
     call curl(omg1, omg2, omg3, u, v, w, w1, w2, coef)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-      .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST)
        call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST)
        call device_memcpy(w%x, w%x_d, n, DEVICE_TO_HOST)

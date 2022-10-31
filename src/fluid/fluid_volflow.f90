@@ -165,8 +165,7 @@ contains
       if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
       if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
          call device_rzero(c_Xh%h2_d, n)
       else
@@ -218,8 +217,7 @@ contains
        
       ! add forcing
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             call device_add2(u_res%x_d, ta1%x_d, n) 
          else if (this%flow_dir .eq. 2) then
@@ -237,8 +235,7 @@ contains
          end if
       end if
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
          call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
       else
@@ -264,8 +261,7 @@ contains
        ksp_result = ksp_vel%solve(Ax, w_vol, w_res%x, n, &
             c_Xh, bclst_dw, gs_Xh, niter)
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             this%base_flow = &
                  device_glsc2(u_vol%x_d, c_Xh%B_d, n) / this%domain_length
@@ -356,8 +352,7 @@ contains
               Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, niter)
       end if
       
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             current_flow = &
                  device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length  ! for X
@@ -386,8 +381,7 @@ contains
       delta_flow = flow_rate - current_flow            
       scale = delta_flow / this%base_flow
       
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(u%x_d, u_vol%x_d, scale, n)
          call device_add2s2(v%x_d, v_vol%x_d, scale, n)
          call device_add2s2(w%x_d, w_vol%x_d, scale, n)

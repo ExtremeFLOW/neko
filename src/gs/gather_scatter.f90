@@ -149,8 +149,7 @@ contains
     else
        if (NEKO_BCKND_SX .eq. 1) then
           bcknd_ = GS_BCKND_SX
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
           bcknd_ = GS_BCKND_DEV
        else
           bcknd_ = GS_BCKND_CPU
