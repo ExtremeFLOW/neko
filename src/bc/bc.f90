@@ -436,7 +436,7 @@ contains
     type(c_ptr) :: z_d
     integer :: i
 
-    if (NEKO_BCKND_HIP .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
