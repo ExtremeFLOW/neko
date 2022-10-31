@@ -139,8 +139,7 @@ contains
        this%M => M
     else
        if (.not. associated(this%M)) then
-          if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-               .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
              allocate(device_ident_t::this%M_ident)
           else
              allocate(ident_t::this%M_ident)

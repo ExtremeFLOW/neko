@@ -246,6 +246,15 @@ AC_SUBST(CUDA_ARCH)
 AC_SUBST(CUDA_CFLAGS)
 AC_SUBST(HIP_HIPCC_FLAGS)
 
+# Set device backend if requested (and found)
+if (test "x${have_cuda}" = xyes ||
+    test "x${have_hip}" = xyes  ||
+    test "x${have_opencl}" = xyes); then
+    AC_SUBST(device_bcknd, "1")
+else
+    AC_SUBST(device_bcknd, "0")
+fi
+
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
 		 tests/Makefile\

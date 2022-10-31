@@ -222,8 +222,7 @@ contains
        s%dt_inv = 0d0
     end if
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(s%dr_inv, s%dr_inv_d, s%lx)
        call device_map(s%ds_inv, s%ds_inv_d, s%lx)
        call device_map(s%dt_inv, s%dt_inv_d, s%lx)

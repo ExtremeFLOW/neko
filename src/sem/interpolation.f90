@@ -90,8 +90,7 @@ contains
 
     this%Xh => Xh
     this%Yh => Yh
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx)
        call device_map(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx)

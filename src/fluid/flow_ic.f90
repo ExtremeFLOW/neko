@@ -102,8 +102,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
        call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
        call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
        call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
@@ -114,8 +113,7 @@ contains
     call gs_op(gs, v%x, v%dof%size(), GS_OP_ADD) 
     call gs_op(gs, w%x, w%dof%size(), GS_OP_ADD) 
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())
        call device_col2(v%x_d, coef%mult_d, v%dof%size())
        call device_col2(w%x_d, coef%mult_d, w%dof%size())
@@ -138,8 +136,7 @@ contains
     v = uinf(2)
     w = uinf(3)
     n = u%dof%size()
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call cfill(u%x, uinf(1), n)
        call cfill(v%x, uinf(2), n)
        call cfill(w%x, uinf(3), n)

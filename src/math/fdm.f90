@@ -127,8 +127,7 @@ contains
     ! MPI messages in GS are deterministic
     call rzero(this%swplen, Xh%lxyz * dm%msh%nelv)
  
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv) 
        call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv) 
        call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv) 
@@ -144,8 +143,7 @@ contains
 
     call fdm_setup_fast(this, ah, bh, nl, n)
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s, this%s_d, &
             nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
        call device_memcpy(this%d, this%d_d, &
@@ -190,7 +188,7 @@ contains
                end do
             end do
          end do
-         if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
+         if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), HOST_TO_DEVICE)
             call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), DEVICE_TO_HOST)
@@ -216,8 +214,7 @@ contains
             end do
          end do
 
-         if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-              .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+         if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(),HOST_TO_DEVICE)
             call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(),DEVICE_TO_HOST)
@@ -626,8 +623,7 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call fdm_do_fast_xsmm(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
-    else if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call fdm_do_fast_device(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else

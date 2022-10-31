@@ -181,8 +181,7 @@ contains
        allocate(sx_jacobi_t::this%pc_crs)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        allocate(jacobi_t::this%pc_crs)
-    else if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(device_jacobi_t::this%pc_crs)
     else
        allocate(jacobi_t::this%pc_crs)
@@ -240,8 +239,7 @@ contains
                         this%e_crs, this%grids, 1) 
                  
     call hsmg_set_h(this)
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%w, this%w_d, n)
        call device_map(this%r, this%r_d, n)
     end if
@@ -265,8 +263,7 @@ contains
     this%grids(1)%coef%ifh2 = .false.
     call copy(this%grids(1)%coef%h1, this%grids(3)%coef%h1, &
          this%grids(1)%dof%size())
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(this%grids(1)%coef%h1_d, this%grids(3)%coef%h1_d, &
             this%grids(1)%dof%size())
     end if
@@ -352,8 +349,7 @@ contains
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
      
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
        !We should not work with the input 

@@ -247,8 +247,7 @@ contains
       ! evaluate the source term and scale with the mass matrix
       call f_Xh%eval()
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_col2(f_Xh%s_d, c_Xh%B_d, n)
       else
          call col2(f_Xh%s, c_Xh%B, n)
@@ -292,8 +291,7 @@ contains
               this%bclst_ds, gs_Xh, n)
       end if
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(s%x_d, ds%x_d, 1.0_rp, n)
       else
          call add2s2(s%x, ds%x, 1.0_rp, n)

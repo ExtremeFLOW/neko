@@ -111,8 +111,7 @@ contains
        call neko_warning('Invalid time order, defaulting to 3')
     end if
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%ext, this%ext_d, 10)
        call device_map(this%bdf, this%bdf_d, 10)
     end if

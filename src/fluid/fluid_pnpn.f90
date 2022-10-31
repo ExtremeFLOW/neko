@@ -382,8 +382,7 @@ contains
      
       call f_Xh%eval()
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
       else
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
@@ -440,8 +439,7 @@ contains
                                          this%bclst_dp, gs_Xh, n)
       end if
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
       else
          call add2(p%x, dp%x,n)
@@ -489,8 +487,7 @@ contains
                                   this%bclst_dw, gs_Xh, n)
       end if
       
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
               du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
       else

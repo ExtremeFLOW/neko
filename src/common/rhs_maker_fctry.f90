@@ -50,8 +50,7 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(rhs_maker_sumab_sx_t::sumab)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &         
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(rhs_maker_sumab_device_t::sumab)
     else
        allocate(rhs_maker_sumab_cpu_t::sumab)
@@ -68,8 +67,7 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(rhs_maker_ext_sx_t::makeabf)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(rhs_maker_ext_device_t::makeabf)
     else
        allocate(rhs_maker_ext_cpu_t::makeabf)
@@ -86,8 +84,7 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(rhs_maker_bdf_sx_t::makebdf)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(rhs_maker_bdf_device_t::makebdf)
     else       
        allocate(rhs_maker_bdf_cpu_t::makebdf)

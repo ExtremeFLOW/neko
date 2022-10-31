@@ -129,8 +129,7 @@ contains
 
     call dofmap_generate_xyz(this)    
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%x, this%x_d, this%ntot)
        call device_map(this%y, this%y_d, this%ntot)
        call device_map(this%z, this%z_d, this%ntot)
