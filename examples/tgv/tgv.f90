@@ -143,15 +143,27 @@ contains
 !    e2 = 0.5 * glsc2(w2%x,coef%B,ntot) / coef%volume
 
 !    Option 4:
-    call col3(w1%x,u%x,u%x,ntot)
-    call addcol3(w1%x,v%x,v%x,ntot)
-    call addcol3(w1%x,w%x,w%x,ntot)
-    e1 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
-
-    call col3(w1%x,om1%x,om1%x,ntot)
-    call addcol3(w1%x,om2%x,om2%x,ntot)
-    call addcol3(w1%x,om3%x,om3%x,ntot)
-    e2 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col3(w1%x_d, u%x_d, u%x_d, ntot)
+       call device_addcol3(w1%x_d, v%x_d, v%x_d, ntot)
+       call device_addcol3(w1%x_d, w%x_d, w%x_d, ntot)
+       e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
+       
+       call device_col3(w1%x_d, om1%x_d, om1%x_d, ntot)
+       call device_addcol3(w1%x_d, om2%x_d, om2%x_d, ntot)
+       call device_addcol3(w1%x_d, om3%x_d, om3%x_d, ntot)
+       e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
+    else
+       call col3(w1%x, u%x, u%x, ntot)
+       call addcol3(w1%x, v%x, v%x, ntot)
+       call addcol3(w1%x, w%x, w%x, ntot)
+       e1 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
+       
+       call col3(w1%x, om1%x, om1%x, ntot)
+       call addcol3(w1%x, om2%x, om2%x, ntot)
+       call addcol3(w1%x, om3%x, om3%x, ntot)
+       e2 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
+    end if
       
     if (pe_rank .eq. 0) &
          &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
