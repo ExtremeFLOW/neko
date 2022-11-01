@@ -5,8 +5,8 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_usr_ic => user_ic
-    u%fluid_usr_f_vector => forcing
+    u%fluid_user_ic => user_ic
+    u%fluid_user_f_vector => forcing
   end subroutine user_setup
   ! User defined initial condition
   subroutine user_ic(u, v, w, p, params)

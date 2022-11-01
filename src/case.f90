@@ -163,7 +163,7 @@ contains
     ! Setup user defined functions
     !
     call C%usr%init()
-    call C%usr%usr_msh_setup(C%msh)
+    call C%usr%user_mesh_setup(C%msh)
     
     !
     ! Setup fluid scheme
@@ -182,16 +182,17 @@ contains
     ! Setup user defined conditions    
     !
     if (trim(C%params%fluid_inflow) .eq. 'user') then
-       call C%fluid%set_usr_inflow(C%usr%fluid_usr_if)
+       call C%fluid%set_usr_inflow(C%usr%fluid_user_if)
     end if
     
     !
     ! Setup source term
     ! 
     if (trim(source_term) .eq. 'user') then
-       call C%fluid%set_source(trim(source_term), usr_f=C%usr%fluid_usr_f)
+       call C%fluid%set_source(trim(source_term), usr_f=C%usr%fluid_user_f)
     else if (trim(source_term) .eq. 'user_vector') then
-       call C%fluid%set_source(trim(source_term), usr_f_vec=C%usr%fluid_usr_f_vector)
+       call C%fluid%set_source(trim(source_term), &
+            usr_f_vec=C%usr%fluid_user_f_vector)
     else
        call C%fluid%set_source(trim(source_term))
     end if
@@ -211,7 +212,7 @@ contains
                C%fluid%c_Xh, C%fluid%gs_Xh, initial_condition, C%params)
        else
           call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-               C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_usr_ic, C%params)
+               C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
        end if
     end if
 

@@ -16,9 +16,9 @@ contains
   ! Register user-defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_usr_ic => user_ic
-    user%usr_msh_setup => user_mesh_scale
-    user%usr_chk => user_calc_quantities
+    user%fluid_user_ic => user_ic
+    user%user_mesh_setup => user_mesh_scale
+    user%user_check => user_calc_quantities
     user%user_init_modules => user_initialize
   end subroutine user_setup
 
