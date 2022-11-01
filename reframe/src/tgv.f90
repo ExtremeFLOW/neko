@@ -5,9 +5,9 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_usr_ic => user_ic
-    u%usr_msh_setup => user_mesh_scale
-    u%usr_chk => usr_calc_quantities
+    u%fluid_user_ic => user_ic
+    u%user_mesh_setup => user_mesh_scale
+    u%user_check => usr_calc_quantities
   end subroutine user_setup
 
   ! Normalize mesh

@@ -23,10 +23,10 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_usr_ic => user_ic
-    u%fluid_usr_if => user_inflow_eval
-    !u%usr_chk => user_do_stuff
-    u%usr_msh_setup => cylinder_deform
+    u%fluid_user_ic => user_ic
+    u%fluid_user_if => user_inflow_eval
+    !u%user_check => user_do_stuff
+    u%user_mesh_setup => cylinder_deform
   end subroutine user_setup
  
   subroutine cylinder_deform(msh)

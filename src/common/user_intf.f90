@@ -98,13 +98,13 @@ module user_intf
   end interface
 
   type :: user_t
-     procedure(useric), nopass, pointer :: fluid_usr_ic => null()
+     procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
-     procedure(usermsh), nopass, pointer :: usr_msh_setup => null()
-     procedure(usercheck), nopass, pointer :: usr_chk => null()
-     procedure(source_term_pw), nopass, pointer :: fluid_usr_f => null()
-     procedure(source_term), nopass, pointer :: fluid_usr_f_vector => null()
-     procedure(usr_inflow_eval), nopass, pointer :: fluid_usr_if => null()
+     procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
+     procedure(usercheck), nopass, pointer :: user_check => null()
+     procedure(source_term_pw), nopass, pointer :: fluid_user_f => null()
+     procedure(source_term), nopass, pointer :: fluid_user_f_vector => null()
+     procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
@@ -114,23 +114,23 @@ contains
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
 
-    if (.not. associated(u%fluid_usr_ic)) then
-       u%fluid_usr_ic => dummy_user_ic
+    if (.not. associated(u%fluid_user_ic)) then
+       u%fluid_user_ic => dummy_user_ic
     end if
 
-    if (.not. associated(u%fluid_usr_f)) then
-       u%fluid_usr_f => dummy_user_f
+    if (.not. associated(u%fluid_user_f)) then
+       u%fluid_user_f => dummy_user_f
     end if
-    if (.not. associated(u%fluid_usr_f_vector)) then
-       u%fluid_usr_f_vector => dummy_user_f_vector
-    end if
-
-    if (.not. associated(u%usr_msh_setup)) then
-       u%usr_msh_setup => dummy_user_mesh_setup
+    if (.not. associated(u%fluid_user_f_vector)) then
+       u%fluid_user_f_vector => dummy_user_f_vector
     end if
 
-    if (.not. associated(u%usr_chk)) then
-       u%usr_chk => dummy_user_check
+    if (.not. associated(u%user_mesh_setup)) then
+       u%user_mesh_setup => dummy_user_mesh_setup
+    end if
+
+    if (.not. associated(u%user_check)) then
+       u%user_check => dummy_user_check
     end if
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
