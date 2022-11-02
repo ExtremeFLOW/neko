@@ -44,6 +44,8 @@ jobs:
         precision: [sp, dp]
         exclude:
         - os: ubuntu-20.04
+          compiler: gfortran-12
+        - os: ubuntu-20.04
           backend: opencl
         - os: macos-latest
           backend: cuda
@@ -51,7 +53,7 @@ jobs:
           backend: hip
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui gfortran-12 gfortran-11 
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui gfortran-11 
         - os: macos-latest
           setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@9 && brew install gcc@10 && brew install gcc@11 && brew install gcc@12
     env:

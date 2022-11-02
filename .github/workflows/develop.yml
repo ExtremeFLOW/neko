@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, macos-latest]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        compiler: [gfortran-9, gfortran-10, gfortran-11, gfortran-12]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
@@ -50,6 +50,8 @@ jobs:
         - os: ubuntu-20.04
           backend: opencl
         - os: macos-latest
+          compiler: gfortran-9
+        - os: macos-latest
           compiler: gfortran-10
         - os: macos-latest
           backend: cuda
@@ -57,9 +59,9 @@ jobs:
           backend: hip
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui gfortran-11 
         - os: macos-latest
-          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
+          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@9 && brew install gcc@10 && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -207,21 +209,4 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
   
-  documentation:
-    needs: Intel
-    runs-on: ubuntu-latest
-    name: "Doxygen"
-    steps:
-    - uses: actions/checkout@v2
-    - name : Setup env.
-      run: |
-        sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
-        git clone https://github.com/ExtremeFLOW/doxygen-awesome-css doc/doxygen-awesome-css
-    - name: Doxygen
-      run: |
-        ./regen.sh
-        ./configure FC=${FC}
-        make html
-            
-            
- 
+
