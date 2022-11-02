@@ -346,20 +346,20 @@ contains
   subroutine scalar_scheme_set_source(this, source_term_type, usr_f, usr_f_vec)
     class(scalar_scheme_t), intent(inout) :: this
     character(len=*) :: source_term_type
-    procedure(source_term_pw), optional :: usr_f
-    procedure(source_term), optional :: usr_f_vec
+    procedure(source_scalar_term_pw), optional :: usr_f
+    procedure(source_scalar_term), optional :: usr_f_vec
 
     if (trim(source_term_type) .eq. 'noforce') then
        call source_scalar_set_type(this%f_Xh, source_scalar_eval_noforce)
-!    else if (trim(source_term_type) .eq. 'user' .and. present(usr_f)) then
-!       call source_set_pw_type(this%f_Xh, usr_f)
-!    else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
-!       call source_set_type(this%f_Xh, usr_f_vec)
-!    else if (trim(source_term_type) .eq. '') then
-!       if (pe_rank .eq. 0) then
-!          call neko_warning('No source term defined, using default (noforce)')
-!       end if
-!       call source_set_type(this%f_Xh, source_eval_noforce)
+    else if (trim(source_term_type) .eq. 'user' .and. present(usr_f)) then
+       call source_scalar_set_pw_type(this%f_Xh, usr_f)
+    else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
+       call source_scalar_set_type(this%f_Xh, usr_f_vec)
+    else if (trim(source_term_type) .eq. '') then
+       if (pe_rank .eq. 0) then
+          call neko_warning('No source term defined, using default (noforce)')
+       end if
+       call source_scalar_set_type(this%f_Xh, source_scalar_eval_noforce)
     else
        call neko_error('Invalid source term')
     end if

@@ -103,7 +103,7 @@ contains
        call neko_log%end_section(log_buf)
 
        ! Scalar step
-       if (C%params%scalar) then
+       if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')       
           call C%scalar%step(t, tstep, C%ext_bdf)
