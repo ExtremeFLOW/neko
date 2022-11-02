@@ -7,8 +7,33 @@ on:
   workflow_dispatch:
   
 jobs:
+  linting:
+      name: "Flint"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Setup env.
+          run: |
+            sudo apt-get update && sudo apt-get install python-dev python3-tk
+            pip install nobvisual==0.2.0 flinter==0.4.0
+        - name: Checkout
+          uses: actions/checkout@v2
+          with:
+            fetch-depth: 1
+        - name: Lint
+          run: |
+            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+            score=$(awk '$1==0{print $3}' flint.txt)
+            if (( $(echo "$score < 8.00" |bc -l) )) ; then
+              exit 1
+            fi
+        - name: Archive linter report
+          uses: actions/upload-artifact@v2
+          with:
+            name: flint-report
+            path: flint.txt
+            retention-days: 5
   GNU:
-    
+    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -147,6 +172,7 @@ jobs:
           make -j $(nproc)
     
   Intel:
+    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
