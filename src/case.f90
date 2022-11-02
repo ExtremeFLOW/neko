@@ -96,7 +96,7 @@ contains
     integer :: ierr
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part
-    integer, parameter :: nbytes = NEKO_FNAME_LEN + 240 + 8
+    integer, parameter :: nbytes = NEKO_FNAME_LEN + 240 + 4
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
@@ -114,7 +114,7 @@ contains
        read(10, *) params
        close(10)
        
-       pack_index = 1
+       pack_index = 0
        call MPI_Pack(mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(fluid_scheme, 80, MPI_CHARACTER, &
@@ -129,7 +129,7 @@ contains
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
     else
        call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
-       pack_index = 1
+       pack_index = 0
 
        call MPI_Unpack(buffer, nbytes, pack_index, &
             mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, NEKO_COMM, ierr)
