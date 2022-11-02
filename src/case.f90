@@ -73,7 +73,7 @@ module case
      type(stats_t) :: q   
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
-     type(scalar_pnpn_t) :: scalar ! todo: concrete class for now
+     type(scalar_pnpn_t), allocatable :: scalar 
   end type case_t
 
 contains
@@ -89,25 +89,26 @@ contains
     character(len=80) :: source_term = ''
     character(len=80) :: initial_condition = ''
     integer :: lx = 0
+    logical :: scalar = .false.
+    character(len=80) :: scalar_source_term = ''
     type(param_io_t) :: params
     namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx,  &
-         source_term, initial_condition
+         source_term, initial_condition, scalar, scalar_source_term
     
     integer :: ierr
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part
-    integer, parameter :: nbytes = NEKO_FNAME_LEN + 240 + 4
+    integer, parameter :: nbytes = NEKO_FNAME_LEN + (4 * 80) + 4 + 4
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
-    
+   
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))
     
     !
     ! Read case description
     !
-    
     if (pe_rank .eq. 0) then
        open(10, file=trim(case_file))
        read(10, nml=NEKO_CASE)
@@ -123,7 +124,11 @@ contains
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(initial_condition, 80, MPI_CHARACTER, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(scalar_source_term, 80, MPI_CHARACTER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Pack(lx, 1, MPI_INTEGER, &
+            buffer, nbytes, pack_index, NEKO_COMM, ierr)
+       call MPI_Pack(scalar, 1, MPI_LOGICAL, &
             buffer, nbytes, pack_index, NEKO_COMM, ierr)
        call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
@@ -140,7 +145,11 @@ contains
        call MPI_Unpack(buffer, nbytes, pack_index, &
             initial_condition, 80, MPI_CHARACTER, NEKO_COMM, ierr)
        call MPI_Unpack(buffer, nbytes, pack_index, &
+            scalar_source_term, 80, MPI_CHARACTER, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
             lx, 1, MPI_INTEGER, NEKO_COMM, ierr)
+       call MPI_Unpack(buffer, nbytes, pack_index, &
+            scalar, 1, MPI_LOGICAL, NEKO_COMM, ierr)
        call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
     end if
 
@@ -175,7 +184,8 @@ contains
     ! Setup scalar scheme
     !
     ! @todo no scalar factroy for now, probably not needed
-    if (C%params%scalar) then
+    if (scalar) then
+       allocate(C%scalar)
        call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
     end if
     !
@@ -199,8 +209,16 @@ contains
 
     ! Setup source term for the scalar
     ! @todo should be expanded for user sources etc. Now copies the fluid one
-    if (C%params%scalar) then
-       call C%scalar%set_source('noforce')
+    if (scalar) then
+       if (trim(scalar_source_term) .eq. 'user') then
+          call C%scalar%set_source(trim(scalar_source_term), &
+               usr_f=C%usr%scalar_user_f)
+       else if (trim(scalar_source_term) .eq. 'user_vector') then
+          call C%scalar%set_source(trim(scalar_source_term), &
+               usr_f_vec=C%usr%scalar_user_f_vector)
+       else
+          call C%scalar%set_source(trim(scalar_source_term))
+       end if
     end if
 
     !
@@ -238,7 +256,7 @@ contains
     !
     call C%fluid%validate
 
-    if (C%params%scalar) then
+    if (scalar) then
        call C%scalar%slag%set(C%scalar%s)
        call C%scalar%validate
     end if
@@ -274,7 +292,7 @@ contains
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
     call C%s%add(C%f_out)
 
-    if (C%params%scalar) then
+    if (scalar) then
        C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
        call C%s%add(C%s_out)
     end if
@@ -334,6 +352,11 @@ contains
     if (allocated(C%fluid)) then
        call C%fluid%free()
        deallocate(C%fluid)
+    end if
+
+    if (allocated(C%scalar)) then
+       call C%scalar%free()
+       deallocate(C%scalar)
     end if
 
     call mesh_free(C%msh)
