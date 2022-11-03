@@ -16,7 +16,7 @@ jobs:
             sudo apt-get update && sudo apt-get install python-dev python3-tk
             pip install nobvisual==0.2.0 flinter==0.4.0
         - name: Checkout
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
           with:
             fetch-depth: 1
         - name: Lint
@@ -27,7 +27,7 @@ jobs:
               exit 1
             fi
         - name: Archive linter report
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v3
           with:
             name: flint-report
             path: flint.txt
@@ -73,7 +73,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache pFUnit
         id: cache-pfunit
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -101,7 +101,7 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
           make -j$(nproc) && make install && cd ../../
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
@@ -198,7 +198,7 @@ jobs:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build
