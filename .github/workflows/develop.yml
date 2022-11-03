@@ -36,7 +36,7 @@ jobs:
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-20.04, macos-12]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
@@ -49,11 +49,11 @@ jobs:
           compiler: gfortran-12
         - os: ubuntu-20.04
           backend: opencl
-        - os: macos-latest
+        - os: macos-12
           compiler: gfortran-10
-        - os: macos-latest
+        - os: macos-12
           backend: cuda
-        - os: macos-latest
+        - os: macos-12
           backend: hip
         include:
         - os: ubuntu-20.04
