@@ -16,7 +16,7 @@ jobs:
             sudo apt-get update && sudo apt-get install python-dev python3-tk
             pip install nobvisual==0.2.0 flinter==0.4.0
         - name: Checkout
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
           with:
             fetch-depth: 1
         - name: Lint
@@ -27,7 +27,7 @@ jobs:
               exit 1
             fi
         - name: Archive linter report
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v3
           with:
             name: flint-report
             path: flint.txt
@@ -39,10 +39,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, macos-latest]
-        compiler: [gfortran-9, gfortran-10, gfortran-11, gfortran-12]
+        compiler: [gfortran-10, gfortran-11, gfortran-12]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
+        - os: ubuntu-20.04
+          compiler: gfortran-11
         - os: ubuntu-20.04
           compiler: gfortran-12
         - os: ubuntu-20.04
@@ -53,9 +55,9 @@ jobs:
           backend: hip
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui gfortran-11 
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
         - os: macos-latest
-          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@9 && brew install gcc@10 && brew install gcc@11 && brew install gcc@12
+          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -69,7 +71,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache pFUnit
         id: cache-pfunit
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -97,7 +99,7 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
           make -j$(nproc) && make install && cd ../../
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
@@ -194,7 +196,7 @@ jobs:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build
