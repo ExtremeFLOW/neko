@@ -2,7 +2,7 @@ module user
   use neko
   implicit none
 
-  real(kind=rp) :: Ra = 1750
+  real(kind=rp) :: Ra = 0
   real(kind=rp) :: Pr = 0
   real(kind=rp) :: ta2 = 0
 
@@ -51,7 +51,13 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
+    ! Reset the relevant nondimensional parameters
+    ! Pr = input Pr
+    ! Ra = input Re
+    ! Re = 1/Pr
     Pr = params%Pr
+    Ra = params%Re
+    params%Re = 1._rp / Pr
   end subroutine set_Pr
 
 

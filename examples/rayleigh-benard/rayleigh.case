@@ -13,14 +13,14 @@ T_end = 250
 nsamples = 50
 uinf= 0.0,0.0,0.0
 output_bdry = .true.
-Re = 1
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
 bc_labels(5) = 'w'
 bc_labels(6) = 'w'
 abstol_vel = 1d-6
 abstol_prs = 1d-6
-Pr = 1
+Pr = 0.71
+Re = 1715
 scalar_bcs(5) = 'd=1'
 scalar_bcs(6) = 'd=0'
 proj_prs_dim = 4
