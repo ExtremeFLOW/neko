@@ -49,10 +49,33 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
 
-    schwarz_extrude_kernel<real>
-    <<<nblcks, nthrds>>>((real *) arr1,* l1, * f1, 
-                         (real *) arr2, *l2, *f2, *nx);  
+#define CASE(NX)                                             \
+    case NX:          \
+    schwarz_extrude_kernel<real,NX>                          \
+    <<<nblcks, nthrds>>>((real *) arr1,* l1, * f1,           \
+                         (real *) arr2, *l2, *f2, *nx);      \
     CUDA_CHECK(cudaGetLastError());
+
+    switch(*lx) {
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8);
+      CASE(9);
+      CASE(10);
+      CASE(11);
+      CASE(12);
+      CASE(13);
+      CASE(14);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
+
 
   } 
 
