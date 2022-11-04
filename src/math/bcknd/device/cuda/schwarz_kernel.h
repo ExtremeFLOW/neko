@@ -61,10 +61,10 @@ __global__ void schwarz_extrude_kernel(T * a1,
 
   if(idx < nx*nx){
     int i = idx%nx;
-    int k = idx/nx 
+    int k = idx/nx;
     int idx_x1 = l2 + i*nx + k*nx*nx + el;
     x1[idx]=a2[idx_x1];
-    int idx_y2 = nx-1-l2 + i*nx + k*nx*nx + el;
+    int idx_x2 = nx-1-l2 + i*nx + k*nx*nx + el;
     x2[idx]=a2[idx_x2];
 
     int idx_y1 = i + l2*nx + k*nx*nx + el;
@@ -74,7 +74,7 @@ __global__ void schwarz_extrude_kernel(T * a1,
 
     int idx_z1 = i + k*nx + l2*nx*nx + el;
     z1[idx]=a2[idx_z1];
-    int idz_z2 = i + k*nx + (nx-l2-1)*nx*nx + el;
+    int idx_z2 = i + k*nx + (nx-l2-1)*nx*nx + el;
     z2[idx]=a2[idx_z2];
   }
   __syncthreads();
