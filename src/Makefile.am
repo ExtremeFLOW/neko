@@ -82,6 +82,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/fdm_sx.f90\
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
+	math/vector.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\

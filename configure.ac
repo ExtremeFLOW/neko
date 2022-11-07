@@ -292,7 +292,8 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/device_math/Makefile\
 		 tests/mathops/Makefile\
 		 tests/device_mathops/Makefile\
-		 tests/octree/Makefile])
+		 tests/octree/Makefile\
+                 tests/vector/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
