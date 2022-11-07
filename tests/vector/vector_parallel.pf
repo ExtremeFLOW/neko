@@ -1,0 +1,66 @@
+module vector_parallel
+  use mpi
+  use pfunit
+  use vector
+  use num_types
+  use device
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_vector
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_vector
+
+contains
+
+  subroutine setUp(this)
+    class(test_vector), intent(inout) :: this
+    if ((NEKO_BCKND_DEVICE .eq. 1)) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_vector), intent(inout) :: this
+    if ((NEKO_BCKND_DEVICE .eq. 1)) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  @test(npes=[1])
+  subroutine test_vector_init(this)
+    class (test_vector), intent(inout) :: this
+    integer, parameter :: n = 42
+    type(vector_t) :: v
+    integer :: ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call vector_init(v, n)
+    @assertTrue(allocated(v%x))
+    @assertEqual(size(v%x), n)
+    @assertEqual(v%size(), n)
+    @assertEqual(maxval(v%x), 0d0)
+
+  end subroutine test_vector_init
+
+  @test(npes=[1])
+  subroutine test_vector_free(this)
+    class (test_vector), intent(inout) :: this
+    integer, parameter :: n = 42
+    type(vector_t) :: v
+    integer :: ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call vector_init(v, n)
+    call vector_free(v)
+    @assertFalse(allocated(v%x))
+    @assertFalse(v%n, 0)
+    @assertFalse(v%size(), 0)
+
+ end subroutine test_vector_free
+
+end module vector_parallel
