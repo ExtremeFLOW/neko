@@ -47,6 +47,8 @@ module vector
      procedure, pass(v) :: init => vector_init
      procedure, pass(v) :: free => vector_free
      procedure, pass(v) :: size => vector_size
+     procedure, pass(v) :: vector_assign_vector
+     generic :: assignment(=) => vector_assign_vector
   end type vector_t
 
 contains
@@ -63,6 +65,7 @@ contains
    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(v%x, v%x_d, n)
+       call device_memcpy(v%x, v%x_d, n, HOST_TO_DEVICE)
     end if
 
     v%n = n
@@ -89,8 +92,41 @@ contains
   function vector_size(v) result(s)
     class(vector_t), intent(inout) :: v
     integer :: s
-    s = v%n
+    s = v%n    
   end function vector_size
+
+  !> Assignment \f$ v = w \f$
+  subroutine vector_assign_vector(v, w)
+    class(vector_t), intent(inout) :: v
+    type(vector_t), intent(in) :: w
+    integer(c_size_t) :: s
+    real(c_rp) :: dummy
+    type(c_ptr) :: w_ptr
+
+    if (allocated(v%x)) then
+       call v%free()
+    end if
+
+    if (.not. allocated(v%x)) then
+
+       v%n = w%n
+       allocate(v%x(v%n))
+       
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(v%x, v%x_d, v%n)
+       end if
+       
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       s = v%n * c_sizeof(dummy)
+       w_ptr = w%x_d ! Fix intent issue with interface
+       call device_memcpy(v%x_d, w_ptr, s, DEVICE_TO_DEVICE)
+    else
+       v%x = w%x
+    end if
+
+  end subroutine vector_assign_vector
    
   
 end module vector
