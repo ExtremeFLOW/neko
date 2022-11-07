@@ -27,8 +27,7 @@ subroutine test_device_alloc
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then 
+  if (NEKO_BCKND_DEVICE .eq. 1) then
      size_ = 42 * 4
      x_d = C_NULL_PTR
 
@@ -49,8 +48,7 @@ subroutine test_device_free
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
          
      size_ = 42 * 4
      x_d = C_NULL_PTR
@@ -77,8 +75,7 @@ subroutine test_device_associate
   integer(c_size_t) :: size_
   integer :: x(42)
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
        
      size_ = size(x) * 4
      
@@ -101,8 +98,7 @@ subroutine test_device_associated
   integer(c_size_t) :: size_
   integer :: x(42)
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
      
      size_ = size(x) * 4
 
@@ -126,8 +122,7 @@ subroutine test_device_get_ptr
   integer :: x(42)
   logical :: same_ptr
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
 
      size_ = size(x) * 4
   
@@ -154,8 +149,7 @@ subroutine test_device_map
   integer :: x(42)
   logical :: same_ptr
   
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
 
      size_ = size(x) * 4
 
@@ -181,8 +175,7 @@ subroutine test_device_memcpy
   integer :: x(42), i
   logical :: same_ptr
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
      
      size_ = size(x) * 4
 

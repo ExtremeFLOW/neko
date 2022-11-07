@@ -17,16 +17,14 @@ contains
 
   subroutine setUp(this)
     class(test_field), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
   end subroutine setUp
 
   subroutine tearDown(this)
     class(test_field), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_finalize
    end if
  end subroutine tearDown
@@ -142,8 +140,7 @@ contains
     @assertEqual(maxval(f%x), 0d0)
 
     f = 42.0_rp
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
     end if          
     @assertEqual(maxval(f%x), 42.0_rp)
@@ -169,13 +166,11 @@ contains
     call field_init(g, msh, Xh, 'test')
 
     f = 42.0_rp
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
     end if          
     g = f
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(g%x, g%x_d, size(f%x), DEVICE_TO_HOST)
     end if          
     @assertEqual(maxval(g%x), maxval(f%x))
@@ -203,8 +198,7 @@ contains
     f = 42.0_rp
     a = 17.0_rp
     call field_add(f, a)
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
     end if
     @assertEqual(maxval(f%x), 42.0_rp + a)
@@ -232,8 +226,7 @@ contains
     f = 42.0_rp
     g = 17.0_rp
     call field_add(f, g)
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(f%x, f%x_d, size(f%x), DEVICE_TO_HOST)
     end if
     @assertEqual(maxval(f%x), 42.0_rp + 17.0_rp)
