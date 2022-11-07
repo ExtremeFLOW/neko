@@ -35,6 +35,8 @@ module vector
   use neko_config
   use num_types
   use device
+  use device_math
+  use utils
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -48,7 +50,9 @@ module vector
      procedure, pass(v) :: free => vector_free
      procedure, pass(v) :: size => vector_size
      procedure, pass(v) :: vector_assign_vector
-     generic :: assignment(=) => vector_assign_vector
+     procedure, pass(v) :: vector_assign_scalar
+     generic :: assignment(=) => vector_assign_vector, &
+          vector_assign_scalar
   end type vector_t
 
 contains
@@ -65,7 +69,7 @@ contains
    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(v%x, v%x_d, n)
-       call device_memcpy(v%x, v%x_d, n, HOST_TO_DEVICE)
+       call device_cfill(v%x_d, 0.0_rp, n)
     end if
 
     v%n = n
@@ -99,9 +103,6 @@ contains
   subroutine vector_assign_vector(v, w)
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
-    integer(c_size_t) :: s
-    real(c_rp) :: dummy
-    type(c_ptr) :: w_ptr
 
     if (allocated(v%x)) then
        call v%free()
@@ -119,14 +120,29 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       s = v%n * c_sizeof(dummy)
-       w_ptr = w%x_d ! Fix intent issue with interface
-       call device_memcpy(v%x_d, w_ptr, s, DEVICE_TO_DEVICE)
+       call device_copy(v%x_d, w%x_d, v%n)
     else
        v%x = w%x
     end if
 
   end subroutine vector_assign_vector
-   
+
+  !> Assignment \f$ v = s \f$
+  subroutine vector_assign_scalar(v, s)
+    class(vector_t), intent(inout) :: v
+    real(kind=rp), intent(in) :: s
+
+    if (.not. allocated(v%x)) then
+       call neko_error('Vector not allocated')
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill(v%x_d, s, v%n)
+    else
+       v%x = s
+    end if
+
+  end subroutine vector_assign_scalar
+
   
 end module vector
