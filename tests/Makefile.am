@@ -107,4 +107,4 @@ EXTRA_DIST = \
 	mean_sqr_field/mean_sqr_field_test\
 	device_math/device_math_test\
 	octree/octree.pf\
-	vector/vector_parlalel.pf
+	vector/vector_parallel.pf
