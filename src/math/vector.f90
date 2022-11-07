@@ -59,6 +59,7 @@ contains
     call v%free()
 
     allocate(v%x(n))
+    v%x = 0.0_rp
    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(v%x, v%x_d, n)

@@ -1,9 +1,11 @@
 module vector_parallel
   use mpi
   use pfunit
+  use neko_config
   use vector
   use num_types
   use device
+  use comm
   implicit none
 
   @TestCase
@@ -33,16 +35,22 @@ contains
   subroutine test_vector_init(this)
     class (test_vector), intent(inout) :: this
     integer, parameter :: n = 42
-    type(vector_t) :: v
+    type(vector_t) :: v, w
     integer :: ierr
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
-    call vector_init(v, n)
+    call v%init(n)
     @assertTrue(allocated(v%x))
     @assertEqual(size(v%x), n)
     @assertEqual(v%size(), n)
     @assertEqual(maxval(v%x), 0d0)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       @assertTrue(c_associated(v%x_d))
+    else
+       @assertFalse(c_associated(v%x_d))
+    end if
 
   end subroutine test_vector_init
 
@@ -55,12 +63,16 @@ contains
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
-    call vector_init(v, n)
-    call vector_free(v)
+    call v%init(n)
+    call v%free()
     @assertFalse(allocated(v%x))
-    @assertFalse(v%n, 0)
-    @assertFalse(v%size(), 0)
+    @assertEqual(v%n, 0)
+    @assertEqual(v%size(), 0)
 
- end subroutine test_vector_free
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       @assertFalse(c_associated(v%x_d))
+    end if
+    
+  end subroutine test_vector_free
 
 end module vector_parallel
