@@ -5,6 +5,7 @@ module vector_parallel
   use vector
   use num_types
   use device
+  use math
   use comm
   implicit none
 
@@ -74,5 +75,48 @@ contains
     end if
     
   end subroutine test_vector_free
+
+  @test(npes=[1])
+  subroutine test_vector_assign_vector(this)
+    class (test_vector), intent(inout) :: this
+    integer, parameter :: n = 42
+    integer, parameter :: m = 4711
+    type(vector_t) :: v, w
+
+    call w%init(n)
+    v = w
+    @assertEqual(v%n, w%n)
+    @assertTrue(allocated(v%x))
+
+    call w%free()
+    call w%init(m)
+
+    v = w
+    @assertEqual(v%n, w%n)
+    @assertTrue(allocated(v%x))
+       
+  end subroutine test_vector_assign_vector
+
+  @test(npes[1])
+  subroutine test_vector_assign_scalar(this)
+    class (test_vector), intent(inout) :: this
+    integer, parameter :: n = 4711
+    real(kind=rp), parameter :: s =42.0_rp
+    type(vector_t) :: v
+    integer :: i
+
+    call v%init(n)
+    v = s
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST)
+    end if
+
+    do i = 1, n
+       @assertEqual(42.0_rp, v%x(i), tolerance=NEKO_EPS)
+    end do
+       
+  end subroutine test_vector_assign_scalar
+  
 
 end module vector_parallel
