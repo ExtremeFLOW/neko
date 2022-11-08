@@ -55,7 +55,7 @@ site_configuration = {
                     'name': 'default',
                     'scheduler': 'local',
                     'launcher': 'mpirun',
-                    'environs': ['gnu']
+                    'environs': ['default']
                 }
             ]
         },
@@ -71,9 +71,9 @@ site_configuration = {
         },
         {
             'name': 'default',
-            'cc': 'gcc',
-            'cxx': 'g++',
-            'ftn': 'gfortran'
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpif90'
         },
     ],
     'logging': [
