@@ -230,6 +230,8 @@ jobs:
           run: |
             ./regen.sh
             cd reframe
-            env FC=${FC} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions
+            echo ${FC}
+            mpif90 --version
+            env FC=${FC} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:cpu
 
 
