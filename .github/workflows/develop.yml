@@ -206,20 +206,22 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
-  regression:
+  ReFrame:
+      needs: GNU
       runs-on: ubuntu-20.04
       strategy:
         fail-fast: true
         matrix:
           precision: [sp, dp]
+          compiler: [gfortran-10]
       env:
-        FC: gfortran-10
-        OMPI_FC: gfortran-10
+        FC: ${{ matrix.compiler }}
+        OMPI_FC: ${{ matrix.compiler}}
         OMPI_ALLOW_RUN_AS_ROOT: 1
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         OMPI_MCA_btl_vader_single_copy_mechanism: none
         RP: ${{ matrix.precision }}
-      name: ReFrame / ${{ matrix.precision }}
+      name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
       steps:
         - name: Setup env.
           run: |
