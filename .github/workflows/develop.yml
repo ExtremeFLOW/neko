@@ -208,12 +208,12 @@ jobs:
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
   ReFrame:
       needs: GNU
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-20.04
       strategy:
         fail-fast: true
         matrix:
           precision: [sp, dp]
-          compiler: [gfortran-12]
+          compiler: [gfortran-10]
       env:
         FC: ${{ matrix.compiler }}
         OMPI_FC: ${{ matrix.compiler}}
