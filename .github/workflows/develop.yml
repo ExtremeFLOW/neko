@@ -208,7 +208,7 @@ jobs:
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
   regression:
       name: "ReFrame"
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-20.04
       strategy:
         fail-fast: true
       env:
@@ -230,6 +230,6 @@ jobs:
           run: |
             ./regen.sh
             cd reframe
-            env NEKO_SCHEME=pnpn reframe -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:default
+            env NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:default
 
 
