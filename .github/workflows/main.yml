@@ -206,9 +206,38 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
-  
+  ReFrame:
+      needs: GNU
+      runs-on: ubuntu-20.04
+      strategy:
+        fail-fast: true
+        matrix:
+          precision: [sp, dp]
+          compiler: [gfortran-10]
+      env:
+        FC: ${{ matrix.compiler }}
+        OMPI_FC: ${{ matrix.compiler}}
+        OMPI_ALLOW_RUN_AS_ROOT: 1
+        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+        OMPI_MCA_btl_vader_single_copy_mechanism: none
+        RP: ${{ matrix.precision }}
+      name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
+      steps:
+        - name: Setup env.
+          run: |
+            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
+            pip install reframe-hpc 
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        - name: Regression tests
+          run: |
+            ./regen.sh
+            cd reframe
+            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:cpu
   documentation:
-    needs: [Intel, GNU]
+    needs: [Intel, GNU,ReFrame]
     runs-on: ubuntu-latest
     name: "Doxygen"
     steps:
