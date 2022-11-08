@@ -235,7 +235,7 @@ jobs:
           run: |
             ./regen.sh
             cd reframe
-            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:cpu
+            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -r --performance-report --system github-actions:cpu
   documentation:
     needs: [Intel, GNU,ReFrame]
     runs-on: ubuntu-latest
