@@ -46,6 +46,19 @@ site_configuration = {
             ],
             'prefix': '/dt1/${USER}/reframe'
         },
+        {
+            'name': 'github-actions'
+            'descr': 'Github Actions runner',
+            'hostnames': ['*'],
+            'partitions': [
+                {
+                    'name': 'default',
+                    'scheduler': 'local',
+                    'launcher': 'mpirun',
+                    'environs': ['default']
+                }
+            ]
+        },
     ],
     'environments': [
         {
@@ -55,6 +68,12 @@ site_configuration = {
             'cxx': 'CC',
             'ftn': 'ftn',
             'target_systems': ['dt']
+        },
+        {
+            'name': 'default',
+            'cc': 'mpicc',
+            'cxx': 'mpicxx',
+            'ftn': 'mpif90'
         },
     ],
     'logging': [

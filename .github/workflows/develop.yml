@@ -206,5 +206,22 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
-  
+  regression:
+      name: "ReFrame"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Setup env.
+          run: |
+            sudo apt-get sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
+            sudo pip install reframe
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        - name: regression testing
+          run: |
+            ./regen.sh
+            cd reframe
+            env NEKO_SCHEME=pnpn reframe -C settings.py -c checks.py -n Tgv8 -r --performance-report --system github-actions:default
+
 
