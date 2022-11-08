@@ -222,6 +222,6 @@ jobs:
           run: |
             ./regen.sh
             cd reframe
-            env NEKO_SCHEME=pnpn reframe -C settings.py -c checks.py -n Tgv8 -r --performance-report --system github-actions:default
+            reframe -C settings.py -c checks.py -n Tgv8 -r --performance-report --system github-actions:default
 
 
