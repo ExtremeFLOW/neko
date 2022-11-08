@@ -52,7 +52,7 @@ site_configuration = {
             'hostnames': ['*'],
             'partitions': [
                 {
-                    'name': 'default',
+                    'name': 'cpu',
                     'scheduler': 'local',
                     'launcher': 'mpirun',
                     'environs': ['default']
