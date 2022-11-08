@@ -131,10 +131,14 @@ contains
        do j = 1, this%send_dof(dst)%size()
           this%send_buf(i)%data(j) = u(sp(j))
        end do
-
-       call MPI_Isend(this%send_buf(i)%data, size(this%send_buf(i)%data), &
-            MPI_REAL_PRECISION, this%send_pe(i), 0, &
-            NEKO_COMM, this%send_buf(i)%request, ierr)
+       ! We should not need this extra associate block, ant it works
+       ! great without it for GNU, Intel, NEC and Cray, but throws an
+       ! ICE with NAG.
+       associate(send_data => this%send_buf(i)%data)
+         call MPI_Isend(send_data, size(send_data), &
+              MPI_REAL_PRECISION, this%send_pe(i), 0, &
+              NEKO_COMM, this%send_buf(i)%request, ierr)
+       end associate
        this%send_buf(i)%flag = .false.
     end do
   end subroutine gs_nbsend_mpi
@@ -145,9 +149,14 @@ contains
     integer :: i, ierr
 
     do i = 1, size(this%recv_pe)
-       call MPI_IRecv(this%recv_buf(i)%data, size(this%recv_buf(i)%data), &
-            MPI_REAL_PRECISION, this%recv_pe(i), 0, &
-            NEKO_COMM, this%recv_buf(i)%request, ierr)
+       ! We should not need this extra associate block, ant it works
+       ! great without it for GNU, Intel, NEC and Cray, but throws an
+       ! ICE with NAG.
+       associate(recv_data => this%recv_buf(i)%data)
+         call MPI_IRecv(recv_data, size(recv_data), &
+              MPI_REAL_PRECISION, this%recv_pe(i), 0, &
+              NEKO_COMM, this%recv_buf(i)%request, ierr)
+       end associate
        this%recv_buf(i)%flag = .false.
     end do
     

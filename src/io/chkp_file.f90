@@ -174,24 +174,39 @@ contains
        do i = 1, ulag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call MPI_File_write_at_all(fh, byte_offset, ulag%lf(i)%x, &
-               ulag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          ! We should not need this extra associate block, ant it works
+          ! great without it for GNU, Intel, NEC and Cray, but throws an
+          ! ICE with NAG.
+          associate (x => ulag%lf(i)%x)
+            call MPI_File_write_at_all(fh, byte_offset, x, &
+                 ulag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          end associate
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
 
        do i = 1, vlag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call MPI_File_write_at_all(fh, byte_offset, vlag%lf(i)%x, &
-               vlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          ! We should not need this extra associate block, ant it works
+          ! great without it for GNU, Intel, NEC and Cray, but throws an
+          ! ICE with NAG.
+          associate (x => vlag%lf(i)%x)
+            call MPI_File_write_at_all(fh, byte_offset, x, &
+                 vlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          end associate
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
 
        do i = 1, wlag%size()
           byte_offset = mpi_offset + &
                dof_offset * int(MPI_REAL_PREC_SIZE, i8)
-          call MPI_File_write_at_all(fh, byte_offset, wlag%lf(i)%x, &
-               wlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          ! We should not need this extra associate block, ant it works
+          ! great without it for GNU, Intel, NEC and Cray, but throws an
+          ! ICE with NAG.
+          associate (x => wlag%lf(i)%x)
+            call MPI_File_write_at_all(fh, byte_offset, x, &
+                 wlag%lf(i)%dof%size(), MPI_REAL_PRECISION, status, ierr)
+          end associate
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
               
