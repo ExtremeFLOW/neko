@@ -210,12 +210,18 @@ jobs:
       name: "ReFrame"
       runs-on: ubuntu-latest
       strategy:
-        fail-fast: true      
+        fail-fast: true
+      env:
+        FC: gfortran-10
+        OMPI_FC: gfortran-10
+        OMPI_ALLOW_RUN_AS_ROOT: 1
+        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+        OMPI_MCA_btl_vader_single_copy_mechanism: none 
       steps:
         - name: Setup env.
           run: |
             sudo apt-get sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
-            pip install reframe-hpc
+            pip install reframe-hpc         
         - name: Checkout
           uses: actions/checkout@v3
           with:
