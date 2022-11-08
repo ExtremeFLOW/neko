@@ -380,3 +380,17 @@ class MiniTgv8(NekoTestBase):
     def set_build(self):
         self.build_system = MakeNeko(self.neko_build)
         self.sourcepath = 'tgv.f90'
+
+@rfm.simple_test
+class MiniRB(NekoTestBase):
+    descr = 'Two iterations of 3D RB as a smoke test'
+    mesh_file = 'examples/rayleigh-benard/box.nmsh'
+    dt = '1d-2'
+    T_end = '0.02'
+    executable = './neko'
+    case = 'rayleigh.case'
+
+    @run_after('setup')
+    def set_build(self):
+        self.build_system = MakeNeko(self.neko_build)
+        self.sourcepath = 'rayleigh.f90'
