@@ -55,11 +55,10 @@ site_configuration = {
                     'name': 'cpu',
                     'scheduler': 'local',
                     'launcher': 'mpirun',
-                    'max_jobs': 1,
                     'processor': {
-                        'num_cpus': 2,
-                        'num_cpus_per_core': 1,
-                        'num_cpus_per_socket': 1,
+                        'num_cpus': 8,
+                        'num_cpus_per_core': 2,
+                        'num_cpus_per_socket': 4,
                         'num_sockets': 1
                     },
                     'environs': ['default']
