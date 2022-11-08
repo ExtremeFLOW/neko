@@ -207,16 +207,19 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
   regression:
-      name: "ReFrame"
       runs-on: ubuntu-20.04
       strategy:
         fail-fast: true
+        matrix:
+          precision: [sp, dp]
       env:
         FC: gfortran-10
         OMPI_FC: gfortran-10
         OMPI_ALLOW_RUN_AS_ROOT: 1
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-        OMPI_MCA_btl_vader_single_copy_mechanism: none 
+        OMPI_MCA_btl_vader_single_copy_mechanism: none
+        RP: ${{ matrix.precision }}
+      name: ReFrame / ${{ matrix.precision }}
       steps:
         - name: Setup env.
           run: |
@@ -230,6 +233,6 @@ jobs:
           run: |
             ./regen.sh
             cd reframe
-            env NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:cpu
+            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:cpu
 
 
