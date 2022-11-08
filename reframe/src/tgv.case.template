@@ -7,7 +7,7 @@ initial_condition = 'user'
 /
 &NEKO_PARAMETERS
 dt = $dt
-T_end = 20
+T_end = $T_end
 nsamples = 2
 rho = 1
 Re = 1600
