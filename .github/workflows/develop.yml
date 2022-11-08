@@ -216,16 +216,14 @@ jobs:
           run: |
             sudo apt-get sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
             pip install reframe-hpc
-            pip show reframe-hpc
-            find /home/runner/.local/lib/python3.8/site-packages | grep reframe
         - name: Checkout
           uses: actions/checkout@v3
           with:
             fetch-depth: 1
-        - name: regression testing
+        - name: Regression tests
           run: |
             ./regen.sh
             cd reframe
-            reframe -C settings.py -c checks.py -n Tgv8 -r --performance-report --system github-actions:default
+            env NEKO_SCHEME=pnpn reframe -C settings.py -c checks.py -n MiniHemi -r --performance-report --system github-actions:default
 
 
