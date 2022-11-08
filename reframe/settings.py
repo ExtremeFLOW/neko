@@ -47,7 +47,7 @@ site_configuration = {
             'prefix': '/dt1/${USER}/reframe'
         },
         {
-            'name': 'github-actions'
+            'name': 'github-actions',
             'descr': 'Github Actions runner',
             'hostnames': ['*'],
             'partitions': [
