@@ -49,8 +49,6 @@ __global__ void schwarz_extrude_kernel(T * a1,
                                        T * a2,
                                        const int l2,
                                        const T f2){
-//	,
-//                                       const int nx) {
 
   const int nx=NX;	
   __shared__ T x1[nx*nx],x2[nx*nx];
@@ -68,14 +66,14 @@ __global__ void schwarz_extrude_kernel(T * a1,
     x2[idx]=a2[idx_x2];
 
     int idx_y1 = i + l2*nx + k*nx*nx + el;
-    x1[idx]=a2[idx_y1];
+    y1[idx]=a2[idx_y1];
     int idx_y2 = i + (nx-1-l2)*nx + k*nx*nx + el;
-    x2[idx]=a2[idx_y2];
-
+    y2[idx]=a2[idx_y2];
+    
     int idx_z1 = i + k*nx + l2*nx*nx + el;
     z1[idx]=a2[idx_z1];
     int idx_z2 = i + k*nx + (nx-l2-1)*nx*nx + el;
-    z2[idx]=a2[idx_z2];
+    z2[idx]=a2[idx_z2]; 
   }
   __syncthreads();
 
@@ -87,11 +85,10 @@ __global__ void schwarz_extrude_kernel(T * a1,
      if(j>0 && j< nx-1 && k > 0 && k < nx -1){
        int idx1 = i + j*nx + k*nx*nx + el;
        if(i == l1){
-         int idx2 = j + k*nx;
+         int idx2 = j + k*nx;	 
          a1[idx1] = f1*a1[idx1] + f2*x1[idx2];
        }
        if(i == nx-1-l1){
-//         int idx2 = nx-1-l2 + j*nx + k*nx*nx + el;
          int idx2 = j + k*nx;
          a1[idx1] = f1*a1[idx1] + f2*x2[idx2];
        }
@@ -99,25 +96,21 @@ __global__ void schwarz_extrude_kernel(T * a1,
      if( i > 0 && i < nx-1 && k > 0 && k < nx -1){
        int idx1 = i + j*nx + k*nx*nx + el;
        if(j == l1){
-//         int idx2 = i + l2*nx + k*nx*nx + el;
          int idx2 = i + k*nx;
          a1[idx1] = f1*a1[idx1] + f2*y1[idx2];
        }
        if(j == nx-1-l1){
-//         int idx2 = i + (nx-1-l2)*nx + k*nx*nx + el;
-           int idx2 = i + k*nx;
-      	       a1[idx1] = f1*a1[idx1] + f2*y2[idx2];
+          int idx2 = i + k*nx;
+          a1[idx1] = f1*a1[idx1] + f2*y2[idx2];
        }
      }
      if( i > 0 && i < nx-1 && j>0 && j< nx-1 ){
        int idx1 = i + j*nx + k*nx*nx + el;
        if(k == l1){
-//         int idx2 = i + j*nx + l2*nx*nx + el;
          int idx2 = i + j*nx;
          a1[idx1] = f1*a1[idx1] + f2*z1[idx2];
        }
        if(k == nx-1-l1){
-//         int idx2 = i + j*nx + (nx-l2-1)*nx*nx + el;
            int idx2 = i + j*nx;
            a1[idx1] = f1*a1[idx1] + f2*z2[idx2];
        }
