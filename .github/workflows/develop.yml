@@ -209,11 +209,14 @@ jobs:
   regression:
       name: "ReFrame"
       runs-on: ubuntu-latest
+      strategy:
+        fail-fast: true      
       steps:
         - name: Setup env.
           run: |
             sudo apt-get sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
             sudo pip install reframe
+            sudo pip show reframe
         - name: Checkout
           uses: actions/checkout@v3
           with:
