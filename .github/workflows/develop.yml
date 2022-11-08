@@ -207,7 +207,7 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
   ReFrame:
-      needs: GNU
+      needs: [ubuntu-20.04 / gfortran-10 / cpu / sp , ubuntu-20.04 / gfortran-10 / cpu / dp]
       runs-on: ubuntu-20.04
       strategy:
         fail-fast: true
