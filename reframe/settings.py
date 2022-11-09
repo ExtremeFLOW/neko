@@ -59,7 +59,7 @@ site_configuration = {
                     'processor': {
                         'num_cpus': 2,
                         'num_cpus_per_core': 1,
-                        'num_cpus_per_socket': 1,
+                        'num_cpus_per_socket': 2,
                         'num_sockets': 1
                     },
                     'environs': ['default']
