@@ -227,6 +227,9 @@ jobs:
           run: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
             pip install reframe-hpc 
+        - name: Topology
+          run: |
+            reframe --detect-host-topology
         - name: Checkout
           uses: actions/checkout@v3
           with:
