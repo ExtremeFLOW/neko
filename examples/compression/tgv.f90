@@ -6,9 +6,9 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_usr_ic => user_ic
-    u%usr_msh_setup => user_mesh_scale
-    u%usr_chk => usr_calc_quantities
+    u%fluid_user_ic => user_ic
+    u%user_mesh_setup => user_mesh_scale
+    u%user_check => usr_calc_quantities
   end subroutine user_setup
 
   ! Normalize mesh
@@ -63,11 +63,12 @@ contains
     uvw(3)   = zero
   end function tgv_ic
 
-  subroutine usr_calc_quantities( t, dt, tstep,u, v, w, p, coef)
-    real(kind=rp), intent(in) :: t, dt
+  subroutine usr_calc_quantities( t, tstep,u, v, w, p, coef, params)
+    real(kind=rp), intent(in) :: t
     real(kind=rp) :: restemp_a, res_a
-    integer, intent(in) :: tstep
+    integer, intent(in) :: tstep    
     type(coef_t), intent(inout) :: coef
+    type(param_t), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
