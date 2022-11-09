@@ -50,7 +50,7 @@ Name                    | Description
 `lx`                    | Number of quadrature points points per element and direction, i.e. polynomial degree + 1
 `source_term`           | Source term \f$ f \f$: default ``'noforce'`` for \f$ f=0 \f$, or ``'user'`` for user defined function
 `initial_condition`     | Initial condition: ``'uniform'``, ``'blasius'`` or ``'user'``
-`scalar`                | Enable scalar transport (``'.false.'`` or ``'.true.'``)
+`scalar`                | Enable scalar transport (``.false.`` or ``.true.``)
 `scalar_source_term`    | Scalar source term
 
 
