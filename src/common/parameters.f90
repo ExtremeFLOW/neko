@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -77,6 +77,7 @@ module parameters
      real(kind=rp) :: dong_delta     !< Small constant for dong outflow
      real(kind=rp) :: Pr        !< Prandtl number
      character(len=20) :: scalar_bcs(20) !< Type of bc for scalars at each label
+     real(kind=rp) :: user(16)           !< User defined parameters
   end type param_t
 
   type param_io_t
@@ -142,6 +143,7 @@ contains
     real(kind=rp) :: dong_delta = 0.01_rp
     real(kind=rp) :: Pr = 1d0
     character(len=20) :: scalar_bcs(20) ='not'
+    real(kind=rp) :: user(16)
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -149,7 +151,8 @@ contains
          proj_prs_dim,  proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
-         delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr, scalar_bcs
+         delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr, scalar_bcs, &
+         user
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -194,6 +197,7 @@ contains
     param%p%dong_delta = dong_delta
     param%p%Pr = Pr 
     param%p%scalar_bcs = scalar_bcs
+    param%p%user = user
 
   end subroutine param_read
 
@@ -221,6 +225,7 @@ contains
     character(len=10) :: blasius_approx
     character(len=20) :: bc_labels(20)
     character(len=20) :: scalar_bcs(20)
+    real(kind=rp) :: user(16)
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -229,7 +234,7 @@ contains
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr,&
-         scalar_bcs
+         scalar_bcs, user
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -272,6 +277,7 @@ contains
     dong_delta = param%p%dong_delta
     Pr = param%p%Pr
     scalar_bcs = param%p%scalar_bcs
+    user = param%p%user
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
         
@@ -321,6 +327,7 @@ contains
     param%dong_delta = 0.01_rp
     param%Pr = 1.0_rp
     param%scalar_bcs(20) ='not'
+    param%user = 0.0_rp
 
   end subroutine param_default
   
