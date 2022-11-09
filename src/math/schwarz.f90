@@ -107,8 +107,8 @@ contains
     this%dm_schwarz = dofmap_t(msh, this%Xh_schwarz) 
     call gs_init(this%gs_schwarz, this%dm_schwarz)
 
-    allocate(this%work1(this%dm_schwarz%n_dofs))
-    allocate(this%work2(this%dm_schwarz%n_dofs))
+    allocate(this%work1(this%dm_schwarz%size()))
+    allocate(this%work2(this%dm_schwarz%size()))
     allocate(this%wt(Xh%lx, Xh%lx, 4, msh%gdim, msh%nelv))
     
     call fdm_init(this%fdm,Xh, dm, gs_h)
@@ -119,20 +119,18 @@ contains
     this%bclst => bclst
     this%dm => dm
     this%gs_h => gs_h
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_map(this%work1, this%work1_d,this%dm_schwarz%n_dofs) 
-       call device_map(this%work2, this%work2_d,this%dm_schwarz%n_dofs) 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%work1, this%work1_d,this%dm_schwarz%size()) 
+       call device_map(this%work2, this%work2_d,this%dm_schwarz%size()) 
     end if
 
 
     call schwarz_setup_wt(this)
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_alloc(this%wt_d,int(this%dm%n_dofs*rp, i8)) 
-       call rone(this%work1, this%dm%n_dofs)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_alloc(this%wt_d,int(this%dm%size()*rp, i8)) 
+       call rone(this%work1, this%dm%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
-       call device_memcpy(this%work1, this%wt_d, this%dm%n_dofs, HOST_TO_DEVICE)
+       call device_memcpy(this%work1, this%wt_d, this%dm%size(), HOST_TO_DEVICE)
     end if
   end subroutine schwarz_init
  
@@ -164,7 +162,7 @@ contains
     associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
          Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
 
-      n  = this%dm%n_dofs
+      n  = this%dm%size()
 
       enx = Xh_schwarz%lx
       eny = Xh_schwarz%ly
@@ -178,8 +176,7 @@ contains
       !   Sum overlap region (border excluded)
       !   Cred to PFF for this, very clever
       call schwarz_extrude(work1, 0, zero, work2, 0, one , enx, eny, enz, msh%nelv)
-      if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-           .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work2, this%work2_d, ns, HOST_TO_DEVICE)
          call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD) 
          call device_memcpy(work2, this%work2_d, ns, DEVICE_TO_HOST)
@@ -195,8 +192,7 @@ contains
       call schwarz_toreg3d(work1, work2, Xh%lx, msh%nelv)
       ! endif
       
-      if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-           .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work1, this%work1_d, n, HOST_TO_DEVICE)
          call gs_op(this%gs_h, work1, n, GS_OP_ADD) 
          call device_memcpy(work1, this%work1_d, n, DEVICE_TO_HOST)
@@ -368,7 +364,7 @@ contains
   
   subroutine schwarz_compute(this, e, r)
     class(schwarz_t), intent(inout) :: this
-    real(kind=rp), dimension(this%dm%n_dofs), intent(inout) :: e, r
+    real(kind=rp), dimension(this%dm%size()), intent(inout) :: e, r
     integer :: n, enx, eny, enz, ns
     real(kind=rp), parameter :: zero = 0.0
     real(kind=rp), parameter :: one = 1.0
@@ -376,14 +372,13 @@ contains
     associate(work1 => this%work1, work1_d => this%work1_d,&
               work2 => this%work2, work2_d => this%work2_d)
 
-    n  = this%dm%n_dofs
+    n  = this%dm%size()
     enx=this%Xh_schwarz%lx
     eny=this%Xh_schwarz%ly
     enz=this%Xh_schwarz%lz
     if(.not. this%msh%gdim .eq. 3) enz=1
     ns = enx*eny*enz*this%msh%nelv
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        r_d = device_get_ptr(r)
        e_d = device_get_ptr(e)
        call bc_list_apply_scalar(this%bclst, r, n)

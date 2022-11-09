@@ -90,7 +90,7 @@ module projection
      real(kind=rp) :: tol = 1e-7_rp
      !logging variables
      real(kind=rp) :: proj_res
-     integer :: proj_m
+     integer :: proj_m = 0
    contains
      procedure, pass(this) :: project_on => bcknd_project_on
      procedure, pass(this) :: project_back => bcknd_project_back
@@ -136,11 +136,16 @@ contains
        call device_map(this%xbar, this%xbar_d,n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
 
+       call device_rzero(this%xbar_d, n)
+       call device_rzero(this%alpha_d, this%L)
+
        do i = 1, this%L
           this%xx_d(i) = C_NULL_PTR
-          call device_map_r1(this%xx(:,i), this%xx_d(i), n)
+          call device_map(this%xx(:,i), this%xx_d(i), n)
+          call device_rzero(this%xx_d(i), n)
           this%bb_d(i) = C_NULL_PTR
-          call device_map_r1(this%bb(:,i), this%bb_d(i), n)
+          call device_map(this%bb(:,i), this%bb_d(i), n)
+          call device_rzero(this%bb_d(i), n)
        end do
 
        ptr_size = c_sizeof(C_NULL_PTR) * this%L

@@ -38,15 +38,15 @@
  */
 template< typename T >
 __global__ void gather_kernel_add(T * __restrict__ v,
-				  const int m,
-				  const int o,
-				  const int * __restrict__ dg,
-				  const T * __restrict__ u,
-				  const int n,
-				  const int * __restrict__ gd,
-				  const int nb,
-				  const int * __restrict__ b,
-				  const int * __restrict__ bo) {
+                                  const int m,
+                                  const int o,
+                                  const int * __restrict__ dg,
+                                  const T * __restrict__ u,
+                                  const int n,
+                                  const int * __restrict__ gd,
+                                  const int nb,
+                                  const int * __restrict__ b,
+                                  const int * __restrict__ bo) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -69,8 +69,8 @@ __global__ void gather_kernel_add(T * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	T tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
-	v[dg[i] - 1] = tmp;
+        T tmp = u[gd[i] - 1] + u[gd[i+1] - 1];
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -83,15 +83,15 @@ __global__ void gather_kernel_add(T * __restrict__ v,
  */
 template< typename T >
 __global__ void gather_kernel_mul(T * __restrict__ v,
-				  const int m,
-				  const int o,
-				  const int * __restrict__ dg,
-				  const T * __restrict__ u,
-				  const int n,
-				  const int * __restrict__ gd,
-				  const int nb,
-				  const int * __restrict__ b,
-				  const int * __restrict__ bo) { 
+                                  const int m,
+                                  const int o,
+                                  const int * __restrict__ dg,
+                                  const T * __restrict__ u,
+                                  const int n,
+                                  const int * __restrict__ gd,
+                                  const int nb,
+                                  const int * __restrict__ b,
+                                  const int * __restrict__ bo) { 
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -114,8 +114,8 @@ __global__ void gather_kernel_mul(T * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	T tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
-	v[dg[i] - 1] = tmp;
+        T tmp = u[gd[i] - 1] * u[gd[i+1] - 1];
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -128,15 +128,15 @@ __global__ void gather_kernel_mul(T * __restrict__ v,
  */
 template< typename T >
 __global__ void gather_kernel_min(T * __restrict__ v,
-				  const int m,
-				  const int o,
-				  const int * __restrict__ dg,
-				  const T * __restrict__ u,
-				  const int n,
-				  const int * __restrict__ gd,
-				  const int nb,
-				  const int * __restrict__ b,
-				  const int * __restrict__ bo) { 
+                                  const int m,
+                                  const int o,
+                                  const int * __restrict__ dg,
+                                  const T * __restrict__ u,
+                                  const int n,
+                                  const int * __restrict__ gd,
+                                  const int nb,
+                                  const int * __restrict__ b,
+                                  const int * __restrict__ bo) { 
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -159,8 +159,8 @@ __global__ void gather_kernel_min(T * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	T tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
-	v[dg[i] - 1] = tmp;
+        T tmp = min(u[gd[i] - 1], u[gd[i+1] - 1]);
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -173,15 +173,15 @@ __global__ void gather_kernel_min(T * __restrict__ v,
  */
 template< typename T >
 __global__ void gather_kernel_max(T * __restrict__ v,
-				  const int m,
-				  const int o,
-				  const int * __restrict__ dg,
-				  const T * __restrict__ u,
-				  const int n,
-				  const int * __restrict__ gd,
-				  const int nb,
-				  const int * __restrict__ b,
-				  const int * __restrict__ bo) { 
+                                  const int m,
+                                  const int o,
+                                  const int * __restrict__ dg,
+                                  const T * __restrict__ u,
+                                  const int n,
+                                  const int * __restrict__ gd,
+                                  const int nb,
+                                  const int * __restrict__ b,
+                                  const int * __restrict__ bo) { 
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -204,8 +204,8 @@ __global__ void gather_kernel_max(T * __restrict__ v,
   else {
     if ((idx%2 == 0)) {
       for (int i = ((o - 1) + idx); i < m ; i += str) {
-	T tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
-	v[dg[i] - 1] = tmp;
+        T tmp = max(u[gd[i] - 1], u[gd[i+1] - 1]);
+        v[dg[i] - 1] = tmp;
       }
     }
   }
@@ -218,14 +218,14 @@ __global__ void gather_kernel_max(T * __restrict__ v,
  */
 template< typename T >
 __global__ void scatter_kernel(T * __restrict__ v,
-			       const int m,
-			       const int * __restrict__ dg,
-			       T * __restrict__ u,
-			       const int n,
-			       const int * __restrict__ gd,
-			       const int nb,
-			       const int *__restrict__ b,
-			       const int *__restrict__ bo) {
+                               const int m,
+                               const int * __restrict__ dg,
+                               T * __restrict__ u,
+                               const int n,
+                               const int * __restrict__ gd,
+                               const int nb,
+                               const int *__restrict__ b,
+                               const int *__restrict__ bo) {
   
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -249,9 +249,9 @@ __global__ void scatter_kernel(T * __restrict__ v,
 
 template< typename T >
 __global__ void gs_pack_kernel(const T * __restrict__ u,
-			       T * __restrict__ buf,
-			       const int32_t * __restrict__ dof,
-			       const int n) {
+                               T * __restrict__ buf,
+                               const int32_t * __restrict__ dof,
+                               const int n) {
 
   const int j = threadIdx.x + blockDim.x * blockIdx.x;
 
@@ -264,9 +264,9 @@ __global__ void gs_pack_kernel(const T * __restrict__ u,
 
 template< typename T >
 __global__ void gs_unpack_add_kernel(T * __restrict__ u,
-				     const T * __restrict__ buf,
-				     const int32_t * __restrict__ dof,
-				     const int n) {
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
 
   const int j = threadIdx.x + blockDim.x * blockIdx.x;
 

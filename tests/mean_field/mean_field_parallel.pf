@@ -17,16 +17,14 @@ contains
 
   subroutine setUp(this)
     class(test_mean_field), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
   end subroutine setUp
   
   subroutine tearDown(this)
     class(test_mean_field), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
   end subroutine tearDown
@@ -117,8 +115,7 @@ contains
        call mf%update(1.0_rp)
     end do
     
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), DEVICE_TO_HOST)
     end if
     
@@ -132,8 +129,7 @@ contains
        call mf2%update(1.0_rp)
     end do
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), DEVICE_TO_HOST)
     end if
 

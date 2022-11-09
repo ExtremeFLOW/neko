@@ -67,7 +67,7 @@ module fluid_volflow
   use dofmap
   use field
   use coefs
-  use abbdf
+  use ext_bdf_scheme
   use math    
   use neko_config
   use device_math
@@ -128,7 +128,7 @@ contains
   !! @brief Compute pressure and velocity using fractional step method.
   !! (Tombo splitting scheme).
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
-       ta1, ta2, ta3, ab_bdf, gs_Xh, c_Xh, rho, Re, bd, dt, &
+       ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
        Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, niter)
     class(fluid_volflow_t), intent(inout) :: this
@@ -136,7 +136,7 @@ contains
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(inout) :: Ax
@@ -165,8 +165,7 @@ contains
       if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
       if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
          call device_rzero(c_Xh%h2_d, n)
       else
@@ -218,8 +217,7 @@ contains
        
       ! add forcing
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             call device_add2(u_res%x_d, ta1%x_d, n) 
          else if (this%flow_dir .eq. 2) then
@@ -237,8 +235,7 @@ contains
          end if
       end if
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
          call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
       else
@@ -264,8 +261,7 @@ contains
        ksp_result = ksp_vel%solve(Ax, w_vol, w_res%x, n, &
             c_Xh, bclst_dw, gs_Xh, niter)
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             this%base_flow = &
                  device_glsc2(u_vol%x_d, c_Xh%B_d, n) / this%domain_length
@@ -307,7 +303,7 @@ contains
   !!
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
-       ta1, ta2, ta3, c_Xh, gs_Xh, ab_bdf, rho, Re, dt, &
+       ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, rho, Re, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
        Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, niter)
 
@@ -317,7 +313,7 @@ contains
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     real(kind=rp), intent(inout) :: rho, Re, dt
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
@@ -339,25 +335,24 @@ contains
       
       ifcomp = 0.0_rp
 
-      if (dt .ne. this%dtlag .or. ab_bdf%bd(1) .ne. this%bdlag) then
+      if (dt .ne. this%dtlag .or. ext_bdf%bdf(1) .ne. this%bdlag) then
          ifcomp = 1.0_rp
       end if
       
       this%dtlag = dt
-      this%bdlag = ab_bdf%bd(1)
+      this%bdlag = ext_bdf%bdf(1)
 
       call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
-              ta1, ta2, ta3, ab_bdf, gs_Xh, c_Xh, rho, Re, ab_bdf%bd(1), dt, &
+              ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%bdf(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
               Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, niter)
       end if
       
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
             current_flow = &
                  device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length  ! for X
@@ -386,8 +381,7 @@ contains
       delta_flow = flow_rate - current_flow            
       scale = delta_flow / this%base_flow
       
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(u%x_d, u_vol%x_d, scale, n)
          call device_add2s2(v%x_d, v_vol%x_d, scale, n)
          call device_add2s2(w%x_d, w_vol%x_d, scale, n)

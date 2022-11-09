@@ -58,18 +58,19 @@ module fluid_method
   use bc
   use mesh
   use math
-  use abbdf
+  use ext_bdf_scheme
   use mathops
   use operators
   use logger
+  use field_registry
   implicit none
   
   !> Base type of all fluid formulations
   type, abstract :: fluid_scheme_t
-     type(field_t) :: u         !< x-component of Velocity
-     type(field_t) :: v         !< y-component of Velocity
-     type(field_t) :: w         !< z-component of Velocity
-     type(field_t) :: p         !< Pressure
+     type(field_t), pointer :: u => null() !< x-component of Velocity
+     type(field_t), pointer :: v => null() !< y-component of Velocity
+     type(field_t), pointer :: w => null() !< z-component of Velocity
+     type(field_t), pointer :: p => null() !< Pressure
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
@@ -131,37 +132,59 @@ module fluid_method
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_method_step(this, t, tstep, ab_bdf)
+     subroutine fluid_method_step(this, t, tstep, ext_bdf)
        import fluid_scheme_t
-       import abbdf_t
+       import ext_bdf_scheme_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
-       type(abbdf_t), intent(inout) :: ab_bdf
+       type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
      end subroutine fluid_method_step
   end interface
 
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params)
+  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme)
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
+    character(len=*), intent(in) :: scheme
     type(param_t), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     
     call neko_log%section('Fluid')
-    call neko_log%message('Ksp vel. : ('// trim(params%ksp_vel) // &
+    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    if (lx .lt. 10) then
+       write(log_buf, '(A, I1)') 'lx         : ', lx
+    else if (lx .ge. 10) then
+       write(log_buf, '(A, I2)') 'lx         : ', lx
+    else
+       write(log_buf, '(A, I3)') 'lx         : ', lx
+    end if
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'Re         :',  params%Re
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'rho        :',  params%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'mu         :',  params%mu
+    call neko_log%message(log_buf)
+    call neko_log%message('Ksp vel.   : ('// trim(params%ksp_vel) // &
          ', ' // trim(params%pc_vel) // ')')
-    call neko_log%message('Ksp prs. : ('// trim(params%ksp_prs) // &
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_vel
+    call neko_log%message(log_buf)
+    call neko_log%message('Ksp prs.   : ('// trim(params%ksp_prs) // &
          ', ' // trim(params%pc_prs) // ')')
-    write(log_buf, '(A, L1)') 'Dealias  : ',  params%dealias
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_prs
     call neko_log%message(log_buf)
-    write(log_buf, '(A, L1)') 'Save bdry: ',  params%output_bdry
+    write(log_buf, '(A, L1)') 'Dealias    : ',  params%dealias
     call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'Save bdry  : ',  params%output_bdry
+    call neko_log%message(log_buf)
+
 
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -244,7 +267,7 @@ contains
                       'w', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(1.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -254,7 +277,7 @@ contains
 
        call bdry_mask%finalize()
        call bdry_mask%set_g(2.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -263,7 +286,7 @@ contains
                       'o', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(3.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -272,14 +295,14 @@ contains
                       'sym', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(4.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%periodic)
        call bdry_mask%finalize()
        call bdry_mask%set_g(5.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
        call bdry_mask%init(this%dm_Xh)
@@ -288,7 +311,7 @@ contains
                       'on', this%params%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(6.0_rp)
-       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%n_dofs)
+       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
     end if
@@ -296,18 +319,22 @@ contains
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme)
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: params
     logical :: kspv_init
+    character(len=*), intent(in) :: scheme
 
-    call fluid_scheme_init_common(this, msh, lx, params)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme)
     
-    call field_init(this%u, this%dm_Xh, 'u')
-    call field_init(this%v, this%dm_Xh, 'v')
-    call field_init(this%w, this%dm_Xh, 'w')
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
@@ -320,20 +347,26 @@ contains
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, &
+                                   kspv_init, kspp_init, scheme)
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
+    character(len=*), intent(in) :: scheme
 
-    call fluid_scheme_init_common(this, msh, lx, params)
-    
-    call field_init(this%u, this%dm_Xh, 'u')
-    call field_init(this%v, this%dm_Xh, 'v')
-    call field_init(this%w, this%dm_Xh, 'w')
-    call field_init(this%p, this%dm_Xh, 'p')
+    call fluid_scheme_init_common(this, msh, lx, params, scheme)
+
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    call neko_field_registry%add_field(this%dm_Xh, 'p')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
+    this%p => neko_field_registry%get_field('p')
 
     !
     ! Setup pressure boundary conditions
@@ -389,10 +422,6 @@ contains
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
 
-    call field_free(this%u)
-    call field_free(this%v)
-    call field_free(this%w)
-    call field_free(this%p)
     call field_free(this%bdry)
 
     if (allocated(this%bc_inflow)) then
@@ -433,6 +462,12 @@ contains
     call bc_list_free(this%bclst_vel)
 
     nullify(this%params)
+
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%p)
+    
     
   end subroutine fluid_scheme_free
 
@@ -441,6 +476,13 @@ contains
   subroutine fluid_scheme_validate(this)
     class(fluid_scheme_t), target, intent(inout) :: this
 
+    if ( (.not. associated(this%u)) .or. &
+         (.not. associated(this%v)) .or. &
+         (.not. associated(this%w)) .or. &
+         (.not. associated(this%p))) then
+       call neko_error('Fields are not registered')
+    end if
+    
     if ( (.not. allocated(this%u%x)) .or. &
          (.not. allocated(this%v%x)) .or. &
          (.not. allocated(this%w%x)) .or. &
@@ -492,14 +534,14 @@ contains
   subroutine fluid_scheme_bc_apply_vel(this)
     class(fluid_scheme_t), intent(inout) :: this
     call bc_list_apply_vector(this%bclst_vel,&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%n_dofs)
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size())
   end subroutine fluid_scheme_bc_apply_vel
   
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_prs(this)
     class(fluid_scheme_t), intent(inout) :: this
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, this%p%dof%n_dofs)
+    call bc_list_apply_scalar(this%bclst_prs, this%p%x, this%p%dof%size())
   end subroutine fluid_scheme_bc_apply_prs
   
   !> Initialize a linear solver

@@ -5,9 +5,9 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_usr_ic => user_ic
-    u%usr_msh_setup => user_mesh_scale
-    u%usr_chk => usr_calc_quantities
+    u%fluid_user_ic => user_ic
+    u%user_mesh_setup => user_mesh_scale
+    u%user_check => usr_calc_quantities
   end subroutine user_setup
 
   ! Normalize mesh
@@ -62,10 +62,11 @@ contains
     uvw(3)   = zero
   end function tgv_ic
 
-  subroutine usr_calc_quantities( t, dt, tstep,u, v, w, p, coef)
-    real(kind=rp), intent(in) :: t, dt
+  subroutine usr_calc_quantities( t, tstep, u, v, w, p, coef, params)
+    real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
+    type(param_t), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -73,7 +74,7 @@ contains
     type(field_t) :: omg1, omg2, omg3, w1, w2
     integer :: n, i
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo
-    n = u%dof%n_dofs
+    n = u%dof%size()
 
     if (mod(tstep,50).ne.0) return
 
@@ -87,8 +88,7 @@ contains
 
     call curl(omg1, omg2, omg3, u, v, w, w1, w2, coef)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-      .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST)
        call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST)
        call device_memcpy(w%x, w%x_d, n, DEVICE_TO_HOST)

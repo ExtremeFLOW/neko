@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -75,6 +75,9 @@ module parameters
      integer :: proj_vel_dim     !< Projection space for velocity solution
      real(kind=rp) :: dong_uchar     !< Characteristic velocity for dong outflow
      real(kind=rp) :: dong_delta     !< Small constant for dong outflow
+     real(kind=rp) :: Pr        !< Prandtl number
+     character(len=20) :: scalar_bcs(20) !< Type of bc for scalars at each label
+     real(kind=rp) :: user(16)           !< User defined parameters
   end type param_t
 
   type param_io_t
@@ -138,6 +141,9 @@ contains
     integer :: i
     real(kind=rp) :: dong_uchar = 1.0_rp
     real(kind=rp) :: dong_delta = 0.01_rp
+    real(kind=rp) :: Pr = 1d0
+    character(len=20) :: scalar_bcs(20) ='not'
+    real(kind=rp) :: user(16)
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -145,7 +151,8 @@ contains
          proj_prs_dim,  proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
-         delta, blasius_approx, bc_labels, dong_uchar, dong_delta
+         delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr, scalar_bcs, &
+         user
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -188,6 +195,9 @@ contains
     param%p%bc_labels = bc_labels
     param%p%dong_uchar = dong_uchar
     param%p%dong_delta = dong_delta
+    param%p%Pr = Pr 
+    param%p%scalar_bcs = scalar_bcs
+    param%p%user = user
 
   end subroutine param_read
 
@@ -199,7 +209,7 @@ contains
     integer(kind=i4), intent(out) :: iostat
     character(len=*), intent(inout) :: iomsg
 
-    real(kind=rp) :: dt, T_End, rho, mu, Re, abstol_vel, abstol_prs, flow_rate
+    real(kind=rp) :: dt, T_End, rho, mu, Re, Pr, abstol_vel, abstol_prs, flow_rate
     real(kind=rp) :: stats_begin, delta, dong_uchar, dong_delta
     character(len=20) :: ksp_vel, ksp_prs, pc_vel, pc_prs, fluid_inflow
     real(kind=rp), dimension(3) :: uinf
@@ -214,6 +224,8 @@ contains
     logical :: dealias
     character(len=10) :: blasius_approx
     character(len=20) :: bc_labels(20)
+    character(len=20) :: scalar_bcs(20)
+    real(kind=rp) :: user(16)
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -221,7 +233,8 @@ contains
          proj_prs_dim, proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
-         delta, blasius_approx, bc_labels, dong_uchar, dong_delta
+         delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr,&
+         scalar_bcs, user
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -262,11 +275,61 @@ contains
     bc_labels = param%p%bc_labels
     dong_uchar = param%p%dong_uchar
     dong_delta = param%p%dong_delta
+    Pr = param%p%Pr
+    scalar_bcs = param%p%scalar_bcs
+    user = param%p%user
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
         
   end subroutine param_write
 
+  subroutine param_default(param)
+    type(param_t), intent(inout) :: param
+
+    param%nsamples = 0
+    param%output_bdry = .false.
+    param%output_part = .false.
+    param%output_chkp = .false.
+    param%dt = 0d0
+    param%T_end = 0d0
+    param%rho = 1d0
+    param%mu = 1d0
+    param%Re = 1d0
+    param%uinf = (/ 0d0, 0d0, 0d0 /)
+    param%abstol_vel = 1d-9
+    param%abstol_prs = 1d-9
+    param%delta = 1d0
+    param%ksp_vel = 'cg'
+    param%ksp_prs = 'gmres'
+    param%pc_vel = 'jacobi'
+    param%pc_prs = 'hsmg'
+    param%fluid_inflow = 'default'
+    param%vol_flow_dir = 0
+    param%avflow = .true.
+    param%loadb = .false.
+    param%flow_rate = 0d0
+    param%proj_prs_dim = 20
+    param%proj_vel_dim = 0
+    param%time_order = 3
+    param%jlimit = '00:00:00'
+    param%restart_file = ''
+    param%stats_begin = 0d0
+    param%stats_mean_flow = .false.
+    param%output_mean_flow = .false.
+    param%stats_mean_sqr_flow = .false.
+    param%output_mean_sqr_flow = .false.
+    param%output_dir = ''
+    param%dealias = .true.
+    param%lxd  = 0
+    param%blasius_approx = 'sin'
+    param%bc_labels(20) ='not'
+    param%dong_uchar = 1.0_rp
+    param%dong_delta = 0.01_rp
+    param%Pr = 1.0_rp
+    param%scalar_bcs(20) ='not'
+    param%user = 0.0_rp
+
+  end subroutine param_default
   
 end module parameters
 

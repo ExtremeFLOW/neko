@@ -49,8 +49,8 @@ extern "C" {
    * Fortran wrapper for device gather kernels
    */
   void cuda_gather_kernel(void *v, int *m, int *o, void *dg,
-			  void *u, int *n, void *gd, int *nb,
-			  void *b, void *bo, int *op) {
+                          void *u, int *n, void *gd, int *nb,
+                          void *b, void *bo, int *op) {
 
     if ((*m) == 0) return;
     
@@ -60,30 +60,30 @@ extern "C" {
     switch (*op) {
     case GS_OP_ADD:
       gather_kernel_add<real>
-	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd,
-			     *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
+                             (real *) u, *n, (int *) gd,
+                             *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MUL:
       gather_kernel_mul<real>
-	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd,
-			     *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
+                             (real *) u, *n, (int *) gd,
+                             *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MIN:
       gather_kernel_min<real>
-	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd,
-			     *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
+                             (real *) u, *n, (int *) gd,
+                             *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MAX:
       gather_kernel_max<real>
-	<<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-			     (real *) u, *n, (int *) gd,
-			     *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
+                             (real *) u, *n, (int *) gd,
+                             *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     }
@@ -93,32 +93,41 @@ extern "C" {
    * Fortran wrapper for device scatter kernel
    */
   void cuda_scatter_kernel(void *v, int *m, void *dg,
-			   void *u, int *n, void *gd,
-			   int *nb, void *b, void *bo) {
+                           void *u, int *n, void *gd,
+                           int *nb, void *b, void *bo) {
 
     if ((*m) == 0) return;
-	
+        
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     scatter_kernel<real>
       <<<nblcks, nthrds>>>((real *) v, *m, (int *) dg,
-			   (real *) u, *n, (int *) gd,
-			   *nb, (int *) b, (int *) bo);
+                           (real *) u, *n, (int *) gd,
+                           *nb, (int *) b, (int *) bo);
     CUDA_CHECK(cudaGetLastError());
   }
 
   /**
    * Pack send buffer on device
    */
-  void cuda_gs_pack(void *u_d, void *buf_d, void *dof_d, int n) {
+  void cuda_gs_pack(void *u_d, void *buf_d, void *dof_d,
+                    int offset, int n, cudaStream_t stream) {
 
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
 
-    gs_pack_kernel<real>
-      <<<nblcks, nthrds>>>((real *) u_d, (real *) buf_d,
-			   (int *) dof_d, n);
+    if (stream == NULL) {
+      gs_pack_kernel<real>
+        <<<nblcks, nthrds>>>((real *) u_d, (real *) buf_d + offset,
+                             (int *) dof_d + offset, n);
+    }
+    else {
+      gs_pack_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + offset,
+                                        (int *) dof_d + offset, n);
+    }
+      
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -126,16 +135,22 @@ extern "C" {
    * Unpack receive buffer on device
    */
   void cuda_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d,
-		      int offset, int n) {
+                      int offset, int n, cudaStream_t stream) {
 
     const int nthrds = 1024;
     const int nblcks = (n + nthrds - 1) / nthrds;
 
     switch (op) {
     case GS_OP_ADD:
-      gs_unpack_add_kernel<real>
-	<<<nblcks, nthrds>>>(u_d + offset, buf_d + offset,
-			     dof_d + offset, n);
+      if (stream == NULL) {
+        gs_unpack_add_kernel<real>
+          <<<nblcks, nthrds>>>(u_d, buf_d + offset, dof_d + offset, n);
+      }
+      else {
+        gs_unpack_add_kernel<real>
+          <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
+                                          dof_d + offset, n);
+      }
       break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);

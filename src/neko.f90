@@ -76,6 +76,8 @@ module neko
   use jobctrl
   use device
   use cpr
+  use field_registry
+  use vector
 contains
 
   subroutine neko_init(C)
@@ -95,6 +97,9 @@ contains
     call device_init
 
     call neko_log%init()
+    call neko_field_registry%init()
+    
+    
 
     if (pe_rank .eq. 0) then
        write(*,*) ''
@@ -205,6 +210,7 @@ contains
        call case_free(C)
     end if
     
+    call neko_field_registry%free()
     call device_finalize
     call mpi_types_free
     call comm_free

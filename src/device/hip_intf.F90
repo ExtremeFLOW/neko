@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -134,6 +134,43 @@ module hip_intf
      end function hipDeviceGetName
   end interface
 
+  interface
+     integer (c_int) function hipStreamCreate(stream) &
+          bind(c, name='hipStreamCreate')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+     end function hipStreamCreate
+  end interface
+
+  interface
+     integer (c_int) function hipStreamCreateWithFlags(stream, flags) &
+          bind(c, name='hipStreamCreateWithFlags')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags
+     end function hipStreamCreateWithFlags
+  end interface
+
+  interface
+     integer (c_int) function hipStreamDestroy(steam) &
+          bind(c, name='hipStreamDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: steam
+     end function hipStreamDestroy
+  end interface
+
+  interface 
+     integer (c_int) function hipStreamSynchronize(stream) &
+          bind(c, name='hipStreamSynchronize')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: stream
+     end function hipStreamSynchronize
+  end interface
+  
 contains
 
   subroutine hip_device_name(name)

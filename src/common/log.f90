@@ -209,4 +209,103 @@ contains
     call this%message('----------------------------------------------------------------')
   end subroutine log_status
   
+  !
+  ! Rudimentary C interface
+  !
+
+  !> Write a message to a log (from C)
+  !! @note This assumes the global log stream @a neko_log  
+  subroutine log_message_c(c_msg) bind(c, name='log_message') 
+    use, intrinsic :: iso_c_binding
+    character(kind=c_char), dimension(*), intent(in) :: c_msg
+    character(len=LOG_SIZE) :: msg
+    integer :: len, i
+  
+    if (pe_rank .eq. 0) then
+       len = 0
+       do
+          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+          len = len + 1
+          msg(len:len) = c_msg(len)
+       end do
+       
+       call neko_log%indent()
+       write(*, '(A)') trim(msg(1:len))
+    end if
+    
+  end subroutine log_message_c
+
+  !> Write an error message to a log (from C)
+  !! @note This assumes the global log stream @a neko_log  
+  subroutine log_error_c(c_msg) bind(c, name="log_error")
+    use, intrinsic :: iso_c_binding
+    character(kind=c_char), dimension(*), intent(in) :: c_msg
+    character(len=LOG_SIZE) :: msg
+    integer :: len, i
+    
+    if (pe_rank .eq. 0) then
+       len = 0
+       do
+          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+          len = len + 1
+          msg(len:len) = c_msg(len)
+       end do
+       
+       call neko_log%indent()
+       write(*, '(A,A,A)') '*** ERROR: ',trim(msg(1:len)),'  ***'       
+    end if
+    
+  end subroutine log_error_c
+
+  !> Write a warning message to a log (from C)
+  !! @note This assumes the global log stream @a neko_log  
+  subroutine log_warning_c(c_msg) bind(c, name="log_warning")
+    use, intrinsic :: iso_c_binding
+    character(kind=c_char), dimension(*), intent(in) :: c_msg
+    character(len=LOG_SIZE) :: msg
+    integer :: len, i
+    
+    if (pe_rank .eq. 0) then
+       len = 0
+       do
+          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+          len = len + 1
+          msg(len:len) = c_msg(len)
+       end do
+       
+       call neko_log%indent()
+       write(*, '(A,A,A)') '*** WARNING: ',trim(msg(1:len)),'  ***'       
+    end if
+    
+  end subroutine log_warning_c
+
+  !> Begin a new log section (from C)
+  !! @note This assumes the global log stream @a neko_log  
+  subroutine log_section_c(c_msg) bind(c, name="log_section")
+    use, intrinsic :: iso_c_binding
+    character(kind=c_char), dimension(*), intent(in) :: c_msg
+    character(len=LOG_SIZE) :: msg
+    integer :: len, i
+    
+    if (pe_rank .eq. 0) then
+       len = 0
+       do
+          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+          len = len + 1
+          msg(len:len) = c_msg(len)
+       end do
+
+       call neko_log%section(trim(msg(1:len)))
+    end if
+    
+  end subroutine log_section_c
+
+  !> End a log section (from C)
+  !! @note This assumes the global log stream @a neko_log
+  subroutine log_end_section_c() bind(c, name="log_end_section")
+  
+    call neko_log%end_section()
+    
+  end subroutine log_end_section_c
+  
 end module logger

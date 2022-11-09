@@ -2,8 +2,8 @@ name: Linting
 
 # Controls when the action will run. 
 on:
-  pull_request:
-     branches: [develop,release/*,master]
+#  pull_request:
+#     branches: [develop,release/*,master]
   workflow_dispatch:
   
 jobs:

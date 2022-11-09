@@ -85,25 +85,25 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    p(1) = point_t(0d0, 0d0, 0d0)
+    p(1) = point_t(0d0, 0d0, 0d0) !e1 p1
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0)
+    p(2) = point_t(1d0, 0d0, 0d0) !e1 p2
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0)
+    p(3) = point_t(0d0, 1d0, 0d0) !e1 p3
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0)
+    p(4) = point_t(1d0, 1d0, 0d0) !e1 p4
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0)
+    p(5) = point_t(2d0, 0d0, 0d0) !e2 p2
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0)
+    p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
 
     call mesh_init(m, gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
 
-       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4))
+       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6))
 
        @assertEqual(6, m%htp%num_entries())
 
@@ -126,7 +126,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -140,7 +140,7 @@ contains
 
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4))
+          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -172,41 +172,41 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    p(1) = point_t(0d0, 0d0, 0d0)
+    p(1) = point_t(0d0, 0d0, 0d0) !e1 p1
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0)
+    p(2) = point_t(1d0, 0d0, 0d0) !e1 p2
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0)
+    p(3) = point_t(0d0, 1d0, 0d0) !e1 p3
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0)
+    p(4) = point_t(1d0, 1d0, 0d0) !e1 p4
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0)
+    p(5) = point_t(2d0, 0d0, 0d0) !e2 p2
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0)
+    p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
-    p(7) = point_t(0d0, 0d0, 1d0)
+    p(7) = point_t(0d0, 0d0, 1d0) !e1 p5
     call p(7)%set_id(7)
-    p(8) = point_t(1d0, 0d0, 1d0)
+    p(8) = point_t(1d0, 0d0, 1d0) !e1 p6
     call p(8)%set_id(8)
-    p(9) = point_t(1d0, 1d0, 1d0)
+    p(9) = point_t(1d0, 1d0, 1d0) !e1 p8
     call p(9)%set_id(9)
-    p(10) = point_t(0d0, 1d0, 1d0)
+    p(10) = point_t(0d0, 1d0, 1d0) !e1 p7
     call p(10)%set_id(10)
-    p(11) = point_t(2d0, 0d0, 1d0)
+    p(11) = point_t(2d0, 0d0, 1d0) !e2 p6
     call p(11)%set_id(11)
-    p(12) = point_t(2d0, 1d0, 1d0)
+    p(12) = point_t(2d0, 1d0, 1d0) !e2 p8
     call p(12)%set_id(12)
 
 
     call mesh_init(m, gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
-            p(7), p(8), p(9), p(10))
+       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+            p(7), p(8), p(10), p(9))
 
 
-       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4), &
-            p(8), p(11), p(12), p(9))
+       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6), &
+            p(8), p(11), p(9), p(12))
 
        @assertEqual(12, m%htp%num_entries())
 
@@ -237,8 +237,8 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
-               p(7), p(8), p(9), p(10))
+          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+               p(7), p(8), p(10), p(9))
 
           @assertEqual(8, m%htp%num_entries())
 
@@ -256,8 +256,8 @@ contains
 
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4), &
-               p(8), p(11), p(12), p(9))
+          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6), &
+               p(8), p(11), p(9), p(12))
 
           @assertEqual(8, m%htp%num_entries())
 
@@ -295,25 +295,25 @@ contains
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
-    p(1) = point_t(0d0, 0d0, 0d0)
+    p(1) = point_t(0d0, 0d0, 0d0) !e1 p1
     call p(1)%set_id(1)
-    p(2) = point_t(1d0, 0d0, 0d0)
+    p(2) = point_t(1d0, 0d0, 0d0) !e1 p2 
     call p(2)%set_id(2)
-    p(3) = point_t(0d0, 1d0, 0d0)
+    p(3) = point_t(0d0, 1d0, 0d0) !e1 p3 
     call p(3)%set_id(4)
-    p(4) = point_t(1d0, 1d0, 0d0)
+    p(4) = point_t(1d0, 1d0, 0d0) !e1 p4
     call p(4)%set_id(3)
-    p(5) = point_t(2d0, 0d0, 0d0)
+    p(5) = point_t(2d0, 0d0, 0d0) !e2 p2
     call p(5)%set_id(5)
-    p(6) = point_t(2d0, 1d0, 0d0)
+    p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
 
     call mesh_init(m, gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
 
-       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4))
+       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6))
 
        call mesh_generate_conn(m)
 
@@ -322,14 +322,14 @@ contains
 
        p_local_idx = mesh_get_local(m, m%points(p(1)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, m%points(p(3)%id()))
+       p_local_idx = mesh_get_local(m, m%points(p(4)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
        p_local_idx = mesh_get_local(m, m%points(p(6)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
        p_local_idx = mesh_get_local(m, m%points(p(5)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
 
-       p_local_idx = mesh_get_local(m, m%points(p(4)%id()))
+       p_local_idx = mesh_get_local(m, m%points(p(3)%id()))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
        p_local_idx = mesh_get_local(m, m%points(p(2)%id()))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
@@ -346,7 +346,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3))
+          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
 
           call mesh_generate_conn(m)
 
@@ -370,7 +370,7 @@ contains
        
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4))
+          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6))
 
           call mesh_generate_conn(m)
 
@@ -443,12 +443,12 @@ contains
     call mesh_init(m, gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
-            p(7), p(8), p(9), p(10))
+       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+            p(7), p(8), p(10), p(9))
 
 
-       call mesh_add_element(m, 2, p(2), p(5), p(6), p(4), &
-            p(8), p(11), p(12), p(9))
+       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6), &
+            p(8), p(11), p(9), p(12))
 
        call mesh_generate_conn(m)
        @MPIassertEqual(2, m%glb_nelv)
@@ -520,8 +520,8 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(4), p(3), &
-               p(7), p(8), p(9), p(10))
+          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+               p(7), p(8), p(10), p(9))
 
           call mesh_generate_conn(m)
 
@@ -562,8 +562,8 @@ contains
 
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(6), p(4), &
-               p(8), p(11), p(12), p(9))
+          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6), &
+               p(8), p(11), p(9), p(12))
 
           call mesh_generate_conn(m)
 

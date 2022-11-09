@@ -1,0 +1,28 @@
+&NEKO_CASE
+mesh_file= 'box.nmsh'
+fluid_scheme='pnpn'
+lx = 8
+source_term = 'user_vector'
+initial_condition = 'user'
+scalar = .true.
+scalar_source_term = 'noforce'
+/
+&NEKO_PARAMETERS
+dt = 1d-2
+T_end = 250
+nsamples = 50
+uinf= 0.0,0.0,0.0
+output_bdry = .true.
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+bc_labels(5) = 'w'
+bc_labels(6) = 'w'
+abstol_vel = 1d-6
+abstol_prs = 1d-6
+Pr = 0.71
+Re = 1715
+scalar_bcs(5) = 'd=1'
+scalar_bcs(6) = 'd=0'
+proj_prs_dim = 4
+proj_vel_dim = 4
+/

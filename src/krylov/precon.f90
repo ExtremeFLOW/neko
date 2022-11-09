@@ -51,7 +51,7 @@ module precon
        import rp
        import :: pc_t
        implicit none
-       integer, intent(inout) :: n
+       integer, intent(in) :: n
        class(pc_t), intent(inout) :: this
        real(kind=rp), dimension(n), intent(inout) :: z
        real(kind=rp), dimension(n), intent(inout) :: r

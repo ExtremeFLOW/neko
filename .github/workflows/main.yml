@@ -7,30 +7,59 @@ on:
   workflow_dispatch:
   
 jobs:
+  linting:
+      name: "Flint"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Setup env.
+          run: |
+            sudo apt-get update && sudo apt-get install python-dev python3-tk
+            pip install nobvisual==0.2.0 flinter==0.4.0
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        - name: Lint
+          run: |
+            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+            score=$(awk '$1==0{print $3}' flint.txt)
+            if (( $(echo "$score < 8.13" |bc -l) )) ; then
+              exit 1
+            fi
+        - name: Archive linter report
+          uses: actions/upload-artifact@v3
+          with:
+            name: flint-report
+            path: flint.txt
+            retention-days: 5
   GNU:
-    
+    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-latest]
-        compiler: [gfortran-10, gfortran-11]
+        os: [ubuntu-20.04, macos-12]
+        compiler: [gfortran-10, gfortran-11, gfortran-12]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
         - os: ubuntu-20.04
           compiler: gfortran-11
         - os: ubuntu-20.04
+          compiler: gfortran-12
+        - os: ubuntu-20.04
           backend: opencl
-        - os: macos-latest
+        - os: macos-12
+          compiler: gfortran-10
+        - os: macos-12
           backend: cuda
-        - os: macos-latest
+        - os: macos-12
           backend: hip
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui
-        - os: macos-latest
-          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@11
+          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
+        - os: macos-12
+          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -44,7 +73,7 @@ jobs:
         run: ${{ matrix.setup-env }}
       - name: Cache pFUnit
         id: cache-pfunit
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -52,11 +81,27 @@ jobs:
         if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
         run: |
           git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
-          cd pFUnit && mkdir b && cd b
+          cd pFUnit
+          cat >> pfunit_error_stop.patch << _ACEOF
+          diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
+          index 7df7b65..4f7dbf5 100644
+          --- a/src/funit/FUnit.F90
+          +++ b/src/funit/FUnit.F90
+          @@ -168,7 +168,7 @@ contains
+           #if defined(PGI)
+                    call exit(-1)
+           #else
+          -         stop '*** Encountered 1 or more failures/errors during testing. ***'
+          +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
+           #endif
+                 end if
+           
+          _ACEOF
+          git apply pfunit_error_stop.patch && mkdir b && cd b
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
           make -j$(nproc) && make install && cd ../../
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build (CPU backend)
@@ -129,6 +174,7 @@ jobs:
           make -j $(nproc)
     
   Intel:
+    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -152,7 +198,7 @@ jobs:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build
@@ -160,6 +206,60 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
+  ReFrame:
+      needs: GNU
+      runs-on: ubuntu-20.04
+      strategy:
+        fail-fast: true
+        matrix:
+          precision: [sp, dp]
+          compiler: [gfortran-10]
+      env:
+        FC: ${{ matrix.compiler }}
+        OMPI_FC: ${{ matrix.compiler}}
+        OMPI_ALLOW_RUN_AS_ROOT: 1
+        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+        OMPI_MCA_btl_vader_single_copy_mechanism: none
+        RP: ${{ matrix.precision }}
+      name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
+      steps:
+        - name: Setup env.
+          run: |
+            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
+            pip install reframe-hpc 
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        - name: Regression tests
+          run: |
+            ./regen.sh
+            cd reframe
+            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
+  documentation:
+    needs: [Intel, GNU,ReFrame]
+    runs-on: ubuntu-latest
+    name: "Doxygen"
+    steps:
+    - uses: actions/checkout@v3
+    - name : Setup env.
+      run: |
+        sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
+        git clone https://github.com/ExtremeFLOW/doxygen-awesome-css doc/doxygen-awesome-css
+    - name: Doxygen
+      run: |
+        ./regen.sh
+        ./configure FC=${FC}
+        make html
             
-            
+    # Deploy the HTML documentation to GitHub Pages
+    - name: GH Pages Deployment
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./doc/html/
+        enable_jekyll: false
+        allow_empty_commit: false
+        force_orphan: true
+        publish_branch: gh-pages            
  

@@ -23,12 +23,13 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: param        
+    character(len=15), parameter :: scheme = 'plan1 (Pn/Pn-2)'
     integer :: lx2
 
     call this%free()
     
     !> Setup velocity fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, param, kspv_init=.true.)
+    call this%scheme_init(msh, lx, param, kspv_init=.true., scheme=scheme)
 
     !> Setup pressure field and related space \f$ Yh \f$
     lx2 = lx - 2        
@@ -69,11 +70,11 @@ contains
     
   end subroutine fluid_plan1_free
 
-  subroutine fluid_plan1_step(this, t, tstep, ab_bdf)
+  subroutine fluid_plan1_step(this, t, tstep, ext_bdf)
     class(fluid_plan1_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
 
   end subroutine fluid_plan1_step
   

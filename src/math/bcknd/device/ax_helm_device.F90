@@ -119,7 +119,7 @@ contains
 #endif
 
     if (coef%ifh2) then
-       call device_addcol4(w_d ,coef%h2_d, coef%B_d, u_d, coef%dof%n_dofs)
+       call device_addcol4(w_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
     end if
     
   end subroutine ax_helm_device_compute

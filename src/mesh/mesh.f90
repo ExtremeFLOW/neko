@@ -107,6 +107,7 @@ module mesh
      logical :: lconn = .false.                !< valid connectivity
      logical :: ldist = .false.                !< valid distributed data
      logical :: lnumr = .false.                !< valid numbering
+     logical :: lgenc = .true.                 !< generate connectivity
 
      !> enables user to specify a deformation
      !! that is applied to all x,y,z coordinates generated with this mesh
@@ -216,44 +217,50 @@ contains
           allocate(hex_t::m%elements(i)%e)
        end do
        m%npts = NEKO_HEX_NPTS
+       !> Only intialize if we generate connectivity
+       if (m%lgenc) then
+          allocate(htable_i4t4_t::m%facet_map)
+          select type (fmp => m%facet_map)
+          type is(htable_i4t4_t)
+             call fmp%init(m%nelv, facet_data)
+          end select
 
-       allocate(htable_i4t4_t::m%facet_map)
-       select type (fmp => m%facet_map)
-       type is(htable_i4t4_t)
-          call fmp%init(m%nelv, facet_data)
-       end select
+          allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
 
-       allocate(m%facet_neigh(NEKO_HEX_NFCS, m%nelv))
-
-       call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
-       call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+          call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
+          call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+       end if
     else if (m%gdim .eq. 2) then
        do i = 1, m%nelv
           allocate(quad_t::m%elements(i)%e)
        end do
        m%npts = NEKO_QUAD_NPTS
+       if (m%lgenc) then
+          allocate(htable_i4t2_t::m%facet_map)       
+          select type (fmp => m%facet_map)
+          type is(htable_i4t2_t)
+             call fmp%init(m%nelv, facet_data)
+          end select
 
-       allocate(htable_i4t2_t::m%facet_map)       
-       select type (fmp => m%facet_map)
-       type is(htable_i4t2_t)
-          call fmp%init(m%nelv, facet_data)
-       end select
+          allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
 
-       allocate(m%facet_neigh(NEKO_QUAD_NEDS, m%nelv))
-
-       call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+          call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+       end if
     else
        call neko_error("Invalid dimension")
     end if
 
     !> @todo resize onces final size is known
-    allocate(m%points(m%gdim*m%npts*m%nelv))
+    allocate(m%points(m%npts*m%nelv))
 
     !> @todo resize onces final size is known
-    allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
-    do i = 1, m%gdim*m%npts*m%nelv
-       call m%point_neigh(i)%init()
-    end do
+    !! Only init if we generate connectivity
+    if (m%lgenc) then
+       allocate(m%point_neigh(m%gdim*m%npts*m%nelv))
+       do i = 1, m%gdim*m%npts*m%nelv
+          call m%point_neigh(i)%init()
+       end do
+    end if
 
     allocate(m%facet_type(2 * m%gdim, m%nelv))
     m%facet_type = 0
@@ -378,21 +385,21 @@ contains
        if (m%gdim .eq. 2) then
           m%dfrmd_el(e) = .false.
           u = m%elements(e)%e%pts(2)%p%x - m%elements(e)%e%pts(1)%p%x
-          v = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(1)%p%x
+          v = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
        else
           m%dfrmd_el(e) = .false.
           u = m%elements(e)%e%pts(2)%p%x - m%elements(e)%e%pts(1)%p%x
-          v = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(1)%p%x
+          v = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(1)%p%x
           w = m%elements(e)%e%pts(5)%p%x - m%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
-          u = m%elements(e)%e%pts(8)%p%x - m%elements(e)%e%pts(7)%p%x
-          v = m%elements(e)%e%pts(6)%p%x - m%elements(e)%e%pts(7)%p%x
-          w = m%elements(e)%e%pts(3)%p%x - m%elements(e)%e%pts(7)%p%x
+          u = m%elements(e)%e%pts(7)%p%x - m%elements(e)%e%pts(8)%p%x
+          v = m%elements(e)%e%pts(6)%p%x - m%elements(e)%e%pts(8)%p%x
+          w = m%elements(e)%e%pts(4)%p%x - m%elements(e)%e%pts(8)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
           if(.not. abscmp(temp, 0d0)) m%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
@@ -411,12 +418,14 @@ contains
   subroutine mesh_generate_conn(m)
     type(mesh_t), target, intent(inout) :: m
     type(tuple_i4_t) :: edge
-    type(tuple4_i4_t) :: face 
+    type(tuple4_i4_t) :: face, face_comp
     type(tuple_i4_t) :: facet_data
 
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
 
     if (m%lconn) return
+
+    if (.not. m%lgenc) return
 
     if (m%gdim .eq. 2) then
        n_sides = 4
@@ -488,7 +497,13 @@ contains
                 if (fmp%get(face, facet_data) .eq. 0) then
                   !if element is already recognized on face
                   if (facet_data%x(1) .eq. el_glb_idx ) then
-                    m%facet_neigh(j, i) = facet_data%x(2)
+                     m%facet_neigh(j, i) = facet_data%x(2)
+                     call m%elements(i)%e%facet_id(face_comp, j+(2*mod(j,2)-1))                  
+                     if (face_comp .eq. face) then
+                       facet_data%x(2) = el_glb_idx
+                       m%facet_neigh(j, i) = facet_data%x(1)
+                       call fmp%set(face, facet_data)
+                    end if
                   else if( facet_data%x(2) .eq. el_glb_idx) then
                     m%facet_neigh(j, i) = facet_data%x(1)
                   !if this is the second element, arrange so low id is first
@@ -504,7 +519,7 @@ contains
                  end if
                 else
                    facet_data%x(1) = el_glb_idx
-                   m%facet_neigh(j, i) = facet_data%x(2)
+                   m%facet_neigh(j, i) = 0
                    call fmp%set(face, facet_data)               
                 end if
           end do
@@ -1271,12 +1286,12 @@ contains
 
     ep => m%elements(el)%e
     el_glb_idx = el + m%offset_el
-
-    do i = 1, NEKO_HEX_NPTS
-       p_local_idx = mesh_get_local(m, m%points(p(i)))
-       call m%point_neigh(p_local_idx)%push(el_glb_idx)
-    end do
-    
+    if (m%lgenc) then
+       do i = 1, NEKO_HEX_NPTS
+          p_local_idx = mesh_get_local(m, m%points(p(i)))
+          call m%point_neigh(p_local_idx)%push(el_glb_idx)
+       end do
+    end if
     select type(ep)
     type is (hex_t)
        call ep%init(el_glb_idx, &
@@ -1284,16 +1299,18 @@ contains
             m%points(p(3)), m%points(p(4)), &
             m%points(p(5)), m%points(p(6)), &
             m%points(p(7)), m%points(p(8)))
+       
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ep%facet_id(f, i)
+             call mesh_add_face(m, f)
+          end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ep%facet_id(f, i)
-          call mesh_add_face(m, f)
-       end do
-
-       do i = 1, NEKO_HEX_NEDS
-          call ep%edge_id(e, i)
-          call mesh_add_edge(m, e)
-       end do
+          do i = 1, NEKO_HEX_NEDS
+             call ep%edge_id(e, i)
+             call mesh_add_edge(m, e)
+          end do
+       end if
        
     class default
        call neko_error('Invalid element type')
@@ -1391,8 +1408,8 @@ contains
   !> Mark facet @a f in element @a e as an inlet
   subroutine mesh_mark_inlet_facet(m, f, e)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
+    integer, intent(in) :: f
+    integer, intent(in) :: e
 
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
@@ -1410,9 +1427,9 @@ contains
   !> Mark facet @a f in element @a e with label 
   subroutine mesh_mark_labeled_facet(m, f, e, label)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: label
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: label
 
     if (e .gt. m%nelv) then
        call neko_error('Invalid element index')
@@ -1489,10 +1506,10 @@ contains
   !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
   subroutine mesh_mark_periodic_facet(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: pf
-    integer, intent(inout) :: pe
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: pf
+    integer, intent(in) :: pe
     integer, intent(inout) :: pids(4)
     integer, dimension(4) :: org_ids
     
@@ -1503,25 +1520,24 @@ contains
   !> Get original ids of periodic points
   subroutine mesh_get_facet_ids(m, f, e, pids)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
+    integer, intent(in) :: f
+    integer, intent(in) :: e
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
+    type(tuple4_i4_t) :: t
+    type(tuple_i4_t) :: t2
     integer :: i
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
-                                                       1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
-                                                       (/4,6/))
-  
+
     select type(ele => m%elements(e)%e)
     type is(hex_t)
-       do i = 1, 4
-          pi => ele%pts(face_nodes(i,f))%p
-          pids(i) = pi%id()
-       end do
+       call ele%facet_order(t,f)
+       pids = t%x
+    type is(quad_t)
+       call ele%facet_order(t2,f)
+       pids(1) = t2%x(1)
+       pids(2) = t2%x(2)
+       pids(3) = 0
+       pids(4) = 0
     end select
   end subroutine mesh_get_facet_ids
   
@@ -1535,26 +1551,26 @@ contains
     integer :: pe
     integer :: org_ids(4), pids(4)
     type(point_t), pointer :: pi
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
+    integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+                                                                2,4,&
+                                                                1,2,&
+                                                                3,4 /),&
+                                                                (/2,4/))
+ 
     do i = 1, m%periodic%size
        e = m%periodic%facet_el(i)%x(2) 
        f = m%periodic%facet_el(i)%x(1)
        pe = m%periodic%p_facet_el(i)%x(2)
        pf = m%periodic%p_facet_el(i)%x(1)
        pids = m%periodic%p_ids(i)%x
-       select type(ele => m%elements(e)%e)
-       type is(hex_t)
-       do j = 1, 4
-          pi => ele%pts(face_nodes(j,f))%p
-          pids(j) = pi%id()
-       end do
-       end select
+       call mesh_get_facet_ids(m, f, e, pids)
        m%periodic%p_ids(i)%x = pids
     end do
     do i = 1, m%periodic%size
@@ -1567,6 +1583,11 @@ contains
           pi => ele%pts(face_nodes(j,f))%p
           call pi%set_id(org_ids(j))
        end do
+       type is(quad_t)
+       do j = 1, 2
+          pi => ele%pts(edge_nodes(j,f))%p
+          call pi%set_id(org_ids(j))
+       end do
        end select
     end do
   end subroutine mesh_reset_periodic_ids
@@ -1574,22 +1595,27 @@ contains
   !> Creates common ids for matching periodic points.
   subroutine mesh_create_periodic_ids(m, f, e, pf, pe)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: pf
-    integer, intent(inout) :: pe
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: pf
+    integer, intent(in) :: pe
     type(point_t), pointer :: pi, pj
     real(kind=dp) :: L(3)
     integer :: i, j, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
+    integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+                                                                2,4,&
+                                                                1,2,&
+                                                                3,4 /),&
+                                                                (/2,4/))
   
     select type(ele => m%elements(e)%e)
     type is(hex_t)
@@ -1610,27 +1636,68 @@ contains
                 call pi%set_id(id)
                 call pj%set_id(id)
                 p_local_idx = mesh_get_local(m, m%points(id))
-                id = ele%id()
-                call m%point_neigh(p_local_idx)%push(id)
-                id = elp%id()
-                call m%point_neigh(p_local_idx)%push(id)
+                if (m%lgenc) then
+                   id = ele%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                   id = elp%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                end if
              end if
           end do
        end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ele%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-          call elp%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-       end do
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ele%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+             call elp%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+          end do
 
-       do i = 1, NEKO_HEX_NEDS
-          call ele%edge_id(et, i)
-          call mesh_add_edge(m, et)
-          call elp%edge_id(et, i)
-          call mesh_add_edge(m, et)
+          do i = 1, NEKO_HEX_NEDS
+             call ele%edge_id(et, i)
+             call mesh_add_edge(m, et)
+             call elp%edge_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
+    end select
+    type is(quad_t)
+    select type(elp => m%elements(pe)%e)
+    type is(quad_t)
+       L = 0d0
+       do i = 1, 2
+          L = L + ele%pts(edge_nodes(i,f))%p%x(1:3) - &
+               elp%pts(edge_nodes(i,pf))%p%x(1:3)
        end do
+       L = L/2
+       do i = 1, 2
+          pi => ele%pts(edge_nodes(i,f))%p
+          do j = 1, 2
+             pj => elp%pts(edge_nodes(j,pf))%p
+             !whatabout thie tolerance?
+             if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
+                id = min(pi%id(), pj%id())
+                call pi%set_id(id)
+                call pj%set_id(id)
+                p_local_idx = mesh_get_local(m, m%points(id))
+                if (m%lgenc) then
+                   id = ele%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                   id = elp%id()
+                   call m%point_neigh(p_local_idx)%push(id)
+                end if
+             end if
+          end do
+       end do
+       if (m%lgenc) then
+          do i = 1, NEKO_QUAD_NEDS
+             call ele%facet_id(et, i)
+             call mesh_add_edge(m, et)
+             call elp%facet_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
     end select
     end select
   end subroutine mesh_create_periodic_ids
@@ -1639,21 +1706,21 @@ contains
   !! periodic points
   subroutine mesh_apply_periodic_facet(m, f, e, pf, pe, pids)
     type(mesh_t), intent(inout) :: m
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-    integer, intent(inout) :: pf
-    integer, intent(inout) :: pe
+    integer, intent(in) :: f
+    integer, intent(in) :: e
+    integer, intent(in) :: pf
+    integer, intent(in) :: pe
     integer, intent(inout) :: pids(4)
     type(point_t), pointer :: pi
     integer :: i, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,8,4,&
-                                                       2,6,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+                                                       2,6,8,4,&
                                                        1,2,6,5,&
-                                                       4,3,7,8,&
-                                                       1,2,3,4,&
-                                                       5,6,7,8/),&
+                                                       3,4,8,7,&
+                                                       1,2,4,3,&
+                                                       5,6,8,7/),&
                                                        (/4,6/))
   
     select type(ele => m%elements(e)%e)

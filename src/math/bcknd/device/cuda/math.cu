@@ -338,6 +338,13 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
+  /*
+   * Reduction buffer
+   */
+  int red_s = 0;
+  real * bufred = NULL;
+  real * bufred_d = NULL;
+
   /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
@@ -348,32 +355,27 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
-
-    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
      
     glsc3_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                             (real *) c, buf_d, *n);
+                                           (real *) c, bufred_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
+    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
-
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += buf[i];
-    }
-
-    free(buf);
-    CUDA_CHECK(cudaFree(buf_d));
-
-    return res;
+    return bufred[0];
   }
   
-  int red_s = 0;
-  real * bufred = NULL;
-  real * bufred_d = NULL;
   /**
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
@@ -384,16 +386,16 @@ extern "C" {
       pow2 = 2*pow2;
     }
     const int nt = 1024/pow2;   
-    const dim3 nthrds(nt, pow2, 1);
+    const dim3 nthrds(pow2, nt, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int nb = ((*n) + nt - 1)/nt;
-    if((*j)>red_s){
-      red_s = *j;
+    if((*j)*nb>red_s){
+      red_s = (*j)*nb;
       if (bufred != NULL) {
-	free(bufred);
+	CUDA_CHECK(cudaFreeHost(bufred));
 	CUDA_CHECK(cudaFree(bufred_d));
       }
-      bufred = (real *) malloc((*j)*nb * sizeof(real));
+      CUDA_CHECK(cudaMallocHost(&bufred,(*j)*nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
     
@@ -402,17 +404,11 @@ extern "C" {
                                                 (const real *)mult,
                                                 bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, (*j)*nb * sizeof(real),
+    glsc3_reduce_kernel<<<(*j),1024>>> (bufred_d, nb, *j);
+    CUDA_CHECK(cudaGetLastError());
+
+    CUDA_CHECK(cudaMemcpy(h, bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToHost));
-    for (int k = 0; k < (*j); k++) {
-      h[k] = 0.0;
-    }
-    
-    for (int i = 0; i < nb; i++) {
-      for (int k = 0; k < (*j); k++) {
-        h[k] += bufred[i*(*j)+k];
-      }
-    }
   }
 
   /**
@@ -425,27 +421,27 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
 
-    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
-     
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
+         
     glsc2_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
-                                              buf_d, *n);
+                                           bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-
-    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
+    reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
+    CUDA_CHECK(cudaGetLastError());
+    
+    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
 
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += buf[i];
-    }
-
-    free(buf);
-    CUDA_CHECK(cudaFree(buf_d));
-
-    return res;
+    return bufred[0];
   }
 
   /** 
@@ -457,26 +453,25 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    real * buf = (real *) malloc(nb * sizeof(real));
-    real * buf_d;
-
-    CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
+    if ( nb > red_s){
+      red_s = nb;
+      if (bufred != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFree(bufred_d));        
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+    }
      
-    glsum_kernel<real><<<nblcks, nthrds>>>((real *) a, buf_d, *n);
+    glsum_kernel<real><<<nblcks, nthrds>>>((real *) a, bufred_d, *n);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(buf, buf_d, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
+                          cudaMemcpyDeviceToHost));    
 
-    real res = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res += buf[i];
-    }
-
-    free(buf);
-    CUDA_CHECK(cudaFree(buf_d));
-
-    return res;
+    return bufred[0];
   }
 
 }

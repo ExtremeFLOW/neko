@@ -65,6 +65,7 @@ module mpi_types
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
   integer :: MPI_CHARACTER_SIZE        !< Size of MPI type character
   integer :: MPI_INTEGER_SIZE          !< Size of MPI type integer
+  integer :: MPI_LOGICAL_SIZE          !< Size of MPI type logical
   integer :: MPI_REAL_PREC_SIZE        !< Size of working precision REAL types
 
   ! Public dervied types and size definitions
@@ -76,8 +77,8 @@ module mpi_types
        MPI_RE2V2_DATA_CV, MPI_RE2V2_DATA_BC, &
        MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, &
-       MPI_REAL_PREC_SIZE, MPI_NEKO_PARAMS, &
-       MPI_STL_HEADER, MPI_STL_TRIANGLE
+       MPI_LOGICAL_SIZE, MPI_REAL_PREC_SIZE, &
+       MPI_NEKO_PARAMS, MPI_STL_HEADER, MPI_STL_TRIANGLE
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -109,6 +110,7 @@ contains
     call MPI_Type_size(MPI_DOUBLE_PRECISION, MPI_DOUBLE_PRECISION_SIZE, ierr)
     call MPI_Type_size(MPI_CHARACTER, MPI_CHARACTER_SIZE, ierr)
     call MPI_Type_size(MPI_INTEGER, MPI_INTEGER_SIZE, ierr)
+    call MPI_Type_size(MPI_LOGICAL, MPI_LOGICAL_SIZE, ierr)
     call MPI_Type_size(MPI_REAL_PRECISION, MPI_REAL_PREC_SIZE, ierr)
 
     call MPI_Barrier(NEKO_COMM, ierr)
@@ -470,7 +472,7 @@ contains
   !> Define a MPI derived type for parameters
   subroutine mpi_type_neko_params_init
     type(param_t) :: param_data
-    integer, parameter :: n_param = 39
+    integer, parameter :: n_param = 42
     type(MPI_Datatype) :: type(n_param)
     integer(kind=MPI_ADDRESS_KIND) :: disp(n_param), base    
     integer :: len(n_param), ierr
@@ -515,6 +517,9 @@ contains
     call MPI_Get_address(param_data%proj_vel_dim, disp(37), ierr)
     call MPI_Get_address(param_data%dong_uchar, disp(38), ierr)
     call MPI_Get_address(param_data%dong_delta, disp(39), ierr)
+    call MPI_Get_address(param_data%Pr, disp(40), ierr)
+    call MPI_Get_address(param_data%scalar_bcs, disp(41), ierr)
+    call MPI_Get_address(param_data%user, disp(42), ierr)
     
     base = disp(1)
     do i = 1, n_param
@@ -539,6 +544,9 @@ contains
     len(37) = 1
     len(38) = 1
     len(39) = 1
+    len(40) = 1
+    len(41) = 20*20
+    len(42) = 16
     
     type(1) = MPI_INTEGER
     type(2:4) = MPI_LOGICAL
@@ -561,6 +569,9 @@ contains
     type(37) = MPI_INTEGER
     type(38) = MPI_REAL_PRECISION
     type(39) = MPI_REAL_PRECISION
+    type(40) = MPI_REAL_PRECISION
+    type(41) = MPI_CHARACTER
+    type(42) = MPI_REAL_PRECISION
     
     call MPI_Type_create_struct(n_param, len, disp, type, MPI_NEKO_PARAMS, ierr)
     call MPI_Type_commit(MPI_NEKO_PARAMS, ierr)

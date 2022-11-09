@@ -102,27 +102,25 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_memcpy(u%x, u%x_d, u%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(v%x, v%x_d, v%dof%n_dofs, HOST_TO_DEVICE)
-       call device_memcpy(w%x, w%x_d, w%dof%n_dofs, HOST_TO_DEVICE)
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_memcpy(u%x, u%x_d, u%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(v%x, v%x_d, v%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(w%x, w%x_d, w%dof%size(), HOST_TO_DEVICE)
     end if
     
     ! Ensure continuity across elements for initial conditions
-    call gs_op(gs, u%x, u%dof%n_dofs, GS_OP_ADD) 
-    call gs_op(gs, v%x, v%dof%n_dofs, GS_OP_ADD) 
-    call gs_op(gs, w%x, w%dof%n_dofs, GS_OP_ADD) 
+    call gs_op(gs, u%x, u%dof%size(), GS_OP_ADD) 
+    call gs_op(gs, v%x, v%dof%size(), GS_OP_ADD) 
+    call gs_op(gs, w%x, w%dof%size(), GS_OP_ADD) 
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       call device_col2(u%x_d, coef%mult_d, u%dof%n_dofs)
-       call device_col2(v%x_d, coef%mult_d, v%dof%n_dofs)
-       call device_col2(w%x_d, coef%mult_d, w%dof%n_dofs)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_col2(u%x_d, coef%mult_d, u%dof%size())
+       call device_col2(v%x_d, coef%mult_d, v%dof%size())
+       call device_col2(w%x_d, coef%mult_d, w%dof%size())
     else
-       call col2(u%x, coef%mult, u%dof%n_dofs)
-       call col2(v%x, coef%mult, v%dof%n_dofs)
-       call col2(w%x, coef%mult, w%dof%n_dofs)
+       call col2(u%x, coef%mult, u%dof%size())
+       call col2(v%x, coef%mult, v%dof%size())
+       call col2(w%x, coef%mult, w%dof%size())
     end if
     
   end subroutine set_flow_ic_common
@@ -137,9 +135,8 @@ contains
     u = uinf(1)
     v = uinf(2)
     w = uinf(3)
-    n = u%dof%n_dofs
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    n = u%dof%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call cfill(u%x, uinf(1), n)
        call cfill(v%x, uinf(2), n)
        call cfill(w%x, uinf(3), n)

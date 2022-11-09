@@ -19,16 +19,14 @@ contains
 
   subroutine setUp(this)
     class(test_device_math), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
   end subroutine setUp
 
   subroutine tearDown(this)
     class(test_device_math), intent(inout) :: this
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_finalize
    end if
   end subroutine tearDown
@@ -41,8 +39,7 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
@@ -81,8 +78,7 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 0.0_rp
        
        call device_map(a, a_d, size(a))
@@ -122,8 +118,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call rone(a, n)
        call rzero(b, n)
@@ -158,8 +153,7 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 1.0_rp
        
        call device_map(a, a_d, size(a))
@@ -186,8 +180,7 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        a = 40.0_rp
        
        call device_map(a, a_d, size(a))
@@ -214,8 +207,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 40.0_rp
           b(i) = 2.0_rp
@@ -248,8 +240,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 20.0_rp
           b(i) = 2.0_rp
@@ -282,8 +273,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 20.0_rp
           b(i) = 2.0_rp
@@ -318,8 +308,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 0.0_rp
           b(i) = 2.0_rp
@@ -353,8 +342,7 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 2.0_rp
        end do
@@ -383,8 +371,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 21.0_rp
           b(i) = 2.0_rp
@@ -416,8 +403,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 21.0_rp
           b(i) = 2.0_rp
@@ -450,8 +436,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 17.0_rp
           b(i) = 2.0_rp
@@ -486,8 +471,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 44.0_rp
           b(i) = 2.0_rp
@@ -520,8 +504,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 17.0_rp
           b(i) = 2.0_rp
@@ -557,8 +540,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 4669.0_rp
           b(i) = 2.0_rp
@@ -595,8 +577,7 @@ contains
     type(c_ptr) :: d_d = C_NULL_PTR
     integer :: i
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, n
           a(i) = 4669.0_rp
           b(i) = 2.0_rp
@@ -636,8 +617,7 @@ contains
     type(c_ptr) :: c_d = C_NULL_PTR
     integer :: i, ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
        
@@ -673,8 +653,7 @@ contains
     type(c_ptr) :: b_d = C_NULL_PTR
     integer :: i, ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
        
@@ -706,8 +685,7 @@ contains
     type(c_ptr) :: a_d = C_NULL_PTR
     integer :: i, ierr
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        
        call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
        

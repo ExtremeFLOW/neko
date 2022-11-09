@@ -359,6 +359,87 @@ __global__ void addcol4_kernel(T * __restrict__ a,
 }
 
 /**
+ * Warp shuffle reduction
+ */
+template< typename T>
+__inline__ __device__ T reduce_warp(T val) {
+  val += __shfl_down_sync(0xffffffff, val, 16);
+  val += __shfl_down_sync(0xffffffff, val, 8);
+  val += __shfl_down_sync(0xffffffff, val, 4);
+  val += __shfl_down_sync(0xffffffff, val, 2);
+  val += __shfl_down_sync(0xffffffff, val, 1);
+  return val;
+}
+
+/**
+ * Vector reduction kernel
+ */
+template< typename T >
+__global__ void reduce_kernel(T * bufred, const int n) {
+                
+  T sum = 0;
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str) 
+  {
+    sum += bufred[i];
+  }
+
+  __shared__ T shared[32];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
+  __syncthreads();
+
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = sum;
+}
+
+
+/**
+ * Reduction kernel for glsc3
+ */
+
+template< typename T >
+__global__ void glsc3_reduce_kernel( T * bufred,
+                                    const int n,
+                                    const int j
+                                   ) {
+   __shared__ T buf[1024] ;
+   const int idx = threadIdx.x;
+   const int y= blockIdx.x;
+   const int step = blockDim.x;
+
+   buf[idx]=0;
+   for (int i=idx ; i<n ; i+=step)
+   {
+     buf[idx] += bufred[i*j + y];
+   }
+   __syncthreads();
+
+   int i = 512;
+   while (i != 0)
+   {
+     if(threadIdx.x < i && (threadIdx.x + i) < n )
+     {
+        buf[threadIdx.x] += buf[threadIdx.x + i] ;
+     }
+     i = i>>1;
+     __syncthreads();
+   }
+
+   bufred[y] = buf[0];
+}
+
+
+/**
  * Device kernel for glsc3
  */
 template< typename T >
@@ -371,27 +452,26 @@ __global__ void glsc3_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0.0;
-
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+  
+  __shared__ T shared[32];  
+  T sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    tmp += a[i] * b[i] * c[i];
+    sum += a[i] * b[i] * c[i];
   }
-  buf[threadIdx.x] = tmp;
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
   __syncthreads();
 
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x] += buf[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
-  }
- 
-  if (threadIdx.x == 0) {
-    buf_h[blockIdx.x] = buf[0];
-  }
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
 }
 
 /**
@@ -405,30 +485,30 @@ __global__ void glsc3_many_kernel(const T * a,
                                   const int j,
                                   const int n) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-  const int y = threadIdx.y;
+  const int idx = blockIdx.x * blockDim.y + threadIdx.y;
+  const int str = blockDim.y * gridDim.x;
+  const int y = threadIdx.x;
 
   __shared__ T buf[1024];
   T tmp = 0;
   if(y < j){
     for (int i = idx; i < n; i+= str) {
-      tmp += a[i] * b[threadIdx.y][i] * c[i];
+      tmp += a[i] * b[threadIdx.x][i] * c[i];
     }
   }
   
-  buf[threadIdx.x*blockDim.y+y] = tmp;
+  buf[threadIdx.y*blockDim.x+y] = tmp;
   __syncthreads();
   
-  int i = blockDim.x>>1;
+  int i = blockDim.y>>1;
   while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x*blockDim.y +y] += buf[(threadIdx.x + i)*blockDim.y+y];
+    if (threadIdx.y < i) {
+      buf[threadIdx.y*blockDim.x +y] += buf[(threadIdx.y + i)*blockDim.x+y];
     }
     __syncthreads();
     i = i>>1;
   }
-  if (threadIdx.x == 0) {
+  if (threadIdx.y == 0) {
     if( y < j) {
       buf_h[j*blockIdx.x+y] = buf[y];
     }
@@ -447,27 +527,27 @@ __global__ void glsc2_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0.0;
-
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+  
+  __shared__ T shared[32];  
+  T sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    tmp += a[i] * b[i];
+    sum += a[i] * b[i];
   }
-  buf[threadIdx.x] = tmp;
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
   __syncthreads();
 
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x] += buf[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
-  }
- 
-  if (threadIdx.x == 0) {
-    buf_h[blockIdx.x] = buf[0];
-  }
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+  
 }
 
 /**
@@ -481,25 +561,26 @@ __global__ void glsum_kernel(const T * a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0.0;
-
-  for (int i = idx; i < n; i+= str) {
-    tmp += a[i];
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+  
+  __shared__ T shared[32];
+  T sum = 0;    
+  for (int i = idx; i<n ; i += str) 
+  {
+    sum += a[i];
   }
-  buf[threadIdx.x] = tmp;
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
   __syncthreads();
 
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf[threadIdx.x] += buf[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
-  }
- 
-  if (threadIdx.x == 0) {
-    buf_h[blockIdx.x] = buf[0];
-  }
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+  
 }

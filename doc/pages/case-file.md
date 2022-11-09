@@ -12,7 +12,7 @@ This example is available in the source repository as file `examples/hemi/hemi.c
 ~~~
 &NEKO_CASE
 mesh_file= 'hemi.nmsh'
-fluid_scheme='plan4'
+fluid_scheme='pnpn'
 lx = 6
 source_term = 'noforce'
 initial_condition = 'uniform'
@@ -92,3 +92,4 @@ Name                    | Description                                           
 `delta`                 | Boundary layer thickness \f$ \delta \f$                                                                       | `1d0`
 `blasius_approx`        | Type of approximate Blasius profile (``'linear'``, ``'quadratic'``, ``'cubic'``, ``'quartic'``, ``'sin'``)    | ``'sin'``
 `bc_labels`             | Type of boundary condition for each label                      | -
+`user`                  | Array of sixteen user-defined parameters                      | `0.0,...,0.0`
