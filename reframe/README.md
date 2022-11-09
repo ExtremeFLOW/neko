@@ -1,6 +1,6 @@
 # Neko Reframe test suite
 
-Requires Reframe to run (`spack install reframe` or `pip install reframe`).
+Requires Reframe to run (`spack install reframe` or `pip install reframe-hpc`).
 
 ```
 reframe -C settings.py -c checks.py -r --performance-report
