@@ -106,20 +106,14 @@ __kernel void makeext_kernel(__global real * __restrict__ abx1,
     
 }
 
-__kernel void scalar_makeext_kernel(__global real * __restrict__ abx1,
-                             __global real * __restrict__ aby1,
-                             __global real * __restrict__ abz1,
-                             __global real * __restrict__ abx2,
-                             __global real * __restrict__ aby2,
-                             __global real * __restrict__ abz2,
-                             __global real * __restrict__ bfx,
-                             __global real * __restrict__ bfy,
-                             __global real * __restrict__ bfz,
-                             const real rho,
-                             const real ab1,
-                             const real ab2,
-                             const real ab3,
-                             const int n) {
+__kernel void scalar_makeext_kernel(__global real * __restrict__ fs_lag,
+                                    __global real * __restrict__ fs_laglag,
+                                    __global real * __restrict__ fs,
+                                    const real rho,
+                                    const real ext1,
+                                    const real ext2,
+                                    const real ext3,
+                                    const int n) {
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
