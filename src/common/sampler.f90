@@ -59,16 +59,19 @@ module sampler
      procedure, pass(this) :: add => sampler_add
      procedure, pass(this) :: sample => sampler_sample
      procedure, pass(this) :: set_counter => sampler_set_counter
+     procedure, pass(this) :: set_count => sampler_set_sample_count
   end type sampler_t
 
 contains
 
   !> Initialize a sampler
-  subroutine sampler_init(this, nsamp, T_end, size)
+  subroutine sampler_init(this, nsamp, T_end, freq, T, size)
     class(sampler_t), intent(inout) :: this
-    integer, intent(inout) :: nsamp
-    real(kind=rp) :: T_end
-    integer, intent(inout), optional :: size
+    integer, intent(in) :: nsamp
+    real(kind=rp), intent(in) :: T_end
+    real(kind=rp), optional, intent(in) :: T
+    integer, intent(in), optional :: size
+    real(kind=rp), optional, intent(in) :: freq
     character(len=LOG_SIZE) :: log_buf
     integer :: n, i
 
@@ -91,8 +94,16 @@ contains
     this%size = n
 
     this%nsample = 0
-    this%freq = ( real(nsamp,rp) / T_end )
-    this%T = real(1d0,rp) / this%freq
+    if (present(freq)) then
+       this%freq = freq
+       this%T = real(1d0,rp) / this%freq
+    else if (present(T)) then
+       this%T = T
+       this%freq = 1.0_rp/this%T
+    else
+       this%freq = ( real(nsamp,rp) / T_end )
+       this%T = real(1d0,rp) / this%freq
+    end if
 
     call neko_log%section('Sampler')
     write(log_buf, '(A,I13)') 'Samples   :',  nsamp
@@ -137,15 +148,21 @@ contains
   end subroutine sampler_add
 
   !> Sample all outputs in the sampler
-  subroutine sampler_sample(this, t)
+  subroutine sampler_sample(this, t, ifforce)
     class(sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    logical, intent(in), optional :: ifforce
     real(kind=dp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
     character(len=LOG_SIZE) :: log_buf
     integer :: i, ierr
+    logical :: force = .false.
 
-    if (t .ge. (this%nsample * this%T)) then
+    if (present(ifforce)) then
+       force = ifforce
+    end if
+
+    if (t .ge. (this%nsample * this%T) .or. force) then
 
        call MPI_Barrier(NEKO_COMM, ierr)
        sample_start_time = MPI_WTIME()
@@ -175,7 +192,7 @@ contains
     
   end subroutine sampler_sample
 
-  !> Set sampling counter (after restart)
+  !> Set sampling counter based on time (after restart)
   subroutine sampler_set_counter(this, t)
     class(sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
@@ -189,5 +206,20 @@ contains
     end do
     
   end subroutine sampler_set_counter
+ 
+  !> Set sampling counter (after restart) explicitly
+  subroutine sampler_set_sample_count(this, sample_number)
+    class(sampler_t), intent(inout) :: this
+    integer, intent(in) :: sample_number
+    integer :: i
+
+    this%nsample = sample_number
+    do i = 1, this%n
+       call this%output_list(i)%outp%set_counter(this%nsample)
+       call this%output_list(i)%outp%set_start_counter(this%nsample)
+    end do
+    
+  end subroutine sampler_set_sample_count
   
+ 
 end module sampler
