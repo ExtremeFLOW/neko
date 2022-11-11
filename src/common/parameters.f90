@@ -77,6 +77,8 @@ module parameters
      real(kind=rp) :: dong_delta     !< Small constant for dong outflow
      real(kind=rp) :: Pr        !< Prandtl number
      character(len=20) :: scalar_bcs(20) !< Type of bc for scalars at each label
+     logical :: stats_fluid        !< Fluid statistics
+     real(kind=rp) :: stats_sample_time         !< Tiem to avg stats and means over§
   end type param_t
 
   type param_io_t
@@ -142,6 +144,8 @@ contains
     real(kind=rp) :: dong_delta = 0.01_rp
     real(kind=rp) :: Pr = 1d0
     character(len=20) :: scalar_bcs(20) ='not'
+    logical :: stats_fluid = .false.
+    real(kind=rp) :: stats_sample_time = 1d0
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -149,7 +153,8 @@ contains
          proj_prs_dim,  proj_vel_dim, time_order, jlimit, restart_file, stats_begin, &
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
-         delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr, scalar_bcs
+         delta, blasius_approx, bc_labels, dong_uchar, dong_delta, &
+         Pr, scalar_bcs, stats_fluid, stats_sample_time
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -194,6 +199,8 @@ contains
     param%p%dong_delta = dong_delta
     param%p%Pr = Pr 
     param%p%scalar_bcs = scalar_bcs
+    param%p%stats_fluid = stats_fluid
+    param%p%stats_sample_time = stats_sample_time
 
   end subroutine param_read
 
@@ -221,6 +228,8 @@ contains
     character(len=10) :: blasius_approx
     character(len=20) :: bc_labels(20)
     character(len=20) :: scalar_bcs(20)
+    logical :: stats_fluid
+    real(kind=rp) :: stats_sample_time
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -229,7 +238,7 @@ contains
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr,&
-         scalar_bcs
+         scalar_bcs, stats_fluid, stats_sample_time
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -272,6 +281,8 @@ contains
     dong_delta = param%p%dong_delta
     Pr = param%p%Pr
     scalar_bcs = param%p%scalar_bcs
+    stats_fluid = param%p%stats_fluid
+    stats_sample_time = param%p%stats_sample_time
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
         
@@ -321,6 +332,8 @@ contains
     param%dong_delta = 0.01_rp
     param%Pr = 1.0_rp
     param%scalar_bcs(20) ='not'
+    param%stats_fluid = .false.
+    param%stats_sample_time = 1.0_rp
 
   end subroutine param_default
   
