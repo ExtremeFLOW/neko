@@ -84,14 +84,17 @@ contains
     real(kind=dp), allocatable :: tmp_dp(:)
     real(kind=sp), allocatable :: tmp_sp(:)
     real(kind=sp), parameter :: test_pattern = 6.54321
+    type(field_ptr_t), allocatable :: scalar_fields(:)
     logical :: write_mesh, write_velocity, write_pressure
-    integer :: FLD_DATA_SIZE
+    integer :: FLD_DATA_SIZE, n_scalar_fields
 
     if (present(t)) then
        time = real(t,dp)
     else
        time = 0d0
     end if
+
+    n_scalar_fields = 0
     
     select type(data)
     type is (field_t)
@@ -101,6 +104,53 @@ contains
        dof => p%dof
        write_pressure = .true.
        write_velocity = .false.
+    type is (field_list_t)
+       select case (size(data%fields))
+       case (1)
+          p => data%fields(1)%f
+          write_pressure = .true.
+          write_velocity = .false.
+       case (2)
+          p => data%fields(1)%f
+          u => data%fields(2)%f
+          v => data%fields(1)%f
+          w => data%fields(2)%f
+          write_pressure = .true.
+          write_velocity = .true.
+       case (3)
+          u => data%fields(1)%f
+          v => data%fields(2)%f
+          w => data%fields(3)%f
+          p => data%fields(1)%f
+          write_pressure = .true.
+          write_velocity = .true.
+       case (4)
+          p => data%fields(1)%f
+          u => data%fields(2)%f
+          v => data%fields(3)%f
+          w => data%fields(4)%f
+          write_pressure = .true.
+          write_velocity = .true.
+      case (5:99)
+          p => data%fields(1)%f
+          u => data%fields(2)%f
+          v => data%fields(3)%f
+          w => data%fields(4)%f
+          !First field here will be stored in "temperature"
+          n_scalar_fields = size(data%fields) - 4
+          allocate(scalar_fields(n_scalar_fields))
+          do i = 5,size(data%fields)
+             scalar_fields(i-4) = data%fields(i)
+          end do
+          write_pressure = .true.
+          write_velocity = .true.
+       case default
+          call neko_error('This many fields not supported yet, fld_file')
+       end select
+
+       msh => p%msh
+       Xh => p%Xh
+       dof => p%dof
     class is (fluid_scheme_t)
        u => data%u
        v => data%v
@@ -172,8 +222,20 @@ contains
     end if
     if (write_pressure) then
        rdcode(i) = 'P'
+       i = i + 1
     end if
-
+    if (n_scalar_fields .gt. 0) then
+       rdcode(i) = 'T'
+       i = i + 1
+    end if
+    if (n_scalar_fields .gt. 1 ) then
+       rdcode(i) = 'S'
+       i = i + 1
+       write(rdcode(i), '(i1)') (n_scalar_fields-1)/10
+       i = i + 1
+       write(rdcode(i), '(i1)') (n_scalar_fields-1) - 10*((n_scalar_fields-1)/10)
+       i = i + 1
+    end if
 
     !> @todo fix support for single precision output?
     write(hdr, 1) FLD_DATA_SIZE, Xh%lx, Xh%ly, Xh%lz,msh%glb_nelv,msh%glb_nelv,&
@@ -379,44 +441,6 @@ contains
        
     end if
  
-    if (write_pressure) then
-       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
-            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
-            int(FLD_DATA_SIZE, i8))
-      
-       if (.not. this%dp_precision) then
-
-          i = 1
-          do el = 1, msh%nelv
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_sp(i) = real(p%x(j,k,l,el),sp)
-                      i = i + 1
-                   end do
-                end do
-             end do
-          end do
-          
-          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n/msh%gdim, &
-               MPI_REAL, status, ierr)
-       else
-          i = 1
-          do el = 1, msh%nelv
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_dp(i) = real(p%x(j,k,l,el),dp)
-                      i = i + 1
-                   end do
-                end do
-             end do
-          end do
-          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n/msh%gdim, &
-               MPI_DOUBLE_PRECISION, status, ierr)
-       end if
-    end if
-    
     if (allocated(tmp_dp)) then
        deallocate(tmp_dp)
     end if
@@ -424,6 +448,26 @@ contains
     if (allocated(tmp_sp)) then
        deallocate(tmp_sp)
     end if
+
+    if (write_pressure) then
+       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
+            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+            int(FLD_DATA_SIZE, i8))
+       call fld_file_write_field(this, fh, p, byte_offset)
+       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
+            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+            int(FLD_DATA_SIZE, i8))
+    end if
+    do i = 1, n_scalar_fields
+       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
+            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+            int(FLD_DATA_SIZE, i8))
+       call fld_file_write_field(this, fh, scalar_fields(i)%f, byte_offset)
+       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
+            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+            int(FLD_DATA_SIZE, i8))
+    end do
+    
     
     call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
@@ -445,6 +489,57 @@ contains
     this%counter = this%counter + 1
     
   end subroutine fld_file_write
+
+  subroutine fld_file_write_field(this, fh, p, byte_offset)
+    class(fld_file_t), intent(inout) :: this
+    type(MPI_File), intent(inout) :: fh
+    type(field_t), intent(in) :: p
+    integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
+    real(kind=dp), allocatable :: tmp_dp(:)
+    real(kind=sp), allocatable :: tmp_sp(:)
+    integer :: i, el, l, k, j, ierr, n
+    type(MPI_Status) :: status
+
+    associate(msh => p%msh, Xh => p%Xh)
+    n = p%dof%size()
+    if (this%dp_precision) then
+       allocate(tmp_dp(n))
+    else
+       allocate(tmp_sp(n))
+    end if
+     
+    if (.not. this%dp_precision) then
+       i = 1
+       do el = 1, msh%nelv
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp_sp(i) = real(p%x(j,k,l,el),sp)
+                   i = i + 1
+                end do
+             end do
+          end do
+       end do
+       
+       call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
+            MPI_REAL, status, ierr)
+    else
+       i = 1
+       do el = 1, msh%nelv
+          do l = 1, Xh%lz
+             do k = 1, Xh%ly
+                do j = 1, Xh%lx
+                   tmp_dp(i) = real(p%x(j,k,l,el),dp)
+                   i = i + 1
+                end do
+             end do
+          end do
+       end do
+       call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
+            MPI_DOUBLE_PRECISION, status, ierr)
+    end if
+    end associate
+  end subroutine fld_file_write_field
   
   !> Load a field from a NEKTON fld file
   subroutine fld_file_read(this, data)
