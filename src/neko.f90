@@ -77,6 +77,7 @@ module neko
   use device
   use cpr
   use field_registry
+  use vector
 contains
 
   subroutine neko_init(C)

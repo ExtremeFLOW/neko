@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ module parameters
      character(len=20) :: scalar_bcs(20) !< Type of bc for scalars at each label
      logical :: stats_fluid        !< Fluid statistics
      real(kind=rp) :: stats_sample_time         !< Tiem to avg stats and means over§
+     real(kind=rp) :: user(16)           !< User defined parameters
   end type param_t
 
   type param_io_t
@@ -146,6 +147,7 @@ contains
     character(len=20) :: scalar_bcs(20) ='not'
     logical :: stats_fluid = .false.
     real(kind=rp) :: stats_sample_time = 1d0
+    real(kind=rp) :: user(16)
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -154,7 +156,7 @@ contains
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels, dong_uchar, dong_delta, &
-         Pr, scalar_bcs, stats_fluid, stats_sample_time
+         Pr, scalar_bcs, stats_fluid, stats_sample_time, user
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -201,6 +203,7 @@ contains
     param%p%scalar_bcs = scalar_bcs
     param%p%stats_fluid = stats_fluid
     param%p%stats_sample_time = stats_sample_time
+    param%p%user = user
 
   end subroutine param_read
 
@@ -230,6 +233,7 @@ contains
     character(len=20) :: scalar_bcs(20)
     logical :: stats_fluid
     real(kind=rp) :: stats_sample_time
+    real(kind=rp) :: user(16)
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -238,7 +242,7 @@ contains
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr,&
-         scalar_bcs, stats_fluid, stats_sample_time
+         scalar_bcs, stats_fluid, stats_sample_time, user
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -283,6 +287,7 @@ contains
     scalar_bcs = param%p%scalar_bcs
     stats_fluid = param%p%stats_fluid
     stats_sample_time = param%p%stats_sample_time
+    user = param%p%user
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
         
@@ -334,6 +339,7 @@ contains
     param%scalar_bcs(20) ='not'
     param%stats_fluid = .false.
     param%stats_sample_time = 1.0_rp
+    param%user = 0.0_rp
 
   end subroutine param_default
   
