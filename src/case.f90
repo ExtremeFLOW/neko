@@ -39,6 +39,8 @@ module case
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
+  use fluid_stats_output
+  use field_list_output
   use parameters
   use mpi_types
   use mesh_field
@@ -65,7 +67,9 @@ module case
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s
+     type(sampler_t) :: sample_means
      type(fluid_output_t) :: f_out
+     type(fluid_stats_output_t) :: f_stats_output
      type(scalar_output_t) :: s_out
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
@@ -291,6 +295,7 @@ contains
     call C%s%init(C%params%nsamples, C%params%T_end)
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
     call C%s%add(C%f_out)
+    call C%sample_means%init(100, C%params%T_end, T=C%params%stats_sample_time)
 
     if (scalar) then
        C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
@@ -299,27 +304,31 @@ contains
 
     !
     ! Save checkpoints (if requested)
-    !
-    if (C%params%output_chkp) then
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%params%output_dir)
-       call C%s%add(C%f_chkp)
-    end if
+    ! For now we only save checkpoints at end of simulation
+    !if (C%params%output_chkp) then
+    !   C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%params%output_dir)
+    !   call C%s%add(C%f_chkp)
+    !end if
 
     !
     ! Setup statistics
     !
     call C%q%init(C%params%stats_begin)
-    if (C%params%stats_mean_flow) then
+    if (C%params%stats_mean_flow .or. C%params%stats_fluid) then
        call C%q%add(C%fluid%mean%u)
        call C%q%add(C%fluid%mean%v)
        call C%q%add(C%fluid%mean%w)
        call C%q%add(C%fluid%mean%p)
 
-       if (C%params%output_mean_flow) then
-          C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
-                                      path=C%params%output_dir)
-          call C%s%add(C%f_mf)
-       end if
+       C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
+                                   path=C%params%output_dir)
+       call C%sample_means%add(C%f_mf)
+    end if
+    if (C%params%stats_fluid) then
+       call C%q%add(C%fluid%stats)
+       C%f_stats_output = fluid_stats_output_t(C%fluid%stats, C%params%stats_begin, &
+                                              path=C%params%output_dir)
+       call C%sample_means%add(C%f_stats_output)
     end if
 
     if (C%params%stats_mean_sqr_flow) then
@@ -332,7 +341,7 @@ contains
           C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
                                              C%params%stats_begin, &
                                              path=C%params%output_dir)
-          call C%s%add(C%f_msqrf)
+          call C%sample_means%add(C%f_msqrf)
        end if
     end if
 
