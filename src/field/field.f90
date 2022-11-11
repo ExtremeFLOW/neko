@@ -54,7 +54,19 @@ module field
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
      character(len=80) :: name            !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
+  contains
+    procedure, pass(f) :: init => field_init_external_dof
+    procedure, pass(f) :: free => field_free
   end type field_t
+
+  !> field_ptr_t, To easily obtain a pointer to a field
+  type field_ptr_t
+     type(field_t), pointer :: f
+  end type
+  !> field_list_t, To be able to group fields together
+  type field_list_t
+     type(field_ptr_t), allocatable :: fields(:)
+  end type
 
   interface field_init
      module procedure field_init_external_dof, field_init_internal_dof
@@ -72,7 +84,7 @@ contains
 
   !> Initialize a field @a f on the mesh @a msh using an internal dofmap
   subroutine field_init_internal_dof(f, msh, space, fld_name)
-    type(field_t), intent(inout) :: f       !< Field to be initialized
+    class(field_t), intent(inout) :: f       !< Field to be initialized
     type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
     character(len=*), optional :: fld_name     !< Name of the field
@@ -96,15 +108,13 @@ contains
 
   !> Initialize a field @a f on the mesh @a msh using an internal dofmap
   subroutine field_init_external_dof(f, dof, fld_name)
-    type(field_t), intent(inout) :: f       !< Field to be initialized
+    class(field_t), intent(inout) :: f       !< Field to be initialized
     type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
     character(len=*), optional :: fld_name     !< Name of the field
 
-    call field_free(f)
-
+    f%dof => dof
     f%Xh => dof%Xh
     f%msh => dof%msh
-    f%dof => dof
 
     if (present(fld_name)) then
        call field_init_common(f, fld_name)
@@ -146,7 +156,7 @@ contains
 
   !> Deallocate a field @a f
   subroutine field_free(f)
-    type(field_t), intent(inout) :: f
+    class(field_t), intent(inout) :: f
     
     if (allocated(f%x)) then
        deallocate(f%x)
