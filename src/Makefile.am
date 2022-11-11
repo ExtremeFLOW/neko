@@ -98,6 +98,8 @@ neko_fortran_SOURCES = \
 	io/scalar_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
+	io/fluid_stats_output.f90\
+	io/field_list_output.f90\
 	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
 	common/profiler.F90\
@@ -155,6 +157,7 @@ neko_fortran_SOURCES = \
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
 	fluid/mean_flow.f90\
+	fluid/fluid_stats.f90\
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
