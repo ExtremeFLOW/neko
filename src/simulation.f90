@@ -117,6 +117,7 @@ contains
        call neko_log%section('Postprocessing')       
        call C%q%eval(t, C%params%dt)
        call C%s%sample(t)
+       call C%sample_means%sample(t)
        call C%usr%user_check(t, tstep,&
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
        call neko_log%end_section()
@@ -126,8 +127,8 @@ contains
     end do
 
     call profiler_stop
-
-    if (t .lt. C%params%T_end) then
+    call C%sample_means%sample(t,ifforce=.true.)
+    if (C%params%output_chkp .or. t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
     end if
     
@@ -214,6 +215,7 @@ contains
 
 
     call C%s%set_counter(t)
+    call C%sample_means%set_counter(t)
   end subroutine simulation_restart
 
   !> Write a checkpoint at joblimit
