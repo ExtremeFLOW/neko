@@ -55,6 +55,7 @@ module fluid_method
   use non_normal
   use krylov_fctry
   use precon_fctry
+  use fluid_stats
   use bc
   use mesh
   use math
@@ -92,6 +93,7 @@ module fluid_method
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
+     type(fluid_stats_t) :: stats                 !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
    contains
      procedure, pass(this) :: fluid_scheme_init_all
@@ -519,8 +521,12 @@ contains
     !
     ! Setup mean flow fields if requested
     !
-    if (this%params%stats_mean_flow) then
+    if (this%params%stats_mean_flow .or. this%params%stats_fluid) then
        call this%mean%init(this%u, this%v, this%w, this%p)
+       call this%chkp%add_mean(this%mean%u%mf, this%mean%v%mf, this%mean%w%mf, this%mean%p%mf)
+    end if
+    if (this%params%stats_fluid) then
+       call this%stats%init(this%c_Xh)
     end if
 
     if (this%params%stats_mean_sqr_flow) then
