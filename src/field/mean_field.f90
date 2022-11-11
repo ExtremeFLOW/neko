@@ -37,34 +37,42 @@ module mean_field
   use num_types
   use field
   use math
+  use field_registry
   implicit none
   
   type, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f => null()
-     type(field_t) :: mf
+     type(field_t), pointer :: mf
      real(kind=rp) :: time
    contains
      procedure, pass(this) :: init => mean_field_init
      procedure, pass(this) :: free => mean_field_free
      procedure, pass(this) :: update => mean_field_update
+     procedure, pass(this) :: reset => mean_field_reset
   end type mean_field_t
 
 contains
 
   !> Initialize a mean field for a field @a f
-  subroutine mean_field_init(this, f)
+  subroutine mean_field_init(this, f, field_name)
     class(mean_field_t), intent(inout) :: this
     type(field_t), intent(inout), target :: f
+    character(len=*), optional, intent(in) :: field_name
     character(len=80) :: name
+    
     
     call this%free()
 
     this%f => f
     this%time = 0.0_rp
+    if (present(field_name)) then
+       name = field_name
+    else 
+       write(name, '(A,A)') 'mean_',trim(f%name)
+    end if
 
-    name = 'mean_'//trim(f%name)
-
-    call field_init(this%mf, f%dof, name)
+    call neko_field_registry%add_field(f%dof, name)
+    this%mf => neko_field_registry%get_field(name)
 
   end subroutine mean_field_init
 
@@ -75,10 +83,25 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
+    if (associated(this%mf)) then
+       nullify(this%mf)
+    end if
 
-    call field_free(this%mf)
 
   end subroutine mean_field_free
+
+  !> Resets a mean field
+  subroutine mean_field_reset(this)
+    class(mean_field_t), intent(inout) :: this
+    
+    this%time = 0.0
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_rzero(this%mf%x_d,size(this%mf%x))
+    else
+       call rzero(this%mf%x,size(this%mf%x))
+    end if    
+  end subroutine mean_field_reset
+
 
   !> Update a mean field
   subroutine mean_field_update(this, k)
