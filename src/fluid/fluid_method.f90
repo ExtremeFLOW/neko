@@ -523,7 +523,6 @@ contains
     !
     if (this%params%stats_mean_flow .or. this%params%stats_fluid) then
        call this%mean%init(this%u, this%v, this%w, this%p)
-       call this%chkp%add_mean(this%mean%u%mf, this%mean%v%mf, this%mean%w%mf, this%mean%p%mf)
     end if
     if (this%params%stats_fluid) then
        call this%stats%init(this%c_Xh)
