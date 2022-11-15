@@ -80,8 +80,8 @@ contains
     real(kind=rp), intent(in) :: t
 
     if (t .ge. this%T_begin) then
-        call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-        call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d,  this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
+       call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
+       call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d,  this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
        call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d,  this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
        call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d,  this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
        call this%file_%write(this%mf, t)
