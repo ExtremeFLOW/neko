@@ -249,10 +249,11 @@ jobs:
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
+          sudo apt-get install -y nvidia-cuda-toolkit
           git apply patches/nvhpc_bge.patch
           nvfortran --version
           ./regen.sh
-          ./configure FC=${FC} --enable-real=${RP} --with-cuda=${CUDA_HOME}
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
           make FCFLAGS="-O3" -j$(nproc)          
   ReFrame:
       needs: GNU
