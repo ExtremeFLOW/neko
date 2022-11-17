@@ -210,7 +210,7 @@ jobs:
   NVIDIA:
     needs: linting
     runs-on: ${{matrix.os}}
-    container: nvcr.io/nvidia/nvhpc:22.09-devel-cuda_multi-ubuntu20.04
+    container: nvcr.io/nvidia/nvhpc:22.9-devel-cuda_multi-ubuntu20.04
     strategy:
       fail-fast: true
       matrix:
@@ -220,9 +220,9 @@ jobs:
         precision: [sp, dp]
         include:
         - os: ubuntu-20.04
-#          setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui
-
+          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4
     env:
+      CC: nvcc
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
@@ -233,7 +233,15 @@ jobs:
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
-
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - name: Build
+        run: |
+          ./regen.sh
+          ./configure FC=${FC} CC=${CC} --enable-real=${RP}
+          make FCFLAGS="-O2" -j$(nproc)
   ReFrame:
       needs: GNU
       runs-on: ubuntu-20.04
