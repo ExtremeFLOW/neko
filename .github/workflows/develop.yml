@@ -239,9 +239,31 @@ jobs:
           fetch-depth: 1
       - name: Build
         run: |
+          cat >> nvfortran.patch << _ACEOF
+          diff --git a/src/common/signal.f90 b/src/common/signal.f90
+          index 0793c48a0..1419e9378 100644
+          --- a/src/common/signal.f90
+          +++ b/src/common/signal.f90
+          @@ -99,11 +99,11 @@ contains
+          
+          usr12 = sighdl_timeout()
+          
+          -    if (bge(usr12, usr)) then
+          -       raised = .true.
+          -    else
+          -       raised = .false.
+          -    end if
+          +  !  if (bge(usr12, usr)) then
+          +  !     raised = .true.
+          +  !  else
+          +  !     raised = .false.
+          +  !  end if
+          _ACEOF
+          git apply nvfortran.patch
           ./regen.sh
           ./configure FC=${FC} CC=${CC} --enable-real=${RP}
           make FCFLAGS="-O2" -j$(nproc)
+          
   ReFrame:
       needs: GNU
       runs-on: ubuntu-20.04
