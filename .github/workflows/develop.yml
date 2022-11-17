@@ -220,7 +220,7 @@ jobs:
         precision: [sp, dp]
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4
+          setup-env: apt-get update && apt-get install -y autoconf automake autotools-dev make git m4
     env:
       CC: nvcc
       FC: ${{ matrix.compiler }}
