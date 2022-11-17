@@ -222,8 +222,10 @@ jobs:
         - os: ubuntu-20.04
           setup-env: apt-get update && apt-get install -y autoconf automake autotools-dev make git m4
     env:
+      CC: gcc
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
+      OMPI_CC: gcc
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
