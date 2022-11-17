@@ -222,7 +222,6 @@ jobs:
         - os: ubuntu-20.04
           setup-env: apt-get update && apt-get install -y autoconf automake autotools-dev make git m4
     env:
-      CC: nvcc
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
       OMPI_ALLOW_RUN_AS_ROOT: 1
