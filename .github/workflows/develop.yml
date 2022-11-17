@@ -210,7 +210,7 @@ jobs:
   NVIDIA:
     needs: linting
     runs-on: ${{matrix.os}}
-    container: nvcr.io/nvidia/nvhpc:22.9-devel-cuda_multi-ubuntu20.04
+#    container: nvcr.io/nvidia/nvhpc:22.9-devel-cuda_multi-ubuntu20.04
     strategy:
       fail-fast: true
       matrix:
@@ -220,7 +220,7 @@ jobs:
         precision: [sp, dp]
         include:
         - os: ubuntu-20.04
-          setup-env: apt-get update && apt-get install -y autoconf automake autotools-dev make git m4
+          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-22-11-cuda-multi 
     env:
       CC: gcc
       FC: ${{ matrix.compiler }}
