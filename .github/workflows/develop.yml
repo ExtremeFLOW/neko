@@ -245,9 +245,9 @@ jobs:
           --- a/src/common/signal.f90
           +++ b/src/common/signal.f90
           @@ -99,11 +99,11 @@ contains
-          
-          usr12 = sighdl_timeout()
-          
+
+               usr12 = sighdl_timeout()
+
           -    if (bge(usr12, usr)) then
           -       raised = .true.
           -    else
@@ -258,6 +258,9 @@ jobs:
           +  !  else
           +  !     raised = .false.
           +  !  end if
+
+             end function signal_usr
+
           _ACEOF
           git apply nvfortran.patch
           ./regen.sh
