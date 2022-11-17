@@ -95,7 +95,7 @@ contains
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
 
     write(log_buf,1) gdim, nelv
-1      format('gdim = ', i1, ', nelements =', i7)
+1      format('gdim = ', i1, ', nelements =', i9)
     call neko_log%message(log_buf)
 
     if (gdim .eq. 2) then
@@ -593,7 +593,7 @@ contains
           nmsh_curve(i)%curve_data = msh%curve%curve_el(i)%curve_data
           nmsh_curve(i)%type = msh%curve%curve_el(i)%curve_type
        end do
-       mpi_offset = mpi_el_offset + 2*MPI_INTEGER_SIZE + nzones*nmsh_zone_size
+       mpi_offset = mpi_el_offset + int(2*MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
