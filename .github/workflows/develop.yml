@@ -216,7 +216,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         compiler: [nvfortran]
-        backend: [cpu]
+        backend: [cpu, cuda]
         precision: [sp, dp]
         include:
         - os: ubuntu-20.04
@@ -238,13 +238,22 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: Build
+      - name: Build (CPU backend)
+        if: matrix.backend == 'cpu'
         run: |
           git apply patches/nvhpc_bge.patch
+          nvfortran --version
           ./regen.sh
-          ./configure FC=${FC} CC=${CC} --enable-real=${RP}
-          make FCFLAGS="-O2" -j$(nproc)
-          
+          ./configure FC=${FC} --enable-real=${RP}
+          make FCFLAGS="-O3" -j$(nproc)
+      - name: Build (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          git apply patches/nvhpc_bge.patch
+          nvfortran --version
+          ./regen.sh
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=${CUDA_HOME}
+          make FCFLAGS="-O3" -j$(nproc)          
   ReFrame:
       needs: GNU
       runs-on: ubuntu-20.04
