@@ -244,8 +244,8 @@ jobs:
           git apply patches/nvhpc_bge.patch
           nvfortran --version
           ./regen.sh
-          ./configure FC=${FC} --enable-real=${RP}
-          make FCFLAGS="-O3" -j$(nproc)
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+          make -j$(nproc)
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
