@@ -210,13 +210,12 @@ jobs:
   NVIDIA:
     needs: linting
     runs-on: ${{matrix.os}}
-#    container: nvcr.io/nvidia/nvhpc:22.9-devel-cuda_multi-ubuntu20.04
     strategy:
       fail-fast: true
       matrix:
         os: [ubuntu-20.04]
         compiler: [nvfortran]
-        backend: [cpu]
+        backend: [cpu, cuda]
         precision: [dp]
         include:
         - os: ubuntu-20.04
