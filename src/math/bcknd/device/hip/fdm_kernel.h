@@ -32,7 +32,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-template< typename T, int NL >
+template< typename T, const int NL >
 __global__ void fdm_do_fast_kernel(T  * __restrict__ e,
                                    T * __restrict__ r,
                                    T * __restrict__ s,
