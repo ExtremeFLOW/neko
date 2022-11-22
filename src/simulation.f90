@@ -188,6 +188,9 @@ contains
        call col2(fld%wlag%lf(i)%x,fld%c_Xh%mult,fld%u%dof%size())
     end do
     end select
+    if (allocated(C%scalar)) then
+        call col2(C%scalar%s%x,C%scalar%c_Xh%mult, C%scalar%s%dof%size()) 
+    end if
 
     call C%fluid%chkp%sync_device()
     call gs_op(C%fluid%gs_Xh,C%fluid%u,GS_OP_ADD)
@@ -203,6 +206,9 @@ contains
     end do
     end select
  
+    if (allocated(C%scalar)) then
+       call gs_op(C%scalar%gs_Xh,C%scalar%s,GS_OP_ADD)
+    end if
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf,'(A,A)') 'File :   ', &
