@@ -125,8 +125,6 @@ contains
        call neko_error('Invalid data')
     end select
 
-    print *, ' exists'
-
     
     suffix_pos = filename_suffix_pos(this%fname)
     write(id_str, '(i5.5)') this%counter
