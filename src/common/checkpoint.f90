@@ -208,7 +208,7 @@ contains
     
   end subroutine chkp_add_lag
 
-  !> Add lagged velocity terms
+  !> Add scalars
   subroutine chkp_add_scalar(this, s)
     class(chkp_t), intent(inout) :: this    
     type(field_t), target :: s
