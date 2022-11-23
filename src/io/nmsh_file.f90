@@ -44,7 +44,9 @@ module nmsh_file
   implicit none
   
   private
-
+  !> Specifices the maximum number of elements any rank is allowed to write (for nmsh).
+  !! Needed in order to generate large meshes where an individual write might exceed 2GB.
+  integer :: max_write_nel = 8000000 
   !> Interface for Neko nmsh files
   type, public, extends(generic_file_t) :: nmsh_file_t
    contains
@@ -109,6 +111,7 @@ contains
     
     call mesh_init(msh, gdim, nelv)
    
+    call neko_log%message('Reading elements')
 
     if (msh%gdim .eq. 2) then
        allocate(nmsh_quad(msh%nelv))
@@ -142,6 +145,7 @@ contains
     else        
        if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
     end if
+    call neko_log%message('Reading BC/zone data')
 
     mpi_offset = mpi_el_offset
     call MPI_File_read_at_all(fh, mpi_offset, &
@@ -196,9 +200,9 @@ contains
           end if
        end do
 
-
        deallocate(nmsh_zone)
     end if
+    call neko_log%message('Reading deformation data')
 
     mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
     call MPI_File_read_at_all(fh, mpi_offset, &
@@ -224,8 +228,10 @@ contains
     end if
 
     call MPI_File_close(fh, ierr)
+    call neko_log%message('Mesh read, setting up connectivity')
 
     call mesh_finalize(msh)
+    call neko_log%message('Done setting up mesh and connectivity')
     
     call neko_log%end_section()
     end if
@@ -492,7 +498,12 @@ contains
        end do
        mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset,i8) * int(nmsh_hex_size,i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
-            nmsh_HEX, msh%nelv, MPI_NMSH_HEX, status, ierr)
+            nmsh_HEX, min(msh%nelv,max_write_nel), MPI_NMSH_HEX, status, ierr)
+       do i = 1, msh%nelv/max_write_nel
+          mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset+i*max_write_nel,i8) * int(nmsh_hex_size,i8)
+          call MPI_File_write_at_all(fh, mpi_offset, &
+               nmsh_HEX(i*max_write_nel+1), min(msh%nelv-i*max_write_nel,max_write_nel), MPI_NMSH_HEX, status, ierr)
+       end do
        deallocate(nmsh_hex)       
        mpi_el_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(nelgv,i8) * int(nmsh_hex_size,i8)
     else 
