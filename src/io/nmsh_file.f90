@@ -46,7 +46,7 @@ module nmsh_file
   private
   !> Specifices the maximum number of elements any rank is allowed to write (for nmsh).
   !! Needed in order to generate large meshes where an individual write might exceed 2GB.
-  integer :: max_write_nel = 8000000 
+  integer, parameter :: max_write_nel = 8000000 
   !> Interface for Neko nmsh files
   type, public, extends(generic_file_t) :: nmsh_file_t
    contains
