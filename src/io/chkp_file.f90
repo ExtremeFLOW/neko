@@ -67,8 +67,8 @@ contains
     real(kind=dp) :: time
     character(len=5) :: id_str
     character(len=1024) :: fname
-    integer :: ierr, suffix_pos, have_lag
-    type(field_t), pointer :: u, v, w, p
+    integer :: ierr, suffix_pos, optional_fields
+    type(field_t), pointer :: u, v, w, p, s
     type(field_series_t), pointer :: ulag => null()
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
@@ -77,7 +77,7 @@ contains
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    logical write_lag
+    logical :: write_lag, write_scalar
     integer :: i
 
     if (present(t)) then
@@ -101,22 +101,29 @@ contains
        w => data%w
        p => data%p
        msh => u%msh
+       
+       optional_fields = 0
 
        if (associated(data%ulag)) then       
           ulag => data%ulag
           vlag => data%vlag
           wlag => data%wlag
           write_lag = .true.
-          have_lag = 1
+          optional_fields = optional_fields + 1
        else
           write_lag = .false.
-          have_lag = 0
        end if
-       
+ 
+       if (associated(data%s)) then       
+          s => data%s
+          write_scalar = .true.
+          optional_fields = optional_fields + 2
+       else
+          write_scalar = .false.
+       end if      
     class default
        call neko_error('Invalid data')
     end select
-
 
     
     suffix_pos = filename_suffix_pos(this%fname)
@@ -132,7 +139,7 @@ contains
     call MPI_File_write_all(fh, msh%glb_nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, msh%gdim, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, u%Xh%lx, 1, MPI_INTEGER, status, ierr)
-    call MPI_File_write_all(fh, have_lag, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_write_all(fh, optional_fields, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, time, 1, MPI_DOUBLE_PRECISION, status, ierr)
     
     
@@ -211,7 +218,15 @@ contains
        end do
               
     end if
-    
+
+    if (write_scalar) then 
+       byte_offset = mpi_offset + &
+            dof_offset * int(MPI_REAL_PREC_SIZE, i8)
+       call MPI_File_write_at_all(fh, byte_offset, s%x, p%dof%size(), &
+            MPI_REAL_PRECISION, status, ierr)
+       mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
+    end if
+   
     call MPI_File_close(fh, ierr)
 
     this%counter = this%counter + 1
@@ -226,7 +241,7 @@ contains
     character(len=5) :: id_str
     character(len=1024) :: fname
     integer :: ierr, suffix_pos
-    type(field_t), pointer :: u, v, w, p
+    type(field_t), pointer :: u, v, w, p, s
     type(field_series_t), pointer :: ulag => null()
     type(field_series_t), pointer :: vlag => null()
     type(field_series_t), pointer :: wlag => null()
@@ -235,8 +250,8 @@ contains
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
     integer(kind=i8) :: n_glb_dofs, dof_offset
-    integer :: glb_nelv, gdim, lx, have_lag, nel
-    logical read_lag
+    integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel, optional_fields
+    logical :: read_lag, read_scalar
     integer :: i
     
     select type(data)
@@ -264,6 +279,13 @@ contains
           read_lag = .false.
        end if
 
+       if (associated(data%s)) then       
+          s => data%s
+          read_scalar = .true.
+       else
+          read_scalar = .false.
+       end if
+
        chkp => data
        
     class default
@@ -277,12 +299,16 @@ contains
     call MPI_File_read_all(fh, glb_nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, lx, 1, MPI_INTEGER, status, ierr)
-    call MPI_File_read_all(fh, have_lag, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_read_all(fh, optional_fields, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, chkp%t, 1, MPI_DOUBLE_PRECISION, status, ierr)
+
+    have_lag = mod(optional_fields,2)/1
+    have_scalar = mod(optional_fields,4)/2
 
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
-         ( (have_lag .eq. 1) .and. (.not. read_lag) ) ) then
+         ( (have_lag .eq. 0) .and. (read_lag) ) .or. &
+        ( (have_scalar .eq. 0) .and. (read_scalar) ) ) then
        call neko_error('Checkpoint does not match case')
     end if
     nel = msh%nelv
@@ -347,7 +373,13 @@ contains
           call this%read_field(fh, byte_offset, wlag%lf(i)%x, nel)
           mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
        end do
-       
+    end if
+
+    if (read_scalar) then 
+       byte_offset = mpi_offset + &
+            dof_offset * int(MPI_REAL_PREC_SIZE, i8)
+       call this%read_field(fh, byte_offset, s%x, nel)
+       mpi_offset = mpi_offset + n_glb_dofs * int(MPI_REAL_PREC_SIZE, i8)
     end if
     
     call MPI_File_close(fh, ierr)      

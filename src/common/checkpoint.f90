@@ -54,12 +54,15 @@ module checkpoint
      type(field_series_t), pointer :: vlag => null()
      type(field_series_t), pointer :: wlag => null()
 
+     type(field_t), pointer :: s => null()
+
      real(kind=dp) :: t         !< Restart time (valid after load)
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
      procedure, pass(this) :: sync_device => chkp_sync_device
      procedure, pass(this) :: add_lag => chkp_add_lag
+     procedure, pass(this) :: add_scalar => chkp_add_scalar
      procedure, pass(this) :: restart_time => chkp_restart_time
      final :: chkp_free
   end type chkp_t
@@ -142,6 +145,10 @@ contains
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
                                w%dof%size(), DEVICE_TO_HOST)
          end if
+         if (associated(this%s)) then
+            call device_memcpy(this%s%x, this%s%x_d, &
+                               this%s%dof%size(), DEVICE_TO_HOST)
+         end if
        end associate
     end if
          
@@ -179,6 +186,10 @@ contains
             call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
                                w%dof%size(), HOST_TO_DEVICE)
          end if
+         if (associated(this%s)) then
+            call device_memcpy(this%s%x, this%s%x_d, &
+                               this%s%dof%size(), HOST_TO_DEVICE)
+         end if
        end associate
     end if
          
@@ -196,6 +207,16 @@ contains
     this%wlag => wlag
     
   end subroutine chkp_add_lag
+
+  !> Add scalars
+  subroutine chkp_add_scalar(this, s)
+    class(chkp_t), intent(inout) :: this    
+    type(field_t), target :: s
+
+    this%s => s
+    
+  end subroutine chkp_add_scalar
+
 
   !> Return restart time from a loaded checkpoint
   pure function chkp_restart_time(this) result(rtime)
