@@ -49,13 +49,13 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-#define CASE(NX)                                                       \
-    case NX:                                                           \
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_extrude_kernel<real>),  \
-                       nblcks, nthrds, 0, 0,                           \
-                       (real *) arr1,* l1, * f1,                       \
-                       (real *) arr2, *l2, *f2);                       \
-    HIP_CHECK(hipGetLastError());                                      \
+#define CASE(NX)                                                          \
+    case NX:                                                              \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_extrude_kernel<real,NX>),  \
+                       nblcks, nthrds, 0, 0,                              \
+                       (real *) arr1,* l1, * f1,                          \
+                       (real *) arr2, *l2, *f2);                          \
+    HIP_CHECK(hipGetLastError());                                         \
     break;
 
     switch(*nx) {
