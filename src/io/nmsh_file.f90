@@ -44,7 +44,9 @@ module nmsh_file
   implicit none
   
   private
-
+  !> Specifices the maximum number of elements any rank is allowed to write (for nmsh).
+  !! Needed in order to generate large meshes where an individual write might exceed 2GB.
+  integer, parameter :: max_write_nel = 8000000 
   !> Interface for Neko nmsh files
   type, public, extends(generic_file_t) :: nmsh_file_t
    contains
@@ -95,7 +97,7 @@ contains
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
 
     write(log_buf,1) gdim, nelv
-1      format('gdim = ', i1, ', nelements =', i7)
+1      format('gdim = ', i1, ', nelements =', i9)
     call neko_log%message(log_buf)
 
     if (gdim .eq. 2) then
@@ -109,10 +111,11 @@ contains
     
     call mesh_init(msh, gdim, nelv)
    
+    call neko_log%message('Reading elements')
 
     if (msh%gdim .eq. 2) then
        allocate(nmsh_quad(msh%nelv))
-       mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
+       mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset,i8) * int(nmsh_quad_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
        do i = 1, nelv
@@ -123,10 +126,10 @@ contains
           call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
        end do
        deallocate(nmsh_quad)
-       mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_quad_size
+       mpi_el_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(dist%num_global(),i8) * int(nmsh_quad_size,i8)
     else if (msh%gdim .eq. 3) then
        allocate(nmsh_hex(msh%nelv))
-       mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_hex_size
+       mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset,i8) * int(nmsh_hex_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_hex, msh%nelv, MPI_NMSH_HEX, status, ierr)
        do i = 1, nelv
@@ -138,10 +141,11 @@ contains
                p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
        end do
        deallocate(nmsh_hex)
-       mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_hex_size
+       mpi_el_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(dist%num_global(),i8) * int(nmsh_hex_size,i8)
     else        
        if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
     end if
+    call neko_log%message('Reading BC/zone data')
 
     mpi_offset = mpi_el_offset
     call MPI_File_read_at_all(fh, mpi_offset, &
@@ -154,7 +158,7 @@ contains
        !!a piece and pass the pieces around, filtering out matching zones
        !!in the local mesh.
        !!       
-       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8)
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
        
@@ -196,18 +200,18 @@ contains
           end if
        end do
 
-
        deallocate(nmsh_zone)
     end if
+    call neko_log%message('Reading deformation data')
 
-    mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE + nzones*nmsh_zone_size
+    mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
     call MPI_File_read_at_all(fh, mpi_offset, &
          ncurves, 1, MPI_INTEGER, status, ierr)
 
     if (ncurves .gt. 0) then
        
        allocate(nmsh_curve(ncurves))
-       mpi_offset = mpi_el_offset + 2*MPI_INTEGER_SIZE + nzones*nmsh_zone_size
+       mpi_offset = mpi_el_offset + int(2 * MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
@@ -224,8 +228,10 @@ contains
     end if
 
     call MPI_File_close(fh, ierr)
+    call neko_log%message('Mesh read, setting up connectivity')
 
     call mesh_finalize(msh)
+    call neko_log%message('Done setting up mesh and connectivity')
     
     call neko_log%end_section()
     end if
@@ -276,7 +282,7 @@ contains
     call mesh_init(msh, gdim, nelv)
    
     allocate(nmsh_quad(msh%nelv))
-    mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
+    mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset,i8) * int(nmsh_quad_size,i8)
     call MPI_File_read_at_all(fh, mpi_offset, &
          nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
     do i = 1, nelv
@@ -296,7 +302,7 @@ contains
             p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
     end do
     deallocate(nmsh_quad)
-    mpi_el_offset = 2 * MPI_INTEGER_SIZE + dist%num_global() * nmsh_quad_size
+    mpi_el_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(dist%num_global(),i8) * int(nmsh_quad_size,i8)
 
     mpi_offset = mpi_el_offset
     call MPI_File_read_at_all(fh, mpi_offset, &
@@ -309,7 +315,7 @@ contains
        !!a piece and pass the pieces around, filtering out matching zones
        !!in the local mesh.
        !!       
-       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8)
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
        
@@ -385,14 +391,14 @@ contains
        deallocate(nmsh_zone)
     end if
 
-    mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE + nzones*nmsh_zone_size
+    mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
     call MPI_File_read_at_all(fh, mpi_offset, &
          ncurves, 1, MPI_INTEGER, status, ierr)
 
     if (ncurves .gt. 0) then
        
        allocate(nmsh_curve(ncurves))
-       mpi_offset = mpi_el_offset + 2*MPI_INTEGER_SIZE + nzones*nmsh_zone_size
+       mpi_offset = mpi_el_offset + int(2*MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
@@ -460,7 +466,7 @@ contains
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
 
-    call MPI_File_write_all(fh, msh%nelv, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_write_all(fh, nelgv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_write_all(fh, msh%gdim, 1, MPI_INTEGER, status, ierr)
 
     call mesh_reset_periodic_ids(msh)
@@ -475,11 +481,11 @@ contains
              nmsh_quad(i)%v(j)%v_xyz = ep%pts(vcyc_to_sym(j))%p%x
           end do
        end do
-       mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_quad_size
+       mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset,i8) * int(nmsh_quad_size,i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_quad, msh%nelv, MPI_NMSH_QUAD, status, ierr)
        deallocate(nmsh_quad)
-       mpi_el_offset = 2 * MPI_INTEGER_SIZE + msh%nelv * nmsh_quad_size
+       mpi_el_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(nelgv,i8) * int(nmsh_quad_size,i8)
     else if (msh%gdim .eq. 3) then
        allocate(nmsh_hex(msh%nelv))       
        do i = 1, msh%nelv
@@ -490,11 +496,16 @@ contains
              nmsh_hex(i)%v(j)%v_xyz = ep%pts(vcyc_to_sym(j))%p%x
           end do
        end do
-       mpi_offset = 2 * MPI_INTEGER_SIZE + element_offset * nmsh_hex_size
+       mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset,i8) * int(nmsh_hex_size,i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
-            nmsh_HEX, msh%nelv, MPI_NMSH_HEX, status, ierr)
+            nmsh_HEX, min(msh%nelv,max_write_nel), MPI_NMSH_HEX, status, ierr)
+       do i = 1, msh%nelv/max_write_nel
+          mpi_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(element_offset+i*max_write_nel,i8) * int(nmsh_hex_size,i8)
+          call MPI_File_write_at_all(fh, mpi_offset, &
+               nmsh_HEX(i*max_write_nel+1), min(msh%nelv-i*max_write_nel,max_write_nel), MPI_NMSH_HEX, status, ierr)
+       end do
        deallocate(nmsh_hex)       
-       mpi_el_offset = 2 * MPI_INTEGER_SIZE + msh%nelv * nmsh_hex_size
+       mpi_el_offset = int(2 * MPI_INTEGER_SIZE,i8) + int(nelgv,i8) * int(nmsh_hex_size,i8)
     else 
        call neko_error('Invalid dimension of mesh')
     end if
@@ -569,7 +580,7 @@ contains
        end do
   
        
-       mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE
+       mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
        
@@ -577,7 +588,7 @@ contains
     end if
  
     ncurves = msh%curve%size 
-    mpi_offset = mpi_el_offset + MPI_INTEGER_SIZE + nzones*nmsh_zone_size
+    mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
 
     call MPI_File_write_at_all(fh, mpi_offset, &
          ncurves, 1, MPI_INTEGER, status, ierr)
@@ -593,7 +604,7 @@ contains
           nmsh_curve(i)%curve_data = msh%curve%curve_el(i)%curve_data
           nmsh_curve(i)%type = msh%curve%curve_el(i)%curve_type
        end do
-       mpi_offset = mpi_el_offset + 2*MPI_INTEGER_SIZE + nzones*nmsh_zone_size
+       mpi_offset = mpi_el_offset + int(2*MPI_INTEGER_SIZE,i8) + int(nzones,i8)*int(nmsh_zone_size,i8)
        call MPI_File_write_at_all(fh, mpi_offset, &
             nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
        
