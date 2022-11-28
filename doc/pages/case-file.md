@@ -41,20 +41,20 @@ is a list of `name = value` assignments. The names are not case sensistive. The
 values can be of type string (``'text'``), integer (`123`), floating point number (`1.2d3` \f$=1.2 \cdot 10^3\f$), or boolean (`.true.` or `.false.`).
 Comments can be added by prepending a `!`.
 
-## `NEKO_CASE` reference
+## NEKO_CASE reference {#neko-case}
 
 Name                    | Description
 ----                    | -----------
 `mesh_file`             | Path to the mesh file (`.nmsh` extension)
 `fluid_scheme`          | Solver scheme (``'plan4'`` or ``'pnpn'``)
 `lx`                    | Number of quadrature points points per element and direction, i.e. polynomial degree + 1
-`source_term`           | Source term \f$ f \f$: default ``'noforce'`` for \f$ f=0 \f$, or ``'user'`` for user defined function
+`source_term`           | Source term \f$ f \f$: default ``'noforce'`` for \f$ f=0 \f$, or ``'user'``/``'user_vector'`` for user defined function (point-wise/vector apply) 
 `initial_condition`     | Initial condition: ``'uniform'``, ``'blasius'`` or ``'user'``
 `scalar`                | Enable scalar transport (``.false.`` or ``.true.``)
 `scalar_source_term`    | Scalar source term
 
 
-## `NEKO_PARAMETERS` reference
+## NEKO_PARAMETERS reference {#neko-params}
 
 Name                    | Description                                                   | Default value
 ----                    | -----------                                                   | -------------
