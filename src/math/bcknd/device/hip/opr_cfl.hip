@@ -40,6 +40,11 @@
 
 extern "C" {
 
+  /**
+   * @todo Make sure that this gets deleted at some point...
+   */
+  real *cfl_d = NULL;
+  
   /** 
    * Fortran wrapper for device hip CFL
    */
@@ -52,10 +57,10 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    real * cfl = (real *) malloc((*nel) * sizeof(real));
-    real * cfl_d ;
-
-    HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
+  
+    if (cfl_d == NULL) {
+      HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
+    }
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
@@ -86,17 +91,19 @@ extern "C" {
         exit(1);
       }
     }
-    HIP_CHECK(hipMemcpy(cfl, cfl_d, (*nel) * sizeof(real),
+
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfl_reduce_kernel<real>),
+                       1, 1024, 0, 0,
+                       cfl_d, (*nel));
+    HIP_CHECK(hipGetLastError());
+
+    real cfl = 0.0;
+    HIP_CHECK(hipMemcpy(&cfl, cfl_d, sizeof(real),
 			hipMemcpyDeviceToHost));
     
-    real cfl_max = 0.0;
-    for (int i = 0; i < (*nel); i++) {
-      cfl_max = fmax(cfl_max, cfl[i]);
-    }
 
-    free(cfl);
-    HIP_CHECK(hipFree(cfl_d));
 
-    return cfl_max;
+    return cfl;
   } 
 }
