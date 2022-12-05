@@ -23,7 +23,7 @@ program prepart
   read(nprtschr, *) nprts
 
   nmsh_file = file_t(fname)
-  msh%lgenc = .false.
+
   call nmsh_file%read(msh)
 
   ! Reset possible periodic ids
