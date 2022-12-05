@@ -9,7 +9,7 @@ on:
 jobs:
   linting:
       name: "Flint"
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-20.04
       steps:
         - name: Setup env.
           run: |
@@ -36,7 +36,7 @@ jobs:
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-20.04, macos-12]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
@@ -275,6 +275,9 @@ jobs:
           run: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
             pip install reframe-hpc 
+        - name: Topology
+          run: |
+            reframe --detect-host-topology
         - name: Checkout
           uses: actions/checkout@v3
           with:
