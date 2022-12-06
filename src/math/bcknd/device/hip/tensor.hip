@@ -39,8 +39,8 @@
 #include <stdio.h>
 
 #define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
+  ({ __typeof__ (a) _a = (a);  \
+     __typeof__ (b) _b = (b);   \
      _a > _b ? _a : _b; })
 
 
@@ -56,12 +56,12 @@ extern "C" {
     int n = max(*nu,*nv);
 #define CASE(N)                                                     \
     case N:                                                         \
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real,N>),      \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real, N>),     \
                        nblcks, nthrds, 0, 0,                        \
                        (real *) v, *nv, (real *) u,                 \
 		       *nu, (real *) A, (real *) Bt, (real *) Ct);  \
     HIP_CHECK(hipGetLastError());                                   \
-    break;
+    break
 
     switch(n) {
       CASE(2);
