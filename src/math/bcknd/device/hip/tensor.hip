@@ -36,6 +36,14 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include "tensor_kernel.h"
+#include <stdio.h>
+
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+
+
 extern "C" {
 
   /** Fortran wrapper for tnsr3d **/
@@ -44,11 +52,36 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*nel, 1, 1);
-    
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real>),
-                       nblcks, nthrds, 0, 0,
-                       (real *) v, *nv, (real *) u, 
-		       *nu, (real *) A, (real *) Bt, (real *) Ct);
-    HIP_CHECK(hipGetLastError());
+
+    int n = max(*nu,*nv);
+#define CASE(N)                                                     \
+    case N:                                                         \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real,N>),      \
+                       nblcks, nthrds, 0, 0,                        \
+                       (real *) v, *nv, (real *) u,                 \
+		       *nu, (real *) A, (real *) Bt, (real *) Ct);  \
+    HIP_CHECK(hipGetLastError());                                   \
+    break;
+
+    switch(n) {
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8); 
+      CASE(9);
+      CASE(10);
+      CASE(11);
+      CASE(12);
+      CASE(13);
+      CASE(14);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", n);
+        exit(1);
+      }
+    }
   }
 }

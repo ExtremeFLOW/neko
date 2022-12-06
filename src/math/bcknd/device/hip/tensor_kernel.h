@@ -32,17 +32,16 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-template< typename T >
+template< typename T, const int N >
 __global__ void tnsr3d_kernel(T  * __restrict__  v,
-                              const int nv,
+	                      const int nv,
                               const T * __restrict__ u,
-                              const int nu,
+	                      const int nu,
                               const T * __restrict__ A,
                               const T * __restrict__ Bt,
                               const T * __restrict__ Ct) {
-
-  __shared__ T shwork[2048];
-  __shared__ T shwork2[2048];
+  __shared__ T shwork[N*N*N];
+  __shared__ T shwork2[N*N*N];
   
   const int idx = threadIdx.x;
   const int str = blockDim.x;
