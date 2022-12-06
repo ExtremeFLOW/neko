@@ -85,6 +85,8 @@ extern "C" {
       CASE(8);
       CASE(9);
       CASE(10);
+      CASE(11);
+      CASE(12);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
