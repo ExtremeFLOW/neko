@@ -67,7 +67,7 @@ contains
     class(element_t), pointer :: ep
     integer, allocatable :: recv_buf_idx(:), send_buf_idx(:)
     type(MPI_Status) :: status
-    integer :: i, j, k, ierr, max_recv_idx
+    integer :: i, j, k, ierr, max_recv_idx, label
     integer :: src, dst, recv_size, gdim, tmp, new_el_idx, new_pel_idx
     integer :: max_recv(3)
     type(point_t) :: p(8)
@@ -94,6 +94,12 @@ contains
     call redist_zone(msh, msh%outlet, 3, parts, new_zone_dist)
     call redist_zone(msh, msh%sympln, 4, parts, new_zone_dist)
     call redist_zone(msh, msh%periodic, 5, parts, new_zone_dist)
+
+    do j = 1, NEKO_MSH_MAX_ZLBLS
+       label = j
+       call redist_zone(msh, msh%labeled_zones(j), 7, parts, &
+            new_zone_dist, label)
+    end do
 
     !
     ! Extract new curve info. distributions
@@ -318,6 +324,8 @@ contains
           
           call mesh_mark_periodic_facet(msh, zp(i)%f, new_el_idx, &
                zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
+       case(7)
+          call mesh_mark_labeled_facet(msh, zp(i)%f, new_el_idx, zp(i)%p_f)
        end select
     end do
     do i = 1, new_zone_dist(pe_rank)%size()
@@ -354,15 +362,22 @@ contains
   end subroutine redist_mesh
 
   !> Fill redistribution list for zone data
-  subroutine redist_zone(msh, z, type, parts, new_dist)
+  subroutine redist_zone(msh, z, type, parts, new_dist, label)
     type(mesh_t), intent(inout) :: msh
     class(zone_t), intent(in) :: z
     integer, intent(in) :: type
     type(mesh_fld_t), intent(in) :: parts
     type(stack_nz_t), intent(inout), allocatable :: new_dist(:)
+    integer, intent(in), optional :: label
     type(nmsh_zone_t) :: nmsh_zone
-    integer :: i, j, zone_el
+    integer :: i, j, zone_el, lbl
 
+    if (present(label)) then
+       lbl = label
+    else
+       lbl = 0
+    end if
+    
     select type(zp => z)
     type is (zone_periodic_t)
        do i = 1, zp%size
@@ -380,6 +395,7 @@ contains
           zone_el =  zp%facet_el(i)%x(2)
           nmsh_zone%e = zp%facet_el(i)%x(2) + msh%offset_el
           nmsh_zone%f = zp%facet_el(i)%x(1)
+          nmsh_zone%p_f = lbl ! Labels are encoded in the periodic facet...
           nmsh_zone%type = type
           call new_dist(parts%data(zone_el))%push(nmsh_zone)
        end do
