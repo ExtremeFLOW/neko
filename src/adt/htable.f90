@@ -51,7 +51,6 @@ module htable
      class(*), private, allocatable :: data(:)
      logical, private, allocatable :: valid(:) 
      logical, private, allocatable  :: skip(:)
-     !     type(h_tuple_t), private, allocatable :: t(:)
    contains
      procedure(htable_hash), pass(this), deferred :: hash
      procedure, public, pass(this) :: clear => htable_clear
