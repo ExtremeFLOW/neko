@@ -285,6 +285,7 @@ contains
 
     if (allocated(this%data)) then
        this%valid = .false.
+       this%skip = .false.
        this%entries = 0
     else
        call neko_error("Hash table not allocated")       
