@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ module logger
   type, public :: log_t
      integer :: indent_
      integer :: section_id_
+     integer :: level_
    contains
      procedure, pass(this) :: init => log_init
      procedure, pass(this) :: begin => log_begin
@@ -64,8 +65,19 @@ contains
   !> Initialize a log
   subroutine log_init(this)
     class(log_t), intent(inout) :: this
+    character(len=255) :: log_level
+    integer :: envvar_len
+
     this%indent_ = 1
     this%section_id_ = 0
+
+    call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(log_level(1:envvar_len), *) this%level_
+    else
+       this%level_ = 1
+    end if
+    
   end subroutine log_init
 
   !> Increase indention level
@@ -111,9 +123,16 @@ contains
   end subroutine log_newline
 
   !> Write a message to a log
-  subroutine log_message(this, msg)
+  subroutine log_message(this, msg, lvl)
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: msg
+    integer, optional, intent(in) :: lvl
+
+    if (present(lvl)) then
+       if (lvl .gt. this%level_) then
+          return
+       end if
+    end if
 
     if (pe_rank .eq. 0) then
        call this%indent()
