@@ -1612,10 +1612,10 @@ contains
                                                        5,6,8,7/),&
                                                        (/4,6/))
     integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
-                                                                2,4,&
-                                                                1,2,&
-                                                                3,4 /),&
-                                                                (/2,4/))
+                                                       2,4,&
+                                                       1,2,&
+                                                       3,4 /),&
+                                                      (/2,4/))
   
     select type(ele => m%elements(e)%e)
     type is(hex_t)
