@@ -73,7 +73,7 @@ contains
 
     call get_environment_variable("NEKO_LOG_LEVEL", log_level, envvar_len)
     if (envvar_len .gt. 0) then
-       read(trim(log_level), *) this%level_
+       read(log_level(1:envvar_len), *) this%level_
     else
        this%level_ = 1
     end if
