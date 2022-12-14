@@ -41,6 +41,7 @@ module vtk_file
   use dofmap
   use mesh_field
   use tet_mesh
+  use tri_mesh
   use logger
   use comm
   implicit none
@@ -65,6 +66,7 @@ contains
     type(mesh_fld_t), pointer :: mfld => null()
     type(dofmap_t), pointer :: dm => null()
     type(tet_mesh_t), pointer :: tet_msh => null()
+    type(tri_mesh_t), pointer :: tri_msh => null()
     character(len=10) :: id_str
     integer:: suffix_pos
 
@@ -81,6 +83,8 @@ contains
        dm => data
     type is (tet_mesh_t)
        tet_msh => data
+    type is (tri_mesh_t)
+       tri_msh => data
     class default
        call neko_log%error('Invalid data')
     end select
@@ -117,6 +121,9 @@ contains
     else if (associated(tet_msh)) then
        write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
        call vtk_file_write_tet_mesh(9, tet_msh)
+    else if (associated(tri_msh)) then
+       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       call vtk_file_write_tri_mesh(9, tri_msh)
     else
        call neko_error('Invalid data')
     end if
@@ -134,7 +141,8 @@ contains
     integer :: unit
     type(mesh_t), intent(inout) :: msh
     integer :: i, j, vtk_type
-
+    integer,  dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, &
+                                                         5, 6, 8, 7/)
     ! Dump coordinates
     write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
     do i = 1, msh%mpts
@@ -146,7 +154,8 @@ contains
     j = 0
     do i = 1, msh%nelv
        write(unit, fmt='(I8,8I8)') msh%npts, &
-            (mesh_get_local_point(msh, msh%elements(i)%e%pts(j)%p) - 1, &
+            (mesh_get_local_point(msh, &
+                                  msh%elements(i)%e%pts(vcyc_to_sym(j))%p) - 1, &
             j=1, msh%npts)
     end do
 
@@ -207,14 +216,14 @@ contains
 
        point_data(id(1)) = real(fld%x(1,1,1,i),dp)
        point_data(id(2)) = real(fld%x(lx,1,1,i),dp)
-       point_data(id(4)) = real(fld%x(1,ly,1,i),dp)
-       point_data(id(3)) = real(fld%x(lx,ly,1,i),dp)       
+       point_data(id(3)) = real(fld%x(1,ly,1,i),dp)
+       point_data(id(4)) = real(fld%x(lx,ly,1,i),dp)       
 
        if (fld%msh%gdim .eq. 3) then
           point_data(id(5)) = real(fld%x(1,1,lz,i),dp)
           point_data(id(6)) = real(fld%x(lx,1,lz,i),dp)
-          point_data(id(8)) = real(fld%x(1,ly,lz,i),dp)
-          point_data(id(7)) = real(fld%x(lx,ly,lz,i),dp)    
+          point_data(id(7)) = real(fld%x(1,ly,lz,i),dp)
+          point_data(id(8)) = real(fld%x(lx,ly,lz,i),dp)    
        end if
 
     end do
@@ -323,5 +332,35 @@ contains
     end do
 
   end subroutine vtk_file_write_tet_mesh
+
+  !> Write a triangular mesh in legacy VTK format
+  subroutine vtk_file_write_tri_mesh(unit, tri_msh)
+    integer :: unit
+    type(tri_mesh_t), intent(inout) :: tri_msh
+    integer, parameter :: npts = 3
+    integer :: i, j, vtk_type
+
+    ! Dump coordinates
+    write(unit, fmt='(A,I8,A)') 'POINTS', tri_msh%mpts,' double'
+    do i = 1, tri_msh%mpts
+       write(unit, fmt='(F15.8,F15.8,F15.8)') real(tri_msh%points(i)%x,dp)
+    end do
+
+    ! Dump cells
+    write(unit, fmt='(A,I8,I8)')  'CELLS', tri_msh%nelv, tri_msh%nelv*(npts+1)
+    j = 0
+    do i = 1, tri_msh%nelv
+       write(unit, fmt='(I8,8I8)') npts, &
+            (tri_msh%el(i)%pts(j)%p%id() - 1, j=1, npts)
+    end do
+
+    ! Dump cell type for each element
+    write(unit, fmt='(A,I8)') 'CELL_TYPES', tri_msh%nelv
+    vtk_type = 5
+    do i = 1, tri_msh%nelv
+       write(unit, fmt='(I2)') vtk_type
+    end do
+
+  end subroutine vtk_file_write_tri_mesh
 
 end module vtk_file

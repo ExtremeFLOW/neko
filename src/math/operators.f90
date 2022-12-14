@@ -61,8 +61,7 @@ contains
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_dudxyz(du, u, dr, ds, dt, coef)
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
@@ -96,8 +95,7 @@ contains
        call opr_sx_opgrad(ux, uy, uz, u, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_opgrad(ux, uy, uz, u, coef)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_opgrad(ux, uy, uz, u, coef)
     else
        call opr_cpu_opgrad(ux, uy, uz, u, coef, eblk_start, eblk_end)
@@ -131,8 +129,7 @@ contains
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_cdtp(dtx, x, dr, ds, dt, coef)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_cdtp(dtx, x, dr, ds, dt, coef)
     else
        call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
@@ -168,8 +165,7 @@ contains
          call opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
       else if (NEKO_BCKND_XSMM .eq. 1) then
          call opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
-      else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-           .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+      else if (NEKO_BCKND_DEVICE .eq. 1) then
          call opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
       else
          call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, eblk_start, eblk_end)
@@ -193,8 +189,7 @@ contains
        call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then       
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     else
        call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
@@ -213,8 +208,7 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        cfl = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) &
-         .or. (NEKO_BCKND_OPENCL .eq. 1)) then  
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        cfl = opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
     else
        cfl = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)

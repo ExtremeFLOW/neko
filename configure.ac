@@ -1,4 +1,5 @@
-AC_INIT([neko],[0.4.3])
+AC_PREREQ([2.69])
+AC_INIT([neko],[0.5.0])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -8,23 +9,22 @@ AC_PROG_RANLIB
 AC_PROG_INSTALL
 
 AC_ARG_ENABLE(contrib,
-              AC_HELP_STRING([--enable-contrib],
-              [Compile various tools]), 
+              AS_HELP_STRING([--enable-contrib],[Compile various tools]), 
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
 AC_ARG_ENABLE(real,
-	      AC_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
+	      AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
                     sp -- REAL(kind=4)
 	            dp -- REAL(kind=8) (default)
 	            qp -- REAL(kind=16)]),
 	        [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
-              AC_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
+              AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
               [blk_size=${enableval}], [blk_size="10000"])
 
 AC_ARG_ENABLE(device-mpi,
-	      AC_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
+	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
 	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
 # Test for a sane fortran environment (^-^)
@@ -32,6 +32,7 @@ AC_LANG(Fortran)
 AC_PROG_FC(,90)
 AX_COARRAY
 AX_DTYPE_IO
+AX_REAL128
 
 # Test for a working MPI compiler
 AX_MPI([have_mpi=yes], [have_mpi=no])
@@ -45,6 +46,11 @@ if test "x${have_mpi}" != xno; then
    else
        AC_MSG_ERROR([Can't find a suitable C MPI compiler])
    fi
+   AC_LANG(C++)
+   AX_MPI([have_mpi=yes],[have_mpi=no])
+   if  test "x${have_mpi}" != xno; then
+       CXX="$MPICXX"
+   fi
    AC_LANG(Fortran)
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])   
@@ -54,6 +60,11 @@ AX_MPI_DTYPE
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
+
+# Set necessary flags to fix issues with various compilers
+if test "x$ax_cv_fc_compiler_vendor" = xportland; then
+   FCFLAGS="$FCFLAGS  -Mbackslash"
+fi
 
 # Store build information (date, host, FC)
 AC_SUBST(NEKO_BUILD_INFO,
@@ -105,6 +116,16 @@ if test "x${have_blas_lapack}" != xyes; then
    AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
+if test "x${have_darshan}" != xyes; then
+    AX_DARSHAN
+    if test "x${ax_darshan_ok}" != xno; then
+        LIBS="$DARSHAN_LIBS $LIBS"
+        have_darshan=yes
+    else
+        have_darshan=no
+    fi
+fi
+
 found_domain_decomp="no"
 
 # Checks for ParMetis
@@ -122,6 +143,9 @@ if test "x${found_domain_decomp}" != xyes; then
        found_domain_decomp="yes"
    fi
 fi
+
+# Checks for ADIOS2
+AX_ADIOS2
 
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
@@ -143,13 +167,26 @@ else
    AC_MSG_ERROR([Invalid working precision])
 fi
 
+if test "x$have_real128" = xyes; then
+   AC_SUBST(NEKO_REAL128_TYPE, "REAL128")
+else
+   AC_SUBST(NEKO_REAL128_TYPE, "selected_real_kind(1)")
+   if test "x$enable_real" = xqp; then
+      AC_MSG_ERROR([REAL128 not supported])
+   fi
+fi                          
+
 AC_SUBST(blk_size, ${blk_size})
 
 # Checks for libxsmm backend
 AX_LIBXSMM
 
 # Checks for HIP backend
-AX_HIP
+if test "x${is_hpe_cray}" = xyes; then
+   AX_CRAY_ROCM
+else
+   AX_HIP
+fi
 
 # Checks for CUDA backend
 if test "x${is_cray}" = xyes; then
@@ -186,7 +223,20 @@ else
    AC_SUBST(device_mpi, .false.)
 fi
 
+# Checks for NCCL backend
+AX_NCCL
+
+# Checks for RCCL backend
+AX_RCCL
+
+# Checks for NVTX profiling
+AX_NVTX
+
+# Checks for ROCTX profiling
+AX_ROCTX
+
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
+AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
@@ -195,6 +245,15 @@ AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AC_SUBST(CUDA_ARCH)
 AC_SUBST(CUDA_CFLAGS)
 AC_SUBST(HIP_HIPCC_FLAGS)
+
+# Set device backend if requested (and found)
+if (test "x${have_cuda}" = xyes ||
+    test "x${have_hip}" = xyes  ||
+    test "x${have_opencl}" = xyes); then
+    AC_SUBST(device_bcknd, "1")
+else
+    AC_SUBST(device_bcknd, "0")
+fi
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
@@ -232,11 +291,14 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/device/Makefile\
 		 tests/device_math/Makefile\
 		 tests/mathops/Makefile\
-		 tests/device_mathops/Makefile])
+		 tests/device_mathops/Makefile\
+		 tests/octree/Makefile\
+                 tests/vector/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
+		    contrib/genmeshbox/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

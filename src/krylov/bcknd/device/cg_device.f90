@@ -140,7 +140,7 @@ contains
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst

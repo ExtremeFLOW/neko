@@ -60,6 +60,8 @@ module gs_device_mpi
   type, extends(gs_comm_t) :: gs_device_mpi_t
      type(gs_device_mpi_buf_t) :: send_buf
      type(gs_device_mpi_buf_t) :: recv_buf
+     type(c_ptr), allocatable :: stream(:)
+     integer :: nb_strtgy
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -68,48 +70,50 @@ module gs_device_mpi
      procedure, pass(this) :: nbwait => gs_device_mpi_nbwait
   end type gs_device_mpi_t
 
+#ifdef HAVE_HIP
   interface
-    subroutine hip_gs_pack(u_d, buf_d, dof_d, n) &
+     subroutine hip_gs_pack(u_d, buf_d, dof_d, offset, n, stream) &
           bind(c, name='hip_gs_pack')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: n
-       type(c_ptr), value :: u_d, buf_d, dof_d
+       integer(c_int), value :: n, offset
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine hip_gs_pack
   end interface
 
   interface
-    subroutine cuda_gs_pack(u_d, buf_d, dof_d, n) &
-          bind(c, name='cuda_gs_pack')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int), value :: n
-       type(c_ptr), value :: u_d, buf_d, dof_d
-     end subroutine cuda_gs_pack
-  end interface
-
-  interface
-    subroutine hip_gs_unpack(u_d, op, buf_d, dof_d, offset, n) &
+     subroutine hip_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
           bind(c, name='hip_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
-       type(c_ptr), value :: u_d, buf_d, dof_d
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine hip_gs_unpack
+  end interface
+#elif HAVE_CUDA  
+  interface
+     subroutine cuda_gs_pack(u_d, buf_d, dof_d, offset, n, stream) &
+          bind(c, name='cuda_gs_pack')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: n, offset
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream
+     end subroutine cuda_gs_pack
   end interface
 
   interface
-    subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n) &
+     subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
           bind(c, name='cuda_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
-       type(c_ptr), value :: u_d, buf_d, dof_d
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine cuda_gs_unpack
   end interface
+#endif
 
   interface
-    subroutine device_mpi_init_reqs(n, reqs) &
+     subroutine device_mpi_init_reqs(n, reqs) &
           bind(c, name='device_mpi_init_reqs')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -119,7 +123,7 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine device_mpi_free_reqs(reqs) &
+     subroutine device_mpi_free_reqs(reqs) &
           bind(c, name='device_mpi_free_reqs')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -128,7 +132,7 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine device_mpi_isend(buf_d, offset, nbytes, rank, reqs, i) &
+     subroutine device_mpi_isend(buf_d, offset, nbytes, rank, reqs, i) &
           bind(c, name='device_mpi_isend')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -138,7 +142,7 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine device_mpi_irecv(buf_d, offset, nbytes, rank, reqs, i) &
+     subroutine device_mpi_irecv(buf_d, offset, nbytes, rank, reqs, i) &
           bind(c, name='device_mpi_irecv')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -148,7 +152,7 @@ module gs_device_mpi
   end interface
 
   interface
-    integer(c_int) function device_mpi_test(reqs, i) &
+     integer(c_int) function device_mpi_test(reqs, i) &
           bind(c, name='device_mpi_test')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -158,24 +162,24 @@ module gs_device_mpi
   end interface
 
   interface
-    subroutine device_mpi_waitall(n, reqs) &
+     subroutine device_mpi_waitall(n, reqs) &
           bind(c, name='device_mpi_waitall')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: n
        type(c_ptr), value :: reqs
-    end subroutine device_mpi_waitall
+     end subroutine device_mpi_waitall
   end interface
 
   interface
-    integer(c_int) function device_mpi_waitany(n, reqs, i) &
+     integer(c_int) function device_mpi_waitany(n, reqs, i) &
           bind(c, name='device_mpi_waitany')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: n
        integer(c_int) :: i
        type(c_ptr), value :: reqs
-    end function device_mpi_waitany
+     end function device_mpi_waitany
   end interface
 
 contains
@@ -267,12 +271,22 @@ contains
     class(gs_device_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
+    integer :: i
 
     call this%init_order(send_pe, recv_pe)
 
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
     call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
+    ! Create a set of non-blocking streams
+    allocate(this%stream(size(this%recv_pe)))
+    do i = 1, size(this%recv_pe)
+       call device_stream_create(this%stream(i), 1)
+    end do
+
+
+    this%nb_strtgy = 0
+    
   end subroutine gs_device_mpi_init
 
   !> Deallocate MPI based communication method
@@ -286,6 +300,13 @@ contains
     call this%free_order()
     call this%free_dofs()
 
+    if (allocated(this%stream)) then
+       do i = 1, size(this%stream)
+          call device_stream_destroy(this%stream(i))
+       end do
+       deallocate(this%stream)
+    end if
+
   end subroutine gs_device_mpi_free
 
   !> Post non-blocking send operations
@@ -298,28 +319,68 @@ contains
 
     u_d = device_get_ptr(u)
 
+    if (iand(this%nb_strtgy, 1) .eq. 0) then
+
 #ifdef HAVE_HIP
-    call hip_gs_pack(u_d, &
-                     this%send_buf%buf_d, &
-                     this%send_buf%dof_d, &
-                     this%send_buf%total)
+       call hip_gs_pack(u_d, &
+                        this%send_buf%buf_d, &
+                        this%send_buf%dof_d, &
+                        0, this%send_buf%total, &
+                        C_NULL_PTR)
 #elif HAVE_CUDA
-    call cuda_gs_pack(u_d, &
-                      this%send_buf%buf_d, &
-                      this%send_buf%dof_d, &
-                      this%send_buf%total)
+       call cuda_gs_pack(u_d, &
+                         this%send_buf%buf_d, &
+                         this%send_buf%dof_d, &
+                         0, this%send_buf%total, &
+                         C_NULL_PTR)
 #else
-    call neko_error('gs_device_mpi: no backend')
+       call neko_error('gs_device_mpi: no backend')
 #endif
 
-    call device_sync()
+       call device_sync()
+       
+       do i = 1, size(this%send_pe)
+          call device_mpi_isend(this%send_buf%buf_d, &
+                                rp*this%send_buf%offset(i), &
+                                rp*this%send_buf%ndofs(i), this%send_pe(i), &
+                                this%send_buf%reqs, i)
+       end do
+       
+    else
 
-    do i = 1, size(this%send_pe)
-       call device_mpi_isend(this%send_buf%buf_d, rp*this%send_buf%offset(i), &
-                             rp*this%send_buf%ndofs(i), this%send_pe(i), &
-                             this%send_buf%reqs, i)
-    end do
-
+       ! Sync device since all streams are non-blocking
+       call device_sync()
+       
+       do i = 1, size(this%send_pe)
+#ifdef HAVE_HIP
+          call hip_gs_pack(u_d, &
+                           this%send_buf%buf_d, &
+                           this%send_buf%dof_d, &
+                           this%send_buf%offset(i), &
+                           this%send_buf%ndofs(i), &
+                           this%stream(i))
+#elif HAVE_CUDA
+          call cuda_gs_pack(u_d, &
+                            this%send_buf%buf_d, &
+                            this%send_buf%dof_d, &
+                            this%send_buf%offset(i), &
+                            this%send_buf%ndofs(i), &
+                            this%stream(i))
+#else
+          call neko_error('gs_device_mpi: no backend')
+#endif
+       end do
+   
+       ! Consider adding a poll loop here once we have device_query in place
+       do i = 1, size(this%send_pe)
+          call device_sync(this%stream(i))
+          call device_mpi_isend(this%send_buf%buf_d, &
+                                rp*this%send_buf%offset(i), &
+                                rp*this%send_buf%ndofs(i), this%send_pe(i), &
+                                this%send_buf%reqs, i)
+       end do
+    end if
+    
   end subroutine gs_device_mpi_nbsend
 
   !> Post non-blocking receive operations
@@ -340,31 +401,66 @@ contains
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    integer :: op
+    integer :: op, done_req
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
 
-    call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
+    if (iand(this%nb_strtgy, 2) .eq. 0) then
+       call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
 
 #ifdef HAVE_HIP
-    call hip_gs_unpack(u_d, op, &
-                       this%recv_buf%buf_d, &
-                       this%recv_buf%dof_d, &
-                       0, this%recv_buf%total)
+       call hip_gs_unpack(u_d, op, &
+                          this%recv_buf%buf_d, &
+                          this%recv_buf%dof_d, &
+                          0, this%recv_buf%total, &
+                          C_NULL_PTR)
 #elif HAVE_CUDA
-    call cuda_gs_unpack(u_d, op, &
-                        this%recv_buf%buf_d, &
-                        this%recv_buf%dof_d, &
-                        0, this%recv_buf%total)
+       call cuda_gs_unpack(u_d, op, &
+                           this%recv_buf%buf_d, &
+                           this%recv_buf%dof_d, &
+                           0, this%recv_buf%total, &
+                           C_NULL_PTR)
 #else
-    call neko_error('gs_device_mpi: no backend')
+       call neko_error('gs_device_mpi: no backend')
 #endif
 
-    call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
+       call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
-    ! Syncing here seems to prevent some race condition
-    call device_sync()
+       ! Syncing here seems to prevent some race condition
+       call device_sync()
+       
+    else
+
+       do while(device_mpi_waitany(size(this%recv_pe), &
+                                  this%recv_buf%reqs, done_req) .ne. 0)
+       
+#ifdef HAVE_HIP
+          call hip_gs_unpack(u_d, op, &
+                             this%recv_buf%buf_d, &
+                             this%recv_buf%dof_d, &
+                             this%recv_buf%offset(done_req), &
+                             this%recv_buf%ndofs(done_req), &
+                             this%stream(done_req))
+#elif HAVE_CUDA    
+          call cuda_gs_unpack(u_d, op, &
+                              this%recv_buf%buf_d, &
+                              this%recv_buf%dof_d, &
+                              this%recv_buf%offset(done_req), &
+                              this%recv_buf%ndofs(done_req), &
+                              this%stream(done_req))
+#else
+          call neko_error('gs_device_mpi: no backend')
+#endif
+       end do
+    
+       call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
+
+       ! Sync non-blocking streams
+       do done_req = 1, size(this%recv_pe)
+          call device_sync(this%stream(done_req))
+       end do
+    end if
 
   end subroutine gs_device_mpi_nbwait
 

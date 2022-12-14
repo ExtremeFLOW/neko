@@ -39,7 +39,7 @@ make check
 ## Documentation
 Documentation for Neko is available at https://extremeflow.github.io/neko/.
 
-To generate the documentation, you need to have both doxygen and dot installed (they will be picked up by configure). Once installed, you should be able to generate the documentation with
+To generate the documentation, you need to have both doxygen and dot (part of the Graphviz package) installed (they will be picked up by configure). Once installed, you should be able to generate the documentation with
 ```bash
 make html
 ```
@@ -48,6 +48,7 @@ make html
 * Jansson, N., 2021. *Spectral Element Simulations on the NEC SX-Aurora TSUBASA*. In proc. HPCAsia 2021.
 * Karp, M., Podobas, A., Kenter, T., Jansson, N., Plessl, C., Schlatter, P. and Markidis, S., 2022. *A high-fidelity flow solver for unstructured meshes on field-programmable gate arrays: Design, evaluation, and future challenges*. In proc. HPCAsia 2022.
 * Karp, M., Jansson, N., Podobas, A., Schlatter, P., and Markidis, S., 2022. *Reducing Communication in the Conjugate Gradient Method: A Case Study on High-Order Finite Elements*. In proc. PASC 2022.
+* Karp, M., Massaro, D., Jansson, N., Hart, A., Wahlgren, J., Schlatter, P., and Markidis, S., 2022. *Large-Scale Direct Numerical Simulations of Turbulence Using GPUs and Modern Fortran*. arXiv preprint arXiv:2207:07098.
 
 ## Acknowledgments
 The development of Neko was supported by the European Commission Horizon 2020 project grant *EPiGRAM-HS: Exascale Programming Models for Heterogeneous Systems* (grant reference 801039), the Swedish Research Council project grant *Efficient Algorithms for Exascale Computational Fluid Dynamics* (grant reference 2019-04723) and the SeRC Exascale Simulation Software Initiative (SESSI). The Neko logo was designed by Robert Hansen Jagrelius.

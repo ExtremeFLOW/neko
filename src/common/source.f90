@@ -95,8 +95,7 @@ contains
     f%v = 0d0
     f%w = 0d0
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(f%u, f%u_d, dm%size())
        call device_map(f%v, f%v_d, dm%size())
        call device_map(f%w, f%w_d, dm%size())
@@ -147,8 +146,7 @@ contains
   subroutine source_set_pw_type(f, f_eval_pw)
     type(source_t), intent(inout) :: f
     procedure(source_term_pw) :: f_eval_pw
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_error('Pointwise source terms not supported on accelerators')
     end if
     f%eval => source_eval_pw
@@ -159,8 +157,7 @@ contains
   !! @note Maybe this should be cache, avoding zeroing at each time-step
   subroutine source_eval_noforce(f)
     class(source_t) :: f
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%u_d, f%dm%size())
        call device_rzero(f%v_d, f%dm%size())
        call device_rzero(f%w_d, f%dm%size())

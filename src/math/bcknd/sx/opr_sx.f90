@@ -30,46 +30,46 @@ contains
       select case(coef%Xh%lx)
       case(14)
          call sx_dudxyz_lx14(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(13)
          call sx_dudxyz_lx13(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(12)
          call sx_dudxyz_lx12(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(11)
          call sx_dudxyz_lx11(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(10)
          call sx_dudxyz_lx10(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(9)
          call sx_dudxyz_lx9(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(8)
          call sx_dudxyz_lx8(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(7)
          call sx_dudxyz_lx7(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(6)
          call sx_dudxyz_lx6(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(5)
          call sx_dudxyz_lx5(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(4)
          call sx_dudxyz_lx4(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(3)
          call sx_dudxyz_lx3(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case(2)
          call sx_dudxyz_lx2(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs)
+              coef%jacinv, msh%nelv, dof%size())
       case default
          call sx_dudxyz_lx(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
-              coef%jacinv, msh%nelv, dof%n_dofs, Xh%lx)
+              coef%jacinv, msh%nelv, dof%size(), Xh%lx)
       end select
     end associate
 
@@ -228,59 +228,59 @@ contains
       case(14)
          call sx_cdtp_lx14(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(13)
          call sx_cdtp_lx13(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(12)
          call sx_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(11)
          call sx_cdtp_lx11(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(10)
          call sx_cdtp_lx10(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(9)
          call sx_cdtp_lx9(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(8)
          call sx_cdtp_lx8(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(7)
          call sx_cdtp_lx7(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(6)
          call sx_cdtp_lx6(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(5)
          call sx_cdtp_lx5(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(4)
          call sx_cdtp_lx4(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(3)
          call sx_cdtp_lx3(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case(2)
          call sx_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs)
+              coef%B, coef%jac, msh%nelv, dof%size())
       case default
          call sx_cdtp_lx(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
-              coef%B, coef%jac, msh%nelv, dof%n_dofs, Xh%lx)
+              coef%B, coef%jac, msh%nelv, dof%size(), Xh%lx)
       end select
     end associate
 

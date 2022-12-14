@@ -42,6 +42,7 @@ module output
    contains
      procedure, pass(this) :: init => output_init
      procedure, pass(this) :: set_counter => output_set_counter
+     procedure, pass(this) :: set_start_counter => output_set_start_counter
      procedure(output_sample), pass(this), deferred :: sample
   end type output_t
 
@@ -72,5 +73,13 @@ contains
     integer, intent(in) :: n
     call this%file_%set_counter(n)
   end subroutine output_set_counter
+ 
+  !> Update the start of output's file counter
+  subroutine output_set_start_counter(this, n)
+    class(output_t), intent(inout) :: this
+    integer, intent(in) :: n
+    call this%file_%set_start_counter(n)
+  end subroutine output_set_start_counter
   
+ 
 end module output

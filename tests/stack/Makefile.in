@@ -19,7 +19,8 @@ stack_test_TESTS := stack_i4.pf\
 		    stack_i4r8t2.pf\
 		    stack_2i4r8t3.pf\
 		    stack_nq.pf\
-		    stack_nh.pf
+		    stack_nh.pf\
+		    stack_pt.pf
 stack_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
 $(eval $(call make_pfunit_test,stack_test))
 

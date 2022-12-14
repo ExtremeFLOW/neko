@@ -74,6 +74,7 @@ extern "C" {
       CASE(10);
       CASE(11);
       CASE(12);
+      CASE(13);
     default:
       {
 	fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);

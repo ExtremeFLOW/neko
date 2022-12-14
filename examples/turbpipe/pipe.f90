@@ -5,8 +5,8 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_usr_ic => user_ic
-    u%fluid_usr_f_vector => forcing
+    u%fluid_user_ic => user_ic
+    u%fluid_user_f_vector => forcing
   end subroutine user_setup
   ! User defined initial condition
   subroutine user_ic(u, v, w, p, params)
@@ -82,8 +82,7 @@ contains
     Re_B = 5300_rp 
     w = 2d0 * (2d0*Re_tau/Re_B)**2
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%u_d,f%dm%size())
        call device_rzero(f%v_d,f%dm%size())
        call device_rzero(f%w_d,f%dm%size())

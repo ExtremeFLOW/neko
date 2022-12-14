@@ -7,6 +7,7 @@ neko_fortran_SOURCES = \
 	io/format/nmsh.f90\
 	io/format/re2.f90\
 	io/format/map.f90\
+	io/format/stl.f90\
 	common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
@@ -48,7 +49,10 @@ neko_fortran_SOURCES = \
 	adt/tuple.f90\
 	mesh/zone.f90\
 	mesh/mesh.f90\
+	mesh/octree.f90\
 	mesh/tet_mesh.f90\
+	mesh/tri_mesh.f90\
+	field/field_registry.f90\
 	field/field.f90\
 	field/field_series.f90\
 	field/mesh_field.f90\
@@ -78,6 +82,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/fdm_sx.f90\
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
+	math/vector.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -85,15 +90,19 @@ neko_fortran_SOURCES = \
 	io/rea_file.f90\
 	io/fld_file.f90\
 	io/vtk_file.f90\
+	io/stl_file.f90\
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
+	io/scalar_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
 	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
+	common/profiler.F90\
+	common/craypat.F90\
 	bc/bc.f90\
 	bc/dirichlet.f90\
 	bc/dong_outflow.f90\
@@ -125,9 +134,15 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
-	common/abbdf.f90\
+	common/source_scalar.f90\
+	common/ext_bdf_scheme.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
+	common/rhs_maker.f90\
+	common/rhs_maker_fctry.f90\
+	common/bcknd/cpu/rhs_maker_cpu.f90\
+	common/bcknd/sx/rhs_maker_sx.f90\
+	common/bcknd/device/rhs_maker_device.F90\
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
@@ -137,8 +152,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_plan1.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
-	fluid/fluid_abbdf.f90\
-	fluid/fluid_abbdf_fctry.f90\
+	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
 	fluid/mean_flow.f90\
@@ -146,12 +160,9 @@ neko_fortran_SOURCES = \
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
-	fluid/bcknd/cpu/fluid_abbdf_cpu.f90\
-	fluid/bcknd/sx/fluid_abbdf_sx.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/device_fluid_plan4.f90\
-	fluid/bcknd/device/fluid_abbdf_device.F90\
 	fluid/bcknd/device/pnpn_res_device.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
@@ -167,6 +178,8 @@ neko_fortran_SOURCES = \
 	common/jobctrl.f90\
 	device/cuda_intf.F90\
 	device/hip_intf.F90\
+	device/cuda/nvtx.F90\
+	device/hip/roctx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
 	device/device.F90\
@@ -182,6 +195,14 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
+	scalar/bcknd/device/scalar_residual_device.F90\
+	scalar/scalar_method.f90\
+	scalar/scalar_pnpn.f90\
+	scalar/scalar_aux.f90\
+	scalar/scalar_residual.f90\
+	scalar/scalar_residual_fctry.f90\
+	scalar/bcknd/cpu/scalar_residual_cpu.f90\
+	scalar/bcknd/sx/scalar_residual_sx.f90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
@@ -219,8 +240,9 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
-	fluid/bcknd/device/hip/fluid_abbdf.hip\
+	common/bcknd/device/hip/rhs_maker.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
+	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip
 endif
 
@@ -249,8 +271,9 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
-	fluid/bcknd/device/cuda/fluid_abbdf.cu\
+	common/bcknd/device/cuda/rhs_maker.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
+	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu
 endif
 
@@ -269,7 +292,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/opr_cfl.c\
 	math/bcknd/device/opencl/ax_helm.c\
-        krylov/bcknd/device/opencl/pc_jacobi.c\
+	krylov/bcknd/device/opencl/pc_jacobi.c\
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
@@ -278,13 +301,31 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
-	fluid/bcknd/device/opencl/fluid_abbdf.c\
+	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
+	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
 endif
+
+if ENABLE_ADIOS2
+#
+# Fortran code related to ADIOS2 can be added directly
+# to libneko_fortran_SOURCES (as above)
+#
+# To avoid linker issues, any C++ code related to ADIOS2
+# must be added to libneko_a_LIBADD, with a manual build
+# rule as illustrated below
+#
+#io/adios2_example.o: io/adios2_example.cpp
+#	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+#
+#libneko_a_LIBADD = \
+#	io/adios2_example.o
+endif
+
 
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
@@ -299,7 +340,8 @@ CLEANFILES += math/bcknd/device/opencl/*.cl.h\
 	      bc/bcknd/device/opencl/*.cl.h\
 	      krylov/bcknd/device/opencl/*.cl.h\
 	      fluid/bcknd/device/opencl/*.cl.h\
-              sem/bcknd/device/opencl/*.cl.h
+	      scalar/bcknd/device/opencl/*.cl.h\
+	      sem/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -328,11 +370,12 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/opgrad_kernel.h\
 	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
-	fluid/bcknd/device/cuda/sumab_kernel.h\
-	fluid/bcknd/device/cuda/makeabf_kernel.h\
-	fluid/bcknd/device/cuda/makebdf_kernel.h\
+	common/bcknd/device/cuda/sumab_kernel.h\
+	common/bcknd/device/cuda/makeext_kernel.h\
+	common/bcknd/device/cuda/makebdf_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
+	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
@@ -353,11 +396,12 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/opgrad_kernel.h\
 	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
-	fluid/bcknd/device/hip/sumab_kernel.h\
-	fluid/bcknd/device/hip/makeabf_kernel.h\
-	fluid/bcknd/device/hip/makebdf_kernel.h\
+	common/bcknd/device/hip/sumab_kernel.h\
+	common/bcknd/device/hip/makeext_kernel.h\
+	common/bcknd/device/hip/makebdf_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
+	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
@@ -381,8 +425,9 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
-	fluid/bcknd/device/opencl/abbdf_kernel.cl\
+	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
+	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
@@ -390,7 +435,8 @@ EXTRA_DIST = \
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\
 	device/hip/check.h\
-	device/cuda/check.h
+	device/cuda/check.h\
+	common/neko_log.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends

@@ -27,8 +27,7 @@ subroutine test_device_alloc
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then 
+  if (NEKO_BCKND_DEVICE .eq. 1) then
      size_ = 42 * 4
      x_d = C_NULL_PTR
 
@@ -49,8 +48,7 @@ subroutine test_device_free
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
          
      size_ = 42 * 4
      x_d = C_NULL_PTR
@@ -77,8 +75,7 @@ subroutine test_device_associate
   integer(c_size_t) :: size_
   integer :: x(42)
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
        
      size_ = size(x) * 4
      
@@ -101,8 +98,7 @@ subroutine test_device_associated
   integer(c_size_t) :: size_
   integer :: x(42)
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
      
      size_ = size(x) * 4
 
@@ -126,8 +122,7 @@ subroutine test_device_get_ptr
   integer :: x(42)
   logical :: same_ptr
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
 
      size_ = size(x) * 4
   
@@ -154,8 +149,7 @@ subroutine test_device_map
   integer :: x(42)
   logical :: same_ptr
   
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
 
      size_ = size(x) * 4
 
@@ -181,8 +175,7 @@ subroutine test_device_memcpy
   integer :: x(42), i
   logical :: same_ptr
 
-  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+  if (NEKO_BCKND_DEVICE .eq. 1) then
      
      size_ = size(x) * 4
 
@@ -220,3 +213,69 @@ subroutine test_device_memcpy
 
 end subroutine test_device_memcpy
 
+@test
+subroutine test_device_stream_create
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: stream
+  
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+
+     stream = C_NULL_PTR
+     call device_stream_create(stream)
+     @assertTrue(c_associated(stream))
+
+  end if
+  
+end subroutine test_device_stream_create
+
+@test
+subroutine test_device_stream_destroy
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: stream
+  
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+
+     stream = C_NULL_PTR
+     call device_stream_create(stream)
+     @assertTrue(c_associated(stream))
+
+     call device_stream_destroy(stream)
+
+  end if
+  
+end subroutine test_device_stream_destroy
+
+@test
+subroutine test_device_sync_stream
+  use neko_config  
+  use pfunit
+  use device
+  implicit none
+  type(c_ptr) :: stream1, stream2
+  
+  if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+
+     stream1 = C_NULL_PTR
+     stream2 = C_NULL_PTR
+     call device_stream_create(stream1)
+     call device_stream_create(stream2)
+     @assertTrue(c_associated(stream1))
+     @assertTrue(c_associated(stream2))
+
+     call device_sync(stream1)
+     call device_sync(stream2)
+     call device_sync(stream2)
+     call device_sync(stream1)
+
+     call device_stream_destroy(stream1)
+     call device_stream_destroy(stream2)
+
+  end if
+  
+end subroutine test_device_sync_stream

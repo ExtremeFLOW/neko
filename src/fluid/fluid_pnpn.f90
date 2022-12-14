@@ -1,17 +1,52 @@
+! Copyright (c) 2022, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
   use pnpn_res_fctry
   use ax_helm_fctry
-  use fluid_abbdf_fctry
+  use rhs_maker_fctry
+  use fluid_volflow
   use fluid_method
   use field_series  
   use facet_normal
   use device_math
   use device_mathops
   use fluid_aux    
-  use abbdf
+  use ext_bdf_scheme
   use projection
   use logger
   use advection
+  use profiler
   implicit none
   private
 
@@ -62,13 +97,16 @@ module fluid_pnpn
      class(pnpn_vel_res_t), allocatable :: vel_res
 
      !> Summation of AB/BDF contributions
-     class(fluid_sumab_t), allocatable :: sumab
+     class(rhs_maker_sumab_t), allocatable :: sumab
 
      !> Contributions to kth order extrapolation scheme
-     class(fluid_makeabf_t), allocatable :: makeabf
+     class(rhs_maker_ext_t), allocatable :: makeabf
 
      !> Contributions to F from lagged BD terms
-     class(fluid_makebdf_t), allocatable :: makebdf
+     class(rhs_maker_bdf_t), allocatable :: makebdf
+
+     !> Adjust flow volume
+     type(fluid_volflow_t) :: vol_flow
      
    contains
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -82,12 +120,13 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), target, intent(inout) :: param    
+    type(param_t), target, intent(inout) :: param
+    character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
     
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, param, .true., .true.)
+    call this%scheme_init(msh, lx, param, .true., .true., scheme)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -99,13 +138,13 @@ contains
     call pnpn_vel_res_factory(this%vel_res)
 
     ! Setup backend dependent summation of AB/BDF
-    call fluid_sumab_fctry(this%sumab)
+    call rhs_maker_sumab_fctry(this%sumab)
 
     ! Setup backend dependent summation of extrapolation scheme
-    call fluid_makeabf_fctry(this%makeabf)
+    call rhs_maker_ext_fctry(this%makeabf)
 
     ! Setup backend depenent contributions to F from lagged BD terms
-    call fluid_makebdf_fctry(this%makebdf)
+    call rhs_maker_bdf_fctry(this%makebdf)
     
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
@@ -216,17 +255,22 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    call this%proj_prs%init(this%dm_Xh%n_dofs, param%proj_prs_dim)
+    if (param%proj_prs_dim .gt. 0) then
+       call this%proj_prs%init(this%dm_Xh%size(), param%proj_prs_dim)
+    end if
+    
     if (param%proj_vel_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
-       call this%proj_v%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
-       call this%proj_w%init(this%dm_Xh%n_dofs, param%proj_vel_dim)
+       call this%proj_u%init(this%dm_Xh%size(), param%proj_vel_dim)
+       call this%proj_v%init(this%dm_Xh%size(), param%proj_vel_dim)
+       call this%proj_w%init(this%dm_Xh%size(), param%proj_vel_dim)
     end if
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
     call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
+    call this%vol_flow%init(this%dm_Xh, param)
+    
   end subroutine fluid_pnpn_init
 
   subroutine fluid_pnpn_free(this)
@@ -300,6 +344,8 @@ contains
     if (allocated(this%makebdf)) then
        deallocate(this%makebdf)
     end if
+
+    call this%vol_flow%free()
     
     call this%ulag%free()
     call this%vlag%free()
@@ -307,14 +353,14 @@ contains
     
   end subroutine fluid_pnpn_free
 
-  subroutine fluid_pnpn_step(this, t, tstep, ab_bdf)
+  subroutine fluid_pnpn_step(this, t, tstep, ext_bdf)
     class(fluid_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(abbdf_t), intent(inout) :: ab_bdf
+    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
-    n = this%dm_Xh%n_dofs
+    n = this%dm_Xh%size()
     niter = 1000
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -330,15 +376,13 @@ contains
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf)
          
-      
 
-      call sumab%compute(u_e, v_e, w_e, u, v, w, &
-                         ulag, vlag, wlag, ab_bdf%ab, ab_bdf%nab)
+      call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+           ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
      
       call f_Xh%eval()
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
       else
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
@@ -346,18 +390,18 @@ contains
 
       call this%adv%apply(this%u, this%v, this%w, &
                           f_Xh%u, f_Xh%v, f_Xh%w, &
-                          Xh, this%c_Xh, dm_Xh%n_dofs)
+                          Xh, this%c_Xh, dm_Xh%size())
    
-      call makeabf%compute(ta1, ta2, ta3,&
+      call makeabf%compute_fluid(ta1, ta2, ta3,&
                            this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
-                           params%rho, ab_bdf%ab, n)
+                           params%rho, ext_bdf%ext, n)
       
-      call makebdf%compute(ta1, ta2, ta3, this%wa1, this%wa2, this%wa3,&
+      call makebdf%compute_fluid(ta1, ta2, ta3, this%wa1, this%wa2, this%wa3,&
                            ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, params%rho, params%dt, &
-                           ab_bdf%bd, ab_bdf%nbd, n)
+                           ext_bdf%bdf, ext_bdf%nbd, n)
 
       call ulag%update()
       call vlag%update()
@@ -373,11 +417,11 @@ contains
                            ta1, ta2, ta3, wa1, wa2, wa3, &
                            this%work1, this%work2, f_Xh, &
                            c_Xh, gs_Xh, this%bc_prs_surface, &
-                           this%bc_sym_surface, Ax, ab_bdf%bd(1), &
+                           this%bc_sym_surface, Ax, ext_bdf%bdf(1), &
                            params%dt, params%Re, params%rho)
 
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%n_dofs)
+      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
 
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
@@ -385,16 +429,17 @@ contains
       end if
       
       call this%pc_prs%update()
+      call profiler_start_region('Pressure')
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                this%bclst_dp, gs_Xh, niter)    
+                                          this%bclst_dp, gs_Xh, niter)
+      call profiler_end_region
 
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
          call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                          this%bclst_dp, gs_Xh, n)
       end if
 
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2(p%x_d, dp%x_d,n)
       else
          call add2(p%x, dp%x,n)
@@ -406,15 +451,15 @@ contains
                            u_res, v_res, w_res, &
                            p, ta1, ta2, ta3, &
                            f_Xh, c_Xh, msh, Xh, &
-                           params%Re, params%rho, ab_bdf%bd(1), &
-                           params%dt, dm_Xh%n_dofs)
+                           params%Re, params%rho, ext_bdf%bdf(1), &
+                           params%dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_res,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%n_dofs)
+                                u_res%x, v_res%x, w_res%x, dm_Xh%size())
       
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
          call this%proj_u%project_on(u_res%x, c_Xh, n)
@@ -424,12 +469,14 @@ contains
 
       call this%pc_vel%update()
 
+      call profiler_start_region("Velocity")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
            c_Xh, this%bclst_du, gs_Xh, niter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
            c_Xh, this%bclst_dv, gs_Xh, niter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
            c_Xh, this%bclst_dw, gs_Xh, niter)
+      call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
          call this%proj_u%project_back(du%x, Ax, c_Xh, &
@@ -440,12 +487,19 @@ contains
                                   this%bclst_dw, gs_Xh, n)
       end if
       
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
               du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
       else
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
+      end if
+
+      if (params%vol_flow_dir .ne. 0) then                 
+         call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
+              ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, params%rho, params%Re, &
+              params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
+              this%ksp_vel, this%pc_prs, this%pc_vel, niter)
       end if
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)

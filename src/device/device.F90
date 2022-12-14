@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -69,11 +69,22 @@ module device
           device_associated_r3, device_associated_r4
   end interface device_associated
 
+  !> Deassociate a Fortran array from a device pointer
+  interface device_deassociate
+     module procedure device_deassociate_r1, device_deassociate_r2, &
+          device_deassociate_r3, device_deassociate_r4
+  end interface device_deassociate
+  
   !> Return the device pointer for an associated Fortran array
   interface device_get_ptr
      module procedure device_get_ptr_r1, device_get_ptr_r2, &
           device_get_ptr_r3, device_get_ptr_r4
   end interface device_get_ptr
+
+  !> Synchronize a device or stream
+  interface device_sync
+     module procedure device_sync_device, device_sync_stream
+  end interface device_sync
       
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
@@ -561,6 +572,102 @@ contains
     call device_addrtbl%set(htbl_ptr_h, htbl_ptr_d)
 
   end subroutine device_associate_r4
+
+  !> Deassociate a Fortran rank 1 array from a device pointer
+  subroutine device_deassociate_r1(x)
+    class(*), intent(inout), target :: x(:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(i8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       call device_addrtbl%remove(htbl_ptr_h)
+    end if
+
+  end subroutine device_deassociate_r1
+
+  !> Deassociate a Fortran rank 2 array from a device pointer
+  subroutine device_deassociate_r2(x)
+    class(*), intent(inout), target :: x(:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(i8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+    
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       call device_addrtbl%remove(htbl_ptr_h)
+    end if
+
+  end subroutine device_deassociate_r2
+
+  !> Deassociate a Fortran rank 3 array from a device pointer
+  subroutine device_deassociate_r3(x)
+    class(*), intent(inout), target :: x(:,:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(i8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       call device_addrtbl%remove(htbl_ptr_h)
+    end if
+
+  end subroutine device_deassociate_r3
+
+  !> Deassociate a Fortran rank 4 array from a device pointer
+  subroutine device_deassociate_r4(x)
+    class(*), intent(inout), target :: x(:,:,:,:)
+    type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
+
+    select type(x)
+    type is (integer)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (integer(i8))       
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (real)
+       htbl_ptr_h%ptr = c_loc(x)
+    type is (double precision)
+       htbl_ptr_h%ptr = c_loc(x)
+    class default
+       call neko_error('Unknown Fortran type')
+    end select
+
+    if (device_addrtbl%get(htbl_ptr_h, htbl_ptr_d) .eq. 0) then
+       call device_addrtbl%remove(htbl_ptr_h)
+    end if
+
+  end subroutine device_deassociate_r4
   
   !> Map a Fortran rank 1 array to a device (allocate and associate)
   subroutine device_map_r1(x, x_d, n)
@@ -899,7 +1006,7 @@ contains
   end function device_get_ptr_r4
   
   !> Synchronize the device
-  subroutine device_sync()
+  subroutine device_sync_device()
 #ifdef HAVE_HIP
     if (hipDeviceSynchronize() .ne. hipSuccess) then
        call neko_error('Error during device sync')
@@ -913,6 +1020,87 @@ contains
        call neko_error('Error during device sync')
     end if
 #endif
-  end subroutine device_sync
+  end subroutine device_sync_device
+
+  !> Synchronize a device stream
+  subroutine device_sync_stream(stream)
+    type(c_ptr), intent(in) :: stream
+#ifdef HAVE_HIP
+    if (hipStreamSynchronize(stream) .ne. hipSuccess) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_CUDA
+    if (cudaStreamSynchronize(stream) .ne. cudaSuccess) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_OPENCL
+    if (clFinish(stream) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream sync')
+    end if
+#endif
+  end subroutine device_sync_stream
+
+  !> Create a device stream/command queue
+  subroutine device_stream_create(stream, flags)
+    type(c_ptr), intent(inout) :: stream
+    integer, optional :: flags
+#ifdef HAVE_HIP
+    if (present(flags)) then
+       if (hipStreamCreateWithFlags(stream, flags) .ne. hipSuccess) then
+          call neko_error('Error during stream create (w. flags)')
+       end if
+    else
+       if (hipStreamCreate(stream) .ne. hipSuccess) then
+          call neko_error('Error during stream create')
+       end if
+    end if
+#elif HAVE_CUDA
+    if (present(flags)) then
+       if (cudaStreamCreateWithFlags(stream, flags) .ne. cudaSuccess) then
+          call neko_error('Error during stream create (w. flags)')
+       end if
+    else
+       if (cudaStreamCreate(stream) .ne. cudaSuccess) then
+          call neko_error('Error during stream create')
+       end if
+    end if
+#elif HAVE_OPENCL
+    call neko_error('Not implemented yet')
+#endif
+  end subroutine device_stream_create
+
+  !> Destroy a device stream/command queue
+  subroutine device_stream_destroy(stream)
+    type(c_ptr), intent(inout) :: stream
+#ifdef HAVE_HIP
+    if (hipStreamDestroy(stream) .ne. hipSuccess) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_CUDA
+    if (cudaStreamDestroy(stream) .ne. cudaSuccess) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_OPENCL
+    call neko_error('Not implemented yet')
+#endif
+  end subroutine device_stream_destroy
+
+  !> Start device profiling
+  subroutine device_profiler_start()
+#if HAVE_CUDA
+    if (cudaProfilerStart() .ne. cudaSuccess) then
+       call neko_error('Error starting profiler')
+    end if
+#endif
+  end subroutine device_profiler_start
   
+  !> Stop device profiling
+  subroutine device_profiler_stop()
+#if HAVE_CUDA
+    if (cudaProfilerStop() .ne. cudaSuccess) then
+       call neko_error('Error stopping profiler')
+    end if
+#endif
+  end subroutine device_profiler_stop
+
 end module device

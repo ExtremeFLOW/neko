@@ -133,7 +133,7 @@ contains
     class(bicgstab_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
@@ -149,65 +149,73 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
-    norm_fac = 1./sqrt(coef%volume)
+    norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    call rzero(x%x, n)
-    call copy(this%r, f, n)
+    associate(r => this%r, t => this%t, s => this%s, v => this%v, p => this%p, &
+         s_hat => this%s_hat, p_hat => this%p_hat)
+    
+      call rzero(x%x, n)
+      call copy(r, f, n)
 
-    rtr = sqrt(glsc3(this%r,coef%mult, this%r, n))
-    rnorm = rtr*norm_fac
-    gamma = rnorm * this%rel_tol
-    ksp_results%res_start = rnorm
-    ksp_results%res_final = rnorm
-    ksp_results%iter = 0
-    if(rnorm .eq. 0d0) return
-    do iter = 1, max_iter
+      rtr = sqrt(glsc3(r, coef%mult, r, n))
+      rnorm = rtr * norm_fac
+      gamma = rnorm * this%rel_tol
+      ksp_results%res_start = rnorm
+      ksp_results%res_final = rnorm
+      ksp_results%iter = 0
+      if(rnorm .eq. 0.0_rp) return
+      do iter = 1, max_iter
+         
+         rho_1 = glsc3(r, coef%mult, f ,n)
+         
+         if (abs(rho_1) .lt. NEKO_EPS) then
+            call neko_error('Bi-CGStab rho failure')
+         end if
    
-       rho_1 = glsc3(this%r,coef%mult,f,n)
-   
-       if (abs(rho_1) .lt. 1d-14) call neko_warning('Bi-CGStab rho failure')
-   
-       if (iter .eq. 1) then
-          call copy(this%p, this%r, n) 
-       else
-          beta = (rho_1 / rho_2) * (alpha / omega)
-          call p_update(this%p, this%r, this%v, beta, omega, n)
-       end if
+         if (iter .eq. 1) then
+            call copy(p, r, n) 
+         else
+            beta = (rho_1 / rho_2) * (alpha / omega)
+            call p_update(p, r, v, beta, omega, n)
+         end if
        
-       call this%M%solve(this%p_hat, this%p, n)
-       call Ax%compute(this%v, this%p_hat, coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%v, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%v, n)
-       alpha = rho_1 / glsc3(f,coef%mult,this%v,n)
-       call copy(this%s, this%r, n)
-       call add2s2(this%s, this%v, -alpha, n)
-       rtr = glsc3(this%s, coef%mult, this%s, n)
-       rnorm = sqrt(rtr)*norm_fac
-       if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
-          call add2s2(x%x, this%p_hat, alpha,n)
-          exit
-       end if
+         call this%M%solve(p_hat, p, n)
+         call Ax%compute(v, p_hat, coef, x%msh, x%Xh)
+         call gs_op(gs_h, v, n, GS_OP_ADD)
+         call bc_list_apply(blst, v, n)
+         alpha = rho_1 / glsc3(f, coef%mult, v, n)
+         call copy(s, r, n)
+         call add2s2(s, v, -alpha, n)
+         rtr = glsc3(s, coef%mult, s, n)
+         rnorm = sqrt(rtr) * norm_fac
+         if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
+            call add2s2(x%x, p_hat, alpha,n)
+            exit
+         end if
        
-       call this%M%solve(this%s_hat, this%s, n)
-       call Ax%compute(this%t, this%s_hat, coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%t, n, GS_OP_ADD)
-       call bc_list_apply(blst, this%t, n)
-       omega = glsc3(this%t,coef%mult,this%s, n) &
-             / glsc3(this%t, coef%mult, this%t, n)
-       call x_update(x%x, this%p_hat, this%s_hat, alpha, omega, n)
-       call copy(this%r, this%s, n)
-       call add2s2(this%r, this%t, -omega, n)
+         call this%M%solve(s_hat, s, n)
+         call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
+         call gs_op(gs_h, t, n, GS_OP_ADD)
+         call bc_list_apply(blst, t, n)
+         omega = glsc3(t, coef%mult, s, n) &
+              / glsc3(t, coef%mult, t, n)
+         call x_update(x%x, p_hat, s_hat, alpha, omega, n)
+         call copy(r, s, n)
+         call add2s2(r, t, -omega, n)
       
-       rtr = glsc3(this%r, coef%mult, this%r, n)
-       rnorm = sqrt(rtr)*norm_fac
-       if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
-          exit
-       end if 
+         rtr = glsc3(r, coef%mult, r, n)
+         rnorm = sqrt(rtr) * norm_fac
+         if (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) then
+            exit
+         end if
     
-       if (omega .eq. 0d0) call neko_warning('Bi-CGstab omega failure')
-       rho_2 = rho_1
+         if (omega .lt. NEKO_EPS) then
+            call neko_error('Bi-CGstab omega failure')
+         end if
+         rho_2 = rho_1
     
-    end do
+      end do
+    end associate
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
   end function bicgstab_solve

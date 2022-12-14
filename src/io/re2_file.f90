@@ -134,6 +134,7 @@ contains
     end if
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
+
     call mesh_init(msh, ndim, dist)
 
     ! Set offset (header)
@@ -153,21 +154,21 @@ contains
     ! Set offset to start of curved side data
     mpi_offset = RE2_HDR_SIZE * MPI_CHARACTER_SIZE + MPI_REAL_SIZE
     if (ndim .eq. 2) then
-       mpi_offset = mpi_offset + dist%num_global() * re2_data_xy_size
+       mpi_offset = mpi_offset + int(dist%num_global(),i8) * int(re2_data_xy_size,i8)
     else
-       mpi_offset = mpi_offset + dist%num_global() * re2_data_xyz_size
+       mpi_offset = mpi_offset + int(dist%num_global(),i8) * int(re2_data_xyz_size,i8)
     end if
 
     !> @todo Add support for curved side data
     !! Skip curved side data
     if (v2_format) then
        call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
-       ncurv = t2
+       ncurv = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
        call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
-       mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+       mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, t2, 1, MPI_DOUBLE_PRECISION, status, ierr)
-       nbcs = t2
+       nbcs = int(t2)
        mpi_offset = mpi_offset + MPI_DOUBLE_PRECISION_SIZE
 
        call re2_file_read_bcs(msh, nbcs, dist, fh, mpi_offset, v2_format)
@@ -175,7 +176,7 @@ contains
        call MPI_File_read_at_all(fh, mpi_offset, ncurv, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
        call re2_file_read_curve(msh, ncurv, dist, fh, mpi_offset, v2_format)
-       mpi_offset = mpi_offset + ncurv * re2_data_cv_size
+       mpi_offset = mpi_offset + int(ncurv,i8) * int(re2_data_cv_size,i8)
        call MPI_File_read_at_all(fh, mpi_offset, nbcs, 1, MPI_INTEGER, status, ierr)
        mpi_offset = mpi_offset + MPI_INTEGER_SIZE
 
@@ -310,7 +311,7 @@ contains
     nelv = dist%num_local()
     element_offset = dist%start_idx()
 
-    call htp%init(2**ndim * nel, ndim)
+    call htp%init(2*nel, ndim)
     pt_idx = 0
     if (ndim .eq. 2) then
        mpi_offset = mpi_offset + element_offset * re2_data_xy_size          
@@ -325,8 +326,8 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
-             
-             call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
+             ! swap vertices to keep symmetric vertex numbering in neko
+             call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v1_data_xy)
        else
@@ -340,8 +341,8 @@ contains
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
              if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
-             
-             call mesh_add_element(msh, i, p(1), p(2), p(3), p(4))
+             ! swap vertices to keep symmetric vertex numbering in neko
+             call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v2_data_xy)
        end if
@@ -358,9 +359,10 @@ contains
                      real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+             if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+             ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, &
-                  p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
+                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
           end do
           deallocate(re2v1_data_xyz)
        else
@@ -374,10 +376,10 @@ contains
                      re2v2_data_xyz(i)%z(j))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             
-             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+             if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+             ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, &
-                  p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))          
+                  p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
           end do
           deallocate(re2v2_data_xyz)
        end if
@@ -415,7 +417,7 @@ contains
           end do
        end do
     end do
-  
+    write(*,*) 'reading curved data' 
     if (.not. v2_format) then
        allocate(re2v1_data_curve(ncurve))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_curve, ncurve, &

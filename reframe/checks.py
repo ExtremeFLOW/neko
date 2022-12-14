@@ -154,7 +154,7 @@ class MakeNeko(rfm.core.buildsystems.BuildSystem):
 
 class NekoTestBase(rfm.RegressionTest):
     valid_systems = ['*']
-    valid_prog_environs = ['PrgEnv-cray', 'PrgEnv-gnu', 'PrgEnv-intel']
+    valid_prog_environs = ['PrgEnv-cray', 'PrgEnv-gnu', 'PrgEnv-intel','default']
     neko_build = fixture(BuildNeko, scope='environment')
 
     scheme = parameter(os.getenv('NEKO_SCHEME', 'plan4,pnpn').split(','))
@@ -162,6 +162,7 @@ class NekoTestBase(rfm.RegressionTest):
 
     mesh_file = variable(str, value='')
     dt = variable(str, value='')
+    T_end = variable(str, value='')
 
     abstol_vel = {'sp': '1d-5', 'dp': '1d-9'}
     abstol_prs = {'sp': '1d-5', 'dp': '1d-9'}
@@ -202,6 +203,7 @@ class NekoTestBase(rfm.RegressionTest):
                 'fluid_scheme': self.scheme,
                 'mesh_file': self.mesh_file,
                 'dt': self.dt,
+                'T_end': self.T_end,
             }
 
             ss = template.substitute(keys)
@@ -235,7 +237,7 @@ class NekoTestBase(rfm.RegressionTest):
 
     @sanity_function
     def normal_end(self):
-        return sn.assert_found('normal end.', self.stdout)
+        return sn.assert_found('Normal end.', self.stdout)
 
     @run_before('performance')
     def set_time_perf(self):
@@ -314,7 +316,8 @@ class TgvBase(NekoTestBase):
 class Tgv8(TgvBase):
     mesh_file = 'examples/tgv/512.nmsh'
     dt = '1d-2'
-
+    T_end = '20'
+    
     @run_before('performance')
     def set_reference(self):
         if self.neko_build.real == 'dp':
@@ -335,6 +338,7 @@ class Tgv8(TgvBase):
 class Tgv32(TgvBase):
     mesh_file = 'examples/tgv/32768.nmsh'
     dt = '1d-3'
+    T_end = '20'    
     dofs = 8**3 * 32**3
     # Where flow has become turbulent
     first_workrate_timestep = 12000
@@ -362,3 +366,37 @@ class MiniHemi(NekoTestBase):
     @run_before('compile')
     def setup_case(self):
         self.executable = os.path.join(self.neko_build.install_dir, 'bin/neko')
+
+@rfm.simple_test
+class MiniTgv8(NekoTestBase):
+    descr = 'Two iterations of TGV as a smoke test'
+    mesh_file = 'examples/tgv/512.nmsh'
+    dt = '1d-2'
+    T_end = '0.02'
+    executable = './neko'
+    case = 'tgv.case'
+
+    @run_after('setup')
+    def set_build(self):
+        self.build_system = MakeNeko(self.neko_build)
+        self.sourcepath = 'tgv.f90'
+
+@rfm.simple_test
+class MiniRB(NekoTestBase):
+    descr = 'Two iterations of 3D RB as a smoke test'
+    mesh_file = 'examples/rayleigh-benard/box.nmsh'
+    dt = '1d-2'
+    T_end = '0.02'
+    executable = './neko'
+    case = 'rayleigh.case'
+
+    @run_after('setup')
+    def set_build(self):
+        self.build_system = MakeNeko(self.neko_build)
+        self.sourcepath = 'rayleigh.f90'
+
+    # Restrict small case to 2 tasks
+    @run_before('run')
+    def set_num_tasks(self):
+        if self.neko_build.backend == 'cpu':
+            self.num_tasks = 2

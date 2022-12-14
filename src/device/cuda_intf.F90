@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2022, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -113,6 +113,60 @@ module cuda_intf
        integer(c_int), value :: device
      end function cudaGetDeviceProperties
   end interface
+
+  interface
+     integer (c_int) function cudaStreamCreate(stream) &
+          bind(c, name='cudaStreamCreate')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+     end function cudaStreamCreate
+  end interface
+
+  interface
+     integer (c_int) function cudaStreamCreateWithFlags(stream, flags) &
+          bind(c, name='cudaStreamCreateWithFlags')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags
+     end function cudaStreamCreateWithFlags
+  end interface
+
+  interface
+     integer (c_int) function cudaStreamDestroy(steam) &
+          bind(c, name='cudaStreamDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: steam
+     end function cudaStreamDestroy
+  end interface
+
+  interface 
+     integer (c_int) function cudaStreamSynchronize(stream) &
+          bind(c, name='cudaStreamSynchronize')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: stream
+     end function cudaStreamSynchronize
+  end interface
+
+  interface
+     integer (c_int) function cudaProfilerStart() &
+          bind(c, name='cudaProfilerStart')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cudaProfilerStart
+  end interface
+
+  interface
+     integer (c_int) function cudaProfilerStop() &
+          bind(c, name='cudaProfilerStop')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cudaProfilerStop
+  end interface
+
 
 contains
 

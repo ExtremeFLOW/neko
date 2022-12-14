@@ -50,6 +50,7 @@ module gather_scatter
   use stack
   use utils
   use logger
+  use profiler
   implicit none
 
   type gs_t
@@ -88,8 +89,14 @@ contains
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
     integer, optional :: bcknd
-    integer :: ierr, bcknd_, glb_nshared, glb_nlocal
+    integer :: i, j, ierr, bcknd_
+    integer(i8) :: glb_nshared, glb_nlocal
     logical :: use_device_mpi
+    real(kind=rp), allocatable :: tmp(:)
+    type(c_ptr) :: tmp_d = C_NULL_PTR
+    integer :: strtgy(4) = (/ int(B'00'), int(B'01'), int(B'10'), int(B'11') /)
+    integer :: avg_strtgy
+    real(kind=dp) :: strtgy_time(4)
 
     call gs_free(gs)
 
@@ -115,11 +122,22 @@ contains
 
     call gs_schedule(gs)
 
-    call MPI_Reduce(gs%nlocal, glb_nlocal, 1, &
-         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
-
-    call MPI_Reduce(gs%nshared, glb_nshared, 1, &
-         MPI_INTEGER, MPI_SUM, 0, NEKO_COMM, ierr)
+    glb_nlocal = int(gs%nlocal, i8)
+    glb_nshared = int(gs%nshared, i8)
+    
+    if (pe_rank .eq. 0) then
+       call MPI_Reduce(MPI_IN_PLACE, glb_nlocal, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+       
+       call MPI_Reduce(MPI_IN_PLACE, glb_nshared, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+    else
+       call MPI_Reduce(glb_nlocal, glb_nlocal, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+       
+       call MPI_Reduce(glb_nshared, glb_nshared, 1, &
+            MPI_INTEGER8, MPI_SUM, 0, NEKO_COMM, ierr)
+    end if
 
     write(log_buf, '(A,I12)') 'Avg. internal: ', glb_nlocal/pe_size
     call neko_log%message(log_buf)
@@ -131,8 +149,7 @@ contains
     else
        if (NEKO_BCKND_SX .eq. 1) then
           bcknd_ = GS_BCKND_SX
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
           bcknd_ = GS_BCKND_DEV
        else
           bcknd_ = GS_BCKND_CPU
@@ -163,7 +180,7 @@ contains
     write(log_buf, '(A)') 'Backend      : ' // trim(bcknd_str)
     call neko_log%message(log_buf)
     
-    call neko_log%end_section()
+
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
@@ -172,8 +189,47 @@ contains
        type is (gs_device_t)
           b%shared_on_host = .false.
        end select
+
+       if(pe_size .gt. 1) then
+          ! Select fastest device MPI strategy at runtime
+          select type(c => gs%comm)
+          type is (gs_device_mpi_t)
+             allocate(tmp(dofmap%size()))
+             call device_map(tmp, tmp_d, dofmap%size())
+             tmp = 1.0_rp
+             call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
+             
+             do i = 1, size(strtgy)          
+                c%nb_strtgy = strtgy(i)
+                call device_sync
+                call MPI_Barrier(NEKO_COMM)
+                strtgy_time(i) = MPI_Wtime()
+                do j = 1, 100
+                   call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
+                end do
+                strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
+             end do
+             
+             c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
+             
+             avg_strtgy = minloc(strtgy_time, 1)
+             call MPI_Allreduce(MPI_IN_PLACE, avg_strtgy, 1, &
+                                MPI_INTEGER, MPI_SUM, NEKO_COMM)
+             avg_strtgy = avg_strtgy / pe_size
+             
+             write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', &
+                  strtgy(avg_strtgy),']'
+             call neko_log%message(log_buf)
+             
+             call device_deassociate(tmp)
+             call device_free(tmp_d)
+             deallocate(tmp)
+          end select
+       end if
     end if
-  
+
+    call neko_log%end_section()
+    
   end subroutine gs_init
 
   !> Deallocate a gather-scatter kernel
@@ -252,12 +308,12 @@ contains
     lx = dofmap%Xh%lx
     ly = dofmap%Xh%ly
     lz = dofmap%Xh%lz
-    dm_size = dofmap%n_dofs/lx
+    dm_size = dofmap%size()/lx
 
     call dm%init(dm_size, i)
     !>@note this might be a bit overkill,
     !!but having many collisions makes the init take too long.
-    call sdm%init(dofmap%n_dofs, i)
+    call sdm%init(dofmap%size(), i)
     
 
     call local_dof%init()
@@ -1143,7 +1199,7 @@ contains
   !> Gather-scatter operation on a rank 4 array
   subroutine gs_op_r4(gs, u, n, op)
     type(gs_t), intent(inout) :: gs
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
     integer :: op
 
@@ -1154,7 +1210,7 @@ contains
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op)
     type(gs_t), intent(inout) :: gs
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     integer :: m, l, op, lo, so
     
@@ -1163,6 +1219,7 @@ contains
     m = gs%nlocal
     l = gs%nshared
 
+    call profiler_start_region("gather-scatter")
     ! Gather shared dofs
     if (pe_size .gt. 1) then
 
@@ -1191,6 +1248,8 @@ contains
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
     end if
 
+    call profiler_end_region
+    
   end subroutine gs_op_vector
   
 end module gather_scatter

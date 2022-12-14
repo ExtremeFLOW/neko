@@ -22,7 +22,9 @@ SUBDIRS = tuple\
 	  device\
 	  device_math\
 	  mathops\
-	  device_mathops
+	  device_mathops\
+	  octree\
+	  vector
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -48,7 +50,9 @@ TESTS = device/device_test\
 	jobctrl/jobctrl_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
-	device_mathops/device_mathops_test
+	device_mathops/device_mathops_test\
+        octree/octree_test\
+	vector/vector_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
@@ -83,6 +87,7 @@ EXTRA_DIST = \
 	stack/stack_i8.pf\
 	stack/stack_nq.pf\
 	stack/stack_nh.pf\
+	stack/stack_pt.pf\
 	htable/htable_i4t2.pf\
 	htable/htable_i8.pf\
 	htable/htable_pt.pf\
@@ -100,4 +105,6 @@ EXTRA_DIST = \
 	field/field_test\
 	mean_field/mean_field_test\
 	mean_sqr_field/mean_sqr_field_test\
-	device_math/device_math_test
+	device_math/device_math_test\
+	octree/octree.pf\
+	vector/vector_parallel.pf

@@ -40,6 +40,7 @@ module file
   use re2_file
   use fld_file
   use vtk_file
+  use stl_file
   implicit none
   
   type file_t
@@ -48,6 +49,7 @@ module file
      procedure :: write => file_write
      procedure :: read => file_read
      procedure :: set_counter => file_set_counter
+     procedure :: set_start_counter => file_set_start_counter
      final :: file_free
   end type file_t
 
@@ -85,6 +87,8 @@ contains
        allocate(fld_file_t::this%file_type)
     else if (suffix .eq. "chkp") then
        allocate(chkp_file_t::this%file_type)
+    else if (suffix .eq. "stl") then
+       allocate(stl_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
@@ -139,5 +143,18 @@ contains
     end select
     
   end subroutine file_set_counter
+
+  !> Set a file's start counter
+  subroutine file_set_start_counter(this, n)
+    class(file_t), intent(inout) :: this
+    integer, intent(in) :: n
+
+    select type(ft => this%file_type)
+    class is (generic_file_t)
+       call ft%set_start_counter(n)
+    end select
+    
+  end subroutine file_set_start_counter
+
 
 end module file

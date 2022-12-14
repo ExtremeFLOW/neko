@@ -38,11 +38,13 @@ module generic_file
   type, abstract :: generic_file_t
      character(len=1024) :: fname
      integer :: counter
+     integer :: start_counter = 0
    contains
      procedure :: init => generic_file_init           !< Constructor
      procedure(generic_file_write), deferred :: write !< Write method
      procedure(generic_file_read), deferred :: read   !< Read method
      procedure :: set_counter => generic_file_set_counter !< Update counter
+     procedure :: set_start_counter => generic_file_set_start_counter !< Set where counter starts
   end type generic_file_t
 
   abstract interface
@@ -82,5 +84,13 @@ contains
     integer, intent(in) :: n
     this%counter = n    
   end subroutine generic_file_set_counter
+
+  !> Set the file start counter to @a n
+  subroutine generic_file_set_start_counter(this, n)
+    class(generic_file_t), intent(inout) :: this
+    integer, intent(in) :: n
+    this%start_counter = n    
+  end subroutine generic_file_set_start_counter
+
 
 end module generic_file

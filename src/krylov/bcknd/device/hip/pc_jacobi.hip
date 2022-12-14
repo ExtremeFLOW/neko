@@ -140,6 +140,7 @@ extern "C" {
     CASE(13);
     CASE(14);
     CASE(15);
+    CASE(16);
     default:
       fprintf(stderr, __FILE__ ": size not supported: %d\n", lx);
     }

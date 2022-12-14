@@ -54,7 +54,7 @@ Since allocation and association is such an ordinary operation, Neko provides a 
   ...
   allocate(x(n))
   ...
-  call device_associate(x, x_d, n)
+  call device_map(x, x_d, n)
 ~~~~~~~~~~~~~~~
 
 #### Data transfer
