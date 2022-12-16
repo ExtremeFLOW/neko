@@ -28,7 +28,7 @@ program prepart
 
   ! Reset possible periodic ids
   call mesh_reset_periodic_ids(msh)
-
+  write(*,*) 'Splitting mesh'
   ! Compute new partitions
   call parmetis_partmeshkway(msh, parts, nprts=nprts)
 
@@ -54,10 +54,12 @@ program prepart
 
   allocate(idx_map(msh%nelv))
 
+  write(*,*) 'Generating new mesh'
   !
   ! Create redistributed mesh
   !
 
+  new_msh%lgenc = .false.
   call mesh_init(new_msh, msh%gdim, msh%nelv)  
   do i = 1, msh%nelv
      rank = parts%data(i)     
@@ -125,7 +127,6 @@ program prepart
           msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
   end do
   
-  new_msh%lgenc = .false.
   call mesh_finalize(new_msh)
   
   deallocate(idx_map)

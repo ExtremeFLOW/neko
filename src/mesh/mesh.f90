@@ -1731,18 +1731,21 @@ contains
           call mesh_add_point(m,pi,id)
           p_local_idx = mesh_get_local(m, m%points(id))
           id = ele%id()
-          call m%point_neigh(p_local_idx)%push(id)
+          if (m%lgenc) then
+             call m%point_neigh(p_local_idx)%push(id)
+          end if
        end do
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ele%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+          end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ele%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-       end do
-
-       do i = 1, NEKO_HEX_NEDS
-          call ele%edge_id(et, i)
-          call mesh_add_edge(m, et)
-       end do
+          do i = 1, NEKO_HEX_NEDS
+             call ele%edge_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
     end select
 
   end subroutine mesh_apply_periodic_facet
