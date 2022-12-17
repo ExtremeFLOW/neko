@@ -559,7 +559,8 @@ contains
           src = modulo(pe_rank - i + pe_size, pe_size)
           dst = modulo(pe_rank + i, pe_size)
           if (m%neigh(src) .or. m%neigh(dst)) then
-             call neigh_order%push(i)      
+             j = i ! adhere to standards...
+             call neigh_order%push(j)      
           end if
        end do
 
