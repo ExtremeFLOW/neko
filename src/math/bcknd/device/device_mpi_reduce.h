@@ -6,4 +6,4 @@
 
 extern "C" {
   void device_mpi_allreduce(void *buf_d, void *buf, int count, size_t nbytes);
-};
+}
