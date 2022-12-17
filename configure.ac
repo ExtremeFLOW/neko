@@ -210,12 +210,18 @@ if (test "x${have_cuda}" = xyes ||
       fi
 
       AC_SUBST(device_mpi, .true.)
+      AC_DEFINE(HAVE_DEVICE_MPI, 1, [Define if device MPI is requested.])
       
-      # Make sure we have support for atomicAdd
       if test "x${have_cuda}" = xyes; then
-      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+         CUDA_CFLAGS="$CUDA_CFLAGS -DHAVE_DEVICE_MPI=1"
+
+         # Make sure we have support for atomicAdd
+      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])         
       fi      
 
+      if  test "x${have_hip}" = xyes; then
+         HIP_HIPCC_FLAGS="$HIP_HIPCC_FLAGS -DHAVE_DEVICE_MPI=1"
+      fi
    else
       AC_SUBST(device_mpi, .false.)
    fi
