@@ -926,7 +926,7 @@ contains
 
        if (m%neigh(src)) then
           call MPI_Wait(recv_req, status, ierr)
-          call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
           
           do j = 1, n_recv
              if ((edge_idx%element(recv_buff(j))) .and. (src .lt. pe_rank)) then
@@ -1011,7 +1011,7 @@ contains
        
        if (m%neigh(src)) then
           call MPI_Wait(recv_req, status, ierr)
-          call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
           
           do j = 1, n_recv, 2
              if (ghost%element(recv_buff(j))) then
