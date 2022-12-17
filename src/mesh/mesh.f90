@@ -93,6 +93,7 @@ module mesh
 
      type(distdata_t) :: ddata            !< Mesh distributed data
      logical, allocatable :: neigh(:)     !< Neighbouring ranks
+     integer, allocatable :: neigh_order(:) !< Neighbour order
 
      integer(2), allocatable :: facet_type(:,:) !< Facet type     
      
@@ -349,9 +350,12 @@ contains
        deallocate(m%labeled_zones)
     end if
 
-
     if (allocated(m%neigh)) then
        deallocate(m%neigh)
+    end if
+
+    if (allocated(m%neigh_order)) then
+       deallocate(m%neigh_order)
     end if
 
     call m%wall%free()
@@ -428,8 +432,9 @@ contains
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face, face_comp
     type(tuple_i4_t) :: facet_data
+    type(stack_i4_t) :: neigh_order
 
-    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
+    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
 
     if (m%lconn) return
 
@@ -542,7 +547,31 @@ contains
     ! Find all external (between PEs) boundaries
     !
     if (pe_size .gt. 1) then
-       call mesh_generate_external_point_conn(m)       
+       
+       call mesh_generate_external_point_conn(m)
+
+       !
+       ! Generate neighbour exchange order
+       !
+       call neigh_order%init(pe_size)
+              
+       do i = 1, pe_size - 1
+          src = modulo(pe_rank - i + pe_size, pe_size)
+          dst = modulo(pe_rank + i, pe_size)
+          if (m%neigh(src) .or. m%neigh(dst)) then
+             call neigh_order%push(i)      
+          end if
+       end do
+
+       allocate(m%neigh_order(neigh_order%size()))
+       select type(order => neigh_order%data)
+       type is (integer)
+          do i = 1, neigh_order%size()
+             m%neigh_order(i) = order(i)
+          end do
+       end select
+       call neigh_order%free()
+       
        call mesh_generate_external_facet_conn(m)     
     end if
 
@@ -618,9 +647,9 @@ contains
 
     allocate(recv_buffer(max_recv))
     
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
 
        if (m%neigh(src)) then
           call MPI_Irecv(recv_buffer, max_recv, MPI_INTEGER, &
@@ -904,9 +933,9 @@ contains
 
     allocate(recv_buff(max_recv))
 
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
 
        if (m%neigh(src)) then
           call MPI_Irecv(recv_buff, max_recv, MPI_INTEGER8, &
@@ -989,9 +1018,9 @@ contains
     allocate(recv_buff(max_recv))
 
 
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
 
        if (m%neigh(src)) then
           call MPI_Irecv(recv_buff, max_recv, MPI_INTEGER8, &
@@ -1218,9 +1247,9 @@ contains
     allocate(recv_buff(max_recv))    
 
     !> @todo Since we now the neigh. we can actually do p2p here...
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
 
        if (m%neigh(src)) then
           call MPI_Irecv(recv_buff, max_recv, MPI_INTEGER, &

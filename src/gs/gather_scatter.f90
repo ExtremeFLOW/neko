@@ -1135,9 +1135,9 @@ contains
     allocate(recv_flg(max_recv))
 
     !> @todo Consider switching to a crystal router...
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(gs%dofmap%msh%neigh_order)
+       src = modulo(pe_rank - gs%dofmap%msh%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(i), pe_size)
        
        if (gs%dofmap%msh%neigh(src)) then
           call MPI_Irecv(recv_buf, max_recv, MPI_INTEGER8, &
