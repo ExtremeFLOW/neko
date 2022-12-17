@@ -206,7 +206,8 @@ neko_fortran_SOURCES = \
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
-                 gs/bcknd/device/device_mpi.c
+                 gs/bcknd/device/device_mpi.c\
+                 math/bcknd/device/device_mpi_reduce.c
 
 libneko_a_SOURCES = $(neko_fortran_SOURCES)\
                     $(neko_c_SOURCES)
@@ -431,6 +432,7 @@ EXTRA_DIST = \
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
+	math/bcknd/device/device_mpi_reduce.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

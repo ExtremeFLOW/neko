@@ -40,6 +40,8 @@
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+
   /**
    * @todo Make sure that this gets deleted at some point...
    */
@@ -98,8 +100,13 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
     real cfl;
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
+#else
     CUDA_CHECK(cudaMemcpy(&cfl, cfl_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
     
     return cfl;
   } 
