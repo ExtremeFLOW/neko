@@ -88,7 +88,7 @@ extern "C" {
     const dim3 vec_nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     /* First vector operation block */
-    project_on_vec_kernel<<<vec_nblcks, vec_nthrds>>>((real *) xbar,
+    project_on_vec_kernel<real><<<vec_nblcks, vec_nthrds>>>((real *) xbar,
                                                       (const real **) xx,
                                                       (real *) b,
                                                       (const real **) bb,
