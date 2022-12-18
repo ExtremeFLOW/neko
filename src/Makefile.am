@@ -243,6 +243,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
+	common/bcknd/device/hip/projection.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip
@@ -403,6 +404,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/sumab_kernel.h\
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\
+	common/bcknd/device/hip/projection.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\

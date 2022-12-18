@@ -39,9 +39,19 @@ module device_projection
   implicit none
 
 #ifdef HAVE_HIP
+  interface
+     subroutine hip_project_on(a_d, b_d, x_d_d, b_d_d, mult_d, x_d, j, n) &
+          bind(c, name='hip_project_on')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, x_d_d, b_d_d, mult_d, x_d
+       integer(c_int) :: j, n
+     end subroutine hip_project_on
+  end interface
 #elif HAVE_CUDA
-    interface
-       subroutine cuda_project_on(a_d, b_d, x_d_d, b_d_d, mult_d, x_d, j, n) &
+  interface
+     subroutine cuda_project_on(a_d, b_d, x_d_d, b_d_d, mult_d, x_d, j, n) &
           bind(c, name='cuda_project_on')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -50,7 +60,6 @@ module device_projection
        integer(c_int) :: j, n
      end subroutine cuda_project_on
   end interface
-#elif HAVE_OPENCL
 #endif
 
 contains
@@ -60,9 +69,9 @@ contains
     integer(c_int) :: j, n
     integer :: ierr
 #ifdef HAVE_HIP
+    call hip_project_on(alpha_d, b_d, x_d_d, b_d_d, mult_d, xbar_d, j, n)
 #elif HAVE_CUDA
     call cuda_project_on(alpha_d, b_d, x_d_d, b_d_d, mult_d, xbar_d, j, n)
-#elif HAVE_OPENCL
 #else
     call neko_error('No device backend configured')
 #endif
