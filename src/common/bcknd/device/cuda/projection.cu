@@ -75,7 +75,7 @@ extern "C" {
                                        (const real *) mult,
                                        proj_bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
+    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToDevice));
@@ -101,7 +101,7 @@ extern "C" {
                                        (const real *) mult,
                                        proj_bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
+    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToDevice));
@@ -110,12 +110,12 @@ extern "C" {
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
 
     /* Second vector operation block */
-    project_on_vec_kernel<<<vec_nblcks, vec_nthrds>>>((real *) xbar,
-                                                      (const real **) xx,
-                                                      (real *) b,
-                                                      (const real **) bb,
-                                                      (const real *) alpha,
-                                                      *j, *n);
+    project_on_vec_kernel<real><<<vec_nblcks, vec_nthrds>>>((real *) xbar,
+                                                            (const real **) xx,
+                                                            (real *) b,
+                                                            (const real **) bb,
+                                                            (const real *) alpha,
+                                                            *j, *n);
   }
 
   void cuda_project_ortho(void *alpha, void * b, void *xx, void *bb,
@@ -144,7 +144,7 @@ extern "C" {
                                        (const real *) w,
                                        proj_bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
+    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToDevice));
@@ -173,7 +173,7 @@ extern "C" {
                                        (const real *) w,
                                        proj_bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
+    glsc3_reduce_kernel<real><<<(*j),1024>>> (proj_bufred_d, glsc3_nb, *j);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToDevice));
