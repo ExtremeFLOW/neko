@@ -55,3 +55,17 @@ void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes) {
   }
 }
 
+void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes) {
+
+  if (nbytes == sizeof(float)) {
+    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else if (nbytes == sizeof(double)) {
+    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else {
+    fprintf(stderr, __FILE__ ": Invalid data type)\n");
+    exit(1);
+  }
+}
+

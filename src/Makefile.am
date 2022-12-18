@@ -171,6 +171,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
 	common/projection.f90\
+	common/bcknd/device/device_projection.F90\
 	comm/parmetis.F90\
 	comm/redist.f90\
 	krylov/pc_hsmg.f90\
@@ -242,6 +243,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
+	common/bcknd/device/hip/projection.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip
@@ -273,6 +275,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
+	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu
@@ -374,6 +377,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/sumab_kernel.h\
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
+	common/bcknd/device/cuda/projection_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
@@ -400,6 +404,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/sumab_kernel.h\
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\
+	common/bcknd/device/hip/projection_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
