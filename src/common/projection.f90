@@ -328,7 +328,7 @@ contains
 
       this%proj_res = device_glsc3(b_d,b_d,coef%mult_d,n)
       this%proj_m = this%m
-      if (NEKO_DEVICE_MPI) then
+      if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
               coef%mult_d, xbar_d, this%m, n)
       else
