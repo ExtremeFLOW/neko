@@ -573,7 +573,10 @@ contains
        end select
        call neigh_order%free()
        
-       call mesh_generate_external_facet_conn(m)     
+       call mesh_generate_external_facet_conn(m)
+    else
+       allocate(m%neigh_order(1))
+       m%neigh_order = 1
     end if
 
     !
