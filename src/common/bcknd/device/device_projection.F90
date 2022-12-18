@@ -49,6 +49,20 @@ module device_projection
        integer(c_int) :: j, n
      end subroutine hip_project_on
   end interface
+
+  interface
+     subroutine hip_project_ortho(a_d, b_d, x_d_d, b_d_d, &
+                                   w_d, xm_d, j, n, nrm) &
+          bind(c, name='hip_project_ortho')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, x_d_d, b_d_d, w_d
+       type(c_ptr), value :: xm_d
+       integer(c_int) :: j, n
+       real(c_rp) :: nrm
+     end subroutine hip_project_ortho
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_project_on(a_d, b_d, x_d_d, b_d_d, mult_d, x_d, j, n) &
@@ -99,7 +113,7 @@ contains
     real(c_rp) :: nrm
     integer :: ierr
 #ifdef HAVE_HIP
-!    call hip_project_on(alpha_d, b_d, x_d_d, b_d_d, mult_d, xbar_d, j, n)
+    call hip_project_ortho(alpha_d, b_d, x_d_d, b_d_d, w_d, xm_d, j, n, nrm)
 #elif HAVE_CUDA
     call cuda_project_ortho(alpha_d, b_d, x_d_d, b_d_d, w_d, xm_d, j, n, nrm)
 #else

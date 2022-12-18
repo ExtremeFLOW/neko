@@ -61,3 +61,30 @@ __global__ void project_on_vec_kernel(T * __restrict__ x,
 }
 
 
+/**
+ * Project ortho vector operations
+ */
+template< typename T >
+__global__ void project_ortho_vec_kernel(T * __restrict__ x,
+                                         const T ** xx,
+                                         T * __restrict__ y,
+                                         const T ** yy,
+                                         const T * __restrict__ alpha,
+                                         const int p_cur,
+                                         const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i+= str) {
+    T tmp1 = 0.0;
+    T tmp2 = 0.0;
+    for (int j = 0; j < (p_cur - 1); j ++) {
+      tmp1 += xx[j][i] * -alpha[j];
+      tmp2 += yy[j][i] * -alpha[j];
+    }
+    x[i] += tmp1;
+    y[i] += tmp2;
+  }
+  
+}
