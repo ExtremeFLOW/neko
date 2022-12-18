@@ -411,9 +411,13 @@ extern "C" {
                        0, 0, bufred_d, nb, *j);
     HIP_CHECK(hipGetLastError());
 
-
+#ifdef HAVE_DEVICE_MPI
+    hipDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
+#else
     HIP_CHECK(hipMemcpy(h, bufred_d, (*j)* sizeof(real),
                         hipMemcpyDeviceToHost));
+#endif    
   }
 
   /**

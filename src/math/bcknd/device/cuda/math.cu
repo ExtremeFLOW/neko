@@ -417,8 +417,13 @@ extern "C" {
     glsc3_reduce_kernel<<<(*j),1024>>> (bufred_d, nb, *j);
     CUDA_CHECK(cudaGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
+#else    
     CUDA_CHECK(cudaMemcpy(h, bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
   }
 
   /**
