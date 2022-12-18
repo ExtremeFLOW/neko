@@ -33,39 +33,31 @@
 */
 
 /**
- * C wrapper for MPI calls, until we integrate with NCCL/RCCL
- * @note We use @c MPI_COMM_WORLD which @e should be equal to @c NEKO_COMM.
+ * Project on vector operations
  */
+template< typename T >
+__global__ void project_on_vec_kernel(T * __restrict__ x,
+                                      const T ** xx,
+                                      T * __restrict__ y,
+                                      const T ** yy,
+                                      const T * __restrict__ alpha,
+                                      const int p_cur,
+                                      const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <mpi.h>
-
-void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes) {
-
-  if (nbytes == sizeof(float)) {
-    MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+  for (int i = idx; i < n; i+= str) {
+    T tmp1 = 0.0;
+    T tmp2 = 0.0;
+    for (int j = 0; j < p_cur; j ++) {
+      tmp1 += xx[j][i] * alpha[j];
+      tmp2 += yy[j][i] * -alpha[j];
+    }
+    x[i] += tmp1;
+    y[i] += tmp2;
   }
-  else if (nbytes == sizeof(double)) {
-    MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-  }
-  else {
-    fprintf(stderr, __FILE__ ": Invalid data type)\n");
-    exit(1);
-  }
+  
 }
 
-void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes) {
-
-  if (nbytes == sizeof(float)) {
-    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
-  }
-  else if (nbytes == sizeof(double)) {
-    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-  }
-  else {
-    fprintf(stderr, __FILE__ ": Invalid data type)\n");
-    exit(1);
-  }
-}
 

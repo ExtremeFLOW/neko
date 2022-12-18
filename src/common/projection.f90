@@ -71,6 +71,7 @@ module projection
   use neko_config
   use device
   use device_math
+  use device_projection
   use logger
   use, intrinsic :: iso_c_binding
   implicit none
@@ -327,17 +328,22 @@ contains
 
       this%proj_res = device_glsc3(b_d,b_d,coef%mult_d,n)
       this%proj_m = this%m
-      call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-      call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
-      call device_rzero(xbar_d, n)
-      call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
-      call device_cmult(alpha_d, -1.0_rp, this%m)
-      call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)   
-      call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-      call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
-      call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
-      call device_cmult(alpha_d, -1.0_rp, this%m)
-      call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
+      if (NEKO_DEVICE_MPI) then
+         call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
+              coef%mult_d, xbar_d, this%m, n)
+      else
+         call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+         call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
+         call device_rzero(xbar_d, n)
+         call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
+         call device_cmult(alpha_d, -1.0_rp, this%m)
+         call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
+         call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+         call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)     
+         call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
+         call device_cmult(alpha_d, -1.0_rp, this%m)
+         call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
+      end if
       
     end associate
   end subroutine device_project_on
