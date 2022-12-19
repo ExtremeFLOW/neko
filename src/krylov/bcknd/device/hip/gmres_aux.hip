@@ -40,6 +40,8 @@
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+  
   /**
    * @todo Make sure that this gets deleted at some point...
    */
@@ -69,15 +71,19 @@ extern "C" {
 		       nblcks, nthrds, 0, 0, (real *) w, (real **) v,
 		       (real *) mult, (real *) h, gmres_bfd1, *j, *n);
     HIP_CHECK(hipGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0 , 0, gmres_bfd1, nb);
+    HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(gmres_bf1, gmres_bfd1, nb * sizeof(real),
-			hipMemcpyDeviceToHost));
+#ifdef HAVE_DEVICE_MPI
+    hipDeviceSynchronize();
+    device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real));
+#else
+    
+    HIP_CHECK(hipMemcpy(gmres_bf1, gmres_bfd1, sizeof(real),
+                          hipMemcpyDeviceToHost));
+#endif
+    return gmres_bf1[0];
 
-    real res1 = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res1 += gmres_bf1[i];
-    }
-
-    return res1;
   }
 }
