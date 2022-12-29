@@ -187,7 +187,6 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call tnsr3d_xsmm(v, nv, u, nu, A, Bt, Ct, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-      ! The length nelv should not matter here. It is just a stapleholder
        v_d = device_get_ptr(v)
        u_d = device_get_ptr(u)
        A_d = device_get_ptr(A)
