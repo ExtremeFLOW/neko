@@ -327,9 +327,9 @@ contains
        end if
        !> Check if entry at this index is empty or if key matches
        if ((.not. this%valid(index)) .or. &
-            htable_eq_key(this, index, key)) then
-          call htable_set_key(this, index, key)
-          call htable_set_data(this, index, data)
+            htable_eq_key(this%key(index), key)) then
+          call htable_set_key(this%key(index), key)
+          call htable_set_data(this%data(index), data)
           if (.not. this%valid(index)) then
              this%entries = this%entries + 1
           end if
@@ -362,7 +362,7 @@ contains
 
     call htable_init(tmp, ishft(this%size, 1), key, data)
 
-    do i = 0, this%size
+    do i = 0, this%size - 1
        if (this%valid(i)) then
           call htable_set(tmp, this%key(i), this%data(i))
        end if
@@ -401,8 +401,8 @@ contains
           rcode = 1
           return          
        else if ((this%valid(index)) .and. &
-            htable_eq_key(this, index, key)) then
-          call htable_get_data(this, index, data)
+            htable_eq_key(this%key(index), key)) then
+          call htable_get_data(this%data(index), data)
           rcode = 0
           return
        end if
@@ -428,7 +428,7 @@ contains
        end if
 
        if ((this%valid(index)) .and. &
-            htable_eq_key(this, index, key)) then
+            htable_eq_key(this%key(index), key)) then
           this%valid(index) = .false.
           this%skip(index) = .true.
           this%entries = this%entries - 1
@@ -440,45 +440,42 @@ contains
   end subroutine htable_remove
 
   !> Set data at @a idx to @a value
-  subroutine htable_set_data(this, idx, data)
-    class(htable_t), target, intent(inout) :: this
-    integer, intent(in) :: idx   !< Table index
+  subroutine htable_set_data(ht_data, data)
+    class(*), intent(inout) :: ht_data !< Data entry in table
     class(*), intent(in) :: data !< Data to set at @a idx
-    class(*), pointer :: hdp
 
-    hdp => this%data(idx)
     select type (data)
     type is (integer)
-       select type(hdp)
+       select type(ht_data)
        type is (integer)
-          hdp = data
+          ht_data = data
        end select
     type is (integer(i8))
-       select type(hdp)
+       select type(ht_data)
        type is (integer(i8))
-          hdp = data
+          ht_data = data
        end select
     type is (double precision)
-       select type(hdp)
+       select type(ht_data)
        type is (double precision)
-          hdp = data
+          ht_data = data
        end select
     type is (point_t)
-       select type(hdp)
+       select type(ht_data)
        type is (point_t)
-          hdp = data
+          ht_data = data
        end select
     class is (tuple_t)
-       select type(hdp)
+       select type(ht_data)
        type is (tuple_i4_t)
-          hdp = data
+          ht_data = data
        type is (tuple4_i4_t)
-          hdp = data
+          ht_data = data
        end select
     type is (h_cptr_t)
-       select type(hdp)
+       select type(ht_data)
        type is (h_cptr_t)
-          hdp = data
+          ht_data = data
        end select
     class default
        call neko_error('Invalid htable data (set)')
@@ -486,43 +483,42 @@ contains
   end subroutine htable_set_data
 
   !> Return data at @a idx in @a value
-  subroutine htable_get_data(this, idx, data)
-    class(htable_t), intent(in) :: this
-    integer, intent(in) :: idx      !< Table index
+  subroutine htable_get_data(ht_data, data)
+    class(*), intent(in) :: ht_data !< Data entry in table
     class(*), intent(inout) :: data !< Data to retrieve
 
-    select type (hdp=>this%data(idx))
+    select type (ht_data)
     type is (integer)
        select type(data)
        type is (integer)
-          data = hdp
+          data = ht_data
        end select
     type is (integer(i8))
        select type(data)
        type is (integer(i8))
-          data = hdp
+          data = ht_data
        end select
     type is (double precision)
        select type(data)
        type is (double precision)
-          data = hdp
+          data = ht_data
        end select
     type is (point_t)
        select type(data)
        type is (point_t)
-          data = hdp
+          data = ht_data
        end select
     class is (tuple_t)
        select type(data)
        type is (tuple_i4_t)
-          data = hdp
+          data = ht_data
        type is (tuple4_i4_t)
-          data = hdp
+          data = ht_data
        end select
     type is (h_cptr_t)
        select type (data)
        type is (h_cptr_t)
-          data = hdp
+          data = ht_data
        end select
     class default
        call neko_error('Invalid htable data (get)')
@@ -530,89 +526,85 @@ contains
   end subroutine htable_get_data
 
   !> Compare key at @a idx to @a key
-  pure function htable_eq_key(this, idx, key) result(res)
-    class(htable_t), intent(in) :: this
-    integer, intent(in) :: idx  !< Table index
+  pure function htable_eq_key(ht_key, key) result(res)
+    class(*), intent(in) :: ht_key !< Key entry in table
     class(*), intent(in) :: key !< Key to compare against the key at @a idx
     logical :: res
 
     res = .true.
-    select type (kp=>this%key(idx))
+    select type (ht_key)
     type is (integer)
        select type(key)
        type is (integer)
-          res = (kp .eq. key)
+          res = (ht_key .eq. key)
        end select
     type is (integer(i8))
        select type(key)
        type is (integer(i8))
-          res = (kp .eq. key)
+          res = (ht_key .eq. key)
        end select
     type is (double precision)
        select type(key)
        type is (double precision)
-          res = (kp .eq. key)
+          res = (ht_key .eq. key)
        end select
     type is (point_t)
        select type (key)
        type is (point_t)
-          res = (kp .eq. key)
+          res = (ht_key .eq. key)
        end select
     class is (tuple_t)
        select type (key)
        type is (tuple_i4_t)
-          res = (key .eq. kp)
+          res = (key .eq. ht_key)
        type is (tuple4_i4_t)
-          res = (key .eq. kp)
+          res = (key .eq. ht_key)
        end select
     type is (h_cptr_t)
        select type (key)
        type is (h_cptr_t)
-          res = c_associated(kp%ptr, key%ptr)
+          res = c_associated(ht_key%ptr, key%ptr)
        end select
     end select
   end function htable_eq_key
 
   !> Set key at @a idx to @a key
-  subroutine htable_set_key(this, idx, key) 
-    class(htable_t), target, intent(inout) :: this
-    integer, intent(in) :: idx  !< Table index
+  subroutine htable_set_key(ht_key, key) 
+    class(*), intent(inout) :: ht_key !< Key entry in table
     class(*), intent(in) :: key !< Key to set at @a idx
-    class(*), pointer :: kp
     
-    kp => this%key(idx)
     select type(key)
     type is (integer)
-       select type(kp)
+       select type(ht_key)
        type is (integer)
-          kp = key
+          ht_key = key
        end select
     type is (integer(i8))
-       select type(kp)
+       select type(ht_key)
        type is (integer(i8))
-          kp = key
+          ht_key = key
        end select
     type is (double precision)
-       select type(kp)
+       select type(ht_key)
        type is (double precision)
-          kp = key
+          ht_key = key
        end select
     type is (point_t)
-       select type (kp)
+       select type (ht_key)
        type is (point_t)
-          kp = key
+          ht_key = key
        end select
     class is (tuple_t)
-       select type(kp)
+       select type(ht_key)
        type is (tuple_i4_t)
-          kp = key
+          ht_key = key
        type is (tuple4_i4_t)
-          kp = key
+          ht_key = key
        end select
     type is (h_cptr_t)
-       select type(kp)
+       select type(ht_key)
        type is (h_cptr_t)
-          kp = key
+          ht_key = key
        end select
     class default
        call neko_error('Invalid htable key (set)')
