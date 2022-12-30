@@ -80,7 +80,7 @@ jobs:
       - name: Build pFUnit
         if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
         run: |
-          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
           cd pFUnit
           cat >> pfunit_error_stop.patch << _ACEOF
           diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
@@ -108,7 +108,7 @@ jobs:
         if: matrix.backend == 'cpu'
         run: |
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.6 --enable-real=${RP}
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.4 --enable-real=${RP}
           make -j$(nproc)
       - name: Build (CUDA backend)        
         if: matrix.backend == 'cuda'
