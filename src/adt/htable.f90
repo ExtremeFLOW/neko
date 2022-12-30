@@ -225,10 +225,9 @@ contains
   !> Initialize a hash table of type @a data
   subroutine htable_init(this, size, key, data)
     class(htable_t), intent(inout) :: this
-    integer, value :: size              !< Initial size of the table
-    class(*), target, intent(in) :: key            !< Type of key
-    class(*), target, intent(in), optional :: data !< Type of data
-    class(*), pointer :: dp
+    integer, value :: size                 !< Initial size of the table
+    class(*), intent(in) :: key            !< Type of key
+    class(*), intent(in), optional :: data !< Type of data
 
     call htable_free(this)
     
@@ -238,13 +237,14 @@ contains
 
     size = ishft(1, ceiling(log(dble(size)) / NEKO_M_LN2))
 
-    dp => key
-    if (present(data)) then
-       dp => data
-    end if
-
     allocate(this%key(0:size), source=key)
-    allocate(this%data(0:size), source=dp)
+
+    if (present(data)) then    
+       allocate(this%data(0:size), source=data)
+    else
+       allocate(this%data(0:size), source=key)
+    end if
+    
     allocate(this%valid(0:size))
     allocate(this%skip(0:size))
     this%valid = .false.
