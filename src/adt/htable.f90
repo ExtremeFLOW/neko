@@ -43,19 +43,14 @@ module htable
   implicit none
   private
 
-  !> Hash table entry, tuple (key, data)
-  type :: h_tuple_t
-     logical :: valid = .false.
-     logical :: skip = .false.
-     class(*), allocatable :: key      
-     class(*), allocatable :: data
-  end type h_tuple_t
-
   !> Base type for a hash table
   type, public, abstract :: htable_t
      integer, private :: size
      integer, private :: entries
-     type(h_tuple_t), private, allocatable :: t(:)
+     class(*), private, allocatable :: key(:)
+     class(*), private, allocatable :: data(:)
+     logical, private, allocatable :: valid(:)
+     logical, private, allocatable :: skip(:)     
    contains
      procedure(htable_hash), pass(this), deferred :: hash
      procedure, public, pass(this) :: clear => htable_clear
@@ -234,8 +229,6 @@ contains
     class(*), target, intent(in) :: key            !< Type of key
     class(*), target, intent(in), optional :: data !< Type of data
     class(*), pointer :: dp
-    integer :: i
-    
 
     call htable_free(this)
     
@@ -245,35 +238,42 @@ contains
 
     size = ishft(1, ceiling(log(dble(size)) / NEKO_M_LN2))
 
-    allocate(this%t(0:size))
-    this%t(:)%valid = .false.
-    this%size = size
-    this%entries = 0
-
     dp => key
     if (present(data)) then
        dp => data
     end if
 
-    do i = 0, size
-       allocate(this%t(i)%key, source=key)
-       allocate(this%t(i)%data, source=dp)
-    end do
+    allocate(this%key(0:size), source=key)
+    allocate(this%data(0:size), source=dp)
+    allocate(this%valid(0:size))
+    allocate(this%skip(0:size))
+    this%valid = .false.
+    this%skip = .false.
+    this%size = size
+    this%entries = 0
+    
   end subroutine htable_init
 
   !> Destroy a hash table
   subroutine htable_free(this)
     class(htable_t), intent(inout) :: this
-    integer i
 
-    if (allocated(this%t)) then
-       do i = 0, this%size !< @todo check range
-          deallocate(this%t(i)%key)
-          deallocate(this%t(i)%data)
-       end do
-       deallocate(this%t)
+    if (allocated(this%key)) then
+       deallocate(this%key)
     end if
 
+    if (allocated(this%data)) then
+       deallocate(this%data)
+    end if
+
+    if (allocated(this%skip)) then
+       deallocate(this%skip)
+    end if
+    
+    if (allocated(this%valid)) then
+       deallocate(this%valid)
+    end if
+    
     this%size = 0
     this%entries = 0
     
@@ -283,8 +283,8 @@ contains
   subroutine htable_clear(this)
     class(htable_t), intent(inout) :: this
 
-    if (allocated(this%t)) then
-       this%t(:)%valid = .false.
+    if (allocated(this%valid)) then
+       this%valid = .false.
        this%entries = 0
     else
        call neko_error("Hash table not allocated")       
@@ -326,15 +326,15 @@ contains
           call neko_error("Invalid hash generated")
        end if
        !> Check if entry at this index is empty or if key matches
-       if ((.not. this%t(index)%valid) .or. &
+       if ((.not. this%valid(index)) .or. &
             htable_eq_key(this, index, key)) then
           call htable_set_key(this, index, key)
           call htable_set_data(this, index, data)
-          if (.not. this%t(index)%valid) then
+          if (.not. this%valid(index)) then
              this%entries = this%entries + 1
           end if
-          this%t(index)%valid = .true.
-          this%t(index)%skip = .false.
+          this%valid(index) = .true.
+          this%skip(index) = .false.
           return
        end if
        i = i - 1
@@ -362,13 +362,18 @@ contains
 
     call htable_init(tmp, ishft(this%size, 1), key, data)
 
-    do i = 0, this%size - 1
-       if (this%t(i)%valid) then
-          call htable_set(tmp, this%t(i)%key, this%t(i)%data)
+    do i = 0, this%size
+       if (this%valid(i)) then
+          call htable_set(tmp, this%key(i), this%data(i))
        end if
     end do
     this%size = tmp%size
-    call move_alloc(tmp%t, this%t)
+    this%entries = tmp%entries
+
+    call move_alloc(tmp%key, this%key)
+    call move_alloc(tmp%data, this%data)
+    call move_alloc(tmp%valid, this%valid)
+    call move_alloc(tmp%skip, this%skip)
 
     call htable_set(this, key, data)
 
@@ -391,11 +396,11 @@ contains
           call neko_error("Invalid hash generated")
        end if
 
-       if (.not. this%t(index)%valid .and. &
-            .not. this%t(index)%skip) then
+       if (.not. this%valid(index) .and. &
+            .not. this%skip(index)) then
           rcode = 1
           return          
-       else if ((this%t(index)%valid) .and. &
+       else if ((this%valid(index)) .and. &
             htable_eq_key(this, index, key)) then
           call htable_get_data(this, index, data)
           rcode = 0
@@ -422,10 +427,10 @@ contains
           call neko_error("Invalid hash generated")
        end if
 
-       if ((this%t(index)%valid) .and. &
+       if ((this%valid(index)) .and. &
             htable_eq_key(this, index, key)) then
-          this%t(index)%valid = .false.
-          this%t(index)%skip = .true.
+          this%valid(index) = .false.
+          this%skip(index) = .true.
           this%entries = this%entries - 1
           return
        end if
@@ -441,7 +446,7 @@ contains
     class(*), intent(in) :: data !< Data to set at @a idx
     class(*), pointer :: hdp
 
-    hdp => this%t(idx)%data
+    hdp => this%data(idx)
     select type (data)
     type is (integer)
        select type(hdp)
@@ -486,7 +491,7 @@ contains
     integer, intent(in) :: idx      !< Table index
     class(*), intent(inout) :: data !< Data to retrieve
 
-    select type (hdp=>this%t(idx)%data)
+    select type (hdp=>this%data(idx))
     type is (integer)
        select type(data)
        type is (integer)
@@ -532,7 +537,7 @@ contains
     logical :: res
 
     res = .true.
-    select type (kp=>this%t(idx)%key)
+    select type (kp=>this%key(idx))
     type is (integer)
        select type(key)
        type is (integer)
@@ -575,7 +580,7 @@ contains
     class(*), intent(in) :: key !< Key to set at @a idx
     class(*), pointer :: kp
     
-    kp => this%t(idx)%key
+    kp => this%key(idx)
     select type(key)
     type is (integer)
        select type(kp)
@@ -620,7 +625,7 @@ contains
     logical :: valid
 
     this%n = this%n + 1
-    do while ((.not. this%t%t(this%n)%valid) .and. (this%n .lt. this%t%size))
+    do while ((.not. this%t%valid(this%n)) .and. (this%n .lt. this%t%size))
        this%n = this%n + 1
     end do
 
@@ -644,7 +649,7 @@ contains
     class(*), intent(inout) :: data !< Data to retrieve
     class(*), pointer :: hdp
 
-    hdp => this%t%t(this%n)%data
+    hdp => this%t%data(this%n)
     select type(hdp)
     type is (integer)
        select type (data)
@@ -777,7 +782,7 @@ contains
     class(htable_iter_i4_t), intent(inout) :: this
     integer, pointer :: value
 
-    select type (hdp => this%t%t(this%n)%data)
+    select type (hdp => this%t%data(this%n))
     type is (integer)
        value => hdp
     class default
@@ -791,7 +796,7 @@ contains
     class(htable_iter_i4_t), intent(inout) :: this
     integer, pointer :: key
 
-    select type (kp => this%t%t(this%n)%key)
+    select type (kp => this%t%key(this%n))
     type is (integer)
        key => kp
     class default
@@ -895,7 +900,7 @@ contains
     integer(kind=i8), pointer :: value
 
 
-    select type (hdp => this%t%t(this%n)%data)
+    select type (hdp => this%t%data(this%n))
     type is (integer(i8))
        value => hdp
     class default
@@ -914,7 +919,7 @@ contains
     ! (>11.0.x) when using high opt. levels.
     select type(hti => this)
     type is(htable_iter_i8_t)
-       select type (kp => hti%t%t(this%n)%key)
+       select type (kp => hti%t%key(this%n))
        type is (integer(i8))
           key => kp
        class default
@@ -1005,7 +1010,7 @@ contains
     class(htable_iter_r8_t), intent(inout) :: this
     real(kind=dp), pointer :: value
 
-    select type (hdp => this%t%t(this%n)%data)
+    select type (hdp => this%t%data(this%n))
     type is (double precision)
        value => hdp
     class default
@@ -1019,7 +1024,7 @@ contains
     class(htable_iter_r8_t), intent(inout) :: this
     real(kind=dp), pointer :: key
 
-    select type (kp => this%t%t(this%n)%key)
+    select type (kp => this%t%key(this%n))
     type is (double precision)
        key => kp
     class default
@@ -1130,7 +1135,7 @@ contains
     class(htable_iter_pt_t), intent(inout) :: this
     type(point_t), pointer :: value
 
-    select type (hdp => this%t%t(this%n)%data)
+    select type (hdp => this%t%data(this%n))
     type is (point_t)
        value => hdp
     class default
@@ -1144,7 +1149,7 @@ contains
     class(htable_iter_pt_t), intent(inout) :: this
     type(point_t), pointer :: key
 
-    select type (kp => this%t%t(this%n)%key)
+    select type (kp => this%t%key(this%n))
     type is (point_t)
        key => kp
     class default
@@ -1253,7 +1258,7 @@ contains
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), pointer :: value
 
-    select type (hdp => this%t%t(this%n)%data)
+    select type (hdp => this%t%data(this%n))
     type is (tuple_i4_t)
        value => hdp
     class default
@@ -1267,7 +1272,7 @@ contains
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), pointer :: key
 
-    select type (kp => this%t%t(this%n)%key)
+    select type (kp => this%t%key(this%n))
     type is (tuple_i4_t)
        key => kp
     class default
@@ -1376,7 +1381,7 @@ contains
     class(htable_iter_i4t4_t), intent(inout) :: this
     type(tuple4_i4_t), pointer :: value
 
-    select type (hdp => this%t%t(this%n)%data)
+    select type (hdp => this%t%data(this%n))
     type is (tuple4_i4_t)
        value => hdp
     class default
@@ -1395,7 +1400,7 @@ contains
     ! (>11.0.x) when using high opt. levels.
     select type(hti => this)
     type is(htable_iter_i4t4_t)
-       select type (kp => hti%t%t(this%n)%key)
+       select type (kp => hti%t%key(this%n))
        type is (tuple4_i4_t)
           key => kp
        class default
@@ -1489,7 +1494,7 @@ contains
     class(*), pointer :: hdp
     type(h_cptr_t), pointer :: value
 
-    hdp => this%t%t(this%n)%data
+    hdp => this%t%data(this%n)
     select type (hdp)
     type is (h_cptr_t)
        value => hdp
@@ -1505,7 +1510,7 @@ contains
     class(*), pointer :: kp
     type(h_cptr_t), pointer :: key
 
-    kp => this%t%t(this%n)%key
+    kp => this%t%key(this%n)
     select type (kp)
     type is (h_cptr_t)
        key => kp
