@@ -37,6 +37,7 @@ module sampler
   use comm
   use logger
   use utils
+  use profiler
   implicit none
   private
 
@@ -146,7 +147,7 @@ contains
     integer :: i, ierr
 
     if (t .ge. (this%nsample * this%T)) then
-
+       call profiler_start_region('Sampler')
        call MPI_Barrier(NEKO_COMM, ierr)
        sample_start_time = MPI_WTIME()
 
@@ -170,7 +171,7 @@ contains
        write(log_buf,'(A24,1x,F10.6,A,F9.6)') 'Sampling fields at time:', t, &
              ' Sample time (s): ', sample_time
        call neko_log%message(log_buf)
-
+       call profiler_end_region
     end if
     
   end subroutine sampler_sample
