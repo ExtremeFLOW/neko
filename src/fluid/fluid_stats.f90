@@ -331,20 +331,6 @@ contains
        call device_col3(stats_work%x_d,this%p%x_d, this%w%x_d,n)
        call this%pw%update(k)
 
-       call device_col3(stats_work%x_d,this%stats_w%x_d, this%w%x_d,n)
-       call this%www%update(k)
-
-       call device_col3(stats_work%x_d,stats_v%x_d, stats_v%x_d,n)
-       call this%vv%update(k)
-       call device_col3(stats_work%x_d,stats_w%x_d, stats_w%x_d,n)
-       call this%ww%update(k)
-       call device_col3(stats_work%x_d,stats_u%x_d, stats_v%x_d,n)
-       call this%uv%update(k)
-       call device_col3(stats_work%x_d,stats_u%x_d, stats_w%x_d,n)
-       call this%uw%update(k)
-       call device_col3(stats_work%x_d,stats_v%x_d, stats_w%x_d,n)
-       call this%vw%update(k)
-
     else
 
        call col3(stats_u%x,this%u%x, this%u%x,n)
@@ -404,19 +390,7 @@ contains
        call col3(stats_work%x,this%p%x, this%w%x,n)
        call this%pw%update(k)
 
-       call col3(stats_work%x,this%stats_w%x, this%w%x,n)
-       call this%www%update(k)
 
-       call col3(stats_work%x,stats_v%x, stats_v%x,n)
-       call this%vv%update(k)
-       call col3(stats_work%x,stats_w%x, stats_w%x,n)
-       call this%ww%update(k)
-       call col3(stats_work%x,stats_u%x, stats_v%x,n)
-       call this%uv%update(k)
-       call col3(stats_work%x,stats_u%x, stats_w%x,n)
-       call this%uw%update(k)
-       call col3(stats_work%x,stats_v%x, stats_w%x,n)
-       call this%vw%update(k)
     end if
 
     call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u%x,this%coef)
