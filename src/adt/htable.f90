@@ -62,9 +62,10 @@ module htable
   abstract interface
      pure function htable_hash(this, k, c) result(hash)
        import htable_t
+       import i8
        class(htable_t), intent(in) :: this
        class(*), intent(in) :: k
-       integer, value :: c
+       integer(kind=i8), value :: c
        integer :: hash
      end function htable_hash
   end interface
@@ -237,12 +238,64 @@ contains
 
     size = ishft(1, ceiling(log(dble(size)) / NEKO_M_LN2))
 
-    allocate(this%key(0:size), source=key)
+
+    select type(key)
+    type is (integer)
+       allocate(integer::this%key(0:size))
+    type is (integer(i8))
+       allocate(integer(i8)::this%key(0:size))
+    type is (double precision)
+       allocate(double precision::this%key(0:size))
+    type is (point_t)
+       allocate(point_t::this%key(0:size))
+    type is (tuple_i4_t)
+       allocate(tuple_i4_t::this%key(0:size))
+    type is (tuple4_i4_t)
+       allocate(tuple4_i4_t::this%key(0:size))
+    type is (h_cptr_t)
+       allocate(h_cptr_t::this%key(0:size))
+    class default
+       call neko_error('Invalid htable key')
+    end select
 
     if (present(data)) then    
-       allocate(this%data(0:size), source=data)
+       select type(data)
+       type is (integer)
+          allocate(integer::this%data(0:size))
+       type is (integer(i8))
+          allocate(integer(i8)::this%data(0:size))
+       type is (double precision)
+          allocate(double precision::this%data(0:size))
+       type is (point_t)
+          allocate(point_t::this%data(0:size))
+       type is (tuple_i4_t)             
+          allocate(tuple_i4_t::this%data(0:size))
+       type is (tuple4_i4_t)
+          allocate(tuple4_i4_t::this%data(0:size))
+       type is (h_cptr_t)
+          allocate(h_cptr_t::this%data(0:size))
+       class default
+          call neko_error('Invalid htable data')
+       end select
     else
-       allocate(this%data(0:size), source=key)
+       select type(key)
+       type is (integer)
+          allocate(integer::this%data(0:size))
+       type is (integer(i8))
+          allocate(integer(i8)::this%data(0:size))
+       type is (double precision)
+          allocate(double precision::this%data(0:size))
+       type is (point_t)
+          allocate(point_t::this%data(0:size))
+       type is (tuple_i4_t)             
+          allocate(tuple_i4_t::this%data(0:size))
+       type is (tuple4_i4_t)
+          allocate(tuple4_i4_t::this%data(0:size))
+       type is (h_cptr_t)
+          allocate(h_cptr_t::this%data(0:size))
+       class default
+          call neko_error('Invalid htable data')
+       end select
     end if
     
     allocate(this%valid(0:size))
@@ -313,7 +366,8 @@ contains
     class(*), intent(inout) :: key   !< Table key
     class(*), intent(inout) ::  data !< Data associated with @a key
     class(htable_t), allocatable :: tmp
-    integer index, i, c
+    integer index, i
+    integer(kind=i8) :: c
 
     c = 0
     i = log(1.0/this%size)/log(0.6)
@@ -385,7 +439,8 @@ contains
     class(*), intent(inout) :: key  !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
     integer :: rcode
-    integer :: index, i, c
+    integer :: index, i
+    integer(kind=i8) :: c
 
     c = 0
     i = this%size - 1
@@ -416,7 +471,8 @@ contains
   subroutine htable_remove(this, key)
     class(htable_t), intent(inout) :: this
     class(*), intent(inout) :: key  !< Key to remove
-    integer :: index, i, c
+    integer :: index, i
+    integer(kind=i8) :: c
 
     c = 0
     i = this%size - 1
@@ -724,7 +780,7 @@ contains
   pure function htable_i4_hash(this, k, c) result(hash)
     class(htable_i4_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer, value :: c
+    integer(kind=i8), value :: c
     integer :: hash
     integer(kind=i8) :: tmp
     integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
@@ -743,7 +799,7 @@ contains
        tmp = ieor((tmp + M4), ishft(tmp, 9))
        tmp = (tmp + M5) + ishft(tmp, 3)
        tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
-       tmp = modulo(tmp + int(c, i8), int(this%size, i8))
+       tmp = modulo(tmp + c, int(this%size, i8))
        hash = int(tmp, i4)
     class default
        hash = -1
@@ -840,7 +896,7 @@ contains
   pure function htable_i8_hash(this, k, c) result(hash)
     class(htable_i8_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer, value :: c
+    integer(kind=i8), value :: c
     integer :: hash
     integer(kind=i8) :: tmp
     integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
@@ -860,7 +916,7 @@ contains
        tmp = ieor(ieor(tmp, M6), ishft(tmp, -16))
        hash = int(modulo(tmp, int(this%size, i8)), i4)
        !> @note I think this hash might be better
-       hash = int(modulo((k * 2654435761_i8) + int(c, i8), &
+       hash = int(modulo((k * 2654435761_i8) + c, &
             int(this%size, i8)), i4)
     class default
        hash = -1
@@ -892,11 +948,19 @@ contains
     integer(kind=i8), pointer :: value
 
 
-    select type (hdp => this%t%data(this%n))
-    type is (integer(i8))
-       value => hdp
+    ! We should not need this extra select block, and it works great
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray
+    ! (>11.0.x) when using high opt. levels.
+    select type(hti => this)
+    type is (htable_iter_i8_t)
+       select type (hdp => hti%t%data(this%n))
+       type is (integer(i8))
+          value => hdp
+       class default
+          call neko_error('Key and data of different kind (i8)')
+       end select
     class default
-       call neko_error('Key and data of different kind (i8)')
+       call neko_error('Corrupt htable iter. (i8)')
     end select
     
   end function htable_iter_i8_value
@@ -967,7 +1031,7 @@ contains
   pure function htable_r8_hash(this, k, c) result(hash)
     class(htable_r8_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer, value :: c
+    integer(kind=i8), value :: c
     integer :: hash
     select type(k)
     type is (double precision)
@@ -1068,7 +1132,7 @@ contains
   pure function htable_pt_hash(this, k, c) result(hash)
     class(htable_pt_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer, value :: c
+    integer(kind=i8), value :: c
     integer :: hash, i 
     integer(kind=i8) :: hash2, tmp, mult
     integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
@@ -1094,7 +1158,7 @@ contains
           mult = mult + 82520 + 8
        end do
        hash2 = hash2 + 97531
-       hash2 = modulo(hash2 + int(c, i8), int(this%size,i8))
+       hash2 = modulo(hash2 + c, int(this%size,i8))
        hash = int(hash2, i4)
     class default
        hash = -1
@@ -1193,7 +1257,7 @@ contains
   pure function htable_i4t2_hash(this, k, c) result(hash)
     class(htable_i4t2_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer, value :: c
+    integer(kind=i8), value :: c
     integer :: i, hash
     integer(kind=i8) :: tmp, hash2, mult
     integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
@@ -1219,7 +1283,7 @@ contains
           mult = mult + 82520_i8 + 4_i8
        end do
        hash2 = hash2 + 97531_i8
-       hash2 = modulo(hash2 + int(c, i8), int(this%size, i8))
+       hash2 = modulo(hash2 + c, int(this%size, i8))
        hash = int(hash2, i4)
     class default
        hash = -1
@@ -1316,7 +1380,7 @@ contains
   pure function htable_i4t4_hash(this, k, c) result(hash)
     class(htable_i4t4_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer, value :: c
+    integer(kind=i8), value :: c
     integer :: i, hash
     integer(kind=i8) :: tmp, hash2, mult
     integer(kind=i8), parameter :: M1 = int(Z'7ed55d15', i8)
@@ -1342,7 +1406,7 @@ contains
           mult = mult + 82520_i8 + 8_i8
        end do
        hash2 = hash2 + 97531_i8
-       hash2 = modulo(hash2 + int(c, i8), int(this%size, i8))
+       hash2 = modulo(hash2 + c, int(this%size, i8))
        hash = int(hash2, i4)
     class default
        hash = -1
@@ -1447,14 +1511,14 @@ contains
   pure function htable_cptr_hash(this, k, c) result(hash)
     class(htable_cptr_t), intent(in) :: this
     class(*), intent(in) :: k
-    integer, value :: c
+    integer(kind=i8), value :: c
     integer :: hash
     integer(kind=i8) :: k_int
 
     select type(k)
     type is (h_cptr_t)
        k_int = transfer(k%ptr, k_int)
-       hash = int(modulo(k_int * 2654435761_i8 + int(c, i8),&
+       hash = int(modulo(k_int * 2654435761_i8 + c,&
             int(this%size, i8)), i4)
     class default
        hash = -1
