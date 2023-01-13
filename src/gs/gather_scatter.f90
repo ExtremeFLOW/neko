@@ -201,7 +201,8 @@ contains
                 call device_map(tmp, tmp_d, dofmap%size())
                 tmp = 1.0_rp
                 call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
-                
+                call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
+                   
                 do i = 1, size(strtgy)          
                    c%nb_strtgy = strtgy(i)
                    call device_sync
