@@ -117,7 +117,7 @@ __kernel void schwarz_extrude_kernel_nx##NX(__global real * a1,                \
   }                                                                            \
 }                                                                              
 
-DEFINE_SCHWARZ_EXTRUDE_KERNEL(2)
+DEFINE_SCHWARZ_EXTRUDE_KERNEL(2);
 DEFINE_SCHWARZ_EXTRUDE_KERNEL(3);
 DEFINE_SCHWARZ_EXTRUDE_KERNEL(4);
 DEFINE_SCHWARZ_EXTRUDE_KERNEL(5);
