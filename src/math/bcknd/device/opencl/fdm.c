@@ -51,20 +51,43 @@ void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel) {
 
   if (fdm_program == NULL)
     opencl_kernel_jit(fdm_kernel, (cl_program *) &fdm_program);
-  
-  cl_kernel kernel = clCreateKernel(fdm_program, "fdm_do_fast_kernel", &err);
-  CL_CHECK(err);
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &e));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &r));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &s));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &d));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), nl));
-  
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-                                  NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));
+#define STR(X) #X
+#define CASE(NL)                                                               \
+  case NL:                                                                     \
+    {                                                                          \
+      cl_kernel kernel = clCreateKernel(fdm_program,                           \
+                                        STR(fdm_do_fast_kernel_nl##NL), &err); \
+      CL_CHECK(err);                                                           \
+                                                                               \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &e));        \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &r));        \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &s));        \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &d));        \
+                                                                               \
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,\
+                                      1, NULL, &global_item_size,              \
+                                      &local_item_size, 0, NULL, NULL));       \
+    }                                                                          \
+   break
+
+  switch(*nl) {
+    CASE(2);
+    CASE(3);
+    CASE(4);
+    CASE(5);
+    CASE(6);
+    CASE(7);
+    CASE(8);
+    CASE(9);
+    CASE(10);
+    CASE(11);
+    CASE(12);
+    CASE(13);
+    CASE(14);
+    CASE(15);
+  }
 }
