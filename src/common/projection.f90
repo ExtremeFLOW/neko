@@ -223,17 +223,22 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: x 
     type(c_ptr) :: x_d
 
-    this%m = min(this%m+1,this%L)
     
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        x_d = device_get_ptr(x)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
-       if (this%m .eq. this%L) this%m = 1
+       if (this%m .eq. this%L) then
+          this%m = 1
+       else
+          this%m = min(this%m+1,this%L)
+       end if
+
        call device_copy(this%xx_d(this%m),x_d,n)   ! Update (X,B)
 
     else
        if (this%m.gt.0) call add2(x,this%xbar,n)      ! Restore desired solution
+       this%m = min(this%m+1,this%L)
        call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
     end if
 
@@ -419,18 +424,24 @@ contains
       
       nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
       
-      call rzero(beta,m)
     
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,m-1
             call add2s2(xx(i,m), xx(i,k), -alpha(k), j)
             call add2s2(bb(i,m), bb(i,k), -alpha(k), j)
+         end do
+      end do
+      call rzero(beta,m)
+     
+      do i = 1, n, NEKO_BLK_SIZE
+         j = min(NEKO_BLK_SIZE, n-i+1)
+         do k = 1,m-1
             beta(k) = beta(k) + 0.5_rp * (vlsc3(xx(i,k), w(i), bb(i,m), j) &
                  + vlsc3(bb(i,k), w(i), xx(i,m), j))
          end do
       end do
-    
+
       call MPI_Allreduce(MPI_IN_PLACE, beta, this%m-1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
