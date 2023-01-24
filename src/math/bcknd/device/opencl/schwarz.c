@@ -53,26 +53,50 @@ void opencl_schwarz_extrude(void *arr1, int * l1, real * f1,
 
   if (schwarz_program == NULL)
     opencl_kernel_jit(schwarz_kernel, (cl_program *) &schwarz_program);
-  
-  cl_kernel kernel = clCreateKernel(schwarz_program,
-                                    "schwarz_extrude_kernel", &err);
-  CL_CHECK(err);
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &arr1));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), l1));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), f1));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &arr2));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), l1));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), f1));
-  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(int), nel));
-  
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-                                  NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));
-  
+#define STR(X) #X  
+#define CASE(NX)                                                               \
+  case NX:                                                                     \
+    {                                                                          \
+                                                                               \
+      cl_kernel kernel = clCreateKernel(schwarz_program,                       \
+                                        STR(schwarz_extrude_kernel_nx##NX),    \
+                                        &err);                                 \
+      CL_CHECK(err);                                                           \
+                                                                               \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &arr1));     \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(int), l1));                    \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), f1));                   \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &arr2));     \
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), l2));                    \
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), f2));                   \
+                                                                               \
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,        \
+                                      kernel, 1, NULL, &global_item_size,      \
+                                      &local_item_size, 0, NULL, NULL));       \
+     }                                                                         \
+    break
+
+  switch(*nx) {
+    CASE(2);
+    CASE(3);
+    CASE(4);
+    CASE(5);
+    CASE(6);
+    CASE(7);
+    CASE(8);
+    CASE(9);
+    CASE(10);
+    CASE(11);
+    CASE(12);
+    CASE(13);
+    CASE(14);
+    CASE(15);
+    CASE(16);
+  }
 }
 
 void opencl_schwarz_toext3d(void *a, void *b,int * nx, int * nel) {

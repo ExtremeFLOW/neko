@@ -36,6 +36,7 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include "schwarz_kernel.h"
+#include <stdio.h>
 
 extern "C" {
 
@@ -48,11 +49,37 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_extrude_kernel<real>),
-                       nblcks, nthrds, 0, 0,
-                       (real *) arr1,* l1, * f1, 
-                       (real *) arr2, *l2, *f2, *nx);
-    HIP_CHECK(hipGetLastError());
+#define CASE(NX)                                                          \
+    case NX:                                                              \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_extrude_kernel<real,NX>),  \
+                       nblcks, nthrds, 0, 0,                              \
+                       (real *) arr1,* l1, * f1,                          \
+                       (real *) arr2, *l2, *f2);                          \
+    HIP_CHECK(hipGetLastError());                                         \
+    break;
+
+    switch(*nx) {
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8);
+      CASE(9);
+      CASE(10);
+      CASE(11);
+      CASE(12);
+      CASE(13);
+      CASE(14);
+      CASE(15);
+      CASE(16);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *nx);
+        exit(1);
+      }
+   }
 
   } 
 

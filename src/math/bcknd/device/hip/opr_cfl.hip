@@ -40,6 +40,13 @@
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+  
+  /**
+   * @todo Make sure that this gets deleted at some point...
+   */
+  real *cfl_d = NULL;
+  
   /** 
    * Fortran wrapper for device hip CFL
    */
@@ -52,10 +59,10 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    real * cfl = (real *) malloc((*nel) * sizeof(real));
-    real * cfl_d ;
-
-    HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
+  
+    if (cfl_d == NULL) {
+      HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
+    }
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
@@ -80,23 +87,31 @@ extern "C" {
       CASE(8);
       CASE(9);
       CASE(10);
+      CASE(11);
+      CASE(12);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
         exit(1);
       }
     }
-    HIP_CHECK(hipMemcpy(cfl, cfl_d, (*nel) * sizeof(real),
+
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfl_reduce_kernel<real>),
+                       1, 1024, 0, 0,
+                       cfl_d, (*nel));
+    HIP_CHECK(hipGetLastError());
+
+    real cfl = 0.0;
+    #ifdef HAVE_DEVICE_MPI
+    hipDeviceSynchronize();
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
+#else
+    HIP_CHECK(hipMemcpy(&cfl, cfl_d, sizeof(real),
 			hipMemcpyDeviceToHost));
-    
-    real cfl_max = 0.0;
-    for (int i = 0; i < (*nel); i++) {
-      cfl_max = fmax(cfl_max, cfl[i]);
-    }
+#endif
 
-    free(cfl);
-    HIP_CHECK(hipFree(cfl_d));
 
-    return cfl_max;
+    return cfl;
   } 
 }

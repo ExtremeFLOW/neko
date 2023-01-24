@@ -32,50 +32,59 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <math/bcknd/device/cuda/math_kernel.h>
-
 /**
- * Kernel for back-substitution of x and update of p
+ * Project on vector operations
  */
 template< typename T >
-__global__ void gmres_part2_kernel(T  * __restrict__  w,
-                                   T * const * __restrict__ v,
-                                   const T * __restrict__ mult,
-                                   const T * __restrict__ h,
-                                   T * __restrict__ buf_h1,
-                                   const int j,
-                                   const int n) {
-
+__global__ void project_on_vec_kernel(T * __restrict__ x,
+                                      const T ** xx,
+                                      T * __restrict__ y,
+                                      const T ** yy,
+                                      const T * __restrict__ alpha,
+                                      const int p_cur,
+                                      const int n) {
+  
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
-  
-  __shared__ T shared[32];
-  T tmp1 = 0.0;
-
   for (int i = idx; i < n; i+= str) {
-    T tmp = 0.0;
-    for (int k = 0; k < j; k ++) {
-      tmp += -h[k]*v[k][i];
+    T tmp1 = 0.0;
+    T tmp2 = 0.0;
+    for (int j = 0; j < p_cur; j ++) {
+      tmp1 += xx[j][i] * alpha[j];
+      tmp2 += yy[j][i] * -alpha[j];
     }
-    w[i] += tmp;
-    tmp1 += w[i]*w[i]*mult[i];
+    x[i] += tmp1;
+    y[i] += tmp2;
   }
-
-  tmp1 = reduce_warp<T>(tmp1);
-  if (lane == 0)
-    shared[wid] = tmp1;
-  __syncthreads();
-
-  tmp1 = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
-  if (wid == 0)
-    tmp1 = reduce_warp<T>(tmp1);
-
-  if (threadIdx.x == 0)
-    buf_h1[blockIdx.x] = tmp1;
-
+  
 }
 
 
+/**
+ * Project ortho vector operations
+ */
+template< typename T >
+__global__ void project_ortho_vec_kernel(T * __restrict__ x,
+                                         const T ** xx,
+                                         T * __restrict__ y,
+                                         const T ** yy,
+                                         const T * __restrict__ alpha,
+                                         const int p_cur,
+                                         const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i+= str) {
+    T tmp1 = 0.0;
+    T tmp2 = 0.0;
+    for (int j = 0; j < (p_cur - 1); j ++) {
+      tmp1 += xx[j][i] * -alpha[j];
+      tmp2 += yy[j][i] * -alpha[j];
+    }
+    x[i] += tmp1;
+    y[i] += tmp2;
+  }
+  
+}

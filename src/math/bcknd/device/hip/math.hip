@@ -39,6 +39,8 @@
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+  
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
    */
@@ -365,9 +367,14 @@ extern "C" {
                        1, 1024, 0, 0,
                        bufred_d, nb);
     HIP_CHECK(hipGetLastError());
-    
+
+#ifdef HAVE_DEVICE_MPI
+    hipDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     HIP_CHECK(hipMemcpy(bufred, bufred_d, sizeof(real),
                         hipMemcpyDeviceToHost));
+#endif
     return bufred[0];
   }
 
@@ -404,9 +411,13 @@ extern "C" {
                        0, 0, bufred_d, nb, *j);
     HIP_CHECK(hipGetLastError());
 
-
+#ifdef HAVE_DEVICE_MPI
+    hipDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
+#else
     HIP_CHECK(hipMemcpy(h, bufred_d, (*j)* sizeof(real),
                         hipMemcpyDeviceToHost));
+#endif    
   }
 
   /**
@@ -457,8 +468,13 @@ extern "C" {
                        bufred_d, nb);
     HIP_CHECK(hipGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    hipDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     HIP_CHECK(hipMemcpy(bufred, bufred_d, sizeof(real),
                         hipMemcpyDeviceToHost));
+#endif
     return bufred[0];
   }
 
@@ -489,10 +505,14 @@ extern "C" {
                        1, 1024, 0, 0,
                        bufred_d, nb);
     HIP_CHECK(hipGetLastError());
-    
+
+#ifdef HAVE_DEVICE_MPI
+    hipDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     HIP_CHECK(hipMemcpy(bufred, bufred_d,sizeof(real),
                         hipMemcpyDeviceToHost));
-
+#endif    
     return bufred[0];
   }
 }

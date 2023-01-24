@@ -71,6 +71,7 @@ module projection
   use neko_config
   use device
   use device_math
+  use device_projection
   use logger
   use, intrinsic :: iso_c_binding
   implicit none
@@ -327,17 +328,22 @@ contains
 
       this%proj_res = device_glsc3(b_d,b_d,coef%mult_d,n)
       this%proj_m = this%m
-      call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-      call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
-      call device_rzero(xbar_d, n)
-      call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
-      call device_cmult(alpha_d, -1.0_rp, this%m)
-      call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)   
-      call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
-      call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
-      call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
-      call device_cmult(alpha_d, -1.0_rp, this%m)
-      call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
+      if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
+         call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
+              coef%mult_d, xbar_d, this%m, n)
+      else
+         call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+         call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
+         call device_rzero(xbar_d, n)
+         call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
+         call device_cmult(alpha_d, -1.0_rp, this%m)
+         call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
+         call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+         call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE)     
+         call device_add2s2_many(xbar_d, xx_d_d, alpha_d, this%m, n)
+         call device_cmult(alpha_d, -1.0_rp, this%m)
+         call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
+      end if
       
     end associate
   end subroutine device_project_on
@@ -355,20 +361,25 @@ contains
               bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
       
       if(m .le. 0) return
-
-      call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
-      nrm = sqrt(alpha(m))
-      call cmult(alpha, -1.0_rp,m)
-      call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
-      call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
-      call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
-    
-      call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
-      call cmult(alpha, -1.0_rp,m)
-      call device_memcpy(alpha, alpha_d, m, HOST_TO_DEVICE) 
-      call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
-      call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
-      call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+      if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
+         call device_project_ortho(alpha_d, bb_d(m), xx_d_d, bb_d_d, &
+              w_d, xx_d(m), this%m, n, nrm)
+      else
+         call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+         nrm = sqrt(alpha(m))
+         call cmult(alpha, -1.0_rp,m)
+         call device_memcpy(alpha, alpha_d, this%m, HOST_TO_DEVICE) 
+         call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
+         call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
+         
+         call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+         call cmult(alpha, -1.0_rp,m)
+         call device_memcpy(alpha, alpha_d, m, HOST_TO_DEVICE) 
+         call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
+         call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
+         call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+      end if
+      
       alpha(m) = device_glsc3(xx_d(m), w_d, bb_d(m), n)
       alpha(m) = sqrt(alpha(m))
 

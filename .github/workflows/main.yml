@@ -9,7 +9,7 @@ on:
 jobs:
   linting:
       name: "Flint"
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-20.04
       steps:
         - name: Setup env.
           run: |
@@ -36,7 +36,7 @@ jobs:
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-20.04, macos-12]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
@@ -59,7 +59,7 @@ jobs:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
         - os: macos-12
-          setup-env: brew update && brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
+          setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -80,7 +80,7 @@ jobs:
       - name: Build pFUnit
         if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
         run: |
-          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git
+          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
           cd pFUnit
           cat >> pfunit_error_stop.patch << _ACEOF
           diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
@@ -206,6 +206,54 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
+  
+  NVIDIA:
+    needs: linting
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-20.04]
+        compiler: [nvfortran]
+        backend: [cpu, cuda]
+        precision: [dp]
+        include:
+        - os: ubuntu-20.04
+          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-22-11-cuda-multi &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/22.11/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/22.11/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV 
+    env:
+      CC: gcc
+      FC: ${{ matrix.compiler }}
+      OMPI_FC: ${{ matrix.compiler }}
+      OMPI_CC: gcc
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      RP: ${{ matrix.precision }}
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
+    steps:
+      - name: Setup env.
+        run: ${{ matrix.setup-env }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - name: Build (CPU backend)
+        if: matrix.backend == 'cpu'
+        run: |
+          git apply patches/nvhpc_bge.patch
+          nvfortran --version
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+          make -j$(nproc)
+      - name: Build (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          sudo apt-get install -y nvidia-cuda-toolkit
+          git apply patches/nvhpc_bge.patch
+          nvfortran --version
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/usr
+          make -j$(nproc)          
   ReFrame:
       needs: GNU
       runs-on: ubuntu-20.04
@@ -227,6 +275,9 @@ jobs:
           run: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
             pip install reframe-hpc 
+        - name: Topology
+          run: |
+            reframe --detect-host-topology
         - name: Checkout
           uses: actions/checkout@v3
           with:
@@ -237,7 +288,7 @@ jobs:
             cd reframe
             env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
   documentation:
-    needs: [Intel, GNU,ReFrame]
+    needs: [Intel, GNU, NVIDIA, ReFrame]
     runs-on: ubuntu-latest
     name: "Doxygen"
     steps:

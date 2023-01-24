@@ -32,58 +32,40 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
-#include <device/device_config.h>
-#include <device/hip/check.h>
-#include "tensor_kernel.h"
+/**
+ * C wrapper for MPI calls, until we integrate with NCCL/RCCL
+ * @note We use @c MPI_COMM_WORLD which @e should be equal to @c NEKO_COMM.
+ */
+
+#include <stdlib.h>
 #include <stdio.h>
+#include <mpi.h>
 
-#define max(a,b) \
-  ({ __typeof__ (a) _a = (a);  \
-     __typeof__ (b) _b = (b);   \
-     _a > _b ? _a : _b; })
+void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes) {
 
-
-extern "C" {
-
-  /** Fortran wrapper for tnsr3d **/
-  void hip_tnsr3d(void *v, int *nv, void *u, int *nu,
-		  void *A, void *Bt, void *Ct, int *nel) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(*nel, 1, 1);
-
-    int n = max(*nu,*nv);
-#define CASE(N)                                                     \
-    case N:                                                         \
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real, N>),     \
-                       nblcks, nthrds, 0, 0,                        \
-                       (real *) v, *nv, (real *) u,                 \
-		       *nu, (real *) A, (real *) Bt, (real *) Ct);  \
-    HIP_CHECK(hipGetLastError());                                   \
-    break
-
-    switch(n) {
-      CASE(2);
-      CASE(3);
-      CASE(4);
-      CASE(5);
-      CASE(6);
-      CASE(7);
-      CASE(8); 
-      CASE(9);
-      CASE(10);
-      CASE(11);
-      CASE(12);
-      CASE(13);
-      CASE(14);
-      CASE(15);
-      CASE(16);
-    default:
-      {
-        fprintf(stderr, __FILE__ ": size not supported: %d\n", n);
-        exit(1);
-      }
-    }
+  if (nbytes == sizeof(float)) {
+    MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else if (nbytes == sizeof(double)) {
+    MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else {
+    fprintf(stderr, __FILE__ ": Invalid data type)\n");
+    exit(1);
   }
 }
+
+void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes) {
+
+  if (nbytes == sizeof(float)) {
+    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else if (nbytes == sizeof(double)) {
+    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else {
+    fprintf(stderr, __FILE__ ": Invalid data type)\n");
+    exit(1);
+  }
+}
+

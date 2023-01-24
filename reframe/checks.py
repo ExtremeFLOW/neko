@@ -394,3 +394,9 @@ class MiniRB(NekoTestBase):
     def set_build(self):
         self.build_system = MakeNeko(self.neko_build)
         self.sourcepath = 'rayleigh.f90'
+
+    # Restrict small case to 2 tasks
+    @run_before('run')
+    def set_num_tasks(self):
+        if self.neko_build.backend == 'cpu':
+            self.num_tasks = 2

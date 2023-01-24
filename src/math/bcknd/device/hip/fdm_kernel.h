@@ -32,105 +32,104 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-template< typename T >
+template< typename T, const int NL >
 __global__ void fdm_do_fast_kernel(T  * __restrict__ e,
                                    T * __restrict__ r,
                                    T * __restrict__ s,
-                                   T * __restrict__ d,
-                                   const int nl) {
-  __shared__ T shwork[2048];
-  __shared__ T shwork2[2048];
-  __shared__ T A[256];
-  __shared__ T Bt[256];
-  __shared__ T Ct[256];
+                                   T * __restrict__ d) {
+  __shared__ T shwork[NL*NL*NL];
+  __shared__ T shwork2[NL*NL*NL];
+  __shared__ T A[NL*NL];
+  __shared__ T Bt[NL*NL];
+  __shared__ T Ct[NL*NL];
 
   const int idx = threadIdx.x;
   const int str = blockDim.x;
   const int el = blockIdx.x;
-  if( idx < nl*nl){
-     A[idx] = s[idx+nl*nl+el*nl*nl*3*2];
-    Bt[idx] = s[idx+2*nl*nl+el*nl*nl*3*2];
-    Ct[idx] = s[idx+2*2*nl*nl+el*nl*nl*3*2];
+  if( idx < NL*NL){
+     A[idx] = s[idx+NL*NL+el*NL*NL*3*2];
+    Bt[idx] = s[idx+2*NL*NL+el*NL*NL*3*2];
+    Ct[idx] = s[idx+2*2*NL*NL+el*NL*NL*3*2];
   }    
   __syncthreads();
 
-  for (int ii = idx; ii< nl*nl*nl; ii += str){
+  for (int ii = idx; ii< NL*NL*NL; ii += str){
     T tmp = 0.0;
-    int j = ii/nl;
-    int i = ii - j*nl;
-    for( int l = 0; l < nl; l++){
-      tmp += A[i+l*nl]*r[l+nl*j+el*nl*nl*nl];
+    int j = ii/NL;
+    int i = ii - j*NL;
+    for( int l = 0; l < NL; l++){
+      tmp += A[i+l*NL]*r[l+NL*j+el*NL*NL*NL];
     }
     shwork[ii] = tmp;
   }
   __syncthreads();
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){
+    const int jk = ijk / NL;
+    const int i = ijk - jk * NL;
+    const int k = jk / NL;
+    const int j = jk - k * NL;
     T tmp = 0.0;
-    const int ik2 = i + k*nl*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Bt[l+j*nl]*shwork[l*nl+ik2];
+    const int ik2 = i + k*NL*NL; 
+    for( int l = 0; l < NL; l++){
+      tmp += Bt[l+j*NL]*shwork[l*NL+ik2];
     }
     shwork2[ijk] = tmp;
   }
   __syncthreads();
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){
+    const int jk = ijk / NL;
+    const int i = ijk - jk * NL;
+    const int k = jk / NL;
+    const int j = jk - k * NL;
     T tmp = 0.0;
-    const int ij2 = i + j*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Ct[l+k*nl]*shwork2[ij2 + l*nl*nl];
+    const int ij2 = i + j*NL; 
+    for( int l = 0; l < NL; l++){
+      tmp += Ct[l+k*NL]*shwork2[ij2 + l*NL*NL];
     }
-    r[ijk+el*nl*nl*nl] = tmp*d[ijk+el*nl*nl*nl];
+    r[ijk+el*NL*NL*NL] = tmp*d[ijk+el*NL*NL*NL];
   }
   __syncthreads();
-  if( idx < nl*nl){
-     A[idx] = s[idx+el*nl*nl*3*2];
-    Bt[idx] = s[idx+nl*nl+2*nl*nl+el*nl*nl*3*2];
-    Ct[idx] = s[idx+nl*nl+2*2*nl*nl+el*nl*nl*3*2];
+  if( idx < NL*NL){
+     A[idx] = s[idx+el*NL*NL*3*2];
+    Bt[idx] = s[idx+NL*NL+2*NL*NL+el*NL*NL*3*2];
+    Ct[idx] = s[idx+NL*NL+2*2*NL*NL+el*NL*NL*3*2];
   }  
   __syncthreads();
 
-  for (int ii = idx; ii< nl*nl*nl; ii += str){
+  for (int ii = idx; ii< NL*NL*NL; ii += str){
     T tmp = 0.0;
-    int j = ii/nl;
-    int i = ii - j*nl;
-    for( int l = 0; l < nl; l++){
-      tmp += A[i+l*nl]*r[l+nl*j+el*nl*nl*nl];
+    int j = ii/NL;
+    int i = ii - j*NL;
+    for( int l = 0; l < NL; l++){
+      tmp += A[i+l*NL]*r[l+NL*j+el*NL*NL*NL];
     }
     shwork[ii] = tmp;
   }
   __syncthreads();
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){
+    const int jk = ijk / NL;
+    const int i = ijk - jk * NL;
+    const int k = jk / NL;
+    const int j = jk - k * NL;
     T tmp = 0.0;
-    const int ik2 = i + k*nl*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Bt[l+j*nl]*shwork[l*nl+ik2];
+    const int ik2 = i + k*NL*NL; 
+    for( int l = 0; l < NL; l++){
+      tmp += Bt[l+j*NL]*shwork[l*NL+ik2];
     }
     shwork2[ijk] = tmp;
   }
   __syncthreads();
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){
+    const int jk = ijk / NL;
+    const int i = ijk - jk * NL;
+    const int k = jk / NL;
+    const int j = jk - k * NL;
     T tmp = 0.0;
-    const int ij2 = i + j*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Ct[l+k*nl]*shwork2[ij2 + l*nl*nl];
+    const int ij2 = i + j*NL; 
+    for( int l = 0; l < NL; l++){
+      tmp += Ct[l+k*NL]*shwork2[ij2 + l*NL*NL];
     }
-    e[ijk+el*nl*nl*nl] = tmp;
+    e[ijk+el*NL*NL*NL] = tmp;
   }
 
 }

@@ -32,6 +32,51 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+/**
+ * Warp shuffle reduction
+ */
+template< typename T>
+__inline__ __device__ T cfl_reduce_warp(T val) {
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 16));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 8));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 4));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 2));
+  val = fmax(val, __shfl_down_sync(0xffffffff, val, 1));
+  return val;
+}
+
+/**
+ * CFL reduction kernel
+ */
+template< typename T >
+__global__ void cfl_reduce_kernel(T * bufred, const int n) {
+                
+  T cfl = 0;
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str) 
+  {
+    cfl = fmax(cfl, bufred[i]);
+  }
+
+  __shared__ T shared[32];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  cfl = cfl_reduce_warp<T>(cfl);
+  if (lane == 0)
+    shared[wid] = cfl;
+  __syncthreads();
+
+  cfl = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    cfl = cfl_reduce_warp<T>(cfl);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = cfl;
+}
+
 /**
  * Device kernel for CFL
  */
@@ -61,6 +106,8 @@ __global__ void cfl_kernel(const T dt,
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
 
   __shared__ T shu[LX * LX * LX];
   __shared__ T shv[LX * LX * LX];
@@ -72,7 +119,7 @@ __global__ void cfl_kernel(const T dt,
 
   __shared__ T shjacinv[LX * LX * LX];
 
-  __shared__ T shcfl[1024];
+  __shared__ T shared[32];
 
   if (iii < LX) {
     shdr_inv[iii] = dr_inv[iii];
@@ -91,8 +138,6 @@ __global__ void cfl_kernel(const T dt,
     j = j + CHUNKS;
   }
   
-  shcfl[iii] = 0.0;
-
   __syncthreads();
 
   T cfl_tmp = 0.0;
@@ -120,19 +165,17 @@ __global__ void cfl_kernel(const T dt,
 
     }
   }
-  shcfl[iii] = cfl_tmp;
-  
-  i = blockDim.x >> 1;
-  while (i != 0) {
-    if (iii < i) {
-      shcfl[iii] = fmax(shcfl[iii], shcfl[iii + i]);
-    }
-    __syncthreads();
-    i = i>>1;
-  }
 
-  if (threadIdx.x == 0) {
-    cfl_h[blockIdx.x] = shcfl[0];
-  }
+  cfl_tmp = cfl_reduce_warp<T>(cfl_tmp);
+  if (lane == 0)
+    shared[wid] = cfl_tmp;
+  __syncthreads();
+  
+  cfl_tmp = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    cfl_tmp = cfl_reduce_warp<T>(cfl_tmp);
+
+  if (threadIdx.x == 0)
+    cfl_h[blockIdx.x] = cfl_tmp;
 }
 

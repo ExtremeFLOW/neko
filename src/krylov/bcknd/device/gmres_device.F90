@@ -107,10 +107,13 @@ contains
 #else
      call neko_error('No device backend configured')
 #endif
-   if (pe_size .gt. 1) then
+
+#ifndef HAVE_DEVICE_MPI
+     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, alpha, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
 
   end function device_gmres_part2
 

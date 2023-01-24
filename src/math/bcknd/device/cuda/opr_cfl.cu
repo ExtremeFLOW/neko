@@ -40,6 +40,13 @@
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+
+  /**
+   * @todo Make sure that this gets deleted at some point...
+   */
+  real *cfl_d = NULL;
+  
   /** 
    * Fortran wrapper for device cuda CFL
    */
@@ -52,10 +59,12 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    real * cfl = (real *) malloc((*nel) * sizeof(real));
-    real * cfl_d ;
 
-    CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
+    if (cfl_d == NULL) {
+      CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
+    }
+
+
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
@@ -86,17 +95,19 @@ extern "C" {
         exit(1);
       }
     }
-    CUDA_CHECK(cudaMemcpy(cfl, cfl_d, (*nel) * sizeof(real),
+
+    cfl_reduce_kernel<real><<<1, 1024>>> (cfl_d, (*nel));
+    CUDA_CHECK(cudaGetLastError());
+
+    real cfl;
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
+#else
+    CUDA_CHECK(cudaMemcpy(&cfl, cfl_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
     
-    real cfl_max = 0.0;
-    for (int i = 0; i < (*nel); i++) {
-      cfl_max = fmax(cfl_max, cfl[i]);
-    }
-
-    free(cfl);
-    CUDA_CHECK(cudaFree(cfl_d));
-
-    return cfl_max;
+    return cfl;
   } 
 }

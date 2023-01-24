@@ -23,12 +23,12 @@ program prepart
   read(nprtschr, *) nprts
 
   nmsh_file = file_t(fname)
-  msh%lgenc = .false.
+
   call nmsh_file%read(msh)
 
   ! Reset possible periodic ids
   call mesh_reset_periodic_ids(msh)
-
+  write(*,*) 'Splitting mesh'
   ! Compute new partitions
   call parmetis_partmeshkway(msh, parts, nprts=nprts)
 
@@ -54,10 +54,12 @@ program prepart
 
   allocate(idx_map(msh%nelv))
 
+  write(*,*) 'Generating new mesh'
   !
   ! Create redistributed mesh
   !
 
+  new_msh%lgenc = .false.
   call mesh_init(new_msh, msh%gdim, msh%nelv)  
   do i = 1, msh%nelv
      rank = parts%data(i)     
@@ -118,10 +120,15 @@ program prepart
      end do
   end do
   
-
-  new_msh%lgenc = .false.
+  do i = 1, msh%periodic%size
+     idx = idx_map(msh%periodic%facet_el(i)%x(2))
+     p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
+     call mesh_apply_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
+          msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
+  end do
+  
   call mesh_finalize(new_msh)
-
+  
   deallocate(idx_map)
   call mesh_free(msh)
 

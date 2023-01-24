@@ -63,7 +63,6 @@ void opencl_tnsr3d(void *v, int *nv, void *u, int *nu,
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &A));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &Bt));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &Ct));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), nel));
   
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
