@@ -97,7 +97,7 @@ contains
        call neko_error('Invalid usr signal')
     end if
 
-    usr12 = sighdl_timeout()
+    usr12 = sighdl_usr()
     
     if (bge(usr12, usr)) then
        raised = .true.
