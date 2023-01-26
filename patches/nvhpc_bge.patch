@@ -4,7 +4,7 @@ index 0793c48a0..1419e9378 100644
 +++ b/src/common/signal.f90
 @@ -99,11 +99,11 @@ contains
  
-     usr12 = sighdl_timeout()
+     usr12 = sighdl_usr()
      
 -    if (bge(usr12, usr)) then
 -       raised = .true.
