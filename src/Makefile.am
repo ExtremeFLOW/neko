@@ -135,7 +135,6 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
 	common/source.f90\
-	common/source_scalar.f90\
 	common/ext_bdf_scheme.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
@@ -205,6 +204,7 @@ neko_fortran_SOURCES = \
 	scalar/scalar_residual_fctry.f90\
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
+	scalar/source_scalar.f90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
