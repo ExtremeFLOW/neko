@@ -39,6 +39,7 @@ module file
   use rea_file
   use re2_file
   use fld_file
+  use fld_file_data
   use vtk_file
   use stl_file
   implicit none

@@ -47,6 +47,7 @@ module fld_file
   use mpi_types
   use mpi_f08    
   implicit none
+  private
   
 
 
@@ -707,6 +708,10 @@ contains
           x%x(i) = tmp_sp(i) 
        end do     
     end if
+
+    if (allocated(tmp_dp)) deallocate(tmp_dp)
+    if (allocated(tmp_sp)) deallocate(tmp_sp)
+
   end subroutine fld_file_read_field
 
 
@@ -773,6 +778,9 @@ contains
           end if
        end do     
     end if
+
+    if (allocated(tmp_dp)) deallocate(tmp_dp)
+    if (allocated(tmp_sp)) deallocate(tmp_sp)
   end subroutine fld_file_read_3dfields
 
   subroutine fld_file_set_precision(this, precision)
