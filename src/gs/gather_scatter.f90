@@ -95,7 +95,8 @@ contains
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = (/ int(B'00'), int(B'01'), int(B'10'), int(B'11') /)
-    integer :: avg_strtgy
+    integer :: avg_strtgy, env_len
+    character(len=255) :: env_strtgy
     real(kind=dp) :: strtgy_time(4)
 
     call gs_free(gs)
@@ -194,36 +195,55 @@ contains
           ! Select fastest device MPI strategy at runtime
           select type(c => gs%comm)
           type is (gs_device_mpi_t)
-             allocate(tmp(dofmap%size()))
-             call device_map(tmp, tmp_d, dofmap%size())
-             tmp = 1.0_rp
-             call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
-             
-             do i = 1, size(strtgy)          
-                c%nb_strtgy = strtgy(i)
-                call device_sync
-                call MPI_Barrier(NEKO_COMM)
-                strtgy_time(i) = MPI_Wtime()
-                do j = 1, 100
-                   call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
+             call get_environment_variable("NEKO_GS_STRTGY", env_strtgy, env_len)
+             if (env_len .eq. 0) then             
+                allocate(tmp(dofmap%size()))
+                call device_map(tmp, tmp_d, dofmap%size())
+                tmp = 1.0_rp
+                call device_memcpy(tmp, tmp_d, dofmap%size(), HOST_TO_DEVICE)
+                call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
+                   
+                do i = 1, size(strtgy)          
+                   c%nb_strtgy = strtgy(i)
+                   call device_sync
+                   call MPI_Barrier(NEKO_COMM)
+                   strtgy_time(i) = MPI_Wtime()
+                   do j = 1, 100
+                      call gs_op_vector(gs, tmp, dofmap%size(), GS_OP_ADD)
+                   end do
+                   strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
-                strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
-             end do
+                
+                call device_deassociate(tmp)
+                call device_free(tmp_d)
+                deallocate(tmp)
+                
+                c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
              
-             c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
+                avg_strtgy = minloc(strtgy_time, 1)
+                call MPI_Allreduce(MPI_IN_PLACE, avg_strtgy, 1, &
+                                   MPI_INTEGER, MPI_SUM, NEKO_COMM)
+                avg_strtgy = avg_strtgy / pe_size
+
+                write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', &
+                     strtgy(avg_strtgy),']'
+
+             else
+                read(env_strtgy(1:env_len), *) i
+
+                if (i .lt. 1 .or. i .gt. 4) then
+                   call neko_error('Invalid gs sync strtgy')
+                end if
+                
+                c%nb_strtgy = strtgy(i)
+                avg_strtgy = i
+
+                write(log_buf, '(A,B0.2,A)') 'Env. strtgy  :         [', &
+                     strtgy(avg_strtgy),']'
+             end if
              
-             avg_strtgy = minloc(strtgy_time, 1)
-             call MPI_Allreduce(MPI_IN_PLACE, avg_strtgy, 1, &
-                                MPI_INTEGER, MPI_SUM, NEKO_COMM)
-             avg_strtgy = avg_strtgy / pe_size
-             
-             write(log_buf, '(A,B0.2,A)') 'Avg. strtgy  :         [', &
-                  strtgy(avg_strtgy),']'
-             call neko_log%message(log_buf)
-             
-             call device_deassociate(tmp)
-             call device_free(tmp_d)
-             deallocate(tmp)
+             call neko_log%message(log_buf)             
+
           end select
        end if
     end if
@@ -1104,6 +1124,7 @@ contains
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
     type(MPI_Status) :: status
+    type(MPI_Request) :: send_req, recv_req
     integer :: i, j, max_recv, src, dst, ierr, n_recv
     integer :: tmp, shared_gs_id
     integer :: nshared_unique
@@ -1134,40 +1155,67 @@ contains
     allocate(recv_flg(max_recv))
 
     !> @todo Consider switching to a crystal router...
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
-
-       call MPI_Sendrecv(send_buf, nshared_unique, MPI_INTEGER8, dst, 0, &
-            recv_buf, max_recv, MPI_INTEGER8, src, 0, NEKO_COMM, status, ierr)
-       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
-
-       do j = 1, n_recv
-          shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
-          if (shared_flg(j) .eq. 0) then
-             !> @todo don't touch others data...
-             call gs%comm%recv_dof(src)%push(shared_gs_id)
-          end if
-       end do
-
-       if (gs%comm%recv_dof(src)%size() .gt. 0) then
-          call recv_pe%push(src)
+    do i = 1, size(gs%dofmap%msh%neigh_order)
+       src = modulo(pe_rank - gs%dofmap%msh%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(i), pe_size)
+       
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Irecv(recv_buf, max_recv, MPI_INTEGER8, &
+               src, 0, NEKO_COMM, recv_req, ierr)
        end if
 
-       call MPI_Sendrecv(shared_flg, n_recv, MPI_INTEGER2, src, 1, &
-            recv_flg, max_recv, MPI_INTEGER2, dst, 1, NEKO_COMM, status, ierr)
-       call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
+       if (gs%dofmap%msh%neigh(dst)) then
+          call MPI_Isend(send_buf, nshared_unique, MPI_INTEGER8, &
+               dst, 0, NEKO_COMM, send_req, ierr)
+       end if
 
-       do j = 1, n_recv
-          if (recv_flg(j) .eq. 0) then
-             tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
-             !> @todo don't touch others data...
-             call gs%comm%send_dof(dst)%push(shared_gs_id)
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+          
+          do j = 1, n_recv
+             shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
+             if (shared_flg(j) .eq. 0) then
+                !> @todo don't touch others data...
+                call gs%comm%recv_dof(src)%push(shared_gs_id)
+             end if
+          end do
+          
+          if (gs%comm%recv_dof(src)%size() .gt. 0) then
+             call recv_pe%push(src)
           end if
-       end do
+       end if
 
-       if (gs%comm%send_dof(dst)%size() .gt. 0) then
-          call send_pe%push(dst)
+       if (gs%dofmap%msh%neigh(dst)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
+          call MPI_Irecv(recv_flg, max_recv, MPI_INTEGER2, &
+               dst, 0, NEKO_COMM, recv_req, ierr)          
+       end if
+
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Isend(shared_flg, n_recv, MPI_INTEGER2, &
+               src, 0, NEKO_COMM, send_req, ierr)
+       end if
+
+       if (gs%dofmap%msh%neigh(dst)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
+       
+          do j = 1, n_recv
+             if (recv_flg(j) .eq. 0) then
+                tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
+                !> @todo don't touch others data...
+                call gs%comm%send_dof(dst)%push(shared_gs_id)
+             end if
+          end do
+
+          if (gs%comm%send_dof(dst)%size() .gt. 0) then
+             call send_pe%push(dst)
+          end if
+       end if
+
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
        end if
        
     end do

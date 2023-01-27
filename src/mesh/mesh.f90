@@ -92,6 +92,8 @@ module mesh
      type(stack_i4_t), allocatable :: point_neigh(:) !< Point to neigh. table
 
      type(distdata_t) :: ddata            !< Mesh distributed data
+     logical, allocatable :: neigh(:)     !< Neighbouring ranks
+     integer, allocatable :: neigh_order(:) !< Neighbour order
 
      integer(2), allocatable :: facet_type(:,:) !< Facet type     
      
@@ -282,6 +284,9 @@ contains
     call m%curve%init(m%nelv)
    
     call distdata_init(m%ddata)
+
+    allocate(m%neigh(0:pe_size-1))
+    m%neigh = .false.
     
     m%mpts = 0
     m%mfcs = 0
@@ -345,6 +350,13 @@ contains
        deallocate(m%labeled_zones)
     end if
 
+    if (allocated(m%neigh)) then
+       deallocate(m%neigh)
+    end if
+
+    if (allocated(m%neigh_order)) then
+       deallocate(m%neigh_order)
+    end if
 
     call m%wall%free()
     call m%inlet%free()
@@ -420,8 +432,9 @@ contains
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face, face_comp
     type(tuple_i4_t) :: facet_data
+    type(stack_i4_t) :: neigh_order
 
-    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes
+    integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
 
     if (m%lconn) return
 
@@ -498,7 +511,7 @@ contains
                   !if element is already recognized on face
                   if (facet_data%x(1) .eq. el_glb_idx ) then
                      m%facet_neigh(j, i) = facet_data%x(2)
-                     call m%elements(i)%e%facet_id(face_comp, j+(2*mod(j,2)-1))                  
+                     call m%elements(i)%e%facet_id(face_comp, j+(2*mod(j,2)-1)) 
                      if (face_comp .eq. face) then
                        facet_data%x(2) = el_glb_idx
                        m%facet_neigh(j, i) = facet_data%x(1)
@@ -534,9 +547,36 @@ contains
     ! Find all external (between PEs) boundaries
     !
     if (pe_size .gt. 1) then
-       call mesh_generate_external_facet_conn(m)
-
+       
        call mesh_generate_external_point_conn(m)
+
+       !
+       ! Generate neighbour exchange order
+       !
+       call neigh_order%init(pe_size)
+              
+       do i = 1, pe_size - 1
+          src = modulo(pe_rank - i + pe_size, pe_size)
+          dst = modulo(pe_rank + i, pe_size)
+          if (m%neigh(src) .or. m%neigh(dst)) then
+             j = i ! adhere to standards...
+             call neigh_order%push(j)      
+          end if
+       end do
+
+       allocate(m%neigh_order(neigh_order%size()))
+       select type(order => neigh_order%data)
+       type is (integer)
+          do i = 1, neigh_order%size()
+             m%neigh_order(i) = order(i)
+          end do
+       end select
+       call neigh_order%free()
+       
+       call mesh_generate_external_facet_conn(m)
+    else
+       allocate(m%neigh_order(1))
+       m%neigh_order = 1
     end if
 
     !
@@ -563,6 +603,7 @@ contains
     type(tuple_i4_t) :: facet_data
     type(stack_i4_t) :: buffer
     type(MPI_Status) :: status
+    type(MPI_Request) :: send_req, recv_req
     integer, allocatable :: recv_buffer(:)
     integer :: i, j, k, el_glb_idx, n_sides, n_nodes, facet, element, l
     integer :: max_recv, ierr, src, dst, n_recv, recv_side, neigh_el
@@ -610,96 +651,111 @@ contains
 
     allocate(recv_buffer(max_recv))
     
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
 
-       call MPI_Sendrecv(buffer%array(), buffer%size(), MPI_INTEGER, dst, 0, &
-            recv_buffer, max_recv, MPI_INTEGER, src, 0, NEKO_COMM, status, ierr)
+       if (m%neigh(src)) then
+          call MPI_Irecv(recv_buffer, max_recv, MPI_INTEGER, &
+               src, 0, NEKO_COMM, recv_req, ierr)
+       end if
 
-       call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+       if (m%neigh(dst)) then
+          call MPI_Isend(buffer%array(), buffer%size(), MPI_INTEGER, &
+               dst, 0, NEKO_COMM, send_req, ierr)
+       end if
 
-       select type (fmp => m%facet_map)
-       type is(htable_i4t2_t)
-          do j = 1, n_recv, n_nodes + 2
-             neigh_el = recv_buffer(j)
-             recv_side = recv_buffer(j+1)
+       if (m%neigh(src)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
 
-             edge = (/ recv_buffer(j+2), recv_buffer(j+3) /)
-             
-             facet_data = (/ 0, 0 /)
-             !Check if the face is present on this PE
-             if (fmp%get(edge, facet_data) .eq. 0) then
-                element = facet_data%x(1) - m%offset_el
-                !Check which side is connected
-                do l = 1, n_sides
-                   call m%elements(element)%e%facet_id(edge2, l)
-                   if(edge2 .eq. edge) then
-                      facet = l
-                      exit
+          select type (fmp => m%facet_map)
+          type is(htable_i4t2_t)
+             do j = 1, n_recv, n_nodes + 2
+                neigh_el = recv_buffer(j)
+                recv_side = recv_buffer(j+1)
+
+                edge = (/ recv_buffer(j+2), recv_buffer(j+3) /)
+
+                facet_data = (/ 0, 0 /)
+                !Check if the face is present on this PE
+                if (fmp%get(edge, facet_data) .eq. 0) then
+                   element = facet_data%x(1) - m%offset_el
+                   !Check which side is connected
+                   do l = 1, n_sides
+                      call m%elements(element)%e%facet_id(edge2, l)
+                      if(edge2 .eq. edge) then
+                         facet = l
+                         exit
+                      end if
+                   end do
+                   m%facet_neigh(facet, element) = -neigh_el
+                   facet_data%x(2) = -neigh_el
+
+                   !  Update facet map
+                   call fmp%set(edge, facet_data)
+
+                   call distdata_set_shared_el_facet(m%ddata, element, facet)
+
+                   if (m%hte%get(edge, facet) .eq. 0) then
+                      call distdata_set_shared_facet(m%ddata, facet)
+                   else
+                      call neko_error("Invalid shared edge")
                    end if
-                end do
-                m%facet_neigh(facet, element) = -neigh_el
-                facet_data%x(2) = -neigh_el
 
-                !  Update facet map
-                call fmp%set(edge, facet_data)
-
-                call distdata_set_shared_el_facet(m%ddata, element, facet)
-
-                if (m%hte%get(edge, facet) .eq. 0) then
-                   call distdata_set_shared_facet(m%ddata, facet)
-                else
-                   call neko_error("Invalid shared edge")
                 end if
-                
-             end if
-             
-          end do
-       type is(htable_i4t4_t)
-          do j = 1, n_recv, n_nodes + 2
-             neigh_el = recv_buffer(j)
-             recv_side = recv_buffer(j+1)
 
-             face%x = (/ recv_buffer(j+2), recv_buffer(j+3), &
-                         recv_buffer(j+4), recv_buffer(j+5) /)
-             
-               
-             facet_data%x = (/ 0, 0 /)
-            
-             !Check if the face is present on this PE
-             if (fmp%get(face, facet_data) .eq. 0) then
-                ! Determine opposite side and update neighbor
-                element = facet_data%x(1) - m%offset_el
-                do l = 1, 6
-                   call m%elements(element)%e%facet_id(face2, l)
-                   if(face2 .eq. face) then
-                      facet = l
-                      exit
+             end do
+          type is(htable_i4t4_t)
+             do j = 1, n_recv, n_nodes + 2
+                neigh_el = recv_buffer(j)
+                recv_side = recv_buffer(j+1)
+
+                face%x = (/ recv_buffer(j+2), recv_buffer(j+3), &
+                     recv_buffer(j+4), recv_buffer(j+5) /)
+
+
+                facet_data%x = (/ 0, 0 /)
+
+                !Check if the face is present on this PE
+                if (fmp%get(face, facet_data) .eq. 0) then
+                   ! Determine opposite side and update neighbor
+                   element = facet_data%x(1) - m%offset_el
+                   do l = 1, 6
+                      call m%elements(element)%e%facet_id(face2, l)
+                      if(face2 .eq. face) then
+                         facet = l
+                         exit
+                      end if
+                   end do
+                   m%facet_neigh(facet, element) = -neigh_el
+                   facet_data%x(2) = -neigh_el                   
+
+                   ! Update facet map
+                   call fmp%set(face, facet_data)
+
+                   call distdata_set_shared_el_facet(m%ddata, element, facet)
+
+                   if (m%htf%get(face, facet) .eq. 0) then
+                      call distdata_set_shared_facet(m%ddata, facet)
+                   else
+                      call neko_error("Invalid shared face")
                    end if
-                end do
-                m%facet_neigh(facet, element) = -neigh_el
-                facet_data%x(2) = -neigh_el                   
 
-                ! Update facet map
-                call fmp%set(face, facet_data)
-                
-                call distdata_set_shared_el_facet(m%ddata, element, facet)
-                
-                if (m%htf%get(face, facet) .eq. 0) then
-                   call distdata_set_shared_facet(m%ddata, facet)
-                else
-                   call neko_error("Invalid shared face")
+
                 end if
-                
 
-             end if
-             
-          end do
-       end select
+             end do
+          end select
+       end if
 
+       if (m%neigh(dst)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
+       end if
+       
     end do
 
+       
     deallocate(recv_buffer)
 
     call buffer%free()
@@ -755,6 +811,7 @@ contains
           ! Check if the point is present on this PE
           pt_loc_idx = mesh_have_point_glb_idx(m, pt_glb_idx)
           if (pt_loc_idx .gt. 0) then
+             m%neigh(src) = .true.
              do k = 1, num_neigh
                 neigh_el = -recv_buffer(j + 1 + k)
                 call m%point_neigh(pt_loc_idx)%push(neigh_el)
@@ -782,6 +839,7 @@ contains
     type(stack_i8_t), target :: send_buff
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
+    type(MPI_Request) :: send_req, recv_req
     integer, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
@@ -879,27 +937,41 @@ contains
 
     allocate(recv_buff(max_recv))
 
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
 
-       ! We should use the %array() procedure, which works great for
-       ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-       ! certain data types
-       select type(sbarray=>send_buff%data)
-       type is (integer(i8))
-          call MPI_Sendrecv(sbarray, send_buff%size(), &
-               MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
-               NEKO_COMM, status, ierr)
-       end select
-       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+       if (m%neigh(src)) then
+          call MPI_Irecv(recv_buff, max_recv, MPI_INTEGER8, &
+               src, 0, NEKO_COMM, recv_req, ierr)
+       end if
 
-       do j = 1, n_recv
-          if ((edge_idx%element(recv_buff(j))) .and. (src .lt. pe_rank)) then
-             call ghost%add(recv_buff(j))
-             call owner%remove(recv_buff(j))
-          end if
-       end do       
+       if (m%neigh(dst)) then
+          ! We should use the %array() procedure, which works great for
+          ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+          ! certain data types
+          select type(sbarray=>send_buff%data)
+          type is (integer(i8))
+             call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
+                  dst, 0, NEKO_COMM, send_req, ierr)
+          end select
+       end if
+
+       if (m%neigh(src)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+          
+          do j = 1, n_recv
+             if ((edge_idx%element(recv_buff(j))) .and. (src .lt. pe_rank)) then
+                call ghost%add(recv_buff(j))
+                call owner%remove(recv_buff(j))
+             end if
+          end do
+       end if
+
+       if (m%neigh(dst)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
+       end if
     end do
 
    
@@ -950,31 +1022,45 @@ contains
     allocate(recv_buff(max_recv))
 
 
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
 
-       ! We should use the %array() procedure, which works great for
-       ! GNU, Intel and NEC, but it breaks horribly on Cray when using
-       ! certain data types
-       select type(sbarray=>send_buff%data)
-       type is (integer(i8))
-          call MPI_Sendrecv(sbarray, send_buff%size(), &
-               MPI_INTEGER8, dst, 0, recv_buff, max_recv, MPI_INTEGER8, src, 0,&
-               NEKO_COMM, status, ierr)
-       end select
-       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+       if (m%neigh(src)) then
+          call MPI_Irecv(recv_buff, max_recv, MPI_INTEGER8, &
+               src, 0, NEKO_COMM, recv_req, ierr)
+       end if
 
-       do j = 1, n_recv, 2
-          if (ghost%element(recv_buff(j))) then
-             if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
-                n_glb_id = int(recv_buff(j + 1 ), 4)
-                call distdata_set_local_to_global_edge(m%ddata, id, n_glb_id)
-             else
-                call neko_error('Invalid edge id')
+       if (m%neigh(dst)) then
+          ! We should use the %array() procedure, which works great for
+          ! GNU, Intel and NEC, but it breaks horribly on Cray when using
+          ! certain data types
+          select type(sbarray=>send_buff%data)
+          type is (integer(i8))
+             call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
+                  dst, 0, NEKO_COMM, send_req, ierr)
+          end select
+       end if
+       
+       if (m%neigh(src)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+          
+          do j = 1, n_recv, 2
+             if (ghost%element(recv_buff(j))) then
+                if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
+                   n_glb_id = int(recv_buff(j + 1 ), 4)
+                   call distdata_set_local_to_global_edge(m%ddata, id, n_glb_id)
+                else
+                   call neko_error('Invalid edge id')
+                end if
              end if
-          end if
-       end do       
+          end do
+       end if
+
+       if (m%neigh(dst)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
+       end if
     end do
 
     deallocate(recv_buff)
@@ -1003,6 +1089,7 @@ contains
     type(htable_i4t2_t) :: edge_ghost
     type(stack_i4_t) :: send_buff
     type(MPI_Status) :: status
+    type(MPI_Request) :: send_req, recv_req
     integer, allocatable :: recv_buff(:)
     integer :: non_shared_facets, shared_facets, facet_offset    
     integer :: id, glb_nshared, shared_offset, owned_facets
@@ -1164,40 +1251,54 @@ contains
     allocate(recv_buff(max_recv))    
 
     !> @todo Since we now the neigh. we can actually do p2p here...
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
-       
-       call MPI_Sendrecv(send_buff%array(), send_buff%size(), &
-            MPI_INTEGER, dst, 0, recv_buff, max_recv, MPI_INTEGER, src, 0,&
-            NEKO_COMM, status, ierr)
-       
-       call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
-          
-       if (m%gdim .eq. 2) then
-          do j = 1, n_recv, 3
-             
-             recv_edge = (/recv_buff(j), recv_buff(j+1)/)
-             
-             ! Check if the PE has the shared edge
-             if (edge_ghost%get(recv_edge, id) .eq. 0) then
-                call distdata_set_local_to_global_facet(m%ddata, &
-                     id, recv_buff(j+2))
-             end if
-          end do
-       else             
-          do j = 1, n_recv, 5
-             
-             recv_face = (/recv_buff(j), recv_buff(j+1), &
-                  recv_buff(j+2), recv_buff(j+3) /)
-             
-             ! Check if the PE has the shared face
-             if (face_ghost%get(recv_face, id) .eq. 0) then
-                call distdata_set_local_to_global_facet(m%ddata, &
-                     id, recv_buff(j+4))
-             end if
-          end do
+    do i = 1, size(m%neigh_order)
+       src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + m%neigh_order(i), pe_size)
+
+       if (m%neigh(src)) then
+          call MPI_Irecv(recv_buff, max_recv, MPI_INTEGER, &
+               src, 0, NEKO_COMM, recv_req, ierr)
        end if
+
+       if (m%neigh(dst)) then
+          call MPI_Isend(send_buff%array(), send_buff%size(), MPI_INTEGER, &
+               dst, 0, NEKO_COMM, send_req, ierr)
+       end if
+       
+       if (m%neigh(src)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
+          
+          if (m%gdim .eq. 2) then
+             do j = 1, n_recv, 3
+             
+                recv_edge = (/recv_buff(j), recv_buff(j+1)/)
+             
+                ! Check if the PE has the shared edge
+                if (edge_ghost%get(recv_edge, id) .eq. 0) then
+                   call distdata_set_local_to_global_facet(m%ddata, &
+                        id, recv_buff(j+2))
+                end if
+             end do
+          else             
+             do j = 1, n_recv, 5
+                
+                recv_face = (/recv_buff(j), recv_buff(j+1), &
+                     recv_buff(j+2), recv_buff(j+3) /)
+                
+                ! Check if the PE has the shared face
+                if (face_ghost%get(recv_face, id) .eq. 0) then
+                   call distdata_set_local_to_global_facet(m%ddata, &
+                        id, recv_buff(j+4))
+                end if
+             end do
+          end if
+       end if
+
+       if (m%neigh(dst)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
+       end if
+       
     end do
 
     if (m%gdim .eq. 2) then
@@ -1612,10 +1713,10 @@ contains
                                                        5,6,8,7/),&
                                                        (/4,6/))
     integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
-                                                                2,4,&
-                                                                1,2,&
-                                                                3,4 /),&
-                                                                (/2,4/))
+                                                       2,4,&
+                                                       1,2,&
+                                                       3,4 /),&
+                                                      (/2,4/))
   
     select type(ele => m%elements(e)%e)
     type is(hex_t)
@@ -1731,18 +1832,21 @@ contains
           call mesh_add_point(m,pi,id)
           p_local_idx = mesh_get_local(m, m%points(id))
           id = ele%id()
-          call m%point_neigh(p_local_idx)%push(id)
+          if (m%lgenc) then
+             call m%point_neigh(p_local_idx)%push(id)
+          end if
        end do
+       if (m%lgenc) then
+          do i = 1, NEKO_HEX_NFCS
+             call ele%facet_id(ft, i)
+             call mesh_add_face(m, ft)
+          end do
 
-       do i = 1, NEKO_HEX_NFCS
-          call ele%facet_id(ft, i)
-          call mesh_add_face(m, ft)
-       end do
-
-       do i = 1, NEKO_HEX_NEDS
-          call ele%edge_id(et, i)
-          call mesh_add_edge(m, et)
-       end do
+          do i = 1, NEKO_HEX_NEDS
+             call ele%edge_id(et, i)
+             call mesh_add_edge(m, et)
+          end do
+       end if
     end select
 
   end subroutine mesh_apply_periodic_facet

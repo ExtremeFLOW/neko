@@ -163,11 +163,8 @@ contains
 
     res = .false.
     select type(other)
-    type is(tuple_i4_t) 
-       if ((this%x(1) .eq. other%x(1)) .and. &
-            (this%x(2) .eq. other%x(2))) then
-          res = .true.
-       end if
+    type is(tuple_i4_t)
+       res = all(this%x .eq. other%x)
     end select
   end function tuple_i4_equal
 
@@ -202,11 +199,7 @@ contains
     res = .false.
     select type(other)
     type is(tuple3_i4_t)
-       if ((this%x(1) .eq. other%x(1)) .and. &
-            (this%x(2) .eq. other%x(2)) .and. &
-            (this%x(3) .eq. other%x(3))) then
-          res = .true.
-       end if
+       res = all(this%x .eq. other%x)
     end select
   end function tuple3_i4_equal
   
@@ -241,12 +234,7 @@ contains
     res = .false.
     select type(other)
     type is(tuple4_i4_t)
-       if ((this%x(1) .eq. other%x(1)) .and. &
-            (this%x(2) .eq. other%x(2)) .and. &
-            (this%x(3) .eq. other%x(3)) .and. &
-            (this%x(4) .eq. other%x(4))) then
-          res = .true.
-       end if
+       res = all(this%x .eq. other%x)
     end select
   end function tuple4_i4_equal
 

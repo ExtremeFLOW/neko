@@ -32,50 +32,40 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <math/bcknd/device/cuda/math_kernel.h>
-
 /**
- * Kernel for back-substitution of x and update of p
+ * C wrapper for MPI calls, until we integrate with NCCL/RCCL
+ * @note We use @c MPI_COMM_WORLD which @e should be equal to @c NEKO_COMM.
  */
-template< typename T >
-__global__ void gmres_part2_kernel(T  * __restrict__  w,
-                                   T * const * __restrict__ v,
-                                   const T * __restrict__ mult,
-                                   const T * __restrict__ h,
-                                   T * __restrict__ buf_h1,
-                                   const int j,
-                                   const int n) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+#include <stdlib.h>
+#include <stdio.h>
+#include <mpi.h>
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
-  
-  __shared__ T shared[32];
-  T tmp1 = 0.0;
+void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes) {
 
-  for (int i = idx; i < n; i+= str) {
-    T tmp = 0.0;
-    for (int k = 0; k < j; k ++) {
-      tmp += -h[k]*v[k][i];
-    }
-    w[i] += tmp;
-    tmp1 += w[i]*w[i]*mult[i];
+  if (nbytes == sizeof(float)) {
+    MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
   }
-
-  tmp1 = reduce_warp<T>(tmp1);
-  if (lane == 0)
-    shared[wid] = tmp1;
-  __syncthreads();
-
-  tmp1 = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
-  if (wid == 0)
-    tmp1 = reduce_warp<T>(tmp1);
-
-  if (threadIdx.x == 0)
-    buf_h1[blockIdx.x] = tmp1;
-
+  else if (nbytes == sizeof(double)) {
+    MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else {
+    fprintf(stderr, __FILE__ ": Invalid data type)\n");
+    exit(1);
+  }
 }
 
+void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes) {
+
+  if (nbytes == sizeof(float)) {
+    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else if (nbytes == sizeof(double)) {
+    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  }
+  else {
+    fprintf(stderr, __FILE__ ": Invalid data type)\n");
+    exit(1);
+  }
+}
 

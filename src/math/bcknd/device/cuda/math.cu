@@ -35,9 +35,13 @@
 #include "math_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+  
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
    */
@@ -236,7 +240,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     invcol2_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                               (real *) b, *n);
+                                             (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -371,8 +375,14 @@ extern "C" {
     reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
+
     return bufred[0];
   }
   
@@ -407,8 +417,13 @@ extern "C" {
     glsc3_reduce_kernel<<<(*j),1024>>> (bufred_d, nb, *j);
     CUDA_CHECK(cudaGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
+#else    
     CUDA_CHECK(cudaMemcpy(h, bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
   }
 
   /**
@@ -437,9 +452,14 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
-    
+
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
 
     return bufred[0];
   }
@@ -468,9 +488,14 @@ extern "C" {
     reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));    
-
+#endif
+    
     return bufred[0];
   }
 

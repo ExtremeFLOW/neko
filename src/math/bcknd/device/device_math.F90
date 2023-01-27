@@ -1165,10 +1165,12 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsc3
   
   subroutine device_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
@@ -1185,10 +1187,13 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
+
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, h, j, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end subroutine device_glsc3_many
   
   subroutine device_add2s2_many(y_d,x_d_d,a_d,j,n)
@@ -1219,10 +1224,12 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsc2
 
   function device_glsum(a_d, n) result(res)
@@ -1239,10 +1246,12 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsum
   
  

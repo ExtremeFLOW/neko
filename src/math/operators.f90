@@ -214,8 +214,10 @@ contains
        cfl = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
     end if
 
-    call MPI_Allreduce(MPI_IN_PLACE, cfl, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    if (.not. NEKO_DEVICE_MPI) then
+       call MPI_Allreduce(MPI_IN_PLACE, cfl, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
     
   end function cfl
   
