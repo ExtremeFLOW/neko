@@ -45,7 +45,7 @@ contains
     
   end subroutine fld_file_data_init
 
-  !> Deallocate a vector
+  !> Deallocate fld file data type
   subroutine fld_file_data_free(this)
     class(fld_file_data_t), intent(inout) :: this
     integer :: i
