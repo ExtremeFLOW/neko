@@ -1,3 +1,4 @@
 SUBDIRS = rea2nbin\
 	  prepart\
-	  genmeshbox
+	  genmeshbox\
+	  average_fields
