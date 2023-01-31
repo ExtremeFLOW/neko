@@ -60,6 +60,10 @@ module fld_file
      procedure :: set_precision => fld_file_set_precision
   end type fld_file_t
 
+  type, private :: array_ptr_t
+     real(kind=rp), pointer :: x(:)
+  end type array_ptr_t
+
 contains
 
   !> Write fields to a NEKTON fld file
@@ -68,10 +72,10 @@ contains
     class(fld_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    type(field_t), pointer :: u, v, w, p
+    type(array_ptr_t) :: x, y, z, u, v, w, p, tem
     type(mesh_t), pointer :: msh
-    type(space_t), pointer :: Xh
     type(dofmap_t), pointer :: dof
+    type(space_t), pointer :: Xh
     real(kind=dp) :: time
     character(len=132) :: hdr
     character :: rdcode(10)
@@ -79,15 +83,14 @@ contains
     character(len=1024) :: fname
     character(len=1024) :: start_field
     integer :: i, ierr, n, j,k,l,el, suffix_pos,tslash_pos
+    integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
     integer, allocatable :: idx(:)
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
-    real(kind=dp), allocatable :: tmp_dp(:)
-    real(kind=sp), allocatable :: tmp_sp(:)
     real(kind=sp), parameter :: test_pattern = 6.54321
-    type(field_ptr_t), allocatable :: scalar_fields(:)
-    logical :: write_mesh, write_velocity, write_pressure
+    type(array_ptr_t), allocatable :: scalar_fields(:)
+    logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: FLD_DATA_SIZE, n_scalar_fields
 
     if (present(t)) then
@@ -95,107 +98,161 @@ contains
     else
        time = 0d0
     end if
-
-    n_scalar_fields = 0
     
+    nullify(msh)
+    nullify(dof)
+    nullify(Xh)
+    n_scalar_fields = 0
+    write_pressure = .false.
+    write_velocity = .false.
+    write_temperature = .false.
+
     select type(data)
+    type is (fld_file_data_t)
+       if (data%x%n .gt. 0) x%x => data%x%x
+       if (data%y%n .gt. 0) y%x => data%y%x
+       if (data%z%n .gt. 0) z%x => data%z%x
+       if (data%u%n .gt. 0) then 
+          u%x => data%u%x
+          write_velocity = .true.
+       end if
+       if (data%v%n .gt. 0) v%x => data%v%x
+       if (data%w%n .gt. 0) w%x => data%w%x
+       if (data%p%n .gt. 0) then 
+          p%x => data%p%x
+          write_pressure = .true.
+       end if
+       if (data%t%n .gt. 0) then
+          write_temperature = .true.
+          tem%x => data%t%x
+       end if
+       n_scalar_fields = data%n_scalars
+       allocate(scalar_fields(n_scalar_fields))
+       do i = 1, n_scalar_fields
+            scalar_fields(i)%x => data%s(i)%x
+       end do
+       nelv = data%nelv
+       lx = data%lx
+       ly = data%ly
+       lz = data%lz
+       gdim = data%gdim
+       glb_nelv = data%glb_nelv
+       offset_el = data%offset_el
+ 
+       allocate(idx(nelv))
+       do i = 1, nelv
+          idx(i) = data%idx(i)
+       end do
     type is (field_t)
-       p => data
-       msh => p%msh
-       Xh => p%Xh
-       dof => p%dof
+       p%x => data%x(:,1,1,1)
+       dof => data%dof
        write_pressure = .true.
        write_velocity = .false.
     type is (field_list_t)
        select case (size(data%fields))
        case (1)
-          p => data%fields(1)%f
+          p%x => data%fields(1)%f%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .false.
        case (2)
-          p => data%fields(1)%f
-          u => data%fields(2)%f
-          v => data%fields(1)%f
-          w => data%fields(2)%f
+          p%x => data%fields(1)%f%x(:,1,1,1)
+          tem%x => data%fields(2)%f%x(:,1,1,1)
           write_pressure = .true.
-          write_velocity = .true.
+          write_temperature = .true.
        case (3)
-          u => data%fields(1)%f
-          v => data%fields(2)%f
-          w => data%fields(3)%f
-          p => data%fields(1)%f
-          write_pressure = .true.
+          u%x => data%fields(1)%f%x(:,1,1,1)
+          v%x => data%fields(2)%f%x(:,1,1,1)
+          w%x => data%fields(3)%f%x(:,1,1,1)
           write_velocity = .true.
        case (4)
-          p => data%fields(1)%f
-          u => data%fields(2)%f
-          v => data%fields(3)%f
-          w => data%fields(4)%f
+          p%x => data%fields(1)%f%x(:,1,1,1)
+          u%x => data%fields(2)%f%x(:,1,1,1)
+          v%x => data%fields(3)%f%x(:,1,1,1)
+          w%x => data%fields(4)%f%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .true.
       case (5:99)
-          p => data%fields(1)%f
-          u => data%fields(2)%f
-          v => data%fields(3)%f
-          w => data%fields(4)%f
-          !First field here will be stored in "temperature"
-          n_scalar_fields = size(data%fields) - 4
+          p%x => data%fields(1)%f%x(:,1,1,1)
+          u%x => data%fields(2)%f%x(:,1,1,1)
+          v%x => data%fields(3)%f%x(:,1,1,1)
+          w%x => data%fields(4)%f%x(:,1,1,1)
+          tem%x => data%fields(5)%f%x(:,1,1,1)
+          n_scalar_fields = size(data%fields) - 5
           allocate(scalar_fields(n_scalar_fields))
-          do i = 5,size(data%fields)
-             scalar_fields(i-4) = data%fields(i)
+          do i = 1,n_scalar_fields
+             scalar_fields(i)%x => data%fields(i+5)%f%x(:,1,1,1)
           end do
           write_pressure = .true.
           write_velocity = .true.
+          write_temperature = .true.
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select
+       dof => data%fields(1)%f%dof 
 
-       msh => p%msh
-       Xh => p%Xh
-       dof => p%dof
     class is (fluid_scheme_t)
-       u => data%u
-       v => data%v
-       w => data%w
-       p => data%p
-       msh => p%msh              
-       Xh => p%Xh
-       dof => p%dof
+       u%x => data%u%x(:,1,1,1)
+       v%x => data%v%x(:,1,1,1)
+       w%x => data%w%x(:,1,1,1)
+       p%x => data%p%x(:,1,1,1)
+       dof => data%u%dof
        write_pressure = .true.
        write_velocity = .true.
     type is (mean_flow_t)
-       u => data%u%mf
-       v => data%v%mf
-       w => data%w%mf
-       p => data%p%mf
-       msh => p%msh              
-       Xh => p%Xh
-       dof => p%dof
+       u%x => data%u%mf%x(:,1,1,1)
+       v%x => data%v%mf%x(:,1,1,1)
+       w%x => data%w%mf%x(:,1,1,1)
+       p%x => data%p%mf%x(:,1,1,1)
+       dof => data%u%mf%dof
        write_pressure = .true.
        write_velocity = .true.
     type is (mean_sqr_flow_t)
-       u => data%uu%mf
-       v => data%vv%mf
-       w => data%ww%mf
-       p => data%pp%mf
-       msh => p%msh              
-       Xh => p%Xh
-       dof => p%dof
+       u%x => data%uu%mf%x(:,1,1,1)
+       v%x => data%vv%mf%x(:,1,1,1)
+       w%x => data%ww%mf%x(:,1,1,1)
+       p%x => data%pp%mf%x(:,1,1,1)
+       dof => data%pp%mf%dof              
        write_pressure = .true.
        write_velocity = .true.
     class is (scalar_scheme_t)
-       u => data%u
-       v => data%v
-       w => data%w
-       p => data%s
-       msh => p%msh
-       Xh => p%Xh
-       dof => p%dof
-       write_pressure = .true.
-       write_velocity = .false.
+       u%x => data%u%x(:,1,1,1)
+       v%x => data%v%x(:,1,1,1)
+       w%x => data%w%x(:,1,1,1)
+       tem%x => data%s%x(:,1,1,1)
+       dof => data%s%dof
+       write_temperature = .true.
     class default
        call neko_error('Invalid data')
     end select
+    ! Fix things for pointers that do not exist in all data types...
+    if (associated(dof)) then
+       x%x => dof%x(:,1,1,1)
+       y%x => dof%y(:,1,1,1)
+       z%x => dof%z(:,1,1,1)
+       msh => dof%msh
+       Xh => dof%Xh
+    end if
+
+    if (associated(msh)) then
+       nelv = msh%nelv
+       glb_nelv = msh%glb_nelv
+       offset_el = msh%offset_el
+       gdim = msh%gdim
+       ! Store global idx of each element
+       allocate(idx(msh%nelv))
+       do i = 1, msh%nelv
+          idx(i) = msh%elements(i)%e%id()
+       end do
+    end if
+
+    if (associated(Xh)) then
+       lx = Xh%lx
+       ly = Xh%ly
+       lz = Xh%lz
+    end if
+
+    lxyz = lx*ly*lz
+    n = nelv*lxyz
 
     if (this%dp_precision) then
        FLD_DATA_SIZE = MPI_DOUBLE_PRECISION_SIZE
@@ -226,30 +283,24 @@ contains
        rdcode(i) = 'P'
        i = i + 1
     end if
-    if (n_scalar_fields .gt. 0) then
+    if (write_temperature) then
        rdcode(i) = 'T'
        i = i + 1
     end if
-    if (n_scalar_fields .gt. 1 ) then
+    if (n_scalar_fields .gt. 0 ) then
        rdcode(i) = 'S'
        i = i + 1
-       write(rdcode(i), '(i1)') (n_scalar_fields-1)/10
+       write(rdcode(i), '(i1)') (n_scalar_fields)/10
        i = i + 1
-       write(rdcode(i), '(i1)') (n_scalar_fields-1) - 10*((n_scalar_fields-1)/10)
+       write(rdcode(i), '(i1)') (n_scalar_fields) - 10*((n_scalar_fields)/10)
        i = i + 1
     end if
 
     !> @todo fix support for single precision output?
-    write(hdr, 1) FLD_DATA_SIZE, Xh%lx, Xh%ly, Xh%lz,msh%glb_nelv,msh%glb_nelv,&
+    write(hdr, 1) FLD_DATA_SIZE, lx, ly, lz,glb_nelv,glb_nelv,&
          time, this%counter, 1, 1, (rdcode(i),i=1,10)
 1   format('#std',1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
          1x,i9,1x,i6,1x,i6,1x,10a)
-
-    ! Store global idx of each element
-    allocate(idx(msh%nelv))
-    do i = 1, msh%nelv
-       idx(i) = msh%elements(i)%e%id()
-    end do
 
     ! Change to NEKTON's fld file format
     suffix_pos = filename_suffix_pos(this%fname)
@@ -266,210 +317,65 @@ contains
     mpi_offset = mpi_offset  + MPI_REAL_SIZE
 
     byte_offset = mpi_offset + &
-         int(msh%offset_el, i8) * int(MPI_INTEGER_SIZE, i8)
-    call MPI_File_write_at_all(fh, byte_offset, idx, msh%nelv, &
+         int(offset_el, i8) * int(MPI_INTEGER_SIZE, i8)
+    call MPI_File_write_at_all(fh, byte_offset, idx, nelv, &
          MPI_INTEGER, status, ierr)
-    mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
+    mpi_offset = mpi_offset + int(glb_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
 
     deallocate(idx)
     
-    n = msh%gdim*(Xh%lx * Xh%ly * Xh%lz * msh%nelv)
-
-    if (this%dp_precision) then
-       allocate(tmp_dp(n))
-    else
-       allocate(tmp_sp(n))
-    end if
-       
     if (write_mesh) then
 
-       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
-            (int(msh%gdim*Xh%lxyz, i8) * &
+       byte_offset = mpi_offset + int(offset_el, i8) * &
+            (int(gdim*lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
        
-       if (this%dp_precision) then
-          i = 1
-          do el = 1, msh%nelv
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_dp(i) = real(dof%x(j,k,l,el),dp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_dp(i) = real(dof%y(j,k,l,el),dp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             if (msh%gdim .eq. 3) then
-                do l = 1, Xh%lz
-                   do k = 1, Xh%ly
-                      do j = 1, Xh%lx
-                         tmp_dp(i) = real(dof%z(j,k,l,el),dp)
-                         i = i +1
-                      end do
-                   end do
-                end do
-             end if
-          end do
-          
-          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
-               MPI_DOUBLE_PRECISION, status, ierr)
-          
-       else
-          i = 1
-          do el = 1, msh%nelv
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_sp(i) = real(dof%x(j,k,l,el),sp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_sp(i) = real(dof%y(j,k,l,el),sp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             if (msh%gdim .eq. 3) then
-                do l = 1, Xh%lz
-                   do k = 1, Xh%ly
-                      do j = 1, Xh%lx
-                         tmp_sp(i) = real(dof%z(j,k,l,el),sp)
-                         i = i +1
-                      end do
-                   end do
-                end do
-             end if
-          end do
-          
-          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
-               MPI_REAL, status, ierr)
-          
-       end if
-
-       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
-            (int(msh%gdim *Xh%lxyz, i8) * & 
+       call fld_file_write_vector_field(this, fh, byte_offset, x%x, y%x, z%x, n, gdim, lxyz, nelv)
+       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
+            (int(gdim *lxyz, i8) * & 
             int(FLD_DATA_SIZE, i8))
     end if
 
     if (write_velocity) then
-       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
-            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), i8) * &
+       byte_offset = mpi_offset + int(offset_el, i8) * &
+            (int(gdim * (lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
+       call fld_file_write_vector_field(this, fh, byte_offset, u%x, v%x, w%x, n, gdim, lxyz, nelv)
 
-       if (this%dp_precision) then
-          i = 1
-          do el = 1, msh%nelv
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_dp(i) = real(u%x(j,k,l,el),dp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_dp(i) = real(v%x(j,k,l,el),dp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             if (msh%gdim .eq. 3) then
-                do l = 1, Xh%lz
-                   do k = 1, Xh%ly
-                      do j = 1, Xh%lx
-                         tmp_dp(i) = real(w%x(j,k,l,el),dp)
-                         i = i +1
-                      end do
-                   end do
-                end do
-             end if
-          end do
-          
-          call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
-               MPI_DOUBLE_PRECISION, status, ierr)
-          
-       else
-          i = 1
-          do el = 1, msh%nelv
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_sp(i) = real(u%x(j,k,l,el),sp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             do l = 1, Xh%lz
-                do k = 1, Xh%ly
-                   do j = 1, Xh%lx
-                      tmp_sp(i) = real(v%x(j,k,l,el),sp)
-                      i = i +1
-                   end do
-                end do
-             end do
-             if (msh%gdim .eq. 3) then
-                do l = 1, Xh%lz
-                   do k = 1, Xh%ly
-                      do j = 1, Xh%lx
-                         tmp_sp(i) = real(w%x(j,k,l,el),sp)
-                         i = i +1
-                      end do
-                   end do
-                end do
-             end if
-          end do
-
-          call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
-               MPI_REAL, status, ierr)
-
-       end if
-       
-       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
-            (int(msh%gdim * (Xh%lx * Xh%ly * Xh%lz), i8) * &
+       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
+            (int(gdim * (lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
        
-    end if
- 
-    if (allocated(tmp_dp)) then
-       deallocate(tmp_dp)
-    end if
-
-    if (allocated(tmp_sp)) then
-       deallocate(tmp_sp)
     end if
 
     if (write_pressure) then
-       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
-            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+       byte_offset = mpi_offset + int(offset_el, i8) * &
+            (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field(this, fh, p, byte_offset)
-       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
-            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+       call fld_file_write_field(this, fh, byte_offset, p%x, n)
+       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
+            (int((lxyz), i8) * &
+            int(FLD_DATA_SIZE, i8))
+    end if
+
+    if (write_temperature) then
+       byte_offset = mpi_offset + int(offset_el, i8) * &
+            (int((lxyz), i8) * &
+            int(FLD_DATA_SIZE, i8))
+       call fld_file_write_field(this, fh, byte_offset, tem%x, n)
+       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
+            (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
     end if
     do i = 1, n_scalar_fields
-       byte_offset = mpi_offset + int(msh%offset_el, i8) * &
-            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+       byte_offset = mpi_offset + int(offset_el, i8) * &
+            (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-       call fld_file_write_field(this, fh, scalar_fields(i)%f, byte_offset)
-       mpi_offset = mpi_offset + int(msh%glb_nelv, i8) * &
-            (int((Xh%lx * Xh%ly * Xh%lz), i8) * &
+       call fld_file_write_field(this, fh, byte_offset, scalar_fields(i)%x, n)
+       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
+            (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
     end do
-    
     
     call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
@@ -492,18 +398,17 @@ contains
     
   end subroutine fld_file_write
 
-  subroutine fld_file_write_field(this, fh, p, byte_offset)
+  subroutine fld_file_write_field(this, fh, byte_offset, p, n)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
-    type(field_t), intent(in) :: p
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: p(n)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
     real(kind=dp), allocatable :: tmp_dp(:)
     real(kind=sp), allocatable :: tmp_sp(:)
-    integer :: i, el, l, k, j, ierr, n
+    integer :: i, ierr
     type(MPI_Status) :: status
 
-    associate(msh => p%msh, Xh => p%Xh)
-    n = p%dof%size()
     if (this%dp_precision) then
        allocate(tmp_dp(n))
     else
@@ -511,38 +416,88 @@ contains
     end if
      
     if (.not. this%dp_precision) then
-       i = 1
-       do el = 1, msh%nelv
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp_sp(i) = real(p%x(j,k,l,el),sp)
-                   i = i + 1
-                end do
-             end do
-          end do
+       do i = 1, n
+          tmp_sp(i) = real(p(i),sp)
        end do
        
        call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
             MPI_REAL, status, ierr)
     else
-       i = 1
-       do el = 1, msh%nelv
-          do l = 1, Xh%lz
-             do k = 1, Xh%ly
-                do j = 1, Xh%lx
-                   tmp_dp(i) = real(p%x(j,k,l,el),dp)
-                   i = i + 1
-                end do
-             end do
-          end do
+       do i = 1, n
+          tmp_dp(i) = real(p(i),dp)
        end do
        call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
             MPI_DOUBLE_PRECISION, status, ierr)
     end if
-    end associate
+    
+    if (allocated(tmp_dp)) deallocate(tmp_dp)
+    if (allocated(tmp_sp)) deallocate(tmp_sp)
   end subroutine fld_file_write_field
-  
+ 
+  subroutine fld_file_write_vector_field(this, fh, byte_offset, x, y, z, n, gdim, lxyz, nelv)
+    class(fld_file_t), intent(inout) :: this
+    type(MPI_File), intent(inout) :: fh
+    integer, intent(in) :: n, gdim, lxyz, nelv
+    real(kind=rp), intent(in) :: x(lxyz,nelv), y(lxyz,nelv), z(lxyz,nelv)
+    integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
+    real(kind=dp), allocatable :: tmp_dp(:)
+    real(kind=sp), allocatable :: tmp_sp(:)
+    integer :: i, el, j, ierr
+    type(MPI_Status) :: status
+
+    if (this%dp_precision) then
+       allocate(tmp_dp(gdim*n))
+    else
+       allocate(tmp_sp(gdim*n))
+    end if
+     
+    if (this%dp_precision) then
+       i = 1
+       do el = 1, nelv
+          do j = 1, lxyz
+             tmp_dp(i) = real(x(j,el),dp)
+             i = i +1
+          end do
+          do j = 1, lxyz
+             tmp_dp(i) = real(y(j,el),dp)
+             i = i +1
+          end do
+          if (gdim .eq. 3) then
+             do j = 1, lxyz
+                tmp_dp(i) = real(z(j,el),dp)
+                i = i +1
+             end do
+          end if
+       end do
+       call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
+            MPI_DOUBLE_PRECISION, status, ierr)
+    else
+       i = 1
+       do el = 1, nelv
+          do j = 1, lxyz
+             tmp_sp(i) = real(x(j,el),sp)
+             i = i +1
+          end do
+          do j = 1, lxyz
+             tmp_sp(i) = real(y(j,el),sp)
+             i = i +1
+          end do
+          if (gdim .eq. 3) then
+             do j = 1, lxyz
+                tmp_sp(i) = real(z(j,el),sp)
+                i = i +1
+             end do
+          end if
+       end do
+       call MPI_File_write_at_all(fh, byte_offset, tmp_sp, gdim*n, &
+            MPI_REAL, status, ierr)
+    end if
+
+    if (allocated(tmp_dp)) deallocate(tmp_dp)
+    if (allocated(tmp_sp)) deallocate(tmp_sp)
+
+  end subroutine fld_file_write_vector_field
+       
   !> Load a field from a NEKTON fld file
   subroutine fld_file_read(this, data)
     class(fld_file_t) :: this
@@ -560,16 +515,17 @@ contains
     integer :: FLD_DATA_SIZE, n_scalars, n, nd
     real(kind=rp) ::  time 
     real(kind=sp) :: temp
+    type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
     character :: rdcode(10),temp_str(4)
     select type(data)
     type is (fld_file_data_t)
       call filename_chsuffix(this%fname, meta_fname,'nek5000')
 
-      inquire(file=meta_fname, exist=meta_file)
+      inquire(file=trim(meta_fname), exist=meta_file)
       if (meta_file .and. data%meta_nsamples .eq. 0) then
          if (pe_rank .eq. 0) then
-            open(unit=9, file=meta_fname)
+            open(unit=9, file=trim(meta_fname))
             read(9, fmt='(A)') string
             read(string(14:),fmt='(A)') string
             string = trim(string)
@@ -581,11 +537,14 @@ contains
             read(string(scan(string,':')+1:),*) data%meta_nsamples
 
             close(9)
+            write(*,*) 'Reading meta file for fld series'
+            write(*,*) 'Name: ', trim(data%fld_series_fname)
+            write(*,*) 'Start counter: ', data%meta_start_counter, 'Nsamples: ', data%meta_nsamples
          end if
          call MPI_Bcast(data%fld_series_fname, 1024, MPI_CHARACTER, 0, NEKO_COMM, ierr)
          call MPI_Bcast(data%meta_start_counter, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
          call MPI_Bcast(data%meta_nsamples, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-         this%counter = data%meta_start_counter
+         if(this%counter .eq. 0) this%counter = data%meta_start_counter
       end if
 
       if (meta_file) then
@@ -608,7 +567,11 @@ contains
           time, counter, i, j, (rdcode(i),i=1,10)
 1     format(4a,1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
          1x,i9,1x,i6,1x,i6,1x,10a)
-       
+      if (data%nelv .eq. 0) then
+         dist = linear_dist_t(glb_nelv, pe_rank, pe_size, NEKO_COMM)
+         data%nelv = dist%num_local()
+         data%offset_el = dist%start_idx()
+      end if
       data%lx = lx
       data%ly = ly
       data%lz = lz
@@ -663,7 +626,12 @@ contains
       n_scalars = 0
       if (rdcode(i) .eq. 'S') then
          i = i + 1
-         read(rdcode(i:),*) n_scalars
+         read(rdcode(i),*) n_scalars
+         n_scalars = n_scalars*10
+         i = i + 1
+         read(rdcode(i),*) j
+         n_scalars = n_scalars+j
+         i = i + 1
          if (allocated(data%s)) then
             if (data%n_scalars .ne. n_scalars) then
                do j = 1, data%n_scalars
@@ -678,7 +646,7 @@ contains
             end if
          else
             data%n_scalars = n_scalars
-            allocate(data%idx(data%nelv))
+            allocate(data%s(data%n_scalars))
             do j = 1, data%n_scalars
                call data%s(j)%init(n)
             end do
@@ -705,7 +673,7 @@ contains
       end if
       
       byte_offset = mpi_offset + &
-           int(data%offset_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
+           int(data%offset_el, i8) * int(MPI_INTEGER_SIZE, i8)
 
       call MPI_File_read_at_all(fh, byte_offset, data%idx, data%nelv, &
            MPI_INTEGER, status, ierr)
@@ -713,27 +681,27 @@ contains
       mpi_offset = mpi_offset + int(data%glb_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
       
       if (read_mesh) then
-         byte_offset = mpi_offset + int(data%offset_nelv, i8) * &
+         byte_offset = mpi_offset + int(data%offset_el, i8) * &
              (int(data%gdim*lxyz, i8) * &
               int(FLD_DATA_SIZE, i8))
-         call fld_file_read_3dfields(this, fh, byte_offset, data%x, data%y, data%z, data)
+         call fld_file_read_vector_field(this, fh, byte_offset, data%x, data%y, data%z, data)
          mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
              (int(data%gdim *lxyz, i8) * & 
               int(FLD_DATA_SIZE, i8))
       end if
 
       if (read_velocity) then
-         byte_offset = mpi_offset + int(data%offset_nelv, i8) * &
+         byte_offset = mpi_offset + int(data%offset_el, i8) * &
              (int(data%gdim*lxyz, i8) * &
               int(FLD_DATA_SIZE, i8))
-         call fld_file_read_3dfields(this, fh, byte_offset, data%u, data%v, data%w, data)
+         call fld_file_read_vector_field(this, fh, byte_offset, data%u, data%v, data%w, data)
          mpi_offset = mpi_offset + int(data%glb_nelv, i8) * &
              (int(data%gdim *lxyz, i8) * & 
               int(FLD_DATA_SIZE, i8))
       end if
 
       if (read_pressure) then
-         byte_offset = mpi_offset + int(data%offset_nelv, i8) * &
+         byte_offset = mpi_offset + int(data%offset_el, i8) * &
              (int(lxyz, i8) * &
               int(FLD_DATA_SIZE, i8))
          call fld_file_read_field(this, fh, byte_offset, data%p, data)
@@ -743,7 +711,7 @@ contains
       end if
 
       if (read_temp) then
-         byte_offset = mpi_offset + int(data%offset_nelv, i8) * &
+         byte_offset = mpi_offset + int(data%offset_el, i8) * &
              (int(lxyz, i8) * &
               int(FLD_DATA_SIZE, i8))
          call fld_file_read_field(this, fh, byte_offset, data%t, data)
@@ -753,7 +721,7 @@ contains
       end if
 
       do i = 1, n_scalars
-         byte_offset = mpi_offset + int(data%offset_nelv, i8) * &
+         byte_offset = mpi_offset + int(data%offset_el, i8) * &
              (int(lxyz, i8) * &
               int(FLD_DATA_SIZE, i8))
          call fld_file_read_field(this, fh, byte_offset, data%s(i), data)
@@ -810,7 +778,7 @@ contains
   end subroutine fld_file_read_field
 
 
-  subroutine fld_file_read_3dfields(this, fh, byte_offset, x, y, z, fld_data)
+  subroutine fld_file_read_vector_field(this, fh, byte_offset, x, y, z, fld_data)
     class(fld_file_t), intent(inout) :: this
     type(vector_t), intent(inout) :: x, y, z
     type(fld_file_data_t) :: fld_data
@@ -876,7 +844,7 @@ contains
 
     if (allocated(tmp_dp)) deallocate(tmp_dp)
     if (allocated(tmp_sp)) deallocate(tmp_sp)
-  end subroutine fld_file_read_3dfields
+  end subroutine fld_file_read_vector_field
 
   subroutine fld_file_set_precision(this, precision)
     class(fld_file_t) :: this

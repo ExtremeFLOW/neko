@@ -1,6 +1,7 @@
 module fld_file_data
   use field
   use vector
+  use math
   implicit none
 
   type, public :: fld_file_data_t
@@ -19,7 +20,7 @@ module fld_file_data
      real(kind=rp) :: time = 0.0
      integer :: glb_nelv = 0 
      integer :: nelv = 0 
-     integer :: offset_nelv = 0
+     integer :: offset_el = 0
      integer :: lx = 0
      integer :: ly = 0
      integer :: lz = 0
@@ -32,18 +33,55 @@ module fld_file_data
    contains
      procedure, pass(this) :: init => fld_file_data_init
      procedure, pass(this) :: free => fld_file_data_free
+     procedure, pass(this) :: scale => fld_file_data_scale
+     procedure, pass(this) :: add => fld_file_data_add
   end type fld_file_data_t
 
 contains
   !> Initialise a fld_file_data object with nelv elements with a offset_nel
-  subroutine fld_file_data_init(this, nelv, offset_nelv)
+  subroutine fld_file_data_init(this, nelv, offset_el)
     class(fld_file_data_t), intent(inout) :: this
-    integer, intent(in) :: nelv, offset_nelv
+    integer, intent(in), optional :: nelv, offset_el
     call this%free()
-    this%nelv = nelv
-    this%offset_nelv = offset_nelv
+    if (present(nelv)) this%nelv = nelv
+    if (present(offset_el)) this%offset_el = offset_el
     
   end subroutine fld_file_data_init
+
+  !> Scale the values stored in this fld_file_data
+  subroutine fld_file_data_scale(this, c)
+    class(fld_file_data_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    if(this%u%n .gt. 0) call cmult(this%u%x,c,this%u%n)
+    if(this%v%n .gt. 0) call cmult(this%v%x,c,this%v%n)
+    if(this%w%n .gt. 0) call cmult(this%w%x,c,this%w%n)
+    if(this%p%n .gt. 0) call cmult(this%p%x,c,this%p%n)
+    if(this%t%n .gt. 0) call cmult(this%t%x,c,this%t%n)
+
+    do i = 1, this%n_scalars
+       if(this%s(i)%n .gt. 0) call cmult(this%s(i)%x,c,this%s(i)%n)
+    end do
+
+  end subroutine fld_file_data_scale
+
+  !> Add the values in another fld file to this
+  subroutine fld_file_data_add(this, fld_data_add)
+    class(fld_file_data_t), intent(inout) :: this
+    class(fld_file_data_t), intent(in) :: fld_data_add
+    integer :: i
+
+    if(this%u%n .gt. 0) call add2(this%u%x,fld_data_add%u%x,this%u%n)
+    if(this%v%n .gt. 0) call add2(this%v%x,fld_data_add%v%x,this%v%n)
+    if(this%w%n .gt. 0) call add2(this%w%x,fld_data_add%w%x,this%w%n)
+    if(this%p%n .gt. 0) call add2(this%p%x,fld_data_add%p%x,this%p%n)
+    if(this%t%n .gt. 0) call add2(this%t%x,fld_data_add%t%x,this%t%n)
+
+    do i = 1, this%n_scalars
+       if(this%s(i)%n .gt. 0) call add2(this%s(i)%x,fld_data_add%s(i)%x,this%s(i)%n)
+    end do
+  end subroutine fld_file_data_add
 
   !> Deallocate fld file data type
   subroutine fld_file_data_free(this)
@@ -66,7 +104,7 @@ contains
     this%time = 0.0
     this%glb_nelv = 0 
     this%nelv = 0 
-    this%offset_nelv = 0
+    this%offset_el = 0
     this%lx = 0
     this%ly = 0
     this%lz = 0
