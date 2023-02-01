@@ -306,6 +306,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
 		    contrib/average_fields/Makefile\
+		    contrib/postprocess_fluid_stats/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen
