@@ -49,7 +49,8 @@ module fld_file
   implicit none
   private
   
-
+  real(kind=dp), private, allocatable :: tmp_dp(:)
+  real(kind=sp), private, allocatable :: tmp_sp(:)
 
   !> Interface for NEKTON fld files
   type, public, extends(generic_file_t) :: fld_file_t
@@ -260,6 +261,12 @@ contains
        FLD_DATA_SIZE = MPI_REAL_SIZE
     end if
 
+    if (this%dp_precision) then
+       allocate(tmp_dp(gdim*n))
+    else
+       allocate(tmp_sp(gdim*n))
+    end if
+     
     
     !
     ! Create fld header for NEKTON's multifile output
@@ -396,6 +403,8 @@ contains
 
     this%counter = this%counter + 1
     
+    if (allocated(tmp_dp)) deallocate(tmp_dp)
+    if (allocated(tmp_sp)) deallocate(tmp_sp)
   end subroutine fld_file_write
 
   subroutine fld_file_write_field(this, fh, byte_offset, p, n)
@@ -404,17 +413,9 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: p(n)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
-    real(kind=dp), allocatable :: tmp_dp(:)
-    real(kind=sp), allocatable :: tmp_sp(:)
     integer :: i, ierr
     type(MPI_Status) :: status
 
-    if (this%dp_precision) then
-       allocate(tmp_dp(n))
-    else
-       allocate(tmp_sp(n))
-    end if
-     
     if (.not. this%dp_precision) then
        do i = 1, n
           tmp_sp(i) = real(p(i),sp)
@@ -430,8 +431,6 @@ contains
             MPI_DOUBLE_PRECISION, status, ierr)
     end if
     
-    if (allocated(tmp_dp)) deallocate(tmp_dp)
-    if (allocated(tmp_sp)) deallocate(tmp_sp)
   end subroutine fld_file_write_field
  
   subroutine fld_file_write_vector_field(this, fh, byte_offset, x, y, z, n, gdim, lxyz, nelv)
@@ -440,16 +439,8 @@ contains
     integer, intent(in) :: n, gdim, lxyz, nelv
     real(kind=rp), intent(in) :: x(lxyz,nelv), y(lxyz,nelv), z(lxyz,nelv)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
-    real(kind=dp), allocatable :: tmp_dp(:)
-    real(kind=sp), allocatable :: tmp_sp(:)
     integer :: i, el, j, ierr
     type(MPI_Status) :: status
-
-    if (this%dp_precision) then
-       allocate(tmp_dp(gdim*n))
-    else
-       allocate(tmp_sp(gdim*n))
-    end if
      
     if (this%dp_precision) then
        i = 1
@@ -493,8 +484,6 @@ contains
             MPI_REAL, status, ierr)
     end if
 
-    if (allocated(tmp_dp)) deallocate(tmp_dp)
-    if (allocated(tmp_sp)) deallocate(tmp_sp)
 
   end subroutine fld_file_write_vector_field
        
@@ -593,6 +582,12 @@ contains
       else
          FLD_DATA_SIZE = MPI_REAL_SIZE
       end if
+      if (this%dp_precision) then
+         allocate(tmp_dp(data%gdim*n))
+      else
+         allocate(tmp_sp(data%gdim*n))
+      end if
+     
 
       i = 1
       read_mesh = .false.
@@ -732,6 +727,8 @@ contains
 
       this%counter = this%counter + 1
 
+      if (allocated(tmp_dp)) deallocate(tmp_dp)
+      if (allocated(tmp_sp)) deallocate(tmp_sp)
     class default 
        call neko_error('Currently we only read into fld_file_data_t, please use that data structure instead.')
     end select
@@ -772,8 +769,6 @@ contains
        end do     
     end if
 
-    if (allocated(tmp_dp)) deallocate(tmp_dp)
-    if (allocated(tmp_sp)) deallocate(tmp_sp)
 
   end subroutine fld_file_read_field
 
