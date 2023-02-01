@@ -41,8 +41,8 @@ program average_fields
   call fld_data_avg%scale(fld_data_avg%time-start_time)
 
   do i = 1, fld_data_avg%meta_nsamples-1
-     call fld_file%read(fld_data)
      if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
+     call fld_file%read(fld_data)
      call fld_data%scale(fld_data%time-fld_data_avg%time)
      call fld_data_avg%add(fld_data)
 
