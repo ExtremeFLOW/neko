@@ -837,8 +837,6 @@ contains
        end do     
     end if
 
-    if (allocated(tmp_dp)) deallocate(tmp_dp)
-    if (allocated(tmp_sp)) deallocate(tmp_sp)
   end subroutine fld_file_read_vector_field
 
   subroutine fld_file_set_precision(this, precision)
