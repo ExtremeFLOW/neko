@@ -1,34 +1,39 @@
+!> Simple module to handle fld file series.
+!! Provides an interface to the different fields sotred in a fld file
+!! Also provides simple functions to scale and add different fld files.
+!! An example of using this module is shown in contrib/average_fields.f90
+!! The fld_file_data_t should dynamically update each time one reads a new fld file
+!! Martin Karp 1/2-2023
 module fld_file_data
   use field
   use vector
   use math
   implicit none
-
   type, public :: fld_file_data_t
-     type(vector_t) :: x
-     type(vector_t) :: y
-     type(vector_t) :: z
-     type(vector_t) :: u
-     type(vector_t) :: v
-     type(vector_t) :: w
-     type(vector_t) :: p
-     type(vector_t) :: t
-     integer, allocatable :: idx(:)
-     type(vector_t), allocatable :: s(:)
-     integer :: gdim
-     integer :: n_scalars = 0
-     real(kind=rp) :: time = 0.0
-     integer :: glb_nelv = 0 
-     integer :: nelv = 0 
-     integer :: offset_el = 0
-     integer :: lx = 0
+     type(vector_t) :: x !< x-coords
+     type(vector_t) :: y !< y-coords
+     type(vector_t) :: z !< z-coords
+     type(vector_t) :: u !< x-velocity field
+     type(vector_t) :: v !< y-velocity field
+     type(vector_t) :: w !< z-velocity field
+     type(vector_t) :: p !< pressure field
+     type(vector_t) :: t !< temperature
+     integer, allocatable :: idx(:) !< element idxs
+     type(vector_t), allocatable :: s(:) !< Numbered scalar fields
+     integer :: gdim !< spatial dimensions
+     integer :: n_scalars = 0 !< number of nnumbered scalar fields
+     real(kind=rp) :: time = 0.0 !< time of sample
+     integer :: glb_nelv = 0 !< global number of elements
+     integer :: nelv = 0  !< n elements on the pe
+     integer :: offset_el = 0 !< element offset for this pe
+     integer :: lx = 0 !< N GLL points in x
      integer :: ly = 0
      integer :: lz = 0
-     integer :: t_counter = 0
+     integer :: t_counter = 0 !< counter of samples
      ! meta file information (if any)
-     integer :: meta_nsamples = 0
-     integer :: meta_start_counter = 0
-     character(len=1024) :: fld_series_fname
+     integer :: meta_nsamples = 0 !< number of samples specified in .nek5000 file
+     integer :: meta_start_counter = 0 !< number of first field
+     character(len=1024) :: fld_series_fname !< name of fld series as specified in .nek5000 (meta) file
 
    contains
      procedure, pass(this) :: init => fld_file_data_init

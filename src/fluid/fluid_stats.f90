@@ -133,6 +133,7 @@ module fluid_stats
      procedure, pass(this) :: update => fluid_stats_update
      procedure, pass(this) :: reset => fluid_stats_reset
      procedure, pass(this) :: make_strong_grad => fluid_stats_make_strong_grad
+     procedure, pass(this) :: post_process => fluid_stats_post_process
   end type fluid_stats_t
 
 contains
@@ -140,7 +141,7 @@ contains
   !> Initialize a mean flow field
   subroutine fluid_stats_init(this, coef)
     class(fluid_stats_t), intent(inout), target:: this
-    type(coef_t), target :: coef
+    type(coef_t), target, optional :: coef
     this%coef => coef
   
     this%u_mean => neko_field_registry%get_field('mean_u')
@@ -259,6 +260,7 @@ contains
 
 
   end subroutine fluid_stats_init
+
   !> Updates all fields
   subroutine fluid_stats_update(this, k)
     class(fluid_stats_t), intent(inout) :: this
@@ -392,7 +394,6 @@ contains
 
 
     end if
-
     call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u%x,this%coef)
     call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v%x,this%coef)
     call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w%x,this%coef)
@@ -620,5 +621,70 @@ contains
     end if
 
   end subroutine fluid_stats_make_strong_grad
+
+  subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness,&
+                                      pressure_skewness, skewness_tensor, mean_velocity_grad, dissipation_tensor)
+    class(fluid_stats_t) :: this
+    type(field_list_t), intent(inout), optional :: mean
+    type(field_list_t), intent(inout), optional :: reynolds
+    type(field_list_t), intent(inout), optional :: pressure_skewness
+    type(field_list_t), intent(inout), optional :: pressure_flatness
+    type(field_list_t), intent(inout), optional :: skewness_tensor
+    type(field_list_t), intent(inout), optional :: mean_velocity_grad
+    type(field_list_t), intent(inout), optional :: dissipation_tensor
+    integer :: n
+
+    if (present(mean)) then
+        n = mean%fields(1)%f%dof%size()
+        call copy(mean%fields(1)%f%x,this%u_mean%x,n)
+        call copy(mean%fields(2)%f%x,this%v_mean%x,n)
+        call copy(mean%fields(3)%f%x,this%w_mean%x,n)
+        call copy(mean%fields(4)%f%x,this%p_mean%x,n)
+    end if
+
+    if (present(reynolds)) then
+        n = reynolds%fields(1)%f%dof%size()
+        call copy(reynolds%fields(1)%f%x,this%pp%mf%x,n)
+        call subcol3(reynolds%fields(1)%f%x,this%p_mean%x,this%p_mean%x,n)
+
+        call copy(reynolds%fields(2)%f%x,this%uu%mf%x,n)
+        call subcol3(reynolds%fields(2)%f%x,this%u_mean%x,this%u_mean%x,n)
+        
+        call copy(reynolds%fields(3)%f%x,this%vv%mf%x,n)
+        call subcol3(reynolds%fields(3)%f%x,this%v_mean%x,this%v_mean%x,n)
+        
+        call copy(reynolds%fields(4)%f%x,this%ww%mf%x,n)
+        call subcol3(reynolds%fields(4)%f%x,this%w_mean%x,this%w_mean%x,n)
+        
+        call copy(reynolds%fields(5)%f%x,this%uv%mf%x,n)
+        call subcol3(reynolds%fields(5)%f%x,this%u_mean%x,this%v_mean%x,n)
+        
+        call copy(reynolds%fields(6)%f%x,this%uw%mf%x,n)
+        call subcol3(reynolds%fields(6)%f%x,this%u_mean%x,this%w_mean%x,n)
+        
+        call copy(reynolds%fields(7)%f%x,this%vw%mf%x,n)
+        call subcol3(reynolds%fields(7)%f%x,this%v_mean%x,this%w_mean%x,n)
+    end if
+    if (present(pressure_skewness)) then
+
+    end if
+
+    if (present(pressure_flatness)) then
+
+    end if
+
+    if (present(skewness_tensor)) then
+
+    end if
+
+    if (present(mean_velocity_grad)) then
+
+    end if
+
+    if (present(dissipation_tensor)) then
+
+    end if
+
+  end subroutine fluid_stats_post_process
  
 end module fluid_stats
