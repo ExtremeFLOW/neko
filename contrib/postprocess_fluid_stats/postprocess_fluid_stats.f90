@@ -17,8 +17,8 @@ program postprocess_fluid_stats
   type(mesh_t) :: msh
   type(gs_t) :: gs_h
   type(field_t), pointer :: u, v, w, p
-  type(field_t), target :: pp, uu, vv, ww, uv, uw, vw
-  type(field_list_t) :: reynolds
+  type(field_t), target :: pp, uu, vv, ww, uv, uw, vw, tmp1, tmp2
+  type(field_list_t) :: reynolds, mean_vel_grad
   integer :: argc, i, n
   
   argc = command_argument_count()
@@ -93,6 +93,9 @@ program postprocess_fluid_stats
   call field_init(uw,dof)
   call field_init(vw,dof)
   call field_init(pp,dof)
+  call field_init(tmp1,dof)
+  call field_init(tmp2,dof)
+
   reynolds%fields(1)%f => pp
   reynolds%fields(2)%f => uu
   reynolds%fields(3)%f => vv
@@ -102,10 +105,23 @@ program postprocess_fluid_stats
   reynolds%fields(7)%f => vw
 
   call fld_stats%post_process(reynolds=reynolds)
-
   output_file = file_t('reynolds.fld')
-  
   call output_file%write(reynolds, stats_data%time)
+
+  allocate(mean_vel_grad%fields(9))
+  mean_vel_grad%fields(1)%f => pp
+  mean_vel_grad%fields(2)%f => uu
+  mean_vel_grad%fields(3)%f => vv
+  mean_vel_grad%fields(4)%f => ww
+  mean_vel_grad%fields(5)%f => uv
+  mean_vel_grad%fields(6)%f => uw
+  mean_vel_grad%fields(7)%f => vw
+  mean_vel_grad%fields(8)%f => tmp1
+  mean_vel_grad%fields(9)%f => tmp2
+
+  call fld_stats%post_process(mean_vel_grad=mean_vel_grad)
+  output_file = file_t('mean_vel_grad.fld')
+  call output_file%write(mean_vel_grad, stats_data%time)
   
   call neko_finalize
 

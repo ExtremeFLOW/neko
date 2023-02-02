@@ -623,14 +623,14 @@ contains
   end subroutine fluid_stats_make_strong_grad
 
   subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness,&
-                                      pressure_skewness, skewness_tensor, mean_velocity_grad, dissipation_tensor)
+                                      pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)
     class(fluid_stats_t) :: this
     type(field_list_t), intent(inout), optional :: mean
     type(field_list_t), intent(inout), optional :: reynolds
     type(field_list_t), intent(inout), optional :: pressure_skewness
     type(field_list_t), intent(inout), optional :: pressure_flatness
     type(field_list_t), intent(inout), optional :: skewness_tensor
-    type(field_list_t), intent(inout), optional :: mean_velocity_grad
+    type(field_list_t), intent(inout), optional :: mean_vel_grad
     type(field_list_t), intent(inout), optional :: dissipation_tensor
     integer :: n
 
@@ -667,17 +667,35 @@ contains
     end if
     if (present(pressure_skewness)) then
 
+       call neko_warning('Presssure skewness stat not implemented yet, please help!')
+
     end if
 
     if (present(pressure_flatness)) then
+       call neko_warning('Presssure flatness stat not implemented yet, please help!')
 
     end if
 
     if (present(skewness_tensor)) then
-
+       call neko_warning('Skewness tensor stat not implemented yet, please help!')
     end if
 
-    if (present(mean_velocity_grad)) then
+    if (present(mean_vel_grad)) then
+       !Compute gradient of mean flow
+        n = mean_vel_grad%fields(1)%f%dof%size()
+       call opgrad(this%dudx%x,this%dudy%x, this%dudz%x,this%u_mean%x,this%coef)
+       call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x,this%v_mean%x,this%coef)
+       call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x,this%w_mean%x,this%coef)
+       call invers2(this%stats_work%x, this%coef%B,n)
+       call col3(mean_vel_grad%fields(1)%f%x, this%dudx%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(2)%f%x, this%dudy%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(3)%f%x, this%dudz%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(4)%f%x, this%dvdx%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(5)%f%x, this%dvdy%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(6)%f%x, this%dvdz%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(7)%f%x, this%dwdx%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(8)%f%x, this%dwdy%x,this%stats_work%x, n)
+       call col3(mean_vel_grad%fields(9)%f%x, this%dwdz%x,this%stats_work%x, n)
 
     end if
 
