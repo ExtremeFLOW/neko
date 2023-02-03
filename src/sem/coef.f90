@@ -763,7 +763,7 @@ contains
   !! @note Current implementation assumes regular shaped hex elements
   subroutine coef_generate_geo(c)
     type(coef_t), intent(inout) :: c
-    integer :: e, lxyz, ntot
+    integer :: e, i, lxyz, ntot
 
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
@@ -794,40 +794,85 @@ contains
 
       else    
          if(c%msh%gdim .eq. 2) then
-            call vdot2(G11, drdx, drdy, drdx, drdy, ntot)
-            call vdot2(G22, dsdx, dsdy, dsdx, dsdy, ntot)
-            call vdot2(G12, drdx, drdy, dsdx, dsdy, ntot)
-            call  col2(G11, jacinv, ntot)
-            call  col2(G22, jacinv, ntot)
-            call  col2(G12, jacinv, ntot)
+
+            do concurrent (i = 1:ntot)
+               G11(i, 1, 1, 1) = drdx(i, 1, 1, 1) * drdx(i, 1, 1, 1) &
+                               + drdy(i, 1, 1, 1) * drdy(i, 1, 1, 1) 
+
+               G22(i, 1, 1, 1) = dsdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
+                               + dsdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1)
+
+               G12(i, 1, 1, 1) = drdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
+                               + drdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1) 
+            end do
+
+            do concurrent (i = 1:ntot)
+               G11(i, 1, 1, 1) = G11(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+               G22(i, 1, 1, 1) = G22(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+               G12(i, 1, 1, 1) = G12(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+            end do
+            
             call rzero(G33, ntot)
             call rzero(G13, ntot)
             call rzero(G23, ntot)
+
+            do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
+               G11(i,1,1,e) = G11(i,1,1,e) * w3(i,1,1)
+               G22(i,1,1,e) = G22(i,1,1,e) * w3(i,1,1)
+               G12(i,1,1,e) = G12(i,1,1,e) * w3(i,1,1)
+            end do
+            
          else
-            call vdot3(G11, drdx, drdy, drdz, drdx, drdy, drdz, ntot)
-            call vdot3(G22, dsdx, dsdy, dsdz, dsdx, dsdy, dsdz, ntot)
-            call vdot3(G33, dtdx, dtdy, dtdz, dtdx, dtdy, dtdz, ntot)
-            call vdot3(G12, drdx, drdy, drdz, dsdx, dsdy, dsdz, ntot)
-            call vdot3(G13, drdx, drdy, drdz, dtdx, dtdy, dtdz, ntot)
-            call vdot3(G23, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, ntot)
-         
-            call col2(G11, jacinv, ntot)
-            call col2(G22, jacinv, ntot)
-            call col2(G33, jacinv, ntot)
-            call col2(G12, jacinv, ntot)
-            call col2(G13, jacinv, ntot)
-            call col2(G23, jacinv, ntot)
+            do concurrent (i = 1:ntot)
+               G11(i, 1, 1, 1) = drdx(i, 1, 1, 1) * drdx(i, 1, 1, 1) &
+                               + drdy(i, 1, 1, 1) * drdy(i, 1, 1, 1) &
+                               + drdz(i, 1, 1, 1) * drdz(i, 1, 1, 1)
+
+               G22(i, 1, 1, 1) = dsdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
+                               + dsdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1) &
+                               + dsdz(i, 1, 1, 1) * dsdz(i, 1, 1, 1)
+
+               G33(i, 1, 1, 1) = dtdx(i, 1, 1, 1) * dtdx(i, 1, 1, 1) &
+                               + dtdy(i, 1, 1, 1) * dtdy(i, 1, 1, 1) &
+                               + dtdz(i, 1, 1, 1) * dtdz(i, 1, 1, 1)
+            end do
+
+            do concurrent (i = 1:ntot)
+               G11(i, 1, 1, 1) = G11(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+               G22(i, 1, 1, 1) = G22(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+               G33(i, 1, 1, 1) = G33(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+            end do
+            
+            do concurrent (i = 1:ntot)
+               G12(i, 1, 1, 1) = drdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
+                               + drdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1) &
+                               + drdz(i, 1, 1, 1) * dsdz(i, 1, 1, 1)
+
+               G13(i, 1, 1, 1) = drdx(i, 1, 1, 1) * dtdx(i, 1, 1, 1) &
+                               + drdy(i, 1, 1, 1) * dtdy(i, 1, 1, 1) &
+                               + drdz(i, 1, 1, 1) * dtdz(i, 1, 1, 1)
+
+               G23(i, 1, 1, 1) = dsdx(i, 1, 1, 1) * dtdx(i, 1, 1, 1) &
+                               + dsdy(i, 1, 1, 1) * dtdy(i, 1, 1, 1) &
+                               + dsdz(i, 1, 1, 1) * dtdz(i, 1, 1, 1)
+            end do
+
+            do concurrent (i = 1:ntot)
+               G12(i, 1, 1, 1) = G12(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+               G13(i, 1, 1, 1) = G13(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+               G23(i, 1, 1, 1) = G23(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
+            end do
+
+            do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
+               G11(i,1,1,e) = G11(i,1,1,e) * w3(i,1,1)
+               G22(i,1,1,e) = G22(i,1,1,e) * w3(i,1,1)
+               G33(i,1,1,e) = G33(i,1,1,e) * w3(i,1,1)
+
+               G12(i,1,1,e) = G12(i,1,1,e) * w3(i,1,1)               
+               G13(i,1,1,e) = G13(i,1,1,e) * w3(i,1,1)
+               G23(i,1,1,e) = G23(i,1,1,e) * w3(i,1,1)
+            end do
          end if
-         do e = 1, c%msh%nelv
-            call col2(G11(1,1,1,e), w3, lxyz)
-            call col2(G22(1,1,1,e), w3, lxyz)
-            call col2(G12(1,1,1,e), w3, lxyz)
-            if (c%msh%gdim .eq. 3) then
-               call col2(G33(1,1,1,e), w3, lxyz)
-               call col2(G13(1,1,1,e), w3, lxyz)
-               call col2(G23(1,1,1,e), w3, lxyz)
-            end if
-         end do
       end if
       
     end associate
