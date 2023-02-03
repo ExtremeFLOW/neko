@@ -904,7 +904,7 @@ contains
     real(kind=rp), allocatable :: b(:,:,:,:)
     real(kind=rp), allocatable :: c(:,:,:,:)
     real(kind=rp), allocatable :: dot(:,:,:,:)
-    integer :: n, e, j, k, lx
+    integer :: n, i, e, j, k, lx
     real(kind=rp) :: weight, len
     n = coef%dof%size()
     lx = coef%Xh%lx
@@ -914,70 +914,99 @@ contains
     allocate(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
     allocate(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
 
-    call vcross(a,b,c, coef%dxds, coef%dyds, coef%dzds, &
-         coef%dxdt, coef%dydt, coef%dzdt, n)
-    call vdot3(dot, a, b, c, a, b, c, n)
+    do concurrent (i = 1:n)
+       a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+                     - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+ 
+       b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
+                     - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
-    do e = 1, coef%msh%nelv
-       do k = 1, coef%Xh%lx
-          do j = 1, coef%Xh%lx
-             weight = coef%Xh%wy(j) * coef%Xh%wz(k)
-             coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
-             coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
-             coef%nx(j,k, 1, e) = -A(1, j, k, e)
-             coef%nx(j,k, 2, e) =  A(lx, j, k, e)
-             coef%ny(j,k, 1, e) = -B(1, j, k, e)
-             coef%ny(j,k, 2, e) =  B(lx, j, k, e)
-             coef%nz(j,k, 1, e) = -C(1, j, k, e)
-             coef%nz(j,k, 2, e) =  C(lx, j, k, e)
-          end do
-       end do
+       c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+                     - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
     end do
 
-    call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
-         coef%dxdt, coef%dydt, coef%dzdt, n)
-    call vdot3(dot, a, b, c, a, b, c, n)
+    do concurrent (i = 1:n)
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
     
-    do e = 1, coef%msh%nelv
-       do k = 1, coef%Xh%lx
-          do j = 1, coef%Xh%lx
-             weight = coef%Xh%wx(j) * coef%Xh%wz(k)
-             coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
-             coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
-             coef%nx(j,k, 3, e) =  A(j, 1, k, e)
-             coef%nx(j,k, 4, e) = -A(j, lx, k, e)
-             coef%ny(j,k, 3, e) =  B(j, 1, k, e)
-             coef%ny(j,k, 4, e) = -B(j, lx, k, e)
-             coef%nz(j,k, 3, e) =  C(j, 1, k, e)
-             coef%nz(j,k, 4, e) = -C(j, lx, k, e)             
-          end do
-       end do
+    do concurrent (e = 1:coef%msh%nelv, &
+                   k = 1:coef%Xh%lx, j = 1:coef%Xh%lx) local(weight)
+       weight = coef%Xh%wy(j) * coef%Xh%wz(k)
+       coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
+       coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
+       coef%nx(j,k, 1, e) = -A(1, j, k, e)
+       coef%nx(j,k, 2, e) =  A(lx, j, k, e)
+       coef%ny(j,k, 1, e) = -B(1, j, k, e)
+       coef%ny(j,k, 2, e) =  B(lx, j, k, e)
+       coef%nz(j,k, 1, e) = -C(1, j, k, e)
+       coef%nz(j,k, 2, e) =  C(lx, j, k, e)
     end do
 
+    do concurrent (i = 1:n)
+       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+                     - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
 
-    call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
-         coef%dxds, coef%dyds, coef%dzds, n)
-    call vdot3(dot, a, b, c, a, b, c, n)
-    
-    do e = 1, coef%msh%nelv
-       do k = 1, coef%Xh%lx
-          do j = 1, coef%Xh%lx
-             weight = coef%Xh%wx(j) * coef%Xh%wy(k)
-             coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
-             coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
-             coef%nx(j,k, 5, e) = -A(j, k, 1, e)
-             coef%nx(j,k, 6, e) =  A(j, k, lx, e)
-             coef%ny(j,k, 5, e) = -B(j, k, 1, e)
-             coef%ny(j,k, 6, e) =  B(j, k, lx, e)
-             coef%nz(j,k, 5, e) = -C(j, k, 1, e)
-             coef%nz(j,k, 6, e) =  C(j, k, lx, e)             
-          end do
-       end do
+       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
+                     - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
+
+       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+                     - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+    end do
+
+    do concurrent (i = 1:n)
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+        
+    do concurrent (e = 1:coef%msh%nelv, &
+                   k = 1:coef%Xh%lx, j = 1:coef%Xh%lx) local(weight)
+       weight = coef%Xh%wx(j) * coef%Xh%wz(k)
+       coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
+       coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
+       coef%nx(j,k, 3, e) =  A(j, 1, k, e)
+       coef%nx(j,k, 4, e) = -A(j, lx, k, e)
+       coef%ny(j,k, 3, e) =  B(j, 1, k, e)
+       coef%ny(j,k, 4, e) = -B(j, lx, k, e)
+       coef%nz(j,k, 3, e) =  C(j, 1, k, e)
+       coef%nz(j,k, 4, e) = -C(j, lx, k, e)             
+    end do
+
+    do concurrent (i = 1:n)
+       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
+                     - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
+
+       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &
+                     - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
+
+       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
+                     - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
+    end do
+
+    do concurrent (i = 1:n)
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+        
+    do concurrent (e = 1:coef%msh%nelv, &
+                   k = 1:coef%Xh%lx, j = 1:coef%Xh%lx) local(weight)
+       weight = coef%Xh%wx(j) * coef%Xh%wy(k)
+       coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
+       coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
+       coef%nx(j,k, 5, e) = -A(j, k, 1, e)
+       coef%nx(j,k, 6, e) =  A(j, k, lx, e)
+       coef%ny(j,k, 5, e) = -B(j, k, 1, e)
+       coef%ny(j,k, 6, e) =  B(j, k, lx, e)
+       coef%nz(j,k, 5, e) = -C(j, k, 1, e)
+       coef%nz(j,k, 6, e) =  C(j, k, lx, e)             
     end do
 
     ! Normalize
     n = size(coef%nz)
-    do j = 1, n
+    do concurrent (j = 1:n) local(len)
        len = sqrt(coef%nx(j,1,1,1)**2 + &
             coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
        if (len .gt. NEKO_EPS) then
