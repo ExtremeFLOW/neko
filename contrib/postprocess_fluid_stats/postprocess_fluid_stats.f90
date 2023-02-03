@@ -24,13 +24,16 @@ program postprocess_fluid_stats
   argc = command_argument_count()
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
-     write(*,*) 'Usage: ./average_fields field_series_name.fld start_time output_name.fld' 
-     write(*,*) 'Example command: ./average_fields mean_field104.fld 103.2 mean_field_avg.fld'
-     write(*,*) 'Computes the average field over the fld files described in mean_field104.nek5000'
-     write(*,*) 'The start time is the time at which the first file startsto collect stats'
-     write(*,*) 'The files need to be aranged chronological order.'
-     write(*,*) 'The average field is then stored in a fld series, i.e. output_name.nek5000 and output_name.f00000'
+     if (pe_rank .eq. 0) then
+        write(*,*) 'Usage: ./average_fields field_series_name.fld start_time output_name.fld' 
+        write(*,*) 'Example command: ./average_fields mean_field104.fld 103.2 mean_field_avg.fld'
+        write(*,*) 'Computes the average field over the fld files described in mean_field104.nek5000'
+        write(*,*) 'The start time is the time at which the first file startsto collect stats'
+        write(*,*) 'The files need to be aranged chronological order.'
+        write(*,*) 'The average field is then stored in a fld series, i.e. output_name.nek5000 and output_name.f00000'
+     end if
      stop
+
   end if
   
   call neko_init 
@@ -106,7 +109,9 @@ program postprocess_fluid_stats
 
   call fld_stats%post_process(reynolds=reynolds)
   output_file = file_t('reynolds.fld')
+  if (pe_rank .eq. 0) write(*,*) 'Wrtiting Reynolds stresses into reynolds'
   call output_file%write(reynolds, stats_data%time)
+  if (pe_rank .eq. 0) write(*,*) 'Done'
 
   allocate(mean_vel_grad%fields(9))
   mean_vel_grad%fields(1)%f => pp
@@ -120,8 +125,22 @@ program postprocess_fluid_stats
   mean_vel_grad%fields(9)%f => tmp2
 
   call fld_stats%post_process(mean_vel_grad=mean_vel_grad)
+  !Fix order of gradients
+  mean_vel_grad%fields(2)%f => pp
+  mean_vel_grad%fields(3)%f => uu
+  mean_vel_grad%fields(4)%f => vv
+  mean_vel_grad%fields(1)%f => ww
+  mean_vel_grad%fields(5)%f => uv
+  mean_vel_grad%fields(6)%f => uw
+  mean_vel_grad%fields(7)%f => vw
+  mean_vel_grad%fields(8)%f => tmp1
+  mean_vel_grad%fields(9)%f => tmp2
+
+
+  if (pe_rank .eq. 0) write(*,*) 'Writing mean velocity gradient into mean_vel_grad'
   output_file = file_t('mean_vel_grad.fld')
   call output_file%write(mean_vel_grad, stats_data%time)
+  if (pe_rank .eq. 0) write(*,*) 'Done'
   
   call neko_finalize
 

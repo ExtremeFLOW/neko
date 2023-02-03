@@ -38,7 +38,9 @@ program average_fields
   call fld_data_avg%init()
 
   call fld_file%read(fld_data_avg)
+  
   call fld_data_avg%scale(fld_data_avg%time-start_time)
+  if (pe_rank .eq. 0) write(*,*) fld_data_avg%nelv, fld_data_avg%n_scalars
 
   do i = 1, fld_data_avg%meta_nsamples-1
      if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
@@ -52,8 +54,12 @@ program average_fields
   call fld_data_avg%scale(1.0_rp/(fld_data_avg%time-start_time))
 
   output_file = file_t(trim(output_fname))
+
+
   
+  if (pe_rank .eq. 0) write(*,*) 'Writing file: ', trim(output_fname)
   call output_file%write(fld_data_avg, fld_data_avg%time)
+  if (pe_rank .eq. 0) write(*,*) 'Done'
   
   call neko_finalize
 
