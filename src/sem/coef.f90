@@ -735,25 +735,68 @@ contains
             call rone    (dtdz, ntot)
          else
             call rzero   (jac, ntot)
-            call addcol4 (jac, dxdr, dyds, dzdt, ntot)
-            call addcol4 (jac, dxdt, dydr, dzds, ntot)
-            call addcol4 (jac, dxds, dydt, dzdr, ntot)
-            call subcol4 (jac, dxdr, dydt, dzds, ntot)
-            call subcol4 (jac, dxds, dydr, dzdt, ntot)
-            call subcol4 (jac, dxdt, dyds, dzdr, ntot)
-            call ascol5  (drdx, dyds, dzdt, dydt, dzds, ntot)
-            call ascol5  (drdy, dxdt, dzds, dxds, dzdt, ntot)
-            call ascol5  (drdz, dxds, dydt, dxdt, dyds, ntot)
-            call ascol5  (dsdx, dydt, dzdr, dydr, dzdt, ntot)
-            call ascol5  (dsdy, dxdr, dzdt, dxdt, dzdr, ntot)
-            call ascol5  (dsdz, dxdt, dydr, dxdr, dydt, ntot)
-            call ascol5  (dtdx, dydr, dzds, dyds, dzdr, ntot)
-            call ascol5  (dtdy, dxds, dzdr, dxdr, dzds, ntot)
-            call ascol5  (dtdz, dxdr, dyds, dxds, dydr, ntot)
+
+            do concurrent (i = 1:ntot)
+               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) + ( dxdr(i, 1, 1, 1)  &
+                               * dyds(i, 1, 1, 1) * dzdt(i, 1, 1, 1) )
+
+               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) + ( dxdt(i, 1, 1, 1)  &
+                               * dydr(i, 1, 1, 1) * dzds(i, 1, 1, 1) )
+
+               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) + ( dxds(i, 1, 1, 1)  &
+                               * dydt(i, 1, 1, 1) * dzdr(i, 1, 1, 1) )
+            end do
+
+            do concurrent (i = 1:ntot)
+               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) - ( dxdr(i, 1, 1, 1)  &
+                               * dydt(i, 1, 1, 1) * dzds(i, 1, 1, 1) )
+
+               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) - ( dxds(i, 1, 1, 1)  &
+                               * dydr(i, 1, 1, 1) * dzdt(i, 1, 1, 1) )
+
+               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) - ( dxdt(i, 1, 1, 1)  &
+                               * dyds(i, 1, 1, 1) * dzdr(i, 1, 1, 1) )
+            end do
+            
+            do concurrent (i = 1:ntot)
+               drdx(i, 1, 1, 1) = dyds(i, 1, 1, 1) * dzdt(i, 1, 1, 1) &
+                                - dydt(i, 1, 1, 1) * dzds(i, 1, 1, 1)
+
+               drdy(i, 1, 1, 1) = dxdt(i, 1, 1, 1) * dzds(i, 1, 1, 1) &
+                                - dxds(i, 1, 1, 1) * dzdt(i, 1, 1, 1)
+               
+               drdz(i, 1, 1, 1) = dxds(i, 1, 1, 1) * dydt(i, 1, 1, 1) &
+                                - dxdt(i, 1, 1, 1) * dyds(i, 1, 1, 1)
+            end do
+
+            do concurrent (i = 1:ntot)
+               dsdx(i, 1, 1, 1) = dydt(i, 1, 1, 1) * dzdr(i, 1, 1, 1) &
+                                - dydr(i, 1, 1, 1) * dzdt(i, 1, 1, 1)
+
+               dsdy(i, 1, 1, 1) = dxdr(i, 1, 1, 1) * dzdt(i, 1, 1, 1) &
+                                - dxdt(i, 1, 1, 1) * dzdr(i, 1, 1, 1)
+               
+               dsdz(i, 1, 1, 1) = dxdt(i, 1, 1, 1) * dydr(i, 1, 1, 1) &
+                                - dxdr(i, 1, 1, 1) * dydt(i, 1, 1, 1)
+            end do
+
+            do concurrent (i = 1:ntot)
+               dtdx(i, 1, 1, 1) = dydr(i, 1, 1, 1) * dzds(i, 1, 1, 1) &
+                                - dyds(i, 1, 1, 1) * dzdr(i, 1, 1, 1)
+
+               dtdy(i, 1, 1, 1) = dxds(i, 1, 1, 1) * dzdr(i, 1, 1, 1) &
+                                - dxdr(i, 1, 1, 1) * dzds(i, 1, 1, 1)
+               
+               dtdz(i, 1, 1, 1) = dxdr(i, 1, 1, 1) * dyds(i, 1, 1, 1) &
+                                - dxds(i, 1, 1, 1) * dydr(i, 1, 1, 1)
+            end do
+           
          end if
          
-         call invers2(jacinv, jac, ntot)
-         
+         do concurrent (i = 1:ntot)
+            jacinv(i, 1, 1, 1) = 1.0_rp / jac(i, 1, 1, 1)
+         end do
+
       end if
     end associate
     
