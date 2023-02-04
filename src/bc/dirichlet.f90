@@ -62,10 +62,12 @@ contains
     integer :: i, m, k
 
     m = this%msk(0)
+    !$omp do
     do i = 1, m
        k = this%msk(i)
        x(k) = this%g
     end do
+    !$omp end do
   end subroutine dirichlet_apply_scalar
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -77,15 +79,16 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
     integer :: i, m, k
-
+    
     m = this%msk(0)
+    !$omp do
     do i = 1, m
        k = this%msk(i)
        x(k) = this%g
        y(k) = this%g
        z(k) = this%g
     end do
-    
+    !$omp end do
   end subroutine dirichlet_apply_vector
 
   !> Boundary condition apply for a generic Dirichlet condition

@@ -75,12 +75,14 @@ contains
     integer :: i, m, k
 
     m = this%msk(0)
+    !$omp do
     do i = 1, m
        k = this%msk(i)
        x(k) = this%x(1)
        y(k) = this%x(2)
        z(k) = this%x(3)
     end do
+    !$omp end do
   end subroutine inflow_apply_vector
 
   !> Apply inflow conditions (vector valued) (device version)

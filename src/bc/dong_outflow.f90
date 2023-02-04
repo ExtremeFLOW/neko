@@ -128,6 +128,7 @@ contains
     real(kind=rp) :: vn, S0, ux, uy, uz, normal_xyz(3)
 
     m = this%msk(0)
+    !$omp do
     do i = 1, m
        k = this%msk(i)
        facet = this%facet(i)
@@ -142,6 +143,7 @@ contains
                                      
        x(k)=-0.5*(ux*ux+uy*uy+uz*uz)*S0
     end do
+    !$omp end do
 end subroutine dong_outflow_apply_scalar
 
   !> Boundary condition apply for a generic Dirichlet condition
