@@ -429,7 +429,7 @@ contains
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in)  :: c_Xh
-    integer :: gdim, n
+    integer :: gdim, i, n
 
     n = w1%dof%size()
     gdim = c_Xh%msh%gdim
@@ -438,30 +438,63 @@ contains
     call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     if (gdim .eq. 3) then
        call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
+       !$omp do
+       do i = 1, n
+          w1%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+       end do
+       !$omp end do
+!       call sub3(w1%x, work1%x, work2%x, n)
     else
-       call copy(w1%x, work1%x, n)
+       !$omp do
+       do i = 1, n
+          w1%x(i,1,1,1) = work1%x(i,1,1,1)
+       end do
+       !$omp end do
+!       call copy(w1%x, work1%x, n)
     end if
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
        call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
        call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+      !$omp do
+       do i = 1, n
+          w2%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+       end do
+       !$omp end do
+!       call sub3(w2%x, work1%x, work2%x, n)
     else
-       call rzero(work1%x, n)
+!       call rzero(work1%x, n)
+       !$omp do
+       do i = 1, n
+          work1%x(i,1,1,1) = 0.0_rp
+       end do
+       !$omp end do
        call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+       !$omp do
+       do i = 1, n
+          w2%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+       end do
+       !$omp end do
+!       call sub3(w2%x, work1%x, work2%x, n)
     end if
     !     this%work1=dv/dx ; this%work2=du/dy
     call opr_cpu_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call opr_cpu_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
+    !$omp do
+    do i = 1, n
+       w3%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+    end do
+    !$omp end do
+!!    call sub3(w3%x, work1%x, work2%x, n)
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
+    !$omp master
     call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
+    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD)
+    !$omp end master
+    !$omp barrier
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_cpu_curl

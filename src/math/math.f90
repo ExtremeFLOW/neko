@@ -616,11 +616,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
-
+    !$omp do
     do i = 1,n
        a(i) = a(i) + b(i) * c(i) * d(i)
     end do
-
+    !$omp end do
   end subroutine addcol4
 
   !> Returns \f$ a = b \dot c - d \cdot e \f$
