@@ -697,6 +697,8 @@ contains
          call device_memcpy(jacinv, c%jacinv_d, ntot, DEVICE_TO_HOST)
 
       else
+         !$omp parallel private(e, i)
+         !$omp do
          do e = 1, c%msh%nelv
             call mxm(dx, lx, x(1,1,1,e), lx, dxdr(1,1,1,e), lyz)
             call mxm(dx, lx, y(1,1,1,e), lx, dydr(1,1,1,e), lyz)
@@ -719,6 +721,7 @@ contains
                call rone(dzdt(1,1,1,e), lxy)
             end if
          end do
+         !$omp end do
 
          if (c%msh%gdim .eq. 2) then
             call rzero   (jac, ntot)
@@ -734,26 +737,80 @@ contains
             call rzero   (dsdz, ntot)
             call rone    (dtdz, ntot)
          else
-            call rzero   (jac, ntot)
-            call addcol4 (jac, dxdr, dyds, dzdt, ntot)
-            call addcol4 (jac, dxdt, dydr, dzds, ntot)
-            call addcol4 (jac, dxds, dydt, dzdr, ntot)
-            call subcol4 (jac, dxdr, dydt, dzds, ntot)
-            call subcol4 (jac, dxds, dydr, dzdt, ntot)
-            call subcol4 (jac, dxdt, dyds, dzdr, ntot)
-            call ascol5  (drdx, dyds, dzdt, dydt, dzds, ntot)
-            call ascol5  (drdy, dxdt, dzds, dxds, dzdt, ntot)
-            call ascol5  (drdz, dxds, dydt, dxdt, dyds, ntot)
-            call ascol5  (dsdx, dydt, dzdr, dydr, dzdt, ntot)
-            call ascol5  (dsdy, dxdr, dzdt, dxdt, dzdr, ntot)
-            call ascol5  (dsdz, dxdt, dydr, dxdr, dydt, ntot)
-            call ascol5  (dtdx, dydr, dzds, dyds, dzdr, ntot)
-            call ascol5  (dtdy, dxds, dzdr, dxdr, dzds, ntot)
-            call ascol5  (dtdz, dxdr, dyds, dxds, dydr, ntot)
+
+           !$omp do
+            do i = 1, ntot               
+               c%jac(i, 1, 1, 1) = 0.0_rp
+            end do
+            !$omp end do
+            
+            !$omp do
+            do i = 1, ntot               
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdr(i, 1, 1, 1)  &
+                                 * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
+
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdt(i, 1, 1, 1)  &
+                                 * c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
+
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxds(i, 1, 1, 1)  &
+                                 * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
+            end do
+            !$omp end do
+            !$omp do
+            do i = 1, ntot
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdr(i, 1, 1, 1)  &
+                                 * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
+
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxds(i, 1, 1, 1)  &
+                                 * c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
+
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdt(i, 1, 1, 1)  &
+                                 * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
+            end do
+            !$omp end do
+            !$omp do
+            do i = 1, ntot
+               c%drdx(i, 1, 1, 1) = c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
+                                  - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
+
+               c%drdy(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
+                                  - c%dxds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
+               
+               c%drdz(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dydt(i, 1, 1, 1) &
+                                  - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)
+            end do
+            !$omp end do
+            !$omp do           
+            do i = 1, ntot
+               c%dsdx(i, 1, 1, 1) = c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
+                                  - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
+
+               c%dsdy(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
+                                  - c%dxdt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
+               
+               c%dsdz(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dydr(i, 1, 1, 1) &
+                                  - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)
+            end do
+            !$omp end do
+            !$omp do
+            do i = 1, ntot 
+               c%dtdx(i, 1, 1, 1) = c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
+                                  - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
+
+               c%dtdy(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
+                                  - c%dxdr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
+               
+               c%dtdz(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dyds(i, 1, 1, 1) &
+                                  - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)
+            end do
+            !$omp end do           
          end if
-         
-         call invers2(jacinv, jac, ntot)
-         
+         !$omp do
+         do i = 1,ntot
+            c%jacinv(i, 1, 1, 1) = 1.0_rp / c%jac(i, 1, 1, 1)
+         end do
+         !$omp end do            
+         !$omp end parallel         
       end if
     end associate
     
@@ -763,74 +820,126 @@ contains
   !! @note Current implementation assumes regular shaped hex elements
   subroutine coef_generate_geo(c)
     type(coef_t), intent(inout) :: c
-    integer :: e, lxyz, ntot
+    integer :: e, i, lxyz, ntot
 
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
 
-    associate(G11 => c%G11, G12 => c%G12, G13 => c%G13, &
-         G22 => c%G22, G23 => c%G23, G33 => c%G33, &
-         drdx => c%drdx, drdy => c%drdy, drdz => c%drdz, &
-         dsdx => c%dsdx, dsdy => c%dsdy, dsdz => c%dsdz, &
-         dtdx => c%dtdx, dtdy => c%dtdy, dtdz => c%dtdz, &
-         jacinv => c%jacinv, w3 => c%Xh%w3)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_coef_generate_geo(c%G11_d, c%G12_d, c%G13_d, &
+                                     c%G22_d, c%G23_d, c%G33_d, &
+                                     c%drdx_d, c%drdy_d, c%drdz_d, &
+                                     c%dsdx_d, c%dsdy_d, c%dsdz_d, &
+                                     c%dtdx_d, c%dtdy_d, c%dtdz_d, &
+                                     c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
+                                     c%Xh%lx, c%msh%gdim)
 
-         call device_coef_generate_geo(c%G11_d, c%G12_d, c%G13_d, &
-                                       c%G22_d, c%G23_d, c%G33_d, &
-                                       c%drdx_d, c%drdy_d, c%drdz_d, &
-                                       c%dsdx_d, c%dsdy_d, c%dsdz_d, &
-                                       c%dtdx_d, c%dtdy_d, c%dtdz_d, &
-                                       c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
-                                       c%Xh%lx, c%msh%gdim)
+       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST)
+       
+    else
+       !$omp parallel private(e, i)
+       if(c%msh%gdim .eq. 2) then
 
-         call device_memcpy(G11, c%G11_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G22, c%G22_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G33, c%G33_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G12, c%G12_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G13, c%G13_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G23, c%G23_d, ntot, DEVICE_TO_HOST)
+          !$omp do
+          do i = 1, ntot
+             c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) 
 
-      else    
-         if(c%msh%gdim .eq. 2) then
-            call vdot2(G11, drdx, drdy, drdx, drdy, ntot)
-            call vdot2(G22, dsdx, dsdy, dsdx, dsdy, ntot)
-            call vdot2(G12, drdx, drdy, dsdx, dsdy, ntot)
-            call  col2(G11, jacinv, ntot)
-            call  col2(G22, jacinv, ntot)
-            call  col2(G12, jacinv, ntot)
-            call rzero(G33, ntot)
-            call rzero(G13, ntot)
-            call rzero(G23, ntot)
-         else
-            call vdot3(G11, drdx, drdy, drdz, drdx, drdy, drdz, ntot)
-            call vdot3(G22, dsdx, dsdy, dsdz, dsdx, dsdy, dsdz, ntot)
-            call vdot3(G33, dtdx, dtdy, dtdz, dtdx, dtdy, dtdz, ntot)
-            call vdot3(G12, drdx, drdy, drdz, dsdx, dsdy, dsdz, ntot)
-            call vdot3(G13, drdx, drdy, drdz, dtdx, dtdy, dtdz, ntot)
-            call vdot3(G23, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, ntot)
-         
-            call col2(G11, jacinv, ntot)
-            call col2(G22, jacinv, ntot)
-            call col2(G33, jacinv, ntot)
-            call col2(G12, jacinv, ntot)
-            call col2(G13, jacinv, ntot)
-            call col2(G23, jacinv, ntot)
-         end if
-         do e = 1, c%msh%nelv
-            call col2(G11(1,1,1,e), w3, lxyz)
-            call col2(G22(1,1,1,e), w3, lxyz)
-            call col2(G12(1,1,1,e), w3, lxyz)
-            if (c%msh%gdim .eq. 3) then
-               call col2(G33(1,1,1,e), w3, lxyz)
-               call col2(G13(1,1,1,e), w3, lxyz)
-               call col2(G23(1,1,1,e), w3, lxyz)
-            end if
+             c%G22(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1)
+
+             c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) 
+          end do
+          !$omp end do
+          !$omp do
+          do i = 1, ntot
+             c%G11(i, 1, 1, 1) = c%G11(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G22(i, 1, 1, 1) = c%G22(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G12(i, 1, 1, 1) = c%G12(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G33(i, 1, 1, 1) = 0.0_rp
+             c%G13(i, 1, 1, 1) = 0.0_rp
+             c%G23(i, 1, 1, 1) = 0.0_rp
+          end do
+          !$omp end do
+          !$omp do
+          do e = 1, c%msh%nelv
+             do i = 1, lxyz
+               c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
+               c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
+               c%G12(i,1,1,e) = c%G12(i,1,1,e) * c%Xh%w3(i,1,1)
+            end do
          end do
-      end if
-      
-    end associate
+         !$omp end do
+            
+       else
+          !$omp do
+          do i = 1, ntot
+             c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) &
+                               + c%drdz(i, 1, 1, 1) * c%drdz(i, 1, 1, 1)
+
+             c%G22(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
+                               + c%dsdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
+
+             c%G33(i, 1, 1, 1) = c%dtdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
+                               + c%dtdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                               + c%dtdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+          end do
+          !$omp end do
+          !$omp do
+          do i = 1, ntot
+             c%G11(i, 1, 1, 1) = c%G11(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G22(i, 1, 1, 1) = c%G22(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G33(i, 1, 1, 1) = c%G33(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+          end do
+          !$omp end do
+          !$omp do
+          do i = 1, ntot
+             c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
+                               + c%drdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
+
+             c%G13(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                               + c%drdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+
+             c%G23(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
+                               + c%dsdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                               + c%dsdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+          end do
+          !$omp end do
+          !$omp do
+          do i = 1, ntot
+             c%G12(i, 1, 1, 1) = c%G12(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G13(i, 1, 1, 1) = c%G13(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G23(i, 1, 1, 1) = c%G23(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+          end do
+          !$omp end do
+                 
+          !$omp do
+          do e = 1, c%msh%nelv
+             do i = 1, lxyz
+                c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
+                c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
+                c%G12(i,1,1,e) = c%G12(i,1,1,e) * c%Xh%w3(i,1,1)
+                
+                c%G33(i,1,1,e) = c%G33(i,1,1,e) * c%Xh%w3(i,1,1)
+                c%G13(i,1,1,e) = c%G13(i,1,1,e) * c%Xh%w3(i,1,1)
+                c%G23(i,1,1,e) = c%G23(i,1,1,e) * c%Xh%w3(i,1,1)
+             end do
+          end do
+          !$omp end do
+       end if
+       !$omp end parallel       
+    end if
     
   end subroutine coef_generate_geo
  
@@ -838,20 +947,23 @@ contains
   !! @note This is also a stapleholder, we need to go through the coef class properly.
   subroutine coef_generate_mass(c)
     type(coef_t), intent(inout) :: c
-    integer :: e, lxyz, ntot
+    integer :: e, i, lxyz, ntot
     
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
     
     !> @todo rewrite this nest into a device kernel
-    call rone(c%B, ntot)
+    !$omp parallel
+    !$omp do
     do e = 1, c%msh%nelv
        ! Here we need to handle things differently for axis symmetric elements
-       call col3(c%B(1,1,1,e), c%jac(1,1,1,e), c%Xh%w3, lxyz)
+       do i = 1, lxyz
+          c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
+          c%Binv(i,1,1,e) = c%B(i,1,1,e)
+       end do
     end do
-    
-    call copy(c%Binv, c%B, ntot)
-
+    !$omp end do
+    !$omp end parallel
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE)
@@ -864,7 +976,11 @@ contains
        call device_invcol1(c%Binv_d, ntot)
        call device_memcpy(c%Binv, c%Binv_d, ntot, DEVICE_TO_HOST)
     else
-       call invcol1(c%Binv, ntot)
+       !$omp parallel do
+       do i = 1, ntot
+          c%Binv(i, 1, 1, 1) = 1.0_rp / c%Binv(i, 1, 1, 1)
+       end do
+       !$omp end parallel do
     end if
 
     !>  @todo cleanup once we have device math in place
@@ -904,7 +1020,7 @@ contains
     real(kind=rp), allocatable :: b(:,:,:,:)
     real(kind=rp), allocatable :: c(:,:,:,:)
     real(kind=rp), allocatable :: dot(:,:,:,:)
-    integer :: n, e, j, k, lx
+    integer :: n, e, i, j, k, lx
     real(kind=rp) :: weight, len
     n = coef%dof%size()
     lx = coef%Xh%lx
@@ -913,11 +1029,27 @@ contains
     allocate(b(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
     allocate(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
     allocate(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+    !$omp parallel private(i, j, k, len, weight)
+    !$omp do
+    do i = 1, n
+       a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+                     - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+ 
+       b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
+                     - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
-    call vcross(a,b,c, coef%dxds, coef%dyds, coef%dzds, &
-         coef%dxdt, coef%dydt, coef%dzdt, n)
-    call vdot3(dot, a, b, c, a, b, c, n)
-
+       c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+                     - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+    end do
+    !$omp end do
+    !$omp do
+    do i = 1, n
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+    !$omp end do
+    !$omp do
     do e = 1, coef%msh%nelv
        do k = 1, coef%Xh%lx
           do j = 1, coef%Xh%lx
@@ -933,11 +1065,13 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
+    
     call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
          coef%dxdt, coef%dydt, coef%dzdt, n)
     call vdot3(dot, a, b, c, a, b, c, n)
-    
+
+    !$omp do
     do e = 1, coef%msh%nelv
        do k = 1, coef%Xh%lx
           do j = 1, coef%Xh%lx
@@ -953,12 +1087,13 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
 
     call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
          coef%dxds, coef%dyds, coef%dzds, n)
     call vdot3(dot, a, b, c, a, b, c, n)
-    
+
+    !$omp do
     do e = 1, coef%msh%nelv
        do k = 1, coef%Xh%lx
           do j = 1, coef%Xh%lx
@@ -974,10 +1109,11 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
+    
     ! Normalize
-    n = size(coef%nz)
-    do j = 1, n
+    !$omp do
+    do j = 1, size(coef%nz)
        len = sqrt(coef%nx(j,1,1,1)**2 + &
             coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
        if (len .gt. NEKO_EPS) then
@@ -986,6 +1122,8 @@ contains
           coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len
        end if
     end do
+    !$omp end do
+    !$omp end parallel
 
     deallocate(dot)
     deallocate(c)
