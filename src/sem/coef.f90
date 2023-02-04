@@ -734,67 +734,70 @@ contains
             call rzero   (dsdz, ntot)
             call rone    (dtdz, ntot)
          else
-            call rzero   (jac, ntot)
 
             do concurrent (i = 1:ntot)
-               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) + ( dxdr(i, 1, 1, 1)  &
-                               * dyds(i, 1, 1, 1) * dzdt(i, 1, 1, 1) )
-
-               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) + ( dxdt(i, 1, 1, 1)  &
-                               * dydr(i, 1, 1, 1) * dzds(i, 1, 1, 1) )
-
-               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) + ( dxds(i, 1, 1, 1)  &
-                               * dydt(i, 1, 1, 1) * dzdr(i, 1, 1, 1) )
+               c%jac(i, 1, 1, 1) = 0.0_rp
             end do
 
             do concurrent (i = 1:ntot)
-               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) - ( dxdr(i, 1, 1, 1)  &
-                               * dydt(i, 1, 1, 1) * dzds(i, 1, 1, 1) )
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdr(i, 1, 1, 1)  &
+                                 * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
 
-               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) - ( dxds(i, 1, 1, 1)  &
-                               * dydr(i, 1, 1, 1) * dzdt(i, 1, 1, 1) )
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdt(i, 1, 1, 1)  &
+                                 * c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
 
-               jac(i, 1, 1, 1) = jac(i, 1, 1, 1) - ( dxdt(i, 1, 1, 1)  &
-                               * dyds(i, 1, 1, 1) * dzdr(i, 1, 1, 1) )
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxds(i, 1, 1, 1)  &
+                                 * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
+            end do
+
+            do concurrent (i = 1:ntot)
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdr(i, 1, 1, 1)  &
+                                 * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
+
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxds(i, 1, 1, 1)  &
+                                 * c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
+
+               c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdt(i, 1, 1, 1)  &
+                                 * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
             
             do concurrent (i = 1:ntot)
-               drdx(i, 1, 1, 1) = dyds(i, 1, 1, 1) * dzdt(i, 1, 1, 1) &
-                                - dydt(i, 1, 1, 1) * dzds(i, 1, 1, 1)
+               c%drdx(i, 1, 1, 1) = c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
+                                  - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
 
-               drdy(i, 1, 1, 1) = dxdt(i, 1, 1, 1) * dzds(i, 1, 1, 1) &
-                                - dxds(i, 1, 1, 1) * dzdt(i, 1, 1, 1)
+               c%drdy(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
+                                  - c%dxds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
                
-               drdz(i, 1, 1, 1) = dxds(i, 1, 1, 1) * dydt(i, 1, 1, 1) &
-                                - dxdt(i, 1, 1, 1) * dyds(i, 1, 1, 1)
+               c%drdz(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dydt(i, 1, 1, 1) &
+                                  - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)
             end do
 
             do concurrent (i = 1:ntot)
-               dsdx(i, 1, 1, 1) = dydt(i, 1, 1, 1) * dzdr(i, 1, 1, 1) &
-                                - dydr(i, 1, 1, 1) * dzdt(i, 1, 1, 1)
+               c%dsdx(i, 1, 1, 1) = c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
+                                  - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
 
-               dsdy(i, 1, 1, 1) = dxdr(i, 1, 1, 1) * dzdt(i, 1, 1, 1) &
-                                - dxdt(i, 1, 1, 1) * dzdr(i, 1, 1, 1)
+               c%dsdy(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
+                                  - c%dxdt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
                
-               dsdz(i, 1, 1, 1) = dxdt(i, 1, 1, 1) * dydr(i, 1, 1, 1) &
-                                - dxdr(i, 1, 1, 1) * dydt(i, 1, 1, 1)
+               c%dsdz(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dydr(i, 1, 1, 1) &
+                                  - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)
             end do
 
             do concurrent (i = 1:ntot)
-               dtdx(i, 1, 1, 1) = dydr(i, 1, 1, 1) * dzds(i, 1, 1, 1) &
-                                - dyds(i, 1, 1, 1) * dzdr(i, 1, 1, 1)
+               c%dtdx(i, 1, 1, 1) = c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
+                                  - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
 
-               dtdy(i, 1, 1, 1) = dxds(i, 1, 1, 1) * dzdr(i, 1, 1, 1) &
-                                - dxdr(i, 1, 1, 1) * dzds(i, 1, 1, 1)
+               c%dtdy(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
+                                  - c%dxdr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
                
-               dtdz(i, 1, 1, 1) = dxdr(i, 1, 1, 1) * dyds(i, 1, 1, 1) &
-                                - dxds(i, 1, 1, 1) * dydr(i, 1, 1, 1)
+               c%dtdz(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dyds(i, 1, 1, 1) &
+                                  - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)
             end do
            
          end if
          
          do concurrent (i = 1:ntot)
-            jacinv(i, 1, 1, 1) = 1.0_rp / jac(i, 1, 1, 1)
+            c%jacinv(i, 1, 1, 1) = 1.0_rp / c%jac(i, 1, 1, 1)
          end do
 
       end if
@@ -811,135 +814,126 @@ contains
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
 
-    associate(G11 => c%G11, G12 => c%G12, G13 => c%G13, &
-         G22 => c%G22, G23 => c%G23, G33 => c%G33, &
-         drdx => c%drdx, drdy => c%drdy, drdz => c%drdz, &
-         dsdx => c%dsdx, dsdy => c%dsdy, dsdz => c%dsdz, &
-         dtdx => c%dtdx, dtdy => c%dtdy, dtdz => c%dtdz, &
-         jacinv => c%jacinv, w3 => c%Xh%w3)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_coef_generate_geo(c%G11_d, c%G12_d, c%G13_d, &
+                                     c%G22_d, c%G23_d, c%G33_d, &
+                                     c%drdx_d, c%drdy_d, c%drdz_d, &
+                                     c%dsdx_d, c%dsdy_d, c%dsdz_d, &
+                                     c%dtdx_d, c%dtdy_d, c%dtdz_d, &
+                                     c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
+                                     c%Xh%lx, c%msh%gdim)
+       
+       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST)
+       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST)
+       
+    else    
+       if(c%msh%gdim .eq. 2) then
 
-         call device_coef_generate_geo(c%G11_d, c%G12_d, c%G13_d, &
-                                       c%G22_d, c%G23_d, c%G33_d, &
-                                       c%drdx_d, c%drdy_d, c%drdz_d, &
-                                       c%dsdx_d, c%dsdy_d, c%dsdz_d, &
-                                       c%dtdx_d, c%dtdy_d, c%dtdz_d, &
-                                       c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
-                                       c%Xh%lx, c%msh%gdim)
+          do concurrent (i = 1:ntot)
+             c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) 
 
-         call device_memcpy(G11, c%G11_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G22, c%G22_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G33, c%G33_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G12, c%G12_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G13, c%G13_d, ntot, DEVICE_TO_HOST)
-         call device_memcpy(G23, c%G23_d, ntot, DEVICE_TO_HOST)
+             c%G22(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1)
 
-      else    
-         if(c%msh%gdim .eq. 2) then
+             c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) 
+          end do
 
-            do concurrent (i = 1:ntot)
-               G11(i, 1, 1, 1) = drdx(i, 1, 1, 1) * drdx(i, 1, 1, 1) &
-                               + drdy(i, 1, 1, 1) * drdy(i, 1, 1, 1) 
-
-               G22(i, 1, 1, 1) = dsdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
-                               + dsdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1)
-
-               G12(i, 1, 1, 1) = drdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
-                               + drdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1) 
-            end do
-
-            do concurrent (i = 1:ntot)
-               G11(i, 1, 1, 1) = G11(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-               G22(i, 1, 1, 1) = G22(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-               G12(i, 1, 1, 1) = G12(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-            end do
+          do concurrent (i = 1:ntot)
+             c%G11(i, 1, 1, 1) = c%G11(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G22(i, 1, 1, 1) = c%G22(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G12(i, 1, 1, 1) = c%G12(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+          end do
             
-            call rzero(G33, ntot)
-            call rzero(G13, ntot)
-            call rzero(G23, ntot)
-
-            do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
-               G11(i,1,1,e) = G11(i,1,1,e) * w3(i,1,1)
-               G22(i,1,1,e) = G22(i,1,1,e) * w3(i,1,1)
-               G12(i,1,1,e) = G12(i,1,1,e) * w3(i,1,1)
-            end do
+          do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
+             c%G33(i, 1, 1, 1) = 0.0_rp
+             c%G13(i, 1, 1, 1) = 0.0_rp
+             c%G23(i, 1, 1, 1) = 0.0_rp
+          end do
+          
+          do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
+             c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
+             c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
+             c%G12(i,1,1,e) = c%G12(i,1,1,e) * c%Xh%w3(i,1,1)
+          end do
             
-         else
-            do concurrent (i = 1:ntot)
-               G11(i, 1, 1, 1) = drdx(i, 1, 1, 1) * drdx(i, 1, 1, 1) &
-                               + drdy(i, 1, 1, 1) * drdy(i, 1, 1, 1) &
-                               + drdz(i, 1, 1, 1) * drdz(i, 1, 1, 1)
+       else
+          do concurrent (i = 1:ntot)
+             c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) &
+                               + c%drdz(i, 1, 1, 1) * c%drdz(i, 1, 1, 1)
 
-               G22(i, 1, 1, 1) = dsdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
-                               + dsdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1) &
-                               + dsdz(i, 1, 1, 1) * dsdz(i, 1, 1, 1)
+             c%G22(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%dsdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
+                               + c%dsdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
+             
+             c%G33(i, 1, 1, 1) = c%dtdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
+                               + c%dtdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                               + c%dtdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+          end do
 
-               G33(i, 1, 1, 1) = dtdx(i, 1, 1, 1) * dtdx(i, 1, 1, 1) &
-                               + dtdy(i, 1, 1, 1) * dtdy(i, 1, 1, 1) &
-                               + dtdz(i, 1, 1, 1) * dtdz(i, 1, 1, 1)
-            end do
-
-            do concurrent (i = 1:ntot)
-               G11(i, 1, 1, 1) = G11(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-               G22(i, 1, 1, 1) = G22(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-               G33(i, 1, 1, 1) = G33(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-            end do
+          do concurrent (i = 1:ntot)
+             c%G11(i, 1, 1, 1) = c%G11(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G22(i, 1, 1, 1) = c%G22(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G33(i, 1, 1, 1) = c%G33(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+          end do
             
-            do concurrent (i = 1:ntot)
-               G12(i, 1, 1, 1) = drdx(i, 1, 1, 1) * dsdx(i, 1, 1, 1) &
-                               + drdy(i, 1, 1, 1) * dsdy(i, 1, 1, 1) &
-                               + drdz(i, 1, 1, 1) * dsdz(i, 1, 1, 1)
+          do concurrent (i = 1:ntot)
+             c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
+                               + c%drdz(i, 1, 1, 1) * c%dsdz(i, 1, 1, 1)
 
-               G13(i, 1, 1, 1) = drdx(i, 1, 1, 1) * dtdx(i, 1, 1, 1) &
-                               + drdy(i, 1, 1, 1) * dtdy(i, 1, 1, 1) &
-                               + drdz(i, 1, 1, 1) * dtdz(i, 1, 1, 1)
+             c%G13(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
+                               + c%drdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                               + c%drdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
 
-               G23(i, 1, 1, 1) = dsdx(i, 1, 1, 1) * dtdx(i, 1, 1, 1) &
-                               + dsdy(i, 1, 1, 1) * dtdy(i, 1, 1, 1) &
-                               + dsdz(i, 1, 1, 1) * dtdz(i, 1, 1, 1)
-            end do
+             c%G23(i, 1, 1, 1) = c%dsdx(i, 1, 1, 1) * c%dtdx(i, 1, 1, 1) &
+                               + c%dsdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
+                               + c%dsdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
+          end do
 
-            do concurrent (i = 1:ntot)
-               G12(i, 1, 1, 1) = G12(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-               G13(i, 1, 1, 1) = G13(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-               G23(i, 1, 1, 1) = G23(i, 1, 1, 1) * jacinv(i, 1, 1, 1)
-            end do
+          do concurrent (i = 1:ntot)
+             c%G12(i, 1, 1, 1) = c%G12(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G13(i, 1, 1, 1) = c%G13(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+             c%G23(i, 1, 1, 1) = c%G23(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
+          end do
 
-            do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
-               G11(i,1,1,e) = G11(i,1,1,e) * w3(i,1,1)
-               G22(i,1,1,e) = G22(i,1,1,e) * w3(i,1,1)
-               G33(i,1,1,e) = G33(i,1,1,e) * w3(i,1,1)
+          do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
+             c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
+             c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
+             c%G33(i,1,1,e) = c%G33(i,1,1,e) * c%Xh%w3(i,1,1)
 
-               G12(i,1,1,e) = G12(i,1,1,e) * w3(i,1,1)               
-               G13(i,1,1,e) = G13(i,1,1,e) * w3(i,1,1)
-               G23(i,1,1,e) = G23(i,1,1,e) * w3(i,1,1)
-            end do
-         end if
-      end if
-      
-    end associate
-    
+             c%G12(i,1,1,e) = c%G12(i,1,1,e) * c%Xh%w3(i,1,1)               
+             c%G13(i,1,1,e) = c%G13(i,1,1,e) * c%Xh%w3(i,1,1)
+             c%G23(i,1,1,e) = c%G23(i,1,1,e) * c%Xh%w3(i,1,1)
+          end do
+       end if
+    end if
+          
   end subroutine coef_generate_geo
  
   !> Generate mass matrix B for the given mesh and space
   !! @note This is also a stapleholder, we need to go through the coef class properly.
   subroutine coef_generate_mass(c)
     type(coef_t), intent(inout) :: c
-    integer :: e, lxyz, ntot
+    integer :: e, i, lxyz, ntot
     
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
     
     !> @todo rewrite this nest into a device kernel
-    call rone(c%B, ntot)
-    do e = 1, c%msh%nelv
+    do concurrent (e = 1:c%msh%nelv, i = 1:lxyz)
        ! Here we need to handle things differently for axis symmetric elements
-       call col3(c%B(1,1,1,e), c%jac(1,1,1,e), c%Xh%w3, lxyz)
+       c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
+       c%Binv(i,1,1,e) = c%B(i,1,1,e)
     end do
     
-    call copy(c%Binv, c%B, ntot)
-
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE)
