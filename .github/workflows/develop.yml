@@ -124,7 +124,8 @@ jobs:
           echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
           sudo apt-get update && sudo apt-get install -y rocm-dev
           ./regen.sh 
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/opt/rocm/hip
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=/
+          /rocm/hip
           make -j$(nproc)
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
@@ -249,9 +250,10 @@ jobs:
         if: matrix.backend == 'cuda'
         run: |
           git apply patches/nvhpc_bge.patch
+          ls /opt/nvidia/hpc_sdk/22.11/cuda/11.8
           nvfortran --version
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/22.11/cuda/
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/22.11/cuda/11.8
           make -j$(nproc)          
   ReFrame:
       needs: GNU
