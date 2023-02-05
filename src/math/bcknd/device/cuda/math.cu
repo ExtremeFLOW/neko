@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -339,6 +339,23 @@ extern "C" {
 
     addcol4_kernel<real><<<nblcks, nthrds>>>((real *) a, (real *) b,
                                              (real *) c, (real *) d, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for vdot3
+   * \f$ dot = u \cdot v \f$
+   */
+  void cuda_vdot3(void *dot, void *u1, void *u2, void *u3,
+                  void *v1, void *v2, void *v3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    vdot3_kernel<real><<<nblcks, nthrds>>>((real *) dot, (real *) u1,
+                                           (real *) u2, (real *) u3,
+                                           (real *) v1, (real *) v2,
+                                           (real *) v3, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 

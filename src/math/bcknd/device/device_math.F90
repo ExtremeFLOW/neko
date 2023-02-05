@@ -528,6 +528,16 @@ module device_math
   end interface
 
   interface
+     subroutine cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
+          bind(c, name='cuda_vdot3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+       integer(c_int) :: n
+     end subroutine cuda_vdot3
+  end interface
+  
+  interface
      subroutine cuda_add2s2_many(y_d,x_d_d,a_d,j,n) &
           bind(c, name='cuda_add2s2_many')
        use, intrinsic :: iso_c_binding
@@ -1166,6 +1176,8 @@ contains
     integer :: n
 #ifdef HAVE_HIP
     call hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+#elif HAVE_CUDA
+    call cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
