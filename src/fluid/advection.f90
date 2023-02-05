@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -249,24 +249,21 @@ contains
        call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
        call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-       call device_col3(this%tbf_d, this%vr_d, this%tx_d, n_GL)
-       call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
-       call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
+       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+                         this%tx_d, this%ty_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
        call device_sub2(fx_d, this%temp_d, n)
 
 
        call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
-       call device_col3(this%tbf_d, this%vr_d, this%tx_d, n_GL)
-       call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
-       call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
+       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+                         this%tx_d, this%ty_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
        call device_sub2(fy_d, this%temp_d, n)
 
        call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-       call device_col3(this%tbf_d, this%vr_d, this%tx_d, n_GL)
-       call device_addcol3(this%tbf_d, this%vs_d, this%ty_d, n_GL)
-       call device_addcol3(this%tbf_d, this%vt_d, this%tz_d, n_GL)
+       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+                         this%tx_d, this%ty_d, this%tz_d, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
        call device_sub2(fz_d, this%temp_d, n)
 
@@ -277,24 +274,21 @@ contains
        call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
 
        call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
-       call col3(this%tbf, this%vr, this%tx, n_GL)
-       call addcol3(this%tbf, this%vs, this%ty, n_GL)
-       call addcol3(this%tbf, this%vt, this%tz, n_GL)
+       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%tx, this%ty, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
        call sub2(fx, this%temp, n)
 
 
        call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
-       call col3(this%tbf, this%vr, this%tx, n_GL)
-       call addcol3(this%tbf, this%vs, this%ty, n_GL)
-       call addcol3(this%tbf, this%vt, this%tz, n_GL)
+       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%tx, this%ty, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
        call sub2(fy, this%temp, n)
 
        call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
-       call col3(this%tbf, this%vr, this%tx, n_GL)
-       call addcol3(this%tbf, this%vs, this%ty, n_GL)
-       call addcol3(this%tbf, this%vt, this%tz, n_GL)
+       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%tx, this%ty, this%tz, n_GL)
        call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
        call sub2(fz, this%temp, n)
        
