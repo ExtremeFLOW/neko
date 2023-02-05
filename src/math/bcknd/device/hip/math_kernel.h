@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -354,6 +354,28 @@ __global__ void addcol4_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i] * c[i] * d[i];
+  }  
+  
+}
+
+/**
+ * Device kernel for vdot3
+ */
+template< typename T >
+__global__ void vdot3_kernel(T * __restrict__ dot,
+                             const T * __restrict__ u1,
+                             const T * __restrict__ u2,
+                             const T * __restrict__ u3,
+                             const T * __restrict__ v1,
+                             const T * __restrict__ v2,
+                             const T * __restrict__ v3,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    dot[i] = u1[i] * v1[i]  + u2[i] * v2[i] + u3[i] * v3[i];
   }  
   
 }
