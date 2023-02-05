@@ -1066,11 +1066,25 @@ contains
        end do
     end do
     !$omp end do
-    
-    call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
-         coef%dxdt, coef%dydt, coef%dzdt, n)
-    call vdot3(dot, a, b, c, a, b, c, n)
+    !$omp do
+    do i = 1, n
+       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+                     - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+ 
+       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
+                     - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
+       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+                     - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+    end do
+    !$omp end do
+    !$omp do
+    do i = 1, n
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+    !$omp end do
     !$omp do
     do e = 1, coef%msh%nelv
        do k = 1, coef%Xh%lx
@@ -1088,11 +1102,25 @@ contains
        end do
     end do
     !$omp end do
+    !$omp do
+    do i = 1, n
+       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
+                     - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
+ 
+       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &
+                     - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
 
-    call vcross(a,b,c, coef%dxdr, coef%dydr, coef%dzdr, &
-         coef%dxds, coef%dyds, coef%dzds, n)
-    call vdot3(dot, a, b, c, a, b, c, n)
-
+       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
+                     - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
+    end do
+    !$omp end do
+    !$omp do
+    do i = 1, n
+       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+                       + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+                       + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+    end do
+    !$omp end do
     !$omp do
     do e = 1, coef%msh%nelv
        do k = 1, coef%Xh%lx
