@@ -250,10 +250,10 @@ jobs:
         if: matrix.backend == 'cuda'
         run: |
           git apply patches/nvhpc_bge.patch
-          ls /opt/nvidia/hpc_sdk/22.11/cuda/11.8
+          ls /opt/nvidia/hpc_sdk/Linux_x86_64/22.11/cuda/
           nvfortran --version
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/22.11/cuda/11.8
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/22.11/cuda/
           make -j$(nproc)          
   ReFrame:
       needs: GNU
