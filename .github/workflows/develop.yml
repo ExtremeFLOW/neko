@@ -11,14 +11,6 @@ jobs:
       name: "Flint"
       runs-on: ubuntu-20.04
       steps:
-        - name: Set apt mirror
-        # GitHub Actions apt proxy is super unstable
-        # see https://github.com/actions/runner-images/issues/7048
-          run: |
-            # make sure there is a `\t` between URL and `priority:*` attributes
-            printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
-            curl http://mirrors.ubuntu.com/mirrors.txt | sudo tee --append /etc/apt/mirrors.txt
-            sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
         - name: Setup env.
           run: |
             sudo apt-get update && sudo apt-get install python-dev python3-tk
@@ -77,14 +69,6 @@ jobs:
       RP: ${{ matrix.precision }}
     name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
-      - name: Set apt mirror
-        # GitHub Actions apt proxy is super unstable
-        # see https://github.com/actions/runner-images/issues/7048
-        run: |
-          # make sure there is a `\t` between URL and `priority:*` attributes
-          printf 'http://azure.archive.ubuntu.com/ubuntu  priority:1\n' | sudo tee /etc/apt/mirrors.txt
-          curl http://mirrors.ubuntu.com/mirrors.txt | sudo tee --append /etc/apt/mirrors.txt
-          sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
       - name: Setup env.
         run: ${{ matrix.setup-env }}
       - name: Cache pFUnit
@@ -211,14 +195,6 @@ jobs:
       RP: ${{ matrix.precision }}
     name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
-      - name: Set apt mirror
-        # GitHub Actions apt proxy is super unstable
-        # see https://github.com/actions/runner-images/issues/7048
-        run: |
-          # make sure there is a `\t` between URL and `priority:*` attributes
-          printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
-          curl http://mirrors.ubuntu.com/mirrors.txt | sudo tee --append /etc/apt/mirrors.txt
-          sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
       - name: Setup env.
         run: ${{ matrix.setup-env }}
       - name: Checkout
@@ -255,14 +231,6 @@ jobs:
       RP: ${{ matrix.precision }}
     name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
-      - name: Set apt mirror
-       # GitHub Actions apt proxy is super unstable
-       # see https://github.com/actions/runner-images/issues/7048
-        run: |
-          # make sure there is a `\t` between URL and `priority:*` attributes
-          printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
-          curl http://mirrors.ubuntu.com/mirrors.txt | sudo tee --append /etc/apt/mirrors.txt
-          sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
       - name: Setup env.
         run: ${{ matrix.setup-env }}
       - name: Checkout
@@ -302,14 +270,6 @@ jobs:
         RP: ${{ matrix.precision }}
       name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
       steps:
-        - name: Set apt mirror
-          # GitHub Actions apt proxy is super unstable
-          # see https://github.com/actions/runner-images/issues/7048
-          run: |
-            # make sure there is a `\t` between URL and `priority:*` attributes
-            printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
-            curl http://mirrors.ubuntu.com/mirrors.txt | sudo tee --append /etc/apt/mirrors.txt
-            sudo sed -i 's/http:\/\/azure.archive.ubuntu.com\/ubuntu\//mirror+file:\/etc\/apt\/mirrors.txt/' /etc/apt/sources.list
         - name: Setup env.
           run: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
