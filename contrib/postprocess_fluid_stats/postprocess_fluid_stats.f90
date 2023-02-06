@@ -25,15 +25,30 @@ program postprocess_fluid_stats
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./average_fields field_series_name.fld start_time output_name.fld' 
-        write(*,*) 'Example command: ./average_fields mean_field104.fld 103.2 mean_field_avg.fld'
-        write(*,*) 'Computes the average field over the fld files described in mean_field104.nek5000'
-        write(*,*) 'The start time is the time at which the first file startsto collect stats'
-        write(*,*) 'The files need to be aranged chronological order.'
-        write(*,*) 'The average field is then stored in a fld series, i.e. output_name.nek5000 and output_name.f00000'
+        write(*,*) 'Usage: ./postprocess_fluid_stats mesh.nmsh mean_field.fld stats.fld' 
+        write(*,*) 'Example command: ./average_fields mesh.nmsh mean_fieldblabla.fld statsblabla.fld'
+        write(*,*) 'Computes the statstics from the fld files described in mean_field104.nek5000 stats104.nek5000'
+        write(*,*) 'Currently we output two new fld files reynolds and mean_vei_grad'
+        write(*,*) 'In Reynolds the fields are ordered as:'
+        write(*,*) 'x-velocity=<u`u`>'
+        write(*,*) 'y-velocity=<v`v`>'
+        write(*,*) 'z-velocity=<w`w`>'
+        write(*,*) 'pressure=<p`p`>'
+        write(*,*) 'temperature=<u`v`>'
+        write(*,*) 's1=<u`w`>'
+        write(*,*) 's2=<v`w`>'
+        write(*,*) 'In mean_vel_grad:'
+        write(*,*) 'x-velocity=dudx'
+        write(*,*) 'y-velocity=dudy'
+        write(*,*) 'z-velocity=dudz'
+        write(*,*) 'pressure=dvdx'
+        write(*,*) 'temperature=dvdy'
+        write(*,*) 's1=dvdz'
+        write(*,*) 's2=dwdx'
+        write(*,*) 's2=dwdy'
+        write(*,*) 's2=dwdz'
      end if
      stop
-
   end if
   
   call neko_init 
