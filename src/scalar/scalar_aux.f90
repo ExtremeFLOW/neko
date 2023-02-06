@@ -28,7 +28,7 @@ contains
     call neko_log%message(log_buf)
 
     ! Check for divergence
-    do i = 1, 4
+    do i = 1, 1
        if (ieee_is_nan(ksp_results(i)%res_final)) then
           call neko_log%error("Scalar solver diverged")
           stop
