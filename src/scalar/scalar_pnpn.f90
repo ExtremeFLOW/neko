@@ -45,6 +45,7 @@ module scalar_pnpn
   use projection
   use logger
   use advection
+  use profiler
   implicit none
   private
 
@@ -231,7 +232,8 @@ contains
     type(ksp_monitor_t) :: ksp_results(1)
     n = this%dm_Xh%size()
     niter = 1000
-
+    
+    call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          ds => this%ds, &
          ta1 => this%ta1, &
@@ -269,6 +271,7 @@ contains
       call this%bc_apply()
 
       ! compute scalar residual
+      call profiler_start_region('Scalar residual')
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
           params%Re, params%rho, ext_bdf%bdf(1), params%dt, &
           dm_Xh%size())
@@ -277,14 +280,17 @@ contains
 
       call bc_list_apply_scalar(this%bclst_ds,&
            s_res%x, dm_Xh%size())
+      call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
 
       call this%pc%update()
+      call profiler_start_region('Scalar solve')
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh, niter)
+      call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
@@ -300,6 +306,7 @@ contains
       call scalar_step_info(tstep, t, params%dt, ksp_results)
 
     end associate
+    call profiler_end_region
   end subroutine scalar_pnpn_step
 
 
