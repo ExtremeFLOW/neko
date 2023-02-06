@@ -363,6 +363,7 @@ contains
     n = this%dm_Xh%size()
     niter = 1000
 
+    call profiler_start_region('Fluid')
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
@@ -391,13 +392,13 @@ contains
       call this%adv%apply(this%u, this%v, this%w, &
                           f_Xh%u, f_Xh%v, f_Xh%w, &
                           Xh, this%c_Xh, dm_Xh%size())
-   
+
       call makeabf%compute_fluid(ta1, ta2, ta3,&
                            this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
                            params%rho, ext_bdf%ext, n)
-      
+
       call makebdf%compute_fluid(ta1, ta2, ta3, this%wa1, this%wa2, this%wa3,&
                            ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, params%rho, params%dt, &
@@ -413,23 +414,25 @@ contains
       call this%bc_apply_prs()
 
       ! compute pressure
+      call profiler_start_region('Pressure residual')
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            ta1, ta2, ta3, wa1, wa2, wa3, &
                            this%work1, this%work2, f_Xh, &
                            c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%bdf(1), &
                            params%dt, params%Re, params%rho)
-
+      
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
-
+      call profiler_end_region
+     
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
          call this%proj_prs%log_info('Pressure')
       end if
       
       call this%pc_prs%update()
-      call profiler_start_region('Pressure')
+      call profiler_start_region('Pressure solve')
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
                                           this%bclst_dp, gs_Xh, niter)
       call profiler_end_region
@@ -447,6 +450,7 @@ contains
       
 
       ! compute velocity
+      call profiler_start_region('Velocity residual')
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
                            p, ta1, ta2, ta3, &
@@ -460,6 +464,7 @@ contains
 
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size())
+      call profiler_end_region
       
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
          call this%proj_u%project_on(u_res%x, c_Xh, n)
@@ -469,7 +474,7 @@ contains
 
       call this%pc_vel%update()
 
-      call profiler_start_region("Velocity")
+      call profiler_start_region("Velocity solve")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
            c_Xh, this%bclst_du, gs_Xh, niter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
@@ -505,6 +510,7 @@ contains
       call fluid_step_info(tstep, t, params%dt, ksp_results)
       
     end associate
+    call profiler_end_region
   end subroutine fluid_pnpn_step
 
   

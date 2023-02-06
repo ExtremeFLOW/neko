@@ -72,6 +72,7 @@ module projection
   use device
   use device_math
   use device_projection
+  use profiler
   use logger
   use, intrinsic :: iso_c_binding
   implicit none
@@ -131,9 +132,8 @@ contains
        call rzero(this%xx(1,i),n)
        call rzero(this%bb(1,i),n)
     end do
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
-       
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+
        call device_map(this%xbar, this%xbar_d,n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
 
@@ -207,13 +207,15 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef   
     real(kind=rp), intent(inout), dimension(n) :: b 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    call profiler_start_region('Project on')
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_project_on(this, b, coef, n)
     else
        call cpu_project_on(this, b, coef, n)
     end if
+    call profiler_end_region
   end subroutine bcknd_project_on
+  
   subroutine bcknd_project_back(this,x,Ax,coef, bclst, gs_h, n)
     class(projection_t) :: this
     integer, intent(inout) :: n
@@ -224,10 +226,10 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: x 
     type(c_ptr) :: x_d
 
+    call profiler_start_region('Project back')
     this%m = min(this%m+1,this%L)
-    
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
        if (this%m .eq. this%L) this%m = 1
@@ -242,13 +244,12 @@ contains
     call gs_op_vector(gs_h, this%bb(1,this%m), n, GS_OP_ADD)
     call bc_list_apply_scalar(bclst, this%bb(1,this%m), n)
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
-
     else
        call cpu_proj_ortho  (this,this%xx,this%bb,coef%mult,n) 
     end if
+    call profiler_end_region
   end subroutine bcknd_project_back
  
 
@@ -265,7 +266,7 @@ contains
               bb => this%bb)
     
       if (this%m .le. 0) return
-
+            
       !First round of CGS
       call rzero(alpha, this%m)
       this%proj_res = glsc3(b,b,coef%mult,n)
@@ -361,6 +362,7 @@ contains
               bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
       
       if(m .le. 0) return
+
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_project_ortho(alpha_d, bb_d(m), xx_d_d, bb_d_d, &
               w_d, xx_d(m), this%m, n, nrm)
@@ -397,7 +399,7 @@ contains
       endif
 
     end associate
-    
+
   end subroutine device_proj_ortho
   
   
