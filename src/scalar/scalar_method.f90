@@ -204,7 +204,15 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst)
-
+     
+    !Hack for our large run, we set wall at the top and inflow at the bottom
+    call this%dir_bcs(1)%init(this%dm_Xh)
+    call this%dir_bcs(2)%init(this%dm_Xh)
+    call this%dir_bcs(1)%mark_zone(msh%wall)
+    call this%dir_bcs(1)%set_g(0.0_rp)
+    call this%dir_bcs(2)%mark_zone(msh%inlet)
+    call this%dir_bcs(2)%set_g(1.0_rp)
+    this%n_dir_bcs = 2
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
   
     ! todo parameter file ksp tol should be added
