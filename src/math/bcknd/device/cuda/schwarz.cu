@@ -46,7 +46,7 @@ extern "C" {
                             void *arr2, int * l2, real * f2,
                             int * nx, int * nel) {
     
-    const dim3 nthrds(1024, 1, 1);
+    const dim3 nthrds((*nx-2)*(*nx-2), 1, 1);
     const dim3 nblcks((*nel), 1, 1);
 
 #define CASE(NX)                                     \
@@ -58,7 +58,6 @@ extern "C" {
     break;
 
     switch(*nx) {
-      CASE(2);
       CASE(3);
       CASE(4);
       CASE(5);
