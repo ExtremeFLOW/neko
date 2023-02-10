@@ -325,7 +325,9 @@ contains
                      real(re2v1_data_xy(i)%y(j),dp), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+             if (nelv > 10) then
+                if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+             end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
           end do
@@ -340,7 +342,9 @@ contains
                      re2v2_data_xy(i)%y(j), 0.0d0)
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+             if (nelv > 10) then
+                if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
+             end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, p(1), p(2), p(4), p(3))
           end do
@@ -359,7 +363,9 @@ contains
                      real(re2v1_data_xyz(i)%z(j),dp))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+             if (nelv > 100) then
+                if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+             end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
@@ -376,7 +382,9 @@ contains
                      re2v2_data_xyz(i)%z(j))
                 call re2_file_add_point(htp, p(j), pt_idx)
              end do
-             if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+             if (nelv > 100) then
+                if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
+             end if
              ! swap vertices to keep symmetric vertex numbering in neko
              call mesh_add_element(msh, i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))          
