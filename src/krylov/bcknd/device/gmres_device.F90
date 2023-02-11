@@ -353,11 +353,23 @@ contains
              call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
              call gs_op(gs_h, w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
-             call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n) 
-            
-             call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
 
-             alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
+             if (NEKO_BCKND_OPENCL .eq. 1) then
+                do i = 1, j
+                   h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n) 
+
+                   call device_add2s2(w_d, v_d(i), -h(i,j), n)
+
+                   alpha2 = device_glsc3(w_d, w_d, coef%mult_d, n)
+                end do
+             else
+                call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
+            
+                call device_memcpy(h(:,j), h_d(j), j, HOST_TO_DEVICE)
+
+                alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
+                
+             end if
              
              alpha = sqrt(alpha2)
              do i=1,j-1
@@ -404,8 +416,15 @@ contains
              end do
              c(k) = temp / h(k,k)
           end do
-          call device_memcpy(c, c_d, j, HOST_TO_DEVICE)
-          call device_add2s2_many(x_d, z_d_d, c_d, j, n)
+
+          if (NEKO_BCKND_OPENCL .eq. 1) then
+             do i = 1, j
+                call device_add2s2(x_d, this%z_d(i), c(i), n)
+             end do
+          else
+             call device_memcpy(c, c_d, j, HOST_TO_DEVICE)
+             call device_add2s2_many(x_d, z_d_d, c_d, j, n)
+          end if
        end do
 
      end associate
