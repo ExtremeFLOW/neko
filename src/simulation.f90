@@ -76,7 +76,7 @@ contains
     call neko_log%newline()
 
     call profiler_start
-
+    cfl = 1.0_rp
     start_time_org = MPI_WTIME()
     do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()) .and. cfl .lt. 0.6_rp)
        call profiler_start_region('Time-Step')
