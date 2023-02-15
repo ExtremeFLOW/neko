@@ -64,9 +64,7 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
   __shared__ T shu[LX*LX*LX];                                                  
   __shared__ T shur[LX*LX*LX];                                                 
   __shared__ T shus[LX*LX*LX];                                                 
-  __shared__ T shut[LX*LX*LX];                                                 
-                                                                               
-  int l,i,j,k,n;                                                               
+  __shared__ T shut[LX*LX*LX];                                   
                                                                                
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
@@ -77,11 +75,14 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
     shdy[iii] = dy[iii];                                                       
     shdz[iii] = dz[iii];                                                       
   }                                                                            
-  i = iii;                                                                     
-  while (i < LX * LX * LX){                                                    
-    shu[i] = u[i+e*LX*LX*LX];                                                  
-    i = i + CHUNKS;                                                            
-  }                                                                            
+
+  {
+    int i = iii;                                                               
+    while (i < LX * LX * LX){                                                   
+      shu[i] = u[i+e*LX*LX*LX];                                                 
+      i = i + CHUNKS;                                                           
+    }
+  }
                                                                                
   __syncthreads();
                                                                                
@@ -91,47 +92,47 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
     shdzt[iii] = dzt[iii];                                                     
   }                                                                            
                                                                                
-  for (n=0; n<nchunks; n++){                                                   
+  for (int n=0; n<nchunks; n++){                                              
     const int ijk = iii+n*CHUNKS;                                              
-    const int jk = ijk/LX;                                                     
-    i = ijk-jk*LX;                                                             
-    k = jk/LX;                                                                 
-    j = jk-k*LX;                                                               
+    const int jk = ijk/LX;
+    const T G00 = g11[ijk+e*LX*LX*LX];
+    const T G11 = g22[ijk+e*LX*LX*LX];
+    const T G22 = g33[ijk+e*LX*LX*LX];
+    const T G01 = g12[ijk+e*LX*LX*LX];
+    const T G02 = g13[ijk+e*LX*LX*LX];
+    const T G12 = g23[ijk+e*LX*LX*LX];
+    const T H1 = h1[ijk+e*LX*LX*LX];
+    const int i = ijk-jk*LX;
+    const int k = jk/LX;
+    const int j = jk-k*LX;
     if (i<LX && j<LX && k<LX && ijk < LX*LX*LX){        
       T rtmp = 0.0;                                                         
       T stmp = 0.0;                                                            
-      T ttmp = 0.0;                                                            
-      for (l = 0; l<LX; l++){                                                  
+      T ttmp = 0.0;
+#pragma unroll
+      for (int l = 0; l<LX; l++){
         rtmp = rtmp + shdx[i+l*LX] * shu[l+j*LX+k*LX*LX];                      
         stmp = stmp + shdy[j+l*LX] * shu[i+l*LX+k*LX*LX];                      
         ttmp = ttmp + shdz[k+l*LX] * shu[i+j*LX+l*LX*LX];                      
       }                                                                        
-      shur[ijk] = h1[ijk+e*LX*LX*LX]                                           
-                * (g11[ijk+e*LX*LX*LX] * rtmp                                  
-                   + g12[ijk+e*LX*LX*LX] * stmp                                
-                   + g13[ijk+e*LX*LX*LX] * ttmp);                              
-      shus[ijk] = h1[ijk+e*LX*LX*LX]                                           
-                * (g12[ijk+e*LX*LX*LX] * rtmp                                  
-                   + g22[ijk+e*LX*LX*LX] * stmp                                
-                   + g23[ijk+e*LX*LX*LX] * ttmp);                              
-      shut[ijk] = h1[ijk+e*LX*LX*LX]                                           
-                * (g13[ijk+e*LX*LX*LX] * rtmp                                  
-                   + g23[ijk+e*LX*LX*LX] * stmp                                
-                   + g33[ijk+e*LX*LX*LX] * ttmp);                              
+      shur[ijk] = H1 * (G00 * rtmp + G01 * stmp + G02 * ttmp);
+      shus[ijk] = H1 * (G01 * rtmp + G11 * stmp + G12 * ttmp);     
+      shut[ijk] = H1 * (G02 * rtmp + G12 * stmp + G22 * ttmp);
     }                                                                          
   }                                                                            
                                                                                
   __syncthreads();
                                                                                
-  for (n=0; n<nchunks; n++){                                                   
+  for (int n=0; n<nchunks; n++){                                             
     const int ijk = iii+n*CHUNKS;                                              
     const int jk = ijk/LX;                                                     
-    i = ijk-jk*LX;                                                             
-    k = jk/LX;                                                                 
-    j = jk-k*LX;                                                               
+    const int k = jk/LX;
+    const int j = jk-k*LX;
+    const int i = ijk-jk*LX;
     if (i<LX && j<LX && k<LX && ijk <LX*LX*LX){                 
-      T wijke = 0.0;                                                        
-      for (l = 0; l<LX; l++){                                                  
+      T wijke = 0.0;
+#pragma unroll
+      for (int l = 0; l<LX; l++){
         wijke = wijke                                                          
               + shdxt[i+l*LX] * shur[l+j*LX+k*LX*LX]                           
               + shdyt[j+l*LX] * shus[i+l*LX+k*LX*LX]                           
