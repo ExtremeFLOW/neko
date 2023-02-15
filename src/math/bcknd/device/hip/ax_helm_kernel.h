@@ -95,17 +95,17 @@ __global__ void ax_helm_kernel_1d(T * __restrict__ w,
   for (int n=0; n<nchunks; n++){                                              
     const int ijk = iii+n*CHUNKS;                                              
     const int jk = ijk/LX;
-    const T G00 = g11[ijk+e*LX*LX*LX];
-    const T G11 = g22[ijk+e*LX*LX*LX];
-    const T G22 = g33[ijk+e*LX*LX*LX];
-    const T G01 = g12[ijk+e*LX*LX*LX];
-    const T G02 = g13[ijk+e*LX*LX*LX];
-    const T G12 = g23[ijk+e*LX*LX*LX];
-    const T H1 = h1[ijk+e*LX*LX*LX];
     const int i = ijk-jk*LX;
     const int k = jk/LX;
     const int j = jk-k*LX;
     if (i<LX && j<LX && k<LX && ijk < LX*LX*LX){        
+      const T G00 = g11[ijk+e*LX*LX*LX];
+      const T G11 = g22[ijk+e*LX*LX*LX];
+      const T G22 = g33[ijk+e*LX*LX*LX];
+      const T G01 = g12[ijk+e*LX*LX*LX];
+      const T G02 = g13[ijk+e*LX*LX*LX];
+      const T G12 = g23[ijk+e*LX*LX*LX];
+      const T H1 = h1[ijk+e*LX*LX*LX];
       T rtmp = 0.0;                                                         
       T stmp = 0.0;                                                            
       T ttmp = 0.0;
