@@ -1,0 +1,61 @@
+
+/* Define if you have a BLAS library. */
+#undef HAVE_BLAS
+
+/* Coarray Fortran support */
+#undef HAVE_COARRAY
+
+/* Define if you have CUDA. */
+#undef HAVE_CUDA
+
+/* Dervied type I/O support */
+#undef HAVE_DERIVED_TYPE_IO
+
+/* Define if device MPI is requested. */
+#undef HAVE_DEVICE_MPI
+
+/* Define if you have HIP. */
+#undef HAVE_HIP
+
+/* Define if you have LAPACK library. */
+#undef HAVE_LAPACK
+
+/* Define if you have the LIBXSMM library. */
+#undef HAVE_LIBXSMM
+
+/* Define if you have the Metis library. */
+#undef HAVE_METIS
+
+/* Fortran 2008 MPI support */
+#undef HAVE_MPI_F08
+
+/* MPI supports datatypes as parameters */
+#undef HAVE_MPI_PARAM_DTYPE
+
+/* Define if you have NCCL. */
+#undef HAVE_NCCL
+
+/* Define if you have NVTX. */
+#undef HAVE_NVTX
+
+/* Define if you have OpenCL. */
+#undef HAVE_OPENCL
+
+/* Define if you have the ParMETIS library. */
+#undef HAVE_PARMETIS
+
+/* ParMETIS idx_t is 64bit */
+#undef HAVE_PARMETIS_INT64
+
+/* ParMETIS real_t is 64bit */
+#undef HAVE_PARMETIS_REAL64
+
+/* Define if you have RCCL. */
+#undef HAVE_RCCL
+
+/* REAL128 support */
+#undef HAVE_REAL128
+
+/* Define if you have ROCTX. */
+#undef HAVE_ROCTX
+

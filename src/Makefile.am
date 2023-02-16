@@ -336,6 +336,7 @@ bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
 pkginclude_HEADERS = $(wildcard *.mod)\
+		     config/neko_config.h\
 		     device/device_config.h\
 		     common/neko_log.h
 
