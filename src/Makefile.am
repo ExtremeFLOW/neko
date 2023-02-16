@@ -335,7 +335,22 @@ endif
 bin_PROGRAMS = neko
 neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
-pkginclude_HEADERS = $(wildcard *.mod) device/device_config.h
+pkginclude_HEADERS = $(wildcard *.mod)\
+		     device/device_config.h\
+		     common/neko_log.h
+
+if ENABLE_HIP
+pkginclude_HEADERS += device/hip/check.h
+endif
+
+if ENABLE_CUDA
+pkginclude_HEADERS += device/cuda/check.h
+endif
+
+if ENABLE_OPENCL
+pkginclude_HEADERS += device/opencl/check.h
+endif
+
 
 CLEANFILES = *.mod
 
