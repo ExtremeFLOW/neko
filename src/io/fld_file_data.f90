@@ -21,7 +21,7 @@ module fld_file_data
      integer, allocatable :: idx(:) !< element idxs
      type(vector_t), allocatable :: s(:) !< Numbered scalar fields
      integer :: gdim !< spatial dimensions
-     integer :: n_scalars = 0 !< number of nnumbered scalar fields
+     integer :: n_scalars = 0 !< number of numbered scalar fields
      real(kind=rp) :: time = 0.0 !< time of sample
      integer :: glb_nelv = 0 !< global number of elements
      integer :: nelv = 0  !< n elements on the pe
@@ -40,6 +40,8 @@ module fld_file_data
      procedure, pass(this) :: free => fld_file_data_free
      procedure, pass(this) :: scale => fld_file_data_scale
      procedure, pass(this) :: add => fld_file_data_add
+     procedure, pass(this) :: size => fld_file_data_size
+     procedure, pass(this) :: get_list => fld_file_get_list
   end type fld_file_data_t
 
 contains
@@ -52,6 +54,55 @@ contains
     if (present(offset_el)) this%offset_el = offset_el
     
   end subroutine fld_file_data_init
+  !> Get number of fields in this fld file
+  function fld_file_data_size(this) result(i)
+    class(fld_file_data_t) :: this
+    integer :: i
+    i = 0
+    if(this%u%n .gt. 0) i = i + 1 
+    if(this%v%n .gt. 0) i = i + 1 
+    if(this%w%n .gt. 0) i = i + 1 
+    if(this%p%n .gt. 0) i = i + 1 
+    if(this%t%n .gt. 0) i = i + 1 
+    i = i + this%n_scalars
+
+  end function fld_file_data_size
+
+  !> Get a list with pointers to the fields in the fld file
+  subroutine fld_file_get_list(this, ptr_list, n) 
+    class(fld_file_data_t), target, intent(in) :: this
+    integer, intent(in) :: n
+    integer :: i, j
+    type(vector_ptr_t), intent(inout) :: ptr_list(n)
+    i = 1
+    if(this%u%n .gt. 0) then
+       ptr_list(i)%v => this%u
+       i = i + 1
+    end if     
+    if(this%v%n .gt. 0) then
+       ptr_list(i)%v => this%v
+       i = i + 1
+    end if     
+    if(this%w%n .gt. 0) then
+       ptr_list(i)%v => this%w
+       i = i + 1
+    end if     
+    if(this%p%n .gt. 0) then
+       ptr_list(i)%v => this%p
+       i = i + 1
+    end if     
+    if(this%t%n .gt. 0) then
+       ptr_list(i)%v => this%t
+       i = i + 1
+    end if     
+    do j = 1, this%n_scalars
+       ptr_list(i)%v => this%s(j)
+       i = i +1
+    end do
+
+  end subroutine fld_file_get_list
+
+
 
   !> Scale the values stored in this fld_file_data
   subroutine fld_file_data_scale(this, c)
