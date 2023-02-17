@@ -88,7 +88,7 @@ contains
     integer, allocatable :: idx(:)
     type(MPI_Status) :: status
     type(MPI_File) :: fh
-    integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset
+    integer (kind=MPI_OFFSET_KIND) :: mpi_offset, byte_offset, temp_offset
     real(kind=sp), parameter :: test_pattern = 6.54321
     type(array_ptr_t), allocatable :: scalar_fields(:)
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
@@ -374,13 +374,22 @@ contains
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
     end if
+
+    temp_offset = mpi_offset
+
     do i = 1, n_scalar_fields
-       byte_offset = mpi_offset + int(offset_el, i8) * &
+       !Without this redundant if statement, Cray optimizes this loop to Oblivion
+       if (i .eq. 2) then 
+          mpi_offset = int(temp_offset,i8) + int(1_i8*glb_nelv, i8) * &
+                           (int(lxyz, i8) * &
+                       int(FLD_DATA_SIZE, i8))
+       end if
+       byte_offset = int(mpi_offset,i8) + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
        call fld_file_write_field(this, fh, byte_offset, scalar_fields(i)%x, n)
-       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
-            (int((lxyz), i8) * &
+       mpi_offset = int(mpi_offset,i8) + int(glb_nelv, i8) * &
+            (int(lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
     end do
     
@@ -410,25 +419,25 @@ contains
   subroutine fld_file_write_field(this, fh, byte_offset, p, n)
     class(fld_file_t), intent(inout) :: this
     type(MPI_File), intent(inout) :: fh
-    integer, intent(in) :: n
-    real(kind=rp), intent(in) :: p(n)
+    integer, intent(inout) :: n
+    real(kind=rp), intent(inout) :: p(n)
     integer (kind=MPI_OFFSET_KIND), intent(in) :: byte_offset
     integer :: i, ierr
     type(MPI_Status) :: status
 
-    if (.not. this%dp_precision) then
-       do i = 1, n
-          tmp_sp(i) = real(p(i),sp)
-       end do
-       
-       call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
-            MPI_REAL, status, ierr)
-    else
+    if ( this%dp_precision) then
        do i = 1, n
           tmp_dp(i) = real(p(i),dp)
        end do
+       
        call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
             MPI_DOUBLE_PRECISION, status, ierr)
+    else
+       do i = 1, n
+          tmp_sp(i) = real(p(i),sp)
+       end do
+       call MPI_File_write_at_all(fh, byte_offset, tmp_sp, n, &
+            MPI_REAL, status, ierr)
     end if
     
   end subroutine fld_file_write_field
@@ -460,7 +469,7 @@ contains
              end do
           end if
        end do
-       call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
+       call MPI_File_write_at_all(fh, byte_offset, tmp_dp, gdim*n, &
             MPI_DOUBLE_PRECISION, status, ierr)
     else
        i = 1
@@ -742,19 +751,15 @@ contains
     integer(kind=MPI_OFFSET_KIND) :: byte_offset
     type(MPI_File) :: fh
     type(MPI_Status) :: status
-    real(kind=dp), allocatable :: tmp_dp(:)
-    real(kind=sp), allocatable :: tmp_sp(:)
     integer :: n, ierr, lxyz, i, j, e
 
     n = x%n
     lxyz = fld_data%lx*fld_data%ly*fld_data%lz
 
     if (this%dp_precision) then
-       allocate(tmp_dp(n))
        call MPI_File_read_at_all(fh, byte_offset, tmp_dp, n, &
             MPI_DOUBLE_PRECISION, status, ierr)
     else
-       allocate(tmp_sp(n))
        call MPI_File_read_at_all(fh, byte_offset, tmp_sp, n, &
             MPI_REAL, status, ierr)
     end if
@@ -780,8 +785,6 @@ contains
     integer(kind=MPI_OFFSET_KIND) :: byte_offset
     type(MPI_File) :: fh
     type(MPI_Status) :: status
-    real(kind=dp), allocatable :: tmp_dp(:)
-    real(kind=sp), allocatable :: tmp_sp(:)
     integer :: n, ierr, lxyz, i, j, e, nd
 
     n = x%n
@@ -789,11 +792,9 @@ contains
     lxyz = fld_data%lx*fld_data%ly*fld_data%lz
 
     if (this%dp_precision) then
-       allocate(tmp_dp(fld_data%gdim*n))
        call MPI_File_read_at_all(fh, byte_offset, tmp_dp, nd, &
             MPI_DOUBLE_PRECISION, status, ierr)
     else
-       allocate(tmp_sp(fld_data%gdim*n))
        call MPI_File_read_at_all(fh, byte_offset, tmp_sp, nd, &
             MPI_REAL, status, ierr)
     end if
