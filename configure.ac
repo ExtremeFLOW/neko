@@ -307,6 +307,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/genmeshbox/Makefile\
 		    contrib/average_fields/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
+		    contrib/average_field_in_space/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen
