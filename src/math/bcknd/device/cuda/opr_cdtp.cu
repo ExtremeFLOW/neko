@@ -59,7 +59,7 @@ extern "C" {
                  void *dxt, void *dyt, void *dzt,
                  void *B, void *jac, int *nel, int *lx) {
     
-    static int autotune[16] = { 0 };
+    static int autotune[17] = { 0 };
     
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
