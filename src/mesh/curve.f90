@@ -69,6 +69,7 @@ contains
           z%curve_el(i) = tp(i)
        end do
        end select
+
        z%size = z%scratch%size()
 
        call z%scratch%clear()

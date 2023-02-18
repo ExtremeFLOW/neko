@@ -1862,7 +1862,7 @@ contains
     tmp = p%id()
 
     if (m%htp%get(tmp, local_id) .gt. 0) then
-       call neko_error('Invalid global id')
+       call neko_error('Invalid global id (local point)')
     end if
     
   end function mesh_get_local_point
@@ -1875,7 +1875,7 @@ contains
     integer :: local_id
 
     if (m%hte%get(e, local_id) .gt. 0) then
-       call neko_error('Invalid global id')
+       call neko_error('Invalid global id (local edge)')
     end if
     
   end function mesh_get_local_edge
@@ -1887,7 +1887,7 @@ contains
     integer :: local_id
 
     if (m%htf%get(f, local_id) .gt. 0) then
-       call neko_error('Invalid global id')
+       call neko_error('Invalid global id (local facet)')
     end if
     
   end function mesh_get_local_facet
