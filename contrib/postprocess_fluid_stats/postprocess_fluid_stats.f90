@@ -19,15 +19,15 @@ program postprocess_fluid_stats
   type(field_t), pointer :: u, v, w, p
   type(field_t), target :: pp, uu, vv, ww, uv, uw, vw, tmp1, tmp2
   type(field_list_t) :: reynolds, mean_vel_grad
-  integer :: argc, i, n
+  integer :: argc, i, n, lx
   
   argc = command_argument_count()
 
   if ((argc .lt. 3) .or. (argc .gt. 3)) then
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./postprocess_fluid_stats mesh.nmsh mean_field.fld stats.fld' 
-        write(*,*) 'Example command: ./average_fields mesh.nmsh mean_fieldblabla.fld statsblabla.fld'
-        write(*,*) 'Computes the statstics from the fld files described in mean_field104.nek5000 stats104.nek5000'
+        write(*,*) 'Example command: ./postprocess_fluid_stats mesh.nmsh mean_fieldblabla.fld statsblabla.fld'
+        write(*,*) 'Computes the statstics from the fld files described in mean_fielblabla.nek5000 statsblabla.nek5000'
         write(*,*) 'Currently we output two new fld files reynolds and mean_vei_grad'
         write(*,*) 'In Reynolds the fields are ordered as:'
         write(*,*) 'x-velocity=<u`u`>'
@@ -69,8 +69,39 @@ program postprocess_fluid_stats
   call stats_data%init(msh%nelv,msh%offset_el)
   call mean_file%read(mean_data)
   call stats_file%read(stats_data)
+  
+  do i = 1,msh%nelv
+     lx = mean_data%lx
+     msh%elements(i)%e%pts(1)%p%x(1) = mean_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(2)%p%x(1) = mean_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(3)%p%x(1) = mean_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(4)%p%x(1) = mean_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(5)%p%x(1) = mean_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(6)%p%x(1) = mean_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(7)%p%x(1) = mean_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(8)%p%x(1) = mean_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+
+     msh%elements(i)%e%pts(1)%p%x(2) = mean_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(2)%p%x(2) = mean_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(3)%p%x(2) = mean_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(4)%p%x(2) = mean_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(5)%p%x(2) = mean_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(6)%p%x(2) = mean_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(7)%p%x(2) = mean_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(8)%p%x(2) = mean_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+
+     msh%elements(i)%e%pts(1)%p%x(3) = mean_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
+     msh%elements(i)%e%pts(2)%p%x(3) = mean_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(3)%p%x(3) = mean_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(4)%p%x(3) = mean_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
+     msh%elements(i)%e%pts(5)%p%x(3) = mean_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(6)%p%x(3) = mean_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(7)%p%x(3) = mean_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
+     msh%elements(i)%e%pts(8)%p%x(3) = mean_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+  end do
 
   call space_init(Xh, GLL, mean_data%lx, mean_data%ly, mean_data%lz)
+
   dof = dofmap_t(msh, Xh)
   call gs_init(gs_h, dof)
   call coef_init(coef, gs_h)
