@@ -370,12 +370,18 @@ contains
     real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: ident(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: l2norm, oldl2norm, targeterr
-    integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv, n
     integer :: targetkut, comp_counter
     real(kind=rp) :: restemp,res, restemp2, res2, vol2
     integer :: kut, kutx, kuty, kutz, nx
     character(len=LOG_SIZE) :: log_buf 
+
+    ! For sorting
+    integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: fldhat_sort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx, cpr%msh%nelv)
+    integer :: key(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx, cpr%msh%nelv)
+    integer :: key_sort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx, cpr%msh%nelv)
+
 
 
     ! Definitions for the l2norm in device
@@ -397,6 +403,10 @@ contains
      type(c_ptr) :: res_e_d = C_NULL_PTR
      type(c_ptr) :: vol_e_d = C_NULL_PTR
      type(c_ptr) :: compress_e_d = C_NULL_PTR
+      
+     type(c_ptr) :: fldhat_sort_d = C_NULL_PTR
+     type(c_ptr) :: key_d = C_NULL_PTR
+     type(c_ptr) :: key_sort_d = C_NULL_PTR
 
 
     ! define some constants
@@ -411,6 +421,14 @@ contains
     ! Initially truncate all the elemtns so all entries set to 1
     do i= 1, nelv
        compress_e(i) = 1
+    end do
+
+    ! fill up key sort
+    do e= 1, nelv
+       do i = 1, nxyz
+         key(i,1,1,e)= i
+         key_sort(i,1,1,e)= 0
+       end do
     end do
 
 
@@ -430,7 +448,55 @@ contains
        call device_map(res_e,  res_e_d,  nelv)
        call device_map(vol_e,  vol_e_d,  nelv)
        call device_map(compress_e,  compress_e_d,  nelv)
-      
+       
+       
+       call device_map(fldhat_sort,  fldhat_sort_d,  n)
+       call device_map(key,  key_d,  n)
+       call device_map(key_sort,  key_sort_d,  n)
+
+
+       ! Transfer the key to the device
+       call device_memcpy(key,     key_d,  n, &
+                          HOST_TO_DEVICE)
+
+       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+
+       ! Sort the fields for testing. In reality, sort them once every iteration
+       call device_lcsort_abs(fldhat_sort_d,key_sort_d,cpr%fldhat%x_d, &
+                              key_d, cpr%Xh%lx,nelv)
+
+       call device_memcpy(fldhat_sort, fldhat_sort_d,     n, &
+                          DEVICE_TO_HOST)
+
+
+       call device_memcpy(key_sort, key_sort_d,     n, &
+                          DEVICE_TO_HOST)
+
+
+       write(*,*) 'Checking sorted coefficients'
+       do i = 1, 10
+         write(log_buf, '(A,E15.7,A,I5)') &
+               'u hat value:', fldhat_sort(i,1,1,10), &
+               ' index:', &
+               key_sort(i,1,1,10)
+         call neko_log%message(log_buf)
+       enddo
+       do i = 500, nxyz
+         write(log_buf, '(A,E15.7,A,I5)') &
+               'u hat value:', fldhat_sort(i,1,1,10), &
+               ' index:', &
+               key_sort(i,1,1,10)
+         call neko_log%message(log_buf)
+       enddo
+
+
+       !================debugging info
+
+
+
+       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
        comp_counter=2 
        kut = 0
 
@@ -462,6 +528,8 @@ contains
        ! Transfer compression keys to GPU
        call device_memcpy(compress_e,     compress_e_d, nelv, &
                           HOST_TO_DEVICE)
+
+       ! Introduce the sorting here, perhaps using the wk object instead of new one
 
        ! Copy the spectral coefficients to the working array in GPU
        call device_copy(cpr%wk%x_d, cpr%fldhat%x_d, n)
@@ -555,6 +623,16 @@ contains
           call device_free(compress_e_d)
        end if
        
+       if (c_associated(fldhat_sort_d)) then
+          call device_free(fldhat_sort_d)
+       end if
+       if (c_associated(key_d)) then
+          call device_free(key_d)
+       end if
+       if (c_associated(key_sort_d)) then
+          call device_free(key_sort_d)
+       end if
+ 
        !if(allocated(temp)) then
        !   deallocate(temp)
        !end if

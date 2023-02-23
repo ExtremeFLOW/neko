@@ -202,13 +202,13 @@ __global__ void lcsort_abs_kernel(T * buf_h,
   if (threadIdx.x == 0) {
     for (int i = 0; i< NXYZ; i += 1) {
 
-      for (int j = 0; j < (NXYZ-i-1); i += 1) {
+      for (int j = 0; j < (NXYZ-i-1); j += 1) {
 
       	tmp  = buf[j];
         tmp1 = buf[j+1];
         tmp2 = buf_k[j];
         tmp3 = buf_k[j+1];
-        if (abs(tmp)>abs(tmp1)) {
+        if (abs(tmp)<abs(tmp1)) {
           buf[j]     = tmp1;
           buf[j+1]   = tmp;
           buf_k[j]   = tmp3;
@@ -221,6 +221,7 @@ __global__ void lcsort_abs_kernel(T * buf_h,
 
   buf_h[idx] = buf[threadIdx.x];
   buf_i[idx] = buf_k[threadIdx.x]; 
+ 
 }
 
 
