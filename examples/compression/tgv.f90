@@ -111,9 +111,9 @@ contains
       write(*,*) 'my number of elements is', nelv
       write(*,*) 'total number of elements is', nelgv
 
-    !  call adios2_setup(npts,nelv,nelb,nelgv, &
-    !          nelgv,u%dof%x,u%dof%y,  &
-    !          u%dof%z,NEKO_COMM)
+      call adios2_setup(npts,nelv,nelb,nelgv, &
+              nelgv,u%dof%x,u%dof%y,  &
+              u%dof%z,NEKO_COMM)
 
     end if
 
@@ -177,8 +177,8 @@ contains
 
     end do
 
-    !call adios2_update(lglel, cpr_u%fldhat%x, cpr_u%fldhat%x, &
-    !        cpr_u%fldhat%x, cpr_u%fldhat%x, cpr_u%fldhat%x)
+    call adios2_update(lglel, cpr_u%fldhat%x, cpr_u%fldhat%x, &
+            cpr_u%fldhat%x, cpr_u%fldhat%x, cpr_u%fldhat%x)
 
 
     ! just to check, go to physical space and compare

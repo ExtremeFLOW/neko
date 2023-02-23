@@ -38,34 +38,80 @@ module device_cpr
   implicit none
 
   interface
-     subroutine cuda_glsc3_elem(res_d,a_d,b_d,c_d,lx,nelv) &
-       bind(c, name='cuda_glsc3_elem')
+     subroutine cuda_lcsc3(res_d,a_d,b_d,c_d,lx,nelv) &
+       bind(c, name='cuda_lcsc3')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: res_d, a_d, b_d, c_d
        integer(c_int) :: lx, nelv
-     end subroutine cuda_glsc3_elem
+     end subroutine cuda_lcsc3
   end interface
 
+  interface
+     subroutine cuda_lcsum(res_d,a_d,lx,nelv) &
+       bind(c, name='cuda_lcsum')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: res_d, a_d
+       integer(c_int) :: lx, nelv
+     end subroutine cuda_lcsum
+  end interface
+
+  interface
+     subroutine cuda_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv) &
+          bind(c, name='cuda_lctnsr3d')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, bp_d, bp_key_d
+       integer(c_int) :: nu, nv, nelv
+     end subroutine cuda_lctnsr3d
+  end interface
 
 contains
 
-  subroutine device_glsc3_elem(res_d,a_d,b_d,c_d,lx,nelv)
+  subroutine device_lcsc3(res_d,a_d,b_d,c_d,lx,nelv)
     type(c_ptr), value :: res_d,a_d, b_d, c_d
     integer(c_int) :: lx, nelv
 #ifdef HAVE_HIP
     call neko_error('No elem glsc3_elem in this device')
 #elif HAVE_CUDA
-    call cuda_glsc3_elem(res_d,a_d,b_d,c_d,lx,nelv)
+    call cuda_lcsc3(res_d,a_d,b_d,c_d,lx,nelv)
 #elif HAVE_OPENCL
     call neko_error('No elem glsc3_elem in this device')
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_glsc3_elem
-  
-  
+  end subroutine device_lcsc3
+   
+  subroutine device_lcsum(res_d,a_d,lx,nelv)
+    type(c_ptr), value :: res_d,a_d
+    integer(c_int) :: lx, nelv
+#ifdef HAVE_HIP
+    call neko_error('No elem glsc3_elem in this device')
+#elif HAVE_CUDA
+    call cuda_lcsum(res_d,a_d,lx,nelv)
+#elif HAVE_OPENCL
+    call neko_error('No elem glsc3_elem in this device')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_lcsum
  
+  subroutine device_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv)
+    type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d,bp_d,bp_key_d
+    integer(c_int) :: nu, nv, nelv
+#ifdef HAVE_HIP
+    call neko_error('No device backend configured')
+#elif HAVE_CUDA
+    call cuda_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv)
+#elif HAVE_OPENCL
+    call neko_error('No device backend configured')
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_lctnsr3d
+
 end module device_cpr

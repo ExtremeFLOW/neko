@@ -25,7 +25,7 @@ AC_DEFUN([AX_CUDA],[
 	   	   CPPFLAGS_SAVED="$CPPFLAGS"
 		   LDFLAGS_SAVED="$LDFLAGS"
 		   CPPFLAGS="$CUDA_CPPFLAGS $CPPFLAGS"
-		   LDFLAGS="$CUDA_LDFLAGS $LDFLAGS"
+		   LDFLAGS="$CUDA_LDFLAGS"
 		   export CPPFLAGS
 		   export LDFLAGS
 		   AC_PATH_PROG(NVCC, nvcc, "no")
@@ -49,6 +49,7 @@ AC_DEFUN([AX_CUDA],[
 		else
 		   AC_MSG_ERROR([CUDA not found])
 		fi
+                LDFLAGS="$CUDA_LDFLAGS $LDFLAGS_SAVED"
 	        CC=$_CC
 		AC_LANG_POP([C])
 	fi

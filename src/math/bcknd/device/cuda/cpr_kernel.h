@@ -209,10 +209,10 @@ __global__ void lcsort_abs_kernel(T * buf_h,
         tmp2 = buf_k[j];
         tmp3 = buf_k[j+1];
         if (abs(tmp)>abs(tmp1)) {
-          buf[j]     = temp1;
-          buf[j+1]   = temp;
-          buf_k[j]   = temp3;
-          buf_k[j+1] = temp2;
+          buf[j]     = tmp1;
+          buf[j+1]   = tmp;
+          buf_k[j]   = tmp3;
+          buf_k[j+1] =tmp2;
         }
       } 
     }
@@ -252,7 +252,7 @@ __global__ void lcsort_bykey_kernel(T * buf_h,
 
       	tmp  = buf_k[i];
 
-        if (threadIdx.x == temp) {
+        if (threadIdx.x == tmp) {
           buf_h[idx]= buf[threadIdx.x];
           buf_i[idx]= buf_k[threadIdx.x];
         }
@@ -260,3 +260,81 @@ __global__ void lcsort_bykey_kernel(T * buf_h,
   __syncthreads();
 
 }
+
+template< typename T >
+__global__ void lctnsr3d_kernel(T  * __restrict__  v,
+                              const int nv,
+                              const T * __restrict__ u,
+                              const int nu,
+                              const T * __restrict__ A,
+                              const T * __restrict__ Bt,
+                              const T * __restrict__ Ct,
+                              const T * __restrict__ bp,
+                              const T * __restrict__ bp_key) {
+  __shared__ T shwork[2048];
+  __shared__ T shwork2[2048];
+  
+  const int idx = threadIdx.x;
+  const int str = blockDim.x;
+  const int e = blockIdx.x;
+  
+  for (int ii = idx; ii< nu*nu*nv; ii += str){
+    T tmp = 0.0;
+    int j = ii/nv;
+    int i = ii - j*nv;
+    for( int l = 0; l < nu; l++){
+      if (bp_key[e]>0.5){	    
+        tmp += A[i+l*nv]*u[l+nu*j+e*nu*nu*nu];
+      }
+      else{
+        tmp += bp[i+l*nv]*u[l+nu*j+e*nu*nu*nu];
+      }
+    }
+    shwork[ii] = tmp;
+  }
+  
+  __syncthreads();
+  
+  for (int ijk = idx; ijk< nu*nv*nv; ijk += str){
+    const int jk = ijk / nv;
+    const int i = ijk - jk * nv;
+    const int k = jk / nv;
+    const int j = jk - k * nv;
+    T tmp = 0.0;
+    const int ik2 = i + k*nv*nu; 
+    for( int l = 0; l < nu; l++){
+      if (bp_key[e]>0.5){	    
+        tmp += Bt[l+j*nu]*shwork[l*nv+ik2];
+      }
+      else{
+        tmp += bp[l+j*nu]*shwork[l*nv+ik2];
+      }
+    }
+    shwork2[ijk] = tmp;
+  }
+  
+  __syncthreads();
+  
+  for (int ijk = idx; ijk< nv*nv*nv; ijk += str){
+    const int jk = ijk / nv;
+    const int i = ijk - jk * nv;
+    const int k = jk / nv;
+    const int j = jk - k * nv;
+    T tmp = 0.0;
+    const int ij2 = i + j*nv; 
+    for( int l = 0; l < nu; l++){
+      if (bp_key[e]>0.5){	    
+        tmp += Ct[l+k*nu]*shwork2[ij2 + l*nv*nv];
+      }
+      else{
+        tmp += bp[l+k*nu]*shwork2[ij2 + l*nv*nv];
+      }
+    }
+    v[ijk+e*nv*nv*nv] = tmp;
+  }
+}
+
+
+
+
+

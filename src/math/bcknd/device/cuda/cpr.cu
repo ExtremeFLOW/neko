@@ -172,6 +172,21 @@ extern "C" {
   }
 
 
+  /** Fortran wrapper for lctnsr3d **/
+  void cuda_lctnsr3d(void *v, int *nv, void *u, int *nu,
+		   void *A, void *Bt, void *Ct,
+		   void *bp, void*bp_key,  int *nel) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(*nel, 1, 1);
+    
+    lctnsr3d_kernel<real>
+      <<<nblcks, nthrds>>>((real *) v, *nv, (real *) u, 
+			   *nu, (real *) A, (real *) Bt, (real *) Ct,
+			   (real *) bp, (real *) bp_key);
+    CUDA_CHECK(cudaGetLastError());
+    
+  }
 
 
 

@@ -368,11 +368,12 @@ contains
     real(kind=rp) :: fx(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: fy(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx) 
+    real(kind=rp) :: ident(cpr%Xh%lx, cpr%Xh%lx) 
     real(kind=rp) :: l2norm, oldl2norm, targeterr
     integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv, n
-    integer :: targetkut
-    real(kind=rp) :: restemp,res, restemp2, res2
+    integer :: targetkut, comp_counter
+    real(kind=rp) :: restemp,res, restemp2, res2, vol2
     integer :: kut, kutx, kuty, kutz, nx
     character(len=LOG_SIZE) :: log_buf 
 
@@ -381,6 +382,8 @@ contains
     real(kind=rp) :: ev(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx,cpr%msh%nelv) 
     real(kind=rp) :: tmp(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx,cpr%msh%nelv) 
     real(kind=rp) :: res_e(cpr%msh%nelv) 
+    real(kind=rp) :: vol_e(cpr%msh%nelv) 
+    real(kind=rp) :: compress_e(cpr%msh%nelv) 
     
      !
      ! Device pointers (if present)
@@ -388,9 +391,12 @@ contains
      type(c_ptr) :: fx_d = C_NULL_PTR
      type(c_ptr) :: fy_d = C_NULL_PTR
      type(c_ptr) :: fz_d = C_NULL_PTR
+     type(c_ptr) :: ident_d = C_NULL_PTR
      type(c_ptr) :: ev_d = C_NULL_PTR
      type(c_ptr) :: tmp_d = C_NULL_PTR
      type(c_ptr) :: res_e_d = C_NULL_PTR
+     type(c_ptr) :: vol_e_d = C_NULL_PTR
+     type(c_ptr) :: compress_e_d = C_NULL_PTR
 
 
     ! define some constants
@@ -400,6 +406,13 @@ contains
     n    = nxyz*nelv
     targeterr = 1e-3_rp
     targetkut = 4
+
+    ! Initialize a vector that tells wich element to truncate
+    ! Initially truncate all the elemtns so all entries set to 1
+    do i= 1, nelv
+       compress_e(i) = 1
+    end do
+
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
        (NEKO_BCKND_OPENCL .eq. 1)) then 
@@ -411,16 +424,30 @@ contains
        call device_map(fx,  fx_d,  cpr%Xh%lxy)
        call device_map(fy,  fy_d,  cpr%Xh%lxy)
        call device_map(fz,  fz_d,  cpr%Xh%lxy)
+       call device_map(ident,  ident_d,  cpr%Xh%lxy)
        call device_map(ev,  ev_d,  n)
        call device_map(tmp,  tmp_d,  n)
        call device_map(res_e,  res_e_d,  nelv)
-       
+       call device_map(vol_e,  vol_e_d,  nelv)
+       call device_map(compress_e,  compress_e_d,  nelv)
+      
+       comp_counter=2 
+       kut = 0
 
        !Copy the untruncated coefficients to a temporal array
        call device_copy(tmp_d, cpr%fldhat%x_d, n)
+       
+       do while (comp_counter .ge. 1 .and. kut .le. (cpr%Xh%lx-1)*3)
+             
+       ! advance kut
+       kut = kut+1
+        
+       ! create identity matrices in cpu
+       call build_filter_tf(fx, fy, fz, 0, cpr%Xh%lx)
+       call copy(ident, fx, cpr%Xh%lxy)
 
        ! create filters on cpu
-       call build_filter_tf(fx, fy, fz, targetkut, cpr%Xh%lx)
+       call build_filter_tf(fx, fy, fz, kut, cpr%Xh%lx)
 
        ! Transfer the filter to the GPU
        call device_memcpy(fx,     fx_d,     cpr%Xh%lxy, &
@@ -429,43 +456,75 @@ contains
                           HOST_TO_DEVICE)
        call device_memcpy(fz,     fz_d,     cpr%Xh%lxy, &
                           HOST_TO_DEVICE)
+       call device_memcpy(ident,     ident_d,     cpr%Xh%lxy, &
+                          HOST_TO_DEVICE)
+
+       ! Transfer compression keys to GPU
+       call device_memcpy(compress_e,     compress_e_d, nelv, &
+                          HOST_TO_DEVICE)
 
        ! Copy the spectral coefficients to the working array in GPU
        call device_copy(cpr%wk%x_d, cpr%fldhat%x_d, n)
 
+       !! Perform the truncation in the GPU
+       !call tnsr3d(cpr%fldhat%x, cpr%Xh%lx, cpr%wk%x, &
+       !            cpr%Xh%lx,fx, &
+       !            fy, fz, nelv)
 
        ! Perform the truncation in the GPU
-       call tnsr3d(cpr%fldhat%x, cpr%Xh%lx, cpr%wk%x, &
-                   cpr%Xh%lx,fx, &
-                   fy, fz, nelv)
- 
+       call device_lctnsr3d(cpr%fldhat%x_d, cpr%Xh%lx, cpr%wk%x_d, &
+                   cpr%Xh%lx,fx_d, &
+                   fy_d, fz_d, ident_d, compress_e_d, nelv)
+       
        ! Get error vector 
        call device_sub3(ev_d,cpr%fldhat%x_d,tmp_d,n)
 
        
-       ! Get global inner product 
-       restemp = device_glsc3(ev_d,coef%jac_d,ev_d,n)
-       write(*,*) 'Global inner product', restemp
-       
-       ! Get Get the general l2norm 
-       res= sqrt(restemp)/sqrt(coef%volume)
-       write(*,*) 'l2 norm from global spectra is', res
-
-
        ! Get local inner products 
-       call device_glsc3_elem(res_e_d,ev_d,coef%jac_d, &
-                              ev_d, cpr%Xh%lx,nelv) 
+       call device_lcsc3(res_e_d,ev_d,coef%jac_d, &
+                         ev_d, cpr%Xh%lx,nelv) 
 
+       ! Get local volumes
+       call device_lcsum(vol_e_d,coef%B_d, &
+                         cpr%Xh%lx,nelv) 
+
+
+       ! Send the local values to the host
        call device_memcpy(res_e, res_e_d,     nelv, &
                           DEVICE_TO_HOST)
 
-       res2 = 0           
-       do i= 1, nelv
-          res2 = res2 + res_e(i)
+       call device_memcpy(vol_e, vol_e_d,     nelv, &
+                          DEVICE_TO_HOST)
+       
+       
+       !evaluate the element error and decide if it can be kept compressed
+       res2 = 0
+       comp_counter=0       
+       do e= 1, nelv
+          res2 = sqrt(res_e(e))/sqrt(vol_e(e))
+          if (res2.ge.targeterr) then
+             compress_e(e)=0
+          else
+             compress_e(e)=1
+          end if
+          comp_counter=comp_counter+compress_e(e)   
        end do
 
+       
+       end do ! This is the end do of the while loop
+
+
+       ! Print the final l2 norm of the error
        ! Get global inner product 
-       write(*,*) 'Sum of local inner product', res2
+       restemp = device_glsc3(ev_d,coef%jac_d,ev_d,n)
+       !write(*,*) 'Global inner product', restemp
+       
+       ! Get the general l2norm 
+       res= sqrt(restemp)/sqrt(coef%volume)
+       write(*,*) 'l2 norm of the error is: ', res
+
+
+
 
        ! Free memory after performing actions
        if (c_associated(fx_d)) then
@@ -486,7 +545,16 @@ contains
        if (c_associated(res_e_d)) then
           call device_free(res_e_d)
        end if
-
+       if (c_associated(vol_e_d)) then
+          call device_free(vol_e_d)
+       end if
+       if (c_associated(ident_d)) then
+          call device_free(ident_d)
+       end if
+       if (c_associated(compress_e_d)) then
+          call device_free(compress_e_d)
+       end if
+       
        !if(allocated(temp)) then
        !   deallocate(temp)
        !end if
