@@ -52,7 +52,7 @@ extern "C" {
     real * buf_d;
     CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
      
-    lcsc3_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a, 
+    lcsc3_kernel<real, 1024><<<nblcks, nthrds>>>(buf_d, (real *) a, 
 		                               (real *) b,
                                                (real *) c);
     CUDA_CHECK(cudaGetLastError());
@@ -79,7 +79,7 @@ extern "C" {
     real * buf_d;
     CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
      
-    lcsum_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a);
+    lcsum_kernel<real, 1024><<<nblcks, nthrds>>>(buf_d, (real *) a);
     CUDA_CHECK(cudaGetLastError());
 
     CUDA_CHECK(cudaMemcpyAsync(res, buf_d, nb * sizeof(real),cudaMemcpyDeviceToDevice));    
@@ -104,7 +104,7 @@ extern "C" {
     real * buf_d;
     CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
      
-    lcmin_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a);
+    lcmin_kernel<real, 1024><<<nblcks, nthrds>>>(buf_d, (real *) a);
     CUDA_CHECK(cudaGetLastError());
 
     CUDA_CHECK(cudaMemcpyAsync(res, buf_d, nb * sizeof(real),cudaMemcpyDeviceToDevice));    
@@ -129,7 +129,7 @@ extern "C" {
     real * buf_d;
     CUDA_CHECK(cudaMalloc(&buf_d, nb*sizeof(real)));
      
-    lcmax_kernel<real, 512><<<nblcks, nthrds>>>(buf_d, (real *) a);
+    lcmax_kernel<real, 1024><<<nblcks, nthrds>>>(buf_d, (real *) a);
     CUDA_CHECK(cudaGetLastError());
 
     CUDA_CHECK(cudaMemcpyAsync(res, buf_d, nb * sizeof(real),cudaMemcpyDeviceToDevice));    
@@ -147,10 +147,10 @@ extern "C" {
   void cuda_lcsort_abs(void *asort,void *keysort, void *a, void *key,int *lx, int *nelv) {
     const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
     const dim3 nblcks((*nelv), 1, 1);
-    const int nb = (*nelv);
+    //const int nb = (*nelv);
     //const int nxyz = (*lx)*(*lx)*(*lx);
      
-    lcsort_abs_kernel<real, 512><<<nblcks, nthrds>>>((real *) asort, (int *) keysort, (real *) a, (int *) key);
+    lcsort_abs_kernel<real, 1024><<<nblcks, nthrds>>>((real *) asort, (int *) keysort, (real *) a, (int *) key);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -163,10 +163,10 @@ extern "C" {
   void cuda_lcsort_bykey(void *asort,void *keysort, void *a, void *key,int *lx, int *nelv) {
     const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
     const dim3 nblcks((*nelv), 1, 1);
-    const int nb = (*nelv);
+    //const int nb = (*nelv);
     //const int nxyz = (*lx)*(*lx)*(*lx);
      
-    lcsort_bykey_kernel<real, 512><<<nblcks, nthrds>>>((real *) asort, (int *) keysort, (real *) a, (int *) key);
+    lcsort_bykey_kernel<real, 1024><<<nblcks, nthrds>>>((real *) asort, (int *) keysort, (real *) a, (int *) key);
     CUDA_CHECK(cudaGetLastError());
 
   }

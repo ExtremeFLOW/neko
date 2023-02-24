@@ -200,9 +200,9 @@ __global__ void lcsort_abs_kernel(T * buf_h,
   __syncthreads();
 
   if (threadIdx.x == 0) {
-    for (int i = 0; i< NXYZ; i += 1) {
+    for (int i = 0; i< blockDim.x; i += 1) {
 
-      for (int j = 0; j < (NXYZ-i-1); j += 1) {
+      for (int j = 0; j < (blockDim.x-i-1); j += 1) {
 
       	tmp  = buf[j];
         tmp1 = buf[j+1];
@@ -246,7 +246,7 @@ __global__ void lcsort_bykey_kernel(T * buf_h,
   buf_k[threadIdx.x] = key[idx];
   __syncthreads();
 
-  for (int i = 0; i< NXYZ; i += 1) {
+  for (int i = 0; i< blockDim.x; i += 1) {
 
       	tmp  = buf_k[i]-1;
 
@@ -257,8 +257,6 @@ __global__ void lcsort_bykey_kernel(T * buf_h,
   }
   __syncthreads();
 
-  //buf_h[idx]= 0.1;
-  //buf_i[idx]= 10;
 }
 
 template< typename T >
