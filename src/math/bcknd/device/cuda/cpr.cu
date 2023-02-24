@@ -142,7 +142,7 @@ extern "C" {
 
   /**
    * Fortran wrapper that  
-   * local sort acending order$
+   * local sort decending order$
    */
   void cuda_lcsort_abs(void *asort,void *keysort, void *a, void *key,int *lx, int *nelv) {
     const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);

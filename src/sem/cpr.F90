@@ -380,6 +380,7 @@ contains
     integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: fldhat_sort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx, cpr%msh%nelv)
     integer :: key(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx, cpr%msh%nelv)
+    integer :: dummykey(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx, cpr%msh%nelv)
     integer :: key_sort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx, cpr%msh%nelv)
 
 
@@ -406,6 +407,7 @@ contains
       
      type(c_ptr) :: fldhat_sort_d = C_NULL_PTR
      type(c_ptr) :: key_d = C_NULL_PTR
+     type(c_ptr) :: dummykey_d = C_NULL_PTR
      type(c_ptr) :: key_sort_d = C_NULL_PTR
 
 
@@ -452,6 +454,7 @@ contains
        
        call device_map(fldhat_sort,  fldhat_sort_d,  n)
        call device_map(key,  key_d,  n)
+       call device_map(dummykey, dummykey_d,  n)
        call device_map(key_sort,  key_sort_d,  n)
 
 
@@ -459,139 +462,122 @@ contains
        call device_memcpy(key,     key_d,  n, &
                           HOST_TO_DEVICE)
 
-       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-
-       ! Sort the fields for testing. In reality, sort them once every iteration
-       call device_lcsort_abs(fldhat_sort_d,key_sort_d,cpr%fldhat%x_d, &
-                              key_d, cpr%Xh%lx,nelv)
-
-       call device_memcpy(fldhat_sort, fldhat_sort_d,     n, &
-                          DEVICE_TO_HOST)
-
-
-       call device_memcpy(key_sort, key_sort_d,     n, &
-                          DEVICE_TO_HOST)
-
-
-       write(*,*) 'Checking sorted coefficients'
-       do i = 1, 10
-         write(log_buf, '(A,E15.7,A,I5)') &
-               'u hat value:', fldhat_sort(i,1,1,10), &
-               ' index:', &
-               key_sort(i,1,1,10)
-         call neko_log%message(log_buf)
-       enddo
-       do i = 500, nxyz
-         write(log_buf, '(A,E15.7,A,I5)') &
-               'u hat value:', fldhat_sort(i,1,1,10), &
-               ' index:', &
-               key_sort(i,1,1,10)
-         call neko_log%message(log_buf)
-       enddo
-
-
-       !================debugging info
-
-
-
-       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
        comp_counter=2 
        kut = 0
 
        !Copy the untruncated coefficients to a temporal array
        call device_copy(tmp_d, cpr%fldhat%x_d, n)
        
+       ! Sort coefficients before truncating them
+       call device_lcsort_abs(fldhat_sort_d,key_sort_d,tmp_d, &
+                              key_d, cpr%Xh%lx,nelv)
+       
        do while (comp_counter .ge. 1 .and. kut .le. (cpr%Xh%lx-1)*3)
              
-       ! advance kut
-       kut = kut+1
-        
-       ! create identity matrices in cpu
-       call build_filter_tf(fx, fy, fz, 0, cpr%Xh%lx)
-       call copy(ident, fx, cpr%Xh%lxy)
+          ! advance kut
+          kut = kut+1
+      
+          ! create identity matrices in cpu (bypass for truncation)
+          call build_filter_tf(fx, fy, fz, 0, cpr%Xh%lx)
+          call copy(ident, fx, cpr%Xh%lxy)
 
-       ! create filters on cpu
-       call build_filter_tf(fx, fy, fz, kut, cpr%Xh%lx)
+          ! create filters on cpu
+          call build_filter_tf(fx, fy, fz, kut, cpr%Xh%lx)
 
-       ! Transfer the filter to the GPU
-       call device_memcpy(fx,     fx_d,     cpr%Xh%lxy, &
-                          HOST_TO_DEVICE)
-       call device_memcpy(fy,     fy_d,     cpr%Xh%lxy, &
-                          HOST_TO_DEVICE)
-       call device_memcpy(fz,     fz_d,     cpr%Xh%lxy, &
-                          HOST_TO_DEVICE)
-       call device_memcpy(ident,     ident_d,     cpr%Xh%lxy, &
-                          HOST_TO_DEVICE)
+          ! Transfer the filter to the GPU
+          call device_memcpy(fx,     fx_d,     cpr%Xh%lxy, &
+                             HOST_TO_DEVICE)
+          call device_memcpy(fy,     fy_d,     cpr%Xh%lxy, &
+                             HOST_TO_DEVICE)
+          call device_memcpy(fz,     fz_d,     cpr%Xh%lxy, &
+                             HOST_TO_DEVICE)
+          call device_memcpy(ident,     ident_d,     cpr%Xh%lxy, &
+                             HOST_TO_DEVICE)
 
-       ! Transfer compression keys to GPU
-       call device_memcpy(compress_e,     compress_e_d, nelv, &
-                          HOST_TO_DEVICE)
+          ! Transfer compression keys to GPU (keys says which element is to be compressed)
+          call device_memcpy(compress_e,     compress_e_d, nelv, &
+                             HOST_TO_DEVICE)
 
-       ! Introduce the sorting here, perhaps using the wk object instead of new one
+          ! Copy the spectral coefficients to the working array in GPU
+          call device_copy(cpr%wk%x_d, fldhat_sort_d, n)
 
-       ! Copy the spectral coefficients to the working array in GPU
-       call device_copy(cpr%wk%x_d, cpr%fldhat%x_d, n)
+          ! Perform the truncation in the GPU
+          !call tnsr3d(cpr%fldhat%x, cpr%Xh%lx, cpr%wk%x, &
+          !            cpr%Xh%lx,fx, &
+          !            fy, fz, nelv)
 
-       !! Perform the truncation in the GPU
-       !call tnsr3d(cpr%fldhat%x, cpr%Xh%lx, cpr%wk%x, &
-       !            cpr%Xh%lx,fx, &
-       !            fy, fz, nelv)
+          ! Perform the truncation in the GPU
+          call device_lctnsr3d(fldhat_sort_d, cpr%Xh%lx, cpr%wk%x_d, &
+                               cpr%Xh%lx,fx_d, &
+                               fy_d, fz_d, ident_d, compress_e_d, nelv)
 
-       ! Perform the truncation in the GPU
-       call device_lctnsr3d(cpr%fldhat%x_d, cpr%Xh%lx, cpr%wk%x_d, &
-                   cpr%Xh%lx,fx_d, &
-                   fy_d, fz_d, ident_d, compress_e_d, nelv)
-       
-       ! Get error vector 
-       call device_sub3(ev_d,cpr%fldhat%x_d,tmp_d,n)
+          ! Unsort the coefficients before evaluating norms       
+          call device_lcsort_bykey(cpr%fldhat%x_d,dummykey_d,&
+                                   fldhat_sort_d, &
+                                   key_sort_d, cpr%Xh%lx,nelv)
 
-       
-       ! Get local inner products 
-       call device_lcsc3(res_e_d,ev_d,coef%jac_d, &
-                         ev_d, cpr%Xh%lx,nelv) 
+          ! Get error vector 
+          call device_sub3(ev_d,cpr%fldhat%x_d,tmp_d,n)
 
-       ! Get local volumes
-       call device_lcsum(vol_e_d,coef%B_d, &
-                         cpr%Xh%lx,nelv) 
+          ! Get local inner products 
+          call device_lcsc3(res_e_d,ev_d,coef%jac_d, &
+                            ev_d, cpr%Xh%lx,nelv) 
 
+          ! Get local volumes
+          call device_lcsum(vol_e_d,coef%B_d, &
+                            cpr%Xh%lx,nelv) 
 
-       ! Send the local values to the host
-       call device_memcpy(res_e, res_e_d,     nelv, &
-                          DEVICE_TO_HOST)
+          ! Send the local values to the host
+          call device_memcpy(res_e, res_e_d,     nelv, &
+                             DEVICE_TO_HOST)
 
-       call device_memcpy(vol_e, vol_e_d,     nelv, &
-                          DEVICE_TO_HOST)
-       
-       
-       !evaluate the element error and decide if it can be kept compressed
-       res2 = 0
-       comp_counter=0       
-       do e= 1, nelv
-          res2 = sqrt(res_e(e))/sqrt(vol_e(e))
-          if (res2.ge.targeterr) then
-             compress_e(e)=0
-          else
-             compress_e(e)=1
-          end if
-          comp_counter=comp_counter+compress_e(e)   
-       end do
+          call device_memcpy(vol_e, vol_e_d,     nelv, &
+                             DEVICE_TO_HOST)
+              
+          !evaluate the element error and decide if shoudl keep compressing
+          res2 = 0
+          comp_counter=0       
+          do e= 1, nelv
+             res2 = sqrt(res_e(e))/sqrt(vol_e(e))
+             if (res2.ge.targeterr) then
+                compress_e(e)=0
+             else
+                compress_e(e)=1
+             end if
+             comp_counter=comp_counter+compress_e(e)   
+          end do
 
        
        end do ! This is the end do of the while loop
 
+       !================debugging info
+       !call device_memcpy(cpr%fldhat%x, cpr%fldhat%x_d,     n, &
+       !                   DEVICE_TO_HOST)
+       !call device_memcpy(key_sort, key_sort_d,     n, &
+       !                   DEVICE_TO_HOST)
+       !write(*,*) 'Checking sorted back coefficients'
+       !do i = 1, 10
+       !  write(log_buf, '(A,E15.7,A,I5)') &
+       !        'u hat value:', cpr%fldhat%x(i,1,1,10), &
+       !        ' index:', &
+       !        key_sort(i,1,1,10)
+       !  call neko_log%message(log_buf)
+       !enddo
+       !do i = 500, nxyz
+       !  write(log_buf, '(A,E15.7,A,I5)') &
+       !        'u hat value:', cpr%fldhat%x(i,1,1,10), &
+       !        ' index:', &
+       !        key_sort(i,1,1,10)
+       !  call neko_log%message(log_buf)
+       !===============
+
 
        ! Print the final l2 norm of the error
        ! Get global inner product 
-       restemp = device_glsc3(ev_d,coef%jac_d,ev_d,n)
-       !write(*,*) 'Global inner product', restemp
-       
+       restemp = device_glsc3(ev_d,coef%jac_d,ev_d,n) 
        ! Get the general l2norm 
        res= sqrt(restemp)/sqrt(coef%volume)
        write(*,*) 'l2 norm of the error is: ', res
-
-
 
 
        ! Free memory after performing actions
@@ -628,6 +614,9 @@ contains
        end if
        if (c_associated(key_d)) then
           call device_free(key_d)
+       end if
+       if (c_associated(dummykey_d)) then
+          call device_free(dummykey_d)
        end if
        if (c_associated(key_sort_d)) then
           call device_free(key_sort_d)

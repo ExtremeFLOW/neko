@@ -192,8 +192,8 @@ __global__ void lcsort_abs_kernel(T * buf_h,
   __shared__ int buf_k[NXYZ];
   T tmp = 0.0;
   T tmp1 = 0.0;
-  T tmp2 = 0.0;
-  T tmp3 = 0.0;
+  int tmp2 = 0;
+  int tmp3 = 0;
  
   buf[threadIdx.x]   = a[idx];
   buf_k[threadIdx.x] = key[idx];
@@ -212,7 +212,7 @@ __global__ void lcsort_abs_kernel(T * buf_h,
           buf[j]     = tmp1;
           buf[j+1]   = tmp;
           buf_k[j]   = tmp3;
-          buf_k[j+1] =tmp2;
+          buf_k[j+1] = tmp2;
         }
       } 
     }
@@ -240,10 +240,7 @@ __global__ void lcsort_bykey_kernel(T * buf_h,
 
   __shared__ T buf[NXYZ];
   __shared__ int buf_k[NXYZ];
-  T tmp = 0.0;
-  T tmp1 = 0.0;
-  T tmp2 = 0.0;
-  T tmp3 = 0.0;
+  int tmp = 0.0;
  
   buf[threadIdx.x]   = a[idx];
   buf_k[threadIdx.x] = key[idx];
@@ -251,15 +248,17 @@ __global__ void lcsort_bykey_kernel(T * buf_h,
 
   for (int i = 0; i< NXYZ; i += 1) {
 
-      	tmp  = buf_k[i];
+      	tmp  = buf_k[i]-1;
 
         if (threadIdx.x == tmp) {
-          buf_h[idx]= buf[threadIdx.x];
-          buf_i[idx]= buf_k[threadIdx.x];
+          buf_h[idx]= buf[i];
+          buf_i[idx]= buf_k[i];
         }
   }
   __syncthreads();
 
+  //buf_h[idx]= 0.1;
+  //buf_i[idx]= 10;
 }
 
 template< typename T >

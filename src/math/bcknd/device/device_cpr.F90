@@ -71,6 +71,17 @@ module device_cpr
   end interface
 
   interface
+     subroutine cuda_lcsort_bykey(a_sort_d,key_sort_d,a_d,key_d,lx,nelv) &
+       bind(c, name='cuda_lcsort_bykey')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_sort_d, key_sort_d, a_d, key_d
+       integer(c_int) :: lx, nelv
+     end subroutine cuda_lcsort_bykey
+  end interface
+
+  interface
      subroutine cuda_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv) &
           bind(c, name='cuda_lctnsr3d')
        use, intrinsic :: iso_c_binding
@@ -125,6 +136,21 @@ contains
 #endif
 
   end subroutine device_lcsort_abs
+
+  subroutine device_lcsort_bykey(a_sort_d,key_sort_d,a_d,key_d,lx,nelv)
+    type(c_ptr), value :: a_sort_d,key_sort_d,a_d,key_d
+    integer(c_int) :: lx, nelv
+#ifdef HAVE_HIP
+    call neko_error('No elem glsc3_elem in this device')
+#elif HAVE_CUDA
+    call cuda_lcsort_bykey(a_sort_d,key_sort_d,a_d,key_d,lx,nelv)
+#elif HAVE_OPENCL
+    call neko_error('No elem glsc3_elem in this device')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_lcsort_bykey
 
   subroutine device_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d,bp_d,bp_key_d
