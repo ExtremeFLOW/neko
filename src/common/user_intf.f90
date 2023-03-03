@@ -187,18 +187,20 @@ contains
   end subroutine dummy_user_f
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_user_scalar_f_vector(f)
-     class(source_scalar_t) :: f
+  subroutine dummy_user_scalar_f_vector(f, t)
+    class(source_scalar_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')    
   end subroutine dummy_user_scalar_f_vector
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_scalar_user_f(s, j, k, l, e)
+  subroutine dummy_scalar_user_f(s, j, k, l, e, t)
     real(kind=rp), intent(inout) :: s
     integer, intent(in) :: j
     integer, intent(in) :: k
     integer, intent(in) :: l
     integer, intent(in) :: e
+    real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined forcing set')    
   end subroutine dummy_scalar_user_f
  

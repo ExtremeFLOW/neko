@@ -52,21 +52,24 @@ module source_scalar
 
   !> Abstract interface defining how to compute a source_scalar term
   abstract interface
-     subroutine source_scalar_term(f)
-       import source_scalar_t            
-       class(source_scalar_t) :: f
+     subroutine source_scalar_term(f, t)
+       import source_scalar_t
+       import rp
+       class(source_scalar_t), intent(inout) :: f
+       real(kind=rp), intent(in) :: t
      end subroutine source_scalar_term
   end interface
 
   !> Abstract interface defining how to compute a source_scalar term pointwise
   abstract interface
-     subroutine source_scalar_term_pw(s, j, k, l, e)
+     subroutine source_scalar_term_pw(s, j, k, l, e, t)
        import rp
        real(kind=rp), intent(inout) :: s
        integer, intent(in) :: j
        integer, intent(in) :: k
        integer, intent(in) :: l
        integer, intent(in) :: e
+       real(kind=rp), intent(in) :: t
      end subroutine source_scalar_term_pw
   end interface
   
@@ -127,8 +130,9 @@ contains
 
   !> Eval routine for zero forcing
   !! @note Maybe this should be cache, avoding zeroing at each time-step
-  subroutine source_scalar_eval_noforce(f)
-    class(source_scalar_t) :: f
+  subroutine source_scalar_eval_noforce(f, t)
+    class(source_scalar_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%s_d, f%dm%size())
     else
@@ -137,8 +141,9 @@ contains
   end subroutine source_scalar_eval_noforce
 
   !> Driver for all pointwise source_scalar term evaluatons
-  subroutine source_scalar_eval_pw(f)
-    class(source_scalar_t) :: f
+  subroutine source_scalar_eval_pw(f, t)
+    class(source_scalar_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     integer :: j, k, l, e
     integer :: jj,kk,ll,ee
 
@@ -150,7 +155,7 @@ contains
              kk = k
              do j = 1, f%dm%Xh%lx
                 jj =j
-                call f%eval_pw(f%s(j,k,l,e), jj, kk, ll, ee)
+                call f%eval_pw(f%s(j,k,l,e), jj, kk, ll, ee, t)
              end do
           end do
        end do
