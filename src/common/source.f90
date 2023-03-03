@@ -56,15 +56,17 @@ module source
 
   !> Abstract interface defining how to compute a source term
   abstract interface
-     subroutine source_term(f)
-       import source_t            
-       class(source_t) :: f
+     subroutine source_term(f, t)
+       import source_t
+       import rp
+       class(source_t), intent(inout) :: f
+       real(kind=rp), intent(in) :: t
      end subroutine source_term
   end interface
 
   !> Abstract interface defining how to compute a source term pointwise
   abstract interface
-     subroutine source_term_pw(u, v, w, j, k, l, e)
+     subroutine source_term_pw(u, v, w, j, k, l, e, t)
        import rp
        real(kind=rp), intent(inout) :: u
        real(kind=rp), intent(inout) :: v
@@ -73,6 +75,7 @@ module source
        integer, intent(in) :: k
        integer, intent(in) :: l
        integer, intent(in) :: e
+       real(kind=rp), intent(in) :: t
      end subroutine source_term_pw
   end interface
   
@@ -155,8 +158,9 @@ contains
 
   !> Eval routine for zero forcing
   !! @note Maybe this should be cache, avoding zeroing at each time-step
-  subroutine source_eval_noforce(f)
-    class(source_t) :: f
+  subroutine source_eval_noforce(f, t)
+    class(source_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%u_d, f%dm%size())
        call device_rzero(f%v_d, f%dm%size())
@@ -169,8 +173,9 @@ contains
   end subroutine source_eval_noforce
 
   !> Driver for all pointwise source term evaluatons
-  subroutine source_eval_pw(f)
-    class(source_t) :: f
+  subroutine source_eval_pw(f, t)
+    class(source_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     integer :: j, k, l, e
     integer :: jj,kk,ll,ee
 
@@ -183,7 +188,7 @@ contains
              do j = 1, f%dm%Xh%lx
                 jj =j
                 call f%eval_pw(f%u(j,k,l,e), f%v(j,k,l,e), f%w(j,k,l,e), &
-                     jj, kk, ll, ee)
+                     jj, kk, ll, ee, t)
              end do
           end do
        end do

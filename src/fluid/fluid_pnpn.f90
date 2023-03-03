@@ -381,7 +381,7 @@ contains
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
      
-      call f_Xh%eval()
+      call f_Xh%eval(t)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)

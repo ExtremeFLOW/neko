@@ -247,7 +247,7 @@ contains
          makeext => this%makeext, makebdf => this%makebdf)
 
       ! evaluate the source term and scale with the mass matrix
-      call f_Xh%eval()
+      call f_Xh%eval(t)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_col2(f_Xh%s_d, c_Xh%B_d, n)
