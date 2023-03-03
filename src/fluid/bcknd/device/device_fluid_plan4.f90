@@ -49,7 +49,7 @@ contains
          call device_fluid_plan4_sumab(w_e%x, w%x, wlag,n, ext_bdf%ext, ext_bdf%nab)
       end if
 
-      call f_Xh%eval()
+      call f_Xh%eval(t)
 
       call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
 

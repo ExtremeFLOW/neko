@@ -299,7 +299,7 @@ contains
          call fluid_plan4_sumab(w_e%x, w%x, wlag,n, ext_bdf%ext, ext_bdf%nab)
       end if
 
-      call f_Xh%eval()
+      call f_Xh%eval(t)
       call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       call this%adv%apply(this%u, this%v, this%w, &
                  f_Xh%u, f_Xh%v, f_Xh%w, &
