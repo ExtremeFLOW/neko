@@ -82,6 +82,8 @@ extern "C" {
       GEO_CASE(12);
       GEO_CASE(13);
       GEO_CASE(14);
+      GEO_CASE(15);
+      GEO_CASE(16);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
