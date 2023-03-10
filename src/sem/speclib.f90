@@ -145,8 +145,8 @@
 !
 !==============================================================================
 module speclib
-  use num_types
-  use utils
+  use num_types, only : rp
+  use utils, only: neko_error
 
 
 contains

@@ -2,8 +2,8 @@
 !> NEKTON session data
 !! @details This module is used to represent NEKTON session data
 module rea
-  use num_types
-  use mesh
+  use num_types, only : dp
+  use mesh, only : mesh_t, mesh_free
   implicit none
   private
 
