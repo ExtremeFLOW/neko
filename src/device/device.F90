@@ -32,17 +32,18 @@
 !
 !> Device abstraction, common interface for various accelerators
 module device
-  use num_types
+  use num_types, only : i8
   use opencl_intf
   use cuda_intf
   use hip_intf
-  use htable
-  use utils
+  use htable, only : htable_cptr_t, h_cptr_t
+  use utils, only : neko_error
   use opencl_prgm_lib
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, c_loc, C_NULL_PTR
   implicit none
+  private
 
-  integer, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
+  integer, public, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
        DEVICE_TO_DEVICE = 3
 
   !> Copy data between host and device (or device and device)
@@ -88,6 +89,12 @@ module device
       
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
+
+  public :: device_memcpy, device_map, device_associate, device_associated, &
+       device_deassociate, device_get_ptr, device_sync, device_free, &
+       device_sync_stream, device_stream_create, device_stream_destroy, &
+       device_profiler_start, device_profiler_stop, device_alloc, &
+       device_init, device_name
 
   private :: device_memcpy_common
   

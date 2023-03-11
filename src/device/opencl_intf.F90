@@ -32,11 +32,11 @@
 !
 !> Fortran OpenCL interface
 module opencl_intf
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use num_types, only : i8
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_size_t, C_NULL_PTR
   implicit none
-
+  
 #ifdef HAVE_OPENCL
 
   !> Global OpenCL command queue

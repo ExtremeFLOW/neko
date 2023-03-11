@@ -32,8 +32,9 @@
 !
 !> Fortran HIP interface
 module hip_intf
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_size_t, c_char, &
+                                          c_loc, C_NULL_CHAR, C_NULL_PTR
   implicit none
 
 #ifdef HAVE_HIP
