@@ -42,7 +42,7 @@ module bc
   use stack
   use tuple
   use utils
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
   

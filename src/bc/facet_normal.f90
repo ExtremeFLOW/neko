@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,11 @@
 module facet_normal
   use device_facet_normal
   use num_types
-  use dirichlet
-  use coefs
   use math
+  use coefs, only : coef_t    
+  use dirichlet, only : dirichlet_t    
   use utils
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -136,7 +136,7 @@ contains
        call neko_error('No coefficients assigned')
     end if
     associate(c => this%c)
-      call device_Facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
+      call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
                                              x_d, y_d, z_d, u_d, v_d, w_d, &
                                              c%nx_d, c%ny_d, c%nz_d, c%area_d, &
                                              c%Xh%lx, size(this%msk))

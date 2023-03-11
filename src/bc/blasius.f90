@@ -33,12 +33,13 @@
 !> Defines a Blasius profile dirichlet condition
 module blasius
   use num_types
-  use coefs
+  use coefs, only : coef_t
   use utils
-  use inflow
+  use inflow, only : inflow_t
   use device
   use device_inhom_dirichlet
   use flow_profile
+  use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   implicit none
   private

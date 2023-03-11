@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ module htable
   use point
   use tuple
   use math, only : NEKO_M_LN2
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
