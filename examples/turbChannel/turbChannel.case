@@ -1,21 +1,24 @@
 &NEKO_CASE
-mesh_file= 'turbChannel.nmsh'
+mesh_file= 'box.nmsh'
 fluid_scheme='pnpn'
-lx = 6
+lx = 8
 source_term = 'noforce'
-initial_condition = 'uniform'
+initial_condition = 'user'
 /
 &NEKO_PARAMETERS
-dt = 2d-2
-T_end = 200.0
-nsamples = 100
+dt = 3d-3
+T_end = 1000.0
+nsamples = 1000
 uinf= 1.0,0.0,0.0
 output_bdry = .true.
-rho = 1
-Re = 10935
-abstol_vel = 1d-9
-abstol_prs = 1d-9
+Re = 2860
+abstol_vel = 1d-7
+abstol_prs = 1d-5
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
+vol_flow_dir = 1
+flow_rate = 1d0
+bc_labels(3) = 'w'
+bc_labels(4) = 'w'
 /
 
