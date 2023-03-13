@@ -1,11 +1,14 @@
 !> Wrapper for all matrix-matrix product implementations
 module mxm_wrapper
   use num_types
-  use utils
+  use utils, only : neko_error
 #ifdef HAVE_LIBXSMM
   use libxsmm
 #endif
   implicit none
+  private
+
+  public :: mxm
 
   interface mxm_blas
      module procedure mxm_blas_sp, mxm_blas_dp, mxm_blas_qp

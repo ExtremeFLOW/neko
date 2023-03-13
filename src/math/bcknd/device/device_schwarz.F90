@@ -31,11 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_schwarz
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use num_types, only : c_rp, rp
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
-
+  private
+  
 #ifdef HAVE_HIP
   interface
      subroutine hip_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx, nelv) &
@@ -121,6 +122,10 @@ module device_schwarz
      end subroutine opencl_schwarz_toreg3d
   end interface
 #endif
+
+  public :: device_schwarz_extrude, device_schwarz_toext3d, &
+       device_schwarz_toreg3d
+  
 contains
   subroutine device_schwarz_extrude(arr1_d,l1,f1,arr2_d,l2,f2,nx,ny,nz, nelv)
     integer, intent(in) :: l1,l2,nx,ny,nz, nelv

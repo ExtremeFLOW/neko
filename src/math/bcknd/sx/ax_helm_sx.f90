@@ -32,7 +32,6 @@
 !
 module ax_helm_sx
   use ax_product
-  use num_types
   implicit none
   private
 

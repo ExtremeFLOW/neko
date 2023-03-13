@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,11 @@
 module fdm_device
   use num_types
   use utils
-  use device
-  use, intrinsic :: iso_c_binding
+  use device, only : device_get_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
+  private
+  
 #ifdef HAVE_HIP
   interface
      subroutine hip_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv) &
@@ -64,6 +66,9 @@ module fdm_device
      end subroutine opencl_fdm_do_fast
   end interface
 #endif
+
+  public :: fdm_do_fast_device
+  
 contains
 
   subroutine fdm_do_fast_device(e, r, s, d, nl, ldim, nelv)

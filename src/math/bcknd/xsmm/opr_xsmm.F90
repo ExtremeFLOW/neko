@@ -59,14 +59,14 @@
 !
 !> Operators libxsmm backend
 module opr_xsmm
-  use num_types
+  use num_types, only : rp
   use mxm_wrapper
-  use space
-  use coefs
+  use space, only : space_t
+  use coefs, only : coef_t
   use math
-  use mesh
-  use field
-  use gather_scatter
+  use mesh, only : mesh_t
+  use field, only : field_t
+  use gather_scatter, only : gs_op, GS_OP_ADD
   use mathops
 #ifdef HAVE_LIBXSMM
   use libxsmm, libxsmm_mmcall => libxsmm_dmmcall_abc

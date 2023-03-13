@@ -70,29 +70,35 @@ module schwarz
   use fast3d
   use device_schwarz
   use fdm
-  implicit none  
+  use device_math
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  implicit none
+  private
+  
   type, public :: schwarz_t
-    real(kind=rp), allocatable :: work1(:)
-    real(kind=rp), allocatable :: work2(:)
-    real(kind=rp), allocatable :: wt(:,:,:,:,:)
-    type(c_ptr) :: work1_d = C_NULL_PTR
-    type(c_ptr) :: work2_d = C_NULL_PTR
-    type(c_ptr) :: wt_d = C_NULL_PTR
-    type(space_t) :: Xh_schwarz !< needed to init gs
-    type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
-    type(dofmap_t) :: dm_schwarz !< needed to init gs
-    type(fdm_t) :: fdm
-    type(space_t), pointer :: Xh
-    type(bc_list_t), pointer :: bclst
-    type(dofmap_t), pointer :: dm
-    type(gs_t), pointer :: gs_h
-    type(mesh_t), pointer :: msh
-  contains 
-    procedure, pass(this) :: init => schwarz_init
-    procedure, pass(this) :: free => schwarz_free
-    procedure, pass(this) :: compute => schwarz_compute
+     real(kind=rp), allocatable :: work1(:)
+     real(kind=rp), allocatable :: work2(:)
+     real(kind=rp), allocatable :: wt(:,:,:,:,:)
+     type(c_ptr) :: work1_d = C_NULL_PTR
+     type(c_ptr) :: work2_d = C_NULL_PTR
+     type(c_ptr) :: wt_d = C_NULL_PTR
+     type(space_t) :: Xh_schwarz !< needed to init gs
+     type(gs_t) :: gs_schwarz !< We are only interested in the gather-scatter!
+     type(dofmap_t) :: dm_schwarz !< needed to init gs
+     type(fdm_t) :: fdm
+     type(space_t), pointer :: Xh
+     type(bc_list_t), pointer :: bclst
+     type(dofmap_t), pointer :: dm
+     type(gs_t), pointer :: gs_h
+     type(mesh_t), pointer :: msh
+   contains 
+     procedure, pass(this) :: init => schwarz_init
+     procedure, pass(this) :: free => schwarz_free
+     procedure, pass(this) :: compute => schwarz_compute
   end type schwarz_t
+ 
 contains
+  
   subroutine schwarz_init(this, Xh, dm, gs_h, bclst, msh)
     class(schwarz_t), target, intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh

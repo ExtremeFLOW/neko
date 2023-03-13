@@ -67,6 +67,7 @@ module tensor
   use mxm_wrapper
   use neko_config
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 

@@ -5,13 +5,13 @@ module opr_sx
   use sx_conv1
   use sx_cdtp
   use sx_cfl
-  use gather_scatter
-  use num_types
-  use space
-  use coefs
+  use gather_scatter, only : gs_op, GS_OP_ADD
+  use num_types, only : rp
+  use space, only : space_t
+  use coefs, only : coef_t
   use math
-  use mesh
-  use field
+  use mesh, only : mesh_t
+  use field, only : field_t
   use mathops
   implicit none
   private

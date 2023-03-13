@@ -36,13 +36,13 @@ module opr_cpu
   use cpu_opgrad
   use cpu_cdtp
   use cpu_conv1
-  use num_types
-  use space
-  use coefs
+  use num_types, only : rp
+  use space, only : space_t
+  use coefs, only : coef_t
   use math
-  use mesh
-  use field
-  use gather_scatter
+  use mesh, only : mesh_t
+  use field, only : field_t
+  use gather_scatter, only : gs_op, GS_OP_ADD
   use mathops
   implicit none
   private
