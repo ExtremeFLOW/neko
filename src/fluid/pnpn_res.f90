@@ -69,7 +69,7 @@ module pnpn_residual
        import rp
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_e, v_e, w_e !> time-extrapolated velocity
-       type(field_t), intent(inout) :: ta1, ta2, ta3 !> work arrays§
+       type(field_t), intent(inout) :: ta1, ta2, ta3 !> work arrays
        type(field_t), intent(inout) :: wa1, wa2, wa3 !> work arrays 
        type(field_t), intent(inout) :: work1, work2
        type(field_t), intent(inout) :: p_res
