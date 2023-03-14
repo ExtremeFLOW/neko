@@ -78,6 +78,8 @@ module parameters
      real(kind=rp) :: Pr        !< Prandtl number
      character(len=20) :: scalar_bcs(20) !< Type of bc for scalars at each label
      real(kind=rp) :: user(16)           !< User defined parameters
+     integer :: prs_max_iter           !< pressure max iterations
+     integer :: vel_max_iter           !< velocity max iterations
   end type param_t
 
   type param_io_t
@@ -144,6 +146,8 @@ contains
     real(kind=rp) :: Pr = 1d0
     character(len=20) :: scalar_bcs(20) ='not'
     real(kind=rp) :: user(16)
+    integer :: prs_max_iter = 800
+    integer :: vel_max_iter = 800
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -152,7 +156,7 @@ contains
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr, scalar_bcs, &
-         user
+         user, prs_max_iter, vel_max_iter
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -198,6 +202,8 @@ contains
     param%p%Pr = Pr 
     param%p%scalar_bcs = scalar_bcs
     param%p%user = user
+    param%p%prs_max_iter = prs_max_iter
+    param%p%vel_max_iter = vel_max_iter
 
   end subroutine param_read
 
@@ -226,6 +232,8 @@ contains
     character(len=20) :: bc_labels(20)
     character(len=20) :: scalar_bcs(20)
     real(kind=rp) :: user(16)
+    integer :: prs_max_iter
+    integer :: vel_max_iter
 
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -278,6 +286,8 @@ contains
     Pr = param%p%Pr
     scalar_bcs = param%p%scalar_bcs
     user = param%p%user
+    prs_max_iter = param%p%prs_max_iter
+    vel_max_iter = param%p%vel_max_iter
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
         
@@ -328,6 +338,8 @@ contains
     param%Pr = 1.0_rp
     param%scalar_bcs(20) ='not'
     param%user = 0.0_rp
+    param%prs_max_iter = 800 
+    param%vel_max_iter = 800
 
   end subroutine param_default
   

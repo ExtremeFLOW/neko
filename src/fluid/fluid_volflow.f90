@@ -130,7 +130,7 @@ contains
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, niter)
+       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(field_t), intent(inout) :: ta1, ta2, ta3
@@ -143,7 +143,7 @@ contains
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     real(kind=rp), intent(inout) :: rho, Re, bd, dt
-    integer, intent(in) :: niter
+    integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
     real(kind=rp) :: xlmin, xlmax
     real(kind=rp) :: ylmin, ylmax
@@ -194,7 +194,7 @@ contains
       call bc_list_apply_scalar(bclst_dp, p_res%x, n)
       call pc_prs%update()
       ksp_result = ksp_prs%solve(Ax, p_vol, p_res%x, n, &
-           c_Xh, bclst_dp, gs_Xh, niter)    
+           c_Xh, bclst_dp, gs_Xh, prs_max_iter)    
 
       !   Compute velocity
       
@@ -255,11 +255,11 @@ contains
        call pc_vel%update()
 
        ksp_result = ksp_vel%solve(Ax, u_vol, u_res%x, n, &
-            c_Xh, bclst_du, gs_Xh, niter)
+            c_Xh, bclst_du, gs_Xh, vel_max_iter)
        ksp_result = ksp_vel%solve(Ax, v_vol, v_res%x, n, &
-            c_Xh, bclst_dv, gs_Xh, niter)
+            c_Xh, bclst_dv, gs_Xh, vel_max_iter)
        ksp_result = ksp_vel%solve(Ax, w_vol, w_res%x, n, &
-            c_Xh, bclst_dw, gs_Xh, niter)
+            c_Xh, bclst_dw, gs_Xh, vel_max_iter)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
@@ -305,7 +305,7 @@ contains
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
        ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, rho, Re, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, niter)
+       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p
@@ -320,7 +320,7 @@ contains
     class(ax_t), intent(inout) :: Ax
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
-    integer, intent(in) :: niter
+    integer, intent(in) :: prs_max_iter, vel_max_iter
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, base_flow, scale
     integer :: n, ierr
@@ -349,7 +349,7 @@ contains
          call this%compute(u_res, v_res, w_res, p_res, &
               ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%bdf(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-              Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, niter)
+              Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
       end if
       
       if (NEKO_BCKND_DEVICE .eq. 1) then
