@@ -242,7 +242,7 @@ contains
          stats_mean_flow, output_mean_flow, stats_mean_sqr_flow, &
          output_mean_sqr_flow, output_dir, dealias, dealias_lx, &
          delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr,&
-         scalar_bcs, user
+         scalar_bcs, user, prs_max_iter, vel_max_iter
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
