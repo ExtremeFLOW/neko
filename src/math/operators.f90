@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -220,5 +220,59 @@ contains
     end if
     
   end function cfl
+  
+  !> Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i
+  !! Similar to comp_sij in Nek5000.
+  subroutine strain_rate(s11, s22, s33, s12, s13, s23, &
+                         u, v, w, coef)
+    type(field_t), intent(in) :: u, v, w
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(inout) :: s11(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s22(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s33(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s12(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s13(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    
+    integer :: i, e
+    
+    ! we use s11 as a work array here
+    call dudxyz (s12, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (s11, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    do e=1,u%msh%nelv
+      do i=1,u%Xh%lxyz
+        s12(i, 1, 1, e) = s12(i, 1, 1, e) + s11(i, 1, 1, e) ! du/dy + dv/dx
+       enddo
+    enddo
+
+    call dudxyz (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    do e=1,u%msh%nelv
+      do i=1,u%Xh%lxyz
+        s13(i, 1, 1, e) = s13(i, 1, 1, e) + s11(i, 1, 1, e) ! du/dz + dw/dx
+       enddo
+    enddo
+
+    call dudxyz (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    do e=1,u%msh%nelv
+      do i=1,u%Xh%lxyz
+        s23(i, 1, 1, e) = s23(i, 1, 1, e) + s11(i, 1, 1, e) ! dv/dz + dw/dy
+       enddo
+    enddo
+
+    call dudxyz (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (s33, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+
+    do e=1,u%msh%nelv
+      do i=1,u%Xh%lxyz
+        s11(i, 1, 1, e) = 2 * s11(i, 1, 1, e) ! 2* du/dx
+        s22(i, 1, 1, e) = 2 * s22(i, 1, 1, e) ! 2* dv/dy
+        s33(i, 1, 1, e) = 2 * s33(i, 1, 1, e) ! 2* dv/dy
+       enddo
+    enddo
+  
+  end subroutine strain_rate
   
 end module operators
