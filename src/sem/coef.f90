@@ -62,14 +62,14 @@ module coefs
      real(kind=rp), allocatable :: G23(:,:,:,:)
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
-     ! generate mapping data between element and reference element 
+     !> generate mapping data between element and reference element 
      !! \f$ dx/dr, dy/dr, dz/dr \f$
      !! \f$ dx/ds, dy/ds, dz/ds \f$
      !! \f$ dx/dt, dy/dt, dz/dt \f$
      real(kind=rp), allocatable :: dxdr(:,:,:,:), dydr(:,:,:,:), dzdr(:,:,:,:) 
      real(kind=rp), allocatable :: dxds(:,:,:,:), dyds(:,:,:,:), dzds(:,:,:,:)
      real(kind=rp), allocatable :: dxdt(:,:,:,:), dydt(:,:,:,:), dzdt(:,:,:,:) 
-     !< \f$ dr/dx, dr/dy, dr/dz \f$
+     !> \f$ dr/dx, dr/dy, dr/dz \f$
      !! \f$ ds/dx, ds/dy, ds/dz \f$
      !! \f$ dt/dx, dt/dy, dt/dz \f$
      real(kind=rp), allocatable :: drdx(:,:,:,:), drdy(:,:,:,:), drdz(:,:,:,:) 

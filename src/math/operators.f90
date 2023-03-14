@@ -225,7 +225,7 @@ contains
   !! Similar to comp_sij in Nek5000.
   subroutine strain_rate(s11, s22, s33, s12, s13, s23, &
                          u, v, w, coef)
-    type(field_t), intent(in) :: u, v, w
+    type(field_t), intent(in) :: u, v, w !> velocity components
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: s11(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s22(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
