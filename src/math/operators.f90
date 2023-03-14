@@ -234,44 +234,60 @@ contains
     real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s13(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     
-    integer :: i, e
+    type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d
+    
+    integer :: nelv, lxyz
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       s11_d = device_get_ptr(s11)
+       s22_d = device_get_ptr(s22)
+       s33_d = device_get_ptr(s33)
+       s12_d = device_get_ptr(s12)
+       s23_d = device_get_ptr(s23)
+       s13_d = device_get_ptr(s13)
+    endif
+    
+    nelv = u%msh%nelv
+    lxyz = u%Xh%lxyz
     
     ! we use s11 as a work array here
     call dudxyz (s12, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (s11, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    do e=1,u%msh%nelv
-      do i=1,u%Xh%lxyz
-        s12(i, 1, 1, e) = s12(i, 1, 1, e) + s11(i, 1, 1, e) ! du/dy + dv/dx
-       enddo
-    enddo
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(s12_d, s11_d, nelv*lxyz)
+    else
+       call add2(s12, s11, nelv*lxyz)
+    endif
 
     call dudxyz (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     call dudxyz (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    do e=1,u%msh%nelv
-      do i=1,u%Xh%lxyz
-        s13(i, 1, 1, e) = s13(i, 1, 1, e) + s11(i, 1, 1, e) ! du/dz + dw/dx
-       enddo
-    enddo
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(s13_d, s11_d, nelv*lxyz)
+    else
+       call add2(s13, s11, nelv*lxyz)
+    endif
 
     call dudxyz (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     call dudxyz (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    do e=1,u%msh%nelv
-      do i=1,u%Xh%lxyz
-        s23(i, 1, 1, e) = s23(i, 1, 1, e) + s11(i, 1, 1, e) ! dv/dz + dw/dy
-       enddo
-    enddo
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(s23_d, s11_d, nelv*lxyz)
+    else
+       call add2(s23, s11, nelv*lxyz)
+    endif
 
     call dudxyz (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (s33, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    do e=1,u%msh%nelv
-      do i=1,u%Xh%lxyz
-        s11(i, 1, 1, e) = 2 * s11(i, 1, 1, e) ! 2* du/dx
-        s22(i, 1, 1, e) = 2 * s22(i, 1, 1, e) ! 2* dv/dy
-        s33(i, 1, 1, e) = 2 * s33(i, 1, 1, e) ! 2* dv/dy
-       enddo
-    enddo
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(s11_d, 2.0_rp, nelv*lxyz)
+       call device_cmult(s22_d, 2.0_rp, nelv*lxyz)
+       call device_cmult(s33_d, 2.0_rp, nelv*lxyz)
+    else
+       call cmult(s11, 2.0_rp, nelv*lxyz)
+       call cmult(s22, 2.0_rp, nelv*lxyz)
+       call cmult(s33, 2.0_rp, nelv*lxyz)
+    endif
   
   end subroutine strain_rate
   
