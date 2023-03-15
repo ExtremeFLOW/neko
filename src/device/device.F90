@@ -1085,6 +1085,24 @@ contains
 #endif
   end subroutine device_stream_destroy
 
+  !> Synchronize a device stream with an event
+  subroutine device_stream_wait_event(stream, event, flags)
+    type(c_ptr), intent(in) :: stream
+    type(c_ptr), intent(in) :: event
+    integer :: flags
+#ifdef HAVE_HIP
+    if (hipStreamWaitEvent(stream, event, flags) .ne. hipSuccess) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_CUDA
+    if (cudaStreamWaitEvent(stream, event, flags) .ne. cudaSuccess) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_OPENCL
+    call neko_error('Not implemented yet')
+#endif
+  end subroutine device_stream_wait_event
+  
   !> Start device profiling
   subroutine device_profiler_start()
 #if HAVE_CUDA

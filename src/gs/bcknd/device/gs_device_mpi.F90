@@ -356,7 +356,9 @@ contains
     else
 
        ! Sync device since all streams are non-blocking
-       call device_event_sync(deps)
+       call device_stream_wait_event(C_NULL_PTR, deps, 0)
+
+!       call device_event_sync(deps)
        
        do i = 1, size(this%send_pe)
 #ifdef HAVE_HIP
@@ -466,7 +468,8 @@ contains
 
        ! Sync non-blocking streams
        do done_req = 1, size(this%recv_pe)
-          call device_event_sync(this%event(done_req))
+          call device_stream_wait_event(this%stream(done_req), &
+                                        this%event(done_req), 0)
        end do
     end if
 
