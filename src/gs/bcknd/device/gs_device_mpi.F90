@@ -61,6 +61,7 @@ module gs_device_mpi
      type(gs_device_mpi_buf_t) :: send_buf
      type(gs_device_mpi_buf_t) :: recv_buf
      type(c_ptr), allocatable :: stream(:)
+     type(c_ptr), allocatable :: event(:)
      integer :: nb_strtgy
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
@@ -284,6 +285,11 @@ contains
        call device_stream_create(this%stream(i), 1)
     end do
 
+    allocate(this%event(size(this%recv_pe)))
+    do i = 1, size(this%recv_pe)
+       call device_event_create(this%event(i))
+    end do
+
 
     this%nb_strtgy = 0
     
@@ -310,10 +316,11 @@ contains
   end subroutine gs_device_mpi_free
 
   !> Post non-blocking send operations
-  subroutine gs_device_mpi_nbsend(this, u, n)
+  subroutine gs_device_mpi_nbsend(this, u, n, deps)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: deps
     integer ::  i
     type(c_ptr) :: u_d
 
@@ -347,11 +354,9 @@ contains
        end do
        
     else
-
-       ! Sync device since all streams are non-blocking
-       call device_sync()
        
        do i = 1, size(this%send_pe)
+          call device_stream_wait_event(this%stream(i), deps, 0)
 #ifdef HAVE_HIP
           call hip_gs_pack(u_d, &
                            this%send_buf%buf_d, &
@@ -452,14 +457,17 @@ contains
 #else
           call neko_error('gs_device_mpi: no backend')
 #endif
+          call device_event_record(this%event(done_req), this%stream(done_req))
        end do
     
        call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
        ! Sync non-blocking streams
        do done_req = 1, size(this%recv_pe)
-          call device_sync(this%stream(done_req))
+          call device_stream_wait_event(C_NULL_PTR, &
+                                        this%event(done_req), 0)
        end do
+
     end if
 
   end subroutine gs_device_mpi_nbwait

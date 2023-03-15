@@ -151,6 +151,16 @@ module cuda_intf
      end function cudaStreamSynchronize
   end interface
 
+  interface 
+     integer (c_int) function cudaStreamWaitEvent(stream, event, flags) &
+          bind(c, name='cudaStreamWaitEvent')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: stream, event
+       integer(c_int), value :: flags
+     end function cudaStreamWaitEvent
+  end interface
+  
   interface
      integer (c_int) function cudaProfilerStart() &
           bind(c, name='cudaProfilerStart')
@@ -174,6 +184,15 @@ module cuda_intf
        implicit none
        type(c_ptr) :: event
      end function cudaEventCreate
+  end interface
+
+  interface
+     integer (c_int) function cudaEventDestroy(event) &
+          bind(c, name='cudaEventDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function cudaEventDestroy
   end interface
   
   interface
