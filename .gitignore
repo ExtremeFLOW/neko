@@ -28,4 +28,9 @@ comm.F90
 makeneko
 missing
 test-driver
+tests/*/*.log
+tests/*/*.F90
+tests/*/*.inc
+tests/*/*.trs
+
 
