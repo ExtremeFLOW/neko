@@ -175,6 +175,15 @@ module cuda_intf
        type(c_ptr) :: event
      end function cudaEventCreate
   end interface
+
+  interface
+     integer (c_int) function cudaEventDestroy(event) &
+          bind(c, name='cudaEventDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function cudaEventDestroy
+  end interface
   
   interface
      integer (c_int) function cudaEventCreateWithFlags(event, flags) &

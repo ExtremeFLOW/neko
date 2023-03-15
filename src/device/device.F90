@@ -1132,6 +1132,22 @@ contains
 #endif
   end subroutine device_event_create
 
+  !> Destroy a device event
+  subroutine device_event_destroy(event)
+    type(c_ptr), intent(inout) :: event
+#ifdef HAVE_HIP
+    if (hipEventDestroy(event) .ne. hipSuccess) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_CUDA
+    if (cudaEventDestroy(event) .ne. cudaSuccess) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_OPENCL
+    call neko_error('Not implemented yet')
+#endif
+  end subroutine device_event_destroy
+  
   !> Record a device event
   subroutine device_event_record(event, stream)
     type(c_ptr), intent(in) :: event

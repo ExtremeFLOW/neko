@@ -181,6 +181,15 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipEventDestroy(event) &
+          bind(c, name='hipEventDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function hipEventDestroy
+  end interface
+
+  interface
      integer (c_int) function hipEventCreateWithFlags(event, flags) &
           bind(c, name='hipEventCreateWithFlags')
        use, intrinsic :: iso_c_binding
