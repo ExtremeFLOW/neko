@@ -44,7 +44,7 @@ extern "C" {
   /*
    * Reduction buffer
    */
-  int red_s = 0;
+  int red_a = 0;
   real * buf = NULL;
   real * buf_d = NULL;
    
@@ -58,7 +58,7 @@ extern "C" {
     const dim3 nblcks((*nelv), 1, 1);
     const int nb = (*nelv);
          
-    if ( nb > red_s){
+    if ( nb > red_a){
       if (buf != NULL) {
         HIP_CHECK(hipHostFree(buf));
         HIP_CHECK(hipFree(buf_d));        
@@ -88,7 +88,7 @@ extern "C" {
     const dim3 nblcks((*nelv), 1, 1);
     const int nb = (*nelv);
          
-    if ( nb > red_s){
+    if ( nb > red_a){
       if (buf != NULL) {
         HIP_CHECK(hipHostFree(buf));
         HIP_CHECK(hipFree(buf_d));        
@@ -117,7 +117,7 @@ extern "C" {
     const dim3 nblcks((*nelv), 1, 1);
     const int nb = (*nelv);
          
-    if ( nb > red_s){
+    if ( nb > red_a){
       if (buf != NULL) {
         HIP_CHECK(hipHostFree(buf));
         HIP_CHECK(hipFree(buf_d));        
@@ -146,7 +146,7 @@ extern "C" {
     const dim3 nblcks((*nelv), 1, 1);
     const int nb = (*nelv);
          
-    if ( nb > red_s){
+    if ( nb > red_a){
       if (buf != NULL) {
         HIP_CHECK(hipHostFree(buf));
         HIP_CHECK(hipFree(buf_d));        
