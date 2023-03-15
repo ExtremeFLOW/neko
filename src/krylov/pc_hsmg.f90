@@ -80,6 +80,7 @@ module hsmg
   use device
   use device_math
   use profiler
+  use, intrinsic omp_lib
   implicit none
   private
 
@@ -106,6 +107,7 @@ module hsmg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
+     type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
      integer :: niter = 10 !< Number of iter of crs sovlve
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
@@ -160,6 +162,7 @@ contains
 
     n = dof%size()
     call field_init(this%e, dof,'work array')
+    call field_init(this%wf, dof,'work 2')
     
     call space_init(this%Xh_crs, GLL, lx_crs, lx_crs, lx_crs)
     this%dm_crs = dofmap_t(msh, this%Xh_crs) 
@@ -187,6 +190,7 @@ contains
     else
        allocate(jacobi_t::this%pc_crs)
     end if
+    call omp_set_num_threads(2)
 
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
@@ -349,6 +353,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
+    integer :: i
 
     call profiler_start_region('HSMG solve')
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -358,36 +363,46 @@ contains
        call device_copy(this%r_d, r_d, n)
 
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(3)%schwarz%compute(z, this%r)      
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call device_col2(this%r_d, this%grids(3)%coef%mult_d, &
                     this%grids(3)%dof%size())
        !Restrict to middle level
-       call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
-       call gs_op(this%grids(2)%gs_h, this%w, &
+       call this%interp_fine_mid%map(this%e%x,this%r,this%msh%nelv,this%grids(2)%Xh)
+       call gs_op(this%grids(2)%gs_h, this%e%x, &
                          this%grids(2)%dof%size(), GS_OP_ADD)
+       call device_copy(this%r_d, r_d, n)
+       call device_copy(this%w_d, this%e%x_d, n)
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
+       call this%interp_mid_crs%map(this%wf%x,this%w,this%msh%nelv,this%grids(1)%Xh)
        !Crs solve
+       call device_copy(this%w_d, this%e%x_d, n)
 
-       call gs_op(this%grids(1)%gs_h, this%r, &
-                         this%grids(1)%dof%size(), GS_OP_ADD)
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
-                                 this%grids(1)%dof%size())
-       call profiler_start_region('HSMG coarse-solve')
-       crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                    this%grids(1)%dof%size(), &
-                                    this%grids(1)%coef, &
-                                    this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)
-       call profiler_end_region
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                 this%grids(1)%dof%size())
-
-
+       !$omp parallel
+       do i = 1,2
+         if (omp_get_thread_num() .eq. 0) then
+            write(*,*) "Hello", omp_get_thread_num()
+            call this%grids(3)%schwarz%compute(z, this%r)      
+            call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
+         else 
+            write(*,*) "Hi", omp_get_thread_num()
+            call gs_op(this%grids(1)%gs_h, this%wf%x, &
+                              this%grids(1)%dof%size(), GS_OP_ADD)
+            call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
+                                      this%grids(1)%dof%size())
+            call profiler_start_region('HSMG coarse-solve')
+            crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%wf%x, &
+                                         this%grids(1)%dof%size(), &
+                                         this%grids(1)%coef, &
+                                         this%grids(1)%bclst, &
+                                         this%grids(1)%gs_h, this%niter)
+            call profiler_end_region
+            call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
+                                      this%grids(1)%dof%size())
+          end if
+       end do
+       !$omp end parallel
        call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
        call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
 
