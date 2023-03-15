@@ -449,8 +449,6 @@ contains
                              this%recv_buf%offset(done_req), &
                              this%recv_buf%ndofs(done_req), &
                              this%stream(done_req))
-          call device_event_record(this%event(done_req), this%stream(done_req))
-          
 #elif HAVE_CUDA    
           call cuda_gs_unpack(u_d, op, &
                               this%recv_buf%buf_d, &
@@ -461,6 +459,7 @@ contains
 #else
           call neko_error('gs_device_mpi: no backend')
 #endif
+          call device_event_record(this%event(done_req), this%stream(done_req))
        end do
     
        call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
