@@ -354,11 +354,6 @@ contains
        end do
        
     else
-
-       ! Sync device since all streams are non-blocking
-!       call device_stream_wait_event(C_NULL_PTR, deps, 0)
-
-!       call device_event_sync(deps)
        
        do i = 1, size(this%send_pe)
           call device_stream_wait_event(this%stream(i), deps, 0)
@@ -407,10 +402,9 @@ contains
   end subroutine gs_device_mpi_nbrecv
 
   !> Wait for non-blocking operations
-  subroutine gs_device_mpi_nbwait(this, u, n, op, deps)
+  subroutine gs_device_mpi_nbwait(this, u, n, op)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
-    type(c_ptr), intent(inout) :: deps
     real(kind=rp), dimension(n), intent(inout) :: u
     integer :: op, done_req
     type(c_ptr) :: u_d
@@ -474,7 +468,6 @@ contains
                                         this%event(done_req), 0)
        end do
 
-       call device_event_record(deps, C_NULL_PTR)
     end if
 
   end subroutine gs_device_mpi_nbwait

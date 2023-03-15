@@ -160,7 +160,6 @@ contains
     this%shared_on_host = .true.
 
     call device_event_create(this%gather_event)
-    call device_event_create(this%scatter_event)
       
   end subroutine gs_device_init
 
@@ -209,10 +208,6 @@ contains
 
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
-    end if
-
-    if (c_associated(this%scatter_event)) then
-       call device_event_destroy(this%scatter_event)
     end if
     
   end subroutine gs_device_free
@@ -373,8 +368,6 @@ contains
 #endif
        end associate
     else if (shrd) then
-
-       call device_stream_wait_event(C_NULL_PTR, this%scatter_event, 0)
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo_d=>this%shared_blk_off_d)

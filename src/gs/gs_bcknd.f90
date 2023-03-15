@@ -42,7 +42,6 @@ module gs_bcknd
   !> Gather-scatter backend
   type, public, abstract :: gs_bcknd_t
      type(c_ptr) :: gather_event = C_NULL_PTR
-     type(c_ptr) :: scatter_event = C_NULL_PTR
    contains
      procedure(gs_backend_init), pass(this), deferred :: init
      procedure(gs_backend_free), pass(this), deferred :: free

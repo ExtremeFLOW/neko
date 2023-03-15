@@ -1293,7 +1293,7 @@ contains
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait")
-       call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%scatter_event)
+       call gs%comm%nbwait(gs%shared_gs, l, op)
        call profiler_end_region
        call profiler_start_region("gs_scatter_shared")
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
