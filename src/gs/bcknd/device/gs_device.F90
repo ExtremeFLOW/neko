@@ -373,6 +373,8 @@ contains
 #endif
        end associate
     else if (shrd) then
+
+       call device_stream_wait_event(C_NULL_PTR, this%scatter_event, 0)
        associate(v_d=>this%shared_gs_d, dg_d=>this%shared_dof_gs_d, &
             gd_d=>this%shared_gs_dof_d, b_d=>this%shared_blk_len_d, &
             bo_d=>this%shared_blk_off_d)

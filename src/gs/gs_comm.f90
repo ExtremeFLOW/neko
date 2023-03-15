@@ -101,14 +101,16 @@ module gs_comm
 
   !> Abstract interface for watining on non-blocking operations
   abstract interface
-     subroutine gs_nbwait(this, u, n, op)
+     subroutine gs_nbwait(this, u, n, op, deps)
        import gs_comm_t
        import stack_i4_t
+       import c_ptr
        import rp
        class(gs_comm_t), intent(inout) :: this
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
        integer :: op
+       type(c_ptr), intent(inout) :: deps
      end subroutine gs_nbwait
   end interface
 
