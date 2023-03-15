@@ -37,6 +37,60 @@ module device_cpr
   use, intrinsic :: iso_c_binding
   implicit none
 
+#ifdef HAVE_HIP
+  interface
+     subroutine hip_lcsc3(res_d,a_d,b_d,c_d,lx,nelv) &
+       bind(c, name='hip_lcsc3')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: res_d, a_d, b_d, c_d
+       integer(c_int) :: lx, nelv
+     end subroutine hip_lcsc3
+  end interface
+
+  interface
+     subroutine hip_lcsum(res_d,a_d,lx,nelv) &
+       bind(c, name='hip_lcsum')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: res_d, a_d
+       integer(c_int) :: lx, nelv
+     end subroutine hip_lcsum
+  end interface
+
+  interface
+     subroutine hip_lcsort_abs(a_sort_d,key_sort_d,a_d,key_d,lx,nelv) &
+       bind(c, name='hip_lcsort_abs')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_sort_d, key_sort_d, a_d, key_d
+       integer(c_int) :: lx, nelv
+     end subroutine hip_lcsort_abs
+  end interface
+
+  interface
+     subroutine hip_lcsort_bykey(a_sort_d,key_sort_d,a_d,key_d,lx,nelv) &
+       bind(c, name='hip_lcsort_bykey')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_sort_d, key_sort_d, a_d, key_d
+       integer(c_int) :: lx, nelv
+     end subroutine hip_lcsort_bykey
+  end interface
+
+  interface
+     subroutine hip_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv) &
+          bind(c, name='hip_lctnsr3d')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, bp_d, bp_key_d
+       integer(c_int) :: nu, nv, nelv
+     end subroutine hip_lctnsr3d
+  end interface
+#elif HAVE_CUDA
   interface
      subroutine cuda_lcsc3(res_d,a_d,b_d,c_d,lx,nelv) &
        bind(c, name='cuda_lcsc3')
@@ -89,6 +143,7 @@ module device_cpr
        integer(c_int) :: nu, nv, nelv
      end subroutine cuda_lctnsr3d
   end interface
+#endif
 
 contains
 
@@ -96,7 +151,7 @@ contains
     type(c_ptr), value :: res_d,a_d, b_d, c_d
     integer(c_int) :: lx, nelv
 #ifdef HAVE_HIP
-    call neko_error('No elem glsc3_elem in this device')
+    call hip_lcsc3(res_d,a_d,b_d,c_d,lx,nelv)
 #elif HAVE_CUDA
     call cuda_lcsc3(res_d,a_d,b_d,c_d,lx,nelv)
 #elif HAVE_OPENCL
@@ -111,7 +166,7 @@ contains
     type(c_ptr), value :: res_d,a_d
     integer(c_int) :: lx, nelv
 #ifdef HAVE_HIP
-    call neko_error('No elem glsc3_elem in this device')
+    call hip_lcsum(res_d,a_d,lx,nelv)
 #elif HAVE_CUDA
     call cuda_lcsum(res_d,a_d,lx,nelv)
 #elif HAVE_OPENCL
@@ -126,7 +181,7 @@ contains
     type(c_ptr), value :: a_sort_d,key_sort_d,a_d,key_d
     integer(c_int) :: lx, nelv
 #ifdef HAVE_HIP
-    call neko_error('No elem glsc3_elem in this device')
+    call hip_lcsort_abs(a_sort_d,key_sort_d,a_d,key_d,lx,nelv)
 #elif HAVE_CUDA
     call cuda_lcsort_abs(a_sort_d,key_sort_d,a_d,key_d,lx,nelv)
 #elif HAVE_OPENCL
@@ -141,7 +196,7 @@ contains
     type(c_ptr), value :: a_sort_d,key_sort_d,a_d,key_d
     integer(c_int) :: lx, nelv
 #ifdef HAVE_HIP
-    call neko_error('No elem glsc3_elem in this device')
+    call hip_lcsort_bykey(a_sort_d,key_sort_d,a_d,key_d,lx,nelv)
 #elif HAVE_CUDA
     call cuda_lcsort_bykey(a_sort_d,key_sort_d,a_d,key_d,lx,nelv)
 #elif HAVE_OPENCL
@@ -156,7 +211,7 @@ contains
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d,bp_d,bp_key_d
     integer(c_int) :: nu, nv, nelv
 #ifdef HAVE_HIP
-    call neko_error('No device backend configured')
+    call hip_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv)
 #elif HAVE_CUDA
     call cuda_lctnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d,bp_d,bp_key_d, nelv)
 #elif HAVE_OPENCL

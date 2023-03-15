@@ -222,6 +222,7 @@ if ENABLE_HIP
 libneko_a_SOURCES += \
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
+	math/bcknd/device/hip/cpr.hip\
 	math/bcknd/device/hip/schwarz.hip\
 	math/bcknd/device/hip/tensor.hip\
 	math/bcknd/device/hip/fdm.hip\
@@ -401,6 +402,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/dong_outflow_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
 	math/bcknd/device/hip/math_kernel.h\
+	math/bcknd/device/hip/cpr_kernel.h\
 	math/bcknd/device/hip/tensor_kernel.h\
 	math/bcknd/device/hip/schwarz_kernel.h\
 	math/bcknd/device/hip/fdm_kernel.h\

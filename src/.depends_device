@@ -1,5 +1,6 @@
 device/hip/check.o : device/hip/check.hip device/hip/check.h
 math/bcknd/device/hip/math.o : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h
+math/bcknd/device/hip/cpr.o : math/bcknd/device/hip/cpr.hip math/bcknd/device/hip/cpr_kernel.h
 math/bcknd/device/hip/mathops.o : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
 math/bcknd/device/hip/opr_dudxyz.o : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h
 math/bcknd/device/hip/opr_cdtp.o : math/bcknd/device/hip/opr_cdtp.hip math/bcknd/device/hip/cdtp_kernel.h
