@@ -73,7 +73,7 @@ module pnpn_residual
        type(field_t), intent(inout) :: wa1, wa2, wa3 !< work arrays 
        type(field_t), intent(inout) :: work1, work2
        type(field_t), intent(inout) :: p_res
-       type(source_t), intent(inout) :: f_Xh !> momentum source terms
+       type(source_t), intent(inout) :: f_Xh !< momentum source terms
        type(coef_t), intent(inout) :: c_Xh
        type(gs_t), intent(inout) :: gs_Xh
        type(facet_normal_t), intent(inout) :: bc_prs_surface
