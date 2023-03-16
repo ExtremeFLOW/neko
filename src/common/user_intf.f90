@@ -237,6 +237,6 @@ contains
   end subroutine dummy_user_init_no_modules
 
   subroutine dummy_user_final_modules()
-  end subroutinee dummy_user_final_modules
+  end subroutine dummy_user_final_modules
 
 end module user_intf
