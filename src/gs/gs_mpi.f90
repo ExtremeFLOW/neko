@@ -39,6 +39,7 @@ module gs_mpi
   use stack
   use mpi_f08
   use comm
+  use, intrinsic :: omp_lib
   implicit none
 
   !> MPI buffer for non-blocking operations
@@ -136,7 +137,7 @@ contains
        ! ICE with NAG.
        associate(send_data => this%send_buf(i)%data)
          call MPI_Isend(send_data, size(send_data), &
-              MPI_REAL_PRECISION, this%send_pe(i), 0, &
+              MPI_REAL_PRECISION, this%send_pe(i), omp_get_thread_num(), &
               NEKO_COMM, this%send_buf(i)%request, ierr)
        end associate
        this%send_buf(i)%flag = .false.
@@ -154,7 +155,7 @@ contains
        ! ICE with NAG.
        associate(recv_data => this%recv_buf(i)%data)
          call MPI_IRecv(recv_data, size(recv_data), &
-              MPI_REAL_PRECISION, this%recv_pe(i), 0, &
+              MPI_REAL_PRECISION, this%recv_pe(i), omp_get_thread_num(), &
               NEKO_COMM, this%recv_buf(i)%request, ierr)
        end associate
        this%recv_buf(i)%flag = .false.
