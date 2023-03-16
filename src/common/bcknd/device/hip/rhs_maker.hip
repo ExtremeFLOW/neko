@@ -52,7 +52,7 @@ extern "C" {
 
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( sumab_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) u, (real *) v, (real *) w,
                        (real *) uu, (real *) vv, (real *) ww,
                        (real *) ulag1, (real *) ulag2, (real *) vlag1,
@@ -70,7 +70,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME( makeext_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) abx1, (real *) aby1, (real *) abz1, 
                        (real *) abx2, (real *) aby2, (real *) abz2,
                        (real *) bfx, (real *) bfy, (real *) bfz,
@@ -86,7 +86,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makeext_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) fs_lag, (real *) fs_laglag, (real *) fs, 
                        *rho, *ext1, *ext2, *ext3, *n);      
     HIP_CHECK(hipGetLastError());
@@ -103,7 +103,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( makebdf_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) ulag1, (real *) ulag2, (real *) vlag1,
                        (real *) vlag2, (real *) wlag1, (real *) wlag2, 
                        (real *) bfx, (real *) bfy, (real *) bfz,
@@ -121,7 +121,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makebdf_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) s_lag, (real *) s_laglag, (real *) fs,
                        (real *) s, (real *) B, *rho, *dt, *bd2, *bd3,
                        *bd4, *nbd,  *n);

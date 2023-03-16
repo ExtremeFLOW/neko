@@ -47,7 +47,7 @@ extern "C" {
 #define CASE(NL)                                                                 \
     case NL:                                                                     \
     hipLaunchKernelGGL(HIP_KERNEL_NAME(fdm_do_fast_kernel<real,NL>),             \
-                       nblcks, nthrds, 0, 0,                                     \
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,           \
                        (real *) e, (real *) r,                                   \
                        (real *) s,(real *) d);                                   \
     HIP_CHECK(hipGetLastError());                                                \

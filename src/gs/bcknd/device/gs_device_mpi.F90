@@ -333,18 +333,18 @@ contains
                         this%send_buf%buf_d, &
                         this%send_buf%dof_d, &
                         0, this%send_buf%total, &
-                        C_NULL_PTR)
+                        glb_cmd_queue)
 #elif HAVE_CUDA
        call cuda_gs_pack(u_d, &
                          this%send_buf%buf_d, &
                          this%send_buf%dof_d, &
                          0, this%send_buf%total, &
-                         C_NULL_PTR)
+                         glb_cmd_queue)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
 
-       call device_sync()
+       call device_sync(glb_cmd_queue)
        
        do i = 1, size(this%send_pe)
           call device_mpi_isend(this%send_buf%buf_d, &
@@ -419,13 +419,13 @@ contains
                           this%recv_buf%buf_d, &
                           this%recv_buf%dof_d, &
                           0, this%recv_buf%total, &
-                          C_NULL_PTR)
+                          glb_cmd_queue)
 #elif HAVE_CUDA
        call cuda_gs_unpack(u_d, op, &
                            this%recv_buf%buf_d, &
                            this%recv_buf%dof_d, &
                            0, this%recv_buf%total, &
-                           C_NULL_PTR)
+                           glb_cmd_queue)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
@@ -433,7 +433,7 @@ contains
        call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
        ! Syncing here seems to prevent some race condition
-       call device_sync()
+       call device_sync(glb_cmd_queue)
        
     else
 
@@ -464,7 +464,7 @@ contains
 
        ! Sync non-blocking streams
        do done_req = 1, size(this%recv_pe)
-          call device_stream_wait_event(C_NULL_PTR, &
+          call device_stream_wait_event(glb_cmd_queue, &
                                         this%event(done_req), 0)
        end do
 

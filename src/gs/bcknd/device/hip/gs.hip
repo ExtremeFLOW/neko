@@ -61,7 +61,7 @@ extern "C" {
     switch (*op) {
     case GS_OP_ADD:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<real>),
-                         nblcks, nthrds, 0, 0,
+                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -69,7 +69,7 @@ extern "C" {
       break;
     case GS_OP_MUL:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<real>),
-                         nblcks, nthrds, 0, 0,
+                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -77,7 +77,7 @@ extern "C" {
       break;
     case GS_OP_MIN:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<real>),
-                         nblcks, nthrds, 0, 0,
+                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -85,7 +85,7 @@ extern "C" {
       break;
     case GS_OP_MAX:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<real>),
-                         nblcks, nthrds, 0, 0,
+                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -107,7 +107,7 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) v, *m, (int *) dg,
                        (real *) u, *n, (int *) gd,
                        *nb, (int *) b, (int *) bo);

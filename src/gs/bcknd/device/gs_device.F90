@@ -315,11 +315,11 @@ contains
 #ifdef HAVE_HIP   
          call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                 nb, b_d, bo_d, op)
-         call device_event_record(this%gather_event, C_NULL_PTR)
+         call device_event_record(this%gather_event, glb_cmd_queue)
 #elif HAVE_CUDA
          call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op)
-         call device_event_record(this%gather_event, C_NULL_PTR)
+         call device_event_record(this%gather_event, glb_cmd_queue)
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                    nb, b_d, bo_d, op)

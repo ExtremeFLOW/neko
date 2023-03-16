@@ -52,7 +52,7 @@ extern "C" {
 #define CASE(NX)                                                          \
     case NX:                                                              \
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_extrude_kernel<real,NX>),  \
-                       nblcks, nthrds, 0, 0,                              \
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,    \
                        (real *) arr1,* l1, * f1,                          \
                        (real *) arr2, *l2, *f2);                          \
     HIP_CHECK(hipGetLastError());                                         \
@@ -89,7 +89,8 @@ extern "C" {
     const dim3 nblcks((*nel), 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_toext3d_kernel<real>),
-                                       nblcks, nthrds, 0, 0,
+                                       nblcks, nthrds, 0,
+                                       (hipStream_t) glb_cmd_queue,
                                        (real *) a,(real *) b, * nx);
     HIP_CHECK(hipGetLastError());
   } 
@@ -99,7 +100,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_toreg3d_kernel<real>),
-                                       nblcks, nthrds, 0, 0,
+                                       nblcks, nthrds, 0,
+                                       (hipStream_t) glb_cmd_queue,
                                        (real *) b,(real *) a, * nx);
     HIP_CHECK(hipGetLastError());
   } 

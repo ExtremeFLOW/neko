@@ -37,6 +37,12 @@ module hip_intf
   implicit none
 
 #ifdef HAVE_HIP
+
+  !> Global HIP command queue
+  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux HIP command queue
+  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
   
   !> Enum @a hipError_t
   enum, bind(c)
@@ -105,11 +111,11 @@ module hip_intf
   end interface
 
   interface
-     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir) &
+     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
           bind(c, name='hipMemcpyAsync')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: ptr_dst, ptr_src
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function hipMemcpyAsync
@@ -229,6 +235,16 @@ module hip_intf
   
 contains
 
+  subroutine hip_init
+    if (hipStreamCreateWithFlags(glb_cmd_queue, 1) .ne. hipSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+
+    if (hipStreamCreateWithFlags(aux_cmd_queue, 1) .ne. hipSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+  end subroutine hip_init
+  
   subroutine hip_device_name(name)
     character(len=*), intent(inout) :: name
     character(kind=c_char, len=1024), target :: c_name
