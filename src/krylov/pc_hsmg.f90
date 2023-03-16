@@ -80,7 +80,7 @@ module hsmg
   use device
   use device_math
   use profiler
-  use, intrinsic omp_lib
+  use, intrinsic :: omp_lib
   implicit none
   private
 
@@ -361,6 +361,7 @@ contains
        r_d = device_get_ptr(r)
        !We should not work with the input 
        call device_copy(this%r_d, r_d, n)
+       call bc_list_apply_scalar(this%bclst_reg, r, n)
 
        !OVERLAPPING Schwarz exchange and solve
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
@@ -371,13 +372,16 @@ contains
        call gs_op(this%grids(2)%gs_h, this%e%x, &
                          this%grids(2)%dof%size(), GS_OP_ADD)
        call device_copy(this%r_d, r_d, n)
-       call device_copy(this%w_d, this%e%x_d, n)
+       call bc_list_apply_scalar(this%bclst_reg, r, n)
+       call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
+       call bc_list_apply_scalar(this%bclst_mg, this%w, this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, this%grids(2)%dof%size())
        !restrict residual to crs
        call this%interp_mid_crs%map(this%wf%x,this%w,this%msh%nelv,this%grids(1)%Xh)
        !Crs solve
-       call device_copy(this%w_d, this%e%x_d, n)
+       call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
+       call bc_list_apply_scalar(this%bclst_mg, this%w, this%grids(2)%dof%size())
 
        !$omp parallel
        do i = 1,2
@@ -399,10 +403,12 @@ contains
                                          this%grids(1)%gs_h, this%niter)
             call profiler_end_region
             call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                      this%grids(1)%dof%size())
+                                      this%grids(1)%dof%size()) 
+
           end if
        end do
        !$omp end parallel
+       call device_sync()
        call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
        call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
 

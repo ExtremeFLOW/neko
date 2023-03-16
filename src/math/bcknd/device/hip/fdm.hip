@@ -39,6 +39,8 @@
 
 extern "C" {
 
+  hipStream_t *stream2;
+  hipStreamCreate(stream2);
   /** Fortran wrapper for tnsr3d **/
   void hip_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel) {
     const dim3 nthrds(1024, 1, 1);
@@ -47,7 +49,7 @@ extern "C" {
 #define CASE(NL)                                                                 \
     case NL:                                                                     \
     hipLaunchKernelGGL(HIP_KERNEL_NAME(fdm_do_fast_kernel<real,NL>),             \
-                       nblcks, nthrds, 0, 0,                                     \
+                       nblcks, nthrds, 0, stream2,                                     \
                        (real *) e, (real *) r,                                   \
                        (real *) s,(real *) d);                                   \
     HIP_CHECK(hipGetLastError());                                                \

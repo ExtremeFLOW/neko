@@ -390,12 +390,16 @@ contains
        call this%fdm%compute(work2, work1) ! do local solves
 
        call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, enx, eny, enz, this%msh%nelv)
+       call device_sync()
        call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD) 
+       call device_sync()
        call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, enx, eny, enz, this%msh%nelv)
        call device_schwarz_extrude(work2_d, 2, one, work2_d, 0, one, enx, eny, enz, this%msh%nelv)
        call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, this%msh%nelv)
 
+       call device_sync()
        call gs_op(this%gs_h, e, n, GS_OP_ADD) 
+       call device_sync()
        call bc_list_apply_scalar(this%bclst, e, n)
        call device_col2(e_d,this%wt_d, n)
     else

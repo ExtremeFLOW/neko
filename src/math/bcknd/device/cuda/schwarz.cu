@@ -38,6 +38,8 @@
 #include <stdio.h>
 
 extern "C" {
+  cudaStream_t stream;
+  cudaError_t err9 = cudaStreamCreate(&stream);
 
   /** 
    * Fortran wrapper for device extrude
@@ -52,7 +54,7 @@ extern "C" {
 #define CASE(NX)                                     \
     case NX:                                         \
     schwarz_extrude_kernel<real,NX>                  \
-    <<<nblcks, nthrds>>>((real *) arr1,* l1, * f1,   \
+    <<<nblcks, nthrds, 0, stream>>>((real *) arr1,* l1, * f1,   \
                          (real *) arr2, *l2, *f2 );  \
     CUDA_CHECK(cudaGetLastError());                  \
     break;
@@ -85,7 +87,7 @@ extern "C" {
     const dim3 nblcks((*nel), 1, 1);
 
     schwarz_toext3d_kernel<real>
-    <<<nblcks, nthrds>>>((real *) a,(real *) b, * nx);  
+    <<<nblcks, nthrds, 0, stream>>>((real *) a,(real *) b, * nx);  
     CUDA_CHECK(cudaGetLastError());
   } 
 
@@ -95,7 +97,7 @@ extern "C" {
     const dim3 nblcks((*nel), 1, 1);
 
     schwarz_toreg3d_kernel<real>
-    <<<nblcks, nthrds>>>((real *) b,(real *) a, * nx);  
+    <<<nblcks, nthrds,0, stream>>>((real *) b,(real *) a, * nx);  
     CUDA_CHECK(cudaGetLastError());
   } 
 
