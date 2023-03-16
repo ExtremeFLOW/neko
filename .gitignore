@@ -32,5 +32,6 @@ tests/*/*.log
 tests/*/*.F90
 tests/*/*.inc
 tests/*/*.trs
+Doxyfile
 
 
