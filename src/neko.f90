@@ -209,7 +209,7 @@ contains
     if (present(C)) then
        call case_free(C)
     end if
-    
+    call C%usr%user_final_modules()
     call neko_field_registry%free()
     call device_finalize
     call mpi_types_free

@@ -108,6 +108,7 @@ module user_intf
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
      procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
+     procedure(user_finalize_modules), nopass, pointer :: user_final_modules => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
@@ -146,6 +147,10 @@ contains
     end if
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+    end if
+
+    if (.not. associated(u%user_final_modules)) then
+       u%user_final_modules => dummy_user_final_modules
     end if
     
   end subroutine user_intf_init
@@ -230,5 +235,8 @@ contains
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
+
+  subroutine dummy_user_final_modules()
+  end subroutinee dummy_user_final_modules
 
 end module user_intf
