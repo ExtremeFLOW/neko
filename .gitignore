@@ -33,5 +33,6 @@ tests/*/*.F90
 tests/*/*.inc
 tests/*/*.trs
 Doxyfile
+doc/html
 
 
