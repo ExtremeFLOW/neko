@@ -87,6 +87,7 @@ module schwarz
     type(dofmap_t), pointer :: dm
     type(gs_t), pointer :: gs_h
     type(mesh_t), pointer :: msh
+    type(c_ptr) :: event
   contains 
     procedure, pass(this) :: init => schwarz_init
     procedure, pass(this) :: free => schwarz_free
@@ -131,6 +132,7 @@ contains
        call rone(this%work1, this%dm%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dm%size(), HOST_TO_DEVICE)
+       call device_event_create(this%event)
     end if
   end subroutine schwarz_init
  
@@ -381,31 +383,38 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        r_d = device_get_ptr(r)
        e_d = device_get_ptr(e)
-       call bc_list_apply_scalar(this%bclst, r, n)
-       call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, this%msh%nelv)
-       call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one ,enx,eny,enz, this%msh%nelv)
-       call device_sync()
-       call gs_op(this%gs_schwarz, work1, ns, GS_OP_ADD) 
-       call device_sync()
-       call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, enx, eny, enz, this%msh%nelv)
+       call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
+       call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one ,enx,eny,enz, this%msh%nelv,aux_cmd_queue)
+       call device_event_record(this%event,aux_cmd_queue)
+       call device_event_sync(this%event)
+       print *,'do we survieve one event?'
+       call gs_op(this%gs_schwarz, work1, ns, GS_OP_ADD,this%event) 
+       print *,'do we survieve gsop event?'
        
-       call device_sync()
-       call this%fdm%compute(work2, work1) ! do local solves
-       call device_sync()
+       call device_stream_wait_event(aux_cmd_queue,this%event, 0)
+       print *,'do we properly survieve gsop event?'
+       call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
+       
+       call this%fdm%compute(work2, work1,aux_cmd_queue) ! do local solves
 
-       call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, enx, eny, enz, this%msh%nelv)
-       call device_sync()
-       call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD) 
-       call device_sync()
-       call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, enx, eny, enz, this%msh%nelv)
-       call device_schwarz_extrude(work2_d, 2, one, work2_d, 0, one, enx, eny, enz, this%msh%nelv)
-       call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, this%msh%nelv)
+       call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
+       call device_event_record(this%event,aux_cmd_queue)
+       call device_event_sync(this%event)
+       print *,'fdm?'
+       call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD,this%event) 
+       call device_stream_wait_event(aux_cmd_queue,this%event,0)
+       print *,'gs_op2'
+       call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
+       call device_schwarz_extrude(work2_d, 2, one, work2_d, 0, one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
+       call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
 
-       call device_sync()
-       call gs_op(this%gs_h, e, n, GS_OP_ADD) 
-       call device_sync()
+       call device_event_record(this%event,aux_cmd_queue)
+       call device_event_sync(this%event)
+       print *,'part2'
+       call gs_op(this%gs_h, e, n, GS_OP_ADD, this%event) 
        call bc_list_apply_scalar(this%bclst, e, n)
        call device_col2(e_d,this%wt_d, n)
+       print *,'the end'
     else
        call bc_list_apply_scalar(this%bclst, r, n)
        !if (if3d) then ! extended array 

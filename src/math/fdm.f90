@@ -613,9 +613,12 @@ contains
 
   end subroutine fdm_free
 
-  subroutine fdm_compute(this, e, r)
+  subroutine fdm_compute(this, e, r, stream)
     class(fdm_t), intent(inout) :: this
     real(kind=rp), dimension((this%Xh%lx+2)**3, this%msh%nelv), intent(inout) :: e, r
+    type(c_ptr), optional :: stream
+
+    if(.not. present(stream)) stream = glb_cmd_queue
 
     if (NEKO_BCKND_SX .eq. 1) then
        call fdm_do_fast_sx(e, r, this%s, this%d, &
@@ -625,7 +628,7 @@ contains
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call fdm_do_fast_device(e, r, this%s, this%d, &
-            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv,stream)
     else
        call fdm_do_fast_cpu(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)

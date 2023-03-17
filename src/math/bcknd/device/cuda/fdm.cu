@@ -39,10 +39,9 @@
 extern "C" {
 
   /** Fortran wrapper for tnsr3d **/
-  void cuda_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel) {
+  void cuda_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel, cudaStream_t stream) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*nel, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define CASE(NL)                                                                 \
     case NL:                                                                     \

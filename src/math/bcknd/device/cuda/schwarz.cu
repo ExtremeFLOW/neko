@@ -44,11 +44,10 @@ extern "C" {
    */
   void cuda_schwarz_extrude(void *arr1, int * l1, real * f1,
                             void *arr2, int * l2, real * f2,
-                            int * nx, int * nel) {
+                            int * nx, int * nel, cudaStream_t stream) {
     
     const dim3 nthrds((*nx-2)*(*nx-2), 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
       
 #define CASE(NX)                                                       \
     case NX:                                                           \
@@ -80,33 +79,23 @@ extern "C" {
 
   } 
 
-  void cuda_schwarz_toext3d(void *a, void *b,int * nx, int * nel){
+  void cuda_schwarz_toext3d(void *a, void *b,int * nx, int * nel, cudaStream_t stream){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   
     schwarz_toext3d_kernel<real>
-<<<<<<< HEAD
-    <<<nblcks, nthrds, 0, stream>>>((real *) a,(real *) b, * nx);  
-=======
       <<<nblcks, nthrds, 0, stream>>>((real *) a,(real *) b, * nx);  
->>>>>>> 24580ed7fce3071907a6d0ffea3b9170379e35e0
     CUDA_CHECK(cudaGetLastError());
   } 
 
-  void cuda_schwarz_toreg3d(void *b, void *a,int * nx, int * nel){
+  void cuda_schwarz_toreg3d(void *b, void *a,int * nx, int * nel, cudaStream_t stream){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   
     schwarz_toreg3d_kernel<real>
-<<<<<<< HEAD
     <<<nblcks, nthrds,0, stream>>>((real *) b,(real *) a, * nx);  
-=======
-      <<<nblcks, nthrds, 0, stream>>>((real *) b,(real *) a, * nx);  
->>>>>>> 24580ed7fce3071907a6d0ffea3b9170379e35e0
     CUDA_CHECK(cudaGetLastError());
   } 
 
