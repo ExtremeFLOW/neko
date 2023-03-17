@@ -237,9 +237,19 @@ contains
     end if
 
     if (cudaStreamCreateWithFlags(aux_cmd_queue, 1) .ne. cudaSuccess) then
-       call neko_error('Error creating main stream')
+       call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
+
+  subroutine cuda_finalize
+    if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
+       call neko_error('Error destroying main stream')
+    end if
+
+    if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
+       call neko_error('Error destroying aux stream')
+    end if
+  end subroutine cuda_finalize
   
   subroutine cuda_device_name(name)
     character(len=*), intent(inout) :: name
