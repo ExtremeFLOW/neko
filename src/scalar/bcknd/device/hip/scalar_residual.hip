@@ -47,7 +47,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_residual_update_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) s_res, (real *) f_s, *n);
     HIP_CHECK(hipGetLastError());
   }

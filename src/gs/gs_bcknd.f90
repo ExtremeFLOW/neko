@@ -93,8 +93,9 @@ module gs_bcknd
   !> Abstract interface for the Scatter kernel
   !! \f$ u(gd(i) = v(dg(i)) \f$
   abstract interface
-     subroutine gs_scatter(this, v, m, dg, u, n, gd, nb, b, shrd)
-       import gs_bcknd_t       
+     subroutine gs_scatter(this, v, m, dg, u, n, gd, nb, b, shrd, event)
+       import gs_bcknd_t
+       import c_ptr
        import rp
        integer, intent(in) :: m
        integer, intent(in) :: n
@@ -106,6 +107,7 @@ module gs_bcknd
        integer, dimension(m), intent(inout) :: gd
        integer, dimension(nb), intent(inout) :: b
        logical, intent(in) :: shrd
+       type(c_ptr) :: event
      end subroutine gs_scatter
   end interface
 

@@ -39,8 +39,6 @@
 #include <stdio.h>
 
 extern "C" {
-  hipStream_t stream;
-  hipError_t err6 = hipStreamCreate(&stream);
   /** 
    * Fortran wrapper for device extrude
    */
@@ -53,7 +51,11 @@ extern "C" {
 #define CASE(NX)                                                          \
     case NX:                                                              \
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_extrude_kernel<real,NX>),  \
+<<<<<<< HEAD
                        nblcks, nthrds, 0, stream,                              \
+=======
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,    \
+>>>>>>> 24580ed7fce3071907a6d0ffea3b9170379e35e0
                        (real *) arr1,* l1, * f1,                          \
                        (real *) arr2, *l2, *f2);                          \
     HIP_CHECK(hipGetLastError());                                         \
@@ -90,7 +92,8 @@ extern "C" {
     const dim3 nblcks((*nel), 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_toext3d_kernel<real>),
-                                       nblcks, nthrds, 0, stream,
+                                       nblcks, nthrds, 0,
+                                       (hipStream_t) glb_cmd_queue,
                                        (real *) a,(real *) b, * nx);
     HIP_CHECK(hipGetLastError());
   } 
@@ -100,7 +103,12 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_toreg3d_kernel<real>),
+<<<<<<< HEAD
                                        nblcks, nthrds, 0, stream,
+=======
+                                       nblcks, nthrds, 0,
+                                       (hipStream_t) glb_cmd_queue,
+>>>>>>> 24580ed7fce3071907a6d0ffea3b9170379e35e0
                                        (real *) b,(real *) a, * nx);
     HIP_CHECK(hipGetLastError());
   } 

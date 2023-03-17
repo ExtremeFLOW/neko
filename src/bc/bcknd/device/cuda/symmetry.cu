@@ -53,8 +53,13 @@ extern "C" {
     const dim3 nblcks(((max_len) + 1024 - 1)/ 1024, 1, 1);
 
     symmetry_apply_vector_kernel<real>
-      <<<nblcks, nthrds>>>((int *) xmsk, (int *) ymsk, (int *) zmsk,
-                           (real *) x, (real *) y, (real *) z, *m, *n, *l);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) xmsk,
+                                                            (int *) ymsk,
+                                                            (int *) zmsk,
+                                                            (real *) x,
+                                                            (real *) y,
+                                                            (real *) z,
+                                                            *m, *n, *l);
     CUDA_CHECK(cudaGetLastError());
   }
  

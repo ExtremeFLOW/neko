@@ -37,18 +37,18 @@
 #include "fdm_kernel.h"
 #include <stdio.h>
 extern "C" {
-  cudaStream_t stream2;
-  cudaError_t err8 = cudaStreamCreate(&stream2);
 
   /** Fortran wrapper for tnsr3d **/
   void cuda_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*nel, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define CASE(NL)                                                                 \
     case NL:                                                                     \
     fdm_do_fast_kernel<real,NL>                                                  \
-      <<<nblcks, nthrds, 0, stream2>>>((real *) e, (real *) r, (real *) s,(real *) d);       \
+      <<<nblcks, nthrds, 0, stream>>>((real *) e, (real *) r,                    \
+                                      (real *) s,(real *) d);                    \
     CUDA_CHECK(cudaGetLastError());                                              \
     break;
 

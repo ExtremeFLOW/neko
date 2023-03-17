@@ -57,7 +57,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cg_update_xp_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) x, (real *) p, (real **) u, (real *) alpha,
                        (real *) beta, *p_cur, *p_space, *n);
     HIP_CHECK(hipGetLastError());
@@ -94,19 +94,22 @@ extern "C" {
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(pipecg_vecops_kernel<real>),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) p, (real *) q, (real *) r, (real *) s,
                        (real *) u1, (real *) u2, (real *) w, (real *) z,
                        (real *) ni, (real *) mi, *alpha, *beta,
                        (real *) mult, buf_d1, buf_d2, buf_d3, *n);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(buf1, buf_d1, nb * sizeof(real),
-                        hipMemcpyDeviceToHost));
-    HIP_CHECK(hipMemcpy(buf2, buf_d2, nb * sizeof(real),
-                        hipMemcpyDeviceToHost));
-    HIP_CHECK(hipMemcpy(buf3, buf_d3, nb * sizeof(real),
-                        hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpyAsync(buf1, buf_d1, nb * sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    HIP_CHECK(hipMemcpyAsync(buf2, buf_d2, nb * sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    HIP_CHECK(hipMemcpyAsync(buf3, buf_d3, nb * sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
 
     real res1 = 0.0;
     real res2 = 0.0;

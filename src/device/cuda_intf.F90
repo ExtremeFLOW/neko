@@ -38,6 +38,12 @@ module cuda_intf
 
 #ifdef HAVE_CUDA
 
+  !> Global HIP command queue
+  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux HIP command queue
+  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+  
   !> Enum @a cudaError
   enum, bind(c)
      enumerator :: cudaSuccess = 0
@@ -86,11 +92,11 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir) &
+     integer (c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
           bind(c, name='cudaMemcpyAsync')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: ptr_dst, ptr_src
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function cudaMemcpyAsync
@@ -225,6 +231,16 @@ module cuda_intf
   
 contains
 
+  subroutine cuda_init
+    if (cudaStreamCreateWithFlags(glb_cmd_queue, 1) .ne. cudaSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+
+    if (cudaStreamCreateWithFlags(aux_cmd_queue, 1) .ne. cudaSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+  end subroutine cuda_init
+  
   subroutine cuda_device_name(name)
     character(len=*), intent(inout) :: name
     character(kind=c_char, len=8192), target :: prop

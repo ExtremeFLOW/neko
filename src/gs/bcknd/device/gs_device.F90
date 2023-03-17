@@ -315,17 +315,20 @@ contains
 #ifdef HAVE_HIP   
          call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                 nb, b_d, bo_d, op)
-         call device_event_record(this%gather_event, C_NULL_PTR)
 #elif HAVE_CUDA
          call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op)
-         call device_event_record(this%gather_event, C_NULL_PTR)
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                    nb, b_d, bo_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
+
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+         call device_event_record(this%gather_event, glb_cmd_queue)         
+#endif
+         
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
                call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
@@ -338,7 +341,7 @@ contains
   end subroutine gs_gather_device
  
   !> Scatter kernel
-  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, shrd)
+  subroutine gs_scatter_device(this, v, m, dg, u, n, gd, nb, b, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -349,6 +352,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     logical, intent(in) :: shrd
+    type(c_ptr) :: event
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
@@ -385,6 +389,13 @@ contains
 #else
          call neko_error('No device backend configured')
 #endif
+
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+         if (c_associated(event)) then
+            call device_event_record(event, glb_cmd_queue)
+         end if         
+#endif
+         
        end associate
     end if
 

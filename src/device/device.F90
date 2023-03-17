@@ -97,7 +97,11 @@ contains
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%init(64)
 
-#if defined(HAVE_OPENCL)
+#ifdef HAVE_HIP
+    call hip_init
+#elif HAVE_CUDA
+    call cuda_init
+#elif HAVE_OPENCL
     call opencl_init
 #endif
 
@@ -351,7 +355,8 @@ contains
     integer, intent(in), value :: dir
     logical, intent(in) :: sync_device
 #ifdef HAVE_HIP
-    if (sync_device) then
+    !    if (sync_device) then
+    if (0 .eq. 1) then
        if (dir .eq. HOST_TO_DEVICE) then
           if (hipMemcpy(x_d, ptr_h, s, hipMemcpyHostToDevice) &
                .ne. hipSuccess) then
@@ -372,18 +377,18 @@ contains
        end if
     else
        if (dir .eq. HOST_TO_DEVICE) then
-          if (hipMemcpyAsync(x_d, ptr_h, s, hipMemcpyHostToDevice) &
-               .ne. hipSuccess) then
+          if (hipMemcpyAsync(x_d, ptr_h, s, &
+               hipMemcpyHostToDevice, glb_cmd_queue) .ne. hipSuccess) then
              call neko_error('Device memcpy async (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then       
-          if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToHost) &
-               .ne. hipSuccess) then
+          if (hipMemcpyAsync(ptr_h, x_d, s, &
+               hipMemcpyDeviceToHost, glb_cmd_queue) .ne. hipSuccess) then
              call neko_error('Device memcpy async (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then       
-          if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToDevice) &
-               .ne. hipSuccess) then
+          if (hipMemcpyAsync(ptr_h, x_d, s, &
+               hipMemcpyDeviceToDevice, glb_cmd_queue) .ne. hipSuccess) then
              call neko_error('Device memcpy async (device-to-device) failed')
           end if
        else
@@ -391,7 +396,8 @@ contains
        end if
     end if
 #elif HAVE_CUDA
-    if (sync_device) then
+    !    if (sync_device) then
+    if (0 .eq. 1) then
        if (dir .eq. HOST_TO_DEVICE) then
           if (cudaMemcpy(x_d, ptr_h, s, cudaMemcpyHostToDevice) &
                .ne. cudaSuccess) then
@@ -412,18 +418,18 @@ contains
        end if
     else
        if (dir .eq. HOST_TO_DEVICE) then
-          if (cudaMemcpyAsync(x_d, ptr_h, s, cudaMemcpyHostToDevice) &
-               .ne. cudaSuccess) then
+          if (cudaMemcpyAsync(x_d, ptr_h, s, &
+               cudaMemcpyHostToDevice, glb_cmd_queue) .ne. cudaSuccess) then
              call neko_error('Device memcpy async (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then       
-          if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToHost) &
-               .ne. cudaSuccess) then
+          if (cudaMemcpyAsync(ptr_h, x_d, s, &
+               cudaMemcpyDeviceToHost, glb_cmd_queue) .ne. cudaSuccess) then
              call neko_error('Device memcpy async (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then       
-          if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToDevice) &
-               .ne. cudaSuccess) then
+          if (cudaMemcpyAsync(ptr_h, x_d, s, &
+               cudaMemcpyDeviceToDevice, glb_cmd_queue) .ne. cudaSuccess) then
              call neko_error('Device memcpy async (device-to-device) failed')
           end if
        else
