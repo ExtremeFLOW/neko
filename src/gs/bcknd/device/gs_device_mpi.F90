@@ -287,7 +287,7 @@ contains
 
     allocate(this%event(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_event_create(this%event(i))
+       call device_event_create(this%event(i), 2)
     end do
 
 
