@@ -39,8 +39,8 @@
 #include <stdio.h>
 
 extern "C" {
-  hipStream_t *stream;
-  hipStreamCreate(stream);
+  hipStream_t stream;
+  hipError_t err6 = hipStreamCreate(&stream);
   /** 
    * Fortran wrapper for device extrude
    */
