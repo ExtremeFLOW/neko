@@ -246,7 +246,7 @@ contains
        call neko_error('Error destroying main stream')
     end if
 
-    if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
+    if (cudaStreamDestroy(aux_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying aux stream')
     end if
   end subroutine cuda_finalize
