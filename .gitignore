@@ -33,6 +33,7 @@ tests/*/*.F90
 tests/*/*.inc
 tests/*/*.trs
 Doxyfile
+doxygen.stamp
 doc/html
 
 
