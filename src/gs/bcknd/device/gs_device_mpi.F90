@@ -316,11 +316,12 @@ contains
   end subroutine gs_device_mpi_free
 
   !> Post non-blocking send operations
-  subroutine gs_device_mpi_nbsend(this, u, n, deps)
+  subroutine gs_device_mpi_nbsend(this, u, n, deps, strm)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
     integer ::  i
     type(c_ptr) :: u_d
 
@@ -339,12 +340,12 @@ contains
                          this%send_buf%buf_d, &
                          this%send_buf%dof_d, &
                          0, this%send_buf%total, &
-                         glb_cmd_queue)
+                         strm)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
 
-       call device_sync(glb_cmd_queue)
+       call device_sync(strm)
        
        do i = 1, size(this%send_pe)
           call device_mpi_isend(this%send_buf%buf_d, &
@@ -402,10 +403,11 @@ contains
   end subroutine gs_device_mpi_nbrecv
 
   !> Wait for non-blocking operations
-  subroutine gs_device_mpi_nbwait(this, u, n, op)
+  subroutine gs_device_mpi_nbwait(this, u, n, op, strm)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: strm
     integer :: op, done_req
     type(c_ptr) :: u_d
 
@@ -419,13 +421,13 @@ contains
                           this%recv_buf%buf_d, &
                           this%recv_buf%dof_d, &
                           0, this%recv_buf%total, &
-                          glb_cmd_queue)
+                          strm)
 #elif HAVE_CUDA
        call cuda_gs_unpack(u_d, op, &
                            this%recv_buf%buf_d, &
                            this%recv_buf%dof_d, &
                            0, this%recv_buf%total, &
-                           glb_cmd_queue)
+                           strm)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
@@ -433,7 +435,7 @@ contains
        call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
        ! Syncing here seems to prevent some race condition
-       call device_sync(glb_cmd_queue)
+       call device_sync(strm)
        
     else
 
@@ -464,8 +466,7 @@ contains
 
        ! Sync non-blocking streams
        do done_req = 1, size(this%recv_pe)
-          call device_stream_wait_event(glb_cmd_queue, &
-                                        this%event(done_req), 0)
+          call device_stream_wait_event(strm, this%event(done_req), 0)
        end do
 
     end if

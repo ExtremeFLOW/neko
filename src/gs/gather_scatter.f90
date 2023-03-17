@@ -1289,7 +1289,8 @@ contains
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
        call profiler_end_region
        call profiler_start_region("gs_nbsend")
-       call gs%comm%nbsend(gs%shared_gs, l, gs%bcknd%gather_event)
+       call gs%comm%nbsend(gs%shared_gs, l, &
+            gs%bcknd%gather_event, gs%bcknd%gs_stream)
        call profiler_end_region
        
     end if
@@ -1304,7 +1305,7 @@ contains
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait")
-       call gs%comm%nbwait(gs%shared_gs, l, op)
+       call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region
        call profiler_start_region("gs_scatter_shared")
        if (present(event)) then

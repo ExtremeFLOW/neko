@@ -370,7 +370,7 @@ contains
     integer :: n, enx, eny, enz, ns
     real(kind=rp), parameter :: zero = 0.0
     real(kind=rp), parameter :: one = 1.0
-    type(c_ptr) :: e_d, r_d
+    type(c_ptr) :: e_d, r_d, tmp_strm
     associate(work1 => this%work1, work1_d => this%work1_d,&
               work2 => this%work2, work2_d => this%work2_d)
 
@@ -383,31 +383,37 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        r_d = device_get_ptr(r)
        e_d = device_get_ptr(e)
-       call device_event_record(this%event,glb_cmd_queue)
-       call device_stream_wait_event(aux_cmd_queue,this%event,0)
+!       call device_event_record(this%event,glb_cmd_queue)
+!       call device_stream_wait_event(aux_cmd_queue,this%event,0)
        call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one ,enx,eny,enz, this%msh%nelv,aux_cmd_queue)
-       call device_event_record(this%event,aux_cmd_queue)
-       call device_event_sync(this%event)
+  !     call device_event_record(this%event,aux_cmd_queue)
+  !     call device_event_sync(this%event)
+       this%gs_schwarz%bcknd%gs_stream = aux_cmd_queue
        call gs_op(this%gs_schwarz, work1, ns, GS_OP_ADD,this%event) 
        
-       call device_stream_wait_event(aux_cmd_queue,this%event, 0)
+   !    call device_stream_wait_event(aux_cmd_queue,this%event, 0)
        call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
        
        call this%fdm%compute(work2, work1,aux_cmd_queue) ! do local solves
 
        call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
-       call device_event_record(this%event,aux_cmd_queue)
-       call device_event_sync(this%event)
+   !    call device_event_record(this%event,aux_cmd_queue)
+   !    call device_event_sync(this%event)
        call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD,this%event) 
-       call device_stream_wait_event(aux_cmd_queue,this%event,0)
+!!       call device_stream_wait_event(aux_cmd_queue,this%event,0)
        call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_extrude(work2_d, 2, one, work2_d, 0, one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
 
-       call device_event_record(this%event,aux_cmd_queue)
-       call device_event_sync(this%event)
-       call gs_op(this%gs_h, e, n, GS_OP_ADD, this%event) 
+!       call device_event_record(this%event,aux_cmd_queue)
+!       call device_event_sync(this%event)
+       tmp_strm = this%gs_h%bcknd%gs_stream
+       this%gs_h%bcknd%gs_stream = aux_cmd_queue
+       call gs_op(this%gs_h, e, n, GS_OP_ADD, this%event)
+       !     call device_stream_wait_event(aux_cmd_queue,this%event,0)
+       call device_stream_wait_event(glb_cmd_queue,this%event,0)
+       this%gs_h%bcknd%gs_stream = tmp_strm
        call bc_list_apply_scalar(this%bclst, e, n)
        call device_col2(e_d,this%wt_d, n)
     else

@@ -384,12 +384,10 @@ contains
 
        !$omp parallel
        if (omp_get_thread_num() .eq. 0) then
-          print *, omp_get_thread_num()
           call this%grids(3)%schwarz%compute(z, this%r)      
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w) 
        end if
        if (omp_get_num_threads() .eq. 1 .or. omp_get_thread_num() .eq. 1) then 
-          print *, omp_get_thread_num()
           call gs_op(this%grids(1)%gs_h, this%wf%x, &
                             this%grids(1)%dof%size(), GS_OP_ADD)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
