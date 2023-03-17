@@ -51,39 +51,40 @@ extern "C" {
   void cuda_gather_kernel(void *v, int *m, int *o, void *dg,
                           void *u, int *n, void *gd, int *nb,
                           void *b, void *bo, int *op) {
-
+    
     if ((*m) == 0) return;
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     switch (*op) {
     case GS_OP_ADD:
       gather_kernel_add<real>
-        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-                             (real *) u, *n, (int *) gd,
-                             *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds, 0, stream>>>((real *) v, *m, *o, (int *) dg,
+                                        (real *) u, *n, (int *) gd,
+                                        *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MUL:
       gather_kernel_mul<real>
-        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-                             (real *) u, *n, (int *) gd,
-                             *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds, 0, stream>>>((real *) v, *m, *o, (int *) dg,
+                                        (real *) u, *n, (int *) gd,
+                                        *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MIN:
       gather_kernel_min<real>
-        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-                             (real *) u, *n, (int *) gd,
-                             *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds, 0, stream>>>((real *) v, *m, *o, (int *) dg,
+                                        (real *) u, *n, (int *) gd,
+                                        *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     case GS_OP_MAX:
       gather_kernel_max<real>
-        <<<nblcks, nthrds>>>((real *) v, *m, *o, (int *) dg,
-                             (real *) u, *n, (int *) gd,
-                             *nb, (int *) b, (int *) bo);
+        <<<nblcks, nthrds, 0, stream>>>((real *) v, *m, *o, (int *) dg,
+                                        (real *) u, *n, (int *) gd,
+                                        *nb, (int *) b, (int *) bo);
       CUDA_CHECK(cudaGetLastError());
       break;
     }
@@ -100,11 +101,12 @@ extern "C" {
         
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     scatter_kernel<real>
-      <<<nblcks, nthrds>>>((real *) v, *m, (int *) dg,
-                           (real *) u, *n, (int *) gd,
-                           *nb, (int *) b, (int *) bo);
+      <<<nblcks, nthrds, 0, stream>>>((real *) v, *m, (int *) dg,
+                                      (real *) u, *n, (int *) gd,
+                                      *nb, (int *) b, (int *) bo);
     CUDA_CHECK(cudaGetLastError());
   }
 

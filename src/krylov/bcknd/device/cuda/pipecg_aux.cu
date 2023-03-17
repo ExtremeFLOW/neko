@@ -54,10 +54,12 @@ extern "C" {
         
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     cg_update_xp_kernel<real>
-      <<<nblcks, nthrds>>>((real *) x, (real *) p,(real **) u, (real *) alpha,
-                           (real *) beta, *p_cur, *p_space, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) x, (real *) p,
+                                      (real **) u, (real *) alpha,
+                                      (real *) beta, *p_cur, *p_space, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -71,6 +73,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     if (buf1 != NULL && buf_len < nb) {
       free(buf1);
@@ -93,22 +96,22 @@ extern "C" {
     }
      
     pipecg_vecops_kernel<real>
-      <<<nblcks, nthrds>>>((real *) p, (real *) q,
-                           (real *) r, (real *) s,
-                           (real *) u1, (real *) u2,
-                           (real *) w, (real *) z,
-                           (real *) ni, (real *) mi, 
-                           *alpha, *beta, (real *)mult, 
-                           buf_d1, buf_d2, buf_d3, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) p, (real *) q,
+                                      (real *) r, (real *) s,
+                                      (real *) u1, (real *) u2,
+                                      (real *) w, (real *) z,
+                                      (real *) ni, (real *) mi, 
+                                      *alpha, *beta, (real *)mult, 
+                                      buf_d1, buf_d2, buf_d3, *n);
     
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(buf1, buf_d1, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(buf2, buf_d2, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(buf3, buf_d3, nb * sizeof(real),
-                          cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpyAsync(buf1, buf_d1, nb * sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    CUDA_CHECK(cudaMemcpyAsync(buf2, buf_d2, nb * sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    CUDA_CHECK(cudaMemcpyAsync(buf3, buf_d3, nb * sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
 
     real res1 = 0.0;
     real res2 = 0.0;

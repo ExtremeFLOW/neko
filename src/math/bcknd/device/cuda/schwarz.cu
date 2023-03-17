@@ -48,13 +48,14 @@ extern "C" {
     
     const dim3 nthrds((*nx-2)*(*nx-2), 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-
-#define CASE(NX)                                     \
-    case NX:                                         \
-    schwarz_extrude_kernel<real,NX>                  \
-    <<<nblcks, nthrds>>>((real *) arr1,* l1, * f1,   \
-                         (real *) arr2, *l2, *f2 );  \
-    CUDA_CHECK(cudaGetLastError());                  \
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+      
+#define CASE(NX)                                                       \
+    case NX:                                                           \
+    schwarz_extrude_kernel<real,NX>                                    \
+      <<<nblcks, nthrds, 0, stream>>>((real *) arr1,* l1, * f1,        \
+                         (real *) arr2, *l2, *f2 );                    \
+    CUDA_CHECK(cudaGetLastError());                                    \
     break;
 
     switch(*nx) {
@@ -83,9 +84,10 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+  
     schwarz_toext3d_kernel<real>
-    <<<nblcks, nthrds>>>((real *) a,(real *) b, * nx);  
+      <<<nblcks, nthrds, 0, stream>>>((real *) a,(real *) b, * nx);  
     CUDA_CHECK(cudaGetLastError());
   } 
 
@@ -93,9 +95,10 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+  
     schwarz_toreg3d_kernel<real>
-    <<<nblcks, nthrds>>>((real *) b,(real *) a, * nx);  
+      <<<nblcks, nthrds, 0, stream>>>((real *) b,(real *) a, * nx);  
     CUDA_CHECK(cudaGetLastError());
   } 
 

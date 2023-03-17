@@ -70,10 +70,11 @@ extern "C" {
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
 #define CASE_1D(LX)                                                             \
     conv1_kernel_1d<real, LX, 1024>                                             \
-      <<<nblcks, nthrds_1d>>>                                                   \
+      <<<nblcks, nthrds_1d, 0, stream>>>                                        \
       ((real *) du, (real *) u,                                                 \
        (real *) vx, (real *) vy, (real *) vz,                                   \
        (real *) dx, (real *) dy, (real *) dz,                                   \
@@ -85,7 +86,7 @@ extern "C" {
     
 #define CASE_KSTEP(LX)                                                          \
     conv1_kernel_kstep<real, LX>                                                \
-      <<<nblcks, nthrds_kstep>>>                                                \
+      <<<nblcks, nthrds_kstep, 0, stream>>>                                     \
       ((real *) du, (real *) u,                                                 \
        (real *) vx, (real *) vy, (real *) vz,                                   \
        (real *) dx, (real *) dy, (real *) dz,                                   \
@@ -169,6 +170,7 @@ int tune_conv1(void *du, void *u,
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks((*nel), 1, 1);
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   
   char *env_value = NULL;
   char neko_log_buf[80];
