@@ -40,6 +40,7 @@ module gs_mpi
   use mpi_f08
   use comm
   use, intrinsic :: omp_lib
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
 
   !> MPI buffer for non-blocking operations
@@ -119,10 +120,11 @@ contains
   end subroutine gs_mpi_free
 
   !> Post non-blocking send operations
-  subroutine gs_nbsend_mpi(this, u, n)
+  subroutine gs_nbsend_mpi(this, u, n, deps)
     class(gs_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: deps
     integer ::  i, j, ierr, dst
     integer , pointer :: sp(:)
 

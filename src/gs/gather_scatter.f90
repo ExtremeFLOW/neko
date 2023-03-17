@@ -1270,30 +1270,35 @@ contains
     call profiler_start_region("gather-scatter")
     ! Gather shared dofs
     if (pe_size .gt. 1) then
-
+       call profiler_start_region("gs_nbrecv")
        call gs%comm%nbrecv()
-
+       call profiler_end_region
+       call profiler_start_region("gs_gather_shared")
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
-
-       call gs%comm%nbsend(gs%shared_gs, l)
+       call profiler_end_region
+       call profiler_start_region("gs_nbsend")
+       call gs%comm%nbsend(gs%shared_gs, l, gs%bcknd%gather_event)
+       call profiler_end_region
        
     end if
     
     ! Gather-scatter local dofs
-
+    call profiler_start_region("gs_local")
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false.)
-
+    call profiler_end_region
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
-
+       call profiler_start_region("gs_nbwait")
        call gs%comm%nbwait(gs%shared_gs, l, op)
-
+       call profiler_end_region
+       call profiler_start_region("gs_scatter_shared")
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
+       call profiler_end_region
     end if
 
     call profiler_end_region
