@@ -384,10 +384,14 @@ contains
        call bc_list_apply_scalar(this%bclst, r, n)
        call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, this%msh%nelv)
        call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one ,enx,eny,enz, this%msh%nelv)
+       call device_sync()
        call gs_op(this%gs_schwarz, work1, ns, GS_OP_ADD) 
+       call device_sync()
        call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, enx, eny, enz, this%msh%nelv)
        
+       call device_sync()
        call this%fdm%compute(work2, work1) ! do local solves
+       call device_sync()
 
        call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, enx, eny, enz, this%msh%nelv)
        call device_sync()
