@@ -244,6 +244,16 @@ contains
        call neko_error('Error creating main stream')
     end if
   end subroutine hip_init
+
+  subroutine hip_finalize
+    if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
+       call neko_error('Error destroying main stream')
+    end if
+
+    if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
+       call neko_error('Error destroying aux stream')
+    end if
+  end subroutine hip_finalize
   
   subroutine hip_device_name(name)
     character(len=*), intent(inout) :: name

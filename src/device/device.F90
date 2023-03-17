@@ -112,7 +112,11 @@ contains
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%free()
 
-#if defined(HAVE_OPENCL)
+#ifdef HAVE_HIP
+    call hip_finalize
+#elif HAVE_CUDA
+    call cuda_finalize
+#elif HAVE_OPENCL
     call opencl_prgm_lib_release
     call opencl_finalize
 #endif

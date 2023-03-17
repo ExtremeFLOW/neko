@@ -366,6 +366,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
     
     if ( nb > red_s){
       red_s = nb;
@@ -378,22 +379,20 @@ extern "C" {
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       nblcks, nthrds, 0, stream,
                        (real *) a, (real *) b,
                        (real *) c, bufred_d, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0, (hipStream_t) glb_cmd_queue,
-                       bufred_d, nb);
+                       1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    hipStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost,
-                             (hipStream_t) glb_cmd_queue));
+                             hipMemcpyDeviceToHost, stream);
 #endif
     return bufred[0];
   }
@@ -413,6 +412,8 @@ extern "C" {
     const dim3 nthrds_red(1024,1,1);
     const dim3 nblcks_red( (*j),1,1);
     const int nb = ((*n) + nt - 1)/nt;
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+    
     if((*j)*nb>red_s){
       red_s = (*j)*nb;
       if (bufred != NULL) {
@@ -422,24 +423,23 @@ extern "C" {
       HIP_CHECK(hipHostMalloc(&bufred,(*j)*nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>), nblcks, nthrds,
-                       0, (hipStream_t) glb_cmd_queue,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>),
+                       nblcks, nthrds, 0, stream,
                        (const real *) w, (const real **) v,
                        (const real *)mult, bufred_d, *j, *n);
     HIP_CHECK(hipGetLastError());
     
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real>),
-                       nblcks_red, nthrds_red, 0, (hipStream_t) glb_cmd_queue,
+                       nblcks_red, nthrds_red, 0, stream,
                        bufred_d, nb, *j);
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    hipStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
-                             hipMemcpyDeviceToHost,
-                             (hipStream_t) glb_cmd_queue));
+                             hipMemcpyDeviceToHost, stream);
 #endif    
   }
 
@@ -470,7 +470,8 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+        
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
@@ -482,22 +483,19 @@ extern "C" {
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) a, (real *) b,
-                       bufred_d, *n);
+                       nblcks, nthrds, 0, stream,
+                       (real *) a, (real *) b, bufred_d, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0, (hipStream_t) glb_cmd_queue,
-                       bufred_d, nb);
+                       1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    hipStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost,
-                             (hipStream_t) glb_cmd_queue));
+                             hipMemcpyDeviceToHost, stream);
 #endif
     return bufred[0];
   }
@@ -510,6 +508,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
     
     if ( nb > red_s){
       red_s = nb;
@@ -522,21 +521,19 @@ extern "C" {
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       nblcks, nthrds, 0, stream,
                        (real *) a, bufred_d, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0, (hipStream_t) glb_cmd_queue,
-                       bufred_d, nb);
+                       1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    hipStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
-                             hipMemcpyDeviceToHost,
-                             (hipStream_t) glb_cmd_queue));
+                             hipMemcpyDeviceToHost, stream);
 #endif    
     return bufred[0];
   }

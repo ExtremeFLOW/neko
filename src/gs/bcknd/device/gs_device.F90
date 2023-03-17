@@ -159,7 +159,7 @@ contains
 
     this%shared_on_host = .true.
 
-    call device_event_create(this%gather_event)
+    call device_event_create(this%gather_event, 2)
       
   end subroutine gs_device_init
 
