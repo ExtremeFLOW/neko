@@ -190,7 +190,6 @@ contains
     else
        allocate(jacobi_t::this%pc_crs)
     end if
-    call omp_set_num_threads(2)
 
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
@@ -384,31 +383,29 @@ contains
        call bc_list_apply_scalar(this%bclst_mg, this%w, this%grids(2)%dof%size())
 
        !$omp parallel
-       do i = 1,2
-         if (omp_get_thread_num() .eq. 0) then
-            write(*,*) "Hello", omp_get_thread_num()
-            call this%grids(3)%schwarz%compute(z, this%r)      
-            call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
-         else 
-            write(*,*) "Hi", omp_get_thread_num()
-            call gs_op(this%grids(1)%gs_h, this%wf%x, &
-                              this%grids(1)%dof%size(), GS_OP_ADD)
-            call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
-                                      this%grids(1)%dof%size())
-            call profiler_start_region('HSMG coarse-solve')
-            crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%wf%x, &
-                                         this%grids(1)%dof%size(), &
-                                         this%grids(1)%coef, &
-                                         this%grids(1)%bclst, &
-                                         this%grids(1)%gs_h, this%niter)
-            call profiler_end_region
-            call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                      this%grids(1)%dof%size()) 
+       if (omp_get_thread_num() .eq. 0) then
+          print *, omp_get_thread_num()
+          call this%grids(3)%schwarz%compute(z, this%r)      
+          call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w) 
+       end if
+       if (omp_get_num_threads() .eq. 1 .or. omp_get_thread_num() .eq. 1) then 
+          print *, omp_get_thread_num()
+          call gs_op(this%grids(1)%gs_h, this%wf%x, &
+                            this%grids(1)%dof%size(), GS_OP_ADD)
+          call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
+                                    this%grids(1)%dof%size())
+          call profiler_start_region('HSMG coarse-solve')
+          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%wf%x, &
+                                       this%grids(1)%dof%size(), &
+                                       this%grids(1)%coef, &
+                                       this%grids(1)%bclst, &
+                                       this%grids(1)%gs_h, this%niter)
+          call profiler_end_region
+          call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
+                                    this%grids(1)%dof%size()) 
 
-          end if
-       end do
+       end if
        !$omp end parallel
-       call device_sync()
        call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
        call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
 

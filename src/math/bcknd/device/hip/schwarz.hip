@@ -44,7 +44,7 @@ extern "C" {
    */
   void hip_schwarz_extrude(void *arr1, int * l1, real * f1,
                             void *arr2, int * l2, real * f2,
-                            int * nx, int * nel) {
+                            int * nx, int * nel, hipStream_t stream) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
@@ -86,29 +86,24 @@ extern "C" {
 
   } 
 
-  void hip_schwarz_toext3d(void *a, void *b,int * nx, int * nel){
+  void hip_schwarz_toext3d(void *a, void *b,int * nx, int * nel, hipStream_t stream){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_toext3d_kernel<real>),
                                        nblcks, nthrds, 0,
-                                       (hipStream_t) glb_cmd_queue,
+                                       stream,
                                        (real *) a,(real *) b, * nx);
     HIP_CHECK(hipGetLastError());
   } 
 
-  void hip_schwarz_toreg3d(void *b, void *a,int * nx, int * nel){
+  void hip_schwarz_toreg3d(void *b, void *a,int * nx, int * nel, hipStream_t stream){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_toreg3d_kernel<real>),
-<<<<<<< HEAD
                                        nblcks, nthrds, 0, stream,
-=======
-                                       nblcks, nthrds, 0,
-                                       (hipStream_t) glb_cmd_queue,
->>>>>>> 24580ed7fce3071907a6d0ffea3b9170379e35e0
                                        (real *) b,(real *) a, * nx);
     HIP_CHECK(hipGetLastError());
   } 

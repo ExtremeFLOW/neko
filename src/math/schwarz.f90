@@ -383,16 +383,15 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        r_d = device_get_ptr(r)
        e_d = device_get_ptr(e)
+       call device_event_record(this%event,glb_cmd_queue)
+       call device_stream_wait_event(aux_cmd_queue,this%event,0)
        call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one ,enx,eny,enz, this%msh%nelv,aux_cmd_queue)
        call device_event_record(this%event,aux_cmd_queue)
        call device_event_sync(this%event)
-       print *,'do we survieve one event?'
        call gs_op(this%gs_schwarz, work1, ns, GS_OP_ADD,this%event) 
-       print *,'do we survieve gsop event?'
        
        call device_stream_wait_event(aux_cmd_queue,this%event, 0)
-       print *,'do we properly survieve gsop event?'
        call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
        
        call this%fdm%compute(work2, work1,aux_cmd_queue) ! do local solves
@@ -400,21 +399,17 @@ contains
        call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
        call device_event_record(this%event,aux_cmd_queue)
        call device_event_sync(this%event)
-       print *,'fdm?'
        call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD,this%event) 
        call device_stream_wait_event(aux_cmd_queue,this%event,0)
-       print *,'gs_op2'
        call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_extrude(work2_d, 2, one, work2_d, 0, one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
 
        call device_event_record(this%event,aux_cmd_queue)
        call device_event_sync(this%event)
-       print *,'part2'
        call gs_op(this%gs_h, e, n, GS_OP_ADD, this%event) 
        call bc_list_apply_scalar(this%bclst, e, n)
        call device_col2(e_d,this%wt_d, n)
-       print *,'the end'
     else
        call bc_list_apply_scalar(this%bclst, r, n)
        !if (if3d) then ! extended array 
