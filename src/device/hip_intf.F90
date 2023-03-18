@@ -250,7 +250,7 @@ contains
        call neko_error('Error destroying main stream')
     end if
 
-    if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
+    if (hipStreamDestroy(aux_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying aux stream')
     end if
   end subroutine hip_finalize

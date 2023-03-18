@@ -51,7 +51,8 @@ extern "C" {
    */
   void hip_gather_kernel(void *v, int *m, int *o, void *dg,
                          void *u, int *n, void *gd, int *nb,
-                         void *b, void *bo, int *op) {
+                         void *b, void *bo, int *op,
+                         hipStream_t stream) {
 
     if ((*m) == 0) return;
     
@@ -61,7 +62,7 @@ extern "C" {
     switch (*op) {
     case GS_OP_ADD:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_add<real>),
-                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                         nblcks, nthrds, 0, stream,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -69,7 +70,7 @@ extern "C" {
       break;
     case GS_OP_MUL:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_mul<real>),
-                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                         nblcks, nthrds, 0, stream,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -77,7 +78,7 @@ extern "C" {
       break;
     case GS_OP_MIN:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_min<real>),
-                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                         nblcks, nthrds, 0, stream,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -85,7 +86,7 @@ extern "C" {
       break;
     case GS_OP_MAX:
       hipLaunchKernelGGL(HIP_KERNEL_NAME(gather_kernel_max<real>),
-                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                         nblcks, nthrds, 0, stream,
                          (real *) v, *m, *o, (int *) dg,
                          (real *) u, *n, (int *) gd,
                          *nb, (int *) b, (int *) bo);
@@ -99,7 +100,8 @@ extern "C" {
    */
   void hip_scatter_kernel(void *v, int *m, void *dg,
                           void *u, int *n, void *gd,
-                          int *nb, void *b, void *bo) {
+                          int *nb, void *b, void *bo,
+                          hipStream_t stream) {
 
     if ((*m) == 0) return;
         
@@ -107,7 +109,7 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(scatter_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       nblcks, nthrds, 0, stream,
                        (real *) v, *m, (int *) dg,
                        (real *) u, *n, (int *) gd,
                        *nb, (int *) b, (int *) bo);

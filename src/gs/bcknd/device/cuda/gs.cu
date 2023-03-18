@@ -50,13 +50,13 @@ extern "C" {
    */
   void cuda_gather_kernel(void *v, int *m, int *o, void *dg,
                           void *u, int *n, void *gd, int *nb,
-                          void *b, void *bo, int *op) {
-    
+                          void *b, void *bo, int *op,
+                          cudaStream_t stream) {
+  
     if ((*m) == 0) return;
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+ 1024 - 1)/ 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     switch (*op) {
     case GS_OP_ADD:
@@ -95,13 +95,13 @@ extern "C" {
    */
   void cuda_scatter_kernel(void *v, int *m, void *dg,
                            void *u, int *n, void *gd,
-                           int *nb, void *b, void *bo) {
+                           int *nb, void *b, void *bo,
+                           cudaStream_t stream) {
 
     if ((*m) == 0) return;
         
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     scatter_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) v, *m, (int *) dg,
