@@ -11,6 +11,7 @@ config.status
 config.sub
 depcomp
 Makefile.in
+!tests/*/*Makefile.in
 genmeshbox
 prepart
 rea2nbin
@@ -28,4 +29,12 @@ comm.F90
 makeneko
 missing
 test-driver
+tests/*/*.log
+tests/*/*.F90
+tests/*/*.inc
+tests/*/*.trs
+Doxyfile
+doxygen.stamp
+doc/html
+
 

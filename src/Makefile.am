@@ -53,6 +53,7 @@ neko_fortran_SOURCES = \
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field_registry.f90\
+	field/scratch_registry.f90\
 	field/field.f90\
 	field/field_series.f90\
 	field/mesh_field.f90\
