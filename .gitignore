@@ -11,6 +11,7 @@ config.status
 config.sub
 depcomp
 Makefile.in
+!tests/*/*Makefile.in
 genmeshbox
 prepart
 rea2nbin
