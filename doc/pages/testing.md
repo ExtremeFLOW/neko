@@ -69,5 +69,5 @@ The instructions will differ somewhat depending on whether you test uses MPI or 
 7. Finally, open the `configure.ac` file in the root folder of `neko`.
    Find `# Config tests` line and the `AC_CONFIG_FILES` list below it.
    Add the path to a `Makefile` (note, no `.in`!!) in your test folder. 
-8. Please also add a `.gitignore` file to your directory with the list of `_test` and `_suite` files generated during the build.
+8. Please also add the compilation products of your test to the  `tests/.gitignore` file.
    This helps keeps the version controlled file list unpolluted.

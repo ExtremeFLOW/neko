@@ -762,6 +762,7 @@ INPUT                 = @top_srcdir@/doc/pages/index.md\
                         @top_srcdir@/doc/pages/code-style.md\
                         @top_srcdir@/doc/pages/case-file.md\
                         @top_srcdir@/doc/pages/accelerators.md\
+                        @top_srcdir@/doc/pages/testing.md\
                         @top_srcdir@/doc/pages/publication-list.md\
                         @top_srcdir@/doc/pages/appendix.md\
                         @top_srcdir@/src\
