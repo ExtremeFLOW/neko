@@ -1,0 +1,260 @@
+module test_scratch_registry
+  use pfunit
+  use field
+  use scratch_registry
+  use num_types
+  implicit none
+
+contains
+
+  subroutine test_scratch_registry_gen_msh(msh)
+    type(mesh_t), intent(inout) :: msh
+    type(point_t) :: p(12)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+  
+    call mesh_init(msh, 3, 1)
+    call mesh_add_element(msh, 1, p(1), p(2), p(4), p(3), &
+         p(7), p(8), p(9), p(10))
+    
+  end subroutine test_scratch_registry_gen_msh
+  
+  @test
+  subroutine test_scratch_registry_init_default()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    integer, parameter :: LX = 4
+    type(scratch_registry_t) :: scratch
+    integer :: ierr
+
+    call test_scratch_registry_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)
+    dm = dofmap_t(msh, Xh)
+    
+    scratch = scratch_registry_t(dm) 
+
+    @assertEqual(scratch%get_nfields(), 0)
+    @assertEqual(scratch%get_expansion_size(), 10)
+    @assertEqual(scratch%get_size(), 10)
+    @assertEqual(scratch%get_nfields_inuse(), 0)
+
+
+  end subroutine test_scratch_registry_init_default
+
+  @test
+  subroutine test_scratch_registry_init()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    integer, parameter :: LX = 4
+    type(scratch_registry_t) :: scratch
+    integer :: ierr
+
+    call test_scratch_registry_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)
+    dm = dofmap_t(msh, Xh)
+    
+    scratch = scratch_registry_t(dm, 5, 3) 
+
+    @assertEqual(scratch%get_nfields(), 0)
+    @assertEqual(scratch%get_expansion_size(), 3)
+    @assertEqual(scratch%get_size(), 5)
+    @assertEqual(scratch%get_nfields_inuse(), 0)
+
+  end subroutine test_scratch_registry_init
+
+  @test
+  subroutine test_scratch_registry_request_field_fresh()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    type(scratch_registry_t) :: scratch
+    type(field_t), pointer :: f1, f2, f3
+    integer :: ierr, index1, index2, index3
+    integer, parameter :: LX = 3
+
+    ! write(*,*) "TEST FRESH"
+    call test_scratch_registry_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)
+    dm = dofmap_t(msh, Xh)
+    
+    scratch = scratch_registry_t(dm, 5, 3) 
+    
+    call scratch%request_field(f1, index1)
+    call scratch%request_field(f2, index2)
+    call scratch%request_field(f3, index3)
+    @assertEqual(index1, 1)
+    @assertEqual(index2, 2)
+    @assertEqual(scratch%get_inuse(index1), .true.)
+    @assertEqual(scratch%get_inuse(index2), .true.)
+    @assertEqual(scratch%get_nfields(), 3)
+    @assertEqual(scratch%get_nfields_inuse(), 3)
+    
+    ! do something with the field
+    call cfill(f1%x, 1.0_rp, f1%dof%size())
+    call cfill(f2%x, 2.0_rp, f2%dof%size())
+    call cfill(f3%x, 3.0_rp, f3%dof%size())
+    @assertEqual(f1%x(1,1,1,1), 1.0_rp)
+    @assertEqual(f2%x(1,1,1,1), 2.0_rp)
+    @assertEqual(f3%x(1,1,1,1), 3.0_rp)
+  end subroutine test_scratch_registry_request_field_fresh
+
+  @test
+  subroutine test_scratch_registry_relinquish_field()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    type(scratch_registry_t) :: scratch
+    type(field_t), pointer :: f
+    integer :: ierr, index
+    integer, parameter :: LX = 3
+
+    call test_scratch_registry_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)
+    dm = dofmap_t(msh, Xh)
+    
+    scratch = scratch_registry_t(dm, 5, 3) 
+    
+    call scratch%request_field(f, index)
+    call scratch%relinquish_field(index)
+    @assertEqual(scratch%get_inuse(index), .false.)
+    @assertEqual(scratch%get_nfields_inuse(), 0)
+    @assertEqual(scratch%get_nfields(), 1)
+  end subroutine test_scratch_registry_relinquish_field
+
+  @test
+  subroutine test_scratch_registry_expand()
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    type(scratch_registry_t), target :: scratch
+    type(field_t), pointer :: f1, f2
+    integer :: ierr, index1, index2
+    integer, parameter :: LX = 2
+
+    ! write(*,*) "TEST EXPAND"
+
+    call test_scratch_registry_gen_msh(msh)
+    call space_init(Xh, GLL, lx, lx, lx)
+    dm = dofmap_t(msh, Xh)
+    
+    scratch = scratch_registry_t(dm, 1, 1) 
+
+    call scratch%request_field(f1, index1)
+    call cfill(f1%x, 1.0_rp, f1%dof%size())
+    @assertEqual(f1%x(1,1,1,1), 1.0_rp)
+
+    ! add new field, trigging expand
+    call scratch%request_field(f2, index2)
+    
+    ! try to use the second field
+    call cfill(f2%x, 2.0_rp, dm%size())
+
+    ! make sure values in f1 preserved after expansion
+    @assertEqual(f1%x(1,1,1,1), 1.0_rp)
+    @assertEqual(f2%x(1,1,1,1), 2.0_rp)
+    @assertEqual(index1, 1)
+    @assertEqual(index2, 2)
+    @assertEqual(scratch%get_inuse(index1), .true.)
+    @assertEqual(scratch%get_inuse(index2), .true.)
+    @assertEqual(scratch%get_nfields(), 2)
+    @assertEqual(scratch%get_nfields_inuse(), 2)
+    @assertEqual(scratch%get_size(), 2)
+  end subroutine test_scratch_registry_expand
+
+ @test
+ subroutine test_scratch_registry_combo()
+   type(space_t) :: Xh
+   type(mesh_t) :: msh
+   type(dofmap_t) :: dm
+   type(scratch_registry_t), target :: scratch
+   type(field_t), pointer :: f1, f2, f3
+   integer :: ierr, index1, index2, index3
+   integer, parameter :: LX = 2
+
+   call test_scratch_registry_gen_msh(msh)
+   call space_init(Xh, GLL, lx, lx, lx)
+   dm = dofmap_t(msh, Xh)
+    
+  !  write(*,*) "TEST COMBO"
+   scratch = scratch_registry_t(dm, 2, 2) 
+    
+   ! add 2 fields, no expansion
+   call scratch%request_field(f1, index1)
+   call scratch%request_field(f2, index2)
+   call cfill(f1%x, 1.0_rp, f1%dof%size())
+   call cfill(f2%x, 2.0_rp, f2%dof%size())
+
+   @assertEqual(index1, 1)
+   @assertEqual(index2, 2)
+   @assertEqual(scratch%get_inuse(index1), .true.)
+   @assertEqual(scratch%get_inuse(index2), .true.)
+   @assertEqual(scratch%get_nfields(), 2)
+   @assertEqual(scratch%get_nfields_inuse(), 2)
+   @assertEqual(scratch%get_size(), 2)
+    
+   ! get rid of one field
+   call scratch%relinquish_field(index1)
+   @assertEqual(scratch%get_inuse(index1), .false.)
+   @assertEqual(scratch%get_inuse(index2), .true.)
+   @assertEqual(scratch%get_nfields(), 2)
+   @assertEqual(scratch%get_nfields_inuse(), 1)
+   @assertEqual(scratch%get_size(), 2)
+    
+   ! get a new field, should get index 1
+   call scratch%request_field(f1, index1)
+   call cfill(f1%x, 1.5_rp, f1%dof%size())
+   @assertEqual(index1, 1)
+   @assertEqual(scratch%get_inuse(index1), .true.)
+   @assertEqual(scratch%get_inuse(index2), .true.)
+   @assertEqual(scratch%get_nfields(), 2)
+   @assertEqual(scratch%get_nfields_inuse(), 2)
+   @assertEqual(scratch%get_size(), 2)
+
+   ! check that the fields have survived
+   @assertEqual(f1%x(1,1,1,1), 1.5_rp)
+   @assertEqual(f2%x(1,1,1,1), 2.0_rp)
+
+    ! get a another field, should get index 3 and triger expand
+   call scratch%request_field(f3, index3)
+   call cfill(f3%x, 3.0_rp, f3%dof%size())
+   @assertEqual(index3, 3)
+   @assertEqual(scratch%get_inuse(index1), .true.)
+   @assertEqual(scratch%get_inuse(index2), .true.)
+   @assertEqual(scratch%get_inuse(index3), .true.)
+   @assertEqual(scratch%get_nfields(), 3)
+   @assertEqual(scratch%get_nfields_inuse(), 3)
+   @assertEqual(scratch%get_size(), 4)
+
+   ! check that the fields have survived
+   @assertEqual(f1%x(1,1,1,1), 1.5_rp)
+   @assertEqual(f2%x(1,1,1,1), 2.0_rp)
+   @assertEqual(f3%x(1,1,1,1), 3.0_rp)
+    
+    
+end subroutine test_scratch_registry_combo
+end module test_scratch_registry

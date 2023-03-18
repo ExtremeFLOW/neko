@@ -27,3 +27,4 @@ mesh/mesh_suite
 gather_scatter/gather_scatter_suite
 jobctrl/jobctrl_suite
 mean_sqr_field/mean_sqr_field_suite
+scratch_registry/scratch_registry_test
