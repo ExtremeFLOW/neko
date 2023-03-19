@@ -140,6 +140,16 @@ module cuda_intf
   end interface
 
   interface
+     integer (c_int) function cudaStreamCreateWithPriority(stream, flags, prio) &
+          bind(c, name='cudaStreamCreateWithPriority')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags, prio
+     end function cudaStreamCreateWithPriority
+  end interface
+  
+  interface
      integer (c_int) function cudaStreamDestroy(steam) &
           bind(c, name='cudaStreamDestroy')
        use, intrinsic :: iso_c_binding
@@ -232,11 +242,11 @@ module cuda_intf
 contains
 
   subroutine cuda_init
-    if (cudaStreamCreateWithFlags(glb_cmd_queue, 1) .ne. cudaSuccess) then
+    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, 0) .ne. cudaSuccess) then
        call neko_error('Error creating main stream')
     end if
 
-    if (cudaStreamCreateWithFlags(aux_cmd_queue, 1) .ne. cudaSuccess) then
+    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, 1) .ne. cudaSuccess) then
        call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
