@@ -118,6 +118,7 @@ module hsmg
      real(kind=rp), allocatable :: w(:) !< work array
      type(c_ptr) :: w_d = C_NULL_PTR
      type(c_ptr) :: r_d = C_NULL_PTR
+     type(c_ptr) :: hsmg_event
   contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: free => hsmg_free
@@ -255,9 +256,7 @@ contains
     type is (device_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
-
-
-
+    call device_event_create(this%hsmg_event, 2)
   end subroutine hsmg_init
   
   subroutine hsmg_set_h(this)
@@ -382,14 +381,16 @@ contains
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
        call bc_list_apply_scalar(this%bclst_mg, this%w, this%grids(2)%dof%size())
 
+!       call device_event_record(this%hsmg_event, glb_cmd_queue)
+ !      call device_stream_wait_event(aux_cmd_queue, this%hsmg_event, 0)
        !$omp parallel
        if (omp_get_thread_num() .eq. 0) then
-          print *, omp_get_thread_num()
+!!          print *, omp_get_thread_num()
           call this%grids(3)%schwarz%compute(z, this%r)      
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w) 
        end if
        if (omp_get_num_threads() .eq. 1 .or. omp_get_thread_num() .eq. 1) then 
-          print *, omp_get_thread_num()
+!!          print *, omp_get_thread_num()
           call gs_op(this%grids(1)%gs_h, this%wf%x, &
                             this%grids(1)%dof%size(), GS_OP_ADD)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
@@ -406,6 +407,8 @@ contains
 
        end if
        !$omp end parallel
+!!       call device_event_record(this%hsmg_event, glb_cmd_queue)
+!!       call device_stream_wait_event(aux_cmd_queue, this%hsmg_event, 0)
        call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
        call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
 

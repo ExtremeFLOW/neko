@@ -51,11 +51,7 @@ extern "C" {
 #define CASE(NX)                                                          \
     case NX:                                                              \
     hipLaunchKernelGGL(HIP_KERNEL_NAME(schwarz_extrude_kernel<real,NX>),  \
-<<<<<<< HEAD
-                       nblcks, nthrds, 0, stream,                              \
-=======
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,    \
->>>>>>> 24580ed7fce3071907a6d0ffea3b9170379e35e0
+                       nblcks, nthrds, 0, stream,                         \
                        (real *) arr1,* l1, * f1,                          \
                        (real *) arr2, *l2, *f2);                          \
     HIP_CHECK(hipGetLastError());                                         \

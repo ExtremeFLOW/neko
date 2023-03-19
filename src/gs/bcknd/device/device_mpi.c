@@ -55,14 +55,23 @@ void device_mpi_free_reqs(void **reqs) {
 void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
 		      void *vreqs, int i) {
   MPI_Request *reqs = vreqs;
+#ifdef _OPENMP
   int tid = omp_get_thread_num();
+#else
+  int tid = 0;
+#endif
   MPI_Isend(buf_d+offset, nbytes, MPI_BYTE, rank, tid, MPI_COMM_WORLD, &reqs[i-1]);
 }
 
 void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
 		      void *vreqs, int i) {
   MPI_Request *reqs = vreqs;
+#ifdef _OPENMP
   int tid = omp_get_thread_num();
+#else
+  int tid = 0; //omp_get_thread_num();
+#endif
+
   MPI_Irecv(buf_d+offset, nbytes, MPI_BYTE, rank, tid, MPI_COMM_WORLD, &reqs[i-1]);
 }
 

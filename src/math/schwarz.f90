@@ -132,7 +132,7 @@ contains
        call rone(this%work1, this%dm%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dm%size(), HOST_TO_DEVICE)
-       call device_event_create(this%event)
+       call device_event_create(this%event, 2)
     end if
   end subroutine schwarz_init
  
@@ -387,29 +387,34 @@ contains
        call device_stream_wait_event(aux_cmd_queue,this%event,0)
        call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one ,enx,eny,enz, this%msh%nelv,aux_cmd_queue)
-       call device_event_record(this%event,aux_cmd_queue)
-       call device_event_sync(this%event)
+!!       call device_event_record(this%event,aux_cmd_queue)
+!!       call device_event_sync(this%event)
+       this%gs_schwarz%bcknd%gs_stream = aux_cmd_queue
        call gs_op(this%gs_schwarz, work1, ns, GS_OP_ADD,this%event) 
-       
-       call device_stream_wait_event(aux_cmd_queue,this%event, 0)
+       call device_event_sync(this%event)
+!!       call device_stream_wait_event(aux_cmd_queue,this%event, 0)
        call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
        
        call this%fdm%compute(work2, work1,aux_cmd_queue) ! do local solves
 
        call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, enx, eny, enz, this%msh%nelv, aux_cmd_queue)
-       call device_event_record(this%event,aux_cmd_queue)
+!!       call device_event_record(this%event,aux_cmd_queue)
+!!       call device_event_sync(this%event)
+       call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD,this%event)
        call device_event_sync(this%event)
-       call gs_op(this%gs_schwarz, work2, ns, GS_OP_ADD,this%event) 
-       call device_stream_wait_event(aux_cmd_queue,this%event,0)
+!!       call device_stream_wait_event(aux_cmd_queue,this%event,0)
        call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_extrude(work2_d, 2, one, work2_d, 0, one, enx, eny, enz, this%msh%nelv,aux_cmd_queue)
        call device_schwarz_toreg3d(e_d, work2_d, this%Xh%lx, this%msh%nelv,aux_cmd_queue)
 
        call device_event_record(this%event,aux_cmd_queue)
        call device_event_sync(this%event)
-       call gs_op(this%gs_h, e, n, GS_OP_ADD, this%event) 
+!!       this%gs_schwarz%bcknd%gs_stream = glb_cmd_queue
+!       call device_stream_wait_event(glb_cmd_queue,this%event, 0)
+       call gs_op(this%gs_h, e, n, GS_OP_ADD, this%event)
        call bc_list_apply_scalar(this%bclst, e, n)
        call device_col2(e_d,this%wt_d, n)
+       call device_stream_wait_event(aux_cmd_queue,this%event, 0)              
     else
        call bc_list_apply_scalar(this%bclst, r, n)
        !if (if3d) then ! extended array 

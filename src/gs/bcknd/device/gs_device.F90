@@ -160,6 +160,7 @@ contains
     this%shared_on_host = .true.
 
     call device_event_create(this%gather_event, 2)
+    call device_event_create(this%scatter_event, 2)
 
     this%gs_stream = glb_cmd_queue
     
@@ -209,6 +210,10 @@ contains
     this%nshared = 0
 
     if (c_associated(this%gather_event)) then
+       call device_event_destroy(this%gather_event)
+    end if
+    
+    if (c_associated(this%scatter_event)) then
        call device_event_destroy(this%gather_event)
     end if
 
@@ -401,6 +406,8 @@ contains
 #if defined(HAVE_HIP) || defined(HAVE_CUDA)
          if (c_associated(event)) then
             call device_event_record(event, strm)
+         else
+            call device_sync(strm)
          end if         
 #endif
          

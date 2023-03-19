@@ -160,6 +160,16 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipStreamCreateWithPriority(stream, flags, prio) &
+          bind(c, name='hipStreamCreateWithPriority')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags, prio
+     end function hipStreamCreateWithPriority
+  end interface
+
+  interface
      integer (c_int) function hipStreamDestroy(steam) &
           bind(c, name='hipStreamDestroy')
        use, intrinsic :: iso_c_binding
@@ -236,11 +246,11 @@ module hip_intf
 contains
 
   subroutine hip_init
-    if (hipStreamCreateWithFlags(glb_cmd_queue, 1) .ne. hipSuccess) then
+    if (hipStreamCreateWithPriority(glb_cmd_queue, 1, 0) .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
 
-    if (hipStreamCreateWithFlags(aux_cmd_queue, 1) .ne. hipSuccess) then
+    if (hipStreamCreateWithPriority(aux_cmd_queue, 1, 1) .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
   end subroutine hip_init
