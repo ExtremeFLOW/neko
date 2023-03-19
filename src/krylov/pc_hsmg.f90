@@ -119,6 +119,7 @@ module hsmg
      type(c_ptr) :: w_d = C_NULL_PTR
      type(c_ptr) :: r_d = C_NULL_PTR
      type(c_ptr) :: hsmg_event
+     type(c_ptr) :: gs_event
   contains
      procedure, pass(this) :: init => hsmg_init
      procedure, pass(this) :: free => hsmg_free
@@ -257,6 +258,7 @@ contains
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
     call device_event_create(this%hsmg_event, 2)
+    call device_event_create(this%gs_event, 2)
   end subroutine hsmg_init
   
   subroutine hsmg_set_h(this)
@@ -368,7 +370,8 @@ contains
        !Restrict to middle level
        call this%interp_fine_mid%map(this%e%x,this%r,this%msh%nelv,this%grids(2)%Xh)
        call gs_op(this%grids(2)%gs_h, this%e%x, &
-                         this%grids(2)%dof%size(), GS_OP_ADD)
+                  this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
+       call device_event_sync(this%gs_event)
        call device_copy(this%r_d, r_d, n)
        call bc_list_apply_scalar(this%bclst_reg, r, n)
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
@@ -392,7 +395,8 @@ contains
        if (omp_get_num_threads() .eq. 1 .or. omp_get_thread_num() .eq. 1) then 
 !!          print *, omp_get_thread_num()
           call gs_op(this%grids(1)%gs_h, this%wf%x, &
-                            this%grids(1)%dof%size(), GS_OP_ADD)
+               this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
+          call device_event_sync(this%gs_event)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
                                     this%grids(1)%dof%size())
           call profiler_start_region('HSMG coarse-solve')
@@ -415,7 +419,8 @@ contains
        call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
        call gs_op(this%grids(3)%gs_h, z, &
-                         this%grids(3)%dof%size(), GS_OP_ADD)
+                  this%grids(3)%dof%size(), GS_OP_ADD, this%gs_event)
+       call device_event_sync(this%gs_event)
        call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%size())
     else
        !We should not work with the input 
