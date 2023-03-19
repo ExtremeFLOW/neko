@@ -137,7 +137,7 @@ __global__ void __launch_bounds__(LX*LX,3)
   shdzt[ij] = dzt[ij];
 
 
-#pragma unroll LX
+#pragma unroll
   for (int k = 0; k < LX; ++k) {
     T wx = (x[ij + k*LX*LX + ele] * B[ij + k*LX*LX + ele]) /
       jac[ij + k*LX*LX + ele];

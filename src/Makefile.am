@@ -49,7 +49,6 @@ neko_fortran_SOURCES = \
 	adt/tuple.f90\
 	mesh/zone.f90\
 	mesh/mesh.f90\
-	mesh/octree.f90\
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field_registry.f90\
@@ -248,6 +247,9 @@ libneko_a_SOURCES += \
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip
+
+
+
 endif
 
 if ENABLE_CUDA
@@ -280,6 +282,7 @@ libneko_a_SOURCES += \
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu
+
 endif
 
 if ENABLE_OPENCL
@@ -313,6 +316,7 @@ libneko_a_SOURCES += \
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
+
 endif
 
 if ENABLE_ADIOS2

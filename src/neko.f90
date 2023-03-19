@@ -78,6 +78,7 @@ module neko
   use cpr
   use field_registry
   use vector
+  !$use omp_lib
 contains
 
   subroutine neko_init(C)
@@ -87,7 +88,7 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc
+    integer :: argc, nthrds, rw, sw
 
     call date_and_time(time=time, date=date)           
 
@@ -104,7 +105,7 @@ contains
     if (pe_rank .eq. 0) then
        write(*,*) ''
        write(*,*) '   _  __  ____  __ __  ____ '
-       write(*,*) '  / |/ / / __/ / //_/ / __ \'
+       write(*,*) '  / |/ / / __/ / //_/ / __ \ '
        write(*,*) ' /    / / _/  / ,<   / /_/ /'
        write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
        write(*,*) ''
@@ -138,25 +139,56 @@ contains
             time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
        call neko_log%message(log_buf)
        write(log_buf, '(a)') 'Running on: '
+       sw = 10 
        if (pe_size .lt. 1e1)  then
           write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
           if (pe_size .eq. 1) then
              write(log_buf(19:), '(a)') 'rank'
+             sw = 9
           else
              write(log_buf(19:), '(a)') 'ranks'
           end if
+          rw = 1
        else if (pe_size .lt. 1e2) then
           write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
+          rw = 2
        else if (pe_size .lt. 1e3) then
           write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
+          rw = 3
        else if (pe_size .lt. 1e4) then
           write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
+          rw = 4
        else if (pe_size .lt. 1e5) then
           write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
+          rw = 5
        else
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
+          rw = 6
        end if
-       call neko_log%message(log_buf)
+       
+       ntrhds = 1
+       !$omp parallel
+       !$omp master
+       !$ nthrds = omp_get_num_threads()
+       !$omp end master
+       !$omp end parallel
+
+       if (nthrds .gt. 1) then
+          if (nthrds .lt. 1e1) then                
+             write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e2) then
+             write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e3) then
+             write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e4) then
+             write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
+                  nthrds, ' thrds each'
+          end if
+       end if
+       call neko_log%message(log_buf)      
 
        write(log_buf, '(a)') 'Bcknd type: '
        if (NEKO_BCKND_SX .eq. 1) then
@@ -207,7 +239,7 @@ contains
     type(case_t), intent(inout), optional :: C
 
     if (present(C)) then
-       call case_free(C)
+  !     call case_free(C)
     end if
     
     call neko_field_registry%free()

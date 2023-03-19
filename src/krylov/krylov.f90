@@ -46,7 +46,7 @@ module krylov
   use neko_config
   implicit none
 
-  integer, public, parameter :: KSP_MAX_ITER = 1e4 !< Maximum number of iters.
+  integer, public, parameter :: KSP_MAX_ITER = 500 !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 

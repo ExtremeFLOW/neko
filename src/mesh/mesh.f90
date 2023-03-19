@@ -50,6 +50,7 @@ module mesh
   use math
   use uset
   use curve
+  use logger
   implicit none
 
   integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
@@ -455,7 +456,7 @@ contains
     !
     ! Find all (local) boundaries
     !
-    
+    call neko_log%message("Local boundaries")
     !> @note We have to sweep through the facet map twice to make sure
     !! that both odd and even sides are marked
     !! @todo These loop nests needs a lot of love...
@@ -541,14 +542,16 @@ contains
     class default
        call neko_error('Invalid facet map')
     end select
-
+    call neko_log%message("Done - Local boundaries")
 
     !
     ! Find all external (between PEs) boundaries
     !
     if (pe_size .gt. 1) then
-       
+
+       call neko_log%message("External point connectivity")
        call mesh_generate_external_point_conn(m)
+       call neko_log%message("Done - external point connectivity")
 
        !
        ! Generate neighbour exchange order
@@ -572,8 +575,9 @@ contains
           end do
        end select
        call neigh_order%free()
-       
+       call neko_log%message("External facet connectivity")
        call mesh_generate_external_facet_conn(m)
+       call neko_log%message("Done - external facet connectivity")
     else
        allocate(m%neigh_order(1))
        m%neigh_order = 1
@@ -585,11 +589,14 @@ contains
     ! been established)
     !
     if (m%gdim .eq. 3) then
+       call neko_log%message("External edge connectivity")
        call mesh_generate_edge_conn(m)
+       call neko_log%message("Done - external edge connectivity")
     end if
     
-
+    call neko_log%message("Facet numbering")
     call mesh_generate_facet_numbering(m)
+    call neko_log%message("Done - facet numbering")
     
     m%lconn = .true.
     
@@ -1116,8 +1123,9 @@ contains
     call MPI_Exscan(non_shared_facets, facet_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     facet_offset = facet_offset + 1
-    
+    call neko_log%begin()
     ! Determine ownership of shared facets
+    call neko_log%message("Determine ownership")
     if (m%gdim .eq. 2) then
        call edge_it%init(m%hte)
        do while (edge_it%next())
@@ -1173,7 +1181,7 @@ contains
        end do
        owned_facets = face_owner%size()
     end if
-    
+    call neko_log%message("Done - determine ownership")
     ! Determine start offset for global numbering of shared facets
     glb_nshared = non_shared_facets
     call MPI_Allreduce(MPI_IN_PLACE, glb_nshared, 1, &
@@ -1184,6 +1192,7 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     shared_offset = shared_offset + glb_nshared + 1
 
+    call neko_log%message("Build send buffers")
     if (m%gdim .eq. 2) then
        
        if (owned_facets .gt. 32)  then
@@ -1216,24 +1225,28 @@ contains
           call send_buff%init()
        end if
            
-       fd => face_owner%array()
-       do i = 1, face_owner%size()
-          if (m%htf%get(fd(i), id) .eq. 0) then
-             call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
-
-             ! Add new number to send buffer
-             ! [face id1 ... face idn new_glb_id]
-             do j = 1, 4
-                call send_buff%push(fd(i)%x(j))
-             end do
-             call send_buff%push(shared_offset)
-             
-             shared_offset = shared_offset + 1
-          end if
-       end do
-       nullify(fd)
+       !     fd => face_owner%array()
+       select type (fd => face_owner%data)
+       type is (tuple4_i4_t)
+          do i = 1, face_owner%size()
+             if (m%htf%get(fd(i), id) .eq. 0) then
+                call distdata_set_local_to_global_facet(m%ddata, id, shared_offset)
+                
+                ! Add new number to send buffer
+                ! [face id1 ... face idn new_glb_id]
+                do j = 1, 4
+                   call send_buff%push(fd(i)%x(j))
+                end do
+                call send_buff%push(shared_offset)
+                
+                shared_offset = shared_offset + 1
+             end if
+          end do
+       end select
+!       nullify(fd)
        
     end if
+    call neko_log%message("Done - build send buffers")
 
     ! Determine total number of unique facets in the mesh
     ! (This can probably be done in a clever way...)
@@ -1244,13 +1257,13 @@ contains
     !
     ! Update ghosted facets with new global id
     !
-    
+    call neko_log%message("Update ghosted facets")
     call MPI_Allreduce(send_buff%size(), max_recv, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
     allocate(recv_buff(max_recv))    
 
-    !> @todo Since we now the neigh. we can actually do p2p here...
+    !> @todo Since we know the neigh. we can actually do p2p here...
     do i = 1, size(m%neigh_order)
        src = modulo(pe_rank - m%neigh_order(i) + pe_size, pe_size)
        dst = modulo(pe_rank + m%neigh_order(i), pe_size)
@@ -1261,8 +1274,11 @@ contains
        end if
 
        if (m%neigh(dst)) then
-          call MPI_Isend(send_buff%array(), send_buff%size(), MPI_INTEGER, &
-               dst, 0, NEKO_COMM, send_req, ierr)
+          select type(sbarray => send_buff%data)
+          type is (integer(4))
+             call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER, &
+                  dst, 0, NEKO_COMM, send_req, ierr)
+          end select
        end if
        
        if (m%neigh(src)) then
@@ -1301,16 +1317,19 @@ contains
        
     end do
 
-    if (m%gdim .eq. 2) then
-       call edge_owner%free()
-       call edge_ghost%free()
-    else
-       call face_owner%free()
-       call face_ghost%free()
-    end if
+    call neko_log%message("Done - update ghosted facets")
+    call neko_log%end()
     
-    call send_buff%free()
-    deallocate(recv_buff)
+    ! if (m%gdim .eq. 2) then
+    !    call edge_owner%free()
+    !    call edge_ghost%free()
+    ! else
+    !    call face_owner%free()
+    !    call face_ghost%free()
+    ! end if
+    
+    ! call send_buff%free()
+    ! deallocate(recv_buff)
        
   end subroutine mesh_generate_facet_numbering
   

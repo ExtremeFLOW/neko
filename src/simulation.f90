@@ -78,7 +78,7 @@ contains
     call profiler_start
     cfl = 0.0_rp
     start_time_org = MPI_WTIME()
-    do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()) .and. cfl .lt. 0.6_rp)
+    do while (t .lt. C%params%T_end .and. (.not. jobctrl_time_limit()) .and. cfl .lt. 0.7_rp)
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()

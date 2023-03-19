@@ -361,7 +361,7 @@ contains
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
     n = this%dm_Xh%size()
-    niter = 1000
+    niter = 500
 
     call profiler_start_region('Fluid')
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -381,7 +381,7 @@ contains
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
      
-      call f_Xh%eval()
+      call f_Xh%eval(t)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
