@@ -468,6 +468,10 @@ contains
                                         this%event(done_req), 0)
        end do
 
+       !> @todo Remove as soon as the new gather-scatter
+       !! formulation is ready to be merged
+       call device_sync(C_NULL_PTR)
+       
     end if
 
   end subroutine gs_device_mpi_nbwait
