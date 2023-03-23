@@ -36,5 +36,7 @@ tests/*/*.trs
 Doxyfile
 doxygen.stamp
 doc/html
+examples/*/*.nek5000
+examples/*/*0.f0*
 
 
