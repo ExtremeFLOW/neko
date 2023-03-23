@@ -109,12 +109,15 @@ contains
     class(scratch_registry_t), intent(inout):: this
     integer :: i
 
-    do i=1, this%nfields
-       call field_free(this%fields(i)%field)
-       deallocate(this%fields(i)%field)
-    end do
-    deallocate(this%fields)
-    deallocate(this%inuse)
+    if (allocated(this%fields)) then
+       do i=1, this%nfields
+          call field_free(this%fields(i)%field)
+          deallocate(this%fields(i)%field)
+       end do
+    
+       deallocate(this%fields)
+       deallocate(this%inuse)
+    end if
   end subroutine scratch_registry_free
 
 
