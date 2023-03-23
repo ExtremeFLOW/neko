@@ -116,19 +116,12 @@ contains
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: param
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    character(len=LOG_SIZE) :: log_buf
-
-    write(log_buf, '(A)') 'START INIT'
-    call neko_log%message(log_buf) 
 
     call this%free()
     
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., .true., scheme)
     
-    write(log_buf, '(A)') 'SCHEME INIT Done'
-    call neko_log%message(log_buf) 
-
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
 
@@ -261,8 +254,6 @@ contains
 
     call this%vol_flow%init(this%dm_Xh, param)
     
-    write(log_buf, '(A)') 'END INIT'
-    call neko_log%message(log_buf) 
   end subroutine fluid_pnpn_init
 
   subroutine fluid_pnpn_free(this)
@@ -345,10 +336,7 @@ contains
     type(field_t), pointer :: temp5, temp6, temp7, temp8
     integer :: tempind1, tempind2, tempind3, tempind4
     integer :: tempind5, tempind6, tempind7, tempind8 
-    character(len=LOG_SIZE) :: log_buf
 
-    write(log_buf, '(A)') 'START STEP'
-    call neko_log%message(log_buf) 
     n = this%dm_Xh%size()
     niter = 1000
     
