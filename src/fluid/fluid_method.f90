@@ -63,6 +63,7 @@ module fluid_method
   use operators
   use logger
   use field_registry
+  use scratch_registry
   implicit none
   
   !> Base type of all fluid formulations
@@ -93,6 +94,7 @@ module fluid_method
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
+     type(scratch_registry_t) :: scratch      !< Manager for temporary fields
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -203,6 +205,8 @@ contains
     call coef_init(this%c_Xh, this%gs_Xh)
 
     call source_init(this%f_Xh, this%dm_Xh)
+    
+    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
     !
     ! Setup velocity boundary conditions
@@ -413,7 +417,6 @@ contains
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
     end if
 
-
     call neko_log%end_section()
     
   end subroutine fluid_scheme_init_all
@@ -460,6 +463,8 @@ contains
     call source_free(this%f_Xh)
 
     call bc_list_free(this%bclst_vel)
+    
+    call this%scratch%free()
 
     nullify(this%params)
 
