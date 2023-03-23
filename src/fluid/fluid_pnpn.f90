@@ -60,12 +60,6 @@ module fluid_pnpn
 
      type(field_t) :: dp, du, dv, dw
 
-     type(field_t) :: wa1, wa2, wa3
-     type(field_t) :: ta1, ta2, ta3
-     
-     !> @todo move this to a scratch space
-     type(field_t) :: work1, work2
-
      class(ax_t), allocatable :: Ax
      
      type(projection_t) :: proj_prs
@@ -122,11 +116,18 @@ contains
     integer, intent(inout) :: lx
     type(param_t), target, intent(inout) :: param
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '(A)') 'START INIT'
+    call neko_log%message(log_buf) 
 
     call this%free()
     
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, .true., .true., scheme)
+    
+    write(log_buf, '(A)') 'SCHEME INIT Done'
+    call neko_log%message(log_buf) 
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -166,21 +167,10 @@ contains
       call field_init(this%v_e, dm_Xh, 'v_e')
       call field_init(this%w_e, dm_Xh, 'w_e')
     
-      call field_init(this%wa1, dm_Xh, 'wa1')
-      call field_init(this%wa2, dm_Xh, 'wa2')
-      call field_init(this%wa3, dm_Xh, 'wa3')
-
-      call field_init(this%ta1, dm_Xh, 'ta1')
-      call field_init(this%ta2, dm_Xh, 'ta2')
-      call field_init(this%ta3, dm_Xh, 'ta3')
-    
       call field_init(this%du, dm_Xh, 'du')
       call field_init(this%dv, dm_Xh, 'dv')
       call field_init(this%dw, dm_Xh, 'dw')
       call field_init(this%dp, dm_Xh, 'dp')
-
-      call field_init(this%work1, dm_Xh, 'work1')
-      call field_init(this%work2, dm_Xh, 'work2')
 
       call this%ulag%init(this%u, 2)
       call this%vlag%init(this%v, 2)
@@ -271,6 +261,8 @@ contains
 
     call this%vol_flow%init(this%dm_Xh, param)
     
+    write(log_buf, '(A)') 'END INIT'
+    call neko_log%message(log_buf) 
   end subroutine fluid_pnpn_init
 
   subroutine fluid_pnpn_free(this)
@@ -297,22 +289,11 @@ contains
     call field_free(this%v_res)
     call field_free(this%w_res)
     
-    call field_free(this%wa1)
-    call field_free(this%wa2)
-    call field_free(this%wa3)
-
-    call field_free(this%ta1)
-    call field_free(this%ta2)
-    call field_free(this%ta3)
-
     call field_free(this%du)
     call field_free(this%dv)
     call field_free(this%dw)
     call field_free(this%dp)
     
-    call field_free(this%work1)
-    call field_free(this%work2)
-
     call field_free(this%abx1)
     call field_free(this%aby1)
     call field_free(this%abz1)
@@ -360,15 +341,22 @@ contains
     integer, intent(inout) :: tstep
     integer :: n, niter
     type(ksp_monitor_t) :: ksp_results(4)
+    type(field_t), pointer :: temp1, temp2, temp3, temp4
+    type(field_t), pointer :: temp5, temp6, temp7, temp8
+    integer :: tempind1, tempind2, tempind3, tempind4
+    integer :: tempind5, tempind6, tempind7, tempind8 
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '(A)') 'START STEP'
+    call neko_log%message(log_buf) 
     n = this%dm_Xh%size()
     niter = 1000
+    
 
     call profiler_start_region('Fluid')
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
-         ta1 => this%ta1, ta2 => this%ta2, ta3 => this%ta3, &
-         wa1 => this%wa1, wa2 => this%wa2, wa3 => this%wa3, &
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
@@ -377,6 +365,15 @@ contains
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf)
          
+      ! Get temporary arrays
+      call this%scratch%request_field(temp1, tempind1)
+      call this%scratch%request_field(temp2, tempind2)
+      call this%scratch%request_field(temp3, tempind3)
+      call this%scratch%request_field(temp4, tempind4)
+      call this%scratch%request_field(temp5, tempind5)
+      call this%scratch%request_field(temp6, tempind6)
+      call this%scratch%request_field(temp7, tempind7)
+      call this%scratch%request_field(temp8, tempind8)
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
@@ -393,13 +390,13 @@ contains
                           f_Xh%u, f_Xh%v, f_Xh%w, &
                           Xh, this%c_Xh, dm_Xh%size())
 
-      call makeabf%compute_fluid(ta1, ta2, ta3,&
+      call makeabf%compute_fluid(temp1, temp2, temp3,&
                            this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
                            params%rho, ext_bdf%ext, n)
 
-      call makebdf%compute_fluid(ta1, ta2, ta3, this%wa1, this%wa2, this%wa3,&
+      call makebdf%compute_fluid(temp1, temp2, temp3, temp4, temp5, temp6,&
                            ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, params%rho, params%dt, &
                            ext_bdf%bdf, ext_bdf%nbd, n)
@@ -416,8 +413,8 @@ contains
       ! compute pressure
       call profiler_start_region('Pressure residual')
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
-                           ta1, ta2, ta3, wa1, wa2, wa3, &
-                           this%work1, this%work2, f_Xh, &
+                           temp1, temp2, temp3, temp4, temp5, temp6, &
+                           temp7, temp8, f_Xh, &
                            c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%bdf(1), &
                            params%dt, params%Re, params%rho)
@@ -453,7 +450,7 @@ contains
       call profiler_start_region('Velocity residual')
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
-                           p, ta1, ta2, ta3, &
+                           p, temp1, temp2, temp3, &
                            f_Xh, c_Xh, msh, Xh, &
                            params%Re, params%rho, ext_bdf%bdf(1), &
                            params%dt, dm_Xh%size())
@@ -501,7 +498,7 @@ contains
 
       if (params%vol_flow_dir .ne. 0) then                 
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, params%rho, params%Re, &
+              temp1, temp2, temp3, c_Xh, gs_Xh, ext_bdf, params%rho, params%Re,&
               params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, niter)
@@ -509,6 +506,14 @@ contains
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)
       
+      call this%scratch%relinquish_field(tempind1)
+      call this%scratch%relinquish_field(tempind2)
+      call this%scratch%relinquish_field(tempind3)
+      call this%scratch%relinquish_field(tempind4)
+      call this%scratch%relinquish_field(tempind5)
+      call this%scratch%relinquish_field(tempind6)
+      call this%scratch%relinquish_field(tempind7)
+      call this%scratch%relinquish_field(tempind8)
     end associate
     call profiler_end_region
   end subroutine fluid_pnpn_step
