@@ -111,13 +111,12 @@ contains
   end subroutine pnpn_prs_res_cpu_compute
 
   subroutine pnpn_vel_res_cpu_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, ta1, ta2, ta3, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+       p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n, scratch)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     real(kind=rp), intent(in) :: Re
@@ -125,6 +124,9 @@ contains
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
+    type(scratch_registry_t), intent(inout) :: scratch
+    integer :: temp_indices(3)
+    type(field_t), pointer :: ta1, ta2, ta3
     integer :: i
 
     do i = 1, n
@@ -136,6 +138,10 @@ contains
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
+    
+    call scratch%request_field(ta1, temp_indices(1))
+    call scratch%request_field(ta2, temp_indices(2))
+    call scratch%request_field(ta3, temp_indices(3))
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
@@ -144,6 +150,8 @@ contains
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_Xh%v(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_Xh%w(i,1,1,1)
     end do
+    
+    call scratch%relinquish_field(temp_indices)
     
   end subroutine pnpn_vel_res_cpu_compute  
 

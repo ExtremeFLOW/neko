@@ -438,10 +438,11 @@ contains
       call profiler_start_region('Velocity residual')
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
-                           p, temp1, temp2, temp3, &
+                           p, &
                            f_Xh, c_Xh, msh, Xh, &
                            params%Re, params%rho, ext_bdf%bdf(1), &
-                           params%dt, dm_Xh%size())
+                           params%dt, dm_Xh%size(), &
+                           this%scratch)
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 

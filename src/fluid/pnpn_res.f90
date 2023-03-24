@@ -41,6 +41,7 @@ module pnpn_residual
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
+  use scratch_registry, only : scratch_registry_t
   implicit none
   
   !> Abstract type to compute pressure residual
@@ -88,7 +89,7 @@ module pnpn_residual
 
   abstract interface
      subroutine vel_res(Ax, u, v, w, u_res, v_res, w_res, &
-          p, ta1, ta2, ta3, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+          p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n, scratch)
        import field_t
        import Ax_t
        import gs_t
@@ -98,12 +99,12 @@ module pnpn_residual
        import coef_t
        import mesh_t
        import rp
+       import scratch_registry_t
        class(ax_t), intent(in) :: Ax
        type(mesh_t), intent(inout) :: msh
        type(space_t), intent(inout) :: Xh    
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_res, v_res, w_res
-       type(field_t), intent(inout) :: ta1, ta2, ta3
        type(source_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
        real(kind=rp), intent(in) :: Re
@@ -111,6 +112,7 @@ module pnpn_residual
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n
+       type(scratch_registry_t), intent(inout) :: scratch
      end subroutine vel_res
 
   end interface
