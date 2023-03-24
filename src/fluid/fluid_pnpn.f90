@@ -52,8 +52,6 @@ module fluid_pnpn
 
   
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
-     type(field_t) :: u_e, v_e, w_e
-
      type(field_t) :: p_res, u_res, v_res, w_res
 
      type(field_series_t) :: ulag, vlag, wlag
@@ -156,10 +154,6 @@ contains
       call field_init(this%aby2, dm_Xh, "aby2")
       call field_init(this%abz2, dm_Xh, "abz2")
                   
-      call field_init(this%u_e, dm_Xh, 'u_e')
-      call field_init(this%v_e, dm_Xh, 'v_e')
-      call field_init(this%w_e, dm_Xh, 'w_e')
-    
       call field_init(this%du, dm_Xh, 'du')
       call field_init(this%dv, dm_Xh, 'dv')
       call field_init(this%dw, dm_Xh, 'dw')
@@ -271,10 +265,6 @@ contains
     call this%proj_v%free()
     call this%proj_w%free()
    
-    call field_free(this%u_e)
-    call field_free(this%v_e)
-    call field_free(this%w_e)
-
     call field_free(this%p_res)        
     call field_free(this%u_res)
     call field_free(this%v_res)
@@ -334,8 +324,8 @@ contains
     type(ksp_monitor_t) :: ksp_results(4)
     type(field_t), pointer :: temp1, temp2, temp3, temp4
     type(field_t), pointer :: temp5, temp6, temp7, temp8
-    integer :: tempind1, tempind2, tempind3, tempind4
-    integer :: tempind5, tempind6, tempind7, tempind8 
+    type(field_t), pointer :: u_e, v_e, w_e
+    integer :: temp_indices(11)
 
     n = this%dm_Xh%size()
     niter = 1000
@@ -344,7 +334,6 @@ contains
     call profiler_start_region('Fluid')
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
-         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
@@ -354,14 +343,17 @@ contains
          makeabf => this%makeabf, makebdf => this%makebdf)
          
       ! Get temporary arrays
-      call this%scratch%request_field(temp1, tempind1)
-      call this%scratch%request_field(temp2, tempind2)
-      call this%scratch%request_field(temp3, tempind3)
-      call this%scratch%request_field(temp4, tempind4)
-      call this%scratch%request_field(temp5, tempind5)
-      call this%scratch%request_field(temp6, tempind6)
-      call this%scratch%request_field(temp7, tempind7)
-      call this%scratch%request_field(temp8, tempind8)
+      call this%scratch%request_field(temp1, temp_indices(1))
+      call this%scratch%request_field(temp2, temp_indices(2))
+      call this%scratch%request_field(temp3, temp_indices(3))
+      call this%scratch%request_field(temp4, temp_indices(4))
+      call this%scratch%request_field(temp5, temp_indices(5))
+      call this%scratch%request_field(temp6, temp_indices(6))
+      call this%scratch%request_field(temp7, temp_indices(7))
+      call this%scratch%request_field(temp8, temp_indices(8))
+      call this%scratch%request_field(u_e, temp_indices(9))
+      call this%scratch%request_field(v_e, temp_indices(10))
+      call this%scratch%request_field(w_e, temp_indices(11))
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
@@ -495,14 +487,7 @@ contains
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)
       
-      call this%scratch%relinquish_field(tempind1)
-      call this%scratch%relinquish_field(tempind2)
-      call this%scratch%relinquish_field(tempind3)
-      call this%scratch%relinquish_field(tempind4)
-      call this%scratch%relinquish_field(tempind5)
-      call this%scratch%relinquish_field(tempind6)
-      call this%scratch%relinquish_field(tempind7)
-      call this%scratch%relinquish_field(tempind8)
+      call this%scratch%relinquish_field(temp_indices)
     end associate
     call profiler_end_region
   end subroutine fluid_pnpn_step
