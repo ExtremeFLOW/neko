@@ -73,8 +73,10 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
+    type(file_t) :: mf
     type(cpr_t) :: cpr_u
     integer :: i
+    character(len=NEKO_FNAME_LEN) :: fname
     character(len=LOG_SIZE) :: log_buf 
     ! Definitions for the l2norm in device
     real(kind=rp) :: ev(u%Xh%lx, u%Xh%lx, u%Xh%lx,u%msh%nelv) 
@@ -170,11 +172,8 @@ contains
       call neko_log%message(log_buf)
     enddo
 
-
     do i = 1, nelv
-
       lglel(i) = i
-
     end do
 
     call adios2_update(lglel, cpr_u%fldhat%x, cpr_u%fldhat%x, &
@@ -211,6 +210,13 @@ contains
             !cpr_u%fldhat(i,1,1,10)
       call neko_log%message(log_buf)
     enddo
+
+    if (tstep.eq.50) then
+      ! write the reconstructed file
+      fname = 'compressed.fld'
+      mf =  file_t(fname)
+      call mf%write(cpr_u%fldhat)
+    end if
 
 
     ! Free the memory allocated for the fields
