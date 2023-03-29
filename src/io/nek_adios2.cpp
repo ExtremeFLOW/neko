@@ -7,18 +7,26 @@ adios2::ADIOS adios;
 adios2::IO io;
 adios2::IO ior;
 adios2::IO io_head;
+adios2::IO io_stream;
 adios2::Engine writer;
 adios2::Engine writer_head;
 adios2::Engine readr; 
+adios2::Engine writer_st;
 adios2::Variable<double> x;
 adios2::Variable<double> y;
 adios2::Variable<double> z;
 adios2::Variable<int> lglelw;
+adios2::Variable<int> lglelw_st;
 adios2::Variable<double> p;
 adios2::Variable<double> vx;
 adios2::Variable<double> vy;
 adios2::Variable<double> vz;
 adios2::Variable<double> bm1;
+adios2::Variable<double> p_st;
+adios2::Variable<double> vx_st;
+adios2::Variable<double> vy_st;
+adios2::Variable<double> vz_st;
+adios2::Variable<double> bm1_st;
 adios2::Variable<double> vxr;
 adios2::Variable<double> vyr;
 adios2::Variable<double> vzr;
@@ -36,6 +44,7 @@ std::clock_t elapsedT;
 int rank, size;
 int ifile;
 int ifilew;
+int ifstream;
 
 
 extern "C" void adios2_setup_(
@@ -47,6 +56,7 @@ extern "C" void adios2_setup_(
     const double *xml,
     const double *yml,
     const double *zml,
+    const int *ifstream,
     const int *comm_int
 ){
     std::string configFile="config/config.xml";
@@ -61,6 +71,9 @@ extern "C" void adios2_setup_(
     // In config, writer 0 uses the BPfile engine, wich i guess stands for
     // bzip2
     io_head = adios.DeclareIO("writer0");
+    // Here include a conditional statement to make streaming an option
+    io_stream = adios.DeclareIO("writerISMPI");
+
     if (!io.InConfigFile())
     {
         // if not defined by user, we can change the default settings
@@ -84,6 +97,16 @@ extern "C" void adios2_setup_(
         // ISO-POSIX file output is the default transport (called "File")
         // Passing parameters to the transport
     }
+    if (!io_stream.InConfigFile())
+    {
+        // if not defined by user, we can change the default settings
+        // BPFile is the default engine
+        io_stream.SetEngine("InSituMPI");
+
+        // ISO-POSIX file output is the default transport (called "File")
+        // Passing parameters to the transport
+    }
+    unsigned int decide_stream = static_cast<unsigned int>((*ifstream));
     // Understand how the elements are divided among ranks.
     // set the pointers to the starting points in vectors of for each rank.
     //unsigned int nelv = static_cast<unsigned int>((*nelgv) / size);
@@ -113,7 +136,15 @@ extern "C" void adios2_setup_(
     vx = io.DefineVariable<double>("VX_OUT", {gn}, {start}, {n});
     vy = io.DefineVariable<double>("VY_OUT", {gn}, {start}, {n});
     vz = io.DefineVariable<double>("VZ_OUT", {gn}, {start}, {n});
-    bm1 = io.DefineVariable<double>("BM1", {gn}, {start}, {n});
+    bm1 = io.DefineVariable<double>("BM1_OUT", {gn}, {start}, {n});
+    
+    if (decide_stream == 1){
+    	p_st = io_stream.DefineVariable<double>("P", {gn}, {start}, {n});
+    	vx_st = io_stream.DefineVariable<double>("VX", {gn}, {start}, {n});
+    	vy_st = io_stream.DefineVariable<double>("VY", {gn}, {start}, {n});
+    	vz_st = io_stream.DefineVariable<double>("VZ", {gn}, {start}, {n});
+    	bm1_st = io_stream.DefineVariable<double>("BM1", {gn}, {start}, {n});
+    }
 
     // Do everything again for the temperature (I do not know why)
     //unsigned int nelt = static_cast<unsigned int>((*nelgt) / size);
@@ -153,6 +184,9 @@ extern "C" void adios2_setup_(
     n = static_cast<unsigned int> (nelt);
     gn = static_cast<unsigned int>((*nelgt));
     lglelw = io.DefineVariable<int>("LGLEL_OUT", {gn}, {start}, {n});
+    if (decide_stream == 1){
+    	lglelw_st = io_stream.DefineVariable<int>("LGLEL", {gn}, {start}, {n});
+    }
 
     // Write the mesh information only once.
     writer_head = io_head.Open("geo.bp", adios2::Mode::Write);
@@ -162,10 +196,15 @@ extern "C" void adios2_setup_(
     writer_head.Close();
     if(!rank)
 	std::cout << "geo.bp written" << std::endl;
-    // Open a global array that will be used by the compressor. 
-    // As I see it, this is a buffer, where the compressor will read
+    // Open a global array that will be used by streeaming. 
+    // As I see it, this is a buffer, where the streamer will read
     // and compress.
-    //writer = io.Open("globalArray", adios2::Mode::Write);
+    // Add a conditional statement
+    //
+    if (decide_stream == 1){
+	std::cout << "create global array" << std::endl;
+    	writer_st = io_stream.Open("globalArray", adios2::Mode::Write);
+    }
 }
 
 extern "C" void adios2_setup_2d_(
@@ -292,15 +331,15 @@ extern "C" void adios2_stream_(
     startT = std::clock();
     // Begin a step of the writer. Remember that this will write to
     // the variable globalarray that will be read by the compressor.
-    writer.BeginStep();
-    writer.Put<double>(p, pr);
-    writer.Put<double>(vx, v);
-    writer.Put<double>(vy, u);
-    writer.Put<double>(vz, w);
-    writer.Put<double>(bm1, mass1);
-    writer.Put<int>(lglelw, lglel);
-    //writer.Put<double>(t, temp);
-    writer.EndStep();
+    writer_st.BeginStep();
+    writer_st.Put<double>(p_st, pr);
+    writer_st.Put<double>(vx_st, v);
+    writer_st.Put<double>(vy_st, u);
+    writer_st.Put<double>(vz_st, w);
+    writer_st.Put<double>(bm1_st, mass1);
+    writer_st.Put<int>(lglelw_st, lglel);
+    //writer_st.Put<double>(t_st, temp);
+    writer_st.EndStep();
     dataTime += (std::clock() - startT) / (double) CLOCKS_PER_SEC;
 }
 extern "C" void adios2_read_(
@@ -532,6 +571,6 @@ extern "C" void adios2_read_(
 }
 
 extern "C" void adios2_finalize_(){
-    writer.Close();
+    writer_st.Close();
     std::cout <<  "rank: " << rank << " in-situ time: " << dataTime << "s." << std::endl;
 }

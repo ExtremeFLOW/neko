@@ -1,0 +1,41 @@
+#!/bin/sh -e
+
+prefix=/scratch/adperez/neko
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir_pkg=${prefix}/include/neko
+FC=mpif90
+FCFLAGS='-g -O2'
+
+printf "\n%s\n" 'N E K O build tool, Version 0.5.99'
+printf "%s\n" '(build: 2023-02-20 on x86_64-pc-linux-gnu using gnu)'
+
+
+if [ -z "$1" ]
+  then
+      echo "No user file provided"
+      exit 1
+fi
+printf '\n%s' "Building user NEKO ..."
+rm -f usr_driver.f90
+cat >> usr_driver.f90 << _ACEOF
+program usrneko
+  use neko
+  use user
+  type(case_t) :: C
+  
+  call user_setup(C%usr)
+  call neko_init(C)
+  call neko_solve(C)
+  call neko_finalize(C)
+
+
+end program usrneko
+_ACEOF
+
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $1 usr_driver.f90\
+    -lneko -Wl,-rpath,/scratch/adperez/NekDCTB/Nek5000/3rd_party/adios2/lib64 /scratch/adperez/NekDCTB/Nek5000/3rd_party/adios2/lib64/libadios2_cxx11_mpi.so.2.7.1 /scratch/adperez/NekDCTB/Nek5000/3rd_party/adios2/lib64/libadios2_cxx11.so.2.7.1 -Wl,-rpath-link,/scratch/adperez/NekDCTB/Nek5000/3rd_party/adios2/lib64 -lstdc++   -lflame -lblis    -o neko
+
+rm -f usr_driver.f90
+
+printf "%s\n" ' done!'
