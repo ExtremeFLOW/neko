@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<!-- Config XML file  -->
+
+<adios-config>
+    <io name="writer">     
+
+        <variable name="P_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="VX_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="VY_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="VZ_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="T_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+
+	<variable name="LGLEL_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        
+        <engine type="BPFile">
+            
+            <!-- for vectorized memory operations, make sure your system 
+                 enables threads--> 
+            <parameter key="Profile" value="On"/>
+            
+        </engine>
+        
+        <transport type="File">
+            
+            <!-- POSIX, stdio (C FILE*), fstream (C++) -->
+            <parameter key="Library" value="fstream"/>
+            
+            <!-- For read/write, Microseconds (default), Milliseconds, Seconds, 
+                 Minutes, Hours. open/close always in Microseconds -->
+            <parameter key="ProfileUnits" value="Microseconds"/>
+            
+        </transport>
+    </io>
+
+    <io name="writer0">
+
+        <variable name="X">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="Y">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="Z">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        
+        <engine type="BPFile">
+            
+            <!-- for vectorized memory operations, make sure your system 
+                 enables threads--> 
+            <parameter key="Profile" value="On"/>
+
+            <!-- Microseconds (default), Milliseconds, Seconds, 
+                 Minutes, Hours -->
+            <!--<parameter key="ProfileUnits" value="Microseconds"/>-->
+
+            <!-- XXKb, XXMb, or XXXGb supported, default=16Kb 
+                (applications might choose an optimal value) -->
+            <!--<parameter key="InitialBufferSize" value="16Kb"/> -->
+            
+            <!-- XXKb, XXMb, or XXXGb supported, default=Unlimited (until 
+                 fails), maximum at each time step  
+                (applications might choose an optimal value) -->
+            <!-- <parameter key="MaxBufferSize" value="2Gb"/> -->
+
+            <!-- exponential growth factor > 1, default = 1.05 
+                 1.05  is good for a few large variables, for many small
+                 variables increase the value to 1.5 to 2 
+                 (optimal value is application dependent)--> 
+            <!-- <parameter key="BufferGrowthFactor" value="1.05"/> -->
+            
+            <!-- Indicates how often (in number of steps), pick a large 
+                 number so metadata will only be written at Close  
+                (applications might choose an optimal value) -->
+            <!--<parameter key="FlushStepsCount" value="1"/> -->
+            
+        </engine>
+        
+        <transport type="File">
+            
+            <!-- POSIX, stdio (C FILE*), fstream (C++) -->
+            <parameter key="Library" value="fstream"/>
+            
+            <!-- For read/write, Microseconds (default), Milliseconds, Seconds, 
+                 Minutes, Hours. open/close always in Microseconds -->
+            <parameter key="ProfileUnits" value="Microseconds"/>
+            
+        </transport>
+    </io>
+
+
+    <io name="writerISMPI">     
+
+        <engine type="InSituMPI">
+            <!--parameter key="MarshalMethod" value="BP"/-->
+
+            <!--parameter key="DataTransport" value="RDMA"/-->
+            <!--parameter key="ReserveQueueLimit", value="3"-->
+            
+        </engine>
+    </io>
+
+
+    <io name="reader">
+
+        <engine type="InSituMPI">
+            <!--parameter key="DataTransport" value="RDMA"/-->
+            <!--parameter key="ReserveQueueLimit", value="3"/-->
+            <!--parameter key="MarshalMethod" value="BP"/-->
+            
+        </engine>
+    </io>
+
+    <io name="inputReader">
+
+        <engine type="BPFile">
+            
+        </engine>
+    </io>
+
+        <io name="writer2">
+
+        <variable name="P_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="VX_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="VY_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="VZ_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        <variable name="T_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+
+	<variable name="LGLEL_OUT">
+        	<operation type="bzip2">
+        	    <parameter key="blockSize100k" value="9"/>
+        	</operation>
+        </variable>
+        
+        <engine type="BPFile">
+            
+            <!-- for vectorized memory operations, make sure your system 
+                 enables threads--> 
+            <parameter key="Profile" value="On"/>
+            
+        </engine>
+        
+        <transport type="File">
+            
+            <!-- POSIX, stdio (C FILE*), fstream (C++) -->
+            <parameter key="Library" value="fstream"/>
+            
+            <!-- For read/write, Microseconds (default), Milliseconds, Seconds, 
+                 Minutes, Hours. open/close always in Microseconds -->
+            <parameter key="ProfileUnits" value="Microseconds"/>
+            
+        </transport>
+    </io>
+
+</adios-config>
