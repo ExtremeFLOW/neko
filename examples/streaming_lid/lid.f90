@@ -107,8 +107,8 @@ module user
     character(len=LOG_SIZE) :: log_buf 
     
     stream = 1
-    freq = 1000
-    endstream = 10000
+    freq = 100
+    endstream = 1000
 
     !!!!!!!!!!!!!! Streaming section !!!!!!
 
@@ -155,15 +155,15 @@ module user
         call adios2_stream(lglel,u%x, u%x, & 
                         u%x, u%x, coef%B, u%x)
       
-      else if ((tstep+1) .eq. (endstream+1)) then 
+      end if
+
+      if ((tstep+1) .eq. (endstream)) then 
         
         call adios2_finalize()
 
       end if
 
     end if
-
-
 
 
     if (mod(tstep,50).ne.0) return
