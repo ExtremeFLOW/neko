@@ -28,3 +28,4 @@ gather_scatter/gather_scatter_suite
 jobctrl/jobctrl_suite
 mean_sqr_field/mean_sqr_field_suite
 scratch_registry/scratch_registry_test
+fast3d/fast3d_test
