@@ -56,6 +56,7 @@ module case
   use jobctrl
   use user_intf  
   use scalar_pnpn ! todo directly load the pnpn? can we have other
+  use scratch_registry
   implicit none
 
   type :: case_t
@@ -179,6 +180,11 @@ contains
     !
     call fluid_scheme_factory(C%fluid, trim(fluid_scheme))
     call C%fluid%init(C%msh, lx, C%params)
+    
+    !
+    ! Setup scratch registry
+    !
+    neko_scratch_registry = scratch_registry_t(C%fluid%dm_Xh, 20, 10)
 
     !
     ! Setup scalar scheme
