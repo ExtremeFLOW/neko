@@ -3,6 +3,7 @@ module pnpn_res_cpu
   use gather_scatter
   use pnpn_residual
   use operators
+  use scratch_registry
   implicit none
   private
   
@@ -111,7 +112,7 @@ contains
   end subroutine pnpn_prs_res_cpu_compute
 
   subroutine pnpn_vel_res_cpu_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n, scratch)
+       p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
@@ -124,7 +125,6 @@ contains
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
-    type(scratch_registry_t), intent(inout) :: scratch
     integer :: temp_indices(3)
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: i
@@ -139,9 +139,9 @@ contains
     call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
     
-    call scratch%request_field(ta1, temp_indices(1))
-    call scratch%request_field(ta2, temp_indices(2))
-    call scratch%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(ta1, temp_indices(1))
+    call neko_scratch_registry%request_field(ta2, temp_indices(2))
+    call neko_scratch_registry%request_field(ta3, temp_indices(3))
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
@@ -151,7 +151,7 @@ contains
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_Xh%w(i,1,1,1)
     end do
     
-    call scratch%relinquish_field(temp_indices)
+    call neko_scratch_registry%relinquish_field(temp_indices)
     
   end subroutine pnpn_vel_res_cpu_compute  
 

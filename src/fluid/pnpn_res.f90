@@ -89,7 +89,7 @@ module pnpn_residual
 
   abstract interface
      subroutine vel_res(Ax, u, v, w, u_res, v_res, w_res, &
-          p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n, scratch)
+          p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
@@ -112,7 +112,6 @@ module pnpn_residual
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n
-       type(scratch_registry_t), intent(inout) :: scratch
      end subroutine vel_res
 
   end interface

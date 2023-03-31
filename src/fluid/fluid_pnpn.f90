@@ -433,8 +433,7 @@ contains
                            p, &
                            f_Xh, c_Xh, msh, Xh, &
                            params%Re, params%rho, ext_bdf%bdf(1), &
-                           params%dt, dm_Xh%size(), &
-                           this%scratch)
+                           params%dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
