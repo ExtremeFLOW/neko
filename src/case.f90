@@ -265,7 +265,7 @@ contains
     !
     ! Set order of timestepper
     !
-    call C%ext_bdf%set_time_order(C%params%time_order)
+    call C%ext_bdf%init(C%params%time_order)
 
     !
     ! Save boundary markings for fluid (if requested)

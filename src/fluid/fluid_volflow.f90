@@ -335,19 +335,19 @@ contains
       
       ifcomp = 0.0_rp
 
-      if (dt .ne. this%dtlag .or. ext_bdf%bdf(1) .ne. this%bdlag) then
+      if (dt .ne. this%dtlag .or. ext_bdf%bdf%coeffs(1) .ne. this%bdlag) then
          ifcomp = 1.0_rp
       end if
       
       this%dtlag = dt
-      this%bdlag = ext_bdf%bdf(1)
+      this%bdlag = ext_bdf%bdf%coeffs(1)
 
       call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
-              ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%bdf(1), dt, &
+              ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%bdf%coeffs(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
               Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, niter)
       end if
