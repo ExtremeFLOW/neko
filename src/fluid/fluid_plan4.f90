@@ -293,10 +293,13 @@ contains
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh)
 
-      call fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ext_bdf%ext, ext_bdf%nab)
-      call fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ext_bdf%ext, ext_bdf%nab)
+      call fluid_plan4_sumab(u_e%x, u%x, ulag ,n, ext_bdf%ext%coeffs, &
+                             ext_bdf%ext%n)
+      call fluid_plan4_sumab(v_e%x, v%x, vlag ,n, ext_bdf%ext%coeffs, &
+                             ext_bdf%ext%n)
       if (msh%gdim .eq. 3) then
-         call fluid_plan4_sumab(w_e%x, w%x, wlag,n, ext_bdf%ext, ext_bdf%nab)
+         call fluid_plan4_sumab(w_e%x, w%x, wlag,n, ext_bdf%ext%coeffs, &
+                                ext_bdf%ext%n)
       end if
 
       call f_Xh%eval(t)
@@ -309,13 +312,13 @@ contains
                   this%abx1, this%aby1, this%abz1,&
                   this%abx2, this%aby2, this%abz2, &
                   f_Xh%u, f_Xh%v, f_Xh%w,&
-                  params%rho, ext_bdf%ext, n, msh%gdim)
+                  params%rho, ext_bdf%ext%coeffs, n, msh%gdim)
       call makebdf(ta1, ta2, ta3,&
                    this%wa1, this%wa2, this%wa3,&
                    c_Xh%h2, ulag, vlag, wlag, &
                    f_Xh%u, f_Xh%v, f_Xh%w, u, v, w,&
                    c_Xh%B, params%rho, params%dt, &
-                   ext_bdf%bdf, ext_bdf%nbd, n, msh%gdim)
+                   ext_bdf%bdf%coeffs, ext_bdf%bdf%n, n, msh%gdim)
 
       call ulag%update()
       call vlag%update()
@@ -334,7 +337,7 @@ contains
                                      this%wa1, this%wa2, this%wa3, &
                                      this%work1, this%work2, f_Xh, &
                                      c_Xh, gs_Xh, this%bc_prs_surface, &
-                                     Ax, ext_bdf%bdf(1), params%dt, &
+                                     Ax, ext_bdf%bdf%coeffs(1), params%dt, &
                                      params%Re, params%rho)
 
       !Sets tolerances
@@ -353,7 +356,7 @@ contains
     
       !We only need to update h2 once I think then use the flag to switch on/off
       call fluid_plan4_vel_setup(c_Xh%h1, c_Xh%h2, &
-                                 params%Re, params%rho, ext_bdf%bdf(1), &
+                                 params%Re, params%rho, ext_bdf%bdf%coeffs(1), &
                                  params%dt, dm_Xh%size(), c_Xh%ifh2)
     
       call fluid_plan4_vel_residual(Ax, u, v, w, &
@@ -683,7 +686,7 @@ contains
 
       call fluid_plan4_vel_setup(c%h1, c%h2, &
                                  this%params%Re, this%params%rho,&
-                                 ext_bdf%bdf(1), &
+                                 ext_bdf%bdf%coeffs(1), &
                                  this%params%dt, n, c%ifh2)
       call gs_op(this%gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(this%gs_Xh, v_res, GS_OP_ADD) 
@@ -739,12 +742,12 @@ contains
 
       ifcomp = 0.0_rp
 
-      if (this%params%dt .ne. this%dtlag .or. ext_bdf%bdf(1) .ne. this%bdlag) then
+      if (this%params%dt .ne. this%dtlag .or. ext_bdf%bdf%coeffs(1) .ne. this%bdlag) then
          ifcomp = 1.0_rp
       end if
 
       this%dtlag = this%params%dt
-      this%bdlag = ext_bdf%bdf(1)
+      this%bdlag = ext_bdf%bdf%coeffs(1)
 
       call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
