@@ -257,4 +257,54 @@ contains
     
     
 end subroutine test_scratch_registry_combo
+
+ @test
+ subroutine test_scratch_registry_array_indices()
+   type(space_t) :: Xh
+   type(mesh_t) :: msh
+   type(dofmap_t) :: dm
+   type(scratch_registry_t), target :: scratch
+   type(field_t), pointer :: f1, f2, f3
+   integer :: ierr
+   integer :: indices(3)
+     
+   integer, parameter :: LX = 2
+
+   call test_scratch_registry_gen_msh(msh)
+   call space_init(Xh, GLL, lx, lx, lx)
+   dm = dofmap_t(msh, Xh)
+    
+  !  write(*,*) "TEST COMBO"
+   scratch = scratch_registry_t(dm, 2, 2) 
+    
+   ! add 2 fields, no expansion
+   call scratch%request_field(f1, indices(1))
+   call scratch%request_field(f2, indices(2))
+   call scratch%request_field(f3, indices(3))
+
+   @assertEqual(indices(1), 1)
+   @assertEqual(indices(2), 2)
+   @assertEqual(indices(3), 3)
+   
+   call cfill(f1%x, 1.0_rp, f1%dof%size())
+   call cfill(f2%x, 2.0_rp, f2%dof%size())
+   call cfill(f3%x, 2.0_rp, f2%dof%size())
+
+   ! get rid of the fields
+   call scratch%relinquish_field(indices)
+   @assertEqual(scratch%get_inuse(indices(1)), .false.)
+   @assertEqual(scratch%get_inuse(indices(2)), .false.)
+   @assertEqual(scratch%get_inuse(indices(3)), .false.)
+   @assertEqual(scratch%get_nfields(), 3)
+   @assertEqual(scratch%get_nfields_inuse(), 0)
+    
+   ! get a new field, should get index 1
+   call scratch%request_field(f1, indices(1))
+   call cfill(f1%x, 1.5_rp, f1%dof%size())
+   @assertEqual(indices(1), 1)
+   @assertEqual(scratch%get_inuse(indices(1)), .true.)
+   @assertEqual(scratch%get_nfields(), 3)
+   @assertEqual(scratch%get_nfields_inuse(), 1)
+    
+end subroutine test_scratch_registry_array_indices
 end module test_scratch_registry

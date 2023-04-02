@@ -61,7 +61,9 @@ module scratch_registry
      procedure, pass(this) :: get_size                      !< return size of allocated fields
      procedure, pass(this) :: get_inuse                     !< get value of inuse for a given index
      procedure, pass(this) :: request_field                 !< get a new scratch field
-     procedure, pass(this) :: relinquish_field              !< free a field for later reuse
+     procedure, pass(this) :: relinquish_field_single
+     procedure, pass(this) :: relinquish_field_multiple
+     generic :: relinquish_field => relinquish_field_single, relinquish_field_multiple  !< free a field for later reuse
   end type scratch_registry_t
 
   interface scratch_registry_t
@@ -109,12 +111,15 @@ contains
     class(scratch_registry_t), intent(inout):: this
     integer :: i
 
-    do i=1, this%nfields
-       call field_free(this%fields(i)%field)
-       deallocate(this%fields(i)%field)
-    end do
-    deallocate(this%fields)
-    deallocate(this%inuse)
+    if (allocated(this%fields)) then
+       do i=1, this%nfields
+          call field_free(this%fields(i)%field)
+          deallocate(this%fields(i)%field)
+       end do
+    
+       deallocate(this%fields)
+       deallocate(this%inuse)
+    end if
   end subroutine scratch_registry_free
 
 
@@ -212,13 +217,24 @@ contains
   end subroutine request_field
   
   !> Relinquish the use of a field in the registry
-  subroutine relinquish_field(this, index)
+  subroutine relinquish_field_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index !< The index of the field to free
     
     this%inuse(index) = .false.
     this%nfields_inuse = this%nfields_inuse - 1
-  end subroutine relinquish_field
+  end subroutine relinquish_field_single
+
+  subroutine relinquish_field_multiple(this, indices)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:) !< The indices of the field to free
+    integer :: i
+
+    do i=1, size(indices)
+      this%inuse(indices(i)) = .false.
+    end do
+    this%nfields_inuse = this%nfields_inuse - size(indices) 
+  end subroutine relinquish_field_multiple
 
   logical function get_inuse(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
