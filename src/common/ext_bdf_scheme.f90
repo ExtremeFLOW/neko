@@ -72,7 +72,8 @@ module ext_bdf_scheme
   type, abstract, public :: time_scheme_t
      !> The coefficients of the scheme
      real(kind=rp), dimension(10) :: coeffs 
-     integer :: n
+     !> Controls the actual order of the scheme, e.g. 1 at the first time-step
+     integer :: n = 0
      !> Order of the scheme, defaults to 3
      integer :: time_order
      !> Device pointer for `coeffs`
