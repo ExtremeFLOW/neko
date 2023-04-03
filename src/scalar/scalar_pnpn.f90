@@ -35,7 +35,7 @@ module scalar_pnpn
   use scalar_residual_fctry
   use ax_helm_fctry
   use rhs_maker_fctry
-  use scalar
+  use scalar_scheme
   use field_series  
   use facet_normal
   use device_math

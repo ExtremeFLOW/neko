@@ -2,7 +2,7 @@
 module device_fluid_plan4
   use ax_helm_fctry
   use fluid_plan4
-  use fluid_method
+  use fluid_scheme
   use field_series
   use facet_normal
   use fluid_aux

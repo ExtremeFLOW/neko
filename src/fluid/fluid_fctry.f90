@@ -33,7 +33,7 @@
 !> Factory for all fluid schemes
 module fluid_fctry
   use device_fluid_plan4, only : device_fluid_plan4_t
-  use fluid_method, only : fluid_scheme_t
+  use fluid_scheme, only : fluid_scheme_t
   use fluid_plan1, only : fluid_plan1_t
   use fluid_plan4, only : fluid_plan4_t
   use fluid_pnpn, only : fluid_pnpn_t    

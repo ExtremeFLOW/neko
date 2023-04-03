@@ -65,7 +65,7 @@
 module fluid_plan4
   use ax_helm_fctry
   use field_series    
-  use fluid_method
+  use fluid_scheme
   use facet_normal
   use neko_config
   use fluid_aux    

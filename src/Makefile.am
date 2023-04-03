@@ -147,7 +147,7 @@ neko_fortran_SOURCES = \
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
-	fluid/fluid_method.f90\
+	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
@@ -198,7 +198,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
-	scalar/scalar_method.f90\
+	scalar/scalar_scheme.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\

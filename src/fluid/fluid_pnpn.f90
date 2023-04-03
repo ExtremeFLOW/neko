@@ -36,7 +36,7 @@ module fluid_pnpn
   use ax_helm_fctry
   use rhs_maker_fctry
   use fluid_volflow
-  use fluid_method
+  use fluid_scheme
   use field_series  
   use facet_normal
   use device_math
