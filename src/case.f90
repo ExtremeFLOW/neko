@@ -241,14 +241,6 @@ contains
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
-    type is(fluid_plan4_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
-    type is(device_fluid_plan4_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
     end select
 
 

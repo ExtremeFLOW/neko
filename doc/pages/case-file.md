@@ -46,7 +46,7 @@ Comments can be added by prepending a `!`.
 Name                    | Description
 ----                    | -----------
 `mesh_file`             | Path to the mesh file (`.nmsh` extension)
-`fluid_scheme`          | Solver scheme (``'plan4'`` or ``'pnpn'``)
+`fluid_scheme`          | Solver scheme (should be ``'pnpn'``)
 `lx`                    | Number of quadrature points points per element and direction, i.e. polynomial degree + 1
 `source_term`           | Source term \f$ f \f$: default ``'noforce'`` for \f$ f=0 \f$, or ``'user'``/``'user_vector'`` for user defined function (point-wise/vector apply) 
 `initial_condition`     | Initial condition: ``'uniform'``, ``'blasius'`` or ``'user'``
