@@ -141,7 +141,8 @@ end subroutine test_with_df_weights_full
     use num_types
     use math
     implicit none
-    integer, intent(inout) :: nbd, time_order
+    integer, intent(inout) :: nbd
+    integer, intent(in) :: time_order
     real(kind=rp), dimension(10) :: bd
     real(kind=rp), intent(inout), dimension(10) :: dt
     real(kind=rp), dimension(10,10) :: bdmat
