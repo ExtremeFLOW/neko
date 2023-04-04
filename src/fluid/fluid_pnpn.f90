@@ -356,7 +356,7 @@ contains
       call this%scratch%request_field(w_e, temp_indices(11))
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-           ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
+           ulag, vlag, wlag, ext_bdf%ext%coeffs, ext_bdf%ext%n)
      
       call f_Xh%eval(t)
 
@@ -374,12 +374,12 @@ contains
                            this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
-                           params%rho, ext_bdf%ext, n)
+                           params%rho, ext_bdf%ext%coeffs, n)
 
       call makebdf%compute_fluid(temp1, temp2, temp3, temp4, temp5, temp6,&
                            ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, params%rho, params%dt, &
-                           ext_bdf%bdf, ext_bdf%nbd, n)
+                           ext_bdf%bdf%coeffs, ext_bdf%bdf%n, n)
 
       call ulag%update()
       call vlag%update()
@@ -396,7 +396,7 @@ contains
                            temp1, temp2, temp3, temp4, temp5, temp6, &
                            temp7, temp8, f_Xh, &
                            c_Xh, gs_Xh, this%bc_prs_surface, &
-                           this%bc_sym_surface, Ax, ext_bdf%bdf(1), &
+                           this%bc_sym_surface, Ax, ext_bdf%bdf%coeffs(1), &
                            params%dt, params%Re, params%rho)
       
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
@@ -432,7 +432,7 @@ contains
                            u_res, v_res, w_res, &
                            p, &
                            f_Xh, c_Xh, msh, Xh, &
-                           params%Re, params%rho, ext_bdf%bdf(1), &
+                           params%Re, params%rho, ext_bdf%bdf%coeffs(1), &
                            params%dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 

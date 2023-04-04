@@ -32,10 +32,8 @@
 !
 !> Factory for all fluid schemes
 module fluid_fctry
-  use device_fluid_plan4, only : device_fluid_plan4_t
   use fluid_method, only : fluid_scheme_t
   use fluid_plan1, only : fluid_plan1_t
-  use fluid_plan4, only : fluid_plan4_t
   use fluid_pnpn, only : fluid_pnpn_t    
   use neko_config
   use utils
@@ -50,12 +48,6 @@ contains
 
     if (trim(fluid_scheme) .eq. 'plan1') then
        allocate(fluid_plan1_t::fluid)
-    else if (trim(fluid_scheme) .eq. 'plan4') then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          allocate(device_fluid_plan4_t::fluid)
-       else
-          allocate(fluid_plan4_t::fluid)
-       end if
     else if (trim(fluid_scheme) .eq. 'pnpn') then
        allocate(fluid_pnpn_t::fluid)
     else

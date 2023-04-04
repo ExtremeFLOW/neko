@@ -240,10 +240,10 @@ contains
                                  Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           params%rho, ext_bdf%ext, n)
+           params%rho, ext_bdf%ext%coeffs, n)
 
       call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           params%rho, params%dt, ext_bdf%bdf, ext_bdf%nbd, n)
+           params%rho, params%dt, ext_bdf%bdf%coeffs, ext_bdf%bdf%n, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -254,7 +254,7 @@ contains
       ! compute scalar residual
       call profiler_start_region('Scalar residual')
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
-          params%Re, params%rho, ext_bdf%bdf(1), params%dt, &
+          params%Re, params%rho, ext_bdf%bdf%coeffs(1), params%dt, &
           dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 

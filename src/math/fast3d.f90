@@ -83,7 +83,7 @@ contains
   !! Note that finite-difference stencils are exactly such type of expansions.
   !! For the derivation of the algorithm, refer to 3.1 in the reference above.
   !!
-  !! @note - Setting \f$m=0\f$ makes is this a polynomial interpolation routine.
+  !! @note - Setting \f$m=0\f$ makes this a polynomial interpolation routine.
   !! It is the fastest such routine possible for a single interpolation point,
   !! according to the above reference.
   !! @note - The name `_full` refers to the fact that we use the values \f$f(x_j)\f$

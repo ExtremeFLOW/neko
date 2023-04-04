@@ -1,4 +1,3 @@
-USEMPI=YES
 ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
 include @PFUNIT_DIR@/include/PFUNIT.mk
 endif
