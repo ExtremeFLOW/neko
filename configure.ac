@@ -299,7 +299,10 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/mathops/Makefile\
 		 tests/device_mathops/Makefile\
 		 tests/octree/Makefile\
-                 tests/vector/Makefile])
+       tests/vector/Makefile\
+       tests/scratch_registry/Makefile\
+       tests/fast3d/Makefile
+       ])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\

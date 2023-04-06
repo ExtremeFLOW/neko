@@ -67,43 +67,57 @@ module ext_bdf_scheme
   use, intrinsic :: iso_c_binding
   implicit none
   private
-
-  !> Class storing time-integration coefficients for the explicit extrapolation
-  !! and Backward-differencing schemes. 
-  type, public :: ext_bdf_scheme_t
-     real(kind=rp), dimension(10) :: ext
-     real(kind=rp), dimension(10) :: bdf
-     integer :: nab = 0
-     integer :: nbd = 0
-     integer :: time_order  !< Default is 3
-     type(c_ptr) :: ext_d = C_NULL_PTR !< dev. ptr for coefficients
-     type(c_ptr) :: bdf_d = C_NULL_PTR !< dev. ptr for coefficients
+  
+  !> Base abstract class for time integration schemes
+  type, abstract, public :: time_scheme_t
+     !> The coefficients of the scheme
+     real(kind=rp), dimension(10) :: coeffs 
+     !> Controls the actual order of the scheme, e.g. 1 at the first time-step
+     integer :: n = 0
+     !> Order of the scheme, defaults to 3
+     integer :: time_order
+     !> Device pointer for `coeffs`
+     type(c_ptr) :: coeffs_d = C_NULL_PTR 
    contains
-     procedure, pass(this) :: set_bd => ext_bdf_scheme_set_bdf
-     procedure, pass(this) :: set_abbd => ext_bdf_scheme_set_ext
-     procedure, pass(this) :: set_time_order => ext_bdf_scheme_set_time_order
-     final :: ext_bdf_scheme_free
+     procedure(set_coeffs), deferred, pass(this) :: set_coeffs
+     procedure, pass(this) :: init => time_scheme_init 
+     procedure, pass(this) :: free => time_scheme_free
+  end type time_scheme_t
+  
+  abstract interface
+     subroutine set_coeffs(this, dt)
+       import time_scheme_t
+       import rp
+       class(time_scheme_t), intent(inout) :: this
+       real(kind=rp), intent(inout), dimension(10) :: dt !< timestep values
+     end subroutine
+  end interface
+  
+  type, public, extends(time_scheme_t) :: ext_time_scheme_t 
+     contains
+       procedure, pass(this) :: set_coeffs => ext_time_scheme_set_coeffs
+  end type ext_time_scheme_t
+
+  type, public, extends(time_scheme_t) :: bdf_time_scheme_t 
+     contains
+       procedure, pass(this) :: set_coeffs => bdf_time_scheme_set_coeffs
+  end type bdf_time_scheme_t
+  
+  type, public :: ext_bdf_scheme_t
+     type(ext_time_scheme_t) :: ext
+     type(bdf_time_scheme_t) :: bdf
+     
+     contains
+       procedure, pass(this) :: init => ext_bdf_scheme_init
+       procedure, pass(this) :: free => ext_bdf_scheme_free
   end type ext_bdf_scheme_t
 
-
 contains
+  !> Constructor for a time_scheme_t
+  subroutine time_scheme_init(this, torder)
+    class(time_scheme_t), intent(inout) :: this
+    integer, intent(in) :: torder !< Desired order of the scheme: 1, 2 or 3.
 
-  subroutine ext_bdf_scheme_free(this)
-    type(ext_bdf_scheme_t), intent(inout) :: this
-
-    if (c_associated(this%ext_d)) then
-       call device_free(this%ext_d)
-    end if
-       
-    if (c_associated(this%bdf_d)) then
-       call device_free(this%bdf_d)
-    end if
-    
-  end subroutine ext_bdf_scheme_free
-
-  subroutine ext_bdf_scheme_set_time_order(this,torder)
-    integer, intent(in) :: torder
-    class(ext_bdf_scheme_t), intent(inout) :: this
     if(torder .le. 3 .and. torder .gt. 0) then
        this%time_order = torder
     else
@@ -112,63 +126,20 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%ext, this%ext_d, 10)
-       call device_map(this%bdf, this%bdf_d, 10)
+       call device_map(this%coeffs, this%coeffs_d, 10)
     end if
+  end subroutine time_scheme_init
 
-  end subroutine ext_bdf_scheme_set_time_order
+  !> Destructor for time_scheme_t
+  subroutine time_scheme_free(this)
+    class(time_scheme_t), intent(inout) :: this
 
-  !>Compute backward-differentiation coefficients of order NBD
-  subroutine ext_bdf_scheme_set_bdf(this, dtbd)
-    class(ext_bdf_scheme_t), intent(inout) :: this
-    real(kind=rp), intent(inout), dimension(10) :: dtbd
-    real(kind=rp), dimension(10,10) :: bdmat
-    real(kind=rp), dimension(10) :: bdrhs
-    real(kind=rp), dimension(10) :: bd_old
-    real(kind=rp) :: bdf
-    integer, parameter :: ldim = 10
-    integer, dimension(10) :: ir, ic
-    integer :: ibd, nsys, i
+    if (c_associated(this%coeffs_d)) then
+       call device_free(this%coeffs_d)
+    end if
+  end subroutine time_scheme_free
 
-    associate(nbd => this%nbd, bd => this%bdf, bdf_d => this%bdf_d)
-      bd_old = bd
-      nbd = nbd + 1
-      nbd = min(nbd, this%time_order)
-      call rzero(bd, 10)
-      if (nbd .eq. 1) then
-         bd(1) = 1.0_rp
-         bdf = 1.0_rp
-      else if (nbd .ge. 2) then
-         nsys = nbd + 1
-         call bdsys(bdmat, bdrhs, dtbd, nbd, ldim)
-         call lu(bdmat, nsys, ldim, ir, ic)
-         call solve(bdrhs, bdmat, 1, nsys, ldim, ir, ic)
-         do i = 1, nbd
-            bd(i) = bdrhs(i)
-         end do
-         bdf = bdrhs(nbd + 1)
-      endif
-      
-      !Normalize
-      do ibd = nbd, 1, -1
-         bd(ibd + 1) = bd(ibd)
-      end do
-      bd(1) = 1.0_rp
-      do ibd= 1, nbd + 1
-         bd(ibd) = bd(ibd)/bdf
-      end do
-
-      if (c_associated(bdf_d)) then
-         if (maxval(abs(bd - bd_old)) .gt. 1e-10_rp) then
-            call device_memcpy(bd, bdf_d, 10, HOST_TO_DEVICE)
-         end if
-      end if
-    end associate
-    
-  end subroutine ext_bdf_scheme_set_bdf
-
-  !>
-  !! Compute Adams-Bashforth coefficients (order NAB, less or equal to 3)
+  !> Compute Adams-Bashforth coefficients (order NAB, less or equal to 3)
   !!   
   !! NBD .EQ. 1
   !! Standard Adams-Bashforth coefficients 
@@ -177,19 +148,19 @@ contains
   !! Modified Adams-Bashforth coefficients to be used in con-
   !! junction with Backward Differentiation schemes (order NBD)
   !!
-  subroutine ext_bdf_scheme_set_ext(this, dtlag)
-    class(ext_bdf_scheme_t), intent(inout)  :: this
-    real(kind=rp), intent(inout), dimension(10) :: dtlag
+  subroutine ext_time_scheme_set_coeffs(this, dt)
+    class(ext_time_scheme_t), intent(inout)  :: this
+    real(kind=rp), intent(inout), dimension(10) :: dt
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
     real(kind=rp), dimension(10) :: ab_old
-    associate(nab => this%nab, nbd => this%nbd, ext => this%ext, ext_d => this%ext_d)
+    associate(nab => this%n, nbd => this%n, ext => this%coeffs, ext_d => this%coeffs_d)
       ab_old = ext
       nab = nab + 1
       nab = min(nab, this%time_order)
     
-      dt0 = dtlag(1)
-      dt1 = dtlag(2)
-      dt2 = dtlag(3)
+      dt0 = dt(1)
+      dt1 = dt(2)
+      dt2 = dt(3)
       call rzero(ext, 10)
       
       if (nab .eq. 1) then
@@ -232,14 +203,75 @@ contains
       end if
     end associate
     
-  end subroutine ext_bdf_scheme_set_ext
+  end subroutine ext_time_scheme_set_coeffs
 
+  !>Compute backward-differentiation coefficients of order NBD
+  subroutine bdf_time_scheme_set_coeffs(this, dt)
+    class(bdf_time_scheme_t), intent(inout) :: this
+    real(kind=rp), intent(inout), dimension(10) :: dt
+    real(kind=rp), dimension(10,10) :: bdmat
+    real(kind=rp), dimension(10) :: bdrhs
+    real(kind=rp), dimension(10) :: bd_old
+    real(kind=rp) :: bdf
+    integer, parameter :: ldim = 10
+    integer, dimension(10) :: ir, ic
+    integer :: ibd, nsys, i
+
+    associate(nbd => this%n, bd => this%coeffs, bdf_d => this%coeffs_d)
+      bd_old = bd
+      nbd = nbd + 1
+      nbd = min(nbd, this%time_order)
+      call rzero(bd, 10)
+      if (nbd .eq. 1) then
+         bd(1) = 1.0_rp
+         bdf = 1.0_rp
+      else if (nbd .ge. 2) then
+         nsys = nbd + 1
+         call bdsys(bdmat, bdrhs, dt, nbd, ldim)
+         call lu(bdmat, nsys, ldim, ir, ic)
+         call solve(bdrhs, bdmat, 1, nsys, ldim, ir, ic)
+         do i = 1, nbd
+            bd(i) = bdrhs(i)
+         end do
+         bdf = bdrhs(nbd + 1)
+      endif
+      
+      !Normalize
+      do ibd = nbd, 1, -1
+         bd(ibd + 1) = bd(ibd)
+      end do
+      bd(1) = 1.0_rp
+      do ibd= 1, nbd + 1
+         bd(ibd) = bd(ibd)/bdf
+      end do
+
+      if (c_associated(bdf_d)) then
+         if (maxval(abs(bd - bd_old)) .gt. 1e-10_rp) then
+            call device_memcpy(bd, bdf_d, 10, HOST_TO_DEVICE)
+         end if
+      end if
+    end associate
+    
+  end subroutine bdf_time_scheme_set_coeffs
+
+  !> Contructor for ext_bdf_scheme_t
+  subroutine ext_bdf_scheme_init(this, torder)
+     class(ext_bdf_scheme_t) :: this
+     integer :: torder !< Desired order of the scheme: 1, 2 or 3.
+     call time_scheme_init(this%ext, torder)
+     call time_scheme_init(this%bdf, torder)
+  end subroutine ext_bdf_scheme_init
+
+  !> Destructor for ext_bdf_scheme_t
+  subroutine ext_bdf_scheme_free(this)
+     class(ext_bdf_scheme_t) :: this
+     call time_scheme_free(this%ext)
+     call time_scheme_free(this%bdf)
+  end subroutine ext_bdf_scheme_free
+  
   !
   ! todo: CLEAN UP THIS MESS BELOW, USE LAPACK OR SIMILAR
   !
-
-
-  
   subroutine bdsys (a, b, dt, nbd, ldim)
     integer :: ldim, j, n, k, i, nsys, nbd
     real(kind=rp) ::  A(ldim,9),B(9),DT(9)
@@ -376,8 +408,7 @@ contains
          END DO
       END DO
     END SUBROUTINE SOLVE
-
-  
+    
 
   
 end module ext_bdf_scheme

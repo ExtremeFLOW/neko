@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ module scalar_pnpn
   use projection
   use logger
   use advection
+  use profiler
   implicit none
   private
 
@@ -60,9 +61,7 @@ module scalar_pnpn
      type(field_t) :: wa1
      type(field_t) :: ta1
 
-     !> @todo move this to a scratch space
-     type(field_t) :: work1, work2
-
+     
      class(ax_t), allocatable :: Ax
 
      type(projection_t) :: proj_s
@@ -78,9 +77,6 @@ module scalar_pnpn
 
      !> Residual
      class(scalar_residual_t), allocatable :: res
-
-     !> Summation of EXT/BDF contributions
-     class(rhs_maker_sumab_t), allocatable :: sumab
 
      !> Contributions to kth order extrapolation scheme
      class(rhs_maker_ext_t), allocatable :: makeext
@@ -116,9 +112,6 @@ contains
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
 
-    ! Setup backend dependent summation of AB/BDF
-    call rhs_maker_sumab_fctry(this%sumab)
-
     ! Setup backend dependent summation of extrapolation scheme
     call rhs_maker_ext_fctry(this%makeext)
 
@@ -140,9 +133,6 @@ contains
       call field_init(this%ta1, dm_Xh, 'ta1')
 
       call field_init(this%ds, dm_Xh, 'ds')
-
-      call field_init(this%work1, dm_Xh, 'work1')
-      call field_init(this%work2, dm_Xh, 'work2')
 
       call this%slag%init(this%s, 2)
 
@@ -191,9 +181,6 @@ contains
 
     call field_free(this%ds)
 
-    call field_free(this%work1)
-    call field_free(this%work2)
-
     call field_free(this%abx1)
     call field_free(this%abx2)
 
@@ -203,10 +190,6 @@ contains
 
     if (allocated(this%res)) then
        deallocate(this%res)
-    end if
-
-    if (allocated(this%sumab)) then
-       deallocate(this%sumab)
     end if
 
     if (allocated(this%makeext)) then
@@ -231,7 +214,8 @@ contains
     type(ksp_monitor_t) :: ksp_results(1)
     n = this%dm_Xh%size()
     niter = 1000
-
+    
+    call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          ds => this%ds, &
          ta1 => this%ta1, &
@@ -241,11 +225,10 @@ contains
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
          params => this%params, msh => this%msh, res => this%res, &
-         sumab => this%sumab, &
          makeext => this%makeext, makebdf => this%makebdf)
 
       ! evaluate the source term and scale with the mass matrix
-      call f_Xh%eval()
+      call f_Xh%eval(t)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_col2(f_Xh%s_d, c_Xh%B_d, n)
@@ -253,14 +236,14 @@ contains
          call col2(f_Xh%s, c_Xh%B, n)
       end if
 
-      call this%adv%apply_scalar(this%u, this%v, this%w, this%s, f_Xh%s, &
+      call this%adv%apply_scalar(u, v, w, s, f_Xh%s, &
                                  Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           params%rho, ext_bdf%ext, n)
+           params%rho, ext_bdf%ext%coeffs, n)
 
-      call makebdf%compute_scalar(ta1, this%wa1, slag, f_Xh%s, s, c_Xh%B, &
-           params%rho, params%dt, ext_bdf%bdf, ext_bdf%nbd, n)
+      call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
+           params%rho, params%dt, ext_bdf%bdf%coeffs, ext_bdf%bdf%n, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -269,22 +252,26 @@ contains
       call this%bc_apply()
 
       ! compute scalar residual
+      call profiler_start_region('Scalar residual')
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
-          params%Re, params%rho, ext_bdf%bdf(1), params%dt, &
+          params%Re, params%rho, ext_bdf%bdf%coeffs(1), params%dt, &
           dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
 
       call bc_list_apply_scalar(this%bclst_ds,&
            s_res%x, dm_Xh%size())
+      call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
 
       call this%pc%update()
+      call profiler_start_region('Scalar solve')
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh, niter)
+      call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
@@ -300,6 +287,7 @@ contains
       call scalar_step_info(tstep, t, params%dt, ksp_results)
 
     end associate
+    call profiler_end_region
   end subroutine scalar_pnpn_step
 
 

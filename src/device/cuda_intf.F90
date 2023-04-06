@@ -151,6 +151,16 @@ module cuda_intf
      end function cudaStreamSynchronize
   end interface
 
+  interface 
+     integer (c_int) function cudaStreamWaitEvent(stream, event, flags) &
+          bind(c, name='cudaStreamWaitEvent')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: stream, event
+       integer(c_int), value :: flags
+     end function cudaStreamWaitEvent
+  end interface
+  
   interface
      integer (c_int) function cudaProfilerStart() &
           bind(c, name='cudaProfilerStart')
@@ -167,7 +177,52 @@ module cuda_intf
      end function cudaProfilerStop
   end interface
 
+  interface
+     integer (c_int) function cudaEventCreate(event) &
+          bind(c, name='cudaEventCreate')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: event
+     end function cudaEventCreate
+  end interface
 
+  interface
+     integer (c_int) function cudaEventDestroy(event) &
+          bind(c, name='cudaEventDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function cudaEventDestroy
+  end interface
+  
+  interface
+     integer (c_int) function cudaEventCreateWithFlags(event, flags) &
+          bind(c, name='cudaEventCreateWithFlags')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: event
+       integer(c_int), value :: flags
+     end function cudaEventCreateWithFlags
+  end interface
+
+  interface
+     integer (c_int) function cudaEventRecord(event, stream) &
+          bind(c, name='cudaEventRecord')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event, stream
+     end function cudaEventRecord
+  end interface
+
+  interface 
+     integer (c_int) function cudaEventSynchronize(event) &
+          bind(c, name='cudaEventSynchronize')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function cudaEventSynchronize
+  end interface
+  
 contains
 
   subroutine cuda_device_name(name)

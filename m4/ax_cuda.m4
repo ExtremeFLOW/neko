@@ -46,6 +46,7 @@ AC_DEFUN([AX_CUDA],[
                    cuda_bcknd="1"
 		   AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
 		   LIBS="$CUDA_LIBS $_LIBS"
+		   LDFLAGS="$CUDA_LDFLAGS $LDFLAGS_SAVED"
 		else
 		   AC_MSG_ERROR([CUDA not found])
 		fi

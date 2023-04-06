@@ -74,8 +74,9 @@ contains
   end function pipe_ic
 
   !> Forcing for if not using vol_flow
-  subroutine forcing(f)
-    class(source_t) :: f
+  subroutine forcing(f, t)
+    class(source_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     real(kind=rp) :: Re_tau, Re_B, w
     integer :: i
     Re_tau = 180_rp

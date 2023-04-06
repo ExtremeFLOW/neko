@@ -79,6 +79,7 @@ module hsmg
   use device_jacobi
   use device
   use device_math
+  use profiler
   implicit none
   private
 
@@ -348,7 +349,8 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
-     
+
+    call profiler_start_region('HSMG solve')
     if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
@@ -375,11 +377,13 @@ contains
                          this%grids(1)%dof%size(), GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
+       call profiler_start_region('HSMG coarse-solve')
        crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                                     this%grids(1)%dof%size(), &
                                     this%grids(1)%coef, &
                                     this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)          
+                                    this%grids(1)%gs_h, this%niter)
+       call profiler_end_region
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
@@ -416,11 +420,13 @@ contains
                          this%grids(1)%dof%size(), GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
+       call profiler_start_region('HSMG coarse-solve')
        crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                                     this%grids(1)%dof%size(), &
                                     this%grids(1)%coef, &
                                     this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)    
+                                    this%grids(1)%gs_h, this%niter)
+       call profiler_end_region
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
@@ -435,5 +441,6 @@ contains
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if
+    call profiler_end_region
   end subroutine hsmg_solve
 end module hsmg

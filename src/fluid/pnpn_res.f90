@@ -68,12 +68,12 @@ module pnpn_residual
        import coef_t
        import rp
        type(field_t), intent(inout) :: p, u, v, w
-       type(field_t), intent(inout) :: u_e, v_e, w_e
-       type(field_t), intent(inout) :: ta1, ta2, ta3
-       type(field_t), intent(inout) :: wa1, wa2, wa3
+       type(field_t), intent(inout) :: u_e, v_e, w_e !< time-extrapolated velocity
+       type(field_t), intent(inout) :: ta1, ta2, ta3 !< work arrays
+       type(field_t), intent(inout) :: wa1, wa2, wa3 !< work arrays 
        type(field_t), intent(inout) :: work1, work2
        type(field_t), intent(inout) :: p_res
-       type(source_t), intent(inout) :: f_Xh
+       type(source_t), intent(inout) :: f_Xh !< momentum source terms
        type(coef_t), intent(inout) :: c_Xh
        type(gs_t), intent(inout) :: gs_Xh
        type(facet_normal_t), intent(inout) :: bc_prs_surface
