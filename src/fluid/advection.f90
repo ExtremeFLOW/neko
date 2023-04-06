@@ -402,16 +402,52 @@ contains
 
   end subroutine apply_scalar_advection_no_dealias
 
+  !! n is not needed because coef knows the dofmap!
   subroutine apply_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
                                             coef, n)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(inout), dimension(coef%dof%size()) :: fs
     type(c_ptr) :: fs_d
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL, s_GL
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: dsdx, dsdy, dsdz
+    real(kind=rp), dimension(this%Xh_GL%lxyz) :: f_GL
+    integer :: e, i, idx, nel, n_GL
+    real(kind=rp), dimension(this%Xh_GLL%lxyz) :: temp
+
+    nel = coef%msh%nelv
+    n_GL = nel * this%Xh_GL%lxyz
+
+    associate(c_GL => this%coef_GL, dsdz => this%vt)
+       do e = 1, coef%msh%nelv
+          ! Map advecting velocity onto the higher-order space
+          call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
+          call this%GLL_to_GL%map(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
+          call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
+
+          ! Map scalar onto the higher-order space
+          call this%GLL_to_GL%map(s_GL, s%x(1,1,1,e), 1, this%Xh_GL)
+
+          ! Gradient of s in the higher-order space
+          call opgrad(dsdx, this%vs, this%vt, s_GL, c_GL, e, e)
+          
+          ! vx * ds/dx + vy * ds/dy + vz * ds/dz for each point in the element
+          do i = 1, this%Xh_GL%lxyz
+             f_GL(i) = vx_GL(i)*dsdx(i) + vy_GL(i)*dsdy(i) + vz_GL(i)*dsdz(i)
+          end do
+
+          ! Map back the contructed operator to the original space
+          call this%GLL_to_GL%map(temp, f_GL, 1, this%Xh_GLL)
+
+          idx = (e-1)*this%Xh_GLL%lxyz+1
+
+          call sub2(fs(idx), temp, this%Xh_GLL%lxyz)
+       end do
+   end associate
 
   end subroutine apply_scalar_advection_dealias
 
