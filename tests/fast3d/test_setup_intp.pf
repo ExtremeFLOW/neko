@@ -1,0 +1,28 @@
+ @test
+ subroutine test_setup_intp()
+   use pfunit
+   use fast3d
+   use num_types
+   implicit none
+   
+   integer, parameter :: lx = 4
+   real(kind=rp) Xh_to_Yh(lx, lx-2)
+   real(kind=rp) Xh_to_YhT(lx, lx-2)
+   real(kind=rp) f(lx, lx)
+   real(kind=rp) p_from(lx), p_to(lx - 2)
+   
+   p_from = [0.0_rp, 1.0_rp, 2.0_rp, 3.0_rp] 
+   p_to = [0.0_rp, 3.0_rp]
+   
+   call setup_intp(Xh_to_Yh, Xh_to_YhT, p_from, p_to, lx, lx-2, 0)
+   
+   write(*,*) Xh_to_Yh(1, :)
+   write(*,*) Xh_to_Yh(2, :)
+   write(*,*) Xh_to_Yh(3, :)
+   write(*,*) Xh_to_Yh(4, :)
+
+
+   
+
+   
+end subroutine test_setup_intp

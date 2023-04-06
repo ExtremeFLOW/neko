@@ -227,7 +227,11 @@ contains
     real(kind=rp) ::  w(nc,0:derivate)
     integer :: i, j
     do i = 1, nf
+       ! This will assign w the weights for interpolating to point
+       ! zf(i) values at points zc
        call fd_weights_full(zf(i), zc, nc-1, derivate, w)
+
+       ! store each of the weights in the corresponding row/column
        do j = 1, nc
           jh(i,j) = w(j, derivate)
           jht(j,i) = w(j, derivate)

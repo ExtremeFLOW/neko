@@ -113,4 +113,5 @@ EXTRA_DIST = \
 	octree/octree.pf\
 	vector/vector_parallel.pf\
 	scratch_registry/test_scratch_registry.pf\
-    fast3d/test_fd_weights_full.pf
+    fast3d/test_fd_weights_full.pf\
+    fast3d/test_setup_intp.pf
