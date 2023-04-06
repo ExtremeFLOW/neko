@@ -2,6 +2,9 @@ module user
   use neko
   use comm
   implicit none
+
+  type(file_t) :: mf
+
 contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
@@ -73,7 +76,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(file_t) :: mf
+    !type(file_t) :: mf
     type(cpr_t) :: cpr_u
     integer :: i
     character(len=NEKO_FNAME_LEN) :: fname
@@ -116,6 +119,9 @@ contains
       call adios2_setup(npts,nelv,nelb,nelgv, &
               nelgv,u%dof%x,u%dof%y,  &
               u%dof%z,NEKO_COMM)
+    
+      fname = 'compressed.fld'
+      mf =  file_t(fname)
 
     end if
 
@@ -211,12 +217,12 @@ contains
       call neko_log%message(log_buf)
     enddo
 
-    if (tstep.eq.50) then
+    !if (tstep.eq.50) then
       ! write the reconstructed file
-      fname = 'compressed.fld'
-      mf =  file_t(fname)
-      call mf%write(cpr_u%fldhat)
-    end if
+    !fname = 'compressed.fld'
+    !mf =  file_t(fname)
+    call mf%write(cpr_u%fldhat,t)
+    !end if
 
 
     ! Free the memory allocated for the fields
