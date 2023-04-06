@@ -76,8 +76,8 @@ module ext_bdf_scheme
   !! `set_coeffs` routine to determine the current scheme order.
   !! When `n == time_order`, the incrementation should stop.
   type, abstract, public :: time_scheme_t
-     !> The coefficients of the scheme, the size 10 is larger than necessary
-     real(kind=rp), dimension(10) :: coeffs 
+     !> The coefficients of the scheme
+     real(kind=rp), dimension(4) :: coeffs 
      !> Controls the actual order of the scheme, e.g. 1 at the first time-step
      integer :: n = 0
      !> Order of the scheme, defaults to 3
@@ -170,7 +170,7 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%coeffs, this%coeffs_d, 10)
+       call device_map(this%coeffs, this%coeffs_d, 4)
     end if
   end subroutine time_scheme_init
 
@@ -196,7 +196,7 @@ contains
     class(ext_time_scheme_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dt
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
-    real(kind=rp), dimension(10) :: ab_old
+    real(kind=rp), dimension(4) :: ab_old
     associate(nab => this%n, nbd => this%n, ext => this%coeffs, ext_d => this%coeffs_d)
       ab_old = ext
       nab = nab + 1
@@ -253,7 +253,7 @@ contains
     implicit none
     class(bdf_time_scheme_t), intent(inout) :: this
     real(kind=rp), intent(inout), dimension(10) :: dt
-    real(kind=rp), dimension(10) :: coeffs_old
+    real(kind=rp), dimension(4) :: coeffs_old
 
     associate(n => this%n, coeffs => this%coeffs, coeffs_d => this%coeffs_d)
       ! will be used to check whether the coefficients changed
@@ -263,7 +263,7 @@ contains
       n = n + 1
       n = min(n, this%time_order)
 
-      call rzero(coeffs, 10)
+      call rzero(coeffs, 4)
       
       ! Note, these are true coeffs, multiplied by dt(1)
       select case (n)
@@ -287,7 +287,7 @@ contains
       
       if (c_associated(coeffs_d)) then
          if (maxval(abs(coeffs - coeffs_old)) .gt. 1e-10_rp) then
-            call device_memcpy(coeffs, coeffs_d, 10, HOST_TO_DEVICE)
+            call device_memcpy(coeffs, coeffs_d, 4, HOST_TO_DEVICE)
          end if
       end if
     end associate
