@@ -10,7 +10,8 @@ FC = @FC@
 
 check: fast3d_test
 
-fast3d_test_TESTS := test_fd_weights_full.pf
+fast3d_test_TESTS := test_fd_weights_full.pf\
+		     test_setup_intp.pf
 fast3d_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,fast3d_test))
 
