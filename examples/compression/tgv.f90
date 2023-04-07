@@ -279,22 +279,30 @@ contains
     call sub3(ev,cpr_u%fldhat%x,u%x,nelv*npts)
     restemp_a = glsc3(ev,coef%B,ev,nelv*npts)
     res_a = sqrt(restemp_a)/sqrt(coef%volume)
-    write(*,*) 'Reconstruction error - u = ', res_a
+    if (pe_rank .eq. 0) then
+      write(*,*) 'Reconstruction error - u = ', res_a
+    end if
     
     call sub3(ev,cpr_v%fldhat%x,v%x,nelv*npts)
     restemp_a = glsc3(ev,coef%B,ev,nelv*npts)
     res_a = sqrt(restemp_a)/sqrt(coef%volume)
-    write(*,*) 'Reconstruction error - v = ', res_a
+    if (pe_rank .eq. 0) then
+      write(*,*) 'Reconstruction error - v = ', res_a
+    end if
     
     call sub3(ev,cpr_w%fldhat%x,w%x,nelv*npts)
     restemp_a = glsc3(ev,coef%B,ev,nelv*npts)
     res_a = sqrt(restemp_a)/sqrt(coef%volume)
-    write(*,*) 'Reconstruction error - w = ', res_a
+    if (pe_rank .eq. 0) then
+      write(*,*) 'Reconstruction error - w = ', res_a
+    end if
     
     call sub3(ev,cpr_p%fldhat%x,p%x,nelv*npts)
     restemp_a = glsc3(ev,coef%B,ev,nelv*npts)
     res_a = sqrt(restemp_a)/sqrt(coef%volume)
-    write(*,*) 'Reconstruction error - p = ', res_a
+    if (pe_rank .eq. 0) then
+      write(*,*) 'Reconstruction error - p = ', res_a
+    end if
 
   end subroutine
   
@@ -340,7 +348,9 @@ contains
       end if
     end do
     res_a = glsum(ev,nelv*npts)
-    write(*,*) '% Data discarded - u = ', res_a/(nelv*npts)*100
+    if (pe_rank .eq. 0) then
+    write(*,*) '% Data discarded - u = ', res_a/(nelgv*npts)*100
+    end if
     
     ! Count how many coefficients have been set to zero
     do i=1,nelv*npts
@@ -351,7 +361,9 @@ contains
       end if
     end do
     res_a = glsum(ev,nelv*npts)
-    write(*,*) '% Data discarded - v = ', res_a/(nelv*npts)*100
+    if (pe_rank .eq. 0) then
+      write(*,*) '% Data discarded - v = ', res_a/(nelgv*npts)*100
+    end if
 
     ! Count how many coefficients have been set to zero
     do i=1,nelv*npts
@@ -362,7 +374,9 @@ contains
       end if
     end do
     res_a = glsum(ev,nelv*npts)
-    write(*,*) '% Data discarded - w = ', res_a/(nelv*npts)*100
+    if (pe_rank .eq. 0) then
+      write(*,*) '% Data discarded - w = ', res_a/(nelgv*npts)*100
+    end if
     
     ! Count how many coefficients have been set to zero
     do i=1,nelv*npts
@@ -373,8 +387,9 @@ contains
       end if
     end do
     res_a = glsum(ev,nelv*npts)
-    write(*,*) '% Data discarded - p = ', res_a/(nelv*npts)*100
-  
+    if (pe_rank .eq. 0) then
+      write(*,*) '% Data discarded - p = ', res_a/(nelgv*npts)*100
+    end if
   end subroutine
 
   subroutine in_situ_adios2_write(lglel, cpr_u,cpr_v,cpr_w,cpr_p)
