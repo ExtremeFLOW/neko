@@ -2,7 +2,8 @@ module user
   use neko
   use comm
   implicit none
-  
+ 
+  ! These declarations are temporal 
   character(len=NEKO_FNAME_LEN) :: fname_u
   character(len=NEKO_FNAME_LEN) :: fname_v
   character(len=NEKO_FNAME_LEN) :: fname_w
@@ -11,6 +12,14 @@ module user
   type(file_t) :: mf_v
   type(file_t) :: mf_w
   type(file_t) :: mf_p
+  character(len=NEKO_FNAME_LEN) :: fname_uo
+  character(len=NEKO_FNAME_LEN) :: fname_vo
+  character(len=NEKO_FNAME_LEN) :: fname_wo
+  character(len=NEKO_FNAME_LEN) :: fname_po
+  type(file_t) :: mf_uo
+  type(file_t) :: mf_vo
+  type(file_t) :: mf_wo
+  type(file_t) :: mf_po
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -93,6 +102,14 @@ contains
       mf_v =  file_t(fname_v)
       mf_w =  file_t(fname_w)
       mf_p =  file_t(fname_p)
+      fname_uo = 'org_u.fld'
+      fname_vo = 'org_v.fld'
+      fname_wo = 'org_w.fld'
+      fname_po = 'org_p.fld'
+      mf_uo =  file_t(fname_uo)
+      mf_vo =  file_t(fname_vo)
+      mf_wo =  file_t(fname_wo)
+      mf_po =  file_t(fname_po)
     end if
 
     call in_situ_initialize( t, tstep,u, v, w, p, coef, params)
@@ -454,6 +471,10 @@ contains
     call mf_w%write(cpr_w%fldhat,t)
     call mf_p%write(cpr_p%fldhat,t)
 
+    call mf_uo%write(cpr_u%fld,t)
+    call mf_vo%write(cpr_v%fld,t)
+    call mf_wo%write(cpr_w%fld,t)
+    call mf_po%write(cpr_p%fld,t)
 
   end subroutine
 
