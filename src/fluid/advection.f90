@@ -45,41 +45,63 @@ module advection
   implicit none
   private
   
+  !> Base abstract type for computing the advection operator
   type, public, abstract :: advection_t
    contains
      procedure(apply_adv), pass(this), deferred :: apply
      procedure(apply_scalar_adv), pass(this), deferred :: apply_scalar
   end type advection_t
 
+  !> Type encapsulating advection routines with no dealiasing applied
   type, public, extends(advection_t) :: adv_no_dealias_t
      real(kind=rp), allocatable :: temp(:)
      type(c_ptr) :: temp_d = C_NULL_PTR
    contains
+     !> Compute the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$
      procedure, pass(this) :: apply => apply_advection_no_dealias
+     !> Compute the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$
      procedure, pass(this) :: apply_scalar => apply_scalar_advection_no_dealias
   end type adv_no_dealias_t
 
+  !> Type encapsulating advection routines with dealiasing
   type, public, extends(advection_t) :: adv_dealias_t
+     !> Coeffs of the higher-order space
      type(coef_t) :: coef_GL
+     !> Coeffs of the original space in the simulation
      type(coef_t), pointer :: coef_GLL
+     !> Interpolator between the original and higher-order spaces
      type(interpolator_t) :: GLL_to_GL
+     !> The additional higher-order space used in dealiasing
      type(space_t) :: Xh_GL
+     !> The original space used in the simulation
      type(space_t), pointer :: Xh_GLL
      real(kind=rp), allocatable :: temp(:), tbf(:)
-     type(c_ptr) :: temp_d = C_NULL_PTR
-     type(c_ptr) :: tbf_d = C_NULL_PTR
+     !> Temporary arrays
      real(kind=rp), allocatable :: tx(:), ty(:), tz(:)
      real(kind=rp), allocatable :: vr(:), vs(:), vt(:)
+     !> Device pointer for `temp`
+     type(c_ptr) :: temp_d = C_NULL_PTR
+     !> Device pointer for `tbf`
+     type(c_ptr) :: tbf_d = C_NULL_PTR
+     !> Device pointer for `tx`
      type(c_ptr) :: tx_d = C_NULL_PTR
+     !> Device pointer for `ty`
      type(c_ptr) :: ty_d = C_NULL_PTR
+     !> Device pointer for `tz`
      type(c_ptr) :: tz_d = C_NULL_PTR
+     !> Device pointer for `vr`
      type(c_ptr) :: vr_d = C_NULL_PTR
+     !> Device pointer for `vs`
      type(c_ptr) :: vs_d = C_NULL_PTR
+     !> Device pointer for `vt`
      type(c_ptr) :: vt_d = C_NULL_PTR
 
    contains
+     !> Compute the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$
      procedure, pass(this) :: apply => apply_advection_dealias
+     !> Compute the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$
      procedure, pass(this) :: apply_scalar => apply_scalar_advection_dealias
+     !> Constructor
      procedure, pass(this) :: init => init_dealias
   end type adv_dealias_t
 
@@ -120,12 +142,20 @@ module advection
 
 contains
   
+  !> A factory for advection_t decendants.
+  !! @param this Polymorphic object of class \ref advection_t.
+  !! @param coeff The coefficients of the (space, mesh) pair.
+  !! @param delias Whether to dealias or not.
+  !! @param lxd The polynomial order of the space used in the dealiasing.
+  !! Defaults to 3/2 of `coeff%Xh%lx`.
+  !! @note The factory both allocates and initializes `this`.
   subroutine advection_factory(this, coef, dealias, lxd)
     class(advection_t), allocatable, intent(inout) :: this
     type(coef_t), target :: coef
     logical, intent(in) :: dealias
     integer, intent(in) :: lxd
 
+    ! Free allocatables if necessary
     if (allocated(this)) then
        select type(adv => this)
        type is(adv_no_dealias_t)
@@ -158,6 +188,7 @@ contains
 
   end subroutine advection_factory
 
+  !> Constructor
   subroutine init_no_dealias(this, coef)
     class(adv_no_dealias_t) :: this
     type(coef_t) :: coef
@@ -170,6 +201,9 @@ contains
 
   end subroutine init_no_dealias
 
+  !> Constructor
+  !! @param lxd The polynomial order of the space used in the dealiasing.
+  !! @param coeff The coefficients of the (space, mesh) pair.
   subroutine init_dealias(this, lxd, coef)
     class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
@@ -221,8 +255,7 @@ contains
 
   end subroutine init_dealias
   
-  !> Eulerian scheme, add convection term to forcing function
-  !! at current time step.
+  !> Compute the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$
   subroutine apply_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -391,6 +424,7 @@ contains
           call device_rzero (this%temp_d, n)
        end if
     else
+       ! temp will hold vx*ds/dx + vy*ds/dy + vz*ds/sz
        call conv1(this%temp, s%x, vx%x, vy%x, vz%x, Xh, coef)
 
        ! fs = fs - B*temp
