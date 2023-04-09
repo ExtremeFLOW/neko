@@ -140,7 +140,7 @@ jobs:
         if: matrix.backend == 'cpu' && failure()
         uses: actions/upload-artifact@v2
         with:
-          name: Test report / ${{ matrix.os }} / ${{ matrix.compiler }}
+          name: Test report_${{ matrix.os }}_${{ matrix.compiler }}
           path: tests/test-suite.log
           retention-days: 2
       - name: Dist (CPU backend)
