@@ -1,0 +1,323 @@
+ @test
+ subroutine test_constant_dt()
+   use pfunit
+   use ext_bdf_scheme
+   use num_types
+   implicit none
+   
+   type(bdf_time_scheme_t) bdf
+   real(kind=rp) :: dt(10), x
+   
+   ! Equal timesteps
+   dt = 1.00_rp
+
+   ! Init to 3rd order
+   call bdf%init(3)
+   
+   ! Firt call, should be 1st order scheme, [1, 1]
+   call bdf%set_coeffs(dt)
+   @assertEqual(bdf%n, 1)
+   @assertEqual(bdf%coeffs(1), 1.0_rp, tolerance=1e-6_rp)
+   @assertEqual(bdf%coeffs(2), 1.0_rp, tolerance=1e-6_rp)
+
+   ! Second call, should be 2st order scheme, [1.5, 2, -0.5]
+   call bdf%set_coeffs(dt)
+   @assertEqual(bdf%n, 2)
+   @assertEqual(bdf%coeffs(1), 1.5_rp, tolerance=1e-6_rp)
+   @assertEqual(bdf%coeffs(2), 2.0_rp, tolerance=1e-6_rp)
+   @assertEqual(bdf%coeffs(3), -0.5_rp, tolerance=1e-6_rp)
+
+   ! Third call, should be 3st order scheme, [11/6, 3, -3/2, 1/3]
+   call bdf%set_coeffs(dt)
+   @assertEqual(bdf%n, 3)
+   x = 11.0_rp/6.0_rp
+   @assertRelativelyEqual(bdf%coeffs(1), x, tolerance=1e-3_rp)
+   @assertEqual(bdf%coeffs(2), 3.0_rp, tolerance=1e-6_rp)
+   @assertEqual(bdf%coeffs(3), -1.5_rp, tolerance=1e-6_rp)
+   @assertRelativelyEqual(bdf%coeffs(4), 0.3333_rp, tolerance=1e-3_rp)
+
+   ! Fourth call, nothing should change
+   call bdf%set_coeffs(dt)
+   @assertEqual(bdf%n, 3)
+   @assertRelativelyEqual(bdf%coeffs(1), x, tolerance=1e-3_rp)
+   @assertEqual(bdf%coeffs(2), 3.0_rp, tolerance=1e-6_rp)
+   @assertEqual(bdf%coeffs(3), -1.5_rp, tolerance=1e-6_rp)
+   @assertRelativelyEqual(bdf%coeffs(4), 0.3333_rp, tolerance=1e-3_rp)
+
+   call bdf%free()
+end subroutine test_constant_dt
+
+ @test
+ subroutine test_variable_dt()
+   use pfunit
+   use ext_bdf_scheme
+   use num_types
+   implicit none
+   
+   type(bdf_time_scheme_t) bdf
+   real(kind=rp) :: dt(10), coeffs(10)
+   integer :: nbdf
+   
+   call bdf%init(3)
+   ! Some random dt values
+   dt = 4.3_rp
+   dt(1) = 2_rp
+   dt(2) = 0.05_rp
+   dt(3) = 1.34_rp
+
+   ! order 1
+   nbdf = 0
+   call old_bdf(nbdf, coeffs, 3, dt)
+   call bdf%set_coeffs(dt)
+   @assertRelativelyEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-3_rp)
+
+   ! order 2
+   nbdf = 1
+   call old_bdf(nbdf, coeffs, 3, dt)
+   call bdf%set_coeffs(dt)
+   @assertRelativelyEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(3), bdf%coeffs(3), tolerance=1e-3_rp)
+
+   ! order 3
+   nbdf = 2
+   call old_bdf(nbdf, coeffs, 3, dt)
+   call bdf%set_coeffs(dt)
+   @assertRelativelyEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(3), bdf%coeffs(3), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(4), bdf%coeffs(4), tolerance=1e-3_rp)
+   
+   call bdf%free()
+end subroutine test_variable_dt
+
+
+!> Shows that we can use df_weights_full to get a scheme of arbitrary order
+ @test
+ subroutine test_with_df_weights_full()
+   use pfunit
+   use ext_bdf_scheme
+   use fast3d
+   use num_types
+   implicit none
+   
+   type(bdf_time_scheme_t) bdf
+   integer, parameter :: n=3, m=1
+   real(kind=rp) :: dt(10)
+   real(kind=rp) :: x(0:n), c(0:n,0:m)
+   
+   call bdf%init(3)
+   ! Some random dt values
+   dt = 4.3_rp
+   dt(1) = 2_rp
+   dt(2) = 0.05_rp
+   dt(3) = 1.34_rp
+
+   ! order 3
+   bdf%n = 2
+   call bdf%set_coeffs(dt)
+   
+   ! set the coordinates for fd_weights_full, corresponing to our dts
+   x(0) = 0_rp
+   x(1) = dt(3)
+   x(2) = x(1) + dt(2)
+   x(3) = x(2) + dt(1)
+   call fd_weights_full(x(3), x, n, m, c)
+
+   ! df_weights_full returns the true coeffs, so we need to multiply
+   ! with dt(1) and change signs
+
+   @assertRelativelyEqual(bdf%coeffs(1),  c(3, 1) * dt(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(bdf%coeffs(2), -c(2, 1) * dt(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(bdf%coeffs(3), -c(1, 1) * dt(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(bdf%coeffs(4), -c(0, 1) * dt(1), tolerance=1e-3_rp)
+   
+   call bdf%free()
+end subroutine test_with_df_weights_full
+
+!! OLD BDF ROUTINES BELOW FOR TESTING NEW IMPLEMENTATIONS
+  subroutine old_bdf(nbd, bd, time_order, dt)
+    use num_types
+    use math
+    implicit none
+    integer, intent(inout) :: nbd
+    integer, intent(in) :: time_order
+    real(kind=rp), dimension(10) :: bd
+    real(kind=rp), intent(inout), dimension(10) :: dt
+    real(kind=rp), dimension(10,10) :: bdmat
+    real(kind=rp), dimension(10) :: bdrhs
+    real(kind=rp), dimension(10) :: bd_old
+    real(kind=rp) :: bdf
+    integer, parameter :: ldim = 10
+    integer, dimension(10) :: ir, ic
+    integer :: ibd, nsys, i
+
+      bd_old = bd
+      nbd = nbd + 1
+      nbd = min(nbd, time_order)
+      call rzero(bd, 10)
+      if (nbd .eq. 1) then
+         bd(1) = 1.0_rp
+         bdf = 1.0_rp
+      else if (nbd .ge. 2) then
+         nsys = nbd + 1
+         call bdsys(bdmat, bdrhs, dt, nbd, ldim)
+         call lu(bdmat, nsys, ldim, ir, ic)
+         call solve(bdrhs, bdmat, 1, nsys, ldim, ir, ic)
+         do i = 1, nbd
+            bd(i) = bdrhs(i)
+         end do
+         bdf = bdrhs(nbd + 1)
+      endif
+      
+      !Normalize
+      do ibd = nbd, 1, -1
+         bd(ibd + 1) = bd(ibd)
+      end do
+      bd(1) = 1.0_rp
+      do ibd= 1, nbd + 1
+         bd(ibd) = bd(ibd)/bdf
+      end do
+  end subroutine old_bdf
+
+subroutine bdsys (a, b, dt, nbd, ldim)
+  use num_types
+  use math
+  integer :: ldim, j, n, k, i, nsys, nbd
+  real(kind=rp) ::  A(ldim,9),B(9),DT(9)
+  real(kind=rp) :: SUMDT
+
+  CALL RZERO (A, ldim**2)
+  N = NBD + 1
+  DO J = 1, NBD
+     A(1,J) = 1.0_rp
+  end DO
+  A(1,NBD+1) = 0.0_rp
+  B(1) = 1.0_rp
+  DO J = 1, NBD
+     SUMDT = 0.0_rp
+     DO  K = 1, J
+        SUMDT = SUMDT + DT(K)
+     end DO
+     A(2,J) = SUMDT
+  end DO
+  A(2,NBD+1) = -DT(1)
+  B(2) = 0.0_rp
+  DO I = 3, NBD + 1
+     DO J = 1, NBD
+        SUMDT = 0.0_rp
+        DO K = 1, J
+           SUMDT = SUMDT + DT(K)
+        end DO
+        A(I,J) = SUMDT**(I-1)
+     end DO
+     A(I,NBD+1) = 0.0_rp
+     B(I) = 0.0_rp
+  end DO
+    
+  end subroutine bdsys
+
+
+  SUBROUTINE LU(A, N, ldim, IR, IC)
+    use num_types
+    integer :: n, ldim, IR(10), IC(10)
+    real(kind=rp) :: A(ldim,10), xmax, ymax, B, Y, C
+    integer :: i, j, k, l, m, icm, irl, k1
+
+    DO I = 1, N
+       IR(I) = I
+       IC(I) = I
+    end DO
+    K = 1
+    L = K
+    M = K
+    XMAX = ABS(A(K,K))
+    DO I = K, N
+       DO J = K, N
+          Y = ABS(A(I,J))
+          IF(XMAX .GE. Y) GOTO 100
+          XMAX = Y
+          L = I
+          M = J
+100      END DO
+    END DO
+    DO K = 1, N
+       IRL = IR(L)
+       IR(L) = IR(K)
+       IR(K) = IRL
+       ICM = IC(M)
+       IC(M) = IC(K)
+       IC(K) = ICM
+       IF(L .EQ. K) GOTO 300
+       DO J = 1, N
+          B = A(K,J)
+          A(K,J) = A(L,J)
+          A(L,J) = B
+       END DO
+300      IF(M .EQ. K) GOTO 500
+       DO I = 1, N
+          B = A(I,K)
+          A(I,K) = A(I,M)
+          A(I,M) = B
+       END DO
+500      C = 1.0_rp / A(K,K)
+       A(K,K) = C
+       IF(K .EQ. N) GOTO 1000
+       K1 = K + 1
+       XMAX = ABS(A(K1,K1))
+       L = K1
+       M = K1
+       DO I = K1, N
+          A(I,K) = C * A(I,K)
+       END DO
+       DO I = K1, N
+          B = A(I,K)
+          DO J = K1, N
+             A(I,J) = A(I,J) - B * A(K,J)
+             Y = ABS(A(I,J))
+             IF(XMAX .GE. Y) GOTO 800
+             XMAX = Y
+             L = I
+             M = J
+800         END DO
+       END DO
+1000  END DO
+  end subroutine lu
+ 
+  SUBROUTINE SOLVE(F, A, K, N, ldim, IR, IC)
+    use num_types
+    integer :: IR(10),IC(10), N, N1, k, kk, i, j, ldim, ICM, URL, K1, ICI
+    integer :: I1, IRI,IRL, IT
+    real(kind=rp) ::  A(ldim,10), F(ldim,10), G(2000), B, Y
+
+    N1 = N + 1
+    DO KK = 1, K
+       DO I = 1, N
+          IRI = IR(I)
+          G(I) = F(IRI,KK)
+       END DO
+       DO I = 2, N
+          I1 = I - 1
+          B = G(I)
+          DO J = 1, I1
+             B = B - A(I,J) * G(J)
+          END DO
+          G(I) = B
+       END DO
+       DO IT = 1, N
+          I = N1 - IT
+          I1 = I + 1
+          B = G(I)
+          IF(I .EQ. N) GOTO 701
+          DO J = I1, N
+             B = B - A(I,J) * G(J)
+          END DO
+701         G(I) = B * A(I,I)
+       END DO
+       DO I = 1, N
+          ICI = IC(I)
+          F(ICI,KK) = G(I)
+       END DO
+    END DO
+  END SUBROUTINE SOLVE
