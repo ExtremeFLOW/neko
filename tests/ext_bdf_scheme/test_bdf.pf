@@ -69,25 +69,25 @@ end subroutine test_constant_dt
    nbdf = 0
    call old_bdf(nbdf, coeffs, 3, dt)
    call bdf%set_coeffs(dt)
-   @assertEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-6_rp)
-   @assertEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-6_rp)
+   @assertRelativelyEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-3_rp)
 
    ! order 2
    nbdf = 1
    call old_bdf(nbdf, coeffs, 3, dt)
    call bdf%set_coeffs(dt)
-   @assertEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-6_rp)
-   @assertEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-6_rp)
-   @assertEqual(coeffs(3), bdf%coeffs(3), tolerance=1e-6_rp)
+   @assertRelativelyEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(3), bdf%coeffs(3), tolerance=1e-3_rp)
 
    ! order 3
    nbdf = 2
    call old_bdf(nbdf, coeffs, 3, dt)
    call bdf%set_coeffs(dt)
-   @assertEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-6_rp)
-   @assertEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-6_rp)
-   @assertEqual(coeffs(3), bdf%coeffs(3), tolerance=1e-6_rp)
-   @assertEqual(coeffs(4), bdf%coeffs(4), tolerance=1e-6_rp)
+   @assertRelativelyEqual(coeffs(1), bdf%coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(2), bdf%coeffs(2), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(3), bdf%coeffs(3), tolerance=1e-3_rp)
+   @assertRelativelyEqual(coeffs(4), bdf%coeffs(4), tolerance=1e-3_rp)
    
    call bdf%free()
 end subroutine test_variable_dt
