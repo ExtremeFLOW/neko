@@ -193,66 +193,35 @@ contains
     end if
   end subroutine time_scheme_free
 
-  !> Compute Adams-Bashforth coefficients (order NAB, less or equal to 3)
-  !!   
-  !! NBD .EQ. 1
-  !! Standard Adams-Bashforth coefficients 
-  !!
-  !! NBD .GT. 1
-  !! Modified Adams-Bashforth coefficients to be used in con-
-  !! junction with Backward Differentiation schemes (order NBD)
-  !!
   subroutine ext_time_scheme_set_coeffs(this, dt)
     class(ext_time_scheme_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dt
-    real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
-    real(kind=rp), dimension(4) :: ab_old
-    associate(nab => this%n, nbd => this%n, ext => this%coeffs, ext_d => this%coeffs_d)
-      ab_old = ext
-      nab = nab + 1
-      nab = min(nab, this%time_order)
-    
-      dt0 = dt(1)
-      dt1 = dt(2)
-      dt2 = dt(3)
-      call rzero(ext, 10)
+    real(kind=rp), dimension(4) :: coeffs_old
+    associate(n => this%n, coeffs => this%coeffs, coeffs_d => this%coeffs_d)
       
-      if (nab .eq. 1) then
-         ext(1) = 1.0_rp
-      else if (nab .eq. 2) then
-         dta =  dt0 / dt1
-         if (nbd .eq. 1) then
-            ext(2) = -0.5_rp * dta
-            ext(1) =  1.0_rp - ext(2)
-         else if (nbd .eq. 2) then
-            ext(2) = -dta
-            ext(1) =  1.0_rp - ext(2)
-         endif
-      else if (nab .eq. 3) then
-         dts =  dt1 + dt2
-         dta =  dt0 / dt1
-         dtb =  dt1 / dt2
-         dtc =  dt0 / dt2
-         dtd =  dts / dt1
-         dte =  dt0 / dts
-         if (nbd .eq. 1) then
-            ext(3) =  dte*( 0.5d0*dtb + dtc/3d0 )
-            ext(2) = -0.5_rp * dta - ext(3) * dtd
-            ext(1) =  1.0_rp - ext(2) - ext(3)
-         elseif (nbd .eq. 2) then
-            ext(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
-            ext(2) = -dta - ext(3) * dtd
-            ext(1) =  1.0_rp - ext(2) - ext(3)
-         elseif (nbd .eq. 3) then
-            ext(3) =  dte * (dtb + dtc)
-            ext(2) = -dta * (1.0_rp + dtb + dtc)
-            ext(1) =  1.0_rp - ext(2) - ext(3)
-         endif
+      ! To check whether the coefficients changed
+      coeffs_old = coeffs
+      
+      ! Increment the order of the scheme if below time_order
+      n = n + 1
+      n = min(n, this%time_order)
+      
+      call rzero(coeffs, 4)
+      
+      if (n .eq. 1) then
+         coeffs(1) = 1.0_rp
+      else if (n .eq. 2) then
+         coeffs(2) = -dt(1) / dt(2)
+         coeffs(1) =  1.0_rp - coeffs(2)
+      else if (n .eq. 3) then
+         coeffs(3) =  dt(1) / (dt(2) + dt(3)) * (dt(1) + dt(2)) / dt(3)
+         coeffs(2) = - dt(1) / dt(2) * (1.0_rp + dt(2) / dt(3) + dt(1) / dt(3))
+         coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
       endif
 
-      if (c_associated(ext_d)) then
-         if (maxval(abs(ext - ab_old)) .gt. 1e-10_rp) then
-            call device_memcpy(ext, ext_d, 10, HOST_TO_DEVICE)
+      if (c_associated(coeffs_d)) then
+         if (maxval(abs(coeffs - coeffs_old)) .gt. 1e-10_rp) then
+            call device_memcpy(coeffs, coeffs_d, 4, HOST_TO_DEVICE)
          end if
       end if
     end associate
