@@ -116,4 +116,5 @@ EXTRA_DIST = \
 	vector/vector_parallel.pf\
 	scratch_registry/test_scratch_registry.pf\
     fast3d/test_fd_weights_full.pf\
-	ext_bdf_scheme/test_bdf.pf
+	ext_bdf_scheme/test_bdf.pf\
+	ext_bdf_scheme/test_ext.pf
