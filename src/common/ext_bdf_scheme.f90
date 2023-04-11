@@ -104,6 +104,16 @@ module ext_bdf_scheme
      end subroutine
   end interface
   
+  !> Explicit extrapolation scheme for time integration.
+  !! @details
+  !! Compute the value at the current time-step by evaluating a polynomial
+  !! built using the values on previous time-steps.
+  !!
+  !! For a constant time-step corresponds to the following schemes of order
+  !! 1 to 3:
+  !! - Order 1: \f$  u^{n+1} = u^n \f$
+  !! - Order 2: \f$  u^{n+1} = 2u^n - u^{n-1} \f$, linear extrapolation
+  !! - Order 3: \f$  u^{n+1} = 3u^n - 3u^{n-1} + u^{n-2} \f$
   type, public, extends(time_scheme_t) :: ext_time_scheme_t 
      contains
        procedure, pass(this) :: set_coeffs => ext_time_scheme_set_coeffs
