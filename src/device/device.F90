@@ -1202,11 +1202,11 @@ contains
     type(c_ptr), intent(inout) :: event
 #ifdef HAVE_HIP
     if (hipEventDestroy(event) .ne. hipSuccess) then
-       call neko_error('Error during stream destroy')
+       call neko_error('Error during event destroy')
     end if
 #elif HAVE_CUDA
     if (cudaEventDestroy(event) .ne. cudaSuccess) then
-       call neko_error('Error during stream destroy')
+       call neko_error('Error during event destroy')
     end if
 #elif HAVE_OPENCL
     call neko_error('Not implemented yet')
