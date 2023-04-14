@@ -242,11 +242,13 @@ module cuda_intf
 contains
 
   subroutine cuda_init
-    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, 0) .ne. cudaSuccess) then
+    ! Note that 0/-5 are the lowest/highest prio on A100, but these values
+    ! should be queried using cudaDeviceGetStreamPriorityRange().
+    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, -5) .ne. cudaSuccess) then
        call neko_error('Error creating main stream')
     end if
 
-    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, 1) .ne. cudaSuccess) then
+    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, 0) .ne. cudaSuccess) then
        call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
