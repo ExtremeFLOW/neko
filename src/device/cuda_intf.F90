@@ -176,6 +176,15 @@ module cuda_intf
        integer(c_int), value :: flags
      end function cudaStreamWaitEvent
   end interface
+
+  interface
+     integer (c_int) function cudaDeviceGetStreamPriorityRange(low_prio, high_prio) &
+          bind(c, name='cudaDeviceGetStreamPriorityRange')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: low_prio, high_prio
+     end function cudaDeviceGetStreamPriorityRange
+  end interface
   
   interface
      integer (c_int) function cudaProfilerStart() &
@@ -242,13 +251,18 @@ module cuda_intf
 contains
 
   subroutine cuda_init
-    ! Note that 0/-5 are the lowest/highest prio on A100, but these values
-    ! should be queried using cudaDeviceGetStreamPriorityRange().
-    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, -5) .ne. cudaSuccess) then
+    integer(c_int) :: low_prio, high_prio
+
+    if (cudaDeviceGetStreamPriorityRange(low_prio, high_prio) &
+         .ne. cudaSuccess) then
+       call neko_error('Error retrieving stream priority range')       
+    end if
+
+    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, high_prio) .ne. cudaSuccess) then
        call neko_error('Error creating main stream')
     end if
 
-    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, 0) .ne. cudaSuccess) then
+    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, low_prio) .ne. cudaSuccess) then
        call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
