@@ -198,6 +198,15 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
+          bind(c, name='hipDeviceGetStreamPriorityRange')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: low_prio, high_prio
+     end function hipDeviceGetStreamPriorityRange
+  end interface
+  
+  interface
      integer (c_int) function hipEventCreate(event) &
           bind(c, name='hipEventCreate')
        use, intrinsic :: iso_c_binding
@@ -246,11 +255,18 @@ module hip_intf
 contains
 
   subroutine hip_init
-    if (hipStreamCreateWithPriority(glb_cmd_queue, 1, 0) .ne. hipSuccess) then
+    integer(c_int) :: low_prio, high_prio
+
+    if (hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
+         .ne. hipSuccess) then 
+       call neko_error('Error retrieving stream priority range')
+    end if
+
+    if (hipStreamCreateWithPriority(glb_cmd_queue, 1, high_prio) .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
 
-    if (hipStreamCreateWithPriority(aux_cmd_queue, 1, 1) .ne. hipSuccess) then
+    if (hipStreamCreateWithPriority(aux_cmd_queue, 1, low_prio) .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
   end subroutine hip_init
