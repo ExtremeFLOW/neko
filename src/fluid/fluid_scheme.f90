@@ -95,6 +95,7 @@ module fluid_scheme
      type(mean_flow_t) :: mean                 !< Mean flow field
      type(fluid_stats_t) :: stats                 !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
+     type(scratch_registry_t) :: scratch       !< Manager for temporary fields
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
