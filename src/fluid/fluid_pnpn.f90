@@ -360,6 +360,11 @@ contains
     integer, intent(inout) :: tstep
     integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
+    type(field_t), pointer :: temp1, temp2, temp3, temp4
+    type(field_t), pointer :: temp5, temp6
+    type(field_t), pointer :: u_e, v_e, w_e
+    integer :: temp_indices(9)
+
     n = this%dm_Xh%size()
 
     call profiler_start_region('Fluid')
@@ -378,6 +383,16 @@ contains
          prs_max_iter => this%params%prs_max_iter, &
          vel_max_iter => this%params%vel_max_iter)
          
+      ! Get temporary arrays
+      call this%scratch%request_field(temp1, temp_indices(1))
+      call this%scratch%request_field(temp2, temp_indices(2))
+      call this%scratch%request_field(temp3, temp_indices(3))
+      call this%scratch%request_field(temp4, temp_indices(4))
+      call this%scratch%request_field(temp5, temp_indices(5))
+      call this%scratch%request_field(temp6, temp_indices(6))
+      call this%scratch%request_field(u_e, temp_indices(7))
+      call this%scratch%request_field(v_e, temp_indices(8))
+      call this%scratch%request_field(w_e, temp_indices(9))
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
@@ -417,9 +432,7 @@ contains
       ! compute pressure
       call profiler_start_region('Pressure residual')
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
-                           ta1, ta2, ta3, wa1, wa2, wa3, &
-                           this%work1, this%work2, f_Xh, &
-                           c_Xh, gs_Xh, this%bc_prs_surface, &
+                           f_Xh, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
                            params%dt, params%Re, params%rho)
       
