@@ -80,15 +80,15 @@ module scalar_scheme
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
      procedure, pass(this) :: set_source => scalar_scheme_set_source
-     procedure(scalar_scheme_init_interface), pass(this), deferred :: init
-     procedure(scalar_scheme_free_interface), pass(this), deferred :: free
-     procedure(scalar_scheme_step_interface), pass(this), deferred :: step
+     procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
+     procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
+     procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
      generic :: scheme_init => scalar_scheme_init
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_interface(this, msh, coef, gs, param)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, param)
        import scalar_scheme_t
        import param_t
        import coef_t
@@ -99,20 +99,20 @@ module scalar_scheme
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(param_t), target, intent(inout) :: param              
-     end subroutine scalar_scheme_init_interface
+     end subroutine scalar_scheme_init_intrf
   end interface
 
   !> Abstract interface to dealocate a scalar formulation
   abstract interface
-     subroutine scalar_scheme_free_interface(this)
+     subroutine scalar_scheme_free_intrf(this)
        import scalar_scheme_t
        class(scalar_scheme_t), intent(inout) :: this
-     end subroutine scalar_scheme_free_interface
+     end subroutine scalar_scheme_free_intrf
   end interface
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_interface(this, t, tstep, ext_bdf)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, ext_bdf)
        import scalar_scheme_t
        import ext_bdf_scheme_t
        import rp
@@ -120,7 +120,7 @@ module scalar_scheme
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
-     end subroutine scalar_scheme_step_interface
+     end subroutine scalar_scheme_step_intrf
   end interface
 
 contains

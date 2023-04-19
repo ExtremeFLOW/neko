@@ -103,15 +103,15 @@ module fluid_scheme
      procedure, pass(this) :: set_source => fluid_scheme_set_source
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
-     procedure(fluid_scheme_init_interface), pass(this), deferred :: init
-     procedure(fluid_scheme_free_interface), pass(this), deferred :: free
-     procedure(fluid_scheme_step_interface), pass(this), deferred :: step
+     procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
+     procedure(fluid_scheme_free_intrf), pass(this), deferred :: free
+     procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
      generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_uvw
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_init_interface(this, msh, lx, param)
+     subroutine fluid_scheme_init_intrf(this, msh, lx, param)
        import fluid_scheme_t
        import param_t
        import mesh_t
@@ -119,20 +119,20 @@ module fluid_scheme
        type(mesh_t), target, intent(inout) :: msh       
        integer, intent(inout) :: lx
        type(param_t), target, intent(inout) :: param              
-     end subroutine fluid_scheme_init_interface
+     end subroutine fluid_scheme_init_intrf
   end interface
 
   !> Abstract interface to dealocate a fluid formulation
   abstract interface
-     subroutine fluid_scheme_free_interface(this)
+     subroutine fluid_scheme_free_intrf(this)
        import fluid_scheme_t
        class(fluid_scheme_t), intent(inout) :: this
-     end subroutine fluid_scheme_free_interface
+     end subroutine fluid_scheme_free_intrf
   end interface
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_interface(this, t, tstep, ext_bdf)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, ext_bdf)
        import fluid_scheme_t
        import ext_bdf_scheme_t
        import rp
@@ -140,7 +140,7 @@ module fluid_scheme
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
        type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
-     end subroutine fluid_scheme_step_interface
+     end subroutine fluid_scheme_step_intrf
   end interface
 
 contains
