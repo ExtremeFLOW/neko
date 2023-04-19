@@ -80,7 +80,7 @@ module hsmg
   use device
   use device_math
   use profiler
-  use, intrinsic :: omp_lib
+  !$use omp_lib
   implicit none
   private
 
@@ -353,7 +353,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
-    integer :: i
+    integer :: i, thrdid, nthrds
 
     call profiler_start_region('HSMG solve')
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -387,13 +387,17 @@ contains
 !       call device_event_record(this%hsmg_event, glb_cmd_queue)
  !      call device_stream_wait_event(aux_cmd_queue, this%hsmg_event, 0)
        !$omp parallel
-       if (omp_get_thread_num() .eq. 0) then
-!!          print *, omp_get_thread_num()
+
+       thrdid = 0
+       nthrds = 1
+       !$thrdid = omp_get_thread_num()
+       !$nthrds = omp_get_num_threads()
+       
+       if (thrdid .eq. 0) then
           call this%grids(3)%schwarz%compute(z, this%r)      
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w) 
        end if
-       if (omp_get_num_threads() .eq. 1 .or. omp_get_thread_num() .eq. 1) then 
-!!          print *, omp_get_thread_num()
+       if (nthrds .eq. 1 .or. thrdid .eq. 1) then 
           call gs_op(this%grids(1)%gs_h, this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
