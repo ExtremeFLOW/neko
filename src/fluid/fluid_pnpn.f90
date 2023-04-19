@@ -360,10 +360,8 @@ contains
     integer, intent(inout) :: tstep
     integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
-    type(field_t), pointer :: temp1, temp2, temp3, temp4
-    type(field_t), pointer :: temp5, temp6
     type(field_t), pointer :: u_e, v_e, w_e
-    integer :: temp_indices(9)
+    integer :: temp_indices(3)
 
     n = this%dm_Xh%size()
 
@@ -384,15 +382,9 @@ contains
          vel_max_iter => this%params%vel_max_iter)
          
       ! Get temporary arrays
-      call this%scratch%request_field(temp1, temp_indices(1))
-      call this%scratch%request_field(temp2, temp_indices(2))
-      call this%scratch%request_field(temp3, temp_indices(3))
-      call this%scratch%request_field(temp4, temp_indices(4))
-      call this%scratch%request_field(temp5, temp_indices(5))
-      call this%scratch%request_field(temp6, temp_indices(6))
-      call this%scratch%request_field(u_e, temp_indices(7))
-      call this%scratch%request_field(v_e, temp_indices(8))
-      call this%scratch%request_field(w_e, temp_indices(9))
+      call this%scratch%request_field(u_e, temp_indices(1))
+      call this%scratch%request_field(v_e, temp_indices(2))
+      call this%scratch%request_field(w_e, temp_indices(3))
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
@@ -409,14 +401,12 @@ contains
                           f_Xh%u, f_Xh%v, f_Xh%w, &
                           Xh, this%c_Xh, dm_Xh%size())
 
-      call makeabf%compute_fluid(ta1, ta2, ta3,&
-                           this%abx1, this%aby1, this%abz1,&
+      call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
                            params%rho, ext_bdf%advection_coeffs, n)
 
-      call makebdf%compute_fluid(ta1, ta2, ta3, this%wa1, this%wa2, this%wa3,&
-                           ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
+      call makebdf%compute_fluid(ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, params%rho, params%dt, &
                            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
@@ -515,7 +505,7 @@ contains
 
       if (params%vol_flow_dir .ne. 0) then                 
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, params%rho, params%Re, &
+              c_Xh, gs_Xh, ext_bdf, params%rho, params%Re,&
               params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, prs_max_iter, vel_max_iter)
