@@ -1,5 +1,7 @@
 module comm
   use mpi_f08
+  use utils, only : neko_error
+  !$ use omp_lib
   implicit none
   
   !> MPI communicator
@@ -25,18 +27,32 @@ contains
   subroutine comm_init
     integer :: ierr
     logical :: initialized
-    integer :: provided
+    integer :: provided, nthrds
 
     pe_rank = -1
     pe_size = 0
     nio = .false.
 
     call MPI_Initialized(initialized, ierr)
+
+    nthrds = 1
+    !$omp parallel
+    !$omp master
+    !$ nthrds = omp_get_num_threads()
+    !$omp end master
+    !$omp end parallel
     
-    if (.not.initialized) then
-       !call MPI_Init(ierr)       
-       call MPI_Init_thread(MPI_THREAD_MULTIPLE,provided,ierr)    
-       print *, provided   
+    if (.not.initialized) then       
+
+       if (nthrds .gt. 1) then
+          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
+          if (provided .ne. MPI_THREAD_MULTIPLE) then
+             call neko_error('Invalid thread support provided by MPI')
+          end if
+       else
+          call MPI_Init(ierr)
+       end if
+
     end if
 
 #ifndef HAVE_MPI_PARAM_DTYPE
