@@ -205,7 +205,7 @@ contains
       dt0 = dt(1)
       dt1 = dt(2)
       dt2 = dt(3)
-      call rzero(ext, 10)
+      call rzero(ext, 4)
       
       if (nab .eq. 1) then
          ext(1) = 1.0_rp
