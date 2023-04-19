@@ -18,14 +18,10 @@ module pnpn_res_sx
 
 contains
 
-  subroutine pnpn_prs_res_sx_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
-       ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_Xh, gs_Xh, &
-       bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
+  subroutine pnpn_prs_res_sx_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_Xh, &
+       c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
-    type(field_t), intent(inout) :: ta1, ta2, ta3
-    type(field_t), intent(inout) :: wa1, wa2, wa3
-    type(field_t), intent(inout) :: work1, work2
     type(field_t), intent(inout) :: p_res
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
@@ -40,6 +36,17 @@ contains
     real(kind=rp) :: dtbd
     integer :: n
     integer :: i
+    type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2
+    integer :: temp_indices(8)
+
+    call neko_scratch_registry%request_field(ta1, temp_indices(1))
+    call neko_scratch_registry%request_field(ta2, temp_indices(2))
+    call neko_scratch_registry%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(wa1, temp_indices(4))
+    call neko_scratch_registry%request_field(wa2, temp_indices(5))
+    call neko_scratch_registry%request_field(wa3, temp_indices(6))
+    call neko_scratch_registry%request_field(work1, temp_indices(7))
+    call neko_scratch_registry%request_field(work2, temp_indices(8))
 
     n = c_Xh%dof%size()
 
@@ -110,6 +117,7 @@ contains
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
 
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine pnpn_prs_res_sx_compute
 
   subroutine pnpn_vel_res_sx_compute(Ax, u, v, w, u_res, v_res, w_res, &

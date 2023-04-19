@@ -57,9 +57,8 @@ module pnpn_residual
 
     
   abstract interface
-     subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, &
-       ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, f_Xh, c_xh, gs_Xh, &
-       bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
+     subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_Xh, c_xh, gs_Xh, &
+          bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
        import field_t
        import Ax_t
        import gs_t
@@ -69,9 +68,6 @@ module pnpn_residual
        import rp
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_e, v_e, w_e !< time-extrapolated velocity
-       type(field_t), intent(inout) :: ta1, ta2, ta3 !< work arrays
-       type(field_t), intent(inout) :: wa1, wa2, wa3 !< work arrays 
-       type(field_t), intent(inout) :: work1, work2
        type(field_t), intent(inout) :: p_res
        type(source_t), intent(inout) :: f_Xh !< momentum source terms
        type(coef_t), intent(inout) :: c_Xh
