@@ -374,9 +374,9 @@ contains
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh, prs_res => this%prs_res, &
          vel_res => this%vel_res, sumab => this%sumab, &
-         makeabf => this%makeabf, makebdf => this%makebdf,&
-         prs_max_iter => params%prs_max_iter, &
-         vel_max_iter => params%vel_max_iter)
+         makeabf => this%makeabf, makebdf => this%makebdf, &
+         prs_max_iter => this%params%prs_max_iter, &
+         vel_max_iter => this%params%vel_max_iter)
          
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
