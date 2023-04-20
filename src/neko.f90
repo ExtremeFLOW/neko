@@ -78,7 +78,7 @@ module neko
   use cpr
   use field_registry
   use vector
-  !$use omp_lib
+  !$ use omp_lib
 contains
 
   subroutine neko_init(C)

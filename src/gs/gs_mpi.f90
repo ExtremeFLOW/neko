@@ -39,7 +39,7 @@ module gs_mpi
   use stack
   use mpi_f08
   use comm
-  !$use mp_lib
+  !$ use omp_lib
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
 
