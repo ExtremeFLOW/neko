@@ -73,9 +73,9 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
     if (buf1 != NULL && buf_len < nb) {
-      free(buf1);
-      free(buf2);
-      free(buf3);
+      CUDA_CHECK(cudaFreeHost(buf1));
+      CUDA_CHECK(cudaFreeHost(buf2));
+      CUDA_CHECK(cudaFreeHost(buf3));
       CUDA_CHECK(cudaFree(buf_d1));
       CUDA_CHECK(cudaFree(buf_d2));
       CUDA_CHECK(cudaFree(buf_d3));
@@ -83,9 +83,9 @@ extern "C" {
     }
 
     if (buf1 == NULL){
-      buf1 = (real *) malloc(nb * sizeof(real));
-      buf2 = (real *) malloc(nb * sizeof(real));
-      buf3 = (real *) malloc(nb * sizeof(real));
+      CUDA_CHECK(cudaMallocHost(&buf1, nb*sizeof(real)));
+      CUDA_CHECK(cudaMallocHost(&buf2, nb*sizeof(real)));
+      CUDA_CHECK(cudaMallocHost(&buf3, nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&buf_d1, nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&buf_d2, nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&buf_d3, nb*sizeof(real)));
@@ -102,26 +102,23 @@ extern "C" {
                            buf_d1, buf_d2, buf_d3, *n);
     
     CUDA_CHECK(cudaGetLastError());
-
-    CUDA_CHECK(cudaMemcpy(buf1, buf_d1, nb * sizeof(real),
+    reduce_kernel<real><<<1, 1024>>>(buf_d1, nb);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024>>>(buf_d2, nb);
+    CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024>>>(buf_d3, nb);
+    CUDA_CHECK(cudaGetLastError());
+    
+    CUDA_CHECK(cudaMemcpy(&reduction[0], buf_d1, sizeof(real),
                           cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(buf2, buf_d2, nb * sizeof(real),
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaMemcpy(&reduction[1], buf_d2, sizeof(real),
                           cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(buf3, buf_d3, nb * sizeof(real),
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaMemcpy(&reduction[2], buf_d3, sizeof(real),
                           cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaGetLastError());
 
-    real res1 = 0.0;
-    real res2 = 0.0;
-    real res3 = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res1 += buf1[i];
-      res2 += buf2[i];
-      res3 += buf3[i];
-    }
-
-    reduction[0] = res1;
-    reduction[1] = res2;
-    reduction[2] = res3;
   }
 }
 
