@@ -242,7 +242,7 @@ contains
 
       if (c_associated(ext_d)) then
          if (maxval(abs(ext - ab_old)) .gt. 1e-10_rp) then
-            call device_memcpy(ext, ext_d, 10, HOST_TO_DEVICE)
+            call device_memcpy(ext, ext_d, 4, HOST_TO_DEVICE)
          end if
       end if
     end associate
