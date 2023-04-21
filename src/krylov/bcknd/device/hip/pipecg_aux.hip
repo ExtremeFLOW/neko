@@ -40,9 +40,7 @@
 /**
  * @todo Make sure that this gets deleted at some point...
  */
-real *buf1 = NULL;
-real *buf2 = NULL;
-real *buf3 = NULL;
+real *buf = NULL;
 real *buf_d1 = NULL;
 real *buf_d2 = NULL;
 real *buf_d3 = NULL;
@@ -72,21 +70,18 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
-    if (buf1 != NULL && buf_len < nb) {
-      HIP_CHECK(hipHostFree(buf1));
-      HIP_CHECK(hipHostFree(buf2));
-      HIP_CHECK(hipHostFree(buf3));
+    if (buf != NULL && buf_len < nb) {
+      HIP_CHECK(hipHostFree(buf));
       HIP_CHECK(hipFree(buf_d1));
       HIP_CHECK(hipFree(buf_d2));
       HIP_CHECK(hipFree(buf_d3));
-      buf1 = NULL;
+      buf = NULL;
     }
 
-    if (buf1 == NULL){
-      HIP_CHECK(hipHostMalloc(&buf1, nb*sizeof(real)));
-      HIP_CHECK(hipHostMalloc(&buf2, nb*sizeof(real)));
-      HIP_CHECK(hipHostMalloc(&buf3, nb*sizeof(real)));
+    if (buf == NULL){
+      HIP_CHECK(hipHostMalloc(&buf, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d1, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d2, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d3, nb*sizeof(real)));
@@ -94,7 +89,7 @@ extern "C" {
     }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(pipecg_vecops_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       nblcks, nthrds, 0, stream,
                        (real *) p, (real *) q, (real *) r, (real *) s,
                        (real *) u1, (real *) u2, (real *) w, (real *) z,
                        (real *) ni, (real *) mi, *alpha, *beta,
@@ -102,24 +97,30 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0 , 0, buf_d1, nb);
+                       1, 1024, 0 , stream, buf_d1, nb);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0 , 0, buf_d2, nb);
+                       1, 1024, 0 , stream, buf_d2, nb);
     HIP_CHECK(hipGetLastError());
         hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0 , 0, buf_d3, nb);
+                       1, 1024, 0 , stream, buf_d3, nb);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpyAsync(&reduction[0], buf_d1, sizeof(real),
-                          hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpyAsync(&buf[0], buf_d1, sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
     HIP_CHECK(hipGetLastError());
-    HIP_CHECK(hipMemcpyAsync(&reduction[1], buf_d2, sizeof(real),
-                          hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpyAsync(&buf[1], buf_d2, sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
     HIP_CHECK(hipGetLastError());
-    HIP_CHECK(hipMemcpyAsync(&reduction[2], buf_d3, sizeof(real),
-                          hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpyAsync(&buf[2], buf_d3, sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
     HIP_CHECK(hipGetLastError());
+
+    hipStreamSynchronize(stream);
+        
+    reduction[0] = buf[0];
+    reduction[1] = buf[1];
+    reduction[2] = buf[2];
 
   }
 }
