@@ -1116,6 +1116,23 @@ contains
 #endif
   end subroutine device_stream_create
 
+  !> Create a device stream/command queue with priority
+  subroutine device_stream_create_with_priority(stream, flags, prio)
+    type(c_ptr), intent(inout) :: stream
+    integer, intent(in) :: flags, prio
+#ifdef HAVE_HIP
+    if (hipStreamCreateWithPriority(stream, flags, prio) .ne. hipSuccess) then
+       call neko_error('Error during stream create (w. priority)')
+    end if
+#elif HAVE_CUDA
+    if (cudaStreamCreateWithPriority(stream, flags, prio) .ne. cudaSuccess) then
+       call neko_error('Error during stream create (w. priority)')
+    end if
+#elif HAVE_OPENCL
+    call neko_error('Not implemented yet')
+#endif
+  end subroutine device_stream_create_with_priority
+
   !> Destroy a device stream/command queue
   subroutine device_stream_destroy(stream)
     type(c_ptr), intent(inout) :: stream
