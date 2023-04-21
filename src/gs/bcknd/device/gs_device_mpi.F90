@@ -283,7 +283,7 @@ contains
     ! Create a set of non-blocking streams
     allocate(this%stream(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_stream_create(this%stream(i), 1)
+       call device_stream_create_with_priority(this%stream(i), 1, STRM_HIGH_PRIO)
     end do
 
     allocate(this%event(size(this%recv_pe)))

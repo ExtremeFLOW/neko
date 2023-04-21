@@ -43,6 +43,12 @@ module hip_intf
 
   !> Aux HIP command queue
   type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> High priority stream setting
+  integer :: STRM_HIGH_PRIO
+
+  !> Low priority stream setting
+  integer :: STRM_LOW_PRIO
   
   !> Enum @a hipError_t
   enum, bind(c)
@@ -255,18 +261,19 @@ module hip_intf
 contains
 
   subroutine hip_init
-    integer(c_int) :: low_prio, high_prio
 
-    if (hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
+    if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
          .ne. hipSuccess) then 
        call neko_error('Error retrieving stream priority range')
     end if
 
-    if (hipStreamCreateWithPriority(glb_cmd_queue, 1, high_prio) .ne. hipSuccess) then
+    if (hipStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
+         .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
 
-    if (hipStreamCreateWithPriority(aux_cmd_queue, 1, low_prio) .ne. hipSuccess) then
+    if (hipStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
+         .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
   end subroutine hip_init

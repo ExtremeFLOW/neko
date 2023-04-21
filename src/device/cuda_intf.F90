@@ -43,6 +43,12 @@ module cuda_intf
 
   !> Aux HIP command queue
   type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> High priority stream setting
+  integer :: STRM_HIGH_PRIO
+
+  !> Low priority stream setting
+  integer :: STRM_LOW_PRIO
   
   !> Enum @a cudaError
   enum, bind(c)
@@ -251,18 +257,19 @@ module cuda_intf
 contains
 
   subroutine cuda_init
-    integer(c_int) :: low_prio, high_prio
 
-    if (cudaDeviceGetStreamPriorityRange(low_prio, high_prio) &
+    if (cudaDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
          .ne. cudaSuccess) then
        call neko_error('Error retrieving stream priority range')       
     end if
 
-    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, high_prio) .ne. cudaSuccess) then
+    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO)  &
+         .ne. cudaSuccess) then
        call neko_error('Error creating main stream')
     end if
 
-    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, low_prio) .ne. cudaSuccess) then
+    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
+         .ne. cudaSuccess) then
        call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
