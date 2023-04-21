@@ -80,7 +80,7 @@ module hsmg
   use device
   use device_math
   use profiler
-  !$use omp_lib
+  !$ use omp_lib
   implicit none
   private
 
@@ -386,12 +386,12 @@ contains
 
 !       call device_event_record(this%hsmg_event, glb_cmd_queue)
  !      call device_stream_wait_event(aux_cmd_queue, this%hsmg_event, 0)
-       !$omp parallel
+       !$omp parallel private(thrdid, nthrds)
 
        thrdid = 0
        nthrds = 1
-       !$thrdid = omp_get_thread_num()
-       !$nthrds = omp_get_num_threads()
+       !$ thrdid = omp_get_thread_num()
+       !$ nthrds = omp_get_num_threads()
        
        if (thrdid .eq. 0) then
           call this%grids(3)%schwarz%compute(z, this%r)      
