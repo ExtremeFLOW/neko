@@ -38,7 +38,7 @@ module jobctrl
   use comm
   use logger
   implicit none
-
+  
   interface jobctrl_set_time_limit
      module procedure jobctrl_set_time_limit_sec, jobctrl_set_time_limit_str
   end interface jobctrl_set_time_limit

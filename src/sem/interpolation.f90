@@ -32,6 +32,7 @@
 !
 !> Routines to interpolate between different spaces
 module interpolation
+  use neko_config
   use speclib
   use device
   use utils

@@ -1,8 +1,13 @@
 !> Residuals in the Pn-Pn formulation (CPU version)
 module pnpn_res_cpu
   use gather_scatter
-  use pnpn_residual
   use operators
+  use field
+  use ax_product
+  use coefs
+  use source
+  use facet_normal
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   implicit none
   private
   

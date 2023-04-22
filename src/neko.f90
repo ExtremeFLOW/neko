@@ -78,6 +78,7 @@ module neko
   use cpr
   use field_registry
   use vector
+  use, intrinsic :: iso_fortran_env
 contains
 
   subroutine neko_init(C)

@@ -36,7 +36,8 @@ module gmres_sx
   use comm
   use math
   use operators
-  use num_types
+  use num_types, only : rp, c_rp
+  use gather_scatter
   implicit none
   private
 

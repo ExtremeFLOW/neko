@@ -80,6 +80,7 @@ module hsmg
   use device
   use device_math
   use profiler
+  use krylov
   implicit none
   private
 

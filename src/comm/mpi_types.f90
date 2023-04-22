@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ module mpi_types
   use re2
   use nmsh
   use stl
-  use mpi_f08  
   use parameters
   implicit none
   private

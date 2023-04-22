@@ -34,16 +34,17 @@
 module gather_scatter
   use neko_config
   use gs_bcknd
-  use gs_device
-  use gs_sx
-  use gs_cpu
+  use gs_device, only : gs_device_t
+  use gs_sx, only : gs_sx_t
+  use gs_cpu, only : gs_cpu_t
   use gs_ops
   use gs_comm
-  use gs_mpi
-  use gs_device_mpi
-  use mesh
-  use dofmap
-  use field
+  use gs_mpi, only : gs_mpi_t
+  use gs_device_mpi, only : gs_device_mpi_t
+  use mesh, only : mesh_t
+  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use dofmap, only : dofmap_t
+  use field, only : field_t
   use num_types
   use mpi_f08
   use htable
@@ -51,9 +52,10 @@ module gather_scatter
   use utils
   use logger
   use profiler
+  use iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
 
-  type gs_t
+  type ::  gs_t
      real(kind=rp), allocatable :: local_gs(:)        !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:)          !< Local dof to gs mapping
      integer, allocatable :: local_gs_dof(:)          !< Local gs to dof mapping
@@ -1276,21 +1278,24 @@ contains
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
 
+       call profiler_start_region("gs nbsend")
        call gs%comm%nbsend(gs%shared_gs, l)
+       call profiler_end_region
        
     end if
     
     ! Gather-scatter local dofs
-
+    call profiler_start_region("gs local dofs")
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false.)
-
+    call profiler_end_region
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
-
+       call profiler_start_region("gs nbwait")
        call gs%comm%nbwait(gs%shared_gs, l, op)
+       call profiler_end_region
 
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)

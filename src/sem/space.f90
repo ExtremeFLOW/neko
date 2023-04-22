@@ -33,18 +33,19 @@
 !> Defines a function space
 module space
   use neko_config
-  use num_types
+  use num_types, only : rp
   use speclib
   use device
-  use utils
   use fast3d
   use math
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error    
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
+  private
+  
+  integer, public, parameter :: GL = 0, GLL = 1, GJ = 2
 
-  integer, parameter :: GL = 0, GLL = 1, GJ = 2
-
-  type space_t
+  type, public :: space_t
      integer :: t               !< Space type (GL, GLL, GJ, ...)
      integer :: lx              !< Polynomial dimension in x-direction
      integer :: ly              !< Polynomial dimension in y-direction
@@ -107,6 +108,8 @@ module space
   interface operator(.ne.)
      module procedure space_ne
   end interface operator(.ne.)
+
+  public :: space_init, space_free, operator(.eq.), operator(.ne.)
   
 contains
 

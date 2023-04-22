@@ -39,6 +39,7 @@ module gmres_device
   use device
   use device_identity
   use device_math
+  use iso_c_binding, only : c_ptr, c_int, c_size_t, c_sizeof, C_NULL_PTR
   implicit none
   private
 
@@ -320,9 +321,9 @@ contains
        call device_rone(this%c_d, this%m_restart)
 
        call rzero(this%h, this%m_restart**2)
-       do j = 1, this%m_restart
-          call device_rzero(h_d(j), this%m_restart)
-       end do
+!       do j = 1, this%m_restart
+!          call device_rzero(h_d(j), this%m_restart)
+!       end do
        do while (.not. conv .and. iter .lt. niter)
 
           if(iter.eq.0) then               

@@ -1,7 +1,8 @@
 module fld_file_data
-  use field
-  use vector
+  use num_types, only : rp
+  use vector, only : vector_t
   implicit none
+  private
 
   type, public :: fld_file_data_t
      type(vector_t) :: x
@@ -28,7 +29,6 @@ module fld_file_data
      integer :: meta_nsamples = 0
      integer :: meta_start_counter = 0
      character(len=1024) :: fld_series_fname
-
    contains
      procedure, pass(this) :: init => fld_file_data_init
      procedure, pass(this) :: free => fld_file_data_free

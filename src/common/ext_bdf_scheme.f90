@@ -60,9 +60,9 @@
 !> Explicit and Backward Differentiation time-integration schemes
 module ext_bdf_scheme
   use neko_config
-  use num_types
+  use num_types, only : rp
   use math
-  use utils
+  use utils, only : neko_warning
   use device
   use, intrinsic :: iso_c_binding
   implicit none

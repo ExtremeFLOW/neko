@@ -193,7 +193,7 @@ contains
     call device_map(this%ni, this%ni_d, n)
     do i = 1, this%p_space+1
        this%u_d(i) = C_NULL_PTR
-       call device_map_r1(this%u(:,i), this%u_d(i), n)
+       call device_map(this%u(:,i), this%u_d(i), n)
     end do
     !Did not work with 4 for some reason...
     u_size = 8*(this%p_space+1)

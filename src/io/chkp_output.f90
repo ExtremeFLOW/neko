@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,10 @@
 !
 !> Defines an output for a checkpoint
 module chkp_output
-  use checkpoint
+  use checkpoint, only : chkp_t
   use output
+  use num_types, only : rp    
   implicit none
-  private
 
   type, public, extends(output_t) :: chkp_output_t
      type(chkp_t), pointer :: chkp

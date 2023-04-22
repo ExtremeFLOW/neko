@@ -36,14 +36,14 @@ module dofmap
   use neko_config
   use mesh
   use space
-  use tuple
-  use num_types
-  use utils
+  use tuple, only : tuple_i4_t
+  use num_types, only : i4, i8, rp
+  use utils, only : neko_error, neko_warning
   use fast3d
   use tensor
   use device
   use math
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 

@@ -34,7 +34,6 @@
 module profiler
   use neko_config
   use device
-  use utils
   use nvtx
   use roctx
   use craypat

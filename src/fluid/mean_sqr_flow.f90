@@ -32,10 +32,12 @@
 !
 !> Defines a mean squared flow field
 module mean_sqr_flow
-  use mean_sqr_field
+  use mean_sqr_field, only : mean_sqr_field_t
+  use field, only : field_t
   implicit none
-
-  type :: mean_sqr_flow_t
+  private
+  
+  type, public :: mean_sqr_flow_t
      type(mean_sqr_field_t) :: uu
      type(mean_sqr_field_t) :: vv
      type(mean_sqr_field_t) :: ww

@@ -32,10 +32,11 @@
 !
 !> Defines a gather-scatter communication method
 module gs_comm
-  use num_types
-  use comm
-  use stack
-  implicit none  
+  use num_types, only : rp
+  use comm, only : pe_size
+  use stack, only : stack_i4_t
+  implicit none
+  private
 
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2
 

@@ -34,18 +34,19 @@
 module cpr
   use gather_scatter
   use neko_config
-  use num_types
+  use num_types, only : dp
   use field  
-  use space  
+  use space
   use math
-  use mesh
-  use coefs
+  use mesh, only : mesh_t
+  use coefs, only : coef_t
   use tensor
   use mxm_wrapper
   implicit none
+  private
 
   !> include information needed for compressing fields
-  type :: cpr_t
+  type, public  :: cpr_t
      real(kind=rp), allocatable :: v(:,:) !< Transformation matrix
 
      real(kind=rp), allocatable :: vt(:,:) !< Transformation matrix transposed

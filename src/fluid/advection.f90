@@ -41,7 +41,9 @@ module advection
   use neko_config
   use operators
   use interpolation
-  use, intrinsic :: iso_c_binding
+  use device_math
+  use device, only : device_free, device_map, device_get_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
   

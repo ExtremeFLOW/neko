@@ -33,13 +33,16 @@
 !> Defines a mean field
 !
 module mean_field
+  use neko_config
   use stats_quant
+  use device_math
   use num_types
   use field
   use math
   implicit none
+  private
   
-  type, extends(stats_quant_t) ::  mean_field_t
+  type, public, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f => null()
      type(field_t) :: mf
      real(kind=rp) :: time

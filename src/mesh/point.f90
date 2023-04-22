@@ -33,9 +33,9 @@
 !> Implements a point
 !
 module point
-  use num_types
-  use math
-  use entity
+  use num_types, only : dp
+  use math, only : abscmp
+  use entity, only : entity_t
   implicit none
   private
 

@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,17 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module pnpn_res_device
-  use pnpn_residual
   use gather_scatter
   use operators
+  use field
+  use ax_product
+  use coefs
+  use source
+  use facet_normal
   use device_math
   use device_mathops
-  use, intrinsic :: iso_c_binding
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
  

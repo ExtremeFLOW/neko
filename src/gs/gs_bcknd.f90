@@ -34,6 +34,7 @@
 module gs_bcknd
   use num_types
   implicit none
+  private
 
   integer, public, parameter :: GS_BCKND_CPU = 1, GS_BCKND_SX = 2, &
        GS_BCKND_DEV = 3

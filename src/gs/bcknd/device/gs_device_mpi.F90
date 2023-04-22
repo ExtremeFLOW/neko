@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,11 @@ module gs_device_mpi
   use stack
   use mpi_f08
   use comm
+  use htable
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
+  private
 
   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_mpi_buf_t
@@ -57,7 +60,7 @@ module gs_device_mpi
 
   !> Gather-scatter communication using device MPI.
   !! The arrays are indexed per PE like @a send_pe and @ recv_pe.
-  type, extends(gs_comm_t) :: gs_device_mpi_t
+  type, public, extends(gs_comm_t) :: gs_device_mpi_t
      type(gs_device_mpi_buf_t) :: send_buf
      type(gs_device_mpi_buf_t) :: recv_buf
      type(c_ptr), allocatable :: stream(:)

@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2022, The Neko Authors
+! Copyright (c) 2018-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,27 +36,27 @@
 !! and the BDF scheme applied to the time derivative.
 !! Inheritance is used to define implementation for different backends.
 module rhs_maker
-  use num_types
+  use num_types, only : rp
   use field_series, only : field_series_t
   use field, only : field_t
-  implicit none 
+  implicit none
+  private
 
   !> Abstract type to compute extrapolated velocity field for the pressure equation
-  type, abstract :: rhs_maker_sumab_t
+  type, public, abstract :: rhs_maker_sumab_t
    contains
      procedure(rhs_maker_sumab), nopass, deferred :: compute_fluid
-
   end type rhs_maker_sumab_t
 
   !> Abstract type to sum up contributions to kth order extrapolation scheme
-  type, abstract :: rhs_maker_ext_t
+  type, public, abstract :: rhs_maker_ext_t
    contains
      procedure(rhs_maker_ext), nopass, deferred :: compute_fluid
      procedure(scalar_rhs_maker_ext), nopass, deferred :: compute_scalar
   end type rhs_maker_ext_t
 
   !> Abstract type to add contributions to F from lagged BD terms
-  type, abstract :: rhs_maker_bdf_t
+  type, public, abstract :: rhs_maker_bdf_t
    contains
      procedure(rhs_maker_bdf), nopass, deferred :: compute_fluid
      procedure(scalar_rhs_maker_bdf), nopass, deferred :: compute_scalar

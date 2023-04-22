@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2022, The Neko Authors
+! Copyright (c) 2018-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 !
 !> Defines a mesh
 module mesh
-  use num_types
+  use num_types, only : rp, dp, i8
   use mpi_f08
   use point
   use element
@@ -49,7 +49,7 @@ module mesh
   use zone
   use math
   use uset
-  use curve
+  use curve, only : curve_t
   implicit none
 
   integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
@@ -58,7 +58,7 @@ module mesh
      class(element_t), allocatable :: e
   end type mesh_element_t
 
-  type mesh_t
+  type, public :: mesh_t
 
      integer :: nelv            !< Number of elements
      integer :: npts            !< Number of points per element
@@ -158,6 +158,9 @@ module mesh
      module procedure mesh_is_shared_point, mesh_is_shared_edge, &
           mesh_is_shared_facet
   end interface mesh_is_shared
+
+  public :: mesh_init, mesh_add_element, mesh_get_local, &
+       mesh_get_global, mesh_is_shared
 
   private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
        mesh_generate_external_facet_conn, mesh_generate_external_point_conn, &

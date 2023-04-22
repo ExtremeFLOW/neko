@@ -42,19 +42,19 @@ module pnpn_residual
   use mesh, only : mesh_t
   use num_types, only : rp
   implicit none
+  private
   
   !> Abstract type to compute pressure residual
-  type, abstract :: pnpn_prs_res_t
+  type, public, abstract :: pnpn_prs_res_t
    contains
      procedure(prs_res), nopass, deferred :: compute     
   end type pnpn_prs_res_t
 
   !> Abstract type to compute velocity residual
-  type, abstract :: pnpn_vel_res_t
+  type, public, abstract :: pnpn_vel_res_t
    contains
      procedure(vel_res), nopass, deferred :: compute
   end type pnpn_vel_res_t
-
     
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, &

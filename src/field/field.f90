@@ -38,13 +38,14 @@ module field
   use num_types
   use device
   use math
-  use mesh
+  use mesh, only : mesh_t
   use space
-  use dofmap
-  use, intrinsic :: iso_c_binding
+  use dofmap, only : dofmap_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
+  private
   
-  type field_t
+  type, public :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
      
      type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
@@ -67,6 +68,8 @@ module field
   interface field_add
      module procedure field_add_field, field_add_scalar
   end interface field_add
+
+  public :: field_init, field_free, field_add, assignment(=)
 
 contains
 

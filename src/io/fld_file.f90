@@ -41,6 +41,7 @@ module fld_file
   use fld_file_data
   use mean_flow
   use mean_sqr_flow
+  use vector
   use mesh
   use utils
   use comm

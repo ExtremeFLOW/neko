@@ -32,13 +32,13 @@
 !
 !> Defines a zone as a subset of facets in a mesh
 module zone
-  use tuple
-  use stack
+  use tuple, only : tuple_i4_t, tuple4_i4_t
+  use stack, only : stack_i4t2_t, stack_i4t4_t
   use utils
-  use structs
   implicit none
+  private
   
-  type :: zone_t
+  type, public :: zone_t
      type(tuple_i4_t), allocatable :: facet_el(:)
      integer :: size = 0
      logical, private :: finalized = .false.
@@ -50,7 +50,7 @@ module zone
      procedure, pass(z) :: add_facet => zone_add_facet
   end type zone_t
 
-  type, extends(zone_t) :: zone_periodic_t
+  type, public, extends(zone_t) :: zone_periodic_t
      type(tuple_i4_t), allocatable :: p_facet_el(:)
      type(stack_i4t2_t), private :: p_scratch
      type(tuple4_i4_t), allocatable :: p_ids(:)  !< Periodic ids, same for each periodic point

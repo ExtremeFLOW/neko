@@ -37,6 +37,7 @@ module checkpoint
   use field_series
   use device
   use field
+  use space
   use utils
   implicit none
   private

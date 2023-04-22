@@ -35,13 +35,15 @@ module coefs
   use gather_scatter
   use neko_config
   use num_types
-  use space  
+  use dofmap
+  use space
   use math
   use mesh
   use device
+  use device_math
   use device_coef
   use mxm_wrapper
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
   
