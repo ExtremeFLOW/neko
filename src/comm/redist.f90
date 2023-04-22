@@ -58,9 +58,9 @@ contains
     type(stack_nz_t), allocatable :: new_zone_dist(:)
     type(stack_nc_t), allocatable :: new_curve_dist(:)
     type(nmsh_hex_t) :: el
-    type(nmsh_hex_t), pointer :: np(:)
+    class(nmsh_hex_t), pointer :: np(:)
     type(nmsh_hex_t), allocatable :: recv_buf_msh(:)
-    type(nmsh_zone_t), pointer :: zp(:)
+    class(nmsh_zone_t), pointer :: zp(:)
     type(nmsh_zone_t), allocatable :: recv_buf_zone(:)
     type(nmsh_curve_el_t), pointer :: cp(:)
     type(nmsh_curve_el_t), allocatable :: recv_buf_curve(:)
