@@ -43,6 +43,7 @@ module operators
   use field, only: field_t
   use math
   use comm
+  use device
   implicit none
   private
 

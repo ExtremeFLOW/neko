@@ -35,9 +35,8 @@
 !! often and you don't want to create temporary fields (work arrays) inside
 !! it on each call.
 module scratch_registry
-  use num_types
   use field
-  use utils
+  use dofmap, only : dofmap_t
   implicit none
   private
   
@@ -63,7 +62,8 @@ module scratch_registry
      procedure, pass(this) :: request_field                 !< get a new scratch field
      procedure, pass(this) :: relinquish_field_single
      procedure, pass(this) :: relinquish_field_multiple
-     generic :: relinquish_field => relinquish_field_single, relinquish_field_multiple  !< free a field for later reuse
+     generic :: relinquish_field => relinquish_field_single, &
+          relinquish_field_multiple  !< free a field for later reuse
   end type scratch_registry_t
 
   interface scratch_registry_t

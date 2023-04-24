@@ -33,7 +33,7 @@
 !> Defines a gather-scatter backend
 module gs_bcknd
   use num_types
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 

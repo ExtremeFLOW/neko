@@ -63,7 +63,8 @@ module fast3d
   use speclib
   use math, only : rzero
   implicit none
-
+  private
+  
   public :: fd_weights_full, semhat, setup_intp
 
 contains

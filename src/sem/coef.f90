@@ -35,10 +35,10 @@ module coefs
   use gather_scatter
   use neko_config
   use num_types
-  use dofmap
-  use space
+  use dofmap, only : dofmap_t
+  use space, only: space_t
   use math
-  use mesh
+  use mesh, only : mesh_t
   use device
   use device_math
   use device_coef
