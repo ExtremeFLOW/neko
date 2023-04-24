@@ -159,8 +159,8 @@ contains
 
     t = t + dt
 
-    call ext_bdf%set_bd(dtlag)
-    call ext_bdf%set_abbd(dtlag)
+    call ext_bdf%bdf%set_coeffs(dtlag)
+    call ext_bdf%ext%set_coeffs(dtlag)
     
   end subroutine simulation_settime
 

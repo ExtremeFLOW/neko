@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -114,6 +114,8 @@ void opencl_coef_generate_geo(void *G11, void *G12, void *G13,
     GEO_CASE(12);
     GEO_CASE(13);
     GEO_CASE(14);
+    GEO_CASE(15);
+    GEO_CASE(16);
   }
 }
 
@@ -185,6 +187,8 @@ void opencl_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
     DXYZDRST_CASE(12);
     DXYZDRST_CASE(13);
     DXYZDRST_CASE(14);
+    DXYZDRST_CASE(15);
+    DXYZDRST_CASE(16);
   }
 
   cl_kernel kernel = clCreateKernel(coef_program,

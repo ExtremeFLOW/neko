@@ -295,7 +295,7 @@ contains
     type(field_t), intent(inout) :: temp1, temp2, temp3
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
+    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     type(c_ptr) :: fx_d, fy_d, fz_d
@@ -328,7 +328,7 @@ contains
     type(field_t), intent(inout) :: temp1
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
+    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     type(c_ptr) :: fs_d
@@ -358,7 +358,7 @@ contains
     type(field_series_t), intent(in) :: ulag, vlag, wlag        
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, rho, bd(10)
+    real(kind=rp), intent(in) :: dt, rho, bd(4)
     type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d
 
     bfx_d = device_get_ptr(bfx)
@@ -397,7 +397,7 @@ contains
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, rho, bd(10)
+    real(kind=rp), intent(in) :: dt, rho, bd(4)
     type(c_ptr) :: fs_d, B_d
 
     fs_d = device_get_ptr(fs)

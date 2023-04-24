@@ -245,14 +245,6 @@ contains
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
-    type is(fluid_plan4_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
-    type is(device_fluid_plan4_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
     end select
 
 
@@ -269,7 +261,7 @@ contains
     !
     ! Set order of timestepper
     !
-    call C%ext_bdf%set_time_order(C%params%time_order)
+    call C%ext_bdf%init(C%params%time_order)
 
     !
     ! Save boundary markings for fluid (if requested)

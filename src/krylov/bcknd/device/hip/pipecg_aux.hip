@@ -74,9 +74,9 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
     if (buf1 != NULL && buf_len < nb) {
-      free(buf1);
-      free(buf2);
-      free(buf3);
+      HIP_CHECK(hipHostFree(buf1));
+      HIP_CHECK(hipHostFree(buf2));
+      HIP_CHECK(hipHostFree(buf3));
       HIP_CHECK(hipFree(buf_d1));
       HIP_CHECK(hipFree(buf_d2));
       HIP_CHECK(hipFree(buf_d3));
@@ -84,9 +84,9 @@ extern "C" {
     }
 
     if (buf1 == NULL){
-      buf1 = (real *) malloc(nb * sizeof(real));
-      buf2 = (real *) malloc(nb * sizeof(real));
-      buf3 = (real *) malloc(nb * sizeof(real));
+      HIP_CHECK(hipHostMalloc(&buf1, nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&buf2, nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&buf3, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d1, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d2, nb*sizeof(real)));
       HIP_CHECK(hipMalloc(&buf_d3, nb*sizeof(real)));
@@ -101,24 +101,25 @@ extern "C" {
                        (real *) mult, buf_d1, buf_d2, buf_d3, *n);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpy(buf1, buf_d1, nb * sizeof(real),
-                        hipMemcpyDeviceToHost));
-    HIP_CHECK(hipMemcpy(buf2, buf_d2, nb * sizeof(real),
-                        hipMemcpyDeviceToHost));
-    HIP_CHECK(hipMemcpy(buf3, buf_d3, nb * sizeof(real),
-                        hipMemcpyDeviceToHost));
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0 , 0, buf_d1, nb);
+    HIP_CHECK(hipGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0 , 0, buf_d2, nb);
+    HIP_CHECK(hipGetLastError());
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+                       1, 1024, 0 , 0, buf_d3, nb);
+    HIP_CHECK(hipGetLastError());
 
-    real res1 = 0.0;
-    real res2 = 0.0;
-    real res3 = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res1 += buf1[i];
-      res2 += buf2[i];
-      res3 += buf3[i];
-    }
+    HIP_CHECK(hipMemcpy(&reduction[0], buf_d1, sizeof(real),
+                          hipMemcpyDeviceToHost));
+    HIP_CHECK(hipGetLastError());
+    HIP_CHECK(hipMemcpy(&reduction[1], buf_d2, sizeof(real),
+                          hipMemcpyDeviceToHost));
+    HIP_CHECK(hipGetLastError());
+    HIP_CHECK(hipMemcpy(&reduction[2], buf_d3, sizeof(real),
+                          hipMemcpyDeviceToHost));
+    HIP_CHECK(hipGetLastError());
 
-    reduction[0] = res1;
-    reduction[1] = res2;
-    reduction[2] = res3;
   }
 }

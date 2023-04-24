@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -220,5 +220,75 @@ contains
     end if
     
   end function cfl
+  
+  !> Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i
+  !! Similar to comp_sij in Nek5000.
+  subroutine strain_rate(s11, s22, s33, s12, s13, s23, &
+                         u, v, w, coef)
+    type(field_t), intent(in) :: u, v, w !< velocity components
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(inout) :: s11(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s22(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s33(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s12(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s13(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    
+    type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d
+    
+    integer :: nelv, lxyz
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       s11_d = device_get_ptr(s11)
+       s22_d = device_get_ptr(s22)
+       s33_d = device_get_ptr(s33)
+       s12_d = device_get_ptr(s12)
+       s23_d = device_get_ptr(s23)
+       s13_d = device_get_ptr(s13)
+    endif
+    
+    nelv = u%msh%nelv
+    lxyz = u%Xh%lxyz
+    
+    ! we use s11 as a work array here
+    call dudxyz (s12, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (s11, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(s12_d, s11_d, nelv*lxyz)
+    else
+       call add2(s12, s11, nelv*lxyz)
+    endif
+
+    call dudxyz (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(s13_d, s11_d, nelv*lxyz)
+    else
+       call add2(s13, s11, nelv*lxyz)
+    endif
+
+    call dudxyz (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(s23_d, s11_d, nelv*lxyz)
+    else
+       call add2(s23, s11, nelv*lxyz)
+    endif
+
+    call dudxyz (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (s33, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(s11_d, 2.0_rp, nelv*lxyz)
+       call device_cmult(s22_d, 2.0_rp, nelv*lxyz)
+       call device_cmult(s33_d, 2.0_rp, nelv*lxyz)
+    else
+       call cmult(s11, 2.0_rp, nelv*lxyz)
+       call cmult(s22, 2.0_rp, nelv*lxyz)
+       call cmult(s33, 2.0_rp, nelv*lxyz)
+    endif
+  
+  end subroutine strain_rate
   
 end module operators

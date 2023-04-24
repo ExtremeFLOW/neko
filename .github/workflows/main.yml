@@ -136,6 +136,13 @@ jobs:
         if: matrix.backend == 'cpu'
         run: |
           make -j$(nproc) check
+      - name: Archive test report
+        if: matrix.backend == 'cpu' && failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Test report / ${{ matrix.os }} / ${{ matrix.compiler }}
+          path: tests/test-suite.log
+          retention-days: 2
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
@@ -248,11 +255,10 @@ jobs:
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
-          sudo apt-get install -y nvidia-cuda-toolkit
           git apply patches/nvhpc_bge.patch
           nvfortran --version
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/usr
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/22.11/cuda/
           make -j$(nproc)          
   ReFrame:
       needs: GNU
