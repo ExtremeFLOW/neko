@@ -62,6 +62,8 @@ module gmres_device
      type(c_ptr) :: z_d_d = C_NULL_PTR
      type(c_ptr) :: h_d_d = C_NULL_PTR
      type(c_ptr) :: v_d_d = C_NULL_PTR
+     type(c_ptr) :: z_d_base = C_NULL_PTR
+     type(c_ptr) :: ptr_tmp = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gmres_device_init
      procedure, pass(this) :: free => gmres_device_free
@@ -90,6 +92,30 @@ module gmres_device
        type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
        integer(c_int) :: j, n
      end function cuda_gmres_part2
+  end interface
+#endif
+
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+  interface
+     subroutine gmres_alloc(base,base_sub,m,n) &
+          bind(c, name='gmres_alloc')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: base
+       type(c_ptr) ::  base_sub
+       integer(c_int), value :: m,n
+      end subroutine gmres_alloc
+  end interface
+
+  interface
+     subroutine gmres_free(base) &
+          bind(c, name='gmres_free')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr) :: base
+      end subroutine gmres_free
   end interface
 #endif
 
@@ -127,7 +153,9 @@ contains
     real(kind=rp), optional, intent(inout) :: abs_tol
     type(device_ident_t), target :: M_ident
     type(c_ptr) :: ptr
-    integer(c_size_t) :: z_size
+    type(c_ptr) :: tmp_d_cptr
+    type(c_ptr), pointer :: tmp_d_fptr(:)
+    integer(c_size_t) :: z_size,z_size_full
     integer :: i
 
     if (present(m_restart)) then
@@ -163,9 +191,25 @@ contains
     allocate(this%z_d(this%m_restart))
     allocate(this%v_d(this%m_restart))
     allocate(this%h_d(this%m_restart))
+
+! allocate the memory for z_d and map
+    z_size_full = c_sizeof(C_NULL_PTR) * (this%m_restart) * n
+    call device_alloc(this%z_d_base,z_size_full)
+    call gmres_alloc(this%z_d_base,tmp_d_cptr,this%m_restart,n)
+    call c_f_pointer(tmp_d_cptr,tmp_d_fptr,[this%m_restart])
+! could possibly remove this copy if we make z_d a pointer    
+    this%z_d = tmp_d_fptr
+    nullify(tmp_d_fptr)
+    call gmres_free(tmp_d_cptr)
+
     do i = 1, this%m_restart
-       this%z_d(i) = c_null_ptr
-       call device_map(this%z(:,i), this%z_d(i), n)
+        call device_associate(this%z(:,i), this%z_d(i))
+    enddo   
+
+    
+    do i = 1, this%m_restart
+!       this%z_d(i) = c_null_ptr
+!       call device_map(this%z(:,i), this%z_d(i), n)
 
        this%v_d(i) = c_null_ptr
        call device_map(this%v(:,i), this%v_d(i), n)
@@ -245,12 +289,14 @@ contains
     end if
 
     if (allocated(this%z_d)) then
-       do i = 1, this%m_restart
-          if (c_associated(this%z_d(i))) then
-             call device_free(this%z_d(i))
-          end if
-       end do
+        call device_free(this%z_d_base)    
+!       do i = 1, this%m_restart
+!          if (c_associated(this%z_d(i))) then
+!             call device_free(this%z_d(i))
+!          end if
+!       end do
     end if
+    
     if (allocated(this%h_d)) then
        do i = 1, this%m_restart
           if (c_associated(this%h_d(i))) then
