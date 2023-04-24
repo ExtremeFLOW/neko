@@ -358,10 +358,9 @@ contains
     real(kind=rp), intent(inout) :: t
     type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
-    integer :: n, niter
+    integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
     n = this%dm_Xh%size()
-    niter = 1000
 
     call profiler_start_region('Fluid')
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -375,11 +374,13 @@ contains
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh, prs_res => this%prs_res, &
          vel_res => this%vel_res, sumab => this%sumab, &
-         makeabf => this%makeabf, makebdf => this%makebdf)
+         makeabf => this%makeabf, makebdf => this%makebdf, &
+         prs_max_iter => this%params%prs_max_iter, &
+         vel_max_iter => this%params%vel_max_iter)
          
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-           ulag, vlag, wlag, ext_bdf%ext, ext_bdf%nab)
+           ulag, vlag, wlag, ext_bdf%ext%coeffs, ext_bdf%ext%n)
      
       call f_Xh%eval(t)
 
@@ -397,12 +398,12 @@ contains
                            this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
-                           params%rho, ext_bdf%ext, n)
+                           params%rho, ext_bdf%ext%coeffs, n)
 
       call makebdf%compute_fluid(ta1, ta2, ta3, this%wa1, this%wa2, this%wa3,&
                            ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, params%rho, params%dt, &
-                           ext_bdf%bdf, ext_bdf%nbd, n)
+                           ext_bdf%bdf%coeffs, ext_bdf%bdf%n, n)
 
       call ulag%update()
       call vlag%update()
@@ -419,7 +420,7 @@ contains
                            ta1, ta2, ta3, wa1, wa2, wa3, &
                            this%work1, this%work2, f_Xh, &
                            c_Xh, gs_Xh, this%bc_prs_surface, &
-                           this%bc_sym_surface, Ax, ext_bdf%bdf(1), &
+                           this%bc_sym_surface, Ax, ext_bdf%bdf%coeffs(1), &
                            params%dt, params%Re, params%rho)
       
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
@@ -434,7 +435,7 @@ contains
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve')
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                          this%bclst_dp, gs_Xh, niter)
+                                          this%bclst_dp, gs_Xh, prs_max_iter)
       call profiler_end_region
 
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
@@ -455,7 +456,7 @@ contains
                            u_res, v_res, w_res, &
                            p, ta1, ta2, ta3, &
                            f_Xh, c_Xh, msh, Xh, &
-                           params%Re, params%rho, ext_bdf%bdf(1), &
+                           params%Re, params%rho, ext_bdf%bdf%coeffs(1), &
                            params%dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
@@ -476,11 +477,11 @@ contains
 
       call profiler_start_region("Velocity solve")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh, niter)
+           c_Xh, this%bclst_du, gs_Xh, vel_max_iter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh, niter)
+           c_Xh, this%bclst_dv, gs_Xh, vel_max_iter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh, niter)
+           c_Xh, this%bclst_dw, gs_Xh, vel_max_iter)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
@@ -504,7 +505,7 @@ contains
               ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, params%rho, params%Re, &
               params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-              this%ksp_vel, this%pc_prs, this%pc_vel, niter)
+              this%ksp_vel, this%pc_prs, this%pc_vel, prs_max_iter, vel_max_iter)
       end if
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)

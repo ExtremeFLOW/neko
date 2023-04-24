@@ -63,28 +63,54 @@ module fast3d
   use speclib
   use math, only : rzero
   implicit none
-  private
 
   public :: fd_weights_full, semhat, setup_intp
 
 contains
 
-  !> Evaluates the derivative based on all points in the stencils  
+  !> Compute finite-difference stencil weights for evaluating derivatives up to
+  !! order \f$m\f$ at a point.
   !! @details
-  !! This set of routines comes from the appendix of                       
-  !! A Practical Guide to Pseudospectral Methods, B. Fornberg              
-  !! Cambridge Univ. Press, 1996.
-  subroutine fd_weights_full(xx, x, n, m, c)
+  !! This routine comes from the Appendix C of
+  !! "A Practical Guide to Pseudospectral Methods" by B. Fornberg,
+  !! Cambridge University Press, 1996.
+  !!
+  !! Given gridpoints \f$ x_0, x_1, \dots x_n \f$ and some point \f$\xi\f$
+  !! (not necessarily a grid point!) find weights \f$ c_{j, k} \f$, such that
+  !! the expansions 
+  !! \f$ \frac{d^k f}{d x^k}|_{x=\xi} \approx \sum_{j=0}^n c_{j,k} f(x_j)\f$,
+  !! \f$k=0, \dots m\f$ are optimal.
+  !! Note that finite-difference stencils are exactly such type of expansions.
+  !! For the derivation of the algorithm, refer to 3.1 in the reference above.
+  !!
+  !! @note - Setting \f$m=0\f$ makes this a polynomial interpolation routine.
+  !! It is the fastest such routine possible for a single interpolation point,
+  !! according to the above reference.
+  !! @note - The name `_full` refers to the fact that we use the values \f$f(x_j)\f$
+  !! at all available nodes \f$x\f$ to construct the expansion. So we always
+  !! get the finite difference stencil of maximum order possible.
+  !!
+  !! @warning The calculation of the wieghts is numerically stable.
+  !! But applying the weights to a function can be ill-conditioned in the case
+  !! of high-order derivatives. 
+  !!
+  !! @param xi Point at which the approximations are to be accurate
+  !! @param x The coordinates for the grid points
+  !! @param[in] n The size of `x` is `n + 1`
+  !! @param[in] m Highest order of derivative to be approximated
+  !! @param c The stencil weights. Row j corresponds to weight of \f$f(x_j)\f$
+  !! and column k to the kth derivative.
+  subroutine fd_weights_full(xi, x, n, m, c)
     integer, intent(in) :: n
     integer, intent(in) :: m
     real(kind=rp), intent(in) :: x(0:n)
     real(kind=rp), intent(out) :: c(0:n,0:m)
-    real(kind=rp), intent(in) :: xx
+    real(kind=rp), intent(in) :: xi
     real(kind=rp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 
     c1 = 1d0
-    c4 = x(0) - xx
+    c4 = x(0) - xi
 
     do k = 0, m
        do j = 0, n
@@ -98,7 +124,7 @@ contains
        mn = min(i,m)
        c2 = 1d0  
        c5 = c4                                                       
-       c4 = x(i) - xx
+       c4 = x(i) - xi
        do j = 0, i - 1                                                  
           c3 = x(i) - x(j)
           c2 = c2 * c3                                                    

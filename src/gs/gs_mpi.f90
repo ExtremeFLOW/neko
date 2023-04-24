@@ -38,6 +38,7 @@ module gs_mpi
   use gs_ops
   use stack, only : stack_i4_t
   use comm
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
   
@@ -118,10 +119,11 @@ contains
   end subroutine gs_mpi_free
 
   !> Post non-blocking send operations
-  subroutine gs_nbsend_mpi(this, u, n)
+  subroutine gs_nbsend_mpi(this, u, n, deps)
     class(gs_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: deps
     integer ::  i, j, ierr, dst
     integer , pointer :: sp(:)
 

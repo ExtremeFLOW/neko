@@ -24,7 +24,10 @@ SUBDIRS = tuple\
 	  mathops\
 	  device_mathops\
 	  octree\
-	  vector
+	  vector\
+	  scratch_registry\
+	  fast3d\
+	  ext_bdf_scheme
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -51,8 +54,11 @@ TESTS = device/device_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
-        octree/octree_test\
-	vector/vector_test
+	octree/octree_test\
+	vector/vector_test\
+	scratch_registry/scratch_registry_test\
+	fast3d/fast3d_test\
+	ext_bdf_scheme/ext_bdf_scheme_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
@@ -107,4 +113,7 @@ EXTRA_DIST = \
 	mean_sqr_field/mean_sqr_field_test\
 	device_math/device_math_test\
 	octree/octree.pf\
-	vector/vector_parallel.pf
+	vector/vector_parallel.pf\
+	scratch_registry/test_scratch_registry.pf\
+	fast3d/test_fd_weights_full.pf\
+	ext_bdf_scheme/test_bdf.pf

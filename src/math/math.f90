@@ -287,7 +287,7 @@ contains
     
   end subroutine invcol1
  
-  !> Invert a vector \f$ a = b / a \f$
+  !> Invert a vector \f$ a = b / c \f$
   subroutine invcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a

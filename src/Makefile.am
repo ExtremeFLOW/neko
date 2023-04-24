@@ -53,6 +53,7 @@ neko_fortran_SOURCES = \
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
 	field/field_registry.f90\
+	field/scratch_registry.f90\
 	field/field.f90\
 	field/field_series.f90\
 	field/mesh_field.f90\
@@ -148,7 +149,6 @@ neko_fortran_SOURCES = \
 	common/user_intf.f90\
 	fluid/fluid_method.f90\
 	fluid/fluid_aux.f90\
-	fluid/fluid_plan4.f90\
 	fluid/fluid_plan1.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
@@ -162,7 +162,6 @@ neko_fortran_SOURCES = \
 	fluid/advection.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
-	fluid/bcknd/device/device_fluid_plan4.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
