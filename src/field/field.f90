@@ -55,13 +55,14 @@ module field
      character(len=80) :: name            !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
   contains
-    procedure, pass(f) :: init => field_init_external_dof
+    generic :: init => field_init_external_dof, field_init_internal_dof
     procedure, pass(f) :: free => field_free
+    procedure :: field_init_external_dof, field_init_internal_dof
   end type field_t
 
   !> field_ptr_t, To easily obtain a pointer to a field
   type field_ptr_t
-     type(field_t), pointer :: f
+     type(field_t), pointer :: field => null()
   end type
   !> field_list_t, To be able to group fields together
   type field_list_t
@@ -111,6 +112,7 @@ contains
     class(field_t), intent(inout) :: f       !< Field to be initialized
     type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
     character(len=*), optional :: fld_name     !< Name of the field
+    call field_free(f)
 
     f%dof => dof
     f%Xh => dof%Xh
