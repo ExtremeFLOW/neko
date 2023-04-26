@@ -152,36 +152,36 @@ contains
     type is (field_list_t)
        select case (size(data%fields))
        case (1)
-          p%x => data%fields(1)%f%x(:,1,1,1)
+          p%x => data%fields(1)%field%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .false.
        case (2)
-          p%x => data%fields(1)%f%x(:,1,1,1)
-          tem%x => data%fields(2)%f%x(:,1,1,1)
+          p%x => data%fields(1)%field%x(:,1,1,1)
+          tem%x => data%fields(2)%field%x(:,1,1,1)
           write_pressure = .true.
           write_temperature = .true.
        case (3)
-          u%x => data%fields(1)%f%x(:,1,1,1)
-          v%x => data%fields(2)%f%x(:,1,1,1)
-          w%x => data%fields(3)%f%x(:,1,1,1)
+          u%x => data%fields(1)%field%x(:,1,1,1)
+          v%x => data%fields(2)%field%x(:,1,1,1)
+          w%x => data%fields(3)%field%x(:,1,1,1)
           write_velocity = .true.
        case (4)
-          p%x => data%fields(1)%f%x(:,1,1,1)
-          u%x => data%fields(2)%f%x(:,1,1,1)
-          v%x => data%fields(3)%f%x(:,1,1,1)
-          w%x => data%fields(4)%f%x(:,1,1,1)
+          p%x => data%fields(1)%field%x(:,1,1,1)
+          u%x => data%fields(2)%field%x(:,1,1,1)
+          v%x => data%fields(3)%field%x(:,1,1,1)
+          w%x => data%fields(4)%field%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .true.
       case (5:99)
-          p%x => data%fields(1)%f%x(:,1,1,1)
-          u%x => data%fields(2)%f%x(:,1,1,1)
-          v%x => data%fields(3)%f%x(:,1,1,1)
-          w%x => data%fields(4)%f%x(:,1,1,1)
-          tem%x => data%fields(5)%f%x(:,1,1,1)
+          p%x => data%fields(1)%field%x(:,1,1,1)
+          u%x => data%fields(2)%field%x(:,1,1,1)
+          v%x => data%fields(3)%field%x(:,1,1,1)
+          w%x => data%fields(4)%field%x(:,1,1,1)
+          tem%x => data%fields(5)%field%x(:,1,1,1)
           n_scalar_fields = size(data%fields) - 5
           allocate(scalar_fields(n_scalar_fields))
           do i = 1,n_scalar_fields
-             scalar_fields(i)%x => data%fields(i+5)%f%x(:,1,1,1)
+             scalar_fields(i)%x => data%fields(i+5)%field%x(:,1,1,1)
           end do
           write_pressure = .true.
           write_velocity = .true.
@@ -189,7 +189,7 @@ contains
        case default
           call neko_error('This many fields not supported yet, fld_file')
        end select
-       dof => data%fields(1)%f%dof 
+       dof => data%fields(1)%field%dof 
 
     class is (fluid_scheme_t)
        u%x => data%u%x(:,1,1,1)

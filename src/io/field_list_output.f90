@@ -83,7 +83,8 @@ contains
     if (t .ge. this%T_begin) then
        if ( NEKO_BCKND_DEVICE .eq. 1) then
           do i = 1, size(out_fields)
-          call device_memcpy(out_fields(i)%f%x, out_fields(i)%f%x_d, out_fields(i)%f%dof%size(), DEVICE_TO_HOST)
+          call device_memcpy(out_fields(i)%field%x, out_fields(i)%field%x_d,&
+               out_fields(i)%field%dof%size(), DEVICE_TO_HOST)
           end do
        end if
        call this%file_%write(this%fields, t)
