@@ -41,9 +41,6 @@ module scratch_registry
   implicit none
   private
   
-  type :: field_ptr_t
-    type(field_t), pointer :: field => NULL()
-  end type field_ptr_t
   
   type, public :: scratch_registry_t
      type(field_ptr_t), private, allocatable :: fields(:)      !< list of scratch fields 
