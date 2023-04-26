@@ -48,31 +48,29 @@ module sampler
 
   !> Sampler
   type, public :: sampler_t
-     type(outp_t), allocatable :: output_list(:)
-     integer :: n              
-     integer :: size
-     integer :: nsample
-     real(kind=rp) :: freq
-     real(kind=rp) :: T
+     type(outp_t), allocatable :: output_list(:) !< List of outputs
+     real(kind=rp), allocatable :: freq_list(:) !< Write frequency (sim time)
+     real(kind=rp), allocatable :: T_list(:) !< List of times before write
+     integer, allocatable :: tstep_interval_list(:) !< Sample every tstep interval
+     integer, allocatable :: nsample_list(:) !< Sample number
+     integer :: n !< number of outputs
+     integer :: size !< number of entries in list
+     real(kind=rp) :: T_end
    contains
      procedure, pass(this) :: init => sampler_init
      procedure, pass(this) :: free => sampler_free
      procedure, pass(this) :: add => sampler_add
      procedure, pass(this) :: sample => sampler_sample
      procedure, pass(this) :: set_counter => sampler_set_counter
-     procedure, pass(this) :: set_count => sampler_set_sample_count
   end type sampler_t
 
 contains
 
   !> Initialize a sampler
-  subroutine sampler_init(this, nsamp, T_end, freq, T, size)
+  subroutine sampler_init(this, T_end, size)
     class(sampler_t), intent(inout) :: this
-    integer, intent(in) :: nsamp
-    real(kind=rp), intent(in) :: T_end
-    real(kind=rp), optional, intent(in) :: T
     integer, intent(in), optional :: size
-    real(kind=rp), optional, intent(in) :: freq
+    real(kind=rp), intent(in) :: T_end
     character(len=LOG_SIZE) :: log_buf
     integer :: n, i
 
@@ -86,35 +84,23 @@ contains
     end if
 
     allocate(this%output_list(n))
+    allocate(this%freq_list(n))
+    allocate(this%T_list(n))
+    allocate(this%tstep_interval_list(n))
+    allocate(this%nsample_list(n))
 
     do i = 1, n
        this%output_list(i)%outp => null()
+       this%nsample_list(i) = 0
+       this%tstep_interval_list(i) = 0
+       this%freq_list(i) = 0
+       this%T_list(i) = 0
     end do
 
-    this%n = 0
     this%size = n
+    this%n = 0
+    this%T_end = T_end
 
-    this%nsample = 0
-    if (present(freq)) then
-       this%freq = freq
-       this%T = real(1d0,rp) / this%freq
-    else if (present(T)) then
-       this%T = T
-       this%freq = 1.0_rp/this%T
-    else
-       this%freq = ( real(nsamp,rp) / T_end )
-       this%T = real(1d0,rp) / this%freq
-    end if
-
-    call neko_log%section('Sampler')
-    write(log_buf, '(A,I13)') 'Samples   :',  nsamp
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'Freq.     :',  this%freq
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'Sample t  :',  this%T
-    call neko_log%message(log_buf)
-    call neko_log%end_section()
-    
   end subroutine sampler_init
 
   !> Deallocate a sampler
@@ -124,6 +110,18 @@ contains
     if (allocated(this%output_list)) then
        deallocate(this%output_list)       
     end if
+    if (allocated(this%freq_list)) then
+       deallocate(this%freq_list)       
+    end if
+    if (allocated(this%T_list)) then
+       deallocate(this%T_list)       
+    end if
+    if (allocated(this%tstep_interval_list)) then
+       deallocate(this%tstep_interval_list)       
+    end if
+    if (allocated(this%nsample_list)) then
+       deallocate(this%nsample_list)       
+    end if
 
     this%n = 0
     this%size = 0
@@ -131,27 +129,82 @@ contains
   end subroutine sampler_free
 
   !> Add an output @a out to the sampler
-  subroutine sampler_add(this, out)
+  subroutine sampler_add(this, out, write_par, write_control)
     class(sampler_t), intent(inout) :: this
     class(output_t), intent(inout), target :: out
+    real(kind=rp), intent(in) :: write_par
+    character(len=*), intent(in) :: write_control
     type(outp_t), allocatable :: tmp(:)
+    integer, allocatable :: tmpi(:)
+    real(kind=rp), allocatable :: tmpr(:)
+    character(len=LOG_SIZE) :: log_buf
+    integer :: n
 
     if (this%n .ge. this%size) then
        allocate(tmp(this%size * 2))
        tmp(1:this%size) = this%output_list
        call move_alloc(tmp, this%output_list)
+       allocate(tmpr(this%size * 2))
+       tmpr(1:this%size) = this%freq_list
+       call move_alloc(tmpr, this%freq_list)
+       allocate(tmpr(this%size * 2))
+       tmpr(1:this%size) = this%T_list
+       call move_alloc(tmpr, this%T_list)
+       allocate(tmpi(this%size * 2))
+       tmpi(1:this%size) = this%tstep_interval_list
+       call move_alloc(tmpi, this%tstep_interval_list)
+       allocate(tmpi(this%size * 2))
+       tmpi(1:this%size) = this%nsample_list
+       call move_alloc(tmpi, this%nsample_list)
        this%size = this%size * 2
     end if
 
     this%n = this%n + 1
+    n = this%n
     this%output_list(this%n)%outp => out
+    
+    call neko_log%message('---Adding write output---')
+    call neko_log%message('File name: '// &
+          trim(this%output_list(this%n)%outp%file_%file_type%fname))
+    call neko_log%message( 'Write control: '//trim(write_control))
+    if (trim(write_control) .eq. 'simulationtime') then
+        this%T_list(n) = write_par
+        this%freq_list(n) = 1.0_rp/this%T_list(n)
+        this%tstep_interval_list(n) = 0
+        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  this%freq_list(n)
+        call neko_log%message(log_buf)
+        write(log_buf, '(A,ES13.6)') 'Time between writes: ',  this%T_list(n)
+        call neko_log%message(log_buf)
+    else if (trim(write_control) .eq. 'nsamples') then
+        this%freq_list(n) = ( write_par / this%T_end )
+        this%T_list(n) = real(1d0,rp) / this%freq_list(n)
+        this%tstep_interval_list(n) = 0
+        write(log_buf, '(A,I13)') 'Total samples: ',  int(write_par)
+        call neko_log%message(log_buf)
+        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  this%freq_list(n)
+        call neko_log%message(log_buf)
+        write(log_buf, '(A,ES13.6)') 'Time between writes: ',  this%T_list(n)
+        call neko_log%message(log_buf)
+    else if (trim(write_control) .eq. 'tsteps') then 
+        this%tstep_interval_list(n) = int(write_par)
+        write(log_buf, '(A,I13)') 'Time step interval: ',  int(write_par)
+        call neko_log%message(log_buf)
+    else if (trim(write_control) .eq. 'org') then
+        this%tstep_interval_list(n) = this%tstep_interval_list(1)
+        this%freq_list(n) = this%freq_list(1)
+        this%T_list(n) = this%T_list(1)
+        write(log_buf, '(A)') 'Write control not set, defaulting to first output settings'
+        call neko_log%message(log_buf)
+    end if
+    this%nsample_list(n) = 0
     
   end subroutine sampler_add
 
   !> Sample all outputs in the sampler
-  subroutine sampler_sample(this, t, ifforce)
+  subroutine sampler_sample(this, t, tstep, ifforce)
     class(sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     logical, intent(in), optional :: ifforce
     real(kind=dp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
@@ -163,34 +216,50 @@ contains
        force = ifforce
     end if
 
-    if (t .ge. (this%nsample * this%T) .or. force) then
-       call profiler_start_region('Sampler')
-       call MPI_Barrier(NEKO_COMM, ierr)
-       sample_start_time = MPI_WTIME()
+    call profiler_start_region('Sampler')
+    !Do we need this Barrier?
+    call MPI_Barrier(NEKO_COMM, ierr)
+    sample_start_time = MPI_WTIME()
 
-       ! We should not need this extra select block, and it works great
-       ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
-       ! (>11.0.x) when using high opt. levels.  
-       select type (samp => this)
-       type is (sampler_t)
-          do i = 1, this%n
+    ! We should not need this extra select block, and it works great
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
+    call neko_log%message('Writer output: ')
+    ! (>11.0.x) when using high opt. levels.  
+    select type (samp => this)
+    type is (sampler_t)
+       do i = 1, this%n
+          if (force) then
+             call neko_log%message(trim(this%output_list(i)%outp%file_%file_type%fname))
+             write(log_buf, '(A,I6)') 'Output number:',  int(this%nsample_list(i))
+             call neko_log%message(log_buf)
              call samp%output_list(i)%outp%sample(t)
-          end do
-       class default
-          call neko_error('Invalid sampler output list')
-       end select
-       
-       call MPI_Barrier(NEKO_COMM, ierr)
-       sample_end_time = MPI_WTIME()
-       this%nsample = this%nsample + 1
-
-       sample_time = sample_end_time - sample_start_time
-       write(log_buf,'(A24,1x,F10.6,A,F9.6)') 'Sampling fields at time:', t, &
-             ' Sample time (s): ', sample_time
-       call neko_log%message(log_buf)
-       call profiler_end_region
-    end if
+             this%nsample_list(i) = this%nsample_list(i) + 1
+          else if ((this%tstep_interval_list(i) .eq. 0) .and. (t .ge. (this%nsample_list(i) * this%T_list(i)))) then
+             call neko_log%message(trim(this%output_list(i)%outp%file_%file_type%fname))
+             write(log_buf, '(A,I6)') 'Output number:',  int(this%nsample_list(i))
+             call neko_log%message(log_buf)
+             call samp%output_list(i)%outp%sample(t)
+             this%nsample_list(i) = this%nsample_list(i) + 1
+          else if ((this%tstep_interval_list(i) .gt. 0) .and. (mod(tstep,this%tstep_interval_list(i)) .eq. 0)) then
+             call neko_log%message(trim(this%output_list(i)%outp%file_%file_type%fname))
+             write(log_buf, '(A,I6)') 'Output number:',  int(this%nsample_list(i))
+             call neko_log%message(log_buf)
+             call samp%output_list(i)%outp%sample(t)
+             this%nsample_list(i) = this%nsample_list(i) + 1
+          end if
+       end do
+    class default
+       call neko_error('Invalid sampler output list')
+    end select
     
+    call MPI_Barrier(NEKO_COMM, ierr)
+    sample_end_time = MPI_WTIME()
+
+    sample_time = sample_end_time - sample_start_time
+    write(log_buf,'(A23,1x,F10.6,A,F9.6)') 'Output written at time:', t, &
+          ' Output time (s): ', sample_time
+    call neko_log%message(log_buf)
+    call profiler_end_region
   end subroutine sampler_sample
 
   !> Set sampling counter based on time (after restart)
@@ -199,11 +268,13 @@ contains
     real(kind=rp), intent(in) :: t
     integer :: i
 
-    this%nsample = int(t / this%T) + 1
 
     do i = 1, this%n
-       call this%output_list(i)%outp%set_counter(this%nsample)
-       call this%output_list(i)%outp%set_start_counter(this%nsample)
+       if (this%tstep_interval_list(i) .eq. 0) then
+          this%nsample_list(i) = int(t / this%T_list(i)) + 1
+          call this%output_list(i)%outp%set_counter(this%nsample_list(i))
+          call this%output_list(i)%outp%set_start_counter(this%nsample_list(i))
+       end if
     end do
     
   end subroutine sampler_set_counter
@@ -214,10 +285,10 @@ contains
     integer, intent(in) :: sample_number
     integer :: i
 
-    this%nsample = sample_number
     do i = 1, this%n
-       call this%output_list(i)%outp%set_counter(this%nsample)
-       call this%output_list(i)%outp%set_start_counter(this%nsample)
+       this%nsample_list(i) = sample_number
+       call this%output_list(i)%outp%set_counter(this%nsample_list(i))
+       call this%output_list(i)%outp%set_start_counter(this%nsample_list(i))
     end do
     
   end subroutine sampler_set_sample_count
