@@ -1,4 +1,4 @@
-!> Program to sum up averaged fields computed for statistics and mean field
+!> Somewhat preliminary program to sum up averaged fields computed for statistics and mean field
 !! Martin Karp 27/01-23
 program postprocess_fluid_stats
   use neko
@@ -124,17 +124,17 @@ program postprocess_fluid_stats
   call copy(avg_flow%w%mf%x,mean_data%w%x,n)
   call copy(avg_flow%p%mf%x,mean_data%p%x,n)
   
-  call copy(fld_stats%stat_fields%fields(1)%f%x,stats_data%p%x,n)
-  call copy(fld_stats%stat_fields%fields(2)%f%x,stats_data%u%x,n)
-  call copy(fld_stats%stat_fields%fields(3)%f%x,stats_data%v%x,n)
-  call copy(fld_stats%stat_fields%fields(4)%f%x,stats_data%w%x,n)
-  call copy(fld_stats%stat_fields%fields(5)%f%x,stats_data%t%x,n)
+  call copy(fld_stats%stat_fields%fields(1)%field%x,stats_data%p%x,n)
+  call copy(fld_stats%stat_fields%fields(2)%field%x,stats_data%u%x,n)
+  call copy(fld_stats%stat_fields%fields(3)%field%x,stats_data%v%x,n)
+  call copy(fld_stats%stat_fields%fields(4)%field%x,stats_data%w%x,n)
+  call copy(fld_stats%stat_fields%fields(5)%field%x,stats_data%t%x,n)
   do i = 6, size(fld_stats%stat_fields%fields)
-     call copy(fld_stats%stat_fields%fields(i)%f%x,stats_data%s(i-5)%x,n)
+     call copy(fld_stats%stat_fields%fields(i)%field%x,stats_data%s(i-5)%x,n)
   end do
 
   allocate(reynolds%fields(7))
-
+  !Temp fields used for the computations to come
   call field_init(uu,dof)
   call field_init(vv,dof)
   call field_init(ww,dof)
@@ -145,13 +145,13 @@ program postprocess_fluid_stats
   call field_init(tmp1,dof)
   call field_init(tmp2,dof)
 
-  reynolds%fields(1)%f => pp
-  reynolds%fields(2)%f => uu
-  reynolds%fields(3)%f => vv
-  reynolds%fields(4)%f => ww
-  reynolds%fields(5)%f => uv
-  reynolds%fields(6)%f => uw
-  reynolds%fields(7)%f => vw
+  reynolds%fields(1)%field => pp
+  reynolds%fields(2)%field => uu
+  reynolds%fields(3)%field => vv
+  reynolds%fields(4)%field => ww
+  reynolds%fields(5)%field => uv
+  reynolds%fields(6)%field => uw
+  reynolds%fields(7)%field => vw
 
   call fld_stats%post_process(reynolds=reynolds)
   output_file = file_t('reynolds.fld')
@@ -160,27 +160,27 @@ program postprocess_fluid_stats
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
   allocate(mean_vel_grad%fields(9))
-  mean_vel_grad%fields(1)%f => pp
-  mean_vel_grad%fields(2)%f => uu
-  mean_vel_grad%fields(3)%f => vv
-  mean_vel_grad%fields(4)%f => ww
-  mean_vel_grad%fields(5)%f => uv
-  mean_vel_grad%fields(6)%f => uw
-  mean_vel_grad%fields(7)%f => vw
-  mean_vel_grad%fields(8)%f => tmp1
-  mean_vel_grad%fields(9)%f => tmp2
+  mean_vel_grad%fields(1)%field => pp
+  mean_vel_grad%fields(2)%field => uu
+  mean_vel_grad%fields(3)%field => vv
+  mean_vel_grad%fields(4)%field => ww
+  mean_vel_grad%fields(5)%field => uv
+  mean_vel_grad%fields(6)%field => uw
+  mean_vel_grad%fields(7)%field => vw
+  mean_vel_grad%fields(8)%field => tmp1
+  mean_vel_grad%fields(9)%field => tmp2
 
   call fld_stats%post_process(mean_vel_grad=mean_vel_grad)
   !Fix order of gradients
-  mean_vel_grad%fields(2)%f => pp
-  mean_vel_grad%fields(3)%f => uu
-  mean_vel_grad%fields(4)%f => vv
-  mean_vel_grad%fields(1)%f => ww
-  mean_vel_grad%fields(5)%f => uv
-  mean_vel_grad%fields(6)%f => uw
-  mean_vel_grad%fields(7)%f => vw
-  mean_vel_grad%fields(8)%f => tmp1
-  mean_vel_grad%fields(9)%f => tmp2
+  mean_vel_grad%fields(2)%field => pp
+  mean_vel_grad%fields(3)%field => uu
+  mean_vel_grad%fields(4)%field => vv
+  mean_vel_grad%fields(1)%field => ww
+  mean_vel_grad%fields(5)%field => uv
+  mean_vel_grad%fields(6)%field => uw
+  mean_vel_grad%fields(7)%field => vw
+  mean_vel_grad%fields(8)%field => tmp1
+  mean_vel_grad%fields(9)%field => tmp2
 
 
   if (pe_rank .eq. 0) write(*,*) 'Writing mean velocity gradient into mean_vel_grad'
