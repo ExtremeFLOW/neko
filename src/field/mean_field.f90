@@ -42,7 +42,7 @@ module mean_field
   
   type, extends(stats_quant_t) ::  mean_field_t
      type(field_t), pointer :: f => null()
-     type(field_t), pointer :: mf
+     type(field_t) :: mf
      real(kind=rp) :: time
    contains
      procedure, pass(this) :: init => mean_field_init
@@ -71,8 +71,7 @@ contains
        write(name, '(A,A)') 'mean_',trim(f%name)
     end if
 
-    call neko_field_registry%add_field(f%dof, name)
-    this%mf => neko_field_registry%get_field(name)
+    call field_init(this%mf,f%dof, name)
 
   end subroutine mean_field_init
 
@@ -83,10 +82,7 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-    if (associated(this%mf)) then
-       nullify(this%mf)
-    end if
-
+    call this%mf%free()
 
   end subroutine mean_field_free
 

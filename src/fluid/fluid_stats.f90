@@ -147,20 +147,21 @@ module fluid_stats
 
 contains
 
-  !> Initialize a mean flow field
-  subroutine fluid_stats_init(this, coef)
+  !> Initialize the fields associated with fluid_stats
+  subroutine fluid_stats_init(this, coef, u_mf,v_mf,w_mf,p_mf)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
+    type(mean_field_t), target, intent(inout) :: u_mf, v_mf, w_mf, p_mf
     this%coef => coef
   
-    this%u_mean => neko_field_registry%get_field('mean_u')
-    this%v_mean => neko_field_registry%get_field('mean_v')
-    this%w_mean => neko_field_registry%get_field('mean_w')
-    this%p_mean => neko_field_registry%get_field('mean_p')
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
-    this%p => neko_field_registry%get_field('p')
+    this%u_mean => u_mf%mf
+    this%v_mean => v_mf%mf
+    this%w_mean => w_mf%mf
+    this%p_mean => p_mf%mf
+    this%u => u_mf%f
+    this%v => v_mf%f
+    this%w => w_mf%f
+    this%p => p_mf%f
 
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_u%init(this%u%dof, 'u temp')
