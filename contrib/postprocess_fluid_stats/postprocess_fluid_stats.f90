@@ -117,7 +117,7 @@ program postprocess_fluid_stats
   p => neko_field_registry%get_field('p')
 
   call avg_flow%init(u, v, w, p)
-  call fld_stats%init(coef)
+  call fld_stats%init(coef,avg_flow%u,avg_flow%v,avg_flow%w,avg_flow%p)
   n = mean_data%u%n
   call copy(avg_flow%u%mf%x,mean_data%u%x,n)
   call copy(avg_flow%v%mf%x,mean_data%v%x,n)
