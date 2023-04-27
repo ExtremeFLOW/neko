@@ -95,11 +95,7 @@ contains
     class(mean_field_t), intent(inout) :: this
     
     this%time = 0.0
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(this%mf%x_d,size(this%mf%x))
-    else
-       call rzero(this%mf%x,size(this%mf%x))
-    end if    
+    this%mf = 0.0_rp  
   end subroutine mean_field_reset
 
 
