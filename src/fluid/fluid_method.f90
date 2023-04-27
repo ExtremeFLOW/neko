@@ -525,7 +525,8 @@ contains
        call this%mean%init(this%u, this%v, this%w, this%p)
     end if
     if (this%params%stats_fluid) then
-       call this%stats%init(this%c_Xh)
+       call this%stats%init(this%c_Xh,this%mean%u,&
+            this%mean%v,this%mean%w,this%mean%p)
     end if
 
     if (this%params%stats_mean_sqr_flow) then
