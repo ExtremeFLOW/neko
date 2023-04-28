@@ -42,6 +42,7 @@ module file
   use fld_file_data
   use vtk_file
   use stl_file
+  use dat_file
   implicit none
   
   type file_t
@@ -90,6 +91,8 @@ contains
        allocate(chkp_file_t::this%file_type)
     else if (suffix .eq. "stl") then
        allocate(stl_file_t::this%file_type)
+    else if (suffix .eq. "dat") then
+       allocate(dat_file_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
