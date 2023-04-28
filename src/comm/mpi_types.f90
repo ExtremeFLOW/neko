@@ -677,47 +677,47 @@ contains
     call MPI_Type_free(MPI_NMSH_CURVE, ierr)
   end subroutine mpi_type_nmsh_curve_free
   
-  !> Deallocate re2 xyz dervied MPI type
+  !> Deallocate re2 xyz derived MPI type
   subroutine mpi_type_re2_xyz_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_XYZ, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_XYZ, ierr)
   end subroutine mpi_type_re2_xyz_free
 
-  !> Deallocate re2 xyz dervied MPI type
+  !> Deallocate re2 xyz derived MPI type
   subroutine mpi_type_re2_xy_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_XY, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_XY, ierr)
   end subroutine mpi_type_re2_xy_free
 
-  !> Deallocate re2 cv dervied MPI type
+  !> Deallocate re2 cv derived MPI type
   subroutine mpi_type_re2_cv_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_CV, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_CV, ierr)
   end subroutine mpi_type_re2_cv_free
   
-  !> Deallocate re2 bc dervied MPI type
+  !> Deallocate re2 bc derived MPI type
   subroutine mpi_type_re2_bc_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_BC, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_BC, ierr)
   end subroutine mpi_type_re2_bc_free
 
-  !> Deallocate parameters dervied MPI type
+  !> Deallocate parameters derived MPI type
   subroutine mpi_type_neko_params_free
     integer ierr
     call MPI_Type_free(MPI_NEKO_PARAMS, ierr)
   end subroutine mpi_type_neko_params_free
 
-  !> Deallocate STL header dervied MPI type
+  !> Deallocate STL header derived MPI type
   subroutine mpi_type_stl_header_free
     integer ierr
     call MPI_Type_free(MPI_STL_HEADER, ierr)
   end subroutine mpi_type_stl_header_free
   
-  !> Deallocate STL triangle dervied MPI type
+  !> Deallocate STL triangle derived MPI type
   subroutine mpi_type_stl_triangle_free
     integer ierr
     call MPI_Type_free(MPI_STL_TRIANGLE, ierr)
