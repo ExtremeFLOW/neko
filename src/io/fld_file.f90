@@ -36,8 +36,8 @@ module fld_file
   use generic_file
   use field
   use dofmap
-  use fluid_method
-  use scalar
+  use fluid_scheme
+  use scalar_scheme
   use fld_file_data
   use mean_flow
   use mean_sqr_flow
