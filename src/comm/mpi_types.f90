@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> MPI dervied types
+!> MPI derived types
 module mpi_types
   use comm
   use re2
@@ -41,22 +41,22 @@ module mpi_types
   implicit none
   private
 
-  type(MPI_Datatype) :: MPI_NMSH_HEX    !< MPI dervied type for 3D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_ZONE   !< MPI dervied type for Neko nmsh zone data
-  type(MPI_Datatype) :: MPI_NMSH_CURVE   !< MPI dervied type for Neko nmsh curved elements
+  type(MPI_Datatype) :: MPI_NMSH_HEX    !< MPI derived type for 3D Neko nmsh data
+  type(MPI_Datatype) :: MPI_NMSH_QUAD   !< MPI derived type for 2D Neko nmsh data
+  type(MPI_Datatype) :: MPI_NMSH_ZONE   !< MPI derived type for Neko nmsh zone data
+  type(MPI_Datatype) :: MPI_NMSH_CURVE   !< MPI derived type for Neko nmsh curved elements
 
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_XYZ !< MPI derived type for 3D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_XY  !< MPI derived type for 2D NEKTON re2 data
   type(MPI_Datatype) :: MPI_RE2V1_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_BC  !< MPI derived type for NEKTON re2 bc data
 
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_XYZ !< MPI derived type for 3D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_XY  !< MPI derived type for 2D NEKTON re2 data
   type(MPI_Datatype) :: MPI_RE2V2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_BC  !< MPI derived type for NEKTON re2 bc data
 
-  type(MPI_Datatype) :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
+  type(MPI_Datatype) :: MPI_NEKO_PARAMS    !< MPI derived type for parameters
 
   type(MPI_Datatype) :: MPI_STL_HEADER     !< MPI Derived type for a STL header
   type(MPI_Datatype) :: MPI_STL_TRIANGLE   !< MPI derived type for a STL triangle
@@ -68,7 +68,7 @@ module mpi_types
   integer :: MPI_LOGICAL_SIZE          !< Size of MPI type logical
   integer :: MPI_REAL_PREC_SIZE        !< Size of working precision REAL types
 
-  ! Public dervied types and size definitions
+  ! Public derived types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
        MPI_NMSH_CURVE, &
        MPI_RE2V1_DATA_XYZ, MPI_RE2V1_DATA_XY, &
@@ -85,7 +85,7 @@ module mpi_types
 
 contains
 
-  !> Define all MPI dervied types
+  !> Define all MPI derived types
   subroutine mpi_types_init
     integer :: ierr
 
@@ -117,7 +117,7 @@ contains
 
   end subroutine mpi_types_init
 
-  !> Define a MPI dervied type for a 3d nmsh hex
+  !> Define a MPI derived type for a 3d nmsh hex
   subroutine mpi_type_nmsh_hex_init
     type(nmsh_hex_t) :: nmsh_hex
     type(MPI_Datatype) :: type(17)
@@ -159,7 +159,7 @@ contains
     call MPI_Type_commit(MPI_NMSH_HEX, ierr)    
   end subroutine mpi_type_nmsh_hex_init
 
-  !> Define a MPI dervied type for a 2d nmsh quad
+  !> Define a MPI derived type for a 2d nmsh quad
   subroutine mpi_type_nmsh_quad_init
     type(nmsh_quad_t) :: nmsh_quad
     type(MPI_Datatype) :: type(9)
@@ -353,7 +353,7 @@ contains
 
   end subroutine mpi_type_re2_xy_init
 
-  !> Define a MPI dervied type for re2 cv data
+  !> Define a MPI derived type for re2 cv data
   subroutine mpi_type_re2_cv_init
     type(re2v1_curve_t) :: re2v1_data
     type(re2v2_curve_t) :: re2v2_data
@@ -411,7 +411,7 @@ contains
     
   end subroutine mpi_type_re2_cv_init
   
-  !> Define a MPI dervied type for re2 bc data
+  !> Define a MPI derived type for re2 bc data
   subroutine mpi_type_re2_bc_init
     type(re2v1_bc_t) :: re2v1_data
     type(re2v2_bc_t) :: re2v2_data
@@ -584,7 +584,7 @@ contains
 
   end subroutine mpi_type_neko_params_init
 
-  !> Define a MPI dervied type for a STL header
+  !> Define a MPI derived type for a STL header
   subroutine mpi_type_stl_header_init
     type(stl_hdr_t) :: stl_hdr
     type(MPI_Datatype) :: type(2)
@@ -610,7 +610,7 @@ contains
       
   end subroutine mpi_type_stl_header_init
 
-  !> Define a MPI dervied type for a STL triangle
+  !> Define a MPI derived type for a STL triangle
   subroutine mpi_type_stl_triangle_init
     type(stl_triangle_t) :: tri
     type(MPI_Datatype) :: type(5)
