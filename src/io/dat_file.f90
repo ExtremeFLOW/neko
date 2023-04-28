@@ -118,7 +118,7 @@ contains
     suffix_pos = filename_suffix_pos(d%fname)
     fname = trim(d%fname(1:suffix_pos-1)) // "-out.dat"
 
-    open(file=trim(fname), iostat=ierr, newunit=file_unit)
+    open(file=trim(fname), position="append", iostat=ierr, newunit=file_unit)
 
     if (present(t)) write (file_unit, '(E15.7)', advance="no") t
 
@@ -145,7 +145,7 @@ contains
     suffix_pos = filename_suffix_pos(d%fname)
     fname = trim(d%fname(1:suffix_pos-1)) // "-out.dat"
 
-    open(file=trim(fname), iostat=ierr, newunit=file_unit)
+    open(file=trim(fname), position="append", iostat=ierr, newunit=file_unit)
 
     do i = 1, data%ni
        if (present(t)) write (file_unit, '(E15.7)', advance="no") t
@@ -199,6 +199,7 @@ contains
     call probe_init(pb, npts)
 
     ! Allocate a temporary array that will store the points
+    ! very ugly
     allocate(temp_send_coords(3,npts))
 
     ! == Now, read the coordinates
@@ -211,14 +212,17 @@ contains
 
       close(unit=file_unit)
       
+      !very ugly
       temp_send_coords(1,:) = pb%xyz_coords(:)%x(1)
       temp_send_coords(2,:) = pb%xyz_coords(:)%x(2)
       temp_send_coords(3,:) = pb%xyz_coords(:)%x(3)
     end if
 
+    ! ouch
     call MPI_Bcast(temp_send_coords, pb%npts, MPI_POINT, 0, NEKO_COMM, ierr)
 
     if (pe_rank .ne. 0) then
+      !very ugly
       pb%xyz_coords(:)%x(1) = temp_send_coords(1,:)
       pb%xyz_coords(:)%x(2) = temp_send_coords(2,:)
       pb%xyz_coords(:)%x(3) = temp_send_coords(3,:)
