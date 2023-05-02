@@ -106,6 +106,16 @@ module advection
   end type adv_dealias_t
 
   abstract interface
+     !> Add advection operator to the right-hand-side for a fluld
+     !! @param this The object 
+     !! @param vx The x component of velocity
+     !! @param vy The y component of velocity
+     !! @param vz The z component of velocity
+     !! @param fx The x component of source term
+     !! @param fy The y component of source term
+     !! @param fz The z component of source term
+     !! @param coef The coefficients of the (Xh, mesh) pair
+     !! @param n Typically the size of the mesh.
      subroutine apply_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
        import :: advection_t
        import :: coef_t
@@ -122,6 +132,15 @@ module advection
   end interface
 
   abstract interface
+     !> Add advection operator to the right-hand-side for a fluld
+     !! @param this The object 
+     !! @param vx The x component of velocity
+     !! @param vy The y component of velocity
+     !! @param vz The z component of velocity
+     !! @param s The scalar
+     !! @param fs The source term
+     !! @param coef The coefficients of the (Xh, mesh) pair
+     !! @param n Typically the size of the mesh.
      subroutine apply_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
        import :: advection_t
        import :: coef_t
@@ -142,7 +161,7 @@ module advection
 
 contains
   
-  !> A factory for advection_t decendants.
+  !> A factory for \ref advection_t decendants.
   !! @param this Polymorphic object of class \ref advection_t.
   !! @param coeff The coefficients of the (space, mesh) pair.
   !! @param delias Whether to dealias or not.
@@ -189,6 +208,7 @@ contains
   end subroutine advection_factory
 
   !> Constructor
+  !! @param coeff The coefficients of the (space, mesh) pair.
   subroutine init_no_dealias(this, coef)
     class(adv_no_dealias_t) :: this
     type(coef_t) :: coef
@@ -404,6 +424,8 @@ contains
 
   end subroutine apply_advection_no_dealias
 
+
+  !> Compute the advection term for the scalar without dealiasing
   subroutine apply_scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
                                                coef, n)
     class(adv_no_dealias_t), intent(inout) :: this
