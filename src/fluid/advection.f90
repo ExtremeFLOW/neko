@@ -169,6 +169,7 @@ contains
   !! Defaults to 3/2 of `coeff%Xh%lx`.
   !! @note The factory both allocates and initializes `this`.
   subroutine advection_factory(this, coef, dealias, lxd)
+    implicit none
     class(advection_t), allocatable, intent(inout) :: this
     type(coef_t), target :: coef
     logical, intent(in) :: dealias
@@ -210,6 +211,7 @@ contains
   !> Constructor
   !! @param coeff The coefficients of the (space, mesh) pair.
   subroutine init_no_dealias(this, coef)
+    implicit none
     class(adv_no_dealias_t) :: this
     type(coef_t) :: coef
 
@@ -225,6 +227,7 @@ contains
   !! @param lxd The polynomial order of the space used in the dealiasing.
   !! @param coeff The coefficients of the (space, mesh) pair.
   subroutine init_dealias(this, lxd, coef)
+    implicit none
     class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
@@ -277,6 +280,7 @@ contains
   
   !> Compute the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$
   subroutine apply_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+    implicit none
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
@@ -386,6 +390,7 @@ contains
   !> Eulerian scheme, add convection term to forcing function
   !! at current time step.
   subroutine apply_advection_no_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+    implicit none
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
@@ -428,6 +433,7 @@ contains
   !> Compute the advection term for the scalar without dealiasing
   subroutine apply_scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
                                                coef, n)
+    implicit none
     class(adv_no_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
@@ -461,6 +467,7 @@ contains
   !> Compute the advection term for the scalar with dealiasing
   subroutine apply_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
                                             coef, n)
+    implicit none
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
@@ -478,7 +485,7 @@ contains
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
 
-    associate(c_GL => this%coef_GL, dsdz => this%vt)
+    associate(c_GL => this%coef_GL)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        fs_d = device_get_ptr(fs)
 
@@ -537,7 +544,7 @@ contains
           call this%GLL_to_GL%map(s_GL, s%x(1,1,1,e), 1, this%Xh_GL)
 
           ! Gradient of s in the higher-order space
-          call opgrad(dsdx, this%vs, this%vt, s_GL, c_GL, e, e)
+          call opgrad(dsdx, dsdy, dsdz, s_GL, c_GL, e, e)
           
           ! vx * ds/dx + vy * ds/dy + vz * ds/dz for each point in the element
           do i = 1, this%Xh_GL%lxyz
@@ -547,7 +554,7 @@ contains
           ! Map back the contructed operator to the original space
           call this%GLL_to_GL%map(temp, f_GL, 1, this%Xh_GLL)
 
-          idx = (e-1)*this%Xh_GLL%lxyz+1
+          idx = (e-1)*this%Xh_GLL%lxyz + 1
 
           call sub2(fs(idx), temp, this%Xh_GLL%lxyz)
        end do
