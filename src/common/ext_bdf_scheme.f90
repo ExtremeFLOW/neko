@@ -69,9 +69,15 @@ module ext_bdf_scheme
   private
   
   !> Base abstract class for time integration schemes
+  !! @details
+  !! An important detail here is the handling of the first timesteps where a 
+  !! high-order scheme cannot be constructed. The parameters `n`, which is
+  !! initialized to 0, must be incremented by 1 in the beggining of the 
+  !! `set_coeffs` routine to determine the current scheme order.
+  !! When `n == time_order`, the incrementation should stop.
   type, abstract, public :: time_scheme_t
      !> The coefficients of the scheme
-     real(kind=rp), dimension(10) :: coeffs 
+     real(kind=rp), dimension(4) :: coeffs 
      !> Controls the actual order of the scheme, e.g. 1 at the first time-step
      integer :: n = 0
      !> Order of the scheme, defaults to 3
@@ -79,17 +85,22 @@ module ext_bdf_scheme
      !> Device pointer for `coeffs`
      type(c_ptr) :: coeffs_d = C_NULL_PTR 
    contains
+     !> Controls current scheme order and computes the coefficients
      procedure(set_coeffs), deferred, pass(this) :: set_coeffs
+     !> Constructor
      procedure, pass(this) :: init => time_scheme_init 
+     !> Destructor
      procedure, pass(this) :: free => time_scheme_free
   end type time_scheme_t
   
   abstract interface
+     !> Interface for setting the scheme coefficients
+     !! @param t Timestep values, first element is the current timestep.
      subroutine set_coeffs(this, dt)
        import time_scheme_t
        import rp
        class(time_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(inout), dimension(10) :: dt !< timestep values
+       real(kind=rp), intent(inout), dimension(10) :: dt
      end subroutine
   end interface
   
@@ -98,6 +109,39 @@ module ext_bdf_scheme
        procedure, pass(this) :: set_coeffs => ext_time_scheme_set_coeffs
   end type ext_time_scheme_t
 
+  !> Implicit backward-differencing scheme for time integration.
+  !! @details
+  !! The explicit forumlas for the coefficients are taken from the following
+  !! techincal note:
+  !! "Derivation of BDF2/BDF3 for Variable Step Size" by Hiroaki Nishikawa,
+  !! which can be found on ResearchGate.
+  !!
+  !! For a contant time-step this corresponds to the following schemes for
+  !! order 1 to 3:
+  !! - Order 1: \f$ \frac{1}{\Delta t} u^{n+1} - \frac{1}{\Delta t} u^{n} \f$ 
+  !! - Order 2: \f$ \frac{3}{2\Delta t} u^{n+1} - \frac{4}{2\Delta t} u^{n}  + 
+  !!                \frac{1}{2\Delta t} u^{n-1}\f$ 
+  !! - Order 3: \f$ \frac{11}{6\Delta t} u^{n+1} - \frac{18}{6\Delta t} u^{n}  + 
+  !!                \frac{9}{6\Delta t} u^{n-1} - \frac{2}{6\Delta t} u^{n-2}\f$ 
+  !!
+  !! It is assumed that all the coefficients but the first one premultiply terms
+  !! that go to the right-hand side of the equation. 
+  !! Accordingly, the signs of these coefficients are reversed in the `coeffs`
+  !! array. This is taken into account, for example, in the implemeation of the
+  !! `rhs_maker` class.
+  !!
+  !! Another important convention is that the coefficients are meant to be
+  !! later divided by the current value of the timestep.
+  !!
+  !! In line with the above assumptions, the first order scheme always returns
+  !! the array \f$[1, 1]\f$, and **not** \f$[1/\Delta t, -1/\Delta t]\f$, as one
+  !! might expect. Similar for the second and third order.
+  !!
+  !! @remark 
+  !! The current implementation can be easily extended to schemes of arbitrary
+  !! order, by using the `fd_weights_full` subroutine to compute the
+  !! coefficients. A demonstration of this is implemented in a test in
+  !! `tests/ext_bdf_scheme/test_bdf.pf`
   type, public, extends(time_scheme_t) :: bdf_time_scheme_t 
      contains
        procedure, pass(this) :: set_coeffs => bdf_time_scheme_set_coeffs
@@ -113,7 +157,7 @@ module ext_bdf_scheme
   end type ext_bdf_scheme_t
 
 contains
-  !> Constructor for a time_scheme_t
+  !> Constructor
   subroutine time_scheme_init(this, torder)
     class(time_scheme_t), intent(inout) :: this
     integer, intent(in) :: torder !< Desired order of the scheme: 1, 2 or 3.
@@ -126,11 +170,11 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%coeffs, this%coeffs_d, 10)
+       call device_map(this%coeffs, this%coeffs_d, 4)
     end if
   end subroutine time_scheme_init
 
-  !> Destructor for time_scheme_t
+  !> Destructor
   subroutine time_scheme_free(this)
     class(time_scheme_t), intent(inout) :: this
 
@@ -152,7 +196,7 @@ contains
     class(ext_time_scheme_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dt
     real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
-    real(kind=rp), dimension(10) :: ab_old
+    real(kind=rp), dimension(4) :: ab_old
     associate(nab => this%n, nbd => this%n, ext => this%coeffs, ext_d => this%coeffs_d)
       ab_old = ext
       nab = nab + 1
@@ -161,7 +205,7 @@ contains
       dt0 = dt(1)
       dt1 = dt(2)
       dt2 = dt(3)
-      call rzero(ext, 10)
+      call rzero(ext, 4)
       
       if (nab .eq. 1) then
          ext(1) = 1.0_rp
@@ -198,56 +242,52 @@ contains
 
       if (c_associated(ext_d)) then
          if (maxval(abs(ext - ab_old)) .gt. 1e-10_rp) then
-            call device_memcpy(ext, ext_d, 10, HOST_TO_DEVICE)
+            call device_memcpy(ext, ext_d, 4, HOST_TO_DEVICE)
          end if
       end if
     end associate
     
   end subroutine ext_time_scheme_set_coeffs
 
-  !>Compute backward-differentiation coefficients of order NBD
   subroutine bdf_time_scheme_set_coeffs(this, dt)
+    implicit none
     class(bdf_time_scheme_t), intent(inout) :: this
     real(kind=rp), intent(inout), dimension(10) :: dt
-    real(kind=rp), dimension(10,10) :: bdmat
-    real(kind=rp), dimension(10) :: bdrhs
-    real(kind=rp), dimension(10) :: bd_old
-    real(kind=rp) :: bdf
-    integer, parameter :: ldim = 10
-    integer, dimension(10) :: ir, ic
-    integer :: ibd, nsys, i
+    real(kind=rp), dimension(4) :: coeffs_old
 
-    associate(nbd => this%n, bd => this%coeffs, bdf_d => this%coeffs_d)
-      bd_old = bd
-      nbd = nbd + 1
-      nbd = min(nbd, this%time_order)
-      call rzero(bd, 10)
-      if (nbd .eq. 1) then
-         bd(1) = 1.0_rp
-         bdf = 1.0_rp
-      else if (nbd .ge. 2) then
-         nsys = nbd + 1
-         call bdsys(bdmat, bdrhs, dt, nbd, ldim)
-         call lu(bdmat, nsys, ldim, ir, ic)
-         call solve(bdrhs, bdmat, 1, nsys, ldim, ir, ic)
-         do i = 1, nbd
-            bd(i) = bdrhs(i)
-         end do
-         bdf = bdrhs(nbd + 1)
-      endif
+    associate(n => this%n, coeffs => this%coeffs, coeffs_d => this%coeffs_d)
+      ! will be used to check whether the coefficients changed
+      coeffs_old = coeffs
       
-      !Normalize
-      do ibd = nbd, 1, -1
-         bd(ibd + 1) = bd(ibd)
-      end do
-      bd(1) = 1.0_rp
-      do ibd= 1, nbd + 1
-         bd(ibd) = bd(ibd)/bdf
-      end do
+      ! Increment the order of the scheme if below time_order
+      n = n + 1
+      n = min(n, this%time_order)
 
-      if (c_associated(bdf_d)) then
-         if (maxval(abs(bd - bd_old)) .gt. 1e-10_rp) then
-            call device_memcpy(bd, bdf_d, 10, HOST_TO_DEVICE)
+      call rzero(coeffs, 4)
+      
+      ! Note, these are true coeffs, multiplied by dt(1)
+      select case (n)
+      case (1)
+         coeffs(1) = 1.0_rp
+         coeffs(2) = 1.0_rp
+      case (2)
+         coeffs(1) = (1 + dt(1)/(dt(1) + dt(2)))
+         coeffs(3) = -dt(1)**2/dt(2)/(dt(1) + dt(2))
+         coeffs(2) =  coeffs(1) - coeffs(3)
+      case (3)
+         coeffs(2) = (dt(1) + dt(2)) * (dt(1) + dt(2) + dt(3)) / &
+                     (dt(1) * dt(2) * (dt(2) + dt(3)))
+         coeffs(3) = -dt(1) * (dt(1) + dt(2) + dt(3)) / &
+                     (dt(2) * dt(3) * (dt(1) + dt(2)))
+         coeffs(4) = dt(1) * (dt(1) + dt(2)) / &
+                     (dt(3) * (dt(2) + dt(3)) * (dt(1) + dt(2) + dt(3)))
+         coeffs(1) = coeffs(2) + coeffs(3) + coeffs(4)
+         coeffs = coeffs * dt(1)
+      end select
+      
+      if (c_associated(coeffs_d)) then
+         if (maxval(abs(coeffs - coeffs_old)) .gt. 1e-10_rp) then
+            call device_memcpy(coeffs, coeffs_d, 4, HOST_TO_DEVICE)
          end if
       end if
     end associate
@@ -268,147 +308,5 @@ contains
      call time_scheme_free(this%ext)
      call time_scheme_free(this%bdf)
   end subroutine ext_bdf_scheme_free
-  
-  !
-  ! todo: CLEAN UP THIS MESS BELOW, USE LAPACK OR SIMILAR
-  !
-  subroutine bdsys (a, b, dt, nbd, ldim)
-    integer :: ldim, j, n, k, i, nsys, nbd
-    real(kind=rp) ::  A(ldim,9),B(9),DT(9)
-    real(kind=rp) :: SUMDT
-
-    CALL RZERO (A, ldim**2)
-    N = NBD + 1
-    DO J = 1, NBD
-       A(1,J) = 1.0_rp
-    end DO
-    A(1,NBD+1) = 0.0_rp
-    B(1) = 1.0_rp
-    DO J = 1, NBD
-       SUMDT = 0.0_rp
-       DO  K = 1, J
-          SUMDT = SUMDT + DT(K)
-       end DO
-       A(2,J) = SUMDT
-    end DO
-    A(2,NBD+1) = -DT(1)
-    B(2) = 0.0_rp
-    DO I = 3, NBD + 1
-       DO J = 1, NBD
-          SUMDT = 0.0_rp
-          DO K = 1, J
-             SUMDT = SUMDT + DT(K)
-          end DO
-          A(I,J) = SUMDT**(I-1)
-       end DO
-       A(I,NBD+1) = 0.0_rp
-       B(I) = 0.0_rp
-    end DO
-      
-    end subroutine bdsys
-
-
-    SUBROUTINE LU(A, N, ldim, IR, IC)
-      integer :: n, ldim, IR(10), IC(10)
-      real(kind=rp) :: A(ldim,10), xmax, ymax, B, Y, C
-      integer :: i, j, k, l, m, icm, irl, k1
-
-      DO I = 1, N
-         IR(I) = I
-         IC(I) = I
-      end DO
-      K = 1
-      L = K
-      M = K
-      XMAX = ABS(A(K,K))
-      DO I = K, N
-         DO J = K, N
-            Y = ABS(A(I,J))
-            IF(XMAX .GE. Y) GOTO 100
-            XMAX = Y
-            L = I
-            M = J
-100      END DO
-      END DO
-      DO K = 1, N
-         IRL = IR(L)
-         IR(L) = IR(K)
-         IR(K) = IRL
-         ICM = IC(M)
-         IC(M) = IC(K)
-         IC(K) = ICM
-         IF(L .EQ. K) GOTO 300
-         DO J = 1, N
-            B = A(K,J)
-            A(K,J) = A(L,J)
-            A(L,J) = B
-         END DO
-300      IF(M .EQ. K) GOTO 500
-         DO I = 1, N
-            B = A(I,K)
-            A(I,K) = A(I,M)
-            A(I,M) = B
-         END DO
-500      C = 1.0_rp / A(K,K)
-         A(K,K) = C
-         IF(K .EQ. N) GOTO 1000
-         K1 = K + 1
-         XMAX = ABS(A(K1,K1))
-         L = K1
-         M = K1
-         DO I = K1, N
-            A(I,K) = C * A(I,K)
-         END DO
-         DO I = K1, N
-            B = A(I,K)
-            DO J = K1, N
-               A(I,J) = A(I,J) - B * A(K,J)
-               Y = ABS(A(I,J))
-               IF(XMAX .GE. Y) GOTO 800
-               XMAX = Y
-               L = I
-               M = J
-800         END DO
-         END DO
-1000  END DO
-    end subroutine lu
-   
-    SUBROUTINE SOLVE(F, A, K, N, ldim, IR, IC)
-      integer :: IR(10),IC(10), N, N1, k, kk, i, j, ldim, ICM, URL, K1, ICI
-      integer :: I1, IRI,IRL, IT
-      real(kind=rp) ::  A(ldim,10), F(ldim,10), G(2000), B, Y
-
-      N1 = N + 1
-      DO KK = 1, K
-         DO I = 1, N
-            IRI = IR(I)
-            G(I) = F(IRI,KK)
-         END DO
-         DO I = 2, N
-            I1 = I - 1
-            B = G(I)
-            DO J = 1, I1
-               B = B - A(I,J) * G(J)
-            END DO
-            G(I) = B
-         END DO
-         DO IT = 1, N
-            I = N1 - IT
-            I1 = I + 1
-            B = G(I)
-            IF(I .EQ. N) GOTO 701
-            DO J = I1, N
-               B = B - A(I,J) * G(J)
-            END DO
-701         G(I) = B * A(I,I)
-         END DO
-         DO I = 1, N
-            ICI = IC(I)
-            F(ICI,KK) = G(I)
-         END DO
-      END DO
-    END SUBROUTINE SOLVE
-    
-
   
 end module ext_bdf_scheme

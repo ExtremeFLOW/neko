@@ -36,7 +36,7 @@ module fluid_pnpn
   use ax_helm_fctry
   use rhs_maker_fctry
   use fluid_volflow
-  use fluid_method
+  use fluid_scheme
   use field_series  
   use facet_normal
   use device_math
@@ -320,7 +320,7 @@ contains
     real(kind=rp), intent(inout) :: t
     type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
-    integer :: n, niter
+    integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
     type(field_t), pointer :: temp1, temp2, temp3, temp4
     type(field_t), pointer :: temp5, temp6, temp7, temp8
@@ -328,8 +328,6 @@ contains
     integer :: temp_indices(11)
 
     n = this%dm_Xh%size()
-    niter = 1000
-    
 
     call profiler_start_region('Fluid')
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -340,7 +338,9 @@ contains
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh, prs_res => this%prs_res, &
          vel_res => this%vel_res, sumab => this%sumab, &
-         makeabf => this%makeabf, makebdf => this%makebdf)
+         makeabf => this%makeabf, makebdf => this%makebdf, &
+         prs_max_iter => this%params%prs_max_iter, &
+         vel_max_iter => this%params%vel_max_iter)
          
       ! Get temporary arrays
       call this%scratch%request_field(temp1, temp_indices(1))
@@ -411,7 +411,7 @@ contains
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve')
       ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                          this%bclst_dp, gs_Xh, niter)
+                                          this%bclst_dp, gs_Xh, prs_max_iter)
       call profiler_end_region
 
       if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
@@ -453,11 +453,11 @@ contains
 
       call profiler_start_region("Velocity solve")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh, niter)
+           c_Xh, this%bclst_du, gs_Xh, vel_max_iter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh, niter)
+           c_Xh, this%bclst_dv, gs_Xh, vel_max_iter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh, niter)
+           c_Xh, this%bclst_dw, gs_Xh, vel_max_iter)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
@@ -481,7 +481,7 @@ contains
               temp1, temp2, temp3, c_Xh, gs_Xh, ext_bdf, params%rho, params%Re,&
               params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-              this%ksp_vel, this%pc_prs, this%pc_vel, niter)
+              this%ksp_vel, this%pc_prs, this%pc_vel, prs_max_iter, vel_max_iter)
       end if
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)
