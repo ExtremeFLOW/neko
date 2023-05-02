@@ -163,7 +163,7 @@ contains
     n = this%n
     this%output_list(this%n)%outp => out
     
-    call neko_log%message('---Adding write output---')
+    call neko_log%section('---Adding write output---')
     call neko_log%message('File name: '// &
           trim(this%output_list(this%n)%outp%file_%file_type%fname))
     call neko_log%message( 'Write control: '//trim(write_control))
@@ -198,6 +198,7 @@ contains
     end if
     this%nsample_list(n) = 0
     
+    call neko_log%end_section()
   end subroutine sampler_add
 
   !> Sample all outputs in the sampler
