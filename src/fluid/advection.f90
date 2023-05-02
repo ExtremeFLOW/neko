@@ -465,9 +465,9 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
     integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout), dimension(coef%dof%size()) :: fs
     type(c_ptr) :: fs_d
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL, s_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: dsdx, dsdy, dsdz
