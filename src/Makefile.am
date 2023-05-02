@@ -55,6 +55,7 @@ neko_fortran_SOURCES = \
 	field/field_registry.f90\
 	field/scratch_registry.f90\
 	field/field.f90\
+	field/field_list.f90\
 	field/field_series.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\

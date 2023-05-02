@@ -33,6 +33,7 @@
 !> Defines an output for a mean flow field
 module field_list_output
   use field
+  use field_list
   use num_types
   use output
   implicit none

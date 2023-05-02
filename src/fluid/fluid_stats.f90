@@ -44,6 +44,7 @@ module fluid_stats
   use operators
   use coefs
   use field_registry
+  use field_list
   use gather_scatter
   implicit none
 
