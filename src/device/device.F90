@@ -85,7 +85,32 @@ module device
   interface device_sync
      module procedure device_sync_device, device_sync_stream
   end interface device_sync
-      
+
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+  interface
+     subroutine alloc_subarray(base,base_sub,m,n) &
+          bind(c, name='alloc_subarray')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: base
+       type(c_ptr) ::  base_sub
+       integer(c_int), value :: m,n
+     end subroutine alloc_subarray
+  end interface
+
+  interface
+     subroutine free_subarray(base) &
+          bind(c, name='free_subarray')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr) :: base
+      end subroutine free_subarray
+  end interface
+#endif
+
+
   !> Table of host to device address mappings
   type(htable_cptr_t), private :: device_addrtbl
 
@@ -1199,5 +1224,58 @@ contains
 #endif
   end subroutine device_event_sync
 
-  
+
+  subroutine device_alloc_subarray(host_a,base,subarray,m,n)
+    real(kind=rp) :: host_a(:,:)
+    type(c_ptr)   :: subarray(:)
+    type(c_ptr)   :: base
+    type(c_ptr)   :: ptr_tmp
+    integer       :: m,n,i
+    integer(c_size_t) :: size_full
+    type(c_ptr) :: tmp_d_cptr
+    type(c_ptr), pointer :: tmp_d_fptr(:)
+
+
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+
+    size_full = c_sizeof(C_NULL_PTR) * m * n
+    call device_alloc(base,size_full)
+
+    call alloc_subarray(base,tmp_d_cptr,m,n)
+    call c_f_pointer(tmp_d_cptr,tmp_d_fptr,[m])
+ ! This copy is necessary as subarray is not a pointer
+    subarray = tmp_d_fptr
+    nullify(tmp_d_fptr)
+    call free_subarray(tmp_d_cptr)
+
+    do i = 1, m
+        call device_associate(host_a(:,i), subarray(i))
+    enddo
+
+#else
+! fall back to old version
+   do i = 1, m
+       subarray(i) = c_null_ptr
+       call device_map(host_a(:,i), subarray(i), n)
+   enddo
+#endif
+  end subroutine
+
+  subroutine device_free_subarray(base,subarray,m)
+     type(c_ptr)   :: base
+     type(c_ptr)   :: subarray(:)
+     integer       :: m,i
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+    call device_free(base)
+#else
+! fall back to old version
+       do i = 1, m
+          if (c_associated(subarray(i))) then
+             call device_free(subarray(i))
+          end if
+       end do
+#endif
+  end subroutine
+
+
 end module device

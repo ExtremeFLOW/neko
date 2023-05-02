@@ -35,22 +35,18 @@
 #include <stdlib.h>
 #include <device/device_config.h>
 
-// extern "C" {
-   void gmres_alloc(real *base, real ***base_sub, int m, int n)
-   {
+void alloc_subarray(real *base, real ***base_sub, int m, int n)
+{
+  *base_sub =  (real **) malloc(m*sizeof(real*));
 
-     *base_sub =  (real **) malloc(m*sizeof(real*));
-
-     for(int i=0; i<m ; i++) {
+   for(int i=0; i<m ; i++) {
             (*base_sub)[i] = base + i*n;
-     }
-
    }
 
-  void gmres_free(real **base)
-  {
+}
+
+void free_subarray(real **base)
+{
     free(*base);
     *base=NULL;
-  }	  
-
-// }
+}
