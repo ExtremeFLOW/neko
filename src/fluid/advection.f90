@@ -436,13 +436,14 @@ contains
 
   end subroutine apply_scalar_advection_no_dealias
 
-  !! n is not needed because coef knows the dofmap!
+  !> Compute the advection term for the scalar with dealiasing
   subroutine apply_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
                                             coef, n)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
     integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: fs
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout), dimension(coef%dof%size()) :: fs
@@ -457,6 +458,54 @@ contains
     n_GL = nel * this%Xh_GL%lxyz
 
     associate(c_GL => this%coef_GL, dsdz => this%vt)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       fs_d = device_get_ptr(fs)
+
+       ! Map advecting velocity onto the higher-order space
+       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+
+       ! Map the scalar onto the high-order space
+       call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
+       
+       ! Compute the scalar gradient in the high-order space
+       call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
+       
+       ! Compute the convective term, i.e dot the velocity with the scalar grad
+       call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
+                         this%tx_d, this%ty_d, this%tz_d, n_GL)
+
+       ! Map back to the original space (we reuse this%temp)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       
+       ! Update the source term
+       call device_sub2(fs_d, this%temp_d, n)
+
+    else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+
+       ! Map advecting velocity onto the higher-order space
+       call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+
+       ! Map the scalar onto the high-order space
+       call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
+       
+       ! Compute the scalar gradient in the high-order space
+       call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
+       
+       ! Compute the convective term, i.e dot the velocity with the scalar grad
+       call vdot3(this%tbf, this%vr, this%vs, this%vt, &
+                  this%tx, this%ty, this%tz, n_GL)
+
+       ! Map back to the original space (we reuse this%temp)
+       call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+       
+       ! Update the source term
+       call sub2(fs, this%temp, n)
+
+    else
        do e = 1, coef%msh%nelv
           ! Map advecting velocity onto the higher-order space
           call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
@@ -481,6 +530,7 @@ contains
 
           call sub2(fs(idx), temp, this%Xh_GLL%lxyz)
        end do
+   end if
    end associate
 
   end subroutine apply_scalar_advection_dealias
