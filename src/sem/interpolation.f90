@@ -183,6 +183,7 @@ contains
   !! @param y Interpolated array.
   !! @param nel Number of elements in the mesh.
   !! @param to_space The space to interpolate to, must be either Xh or Yh.
+  !! @note Not optimized for performance, should only be used during init.
   subroutine interpolator_map_host(this, y, x, nel, to_space)
     class(interpolator_t), intent(inout) :: this
     integer :: nel
