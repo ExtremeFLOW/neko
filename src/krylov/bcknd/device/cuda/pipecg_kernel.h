@@ -32,6 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <math/bcknd/device/cuda/math_kernel.h>
+
 /**
  * Kernel for back-substitution of x and update of p
  */
@@ -86,9 +88,12 @@ __global__ void pipecg_vecops_kernel(T  * __restrict__  p,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  __shared__ T buf1[1024];
-  __shared__ T buf2[1024];
-  __shared__ T buf3[1024];
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+  
+  __shared__ T buf1[32];
+  __shared__ T buf2[32];
+  __shared__ T buf3[32];
   T tmp1 = 0.0;
   T tmp2 = 0.0;
   T tmp3 = 0.0;
@@ -105,25 +110,30 @@ __global__ void pipecg_vecops_kernel(T  * __restrict__  p,
     tmp3 = tmp3 + r[i] * mult[i] * r[i];
 
   }
-  buf1[threadIdx.x] = tmp1;
-  buf2[threadIdx.x] = tmp2;
-  buf3[threadIdx.x] = tmp3;
+
+  tmp1 = reduce_warp<T>(tmp1);
+  tmp2 = reduce_warp<T>(tmp2);
+  tmp3 = reduce_warp<T>(tmp3);
+  if (lane == 0) {
+    buf1[wid] = tmp1;
+    buf2[wid] = tmp2;
+    buf3[wid] = tmp3;
+  }
   __syncthreads();
 
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf1[threadIdx.x] += buf1[threadIdx.x + i];
-      buf2[threadIdx.x] += buf2[threadIdx.x + i];
-      buf3[threadIdx.x] += buf3[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
+  tmp1 = (threadIdx.x < blockDim.x / warpSize) ? buf1[lane] : 0;
+  tmp2 = (threadIdx.x < blockDim.x / warpSize) ? buf2[lane] : 0;
+  tmp3 = (threadIdx.x < blockDim.x / warpSize) ? buf3[lane] : 0;
+  if (wid == 0) {
+    tmp1 = reduce_warp<T>(tmp1);
+    tmp2 = reduce_warp<T>(tmp2);
+    tmp3 = reduce_warp<T>(tmp3);
   }
- 
+
   if (threadIdx.x == 0) {
-    buf_h1[blockIdx.x] = buf1[0];
-    buf_h2[blockIdx.x] = buf2[0];
-    buf_h3[blockIdx.x] = buf3[0];
+    buf_h1[blockIdx.x] = tmp1;
+    buf_h2[blockIdx.x] = tmp2;
+    buf_h3[blockIdx.x] = tmp3;
   }
+
 }
