@@ -236,11 +236,11 @@ contains
   !! @param nf Number of points in `z_to`.
   !! @param nc Number of points in `z_from`.
   !! @derivative Specifies if we want the derivative interpolation instead, e.g.
-  !! `derivative = 1` refer to the first derivative etc.
+  !! `derivative = 1` refers to the first derivative etc.
   subroutine setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)
     implicit none
     integer, intent(in) :: n_to, n_from, derivative
-    real(kind=rp), intent(inout) :: jh(n_to, n_from), jht(n_to, n_from)
+    real(kind=rp), intent(inout) :: jh(n_to, n_from), jht(n_from, n_to)
     real(kind=rp), intent(inout) :: z_to(n_to), z_from(n_from)
     real(kind=rp) ::  w(n_from, 0:derivative)
     integer :: i, j
