@@ -52,6 +52,7 @@ mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o
 field/field_registry.o : field/field_registry.f90 common/utils.o field/field.o config/num_types.o 
 field/scratch_registry.o : field/scratch_registry.f90 common/utils.o field/field.o config/num_types.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 
+field/field_list.o : field/field_list.f90 field/field.o 
 field/field_series.o : field/field_series.f90 field/field.o config/num_types.o 
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o config/num_types.o 
 field/mean_field.o : field/mean_field.f90 field/field_registry.o math/math.o field/field.o config/num_types.o common/stats_quant.o 
@@ -155,7 +156,7 @@ fluid/fluid_volflow.o : fluid/fluid_volflow.f90 math/bcknd/device/device_mathops
 fluid/pnpn_res.o : fluid/pnpn_res.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o common/source.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
 fluid/pnpn_res_fctry.o : fluid/pnpn_res_fctry.f90 fluid/bcknd/sx/pnpn_res_sx.o fluid/bcknd/cpu/pnpn_res_cpu.o fluid/bcknd/device/pnpn_res_device.o fluid/pnpn_res.o common/utils.o config/neko_config.o 
 fluid/mean_flow.o : fluid/mean_flow.f90 field/mean_field.o 
-fluid/fluid_stats.o : fluid/fluid_stats.f90 gs/gather_scatter.o field/field_registry.o sem/coef.o math/operators.o math/math.o math/mathops.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o field/mean_field.o 
+fluid/fluid_stats.o : fluid/fluid_stats.f90 gs/gather_scatter.o field/field_list.o field/field_registry.o sem/coef.o math/operators.o math/math.o math/mathops.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o field/mean_field.o 
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/mean_sqr_field.o 
 fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o 
 fluid/flow_ic.o : fluid/flow_ic.f90 common/user_intf.o math/math.o sem/coef.o common/utils.o field/field.o common/parameters.o math/bcknd/device/device_math.o fluid/flow_profile.o config/neko_config.o gs/gather_scatter.o 
