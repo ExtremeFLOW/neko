@@ -65,6 +65,10 @@ module field
      type(field_t), pointer :: field => null()
   end type
 
+  !> field_list_t, To be able to group fields together
+  type field_list_t
+     type(field_ptr_t), allocatable :: fields(:)
+  end type
   interface field_init
      module procedure field_init_external_dof, field_init_internal_dof
   end interface field_init
