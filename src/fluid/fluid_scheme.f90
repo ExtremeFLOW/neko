@@ -64,6 +64,7 @@ module fluid_scheme
   use operators
   use logger
   use field_registry
+  use field_list
   implicit none
   
   !> Base type of all fluid formulations
