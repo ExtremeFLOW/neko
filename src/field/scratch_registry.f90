@@ -110,7 +110,7 @@ contains
 
     if (allocated(this%fields)) then
        do i=1, this%nfields
-          call this%fields(i)%f%free
+          call field_free(this%fields(i)%f)
           deallocate(this%fields(i)%f)
        end do
     
@@ -191,7 +191,7 @@ contains
          write (name, "(A3,I0.3)") "wrk", index
          
          if (.not. allocated(this%fields(index)%f%x)) then
-           call this%fields(index)%f%init(this%dof, trim(name))
+           call field_init(this%fields(index)%f, this%dof, trim(name))
            nfields = nfields + 1
          end if
          f => this%fields(index)%f
@@ -207,7 +207,7 @@ contains
     nfields_inuse = nfields_inuse + 1
     this%inuse(nfields) = .true.
     write (name, "(A3,I0.3)") "wrk", index
-    call this%fields(nfields)%f%init(this%dof, trim(name))
+    call field_init(this%fields(nfields)%f, this%dof, trim(name))
     f => this%fields(nfields)%f
 
     end associate
