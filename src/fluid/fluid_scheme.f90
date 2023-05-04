@@ -260,7 +260,7 @@ contains
     call bc_list_add(this%bclst_vel, this%bc_wall)
        
     if (params%output_bdry) then       
-       call field_init(this%bdry, this%dm_Xh, 'bdry')
+       call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
