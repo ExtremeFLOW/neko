@@ -100,7 +100,7 @@ io/scalar_output.o : io/scalar_output.f90 io/output.o device/device.o config/nek
 io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o 
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o config/num_types.o fluid/mean_flow.o 
 io/fluid_stats_output.o : io/fluid_stats_output.f90 io/output.o config/num_types.o fluid/fluid_stats.o 
-io/field_list_output.o : io/field_list_output.f90 io/output.o config/num_types.o field/field.o 
+io/field_list_output.o : io/field_list_output.f90 io/output.o config/num_types.o field/field_list.o field/field.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 common/sampler.o : common/sampler.f90 common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o common/utils.o device/device.o config/neko_config.o 
