@@ -424,7 +424,7 @@ contains
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
 
-    call field_free(this%bdry)
+    call this%bdry%free
 
     if (allocated(this%bc_inflow)) then
        call this%bc_inflow%free()

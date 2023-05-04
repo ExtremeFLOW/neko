@@ -91,7 +91,7 @@ contains
     integer :: i
     if (allocated(this%fields)) then
        do i=1, this%n_fields()
-          call field_free(this%fields(i))
+          call this%fields(i)%free
        end do
        deallocate(this%fields)
     end if
@@ -131,7 +131,7 @@ contains
     this%n = this%n + 1
 
     ! initialize the field at the appropraite index
-    call field_init(this%fields(this%n), dof, fld_name)
+    call this%fields(this%n)%init(dof, fld_name)
 
     ! generate a key for the name lookup map and assign it to the index
     !    key%ptr = c_loc(fld_name)
