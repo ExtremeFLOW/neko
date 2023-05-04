@@ -81,7 +81,7 @@ module parameters
      integer :: prs_max_iter           !< pressure max iterations
      integer :: vel_max_iter           !< velocity max iterations
      logical :: stats_fluid        !< Fluid statistics
-     real(kind=rp) :: fluid_write_par   !< Parameter for writes of fld fields
+     real(kind=rp) :: fluid_write_par   !< Time interval for writes of fld fields
      character(len=20) :: fluid_write_control   !< How to control writes, simulationtime, nsamples, tsteps
      real(kind=rp) :: stats_write_par   !< Time interval over which we compute averages before output
      character(len=20) :: stats_write_control   !< Control output simulationtime, nsamples, tsteps
