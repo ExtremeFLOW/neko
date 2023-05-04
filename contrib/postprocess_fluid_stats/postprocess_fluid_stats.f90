@@ -124,13 +124,13 @@ program postprocess_fluid_stats
   call copy(avg_flow%w%mf%x,mean_data%w%x,n)
   call copy(avg_flow%p%mf%x,mean_data%p%x,n)
   
-  call copy(fld_stats%stat_fields%fields(1)%field%x,stats_data%p%x,n)
-  call copy(fld_stats%stat_fields%fields(2)%field%x,stats_data%u%x,n)
-  call copy(fld_stats%stat_fields%fields(3)%field%x,stats_data%v%x,n)
-  call copy(fld_stats%stat_fields%fields(4)%field%x,stats_data%w%x,n)
-  call copy(fld_stats%stat_fields%fields(5)%field%x,stats_data%t%x,n)
+  call copy(fld_stats%stat_fields%fields(1)%f%x,stats_data%p%x,n)
+  call copy(fld_stats%stat_fields%fields(2)%f%x,stats_data%u%x,n)
+  call copy(fld_stats%stat_fields%fields(3)%f%x,stats_data%v%x,n)
+  call copy(fld_stats%stat_fields%fields(4)%f%x,stats_data%w%x,n)
+  call copy(fld_stats%stat_fields%fields(5)%f%x,stats_data%t%x,n)
   do i = 6, size(fld_stats%stat_fields%fields)
-     call copy(fld_stats%stat_fields%fields(i)%field%x,stats_data%s(i-5)%x,n)
+     call copy(fld_stats%stat_fields%fields(i)%f%x,stats_data%s(i-5)%x,n)
   end do
 
   allocate(reynolds%fields(7))
