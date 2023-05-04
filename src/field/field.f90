@@ -44,7 +44,7 @@ module field
   use, intrinsic :: iso_c_binding
   implicit none
   
-  type field_t
+  type, public :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
      
      type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
@@ -55,23 +55,20 @@ module field
      character(len=80) :: name            !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
   contains
-    generic :: init => field_init_external_dof, field_init_internal_dof
     procedure, pass(f) :: free => field_free
-    procedure :: field_init_external_dof, field_init_internal_dof
+    procedure, private, pass(f) :: field_init_external_dof
+    procedure, private, pass(f) :: field_init_internal_dof
+    procedure, private, pass(f) :: field_assign_field
+    procedure, private, pass(f) :: field_assign_scalar
+    procedure, pass(f) :: field_add_field, field_add_scalar
+    generic :: init => field_init_external_dof, field_init_internal_dof
+    generic :: assignment(=) => field_assign_field, field_assign_scalar
   end type field_t
 
   !> field_ptr_t, To easily obtain a pointer to a field
-  type field_ptr_t
-     type(field_t), pointer :: field => null()
-  end type
-
-  interface field_init
-     module procedure field_init_external_dof, field_init_internal_dof
-  end interface field_init
-  
-  interface assignment(=)
-     module procedure field_assign_field, field_assign_scalar
-  end interface assignment(=)
+  type, public ::  field_ptr_t
+     type(field_t), pointer :: f => null()
+  end type field_ptr_t
 
   interface field_add
      module procedure field_add_field, field_add_scalar
@@ -179,7 +176,7 @@ contains
   !! @note @a F will be initialized if it has a different size than
   !! @a G or it's not allocated
   subroutine field_assign_field(f, g)
-    type(field_t), intent(inout) :: f
+    class(field_t), intent(inout) :: f
     type(field_t), intent(in) :: g
     integer :: n
 
@@ -221,7 +218,7 @@ contains
 
   !> Assignment \f$ F = a \f$
   subroutine field_assign_scalar(f, a)
-    type(field_t), intent(inout) :: f
+    class(field_t), intent(inout) :: f
     real(kind=rp), intent(in) :: a
     integer :: n, i, j, k, l
 
@@ -246,7 +243,7 @@ contains
   !! F(u_1, u_2, ... , u_n) + G(u_1, u_2, ... , u_n) \f$
   !! @note Component wise
   subroutine field_add_field(f, g)
-    type(field_t), intent(inout) :: f
+    class(field_t), intent(inout) :: f
     type(field_t), intent(inout) :: g
     integer :: n
 
@@ -263,7 +260,7 @@ contains
   !> Add \f$ F(u_1, u_2, ... , u_n) =
   !! F(u_1, u_2, ... , u_n) + a \f$
   subroutine field_add_scalar(f, a)
-    type(field_t), intent(inout) :: f
+    class(field_t), intent(inout) :: f
     real(kind=rp), intent(inout) :: a
     integer :: n
 
