@@ -98,6 +98,7 @@ neko_fortran_SOURCES = \
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
 	io/dat_file.f90\
+	io/csv_file.f90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
