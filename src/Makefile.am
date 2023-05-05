@@ -9,7 +9,6 @@ neko_fortran_SOURCES = \
 	io/format/map.f90\
 	io/format/stl.f90\
 	io/format/probe.f90\
-    io/format/dat_outputs.f90\
     common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
@@ -86,6 +85,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/matrix.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
