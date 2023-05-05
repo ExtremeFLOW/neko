@@ -40,10 +40,10 @@ module fluid_scheme
   use mean_flow, only : mean_flow_t
   use num_types
   use source
-  use field
+  use field, only : field_t, field_free
   use space
-  use dofmap
-  use krylov
+  use dofmap, only : dofmap_t
+  use krylov, only : ksp_t
   use coefs, only : coef_t
   use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
@@ -61,7 +61,7 @@ module fluid_scheme
   use math
   use ext_bdf_scheme, only : ext_bdf_scheme_t
   use mathops
-  use operators
+  use operators, only : cfl
   use logger
   use field_registry
   implicit none
