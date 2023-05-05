@@ -35,6 +35,7 @@
 module fld_file
   use generic_file
   use field
+  use field_list
   use dofmap
   use fluid_scheme
   use scalar_scheme

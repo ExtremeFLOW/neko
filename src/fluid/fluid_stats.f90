@@ -47,8 +47,9 @@ module fluid_stats
   use field_list
   use gather_scatter
   implicit none
+  private
 
-  type, extends(stats_quant_t) :: fluid_stats_t
+  type, public, extends(stats_quant_t) :: fluid_stats_t
      type(field_t) :: stats_u !< Not reasonable to allocate 20 something fields
      type(field_t) :: stats_v !< Not reasonable to allocate 20 something fields
      type(field_t) :: stats_w !< Not reasonable to allocate 20 something fields
@@ -122,8 +123,6 @@ module fluid_stats
      type(field_t) :: dwdx
      type(field_t) :: dwdy
      type(field_t) :: dwdz
-
-
 
      type(coef_t), pointer :: coef
      integer :: n_stats = 40

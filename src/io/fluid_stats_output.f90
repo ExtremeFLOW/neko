@@ -33,7 +33,9 @@
 !> Defines an output for a mean flow field
 module fluid_stats_output
   use fluid_stats
+  use neko_config
   use num_types
+  use device
   use output
   implicit none
   private

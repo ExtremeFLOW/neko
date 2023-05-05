@@ -77,6 +77,7 @@ module neko
   use device
   use cpr
   use fluid_stats
+  use field_list  
   use field_registry
   use vector
 contains
