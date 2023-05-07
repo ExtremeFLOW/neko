@@ -78,7 +78,9 @@ module neko
   use cpr
   use field_registry
   use vector
+  use system
   !$ use omp_lib
+
 contains
 
   subroutine neko_init(C)
@@ -189,6 +191,10 @@ contains
           end if
        end if
        call neko_log%message(log_buf)      
+
+       write(log_buf, '(a)') 'CPU type  : '
+       call system_cpu_name(log_buf(13:))
+       call neko_log%message(log_buf)
 
        write(log_buf, '(a)') 'Bcknd type: '
        if (NEKO_BCKND_SX .eq. 1) then
