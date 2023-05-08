@@ -1,7 +1,7 @@
  @test
  subroutine test_ext_constant_dt()
    use pfunit
-   use advection_diffusion_time_scheme
+   use ext_time_scheme
    use num_types
    implicit none
    
@@ -11,50 +11,33 @@
    ! Equal timesteps
    dt = 1.00_rp
 
-   ! Init to 3rd order
-   call ext%init(3)
-   @assertEqual(ext%n, 0)
-   @assertEqual(ext%time_order, 3)
-   
-   ! Firt call, should be 1st order scheme, [1]
-   call ext%set_coeffs(dt)
-   @assertEqual(ext%n, 1)
+   ! 1st order scheme, [1]
+   call ext%set_coeffs(dt, 1)
    @assertEqual(ext%coeffs(1), 1.0_rp, tolerance=1e-6_rp)
 
-   ! Second call, should be 2nd order scheme, [2, -1]
-   call ext%set_coeffs(dt)
-   @assertEqual(ext%n, 2)
+   ! 2nd order scheme, [2, -1]
+   call ext%set_coeffs(dt, 2)
    @assertEqual(ext%coeffs(1), 2.0_rp, tolerance=1e-6_rp)
    @assertEqual(ext%coeffs(2), -1.0_rp, tolerance=1e-6_rp)
 
-   ! Third call, should be 3rd order scheme, [3, -3, 1]
-   call ext%set_coeffs(dt)
-   @assertEqual(ext%n, 3)
+   ! 3rd order scheme, [3, -3, 1]
+   call ext%set_coeffs(dt, 3)
    @assertRelativelyEqual(ext%coeffs(1), 3.0_rp, tolerance=1e-3_rp)
    @assertEqual(ext%coeffs(2), -3.0_rp, tolerance=1e-6_rp)
    @assertEqual(ext%coeffs(3), 1.0_rp, tolerance=1e-6_rp)
 
-   ! Fourth call, nothing should change
-   ! call ext%set_coeffs(dt)
-   ! @assertEqual(ext%n, 3)
-   ! @assertRelativelyEqual(ext%coeffs(1), 3.0_rp, tolerance=1e-3_rp)
-   ! @assertEqual(ext%coeffs(2), -3.0_rp, tolerance=1e-6_rp)
-   ! @assertEqual(ext%coeffs(3), 1.0_rp, tolerance=1e-6_rp)
-
-   call ext%free()
 end subroutine test_ext_constant_dt
 
  @test
  subroutine test_ext_variable_dt()
    use pfunit
-   use advection_diffusion_time_scheme
-   use num_types
+   use ext_time_scheme, only: ext_time_scheme_t
+   use num_types, only : rp
    implicit none
    
    type(ext_time_scheme_t) ext
    real(kind=rp) :: dt(10)
    
-   call ext%init(3)
    ! Some random dt values
    dt = 4.3_rp
    dt(1) = 2_rp
@@ -62,15 +45,14 @@ end subroutine test_ext_constant_dt
    dt(3) = 1.34_rp
 
    ! order 1
-   call ext%set_coeffs(dt)
+   call ext%set_coeffs(dt, 1)
    @assertEqual(1.0_rp, ext%coeffs(1), tolerance=1e-3_rp)
 
    ! order 2
-   call ext%set_coeffs(dt)
+   call ext%set_coeffs(dt, 2)
    @assertRelativelyEqual(1.0_rp + dt(1)/dt(2), ext%coeffs(1), tolerance=1e-3_rp)
    @assertRelativelyEqual(-dt(1)/dt(2), ext%coeffs(2), tolerance=1e-3_rp)
 
    ! order 3 not done now. Perhaps use fd_weights_full later
    
-   call ext%free()
 end subroutine test_ext_variable_dt
