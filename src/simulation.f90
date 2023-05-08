@@ -68,7 +68,7 @@ contains
 
     !> Call stats, samplers and user-init before time loop
     call neko_log%section('Postprocessing')       
-    call C%q%eval(t, C%params%dt)
+    call C%q%eval(t, C%params%dt, tstep)
     call C%s%sample(t,tstep)
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
@@ -115,7 +115,7 @@ contains
        end if                 
 
        call neko_log%section('Postprocessing')       
-       call C%q%eval(t, C%params%dt)
+       call C%q%eval(t, C%params%dt, tstep)
        call C%s%sample(t,tstep)
        call C%usr%user_check(t, tstep,&
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
