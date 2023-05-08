@@ -1,7 +1,7 @@
  @test
  subroutine test_constant_dt()
    use pfunit
-   use ext_bdf_scheme
+   use advection_diffusion_time_scheme
    use num_types
    implicit none
    
@@ -50,7 +50,7 @@ end subroutine test_constant_dt
  @test
  subroutine test_variable_dt()
    use pfunit
-   use ext_bdf_scheme
+   use advection_diffusion_time_scheme
    use num_types
    implicit none
    
@@ -97,7 +97,7 @@ end subroutine test_variable_dt
  @test
  subroutine test_with_df_weights_full()
    use pfunit
-   use ext_bdf_scheme
+   use advection_diffusion_time_scheme
    use fast3d
    use num_types
    implicit none

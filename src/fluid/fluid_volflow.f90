@@ -67,7 +67,7 @@ module fluid_volflow
   use dofmap
   use field
   use coefs
-  use ext_bdf_scheme
+  use advection_diffusion_time_scheme
   use math    
   use neko_config
   use device_math
@@ -136,7 +136,7 @@ contains
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(advection_diffusion_time_scheme_t), intent(inout) :: ext_bdf
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(inout) :: Ax
@@ -313,7 +313,7 @@ contains
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(advection_diffusion_time_scheme_t), intent(inout) :: ext_bdf
     real(kind=rp), intent(inout) :: rho, Re, dt
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res

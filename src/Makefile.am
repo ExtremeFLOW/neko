@@ -135,8 +135,11 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/device/gmres_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
+	time_schemes/time_scheme.f90\
+	time_schemes/bdf_time_scheme.f90\
+	time_schemes/ext_time_scheme.f90\
+	time_schemes/advection_diffusion_time_scheme.f90\
 	common/source.f90\
-	common/ext_bdf_scheme.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	common/rhs_maker.f90\

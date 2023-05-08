@@ -34,7 +34,7 @@
 module simulation
   use case
   use gather_scatter
-  use ext_bdf_scheme
+  use advection_diffusion_time_scheme
   use file
   use logger
   use jobctrl
@@ -138,7 +138,7 @@ contains
   subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
     real(kind=rp), intent(inout) :: t
     real(kind=rp), intent(in) :: dt
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(advection_diffusion_time_scheme_t), intent(inout) :: ext_bdf
     real(kind=rp), dimension(10) :: tlag
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
