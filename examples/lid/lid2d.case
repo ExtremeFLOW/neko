@@ -14,4 +14,6 @@
   pc_prs = 'hsmg'
   proj_prs_dim = 8
   fluid_inflow = 'user'
+  prs_max_iter = 200
+  vel_max_iter = 200
 /

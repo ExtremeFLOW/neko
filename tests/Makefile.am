@@ -54,7 +54,7 @@ TESTS = device/device_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
-    octree/octree_test\
+	octree/octree_test\
 	vector/vector_test\
 	scratch_registry/scratch_registry_test\
 	fast3d/fast3d_test\
@@ -116,5 +116,6 @@ EXTRA_DIST = \
 	vector/vector_parallel.pf\
 	scratch_registry/test_scratch_registry.pf\
     fast3d/test_fd_weights_full.pf\
+    fast3d/test_setup_intp.pf\
 	ext_bdf_scheme/test_bdf.pf\
 	ext_bdf_scheme/test_ext.pf

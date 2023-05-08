@@ -35,7 +35,7 @@ module scalar_pnpn
   use scalar_residual_fctry
   use ax_helm_fctry
   use rhs_maker_fctry
-  use scalar
+  use scalar_scheme
   use field_series  
   use facet_normal
   use device_math
@@ -159,8 +159,8 @@ contains
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
     
-    ! @todo add dealiasing here, now hardcoded to false
-    call advection_factory(this%adv, this%c_Xh, .false., param%lxd)
+    ! Uses sthe same parameter as the fluid to set dealiasing
+    call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
   end subroutine scalar_pnpn_init
 
@@ -210,10 +210,9 @@ contains
     real(kind=rp), intent(inout) :: t
     type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
-    integer :: n, niter
+    integer :: n
     type(ksp_monitor_t) :: ksp_results(1)
     n = this%dm_Xh%size()
-    niter = 1000
     
     call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
@@ -270,7 +269,7 @@ contains
       call this%pc%update()
       call profiler_start_region('Scalar solve')
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh, niter)
+           c_Xh, this%bclst_ds, gs_Xh, params%vel_max_iter)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
