@@ -11,7 +11,8 @@ FC = @FC@
 check: ext_bdf_scheme_test
 
 ext_bdf_scheme_test_TESTS := test_bdf.pf\
-    test_ext.pf
+    test_ext.pf\
+    test_ab.pf
 ext_bdf_scheme_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,ext_bdf_scheme_test))
 

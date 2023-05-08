@@ -118,4 +118,5 @@ EXTRA_DIST = \
     fast3d/test_fd_weights_full.pf\
     fast3d/test_setup_intp.pf\
 	ext_bdf_scheme/test_bdf.pf\
-	ext_bdf_scheme/test_ext.pf
+	ext_bdf_scheme/test_ext.pf\
+	ext_bdf_scheme/test_ab.pf
