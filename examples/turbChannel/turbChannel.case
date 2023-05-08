@@ -28,5 +28,6 @@ chkp_write_control = 'simulationtime'
 chkp_write_par = 100
 fluid_write_control = 'tsteps'
 fluid_write_par = 400
+stats_sample_nstep = 10
 /
 
