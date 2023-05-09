@@ -104,6 +104,7 @@ module time_scheme_controller
   !! @param torder Desired order of the scheme: 1, 2, 3.
   !! This sets the order for the diffusion scheme only.
   subroutine time_scheme_controller_init(this, torder)
+    implicit none
     class(time_scheme_controller_t) :: this
     integer :: torder 
   
@@ -117,6 +118,7 @@ module time_scheme_controller
 
   !> Destructor
   subroutine time_scheme_controller_free(this)
+    implicit none
     class(time_scheme_controller_t) :: this
 
     if (c_associated(this%advection_coeffs_d)) then
@@ -131,6 +133,7 @@ module time_scheme_controller
   !! @details Implements all necessary logic to handle  
   !! @param t Timestep values, first element is the current timestep.
   subroutine time_scheme_controller_set_coeffs(this, dt)
+    implicit none
     class(time_scheme_controller_t) :: this
     real(kind=rp), intent(inout), dimension(10) :: dt
     real(kind=rp), dimension(4) :: adv_coeffs_old
@@ -191,8 +194,4 @@ module time_scheme_controller
     end associate
 
   end subroutine time_scheme_controller_set_coeffs
-  
-  
-  
-
 end module time_scheme_controller

@@ -96,6 +96,7 @@ module ext_time_scheme
   !! @param t Timestep values, first element is the current timestep.
   !! @param order Order the scheme.
   subroutine ext_time_scheme_compute_coeffs(coeffs, dt, order)
+    implicit none
     real(kind=rp), intent(out) :: coeffs(4)
     real(kind=rp), intent(in) :: dt(10)
     integer, intent(in) :: order
@@ -120,6 +121,7 @@ module ext_time_scheme
   !> Compute the modified scheme coefficients
   !! @param t Timestep values, first element is the current timestep.
   subroutine ext_time_scheme_compute_modified_coeffs(coeffs, dt)
+    implicit none
     real(kind=rp), intent(out) :: coeffs(4)
     real(kind=rp), intent(in) :: dt(10)
     real(kind=rp) dta, dtb, dtc, dtd, dte, dts
