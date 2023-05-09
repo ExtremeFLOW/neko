@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
