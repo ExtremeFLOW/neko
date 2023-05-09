@@ -63,7 +63,7 @@ module ext_time_scheme
   use num_types, only : rp
   use time_scheme, only: time_scheme_t
   use math, only : rzero
-  use utils, only : neko_warning
+  use utils, only : neko_error
   implicit none
   private
   
@@ -112,6 +112,8 @@ module ext_time_scheme
        coeffs(3) =  dt(1) / (dt(2) + dt(3)) * (dt(1) + dt(2)) / dt(3)
        coeffs(2) = - dt(1) / dt(2) * (1.0_rp + dt(2) / dt(3) + dt(1) / dt(3))
        coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
+    case default 
+      call neko_error("The order of the EXT time scheme must be 1 to 3.")
     end select
   end subroutine ext_time_scheme_compute_coeffs
 
@@ -129,8 +131,7 @@ module ext_time_scheme
 
     call rzero(coeffs, 4)
     
-    select case (order)
-    case (3)
+   if (order .eq. 3) then
       dts =  dt(2) + dt(3)
       dta =  dt(1) / dt(2)
       dtb =  dt(2) / dt(3)
@@ -140,7 +141,9 @@ module ext_time_scheme
       coeffs(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
       coeffs(2) = -dta - coeffs(3) * dtd
       coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
-    end select
+   else
+      call neko_error("The order of the modified EXT time scheme must be 3.")
+   end if
 
   end subroutine ext_time_scheme_compute_modified_coeffs
 end module ext_time_scheme

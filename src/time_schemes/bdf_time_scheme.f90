@@ -63,7 +63,7 @@ module bdf_time_scheme
   use num_types, only : rp
   use time_scheme, only: time_scheme_t
   use math, only : rzero
-  use utils, only : neko_warning
+  use utils, only : neko_error
   implicit none
   private
   
@@ -137,6 +137,8 @@ module bdf_time_scheme
                    (dt(3) * (dt(2) + dt(3)) * (dt(1) + dt(2) + dt(3)))
        coeffs(1) = coeffs(2) + coeffs(3) + coeffs(4)
        coeffs = coeffs * dt(1)
+    case default 
+      call neko_error("The order of the BDF time scheme must be 1 to 3.")
     end select
     
   end subroutine bdf_time_scheme_compute_coeffs

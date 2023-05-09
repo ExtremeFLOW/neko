@@ -64,7 +64,7 @@ module ab_time_scheme
   use num_types, only : rp
   use time_scheme, only: time_scheme_t
   use math, only : rzero
-  use utils, only : neko_warning
+  use utils, only : neko_error
   implicit none
   private
   
@@ -90,7 +90,7 @@ module ab_time_scheme
     real(kind=rp), intent(out) :: coeffs(4)
     real(kind=rp), intent(in) :: dt(10)
     integer, intent(in) :: order
-    real dta, dtb, dtc, dtd, dte, dts
+    real(kind=rp) dta, dtb, dtc, dtd, dte, dts
 
     call rzero(coeffs, 4)
     
@@ -110,6 +110,8 @@ module ab_time_scheme
          coeffs(3) =  dte*( 0.5_rp*dtb + dtc/3.0_rp )
          coeffs(2) = -0.5_rp * dta - coeffs(3) * dtd
          coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)  
+    case default 
+      call neko_error("The order of the AB time scheme must be 1 to 3.")
     end select
     
   end subroutine ab_time_scheme_compute_coeffs
