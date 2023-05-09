@@ -27,7 +27,8 @@ SUBDIRS = tuple\
 	  vector\
 	  scratch_registry\
 	  fast3d\
-	  time_scheme
+	  time_scheme\
+	  time_scheme_controller
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -58,7 +59,8 @@ TESTS = device/device_test\
 	vector/vector_test\
 	scratch_registry/scratch_registry_test\
 	fast3d/fast3d_test\
-	time_scheme/time_scheme_test
+	time_scheme/time_scheme_test\
+	time_scheme_controller/time_scheme_controller_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
