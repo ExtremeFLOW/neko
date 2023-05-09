@@ -74,7 +74,7 @@ contains
     class(fluid_plan1_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
-    type(advection_diffusion_time_scheme_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
 
   end subroutine fluid_plan1_step
   

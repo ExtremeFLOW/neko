@@ -58,7 +58,7 @@ module fluid_scheme
   use bc
   use mesh
   use math
-  use advection_diffusion_time_scheme
+  use time_scheme_controller
   use mathops
   use operators
   use logger
@@ -134,12 +134,12 @@ module fluid_scheme
   abstract interface
      subroutine fluid_scheme_step_intrf(this, t, tstep, ext_bdf)
        import fluid_scheme_t
-       import advection_diffusion_time_scheme_t
+       import time_scheme_controller_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
-       type(advection_diffusion_time_scheme_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine fluid_scheme_step_intrf
   end interface
 

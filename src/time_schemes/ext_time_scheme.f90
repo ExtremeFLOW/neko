@@ -119,31 +119,22 @@ module ext_time_scheme
 
   !> Compute the modified scheme coefficients
   !! @param t Timestep values, first element is the current timestep.
-  !! @param order Order the scheme, should be 3. Only here to have the same
-  !! interface as `compute_coeffs`.
-  subroutine ext_time_scheme_compute_modified_coeffs(coeffs, dt, order)
+  subroutine ext_time_scheme_compute_modified_coeffs(coeffs, dt)
     real(kind=rp), intent(out) :: coeffs(4)
     real(kind=rp), intent(in) :: dt(10)
-    integer, intent(inout), optional :: order
     real(kind=rp) dta, dtb, dtc, dtd, dte, dts
     
-    if (.not. present(order)) order = 3  
-
     call rzero(coeffs, 4)
     
-   if (order .eq. 3) then
-      dts =  dt(2) + dt(3)
-      dta =  dt(1) / dt(2)
-      dtb =  dt(2) / dt(3)
-      dtc =  dt(1) / dt(3)
-      dtd =  dts / dt(2)
-      dte =  dt(1) / dts
-      coeffs(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
-      coeffs(2) = -dta - coeffs(3) * dtd
-      coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
-   else
-      call neko_error("The order of the modified EXT time scheme must be 3.")
-   end if
+   dts =  dt(2) + dt(3)
+   dta =  dt(1) / dt(2)
+   dtb =  dt(2) / dt(3)
+   dtc =  dt(1) / dt(3)
+   dtd =  dts / dt(2)
+   dte =  dt(1) / dts
+   coeffs(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
+   coeffs(2) = -dta - coeffs(3) * dtd
+   coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
 
   end subroutine ext_time_scheme_compute_modified_coeffs
 end module ext_time_scheme

@@ -41,7 +41,7 @@ module scalar_pnpn
   use device_math
   use device_mathops
   use scalar_aux    
-  use advection_diffusion_time_scheme
+  use time_scheme_controller
   use projection
   use logger
   use advection
@@ -208,7 +208,7 @@ contains
   subroutine scalar_pnpn_step(this, t, tstep, ext_bdf)
     class(scalar_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(advection_diffusion_time_scheme_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
     integer :: n
     type(ksp_monitor_t) :: ksp_results(1)
@@ -239,10 +239,10 @@ contains
                                  Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           params%rho, ext_bdf%ext%coeffs, n)
+           params%rho, ext_bdf%advection_coeffs, n)
 
       call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           params%rho, params%dt, ext_bdf%bdf%coeffs, ext_bdf%bdf%n, n)
+           params%rho, params%dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -253,7 +253,7 @@ contains
       ! compute scalar residual
       call profiler_start_region('Scalar residual')
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
-          params%Re, params%rho, ext_bdf%bdf%coeffs(1), params%dt, &
+          params%Re, params%rho, ext_bdf%diffusion_coeffs(1), params%dt, &
           dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 

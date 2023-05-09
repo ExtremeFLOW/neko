@@ -71,7 +71,7 @@ subroutine test_ext_modified()
   dt = 1.00_rp
 
   ! Expecting [8/3 -7/3 2/3]
-  call ext%compute_modified_coeffs(coeffs, dt, 3)
+  call ext%compute_modified_coeffs(coeffs, dt)
   @assertRelativelyEqual(coeffs(1), 8.0_rp/3.0_rp, tolerance=1e-3_rp)
   @assertRelativelyEqual(coeffs(2), -7.0_rp/3.0_rp, tolerance=1e-3_rp)
   @assertRelativelyEqual(coeffs(3), 2.0_rp/3.0_rp, tolerance=1e-3_rp)
