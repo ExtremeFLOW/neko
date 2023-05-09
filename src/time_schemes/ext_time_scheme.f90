@@ -80,7 +80,7 @@ module ext_time_scheme
   type, public, extends(time_scheme_t) :: ext_time_scheme_t 
      contains
        !> Compute the scheme coefficients
-       procedure, pass(this) :: set_coeffs => ext_time_scheme_set_coeffs
+       procedure, nopass :: compute_coeffs => ext_time_scheme_compute_coeffs
   end type ext_time_scheme_t
 
   contains 
@@ -88,26 +88,24 @@ module ext_time_scheme
   !> Compute the scheme coefficients
   !! @param t Timestep values, first element is the current timestep.
   !! @param order Order the scheme.
-  subroutine ext_time_scheme_set_coeffs(this, dt, order)
-    class(ext_time_scheme_t), intent(inout)  :: this
-    real(kind=rp), intent(inout), dimension(10) :: dt
+  subroutine ext_time_scheme_compute_coeffs(coeffs, dt, order)
+    real(kind=rp), intent(out) :: coeffs(4)
+    real(kind=rp), intent(in) :: dt(10)
     integer, intent(in) :: order
 
-    associate(coeffs => this%coeffs)
-      call rzero(coeffs, 4)
-      
-      select case (order)
-      case (1)
-         coeffs(1) = 1.0_rp
-      case (2)
-         coeffs(2) = -dt(1) / dt(2)
-         coeffs(1) =  1.0_rp - coeffs(2)
-      case (3)
-         coeffs(3) =  dt(1) / (dt(2) + dt(3)) * (dt(1) + dt(2)) / dt(3)
-         coeffs(2) = - dt(1) / dt(2) * (1.0_rp + dt(2) / dt(3) + dt(1) / dt(3))
-         coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
-      end select
-    end associate
+    call rzero(coeffs, 4)
+    
+    select case (order)
+    case (1)
+       coeffs(1) = 1.0_rp
+    case (2)
+       coeffs(2) = -dt(1) / dt(2)
+       coeffs(1) =  1.0_rp - coeffs(2)
+    case (3)
+       coeffs(3) =  dt(1) / (dt(2) + dt(3)) * (dt(1) + dt(2)) / dt(3)
+       coeffs(2) = - dt(1) / dt(2) * (1.0_rp + dt(2) / dt(3) + dt(1) / dt(3))
+       coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
+    end select
 
-  end subroutine ext_time_scheme_set_coeffs
+  end subroutine ext_time_scheme_compute_coeffs
 end module ext_time_scheme

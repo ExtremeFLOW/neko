@@ -6,25 +6,25 @@
    implicit none
    
    type(ext_time_scheme_t) ext
-   real(kind=rp) :: dt(10), x
+   real(kind=rp) :: dt(10), x, coeffs(4)
    
    ! Equal timesteps
    dt = 1.00_rp
 
    ! 1st order scheme, [1]
-   call ext%set_coeffs(dt, 1)
-   @assertEqual(ext%coeffs(1), 1.0_rp, tolerance=1e-6_rp)
+   call ext%compute_coeffs(coeffs, dt, 1)
+   @assertEqual(coeffs(1), 1.0_rp, tolerance=1e-6_rp)
 
    ! 2nd order scheme, [2, -1]
-   call ext%set_coeffs(dt, 2)
-   @assertEqual(ext%coeffs(1), 2.0_rp, tolerance=1e-6_rp)
-   @assertEqual(ext%coeffs(2), -1.0_rp, tolerance=1e-6_rp)
+   call ext%compute_coeffs(coeffs, dt, 2)
+   @assertEqual(coeffs(1), 2.0_rp, tolerance=1e-6_rp)
+   @assertEqual(coeffs(2), -1.0_rp, tolerance=1e-6_rp)
 
    ! 3rd order scheme, [3, -3, 1]
-   call ext%set_coeffs(dt, 3)
-   @assertRelativelyEqual(ext%coeffs(1), 3.0_rp, tolerance=1e-3_rp)
-   @assertEqual(ext%coeffs(2), -3.0_rp, tolerance=1e-6_rp)
-   @assertEqual(ext%coeffs(3), 1.0_rp, tolerance=1e-6_rp)
+   call ext%compute_coeffs(coeffs, dt, 3)
+   @assertRelativelyEqual(coeffs(1), 3.0_rp, tolerance=1e-3_rp)
+   @assertEqual(coeffs(2), -3.0_rp, tolerance=1e-6_rp)
+   @assertEqual(coeffs(3), 1.0_rp, tolerance=1e-6_rp)
 
 end subroutine test_ext_constant_dt
 
@@ -36,7 +36,7 @@ end subroutine test_ext_constant_dt
    implicit none
    
    type(ext_time_scheme_t) ext
-   real(kind=rp) :: dt(10)
+   real(kind=rp) :: dt(10), coeffs(4)
    
    ! Some random dt values
    dt = 4.3_rp
@@ -45,13 +45,13 @@ end subroutine test_ext_constant_dt
    dt(3) = 1.34_rp
 
    ! order 1
-   call ext%set_coeffs(dt, 1)
-   @assertEqual(1.0_rp, ext%coeffs(1), tolerance=1e-3_rp)
+   call ext%compute_coeffs(coeffs, dt, 1)
+   @assertEqual(1.0_rp, coeffs(1), tolerance=1e-3_rp)
 
    ! order 2
-   call ext%set_coeffs(dt, 2)
-   @assertRelativelyEqual(1.0_rp + dt(1)/dt(2), ext%coeffs(1), tolerance=1e-3_rp)
-   @assertRelativelyEqual(-dt(1)/dt(2), ext%coeffs(2), tolerance=1e-3_rp)
+   call ext%compute_coeffs(coeffs, dt, 2)
+   @assertRelativelyEqual(1.0_rp + dt(1)/dt(2), coeffs(1), tolerance=1e-3_rp)
+   @assertRelativelyEqual(-dt(1)/dt(2), coeffs(2), tolerance=1e-3_rp)
 
    ! order 3 not done now. Perhaps use fd_weights_full later
    

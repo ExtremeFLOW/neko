@@ -103,7 +103,7 @@ module bdf_time_scheme
   type, public, extends(time_scheme_t) :: bdf_time_scheme_t 
      contains
        !> Compute the scheme coefficients
-       procedure, pass(this) :: set_coeffs => bdf_time_scheme_set_coeffs
+       procedure, nopass :: compute_coeffs => bdf_time_scheme_compute_coeffs
   end type bdf_time_scheme_t
   
   contains
@@ -111,36 +111,34 @@ module bdf_time_scheme
   !> Compute the scheme coefficients
   !! @param t Timestep values, first element is the current timestep.
   !! @param order Order the scheme.
-  subroutine bdf_time_scheme_set_coeffs(this, dt, order)
+  subroutine bdf_time_scheme_compute_coeffs(coeffs, dt, order)
     implicit none
-    class(bdf_time_scheme_t), intent(inout) :: this
-    real(kind=rp), intent(inout), dimension(10) :: dt
+    real(kind=rp), intent(out) :: coeffs(4)
+    real(kind=rp), intent(in) :: dt(10)
     integer, intent(in) :: order
 
-    associate(coeffs => this%coeffs)
-      call rzero(coeffs, 4)
-      
-      ! Note, these are true coeffs, multiplied by dt(1)
-      select case (order)
-      case (1)
-         coeffs(1) = 1.0_rp
-         coeffs(2) = 1.0_rp
-      case (2)
-         coeffs(1) = (1 + dt(1)/(dt(1) + dt(2)))
-         coeffs(3) = -dt(1)**2/dt(2)/(dt(1) + dt(2))
-         coeffs(2) =  coeffs(1) - coeffs(3)
-      case (3)
-         coeffs(2) = (dt(1) + dt(2)) * (dt(1) + dt(2) + dt(3)) / &
-                     (dt(1) * dt(2) * (dt(2) + dt(3)))
-         coeffs(3) = -dt(1) * (dt(1) + dt(2) + dt(3)) / &
-                     (dt(2) * dt(3) * (dt(1) + dt(2)))
-         coeffs(4) = dt(1) * (dt(1) + dt(2)) / &
-                     (dt(3) * (dt(2) + dt(3)) * (dt(1) + dt(2) + dt(3)))
-         coeffs(1) = coeffs(2) + coeffs(3) + coeffs(4)
-         coeffs = coeffs * dt(1)
-      end select
-    end associate
+    call rzero(coeffs, 4)
     
-  end subroutine bdf_time_scheme_set_coeffs
+    ! Note, these are true coeffs, multiplied by dt(1)
+    select case (order)
+    case (1)
+       coeffs(1) = 1.0_rp
+       coeffs(2) = 1.0_rp
+    case (2)
+       coeffs(1) = (1 + dt(1)/(dt(1) + dt(2)))
+       coeffs(3) = -dt(1)**2/dt(2)/(dt(1) + dt(2))
+       coeffs(2) =  coeffs(1) - coeffs(3)
+    case (3)
+       coeffs(2) = (dt(1) + dt(2)) * (dt(1) + dt(2) + dt(3)) / &
+                   (dt(1) * dt(2) * (dt(2) + dt(3)))
+       coeffs(3) = -dt(1) * (dt(1) + dt(2) + dt(3)) / &
+                   (dt(2) * dt(3) * (dt(1) + dt(2)))
+       coeffs(4) = dt(1) * (dt(1) + dt(2)) / &
+                   (dt(3) * (dt(2) + dt(3)) * (dt(1) + dt(2) + dt(3)))
+       coeffs(1) = coeffs(2) + coeffs(3) + coeffs(4)
+       coeffs = coeffs * dt(1)
+    end select
+    
+  end subroutine bdf_time_scheme_compute_coeffs
 
 end module bdf_time_scheme

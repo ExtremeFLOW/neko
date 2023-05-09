@@ -77,7 +77,7 @@ module ab_time_scheme
   type, public, extends(time_scheme_t) :: ab_time_scheme_t 
      contains
        !> Compute the scheme coefficients
-       procedure, pass(this) :: set_coeffs => ab_time_scheme_set_coeffs
+       procedure, nopass :: compute_coeffs => ab_time_scheme_compute_coeffs
   end type ab_time_scheme_t
   
   contains
@@ -85,35 +85,33 @@ module ab_time_scheme
   !> Compute the scheme coefficients
   !! @param t Timestep values, first element is the current timestep.
   !! @param order Order the scheme.
-  subroutine ab_time_scheme_set_coeffs(this, dt, order)
+  subroutine ab_time_scheme_compute_coeffs(coeffs, dt, order)
     implicit none
-    class(ab_time_scheme_t), intent(inout) :: this
-    real(kind=rp), intent(inout), dimension(10) :: dt
+    real(kind=rp), intent(out) :: coeffs(4)
+    real(kind=rp), intent(in) :: dt(10)
     integer, intent(in) :: order
     real dta, dtb, dtc, dtd, dte, dts
 
-    associate(coeffs => this%coeffs)
-      call rzero(coeffs, 4)
-      
-      select case (order)
-      case (1)
-         coeffs(1) = 1.0_rp
-      case (2)
-         coeffs(2) = -0.5_rp * dt(1) / dt(2)
-         coeffs(1) =  1.0_rp - coeffs(2)
-      case (3)
-        dts =  dt(2) + dt(3)
-        dta =  dt(1) / dt(2)
-        dtb =  dt(2) / dt(3)
-        dtc =  dt(1) / dt(3)
-        dtd =  dts / dt(2)
-        dte =  dt(1) / dts
-           coeffs(3) =  dte*( 0.5_rp*dtb + dtc/3.0_rp )
-           coeffs(2) = -0.5_rp * dta - coeffs(3) * dtd
-           coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)  
-      end select
-    end associate
+    call rzero(coeffs, 4)
     
-  end subroutine ab_time_scheme_set_coeffs
+    select case (order)
+    case (1)
+       coeffs(1) = 1.0_rp
+    case (2)
+       coeffs(2) = -0.5_rp * dt(1) / dt(2)
+       coeffs(1) =  1.0_rp - coeffs(2)
+    case (3)
+      dts =  dt(2) + dt(3)
+      dta =  dt(1) / dt(2)
+      dtb =  dt(2) / dt(3)
+      dtc =  dt(1) / dt(3)
+      dtd =  dts / dt(2)
+      dte =  dt(1) / dts
+         coeffs(3) =  dte*( 0.5_rp*dtb + dtc/3.0_rp )
+         coeffs(2) = -0.5_rp * dta - coeffs(3) * dtd
+         coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)  
+    end select
+    
+  end subroutine ab_time_scheme_compute_coeffs
 
 end module ab_time_scheme

@@ -68,22 +68,20 @@ module time_scheme
   
   !> Base abstract class for time integration schemes
   type, abstract, public :: time_scheme_t
-     !> The coefficients of the scheme
-     real(kind=rp), dimension(4) :: coeffs 
    contains
      !> Compute the coefficients
-     procedure(set_coeffs), deferred, pass(this) :: set_coeffs
+     procedure(compute_coeffs), deferred, nopass :: compute_coeffs
   end type time_scheme_t
   
   abstract interface
      !> Interface for setting the scheme coefficients
      !! @param t Timestep values, first element is the current timestep.
      !! @param order Order the scheme.
-     subroutine set_coeffs(this, dt, order)
+     subroutine compute_coeffs(coeffs, dt, order)
        import time_scheme_t
        import rp
-       class(time_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(inout), dimension(10) :: dt
+       real(kind=rp), intent(out) :: coeffs(4)
+       real(kind=rp), intent(in) :: dt(10)
        integer, intent(in) :: order
      end subroutine
   end interface
