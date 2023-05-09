@@ -77,10 +77,17 @@ module ext_time_scheme
   !! - Order 1: \f$  u^{n+1} = u^n \f$
   !! - Order 2: \f$  u^{n+1} = 2u^n - u^{n-1} \f$, linear extrapolation
   !! - Order 3: \f$  u^{n+1} = 3u^n - 3u^{n-1} + u^{n-2} \f$
+  !! An additional scheme is available via `compute_modified_coeffs`, which is
+  !! gives improved stability when combined with BDF2 in a advection-diffusion
+  !! equation.
+  !! - Order 3: \f$  u^{n+1} = 8/3u^n - 7/3u^{n-1} + 2/3u^{n-2} \f$
   type, public, extends(time_scheme_t) :: ext_time_scheme_t 
      contains
        !> Compute the scheme coefficients
        procedure, nopass :: compute_coeffs => ext_time_scheme_compute_coeffs
+       !> Compute the coefficients for the modified EXT scheme
+       procedure, nopass :: compute_modified_coeffs => &
+         ext_time_scheme_compute_modified_coeffs
   end type ext_time_scheme_t
 
   contains 
@@ -106,6 +113,34 @@ module ext_time_scheme
        coeffs(2) = - dt(1) / dt(2) * (1.0_rp + dt(2) / dt(3) + dt(1) / dt(3))
        coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
     end select
-
   end subroutine ext_time_scheme_compute_coeffs
+
+  !> Compute the modified scheme coefficients
+  !! @param t Timestep values, first element is the current timestep.
+  !! @param order Order the scheme, should be 3. Only here to have the same
+  !! interface as `compute_coeffs`.
+  subroutine ext_time_scheme_compute_modified_coeffs(coeffs, dt, order)
+    real(kind=rp), intent(out) :: coeffs(4)
+    real(kind=rp), intent(in) :: dt(10)
+    integer, intent(inout), optional :: order
+    real(kind=rp) dta, dtb, dtc, dtd, dte, dts
+    
+    if (.not. present(order)) order = 3  
+
+    call rzero(coeffs, 4)
+    
+    select case (order)
+    case (3)
+      dts =  dt(2) + dt(3)
+      dta =  dt(1) / dt(2)
+      dtb =  dt(2) / dt(3)
+      dtc =  dt(1) / dt(3)
+      dtd =  dts / dt(2)
+      dte =  dt(1) / dts
+      coeffs(3) =  2.0_rp / 3.0_rp * dtc * (1.0_rp / dtd + dte)
+      coeffs(2) = -dta - coeffs(3) * dtd
+      coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
+    end select
+
+  end subroutine ext_time_scheme_compute_modified_coeffs
 end module ext_time_scheme
