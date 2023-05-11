@@ -136,8 +136,18 @@ contains
     end if
     
   end subroutine cdtp
-   
-  subroutine conv1(du,u, vx, vy, vz, Xh, coef, es, ee)
+  
+  !> Compute the advection term.
+  !! @param du Holds the result.
+  !! @param u The advected field.
+  !! @param vx The x component of the advecting velocity.
+  !! @param vy The y component of the advecting velocity.
+  !! @param vz The z component of the advecting velocity.
+  !! @param Xh The function space for the fields involved.
+  !! @param coeff The coeffients of the (Xh, mesh) pair.
+  !! @param es Starting element index, defaults to 1.
+  !! @param ee Last element index, defaults to mesh size.
+  subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz,coef%msh%nelv)
