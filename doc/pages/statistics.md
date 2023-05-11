@@ -1,8 +1,8 @@
 
-### Statistics guide
+# Statistics guide (#statistics-guide)
 
 Under development, updated incrementally
-# Notes on the statistics calculation in Neko
+## Notes on the statistics calculation in Neko
 ***Daniele Massaro, Martin Karp (KTH)***
 
 1) Run your simulations and collect mean_field* and stats* files by having fluid_stats = .true. and specifying the write interval to something suitable.
