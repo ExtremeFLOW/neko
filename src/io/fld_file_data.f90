@@ -5,10 +5,11 @@
 !! The fld_file_data_t should dynamically update each time one reads a new fld file
 !! Martin Karp 1/2-2023
 module fld_file_data
-  use field
   use vector
   use math
   implicit none
+  private
+  
   type, public :: fld_file_data_t
      type(vector_t) :: x !< x-coords
      type(vector_t) :: y !< y-coords
