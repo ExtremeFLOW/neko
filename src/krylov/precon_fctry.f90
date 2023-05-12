@@ -41,9 +41,7 @@ module precon_fctry
   use utils
   use neko_config
   implicit none
-  private
 
-  public :: precon_factory, precon_destroy
 contains
   
   !> Create a preconditioner

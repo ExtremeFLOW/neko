@@ -45,10 +45,7 @@ module krylov_fctry
   use krylov
   use neko_config
   implicit none
-  private
 
-  public :: krylov_solver_factory, krylov_solver_destroy
-  
 contains
 
   !> Initialize an interative Krylov solver
