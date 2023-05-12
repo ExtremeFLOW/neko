@@ -249,15 +249,15 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O0" --enable-real=${RP}
-          make -j$(nproc)
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+          make
       - name: Build (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O0" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/cuda/
-          make -j$(nproc)          
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/cuda/
+          make          
   ReFrame:
       needs: GNU
       runs-on: ubuntu-20.04
