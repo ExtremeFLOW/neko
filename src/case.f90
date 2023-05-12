@@ -39,6 +39,8 @@ module case
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
+  use fluid_stats_output
+  use field_list_output
   use parameters
   use mpi_types
   use mesh_field
@@ -66,6 +68,7 @@ module case
      real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
+     type(fluid_stats_output_t) :: f_stats_output
      type(scalar_output_t) :: s_out
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
@@ -281,38 +284,48 @@ contains
     !
     ! Setup sampler
     !
-    call C%s%init(C%params%nsamples, C%params%T_end)
+    call C%s%init(C%params%T_end)
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
-    call C%s%add(C%f_out)
-
+    if (trim(C%params%fluid_write_control) .eq. 'org') then
+       call C%s%add(C%f_out, real(C%params%nsamples,rp), 'nsamples')
+    else 
+       call C%s%add(C%f_out, C%params%fluid_write_par, C%params%fluid_write_control)
+    end if
+    
     if (scalar) then
        C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
-       call C%s%add(C%s_out)
+       call C%s%add(C%s_out,C%params%fluid_write_par,C%params%fluid_write_control)
     end if
 
     !
-    ! Save checkpoints (if requested)
+    ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     if (C%params%output_chkp) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%params%output_dir)
-       call C%s%add(C%f_chkp)
+       call C%s%add(C%f_chkp,C%params%chkp_write_par,C%params%chkp_write_control)
     end if
 
     !
     ! Setup statistics
     !
     call C%q%init(C%params%stats_begin)
-    if (C%params%stats_mean_flow) then
+    if (C%params%stats_mean_flow .or. C%params%stats_fluid) then
        call C%q%add(C%fluid%mean%u)
        call C%q%add(C%fluid%mean%v)
        call C%q%add(C%fluid%mean%w)
        call C%q%add(C%fluid%mean%p)
 
-       if (C%params%output_mean_flow) then
-          C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
-                                      path=C%params%output_dir)
-          call C%s%add(C%f_mf)
-       end if
+       C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
+                                   path=C%params%output_dir)
+       call C%s%add(C%f_mf, C%params%stats_write_par, &
+                    C%params%stats_write_control)
+    end if
+    if (C%params%stats_fluid) then
+       call C%q%add(C%fluid%stats)
+       C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
+            C%params%stats_begin, path=C%params%output_dir)
+       call C%s%add(C%f_stats_output, C%params%stats_write_par, &
+            C%params%stats_write_control)
     end if
 
     if (C%params%stats_mean_sqr_flow) then
@@ -325,7 +338,7 @@ contains
           C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
                                              C%params%stats_begin, &
                                              path=C%params%output_dir)
-          call C%s%add(C%f_msqrf)
+          call C%s%add(C%f_msqrf,C%params%stats_write_par,C%params%stats_write_control)
        end if
     end if
 
