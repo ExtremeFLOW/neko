@@ -308,7 +308,7 @@ contains
     !
     ! Setup statistics
     !
-    call C%q%init(C%params%stats_begin)
+    call C%q%init(C%params%stats_begin, C%params%stats_sample_nstep)
     if (C%params%stats_mean_flow .or. C%params%stats_fluid) then
        call C%q%add(C%fluid%mean%u)
        call C%q%add(C%fluid%mean%v)

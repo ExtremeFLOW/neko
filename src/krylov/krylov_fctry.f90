@@ -45,7 +45,7 @@ module krylov_fctry
   use krylov
   use neko_config
   implicit none
-  
+
 contains
 
   !> Initialize an interative Krylov solver

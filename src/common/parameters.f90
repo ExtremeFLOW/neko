@@ -88,6 +88,7 @@ module parameters
      real(kind=rp) :: chkp_write_par   !< Time interval between checkpoints
      character(len=20) :: chkp_write_control   !< Control output chkp, simulationtime, nsamples, tsteps
      logical :: write_at_end !< Whether sampler should force output at end of simulation
+     integer :: stats_sample_nstep !< Number of time steps between statistics samples
   end type param_t
 
   type param_io_t
@@ -164,6 +165,7 @@ contains
     integer :: prs_max_iter = 800
     integer :: vel_max_iter = 800
     logical :: write_at_end = .true.
+    integer :: stats_sample_nstep = 10
     
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
@@ -175,7 +177,7 @@ contains
          Pr, scalar_bcs, stats_fluid, user, &
          prs_max_iter, vel_max_iter, stats_write_par, stats_write_control, &
          fluid_write_par, fluid_write_control, chkp_write_par, &
-         chkp_write_control, write_at_end
+         chkp_write_control, write_at_end, stats_sample_nstep
 
     read(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
 
@@ -231,6 +233,7 @@ contains
     param%p%chkp_write_par = chkp_write_par
     param%p%chkp_write_control = chkp_write_control
     param%p%write_at_end = write_at_end
+    param%p%stats_sample_nstep = stats_sample_nstep
 
   end subroutine param_read
 
@@ -270,6 +273,7 @@ contains
     real(kind=rp) :: chkp_write_par 
     character(len=20) :: chkp_write_control
     logical :: write_at_end
+    integer :: stats_sample_nstep
     namelist /NEKO_PARAMETERS/ nsamples, output_bdry, output_part, output_chkp, &
          dt, T_end, rho, mu, Re, uinf, abstol_vel, abstol_prs, ksp_vel, ksp_prs, &
          pc_vel, pc_prs, fluid_inflow, vol_flow_dir, avflow, loadb, flow_rate, &
@@ -279,7 +283,7 @@ contains
          delta, blasius_approx, bc_labels, dong_uchar, dong_delta, Pr,&
          scalar_bcs, prs_max_iter, vel_max_iter, stats_fluid, user, stats_write_par, stats_write_control, &
          fluid_write_par, fluid_write_control, chkp_write_par, &
-         chkp_write_control, write_at_end
+         chkp_write_control, write_at_end, stats_sample_nstep
 
     nsamples = param%p%nsamples
     output_bdry = param%p%output_bdry
@@ -333,6 +337,7 @@ contains
     chkp_write_par = param%p%chkp_write_par
     chkp_write_control  = param%p%chkp_write_control 
     write_at_end = param%p%write_at_end
+    stats_sample_nstep = param%p%stats_sample_nstep
     
     write(unit, nml=NEKO_PARAMETERS, iostat=iostat, iomsg=iomsg)
         
@@ -393,6 +398,7 @@ contains
     param%fluid_write_par = 1d0
     param%fluid_write_control = 'org'
     param%write_at_end = .true.
+    param%stats_sample_nstep = 10
 
   end subroutine param_default
   

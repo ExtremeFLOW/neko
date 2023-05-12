@@ -37,6 +37,7 @@ module fld_file
   use field
   use field_list
   use dofmap
+  use vector
   use fluid_scheme
   use scalar_scheme
   use fld_file_data
@@ -338,7 +339,7 @@ contains
             (int(gdim*lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
        
-       call fld_file_write_vector_field(this, fh, byte_offset, x%x, y%x, z%x, n, gdim, lxyz, nelv)
+       call fld_file_write_vector_field(this, fh, byte_offset, x%x, y%x, z%x, n,  gdim, lxyz, nelv)
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int(gdim *lxyz, i8) * & 
             int(FLD_DATA_SIZE, i8))
