@@ -32,7 +32,7 @@
 !
 !> Defines an output for a fluid
 module fluid_output
-  use fluid_method
+  use fluid_scheme
   use neko_config
   use device
   use output

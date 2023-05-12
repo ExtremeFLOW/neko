@@ -31,33 +31,35 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines an output for a mean flow field
-module mean_flow_output
-  use mean_flow, only : mean_flow_t
+module field_list_output
+  use field
+  use field_list
   use num_types
-  use device  
   use output
+  use device
+  use neko_config
   implicit none
   private
 
-  type, public, extends(output_t) :: mean_flow_output_t
-     type(mean_flow_t), pointer :: mf
+  type, public, extends(output_t) :: field_list_output_t
+     type(field_list_t), pointer :: fields
      real(kind=rp) :: T_begin
    contains
-     procedure, pass(this) :: sample => mean_flow_output_sample
-  end type mean_flow_output_t
+     procedure, pass(this) :: sample => field_list_output_sample
+  end type field_list_output_t
 
-  interface mean_flow_output_t
-     module procedure mean_flow_output_init
-  end interface mean_flow_output_t
+  interface field_list_output_t
+     module procedure field_list_output_init
+  end interface field_list_output_t
 
 contains
   
-  function mean_flow_output_init(mf, T_begin, name, path) result(this)
-    type(mean_flow_t), intent(in), target ::mf
+  function field_list_output_init(fields, T_begin, name, path) result(this)
+    type(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: T_begin
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    type(mean_flow_output_t) :: this
+    type(field_list_output_t) :: this
     character(len=1024) :: fname
 
     if (present(name) .and. present(path)) then
@@ -65,32 +67,35 @@ contains
     else if (present(name)) then
        fname = trim(name) // '.fld'
     else if (present(path)) then
-       fname = trim(path) // 'mean_field.fld'
+       fname = trim(path) // 'field_list.fld'
     else
-       fname = 'mean_field.fld'
+       fname = 'filed_list.fld'
     end if
 
     call output_init(this, fname)
-    this%mf => mf
+    this%fields => fields
     this%T_begin = T_begin
-  end function mean_flow_output_init
+  end function field_list_output_init
 
   !> Sample a mean flow field at time @a t
-  subroutine mean_flow_output_sample(this, t)
-    class(mean_flow_output_t), intent(inout) :: this
+  subroutine field_list_output_sample(this, t)
+    class(field_list_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-
+    integer :: i
+    associate( out_fields => this%fields%fields)
     if (t .ge. this%T_begin) then
-       call device_memcpy(this%mf%p%mf%x, this%mf%p%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-       call device_memcpy(this%mf%u%mf%x, this%mf%u%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-       call device_memcpy(this%mf%v%mf%x, this%mf%v%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-       call device_memcpy(this%mf%w%mf%x, this%mf%w%mf%x_d, this%mf%p%mf%dof%size(), DEVICE_TO_HOST)
-       call this%file_%write(this%mf, t)
-       call this%mf%reset()
+       if ( NEKO_BCKND_DEVICE .eq. 1) then
+          do i = 1, size(out_fields)
+          call device_memcpy(out_fields(i)%f%x, out_fields(i)%f%x_d,&
+               out_fields(i)%f%dof%size(), DEVICE_TO_HOST)
+          end do
+       end if
+       call this%file_%write(this%fields, t)
     end if
+end associate
 
-  end subroutine mean_flow_output_sample
+  end subroutine field_list_output_sample
   
-end module mean_flow_output
+end module field_list_output
 
 

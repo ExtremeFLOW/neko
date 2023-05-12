@@ -36,7 +36,7 @@ module mean_sqr_flow
   use field, only : field_t
   implicit none
   private
-  
+
   type, public :: mean_sqr_flow_t
      type(mean_sqr_field_t) :: uu
      type(mean_sqr_field_t) :: vv

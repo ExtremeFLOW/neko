@@ -39,7 +39,8 @@ module space
   use fast3d
   use math
   use utils, only : neko_error    
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+                                          c_associated
   implicit none
   private
   

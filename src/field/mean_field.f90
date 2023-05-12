@@ -39,6 +39,7 @@ module mean_field
   use num_types
   use field
   use math
+  use field_registry
   implicit none
   private
   
@@ -50,24 +51,30 @@ module mean_field
      procedure, pass(this) :: init => mean_field_init
      procedure, pass(this) :: free => mean_field_free
      procedure, pass(this) :: update => mean_field_update
+     procedure, pass(this) :: reset => mean_field_reset
   end type mean_field_t
 
 contains
 
   !> Initialize a mean field for a field @a f
-  subroutine mean_field_init(this, f)
+  subroutine mean_field_init(this, f, field_name)
     class(mean_field_t), intent(inout) :: this
     type(field_t), intent(inout), target :: f
+    character(len=*), optional, intent(in) :: field_name
     character(len=80) :: name
+    
     
     call this%free()
 
     this%f => f
     this%time = 0.0_rp
+    if (present(field_name)) then
+       name = field_name
+    else 
+       write(name, '(A,A)') 'mean_',trim(f%name)
+    end if
 
-    name = 'mean_'//trim(f%name)
-
-    call field_init(this%mf, f%dof, name)
+    call field_init(this%mf,f%dof, name)
 
   end subroutine mean_field_init
 
@@ -78,10 +85,18 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-
     call field_free(this%mf)
 
   end subroutine mean_field_free
+
+  !> Resets a mean field
+  subroutine mean_field_reset(this)
+    class(mean_field_t), intent(inout) :: this
+    
+    this%time = 0.0
+    this%mf = 0.0_rp  
+  end subroutine mean_field_reset
+
 
   !> Update a mean field
   subroutine mean_field_update(this, k)

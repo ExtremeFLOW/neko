@@ -45,7 +45,8 @@ module mean_flow
    contains
      procedure, pass(this) :: init => mean_flow_init
      procedure, pass(this) :: free => mean_flow_free
-  end type mean_flow_t  
+     procedure, pass(this) :: reset => mean_flow_reset
+  end type mean_flow_t
 
 contains
 
@@ -77,5 +78,16 @@ contains
     call this%p%free()
 
   end subroutine mean_flow_free
-  
+ 
+  !> Resets a mean flow field
+  subroutine mean_flow_reset(this)
+    class(mean_flow_t), intent(inout) :: this
+
+    call this%u%reset()
+    call this%v%reset()
+    call this%w%reset()
+    call this%p%reset()
+
+  end subroutine mean_flow_reset
+   
 end module mean_flow

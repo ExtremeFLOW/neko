@@ -41,6 +41,7 @@ module gs_device_mpi
   use comm
   use htable
   use device
+  use utils
   use, intrinsic :: iso_c_binding
   implicit none
   private

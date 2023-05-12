@@ -35,7 +35,7 @@ module scalar_pnpn
   use scalar_residual_fctry
   use ax_helm_fctry
   use rhs_maker_fctry
-  use scalar
+  use scalar_scheme
   use field_series  
   use facet_normal
   use device_math
@@ -159,8 +159,8 @@ contains
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
     
-    ! @todo add dealiasing here, now hardcoded to false
-    call advection_factory(this%adv, this%c_Xh, .false., param%lxd)
+    ! Uses sthe same parameter as the fluid to set dealiasing
+    call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
   end subroutine scalar_pnpn_init
 

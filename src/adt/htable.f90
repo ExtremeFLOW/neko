@@ -39,7 +39,7 @@ module htable
   use point
   use tuple
   use math, only : NEKO_M_LN2
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated
   implicit none
   private
 

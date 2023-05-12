@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -76,9 +76,13 @@ module neko
   use jobctrl
   use device
   use cpr
+  use fluid_stats
+  use field_list  
   use field_registry
   use vector
+  use system
   use, intrinsic :: iso_fortran_env
+
 contains
 
   subroutine neko_init(C)
@@ -157,6 +161,10 @@ contains
        else
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
        end if
+       call neko_log%message(log_buf)
+
+       write(log_buf, '(a)') 'CPU type  : '
+       call system_cpu_name(log_buf(13:))
        call neko_log%message(log_buf)
 
        write(log_buf, '(a)') 'Bcknd type: '

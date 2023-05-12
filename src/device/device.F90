@@ -39,7 +39,8 @@ module device
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
   use opencl_prgm_lib
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, c_loc, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, c_loc, &
+                                          C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -94,7 +95,9 @@ module device
        device_deassociate, device_get_ptr, device_sync, device_free, &
        device_sync_stream, device_stream_create, device_stream_destroy, &
        device_profiler_start, device_profiler_stop, device_alloc, &
-       device_init, device_name
+       device_init, device_name, device_event_create, device_event_destroy, &
+       device_event_record, device_event_sync, device_finalize, &
+       device_stream_wait_event
 
   private :: device_memcpy_common
   

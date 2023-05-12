@@ -37,7 +37,9 @@ module gs_device
   use gs_bcknd
   use device    
   use gs_ops
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR
+  use utils
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, &
+                                          c_associated
   implicit none
   private
   

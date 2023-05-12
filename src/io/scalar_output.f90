@@ -32,7 +32,7 @@
 !
 !> Defines an output for a scalar
 module scalar_output
-  use scalar
+  use scalar_scheme
   use neko_config
   use device
   use output

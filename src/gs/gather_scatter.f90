@@ -52,7 +52,7 @@ module gather_scatter
   use utils
   use logger
   use profiler
-  use iso_c_binding, only : c_ptr, C_NULL_PTR
+  use iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 
   type ::  gs_t
