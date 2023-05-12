@@ -287,11 +287,11 @@ contains
     call C%s%init(C%params%T_end)
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
     if (trim(C%params%fluid_write_control) .eq. 'org') then
-       call C%s%add(C%f_out, real(C%params%nsamples,rp),'nsamples')
-       call neko_warning('nsamples parameter is legacy, please use X_write_par and X_write_control instead')
+       call C%s%add(C%f_out, real(C%params%nsamples,rp), 'nsamples')
     else 
        call C%s%add(C%f_out, C%params%fluid_write_par, C%params%fluid_write_control)
     end if
+    
     if (scalar) then
        C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
        call C%s%add(C%s_out,C%params%fluid_write_par,C%params%fluid_write_control)
@@ -299,6 +299,7 @@ contains
 
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
+    !
     if (C%params%output_chkp) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%params%output_dir)
        call C%s%add(C%f_chkp,C%params%chkp_write_par,C%params%chkp_write_control)
@@ -316,13 +317,15 @@ contains
 
        C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
                                    path=C%params%output_dir)
-       call C%s%add(C%f_mf,C%params%stats_write_par,C%params%stats_write_control)
+       call C%s%add(C%f_mf, C%params%stats_write_par, &
+                    C%params%stats_write_control)
     end if
     if (C%params%stats_fluid) then
        call C%q%add(C%fluid%stats)
-       C%f_stats_output = fluid_stats_output_t(C%fluid%stats, C%params%stats_begin, &
-                                              path=C%params%output_dir)
-       call C%s%add(C%f_stats_output,C%params%stats_write_par,C%params%stats_write_control)
+       C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
+            C%params%stats_begin, path=C%params%output_dir)
+       call C%s%add(C%f_stats_output, C%params%stats_write_par, &
+            C%params%stats_write_control)
     end if
 
     if (C%params%stats_mean_sqr_flow) then

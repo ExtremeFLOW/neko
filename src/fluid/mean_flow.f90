@@ -32,10 +32,12 @@
 !
 !> Defines a mean flow field
 module mean_flow
-  use mean_field
+  use mean_field, only : mean_field_t
+  use field, only : field_t
   implicit none
+  private
 
-  type :: mean_flow_t
+  type, public :: mean_flow_t
      type(mean_field_t) :: u
      type(mean_field_t) :: v
      type(mean_field_t) :: w

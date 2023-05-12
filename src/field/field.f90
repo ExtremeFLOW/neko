@@ -44,7 +44,7 @@ module field
   use, intrinsic :: iso_c_binding
   implicit none
   
-  type field_t
+  type, public :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
      
      type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
@@ -54,21 +54,13 @@ module field
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
      character(len=80) :: name            !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
-  contains
-    generic :: init => field_init_external_dof, field_init_internal_dof
-    procedure, pass(f) :: free => field_free
-    procedure :: field_init_external_dof, field_init_internal_dof
   end type field_t
 
   !> field_ptr_t, To easily obtain a pointer to a field
-  type field_ptr_t
-     type(field_t), pointer :: field => null()
-  end type
+  type, public ::  field_ptr_t
+     type(field_t), pointer :: f => null()
+  end type field_ptr_t
 
-  !> field_list_t, To be able to group fields together
-  type field_list_t
-     type(field_ptr_t), allocatable :: fields(:)
-  end type
   interface field_init
      module procedure field_init_external_dof, field_init_internal_dof
   end interface field_init
@@ -76,7 +68,7 @@ module field
   interface assignment(=)
      module procedure field_assign_field, field_assign_scalar
   end interface assignment(=)
-
+  
   interface field_add
      module procedure field_add_field, field_add_scalar
   end interface field_add
@@ -85,7 +77,7 @@ contains
 
   !> Initialize a field @a f on the mesh @a msh using an internal dofmap
   subroutine field_init_internal_dof(f, msh, space, fld_name)
-    class(field_t), intent(inout) :: f       !< Field to be initialized
+    type(field_t), intent(inout) :: f       !< Field to be initialized
     type(mesh_t), target, intent(in) :: msh !< underlying mesh of the field
     type(space_t), target, intent(in) :: space !< Function space for the field
     character(len=*), optional :: fld_name     !< Name of the field
@@ -109,7 +101,7 @@ contains
 
   !> Initialize a field @a f on the mesh @a msh using an internal dofmap
   subroutine field_init_external_dof(f, dof, fld_name)
-    class(field_t), intent(inout) :: f       !< Field to be initialized
+    type(field_t), intent(inout) :: f       !< Field to be initialized
     type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
     character(len=*), optional :: fld_name     !< Name of the field
     call field_free(f)
@@ -158,7 +150,7 @@ contains
 
   !> Deallocate a field @a f
   subroutine field_free(f)
-    class(field_t), intent(inout) :: f
+    type(field_t), intent(inout) :: f
     
     if (allocated(f%x)) then
        deallocate(f%x)
@@ -251,7 +243,7 @@ contains
   !! @note Component wise
   subroutine field_add_field(f, g)
     type(field_t), intent(inout) :: f
-    type(field_t), intent(inout) :: g
+    type(field_t), intent(in) :: g
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
@@ -268,7 +260,7 @@ contains
   !! F(u_1, u_2, ... , u_n) + a \f$
   subroutine field_add_scalar(f, a)
     type(field_t), intent(inout) :: f
-    real(kind=rp), intent(inout) :: a
+    real(kind=rp), intent(in) :: a
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz

@@ -33,38 +33,37 @@
 !> Fluid formulations
 module fluid_scheme
   use gather_scatter
-  use mean_sqr_flow    
+  use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config
   use parameters
-  use checkpoint
-  use mean_flow
+  use checkpoint, only : chkp_t
+  use mean_flow, only : mean_flow_t
   use num_types
   use source
-  use field
+  use field, only : field_t, field_free
   use space
-  use dofmap
-  use krylov
-  use coefs
-  use wall
-  use inflow
-  use usr_inflow
-  use blasius
-  use dirichlet
-  use dong_outflow
-  use symmetry
-  use non_normal
+  use dofmap, only : dofmap_t
+  use krylov, only : ksp_t
+  use coefs, only : coef_t
+  use wall, only : no_slip_wall_t
+  use inflow, only : inflow_t
+  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
+  use blasius, only : blasius_t
+  use dirichlet, only : dirichlet_t
+  use dong_outflow, only : dong_outflow_t
+  use symmetry, only : symmetry_t
+  use non_normal, only : non_normal_t
   use krylov_fctry
   use precon_fctry
-  use fluid_stats
-  use bc
-  use mesh
+  use fluid_stats, only : fluid_stats_t
+  use bc, only : bc_t
+  use mesh, only : mesh_t
   use math
-  use ext_bdf_scheme
+  use ext_bdf_scheme, only : ext_bdf_scheme_t
   use mathops
-  use operators
+  use operators, only : cfl
   use logger
   use field_registry
-  use field_list
   implicit none
   
   !> Base type of all fluid formulations
@@ -525,6 +524,7 @@ contains
     if (this%params%stats_mean_flow .or. this%params%stats_fluid) then
        call this%mean%init(this%u, this%v, this%w, this%p)
     end if
+    
     if (this%params%stats_fluid) then
        call this%stats%init(this%c_Xh,this%mean%u,&
             this%mean%v,this%mean%w,this%mean%p)

@@ -15,6 +15,7 @@ neko_fortran_SOURCES = \
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
+	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	math/math.f90\
@@ -211,6 +212,7 @@ neko_fortran_SOURCES = \
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
+		 common/cpuid.c\
                  gs/bcknd/device/device_mpi.c\
                  math/bcknd/device/device_mpi_reduce.c
 

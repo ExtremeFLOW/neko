@@ -33,7 +33,9 @@
 !> Defines an output for a mean flow field
 module fluid_stats_output
   use fluid_stats
+  use neko_config
   use num_types
+  use device
   use output
   implicit none
   private
@@ -84,8 +86,8 @@ contains
        call this%stats%make_strong_grad() 
        if ( NEKO_BCKND_DEVICE .eq. 1) then
           do i = 1, size(out_fields)
-             call device_memcpy(out_fields(i)%field%x, out_fields(i)%field%x_d,&
-                  out_fields(i)%field%dof%size(), DEVICE_TO_HOST)
+             call device_memcpy(out_fields(i)%f%x, out_fields(i)%f%x_d,&
+                  out_fields(i)%f%dof%size(), DEVICE_TO_HOST)
           end do
        end if
        call this%file_%write(this%stats%stat_fields, t)

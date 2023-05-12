@@ -19,4 +19,5 @@ EXTRA_DIST = pages/code-style.md\
 	     pages/publication-list.md\
 	     pages/accelerators.md\
 	     pages/case-file.md\
+	     pages/statistics.md\
 	     pages/index.md

@@ -84,7 +84,7 @@ contains
     if (present(size)) then
        allocate (this%fields(size))
        do i= 1, size
-         allocate(this%fields(i)%field)
+         allocate(this%fields(i)%f)
        end do
        allocate (this%inuse(size))
     else
@@ -110,8 +110,8 @@ contains
 
     if (allocated(this%fields)) then
        do i=1, this%nfields
-          call field_free(this%fields(i)%field)
-          deallocate(this%fields(i)%field)
+          call field_free(this%fields(i)%f)
+          deallocate(this%fields(i)%f)
        end do
     
        deallocate(this%fields)
@@ -164,7 +164,7 @@ contains
     temp(1:this%nfields) = this%fields(1:this%nfields)
     
     do i=this%nfields +1, size(temp)
-      allocate(temp(i)%field)
+      allocate(temp(i)%f)
     enddo
 
     call move_alloc(temp, this%fields)
@@ -190,11 +190,11 @@ contains
        if (this%inuse(index) .eqv. .false.) then
          write (name, "(A3,I0.3)") "wrk", index
          
-         if (.not. allocated(this%fields(index)%field%x)) then
-           call field_init(this%fields(index)%field, this%dof, trim(name))
+         if (.not. allocated(this%fields(index)%f%x)) then
+           call field_init(this%fields(index)%f, this%dof, trim(name))
            nfields = nfields + 1
          end if
-         f => this%fields(index)%field
+         f => this%fields(index)%f
          this%inuse(index) = .true.
          this%nfields_inuse = this%nfields_inuse + 1
          return
@@ -207,8 +207,8 @@ contains
     nfields_inuse = nfields_inuse + 1
     this%inuse(nfields) = .true.
     write (name, "(A3,I0.3)") "wrk", index
-    call field_init(this%fields(nfields)%field, this%dof, trim(name))
-    f => this%fields(nfields)%field
+    call field_init(this%fields(nfields)%f, this%dof, trim(name))
+    f => this%fields(nfields)%f
 
     end associate
   end subroutine request_field

@@ -82,7 +82,7 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-    call this%mf%free()
+    call field_free(this%mf)
 
   end subroutine mean_field_free
 
