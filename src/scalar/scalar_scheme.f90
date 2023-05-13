@@ -51,7 +51,7 @@ module scalar_scheme
   use precon_fctry
   use bc
   use mesh
-  use ext_bdf_scheme
+  use time_scheme_controller
   use logger
   use field_registry
   implicit none
@@ -114,12 +114,12 @@ module scalar_scheme
   abstract interface
      subroutine scalar_scheme_step_intrf(this, t, tstep, ext_bdf)
        import scalar_scheme_t
-       import ext_bdf_scheme_t
+       import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
-       type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine scalar_scheme_step_intrf
   end interface
 
