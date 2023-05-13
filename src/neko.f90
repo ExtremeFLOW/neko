@@ -76,8 +76,11 @@ module neko
   use jobctrl
   use device
   use cpr
+  use fluid_stats
+  use field_list  
   use field_registry
   use vector
+  use system
 contains
 
   subroutine neko_init(C)
@@ -156,6 +159,10 @@ contains
        else
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
        end if
+       call neko_log%message(log_buf)
+
+       write(log_buf, '(a)') 'CPU type  : '
+       call system_cpu_name(log_buf(13:))
        call neko_log%message(log_buf)
 
        write(log_buf, '(a)') 'Bcknd type: '

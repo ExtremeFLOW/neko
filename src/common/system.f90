@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,30 +30,39 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Factory for all fluid schemes
-module fluid_fctry
-  use fluid_scheme, only : fluid_scheme_t
-  use fluid_plan1, only : fluid_plan1_t
-  use fluid_pnpn, only : fluid_pnpn_t    
-  use neko_config
-  use utils
+!> Interface to system information routines
+module system
+  use, intrinsic :: iso_c_binding
   implicit none
 
-contains
+  interface
+  !> Interface to a C function to retrieve the CPU name (type).
+  !! @param name Stores the retrieved name. Should be a `character` of length 
+  !! `len` and `c_char` kind.
+  !! @param len The maximum anticipated length of the retrieved name.
+     subroutine system_cpuid(name, len) &
+          bind(c, name='system_cpuid')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: name
+       integer(c_int), value :: len
+     end subroutine system_cpuid
+   end interface
 
-  !> Initialise a fluid scheme
-  subroutine fluid_scheme_factory(fluid, fluid_scheme)
-    class(fluid_scheme_t), intent(inout), allocatable :: fluid
-    character(len=*) :: fluid_scheme
+ contains
 
-    if (trim(fluid_scheme) .eq. 'plan1') then
-       allocate(fluid_plan1_t::fluid)
-    else if (trim(fluid_scheme) .eq. 'pnpn') then
-       allocate(fluid_pnpn_t::fluid)
-    else
-       call neko_error('Invalid fluid scheme')
-    end if
-    
-  end subroutine fluid_scheme_factory
+   !> Retrieve the system's CPU name (type)
+   !! @param name Stores the retrieved name.
+   subroutine system_cpu_name(name)
+     character(len=*), intent(inout) :: name
+     character(kind=c_char, len=80), target :: c_name
+     integer :: end_pos
 
-end module fluid_fctry
+     call system_cpuid(c_loc(c_name), 80)
+
+     end_pos = scan(c_name, C_NULL_CHAR)
+     if(end_pos .ge. 2) then
+        name(1:end_pos-1) = c_name(1:end_pos-1)
+     end if
+   end subroutine system_cpu_name
+  
+end module system

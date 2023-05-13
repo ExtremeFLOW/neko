@@ -196,8 +196,17 @@ contains
   subroutine ext_time_scheme_set_coeffs(this, dt)
     class(ext_time_scheme_t), intent(inout)  :: this
     real(kind=rp), intent(inout), dimension(10) :: dt
-    real(kind=rp), dimension(4) :: coeffs_old
-    associate(n => this%n, coeffs => this%coeffs, coeffs_d => this%coeffs_d)
+    real(kind=rp) :: dt0, dt1, dt2, dts, dta, dtb, dtc, dtd, dte
+    real(kind=rp), dimension(4) :: ab_old
+    associate(nab => this%n, nbd => this%n, ext => this%coeffs, ext_d => this%coeffs_d)
+      ab_old = ext
+      nab = nab + 1
+      nab = min(nab, this%time_order)
+    
+      dt0 = dt(1)
+      dt1 = dt(2)
+      dt2 = dt(3)
+      call rzero(ext, 4)
       
       ! To check whether the coefficients changed
       coeffs_old = coeffs
@@ -219,9 +228,9 @@ contains
          coeffs(1) =  1.0_rp - coeffs(2) - coeffs(3)
       endif
 
-      if (c_associated(coeffs_d)) then
-         if (maxval(abs(coeffs - coeffs_old)) .gt. 1e-10_rp) then
-            call device_memcpy(coeffs, coeffs_d, 4, HOST_TO_DEVICE)
+      if (c_associated(ext_d)) then
+         if (maxval(abs(ext - ab_old)) .gt. 1e-10_rp) then
+            call device_memcpy(ext, ext_d, 4, HOST_TO_DEVICE)
          end if
       end if
     end associate
