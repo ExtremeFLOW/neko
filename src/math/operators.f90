@@ -44,6 +44,7 @@ module operators
   use math
   use comm
   use device
+  use device_math    
   implicit none
   private
 

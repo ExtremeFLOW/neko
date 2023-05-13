@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,10 @@
 module opencl_intf
   use num_types, only : i8
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_size_t, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_loc, c_size_t, &
+                                          c_char, c_intptr_t, c_int64_t, &
+                                          C_NULL_PTR, C_NULL_FUNPTR, &
+                                          c_associated, c_size_t
   implicit none
   
 #ifdef HAVE_OPENCL
