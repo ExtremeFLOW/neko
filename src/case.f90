@@ -53,7 +53,7 @@ module case
   use utils
   use mesh
   use comm
-  use ext_bdf_scheme
+  use time_scheme_controller
   use logger
   use jobctrl
   use user_intf  
@@ -63,7 +63,7 @@ module case
   type :: case_t
      type(mesh_t) :: msh
      type(param_t) :: params
-     type(ext_bdf_scheme_t) :: ext_bdf
+     type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s

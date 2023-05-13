@@ -59,7 +59,7 @@ module fluid_scheme
   use bc
   use mesh, only : mesh_t
   use math
-  use ext_bdf_scheme, only : ext_bdf_scheme_t
+  use time_scheme_controller, only : time_scheme_controller_t
   use mathops
   use operators, only : cfl
   use logger
@@ -136,12 +136,12 @@ module fluid_scheme
   abstract interface
      subroutine fluid_scheme_step_intrf(this, t, tstep, ext_bdf)
        import fluid_scheme_t
-       import ext_bdf_scheme_t
+       import time_scheme_controller_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
-       type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine fluid_scheme_step_intrf
   end interface
 

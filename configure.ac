@@ -309,7 +309,8 @@ AC_CONFIG_FILES([tests/stack/Makefile\
                  tests/vector/Makefile\
                  tests/scratch_registry/Makefile\
                  tests/fast3d/Makefile\
-                 tests/ext_bdf_scheme/Makefile])
+                 tests/time_scheme/Makefile\
+                 tests/time_scheme_controller/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
