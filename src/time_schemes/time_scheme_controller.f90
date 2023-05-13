@@ -57,8 +57,12 @@ module time_scheme_controller
   !!   - BDF2 for diffusion -> Modified explcit extrapolation scheme.
   !!   - BDF3 for diffusion -> Explciit extrapolation scheme.
   !! The order of the BDF scheme in the above logic is set by the user, whereas
-  !! the advection scheme will always be 3rd order, excluding the first 2 
-  !! timesteps.
+  !! the advection scheme is set to forward Euler when BDF is order 1, 
+  !! and otherwise to a 3rd order scheme (excluding the first 2 timesteps).
+  !! This means that some of the options in the above list never get realized,
+  !! particularly order 2 and 3 advection for 1st order BDF. They remain in the
+  !! code so as to have the orinigal Nek5000 logic in place for possible
+  !! adoption in the future.
   !! An important detail here is the handling of the first timesteps where a 
   !! high-order scheme cannot be constructed. The parameters `nadv` and `ndiff`,
   !! which are initialized to 0, hold the current order of the respective
@@ -109,6 +113,11 @@ module time_scheme_controller
     integer :: torder 
   
     this%diffusion_time_order = torder
+    
+    ! Force 1st order advection when diffusion is 1st order
+    if (torder .eq. 1) then
+       this%advection_time_order = 1
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%advection_coeffs, this%advection_coeffs_d, 4)
@@ -160,7 +169,7 @@ module time_scheme_controller
          call this%ext%compute_coeffs(adv_coeffs, dt, nadv)
       else if (nadv .eq. 2) then
          if (ndiff .eq. 1) then
-            ! 2nd order Adam-Bashforth
+            ! 2nd order Adam-Bashforth, currently never used
             call this%ab%compute_coeffs(adv_coeffs, dt, nadv)
          else
             ! Linear extrapolation
@@ -168,7 +177,7 @@ module time_scheme_controller
          end if
       else if (nadv .eq. 3) then
          if (ndiff .eq. 1) then
-            ! 3rd order Adam-Bashforth
+            ! 3rd order Adam-Bashforth, currently never used
             call this%ab%compute_coeffs(adv_coeffs, dt, nadv)
          else if (ndiff .eq. 2) then
             ! The modified EXT scheme
