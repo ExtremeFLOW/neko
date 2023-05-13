@@ -159,7 +159,9 @@ contains
 
     this%shared_on_host = .true.
 
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     call device_event_create(this%gather_event)
+#endif
       
   end subroutine gs_device_init
 
@@ -206,9 +208,11 @@ contains
     this%nlocal = 0
     this%nshared = 0
 
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
     end if
+#endif
     
   end subroutine gs_device_free
 
