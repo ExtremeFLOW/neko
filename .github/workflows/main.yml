@@ -292,7 +292,8 @@ jobs:
             cd reframe
             env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
   documentation:
-    needs: [Intel, GNU, NVIDIA, ReFrame]
+#    needs: [Intel, GNU, NVIDIA, ReFrame]
+    needs: [Intel, GNU, ReFrame]
     runs-on: ubuntu-latest
     name: "Doxygen"
     steps:
