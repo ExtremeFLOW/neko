@@ -61,6 +61,13 @@ AX_MPI_DTYPE
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
 
+        
+              
+# Checks for platform headers
+AC_LANG_PUSH([C])
+AC_CHECK_HEADERS([cpuid.h])
+AC_LANG_POP([C])  
+
 # Set necessary flags to fix issues with various compilers
 if test "x$ax_cv_fc_compiler_vendor" = xportland; then
    FCFLAGS="$FCFLAGS  -Mbackslash"
@@ -309,6 +316,9 @@ if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
+		    contrib/average_fields_in_time/Makefile\
+		    contrib/postprocess_fluid_stats/Makefile\
+		    contrib/average_field_in_space/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

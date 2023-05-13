@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,52 +30,39 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a mean squared flow field
-module mean_sqr_flow
-  use mean_sqr_field, only : mean_sqr_field_t
-  use field, only : field_t
+!> Interface to system information routines
+module system
+  use, intrinsic :: iso_c_binding
   implicit none
-  private
 
-  type, public :: mean_sqr_flow_t
-     type(mean_sqr_field_t) :: uu
-     type(mean_sqr_field_t) :: vv
-     type(mean_sqr_field_t) :: ww
-     type(mean_sqr_field_t) :: pp
-   contains
-     procedure, pass(this) :: init => mean_sqr_flow_init
-     procedure, pass(this) :: free => mean_sqr_flow_free
-  end type mean_sqr_flow_t
+  interface
+  !> Interface to a C function to retrieve the CPU name (type).
+  !! @param name Stores the retrieved name. Should be a `character` of length 
+  !! `len` and `c_char` kind.
+  !! @param len The maximum anticipated length of the retrieved name.
+     subroutine system_cpuid(name, len) &
+          bind(c, name='system_cpuid')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: name
+       integer(c_int), value :: len
+     end subroutine system_cpuid
+   end interface
+
+ contains
+
+   !> Retrieve the system's CPU name (type)
+   !! @param name Stores the retrieved name.
+   subroutine system_cpu_name(name)
+     character(len=*), intent(inout) :: name
+     character(kind=c_char, len=80), target :: c_name
+     integer :: end_pos
+
+     call system_cpuid(c_loc(c_name), 80)
+
+     end_pos = scan(c_name, C_NULL_CHAR)
+     if(end_pos .ge. 2) then
+        name(1:end_pos-1) = c_name(1:end_pos-1)
+     end if
+   end subroutine system_cpu_name
   
-contains
-  
-  !> Initialize a mean squared flow field
-  subroutine mean_sqr_flow_init(this, u, v, w, p)
-    class(mean_sqr_flow_t), intent(inout) :: this
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-
-    call this%free()
-
-    call this%uu%init(u)
-    call this%vv%init(v)
-    call this%ww%init(w)
-    call this%pp%init(p)
-    
-  end subroutine mean_sqr_flow_init
-
-
-  !> Deallocates a mean squared flow field
-  subroutine mean_sqr_flow_free(this)
-    class(mean_sqr_flow_t), intent(inout) :: this
-
-    call this%uu%free()
-    call this%vv%free()
-    call this%ww%free()
-    call this%pp%free()
-
-  end subroutine mean_sqr_flow_free
-  
-end module mean_sqr_flow
+end module system

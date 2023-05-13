@@ -55,6 +55,10 @@ module vector
           vector_assign_scalar
   end type vector_t
 
+  type, public :: vector_ptr_t
+     type(vector_t), pointer :: v
+  end type
+
 contains
 
   !> Initialise a vector of size @a n
