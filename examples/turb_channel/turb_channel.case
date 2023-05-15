@@ -8,7 +8,6 @@ initial_condition = 'user'
 &NEKO_PARAMETERS
 dt = 3d-3
 T_end = 1000.0
-nsamples = 1000
 uinf= 1.0,0.0,0.0
 output_bdry = .true.
 Re = 2860
