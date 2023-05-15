@@ -289,12 +289,14 @@ contains
     if (trim(C%params%fluid_write_control) .eq. 'org') then
        call C%s%add(C%f_out, real(C%params%nsamples,rp), 'nsamples')
     else 
-       call C%s%add(C%f_out, C%params%fluid_write_par, C%params%fluid_write_control)
+       call C%s%add(C%f_out, C%params%fluid_write_par, &
+            C%params%fluid_write_control)
     end if
     
     if (scalar) then
        C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
-       call C%s%add(C%s_out,C%params%fluid_write_par,C%params%fluid_write_control)
+       call C%s%add(C%s_out, C%params%fluid_write_par, &
+            C%params%fluid_write_control)
     end if
 
     !
@@ -302,13 +304,15 @@ contains
     !
     if (C%params%output_chkp) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%params%output_dir)
-       call C%s%add(C%f_chkp,C%params%chkp_write_par,C%params%chkp_write_control)
+       call C%s%add(C%f_chkp, C%params%chkp_write_par, &
+            C%params%chkp_write_control)
     end if
 
     !
     ! Setup statistics
     !
     call C%q%init(C%params%stats_begin, C%params%stats_sample_nstep)
+
     if (C%params%stats_mean_flow .or. C%params%stats_fluid) then
        call C%q%add(C%fluid%mean%u)
        call C%q%add(C%fluid%mean%v)
@@ -320,6 +324,7 @@ contains
        call C%s%add(C%f_mf, C%params%stats_write_par, &
                     C%params%stats_write_control)
     end if
+    
     if (C%params%stats_fluid) then
        call C%q%add(C%fluid%stats)
        C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
@@ -338,7 +343,8 @@ contains
           C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
                                              C%params%stats_begin, &
                                              path=C%params%output_dir)
-          call C%s%add(C%f_msqrf,C%params%stats_write_par,C%params%stats_write_control)
+          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
+               C%params%stats_write_control)
        end if
     end if
 
