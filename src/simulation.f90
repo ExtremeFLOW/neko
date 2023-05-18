@@ -128,7 +128,9 @@ contains
     end do
 
     call profiler_stop
-    call C%s%sample(t,tstep,ifforce=C%params%write_at_end)
+
+    call C%s%sample(t, tstep, C%params%write_at_end)
+    
     if (.not. (C%params%write_at_end) .and. t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
     end if
