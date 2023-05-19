@@ -58,6 +58,8 @@ module case
   use jobctrl
   use user_intf  
   use scalar_pnpn ! todo directly load the pnpn? can we have other
+  use json_module, only : json_file_t => json_file, json_value_t => json_value,&
+                          json_core_t => json_core
   implicit none
 
   type :: case_t
@@ -83,6 +85,7 @@ contains
 
   !> Initialize a case from an input file @a case_file
   subroutine case_init(C, case_file)
+    implicit none
     type(case_t), target, intent(inout) :: C
     character(len=*), intent(in) :: case_file
 
@@ -105,9 +108,42 @@ contains
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
+
+    type(json_file_t) :: json_file
+    type(json_file_t) :: json_file2
+    type(json_value_t), pointer :: json_value
+    type(json_core_t) :: json_core
+    logical found
+    integer int_val
+    logical bool_val
+    character(len=:), allocatable :: string_val
+    character(len=:), allocatable :: json_buffer
    
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))
+    
+    call json_file%Initialize()
+    call json_file%load(filename='hemi.json')
+    call json_file%get('number', int_val, found) 
+    call json_file%get('boolean', bool_val, found) 
+    call json_file%get('object.a', string_val, found) 
+    
+    
+    call json_file%get('object', json_value, found)
+    call json_core%serialize(json_value, json_buffer)
+
+    !call json_core%create_object(json_value, '')
+    !call json_core%print(json_value,'test.json')
+    
+    !json_file2 = json_file
+    call json_file2%deserialize(json_buffer)
+    call json_file2%print()
+
+    write(*,*) "JSON TEST", json_buffer
+    write(*,*) "JSON TEST", int_val
+    write(*,*) "JSON TEST", bool_val
+    write(*,*) "JSON TEST", string_val
+    
     
     !
     ! Read case description
