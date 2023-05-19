@@ -180,50 +180,119 @@ __global__ void lcmax_kernel(T * buf_h,
  * Using slow bubble sort with one thread sorting per block
  * buf_h and buf_k must be same size as a and key
  */
-template< typename T, const int NXYZ >
-__global__ void lcsort_abs_kernel(T * buf_h,
-		                  int * buf_i,
-		             const T * a,
-		             const int * key) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-  __shared__ T buf[NXYZ];
-  __shared__ int buf_k[NXYZ];
-  T tmp = 0.0;
-  T tmp1 = 0.0;
-  int tmp2 = 0;
-  int tmp3 = 0;
- 
-  buf[threadIdx.x]   = a[idx];
-  buf_k[threadIdx.x] = key[idx];
-  __syncthreads();
-
-  if (threadIdx.x == 0) {
-    for (int i = 0; i< blockDim.x; i += 1) {
-
-      for (int j = 0; j < (blockDim.x-i-1); j += 1) {
-
-      	tmp  = buf[j];
-        tmp1 = buf[j+1];
-        tmp2 = buf_k[j];
-        tmp3 = buf_k[j+1];
-        if (abs(tmp)<abs(tmp1)) {
-          buf[j]     = tmp1;
-          buf[j+1]   = tmp;
-          buf_k[j]   = tmp3;
-          buf_k[j+1] = tmp2;
+template< typename T>
+__global__ void  lcsort_abs_kernel(
+    T * array_out,
+    int * key_out,
+    const T * array,
+    const int * key,
+    const int n,
+    const int d
+){
+    extern __shared__ T shared[];
+    T * array_shm = &shared[0];
+    int * key_shm = (int *) &shared[d];
+    if(d == 1){return;}
+    int localIdx = threadIdx.x;
+    int TglobalIdx = blockIdx.x;
+    int stride = gridDim.x;
+    int arrayIdx;
+    int len;
+    int groupIdx;
+    int interIdx;
+    int idx1,idx2,idx3, i, z;
+    T temp;
+    int temp_key;
+    for(z = TglobalIdx; z < n; z += stride){
+        len = 2;
+        idx2 = localIdx * len;
+        arrayIdx = z * d;
+        idx1 = arrayIdx + localIdx * len;
+        if(abs(array[idx1]) > abs(array[idx1 + 1])){
+            array_shm[idx2] = array[idx1];
+            key_shm[idx2] = key[idx1];
+            array_shm[idx2 + 1] = array[idx1 + 1];
+            key_shm[idx2 + 1] = key[idx1 + 1];
+        }else{
+            array_shm[idx2] = array[idx1 + 1];
+            key_shm[idx2] = key[idx1 + 1];
+            array_shm[idx2 + 1] = array[idx1];
+            key_shm[idx2 + 1] = key[idx1];
         }
-      } 
+        for(len = 4; len < d; len = len << 1){
+            __syncthreads();
+            groupIdx = localIdx / (len/2);
+            idx3 = localIdx % (len/2);
+            idx1 = groupIdx * len + idx3;
+            idx2 = groupIdx * len + len - 1 - idx3;
+            if(abs(array_shm[idx1]) < abs(array_shm[idx2])){
+                temp = array_shm[idx1];
+                array_shm[idx1] = array_shm[idx2];
+                array_shm[idx2] = temp;
+                temp_key = key_shm[idx1];
+                key_shm[idx1] = key_shm[idx2];
+                key_shm[idx2] = temp_key;
+            }
+            for(i = len / 2; i > 1; i = i >> 1){
+                __syncthreads();
+                groupIdx = localIdx / (i/2);
+                idx3 = localIdx % (i/2) ;
+                idx1 = groupIdx * i + idx3;
+                idx2 = idx1 + i / 2;
+                if(abs(array_shm[idx1]) < abs(array_shm[idx2])){
+                    temp = array_shm[idx1];
+                    array_shm[idx1] = array_shm[idx2];
+                    array_shm[idx2] = temp;
+                    temp_key = key_shm[idx1];
+                    key_shm[idx1] = key_shm[idx2];
+                    key_shm[idx2] = temp_key;
+                }
+            }
+        }
+        len = d;
+        __syncthreads();
+        idx1 = localIdx;
+        idx2 = len - 1 - localIdx;
+        if(abs(array_shm[idx1]) < abs(array_shm[idx2])){
+            temp = array_shm[idx1];
+            array_shm[idx1] = array_shm[idx2];
+            array_shm[idx2] = temp;
+            temp_key = key_shm[idx1];
+            key_shm[idx1] = key_shm[idx2];
+            key_shm[idx2] = temp_key;
+        }
+        for(i = len / 2; i > 2; i = i >> 1){
+            __syncthreads();
+            groupIdx = localIdx / (i/2);
+            idx3 = localIdx % (i/2);
+            idx1 = groupIdx * i + idx3;
+            idx2 = idx1 + i / 2;
+            if(abs(array_shm[idx1]) < abs(array_shm[idx2])){
+                temp = array_shm[idx1];
+                array_shm[idx1] = array_shm[idx2];
+                array_shm[idx2] = temp;
+                temp_key = key_shm[idx1];
+                key_shm[idx1] = key_shm[idx2];
+                key_shm[idx2] = temp_key;
+            }
+        }
+        __syncthreads();
+        i = 2;
+        idx1 = localIdx*i;
+        idx2 = idx1 + 1;
+        if(abs(array_shm[idx1]) > abs(array_shm[idx2])){
+            array_out[idx1+arrayIdx] = array_shm[idx1];
+            array_out[idx2+arrayIdx] = array_shm[idx2];
+            key_out[idx1+arrayIdx] = key_shm[idx1];
+            key_out[idx2+arrayIdx] = key_shm[idx2];
+        }else{
+            array_out[idx1+arrayIdx] = array_shm[idx2];
+            array_out[idx2+arrayIdx] = array_shm[idx1];
+            key_out[idx1+arrayIdx] = key_shm[idx2];
+            key_out[idx2+arrayIdx] = key_shm[idx1];
+        }
     }
-  }  
-  __syncthreads();
-
-  buf_h[idx] = buf[threadIdx.x];
-  buf_i[idx] = buf_k[threadIdx.x]; 
- 
 }
-
 
 /**
  * Device kernel for lcsort_bykey
@@ -236,27 +305,13 @@ __global__ void lcsort_bykey_kernel(T * buf_h,
 				    const T * a,
 		                    const int * key) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int idx_sort = blockIdx.x * blockDim.x + threadIdx.x;
+  const int idx_in = blockIdx.x * blockDim.x + (key[idx_sort]-1);
 
-  __shared__ T buf[NXYZ];
-  __shared__ int buf_k[NXYZ];
-  int tmp = 0.0;
- 
-  buf[threadIdx.x]   = a[idx];
-  buf_k[threadIdx.x] = key[idx];
+  buf_h[idx_in]=a[idx_sort];
+  buf_i[idx_in]=key[idx_sort];
+
   __syncthreads();
-
-  for (int i = 0; i< blockDim.x; i += 1) {
-
-      	tmp  = buf_k[i]-1;
-
-        if (threadIdx.x == tmp) {
-          buf_h[idx]= buf[i];
-          buf_i[idx]= buf_k[i];
-        }
-  }
-  __syncthreads();
-
 }
 
 template< typename T >

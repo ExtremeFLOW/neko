@@ -144,17 +144,26 @@ extern "C" {
    * Fortran wrapper that  
    * local sort decending order$
    */
+
   void cuda_lcsort_abs(void *asort,void *keysort, void *a, void *key,int *lx, int *nelv) {
-    const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
+  /*  const dim3 nthrds((*lx)*(*lx)*(*lx), 1, 1);
     const dim3 nblcks((*nelv), 1, 1);
     //const int nb = (*nelv);
     //const int nxyz = (*lx)*(*lx)*(*lx);
      
     lcsort_abs_kernel<real, 1024><<<nblcks, nthrds>>>((real *) asort, (int *) keysort, (real *) a, (int *) key);
+  */
+    const dim3 nthrds((*lx)*(*lx)*(*lx)/2, 1, 1);
+    const dim3 nblcks(4320, 1, 1);
+    const int n = *nelv;
+    const int d = (*lx)*(*lx)*(*lx);
+    //const int nb = (*nelv);
+    //const int nxyz = (*lx)*(*lx)*(*lx);
+     
+    lcsort_abs_kernel<real><<<nblcks, nthrds,d*(sizeof(real)+sizeof(int)),0>>>((real *) asort, (int *) keysort, (real *) a, (int *) key, n, d);
     CUDA_CHECK(cudaGetLastError());
 
   }
-
 
   /**
    * Fortran wrapper that  
