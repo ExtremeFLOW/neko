@@ -171,7 +171,8 @@ contains
         this%T_list(n) = write_par
         this%freq_list(n) = 1.0_rp/this%T_list(n)
         this%tstep_interval_list(n) = 0
-        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  this%freq_list(n)
+        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
+             this%freq_list(n)
         call neko_log%message(log_buf)
         write(log_buf, '(A,ES13.6)') 'Time between writes: ',  this%T_list(n)
         call neko_log%message(log_buf)
@@ -181,7 +182,8 @@ contains
         this%tstep_interval_list(n) = 0
         write(log_buf, '(A,I13)') 'Total samples: ',  int(write_par)
         call neko_log%message(log_buf)
-        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  this%freq_list(n)
+        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  &
+             this%freq_list(n)
         call neko_log%message(log_buf)
         write(log_buf, '(A,ES13.6)') 'Time between writes: ',  this%T_list(n)
         call neko_log%message(log_buf)
@@ -193,7 +195,8 @@ contains
         this%tstep_interval_list(n) = this%tstep_interval_list(1)
         this%freq_list(n) = this%freq_list(1)
         this%T_list(n) = this%T_list(1)
-        write(log_buf, '(A)') 'Write control not set, defaulting to first output settings'
+        write(log_buf, '(A)') &
+             'Write control not set, defaulting to first output settings'
         call neko_log%message(log_buf)
     end if
     this%nsample_list(n) = 0
@@ -212,6 +215,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: i, ierr
     logical :: force = .false.
+    logical :: write_output
 
     if (present(ifforce)) then
        force = ifforce
@@ -222,31 +226,59 @@ contains
     call MPI_Barrier(NEKO_COMM, ierr)
     sample_start_time = MPI_WTIME()
 
+    write_output = .false.
     ! We should not need this extra select block, and it works great
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
-    call neko_log%message('Writer output: ')
+    ! (>11.0.x) when using high opt. levels.  
+    select type (samp => this)
+    type is (sampler_t)
+       do i = 1, this%n    
+          write_output = (force .or. &
+               ((samp%tstep_interval_list(i) .eq. 0) .and. &
+               (t .ge. (samp%nsample_list(i) * samp%T_list(i)))) .or. &
+               ((samp%tstep_interval_list(i) .gt. 0) .and. &
+               (mod(tstep,samp%tstep_interval_list(i)) .eq. 0))) .or. &
+               write_output
+       end do
+    end select
+    
+    if (write_output) then
+       call neko_log%section('Writer output ')
+    end if
+
+
+    ! We should not need this extra select block, and it works great
+    ! without it for GNU, Intel and NEC, but breaks horribly on Cray         
     ! (>11.0.x) when using high opt. levels.  
     select type (samp => this)
     type is (sampler_t)
        do i = 1, this%n
           if (force) then
-             call neko_log%message(trim(this%output_list(i)%outp%file_%file_type%fname))
-             write(log_buf, '(A,I6)') 'Output number:',  int(this%nsample_list(i))
+             call neko_log%message('File name: '// &
+                  trim(samp%output_list(i)%outp%file_%file_type%fname))
+             write(log_buf, '(A,I6)') 'Output number:', &
+                  int(samp%nsample_list(i))
              call neko_log%message(log_buf)
              call samp%output_list(i)%outp%sample(t)
-             this%nsample_list(i) = this%nsample_list(i) + 1
-          else if ((this%tstep_interval_list(i) .eq. 0) .and. (t .ge. (this%nsample_list(i) * this%T_list(i)))) then
-             call neko_log%message(trim(this%output_list(i)%outp%file_%file_type%fname))
-             write(log_buf, '(A,I6)') 'Output number:',  int(this%nsample_list(i))
+             samp%nsample_list(i) = samp%nsample_list(i) + 1
+          else if ((samp%tstep_interval_list(i) .eq. 0) .and. &               
+               (t .ge. (samp%nsample_list(i) * samp%T_list(i)))) then
+             call neko_log%message('File name: '// &
+                  trim(samp%output_list(i)%outp%file_%file_type%fname))
+             write(log_buf, '(A,I6)') 'Output number:',  &
+                  int(samp%nsample_list(i))
              call neko_log%message(log_buf)
              call samp%output_list(i)%outp%sample(t)
-             this%nsample_list(i) = this%nsample_list(i) + 1
-          else if ((this%tstep_interval_list(i) .gt. 0) .and. (mod(tstep,this%tstep_interval_list(i)) .eq. 0)) then
-             call neko_log%message(trim(this%output_list(i)%outp%file_%file_type%fname))
-             write(log_buf, '(A,I6)') 'Output number:',  int(this%nsample_list(i))
+             samp%nsample_list(i) = samp%nsample_list(i) + 1
+          else if ((samp%tstep_interval_list(i) .gt. 0) .and. &
+               (mod(tstep,samp%tstep_interval_list(i)) .eq. 0)) then
+             call neko_log%message('File name: '// &
+                  trim(samp%output_list(i)%outp%file_%file_type%fname))
+             write(log_buf, '(A,I6)') 'Output number:', &
+                  int(samp%nsample_list(i))
              call neko_log%message(log_buf)
              call samp%output_list(i)%outp%sample(t)
-             this%nsample_list(i) = this%nsample_list(i) + 1
+             samp%nsample_list(i) = samp%nsample_list(i) + 1
           end if
        end do
     class default
@@ -257,9 +289,12 @@ contains
     sample_end_time = MPI_WTIME()
 
     sample_time = sample_end_time - sample_start_time
-    write(log_buf,'(A23,1x,F10.6,A,F9.6)') 'Output written at time:', t, &
-          ' Output time (s): ', sample_time
-    call neko_log%message(log_buf)
+    if (write_output) then
+       write(log_buf,'(A16,1x,F10.6,A,F9.6)') 'Writing at time:', t, &
+            ' Output time (s): ', sample_time
+       call neko_log%message(log_buf)
+       call neko_log%end_section()
+    end if
     call profiler_end_region
   end subroutine sampler_sample
 

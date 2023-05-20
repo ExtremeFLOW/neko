@@ -130,14 +130,15 @@ contains
     real(kind=rp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
 
-    if (t .ge. this%T_begin) then
+    if (t .ge. this%T_begin .and. this%n .gt. 0) then
        this%t_diff = this%t_diff + dt
-       ! There is technically an issue here for the last sample if we reset the stats
-       ! If the reset is not on a multiple of samp_interval the weight of the last sample is wrong.
+       ! There is technically an issue here for the last sample if we
+       ! reset the stats If the reset is not on a multiple of
+       ! samp_interval the weight of the last sample is wrong.
        if (mod(tstep,this%samp_interval) .eq. 0) then
+          call neko_log%section('Statistics')
           call MPI_Barrier(NEKO_COMM, ierr)
           sample_start_time = MPI_WTIME()
-          call neko_log%message('Sampling for statistics')
           do i = 1, this%n
              call this%quant_list(i)%quantp%update(this%t_diff)
           end do
@@ -148,6 +149,7 @@ contains
           write(log_buf,'(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
           ' Sampling time (s): ', sample_time
           call neko_log%message(log_buf)
+          call neko_log%end_section()
        end if
     end if
   end subroutine stats_eval
