@@ -96,3 +96,11 @@ Name                    | Description                                           
 `blasius_approx`        | Type of approximate Blasius profile (``'linear'``, ``'quadratic'``, ``'cubic'``, ``'quartic'``, ``'sin'``)    | ``'sin'``
 `bc_labels`             | Type of boundary condition for each label                      | -
 `user`                  | Array of sixteen user-defined parameters                      | `0.0,...,0.0`
+`stats_fluid`           | Enable fluid statistics                                       | `.false.`
+`fluid_write_par`       | Time interval for writes of fld files                         | `1d0`
+`fluid_write_control`   | How to control output of fluid data (``'simulationtime'``, ``'nsamples'``, ``'tsteps'``,``'org'``)            | ``'org'`` 
+`stats_write_par`       | Time interval over which we compute averages before output    | `10000d0`
+`stats_write_control`   | How to control output of stats data (``'simulationtime'``, ``'nsamples'``, ``'tsteps'``,``'org'``)                        | ``'simulationtime'`` 
+`chkp_write_par`        | Time interval between checkpoints                             | `10000d0`
+`chkp_write_control`    | How to control output of chkp data (``'simulationtime'``, ``'nsamples'``, ``'tsteps'``,``'org'``)            | ``'simulationtime'`` 
+`write_at_end`          | Force output at end of simulation                             | `.true.`
