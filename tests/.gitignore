@@ -29,4 +29,6 @@ jobctrl/jobctrl_suite
 mean_sqr_field/mean_sqr_field_suite
 scratch_registry/scratch_registry_test
 fast3d/fast3d_test
-ext_bdf_scheme/ext_bdf_scheme_test
+time_scheme/time_scheme_test
+time_scheme_controller/time_scheme_controller_test
+

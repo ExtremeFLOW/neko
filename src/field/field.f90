@@ -44,7 +44,7 @@ module field
   use, intrinsic :: iso_c_binding
   implicit none
   
-  type field_t
+  type, public :: field_t
      real(kind=rp), allocatable :: x(:,:,:,:) !< Field data
      
      type(space_t), pointer :: Xh   !< Function space \f$ X_h \f$
@@ -56,6 +56,11 @@ module field
      type(c_ptr) :: x_d = C_NULL_PTR
   end type field_t
 
+  !> field_ptr_t, To easily obtain a pointer to a field
+  type, public ::  field_ptr_t
+     type(field_t), pointer :: f => null()
+  end type field_ptr_t
+
   interface field_init
      module procedure field_init_external_dof, field_init_internal_dof
   end interface field_init
@@ -63,7 +68,7 @@ module field
   interface assignment(=)
      module procedure field_assign_field, field_assign_scalar
   end interface assignment(=)
-
+  
   interface field_add
      module procedure field_add_field, field_add_scalar
   end interface field_add
@@ -99,12 +104,11 @@ contains
     type(field_t), intent(inout) :: f       !< Field to be initialized
     type(dofmap_t), target, intent(in) :: dof  !< External dofmap for the field
     character(len=*), optional :: fld_name     !< Name of the field
-
     call field_free(f)
 
+    f%dof => dof
     f%Xh => dof%Xh
     f%msh => dof%msh
-    f%dof => dof
 
     if (present(fld_name)) then
        call field_init_common(f, fld_name)
@@ -239,7 +243,7 @@ contains
   !! @note Component wise
   subroutine field_add_field(f, g)
     type(field_t), intent(inout) :: f
-    type(field_t), intent(inout) :: g
+    type(field_t), intent(in) :: g
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
@@ -256,7 +260,7 @@ contains
   !! F(u_1, u_2, ... , u_n) + a \f$
   subroutine field_add_scalar(f, a)
     type(field_t), intent(inout) :: f
-    real(kind=rp), intent(inout) :: a
+    real(kind=rp), intent(in) :: a
     integer :: n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz

@@ -61,6 +61,13 @@ AX_MPI_DTYPE
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
 
+        
+              
+# Checks for platform headers
+AC_LANG_PUSH([C])
+AC_CHECK_HEADERS([cpuid.h])
+AC_LANG_POP([C])  
+
 # Set necessary flags to fix issues with various compilers
 if test "x$ax_cv_fc_compiler_vendor" = xportland; then
    FCFLAGS="$FCFLAGS  -Mbackslash"
@@ -204,7 +211,7 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
 
-      # Check that necessary acceleator modules are loaded
+      # Check that necessary accelerator modules are loaded
       if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
       	 AX_CRAY_ACCEL
       fi
@@ -302,12 +309,16 @@ AC_CONFIG_FILES([tests/stack/Makefile\
                  tests/vector/Makefile\
                  tests/scratch_registry/Makefile\
                  tests/fast3d/Makefile\
-                 tests/ext_bdf_scheme/Makefile])
+                 tests/time_scheme/Makefile\
+                 tests/time_scheme_controller/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
+		    contrib/average_fields_in_time/Makefile\
+		    contrib/postprocess_fluid_stats/Makefile\
+		    contrib/average_field_in_space/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

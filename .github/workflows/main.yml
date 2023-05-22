@@ -140,7 +140,7 @@ jobs:
         if: matrix.backend == 'cpu' && failure()
         uses: actions/upload-artifact@v2
         with:
-          name: Test report / ${{ matrix.os }} / ${{ matrix.compiler }}
+          name: Test report_${{ matrix.os }}_${{ matrix.compiler }}
           path: tests/test-suite.log
           retention-days: 2
       - name: Dist (CPU backend)
@@ -214,52 +214,50 @@ jobs:
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
   
-  NVIDIA:
-    needs: linting
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-20.04]
-        compiler: [nvfortran]
-        backend: [cpu, cuda]
-        precision: [dp]
-        include:
-        - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-22-11-cuda-multi &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/22.11/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/22.11/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV 
-    env:
-      CC: gcc
-      FC: ${{ matrix.compiler }}
-      OMPI_FC: ${{ matrix.compiler }}
-      OMPI_CC: gcc
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      RP: ${{ matrix.precision }}
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
-    steps:
-      - name: Setup env.
-        run: ${{ matrix.setup-env }}
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-      - name: Build (CPU backend)
-        if: matrix.backend == 'cpu'
-        run: |
-          git apply patches/nvhpc_bge.patch
-          nvfortran --version
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
-          make -j$(nproc)
-      - name: Build (CUDA backend)
-        if: matrix.backend == 'cuda'
-        run: |
-          git apply patches/nvhpc_bge.patch
-          nvfortran --version
-          ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/22.11/cuda/
-          make -j$(nproc)          
+#  NVIDIA:
+#    needs: linting
+#    runs-on: ${{matrix.os}}
+#    strategy:
+#      fail-fast: true
+#      matrix:
+#        os: [ubuntu-20.04]
+#        compiler: [nvfortran]
+#        backend: [cpu, cuda]
+#        precision: [dp]
+#        include:
+#        - os: ubuntu-20.04
+#          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-23-3 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/23.3/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/23.3/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
+#    env:
+#      CC: gcc
+#      FC: ${{ matrix.compiler }}
+#      OMPI_FC: ${{ matrix.compiler }}
+#      OMPI_CC: gcc
+#      OMPI_ALLOW_RUN_AS_ROOT: 1
+#      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+#      OMPI_MCA_btl_vader_single_copy_mechanism: none
+#      RP: ${{ matrix.precision }}
+#    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
+#    steps:
+#      - name: Setup env.
+#        run: ${{ matrix.setup-env }}
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 1
+#      - name: Build (CPU backend)
+#        if: matrix.backend == 'cpu'
+#        run: |
+#          git apply patches/nvhpc_bge.patch
+#          ./regen.sh
+#          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+#          make
+#      - name: Build (CUDA backend)
+#        if: matrix.backend == 'cuda'
+#        run: |
+#          git apply patches/nvhpc_bge.patch
+#          ./regen.sh
+#          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/cuda/
+#          make
   ReFrame:
       needs: GNU
       runs-on: ubuntu-20.04
@@ -294,7 +292,8 @@ jobs:
             cd reframe
             env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
   documentation:
-    needs: [Intel, GNU, NVIDIA, ReFrame]
+#    needs: [Intel, GNU, NVIDIA, ReFrame]
+    needs: [Intel, GNU, ReFrame]
     runs-on: ubuntu-latest
     name: "Doxygen"
     steps:

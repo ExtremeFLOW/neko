@@ -63,6 +63,7 @@ module fast3d
   use speclib
   use math
   implicit none
+  private
 
   public :: fd_weights_full, semhat, setup_intp
 
@@ -99,7 +100,7 @@ contains
   !! @param[in] n The size of `x` is `n + 1`
   !! @param[in] m Highest order of derivative to be approximated
   !! @param c The stencil weights. Row j corresponds to weight of \f$f(x_j)\f$
-  !! and column k to the kth derivative.
+  !! and column k to the kth derivative
   subroutine fd_weights_full(xi, x, n, m, c)
     integer, intent(in) :: n
     integer, intent(in) :: m
@@ -216,21 +217,42 @@ contains
     end do
   end subroutine semhat
 
-  !> Computes interpolation between points zf, zc
-  !! The interpolation vectors are stored in jh, jht
-  !! nf, nc is the number of points in the spaces
-  !! derivate specifies if we want the derivative interpolation instead
-  !! derivate = 1 gives the first derivative etc.
-  subroutine setup_intp(jh, jht, zf, zc, nf, nc, derivate)
-    integer, intent(in) :: nf, nc, derivate
-    real(kind=rp), intent(inout) :: jh(nf,nc), zf(nf), zc(nc), jht(nc,nf)
-    real(kind=rp) ::  w(nc,0:derivate)
+  !> Compute interpolation weights for points `z_to` using values at points
+  !! `z_from`.
+  !! @details 
+  !! This is essentially a wrapper for calling fd_weights_full() for several
+  !! points. For each point in `z_to`, we get a set of interpolation weights of
+  !! size `n_from`.
+  !! The result is thus a matrix of weights, each row corresponding to a point
+  !! in `z_to` and each column the weight of a point in `z_from`.
+  !!
+  !! This routine is used for interpolating between elements of different
+  !! polynomial order. In other words, belonging to different 
+  !! \ref space::space_t . The points are then GL, GLL, etc., depending on the
+  !! space.
+  !!
+  !! @param jh Matrix of the interpolation weights.
+  !! @param jht Same as `jh` but transposed.
+  !! @param nf Number of points in `z_to`.
+  !! @param nc Number of points in `z_from`.
+  !! @derivative Specifies if we want the derivative interpolation instead, e.g.
+  !! `derivative = 1` refers to the first derivative etc.
+  subroutine setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)
+    implicit none
+    integer, intent(in) :: n_to, n_from, derivative
+    real(kind=rp), intent(inout) :: jh(n_to, n_from), jht(n_from, n_to)
+    real(kind=rp), intent(inout) :: z_to(n_to), z_from(n_from)
+    real(kind=rp) ::  w(n_from, 0:derivative)
     integer :: i, j
-    do i = 1, nf
-       call fd_weights_full(zf(i), zc, nc-1, derivate, w)
-       do j = 1, nc
-          jh(i,j) = w(j, derivate)
-          jht(j,i) = w(j, derivate)
+    do i = 1, n_to
+       ! This will assign w the weights for interpolating to point
+       ! zf(i) values at points zc
+       call fd_weights_full(z_to(i), z_from, n_from-1, derivative, w)
+
+       ! store each of the weights in the corresponding row/column
+       do j = 1, n_from
+          jh(i,j) = w(j, derivative)
+          jht(j,i) = w(j, derivative)
        end do
     end do
   end subroutine setup_intp

@@ -36,13 +36,13 @@ module fluid_pnpn
   use ax_helm_fctry
   use rhs_maker_fctry
   use fluid_volflow
-  use fluid_method
+  use fluid_scheme
   use field_series  
   use facet_normal
   use device_math
   use device_mathops
   use fluid_aux    
-  use ext_bdf_scheme
+  use time_scheme_controller
   use projection
   use logger
   use advection
@@ -356,7 +356,7 @@ contains
   subroutine fluid_pnpn_step(this, t, tstep, ext_bdf)
     class(fluid_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
     integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
@@ -380,7 +380,7 @@ contains
          
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-           ulag, vlag, wlag, ext_bdf%ext%coeffs, ext_bdf%ext%n)
+           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
      
       call f_Xh%eval(t)
 
@@ -398,12 +398,12 @@ contains
                            this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
-                           params%rho, ext_bdf%ext%coeffs, n)
+                           params%rho, ext_bdf%advection_coeffs, n)
 
       call makebdf%compute_fluid(ta1, ta2, ta3, this%wa1, this%wa2, this%wa3,&
                            ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, params%rho, params%dt, &
-                           ext_bdf%bdf%coeffs, ext_bdf%bdf%n, n)
+                           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call ulag%update()
       call vlag%update()
@@ -420,7 +420,7 @@ contains
                            ta1, ta2, ta3, wa1, wa2, wa3, &
                            this%work1, this%work2, f_Xh, &
                            c_Xh, gs_Xh, this%bc_prs_surface, &
-                           this%bc_sym_surface, Ax, ext_bdf%bdf%coeffs(1), &
+                           this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
                            params%dt, params%Re, params%rho)
       
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
@@ -456,7 +456,7 @@ contains
                            u_res, v_res, w_res, &
                            p, ta1, ta2, ta3, &
                            f_Xh, c_Xh, msh, Xh, &
-                           params%Re, params%rho, ext_bdf%bdf%coeffs(1), &
+                           params%Re, params%rho, ext_bdf%diffusion_coeffs(1), &
                            params%dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 

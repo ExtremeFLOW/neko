@@ -16,6 +16,7 @@ neko_fortran_SOURCES = \
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
+	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	math/math.f90\
@@ -56,6 +57,7 @@ neko_fortran_SOURCES = \
 	field/field_registry.f90\
 	field/scratch_registry.f90\
 	field/field.f90\
+	field/field_list.f90\
 	field/field_series.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\
@@ -105,6 +107,8 @@ neko_fortran_SOURCES = \
 	io/scalar_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
+	io/fluid_stats_output.f90\
+	io/field_list_output.f90\
 	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
 	common/profiler.F90\
@@ -139,8 +143,12 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/device/gmres_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
+	time_schemes/time_scheme.f90\
+	time_schemes/bdf_time_scheme.f90\
+	time_schemes/ext_time_scheme.f90\
+	time_schemes/ab_time_scheme.f90\
+	time_schemes/time_scheme_controller.f90\
 	common/source.f90\
-	common/ext_bdf_scheme.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	common/rhs_maker.f90\
@@ -151,7 +159,7 @@ neko_fortran_SOURCES = \
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
-	fluid/fluid_method.f90\
+	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_plan1.f90\
 	fluid/fluid_pnpn.f90\
@@ -160,6 +168,7 @@ neko_fortran_SOURCES = \
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
 	fluid/mean_flow.f90\
+	fluid/fluid_stats.f90\
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
@@ -200,7 +209,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
-	scalar/scalar_method.f90\
+	scalar/scalar_scheme.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
@@ -211,6 +220,7 @@ neko_fortran_SOURCES = \
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
+		 common/cpuid.c\
                  gs/bcknd/device/device_mpi.c\
                  math/bcknd/device/device_mpi_reduce.c
 
