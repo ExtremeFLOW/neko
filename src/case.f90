@@ -262,6 +262,9 @@ contains
     !
     call C%ext_bdf%init(C%params%time_order)
 
+    ! Append / to the output directory name
+    C%params%output_dir = trim(C%params%output_dir)//"/"
+
     !
     ! Save boundary markings for fluid (if requested)
     ! 
