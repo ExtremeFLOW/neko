@@ -35,7 +35,6 @@ module fluid_scheme
   use gather_scatter
   use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config
-  use parameters
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
   use num_types
@@ -64,6 +63,8 @@ module fluid_scheme
   use operators, only : cfl
   use logger
   use field_registry
+  use json_module, only : json_file_t => json_file, json_value_t => json_value
+
   implicit none
   
   !> Base type of all fluid formulations
@@ -89,7 +90,7 @@ module fluid_scheme
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings     
-     type(param_t), pointer :: params          !< Parameters          
+     type(json_file_t), pointer :: params      !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
@@ -113,14 +114,14 @@ module fluid_scheme
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_init_intrf(this, msh, lx, param)
+     subroutine fluid_scheme_init_intrf(this, msh, lx, params)
        import fluid_scheme_t
-       import param_t
+       import json_file_t
        import mesh_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh       
        integer, intent(inout) :: lx
-       type(param_t), target, intent(inout) :: param              
+       type(json_file_t), target, intent(inout) :: params              
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -134,13 +135,14 @@ module fluid_scheme
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, ext_bdf)
+     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
        import fluid_scheme_t
        import time_scheme_controller_t
        import rp
        class(fluid_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine fluid_scheme_step_intrf
   end interface
@@ -149,13 +151,23 @@ contains
 
   !> Initialize common data for the current scheme
   subroutine fluid_scheme_init_common(this, msh, lx, params, scheme)
+    implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     character(len=*), intent(in) :: scheme
-    type(param_t), target, intent(inout) :: params
+    type(json_file_t), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
+    character(len=20), dimension(:), allocatable :: bc_labels
+    ! Variables for retrieving json parameters
+    logical :: found, logical_val
+    real(kind=rp) :: real_val
+    real(kind=rp), allocatable :: real_vec(:)
+    integer :: integer_val
+    type(json_value_t), pointer :: json_val
+    character(len=:), allocatable :: string_val1, string_val2
+
     
     call neko_log%section('Fluid')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
@@ -167,24 +179,98 @@ contains
     else
        write(log_buf, '(A, I3)') 'lx         : ', lx
     end if
+
+    call params%get('case.fluid.Re', real_val, found)
+    if (.not. found) then
+       call neko_error("Parameter fluid.Re missing in the case file")
+    end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'Re         :',  params%Re
+    write(log_buf, '(A,ES13.6)') 'Re         :',  real_val
+
+    call params%get('case.fluid.rho', real_val, found)
+    if (.not. found) then
+       call neko_error("Parameter fluid.rho missing in the case file")
+    end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'rho        :',  params%rho
+    write(log_buf, '(A,ES13.6)') 'rho        :',  real_val
+
+    call params%get('case.fluid.mu', real_val, found)
+    if (.not. found) then
+       call neko_error("Parameter fluid.mu missing in the case file")
+    end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'mu         :',  params%mu
+    write(log_buf, '(A,ES13.6)') 'mu         :',  real_val
+
+    call params%get('case.fluid.velocity_solver.type', string_val1, &
+                    found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.type missing in the case file")
+    end if
+
+    call params%get('case.fluid.velocity_solver.preconditioner', &
+                    string_val2, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.preconditioner missing in the case &
+         &file")
+    end if
+
+    call params%get('case.fluid.velocity_solver.absolute_tolerance', &
+                    real_val, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
+         &case file")
+    end if
     call neko_log%message(log_buf)
-    call neko_log%message('Ksp vel.   : ('// trim(params%ksp_vel) // &
-         ', ' // trim(params%pc_vel) // ')')
-    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_vel
+    call neko_log%message('Ksp vel.   : ('// trim(string_val1) // &
+         ', ' // trim(string_val2) // ')')
+
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  real_val
+
+    call params%get('case.fluid.pressure_solver.type', string_val1, &
+                    found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.pressure_solver.type missing in the case file")
+    end if
+
+    call params%get('case.fluid.pressure_solver.preconditioner', &
+                    string_val2, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.pressure_solver.preconditioner missing in the case &
+         &file")
+    end if
+
+    call params%get('case.fluid.pressure_solver.absolute_tolerance', &
+                    real_val, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.pressure_solver.absolute_tolerance missing in the &
+         &case file")
+    end if
+
     call neko_log%message(log_buf)
-    call neko_log%message('Ksp prs.   : ('// trim(params%ksp_prs) // &
-         ', ' // trim(params%pc_prs) // ')')
-    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_prs
+    call neko_log%message('Ksp prs.   : ('// trim(string_val1) // &
+         ', ' // trim(string_val2) // ')')
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  real_val
     call neko_log%message(log_buf)
-    write(log_buf, '(A, L1)') 'Dealias    : ',  params%dealias
+
+    call params%get('case.numerics.dealias', logical_val, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter numerics.dealias missing in the case file")
+    end if
+    write(log_buf, '(A, L1)') 'Dealias    : ',  logical_val
     call neko_log%message(log_buf)
-    write(log_buf, '(A, L1)') 'Save bdry  : ',  params%output_bdry
+
+    call params%get('case.numerics.dealias', logical_val, found)
+    if (.not. found) then
+       logical_val = .false.
+    end if
+    write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
 
@@ -209,64 +295,95 @@ contains
     !
     ! Setup velocity boundary conditions
     !
+    call params%get('case.fluid.boundary_types', bc_labels, found) 
+    
     call bc_list_init(this%bclst_vel)
 
     call this%bc_sym%init(this%dm_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
-                        'sym', this%params%bc_labels)
+                        'sym', bc_labels)
     call this%bc_sym%finalize()
     call this%bc_sym%init_msk(this%c_Xh)    
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
-    if (trim(params%fluid_inflow) .eq. "default") then
-       allocate(inflow_t::this%bc_inflow)
-    else if (trim(params%fluid_inflow) .eq. "blasius") then
-       allocate(blasius_t::this%bc_inflow)
-    else if (trim(params%fluid_inflow) .eq. "user") then
-       allocate(usr_inflow_t::this%bc_inflow)
-    else
-       call neko_error('Invalid Inflow condition')
-    end if
-    
-    call this%bc_inflow%init(this%dm_Xh)
-    call this%bc_inflow%mark_zone(msh%inlet)
-    call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
-                        'v', this%params%bc_labels)
-    call this%bc_inflow%finalize()
-    call this%bc_inflow%set_inflow(params%uinf)
-    call bc_list_add(this%bclst_vel, this%bc_inflow)
+    call params%get('case.fluid.inflow_condition', json_val, found)
+    if (found) then
+       call params%get('case.fluid.inflow_condition.type', string_val1, found)
+       if (.not. found) then
+          call neko_error(&
+            "Parameter fluid.inflow_condition.type missing in the case file")
+       end if
+       if (trim(string_val1) .eq. "default") then
+          allocate(inflow_t::this%bc_inflow)
+       else if (trim(string_val1) .eq. "blasius") then
+          allocate(blasius_t::this%bc_inflow)
+       else if (trim(string_val1) .eq. "user") then
+          allocate(usr_inflow_t::this%bc_inflow)
+       else
+          call neko_error('Invalid inflow condition')
+       end if
 
-    if (trim(params%fluid_inflow) .eq. "blasius") then
-       select type(bc_if => this%bc_inflow)
-       type is(blasius_t)
-          call bc_if%set_coef(this%C_Xh)
-          call bc_if%set_params(params%delta, params%blasius_approx)
-       end select
-    end if
-    
-    if (trim(params%fluid_inflow) .eq. "user") then
-       select type(bc_if => this%bc_inflow)
-       type is(usr_inflow_t)
-          call bc_if%set_coef(this%C_Xh)
-       end select
+       call this%bc_inflow%init(this%dm_Xh)
+       call this%bc_inflow%mark_zone(msh%inlet)
+       call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
+                        'v', bc_labels)
+       call this%bc_inflow%finalize()
+
+       call params%get('case.fluid.inflow_condition.freestream_velocity', &
+                        real_vec, found)
+       if (.not. found) then
+          real_vec = [0.0_rp, 0.0_rp ,0.0_rp]
+       end if
+
+       call this%bc_inflow%set_inflow(real_vec)
+
+       call bc_list_add(this%bclst_vel, this%bc_inflow)
+
+       if (trim(string_val1) .eq. "blasius") then
+          select type(bc_if => this%bc_inflow)
+          type is(blasius_t)
+             call bc_if%set_coef(this%C_Xh)
+             call params%get('case.fluid.blasius.delta', real_val, found)
+             if (.not. found) then
+                call neko_error(&
+                  "Parameter fluid.blasius.delta missing in the case file")
+             end if
+
+             call params%get('case.fluid.blasius.approximation', string_val2,&
+                             found)
+             if (.not. found) then
+                call neko_error(&
+                  "Parameter fluid.blasius.approximation missing in the case file")
+             end if
+             call bc_if%set_params(real_val, string_val2)
+          end select
+       end if
+
+       if (trim(string_val1) .eq. "user") then
+          select type(bc_if => this%bc_inflow)
+             type is(usr_inflow_t)
+             call bc_if%set_coef(this%C_Xh)
+          end select
+       end if
     end if
     
     call this%bc_wall%init(this%dm_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
-                        'w', this%params%bc_labels)
+                        'w', bc_labels)
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
        
-    if (params%output_bdry) then       
+    call params%get('case.output_boundary', logical_val, found)
+    if (found .and. logical_val) then
        call field_init(this%bdry, this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'w', this%params%bc_labels)
+                      'w', bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(1.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -275,7 +392,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'v', this%params%bc_labels)
+                      'v', bc_labels)
 
        call bdry_mask%finalize()
        call bdry_mask%set_g(2.0_rp)
@@ -285,7 +402,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'o', this%params%bc_labels)
+                      'o', bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(3.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -294,7 +411,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'sym', this%params%bc_labels)
+                      'sym', bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(4.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -310,24 +427,31 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet_normal)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'on', this%params%bc_labels)
+                      'on', bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(6.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
        call bdry_mask%free()
 
     end if
+
     
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
   subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme)
+    implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), target, intent(inout) :: params
+    type(json_file_t), target, intent(inout) :: params
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
+    ! Variables for extracting json
+    logical :: found, logical_val
+    real(kind=rp) :: abs_tol
+    character(len=:), allocatable :: solver_type, precon_type
+
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
     
@@ -338,11 +462,34 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
+    call params%get('case.fluid.velocity_solver.type', solver_type, &
+                            found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.type missing in the case file")
+    end if
+
+    call params%get('case.fluid.velocity_solver.preconditioner', &
+                           precon_type, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.preconditioner missing in the case &
+         &file")
+    end if
+
+    call params%get('case.fluid.velocity_solver.absolute_tolerance', &
+                           abs_tol, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
+         &case file")
+    end if
+
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            params%ksp_vel, params%abstol_vel)
+            solver_type, abs_tol)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, precon_type)
     end if
 
     call neko_log%end_section()
@@ -351,13 +498,21 @@ contains
   !> Initialize all components of the current scheme
   subroutine fluid_scheme_init_all(this, msh, lx, params, &
                                    kspv_init, kspp_init, scheme)
+    implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), target, intent(inout) :: params
+    type(json_file_t), target, intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
+    character(len=20), dimension(:), allocatable :: bc_labels
+    ! Variables for retrieving json parameters
+    logical :: found, logical_val
+    real(kind=rp) :: real_val, dong_delta, dong_uchar
+    real(kind=rp), allocatable :: real_vec(:)
+    integer :: integer_val
+    character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
 
@@ -373,12 +528,14 @@ contains
     !
     ! Setup pressure boundary conditions
     !
+    call params%get('case.fluid.boundary_types', bc_labels, found) 
+
     call bc_list_init(this%bclst_prs)
     call this%bc_prs%init(this%dm_Xh)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'o', this%params%bc_labels)
+                        'o', bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'on', this%params%bc_labels)
+                        'on', bc_labels)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -392,27 +549,82 @@ contains
     call bc_list_add(this%bclst_prs, this%bc_prs)
     call this%bc_dong%init(this%dm_Xh)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
-                        'o+dong', this%params%bc_labels)
+                        'o+dong', bc_labels)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
-                        'on+dong', this%params%bc_labels)
+                        'on+dong', bc_labels)
     call this%bc_dong%finalize()
+
+    call params%get('case.fluid.outflow_condition.delta', &
+                     dong_delta, found)
+    if (.not. found) dong_delta = 0.01_rp
+
+    call params%get('case.fluid.outflow_condition.velocity_scale', &
+                     dong_uchar, found)
+    if (.not. found) dong_uchar = 1.0_rp
+
     call this%bc_dong%set_vars(this%c_Xh, this%u, this%v, this%w,&
-         params%dong_uchar, params%dong_delta)
+         dong_uchar, dong_delta)
 
     call bc_list_add(this%bclst_prs, this%bc_dong)
 
     if (kspv_init) then
+       call params%get('case.fluid.velocity_solver.type', string_val1, &
+                       found)
+       if (.not. found) then
+          call neko_error(&
+            "Parameter fluid.velocity_solver.type missing in the case file")
+       end if
+
+       call params%get('case.fluid.velocity_solver.preconditioner', &
+                       string_val2, found)
+       if (.not. found) then
+          call neko_error(&
+            "Parameter fluid.velocity_solver.preconditioner missing in the case&
+            & file")
+       end if
+
+       call params%get('case.fluid.velocity_solver.absolute_tolerance', &
+                       real_val, found)
+       if (.not. found) then
+          call neko_error(&
+            "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
+            &case file")
+       end if
+
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            params%ksp_vel, params%abstol_vel)
+            string_val1, real_val)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, params%pc_vel)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
     end if
 
     if (kspp_init) then
+       call params%get('case.fluid.pressure_solver.type', string_val1, &
+                       found)
+       if (.not. found) then
+          call neko_error(&
+            "Parameter fluid.pressure_solver.type missing in the case file")
+       end if
+
+       call params%get('case.fluid.pressure_solver.preconditioner', &
+                    string_val2, found)
+       if (.not. found) then
+          call neko_error(&
+            "Parameter fluid.pressure_solver.preconditioner missing in the case&
+            & file")
+       end if
+
+       call params%get('case.fluid.pressure_solver.absolute_tolerance', &
+                       real_val, found)
+       if (.not. found) then
+          call neko_error(&
+            "Parameter fluid.pressure_solver.absolute_tolerance missing in the &
+            &case file")
+       end if
+
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-            params%ksp_prs, params%abstol_prs)
+            "gmres", real_val)
        call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, params%pc_prs)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, string_val2)
     end if
 
 
@@ -422,6 +634,7 @@ contains
 
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
+    implicit none
     class(fluid_scheme_t), intent(inout) :: this
 
     call field_free(this%bdry)
@@ -476,7 +689,11 @@ contains
   !> Validate that all fields, solvers etc necessary for
   !! performing time-stepping are defined
   subroutine fluid_scheme_validate(this)
+    implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
+    ! Variables for retrieving json parameters
+    logical :: found, logical_val
+    type(json_value_t), pointer :: json_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &
@@ -521,18 +738,20 @@ contains
     !
     ! Setup mean flow fields if requested
     !
-    if (this%params%stats_mean_flow .or. this%params%stats_fluid) then
-       call this%mean%init(this%u, this%v, this%w, this%p)
-    end if
-    
-    if (this%params%stats_fluid) then
-       call this%stats%init(this%c_Xh,this%mean%u,&
-            this%mean%v,this%mean%w,this%mean%p)
+    call this%params%get('case.statistics', json_val, found)
+    if (found) then
+       call this%params%get('case.statistics.enabled', logical_val, found)
+       if (.not. found .or. (found .and. logical_val)) then
+         
+          call this%mean%init(this%u, this%v, this%w, this%p)
+          call this%stats%init(this%c_Xh, this%mean%u, &
+               this%mean%v, this%mean%w, this%mean%p)
+       end if
     end if
 
-    if (this%params%stats_mean_sqr_flow) then
-       call this%mean_sqr%init(this%u, this%v, this%w, this%p)
-    end if
+!    if (this%params%stats_mean_sqr_flow) then
+!       call this%mean_sqr%init(this%u, this%v, this%w, this%p)
+!    end if
 
   end subroutine fluid_scheme_validate
 
@@ -556,9 +775,9 @@ contains
   subroutine fluid_scheme_solver_factory(ksp, n, solver, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=20), intent(inout) :: solver
-    real(kind=rp) :: abstol
-
+    character(len=*), intent(in) :: solver
+    real(kind=rp), intent(in) :: abstol
+    
     call krylov_solver_factory(ksp, n, solver, abstol)
     
   end subroutine fluid_scheme_solver_factory
@@ -571,7 +790,7 @@ contains
     type(dofmap_t), target, intent(inout) :: dof
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
-    character(len=20) :: pctype
+    character(len=*) :: pctype
     
     call precon_factory(pc, pctype)
     
