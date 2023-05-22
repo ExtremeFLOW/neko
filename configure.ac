@@ -211,7 +211,7 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
 
-      # Check that necessary acceleator modules are loaded
+      # Check that necessary accelerator modules are loaded
       if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
       	 AX_CRAY_ACCEL
       fi
