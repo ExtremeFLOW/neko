@@ -134,7 +134,6 @@ contains
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
          lx => this%c%Xh%lx)
       m = this%msk(0)
-      print *, m
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
@@ -314,7 +313,6 @@ contains
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: x(:)
       m = this%msk(0)
-      print *, m, m*rp
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
