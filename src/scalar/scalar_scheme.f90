@@ -54,6 +54,7 @@ module scalar_scheme
   use time_scheme_controller
   use logger
   use field_registry
+  use usr_inflow
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -69,6 +70,7 @@ module scalar_scheme
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
+     type(usr_inflow_t) :: user_bc   !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
      type(param_t), pointer :: params          !< Parameters          
@@ -80,6 +82,7 @@ module scalar_scheme
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
      procedure, pass(this) :: set_source => scalar_scheme_set_source
+     procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
      procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
@@ -157,6 +160,10 @@ contains
             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
          end if
        end if
+       !> Check if user bc on this zone
+       if (bc_label(1:4) .eq. 'user') then
+          call this%user_bc%mark_zone(zones(i))
+       end if
     end do
 
     do i = 1, this%n_dir_bcs
@@ -205,7 +212,17 @@ contains
     !
     call bc_list_init(this%bclst)
 
+    call this%user_bc%init(this%dm_Xh)
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
+
+    call this%user_bc%mark_zone(msh%wall)
+    call this%user_bc%mark_zone(msh%inlet)
+    call this%user_bc%mark_zone(msh%outlet)
+    call this%user_bc%mark_zone(msh%outlet_normal)
+    call this%user_bc%mark_zone(msh%sympln)
+    call this%user_bc%finalize()
+    call this%user_bc%set_coef(this%c_Xh)
+    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
   
     ! todo parameter file ksp tol should be added
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
@@ -365,5 +382,15 @@ contains
     end if
 
   end subroutine scalar_scheme_set_source
-     
+ 
+  !> Initialize a user defined scalar bc
+  subroutine scalar_scheme_set_user_bc(this, usr_eval)
+    class(scalar_scheme_t), intent(inout) :: this
+    procedure(usr_scalar_bc_eval) :: usr_eval
+
+    call this%user_bc%set_scalar_bc(usr_eval)
+    
+  end subroutine scalar_scheme_set_user_bc
+
+    
 end module scalar_scheme
