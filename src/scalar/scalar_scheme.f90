@@ -160,6 +160,7 @@ contains
             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
          end if
        end if
+
        !> Check if user bc on this zone
        if (bc_label(1:4) .eq. 'user') then
           call this%user_bc%mark_zone(zones(i))
