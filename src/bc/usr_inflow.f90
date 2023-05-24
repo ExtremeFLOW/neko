@@ -313,7 +313,7 @@ contains
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: x(:)
-      m = this%msk(0)
+    m = this%msk(0)
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
