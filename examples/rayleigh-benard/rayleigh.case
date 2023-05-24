@@ -10,7 +10,6 @@ scalar_source_term = 'noforce'
 &NEKO_PARAMETERS
 dt = 1d-2
 T_end = 1000
-nsamples = 50
 uinf= 0.0,0.0,0.0
 output_bdry = .true.
 fluid_write_control = 'simulationtime'
