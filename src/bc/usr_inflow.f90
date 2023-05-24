@@ -61,8 +61,22 @@ module usr_inflow
      final :: usr_inflow_free
   end type usr_inflow_t
 
-  !> Abstract interface defining a user defined inflow condition (pointwise)
   abstract interface
+   
+     !> Abstract interface defining a user defined inflow condition (pointwise)
+     !! @param u The x componenet of the velocity in this point
+     !! @param v The y componenet of the velocity in this point
+     !! @param w The w componenet of the velocity in this point
+     !! @param x The x coord in this point
+     !! @param y The y coord in this point
+     !! @param z The z coord in this point
+     !! @param nx The x component of the facet normal in this point
+     !! @param ny The y component of the facet normal in this point
+     !! @param nz The z component of the facet normal in this point
+     !! @param ix The r idx of this point
+     !! @param iy The s idx of this point
+     !! @param iz The t idx of this point
+     !! @param ie The element idx of this point
      subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
        import rp
        real(kind=rp), intent(inout) :: u
@@ -81,10 +95,23 @@ module usr_inflow
      end subroutine usr_inflow_eval
   end interface
 
-  !> Abstract interface defining a user defined scalar boundary condition (pointwise)
-  !! JUst imitating inflow for now, but we should update this
-  !! Probably passing the whole field, params, coef, etcetc would be good
   abstract interface
+     !> Abstract interface defining a user defined scalar boundary condition (pointwise)
+     !! JUst imitating inflow for now, but we should update this
+     !! Probably passing the whole field, params, coef, etcetc would be good
+     !! @param u The x componenet of the velocity in this point
+     !! @param v The y componenet of the velocity in this point
+     !! @param w The w componenet of the velocity in this point
+     !! @param x The x coord in this point
+     !! @param y The y coord in this point
+     !! @param z The z coord in this point
+     !! @param nx The x component of the facet normal in this point
+     !! @param ny The y component of the facet normal in this point
+     !! @param nz The z component of the facet normal in this point
+     !! @param ix The r idx of this point
+     !! @param iy The s idx of this point
+     !! @param iz The t idx of this point
+     !! @param ie The element idx of this point
      subroutine usr_scalar_bc_eval(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
        import rp
        real(kind=rp), intent(inout) :: s
@@ -125,6 +152,7 @@ contains
   
   !> Scalar apply
   !! Just imitating inflow for now, but we should look this over
+  !! Applies boundary conditions in eval_scalar_bc on x
   subroutine usr_inflow_apply_scalar(this, x, n)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -385,6 +413,7 @@ contains
   end subroutine usr_inflow_set_coef
 
   !> Assign user provided eval function
+  !! @param user_eval User specified boundary condition for u,v,w (vector)
   subroutine usr_inflow_set_eval(this, usr_eval)
     class(usr_inflow_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
@@ -392,6 +421,7 @@ contains
   end subroutine usr_inflow_set_eval
 
   !> Assign user provided eval function
+  !! @param user_scalar_bc User specified scalar boundary condition
   subroutine usr_set_scalar_bc(this, user_scalar_bc)
     class(usr_inflow_t), intent(inout) :: this
     procedure(usr_scalar_bc_eval) :: user_scalar_bc

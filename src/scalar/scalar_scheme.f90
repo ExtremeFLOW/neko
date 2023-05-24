@@ -129,6 +129,9 @@ module scalar_scheme
 contains
 
   !> Initialize boundary conditions
+  !! @param zones List of zones
+  !! @param bc_labels List of user specified bcs from the parameter file
+  !! currently dirichlet 'd=X' and 'user' supported
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
     class(scalar_scheme_t), intent(inout) :: this 
     type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
@@ -385,6 +388,7 @@ contains
   end subroutine scalar_scheme_set_source
  
   !> Initialize a user defined scalar bc
+  !! @param usr_eval User specified boundary condition for scalar field
   subroutine scalar_scheme_set_user_bc(this, usr_eval)
     class(scalar_scheme_t), intent(inout) :: this
     procedure(usr_scalar_bc_eval) :: usr_eval
