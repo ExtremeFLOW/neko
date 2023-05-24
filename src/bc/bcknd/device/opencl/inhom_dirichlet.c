@@ -84,7 +84,7 @@ void opencl_inhom_dirichlet_apply_vector(void *msk,
 /** 
  * Fortran wrapper for device dirichlet apply scalar
  */
-void opencl_inhom_dirichlet_apply_vector(void *msk,
+void opencl_inhom_dirichlet_apply_scalar(void *msk,
                                  void *x,
                                  void *bla_x, 
                                  int *m) {
