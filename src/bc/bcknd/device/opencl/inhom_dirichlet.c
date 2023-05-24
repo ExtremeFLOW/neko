@@ -79,3 +79,34 @@ void opencl_inhom_dirichlet_apply_vector(void *msk,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 }
+
+
+/** 
+ * Fortran wrapper for device dirichlet apply scalar
+ */
+void opencl_inhom_dirichlet_apply_vector(void *msk,
+                                 void *x,
+                                 void *bla_x, 
+                                 int *m) {
+  cl_int err;
+  
+  if (inhom_dirichlet_program == NULL)
+    opencl_kernel_jit(inhom_dirichlet_kernel, (cl_program *) &inhom_dirichlet_program);
+  
+  cl_kernel kernel = clCreateKernel(inhom_dirichlet_program,
+                                    "inhom_dirichlet_apply_scalar_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &x));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &bla_x));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
+  
+  const int nb = ((*m) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
