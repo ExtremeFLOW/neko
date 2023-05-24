@@ -80,6 +80,7 @@ module usr_inflow
        integer, intent(in) :: ie
      end subroutine usr_inflow_eval
   end interface
+
   !> Abstract interface defining a user defined scalar boundary condition (pointwise)
   !! JUst imitating inflow for now, but we should update this
   !! Probably passing the whole field, params, coef, etcetc would be good
