@@ -9,10 +9,12 @@ scalar_source_term = 'noforce'
 /
 &NEKO_PARAMETERS
 dt = 1d-2
-T_end = 250
+T_end = 1000
 nsamples = 50
 uinf= 0.0,0.0,0.0
 output_bdry = .true.
+fluid_write_control = 'simulationtime'
+fluid_write_par = 10.0
 pc_vel = 'jacobi'
 pc_prs = 'hsmg'
 bc_labels(5) = 'w'
