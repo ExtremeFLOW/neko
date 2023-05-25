@@ -151,6 +151,8 @@ contains
   !> Scalar apply
   !! Just imitating inflow for now, but we should look this over
   !! Applies boundary conditions in eval_scalar_bc on x
+  !! @param x The array of values to apply.
+  !! @param n The size of x.
   subroutine usr_inflow_apply_scalar(this, x, n)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
