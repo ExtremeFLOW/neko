@@ -99,7 +99,7 @@ module usr_inflow
      !> Abstract interface defining a user defined scalar boundary condition (pointwise)
      !! Just imitating inflow for now, but we should update this
      !! Probably passing the whole field, params, coef, etcetc would be good
-     !! @param u The x componenet of the velocity in this point
+     !! @param s The scalar's value in this point
      !! @param v The y componenet of the velocity in this point
      !! @param w The w componenet of the velocity in this point
      !! @param x The x coord in this point
