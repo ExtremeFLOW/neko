@@ -97,7 +97,7 @@ module usr_inflow
 
   abstract interface
      !> Abstract interface defining a user defined scalar boundary condition (pointwise)
-     !! JUst imitating inflow for now, but we should update this
+     !! Just imitating inflow for now, but we should update this
      !! Probably passing the whole field, params, coef, etcetc would be good
      !! @param u The x componenet of the velocity in this point
      !! @param v The y componenet of the velocity in this point
