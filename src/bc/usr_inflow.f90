@@ -100,7 +100,6 @@ module usr_inflow
      !! Just imitating inflow for now, but we should update this
      !! Probably passing the whole field, params, coef, etcetc would be good
      !! @param s The scalar's value in this point
-     !! @param v The y componenet of the velocity in this point
      !! @param w The w componenet of the velocity in this point
      !! @param x The x coord in this point
      !! @param y The y coord in this point
