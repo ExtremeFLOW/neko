@@ -135,6 +135,7 @@ contains
   
   !> Assign an integer 2-tuple to a tuple
   subroutine tuple_i4_assign_tuple(this, other)
+    implicit none
     class(tuple_i4_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -146,6 +147,7 @@ contains
 
   !> Assign an integer vector to a tuple
   subroutine tuple_i4_assign_vector(this, x)
+    implicit none
     class(tuple_i4_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -157,6 +159,7 @@ contains
 
   !> Check if two integer based tuples are equal
   pure function tuple_i4_equal(this, other) result(res)
+    implicit none
     class(tuple_i4_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
     logical :: res
@@ -170,6 +173,7 @@ contains
 
   !> Assign an integer 3-tuple to a tuple
   subroutine tuple3_i4_assign_tuple(this, other)
+    implicit none
     class(tuple3_i4_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -181,6 +185,7 @@ contains
 
   !> Assign an integer vector to a tuple
   subroutine tuple3_i4_assign_vector(this, x)
+    implicit none
     class(tuple3_i4_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -192,6 +197,7 @@ contains
 
   !> Check if two integer based tuples are equal
   pure function tuple3_i4_equal(this, other) result(res)
+    implicit none
     class(tuple3_i4_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
     logical :: res    
@@ -205,6 +211,7 @@ contains
   
   !> Assign an integer 4-tuple to a tuple
   subroutine tuple4_i4_assign_tuple(this, other)
+    implicit none
     class(tuple4_i4_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -216,6 +223,7 @@ contains
 
   !> Assign an integer vector to a tuple
   subroutine tuple4_i4_assign_vector(this, x)
+    implicit none
     class(tuple4_i4_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -227,6 +235,7 @@ contains
 
   !> Check if two integer based tuples are equal
   pure function tuple4_i4_equal(this, other) result(res)
+    implicit none
     class(tuple4_i4_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
     logical :: res    
@@ -240,6 +249,7 @@ contains
 
   !> Assign a double precision 2-tuple to a tuple
   subroutine tuple_r8_assign_tuple(this, other)
+    implicit none
     class(tuple_r8_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -251,6 +261,7 @@ contains
 
   !> Assign a double precision vector to a tuple
   subroutine tuple_r8_assign_vector(this, x)
+    implicit none
     class(tuple_r8_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -262,6 +273,7 @@ contains
 
   !> Check if two double precision tuples are equal
   pure function tuple_r8_equal(this, other) result(res)
+    implicit none
     class(tuple_r8_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
     logical :: res
@@ -278,6 +290,7 @@ contains
 
   !> Assign a mixed integer-double precision 2-tuple to a tuple
   subroutine tuple_i4r8_assign_tuple(this, other)
+    implicit none
     class(tuple_i4r8_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -290,6 +303,7 @@ contains
 
   !> Assign a mixed intreger-double precision vector to a tuple
   subroutine tuple_i4r8_assign_vector(this, x)
+    implicit none
     class(tuple_i4r8_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -306,6 +320,7 @@ contains
 
   !> Check if two mixed integer-double precision tuples are equal
   pure function tuple_i4r8_equal(this, other) result(res)
+    implicit none
     class(tuple_i4r8_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
     logical :: res
@@ -322,6 +337,7 @@ contains
 
   !> Assign a mixed integer-double precision 3-tuple to a tuple
   subroutine tuple_2i4r8_assign_tuple(this, other)
+    implicit none
     class(tuple_2i4r8_t), intent(inout) :: this
     class(tuple_t), intent(in) :: other
 
@@ -335,6 +351,7 @@ contains
 
   !> Assign a mixed intreger-double precision vector to a tuple
   subroutine tuple_2i4r8_assign_vector(this, x)
+    implicit none
     class(tuple_2i4r8_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: x
 
@@ -353,6 +370,7 @@ contains
 
   !> Check if two mixed integer-double precision tuples are equal
   pure function tuple_2i4r8_equal(this, other) result(res)
+    implicit none
     class(tuple_2i4r8_t), intent(in) :: this
     class(tuple_t), intent(in) :: other
     logical :: res

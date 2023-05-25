@@ -149,6 +149,7 @@ contains
   
   !> Initialize empty coefs for a space and a mesh 
   subroutine coef_init_empty(coef, Xh, msh)
+    implicit none
     type(coef_t), intent(inout) :: coef
     type(space_t), intent(inout), target :: Xh
     type(mesh_t), intent(inout), target :: msh
@@ -195,6 +196,7 @@ contains
 
   !> Initialize coefficients
   subroutine coef_init_all(coef, gs_h)
+    implicit none
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m
@@ -354,6 +356,7 @@ contains
 
   !> Deallocate coefficients
   subroutine coef_free(coef)
+    implicit none
     type(coef_t), intent(inout) :: coef
 
     if (allocated(coef%G11)) then
@@ -647,6 +650,7 @@ contains
   end subroutine coef_free
 
   subroutine coef_generate_dxyzdrst(c)
+    implicit none
     type(coef_t), intent(inout) :: c
     integer :: e,i,lxy,lyz,ntot
     
@@ -804,6 +808,7 @@ contains
   !> Generate geometric data for the given mesh
   !! @note Current implementation assumes regular shaped hex elements
   subroutine coef_generate_geo(c)
+    implicit none
     type(coef_t), intent(inout) :: c
     integer :: e, i, lxyz, ntot
 
@@ -920,6 +925,7 @@ contains
   !> Generate mass matrix B for the given mesh and space
   !! @note This is also a stapleholder, we need to go through the coef class properly.
   subroutine coef_generate_mass(c)
+    implicit none
     type(coef_t), intent(inout) :: c
     integer :: e, i, lxyz, ntot
     
@@ -959,6 +965,7 @@ contains
   end subroutine coef_generate_mass
 
   pure function coef_get_normal(coef, i, j, k, e, facet) result(normal)
+    implicit none
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: i, j, k, e, facet
     real(kind=rp) :: normal(3)
@@ -981,6 +988,7 @@ contains
 
   !> Generate facet area and surface normals
   subroutine coef_generate_area_and_normal(coef)
+    implicit none
     type(coef_t), intent(inout) :: coef
     real(kind=rp), allocatable :: a(:,:,:,:)
     real(kind=rp), allocatable :: b(:,:,:,:)

@@ -153,6 +153,7 @@ contains
 
   !> Initialize a stack of arbitrary type 
   subroutine stack_init(this, size)
+    implicit none
     class(stack_t), intent(inout) :: this 
     integer, optional :: size !< Initial size of the stack
     integer :: size_t
@@ -205,6 +206,7 @@ contains
   
   !> Destroy a stack
   subroutine stack_free(this)
+    implicit none
     class(stack_t), intent(inout) :: this
     
     if (allocated(this%data)) then
@@ -217,12 +219,14 @@ contains
 
   !> Clear all entries of a stack
   subroutine stack_clear(this)
+    implicit none
     class(stack_t), intent(inout) :: this
     this%top_ = 0
   end subroutine stack_clear
 
   !> Return number of entries in the stack
   pure function stack_size(this) result(size)
+    implicit none
     class(stack_t), intent(in) :: this
     integer :: size
     size = this%top_
@@ -230,6 +234,7 @@ contains
 
   !> Push data onto the stack
   subroutine stack_push(this, data)
+    implicit none
     class(stack_t), target, intent(inout) :: this
     class(*), intent(inout) :: data !< Arbitrary typed data (same type as stack)
     class(*), allocatable :: tmp(:)
@@ -423,6 +428,7 @@ contains
 
   !> Pop an integer of the stack
   function stack_i4_pop(this) result(data)
+    implicit none
     class(stack_i4_t), target, intent(inout) :: this
     integer :: data
 
@@ -437,6 +443,7 @@ contains
 
   !> Return a pointer to the internal integer array
   function stack_i4_data(this) result(data)
+    implicit none
     class(stack_i4_t), target, intent(inout) :: this
     integer, pointer :: data(:)
 
@@ -450,6 +457,7 @@ contains
 
   !> Pop an integer*8 of the stack
   function stack_i8_pop(this) result(data)
+    implicit none
     class(stack_i8_t), target, intent(inout) :: this
     integer(kind=i8) :: data
 
@@ -464,6 +472,7 @@ contains
 
   !> Return a pointer to the internal integer*8 array
   function stack_i8_data(this) result(data)
+    implicit none
     class(stack_i8_t), target, intent(inout) :: this
     integer(kind=i8), pointer :: data(:)
 
@@ -477,6 +486,7 @@ contains
 
   !> Pop a double precision value of the stack
   function stack_r8_pop(this) result(data)
+    implicit none
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp) :: data
     
@@ -491,6 +501,7 @@ contains
 
   !> Return a pointer to the internal double precision array 
   function stack_r8_data(this) result(data)
+    implicit none
     class(stack_r8_t), target, intent(inout) :: this
     real(kind=dp), pointer :: data(:)
 
@@ -504,6 +515,7 @@ contains
 
   !> Pop an integer 2-tuple of the stack
   function stack_i4t2_pop(this) result(data)
+    implicit none
     class(stack_i4t2_t), target, intent(inout) :: this
     type(tuple_i4_t) :: data
     
@@ -518,6 +530,7 @@ contains
 
   !> Return a pointer to the interal 2-tuple array
   function stack_i4t2_data(this) result(data)
+    implicit none
     class(stack_i4t2_t), target, intent(inout) :: this
     type(tuple_i4_t), pointer :: data(:)
 
@@ -531,6 +544,7 @@ contains
 
   !> Pop an integer 4-tuple of the stack
   function stack_i4t4_pop(this) result(data)
+    implicit none
     class(stack_i4t4_t), target, intent(inout) :: this
     type(tuple4_i4_t) :: data
     
@@ -545,6 +559,7 @@ contains
 
   !> Return a pointer to the internal 4-tuple array
   function stack_i4t4_data(this) result(data)
+    implicit none
     class(stack_i4t4_t), target, intent(inout) :: this
     type(tuple4_i4_t), pointer :: data(:)
 
@@ -558,6 +573,7 @@ contains
 
   !> Pop a mixed integer-double precision  2-tuple of the stack
   function stack_i4r8t2_pop(this) result(data)
+    implicit none
     class(stack_i4r8t2_t), target, intent(inout) :: this
     type(tuple_i4r8_t) :: data
     
@@ -572,6 +588,7 @@ contains
 
   !> Return a pointer to the internal 2-tuple array
   function stack_i4r8t2_data(this) result(data)
+    implicit none
     class(stack_i4r8t2_t), target, intent(inout) :: this
     type(tuple_i4r8_t), pointer :: data(:)
 
@@ -585,6 +602,7 @@ contains
 
   !> Pop a mixed integer-double precision  3-tuple of the stack
   function stack_2i4r8t3_pop(this) result(data)
+    implicit none
     class(stack_2i4r8t3_t), target, intent(inout) :: this
     type(tuple_2i4r8_t) :: data
     
@@ -599,6 +617,7 @@ contains
 
   !> Return a pointer to the internal 2-tuple array
   function stack_2i4r8t3_data(this) result(data)
+    implicit none
     class(stack_2i4r8t3_t), target, intent(inout) :: this
     type(tuple_2i4r8_t), pointer :: data(:)
 
@@ -612,6 +631,7 @@ contains
  
   !> Pop a curve element of the stack
   function stack_curve_element_pop(this) result(data)
+    implicit none
     class(stack_curve_t), target, intent(inout) :: this
     type(struct_curve_t) :: data
     
@@ -626,6 +646,7 @@ contains
 
   !> Return a pointer to the internal curve element array
   function stack_curve_element_data(this) result(data)
+    implicit none
     class(stack_curve_t), target, intent(inout) :: this
     type(struct_curve_t), pointer :: data(:)
 
@@ -639,6 +660,7 @@ contains
 
   !> Pop a Neko quad element of the stack
   function stack_nq_pop(this) result(data)
+    implicit none
     class(stack_nq_t), target, intent(inout) :: this
     type(nmsh_quad_t) :: data
 
@@ -653,6 +675,7 @@ contains
 
   !> Return a pointer to the internal Neko quad array
   function stack_nq_data(this) result(data)
+    implicit none
     class(stack_nq_t), target, intent(inout) :: this
     type(nmsh_quad_t), pointer :: data(:)
 
@@ -666,6 +689,7 @@ contains
 
   !> Pop a Neko hex element of the stack
   function stack_nh_pop(this) result(data)
+    implicit none
     class(stack_nh_t), target, intent(inout) :: this
     type(nmsh_hex_t) :: data
 
@@ -680,6 +704,7 @@ contains
 
   !> Return a pointer to the internal Neko quad array
   function stack_nh_data(this) result(data)
+    implicit none
     class(stack_nh_t), target, intent(inout) :: this
     type(nmsh_hex_t), pointer :: data(:)
 
@@ -693,6 +718,7 @@ contains
 
   !> Pop a Neko zone of the stack
   function stack_nz_pop(this) result(data)
+    implicit none
     class(stack_nz_t), target, intent(inout) :: this
     type(nmsh_zone_t) :: data
 
@@ -707,6 +733,7 @@ contains
 
   !> Return a pointer to the internal Neko zone array
   function stack_nz_data(this) result(data)
+    implicit none
     class(stack_nz_t), target, intent(inout) :: this
     type(nmsh_zone_t), pointer :: data(:)
 
@@ -720,6 +747,7 @@ contains
 
   !> Pop a Neko curve info of the stack
   function stack_nc_pop(this) result(data)
+    implicit none
     class(stack_nc_t), target, intent(inout) :: this
     type(nmsh_curve_el_t) :: data
 
@@ -734,6 +762,7 @@ contains
 
   !> Return a pointer to the internal Neko curve info array
   function stack_nc_data(this) result(data)
+    implicit none
     class(stack_nc_t), target, intent(inout) :: this
     type(nmsh_curve_el_t), pointer :: data(:)
 
@@ -747,6 +776,7 @@ contains
 
   !> Pop a point of the stack
   function stack_pt_pop(this) result(data)
+    implicit none
     class(stack_pt_t), target, intent(inout) :: this
     type(point_t) :: data
 
@@ -761,6 +791,7 @@ contains
 
   !> Return a pointer to the internal point array
   function stack_pt_data(this) result(data)
+    implicit none
     class(stack_pt_t), target, intent(inout) :: this
     type(point_t), pointer :: data(:)
 

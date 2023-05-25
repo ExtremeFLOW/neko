@@ -87,6 +87,7 @@ contains
 
   !> Destructor
   subroutine field_registry_free(this)
+    implicit none
     class(field_registry_t), intent(inout):: this
     integer :: i
     if (allocated(this%fields)) then
@@ -101,6 +102,7 @@ contains
 
   !> expand the fields array so as to accomodate more fields
   subroutine expand(this)
+    implicit none
     class(field_registry_t), intent(inout) :: this
     type(field_t), allocatable :: temp(:)  
     integer :: i
@@ -113,6 +115,7 @@ contains
   end subroutine expand
 
   subroutine add_field(this, dof, fld_name)
+    implicit none
     class(field_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), target, intent(in) :: fld_name 

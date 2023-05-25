@@ -79,6 +79,7 @@ contains
 
   !> Return single precision absolute comparison \f$ | x - y | < \epsilon \f$
   pure function sabscmp(x, y)
+    implicit none
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
     logical :: sabscmp 
@@ -89,6 +90,7 @@ contains
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
   pure function dabscmp(x, y)
+    implicit none
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
     logical :: dabscmp 
@@ -99,6 +101,7 @@ contains
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
   pure function qabscmp(x, y)
+    implicit none
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
     logical :: qabscmp 
@@ -109,6 +112,7 @@ contains
 
   !> Zero a real vector
   subroutine rzero(a, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
@@ -120,6 +124,7 @@ contains
 
   !> Zero an integer vector
   subroutine izero(a, n)
+    implicit none
     integer, intent(in) :: n
     integer, dimension(n), intent(inout) :: a
     integer :: i
@@ -131,6 +136,7 @@ contains
 
   !> Sets row e to 0 in matrix a
   subroutine row_zero(a, m, n, e)
+    implicit none
     integer, intent(in) :: m, n, e
     real(kind=rp), intent(inout) :: a(m,n)
     integer :: j
@@ -142,6 +148,7 @@ contains
 
   !> Set all elements to one
   subroutine rone(a, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
@@ -153,6 +160,7 @@ contains
 
   !> Copy a vector \f$ a = b \f$
   subroutine copy(a, b, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
@@ -166,6 +174,7 @@ contains
   
   !> Multiplication by constant c \f$ a = c \cdot a \f$
   subroutine cmult(a, c, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: c
@@ -178,6 +187,7 @@ contains
   
   !> Add a scalar to vector \f$ a = \sum a_i + s \f$
   subroutine cadd(a, s, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: s
@@ -190,6 +200,7 @@ contains
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine cfill(a, c, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: c
@@ -202,6 +213,7 @@ contains
 
   !>Sum a vector of length n 
   function glsum(a, n) 
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glsum
@@ -217,6 +229,7 @@ contains
   
   !>Max of a vector of length n 
   function glmax(a, n) 
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmax
@@ -231,6 +244,7 @@ contains
   
   !>Min of a vector of length n 
   function glmin(a, n) 
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmin
@@ -247,6 +261,7 @@ contains
 
   !> Change sign of vector \f$ a = -a \f$
   subroutine chsign(a, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
@@ -259,6 +274,7 @@ contains
   
   !> Maximum value of a vector of length @a n
   function vlmax(vec,n) result(tmax)
+    implicit none
     integer :: n, i
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmax
@@ -270,6 +286,7 @@ contains
   
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine invcol1(a, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
@@ -282,6 +299,7 @@ contains
  
   !> Invert a vector \f$ a = b / c \f$
   subroutine invcol3(a, b, c, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b,c
@@ -295,6 +313,7 @@ contains
    
   !> Compute inverted vector \f$ a = 1 / b \f$
   subroutine invers2(a, b, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -309,6 +328,7 @@ contains
   !> Compute a cross product \f$ u = v \times w \f$
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vcross(u1, u2, u3,  v1, v2, v3, w1, w2, w3, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(in) :: v1, v2, v3
     real(kind=rp), dimension(n), intent(in) :: w1, w2, w3
@@ -326,6 +346,7 @@ contains
   !> Compute a dot product \f$ dot = u \cdot v \f$ (2-d version) 
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vdot2(dot, u1, u2, v1, v2, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: u1, u2
     real(kind=rp), dimension(n), intent(in) :: v1, v2
@@ -340,6 +361,7 @@ contains
   !> Compute a dot product \f$ dot = u \cdot v \f$ (3-d version) 
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine vdot3(dot, u1, u2, u3, v1, v2, v3, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(in) :: u1, u2, u3
     real(kind=rp), dimension(n), intent(in) :: v1, v2, v3
@@ -354,6 +376,7 @@ contains
 
   !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$  
   function vlsc3(u, v, w, n) result(s)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(in) :: u, v, w
     real(kind=rp) :: s
@@ -368,6 +391,7 @@ contains
   
   !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$  
   function vlsc2(u, v, n) result(s)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(in) :: u, v
     real(kind=rp) :: s
@@ -382,6 +406,7 @@ contains
 
   !> Vector addition \f$ a = a + b \f$
   subroutine add2(a, b, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -395,6 +420,7 @@ contains
 
   !> Vector addition \f$ a = b + c \f$
   subroutine add3(a, b, c, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: c
     real(kind=rp), dimension(n), intent(inout) :: b
@@ -409,6 +435,7 @@ contains
 
   !> Vector addition \f$ a = b + c + d\f$
   subroutine add4(a, b, c, d, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: d
     real(kind=rp), dimension(n), intent(inout) :: c
@@ -424,6 +451,7 @@ contains
 
   !> Vector substraction \f$ a = a - b \f$
   subroutine sub2(a, b, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(inout) :: b
@@ -437,6 +465,7 @@ contains
 
   !> Vector subtraction \f$ a = b - c \f$
   subroutine sub3(a, b, c, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: c
     real(kind=rp), dimension(n), intent(inout) :: b
@@ -453,6 +482,7 @@ contains
   !> Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
   !! (multiplication on first argument)
   subroutine add2s1(a, b, c1, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(inout) :: b
@@ -468,6 +498,7 @@ contains
   !> Vector addition with scalar multiplication  \f$ a = a + c_1 b \f$
   !! (multiplication on second argument)
   subroutine add2s2(a, b, c1, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(inout) :: b
@@ -482,6 +513,7 @@ contains
 
   !> Returns \f$ a = a + c1 * (b * b )\f$
   subroutine addsqr2s2(a, b, c1, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -496,6 +528,7 @@ contains
   
   !> Multiplication by constant c \f$ a = c \cdot b \f$
   subroutine cmult2(a, b, c, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -510,6 +543,7 @@ contains
 
   !> Vector division \f$ a = a / b \f$
   subroutine invcol2(a, b, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -524,6 +558,7 @@ contains
 
   !> Vector multiplication \f$ a = a \cdot b \f$
   subroutine col2(a, b, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -537,6 +572,7 @@ contains
 
   !> Vector multiplication with 3 vectors \f$ a =  b \cdot c \f$
   subroutine col3(a, b, c, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -551,6 +587,7 @@ contains
 
   !> Returns \f$ a = a - b*c \f$
   subroutine subcol3(a, b, c, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -565,6 +602,7 @@ contains
 
   !> Returns \f$ a = c1 * b + c2 * c \f$
   subroutine add3s2(a, b, c, c1, c2 ,n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -581,6 +619,7 @@ contains
 
   !> Returns \f$ a = a - b*c*d \f$
   subroutine subcol4(a, b, c, d, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -596,6 +635,7 @@ contains
   
   !> Returns \f$ a = a + b*c \f$
   subroutine addcol3(a, b, c, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -610,6 +650,7 @@ contains
 
   !> Returns \f$ a = a + b*c*d \f$
   subroutine addcol4(a, b, c, d, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -625,6 +666,7 @@ contains
 
   !> Returns \f$ a = b \dot c - d \cdot e \f$
   subroutine ascol5(a, b, c, d, e, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -641,6 +683,7 @@ contains
 
   !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
   subroutine p_update(a, b, c, c1, c2, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -656,6 +699,7 @@ contains
 
   !> Returns \f$ a = b \dot c1 ( a - c2 \cdot c )\f$
   subroutine x_update(a, b, c, c1, c2, n)
+    implicit none
     integer, intent(in) :: n    
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -671,6 +715,7 @@ contains
 
   !> Weighted inner product \f$ a^T b c \f$
   function glsc2(a, b, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -689,6 +734,7 @@ contains
   
   !> Weighted inner product \f$ a^T b c \f$
   function glsc3(a, b, c, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -705,7 +751,9 @@ contains
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc3
+
   function glsc4(a, b, c, d, n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -725,6 +773,7 @@ contains
   end function glsc4
   !> Use Heap Sort (p 231 Num. Rec., 1st Ed.)
   subroutine sort(a,ind,n)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(n)
     integer, intent(inout) :: ind(n)

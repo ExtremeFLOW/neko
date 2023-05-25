@@ -168,6 +168,7 @@ contains
 
   !> Initialize an empty integer based unordered set
   subroutine uset_i4_init(this, n)
+    implicit none
     class(uset_i4_t), intent(inout) :: this
     integer, optional :: n
 
@@ -180,6 +181,7 @@ contains
   
   !> Destroy an integer based unordered set
   subroutine uset_i4_free(this)
+    implicit none
     class(uset_i4_t), intent(inout) :: this
 
     call this%t%free()
@@ -188,6 +190,7 @@ contains
 
   !> Return the cardinality of an integer based unordered set
   pure function uset_i4_size(this) result(entries)
+    implicit none
     class(uset_i4_t), intent(in) :: this
     integer :: entries
 
@@ -197,6 +200,7 @@ contains
 
   !> Clear an integer based unordered set
   subroutine uset_i4_clear(this)
+    implicit none
     class(uset_i4_t), intent(inout) :: this
 
     call this%t%clear()
@@ -204,6 +208,7 @@ contains
 
   !> Check if an integer @a key is an element of the set
   function uset_i4_element(this, key) result(res)
+    implicit none
     class(uset_i4_t), intent(inout) :: this
     class(*), intent(inout) :: key
     integer :: data
@@ -219,6 +224,7 @@ contains
   
   !> Add an integer @a key to the set
   subroutine uset_i4_add(this, key)
+    implicit none
     class(uset_i4_t), intent(inout) :: this
     class(*), intent(inout) :: key
     integer :: data
@@ -234,6 +240,7 @@ contains
 
   !> Remove an integer @a key from the set
   subroutine uset_i4_remove(this, key)
+    implicit none
     class(uset_i4_t), intent(inout) :: this
     class(*), intent(inout) :: key
 
@@ -247,12 +254,14 @@ contains
 
   !> Initialise an integer based set iterator
   subroutine uset_i4_iter_init(this)
+    implicit none
     class(uset_i4_t), target, intent(inout) :: this
     call this%it%init(this%t)    
   end subroutine uset_i4_iter_init
 
   !> Advance an integer based set iterator
   function uset_i4_iter_next(this) result(valid)
+    implicit none
     class(uset_i4_t), intent(inout) :: this
     logical :: valid
     valid = this%it%next()
@@ -260,6 +269,7 @@ contains
 
   !> Return the current value of an integer based set iterator
   function uset_i4_iter_value(this) result(value)
+    implicit none
     class(uset_i4_t), target, intent(inout) :: this
     integer, pointer :: value
     value => this%it%value()    
@@ -267,6 +277,7 @@ contains
 
   !> Initialize an empty integer*8 based unordered set
   subroutine uset_i8_init(this, n)
+    implicit none
     class(uset_i8_t), intent(inout) :: this
     integer, optional :: n
 
@@ -279,6 +290,7 @@ contains
   
   !> Destroy an integer*8 based unordered set
   subroutine uset_i8_free(this)
+    implicit none
     class(uset_i8_t), intent(inout) :: this
 
     call this%t%free()
@@ -287,6 +299,7 @@ contains
 
   !> Return the cardinality of an integer*8 based unordered set
   pure function uset_i8_size(this) result(entries)
+    implicit none
     class(uset_i8_t), intent(in) :: this
     integer :: entries
 
@@ -296,6 +309,7 @@ contains
 
   !> Clear an integer*8 based unordered set
   subroutine uset_i8_clear(this)
+    implicit none
     class(uset_i8_t), intent(inout) :: this
 
     call this%t%clear()
@@ -303,6 +317,7 @@ contains
 
   !> Check if an integer*8 @a key is an element of the set
   function uset_i8_element(this, key) result(res)
+    implicit none
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
     integer(kind=i8) :: data
@@ -318,6 +333,7 @@ contains
   
   !> Add an integer*8 @a key to the set
   subroutine uset_i8_add(this, key)
+    implicit none
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
     integer(kind=i8) :: data
@@ -333,6 +349,7 @@ contains
 
   !> Remove an integer*8 @a key from the set
   subroutine uset_i8_remove(this, key)
+    implicit none
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
 
@@ -346,6 +363,7 @@ contains
 
   !> Initialise an integer based set iterator*8
   subroutine uset_i8_iter_init(this)
+    implicit none
     class(uset_i8_t), target, intent(inout) :: this
     call this%it%init(this%t)    
   end subroutine uset_i8_iter_init
@@ -359,6 +377,7 @@ contains
 
   !> Return the current value of an integer*8 based set iterator
   function uset_i8_iter_value(this) result(value)
+    implicit none
     class(uset_i8_t), target, intent(inout) :: this
     integer(kind=i8), pointer :: value
 
@@ -375,6 +394,7 @@ contains
   
   !> Initialize an empty double precision based unordered set
   subroutine uset_r8_init(this, n)
+    implicit none
     class(uset_r8_t), intent(inout) :: this
     integer, optional :: n
 
@@ -387,6 +407,7 @@ contains
   
   !> Destroy a double precision based unordered set
   subroutine uset_r8_free(this)
+    implicit none
     class(uset_r8_t), intent(inout) :: this
     
     call this%t%free()
@@ -395,6 +416,7 @@ contains
 
   !> Return the cardinality of a double precision based unordered set
   pure function uset_r8_size(this)  result(entries)
+    implicit none
     class(uset_r8_t), intent(in) :: this
     integer :: entries
 
@@ -404,6 +426,7 @@ contains
 
   !> Clear a double precision based unordered set
   subroutine uset_r8_clear(this)
+    implicit none
     class(uset_r8_t), intent(inout) :: this
 
     call this%t%clear()
@@ -411,6 +434,7 @@ contains
   
   !> Check if a double precision @a key is an element of the set
   function uset_r8_element(this, key) result(res)
+    implicit none
     class(uset_r8_t), intent(inout) :: this
     class(*), intent(inout) :: key
     logical :: res
@@ -427,6 +451,7 @@ contains
 
   !> Add a double precision @a key to the set
   subroutine uset_r8_add(this, key)
+    implicit none
     class(uset_r8_t), intent(inout) :: this
     class(*), intent(inout) :: key
     real(kind=dp) :: data
@@ -442,6 +467,7 @@ contains
 
   !> Remove a double precision @a key from the set
   subroutine uset_r8_remove(this, key)
+    implicit none
     class(uset_r8_t), intent(inout) :: this
     class(*), intent(inout) :: key
 
@@ -455,12 +481,14 @@ contains
 
   !> Initialise a double precision based set iterator
   subroutine uset_r8_iter_init(this)
+    implicit none
     class(uset_r8_t), target, intent(inout) :: this
     call this%it%init(this%t)    
   end subroutine uset_r8_iter_init
 
   !> Advance a double precision based set iterator
   function uset_r8_iter_next(this) result(valid)
+    implicit none
     class(uset_r8_t), intent(inout) :: this
     logical :: valid
     valid = this%it%next()
@@ -468,6 +496,7 @@ contains
 
   !> Return the current value of a double precision based set iterator
   function uset_r8_iter_value(this) result(value)
+    implicit none
     class(uset_r8_t), target, intent(inout) :: this
     real(kind=dp), pointer :: value
     value => this%it%value()    

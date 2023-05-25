@@ -77,6 +77,7 @@ module dofmap
 contains
 
   function dofmap_init(msh, Xh) result(this)
+    implicit none
     type(mesh_t), target, intent(inout) :: msh !< Mesh
     type(space_t), target, intent(inout) :: Xh !< Function space \f$ X_h \f$
     type(dofmap_t) :: this
@@ -143,6 +144,7 @@ contains
 
   !> Deallocate the dofmap
   subroutine dofmap_free(this)
+    implicit none
     type(dofmap_t), intent(inout) :: this
 
     if (allocated(this%dof)) then
@@ -187,6 +189,7 @@ contains
 
   !> Return the total number of dofs in the dofmap
   pure function dofmap_size(this) result(res)
+    implicit none
     class(dofmap_t), intent(in) :: this
     integer :: res
     res = this%ntot
@@ -194,6 +197,7 @@ contains
 
   !> Assign numbers to each dofs on points
   subroutine dofmap_number_points(this)
+    implicit none
     type(dofmap_t), target :: this
     integer :: il, jl, ix, iy, iz
     type(mesh_t), pointer :: msh
@@ -215,6 +219,7 @@ contains
 
   !> Assing numbers to dofs on edges
   subroutine dofmap_number_edges(this)
+    implicit none
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
@@ -455,6 +460,7 @@ contains
 
   !> Assign numbers to dofs on faces
   subroutine dofmap_number_faces(this)
+    implicit none
     type(dofmap_t), target :: this
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh    
@@ -573,6 +579,7 @@ contains
 
  !> Get idx for GLL point on face depending on face ordering k and j
   function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, lj1) result(facet_idx)
+    implicit none
      type(tuple4_i4_t) :: face_order, face
      integer(kind=i8) :: facet_idx, facet_id
      integer :: k1, j1, lk1, lj1
@@ -628,6 +635,7 @@ contains
   !> Generate x,y,z-coordinates for all dofs
   !! @note Assumes \f$ X_{h_x} = X_{h_y} = X_{h_z} \f$
   subroutine dofmap_generate_xyz(this)
+    implicit none
     type(dofmap_t), target :: this
     integer :: i, j, el_idx
     type(mesh_t), pointer :: msh
@@ -683,6 +691,7 @@ contains
   end subroutine dofmap_generate_xyz
 
   subroutine dofmap_xyzlin(Xh, msh, element, x, y, z)
+    implicit none
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
     class(element_t), intent(in) :: element
@@ -749,6 +758,7 @@ contains
   end subroutine dofmap_xyzlin
 
   subroutine dofmap_xyzquad(Xh, msh, element, x, y, z, curve_type, curve_data)
+    implicit none
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
     class(element_t), intent(in) :: element
@@ -829,6 +839,7 @@ contains
  !! Original in Nek5000/core/navier5.f
     
  subroutine gh_face_extend_3d(x, zg, n, gh_type, e, v)
+   implicit none
    integer, intent(in) :: n
    real(kind=rp), intent(inout) ::  x(n, n, n)
    real(kind=rp), intent(in) ::  zg(n)
@@ -975,6 +986,7 @@ contains
   !! gh_type:  1 - vertex only
   !!           2 - vertex and faces
   subroutine gh_face_extend_2d(x, zg, n, gh_type, e, v)
+    implicit none
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n, n)
     real(kind=rp), intent(in) :: zg(n)
@@ -1036,6 +1048,7 @@ contains
 
 
   subroutine arc_surface(isid, curve_data, x, y, z, Xh, element, gdim)
+    implicit none
     integer, intent(in) :: isid, gdim
     type(space_t), intent(in) :: Xh
     class(element_t) :: element
@@ -1120,6 +1133,7 @@ contains
   end subroutine arc_surface
 
   subroutine compute_h(h, zgml, gdim, lx)
+    implicit none
     integer, intent(in) :: lx, gdim
     real(kind=rp), intent(inout) ::  h(lx, 3, 2)
     real(kind=rp), intent(in) :: zgml(lx, 3)

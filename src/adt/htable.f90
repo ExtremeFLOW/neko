@@ -229,6 +229,7 @@ contains
 
   !> Initialize a hash table of type @a data
   subroutine htable_init(this, size, key, data)
+    implicit none
     class(htable_t), intent(inout) :: this
     integer, value :: size              !< Initial size of the table
     class(*), target, intent(in) :: key            !< Type of key
@@ -263,6 +264,7 @@ contains
 
   !> Destroy a hash table
   subroutine htable_free(this)
+    implicit none
     class(htable_t), intent(inout) :: this
     integer i
 
@@ -281,6 +283,7 @@ contains
 
   !> Clear all entries in a hash table
   subroutine htable_clear(this)
+    implicit none
     class(htable_t), intent(inout) :: this
 
     if (allocated(this%t)) then
@@ -294,6 +297,7 @@ contains
 
   !> Return number of entries in the table
   pure function htable_num_entries(this) result(entries)
+    implicit none
     class(htable_t), intent(in) :: this
     integer :: entries
     entries = this%entries
@@ -301,6 +305,7 @@ contains
 
   !> Return total size of htable
   pure function htable_size(this) result(size)
+    implicit none
     class(htable_t), intent(in) :: this
     integer :: size
     size = this%size
@@ -309,6 +314,7 @@ contains
 
   !> Insert tuple @a (key, value) into the hash table
   recursive subroutine htable_set(this, key, data) 
+    implicit none
     class(htable_t), intent(inout) :: this
     class(*), intent(inout) :: key   !< Table key
     class(*), intent(inout) ::  data !< Data associated with @a key
@@ -376,6 +382,7 @@ contains
 
   !> Retrieve data associated with @a key into the hash table
   function htable_get(this, key, data) result(rcode)
+    implicit none
     class(htable_t), intent(inout) :: this
     class(*), intent(inout) :: key  !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
@@ -409,6 +416,7 @@ contains
 
   !> Remove a @a key from the hash table
   subroutine htable_remove(this, key)
+    implicit none
     class(htable_t), intent(inout) :: this
     class(*), intent(inout) :: key  !< Key to remove
     integer :: index, i, c
@@ -436,6 +444,7 @@ contains
 
   !> Set data at @a idx to @a value
   subroutine htable_set_data(this, idx, data)
+    implicit none
     class(htable_t), target, intent(inout) :: this
     integer, intent(in) :: idx   !< Table index
     class(*), intent(in) :: data !< Data to set at @a idx
@@ -482,6 +491,7 @@ contains
 
   !> Return data at @a idx in @a value
   subroutine htable_get_data(this, idx, data)
+    implicit none
     class(htable_t), intent(in) :: this
     integer, intent(in) :: idx      !< Table index
     class(*), intent(inout) :: data !< Data to retrieve
@@ -526,6 +536,7 @@ contains
 
   !> Compare key at @a idx to @a key
   pure function htable_eq_key(this, idx, key) result(res)
+    implicit none
     class(htable_t), intent(in) :: this
     integer, intent(in) :: idx  !< Table index
     class(*), intent(in) :: key !< Key to compare against the key at @a idx
@@ -570,6 +581,7 @@ contains
 
   !> Set key at @a idx to @a key
   subroutine htable_set_key(this, idx, key) 
+    implicit none
     class(htable_t), target, intent(inout) :: this
     integer, intent(in) :: idx  !< Table index
     class(*), intent(in) :: key !< Key to set at @a idx
@@ -616,6 +628,7 @@ contains
 
   !> Advance the iterator to the next valid table entry
   function htable_iter_next(this) result(valid)
+    implicit none
     class(htable_iter_t), intent(inout) :: this
     logical :: valid
 
@@ -640,6 +653,7 @@ contains
   !! @todo Remove once we figure out how to do this with value()
   !! for arbitrary data types
   subroutine htable_iter_data(this, data)
+    implicit none
     class(htable_iter_t), target, intent(inout) :: this
     class(*), intent(inout) :: data !< Data to retrieve
     class(*), pointer :: hdp
@@ -689,6 +703,7 @@ contains
   !
   !> Initialize an integer based hash table
   subroutine htable_i4_init(this, size, data)
+    implicit none
     class(htable_i4_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
@@ -704,6 +719,7 @@ contains
 
   !> Insert an integer into the hash table
   subroutine htable_i4_set(this, key, data) 
+    implicit none
     class(htable_i4_t), intent(inout) :: this
     integer, intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -714,6 +730,7 @@ contains
 
   !> Retrive an integer with key @a key from the hash table
   function htable_i4_get(this, key, data) result(rcode)
+    implicit none
     class(htable_i4_t), intent(inout) :: this
     integer, intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
@@ -725,6 +742,7 @@ contains
 
   !> Hash function for an integer based hash table
   pure function htable_i4_hash(this, k, c) result(hash)
+    implicit none
     class(htable_i4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -755,6 +773,7 @@ contains
 
   !> Remove an integer with key @a key from the hash table
   subroutine htable_i4_remove(this, key) 
+    implicit none
     class(htable_i4_t), intent(inout) :: this
     integer, intent(inout) :: key   !< Table key
 
@@ -764,6 +783,7 @@ contains
 
   !> Initialize an integer based hash table iterator
   subroutine htable_iter_i4_init(this, t)
+    implicit none
     class(htable_iter_i4_t), intent(inout) :: this
     type(htable_i4_t), target, intent(inout) :: t
 
@@ -774,6 +794,7 @@ contains
 
   !> Return the current value of the integer based hash table iterator
   function htable_iter_i4_value(this) result(value)
+    implicit none
     class(htable_iter_i4_t), target, intent(inout) :: this
     integer, pointer :: value
 
@@ -788,6 +809,7 @@ contains
 
   !> Return the current key of the integer based hash table iterator
   function htable_iter_i4_key(this) result(key)
+    implicit none
     class(htable_iter_i4_t), target, intent(inout) :: this
     integer, pointer :: key
 
@@ -805,6 +827,7 @@ contains
   !
   !> Initialize an integer*8 based hash table
   subroutine htable_i8_init(this, size, data)
+    implicit none
     class(htable_i8_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
@@ -820,6 +843,7 @@ contains
 
   !> Insert an integer*8 into the hash table
   subroutine htable_i8_set(this, key, data) 
+    implicit none
     class(htable_i8_t), intent(inout) :: this
     integer(kind=i8), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -830,6 +854,7 @@ contains
 
   !> Retrive an integer*8 with key @a key from the hash table
   function htable_i8_get(this, key, data) result(rcode)
+    implicit none
     class(htable_i8_t), intent(inout) :: this
     integer(kind=i8), intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
@@ -841,6 +866,7 @@ contains
 
   !> Hash function for an integer*8 based hash table
   pure function htable_i8_hash(this, k, c) result(hash)
+    implicit none
     class(htable_i8_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -872,6 +898,7 @@ contains
 
   !> Remove an integer*8 with key @a key from the hash table
   subroutine htable_i8_remove(this, key) 
+    implicit none
     class(htable_i8_t), intent(inout) :: this
     integer(kind=i8), intent(inout) :: key   !< Table key
 
@@ -881,6 +908,7 @@ contains
 
   !> Initialize an integer*8 based hash table iterator
   subroutine htable_iter_i8_init(this, t)
+    implicit none
     class(htable_iter_i8_t), intent(inout) :: this
     type(htable_i8_t), target, intent(inout) :: t
 
@@ -891,6 +919,7 @@ contains
 
   !> Return the current value of the integer*8 based hash table iterator
   function htable_iter_i8_value(this) result(value)
+    implicit none
     class(htable_iter_i8_t), target, intent(inout) :: this
     integer(kind=i8), pointer :: value
 
@@ -906,6 +935,7 @@ contains
 
   !> Return the current key of the integer*8 based hash table iterator
   function htable_iter_i8_key(this) result(key)
+    implicit none
     class(htable_iter_i8_t), target, intent(inout) :: this
     integer(kind=i8), pointer :: key
 
@@ -932,6 +962,7 @@ contains
   !
   !> Initialize a double precision based hash table
   subroutine htable_r8_init(this, size, data)
+    implicit none
     class(htable_r8_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
@@ -947,6 +978,7 @@ contains
 
   !> Insert a double precision @a key (with @a data) into the hash table
   subroutine htable_r8_set(this, key, data) 
+    implicit none
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data     !< Data associated with @a key
@@ -957,6 +989,7 @@ contains
 
   !> Retrive a double precision float with key @a key from the hash table
   function htable_r8_get(this, key, data) result(rcode)
+    implicit none
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data     !< Retrieved data
@@ -968,6 +1001,7 @@ contains
 
   !> Hash function for a double precision based hash table
   pure function htable_r8_hash(this, k, c) result(hash)
+    implicit none
     class(htable_r8_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -982,6 +1016,7 @@ contains
 
   !> Remove a double precision key @a key from the hash table
   subroutine htable_r8_remove(this, key) 
+    implicit none
     class(htable_r8_t), intent(inout) :: this
     real(kind=dp), intent(inout) :: key   !< Table key
 
@@ -992,6 +1027,7 @@ contains
 
   !> Initialize a double precision based hash table iterator
   subroutine htable_iter_r8_init(this, t)
+    implicit none
     class(htable_iter_r8_t), intent(inout) :: this
     type(htable_r8_t), target, intent(inout) :: t
 
@@ -1002,6 +1038,7 @@ contains
 
   !> Return the current value of the double precision based hash table iterator
   function htable_iter_r8_value(this) result(value)
+    implicit none
     class(htable_iter_r8_t), target, intent(inout) :: this
     real(kind=dp), pointer :: value
 
@@ -1016,6 +1053,7 @@ contains
 
   !> Return the current key of the double precision based hash table iterator
   function htable_iter_r8_key(this) result(key)
+    implicit none
     class(htable_iter_r8_t), target, intent(inout) :: this
     real(kind=dp), pointer :: key
 
@@ -1033,6 +1071,7 @@ contains
   !
   !> Initialize a point based hash table
   subroutine htable_pt_init(this, size, data)
+    implicit none
     class(htable_pt_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
@@ -1048,6 +1087,7 @@ contains
 
   !> Insert a point @a key (with @a data) into the hash table
   subroutine htable_pt_set(this, key, data) 
+    implicit none
     class(htable_pt_t), intent(inout) :: this
     type(point_t), intent(inout) :: key !< Table key
     class(*), intent(inout) :: data     !< Data associated with @a key
@@ -1058,6 +1098,7 @@ contains
 
   !> Retrive a point with key @a key from the hash table
   function htable_pt_get(this, key, data) result(rcode)
+    implicit none
     class(htable_pt_t), intent(inout) :: this
     type(point_t), intent(inout) :: key !< Key to retrieve
     class(*), intent(inout) :: data     !< Retrieved data
@@ -1069,6 +1110,7 @@ contains
 
   !> Hash function for a point based hash table
   pure function htable_pt_hash(this, k, c) result(hash)
+    implicit none
     class(htable_pt_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -1107,6 +1149,7 @@ contains
 
   !> Remove a point with key @a key from the hash table
   subroutine htable_pt_remove(this, key) 
+    implicit none
     class(htable_pt_t), intent(inout) :: this
     type(point_t), intent(inout) :: key   !< Table key
 
@@ -1117,6 +1160,7 @@ contains
 
   !> Initialize a point based hash table iterator
   subroutine htable_iter_pt_init(this, t)
+    implicit none
     class(htable_iter_pt_t), intent(inout) :: this
     type(htable_pt_t), target, intent(inout) :: t
 
@@ -1127,6 +1171,7 @@ contains
 
   !> Return the current value of the point based hash table iterator
   function htable_iter_pt_value(this) result(value)
+    implicit none
     class(htable_iter_pt_t), target, intent(inout) :: this
     type(point_t), pointer :: value
 
@@ -1141,6 +1186,7 @@ contains
 
   !> Return the current key of the point based hash table iterator
   function htable_iter_pt_key(this) result(key)
+    implicit none
     class(htable_iter_pt_t), target, intent(inout) :: this
     type(point_t), pointer :: key
 
@@ -1158,6 +1204,7 @@ contains
   !
   !> Initialize an integer 2-tuple hash table
   subroutine htable_i4t2_init(this, size, data)
+    implicit none
     class(htable_i4t2_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
@@ -1173,6 +1220,7 @@ contains
 
   !> Insert an integer 2-tuple into the hash table
   subroutine htable_i4t2_set(this, key, data) 
+    implicit none
     class(htable_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -1183,6 +1231,7 @@ contains
 
   !> Retrive an integer 2-tuple with key @a key from the hash table
   function htable_i4t2_get(this, key, data) result(rcode)
+    implicit none
     class(htable_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
@@ -1194,6 +1243,7 @@ contains
 
   !> Hash function for an integer 2-tuple hash table
   pure function htable_i4t2_hash(this, k, c) result(hash)
+    implicit none
     class(htable_i4t2_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -1231,6 +1281,7 @@ contains
 
   !> Remove an integer 2-tuple with key @a key from the hash table
   subroutine htable_i4t2_remove(this, key) 
+    implicit none
     class(htable_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: key   !< Table key
 
@@ -1240,6 +1291,7 @@ contains
   
   !> Initialize an integer 2-tuple based hash table iterator
   subroutine htable_iter_i4t2_init(this, t)
+    implicit none
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(htable_i4t2_t), target, intent(inout) :: t
 
@@ -1250,6 +1302,7 @@ contains
 
   !> Return the current value of integer based 2-tuple hash table iterator
   function htable_iter_i4t2_value(this) result(value)
+    implicit none
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), pointer :: value
 
@@ -1264,6 +1317,7 @@ contains
 
   !> Return the current key of integer based 2-tuple hash table iterator
   function htable_iter_i4t2_key(this) result(key)
+    implicit none
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), pointer :: key
 
@@ -1281,6 +1335,7 @@ contains
   !
   !> Initialize an integer 4-tuple  hash table
   subroutine htable_i4t4_init(this, size, data)
+    implicit none
     class(htable_i4t4_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
@@ -1296,6 +1351,7 @@ contains
 
   !> Insert an integer 4-tuple into the hash table
   subroutine htable_i4t4_set(this, key, data) 
+    implicit none
     class(htable_i4t4_t), intent(inout) :: this
     type(tuple4_i4_t), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -1306,6 +1362,7 @@ contains
 
   !> Retrive an integer 4-tuple with key @a key from the hash table
   function htable_i4t4_get(this, key, data) result(rcode)
+    implicit none
     class(htable_i4t4_t), intent(inout) :: this
     type(tuple4_i4_t), intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
@@ -1317,6 +1374,7 @@ contains
 
   !> Hash function for an integer 4-tuple hash table
   pure function htable_i4t4_hash(this, k, c) result(hash)
+    implicit none
     class(htable_i4t4_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -1354,6 +1412,7 @@ contains
 
   !> Remove an integer 4-tuple with key @a key from the hash table
   subroutine htable_i4t4_remove(this, key) 
+    implicit none
     class(htable_i4t4_t), intent(inout) :: this
     type(tuple4_i4_t), intent(inout) :: key   !< Table key
 
@@ -1363,6 +1422,7 @@ contains
 
   !> Initialize an integer 4-tuple based hash table iterator
   subroutine htable_iter_i4t4_init(this, t)
+    implicit none
     class(htable_iter_i4t4_t), intent(inout) :: this
     type(htable_i4t4_t), target, intent(inout) :: t
 
@@ -1373,6 +1433,7 @@ contains
 
   !> Return the current value of integer based 4-tuple hash table iterator
   function htable_iter_i4t4_value(this) result(value)
+    implicit none
     class(htable_iter_i4t4_t), target, intent(inout) :: this
     type(tuple4_i4_t), pointer :: value
 
@@ -1387,6 +1448,7 @@ contains
 
   !> Return the current key of integer based 4-tuple hash table iterator
   function htable_iter_i4t4_key(this) result(key)
+    implicit none
     class(htable_iter_i4t4_t), target, intent(inout) :: this
     type(tuple4_i4_t), pointer :: key
 
@@ -1412,6 +1474,7 @@ contains
   !
   !> Initialize a C pointer based  hash table
   subroutine htable_cptr_init(this, size, data)
+    implicit none
     class(htable_cptr_t), intent(inout) :: this
     integer, value :: size                    !< Initial size of the table
     class(*), intent(inout), optional :: data !< Data to associate with @a key
@@ -1427,6 +1490,7 @@ contains
 
   !> Insert a C pointer into the hash table
   subroutine htable_cptr_set(this, key, data) 
+    implicit none
     class(htable_cptr_t), target, intent(inout) :: this
     type(h_cptr_t), intent(inout) :: key   !< Table key
     class(*), intent(inout) :: data !< Data associated with @a key
@@ -1437,6 +1501,7 @@ contains
 
   !> Retrive a C pointer with key @a key from the hash table
   function htable_cptr_get(this, key, data) result(rcode)
+    implicit none
     class(htable_cptr_t), target, intent(inout) :: this
     type(h_cptr_t), intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
@@ -1448,6 +1513,7 @@ contains
 
   !> Hash function for an integer 4-tuple hash table
   pure function htable_cptr_hash(this, k, c) result(hash)
+    implicit none
     class(htable_cptr_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -1466,6 +1532,7 @@ contains
 
   !> Remove a C pointer with key @a key from the hash table
   subroutine htable_cptr_remove(this, key) 
+    implicit none
     class(htable_cptr_t), target, intent(inout) :: this
     type(h_cptr_t), intent(inout) :: key   !< Table key
 
@@ -1475,6 +1542,7 @@ contains
 
   !> Initialize a C pointer based hash table iterator
   subroutine htable_iter_cptr_init(this, t)
+    implicit none
     class(htable_iter_cptr_t), intent(inout) :: this
     type(htable_cptr_t), target, intent(inout) :: t
 
@@ -1485,6 +1553,7 @@ contains
 
   !> Return the current value of C pointer based hash table iterator
   function htable_iter_cptr_value(this) result(value)
+    implicit none
     class(htable_iter_cptr_t), target, intent(inout) :: this
     class(*), pointer :: hdp
     type(h_cptr_t), pointer :: value
@@ -1501,6 +1570,7 @@ contains
 
   !> Return the current key of a C pointer based hash table iterator
   function htable_iter_cptr_key(this) result(key)
+    implicit none
     class(htable_iter_cptr_t), target, intent(inout) :: this
     class(*), pointer :: kp
     type(h_cptr_t), pointer :: key

@@ -48,6 +48,7 @@ contains
 
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
+    implicit none
     type(case_t), intent(inout) :: C
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time
@@ -140,6 +141,7 @@ contains
   end subroutine neko_solve
 
   subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
+    implicit none
     real(kind=rp), intent(inout) :: t
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
@@ -168,6 +170,7 @@ contains
 
   !> Restart a case @a C from a given checkpoint
   subroutine simulation_restart(C, t)
+    implicit none
     type(case_t), intent(inout) :: C
     real(kind=rp), intent(inout) :: t
     integer :: i

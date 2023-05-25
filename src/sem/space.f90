@@ -112,6 +112,7 @@ contains
 
   !> Initialize a function space @a s with given polynomial dimensions
   subroutine space_init(s, t, lx, ly, lz)
+    implicit none
     type(space_t), intent(inout) :: s
     integer, intent(in) :: t            !< Quadrature type
     integer, intent(in) :: lx           !< Polynomial dimension in x-direction
@@ -260,6 +261,7 @@ contains
    
   !> Deallocate a space @a s
   subroutine space_free(s)
+    implicit none
     type(space_t), intent(inout) :: s
 
     if (allocated(s%zg)) then
@@ -383,6 +385,7 @@ contains
   !> Check if \f$ X_h = Y_H \f$
   !! @note this only checks the polynomial dimensions
   pure function space_eq(Xh, Yh) result(res)
+    implicit none
     type(space_t), intent(in) :: Xh
     type(space_t), intent(in) :: Yh
     logical :: res
@@ -400,6 +403,7 @@ contains
   !> Check if \f$ X_h \ne Y_H \f$
   !! @note this only checks the polynomial dimensions
   pure function space_ne(Xh, Yh) result(res)
+    implicit none
     type(space_t), intent(in) :: Xh
     type(space_t), intent(in) :: Yh
     logical :: res
@@ -415,6 +419,7 @@ contains
   end function space_ne
   
   subroutine space_compute_dist(dx, x, lx)
+    implicit none
     integer, intent(in) :: lx
     real(kind=rp), intent(inout) :: dx(lx), x(lx)
     integer :: i
