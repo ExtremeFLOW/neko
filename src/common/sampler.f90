@@ -214,11 +214,12 @@ contains
     real(kind=dp) :: sample_time
     character(len=LOG_SIZE) :: log_buf
     integer :: i, ierr
-    logical :: force = .false.
-    logical :: write_output
+    logical :: force, write_output
 
     if (present(ifforce)) then
        force = ifforce
+    else
+       force = .false.
     end if
 
     call profiler_start_region('Sampler')
@@ -232,13 +233,16 @@ contains
     ! (>11.0.x) when using high opt. levels.  
     select type (samp => this)
     type is (sampler_t)
-       do i = 1, this%n    
-          write_output = (force .or. &
-               ((samp%tstep_interval_list(i) .eq. 0) .and. &
-               (t .ge. (samp%nsample_list(i) * samp%T_list(i)))) .or. &
-               ((samp%tstep_interval_list(i) .gt. 0) .and. &
-               (mod(tstep,samp%tstep_interval_list(i)) .eq. 0))) .or. &
-               write_output
+       do i = 1, samp%n
+          if (force) then
+             write_output = .true.            
+          else if ((samp%tstep_interval_list(i) .eq. 0) .and. &               
+               (t .ge. (samp%nsample_list(i) * samp%T_list(i)))) then
+             write_output = .true.            
+          else if ((samp%tstep_interval_list(i) .gt. 0) .and. &
+               (mod(tstep,samp%tstep_interval_list(i)) .eq. 0)) then
+             write_output = .true.
+          end if
        end do
     end select
     
