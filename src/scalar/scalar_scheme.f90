@@ -54,6 +54,7 @@ module scalar_scheme
   use time_scheme_controller
   use logger
   use field_registry
+  use json_module, only : json_file_t => json_file, json_value_t => json_value
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -71,7 +72,7 @@ module scalar_scheme
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
-     type(param_t), pointer :: params          !< Parameters          
+     type(json_file_t), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
    contains
@@ -88,9 +89,9 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, param)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params)
        import scalar_scheme_t
-       import param_t
+       import json_file_t
        import coef_t
        import gs_t
        import mesh_t
@@ -98,7 +99,7 @@ module scalar_scheme
        type(mesh_t), target, intent(inout) :: msh       
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
-       type(param_t), target, intent(inout) :: param              
+       type(json_file_t), target, intent(inout) :: params
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -112,13 +113,14 @@ module scalar_scheme
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, ext_bdf)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
        import scalar_scheme_t
        import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: dt
        type(time_scheme_controller_t), intent(inout) :: ext_bdf
      end subroutine scalar_scheme_step_intrf
   end interface
@@ -172,20 +174,49 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
     type(gs_t), target, intent(inout) :: gs_Xh
-    type(param_t), target, intent(inout) :: params
+    type(json_file_t), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     character(len=LOG_SIZE) :: log_buf
+    character(len=20), dimension(:), allocatable :: bc_labels
+    ! Variables for retrieving json parameters
+    logical :: found, logical_val
+    real(kind=rp) :: real_val, solver_abstol
+    integer :: integer_val
+    type(json_value_t), pointer :: json_val
+    character(len=:), allocatable :: solver_type, solver_precon
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
     call neko_log%section('Scalar')
+    call params%get('case.fluid.velocity_solver.type', solver_type, &
+                    found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.type missing in the case file")
+    end if
+
+    call params%get('case.fluid.velocity_solver.preconditioner', &
+                    solver_precon, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.preconditioner missing in the case &
+         &file")
+    end if
+
+    call params%get('case.fluid.velocity_solver.absolute_tolerance', &
+                    solver_abstol, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
+         &case file")
+    end if
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
-    call neko_log%message('Ksp scalar : ('// trim(params%ksp_vel) // &
-         ', ' // trim(params%pc_vel) // ')')
-    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_vel
+    call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
+         ', ' // trim(solver_precon) // ')')
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  solver_abstol
     call neko_log%message(log_buf)
 
     this%Xh => this%u%Xh
@@ -205,13 +236,14 @@ contains
     !
     call bc_list_init(this%bclst)
 
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
+    call params%get('case.scalar.boundary_types', bc_labels, found) 
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, bc_labels) 
   
     ! todo parameter file ksp tol should be added
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         params%ksp_vel, params%abstol_vel)
+         solver_type, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, params%pc_vel)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
   
     call neko_log%end_section()
   end subroutine scalar_scheme_init

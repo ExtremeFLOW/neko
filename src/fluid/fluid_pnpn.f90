@@ -385,6 +385,7 @@ contains
     integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
     ! Variables for retrieving json parameters
+    type(json_value_t), pointer :: json_val
     logical :: found, logical_val
     real(kind=rp) :: real_val, rho, mu, Re
     integer :: integer_val, ksp_vel_maxiter, ksp_pr_maxiter
@@ -540,13 +541,15 @@ contains
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
       end if
 
-!      if (params%vol_flow_dir .ne. 0) then                 
-!         call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-!              ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, params%rho, params%Re, &
-!              params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-!              this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-!              this%ksp_vel, this%pc_prs, this%pc_vel, prs_max_iter, vel_max_iter)
-!      end if
+      call params%get('fluid.flow_rate_force', json_val, found)
+      if (found) then
+         call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
+              ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, rho, Re, &
+              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
+              this%ksp_vel, this%pc_prs, this%pc_vel, ksp_pr_maxiter, &
+              ksp_vel_maxiter)
+      end if
       
       call fluid_step_info(tstep, t, dt, ksp_results)
       
