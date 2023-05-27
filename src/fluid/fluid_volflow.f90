@@ -72,6 +72,7 @@ module fluid_volflow
   use neko_config
   use device_math
   use device_mathops
+  use json_module, only : json_file_t => json_file
   implicit none
   private
   
@@ -93,17 +94,40 @@ module fluid_volflow
 
 contains
 
-  subroutine fluid_vol_flow_init(this, dm_Xh, param)
+  subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), intent(inout) :: dm_Xh
-    type(param_t), intent(inout) :: param
+    type(json_file_t), intent(inout) :: params
+    logical average, found
+    integer :: direction
+    real(kind=rp) :: rate
 
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    this%flow_dir = param%vol_flow_dir
-    this%avflow = param%avflow
-    this%flow_rate = param%flow_rate
+    call params%get('case.fluid.flow_rate_force.direction', direction, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.flow_rate_force.direction missing in the case file")
+    end if
+
+    call params%get('case.fluid.flow_rate_force.rate', rate, found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.flow_rate_force.rate missing in the case file")
+    end if
+
+    call params%get('case.fluid.flow_rate_force.use_averaged_flow', average, &
+                    found)
+    if (.not. found) then
+       call neko_error(&
+         "Parameter fluid.flow_rate_force.use_averaged_flow missing in the case&
+         & file")
+    end if
+
+    this%flow_dir = direction
+    this%avflow = average
+    this%flow_rate = rate
 
     if (this%flow_dir .ne. 0) then
        call field_init(this%u_vol, dm_Xh, 'u_vol')
@@ -142,7 +166,8 @@ contains
     class(ax_t), intent(inout) :: Ax
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
-    real(kind=rp), intent(inout) :: rho, Re, bd, dt
+    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: rho, Re, dt
     integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
     real(kind=rp) :: xlmin, xlmax
@@ -314,7 +339,7 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
-    real(kind=rp), intent(inout) :: rho, Re, dt
+    real(kind=rp), intent(in) :: rho, Re, dt
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(inout) :: Ax
