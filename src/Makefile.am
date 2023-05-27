@@ -157,7 +157,6 @@ neko_fortran_SOURCES = \
 	common/user_intf.f90\
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
-	fluid/fluid_plan1.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
 	fluid/fluid_volflow.f90\
