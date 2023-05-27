@@ -93,7 +93,7 @@ contains
     else if (trim(solver) .eq. 'bicgstab') then
        allocate(bicgstab_t::ksp)
     else
-       call neko_error('Unknown Krylov solver')
+       call neko_error('Unknown Krylov solver '//trim(solver))
     end if
 
     if (present(abstol) .and. present(M)) then
