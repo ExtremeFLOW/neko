@@ -47,7 +47,7 @@ contains
   !> Create a preconditioner
   subroutine precon_factory(pc, pctype)
     class(pc_t), target, allocatable, intent(inout) :: pc
-    character(len=*) :: pctype
+    character(len=*), intent(in) :: pctype
 
     if (allocated(pc)) then
        call precon_destroy(pc)

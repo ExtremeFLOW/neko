@@ -52,7 +52,7 @@ contains
   subroutine krylov_solver_factory(ksp, n, solver, abstol, M)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=*) :: solver
+    character(len=*), intent(in) :: solver
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(inout), target :: M
  
@@ -60,7 +60,7 @@ contains
        call krylov_solver_destroy(ksp)
        deallocate(ksp)
     end if
-
+    
     if (trim(solver) .eq. 'cg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_cg_t::ksp)
