@@ -48,11 +48,17 @@ module point
      procedure :: point_lt
      procedure :: point_gt
      procedure :: point_assign
+     procedure :: point_add
+     procedure :: point_substract
+     procedure :: point_scalar_mult
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
      generic :: operator(.gt.) => point_gt
      generic :: assignment(=) => point_assign
+     generic :: operator(+) => point_add
+     generic :: operator(-) => point_substract
+     generic :: operator(*) => point_scalar_mult
   end type point_t
 
   !> Defines a pointer to a point type
@@ -177,5 +183,41 @@ contains
     end if
 
   end function point_gt  
-  
+
+  !> Returns the addition of 2 points \f$ p_{1} + p_{2} \f$
+  function point_add(p1, p2) result(res)
+    class(point_t), intent(in) :: p1
+    class(point_t), intent(in) :: p2
+    type(point_t) :: res
+
+    res%x(1) = p1%x(1) + p2%x(1)
+    res%x(2) = p1%x(2) + p2%x(2)
+    res%x(3) = p1%x(3) + p2%x(3)
+
+  end function point_add
+
+  !> Returns the substraction of 2 points \f$ p_{1} + p_{2} \f$
+  function point_substract(p1, p2) result(res)
+    class(point_t), intent(in) :: p1
+    class(point_t), intent(in) :: p2
+    type(point_t) :: res
+
+    res%x(1) = p1%x(1) - p2%x(1)
+    res%x(2) = p1%x(2) - p2%x(2)
+    res%x(3) = p1%x(3) - p2%x(3)
+
+ end function point_substract
+
+  !> Returns the multiplication of a point by a scalar \f$ a*p_{1} \f$
+  function point_scalar_mult(p1, a) result(res)
+    class(point_t), intent(in) :: p1
+    real(kind=rp), intent(in) :: a
+    type(point_t) :: res
+
+    res%x(1) = a * p1%x(1)
+    res%x(2) = a * p1%x(2)
+    res%x(3) = a * p1%x(3)
+
+  end function point_scalar_mult
+
 end module point
