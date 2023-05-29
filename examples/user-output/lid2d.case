@@ -1,0 +1,19 @@
+&NEKO_CASE
+  mesh_file = 'lid2d.nmsh'
+  fluid_scheme = 'pnpn'
+  lx = 8
+  source_term = 'noforce'
+  initial_condition = 'user'
+/
+&NEKO_PARAMETERS
+  dt = 1d-3
+  T_end = 50
+  nsamples = 10
+  Re = 5000
+  pc_vel = 'jacobi'
+  pc_prs = 'hsmg'
+  proj_prs_dim = 8
+  fluid_inflow = 'user'
+  prs_max_iter = 200
+  vel_max_iter = 200
+/
