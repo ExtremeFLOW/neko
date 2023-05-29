@@ -69,7 +69,43 @@ module device_inhom_dirichlet
        type(c_ptr), value :: msk, x, y, z, bla_x, bla_y, bla_z
      end subroutine opencl_inhom_dirichlet_apply_vector
   end interface
+
 #endif
+
+#ifdef HAVE_HIP
+  interface
+     subroutine hip_inhom_dirichlet_apply_scalar(msk, x, bla_x, m) &
+          bind(c, name='hip_inhom_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, bla_x
+     end subroutine hip_inhom_dirichlet_apply_scalar
+  end interface
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_inhom_dirichlet_apply_scalar(msk, x, bla_x, m) &
+          bind(c, name='cuda_inhom_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, bla_x
+     end subroutine cuda_inhom_dirichlet_apply_scalar
+  end interface
+#elif HAVE_OPENCL
+  interface
+     subroutine opencl_inhom_dirichlet_apply_scalar(msk, x, bla_x, m) &
+          bind(c, name='opencl_inhom_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, bla_x
+     end subroutine opencl_inhom_dirichlet_apply_scalar
+  end interface
+#endif 
 
 contains
 
@@ -88,5 +124,21 @@ contains
 #endif
     
   end subroutine device_inhom_dirichlet_apply_vector
+ 
+  subroutine device_inhom_dirichlet_apply_scalar(msk, x, bla_x, m)
+    integer, intent(in) :: m
+    type(c_ptr) :: msk, x, bla_x
+
+#ifdef HAVE_HIP
+    call hip_inhom_dirichlet_apply_scalar(msk, x, bla_x, m)
+#elif HAVE_CUDA
+    call cuda_inhom_dirichlet_apply_scalar(msk, x, bla_x, m)
+#elif HAVE_OPENCL
+    call opencl_inhom_dirichlet_apply_scalar(msk, x, bla_x, m)
+#else
+    call neko_error('No device backend configured')
+#endif
+    
+  end subroutine device_inhom_dirichlet_apply_scalar
   
 end module device_inhom_dirichlet

@@ -310,6 +310,7 @@ contains
        else
           call C%scalar%set_source(trim(string_val))
        end if
+       call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
     !

@@ -147,6 +147,11 @@ contains
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
+
+    ! Check for user bcs
+    if (this%user_bc%msk(0) .gt. 0) then
+       call this%bc_res%mark_facets(this%user_bc%marked_facet)
+    end if
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_ds)
