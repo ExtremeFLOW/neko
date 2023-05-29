@@ -32,123 +32,125 @@
 !
 !> Defines a matrix
 module matrix
-    use neko_config
-    use num_types
-    use device
-    use device_math
-    use utils
-    use, intrinsic :: iso_c_binding
-    implicit none
-    private
-    
-    type, public ::  matrix_t
-       real(kind=rp), allocatable :: x(:,:) !< matrix entrie
-    !    type(c_ptr) :: x_d = C_NULL_PTR    !< Device pointer
-       integer :: nrows  = 0                  !< Number of matrix rows
-       integer :: ncols  = 0                  !< Number of matrix columns
-     contains
-       procedure, pass(m) :: init => matrix_init
-       procedure, pass(m) :: free => matrix_free
-       procedure, pass(m) :: size => matrix_size
-       procedure, pass(m) :: matrix_assign_matrix
-       procedure, pass(m) :: matrix_assign_scalar
-       generic :: assignment(=) => matrix_assign_matrix, &
-            matrix_assign_scalar
-    end type matrix_t
+  use neko_config
+  use num_types
+  use device
+  use device_math
+  use utils
+  use, intrinsic :: iso_c_binding
+  implicit none
+  private
+
+  type, public ::  matrix_t
+     real(kind=rp), allocatable :: x(:,:) !< matrix entrie
+     type(c_ptr) :: x_d = C_NULL_PTR      !< Device pointer
+     integer :: nrows  = 0 !< Number of matrix rows
+     integer :: ncols  = 0 !< Number of matrix columns
+     integer :: n = 0      !< Total size
+   contains
+     procedure, pass(m) :: init => matrix_init
+     procedure, pass(m) :: free => matrix_free
+     procedure, pass(m) :: size => matrix_size
+     procedure, pass(m) :: matrix_assign_matrix
+     procedure, pass(m) :: matrix_assign_scalar
+     generic :: assignment(=) => matrix_assign_matrix, &
+          matrix_assign_scalar
+  end type matrix_t
   
-  contains
-  
-    !> Initialise a matrix of size @a n
-    subroutine matrix_init(m, nrows, ncols)
-      class(matrix_t), intent(inout) :: m
-      integer, intent(in) :: nrows
-      integer, intent(in) :: ncols
-  
-      call m%free()
-  
-      allocate(m%x(nrows, ncols))
-      m%x = 0.0_rp
-     
-    !   if (NEKO_BCKND_DEVICE .eq. 1) then
-    !      call device_map(m%x, m%x_d, n)
-    !      call device_cfill(m%x_d, 0.0_rp, n)
-    !   end if
-  
-      m%nrows = nrows
-      m%ncols = ncols
-      
-    end subroutine matrix_init
-  
-    !> Deallocate a matrix
-    subroutine matrix_free(m)
-      class(matrix_t), intent(inout) :: m
-  
-      if (allocated(m%x)) then
-         deallocate(m%x)
-      end if
-  
-    !   if (c_associated(m%x_d)) then
-    !      call device_free(m%x_d)
-    !   end if
-  
-      m%nrows = 0
-      m%ncols = 0
-          
-    end subroutine matrix_free
-  
-    !> Return the number of entries in the matrix
-    function matrix_size(m) result(s)
-      class(matrix_t), intent(inout) :: m
-      integer :: s
-      s = m%nrows*m%ncols    
-    end function matrix_size
-  
-    !> Assignment \f$ m = w \f$
-    subroutine matrix_assign_matrix(m, w)
-      class(matrix_t), intent(inout) :: m
-      type(matrix_t), intent(in) :: w
-  
-      if (allocated(m%x)) then
-         call m%free()
-      end if
-  
-      if (.not. allocated(m%x)) then
-  
-         m%nrows = w%nrows
-         m%ncols = w%ncols
-         allocate(m%x(m%nrows, m%ncols))
-         
-        !  if (NEKO_BCKND_DEVICE .eq. 1) then
-        !     call device_map(m%x, m%x_d, m%n)
-        !  end if
-         
-      end if
-  
-    !   if (NEKO_BCKND_DEVICE .eq. 1) then
-    !      call device_copy(m%x_d, w%x_d, m%n)
-    !   else
-    !      m%x = w%x
-    !   end if
-  
-    end subroutine matrix_assign_matrix
-  
-    !> Assignment \f$ m = s \f$
-    subroutine matrix_assign_scalar(m, s)
-      class(matrix_t), intent(inout) :: m
-      real(kind=rp), intent(in) :: s
-  
-      if (.not. allocated(m%x)) then
-         call neko_error('matrix not allocated')
-      end if
-  
-    !   if (NEKO_BCKND_DEVICE .eq. 1) then
-        !  call device_cfill(m%x_d, s, m%n)
-    !   else
-         m%x = s
-    !   end if
-  
-    end subroutine matrix_assign_scalar
-  
-    
-  end module matrix
-  
+contains
+
+  !> Initialise a matrix of size @a n
+  subroutine matrix_init(m, nrows, ncols)
+    class(matrix_t), intent(inout) :: m
+    integer, intent(in) :: nrows
+    integer, intent(in) :: ncols
+
+    call m%free()
+
+    allocate(m%x(nrows, ncols))
+    m%x = 0.0_rp
+    m%nrows = nrows
+    m%ncols = ncols
+    m%n = nrows*ncols
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(m%x, m%x_d, m%n)
+       call device_cfill(m%x_d, 0.0_rp, m%n)
+    end if
+
+  end subroutine matrix_init
+
+  !> Deallocate a matrix
+  subroutine matrix_free(m)
+    class(matrix_t), intent(inout) :: m
+
+    if (allocated(m%x)) then
+       deallocate(m%x)
+    end if
+
+    if (c_associated(m%x_d)) then
+       call device_free(m%x_d)
+    end if
+
+    m%nrows = 0
+    m%ncols = 0
+    m%n = 0
+
+  end subroutine matrix_free
+
+  !> Return the number of entries in the matrix
+  function matrix_size(m) result(s)
+    class(matrix_t), intent(inout) :: m
+    integer :: s
+    s = m%n
+  end function matrix_size
+
+  !> Assignment \f$ m = w \f$
+  subroutine matrix_assign_matrix(m, w)
+    class(matrix_t), intent(inout) :: m
+    type(matrix_t), intent(in) :: w
+
+    if (allocated(m%x)) then
+       call m%free()
+    end if
+
+    if (.not. allocated(m%x)) then
+
+       m%nrows = w%nrows
+       m%ncols = w%ncols
+       m%n = w%n
+       allocate(m%x(m%nrows, m%ncols))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(m%x, m%x_d, m%n)
+       end if
+
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_copy(m%x_d, w%x_d, m%n)
+    else
+       m%x = w%x
+    end if
+
+  end subroutine matrix_assign_matrix
+
+  !> Assignment \f$ m = s \f$
+  subroutine matrix_assign_scalar(m, s)
+    class(matrix_t), intent(inout) :: m
+    real(kind=rp), intent(in) :: s
+
+    if (.not. allocated(m%x)) then
+       call neko_error('matrix not allocated')
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill(m%x_d, s, m%n)
+    else
+       m%x = s
+    end if
+
+  end subroutine matrix_assign_scalar
+
+
+end module matrix
