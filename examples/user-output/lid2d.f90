@@ -135,6 +135,7 @@ module user
     ! Dump some data (every 50th time step)
     ! We arbitrarily choose the velocities to write
     ! for the sake of simplicity
+    call neko_log%message("Writing csv file")
     vec%x = (/u%x(1,1,1,5), v%x(1,1,1,5), p%x(1,1,1,5)/)
     call output_file%write(vec, t)
 
