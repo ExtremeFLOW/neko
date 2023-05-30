@@ -96,16 +96,11 @@ contains
     character(len=:), allocatable :: mesh_file_name
     character(len=:), allocatable :: output_directory
     character(len=80) :: fluid_scheme  = ''
-    character(len=80) :: mesh_file  = ''
     character(len=80) :: source_term = ''
-    character(len=80) :: initial_condition = ''
     integer :: lx = 0
     logical :: scalar = .false.
     character(len=80) :: scalar_source_term = ''
     type(param_io_t) :: params
-    namelist /NEKO_CASE/ mesh_file, fluid_scheme, lx,  &
-         source_term, initial_condition, scalar, scalar_source_term
-    
     integer :: ierr
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part
@@ -129,9 +124,7 @@ contains
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))
     
-    call json_file%Initialize()
-    call json_file%load(filename='hemi.json')
-    call C%json_params%load(filename='hemi.json')
+    call C%json_params%load(filename=trim(case_file))
 
 !    call json_core%serialize(json_value, json_buffer)
     !call json_core%create_object(json_value, '')
@@ -139,60 +132,7 @@ contains
     !json_file2 = json_file
 !    call json_file2%deserialize(json_buffer)
 !    call json_file2%print()
-
-!    write(*,*) "JSON TEST", json_buffer
-!    write(*,*) "JSON TEST", int_val
-!    write(*,*) "JSON TEST", bool_val
     
-    
-    !
-    ! Read case description
-    !
-    if (pe_rank .eq. 0) then
-       open(10, file=trim(case_file))
-       read(10, nml=NEKO_CASE)
-       read(10, *) params
-       close(10)
-       
-       pack_index = 0
-       call MPI_Pack(mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(fluid_scheme, 80, MPI_CHARACTER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(source_term, 80, MPI_CHARACTER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(initial_condition, 80, MPI_CHARACTER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(scalar_source_term, 80, MPI_CHARACTER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(lx, 1, MPI_INTEGER, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Pack(scalar, 1, MPI_LOGICAL, &
-            buffer, nbytes, pack_index, NEKO_COMM, ierr)
-       call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
-       call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
-    else
-       call MPI_Bcast(buffer, nbytes, MPI_PACKED, 0, NEKO_COMM, ierr)
-       pack_index = 0
-
-       call MPI_Unpack(buffer, nbytes, pack_index, &
-            mesh_file, NEKO_FNAME_LEN, MPI_CHARACTER, NEKO_COMM, ierr)
-       call MPI_Unpack(buffer, nbytes, pack_index, &
-            fluid_scheme, 80, MPI_CHARACTER, NEKO_COMM, ierr)
-       call MPI_Unpack(buffer, nbytes, pack_index, &
-            source_term, 80, MPI_CHARACTER, NEKO_COMM, ierr)
-       call MPI_Unpack(buffer, nbytes, pack_index, &
-            initial_condition, 80, MPI_CHARACTER, NEKO_COMM, ierr)
-       call MPI_Unpack(buffer, nbytes, pack_index, &
-            scalar_source_term, 80, MPI_CHARACTER, NEKO_COMM, ierr)
-       call MPI_Unpack(buffer, nbytes, pack_index, &
-            lx, 1, MPI_INTEGER, NEKO_COMM, ierr)
-       call MPI_Unpack(buffer, nbytes, pack_index, &
-            scalar, 1, MPI_LOGICAL, NEKO_COMM, ierr)
-       call MPI_Bcast(params%p, 1, MPI_NEKO_PARAMS, 0, NEKO_COMM, ierr)
-    end if
-    
-
     call C%json_params%get('case.mesh_file', string_val, found)
     if (.not. found) then
        call neko_error("Parameter mesh_file missing in the case file")
@@ -270,7 +210,7 @@ contains
        if (found .and. scalar) then
           allocate(C%scalar)
           ! Switch to json
-          call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
+          call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%json_params)
           call C%fluid%chkp%add_scalar(C%scalar%s)
        end if
     end if
@@ -318,16 +258,17 @@ contains
     !
     ! Setup initial conditions
     ! 
-    call C%json_params%get('case.fluid.intial_condition.type', string_val, found)
-    if (found) then
-       if (trim(string_val) .ne. 'user') then
-          ! Switch to json
-          call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-               C%fluid%c_Xh, C%fluid%gs_Xh, initial_condition, C%params)
-       else
-          call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-               C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
-       end if
+    call C%json_params%get('case.fluid.initial_condition.type', string_val, found)
+    if (.not. found) then
+       call neko_error("Parameter fluid.initial_condition.type missing in the &
+                       &case file")
+    end if
+    if (trim(string_val) .ne. 'user') then
+       call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+            C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%json_params)
+    else
+       call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+            C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%json_params)
     end if
 
     ! Add initial conditions to BDF scheme (if present)
