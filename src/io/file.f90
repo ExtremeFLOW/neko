@@ -42,7 +42,6 @@ module file
   use fld_file_data
   use vtk_file
   use stl_file
-  use dat_file
   use csv_file
   implicit none
   
@@ -92,8 +91,6 @@ contains
        allocate(chkp_file_t::this%file_type)
     else if (suffix .eq. "stl") then
        allocate(stl_file_t::this%file_type)
-    else if (suffix .eq. "dat") then
-       allocate(dat_file_t::this%file_type)
     else if (suffix .eq. "csv") then
       allocate(csv_file_t::this%file_type)
     else
