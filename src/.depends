@@ -6,7 +6,6 @@ io/format/re2.o : io/format/re2.f90 config/num_types.o
 io/format/map.o : io/format/map.f90 mesh/mesh.o 
 io/format/stl.o : io/format/stl.f90 config/num_types.o 
 io/format/probe.o : io/format/probe.f90 mesh/point.o config/num_types.o 
-io/format/dat_outputs.o : io/format/dat_outputs.f90 common/log.o math/math.o config/num_types.o 
 common/log.o : common/log.f90 config/num_types.o comm/comm.o 
 comm/comm.o : comm/comm.F90 
 mesh/curve.o : mesh/curve.f90 mesh/hex.o mesh/point.o common/structs.o common/utils.o adt/stack.o 
@@ -97,9 +96,8 @@ io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tri_mesh.o mesh/te
 io/stl_file.o : io/stl_file.f90 io/format/stl.o comm/comm.o comm/mpi_types.o mesh/point.o common/log.o mesh/tri_mesh.o io/generic_file.o config/num_types.o 
 io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o io/format/nmsh.o common/utils.o mesh/mesh.o comm/comm.o io/generic_file.o 
 io/chkp_file.o : io/chkp_file.f90 comm/mpi_types.o sem/interpolation.o mesh/mesh.o common/utils.o field/field.o config/num_types.o common/checkpoint.o field/field_series.o io/generic_file.o 
-io/dat_file.o : io/dat_file.f90 common/utils.o comm/mpi_types.o comm/comm.o io/generic_file.o common/log.o math/matrix.o math/vector.o io/format/probe.o 
 io/csv_file.o : io/csv_file.f90 common/utils.o comm/mpi_types.o comm/comm.o io/generic_file.o common/log.o math/matrix.o math/vector.o io/format/probe.o 
-io/file.o : io/file.f90 io/csv_file.o io/dat_file.o io/stl_file.o io/vtk_file.o io/fld_file_data.o io/fld_file.o io/re2_file.o io/rea_file.o io/map_file.o io/chkp_file.o io/nmsh_file.o io/generic_file.o common/utils.o 
+io/file.o : io/file.f90 io/csv_file.o io/stl_file.o io/vtk_file.o io/fld_file_data.o io/fld_file.o io/re2_file.o io/rea_file.o io/map_file.o io/chkp_file.o io/nmsh_file.o io/generic_file.o common/utils.o 
 io/output.o : io/output.f90 io/file.o config/num_types.o 
 io/fluid_output.o : io/fluid_output.f90 io/output.o device/device.o config/neko_config.o fluid/fluid_scheme.o 
 io/scalar_output.o : io/scalar_output.f90 io/output.o device/device.o config/neko_config.o scalar/scalar_scheme.o 
@@ -207,7 +205,7 @@ bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 
 bc/bcknd/device/device_inhom_dirichlet.o : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_dong_outflow.o : bc/bcknd/device/device_dong_outflow.F90 common/utils.o config/num_types.o 
 scalar/bcknd/device/scalar_residual_device.o : scalar/bcknd/device/scalar_residual_device.F90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o math/operators.o gs/gather_scatter.o scalar/scalar_residual.o 
-scalar/scalar_scheme.o : scalar/scalar_scheme.f90 field/field_registry.o common/log.o time_schemes/time_scheme_controller.o mesh/mesh.o bc/bc.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o scalar/source_scalar.o common/source.o config/num_types.o common/checkpoint.o common/parameters.o config/neko_config.o gs/gather_scatter.o 
+scalar/scalar_scheme.o : scalar/scalar_scheme.f90 bc/usr_inflow.o field/field_registry.o common/log.o time_schemes/time_scheme_controller.o mesh/mesh.o bc/bc.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o scalar/source_scalar.o common/source.o config/num_types.o common/checkpoint.o common/parameters.o config/neko_config.o gs/gather_scatter.o 
 scalar/scalar_pnpn.o : scalar/scalar_pnpn.f90 common/profiler.o fluid/advection.o common/log.o common/projection.o time_schemes/time_scheme_controller.o scalar/scalar_aux.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o bc/facet_normal.o field/field_series.o scalar/scalar_scheme.o common/rhs_maker_fctry.o math/ax_helm_fctry.o scalar/scalar_residual_fctry.o 
 scalar/scalar_aux.o : scalar/scalar_aux.f90 krylov/krylov.o config/num_types.o common/log.o 
 scalar/scalar_residual.o : scalar/scalar_residual.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o scalar/source_scalar.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
