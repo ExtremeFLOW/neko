@@ -223,6 +223,7 @@ contains
        else
           call C%scalar%set_source(trim(scalar_source_term))
        end if
+       call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
     !

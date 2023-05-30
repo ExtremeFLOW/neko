@@ -1,0 +1,26 @@
+&NEKO_CASE
+mesh_file= 'cylinder.nmsh'
+fluid_scheme='pnpn'
+lx = 8
+source_term = 'user_vector'
+initial_condition = 'user'
+scalar = .true.
+scalar_source_term = 'noforce'
+/
+&NEKO_PARAMETERS
+dt = 2d-3
+T_end = 250
+fluid_write_control = 'simulationtime'
+fluid_write_par = 1.0
+uinf= 0.0,0.0,0.0
+output_bdry = .true.
+pc_vel = 'jacobi'
+pc_prs = 'hsmg'
+abstol_vel = 1d-6
+abstol_prs = 1d-4
+bc_labels(1) = 'w'
+Pr = 1
+Re = 1e8
+proj_prs_dim = 0
+proj_vel_dim = 0
+/
