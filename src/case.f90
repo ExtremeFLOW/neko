@@ -255,6 +255,8 @@ contains
     if (.not. found) then
        call neko_error( &
          "Parameter numerics.polynomial_order missing in the case file")
+    else 
+      lx = lx + 1 ! add 1 to poly order
     end if
     call C%fluid%init(C%msh, lx, C%json_params)
 
