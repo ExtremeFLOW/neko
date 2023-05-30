@@ -77,7 +77,7 @@ contains
     call C%s%sample(t, tstep)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
-                                 C%fluid%p, C%fluid%c_Xh, C%params)
+                                 C%fluid%p, C%fluid%c_Xh, C%json_params)
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -112,7 +112,7 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')       
-          call C%scalar%step(t, tstep, C%ext_bdf)
+          call C%scalar%step(t, tstep, C%dt, C%ext_bdf)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7,A,E15.7)') &
                'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
@@ -125,7 +125,7 @@ contains
        call C%s%sample(t, tstep)
        
        call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%json_params)
        call neko_log%end_section()
        
        call neko_log%end()
