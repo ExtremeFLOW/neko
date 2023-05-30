@@ -105,6 +105,7 @@ contains
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
+    integer :: output_dir_len
    
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))
@@ -263,8 +264,14 @@ contains
     !
     call C%ext_bdf%init(C%params%time_order)
 
-    ! Append / to the output directory name
-    C%params%output_dir = trim(C%params%output_dir)//"/"
+    ! Append / to the output directory name if missing
+    output_dir_len = len(trim(C%params%output_dir))
+
+    if (output_dir_len .gt. 0) then
+       if (C%params%output_dir(output_dir_len:output_dir_len) .ne. "/") then
+          C%params%output_dir = trim(C%params%output_dir)//"/"
+       end if
+    end if
 
     !
     ! Save boundary markings for fluid (if requested)
