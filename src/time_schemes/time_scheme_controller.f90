@@ -74,9 +74,9 @@ module time_scheme_controller
      type(bdf_time_scheme_t) :: bdf
   
      !> Time coefficients for the advection operator
-     real(kind=rp) advection_coeffs(4)
+     real(kind=rp) :: advection_coeffs(4) = 0
      !> Time coefficients for the diffusion operator
-     real(kind=rp) diffusion_coeffs(4)
+     real(kind=rp) :: diffusion_coeffs(4) = 0
      !> Controls the actual order of the diffusion scheme,
      !!  e.g. 1 at the first time-step
      integer :: ndiff = 0
@@ -155,6 +155,9 @@ module time_scheme_controller
       adv_coeffs_d  => this%advection_coeffs_d, &
       diff_coeffs   => this%diffusion_coeffs, &
       diff_coeffs_d => this%diffusion_coeffs_d)
+   
+      adv_coeffs_old = adv_coeffs
+      diff_coeffs_old = diff_coeffs
     
       ! Increment the order of the scheme if below time_order
       ndiff = ndiff + 1

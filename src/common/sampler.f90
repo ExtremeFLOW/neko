@@ -239,9 +239,10 @@ contains
           else if ((samp%tstep_interval_list(i) .eq. 0) .and. &               
                (t .ge. (samp%nsample_list(i) * samp%T_list(i)))) then
              write_output = .true.            
-          else if ((samp%tstep_interval_list(i) .gt. 0) .and. &
-               (mod(tstep,samp%tstep_interval_list(i)) .eq. 0)) then
-             write_output = .true.
+          else if (samp%tstep_interval_list(i) .gt. 0) then
+             if (mod(tstep,samp%tstep_interval_list(i)) .eq. 0) then
+                write_output = .true.
+             end if
           end if
        end do
     end select
@@ -274,15 +275,16 @@ contains
              call neko_log%message(log_buf)
              call samp%output_list(i)%outp%sample(t)
              samp%nsample_list(i) = samp%nsample_list(i) + 1
-          else if ((samp%tstep_interval_list(i) .gt. 0) .and. &
-               (mod(tstep,samp%tstep_interval_list(i)) .eq. 0)) then
-             call neko_log%message('File name: '// &
-                  trim(samp%output_list(i)%outp%file_%file_type%fname))
-             write(log_buf, '(A,I6)') 'Output number:', &
-                  int(samp%nsample_list(i))
-             call neko_log%message(log_buf)
-             call samp%output_list(i)%outp%sample(t)
-             samp%nsample_list(i) = samp%nsample_list(i) + 1
+          else if (samp%tstep_interval_list(i) .gt. 0) then
+             if (mod(tstep,samp%tstep_interval_list(i)) .eq. 0) then
+                call neko_log%message('File name: '// &
+                     trim(samp%output_list(i)%outp%file_%file_type%fname))
+                write(log_buf, '(A,I6)') 'Output number:', &
+                     int(samp%nsample_list(i))
+                call neko_log%message(log_buf)
+                call samp%output_list(i)%outp%sample(t)
+                samp%nsample_list(i) = samp%nsample_list(i) + 1
+             end if
           end if
        end do
     class default
