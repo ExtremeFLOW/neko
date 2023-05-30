@@ -198,8 +198,7 @@ contains
     
   end subroutine tnsr3d
 
-  !> v = [C (x) B (x) A] u
-  ! @TODO: Clarify the docstring
+  !> Inplace tensor product \f$ v =(C \otimes B \otimes A) v \f$
   subroutine tnsr1_3d(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
