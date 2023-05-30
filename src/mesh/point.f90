@@ -48,17 +48,11 @@ module point
      procedure :: point_lt
      procedure :: point_gt
      procedure :: point_assign
-     procedure :: point_add
-     procedure :: point_substract
-     procedure :: point_scalar_mult
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
      generic :: operator(.gt.) => point_gt
      generic :: assignment(=) => point_assign
-     generic :: operator(+) => point_add
-     generic :: operator(-) => point_substract
-     generic :: operator(*) => point_scalar_mult
   end type point_t
 
   !> Defines a pointer to a point type
@@ -71,7 +65,7 @@ module point
   end interface point_t
 
 contains
-  
+
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates
   function point_init(x, id) result(this)
     real(kind=dp), dimension(3), intent(in) :: x
@@ -83,7 +77,7 @@ contains
     else
        call this%set_id(-1)
     end if
-    
+
     this%x = x
 
   end function point_init
@@ -107,7 +101,7 @@ contains
     this%x(3) = z
 
   end function point_init_xyz
-  
+
   !> Assigns coordinates @a x to a point
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
@@ -131,7 +125,7 @@ contains
     else
        res = .false.
     end if
-    
+
   end function point_eq
 
   !> Check if \f$ p_{1} \neq p_{2} \f$
@@ -148,9 +142,9 @@ contains
     else
        res = .false.
     end if
-    
+
   end function point_ne
-  
+
   !> Check if \f$ p_{1} < p_{2} \f$
   !! @note this only checks coordinates
   pure function point_lt(p1, p2) result(res)
@@ -166,7 +160,7 @@ contains
     else
        res = .false.
     end if
-    
+
   end function point_lt
 
   !> Check if \f$ p_{1} > p_{2} \f$
@@ -175,49 +169,13 @@ contains
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
     logical :: res
-    
+
     if (point_lt(p1, p2)) then
        res = .false.
     else
        res = .true.
     end if
 
-  end function point_gt  
-
-  !> Returns the addition of 2 points \f$ p_{1} + p_{2} \f$
-  function point_add(p1, p2) result(res)
-    class(point_t), intent(in) :: p1
-    class(point_t), intent(in) :: p2
-    type(point_t) :: res
-
-    res%x(1) = p1%x(1) + p2%x(1)
-    res%x(2) = p1%x(2) + p2%x(2)
-    res%x(3) = p1%x(3) + p2%x(3)
-
-  end function point_add
-
-  !> Returns the substraction of 2 points \f$ p_{1} + p_{2} \f$
-  function point_substract(p1, p2) result(res)
-    class(point_t), intent(in) :: p1
-    class(point_t), intent(in) :: p2
-    type(point_t) :: res
-
-    res%x(1) = p1%x(1) - p2%x(1)
-    res%x(2) = p1%x(2) - p2%x(2)
-    res%x(3) = p1%x(3) - p2%x(3)
-
- end function point_substract
-
-  !> Returns the multiplication of a point by a scalar \f$ a*p_{1} \f$
-  function point_scalar_mult(p1, a) result(res)
-    class(point_t), intent(in) :: p1
-    real(kind=rp), intent(in) :: a
-    type(point_t) :: res
-
-    res%x(1) = a * p1%x(1)
-    res%x(2) = a * p1%x(2)
-    res%x(3) = a * p1%x(3)
-
-  end function point_scalar_mult
+  end function point_gt
 
 end module point
