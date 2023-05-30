@@ -158,7 +158,8 @@ contains
     
   end subroutine tnsr2d_el
 
-
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
+  !! performed on a single element
   subroutine tnsr3d_el(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
@@ -173,7 +174,9 @@ contains
     end if
     
   end subroutine tnsr3d_el
- 
+
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
+  !!`nelv` elements
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
@@ -198,7 +201,7 @@ contains
     
   end subroutine tnsr3d
 
-  !> Inplace tensor product \f$ v =(C \otimes B \otimes A) v \f$
+  !> In place tensor product \f$ v =(C \otimes B \otimes A) v \f$
   subroutine tnsr1_3d(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
