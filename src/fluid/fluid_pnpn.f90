@@ -196,6 +196,13 @@ contains
     end associate
     
     call params%get('case.fluid.boundary_types', bc_labels, found) 
+    if (.not. found) then
+       if (allocated(bc_labels)) then
+          deallocate(bc_labels)
+       end if
+       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+       bc_labels = "not"
+    end if
 
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%dm_Xh)

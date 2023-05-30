@@ -296,6 +296,13 @@ contains
     ! Setup velocity boundary conditions
     !
     call params%get('case.fluid.boundary_types', bc_labels, found) 
+    if (.not. found) then
+       if (allocated(bc_labels)) then
+          deallocate(bc_labels)
+       end if
+       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+       bc_labels = "not"
+    end if
     
     call bc_list_init(this%bclst_vel)
 
@@ -529,6 +536,14 @@ contains
     ! Setup pressure boundary conditions
     !
     call params%get('case.fluid.boundary_types', bc_labels, found) 
+    
+    if (.not. found) then
+       if (allocated(bc_labels)) then
+          deallocate(bc_labels)
+       end if
+       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+       bc_labels = "not"
+    end if
 
     call bc_list_init(this%bclst_prs)
     call this%bc_prs%init(this%dm_Xh)
