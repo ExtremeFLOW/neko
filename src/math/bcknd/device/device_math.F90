@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -261,6 +261,16 @@ module device_math
   end interface
 
   interface
+     subroutine hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
+          bind(c, name='hip_vdot3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+       integer(c_int) :: n
+     end subroutine hip_vdot3
+  end interface
+    
+  interface
      real(c_rp) function hip_glsc3(a_d, b_d, c_d, n) &
           bind(c, name='hip_glsc3')
        use, intrinsic :: iso_c_binding
@@ -517,6 +527,16 @@ module device_math
      end subroutine cuda_addcol4
   end interface
 
+  interface
+     subroutine cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
+          bind(c, name='cuda_vdot3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+       integer(c_int) :: n
+     end subroutine cuda_vdot3
+  end interface
+  
   interface
      subroutine cuda_add2s2_many(y_d,x_d_d,a_d,j,n) &
           bind(c, name='cuda_add2s2_many')
@@ -799,6 +819,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d, d_d
        integer(c_int) :: n
      end subroutine opencl_addcol4
+  end interface
+
+  interface
+     subroutine opencl_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
+          bind(c, name='opencl_vdot3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+       integer(c_int) :: n
+     end subroutine opencl_vdot3
   end interface
 
   interface
@@ -1150,6 +1180,20 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_addcol4
+
+  subroutine device_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+    type(c_ptr) :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+#elif HAVE_CUDA
+    call cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+#elif HAVE_OPENCL
+    call opencl_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_vdot3
   
   function device_glsc3(a_d, b_d, c_d, n) result(res)
     type(c_ptr) :: a_d, b_d, c_d
@@ -1165,10 +1209,12 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsc3
   
   subroutine device_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
@@ -1185,10 +1231,13 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
+
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, h, j, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end subroutine device_glsc3_many
   
   subroutine device_add2s2_many(y_d,x_d_d,a_d,j,n)
@@ -1219,10 +1268,12 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsc2
 
   function device_glsum(a_d, n) result(res)
@@ -1239,10 +1290,12 @@ contains
     call neko_error('No device backend configured')
 #endif
 
+#ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
        call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
+#endif
   end function device_glsum
   
  

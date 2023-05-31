@@ -32,13 +32,25 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include "opgrad_kernel.h"
 
+extern "C" {
+  #include <common/neko_log.h>
+}
 
+template < const int >
+int tune_opgrad(void *ux, void *uy, void *uz, void *u,
+                void *dx, void *dy, void *dz,
+                void *drdx, void *dsdx, void *dtdx,
+                void *drdy, void *dsdy, void *dtdy,
+                void *drdz, void *dsdz, void *dtdz,
+                void *w3, int *nel, int *lx);
 
 extern "C" {
 
@@ -46,29 +58,57 @@ extern "C" {
    * Fortran wrapper for device hip convective terms
    */
   void hip_opgrad(void *ux, void *uy, void *uz, void *u,
-                  void *dx, void *dy, void *dz,
-                  void *drdx, void *dsdx, void *dtdx,
-                  void *drdy, void *dsdy, void *dtdy,
-                  void *drdz, void *dsdz, void *dtdz,
-                  void *w3, int *nel, int *lx) {
+                   void *dx, void *dy, void *dz,
+                   void *drdx, void *dsdx, void *dtdx,
+                   void *drdy, void *dsdy, void *dtdy,
+                   void *drdz, void *dsdz, void *dtdz,
+                   void *w3, int *nel, int *lx) {
+
+    static int autotune[19] = { 0 };
     
-    const dim3 nthrds(1024, 1, 1);
+    const dim3 nthrds_1d(1024, 1, 1);
+    const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
+
+#define CASE_1D(LX)                                                             \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME(opgrad_kernel_1d<real, LX, 1024> ),     \
+                        nblcks, nthrds_1d, 0, 0,                                \
+                        (real *) ux, (real *) uy, (real *) uz, (real *) u,      \
+                        (real *) dx, (real *) dy, (real *) dz,                  \
+                        (real *) drdx, (real *) dsdx, (real *) dtdx,            \
+                        (real *) drdy, (real *) dsdy, (real *) dtdy,            \
+                        (real *) drdz, (real *) dsdz, (real *) dtdz,            \
+                        (real *) w3);                                           \
+    HIP_CHECK(hipGetLastError());                                             
+
+
+#define CASE_KSTEP(LX)                                                          \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME(opgrad_kernel_kstep<real, LX> ),        \
+                        nblcks, nthrds_kstep, 0, 0,                             \
+                        (real *) ux, (real *) uy, (real *) uz, (real *) u,      \
+                        (real *) dx, (real *) dy, (real *) dz,                  \
+                        (real *) drdx, (real *) dsdx, (real *) dtdx,            \
+                        (real *) drdy, (real *) dsdy, (real *) dtdy,            \
+                        (real *) drdz, (real *) dsdz, (real *) dtdz,            \
+                        (real *) w3);                                           \
+    HIP_CHECK(hipGetLastError());                                             
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
-      hipLaunchKernelGGL(HIP_KERNEL_NAME( opgrad_kernel<real, LX, 1024> ),      \
-                         nblcks, nthrds, 0, 0,                                  \
-                         (real *) ux, (real *) uy, (real *) uz, (real *) u,     \
-                         (real *) dx, (real *) dy, (real *) dz,                 \
-                         (real *) drdx, (real *) dsdx, (real *) dtdx,           \
-                         (real *) drdy, (real *) dsdy, (real *) dtdy,           \
-                         (real *) drdz, (real *) dsdz, (real *) dtdz,           \
-                         (real *) w3);                                          \
-      HIP_CHECK(hipGetLastError());                                             \
+      if(autotune[LX] == 0 ) {                                                  \
+        autotune[LX]=tune_opgrad<LX>(ux, uy, uz, u,                             \
+                                     dx, dy, dz,                                \
+                                     drdx, dsdx, dtdx,                          \
+                                     drdy, dsdy, dtdy,                          \
+                                     drdz, dsdz, dtdz,                          \
+                                     w3, nel, lx);                              \
+      } else if (autotune[LX] == 1 ) {                                          \
+        CASE_1D(LX);                                                            \
+      } else if (autotune[LX] == 2 ) {                                          \
+        CASE_KSTEP(LX);                                                         \
+      }                                                                         \
       break
-
-
+    
     switch(*lx) {
       CASE(2);
       CASE(3);
@@ -94,4 +134,82 @@ extern "C" {
       }
     }
   } 
+}
+
+template < const int LX >
+int tune_opgrad(void *ux, void *uy, void *uz, void *u,
+                void *dx, void *dy, void *dz,
+                void *drdx, void *dsdx, void *dtdx,
+                void *drdy, void *dsdy, void *dtdy,
+                void *drdz, void *dsdz, void *dtdz,
+                void *w3, int *nel, int *lx) {
+  hipEvent_t start,stop;
+  float time1,time2;
+  int retval;
+
+  const dim3 nthrds_1d(1024, 1, 1);
+  const dim3 nthrds_kstep((*lx), (*lx), 1);
+  const dim3 nblcks((*nel), 1, 1);
+  
+  char *env_value = NULL;
+  char neko_log_buf[80];
+  
+  env_value=getenv("NEKO_AUTOTUNE");
+
+  sprintf(neko_log_buf, "Autotune opgrad (lx: %d)", *lx);
+  log_section(neko_log_buf);
+  
+  if(env_value) {
+    if( !strcmp(env_value,"1D") ) {
+      CASE_1D(LX);       
+      sprintf(neko_log_buf,"Set by env : 1 (1D)");
+      log_message(neko_log_buf);
+      log_end_section();
+      return 1;
+    } else if( !strcmp(env_value,"KSTEP") ) {
+      CASE_KSTEP(LX);
+      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
+      log_message(neko_log_buf);
+      log_end_section();
+      return 2;
+    } else {       
+       sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
+       log_error(neko_log_buf);
+    }
+  }
+
+  hipEventCreate(&start);
+  hipEventCreate(&stop);
+  
+  hipEventRecord(start,0);
+   
+  for(int i = 0; i < 100; i++) {
+    CASE_1D(LX);
+  }
+  
+  hipEventRecord(stop,0); 
+  hipEventSynchronize(stop);
+  hipEventElapsedTime(&time1, start, stop);
+  
+  hipEventRecord(start,0);
+   
+  for(int i = 0; i < 100; i++) {
+     CASE_KSTEP(LX);
+   }
+  
+  hipEventRecord(stop,0); 
+  hipEventSynchronize(stop);
+  hipEventElapsedTime(&time2, start, stop);
+  
+  if(time1 < time2) {
+     retval = 1;
+  } else {
+    retval = 2;
+  }
+
+  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
+          (retval > 1 ? "KSTEP" : "1D"));
+  log_message(neko_log_buf);
+  log_end_section();
+  return retval;
 }

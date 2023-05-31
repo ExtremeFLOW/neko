@@ -32,6 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <math/bcknd/device/cuda/math_kernel.h>
+
 /**
  * Kernel for back-substitution of x and update of p
  */
@@ -47,7 +49,10 @@ __global__ void gmres_part2_kernel(T  * __restrict__  w,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  __shared__ T buf1[1024];
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+  
+  __shared__ T shared[32];
   T tmp1 = 0.0;
 
   for (int i = idx; i < n; i+= str) {
@@ -58,21 +63,19 @@ __global__ void gmres_part2_kernel(T  * __restrict__  w,
     w[i] += tmp;
     tmp1 += w[i]*w[i]*mult[i];
   }
-  buf1[threadIdx.x] = tmp1;
+
+  tmp1 = reduce_warp<T>(tmp1);
+  if (lane == 0)
+    shared[wid] = tmp1;
   __syncthreads();
 
-  int i = blockDim.x>>1;
-  while (i != 0) {
-    if (threadIdx.x < i) {
-      buf1[threadIdx.x] += buf1[threadIdx.x + i];
-    }
-    __syncthreads();
-    i = i>>1;
-  }
- 
-  if (threadIdx.x == 0) {
-    buf_h1[blockIdx.x] = buf1[0];
-  }
+  tmp1 = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    tmp1 = reduce_warp<T>(tmp1);
+
+  if (threadIdx.x == 0)
+    buf_h1[blockIdx.x] = tmp1;
+
 }
 
 

@@ -22,6 +22,7 @@ bc/bcknd/device/hip/facet_normal.o : bc/bcknd/device/hip/facet_normal.hip bc/bck
 bc/bcknd/device/hip/inhom_dirichlet.o : bc/bcknd/device/hip/inhom_dirichlet.hip bc/bcknd/device/hip/inhom_dirichlet_kernel.h
 bc/bcknd/device/hip/dong_outflow.o : bc/bcknd/device/hip/dong_outflow.hip bc/bcknd/device/hip/dong_outflow_kernel.h
 common/bcknd/device/hip/rhs_maker.o : common/bcknd/device/hip/rhs_maker.hip common/bcknd/device/hip/sumab_kernel.h common/bcknd/device/hip/makeext_kernel.h common/bcknd/device/hip/makebdf_kernel.h
+common/bcknd/device/hip/projection.o : common/bcknd/device/hip/projection.hip common/bcknd/device/hip/projection_kernel.h
 fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h 
 scalar/bcknd/device/hip/scalar_residual.o : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.o : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
@@ -49,6 +50,7 @@ bc/bcknd/device/cuda/facet_normal.o : bc/bcknd/device/cuda/facet_normal.cu bc/bc
 bc/bcknd/device/cuda/inhom_dirichlet.o : bc/bcknd/device/cuda/inhom_dirichlet.cu bc/bcknd/device/cuda/inhom_dirichlet_kernel.h
 bc/bcknd/device/cuda/dong_outflow.o : bc/bcknd/device/cuda/dong_outflow.cu bc/bcknd/device/cuda/dong_outflow_kernel.h
 common/bcknd/device/cuda/rhs_maker.o : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h
+common/bcknd/device/cuda/projection.o : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h
 fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h 
 scalar/bcknd/device/cuda/scalar_residual.o : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
 sem/bcknd/device/cuda/coef.o : sem/bcknd/device/cuda/coef.cu sem/bcknd/device/cuda/coef_kernel.h

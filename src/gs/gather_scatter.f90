@@ -1124,6 +1124,7 @@ contains
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
     type(MPI_Status) :: status
+    type(MPI_Request) :: send_req, recv_req
     integer :: i, j, max_recv, src, dst, ierr, n_recv
     integer :: tmp, shared_gs_id
     integer :: nshared_unique
@@ -1154,40 +1155,67 @@ contains
     allocate(recv_flg(max_recv))
 
     !> @todo Consider switching to a crystal router...
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
-
-       call MPI_Sendrecv(send_buf, nshared_unique, MPI_INTEGER8, dst, 0, &
-            recv_buf, max_recv, MPI_INTEGER8, src, 0, NEKO_COMM, status, ierr)
-       call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
-
-       do j = 1, n_recv
-          shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
-          if (shared_flg(j) .eq. 0) then
-             !> @todo don't touch others data...
-             call gs%comm%recv_dof(src)%push(shared_gs_id)
-          end if
-       end do
-
-       if (gs%comm%recv_dof(src)%size() .gt. 0) then
-          call recv_pe%push(src)
+    do i = 1, size(gs%dofmap%msh%neigh_order)
+       src = modulo(pe_rank - gs%dofmap%msh%neigh_order(i) + pe_size, pe_size)
+       dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(i), pe_size)
+       
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Irecv(recv_buf, max_recv, MPI_INTEGER8, &
+               src, 0, NEKO_COMM, recv_req, ierr)
        end if
 
-       call MPI_Sendrecv(shared_flg, n_recv, MPI_INTEGER2, src, 1, &
-            recv_flg, max_recv, MPI_INTEGER2, dst, 1, NEKO_COMM, status, ierr)
-       call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
+       if (gs%dofmap%msh%neigh(dst)) then
+          call MPI_Isend(send_buf, nshared_unique, MPI_INTEGER8, &
+               dst, 0, NEKO_COMM, send_req, ierr)
+       end if
 
-       do j = 1, n_recv
-          if (recv_flg(j) .eq. 0) then
-             tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
-             !> @todo don't touch others data...
-             call gs%comm%send_dof(dst)%push(shared_gs_id)
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
+          
+          do j = 1, n_recv
+             shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
+             if (shared_flg(j) .eq. 0) then
+                !> @todo don't touch others data...
+                call gs%comm%recv_dof(src)%push(shared_gs_id)
+             end if
+          end do
+          
+          if (gs%comm%recv_dof(src)%size() .gt. 0) then
+             call recv_pe%push(src)
           end if
-       end do
+       end if
 
-       if (gs%comm%send_dof(dst)%size() .gt. 0) then
-          call send_pe%push(dst)
+       if (gs%dofmap%msh%neigh(dst)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
+          call MPI_Irecv(recv_flg, max_recv, MPI_INTEGER2, &
+               dst, 0, NEKO_COMM, recv_req, ierr)          
+       end if
+
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Isend(shared_flg, n_recv, MPI_INTEGER2, &
+               src, 0, NEKO_COMM, send_req, ierr)
+       end if
+
+       if (gs%dofmap%msh%neigh(dst)) then
+          call MPI_Wait(recv_req, status, ierr)
+          call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
+       
+          do j = 1, n_recv
+             if (recv_flg(j) .eq. 0) then
+                tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id) 
+                !> @todo don't touch others data...
+                call gs%comm%send_dof(dst)%push(shared_gs_id)
+             end if
+          end do
+
+          if (gs%comm%send_dof(dst)%size() .gt. 0) then
+             call send_pe%push(dst)
+          end if
+       end if
+
+       if (gs%dofmap%msh%neigh(src)) then
+          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
        end if
        
     end do
@@ -1242,30 +1270,35 @@ contains
     call profiler_start_region("gather-scatter")
     ! Gather shared dofs
     if (pe_size .gt. 1) then
-
+       call profiler_start_region("gs_nbrecv")
        call gs%comm%nbrecv()
-
+       call profiler_end_region
+       call profiler_start_region("gs_gather_shared")
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
-
-       call gs%comm%nbsend(gs%shared_gs, l)
+       call profiler_end_region
+       call profiler_start_region("gs_nbsend")
+       call gs%comm%nbsend(gs%shared_gs, l, gs%bcknd%gather_event)
+       call profiler_end_region
        
     end if
     
     ! Gather-scatter local dofs
-
+    call profiler_start_region("gs_local")
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false.)
-
+    call profiler_end_region
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
-
+       call profiler_start_region("gs_nbwait")
        call gs%comm%nbwait(gs%shared_gs, l, op)
-
+       call profiler_end_region
+       call profiler_start_region("gs_scatter_shared")
        call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
+       call profiler_end_region
     end if
 
     call profiler_end_region

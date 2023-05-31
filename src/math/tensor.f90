@@ -141,9 +141,8 @@ contains
     end do
     
   end subroutine trsp1
-!      computes
-!              T
-!     v = A u B
+
+  !> Computes \f$ v = A u B^T \f$
   subroutine tnsr2d_el(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
@@ -159,7 +158,8 @@ contains
     
   end subroutine tnsr2d_el
 
-
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
+  !! performed on a single element
   subroutine tnsr3d_el(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
@@ -174,7 +174,9 @@ contains
     end if
     
   end subroutine tnsr3d_el
- 
+
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
+  !!`nelv` elements
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
@@ -186,8 +188,7 @@ contains
        call tnsr3d_sx(v, nv, u, nu, A, Bt, Ct, nelv)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call tnsr3d_xsmm(v, nv, u, nu, A, Bt, Ct, nelv)
-    else if (NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1) then
-      ! The length nelv should not matter here. It is just a stapleholder
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        v_d = device_get_ptr(v)
        u_d = device_get_ptr(u)
        A_d = device_get_ptr(A)
@@ -200,7 +201,8 @@ contains
     
   end subroutine tnsr3d
 
-  subroutine tnsr1_3d(v, nv, nu, A, Bt, Ct, nelv) ! v = [C (x) B (x) A] u
+  !> In place tensor product \f$ v =(C \otimes B \otimes A) v \f$
+  subroutine tnsr1_3d(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
@@ -215,10 +217,10 @@ contains
 
   end subroutine tnsr1_3d
 
+  !> Maps and adds to S a tensor product form of the three functions H1,H2,H3.
+  !! This is a single element routine used for deforming geometry.
   subroutine addtnsr(s, h1, h2, h3, nx, ny, nz)
 
-    !Map and add to S a tensor product form of the three functions H1,H2,H3.
-    !This is a single element routine used for deforming geometry.
     integer, intent(in) :: nx, ny, nz
     real(kind=rp), intent(in) :: h1(nx), h2(ny), h3(nz) 
     real(kind=rp), intent(inout) ::  s(nx, ny, nz)

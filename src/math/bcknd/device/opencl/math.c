@@ -591,6 +591,39 @@ void opencl_addcol4(void *a, void *b, void *c, void *d, int *n) {
                                   0, NULL, NULL));  
 }
 
+/**
+ * Fortran wrapper for vdot3
+ * \f$ dot = u \cdot v \f$
+ */
+
+void opencl_vdot3(void *dot, void *u1, void *u2, void *u3,
+                  void *v1, void *v2, void *v3, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "vdot3_kernel", &err);
+  CL_CHECK(err);
+  
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dot));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u1));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &u2));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &u3));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &v1));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &v2));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &v3));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), n));
+  
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));  
+}
+
 /** @todo cleanup this mess */
 int red_s = 0;
 real *bufred = NULL;

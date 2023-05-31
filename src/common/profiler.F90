@@ -77,7 +77,7 @@ contains
 #elif HAVE_ROCTX
     call roctxStartRange(name)
 #elif CRAYPAT
-    call craypat_region_begin(name)
+ !   call craypat_region_begin(name)
 #endif
     
   end subroutine profiler_start_region
@@ -90,7 +90,7 @@ contains
 #elif HAVE_ROCTX
     call roctxRangePop
 #elif CRAYPAT
-    call craypat_region_end
+ !   call craypat_region_end
 #endif
     
   end subroutine profiler_end_region

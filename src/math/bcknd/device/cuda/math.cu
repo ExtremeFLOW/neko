@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,13 @@
 #include "math_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+  
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
    */
@@ -236,7 +240,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     invcol2_kernel<real><<<nblcks, nthrds>>>((real *) a,
-                                               (real *) b, *n);
+                                             (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -338,6 +342,23 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
+  /**
+   * Fortran wrapper for vdot3
+   * \f$ dot = u \cdot v \f$
+   */
+  void cuda_vdot3(void *dot, void *u1, void *u2, void *u3,
+                  void *v1, void *v2, void *v3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    vdot3_kernel<real><<<nblcks, nthrds>>>((real *) dot, (real *) u1,
+                                           (real *) u2, (real *) u3,
+                                           (real *) v1, (real *) v2,
+                                           (real *) v3, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
   /*
    * Reduction buffer
    */
@@ -371,8 +392,14 @@ extern "C" {
     reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
+
     return bufred[0];
   }
   
@@ -407,8 +434,13 @@ extern "C" {
     glsc3_reduce_kernel<<<(*j),1024>>> (bufred_d, nb, *j);
     CUDA_CHECK(cudaGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
+#else    
     CUDA_CHECK(cudaMemcpy(h, bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
   }
 
   /**
@@ -437,9 +469,14 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
-    
+
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
+#endif
 
     return bufred[0];
   }
@@ -468,9 +505,14 @@ extern "C" {
     reduce_kernel<real><<<1, 1024>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+#else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));    
-
+#endif
+    
     return bufred[0];
   }
 

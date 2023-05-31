@@ -89,7 +89,7 @@ contains
 
   end subroutine opchsign
   
-  !> \f$ a_i(j) = a_i(j) * c \f$
+  !> \f$ a_i(j) = a_i(j) * c(j) \f$
   subroutine opcolv(a1, a2, a3, c, gdim, n)
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3

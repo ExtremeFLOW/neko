@@ -463,13 +463,10 @@ contains
        type is (point_t)
           hdp = data
        end select
-    type is (tuple_i4_t)
+    class is (tuple_t)
        select type(hdp)
        type is (tuple_i4_t)
           hdp = data
-       end select
-    type is (tuple4_i4_t)
-       select type(hdp)
        type is (tuple4_i4_t)
           hdp = data
        end select
@@ -510,13 +507,10 @@ contains
        type is (point_t)
           data = hdp
        end select
-    type is (tuple_i4_t)
+    class is (tuple_t)
        select type(data)
        type is (tuple_i4_t)
           data = hdp
-       end select
-    type is (tuple4_i4_t)
-       select type(data)
        type is (tuple4_i4_t)
           data = hdp
        end select
@@ -559,15 +553,12 @@ contains
        type is (point_t)
           res = (kp .eq. key)
        end select
-    type is (tuple_i4_t)
+    class is (tuple_t)
        select type (key)
        type is (tuple_i4_t)
-          res = (kp .eq. key)
-       end select
-    type is (tuple4_i4_t)
-       select type (key)
+          res = (key .eq. kp)
        type is (tuple4_i4_t)
-          res = (kp .eq. key)
+          res = (key .eq. kp)
        end select
     type is (h_cptr_t)
        select type (key)
@@ -606,13 +597,10 @@ contains
        type is (point_t)
           kp = key
        end select
-    type is (tuple_i4_t)
+    class is (tuple_t)
        select type(kp)
        type is (tuple_i4_t)
           kp = key
-       end select
-    type is (tuple4_i4_t)
-       select type(kp)
        type is (tuple4_i4_t)
           kp = key
        end select
@@ -678,13 +666,10 @@ contains
        type is (point_t)
           data = hdp
        end select
-    type is (tuple_i4_t)
+    class is (tuple_t)
        select type (data)
        type is (tuple_i4_t)
           data = hdp
-       end select
-    type is (tuple4_i4_t)
-       select type (data)
        type is (tuple4_i4_t)
           data = hdp
        end select

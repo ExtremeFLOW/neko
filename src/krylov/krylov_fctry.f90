@@ -45,7 +45,7 @@ module krylov_fctry
   use krylov
   use neko_config
   implicit none
-  
+
 contains
 
   !> Initialize an interative Krylov solver
@@ -73,6 +73,9 @@ contains
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::ksp)
        else if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (NEKO_BCKND_OPENCL .eq. 1) then
+             call neko_error('PipeCG not supported for OpenCL')
+          end if
           allocate(pipecg_device_t::ksp)
        else
           allocate(pipecg_t::ksp)

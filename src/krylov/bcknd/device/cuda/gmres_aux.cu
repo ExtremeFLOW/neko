@@ -38,6 +38,8 @@
 #include <device/cuda/check.h>
 
 extern "C" {
+
+#include <math/bcknd/device/device_mpi_reduce.h>
   
   /**
    * @todo Make sure that this gets deleted at some point...
@@ -68,15 +70,17 @@ extern "C" {
                                                  (real *) mult,(real *) h,
                                                  gmres_bfd1, *j, *n);
     CUDA_CHECK(cudaGetLastError());
+    reduce_kernel<real><<<1, 1024>>>(gmres_bfd1, nb);
+    CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpy(gmres_bf1, gmres_bfd1, nb * sizeof(real),
+#ifdef HAVE_DEVICE_MPI
+    cudaDeviceSynchronize();
+    device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real));
+#else
+    
+    CUDA_CHECK(cudaMemcpy(gmres_bf1, gmres_bfd1, sizeof(real),
                           cudaMemcpyDeviceToHost));
-
-    real res1 = 0.0;
-    for (int i = 0; i < nb; i++) {
-      res1 += gmres_bf1[i];
-    }
-
-    return res1;
+#endif
+    return gmres_bf1[0];
   }
 }

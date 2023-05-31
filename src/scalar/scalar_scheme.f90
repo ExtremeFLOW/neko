@@ -33,7 +33,7 @@
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
 
 ! todo: module name
-module scalar
+module scalar_scheme
   use gather_scatter
   use neko_config
   use parameters
@@ -51,9 +51,10 @@ module scalar
   use precon_fctry
   use bc
   use mesh
-  use ext_bdf_scheme
+  use time_scheme_controller
   use logger
   use field_registry
+  use usr_inflow
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -69,6 +70,7 @@ module scalar
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
+     type(usr_inflow_t) :: user_bc   !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
      type(param_t), pointer :: params          !< Parameters          
@@ -80,15 +82,16 @@ module scalar
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
      procedure, pass(this) :: set_source => scalar_scheme_set_source
-     procedure(scalar_method_init), pass(this), deferred :: init
-     procedure(scalar_method_free), pass(this), deferred :: free
-     procedure(scalar_method_step), pass(this), deferred :: step
+     procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
+     procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
+     procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
+     procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
      generic :: scheme_init => scalar_scheme_init
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_method_init(this, msh, coef, gs, param)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, param)
        import scalar_scheme_t
        import param_t
        import coef_t
@@ -99,33 +102,36 @@ module scalar
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(param_t), target, intent(inout) :: param              
-     end subroutine scalar_method_init
+     end subroutine scalar_scheme_init_intrf
   end interface
 
   !> Abstract interface to dealocate a scalar formulation
   abstract interface
-     subroutine scalar_method_free(this)
+     subroutine scalar_scheme_free_intrf(this)
        import scalar_scheme_t
        class(scalar_scheme_t), intent(inout) :: this
-     end subroutine scalar_method_free
+     end subroutine scalar_scheme_free_intrf
   end interface
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_method_step(this, t, tstep, ext_bdf)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, ext_bdf)
        import scalar_scheme_t
-       import ext_bdf_scheme_t
+       import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
-       type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
-     end subroutine scalar_method_step
+       type(time_scheme_controller_t), intent(inout) :: ext_bdf
+     end subroutine scalar_scheme_step_intrf
   end interface
 
 contains
 
   !> Initialize boundary conditions
+  !! @param zones List of zones
+  !! @param bc_labels List of user specified bcs from the parameter file
+  !! currently dirichlet 'd=X' and 'user' supported
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
     class(scalar_scheme_t), intent(inout) :: this 
     type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
@@ -156,6 +162,11 @@ contains
             read(bc_label(3:), *) dir_value
             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
          end if
+       end if
+
+       !> Check if user bc on this zone
+       if (bc_label(1:4) .eq. 'user') then
+          call this%user_bc%mark_zone(zones(i))
        end if
     end do
 
@@ -205,7 +216,17 @@ contains
     !
     call bc_list_init(this%bclst)
 
+    call this%user_bc%init(this%dm_Xh)
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
+
+    call this%user_bc%mark_zone(msh%wall)
+    call this%user_bc%mark_zone(msh%inlet)
+    call this%user_bc%mark_zone(msh%outlet)
+    call this%user_bc%mark_zone(msh%outlet_normal)
+    call this%user_bc%mark_zone(msh%sympln)
+    call this%user_bc%finalize()
+    call this%user_bc%set_coef(this%c_Xh)
+    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
   
     ! todo parameter file ksp tol should be added
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
@@ -365,5 +386,16 @@ contains
     end if
 
   end subroutine scalar_scheme_set_source
-     
-end module scalar
+ 
+  !> Initialize a user defined scalar bc
+  !! @param usr_eval User specified boundary condition for scalar field
+  subroutine scalar_scheme_set_user_bc(this, usr_eval)
+    class(scalar_scheme_t), intent(inout) :: this
+    procedure(usr_scalar_bc_eval) :: usr_eval
+
+    call this%user_bc%set_scalar_bc(usr_eval)
+    
+  end subroutine scalar_scheme_set_user_bc
+
+    
+end module scalar_scheme

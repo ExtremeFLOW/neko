@@ -108,6 +108,7 @@ module user_intf
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
      procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
+     procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
@@ -135,6 +136,10 @@ contains
     
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
+    end if
+
+    if (.not. associated(u%scalar_user_bc)) then
+       u%scalar_user_bc => dummy_scalar_user_bc
     end if
     
     if (.not. associated(u%user_mesh_setup)) then
@@ -167,13 +172,14 @@ contains
   end subroutine dummy_user_ic
 
   !> Dummy user (fluid) forcing
-  subroutine dummy_user_f_vector(f)
-     class(source_t) :: f
+  subroutine dummy_user_f_vector(f, t)
+    class(source_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')    
   end subroutine dummy_user_f_vector
 
   !> Dummy user (fluid) forcing
-  subroutine dummy_user_f(u, v, w, j, k, l, e)
+  subroutine dummy_user_f(u, v, w, j, k, l, e, t)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
@@ -181,24 +187,43 @@ contains
     integer, intent(in) :: k
     integer, intent(in) :: l
     integer, intent(in) :: e
+    real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined forcing set')    
   end subroutine dummy_user_f
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_user_scalar_f_vector(f)
-     class(source_scalar_t) :: f
+  subroutine dummy_user_scalar_f_vector(f, t)
+    class(source_scalar_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')    
   end subroutine dummy_user_scalar_f_vector
 
   !> Dummy user (scalar) forcing
-  subroutine dummy_scalar_user_f(s, j, k, l, e)
+  subroutine dummy_scalar_user_f(s, j, k, l, e, t)
     real(kind=rp), intent(inout) :: s
     integer, intent(in) :: j
     integer, intent(in) :: k
     integer, intent(in) :: l
     integer, intent(in) :: e
+    real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined forcing set')    
   end subroutine dummy_scalar_user_f
+ 
+  !> Dummy user boundary condition for scalar
+  subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+    real(kind=rp), intent(inout) :: s
+    real(kind=rp), intent(in) :: x
+    real(kind=rp), intent(in) :: y
+    real(kind=rp), intent(in) :: z
+    real(kind=rp), intent(in) :: nx
+    real(kind=rp), intent(in) :: ny
+    real(kind=rp), intent(in) :: nz
+    integer, intent(in) :: ix
+    integer, intent(in) :: iy
+    integer, intent(in) :: iz
+    integer, intent(in) :: ie
+    call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')    
+  end subroutine dummy_scalar_user_bc
  
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(msh)

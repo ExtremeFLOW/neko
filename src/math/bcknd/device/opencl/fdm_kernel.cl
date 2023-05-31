@@ -32,118 +32,132 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-__kernel void fdm_do_fast_kernel(__global real * __restrict__ e,
-                                 __global real * __restrict__ r,
-                                 __global real * __restrict__ s,
-                                 __global real * __restrict__ d,
-                                   const int nl) {
-  __local real shwork[1024];
-  __local real shwork2[1024];
-  __local real A[256];
-  __local real Bt[256];
-  __local real Ct[256];
-
-  const int idx = get_local_id(0);
-  const int str = get_local_size(0);
-  const int el = get_group_id(0);
-  if( idx < nl*nl){
-     A[idx] = s[idx+nl*nl+el*nl*nl*3*2];
-    Bt[idx] = s[idx+2*nl*nl+el*nl*nl*3*2];
-    Ct[idx] = s[idx+2*2*nl*nl+el*nl*nl*3*2];
-  }    
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-
-  for (int ii = idx; ii< nl*nl*nl; ii += str){
-    real tmp = 0.0;
-    int j = ii/nl;
-    int i = ii - j*nl;
-    for( int l = 0; l < nl; l++){
-      tmp += A[i+l*nl]*r[l+nl*j+el*nl*nl*nl];
-    }
-    shwork[ii] = tmp;
-  }
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-  
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
-    real tmp = 0.0;
-    const int ik2 = i + k*nl*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Bt[l+j*nl]*shwork[l*nl+ik2];
-    }
-    shwork2[ijk] = tmp;
-  }
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-  
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
-    real tmp = 0.0;
-    const int ij2 = i + j*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Ct[l+k*nl]*shwork2[ij2 + l*nl*nl];
-    }
-    r[ijk+el*nl*nl*nl] = tmp*d[ijk+el*nl*nl*nl];
-  }
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-
-  if( idx < nl*nl){
-     A[idx] = s[idx+el*nl*nl*3*2];
-    Bt[idx] = s[idx+nl*nl+2*nl*nl+el*nl*nl*3*2];
-    Ct[idx] = s[idx+nl*nl+2*2*nl*nl+el*nl*nl*3*2];
-  }
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-
-  for (int ii = idx; ii< nl*nl*nl; ii += str){
-    real tmp = 0.0;
-    int j = ii/nl;
-    int i = ii - j*nl;
-    for( int l = 0; l < nl; l++){
-      tmp += A[i+l*nl]*r[l+nl*j+el*nl*nl*nl];
-    }
-    shwork[ii] = tmp;
-  }
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
-    real tmp = 0.0;
-    const int ik2 = i + k*nl*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Bt[l+j*nl]*shwork[l*nl+ik2];
-    }
-    shwork2[ijk] = tmp;
-  }
-
-  barrier(CLK_LOCAL_MEM_FENCE);
-
-  for (int ijk = idx; ijk< nl*nl*nl; ijk += str){
-    const int jk = ijk / nl;
-    const int i = ijk - jk * nl;
-    const int k = jk / nl;
-    const int j = jk - k * nl;
-    real tmp = 0.0;
-    const int ij2 = i + j*nl; 
-    for( int l = 0; l < nl; l++){
-      tmp += Ct[l+k*nl]*shwork2[ij2 + l*nl*nl];
-    }
-    e[ijk+el*nl*nl*nl] = tmp;
-  }
-
+#define DEFINE_FDM_DO_FAST_KERNEL(NL)                                          \
+__kernel void fdm_do_fast_kernel_nl##NL(__global real * __restrict__ e,        \
+                                        __global real * __restrict__ r,        \
+                                        __global real * __restrict__ s,        \
+                                        __global real * __restrict__ d) {      \
+                                                                               \
+  __local real shwork[NL*NL*NL];                                               \
+  __local real shwork2[NL*NL*NL];                                              \
+  __local real A[NL*NL];                                                       \
+  __local real Bt[NL*NL];                                                      \
+  __local real Ct[NL*NL];                                                      \
+                                                                               \
+  const int idx = get_local_id(0);                                             \
+  const int str = get_local_size(0);                                           \
+  const int el = get_group_id(0);                                              \
+  if( idx < NL*NL){                                                            \
+     A[idx] = s[idx+NL*NL+el*NL*NL*3*2];                                       \
+    Bt[idx] = s[idx+2*NL*NL+el*NL*NL*3*2];                                     \
+    Ct[idx] = s[idx+2*2*NL*NL+el*NL*NL*3*2];                                   \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int ii = idx; ii< NL*NL*NL; ii += str){                                 \
+    real tmp = 0.0;                                                            \
+    int j = ii/NL;                                                             \
+    int i = ii - j*NL;                                                         \
+    for( int l = 0; l < NL; l++){                                              \
+      tmp += A[i+l*NL]*r[l+NL*j+el*NL*NL*NL];                                  \
+    }                                                                          \
+    shwork[ii] = tmp;                                                          \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){                              \
+    const int jk = ijk / NL;                                                   \
+    const int i = ijk - jk * NL;                                               \
+    const int k = jk / NL;                                                     \
+    const int j = jk - k * NL;                                                 \
+    real tmp = 0.0;                                                            \
+    const int ik2 = i + k*NL*NL;                                               \
+    for( int l = 0; l < NL; l++){                                              \
+      tmp += Bt[l+j*NL]*shwork[l*NL+ik2];                                      \
+    }                                                                          \
+    shwork2[ijk] = tmp;                                                        \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){                              \
+    const int jk = ijk / NL;                                                   \
+    const int i = ijk - jk * NL;                                               \
+    const int k = jk / NL;                                                     \
+    const int j = jk - k * NL;                                                 \
+    real tmp = 0.0;                                                            \
+    const int ij2 = i + j*NL;                                                  \
+    for( int l = 0; l < NL; l++){                                              \
+      tmp += Ct[l+k*NL]*shwork2[ij2 + l*NL*NL];                                \
+    }                                                                          \
+    r[ijk+el*NL*NL*NL] = tmp*d[ijk+el*NL*NL*NL];                               \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  if( idx < NL*NL){                                                            \
+     A[idx] = s[idx+el*NL*NL*3*2];                                             \
+    Bt[idx] = s[idx+NL*NL+2*NL*NL+el*NL*NL*3*2];                               \
+    Ct[idx] = s[idx+NL*NL+2*2*NL*NL+el*NL*NL*3*2];                             \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int ii = idx; ii< NL*NL*NL; ii += str){                                 \
+    real tmp = 0.0;                                                            \
+    int j = ii/NL;                                                             \
+    int i = ii - j*NL;                                                         \
+    for( int l = 0; l < NL; l++){                                              \
+      tmp += A[i+l*NL]*r[l+NL*j+el*NL*NL*NL];                                  \
+    }                                                                          \
+    shwork[ii] = tmp;                                                          \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){                              \
+    const int jk = ijk / NL;                                                   \
+    const int i = ijk - jk * NL;                                               \
+    const int k = jk / NL;                                                     \
+    const int j = jk - k * NL;                                                 \
+    real tmp = 0.0;                                                            \
+    const int ik2 = i + k*NL*NL;                                               \
+    for( int l = 0; l < NL; l++){                                              \
+      tmp += Bt[l+j*NL]*shwork[l*NL+ik2];                                      \
+    }                                                                          \
+    shwork2[ijk] = tmp;                                                        \
+  }                                                                            \
+                                                                               \
+  barrier(CLK_LOCAL_MEM_FENCE);                                                \
+                                                                               \
+  for (int ijk = idx; ijk< NL*NL*NL; ijk += str){                              \
+    const int jk = ijk / NL;                                                   \
+    const int i = ijk - jk * NL;                                               \
+    const int k = jk / NL;                                                     \
+    const int j = jk - k * NL;                                                 \
+    real tmp = 0.0;                                                            \
+    const int ij2 = i + j*NL;                                                  \
+    for( int l = 0; l < NL; l++){                                              \
+      tmp += Ct[l+k*NL]*shwork2[ij2 + l*NL*NL];                                \
+    }                                                                          \
+    e[ijk+el*NL*NL*NL] = tmp;                                                  \
+  }                                                                            \
 }
 
+DEFINE_FDM_DO_FAST_KERNEL(2)
+DEFINE_FDM_DO_FAST_KERNEL(3)
+DEFINE_FDM_DO_FAST_KERNEL(4)
+DEFINE_FDM_DO_FAST_KERNEL(5)
+DEFINE_FDM_DO_FAST_KERNEL(6)
+DEFINE_FDM_DO_FAST_KERNEL(7)
+DEFINE_FDM_DO_FAST_KERNEL(8)
+DEFINE_FDM_DO_FAST_KERNEL(9)
+DEFINE_FDM_DO_FAST_KERNEL(10)
+DEFINE_FDM_DO_FAST_KERNEL(11)
+DEFINE_FDM_DO_FAST_KERNEL(12)
+DEFINE_FDM_DO_FAST_KERNEL(13)
+DEFINE_FDM_DO_FAST_KERNEL(14)
+DEFINE_FDM_DO_FAST_KERNEL(15)
 

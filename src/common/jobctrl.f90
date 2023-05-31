@@ -103,7 +103,7 @@ contains
     integer :: ierr
     character(len=LOG_SIZE) :: log_buf
 
-    jstop = signal_timeout()
+    jstop = (signal_timeout() .or. signal_usr(1))
 
     if (jstop) then
        write(log_buf, '(A)') '! stop at job limit >>>'

@@ -15,9 +15,9 @@ module user
   ! Register user-defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_usr_ic => user_ic
-    user%fluid_usr_if => user_bc
-    user%usr_chk => user_calc_quantities
+    user%fluid_user_ic => user_ic
+    user%fluid_user_if => user_bc
+    user%user_check => user_calc_quantities
     user%user_init_modules => user_initialize
   end subroutine user_setup
 

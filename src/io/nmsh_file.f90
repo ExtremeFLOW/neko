@@ -93,6 +93,11 @@ contains
 
     call MPI_File_open(NEKO_COMM, trim(this%fname), &
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
+      
+    if (ierr > 0) then
+       call neko_error('Could not open the mesh file ' // this%fname  // &
+                       'for reading!')
+    end if 
     call MPI_File_read_all(fh, nelv, 1, MPI_INTEGER, status, ierr)
     call MPI_File_read_all(fh, gdim, 1, MPI_INTEGER, status, ierr)
 
