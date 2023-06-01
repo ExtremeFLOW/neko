@@ -182,8 +182,6 @@ contains
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
 
-    call neko_log%message("Deallocating fields")
-
     ! Deallocate the fields
     call field_free(om1)
     call field_free(om2)
@@ -192,6 +190,5 @@ contains
     call field_free(w2)
 
   end subroutine user_finalize
-
 
 end module user
