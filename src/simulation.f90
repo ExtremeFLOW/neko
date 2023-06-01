@@ -135,8 +135,8 @@ contains
        call simulation_joblimit_chkp(C, t)
     end if
 
-    call C%usr%user_finalize(t, C%fluid%u, C%fluid%v, C%fluid%w,&
-                                 C%fluid%p, C%fluid%c_Xh, C%params)
+    call C%usr%user_finalize_modules(t, C%fluid%u, C%fluid%v, C%fluid%w, &
+         C%fluid%p, C%fluid%c_Xh, C%params)
 
     call neko_log%end_section('Normal end.')
     

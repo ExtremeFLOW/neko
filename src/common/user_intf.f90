@@ -120,7 +120,7 @@ module user_intf
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
-     procedure(userfinalize), nopass, pointer :: user_finalize => null()
+     procedure(userfinalize), nopass, pointer :: user_finalize_modules => null()
      procedure(source_term_pw), nopass, pointer :: fluid_user_f => null()
      procedure(source_term), nopass, pointer :: fluid_user_f_vector => null()
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
@@ -172,8 +172,8 @@ contains
        u%user_init_modules => dummy_user_init_no_modules
     end if
 
-    if (.not. associated(u%user_finalize)) then
-       u%user_finalize => dummy_user_dont_finalize
+    if (.not. associated(u%user_finalize_modules)) then
+       u%user_finalize_modules => dummy_user_dont_finalize
     end if
   end subroutine user_intf_init
 
