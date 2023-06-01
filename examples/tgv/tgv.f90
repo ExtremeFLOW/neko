@@ -20,6 +20,7 @@ contains
     user%user_mesh_setup => user_mesh_scale
     user%user_check => user_calc_quantities
     user%user_init_modules => user_initialize
+    user%user_finalize_modules => user_finalize
   end subroutine user_setup
 
   ! Rescale mesh
@@ -37,7 +38,7 @@ contains
        msh%points(i)%x(2) = (msh%points(i)%x(2) - d) / d * pi
        msh%points(i)%x(3) = (msh%points(i)%x(3) - d) / d * pi
     end do
-    
+
   end subroutine user_mesh_scale
 
   ! User-defined initial condition
@@ -60,7 +61,7 @@ contains
     end do
     p = 0._rp
   end subroutine user_ic
-  
+
   function tgv_ic(x, y, z) result(uvw)
     real(kind=rp) :: x, y, z
     real(kind=rp) :: ux, uy, uz
@@ -170,5 +171,27 @@ contains
          &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
     
   end subroutine user_calc_quantities
+
+  ! User-defined finalization routine called at the end of the simulation
+  subroutine user_finalize(t, u, v, w, p, coef, params)
+    real(kind=rp) :: t
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(coef_t), intent(inout) :: coef
+    type(param_t), intent(inout) :: params
+
+    call neko_log%message("Deallocating fields")
+
+    ! Deallocate the fields
+    call field_free(om1)
+    call field_free(om2)
+    call field_free(om3)
+    call field_free(w1)
+    call field_free(w2)
+
+  end subroutine user_finalize
+
 
 end module user
