@@ -134,7 +134,10 @@ contains
     if (.not. (C%params%write_at_end) .and. t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
     end if
-    
+
+    call C%usr%user_finalize(t, C%fluid%u, C%fluid%v, C%fluid%w,&
+                                 C%fluid%p, C%fluid%c_Xh, C%params)
+
     call neko_log%end_section('Normal end.')
     
   end subroutine neko_solve
