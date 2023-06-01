@@ -51,6 +51,7 @@ module point
      procedure :: point_add
      procedure :: point_substract
      procedure :: point_scalar_mult
+     procedure, pass(x) :: point_mat_mult
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
@@ -58,7 +59,7 @@ module point
      generic :: assignment(=) => point_assign
      generic :: operator(+) => point_add
      generic :: operator(-) => point_substract
-     generic :: operator(*) => point_scalar_mult
+     generic :: operator(*) => point_scalar_mult, point_mat_mult
   end type point_t
 
   !> Defines a pointer to a point type
@@ -209,15 +210,33 @@ contains
  end function point_substract
 
   !> Returns the multiplication of a point by a scalar \f$ a*p_{1} \f$
-  function point_scalar_mult(p1, a) result(res)
-    class(point_t), intent(in) :: p1
+  function point_scalar_mult(p, a) result(res)
+    class(point_t), intent(in) :: p
     real(kind=rp), intent(in) :: a
     type(point_t) :: res
 
-    res%x(1) = a * p1%x(1)
-    res%x(2) = a * p1%x(2)
-    res%x(3) = a * p1%x(3)
+    res%x(1) = a * p%x(1)
+    res%x(2) = a * p%x(2)
+    res%x(3) = a * p%x(3)
 
   end function point_scalar_mult
+
+  !> Computes matrix-vector product in \f$ \mathbb{R}^3 \f$: \f$ b = Ax \f$.
+  function point_mat_mult(A,x) result(b)
+    class(point_t), intent(in) :: x
+    real(kind=rp), intent(in) :: A(3,3)
+    type(point_t) :: b
+    integer :: i,j
+
+    b%x = 0.0_rp
+
+    do i = 1, 3
+       do j = 1, 3
+          b%x(i) = b%x(i) + A(i,j) * x%x(j)
+       end do
+    end do
+
+  end function point_mat_mult
+
 
 end module point
