@@ -106,12 +106,6 @@ module user
     integer :: ntot, i
     real(kind=rp) :: e1, e2
 
-    if (t .eq. (params%T_end - params%dt)) then
-       print *, "freeing the output file and vector!"
-       call file_free(output_file)
-       call vec%free
-    endif
-
     if (mod(tstep,50).ne.0) return
 
     ntot = u%dof%size()
