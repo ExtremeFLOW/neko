@@ -282,9 +282,6 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
-
-    print *, "HEYOOOOOOOOOO"
-
   end subroutine dummy_user_dont_finalize
 
 end module user_intf
