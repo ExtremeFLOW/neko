@@ -100,7 +100,7 @@ module user_intf
 
   !> Abstract interface for finalizating user variables
   abstract interface
-     subroutine userfinalize(t, u, v, w, p, coef, param)
+     subroutine user_finalize_modules(t, u, v, w, p, coef, param)
        import field_t
        import param_t
        import coef_t
@@ -112,7 +112,7 @@ module user_intf
        type(field_t), intent(inout) :: p
        type(coef_t), intent(inout) :: coef
        type(param_t), intent(inout) :: param
-     end subroutine userfinalize
+     end subroutine user_finalize_modules
   end interface
 
   type :: user_t
@@ -120,7 +120,7 @@ module user_intf
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
-     procedure(userfinalize), nopass, pointer :: user_finalize_modules => null()
+     procedure(user_finalize_modules), nopass, pointer :: user_final_modules => null()
      procedure(source_term_pw), nopass, pointer :: fluid_user_f => null()
      procedure(source_term), nopass, pointer :: fluid_user_f_vector => null()
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
@@ -172,8 +172,8 @@ contains
        u%user_init_modules => dummy_user_init_no_modules
     end if
 
-    if (.not. associated(u%user_finalize_modules)) then
-       u%user_finalize_modules => dummy_user_dont_finalize
+    if (.not. associated(u%user_final_modules)) then
+       u%user_final_modules => dummy_user_final_no_modules
     end if
   end subroutine user_intf_init
 
@@ -274,7 +274,7 @@ contains
     type(param_t), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
 
-  subroutine dummy_user_dont_finalize(t, u, v, w, p, coef, params)
+  subroutine dummy_user_final_no_modules(t, u, v, w, p, coef, params)
     real(kind=rp) :: t
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
@@ -282,6 +282,6 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
-  end subroutine dummy_user_dont_finalize
+  end subroutine dummy_user_final_no_modules
 
 end module user_intf
