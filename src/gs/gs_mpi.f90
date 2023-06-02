@@ -126,9 +126,12 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer ::  i, j, ierr, dst
+    integer ::  i, j, ierr, dst, thrdid
     integer , pointer :: sp(:)
 
+    thrdid = 0
+    !$ thrdid = omp_get_thread_num()
+    
     do i = 1, size(this%send_pe)
        dst = this%send_pe(i)
        sp => this%send_dof(dst)%array()
@@ -140,7 +143,7 @@ contains
        ! ICE with NAG.
        associate(send_data => this%send_buf(i)%data)
          call MPI_Isend(send_data, size(send_data), &
-              MPI_REAL_PRECISION, this%send_pe(i), omp_get_thread_num(), &
+              MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
               NEKO_COMM, this%send_buf(i)%request, ierr)
        end associate
        this%send_buf(i)%flag = .false.
@@ -150,15 +153,18 @@ contains
   !> Post non-blocking receive operations
   subroutine gs_nbrecv_mpi(this)
     class(gs_mpi_t), intent(inout) :: this
-    integer :: i, ierr
+    integer :: i, ierr, thrdid
 
+    thrdid = 0
+    !$ thrdid = omp_get_thread_num()
+    
     do i = 1, size(this%recv_pe)
        ! We should not need this extra associate block, ant it works
        ! great without it for GNU, Intel, NEC and Cray, but throws an
        ! ICE with NAG.
        associate(recv_data => this%recv_buf(i)%data)
          call MPI_IRecv(recv_data, size(recv_data), &
-              MPI_REAL_PRECISION, this%recv_pe(i), omp_get_thread_num(), &
+              MPI_REAL_PRECISION, this%recv_pe(i), thrdid, &
               NEKO_COMM, this%recv_buf(i)%request, ierr)
        end associate
        this%recv_buf(i)%flag = .false.
