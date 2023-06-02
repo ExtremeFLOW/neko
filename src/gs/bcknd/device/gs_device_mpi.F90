@@ -280,6 +280,7 @@ contains
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
     call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     ! Create a set of non-blocking streams
     allocate(this%stream(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
@@ -290,6 +291,7 @@ contains
     do i = 1, size(this%recv_pe)
        call device_event_create(this%event(i), 2)
     end do
+#endif
 
 
     this%nb_strtgy = 0
@@ -307,12 +309,14 @@ contains
     call this%free_order()
     call this%free_dofs()
 
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     if (allocated(this%stream)) then
        do i = 1, size(this%stream)
           call device_stream_destroy(this%stream(i))
        end do
        deallocate(this%stream)
     end if
+#endif
     
   end subroutine gs_device_mpi_free
 
