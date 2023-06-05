@@ -198,10 +198,6 @@ contains
        call system_cpu_name(log_buf(13:))
        call neko_log%message(log_buf)
 
-       write(log_buf, '(a)') 'CPU type  : '
-       call system_cpu_name(log_buf(13:))
-       call neko_log%message(log_buf)
-
        write(log_buf, '(a)') 'Bcknd type: '
        if (NEKO_BCKND_SX .eq. 1) then
           write(log_buf(13:), '(a)') 'SX-Aurora'
