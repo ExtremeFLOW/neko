@@ -98,11 +98,22 @@ module user_intf
      end subroutine usercheck
   end interface
 
+  !> Abstract interface for finalizating user variables
+  abstract interface
+     subroutine user_final_modules(t, param)
+       import param_t
+       import rp
+       real(kind=rp) :: t
+       type(param_t), intent(inout) :: param
+     end subroutine user_final_modules
+  end interface
+
   type :: user_t
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
+     procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
      procedure(source_term_pw), nopass, pointer :: fluid_user_f => null()
      procedure(source_term), nopass, pointer :: fluid_user_f_vector => null()
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
@@ -149,10 +160,14 @@ contains
     if (.not. associated(u%user_check)) then
        u%user_check => dummy_user_check
     end if
+
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
     end if
-    
+
+    if (.not. associated(u%user_finalize_modules)) then
+       u%user_finalize_modules => dummy_user_final_no_modules
+    end if
   end subroutine user_intf_init
 
   
@@ -251,5 +266,10 @@ contains
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
+
+  subroutine dummy_user_final_no_modules(t, params)
+    real(kind=rp) :: t
+    type(param_t), intent(inout) :: params
+  end subroutine dummy_user_final_no_modules
 
 end module user_intf
