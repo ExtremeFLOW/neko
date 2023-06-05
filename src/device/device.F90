@@ -38,6 +38,7 @@ module device
   use hip_intf
   use htable
   use utils
+  use dummy_device  
   use opencl_prgm_lib
   use, intrinsic :: iso_c_binding
   implicit none
