@@ -366,26 +366,29 @@ contains
        !OVERLAPPING Schwarz exchange and solve
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call device_col2(this%r_d, this%grids(3)%coef%mult_d, &
-                    this%grids(3)%dof%size())
+                        this%grids(3)%dof%size())
        !Restrict to middle level
-       call this%interp_fine_mid%map(this%e%x,this%r,this%msh%nelv,this%grids(2)%Xh)
+       call this%interp_fine_mid%map(this%e%x, this%r, &
+                                     this%msh%nelv, this%grids(2)%Xh)
        call gs_op(this%grids(2)%gs_h, this%e%x, &
                   this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_copy(this%r_d, r_d, n)
        call bc_list_apply_scalar(this%bclst_reg, r, n)
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call bc_list_apply_scalar(this%bclst_mg, this%w, this%grids(2)%dof%size())
+       call bc_list_apply_scalar(this%bclst_mg, this%w, &
+                                 this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve
-       call device_col2(this%w_d, this%grids(2)%coef%mult_d, this%grids(2)%dof%size())
+       call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
+                        this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%wf%x,this%w,this%msh%nelv,this%grids(1)%Xh)
+       call this%interp_mid_crs%map(this%wf%x, this%w,this%msh%nelv, &
+                                    this%grids(1)%Xh)
        !Crs solve
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call bc_list_apply_scalar(this%bclst_mg, this%w, this%grids(2)%dof%size())
+       call bc_list_apply_scalar(this%bclst_mg, this%w, &
+                                 this%grids(2)%dof%size())
 
-!       call device_event_record(this%hsmg_event, glb_cmd_queue)
- !      call device_stream_wait_event(aux_cmd_queue, this%hsmg_event, 0)
        !$omp parallel private(thrdid, nthrds)
 
        thrdid = 0
@@ -415,12 +418,13 @@ contains
 
        end if
        !$omp end parallel
-!!       call device_event_record(this%hsmg_event, glb_cmd_queue)
-!!       call device_stream_wait_event(aux_cmd_queue, this%hsmg_event, 0)
-       call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
+
+       call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
+                                    this%msh%nelv, this%grids(2)%Xh)
        call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
 
-       call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
+       call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
+                                     this%msh%nelv, this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
        call gs_op(this%grids(3)%gs_h, z, &
                   this%grids(3)%dof%size(), GS_OP_ADD, this%gs_event)
@@ -434,11 +438,12 @@ contains
        call this%grids(3)%schwarz%compute(z, this%r)      
        ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call col2(this%r, this%grids(3)%coef%mult, &
-                    this%grids(3)%dof%size())
+                 this%grids(3)%dof%size())
        !Restrict to middle level
-       call this%interp_fine_mid%map(this%w,this%r,this%msh%nelv,this%grids(2)%Xh)
+       call this%interp_fine_mid%map(this%w, this%r, &
+                                     this%msh%nelv, this%grids(2)%Xh)
        call gs_op(this%grids(2)%gs_h, this%w, &
-                         this%grids(2)%dof%size(), GS_OP_ADD)
+                  this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
        call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
@@ -461,13 +466,15 @@ contains
                                  this%grids(1)%dof%size())
 
 
-       call this%interp_mid_crs%map(this%w,this%grids(1)%e%x,this%msh%nelv,this%grids(2)%Xh)
+       call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
+                                    this%msh%nelv, this%grids(2)%Xh)
        call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%size())
 
-       call this%interp_fine_mid%map(this%w,this%grids(2)%e%x,this%msh%nelv,this%grids(3)%Xh)
+       call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
+                                     this%msh%nelv, this%grids(3)%Xh)
        call add2(z, this%w, this%grids(3)%dof%size())
        call gs_op(this%grids(3)%gs_h, z, &
-                         this%grids(3)%dof%size(), GS_OP_ADD)
+                  this%grids(3)%dof%size(), GS_OP_ADD)
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if
