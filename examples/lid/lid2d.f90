@@ -19,7 +19,7 @@ module user
     user%fluid_user_if => user_bc
     user%user_check => user_calc_quantities
     user%user_init_modules => user_initialize
-    user%user_final_modules => user_finalize
+    user%user_finalize_modules => user_finalize
   end subroutine user_setup
 
   ! user-defined boundary condition
