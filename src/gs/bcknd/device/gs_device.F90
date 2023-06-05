@@ -40,7 +40,7 @@ module gs_device
   use, intrinsic :: iso_c_binding
   implicit none
   private
-
+  
   !> Gather-scatter backend for offloading devices
   type, public, extends(gs_bcknd_t) :: gs_device_t
      integer, allocatable :: local_blk_off(:)    !< Local block offset
@@ -158,6 +158,10 @@ contains
     this%shared_blk_off_d = C_NULL_PTR
 
     this%shared_on_host = .true.
+
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+    call device_event_create(this%gather_event)
+#endif
       
   end subroutine gs_device_init
 
@@ -203,6 +207,12 @@ contains
 
     this%nlocal = 0
     this%nshared = 0
+
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+    if (c_associated(this%gather_event)) then
+       call device_event_destroy(this%gather_event)
+    end if
+#endif
     
   end subroutine gs_device_free
 
@@ -309,16 +319,17 @@ contains
 #ifdef HAVE_HIP   
          call hip_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                 nb, b_d, bo_d, op)
+         call device_event_record(this%gather_event, C_NULL_PTR)
 #elif HAVE_CUDA
          call cuda_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op)
+         call device_event_record(this%gather_event, C_NULL_PTR)
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
                                    nb, b_d, bo_d, op)
 #else
          call neko_error('No device backend configured')
 #endif
-
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
                call device_memcpy(v, v_d, m, DEVICE_TO_HOST)

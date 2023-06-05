@@ -25,7 +25,7 @@ AC_DEFUN([AX_CUDA],[
 	   	   CPPFLAGS_SAVED="$CPPFLAGS"
 		   LDFLAGS_SAVED="$LDFLAGS"
 		   CPPFLAGS="$CUDA_CPPFLAGS $CPPFLAGS"
-		   LDFLAGS="$CUDA_LDFLAGS $LDFLAGS"
+		   LDFLAGS="$CUDA_LDFLAGS"
 		   export CPPFLAGS
 		   export LDFLAGS
 		   AC_PATH_PROG(NVCC, nvcc, "no")
@@ -34,9 +34,11 @@ AC_DEFUN([AX_CUDA],[
                 AS_IF([test "$CUDA_CFLAGS"],[],[CUDA_CFLAGS="-O3"])
 		
 		_CC=$CC
+                _CFLAGS=$CFLAGS
 		_LIBS=$LIBS
 		AC_LANG_PUSH([C])
 		CC=$NVCC
+                CFLAGS=""
 		LIBS=""
 
 		AC_CHECK_LIB(cudart, cudaFree,
@@ -46,10 +48,12 @@ AC_DEFUN([AX_CUDA],[
                    cuda_bcknd="1"
 		   AC_DEFINE(HAVE_CUDA,1,[Define if you have CUDA.])
 		   LIBS="$CUDA_LIBS $_LIBS"
+		   LDFLAGS="$CUDA_LDFLAGS $LDFLAGS_SAVED"
 		else
 		   AC_MSG_ERROR([CUDA not found])
 		fi
 	        CC=$_CC
+                CFLAGS=$_CFLAGS
 		AC_LANG_POP([C])
 	fi
 	AC_SUBST(cuda_bcknd)	

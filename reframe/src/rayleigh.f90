@@ -63,8 +63,9 @@ contains
 
 
   !> Forcing
-  subroutine forcing(f)
-    class(source_t) :: f
+  subroutine forcing(f, t)
+    class(source_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
     integer :: i
     type(field_t), pointer :: u, v, w, s
     real(kind=rp) :: rapr, ta2pr

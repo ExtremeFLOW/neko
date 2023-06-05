@@ -58,7 +58,6 @@ module blasius
      procedure, pass(this) :: apply_vector_dev => blasius_apply_vector_dev
      procedure, pass(this) :: set_params => blasius_set_params
      procedure, pass(this) :: set_coef => blasius_set_coef
-     final :: blasius_free
   end type blasius_t
 
 contains

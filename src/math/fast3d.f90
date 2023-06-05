@@ -69,22 +69,49 @@ module fast3d
 
 contains
 
-  !> Evaluates the derivative based on all points in the stencils  
+  !> Compute finite-difference stencil weights for evaluating derivatives up to
+  !! order \f$m\f$ at a point.
   !! @details
-  !! This set of routines comes from the appendix of                       
-  !! A Practical Guide to Pseudospectral Methods, B. Fornberg              
-  !! Cambridge Univ. Press, 1996.
-  subroutine fd_weights_full(xx, x, n, m, c)
+  !! This routine comes from the Appendix C of
+  !! "A Practical Guide to Pseudospectral Methods" by B. Fornberg,
+  !! Cambridge University Press, 1996.
+  !!
+  !! Given gridpoints \f$ x_0, x_1, \dots x_n \f$ and some point \f$\xi\f$
+  !! (not necessarily a grid point!) find weights \f$ c_{j, k} \f$, such that
+  !! the expansions 
+  !! \f$ \frac{d^k f}{d x^k}|_{x=\xi} \approx \sum_{j=0}^n c_{j,k} f(x_j)\f$,
+  !! \f$k=0, \dots m\f$ are optimal.
+  !! Note that finite-difference stencils are exactly such type of expansions.
+  !! For the derivation of the algorithm, refer to 3.1 in the reference above.
+  !!
+  !! @note - Setting \f$m=0\f$ makes this a polynomial interpolation routine.
+  !! It is the fastest such routine possible for a single interpolation point,
+  !! according to the above reference.
+  !! @note - The name `_full` refers to the fact that we use the values \f$f(x_j)\f$
+  !! at all available nodes \f$x\f$ to construct the expansion. So we always
+  !! get the finite difference stencil of maximum order possible.
+  !!
+  !! @warning The calculation of the wieghts is numerically stable.
+  !! But applying the weights to a function can be ill-conditioned in the case
+  !! of high-order derivatives. 
+  !!
+  !! @param xi Point at which the approximations are to be accurate
+  !! @param x The coordinates for the grid points
+  !! @param[in] n The size of `x` is `n + 1`
+  !! @param[in] m Highest order of derivative to be approximated
+  !! @param c The stencil weights. Row j corresponds to weight of \f$f(x_j)\f$
+  !! and column k to the kth derivative
+  subroutine fd_weights_full(xi, x, n, m, c)
     integer, intent(in) :: n
     integer, intent(in) :: m
     real(kind=rp), intent(in) :: x(0:n)
     real(kind=rp), intent(out) :: c(0:n,0:m)
-    real(kind=rp), intent(in) :: xx
+    real(kind=rp), intent(in) :: xi
     real(kind=rp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 
     c1 = 1d0
-    c4 = x(0) - xx
+    c4 = x(0) - xi
 
     do k = 0, m
        do j = 0, n
@@ -98,7 +125,7 @@ contains
        mn = min(i,m)
        c2 = 1d0  
        c5 = c4                                                       
-       c4 = x(i) - xx
+       c4 = x(i) - xi
        do j = 0, i - 1                                                  
           c3 = x(i) - x(j)
           c2 = c2 * c3                                                    
@@ -190,21 +217,42 @@ contains
     end do
   end subroutine semhat
 
-  !> Computes interpolation between points zf, zc
-  !! The interpolation vectors are stored in jh, jht
-  !! nf, nc is the number of points in the spaces
-  !! derivate specifies if we want the derivative interpolation instead
-  !! derivate = 1 gives the first derivative etc.
-  subroutine setup_intp(jh, jht, zf, zc, nf, nc, derivate)
-    integer, intent(in) :: nf, nc, derivate
-    real(kind=rp), intent(inout) :: jh(nf,nc), zf(nf), zc(nc), jht(nc,nf)
-    real(kind=rp) ::  w(nc,0:derivate)
+  !> Compute interpolation weights for points `z_to` using values at points
+  !! `z_from`.
+  !! @details 
+  !! This is essentially a wrapper for calling fd_weights_full() for several
+  !! points. For each point in `z_to`, we get a set of interpolation weights of
+  !! size `n_from`.
+  !! The result is thus a matrix of weights, each row corresponding to a point
+  !! in `z_to` and each column the weight of a point in `z_from`.
+  !!
+  !! This routine is used for interpolating between elements of different
+  !! polynomial order. In other words, belonging to different 
+  !! \ref space::space_t . The points are then GL, GLL, etc., depending on the
+  !! space.
+  !!
+  !! @param jh Matrix of the interpolation weights.
+  !! @param jht Same as `jh` but transposed.
+  !! @param nf Number of points in `z_to`.
+  !! @param nc Number of points in `z_from`.
+  !! @derivative Specifies if we want the derivative interpolation instead, e.g.
+  !! `derivative = 1` refers to the first derivative etc.
+  subroutine setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)
+    implicit none
+    integer, intent(in) :: n_to, n_from, derivative
+    real(kind=rp), intent(inout) :: jh(n_to, n_from), jht(n_from, n_to)
+    real(kind=rp), intent(inout) :: z_to(n_to), z_from(n_from)
+    real(kind=rp) ::  w(n_from, 0:derivative)
     integer :: i, j
-    do i = 1, nf
-       call fd_weights_full(zf(i), zc, nc-1, derivate, w)
-       do j = 1, nc
-          jh(i,j) = w(j, derivate)
-          jht(j,i) = w(j, derivate)
+    do i = 1, n_to
+       ! This will assign w the weights for interpolating to point
+       ! zf(i) values at points zc
+       call fd_weights_full(z_to(i), z_from, n_from-1, derivative, w)
+
+       ! store each of the weights in the corresponding row/column
+       do j = 1, n_from
+          jh(i,j) = w(j, derivative)
+          jht(j,i) = w(j, derivative)
        end do
     end do
   end subroutine setup_intp

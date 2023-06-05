@@ -171,6 +171,62 @@ module hip_intf
      end function hipStreamSynchronize
   end interface
   
+  interface 
+     integer (c_int) function hipStreamWaitEvent(stream, event, flags) &
+          bind(c, name='hipStreamWaitEvent')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: stream, event
+       integer(c_int), value :: flags
+     end function hipStreamWaitEvent
+  end interface
+
+  interface
+     integer (c_int) function hipEventCreate(event) &
+          bind(c, name='hipEventCreate')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: event
+     end function hipEventCreate
+  end interface
+
+  interface
+     integer (c_int) function hipEventDestroy(event) &
+          bind(c, name='hipEventDestroy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function hipEventDestroy
+  end interface
+
+  interface
+     integer (c_int) function hipEventCreateWithFlags(event, flags) &
+          bind(c, name='hipEventCreateWithFlags')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: event
+       integer(c_int), value :: flags
+     end function hipEventCreateWithFlags
+  end interface
+
+  interface
+     integer (c_int) function hipEventRecord(event, stream) &
+          bind(c, name='hipEventRecord')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event, stream
+     end function hipEventRecord
+  end interface
+
+  interface 
+     integer (c_int) function hipEventSynchronize(event) &
+          bind(c, name='hipEventSynchronize')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: event
+     end function hipEventSynchronize
+  end interface
+  
 contains
 
   subroutine hip_device_name(name)

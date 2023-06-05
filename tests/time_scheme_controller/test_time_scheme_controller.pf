@@ -1,0 +1,308 @@
+!> This is a test for the original Nek5000 logic, where for BDF1 the advection
+!! scheme order still advances to order 3, and uses AB schemes.
+!! Currently not used!!
+@test
+subroutine test_diff1_adv3()
+  use pfunit
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use ext_time_scheme, only : ext_time_scheme_t
+  use ab_time_scheme, only : ab_time_scheme_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use num_types, only : rp
+  implicit none
+  
+  type(bdf_time_scheme_t) bdf
+  type(ab_time_scheme_t) ab
+  type(ext_time_scheme_t) ext
+  type(time_scheme_controller_t) ctrl
+  real(kind=rp) :: dt(10), x
+  real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
+  
+  ! Equal timesteps
+  dt = 1.00_rp
+
+  ! BDF = 1
+  ! First time step, bdf1 and ext1
+  call ctrl%init(1)
+  ! Override advection to 3rd order!
+  ctrl%advection_time_order = 3
+  call ctrl%set_coeffs(dt)
+  call bdf%compute_coeffs(diff_coeffs, dt, 1)
+  call ext%compute_coeffs(adv_coeffs, dt, 1)
+  
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 1)
+  @assertEqual(ctrl%ndiff, 1)
+
+  ! Second time step, bdf1 and ab2
+  call ab%compute_coeffs(adv_coeffs, dt, 2)
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 2)
+  @assertEqual(ctrl%ndiff, 1)
+
+  ! Third time step, bdf1 and ab3
+  call ab%compute_coeffs(adv_coeffs, dt, 3)
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 3)
+  @assertEqual(ctrl%ndiff, 1)
+end subroutine test_diff1_adv3
+
+ !> This is a test for the original Nek5000 logic, where for BDF1 the advection
+ !! scheme order still advances to order 3, and uses AB schemes.
+ !! Currently not used!!
+@test
+subroutine test_bdf1()
+  use pfunit
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use ext_time_scheme, only : ext_time_scheme_t
+  use ab_time_scheme, only : ab_time_scheme_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use num_types, only : rp
+  implicit none
+  
+  type(bdf_time_scheme_t) bdf
+  type(ab_time_scheme_t) ab
+  type(ext_time_scheme_t) ext
+  type(time_scheme_controller_t) ctrl
+  real(kind=rp) :: dt(10), x
+  real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
+  
+  ! Equal timesteps
+  dt = 1.00_rp
+
+  ! BDF = 1
+  ! First time step, bdf1 and ext1
+  call ctrl%init(1)
+  call ctrl%set_coeffs(dt)
+  call bdf%compute_coeffs(diff_coeffs, dt, 1)
+  call ext%compute_coeffs(adv_coeffs, dt, 1)
+  
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 1)
+  @assertEqual(ctrl%ndiff, 1)
+
+  ! Second time step, nothing should change
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 1)
+  @assertEqual(ctrl%ndiff, 1)
+
+  ! Third time step, nothing should change
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 1)
+  @assertEqual(ctrl%ndiff, 1)
+end subroutine test_bdf1
+
+@test
+subroutine test_bdf2()
+  use pfunit
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use ext_time_scheme, only : ext_time_scheme_t
+  use ab_time_scheme, only : ab_time_scheme_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use num_types, only : rp
+  implicit none
+  
+  type(bdf_time_scheme_t) bdf
+  type(ab_time_scheme_t) ab
+  type(ext_time_scheme_t) ext
+  type(time_scheme_controller_t) ctrl
+  real(kind=rp) :: dt(10), x
+  real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
+  
+  ! Equal timesteps
+  dt = 1.00_rp
+
+  ! BDF = 2
+  ! First time step, bdf1 and ext1
+  call ctrl%init(2)
+  call ctrl%set_coeffs(dt)
+  call bdf%compute_coeffs(diff_coeffs, dt, 1)
+  call ext%compute_coeffs(adv_coeffs, dt, 1)
+  
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 1)
+  @assertEqual(ctrl%ndiff, 1)
+
+  ! Second time step, bdf2 and ext2
+  call bdf%compute_coeffs(diff_coeffs, dt, 2)
+  call ext%compute_coeffs(adv_coeffs, dt, 2)
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 2)
+  @assertEqual(ctrl%ndiff, 2)
+
+  ! Third time step, bdf2 and modified EXT
+  call ext%compute_modified_coeffs(adv_coeffs, dt)
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 3)
+  @assertEqual(ctrl%ndiff, 2)
+  
+end subroutine test_bdf2
+
+@test
+subroutine test_bdf3()
+  use pfunit
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use ext_time_scheme, only : ext_time_scheme_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use num_types, only : rp
+  implicit none
+  
+  type(bdf_time_scheme_t) bdf
+  type(ext_time_scheme_t) ext
+  type(time_scheme_controller_t) ctrl
+  real(kind=rp) :: dt(10), x
+  real(kind=rp) :: diff_coeffs(4), adv_coeffs(4)
+  
+  ! Equal timesteps
+  dt = 1.00_rp
+
+  ! BDF = 2
+  ! First time step, bdf1 and ext1
+  call ctrl%init(3)
+  call ctrl%set_coeffs(dt)
+  call bdf%compute_coeffs(diff_coeffs, dt, 1)
+  call ext%compute_coeffs(adv_coeffs, dt, 1)
+  
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 1)
+  @assertEqual(ctrl%ndiff, 1)
+
+  ! Second time step, bdf2 and ext2
+  call bdf%compute_coeffs(diff_coeffs, dt, 2)
+  call ext%compute_coeffs(adv_coeffs, dt, 2)
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 2)
+  @assertEqual(ctrl%ndiff, 2)
+
+  ! Third time step, bdf2 and ext3
+  call bdf%compute_coeffs(diff_coeffs, dt, 3)
+  call ext%compute_coeffs(adv_coeffs, dt, 3)
+  call ctrl%set_coeffs(dt)
+
+  @assertEqual(ctrl%diffusion_coeffs(1), diff_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(2), diff_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(3), diff_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%diffusion_coeffs(4), diff_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%advection_coeffs(1), adv_coeffs(1), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(2), adv_coeffs(2), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(3), adv_coeffs(3), tolerance=1e-6_rp)
+  @assertEqual(ctrl%advection_coeffs(4), adv_coeffs(4), tolerance=1e-6_rp)
+
+  @assertEqual(ctrl%nadv, 3)
+  @assertEqual(ctrl%ndiff, 3)
+  
+end subroutine test_bdf3

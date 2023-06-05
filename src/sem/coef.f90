@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -62,14 +62,14 @@ module coefs
      real(kind=rp), allocatable :: G23(:,:,:,:)
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
-     ! generate mapping data between element and reference element 
+     !> generate mapping data between element and reference element 
      !! \f$ dx/dr, dy/dr, dz/dr \f$
      !! \f$ dx/ds, dy/ds, dz/ds \f$
      !! \f$ dx/dt, dy/dt, dz/dt \f$
      real(kind=rp), allocatable :: dxdr(:,:,:,:), dydr(:,:,:,:), dzdr(:,:,:,:) 
      real(kind=rp), allocatable :: dxds(:,:,:,:), dyds(:,:,:,:), dzds(:,:,:,:)
      real(kind=rp), allocatable :: dxdt(:,:,:,:), dydt(:,:,:,:), dzdt(:,:,:,:) 
-     !< \f$ dr/dx, dr/dy, dr/dz \f$
+     !> \f$ dr/dx, dr/dy, dr/dz \f$
      !! \f$ ds/dx, ds/dy, ds/dz \f$
      !! \f$ dt/dx, dt/dy, dt/dz \f$
      real(kind=rp), allocatable :: drdx(:,:,:,:), drdy(:,:,:,:), drdz(:,:,:,:) 
@@ -1079,6 +1079,7 @@ contains
     end do
     !$omp end do
     !$omp do
+
     do i = 1, n
        dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
                        + b(i, 1, 1, 1) * b(i, 1, 1, 1) &

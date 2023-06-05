@@ -157,7 +157,7 @@ class NekoTestBase(rfm.RegressionTest):
     valid_prog_environs = ['PrgEnv-cray', 'PrgEnv-gnu', 'PrgEnv-intel','default']
     neko_build = fixture(BuildNeko, scope='environment')
 
-    scheme = parameter(os.getenv('NEKO_SCHEME', 'plan4,pnpn').split(','))
+    scheme = parameter(os.getenv('NEKO_SCHEME', 'pnpn').split(','))
     case = variable(str)
 
     mesh_file = variable(str, value='')

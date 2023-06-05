@@ -39,6 +39,8 @@ module case
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
+  use fluid_stats_output
+  use field_list_output
   use parameters
   use mpi_types
   use mesh_field
@@ -51,7 +53,7 @@ module case
   use utils
   use mesh
   use comm
-  use ext_bdf_scheme
+  use time_scheme_controller
   use logger
   use jobctrl
   use user_intf  
@@ -61,11 +63,12 @@ module case
   type :: case_t
      type(mesh_t) :: msh
      type(param_t) :: params
-     type(ext_bdf_scheme_t) :: ext_bdf
+     type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
+     type(fluid_stats_output_t) :: f_stats_output
      type(scalar_output_t) :: s_out
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
@@ -102,6 +105,7 @@ contains
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
+    integer :: output_dir_len
    
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))
@@ -220,6 +224,7 @@ contains
        else
           call C%scalar%set_source(trim(scalar_source_term))
        end if
+       call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
     !
@@ -241,14 +246,6 @@ contains
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
-    type is(fluid_plan4_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
-    type is(device_fluid_plan4_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
     end select
 
 
@@ -265,7 +262,16 @@ contains
     !
     ! Set order of timestepper
     !
-    call C%ext_bdf%set_time_order(C%params%time_order)
+    call C%ext_bdf%init(C%params%time_order)
+
+    ! Append / to the output directory name if missing
+    output_dir_len = len(trim(C%params%output_dir))
+
+    if (output_dir_len .gt. 0) then
+       if (C%params%output_dir(output_dir_len:output_dir_len) .ne. "/") then
+          C%params%output_dir = trim(C%params%output_dir)//"/"
+       end if
+    end if
 
     !
     ! Save boundary markings for fluid (if requested)
@@ -289,38 +295,53 @@ contains
     !
     ! Setup sampler
     !
-    call C%s%init(C%params%nsamples, C%params%T_end)
+    call C%s%init(C%params%T_end)
     C%f_out = fluid_output_t(C%fluid, path=C%params%output_dir)
-    call C%s%add(C%f_out)
-
+    if (trim(C%params%fluid_write_control) .eq. 'org') then
+       call C%s%add(C%f_out, real(C%params%nsamples,rp), 'nsamples')
+    else 
+       call C%s%add(C%f_out, C%params%fluid_write_par, &
+            C%params%fluid_write_control)
+    end if
+    
     if (scalar) then
        C%s_out = scalar_output_t(C%scalar, path=C%params%output_dir)
-       call C%s%add(C%s_out)
+       call C%s%add(C%s_out, C%params%fluid_write_par, &
+            C%params%fluid_write_control)
     end if
 
     !
-    ! Save checkpoints (if requested)
+    ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     if (C%params%output_chkp) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=C%params%output_dir)
-       call C%s%add(C%f_chkp)
+       call C%s%add(C%f_chkp, C%params%chkp_write_par, &
+            C%params%chkp_write_control)
     end if
 
     !
     ! Setup statistics
     !
-    call C%q%init(C%params%stats_begin)
-    if (C%params%stats_mean_flow) then
+    call C%q%init(C%params%stats_begin, C%params%stats_sample_nstep)
+
+    if (C%params%stats_mean_flow .or. C%params%stats_fluid) then
        call C%q%add(C%fluid%mean%u)
        call C%q%add(C%fluid%mean%v)
        call C%q%add(C%fluid%mean%w)
        call C%q%add(C%fluid%mean%p)
 
-       if (C%params%output_mean_flow) then
-          C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
-                                      path=C%params%output_dir)
-          call C%s%add(C%f_mf)
-       end if
+       C%f_mf = mean_flow_output_t(C%fluid%mean, C%params%stats_begin, &
+                                   path=C%params%output_dir)
+       call C%s%add(C%f_mf, C%params%stats_write_par, &
+                    C%params%stats_write_control)
+    end if
+    
+    if (C%params%stats_fluid) then
+       call C%q%add(C%fluid%stats)
+       C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
+            C%params%stats_begin, path=C%params%output_dir)
+       call C%s%add(C%f_stats_output, C%params%stats_write_par, &
+            C%params%stats_write_control)
     end if
 
     if (C%params%stats_mean_sqr_flow) then
@@ -333,7 +354,8 @@ contains
           C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
                                              C%params%stats_begin, &
                                              path=C%params%output_dir)
-          call C%s%add(C%f_msqrf)
+          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
+               C%params%stats_write_control)
        end if
     end if
 

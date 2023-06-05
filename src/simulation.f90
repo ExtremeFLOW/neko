@@ -34,7 +34,7 @@
 module simulation
   use case
   use gather_scatter
-  use ext_bdf_scheme
+  use time_scheme_controller
   use file
   use logger
   use jobctrl
@@ -68,8 +68,9 @@ contains
 
     !> Call stats, samplers and user-init before time loop
     call neko_log%section('Postprocessing')       
-    call C%q%eval(t, C%params%dt)
-    call C%s%sample(t)
+    call C%q%eval(t, C%params%dt, tstep)
+    call C%s%sample(t, tstep)
+
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
     call neko_log%end_section()
@@ -115,8 +116,9 @@ contains
        end if                 
 
        call neko_log%section('Postprocessing')       
-       call C%q%eval(t, C%params%dt)
-       call C%s%sample(t)
+       call C%q%eval(t, C%params%dt, tstep)
+       call C%s%sample(t, tstep)
+       
        call C%usr%user_check(t, tstep,&
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
        call neko_log%end_section()
@@ -127,7 +129,9 @@ contains
 
     call profiler_stop
 
-    if (t .lt. C%params%T_end) then
+    call C%s%sample(t, tstep, C%params%write_at_end)
+    
+    if (.not. (C%params%write_at_end) .and. t .lt. C%params%T_end) then
        call simulation_joblimit_chkp(C, t)
     end if
     
@@ -138,7 +142,7 @@ contains
   subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
     real(kind=rp), intent(inout) :: t
     real(kind=rp), intent(in) :: dt
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
     real(kind=rp), dimension(10) :: tlag
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
@@ -158,8 +162,7 @@ contains
 
     t = t + dt
 
-    call ext_bdf%set_bd(dtlag)
-    call ext_bdf%set_abbd(dtlag)
+    call ext_bdf%set_coeffs(dtlag)
     
   end subroutine simulation_settime
 
