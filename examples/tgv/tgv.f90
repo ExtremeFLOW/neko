@@ -173,13 +173,8 @@ contains
   end subroutine user_calc_quantities
 
   ! User-defined finalization routine called at the end of the simulation
-  subroutine user_finalize(t, u, v, w, p, coef, params)
+  subroutine user_finalize(t, params)
     real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
 
     ! Deallocate the fields
