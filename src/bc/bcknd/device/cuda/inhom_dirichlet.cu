@@ -59,4 +59,22 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
  
+  /** 
+   * Fortran wrapper for device inhom_dirichlet apply scalar
+   */
+  void cuda_inhom_dirichlet_apply_scalar(void *msk, void *x,
+                                 void *bla_x, int *m) {
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    inhom_dirichlet_apply_scalar_kernel<real>
+      <<<nblcks, nthrds>>>((int *) msk,
+                           (real *) x, 
+                           (real *) bla_x,
+                           *m);
+    CUDA_CHECK(cudaGetLastError());
+  }
+ 
+
 }

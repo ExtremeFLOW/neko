@@ -15,10 +15,11 @@ module user
   ! Register user-defined functions (see user_intf.f90)
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
-    user%fluid_usr_ic => user_ic
-    user%fluid_usr_if => user_bc
-    user%usr_chk => user_calc_quantities
+    user%fluid_user_ic => user_ic
+    user%fluid_user_if => user_bc
+    user%user_check => user_calc_quantities
     user%user_init_modules => user_initialize
+    user%user_finalize_modules => user_finalize
   end subroutine user_setup
 
   ! user-defined boundary condition
@@ -137,5 +138,19 @@ module user
     end if
 
   end function step
-  
+
+  ! User-defined finalization routine called at the end of the simulation
+  subroutine user_finalize(t, params)
+    real(kind=rp) :: t
+    type(param_t), intent(inout) :: params
+
+    ! Deallocate the fields
+    call field_free(om1)
+    call field_free(om2)
+    call field_free(om3)
+    call field_free(w1)
+    call field_free(w2)
+
+  end subroutine user_finalize
+
 end module user

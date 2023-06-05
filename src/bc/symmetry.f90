@@ -58,7 +58,6 @@ module symmetry
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
-     final :: symmetry_free
   end type symmetry_t
 
 contains

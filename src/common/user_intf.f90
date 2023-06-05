@@ -98,16 +98,28 @@ module user_intf
      end subroutine usercheck
   end interface
 
+  !> Abstract interface for finalizating user variables
+  abstract interface
+     subroutine user_final_modules(t, param)
+       import param_t
+       import rp
+       real(kind=rp) :: t
+       type(param_t), intent(inout) :: param
+     end subroutine user_final_modules
+  end interface
+
   type :: user_t
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
+     procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
      procedure(source_term_pw), nopass, pointer :: fluid_user_f => null()
      procedure(source_term), nopass, pointer :: fluid_user_f_vector => null()
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
      procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
+     procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
@@ -136,6 +148,10 @@ contains
     if (.not. associated(u%scalar_user_f_vector)) then
        u%scalar_user_f_vector => dummy_user_scalar_f_vector
     end if
+
+    if (.not. associated(u%scalar_user_bc)) then
+       u%scalar_user_bc => dummy_scalar_user_bc
+    end if
     
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
@@ -144,10 +160,14 @@ contains
     if (.not. associated(u%user_check)) then
        u%user_check => dummy_user_check
     end if
+
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
     end if
-    
+
+    if (.not. associated(u%user_finalize_modules)) then
+       u%user_finalize_modules => dummy_user_final_no_modules
+    end if
   end subroutine user_intf_init
 
   
@@ -204,6 +224,22 @@ contains
     call neko_error('Dummy user defined forcing set')    
   end subroutine dummy_scalar_user_f
  
+  !> Dummy user boundary condition for scalar
+  subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+    real(kind=rp), intent(inout) :: s
+    real(kind=rp), intent(in) :: x
+    real(kind=rp), intent(in) :: y
+    real(kind=rp), intent(in) :: z
+    real(kind=rp), intent(in) :: nx
+    real(kind=rp), intent(in) :: ny
+    real(kind=rp), intent(in) :: nz
+    integer, intent(in) :: ix
+    integer, intent(in) :: iy
+    integer, intent(in) :: iz
+    integer, intent(in) :: ie
+    call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')    
+  end subroutine dummy_scalar_user_bc
+ 
   !> Dummy user mesh apply
   subroutine dummy_user_mesh_setup(msh)
     type(mesh_t), intent(inout) :: msh
@@ -230,5 +266,10 @@ contains
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
+
+  subroutine dummy_user_final_no_modules(t, params)
+    real(kind=rp) :: t
+    type(param_t), intent(inout) :: params
+  end subroutine dummy_user_final_no_modules
 
 end module user_intf

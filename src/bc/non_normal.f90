@@ -50,7 +50,6 @@ module non_normal
   type, public, extends(symmetry_t) :: non_normal_t
    contains
      procedure, pass(this) :: init_msk => non_normal_init_msk
-     final :: non_normal_free
   end type non_normal_t
 
 contains

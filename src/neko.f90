@@ -76,6 +76,8 @@ module neko
   use jobctrl
   use device
   use cpr
+  use fluid_stats
+  use field_list  
   use field_registry
   use vector
   use system
@@ -191,6 +193,10 @@ contains
           end if
        end if
        call neko_log%message(log_buf)      
+
+       write(log_buf, '(a)') 'CPU type  : '
+       call system_cpu_name(log_buf(13:))
+       call neko_log%message(log_buf)
 
        write(log_buf, '(a)') 'CPU type  : '
        call system_cpu_name(log_buf(13:))

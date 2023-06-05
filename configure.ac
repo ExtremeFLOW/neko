@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[0.5.99])
+AC_INIT([neko],[0.6.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -211,7 +211,7 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
 
-      # Check that necessary acceleator modules are loaded
+      # Check that necessary accelerator modules are loaded
       if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
       	 AX_CRAY_ACCEL
       fi
@@ -306,12 +306,19 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/mathops/Makefile\
 		 tests/device_mathops/Makefile\
 		 tests/octree/Makefile\
-                 tests/vector/Makefile])
+                 tests/vector/Makefile\
+                 tests/scratch_registry/Makefile\
+                 tests/fast3d/Makefile\
+                 tests/time_scheme/Makefile\
+                 tests/time_scheme_controller/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
+		    contrib/average_fields_in_time/Makefile\
+		    contrib/postprocess_fluid_stats/Makefile\
+		    contrib/average_field_in_space/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

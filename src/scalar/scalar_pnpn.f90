@@ -35,13 +35,13 @@ module scalar_pnpn
   use scalar_residual_fctry
   use ax_helm_fctry
   use rhs_maker_fctry
-  use scalar
+  use scalar_scheme
   use field_series  
   use facet_normal
   use device_math
   use device_mathops
   use scalar_aux    
-  use ext_bdf_scheme
+  use time_scheme_controller
   use projection
   use logger
   use advection
@@ -144,6 +144,11 @@ contains
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
+
+    ! Check for user bcs
+    if (this%user_bc%msk(0) .gt. 0) then
+       call this%bc_res%mark_facets(this%user_bc%marked_facet)
+    end if
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_ds)
@@ -159,8 +164,8 @@ contains
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
     
-    ! @todo add dealiasing here, now hardcoded to false
-    call advection_factory(this%adv, this%c_Xh, .false., param%lxd)
+    ! Uses sthe same parameter as the fluid to set dealiasing
+    call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
   end subroutine scalar_pnpn_init
 
@@ -208,12 +213,11 @@ contains
   subroutine scalar_pnpn_step(this, t, tstep, ext_bdf)
     class(scalar_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
-    integer :: n, niter
+    integer :: n
     type(ksp_monitor_t) :: ksp_results(1)
     n = this%dm_Xh%size()
-    niter = 1000
     
     call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
@@ -240,10 +244,10 @@ contains
                                  Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           params%rho, ext_bdf%ext, n)
+           params%rho, ext_bdf%advection_coeffs, n)
 
       call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           params%rho, params%dt, ext_bdf%bdf, ext_bdf%nbd, n)
+           params%rho, params%dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -254,7 +258,7 @@ contains
       ! compute scalar residual
       call profiler_start_region('Scalar residual')
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
-          params%Re, params%rho, ext_bdf%bdf(1), params%dt, &
+          params%Re, params%rho, ext_bdf%diffusion_coeffs(1), params%dt, &
           dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
@@ -270,7 +274,7 @@ contains
       call this%pc%update()
       call profiler_start_region('Scalar solve')
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh, niter)
+           c_Xh, this%bclst_ds, gs_Xh, params%vel_max_iter)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
