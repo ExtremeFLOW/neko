@@ -617,8 +617,13 @@ contains
     class(fdm_t), intent(inout) :: this
     real(kind=rp), dimension((this%Xh%lx+2)**3, this%msh%nelv), intent(inout) :: e, r
     type(c_ptr), optional :: stream
+    type(c_ptr) :: strm
 
-    if(.not. present(stream)) stream = glb_cmd_queue
+    if (present(stream)) then
+       strm = stream
+    else
+       strm = glb_cmd_queue
+    end if
 
     if (NEKO_BCKND_SX .eq. 1) then
        call fdm_do_fast_sx(e, r, this%s, this%d, &
@@ -628,7 +633,7 @@ contains
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call fdm_do_fast_device(e, r, this%s, this%d, &
-            this%Xh%lx+2, this%msh%gdim, this%msh%nelv,stream)
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv, strm)
     else
        call fdm_do_fast_cpu(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
