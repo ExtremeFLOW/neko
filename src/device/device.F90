@@ -192,7 +192,11 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
+#if defined(HAVE_CUDA) || defined (HAVE_HIP)
+       sync_device = .false.
+#else
        sync_device = .true.
+#endif
     end if
 
     if (present(strm)) then
@@ -237,10 +241,14 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
+#if defined(HAVE_CUDA) || defined (HAVE_HIP)
+       sync_device = .false.
+#else
        sync_device = .true.
+#endif
     end if
 
-    if  (present(strm)) then
+    if (present(strm)) then
        copy_stream = strm
     else
        copy_stream = glb_cmd_queue
@@ -282,7 +290,11 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
+#if defined(HAVE_CUDA) || defined (HAVE_HIP)
+       sync_device = .false.
+#else
        sync_device = .true.
+#endif
     end if
 
     if (present(strm)) then
@@ -327,7 +339,11 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
+#if defined(HAVE_CUDA) || defined (HAVE_HIP)
+       sync_device = .false.
+#else
        sync_device = .true.
+#endif
     end if
 
     if (present(strm)) then
@@ -373,7 +389,11 @@ contains
     if (present(sync)) then
        sync_device = sync
     else
+#if defined(HAVE_CUDA) || defined (HAVE_HIP)
+       sync_device = .false.
+#else
        sync_device = .true.
+#endif
     end if
 
     if (present(strm)) then
@@ -397,8 +417,7 @@ contains
     logical, intent(in) :: sync_device
     type(c_ptr), intent(inout) :: stream
 #ifdef HAVE_HIP
-    !    if (sync_device) then
-    if (0 .eq. 1) then
+    if (sync_device) then
        if (dir .eq. HOST_TO_DEVICE) then
           if (hipMemcpy(x_d, ptr_h, s, hipMemcpyHostToDevice) &
                .ne. hipSuccess) then
@@ -438,8 +457,7 @@ contains
        end if
     end if
 #elif HAVE_CUDA
-    !    if (sync_device) then
-    if (0 .eq. 1) then
+    if (sync_device) then
        if (dir .eq. HOST_TO_DEVICE) then
           if (cudaMemcpy(x_d, ptr_h, s, cudaMemcpyHostToDevice) &
                .ne. cudaSuccess) then
@@ -1172,7 +1190,7 @@ contains
 #elif HAVE_OPENCL
     if (clEnqueueMarker(stream, event) .ne. CL_SUCCESS) then
        call neko_error('Error during stream sync')
-    end if   
+    end if
 #endif
   end subroutine device_stream_wait_event
   
