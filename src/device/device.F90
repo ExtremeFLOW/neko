@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -1044,6 +1044,7 @@ contains
   subroutine device_stream_create(stream, flags)
     type(c_ptr), intent(inout) :: stream
     integer, optional :: flags
+    integer :: ierr
 #ifdef HAVE_HIP
     if (present(flags)) then
        if (hipStreamCreateWithFlags(stream, flags) .ne. hipSuccess) then
@@ -1065,7 +1066,10 @@ contains
        end if
     end if
 #elif HAVE_OPENCL
-    call neko_error('Not implemented yet')
+    stream = clCreateCommandQueue(glb_ctx, glb_device_id, 0_i8, ierr)
+    if (ierr .ne. CL_SUCCESS) then
+       call neko_error('Error during stream create')
+    end if       
 #endif
   end subroutine device_stream_create
 
@@ -1081,7 +1085,9 @@ contains
        call neko_error('Error during stream destroy')
     end if
 #elif HAVE_OPENCL
-    call neko_error('Not implemented yet')
+    if (clReleaseCommandQueue(stream) .eq. CL_SUCCESS) then
+       call neko_error('Error during stream destroy')
+    end if
 #endif
   end subroutine device_stream_destroy
 
@@ -1099,7 +1105,9 @@ contains
        call neko_error('Error during stream sync')
     end if
 #elif HAVE_OPENCL
-    call neko_error('Not implemented yet')
+    if (clEnqueueMarker(stream, event) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream sync')
+    end if   
 #endif
   end subroutine device_stream_wait_event
   
@@ -1125,6 +1133,7 @@ contains
   subroutine device_event_create(event, flags)
     type(c_ptr), intent(inout) :: event
     integer, optional :: flags
+    integer :: ierr
 #ifdef HAVE_HIP
     if (present(flags)) then
        if (hipEventCreateWithFlags(event, flags) .ne. hipSuccess) then
@@ -1146,7 +1155,10 @@ contains
        end if
     end if
 #elif HAVE_OPENCL
-    call neko_error('Not implemented yet')
+    event = clCreateUserEvent(glb_ctx, ierr)
+    if (ierr .ne. CL_SUCCESS) then
+       call neko_error('Error during event create')
+    end if
 #endif
   end subroutine device_event_create
 
@@ -1155,14 +1167,16 @@ contains
     type(c_ptr), intent(inout) :: event
 #ifdef HAVE_HIP
     if (hipEventDestroy(event) .ne. hipSuccess) then
-       call neko_error('Error during stream destroy')
+       call neko_error('Error during event destroy')
     end if
 #elif HAVE_CUDA
     if (cudaEventDestroy(event) .ne. cudaSuccess) then
-       call neko_error('Error during stream destroy')
+       call neko_error('Error during event destroy')
     end if
 #elif HAVE_OPENCL
-    call neko_error('Not implemented yet')
+    if (clReleaseEvent(event) .ne. CL_SUCCESS) then
+       call neko_error('Error during event destroy')
+    end if
 #endif
   end subroutine device_event_destroy
   
@@ -1179,7 +1193,9 @@ contains
        call neko_error('Error recording an event')
     end if
 #elif HAVE_OPENCL
-    call neko_error('Not implemented yet')
+    if (clSetUserEventStatus(event, CL_COMPLETE) .ne. CL_SUCCESS) then
+       call neko_error('Error recording an event')
+    end if
 #endif
   end subroutine device_event_record
 
@@ -1195,7 +1211,9 @@ contains
        call neko_error('Error during event sync')
     end if
 #elif HAVE_OPENCL
-    call neko_error('Not implemented yet')
+    if (clWaitForEvents(1_c_int, event) .eq. CL_SUCCESS) then
+       call neko_error('Error during event sync')
+    end if
 #endif
   end subroutine device_event_sync
 
