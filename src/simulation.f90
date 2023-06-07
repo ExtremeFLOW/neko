@@ -140,7 +140,9 @@ contains
     if (.not. (output_at_end) .and. t .lt. C%end_time) then
        call simulation_joblimit_chkp(C, t)
     end if
-    
+
+    call C%usr%user_finalize_modules(t, C%params)
+
     call neko_log%end_section('Normal end.')
     
   end subroutine neko_solve

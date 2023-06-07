@@ -201,11 +201,13 @@ contains
     end if
 
     if (c_associated(this%msk_d)) then
-       call device_free(this%msk_d)       
+       call device_free(this%msk_d)
+       this%msk_d = C_NULL_PTR
     end if
 
     if (c_associated(this%facet_d)) then
-       call device_free(this%facet_d)       
+       call device_free(this%facet_d)
+       this%facet_d = C_NULL_PTR
     end if
     
   end subroutine bc_free

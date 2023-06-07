@@ -108,7 +108,6 @@ contains
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
-
     type(json_file_t) :: json_file
     type(json_file_t) :: json_file2
     type(json_value_t), pointer :: json_value
@@ -120,6 +119,7 @@ contains
     character(len=:), allocatable :: json_buffer
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval 
+    integer :: output_dir_len
    
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))
@@ -296,6 +296,15 @@ contains
     call C%json_params%get('case.numerics.time_order', integer_val, found)
     call C%ext_bdf%init(integer_val)
 
+
+    ! Append / to the output directory name if missing
+    output_dir_len = len(trim(C%params%output_dir))
+
+    if (output_dir_len .gt. 0) then
+       if (C%params%output_dir(output_dir_len:output_dir_len) .ne. "/") then
+          C%params%output_dir = trim(C%params%output_dir)//"/"
+       end if
+    end if
 
     !
     ! Get output directory
