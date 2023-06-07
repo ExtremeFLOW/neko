@@ -237,7 +237,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-    !$Omp do
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
