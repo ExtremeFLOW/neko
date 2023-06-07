@@ -1,5 +1,6 @@
 module user
   use neko
+  use json_module, only : jsfon_file_t => json_file
   implicit none
 
   real(kind=rp) :: Ra = 0
@@ -33,13 +34,13 @@ contains
     s = 1.0_rp-z
   end subroutine scalar_bc
  
-  !> Dummy user initial condition
+  !> User initial condition
   subroutine set_ic(u, v, w, p, params)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file_t), intent(inout) :: params
     type(field_t), pointer :: s
     integer :: i, e, k, j
     real(kind=rp) :: rand, z
@@ -87,14 +88,20 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
+    type(json_file_t), intent(inout) :: params
+    type(field_t), pointer :: s
+    logical :: found
+    real(kind=rp) :: Re
     ! Reset the relevant nondimensional parameters
     ! Pr = input Pr
     ! Ra = input Re
     ! Re = 1/Pr
-    Pr = params%Pr
-    Ra = params%Re
-    params%Re = 1._rp / Pr
+
+    call params%get('case.fluid.Re', Ra, found)
+    call params%get('case.scalar.Pr', Pr, found)
+    Re = 1._rp / Pr
+    call params%update('case.fluid.Re', Re, found)
+    return
   end subroutine set_Pr
 
 

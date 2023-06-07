@@ -246,12 +246,18 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst)
+    call this%user_bc%init(this%dm_Xh)
 
     call params%get('case.scalar.boundary_types', bc_labels, found) 
+    if (.not. found) then
+       if (allocated(bc_labels)) then
+          deallocate(bc_labels)
+       end if
+       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+       bc_labels = "not"
+    end if
     call scalar_scheme_add_bcs(this, msh%labeled_zones, bc_labels) 
 
-    call this%user_bc%init(this%dm_Xh)
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, bc_labels) 
 
     call this%user_bc%mark_zone(msh%wall)
     call this%user_bc%mark_zone(msh%inlet)
@@ -354,7 +360,7 @@ contains
   subroutine scalar_scheme_solver_factory(ksp, n, solver, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=20), intent(inout) :: solver
+    character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
 
     call krylov_solver_factory(ksp, n, solver, abstol)
@@ -369,7 +375,7 @@ contains
     type(dofmap_t), target, intent(inout) :: dof
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
-    character(len=20) :: pctype
+    character(len=*) :: pctype
     
     call precon_factory(pc, pctype)
     

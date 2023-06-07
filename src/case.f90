@@ -108,8 +108,6 @@ contains
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
-    type(json_file_t) :: json_file
-    type(json_file_t) :: json_file2
     type(json_value_t), pointer :: json_value
     type(json_core_t) :: json_core
     logical found, logical_val
@@ -204,7 +202,8 @@ contains
     ! Setup scalar scheme
     !
     ! @todo no scalar factroy for now, probably not needed
-    call json_file%get('case.scalar', json_value, found)
+    call C%json_params%get('case.scalar', json_value, found)
+    call C%json_params%get('case.scalar.enabled', scalar, found)
     if (found) then
        call C%json_params%get('case.scalar.enabled', scalar, found)
        if (found .and. scalar) then
@@ -375,7 +374,7 @@ contains
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     call C%json_params%get('case.output_checkpoints', logical_val, found)
-    if (.not. found .or. logical_val) then
+    if (found .and. logical_val) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
 
        call C%json_params%get('case.checkpoint_control', string_val, found)

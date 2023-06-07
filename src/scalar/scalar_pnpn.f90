@@ -252,7 +252,7 @@ contains
 
       call params%get('case.fluid.rho', rho, found)
       call params%get('case.scalar.Pr', Pr, found)
-      call params%get('case.scalar.Re', Re, found)
+      call params%get('case.fluid.Re', Re, found)
       call params%get('case.fluid.velocity_solver.max_iterations', &
                        ksp_vel_maxiter, found)
 

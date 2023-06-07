@@ -1,25 +1,51 @@
-&NEKO_CASE
-mesh_file= 'hemi.nmsh'
-fluid_scheme='pnpn'
-lx = 6
-source_term = 'noforce'
-initial_condition = 'blasius'
-/
-&NEKO_PARAMETERS
-dt = 1d-3
-T_end = 2.0
-nsamples = 100
-uinf= 1.0,0.0,0.0
-output_bdry = .true.
-rho = 1
-Re = 1400
-abstol_vel = 1d-7
-abstol_prs = 1d-7
-ksp_vel = 'cg'
-ksp_prs = 'gmres'
-pc_vel = 'jacobi'
-pc_prs = 'hsmg'
-fluid_inflow = 'blasius'
-delta = 0.6
-/
-
+{
+"case": {
+    "mesh_file": "hemi.nmsh",
+    "output_at_end": true,
+    "output_boundary": true,
+    "output_checkpoints": false,
+    "end_time": 2,
+    "timestep": 0.001,
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "rho": 1,
+        "mu": 1,
+        "Re": 1400,
+        "source_term": {
+            "type": "noforce"
+        },
+        "initial_condition": {
+            "type": "blasius"
+        },
+        "inflow_condition": {
+            "type": "blasius"
+        },
+        "blasius": {
+            "approximation": "sin",
+            "delta": 0.6,
+            "freestream_velocity": [1.0, 0.0, 0.0]
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 4,
+            "absolute_tolerance": 1e-7,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 4,
+            "absolute_tolerance": 1e-7,
+            "max_iterations": 800
+        },
+        "output_control": "nsamples",
+        "output_value": 100
+    }
+}
+}

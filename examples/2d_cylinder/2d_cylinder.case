@@ -1,24 +1,51 @@
-&NEKO_CASE
-mesh_file= 'ext_cyl.nmsh'
-fluid_scheme='pnpn'
-lx = 6
-source_term = 'noforce'
-initial_condition = 'uniform'
-/
-&NEKO_PARAMETERS
-dt = 1d-3
-T_end = 2.0
-nsamples = 100
-uinf= 1.0,0.0,0.0
-output_bdry = .true.
-rho = 1
-Re = 160
-dealias = .true.
-abstol_vel = 1d-9
-abstol_prs = 1d-6
-ksp_vel = 'cg'
-ksp_prs = 'gmres'
-pc_vel = 'jacobi'
-pc_prs = 'hsmg'
-/
+{
+  "case":
+  {
+  "mesh_file": "ext_cyl.nmsh",
+  "output_checkpoints": false,
+  "output_at_end": true,
+  "end_time": 2.0,
+  "timestep": 1e-3,
 
+  "numerics": {
+    "time_order": 3,
+    "polynomial_order": 5,
+    "dealias": true
+  },
+
+  "fluid": {
+    "scheme": "pnpn",
+    "rho": 1.0,
+    "mu": 1.0,
+    "Re": 160,
+
+    "source_term": {
+        "type": "noforce"
+    },
+
+    "initial_condition": {
+      "type": "uniform",
+      "value": [1.0, 0.0, 0.0]
+    },
+
+    "velocity_solver": {
+      "type": "cg",
+      "preconditioner": "jacobi",
+      "projection_space_size": 0,
+      "absolute_tolerance": 1e-9,
+      "max_iterations": 800
+    },
+
+    "pressure_solver": {
+      "type": "gmres",
+      "preconditioner": "hsmg",
+      "projection_space_size": 8,
+      "absolute_tolerance": 1e-6,
+      "max_iterations": 800
+    },
+
+    "output_control": "samples",
+    "output_value": 100
+  }
+  }
+}

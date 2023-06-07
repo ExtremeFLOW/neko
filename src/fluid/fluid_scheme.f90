@@ -328,7 +328,7 @@ contains
        else if (trim(string_val1) .eq. "user") then
           allocate(usr_inflow_t::this%bc_inflow)
        else
-          call neko_error('Invalid inflow condition')
+          call neko_error('Invalid inflow condition '//string_val1)
        end if
 
        call this%bc_inflow%init(this%dm_Xh)
@@ -336,18 +336,18 @@ contains
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
                         'v', bc_labels)
        call this%bc_inflow%finalize()
-
-       call params%get('case.fluid.inflow_condition.freestream_velocity', &
-                        real_vec, found)
-       if (.not. found) then
-          real_vec = [0.0_rp, 0.0_rp ,0.0_rp]
-       end if
-
-       call this%bc_inflow%set_inflow(real_vec)
-
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
-       if (trim(string_val1) .eq. "blasius") then
+       if (trim(string_val1) .eq. "default") then
+           call params%get('case.fluid.inflow_condition.value', real_vec, found)
+
+           if (.not. found) then
+              call neko_error(&
+              "Parameter fluid.inflow_condition.value missing in the case file")
+           end if
+           call this%bc_inflow%set_inflow(real_vec)
+
+       else if (trim(string_val1) .eq. "blasius") then
           select type(bc_if => this%bc_inflow)
           type is(blasius_t)
              call bc_if%set_coef(this%C_Xh)
@@ -361,13 +361,22 @@ contains
                              found)
              if (.not. found) then
                 call neko_error(&
-                  "Parameter fluid.blasius.approximation missing in the case file")
+                  "Parameter fluid.blasius.approximation missing in the case &
+                  &file")
              end if
-             call bc_if%set_params(real_val, string_val2)
-          end select
-       end if
 
-       if (trim(string_val1) .eq. "user") then
+             call params%get('case.fluid.blasius.freestream_velocity', real_vec,&
+                             found)
+             if (.not. found) then
+                call neko_error(&
+                  "Parameter fluid.blasius.freestream_velocity missing in the &
+                  &case file")
+             end if
+             call this%bc_inflow%set_inflow(real_vec)
+             call bc_if%set_params(real_val, string_val2)
+
+          end select
+       else if (trim(string_val1) .eq. "user") then
           select type(bc_if => this%bc_inflow)
              type is(usr_inflow_t)
              call bc_if%set_coef(this%C_Xh)
