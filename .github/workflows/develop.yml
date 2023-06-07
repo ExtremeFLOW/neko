@@ -8,6 +8,7 @@ on:
   
 jobs:
   linting:
+      if: "!contains(github.event.pull_request.labels.*.name, 'documentation')"
       name: "Flint"
       runs-on: ubuntu-20.04
       steps:
@@ -33,6 +34,7 @@ jobs:
             path: flint.txt
             retention-days: 5
   GNU:
+    if: "!contains(github.event.pull_request.labels.*.name, 'documentation')"
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -181,6 +183,7 @@ jobs:
           make -j $(nproc)
     
   Intel:
+    if: "!contains(github.event.pull_request.labels.*.name, 'documentation')"
     needs: linting
     runs-on: ${{matrix.os}}
     strategy:
@@ -259,6 +262,7 @@ jobs:
 #          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/cuda/
 #          make
   ReFrame:
+      if: "!contains(github.event.pull_request.labels.*.name, 'documentation')"
       needs: GNU
       runs-on: ubuntu-20.04
       strategy:
@@ -291,5 +295,19 @@ jobs:
             ./regen.sh
             cd reframe
             env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
-
-
+  documentation:
+    if: contains(github.event.pull_request.labels.*.name, 'documentation')
+    runs-on: ubuntu-latest
+    name: "Doxygen"
+    steps:
+    - uses: actions/checkout@v3
+    - name : Setup env.
+      run: |
+        sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
+        git clone https://github.com/ExtremeFLOW/doxygen-awesome-css doc/doxygen-awesome-css
+    - name: Doxygen
+      run: |
+        ./regen.sh
+        ./configure FC=${FC}
+        make html        
+ 
