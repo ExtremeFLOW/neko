@@ -370,7 +370,7 @@ contains
     
     if (scalar) then
        C%s_out = scalar_output_t(C%scalar, path=output_directory)
-
+       call C%s%add(C%s_out, real_val, string_val)
     end if
 
     !
