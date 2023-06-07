@@ -141,7 +141,7 @@ contains
        call simulation_joblimit_chkp(C, t)
     end if
 
-    call C%usr%user_finalize_modules(t, C%params)
+    call C%usr%user_finalize_modules(t, C%json_params)
 
     call neko_log%end_section('Normal end.')
     

@@ -101,10 +101,10 @@ module user_intf
   !> Abstract interface for finalizating user variables
   abstract interface
      subroutine user_final_modules(t, param)
-       import param_t
+       import json_file_t
        import rp
        real(kind=rp) :: t
-       type(param_t), intent(inout) :: param
+       type(json_file_t), intent(inout) :: param
      end subroutine user_final_modules
   end interface
 
@@ -269,7 +269,7 @@ contains
 
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
-    type(param_t), intent(inout) :: params
+    type(json_file_t), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
 end module user_intf
