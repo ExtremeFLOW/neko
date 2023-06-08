@@ -120,7 +120,7 @@ jobs:
       - name: Build (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
-          export PKG_CONFIG_PATH="${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc:$PKG_CONFIG_PATH"
+          export PKG_CONFIG_PATH="${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig:$PKG_CONFIG_PATH"
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/
           echo $PKG_CONFIG_PATH
           ./regen.sh 
@@ -220,12 +220,27 @@ jobs:
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
+      - name: Install json-fortran
+        run: |
+          git clone https://github.com/ExtremeFLOW/json-fortran/
+          cd json-fortran
+          mkdir build && cd build
+          cmake 
+          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran ..
+          make -j$(nproc) && make install && cd ../../
+          sed -i '1,2d'  ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i '1s|^|libdir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/\n|' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i '1s|^|includedir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/\n|' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          cat ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build
         run: |
+          export PKG_CONFIG_PATH="${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/
+          echo $PKG_CONFIG_PATH
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
           make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
