@@ -3,6 +3,7 @@ import reframe.utility.sanity as sn
 import os
 import csv
 import string
+import json
 
 def get_gpu_device(partition):
     for device in partition.devices:
@@ -189,26 +190,23 @@ class NekoTestBase(rfm.RegressionTest):
         case_template = case_file + '.template'
 
         self.executable_opts.append(self.case)
-
+        
         if os.path.exists(case_file):
             pass
         elif os.path.exists(case_template):
             with open(case_template) as tf:
-                ts = tf.read()
-            template = string.Template(ts)
+                case_json = json.load(tf)
+            case_json["case"]["fluid"]["velocity_solver"]["absolute_tolerance"] = \
+                self.abstol_vel[self.neko_build.real]
+            case_json["case"]["fluid"]["pressure_solver"]["absolute_tolerance"] = \
+                self.abstol_prs[self.neko_build.real]
+            case_json["case"]["fluid"]["scheme"] = self.scheme
+            case_json["case"]["mesh_file"] = self.mesh_file
+            case_json["case"]["timestep"] = self.dt
+            case_json["case"]["end_time"] = self.T_end
 
-            keys = {
-                'abstol_vel': self.abstol_vel[self.neko_build.real],
-                'abstol_prs': self.abstol_prs[self.neko_build.real],
-                'fluid_scheme': self.scheme,
-                'mesh_file': self.mesh_file,
-                'dt': self.dt,
-                'T_end': self.T_end,
-            }
-
-            ss = template.substitute(keys)
             with open(case_file, 'w') as cf:
-                cf.write(ss)
+                case_json.dump(cf)
         else:
             raise NekoError(f'Cannot find {case_file} or {case_template}')
 
