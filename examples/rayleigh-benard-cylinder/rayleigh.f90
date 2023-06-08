@@ -2,22 +2,28 @@ module user
   use neko
   implicit none
 
+  !> Variables to store the Rayleigh and Prandlt numbers
   real(kind=rp) :: Ra = 0
   real(kind=rp) :: Pr = 0
-  real(kind=rp) :: ta2 = 0
-  type(coef_t), pointer :: c_Xh
+
+  !> Arrays asociated with Method#1 for nusselt calculation
+  type(field_t) :: work_field ! Field to perform operations
+  type(field_t) :: uzt ! u_z * T
+  real(kind=rp) :: bar_uzt ! Volume integral
 
 contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%user_init_modules => set_Pr
-    u%fluid_user_ic => set_ic
-    u%scalar_user_bc => scalar_bc
-    u%fluid_user_f_vector => forcing
+    u%user_init_modules => user_initialize
+    u%user_finalize_modules => user_finalize
+    u%fluid_user_ic => set_initial_conditions_for_u_and_s
+    u%scalar_user_bc => set_scalar_boundary_conditions
+    u%fluid_user_f_vector => set_bousinesq_forcing_term
+    u%user_check => calculate_nusselt
   end subroutine user_setup
-   
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+
+  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -31,11 +37,10 @@ contains
     integer, intent(in) :: ie
     ! This will be used on all zones without labels
     ! e.g. the ones hardcoded to 'v', 'w', etcetc
-    s = 1.0_rp-z
-  end subroutine scalar_bc
+    s = 1.0_rp - z
+  end subroutine set_scalar_boundary_conditions
 
-  !> Dummy user initial condition
-  subroutine set_ic(u, v, w, p, params)
+  subroutine set_initial_conditions_for_u_and_s(u, v, w, p, params)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -76,9 +81,9 @@ contains
        call device_memcpy(s%x,s%x_d,s%dof%size(),HOST_TO_DEVICE)
     end if
 
-  end subroutine set_ic
+  end subroutine set_initial_conditions_for_u_and_s
 
-  subroutine set_Pr(t, u, v, w, p, coef, params)
+  subroutine user_initialize(t, u, v, w, p, coef, params)
     real(kind=rp) :: t
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
@@ -86,21 +91,33 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
+
     ! Reset the relevant nondimensional parameters
     Pr = params%Pr
     Ra = params%Re
     params%Re = sqrt(Ra / Pr)
-    call save_coef(coef)
-  end subroutine set_Pr
+
+    ! Initialize variables related to nusselt calculation
+    call field_init(work_field, u%dof, 'work_field')
+    call field_init(uzt, u%dof, 'uzt')
 
 
-  subroutine save_coef(coef)
-    type(coef_t), target :: coef
-    c_Xh => coef
-  end subroutine save_coef
+  end subroutine user_initialize
+
+
+  subroutine user_finalize(t, param)
+    real(kind=rp) :: t
+    type(param_t), intent(inout) :: param
+
+    ! Finalize variables related to nusselt calculation
+    call field_free(work_field)
+    call field_free(uzt)
+
+  
+end subroutine user_finalize
 
   !> Forcing
-  subroutine forcing(f, t)
+  subroutine set_bousinesq_forcing_term(f, t)
     class(source_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     integer :: i
@@ -121,5 +138,59 @@ contains
        call rzero(f%v,f%dm%size())
        call copy(f%w,s%x,f%dm%size())
     end if
-  end subroutine forcing
+  end subroutine set_bousinesq_forcing_term
+
+  subroutine calculate_nusselt(t, tstep, u, v, w, p, coef, params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    type(coef_t), intent(inout) :: coef
+    type(param_t), intent(inout) :: params
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(field_t), pointer :: s
+    integer :: n,ntot
+
+    s => neko_field_registry%get_field('s')
+    n = size(coef%B)
+    ntot = coef%dof%size()
+
+    !> ------ Method #1 for nusselt calculation -----
+    !> Nu_v = 1 + sqrt(Ra) * <u_z * T>_{v,t}
+    !> Steps:
+       !1.    Calculate the convective current T*u_z
+       !2.    Get <u_z * T>_{v}(t) (Average in volume)
+       !!2.1. Multiply field with mass matrix
+       !!2.2. Perform a global sum to get the integral
+       !!2.3. Normalize with total volume to get the average
+       !3.    Get <u_z * T>_{v,t} by averaging time signal
+       !4.    Multiply average by sqrt(Ra) and sum 1
+    !> Steps 1. and 2. are done here. Do 3. and 4. in post  
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_col3(uzt%x_d,w%x_d,s%x_d,n)             !1.  
+       call device_col3(work_field%x_d,uzt%x_d,coef%B_d,n) !2.1.   
+       bar_uzt = device_glsum(work_field%x_d,n)            !2.2.
+       bar_uzt = bar_uzt / coef%volume                     !2.3. 
+    else
+       call col3(uzt%x,w%x,s%x,n)                          !1.
+       call col3(work_field%x,uzt%x,coef%B,n)              !2.1.
+       bar_uzt = glsum(work_field%x,n)                     !2.2.
+       bar_uzt = bar_uzt / coef%volume                     !2.3.
+    end if
+
+    if (pe_rank .eq. 0) &
+    &  write(*,*) &
+    &  'Space average convective current = ', bar_uzt
+
+    if (pe_rank .eq. 0) &
+    &  write(*,*) &
+    &  'n = ', n
+
+    if (pe_rank .eq. 0) &
+    &  write(*,*) &
+    &  'ntot = ', ntot
+  end subroutine calculate_nusselt
+
+
 end module user

@@ -1,26 +1,26 @@
 &NEKO_CASE
-mesh_file= 'cylinder.nmsh'
-fluid_scheme='pnpn'
-lx = 8
-source_term = 'user_vector'
-initial_condition = 'user'
-scalar = .true.
-scalar_source_term = 'noforce'
+mesh_file= 'cylinder.nmsh'                 ! Name of the mesh
+fluid_scheme='pnpn'                        ! Fluid scheme, which is only PnPn
+lx = 6                                     ! Polynomial order
+source_term = 'user_vector'                ! Enable the source term that couples the flow to the temp as a forcing. 
+initial_condition = 'user'                 ! Set the initial condition of the flow to be from a user 
+scalar = .true.                            ! Set scalar to true        
+scalar_source_term = 'noforce'             ! Source term in the transport equation for the scalar. There is no forcing here for RBC
 /
 &NEKO_PARAMETERS
-dt = 2d-3
-T_end = 250
-fluid_write_control = 'simulationtime'
-fluid_write_par = 1.0
-uinf= 0.0,0.0,0.0
-output_bdry = .true.
-pc_vel = 'jacobi'
-pc_prs = 'hsmg'
-abstol_vel = 1d-6
-abstol_prs = 1d-4
-bc_labels(1) = 'w'
-Pr = 1
-Re = 1e8
-proj_prs_dim = 0
-proj_vel_dim = 0
+dt = 2d-3                                  ! Time step
+T_end = 250                                ! Final simulation time
+fluid_write_control = 'simulationtime'     ! What condition should be used for writing
+fluid_write_par = 1.0                      ! Define how ofter neko should write
+uinf= 0.0,0.0,0.0                          ! Components of the free stream velocity. Here it is zero as temperature drives the flow
+output_bdry = .true.                       ! Output boundary markings (Read more what this means)
+pc_vel = 'jacobi'                          ! Preconditioner for velocity
+pc_prs = 'hsmg'                            ! Preconditioner for preassure
+abstol_vel = 1d-6                          ! Tolerance for velocity solver  
+abstol_prs = 1d-4                          ! Tolerance for preassure solver   
+bc_labels(1) = 'w'                         ! Type of boundary condition for each label (Find our why only one label is set)
+Pr = 1                                     ! Prandlt number
+Re = 1e8                                   ! Reynolds number
+proj_prs_dim = 0                           ! Projection space for pressure solution - This should reduce iterations if activated
+proj_vel_dim = 0                           ! Projection space for velocity solution - This should reduce iterations if activated
 /
