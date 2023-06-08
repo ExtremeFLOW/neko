@@ -93,14 +93,14 @@ jobs:
           --- a/src/funit/FUnit.F90
           +++ b/src/funit/FUnit.F90
           @@ -168,7 +168,7 @@ contains
-            #if defined(PGI)
+           #if defined(PGI)
                     call exit(-1)
-            #else
+           #else
           -         stop '*** Encountered 1 or more failures/errors during testing. ***'
           +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
            #endif
                  end if
-            
+           
           _ACEOF
           git apply pfunit_error_stop.patch && mkdir b && cd b
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
