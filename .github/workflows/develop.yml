@@ -38,33 +38,32 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-#        os: [ubuntu-20.04, macos-12]
-        os: [ubuntu-20.04]
+        os: [ubuntu-20.04, macos-12]
 #        compiler: [gfortran-10, gfortran-11, gfortran-12]
-        compiler: [gfortran-10]
+        compiler: [gfortran]
 #        backend: [cpu, cuda, hip, opencl]
-        backend: [cpu]
+        backend: [cpu, opencl]
 #        precision: [sp, dp]
         precision: [dp]
-#        exclude:
-#        - os: ubuntu-20.04
-#          compiler: gfortran-11
-#        - os: ubuntu-20.04
-#          compiler: gfortran-12
-#        - os: ubuntu-20.04
-#          backend: opencl
-#        - os: macos-12
-#          compiler: gfortran-10
-#        - os: macos-12
-#          backend: cuda
-#        - os: macos-12
-#          backend: hip
+        exclude:
+        - os: ubuntu-20.04
+          compiler: gfortran-11
+        - os: ubuntu-20.04
+          compiler: gfortran-12
+        - os: ubuntu-20.04
+          backend: opencl
+        - os: macos-12
+          compiler: gfortran-10
+        - os: macos-12
+          backend: cuda
+        - os: macos-12
+          backend: hip
         include:
         - os: ubuntu-20.04
           setup-env: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
-#        - os: macos-12
-#          setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
+        - os: macos-12
+          setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12 && brew install gnu-sed
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -105,7 +104,8 @@ jobs:
 #          git apply pfunit_error_stop.patch && mkdir b && cd b
 #          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
 #          make -j$(nproc) && make install && cd ../../
-      - name: Install json-fortran
+      - name: Install json-fortran Ubuntu
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           git clone https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
@@ -116,8 +116,22 @@ jobs:
           sed -i "1i$(echo 'libdir='${HOME}'/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
           sed -i "1i$(echo 'includedir='${HOME}'/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
           cat ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig" >> $GITHUB_ENV
-          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/" >> $GITHUB_ENV
+      - name: Install json-fortran Mac
+        if: matrix.os == 'macos-12'
+        run: |
+          git clone https://github.com/ExtremeFLOW/json-fortran/
+          cd json-fortran
+          mkdir build && cd build
+          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran ..
+          make -j$(nproc) && make install && cd ../../
+          gsed -i '1,2d'  ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          gsed -i "1i$(echo 'libdir='${HOME}'/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          gsed -i "1i$(echo 'includedir='${HOME}'/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          cat ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -314,8 +328,8 @@ jobs:
           run: |
             sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
             pip install reframe-hpc 
-            echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig" >> $GITHUB_ENV
-            echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib" >> $GITHUB_ENV
+            echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/" >> $GITHUB_ENV
+            echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/" >> $GITHUB_ENV
         - name: Topology
           run: |
             reframe --detect-host-topology
