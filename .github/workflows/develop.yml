@@ -67,6 +67,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
+      PKG_CONFIG_DIR: ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig
     name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
@@ -100,6 +101,18 @@ jobs:
           git apply pfunit_error_stop.patch && mkdir b && cd b
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
           make -j$(nproc) && make install && cd ../../
+      - name: Install json-fortran
+        run: |
+          git clone https://github.com/ExtremeFLOW/json-fortran/
+          cd json-fortran
+          mkdir build && cd build
+          cmake 
+          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran ..
+          make -j$(nproc) && make install && cd ../../
+          sed -i '1,2d'  ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i '1ilibdir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i '1iincludedir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          cat ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
       - name: Checkout
         uses: actions/checkout@v3
         with:
