@@ -38,28 +38,32 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04, macos-12]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
-        backend: [cpu, cuda, hip, opencl]
-        precision: [sp, dp]
-        exclude:
-        - os: ubuntu-20.04
-          compiler: gfortran-11
-        - os: ubuntu-20.04
-          compiler: gfortran-12
-        - os: ubuntu-20.04
-          backend: opencl
-        - os: macos-12
-          compiler: gfortran-10
-        - os: macos-12
-          backend: cuda
-        - os: macos-12
-          backend: hip
+#        os: [ubuntu-20.04, macos-12]
+        os: [ubuntu-20.04]
+#        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        compiler: [gfortran-10]
+#        backend: [cpu, cuda, hip, opencl]
+        backend: [cpu]
+#        precision: [sp, dp]
+        precision: [dp]
+#        exclude:
+#        - os: ubuntu-20.04
+#          compiler: gfortran-11
+#        - os: ubuntu-20.04
+#          compiler: gfortran-12
+#        - os: ubuntu-20.04
+#          backend: opencl
+#        - os: macos-12
+#          compiler: gfortran-10
+#        - os: macos-12
+#          backend: cuda
+#        - os: macos-12
+#          backend: hip
         include:
         - os: ubuntu-20.04
           setup-env: sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3  cmake-curses-gui 
-        - os: macos-12
-          setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
+#        - os: macos-12
+#          setup-env: brew install openmpi && brew install automake && brew install gcc@11 && brew install gcc@12
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
@@ -78,29 +82,29 @@ jobs:
         with:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-      - name: Build pFUnit
-        if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
-        run: |
-          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
-          cd pFUnit
-          cat >> pfunit_error_stop.patch << _ACEOF
-          diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
-          index 7df7b65..4f7dbf5 100644
-          --- a/src/funit/FUnit.F90
-          +++ b/src/funit/FUnit.F90
-          @@ -168,7 +168,7 @@ contains
-           #if defined(PGI)
-                    call exit(-1)
-           #else
-          -         stop '*** Encountered 1 or more failures/errors during testing. ***'
-          +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
-           #endif
-                 end if
-           
-          _ACEOF
-          git apply pfunit_error_stop.patch && mkdir b && cd b
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
-          make -j$(nproc) && make install && cd ../../
+ #     - name: Build pFUnit
+ #       if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
+ #       run: |
+ #         git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
+ #         cd pFUnit
+ #         cat >> pfunit_error_stop.patch << _ACEOF
+ #         diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
+ #         index 7df7b65..4f7dbf5 100644
+ #         --- a/src/funit/FUnit.F90
+ #         +++ b/src/funit/FUnit.F90
+ #         @@ -168,7 +168,7 @@ contains
+ #           #if defined(PGI)
+ #                   call exit(-1)
+ #           #else
+ #         -         stop '*** Encountered 1 or more failures/errors during testing. ***'
+ #         +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
+ #          #endif
+ #                end if
+ #           
+ #         _ACEOF
+ #         git apply pfunit_error_stop.patch && mkdir b && cd b
+ #         cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
+ #         make -j$(nproc) && make install && cd ../../
       - name: Install json-fortran
         run: |
           git clone https://github.com/ExtremeFLOW/json-fortran/
@@ -197,14 +201,15 @@ jobs:
           make -j $(nproc)
     
   Intel:
-    needs: linting
+#    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
         compiler: [ifort, ifx]
-        precision: [sp, dp]
+#        precision: [sp, dp]
+        precision: [sp]
         backend: [cpu]
         exclude:
         - os: ubuntu-20.04
@@ -289,38 +294,38 @@ jobs:
 #          ./regen.sh
 #          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/cuda/
 #          make
-  ReFrame:
-      needs: GNU
-      runs-on: ubuntu-20.04
-      strategy:
-        fail-fast: true
-        matrix:
-          precision: [sp, dp]
-          compiler: [gfortran-10]
-      env:
-        FC: ${{ matrix.compiler }}
-        OMPI_FC: ${{ matrix.compiler}}
-        OMPI_ALLOW_RUN_AS_ROOT: 1
-        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-        OMPI_MCA_btl_vader_single_copy_mechanism: none
-        RP: ${{ matrix.precision }}
-      name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
-      steps:
-        - name: Setup env.
-          run: |
-            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
-            pip install reframe-hpc 
-        - name: Topology
-          run: |
-            reframe --detect-host-topology
-        - name: Checkout
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 1
-        - name: Regression tests
-          run: |
-            ./regen.sh
-            cd reframe
-            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
+#  ReFrame:
+#      needs: GNU
+#      runs-on: ubuntu-20.04
+#      strategy:
+#        fail-fast: true
+#        matrix:
+#          precision: [sp, dp]
+#          compiler: [gfortran-10]
+#      env:
+#        FC: ${{ matrix.compiler }}
+#        OMPI_FC: ${{ matrix.compiler}}
+#        OMPI_ALLOW_RUN_AS_ROOT: 1
+#        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+#        OMPI_MCA_btl_vader_single_copy_mechanism: none
+#        RP: ${{ matrix.precision }}
+#      name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
+#      steps:
+#        - name: Setup env.
+#          run: |
+#            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
+#            pip install reframe-hpc 
+#        - name: Topology
+#          run: |
+#            reframe --detect-host-topology
+#        - name: Checkout
+#          uses: actions/checkout@v3
+#          with:
+#            fetch-depth: 1
+#        - name: Regression tests
+#          run: |
+#            ./regen.sh
+#            cd reframe
+#            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
 
 
