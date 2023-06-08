@@ -42,8 +42,7 @@ jobs:
         os: [ubuntu-20.04]
 #        compiler: [gfortran-10, gfortran-11, gfortran-12]
         compiler: [gfortran-10]
-#        backend: [cpu, cuda, hip, opencl]
-        backend: [cpu]
+        backend: [cpu, cuda, hip, opencl]
 #        precision: [sp, dp]
         precision: [dp]
 #        exclude:
@@ -72,7 +71,6 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-#      PKG_CONFIG_PATH: ${ PKG_CONFIG_PATH}:${{ HOME }}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig
     name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
@@ -118,6 +116,7 @@ jobs:
           sed -i "1i$(echo 'includedir='${HOME}'/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
           cat ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -233,10 +232,11 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran ..
           make -j$(nproc) && make install && cd ../../
           sed -i '1,2d'  ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
-          sed -i "1i$(echo 'libdir='${HOME}'/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
-          sed -i "1i$(echo 'includedir='${HOME}'/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i "1i$(echo 'libdir='${HOME}'/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i "1i$(echo 'includedir='${HOME}'/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
           cat ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
         with:
