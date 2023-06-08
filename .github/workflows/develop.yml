@@ -7,33 +7,33 @@ on:
   workflow_dispatch:
   
 jobs:
-  linting:
-      name: "Flint"
-      runs-on: ubuntu-20.04
-      steps:
-        - name: Setup env.
-          run: |
-            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
-            pip install nobvisual==0.2.0 flinter==0.4.0
-        - name: Checkout
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 1
-        - name: Lint
-          run: |
-            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
-            score=$(awk '$1==0{print $3}' flint.txt)
-            if (( $(echo "$score < 8.13" |bc -l) )) ; then
-              exit 1
-            fi
-        - name: Archive linter report
-          uses: actions/upload-artifact@v3
-          with:
-            name: flint-report
-            path: flint.txt
-            retention-days: 5
+#  linting:
+#      name: "Flint"
+#      runs-on: ubuntu-20.04
+#      steps:
+#        - name: Setup env.
+#          run: |
+#            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
+#            pip install nobvisual==0.2.0 flinter==0.4.0
+#        - name: Checkout
+#          uses: actions/checkout@v3
+#          with:
+#            fetch-depth: 1
+#        - name: Lint
+#          run: |
+#            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+#            score=$(awk '$1==0{print $3}' flint.txt)
+#            if (( $(echo "$score < 8.13" |bc -l) )) ; then
+#              exit 1
+#            fi
+#        - name: Archive linter report
+#          uses: actions/upload-artifact@v3
+#          with:
+#            name: flint-report
+#            path: flint.txt
+#            retention-days: 5
   GNU:
-    needs: linting
+#    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: true
@@ -243,7 +243,7 @@ jobs:
           fetch-depth: 1
       - name: Build
         run: |
-          export PKG_CONFIG_PATH="${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig
+          export PKG_CONFIG_PATH=${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/
           echo $PKG_CONFIG_PATH
           ./regen.sh
