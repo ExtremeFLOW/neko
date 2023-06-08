@@ -63,7 +63,7 @@ module fluid_scheme
   use operators, only : cfl
   use logger
   use field_registry
-  use json_module, only : json_file_t => json_file, json_value_t => json_value
+  use json_module, only : json_file, json_value
 
   implicit none
   
@@ -90,7 +90,7 @@ module fluid_scheme
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings     
-     type(json_file_t), pointer :: params      !< Parameters          
+     type(json_file), pointer :: params      !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
@@ -116,12 +116,12 @@ module fluid_scheme
   abstract interface
      subroutine fluid_scheme_init_intrf(this, msh, lx, params)
        import fluid_scheme_t
-       import json_file_t
+       import json_file
        import mesh_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh       
        integer, intent(inout) :: lx
-       type(json_file_t), target, intent(inout) :: params              
+       type(json_file), target, intent(inout) :: params              
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -156,7 +156,7 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     character(len=*), intent(in) :: scheme
-    type(json_file_t), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     character(len=20), dimension(:), allocatable :: bc_labels
@@ -165,7 +165,7 @@ contains
     real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val
-    type(json_value_t), pointer :: json_val
+    type(json_value), pointer :: json_val
     character(len=:), allocatable :: string_val1, string_val2
 
     
@@ -460,7 +460,7 @@ contains
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(json_file_t), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: params
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
@@ -518,7 +518,7 @@ contains
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(json_file_t), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: params
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
@@ -717,7 +717,7 @@ contains
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
     logical :: found, logical_val
-    type(json_value_t), pointer :: json_val
+    type(json_value), pointer :: json_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &

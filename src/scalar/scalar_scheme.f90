@@ -55,7 +55,7 @@ module scalar_scheme
   use logger
   use field_registry
   use usr_inflow
-  use json_module, only : json_file_t => json_file, json_value_t => json_value
+  use json_module, only : json_file, json_value
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -74,7 +74,7 @@ module scalar_scheme
      type(usr_inflow_t) :: user_bc   !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
-     type(json_file_t), pointer :: params          !< Parameters          
+     type(json_file), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
    contains
@@ -94,7 +94,7 @@ module scalar_scheme
   abstract interface
      subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params)
        import scalar_scheme_t
-       import json_file_t
+       import json_file
        import coef_t
        import gs_t
        import mesh_t
@@ -102,7 +102,7 @@ module scalar_scheme
        type(mesh_t), target, intent(inout) :: msh       
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
-       type(json_file_t), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: params
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -185,7 +185,7 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
     type(gs_t), target, intent(inout) :: gs_Xh
-    type(json_file_t), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     character(len=LOG_SIZE) :: log_buf
     character(len=20), dimension(:), allocatable :: bc_labels
@@ -193,7 +193,7 @@ contains
     logical :: found, logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val
-    type(json_value_t), pointer :: json_val
+    type(json_value), pointer :: json_val
     character(len=:), allocatable :: solver_type, solver_precon
 
     this%u => neko_field_registry%get_field('u')

@@ -6,7 +6,7 @@
 !
 module user
   use neko
-  use json_module, only : jsfon_file_t => json_file
+  use json_module, only : json_file
   implicit none
 
   ! Global user variables
@@ -48,7 +48,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     integer :: i, ntot
     real(kind=rp) :: uvw(3)
 
@@ -81,7 +81,7 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     real(kind=rp) dt
     integer tstep
@@ -104,7 +104,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w

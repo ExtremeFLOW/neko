@@ -38,19 +38,19 @@ module user_intf
   use coefs
   use usr_inflow
   use num_types
-  use json_module, only : json_file_t => json_file, json_value_t => json_value
+  use json_module, only : json_file
   implicit none
 
   !> Abstract interface for user defined initial conditions
   abstract interface
      subroutine useric(u, v, w, p, params)
        import field_t
-       import json_file_t
+       import json_file
        type(field_t), intent(inout) :: u
        type(field_t), intent(inout) :: v
        type(field_t), intent(inout) :: w
        type(field_t), intent(inout) :: p
-       type(json_file_t), intent(inout) :: params
+       type(json_file), intent(inout) :: params
      end subroutine useric
   end interface
 
@@ -58,7 +58,7 @@ module user_intf
   abstract interface
      subroutine user_initialize_modules(t, u, v, w, p, coef, params)
        import field_t
-       import json_file_t
+       import json_file
        import coef_t
        import rp
        real(kind=rp) :: t
@@ -67,7 +67,7 @@ module user_intf
        type(field_t), intent(inout) :: w
        type(field_t), intent(inout) :: p
        type(coef_t), intent(inout) :: coef
-       type(json_file_t), intent(inout) :: params
+       type(json_file), intent(inout) :: params
      end subroutine user_initialize_modules
   end interface
 
@@ -85,7 +85,7 @@ module user_intf
      subroutine usercheck(t, tstep, u, v, w, p, coef, param)
        import field_t
        import coef_t
-       import json_file_t
+       import json_file
        import rp
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
@@ -94,17 +94,17 @@ module user_intf
        type(field_t), intent(inout) :: w
        type(field_t), intent(inout) :: p
        type(coef_t), intent(inout) :: coef
-       type(json_file_t), intent(inout) :: param
+       type(json_file), intent(inout) :: param
      end subroutine usercheck
   end interface
 
   !> Abstract interface for finalizating user variables
   abstract interface
      subroutine user_final_modules(t, param)
-       import json_file_t
+       import json_file
        import rp
        real(kind=rp) :: t
-       type(json_file_t), intent(inout) :: param
+       type(json_file), intent(inout) :: param
      end subroutine user_final_modules
   end interface
 
@@ -182,7 +182,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     call neko_error('Dummy user defined initial condition set')    
   end subroutine dummy_user_ic
 
@@ -254,7 +254,7 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
   end subroutine dummy_user_check
 
   subroutine dummy_user_init_no_modules(t, u, v, w, p, coef, params)
@@ -264,12 +264,12 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
 
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
 end module user_intf
