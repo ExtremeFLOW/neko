@@ -120,6 +120,9 @@ jobs:
       - name: Build (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
+          export PKG_CONFIG_PATH="${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc:$PKG_CONFIG_PATH"
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/
+          echo $PKG_CONFIG_PATH
           ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --with-pfunit=${HOME}/pkg/pfunit/PFUNIT-4.4 --enable-real=${RP}
           make -j$(nproc)
