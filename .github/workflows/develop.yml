@@ -13,7 +13,7 @@ jobs:
       steps:
         - name: Setup env.
           run: |
-            sudo apt-get update && sudo apt-get install python-dev python3-tk
+            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
             pip install nobvisual==0.2.0 flinter==0.4.0
         - name: Checkout
           uses: actions/checkout@v3
@@ -67,7 +67,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-      PKG_CONFIG_DIR: ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig
+      PKG_CONFIG_PATH: ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig
     name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.backend }} / ${{ matrix.precision }}
     steps:
       - name: Setup env.
@@ -110,8 +110,8 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran ..
           make -j$(nproc) && make install && cd ../../
           sed -i '1,2d'  ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
-          sed -i '1ilibdir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
-          sed -i '1iincludedir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i '1s|^|libdir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/\n|' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
+          sed -i '1s|^|includedir=${Home}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/\n|' ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
           cat ${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/json-fortran.pc
       - name: Checkout
         uses: actions/checkout@v3
