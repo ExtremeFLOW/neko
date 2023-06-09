@@ -295,7 +295,8 @@ contains
     end if
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
 
-    call this%vol_flow%init(this%dm_Xh, params)
+    call params%get('case.fluid.flow_rate_force.direction', integer_val, found)
+    if (.found.) call this%vol_flow%init(this%dm_Xh, params)
     
   end subroutine fluid_pnpn_init
 
