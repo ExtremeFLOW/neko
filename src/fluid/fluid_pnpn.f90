@@ -295,7 +295,7 @@ contains
     end if
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
 
-!    call this%vol_flow%init(this%dm_Xh, param)
+    call this%vol_flow%init(this%dm_Xh, params)
     
   end subroutine fluid_pnpn_init
 
@@ -548,7 +548,7 @@ contains
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
       end if
 
-      call params%get('fluid.flow_rate_force', json_val, found)
+      call params%get('case.fluid.flow_rate_force.rate', real_val, found)
       if (found) then
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, rho, Re, &
