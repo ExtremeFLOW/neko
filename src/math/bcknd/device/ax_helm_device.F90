@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module ax_helm_device
-  use device_math
   use ax_product
-  use num_types
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use field, only : field_t
+  use mesh, only : mesh_t
+  use device_math
+  use device
   use, intrinsic :: iso_c_binding
   implicit none
   private

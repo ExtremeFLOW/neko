@@ -164,10 +164,10 @@ fluid/bcknd/device/device_fluid_plan4.o : fluid/bcknd/device/device_fluid_plan4.
 fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o math/operators.o gs/gather_scatter.o fluid/pnpn_res.o 
 simulation.o : simulation.f90 common/profiler.o common/jobctrl.o common/log.o io/file.o common/ext_bdf_scheme.o gs/gather_scatter.o case.o 
 math/ax_helm_fctry.o : math/ax_helm_fctry.f90 math/bcknd/cpu/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o math/bcknd/device/ax_helm_device.o math/ax.o config/neko_config.o 
-math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/ax.o 
-math/bcknd/sx/ax_helm_sx.o : math/bcknd/sx/ax_helm_sx.f90 config/num_types.o math/ax.o 
-math/bcknd/xsmm/ax_helm_xsmm.o : math/bcknd/xsmm/ax_helm_xsmm.F90 config/num_types.o math/mxm_wrapper.o math/ax.o 
-math/bcknd/device/ax_helm_device.o : math/bcknd/device/ax_helm_device.F90 config/num_types.o math/ax.o math/bcknd/device/device_math.o 
+math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/math.o mesh/mesh.o field/field.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
+math/bcknd/sx/ax_helm_sx.o : math/bcknd/sx/ax_helm_sx.f90 math/math.o mesh/mesh.o field/field.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
+math/bcknd/xsmm/ax_helm_xsmm.o : math/bcknd/xsmm/ax_helm_xsmm.F90 mesh/mesh.o field/field.o sem/space.o sem/coef.o config/num_types.o math/mxm_wrapper.o math/ax.o 
+math/bcknd/device/ax_helm_device.o : math/bcknd/device/ax_helm_device.F90 device/device.o math/bcknd/device/device_math.o mesh/mesh.o field/field.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
 common/projection.o : common/projection.f90 common/log.o common/profiler.o common/bcknd/device/device_projection.o math/bcknd/device/device_math.o device/device.o config/neko_config.o gs/gather_scatter.o comm/comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
 common/bcknd/device/device_projection.o : common/bcknd/device/device_projection.F90 common/utils.o config/num_types.o 
 comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
