@@ -72,7 +72,7 @@ module fluid_volflow
   use neko_config
   use device_math
   use device_mathops
-  use json_module, only : json_file_t => json_file
+  use json_module, only : json_file
   implicit none
   private
   
@@ -97,7 +97,7 @@ contains
   subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), intent(inout) :: dm_Xh
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     logical average, found
     integer :: direction
     real(kind=rp) :: rate

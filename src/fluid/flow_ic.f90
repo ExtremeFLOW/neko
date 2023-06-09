@@ -41,7 +41,7 @@ module flow_ic
   use coefs
   use math
   use user_intf, only : useric
-  use json_module, only : json_file_t => json_file
+  use json_module, only : json_file
   implicit none
   private
 
@@ -62,7 +62,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     ! Variables for retrieving json parameters
     logical :: found
     real(kind=rp) :: delta
@@ -116,7 +116,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     procedure(useric) :: usr_ic
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     call usr_ic(u, v, w, p, params)
     

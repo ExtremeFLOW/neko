@@ -46,6 +46,7 @@ module scalar_pnpn
   use logger
   use advection
   use profiler
+  use json_module, only : json_file
   implicit none
   private
 
@@ -97,7 +98,7 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
     type(gs_t), target, intent(inout) :: gs
-    type(json_file_t), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: params
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     ! Variables for retrieving json parameters

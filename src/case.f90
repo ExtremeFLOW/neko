@@ -58,13 +58,12 @@ module case
   use jobctrl
   use user_intf  
   use scalar_pnpn ! todo directly load the pnpn? can we have other
-  use json_module, only : json_file_t => json_file, json_value_t => json_value,&
-                          json_core_t => json_core
+  use json_module, only : json_file, json_value
   implicit none
 
   type :: case_t
      type(mesh_t) :: msh
-     type(json_file_t) :: json_params
+     type(json_file) :: json_params
      type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
@@ -97,6 +96,7 @@ contains
     character(len=80) :: fluid_scheme  = ''
     character(len=80) :: source_term = ''
     integer :: lx = 0
+    type(json_value), pointer :: json_val
     logical :: scalar = .false.
     character(len=80) :: scalar_source_term = ''
     type(param_io_t) :: params
@@ -107,11 +107,6 @@ contains
     character buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
-
-!    type(json_file_t) :: json_file
-!    type(json_file_t) :: json_file2
-    type(json_value_t), pointer :: json_value
-    type(json_core_t) :: json_core
     logical found, logical_val
     integer integer_val
     real(kind=rp) real_val
@@ -141,7 +136,6 @@ contains
     
     call msh_file%read(C%msh)
     
-
     !
     ! Load Balancing
     !
@@ -201,7 +195,7 @@ contains
     ! Setup scalar scheme
     !
     ! @todo no scalar factroy for now, probably not needed
-    call C%json_params%get('case.scalar', json_value, found)
+    call C%json_params%get('case.scalar', json_val, found)
     call C%json_params%get('case.scalar.enabled', scalar, found)
     if (found) then
        call C%json_params%get('case.scalar.enabled', scalar, found)
@@ -387,7 +381,7 @@ contains
     !
     ! Setup statistics
     !
-    call C%json_params%get('case.statistics', json_value, found)
+    call C%json_params%get('case.statistics', json_val, found)
     if (found) then
        call C%json_params%get('case.statistics.enabled', logical_val, found)
        if (.not. found .or. (found .and. logical_val)) then

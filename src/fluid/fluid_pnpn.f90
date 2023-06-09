@@ -47,7 +47,7 @@ module fluid_pnpn
   use logger
   use advection
   use profiler
-  use json_module, only : json_file_t => json_file, json_value_t => json_value
+  use json_module, only : json_file, json_value
   implicit none
   private
 
@@ -121,7 +121,7 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(json_file_t), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: params
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     character(len=20), dimension(:), allocatable :: bc_labels
     ! Variables for retrieving json parameters
@@ -392,7 +392,7 @@ contains
     integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
     ! Variables for retrieving json parameters
-    type(json_value_t), pointer :: json_val
+    type(json_value), pointer :: json_val
     logical :: found, logical_val
     real(kind=rp) :: real_val, rho, mu, Re
     integer :: integer_val, ksp_vel_maxiter, ksp_pr_maxiter
