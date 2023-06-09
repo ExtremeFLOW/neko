@@ -229,7 +229,14 @@ jobs:
           compiler: ifx
         include:
         - os: ubuntu-20.04
-          setup-env: cd /tmp && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" && sudo apt install --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic && source /opt/intel/oneapi/setvars.sh && sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates && printenv >> $GITHUB_ENV
+          setup-env: |
+            cd /tmp && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+            sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+            sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" 
+            sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic 
+            source /opt/intel/oneapi/setvars.sh
+            sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates
+            printenv >> $GITHUB_ENV
     env:
       CC: icc
       FC: ${{ matrix.compiler }}
@@ -250,8 +257,8 @@ jobs:
           sed -i "1i$(echo 'libdir='${HOME}'/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
           sed -i "1i$(echo 'includedir='${HOME}'/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
           cat ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig" >> $GITHUB_ENV
-          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
         with:
