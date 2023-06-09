@@ -64,7 +64,6 @@ module case
 
   type :: case_t
      type(mesh_t) :: msh
-     type(param_t) :: params
      type(json_file_t) :: json_params
      type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
@@ -141,9 +140,7 @@ contains
     msh_file = file_t(string_val)
     
     call msh_file%read(C%msh)
-    C%params = params%p
     
-    write(*,*) "BC LABELS", C%params%bc_labels(1)
 
     !
     ! Load Balancing
@@ -191,13 +188,12 @@ contains
     end if
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
-    ! Switch to JSON
     call C%json_params%get('case.numerics.polynomial_order', lx, found)
     if (.not. found) then
        call neko_error( &
          "Parameter numerics.polynomial_order missing in the case file")
     else 
-      lx = lx + 1 ! add 1 to poly order
+      lx = lx + 1 ! add 1 to get poly order
     end if
     call C%fluid%init(C%msh, lx, C%json_params)
 
@@ -298,25 +294,19 @@ contains
     call C%json_params%get('case.numerics.time_order', integer_val, found)
     call C%ext_bdf%init(integer_val)
 
-
-    ! Append / to the output directory name if missing
-    output_dir_len = len(trim(C%params%output_dir))
-
-    if (output_dir_len .gt. 0) then
-       if (C%params%output_dir(output_dir_len:output_dir_len) .ne. "/") then
-          C%params%output_dir = trim(C%params%output_dir)//"/"
-       end if
-    end if
-
     !
-    ! Get output directory
+    ! Get and process output directory
     !
     call C%json_params%get('case.output_directory', output_directory, found)
     if (.not. found) then
        output_directory = ""
-    else if (len(trim(output_directory)) .ne. 0) then
-       ! append forward-slash
-       output_directory = trim(output_directory)//"/"
+    else
+       output_dir_len = len(trim(output_directory))
+       if (output_dir_len .gt. 0) then
+          if (output_directory(output_dir_len:output_dir_len) .ne. "/") then
+             output_directory = trim(output_directory)//"/"
+          end if
+       end if
     end if
     
     !
