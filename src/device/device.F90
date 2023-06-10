@@ -1188,7 +1188,7 @@ contains
        call neko_error('Error during stream sync')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueMarker(stream, event) .ne. CL_SUCCESS) then
+    if (clEnqueueWaitForEvents(stream, 1, event) .ne. CL_SUCCESS) then
        call neko_error('Error during stream sync')
     end if
 #endif
@@ -1276,7 +1276,7 @@ contains
        call neko_error('Error recording an event')
     end if
 #elif HAVE_OPENCL
-    if (clSetUserEventStatus(event, CL_COMPLETE) .ne. CL_SUCCESS) then
+    if (clEnqueueMarker(stream, event) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
 #endif
@@ -1294,7 +1294,7 @@ contains
        call neko_error('Error during event sync')
     end if
 #elif HAVE_OPENCL
-    if (clWaitForEvents(1_c_int, event) .eq. CL_SUCCESS) then
+    if (clWaitForEvents(1, event) .eq. CL_SUCCESS) then
        call neko_error('Error during event sync')
     end if
 #endif

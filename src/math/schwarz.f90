@@ -112,7 +112,7 @@ contains
     allocate(this%work2(this%dm_schwarz%size()))
     allocate(this%wt(Xh%lx, Xh%lx, 4, msh%gdim, msh%nelv))
     
-    call fdm_init(this%fdm,Xh, dm, gs_h)
+    call this%fdm%init(Xh, dm, gs_h)
 
 
     this%msh => msh

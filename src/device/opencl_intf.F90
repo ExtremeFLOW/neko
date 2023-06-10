@@ -249,6 +249,17 @@ module opencl_intf
   end interface
 
   interface
+     integer (c_int) function clEnqueueWaitForEvents(queue, &
+          num_events, event_list) bind(c, name='clEnqueueWaitForEvents')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: queue
+       integer(c_int), value :: num_events
+       type(c_ptr), value :: event_list
+     end function clEnqueueWaitForEvents
+  end interface
+
+  interface
      integer (c_int) function clWaitForEvents(num_events, event_list) &
           bind(c, name='clWaitForEvents')
        use, intrinsic :: iso_c_binding
