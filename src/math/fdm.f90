@@ -74,7 +74,8 @@ module fdm
   use fdm_device
   use device
   use, intrinsic :: iso_c_binding
-  implicit none  
+  implicit none
+  private
 
   type, public :: fdm_t
      real(kind=rp), allocatable :: s(:,:,:,:)
