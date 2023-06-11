@@ -40,7 +40,9 @@
 
 #include <stdlib.h>
 #include <mpi.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 void device_mpi_init_reqs(int n, void **reqs_out) {
   MPI_Request *reqs = malloc(n * sizeof(MPI_Request));
@@ -69,7 +71,7 @@ void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
 #ifdef _OPENMP
   int tid = omp_get_thread_num();
 #else
-  int tid = 0; //omp_get_thread_num();
+  int tid = 0;
 #endif
 
   MPI_Irecv(buf_d+offset, nbytes, MPI_BYTE, rank, tid, MPI_COMM_WORLD, &reqs[i-1]);
