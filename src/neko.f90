@@ -33,7 +33,6 @@
 !> Master module
 module neko
   use num_types
-  use parameters    
   use comm
   use utils
   use logger

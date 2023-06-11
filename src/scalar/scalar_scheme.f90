@@ -36,7 +36,6 @@
 module scalar_scheme
   use gather_scatter
   use neko_config
-  use parameters
   use checkpoint
   use num_types
   use source
