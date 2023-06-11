@@ -199,75 +199,33 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
 
-    call params%get('case.fluid.velocity_solver.type', string_val1, &
-                    found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.type missing in the case file")
-    end if
-
-    call params%get('case.fluid.velocity_solver.preconditioner', &
-                    string_val2, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.preconditioner missing in the case &
-         &file")
-    end if
-
-    call params%get('case.fluid.velocity_solver.absolute_tolerance', &
-                    real_val, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
-         &case file")
-    end if
+    call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
+    call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+                  string_val2)
+    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
+                  real_val)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp vel.   : ('// trim(string_val1) // &
          ', ' // trim(string_val2) // ')')
 
     write(log_buf, '(A,ES13.6)') ' `-abs tol :',  real_val
 
-    call params%get('case.fluid.pressure_solver.type', string_val1, &
-                    found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.pressure_solver.type missing in the case file")
-    end if
-
-    call params%get('case.fluid.pressure_solver.preconditioner', &
-                    string_val2, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.pressure_solver.preconditioner missing in the case &
-         &file")
-    end if
-
-    call params%get('case.fluid.pressure_solver.absolute_tolerance', &
-                    real_val, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.pressure_solver.absolute_tolerance missing in the &
-         &case file")
-    end if
-
+    call json_get(params, 'case.fluid.pressure_solver.type', string_val1)
+    call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
+                  string_val2)
+    call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+                  real_val)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp prs.   : ('// trim(string_val1) // &
          ', ' // trim(string_val2) // ')')
     write(log_buf, '(A,ES13.6)') ' `-abs tol :',  real_val
     call neko_log%message(log_buf)
 
-    call params%get('case.numerics.dealias', logical_val, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter numerics.dealias missing in the case file")
-    end if
+    call json_get(params, 'case.numerics.dealias', logical_val)
     write(log_buf, '(A, L1)') 'Dealias    : ',  logical_val
     call neko_log%message(log_buf)
 
-    call params%get('case.numerics.dealias', logical_val, found)
-    if (.not. found) then
-       logical_val = .false.
-    end if
+    call json_get(params, 'case.output_boundary', logical_val)
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
@@ -293,8 +251,9 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-    call params%get('case.fluid.boundary_types', bc_labels, found) 
-    if (.not. found) then
+    if (params%valid_path('case.fluid.boundary_types')) then
+      call params%get('case.fluid.boundary_types', bc_labels, found)
+    else
        if (allocated(bc_labels)) then
           deallocate(bc_labels)
        end if
@@ -312,13 +271,8 @@ contains
     call this%bc_sym%init_msk(this%c_Xh)    
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
-    call params%get('case.fluid.inflow_condition', json_val, found)
-    if (found) then
-       call params%get('case.fluid.inflow_condition.type', string_val1, found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter fluid.inflow_condition.type missing in the case file")
-       end if
+    if (params%valid_path('case.fluid.inflow_condition')) then
+       call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
        if (trim(string_val1) .eq. "default") then
           allocate(inflow_t::this%bc_inflow)
        else if (trim(string_val1) .eq. "blasius") then
@@ -337,39 +291,18 @@ contains
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
        if (trim(string_val1) .eq. "default") then
-           call params%get('case.fluid.inflow_condition.value', real_vec, found)
-
-           if (.not. found) then
-              call neko_error(&
-              "Parameter fluid.inflow_condition.value missing in the case file")
-           end if
+           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
            call this%bc_inflow%set_inflow(real_vec)
-
        else if (trim(string_val1) .eq. "blasius") then
           select type(bc_if => this%bc_inflow)
           type is(blasius_t)
              call bc_if%set_coef(this%C_Xh)
-             call params%get('case.fluid.blasius.delta', real_val, found)
-             if (.not. found) then
-                call neko_error(&
-                  "Parameter fluid.blasius.delta missing in the case file")
-             end if
+             call json_get(params, 'case.fluid.blasius.delta', real_val)
+             call json_get(params, 'case.fluid.blasius.approximation',&
+                           string_val2)
+             call json_get(params, 'case.fluid.blasius.freestream_velocity',&
+                           real_vec)
 
-             call params%get('case.fluid.blasius.approximation', string_val2,&
-                             found)
-             if (.not. found) then
-                call neko_error(&
-                  "Parameter fluid.blasius.approximation missing in the case &
-                  &file")
-             end if
-
-             call params%get('case.fluid.blasius.freestream_velocity', real_vec,&
-                             found)
-             if (.not. found) then
-                call neko_error(&
-                  "Parameter fluid.blasius.freestream_velocity missing in the &
-                  &case file")
-             end if
              call this%bc_inflow%set_inflow(real_vec)
              call bc_if%set_params(real_val, string_val2)
 
@@ -389,8 +322,8 @@ contains
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
        
-    call params%get('case.output_boundary', logical_val, found)
-    if (found .and. logical_val) then
+    call json_get(params, 'case.output_boundary', logical_val)
+    if (logical_val) then
        call field_init(this%bdry, this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
        
@@ -476,28 +409,11 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
-    call params%get('case.fluid.velocity_solver.type', solver_type, &
-                            found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.type missing in the case file")
-    end if
-
-    call params%get('case.fluid.velocity_solver.preconditioner', &
-                           precon_type, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.preconditioner missing in the case &
-         &file")
-    end if
-
-    call params%get('case.fluid.velocity_solver.absolute_tolerance', &
-                           abs_tol, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
-         &case file")
-    end if
+    call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
+    call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+                  precon_type)
+    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
+                  abs_tol)
 
     if (kspv_init) then
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
@@ -576,13 +492,10 @@ contains
                         'on+dong', bc_labels)
     call this%bc_dong%finalize()
 
-    call params%get('case.fluid.outflow_condition.delta', &
-                     dong_delta, found)
-    if (.not. found) dong_delta = 0.01_rp
-
-    call params%get('case.fluid.outflow_condition.velocity_scale', &
-                     dong_uchar, found)
-    if (.not. found) dong_uchar = 1.0_rp
+    call json_get_or_default(params, 'case.fluid.outflow_condition.delta',&
+                             dong_delta, 0.01_rp)
+    call json_get_or_default(params, 'case.fluid.outflow_condition.velocity_scale',&
+                             dong_uchar, 1.0_rp)
 
     call this%bc_dong%set_vars(this%c_Xh, this%u, this%v, this%w,&
          dong_uchar, dong_delta)
@@ -590,28 +503,11 @@ contains
     call bc_list_add(this%bclst_prs, this%bc_dong)
 
     if (kspv_init) then
-       call params%get('case.fluid.velocity_solver.type', string_val1, &
-                       found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter fluid.velocity_solver.type missing in the case file")
-       end if
-
-       call params%get('case.fluid.velocity_solver.preconditioner', &
-                       string_val2, found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter fluid.velocity_solver.preconditioner missing in the case&
-            & file")
-       end if
-
-       call params%get('case.fluid.velocity_solver.absolute_tolerance', &
-                       real_val, found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
-            &case file")
-       end if
+       call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
+       call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+                     string_val2)
+       call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
+                     real_val)
 
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, real_val)
@@ -620,28 +516,11 @@ contains
     end if
 
     if (kspp_init) then
-       call params%get('case.fluid.pressure_solver.type', string_val1, &
-                       found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter fluid.pressure_solver.type missing in the case file")
-       end if
-
-       call params%get('case.fluid.pressure_solver.preconditioner', &
-                    string_val2, found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter fluid.pressure_solver.preconditioner missing in the case&
-            & file")
-       end if
-
-       call params%get('case.fluid.pressure_solver.absolute_tolerance', &
-                       real_val, found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter fluid.pressure_solver.absolute_tolerance missing in the &
-            &case file")
-       end if
+       call json_get(params, 'case.fluid.pressure_solver.type', string_val1)
+       call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
+                     string_val2)
+       call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+                     real_val)
 
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
             "gmres", real_val)
@@ -760,11 +639,10 @@ contains
     !
     ! Setup mean flow fields if requested
     !
-    call this%params%get('case.statistics', json_val, found)
-    if (found) then
-       call this%params%get('case.statistics.enabled', logical_val, found)
-       if (.not. found .or. (found .and. logical_val)) then
-         
+    if (this%params%valid_path('case.statistics')) then
+       call json_get_or_default(this%params, 'case.statistics.enabled',&
+                                logical_val, .true.)
+       if (logical_val) then
           call this%mean%init(this%u, this%v, this%w, this%p)
           call this%stats%init(this%c_Xh, this%mean%u, &
                this%mean%v, this%mean%w, this%mean%p)

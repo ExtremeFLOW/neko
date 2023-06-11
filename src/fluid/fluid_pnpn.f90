@@ -269,15 +269,17 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    call params%get('case.fluid.pressure_solver.projection_space_size', &
-                    integer_val, found)
-    if (found .and. integer_val .gt. 0) then
+    call json_get_or_default(params,&
+                            'case.fluid.pressure_solver.projection_space_size',&
+                             integer_val, 0)
+    if (integer_val .gt. 0) then
        call this%proj_prs%init(this%dm_Xh%size(), integer_val)
     end if
     
-    call params%get('case.fluid.velocity_solver.projection_space_size', &
-                    integer_val, found)
-    if (found .and. integer_val .gt. 0) then
+    call json_get_or_default(params,&
+                            'case.fluid.velocity_solver.projection_space_size',&
+                             integer_val, 0)
+    if (integer_val .gt. 0) then
        call this%proj_u%init(this%dm_Xh%size(), integer_val)
        call this%proj_v%init(this%dm_Xh%size(), integer_val)
        call this%proj_w%init(this%dm_Xh%size(), integer_val)
@@ -286,18 +288,19 @@ contains
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
 
-    call params%get('case.numerics.dealias', logical_val, found)
+    call json_get(params, 'case.numerics.dealias', logical_val)
     call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
                     found)
     if (.not. found) then
-       call params%get('case.numerics.polynomial_order', integer_val, &
-                       found)
+       call json_get(params, 'case.numerics.polynomial_order', integer_val)
        integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
     end if
+    ! an extra +1 below to go from poly order to space size
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
 
-    call params%get('case.fluid.flow_rate_force.direction', integer_val, found)
-    if (found) call this%vol_flow%init(this%dm_Xh, params)
+    if (params%valid_path('case.fluid.flow_rate_force')) then
+       call this%vol_flow%init(this%dm_Xh, params)
+    end if
     
   end subroutine fluid_pnpn_init
 
