@@ -7,42 +7,40 @@ on:
   workflow_dispatch:
   
 jobs:
-#  linting:
-#      name: "Flint"
-#      runs-on: ubuntu-20.04
-#      steps:
-#        - name: Setup env.
-#          run: |
-#            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
-#            pip install nobvisual==0.2.0 flinter==0.4.0
-#        - name: Checkout
-#          uses: actions/checkout@v3
-#          with:
-#            fetch-depth: 1
-#        - name: Lint
-#          run: |
-#            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
-#            score=$(awk '$1==0{print $3}' flint.txt)
-#            if (( $(echo "$score < 8.13" |bc -l) )) ; then
-#              exit 1
-#            fi
-#        - name: Archive linter report
-#          uses: actions/upload-artifact@v3
-#          with:
-#            name: flint-report
-#            path: flint.txt
-#            retention-days: 5
+  linting:
+      name: "Flint"
+      runs-on: ubuntu-20.04
+      steps:
+        - name: Setup env.
+          run: |
+            sudo apt-get update && sudo apt-get install -yq python3-dev python3-pip python3-tk
+            pip install nobvisual==0.2.0 flinter==0.4.0
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        - name: Lint
+          run: |
+            flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+            score=$(awk '$1==0{print $3}' flint.txt)
+            if (( $(echo "$score < 8.13" |bc -l) )) ; then
+              exit 1
+            fi
+        - name: Archive linter report
+          uses: actions/upload-artifact@v3
+          with:
+            name: flint-report
+            path: flint.txt
+            retention-days: 5
   GNU:
-#    needs: linting
+    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: true
       matrix:
         os: [ubuntu-20.04, macos-12]
-#        compiler: [gfortran-10, gfortran-11, gfortran-12]
-        compiler: [gfortran-10, gfortran-11]
-#        backend: [cpu, cuda, hip, opencl]
-        backend: [cpu, opencl]
+        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        backend: [cpu, cuda, hip, opencl]
 #        precision: [sp, dp]
         precision: [dp]
         exclude:
@@ -81,29 +79,29 @@ jobs:
         with:
           path: ~/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
-#      - name: Build pFUnit
-#        if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
-#        run: |
-#          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
-#          cd pFUnit
-#          cat >> pfunit_error_stop.patch << _ACEOF
-#          diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
-#          index 7df7b65..4f7dbf5 100644
-#          --- a/src/funit/FUnit.F90
-#          +++ b/src/funit/FUnit.F90
-#          @@ -168,7 +168,7 @@ contains
-#           #if defined(PGI)
-#                    call exit(-1)
-#           #else
-#          -         stop '*** Encountered 1 or more failures/errors during testing. ***'
-#          +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
-#           #endif
-#                 end if
-#           
-#          _ACEOF
-#          git apply pfunit_error_stop.patch && mkdir b && cd b
-#          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
-#          make -j$(nproc) && make install && cd ../../
+      - name: Build pFUnit
+        if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
+        run: |
+          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
+          cd pFUnit
+          cat >> pfunit_error_stop.patch << _ACEOF
+          diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
+          index 7df7b65..4f7dbf5 100644
+          --- a/src/funit/FUnit.F90
+          +++ b/src/funit/FUnit.F90
+          @@ -168,7 +168,7 @@ contains
+           #if defined(PGI)
+                    call exit(-1)
+           #else
+          -         stop '*** Encountered 1 or more failures/errors during testing. ***'
+          +         error stop '*** Encountered 1 or more failures/errors during testing. ***'
+           #endif
+                 end if
+           
+          _ACEOF
+          git apply pfunit_error_stop.patch && mkdir b && cd b
+          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/pfunit ..
+          make -j$(nproc) && make install && cd ../../
       - name: Install json-fortran Ubuntu
         if: matrix.os == 'ubuntu-20.04'
         run: |
@@ -165,10 +163,10 @@ jobs:
           ./regen.sh 
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008"  --enable-real=${RP} --with-opencl
           make -j$(nproc)
-#      - name: Check
-#        if: matrix.backend == 'cpu'
-#        run: |
-#          make -j$(nproc) check
+      - name: Check
+        if: matrix.backend == 'cpu'
+        run: |
+          make -j$(nproc) check
       - name: Archive test report
         if: matrix.backend == 'cpu' && failure()
         uses: actions/upload-artifact@v2
@@ -176,15 +174,15 @@ jobs:
           name: Test report_${{ matrix.os }}_${{ matrix.compiler }}
           path: tests/test-suite.log
           retention-days: 2
-#      - name: Dist (CPU backend)
-#        if: matrix.backend == 'cpu'
-#        run: |
-#          make dist
-#          mkdir releng
-#          tar xf neko-*.tar.gz -C releng
-#          cd releng/neko-*
-#          ./configure FC=${FC} --enable-real=${RP}
-#          make -j $(nproc)
+      - name: Dist (CPU backend)
+        if: matrix.backend == 'cpu'
+        run: |
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          ./configure FC=${FC} --enable-real=${RP}
+          make -j $(nproc)
       - name: Dist (CUDA backend)
         if: matrix.backend == 'cuda'
         run: |
@@ -214,7 +212,7 @@ jobs:
           make -j $(nproc)
     
   Intel:
-#    needs: linting
+    needs: linting
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -235,7 +233,7 @@ jobs:
             sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" 
             sudo apt install -y --no-install-recommends intel-oneapi-compiler-fortran intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic 
             source /opt/intel/oneapi/setvars.sh
-            sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates
+            sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
             printenv >> $GITHUB_ENV
     env:
       CC: icc
