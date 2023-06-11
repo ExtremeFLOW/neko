@@ -48,11 +48,12 @@ extern "C" {
 
     const dim3 nthrds((*lx), (*lx), 1);
     const dim3 nblcks((*nelv), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
       ax_helm_kernel<real, LX>                                                  \
-      <<<nblcks, nthrds>>>((real *) w, (real *) u,                              \
+        <<<nblcks, nthrds, 0, stream>>>((real *) w, (real *) u,                 \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
                            (real *) g11, (real *) g22, (real *) g33,            \
                            (real *) g12, (real *) g13, (real *) g23);           \
@@ -62,7 +63,7 @@ extern "C" {
 #define CASE_PADDED(LX)                                                         \
     case LX:                                                                    \
       ax_helm_kernel_padded<real, LX>                                           \
-      <<<nblcks, nthrds>>>((real *) w, (real *) u,                              \
+        <<<nblcks, nthrds, 0, stream>>>((real *) w, (real *) u,                 \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
                            (real *) g11, (real *) g22, (real *) g33,            \
                            (real *) g12, (real *) g13, (real *) g23);           \
