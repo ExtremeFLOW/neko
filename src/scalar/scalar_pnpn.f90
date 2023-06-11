@@ -46,6 +46,7 @@ module scalar_pnpn
   use logger
   use advection
   use profiler
+  use json_utils, only: json_get, json_get_or_default
   use json_module, only : json_file
   implicit none
   private
@@ -160,9 +161,10 @@ contains
 
     ! @todo not param stuff again, using velocity stuff
     ! Intialize projection space thingy
-    call params%get('case.fluid.velocity_solver.projection_space_size', &
-                    integer_val, found)
-    if (found .and. integer_val .gt. 0) then
+    call json_get_or_default(params,&
+                            'case.fluid.velocity_solver.projection_space_size',&
+                             integer_val, 0)
+    if (integer_val .gt. 0) then
        call this%proj_s%init(this%dm_Xh%size(), integer_val)
     end if
 
@@ -171,7 +173,7 @@ contains
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
     
     ! Uses sthe same parameter as the fluid to set dealiasing
-    call params%get('case.numerics.dealias', logical_val, found)
+    call json_get(params, 'case.numerics.dealias', logical_val)
     call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
                     found)
     if (.not. found) then
@@ -251,11 +253,11 @@ contains
          params => this%params, msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
 
-      call params%get('case.fluid.rho', rho, found)
-      call params%get('case.scalar.Pr', Pr, found)
-      call params%get('case.fluid.Re', Re, found)
-      call params%get('case.fluid.velocity_solver.max_iterations', &
-                       ksp_vel_maxiter, found)
+      call json_get(params, 'case.fluid.rho', rho)
+      call json_get(params, 'case.fluid.Pr', Pr)
+      call json_get(params, 'case.fluid.Re', Re)
+      call json_get(params, 'case.fluid.velocity_solver.max_iterations',&
+                    ksp_vel_maxiter)
 
       ! evaluate the source term and scale with the mass matrix
       call f_Xh%eval(t)

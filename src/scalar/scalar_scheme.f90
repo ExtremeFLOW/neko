@@ -54,6 +54,7 @@ module scalar_scheme
   use logger
   use field_registry
   use usr_inflow
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_value
   implicit none
 
@@ -200,28 +201,12 @@ contains
     this%w => neko_field_registry%get_field('w')
 
     call neko_log%section('Scalar')
-    call params%get('case.fluid.velocity_solver.type', solver_type, &
-                    found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.type missing in the case file")
-    end if
+    call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
+    call json_get(params, 'case.fluid.velocity_solver.preconditioner',&
+                  solver_precon)
+    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
+                  solver_abstol)
 
-    call params%get('case.fluid.velocity_solver.preconditioner', &
-                    solver_precon, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.preconditioner missing in the case &
-         &file")
-    end if
-
-    call params%get('case.fluid.velocity_solver.absolute_tolerance', &
-                    solver_abstol, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.velocity_solver.absolute_tolerance missing in the &
-         &case file")
-    end if
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
