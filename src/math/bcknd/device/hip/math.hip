@@ -392,7 +392,7 @@ extern "C" {
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost, stream);
+                             hipMemcpyDeviceToHost, stream));
 #endif
     return bufred[0];
   }
@@ -439,7 +439,7 @@ extern "C" {
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
-                             hipMemcpyDeviceToHost, stream);
+                             hipMemcpyDeviceToHost, stream));
 #endif    
   }
 
@@ -495,7 +495,7 @@ extern "C" {
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost, stream);
+                             hipMemcpyDeviceToHost, stream));
 #endif
     return bufred[0];
   }
@@ -533,7 +533,7 @@ extern "C" {
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
-                             hipMemcpyDeviceToHost, stream);
+                             hipMemcpyDeviceToHost, stream));
 #endif    
     return bufred[0];
   }
