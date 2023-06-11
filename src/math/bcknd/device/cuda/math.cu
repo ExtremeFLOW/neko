@@ -403,6 +403,7 @@ extern "C" {
 #else
     CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #endif
 
     return bufred[0];
@@ -446,6 +447,7 @@ extern "C" {
 #else    
     CUDA_CHECK(cudaMemcpyAsync(h, bufred_d, (*j) * sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #endif
   }
 
@@ -484,6 +486,7 @@ extern "C" {
 #else
     CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #endif
 
     return bufred[0];
@@ -520,7 +523,8 @@ extern "C" {
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
 #else
     CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
-                               cudaMemcpyDeviceToHost, stream));    
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #endif
     
     return bufred[0];

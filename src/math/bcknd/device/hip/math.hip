@@ -393,6 +393,7 @@ extern "C" {
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
+    hipStreamSynchronize(stream);
 #endif
     return bufred[0];
   }
@@ -440,6 +441,7 @@ extern "C" {
 #else
     HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
                              hipMemcpyDeviceToHost, stream));
+    hipStreamSynchronize(stream);
 #endif    
   }
 
@@ -496,6 +498,7 @@ extern "C" {
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
+    hipStreamSynchronize(stream);
 #endif
     return bufred[0];
   }
@@ -534,6 +537,7 @@ extern "C" {
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
                              hipMemcpyDeviceToHost, stream));
+    hipStreamSynchronize(stream);
 #endif    
     return bufred[0];
   }
