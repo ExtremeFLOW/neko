@@ -47,6 +47,7 @@ module fluid_pnpn
   use logger
   use advection
   use profiler
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_value
   implicit none
   private
@@ -411,16 +412,14 @@ contains
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          params => this%params, msh => this%msh, prs_res => this%prs_res, &
          vel_res => this%vel_res, sumab => this%sumab, &
-         makeabf => this%makeabf, makebdf => this%makebdf)
+         makeabf => this%makeabf, makebdf => this%makebdf, &
+         rho => this%rho, Re => this%Re, mu => this%mu)
 
 
-      call params%get('case.fluid.rho', rho, found)
-      call params%get('case.fluid.Re', Re, found)
-      call params%get('case.fluid.mu', mu, found)
-      call params%get('case.fluid.velocity_solver.max_iterations', &
-                       ksp_vel_maxiter, found)
-      call params%get('case.fluid.pressure_solver.max_iterations', &
-                       ksp_pr_maxiter, found)
+      call json_get(params, 'case.fluid.velocity_solver.max_iterations', &
+                    ksp_vel_maxiter)
+      call json_get(params, 'case.fluid.pressure_solver.max_iterations', &
+                    ksp_pr_maxiter)
          
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &

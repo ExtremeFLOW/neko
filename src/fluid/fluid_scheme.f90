@@ -63,6 +63,7 @@ module fluid_scheme
   use operators, only : cfl
   use logger
   use field_registry
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_value
 
   implicit none
@@ -96,6 +97,12 @@ module fluid_scheme
      type(mean_flow_t) :: mean                 !< Mean flow field
      type(fluid_stats_t) :: stats                 !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
+     !> The Reynolds number
+     real(kind=rp) :: Re
+     !> Dynamic viscosity
+     real(kind=rp) :: mu
+     !> Density
+     real(kind=rp) :: rho
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -180,26 +187,17 @@ contains
        write(log_buf, '(A, I3)') 'lx         : ', lx
     end if
 
-    call params%get('case.fluid.Re', real_val, found)
-    if (.not. found) then
-       call neko_error("Parameter fluid.Re missing in the case file")
-    end if
+    call json_get(params, 'case.fluid.Re', this%Re)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'Re         :',  real_val
+    write(log_buf, '(A,ES13.6)') 'Re         :',  this%Re
 
-    call params%get('case.fluid.rho', real_val, found)
-    if (.not. found) then
-       call neko_error("Parameter fluid.rho missing in the case file")
-    end if
+    call json_get(params, 'case.fluid.rho', this%rho)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'rho        :',  real_val
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
 
-    call params%get('case.fluid.mu', real_val, found)
-    if (.not. found) then
-       call neko_error("Parameter fluid.mu missing in the case file")
-    end if
+    call json_get(params, 'case.fluid.mu', this%mu)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'mu         :',  real_val
+    write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
 
     call params%get('case.fluid.velocity_solver.type', string_val1, &
                     found)
