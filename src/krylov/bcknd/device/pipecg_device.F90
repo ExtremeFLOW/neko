@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ module pipecg_device
      type(c_ptr) :: mi_d = C_NULL_PTR
      type(c_ptr) :: ni_d = C_NULL_PTR
      type(c_ptr), allocatable :: u_d(:)
+     type(c_ptr) :: gs_event = C_NULL_PTR
      integer :: p_space
    contains
      procedure, pass(this) :: init => pipecg_device_init
@@ -210,6 +211,8 @@ contains
     else
        call this%ksp_init()
     end if
+
+    call device_event_create(this%gs_event, 2)
           
   end subroutine pipecg_device_init
 
@@ -274,7 +277,7 @@ contains
     end if
     if (c_associated(this%ni_d)) then
        call device_free(this%ni_d)
-    end if
+    end if    
     if (allocated(this%u_d)) then
        do i = 1, this%p_space
           if (c_associated(this%u_d(i))) then
@@ -284,6 +287,10 @@ contains
     end if
 
     nullify(this%M)
+
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
+    end if
 
   end subroutine pipecg_device_free
   
@@ -338,7 +345,8 @@ contains
       !call device_copy(u_d(u_prev), r_d, n)
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
-      call gs_op(gs_h, w, n, GS_OP_ADD)
+      call gs_op(gs_h, w, n, GS_OP_ADD, this%gs_event)
+      call device_event_sync(this%gs_event)
       call bc_list_apply(blst, w, n)
     
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
@@ -365,7 +373,8 @@ contains
          
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
-         call gs_op(gs_h, ni, n, GS_OP_ADD)
+         call gs_op(gs_h, ni, n, GS_OP_ADD, this%gs_event)
+         call device_event_sync(this%gs_event)
          call bc_list_apply(blst, ni, n)
 
          call MPI_Wait(request, status, ierr)
