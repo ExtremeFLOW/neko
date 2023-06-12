@@ -1,5 +1,6 @@
 module user
   use neko
+  use json_module, only : json_file
   implicit none
 
   real(kind=rp) :: Ra = 0
@@ -40,7 +41,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), pointer :: s
     integer :: i, j, k, e
     real(kind=rp) :: rand, r,z
@@ -85,11 +86,15 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
+    real(kind=rp) :: Re
+    logical :: found
     ! Reset the relevant nondimensional parameters
-    Pr = params%Pr
-    Ra = params%Re
-    params%Re = sqrt(Ra / Pr)
+
+    call params%get('case.fluid.Re', Ra, found)
+    call params%get('case.scalar.Pr', Pr, found)
+    Re = sqrt(Ra / Pr)
+    call params%update('case.fluid.Re', Re, found)
     call save_coef(coef)
   end subroutine set_Pr
 
