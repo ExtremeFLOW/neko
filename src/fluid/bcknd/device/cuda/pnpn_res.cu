@@ -48,12 +48,15 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     prs_res_part1_kernel<real>
-      <<<nblcks, nthrds>>>((real *) ta1, (real *) ta2, (real *) ta3, 
-			   (real *) wa1, (real *) wa2, (real *) wa3,
-			   (real *) f_u, (real *) f_v, (real *) f_w,
-			   (real *) B, (real *) h1, *Re, *rho, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) ta1, (real *) ta2,
+                                      (real *) ta3, (real *) wa1,
+                                      (real *) wa2, (real *) wa3,
+                                      (real *) f_u, (real *) f_v,
+                                      (real *) f_w, (real *) B,
+                                      (real *) h1, *Re, *rho, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -62,10 +65,11 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     prs_res_part2_kernel<real>
-      <<<nblcks, nthrds>>>((real *) p_res, (real *) wa1, (real *) wa2,
-			   (real *) wa3, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) p_res, (real *) wa1,
+                                      (real *) wa2, (real *) wa3, *n);
     CUDA_CHECK(cudaGetLastError());
     
   }
@@ -75,10 +79,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     prs_res_part3_kernel<real>
-      <<<nblcks, nthrds>>>((real *) p_res, (real *) ta1, (real *) ta2,
-			   (real *) ta3, *dtbd, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) p_res, (real *) ta1,
+                                      (real *) ta2, (real *) ta3,
+                                      *dtbd, *n);
     CUDA_CHECK(cudaGetLastError());
     
   }
@@ -89,11 +95,14 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     vel_res_update_kernel<real>
-      <<<nblcks, nthrds>>>((real *) u_res, (real *) v_res, (real *) w_res,
-			   (real *) ta1, (real *) ta2, (real *) ta3,
-			   (real *) f_u, (real *) f_v, (real *) f_w, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) u_res, (real *) v_res,
+                                      (real *) w_res, (real *) ta1,
+                                      (real *) ta2, (real *) ta3,
+                                      (real *) f_u, (real *) f_v,
+                                      (real *) f_w, *n);
     CUDA_CHECK(cudaGetLastError());
   }
     

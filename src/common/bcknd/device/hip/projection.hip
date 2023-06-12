@@ -71,18 +71,21 @@ extern "C" {
 
     /* First glsc3_many call */
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_many_kernel<real> ),
-                       glsc3_nblcks, glsc3_nthrds, 0, 0,
+                       glsc3_nblcks, glsc3_nthrds,
+                       0, (hipStream_t) glb_cmd_queue,
                        (const real *) b, (const real **) xx,
                        (const real *) mult, proj_bufred_d, *j, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_reduce_kernel<real> ),
-                       (*j), 1024, 0 , 0, proj_bufred_d, glsc3_nb, *j);
+                       (*j), 1024, 0 , (hipStream_t) glb_cmd_queue,
+                       proj_bufred_d, glsc3_nb, *j);
     HIP_CHECK(hipGetLastError());
-    HIP_CHECK(hipMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          hipMemcpyDeviceToDevice));
+    HIP_CHECK(hipMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                             hipMemcpyDeviceToDevice,
+                             (hipStream_t) glb_cmd_queue));
     HIP_CHECK(hipMemsetAsync(xbar, 0, (*n) * sizeof(real)));
 
-    hipDeviceSynchronize();
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
 
     const dim3 vec_nthrds(1024, 1, 1);
@@ -90,27 +93,32 @@ extern "C" {
 
     /* First vector operation block */
     hipLaunchKernelGGL(HIP_KERNEL_NAME( project_on_vec_kernel<real> ),
-                       vec_nblcks, vec_nthrds, 0, 0, (real *) xbar,
+                       vec_nblcks, vec_nthrds,
+                       0, (hipStream_t) glb_cmd_queue, (real *) xbar,
                        (const real **) xx, (real *) b, (const real **) bb,
                        (const real *) alpha, *j, *n);
     /* Second glsc3_many call */
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_many_kernel<real> ),
-                       glsc3_nblcks, glsc3_nthrds, 0, 0,
+                       glsc3_nblcks, glsc3_nthrds,
+                       0, (hipStream_t) glb_cmd_queue,
                        (const real *) b, (const real **) xx,
                        (const real *) mult, proj_bufred_d, *j, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_reduce_kernel<real> ),
-                       (*j), 1024, 0, 0, proj_bufred_d, glsc3_nb, *j);
+                       (*j), 1024, 0, (hipStream_t) glb_cmd_queue,
+                       proj_bufred_d, glsc3_nb, *j);
     HIP_CHECK(hipGetLastError());
-    HIP_CHECK(hipMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          hipMemcpyDeviceToDevice));
+    HIP_CHECK(hipMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                             hipMemcpyDeviceToDevice,
+                             (hipStream_t) glb_cmd_queue));
 
-    hipDeviceSynchronize();
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
 
     /* Second vector operation block */
     hipLaunchKernelGGL(HIP_KERNEL_NAME(project_on_vec_kernel<real> ),
-                       vec_nblcks, vec_nthrds, 0, 0, (real *) xbar,
+                       vec_nblcks, vec_nthrds,
+                       0, (hipStream_t) glb_cmd_queue, (real *) xbar,
                        (const real **) xx, (real *) b, (const real **) bb,
                        (const real *) alpha, *j, *n);
   }
@@ -136,21 +144,25 @@ extern "C" {
 
     /* First glsc3_many call */
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_many_kernel<real> ),
-                       glsc3_nblcks, glsc3_nthrds, 0, 0,
+                       glsc3_nblcks, glsc3_nthrds,
+                       0, (hipStream_t) glb_cmd_queue,
                        (const real *) b, (const real **) xx,
                        (const real *) w, proj_bufred_d, *j, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_reduce_kernel<real> ),
-                       (*j), 1024, 0 , 0, proj_bufred_d, glsc3_nb, *j);
+                       (*j), 1024, 0 , (hipStream_t) glb_cmd_queue,
+                       proj_bufred_d, glsc3_nb, *j);
     HIP_CHECK(hipGetLastError());
-    HIP_CHECK(hipMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          hipMemcpyDeviceToDevice));
+    HIP_CHECK(hipMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                             hipMemcpyDeviceToDevice,
+                             (hipStream_t) glb_cmd_queue));
 
-    hipDeviceSynchronize();
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
 
-    HIP_CHECK(hipMemcpy(nrm, (real *) alpha + (*j - 1),
-                          sizeof(real), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpyAsync(nrm, (real *) alpha + (*j - 1),
+                             sizeof(real), hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
     (*nrm) = sqrt(*nrm);
 
 
@@ -159,29 +171,31 @@ extern "C" {
 
     /* First vector operation block */
     hipLaunchKernelGGL( HIP_KERNEL_NAME( project_ortho_vec_kernel<real> ),
-                        vec_nblcks, vec_nthrds, 0, 0,
+                        vec_nblcks, vec_nthrds, 0, (hipStream_t) glb_cmd_queue,
                         (real *) xm, (const real **) xx,
                         (real *) b, (const real **) bb,
                         (const real *) alpha, *j, *n);
 
     /* Second glsc3_many call */
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_many_kernel<real> ),
-                       glsc3_nblcks, glsc3_nthrds, 0, 0,
+                       glsc3_nblcks, glsc3_nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (const real *) b, (const real **) xx,
                        (const real *) w, proj_bufred_d, *j, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_reduce_kernel<real> ),
-                       (*j), 1024, 0 , 0, proj_bufred_d, glsc3_nb, *j);
+                       (*j), 1024, 0 , (hipStream_t) glb_cmd_queue,
+                       proj_bufred_d, glsc3_nb, *j);
     HIP_CHECK(hipGetLastError());
-    HIP_CHECK(hipMemcpy(alpha, proj_bufred_d, (*j) * sizeof(real),
-                          hipMemcpyDeviceToDevice));
+    HIP_CHECK(hipMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
+                             hipMemcpyDeviceToDevice,
+                             (hipStream_t) glb_cmd_queue));
 
-    hipDeviceSynchronize();
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
 
     /* Second vector operation block */
     hipLaunchKernelGGL( HIP_KERNEL_NAME( project_ortho_vec_kernel<real> ),
-                        vec_nblcks, vec_nthrds, 0, 0,
+                        vec_nblcks, vec_nthrds, 0, (hipStream_t) glb_cmd_queue,
                         (real *) xm, (const real **) xx,
                         (real *) b, (const real **) bb,
                         (const real *) alpha, *j, *n);

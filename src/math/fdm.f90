@@ -74,7 +74,8 @@ module fdm
   use fdm_device
   use device
   use, intrinsic :: iso_c_binding
-  implicit none  
+  implicit none
+  private
 
   type, public :: fdm_t
      real(kind=rp), allocatable :: s(:,:,:,:)
@@ -613,9 +614,17 @@ contains
 
   end subroutine fdm_free
 
-  subroutine fdm_compute(this, e, r)
+  subroutine fdm_compute(this, e, r, stream)
     class(fdm_t), intent(inout) :: this
     real(kind=rp), dimension((this%Xh%lx+2)**3, this%msh%nelv), intent(inout) :: e, r
+    type(c_ptr), optional :: stream
+    type(c_ptr) :: strm
+
+    if (present(stream)) then
+       strm = stream
+    else
+       strm = glb_cmd_queue
+    end if
 
     if (NEKO_BCKND_SX .eq. 1) then
        call fdm_do_fast_sx(e, r, this%s, this%d, &
@@ -625,7 +634,7 @@ contains
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call fdm_do_fast_device(e, r, this%s, this%d, &
-            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)
+            this%Xh%lx+2, this%msh%gdim, this%msh%nelv, strm)
     else
        call fdm_do_fast_cpu(e, r, this%s, this%d, &
             this%Xh%lx+2, this%msh%gdim, this%msh%nelv)

@@ -51,7 +51,7 @@ extern "C" {
     const dim3 nblcks(((max_len) + 1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(symmetry_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, 0,
+		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
 		       (int *) xmsk, (int *) ymsk, (int *) zmsk,
 		       (real *) x, (real *) y, (real *) z,
 		       *m, *n, *l);

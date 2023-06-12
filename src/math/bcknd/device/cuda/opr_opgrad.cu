@@ -68,20 +68,22 @@ extern "C" {
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
 #define CASE_1D(LX)                                                             \
     opgrad_kernel_1d<real, LX, 1024>                                            \
-      <<<nblcks, nthrds_1d>>>((real *) ux, (real *) uy, (real *) uz, (real *) u,\
-                           (real *) dx, (real *) dy, (real *) dz,               \
-                           (real *) drdx, (real *) dsdx, (real *) dtdx,         \
-                           (real *) drdy, (real *) dsdy, (real *) dtdy,         \
-                           (real *) drdz, (real *) dsdz, (real *) dtdz,         \
-                           (real *) w3);                                        \
+      <<<nblcks, nthrds_1d, 0, stream>>>                                        \
+      ((real *) ux, (real *) uy, (real *) uz, (real *) u,                       \
+       (real *) dx, (real *) dy, (real *) dz,                                   \
+       (real *) drdx, (real *) dsdx, (real *) dtdx,                             \
+       (real *) drdy, (real *) dsdy, (real *) dtdy,                             \
+       (real *) drdz, (real *) dsdz, (real *) dtdz,                             \
+       (real *) w3);                                                            \
     CUDA_CHECK(cudaGetLastError());                                             
 
 
 #define CASE_KSTEP(LX)                                                          \
-    opgrad_kernel_kstep<real, LX> <<<nblcks, nthrds_kstep>>>                    \
+    opgrad_kernel_kstep<real, LX> <<<nblcks, nthrds_kstep, 0, stream>>>         \
       ((real *) ux, (real *) uy, (real *) uz, (real *) u,                       \
        (real *) dx, (real *) dy, (real *) dz,                                   \
        (real *) drdx, (real *) dsdx, (real *) dtdx,                             \
@@ -145,6 +147,7 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks((*nel), 1, 1);
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   
   char *env_value = NULL;
   char neko_log_buf[80];

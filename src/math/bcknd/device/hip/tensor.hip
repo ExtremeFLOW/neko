@@ -57,7 +57,8 @@ extern "C" {
 #define CASE(N)                                                     \
     case N:                                                         \
     hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real, N>),     \
-                       nblcks, nthrds, 0, 0,                        \
+                       nblcks, nthrds, 0,                           \
+                       (hipStream_t) glb_cmd_queue,                 \
                        (real *) v, *nv, (real *) u,                 \
 		       *nu, (real *) A, (real *) Bt, (real *) Ct);  \
     HIP_CHECK(hipGetLastError());                                   \

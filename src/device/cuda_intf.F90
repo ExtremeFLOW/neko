@@ -38,6 +38,18 @@ module cuda_intf
 
 #ifdef HAVE_CUDA
 
+  !> Global HIP command queue
+  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux HIP command queue
+  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> High priority stream setting
+  integer :: STRM_HIGH_PRIO
+
+  !> Low priority stream setting
+  integer :: STRM_LOW_PRIO
+  
   !> Enum @a cudaError
   enum, bind(c)
      enumerator :: cudaSuccess = 0
@@ -86,11 +98,11 @@ module cuda_intf
   end interface
 
   interface
-     integer (c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir) &
+     integer (c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
           bind(c, name='cudaMemcpyAsync')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: ptr_dst, ptr_src
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function cudaMemcpyAsync
@@ -134,6 +146,16 @@ module cuda_intf
   end interface
 
   interface
+     integer (c_int) function cudaStreamCreateWithPriority(stream, flags, prio) &
+          bind(c, name='cudaStreamCreateWithPriority')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags, prio
+     end function cudaStreamCreateWithPriority
+  end interface
+  
+  interface
      integer (c_int) function cudaStreamDestroy(steam) &
           bind(c, name='cudaStreamDestroy')
        use, intrinsic :: iso_c_binding
@@ -159,6 +181,15 @@ module cuda_intf
        type(c_ptr), value :: stream, event
        integer(c_int), value :: flags
      end function cudaStreamWaitEvent
+  end interface
+
+  interface
+     integer (c_int) function cudaDeviceGetStreamPriorityRange(low_prio, high_prio) &
+          bind(c, name='cudaDeviceGetStreamPriorityRange')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: low_prio, high_prio
+     end function cudaDeviceGetStreamPriorityRange
   end interface
   
   interface
@@ -225,6 +256,34 @@ module cuda_intf
   
 contains
 
+  subroutine cuda_init
+
+    if (cudaDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
+         .ne. cudaSuccess) then
+       call neko_error('Error retrieving stream priority range')       
+    end if
+
+    if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO)  &
+         .ne. cudaSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+
+    if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
+         .ne. cudaSuccess) then
+       call neko_error('Error creating aux stream')
+    end if
+  end subroutine cuda_init
+
+  subroutine cuda_finalize
+    if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
+       call neko_error('Error destroying main stream')
+    end if
+
+    if (cudaStreamDestroy(aux_cmd_queue) .ne. cudaSuccess) then
+       call neko_error('Error destroying aux stream')
+    end if
+  end subroutine cuda_finalize
+  
   subroutine cuda_device_name(name)
     character(len=*), intent(inout) :: name
     character(kind=c_char, len=8192), target :: prop
