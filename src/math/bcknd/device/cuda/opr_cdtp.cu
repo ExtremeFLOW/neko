@@ -64,10 +64,11 @@ extern "C" {
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define CASE_1D(LX)                                                             \
     cdtp_kernel_1d<real, LX, 1024>                                              \
-      <<<nblcks, nthrds_1d>>>((real *) dtx, (real *) x,                         \
+      <<<nblcks, nthrds_1d, 0, stream>>>((real *) dtx, (real *) x,              \
                               (real *) dr, (real *) ds, (real *) dt,            \
                               (real *) dxt, (real *) dyt, (real *) dzt,         \
                               (real *) B, (real *) jac);                        \
@@ -75,7 +76,7 @@ extern "C" {
 
 #define CASE_KSTEP(LX)                                                          \
     cdtp_kernel_kstep<real, LX>                                                 \
-      <<<nblcks, nthrds_kstep>>>((real *) dtx, (real *) x,                      \
+      <<<nblcks, nthrds_kstep, 0, stream>>>((real *) dtx, (real *) x,           \
                                  (real *) dr, (real *) ds, (real *) dt,         \
                                  (real *) dxt, (real *) dyt, (real *) dzt,      \
                                  (real *) B, (real *) jac);                     \
@@ -149,6 +150,7 @@ int tune_cdtp(void *dtx, void *x,
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks((*nel), 1, 1);
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
   
   char *env_value = NULL;
   char neko_log_buf[80];

@@ -42,6 +42,9 @@ module opencl_intf
   !> Global OpenCL command queue
   type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
 
+  !> Aux OpenCL command queue
+  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+
   !> Global OpenCL context
   type(c_ptr), bind(c) :: glb_ctx = C_NULL_PTR
 

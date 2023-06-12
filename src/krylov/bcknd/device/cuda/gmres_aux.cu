@@ -53,6 +53,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     if (gmres_bf1 != NULL && gmres_bf_len < nb) {
       CUDA_CHECK(cudaFreeHost(gmres_bf1));
@@ -66,20 +67,21 @@ extern "C" {
       gmres_bf_len = nb;
     }
      
-    gmres_part2_kernel<real><<<nblcks, nthrds>>>((real *) w, (real **) v,
-                                                 (real *) mult,(real *) h,
-                                                 gmres_bfd1, *j, *n);
+    gmres_part2_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) w, (real **) v,
+                                      (real *) mult,(real *) h,
+                                      gmres_bfd1, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real><<<1, 1024>>>(gmres_bfd1, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>>(gmres_bfd1, nb);
     CUDA_CHECK(cudaGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    cudaDeviceSynchronize();
+    cudaStreamSynchronize(stream);
     device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real));
 #else
     
-    CUDA_CHECK(cudaMemcpy(gmres_bf1, gmres_bfd1, sizeof(real),
-                          cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
 #endif
     return gmres_bf1[0];
   }
