@@ -2,6 +2,7 @@
 
 module user
   use neko
+  use json_module, only : json_file
   implicit none
   ! Case parameters
   real(kind=rp), parameter :: h = 1.0
@@ -135,7 +136,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     integer :: i
     real(kind=rp) :: y
 
