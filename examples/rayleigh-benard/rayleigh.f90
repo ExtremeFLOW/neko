@@ -1,6 +1,6 @@
 module user
   use neko
-  use json_module, only : jsfon_file_t => json_file
+  use json_module, only : json_file
   implicit none
 
   real(kind=rp) :: Ra = 0
@@ -40,7 +40,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), pointer :: s
     integer :: i, e, k, j
     real(kind=rp) :: rand, z
@@ -88,7 +88,7 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), pointer :: s
     logical :: found
     real(kind=rp) :: Re
