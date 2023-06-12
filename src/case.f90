@@ -41,7 +41,6 @@ module case
   use mean_flow_output
   use fluid_stats_output
   use field_list_output
-  use parameters
   use mpi_types
   use mesh_field
   use parmetis
@@ -58,7 +57,8 @@ module case
   use jobctrl
   use user_intf  
   use scalar_pnpn ! todo directly load the pnpn? can we have other
-  use json_module, only : json_file, json_value
+  use json_module, only : json_file, json_value 
+  use json_utils, only : json_get, json_get_or_default
   implicit none
 
   type :: case_t
@@ -99,7 +99,6 @@ contains
     type(json_value), pointer :: json_val
     logical :: scalar = .false.
     character(len=80) :: scalar_source_term = ''
-    type(param_io_t) :: params
     integer :: ierr
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part
@@ -121,17 +120,14 @@ contains
     
     call C%json_params%load(filename=trim(case_file))
 
-!    call json_core%serialize(json_value, json_buffer)
     !call json_core%create_object(json_value, '')
     !call json_core%print(json_value,'test.json')
     !json_file2 = json_file
+!    call json_core%serialize(json_value, json_buffer)
 !    call json_file2%deserialize(json_buffer)
 !    call json_file2%print()
     
-    call C%json_params%get('case.mesh_file', string_val, found)
-    if (.not. found) then
-       call neko_error("Parameter mesh_file missing in the case file")
-    end if
+    call json_get(C%json_params, 'case.mesh_file', string_val)
     msh_file = file_t(string_val)
     
     call msh_file%read(C%msh)
@@ -139,8 +135,8 @@ contains
     !
     ! Load Balancing
     !
-    call C%json_params%get('case.load_balancing', logical_val, found)
-    if (.not. found) logical_val = .false.
+    call json_get_or_default(C%json_params, 'case.load_balancing', logical_val,&
+                             .false.)
 
     if (pe_size .gt. 1 .and. logical_val) then
        call neko_log%section('Load Balancing')
@@ -152,19 +148,13 @@ contains
     !
     ! Time step
     !
-    call C%json_params%get('case.timestep', real_val, found)
-    if (.not. found) then
-       call neko_error("Parameter case.timestep missing in the case file")
-    end if
+    call json_get(C%json_params, 'case.timestep', real_val)
     C%dt = real_val
 
     !
     ! End time
     !
-    call C%json_params%get('case.end_time', real_val, found)
-    if (.not. found) then
-       call neko_error("Parameter case.end_time missing in the case file")
-    end if
+    call json_get(C%json_params, 'case.end_time', real_val)
     C%end_time = real_val
 
     !
@@ -176,65 +166,59 @@ contains
     !
     ! Setup fluid scheme
     !
-    call C%json_params%get('case.fluid.scheme', string_val, found)
-    if (.not. found) then
-       call neko_error("Parameter fluid.scheme missing in the case file")
-    end if
+    call json_get(C%json_params, 'case.fluid.scheme', string_val)
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
-    call C%json_params%get('case.numerics.polynomial_order', lx, found)
-    if (.not. found) then
-       call neko_error( &
-         "Parameter numerics.polynomial_order missing in the case file")
-    else 
-      lx = lx + 1 ! add 1 to get poly order
-    end if
+    call C%json_params%get('case.numerics.polynomial_order', lx)
+    call json_get(C%json_params, 'case.numerics.polynomial_order', lx)
+    lx = lx + 1 ! add 1 to get poly order
     call C%fluid%init(C%msh, lx, C%json_params)
 
     !
     ! Setup scalar scheme
     !
     ! @todo no scalar factroy for now, probably not needed
-    call C%json_params%get('case.scalar', json_val, found)
-    call C%json_params%get('case.scalar.enabled', scalar, found)
-    if (found) then
-       call C%json_params%get('case.scalar.enabled', scalar, found)
-       if (found .and. scalar) then
-          allocate(C%scalar)
-          ! Switch to json
-          call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%json_params)
-          call C%fluid%chkp%add_scalar(C%scalar%s)
-       end if
+    if (C%json_params%valid_path('case.scalar')) then
+       call json_get_or_default(C%json_params, 'case.scalar.enabled', scalar,&
+                                .false.)
+    end if
+
+    if (scalar) then
+       allocate(C%scalar)
+       ! Switch to json
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%json_params)
+       call C%fluid%chkp%add_scalar(C%scalar%s)
     end if
     !
     ! Setup user defined conditions    
     !
-    call C%json_params%get('case.fluid.inflow_condition.type', string_val, found)
-    if (found .and. trim(string_val) .eq. 'user') then
-       call C%fluid%set_usr_inflow(C%usr%fluid_user_if)
+    if (C%json_params%valid_path('case.fluid.inflow_condition')) then
+       call C%json_params%get('case.fluid.inflow_condition.type', string_val,&
+                              found)
+       call json_get(C%json_params, 'case.fluid.inflow_condition.type',&
+                     string_val)
+       if (trim(string_val) .eq. 'user') then
+          call C%fluid%set_usr_inflow(C%usr%fluid_user_if)
+       end if
     end if
     
     !
     ! Setup source term
     ! 
-    call C%json_params%get('case.fluid.source_term.type', string_val, found)
-    if (found .and. trim(string_val) .eq. 'user') then
+    call json_get(C%json_params, 'case.fluid.source_term.type', string_val)
+    if (trim(string_val) .eq. 'user') then
        call C%fluid%set_source(trim(string_val), usr_f=C%usr%fluid_user_f)
     else if (found .and. trim(string_val) .eq. 'user_vector') then
        call C%fluid%set_source(trim(string_val), &
             usr_f_vec=C%usr%fluid_user_f_vector)
-    else if (found) then
+    else 
        call C%fluid%set_source(trim(string_val))
-    else
-       if (.not. found) then
-          call neko_error("Parameter end_time missing in the case file")
-       end if
     end if
 
     ! Setup source term for the scalar
     ! @todo should be expanded for user sources etc. Now copies the fluid one
-    call C%json_params%get('case.scalar.source_term.type', string_val, found)
     if (scalar) then
+       call json_get(C%json_params, 'case.scalar.source_term.type', string_val)
        if (trim(string_val) .eq. 'user') then
           call C%scalar%set_source(trim(string_val), &
                usr_f=C%usr%scalar_user_f)
@@ -250,11 +234,8 @@ contains
     !
     ! Setup initial conditions
     ! 
-    call C%json_params%get('case.fluid.initial_condition.type', string_val, found)
-    if (.not. found) then
-       call neko_error("Parameter fluid.initial_condition.type missing in the &
-                       &case file")
-    end if
+    call json_get(C%json_params, 'case.fluid.initial_condition.type',&
+                  string_val)
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
             C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%json_params)
@@ -285,29 +266,28 @@ contains
     !
     ! Set order of timestepper
     !
-    call C%json_params%get('case.numerics.time_order', integer_val, found)
+    call json_get(C%json_params, 'case.numerics.time_order', integer_val)
     call C%ext_bdf%init(integer_val)
 
     !
     ! Get and process output directory
     !
-    call C%json_params%get('case.output_directory', output_directory, found)
-    if (.not. found) then
-       output_directory = ""
-    else
-       output_dir_len = len(trim(output_directory))
-       if (output_dir_len .gt. 0) then
-          if (output_directory(output_dir_len:output_dir_len) .ne. "/") then
-             output_directory = trim(output_directory)//"/"
-          end if
+    call json_get_or_default(C%json_params, 'case.output_directory',&
+                             output_directory, '')
+
+    output_dir_len = len(trim(output_directory))
+    if (output_dir_len .gt. 0) then
+       if (output_directory(output_dir_len:output_dir_len) .ne. "/") then
+          output_directory = trim(output_directory)//"/"
        end if
     end if
     
     !
     ! Save boundary markings for fluid (if requested)
     ! 
-    call C%json_params%get('case.output_boundary', logical_val, found)
-    if (found .and. logical_val) then
+    call json_get_or_default(C%json_params, 'case.output_boundary',&
+                             logical_val, .false.)
+    if (logical_val) then
        bdry_file = file_t(trim(output_directory)//'bdry.fld')
        call bdry_file%write(C%fluid%bdry)
     end if
@@ -315,8 +295,9 @@ contains
     !
     ! Save mesh partitions (if requested)
     !
-    call C%json_params%get('case.output_partitions', logical_val, found)
-    if (found .and. logical_val) then
+    call json_get_or_default(C%json_params, 'case.output_partitions',&
+                             logical_val, .false.)
+    if (logical_val) then
        call mesh_field_init(msh_part, C%msh, 'MPI_Rank')
        msh_part%data = pe_rank
        part_file = file_t(trim(output_directory)//'partitions.vtk')
@@ -327,28 +308,21 @@ contains
     !
     ! Setup sampler
     !
-    call C%json_params%get('case.end_time', real_val, found)
-    if (.not. found) then
-       call neko_error("Parameter end_time missing in the case file")
-    end if
+    call json_get(C%json_params, 'case.end_time', real_val)
     call C%s%init(real_val)
 
     C%f_out = fluid_output_t(C%fluid, path=output_directory)
 
     call C%json_params%get('case.fluid.output_control', string_val, found)
-    if (.not. found) string_val = 'org'
+    call json_get_or_default(C%json_params, 'case.fluid.output_control',&
+                             string_val, 'org')
 
     if (trim(string_val) .eq. 'org') then
-       call C%json_params%get('case.nsamples', real_val, found)
-       if (.not. found) then
-          call neko_error("Parameter nsamples missing in the case file")
-       end if
+       ! yes, it should be real_val below for type compatibility
+       call json_get(C%json_params, 'case.nsamples', real_val)
        call C%s%add(C%f_out, real_val, 'nsamples')
     else 
-       call C%json_params%get('case.fluid.output_value', real_val, found)
-       if (.not. found) then
-          call neko_error("Parameter fuid.output_value missing in the case file")
-       end if
+       call json_get(C%json_params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
     end if
     
@@ -360,45 +334,27 @@ contains
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
-    call C%json_params%get('case.output_checkpoints', logical_val, found)
-    if (found .and. logical_val) then
+    call json_get_or_default(C%json_params, 'case.output_checkpoints',&
+                             logical_val, .false.)
+    if (logical_val) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
-
-       call C%json_params%get('case.checkpoint_control', string_val, found)
-       if (.not. found) then
-          call neko_error(&
-            "Parameter checkpoint_control missing in the case file")
-       end if
-
-       call C%json_params%get('case.checkpoint_value', real_val, found)
-       if (.not. found) then
-          call neko_error("Parameter checkpoint_value missing in the case file")
-       end if
-
+       call json_get(C%json_params, 'case.fluid.output_control', string_val)
+       call json_get(C%json_params, 'case.checkpoint_value', string_val)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
     !
     ! Setup statistics
     !
-    call C%json_params%get('case.statistics', json_val, found)
+    found = C%json_params%valid_path('case.statistics')
     if (found) then
-       call C%json_params%get('case.statistics.enabled', logical_val, found)
-       if (.not. found .or. (found .and. logical_val)) then
-
-          call C%json_params%get('case.statistics.start_time', stats_start_time,&
-                                  found)
-          if (.not. found) then
-             call neko_error( &
-               "Parameter statistics.start_time missing in the case file")
-          end if
-
-          call C%json_params%get('case.statistics.sampling_interval', &
-                                 stats_sampling_interval, found)
-          if (.not. found) then
-             call neko_error( &
-               "Parameter statistics.sampling_interval missing in the case file")
-          end if
+       call json_get_or_default(C%json_params, 'case.statistics.enabled',&
+                                logical_val, .true.)
+       if (logical_val) then
+          call json_get(C%json_params, 'case.statistics.start_time', &
+                        stats_start_time)
+          call json_get(C%json_params, 'case.statistics.sampling_interval', &
+                        stats_sampling_interval)
           call C%q%init(stats_start_time, stats_sampling_interval)
           
 
@@ -410,19 +366,10 @@ contains
           C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, &
                                       path=output_directory)
 
-          call C%json_params%get('case.statistics.output_control', string_val,&
-                                 found)
-          if (.not. found) then
-             call neko_error(&
-               "Parameter statistics.output_control missing in the case file")
-          end if
-
-          call C%json_params%get('case.statistics.output_value', & 
-                                 stats_output_val, found)
-          if (.not. found) then
-             call neko_error(&
-               "Parameter statistics.output_value missing in the case file")
-          end if
+          call json_get(C%json_params, 'case.statistics.output_control', &
+                        string_val)
+          call json_get(C%json_params, 'case.statistics.output_value', &
+                        stats_output_val)
        
           call C%s%add(C%f_mf, stats_output_val, string_val)
           call C%q%add(C%fluid%stats)
@@ -451,8 +398,10 @@ contains
     !
     ! Setup joblimit
     !
-    call C%json_params%get('case.job_timelimit', string_val, found)
-    if (found) call jobctrl_set_time_limit(string_val)
+    if (C%json_params%valid_path('case.job_timelimit')) then
+       call json_get(C%json_params, 'case.job_timelimit', string_val)
+       call jobctrl_set_time_limit(string_val)
+    end if
 
     call neko_log%end_section()
     
