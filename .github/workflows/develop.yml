@@ -248,15 +248,10 @@ jobs:
           git clone https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
-          cmake 
-          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran ..
+          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
           make -j$(nproc) && make install && cd ../../
-          sed -i '1,2d'  ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
-          sed -i "1i$(echo 'libdir='${HOME}'/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
-          sed -i "1i$(echo 'includedir='${HOME}'/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/')" ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
-          cat ${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/json-fortran.pc
-          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/pkgconfig/" >> $GITHUB_ENV
-          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-intel-8.3.0/lib/" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
         with:
