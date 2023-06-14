@@ -1,6 +1,6 @@
 module rhs_maker_sx
   use rhs_maker
-  use scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
   

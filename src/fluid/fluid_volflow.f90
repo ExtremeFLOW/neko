@@ -72,7 +72,7 @@ module fluid_volflow
   use neko_config
   use device_math
   use device_mathops
-  use scratch_registry
+  use scratch_registry, only : scratch_registry_t
   implicit none
   private
   

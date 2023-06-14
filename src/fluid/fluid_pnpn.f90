@@ -52,19 +52,11 @@ module fluid_pnpn
 
   
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
-     type(field_t) :: u_e, v_e, w_e
-
      type(field_t) :: p_res, u_res, v_res, w_res
 
      type(field_series_t) :: ulag, vlag, wlag
 
      type(field_t) :: dp, du, dv, dw
-
-     type(field_t) :: wa1, wa2, wa3
-     type(field_t) :: ta1, ta2, ta3
-     
-     !> @todo move this to a scratch space
-     type(field_t) :: work1, work2
 
      class(ax_t), allocatable :: Ax
      
@@ -162,25 +154,10 @@ contains
       call field_init(this%aby2, dm_Xh, "aby2")
       call field_init(this%abz2, dm_Xh, "abz2")
                   
-      call field_init(this%u_e, dm_Xh, 'u_e')
-      call field_init(this%v_e, dm_Xh, 'v_e')
-      call field_init(this%w_e, dm_Xh, 'w_e')
-    
-      call field_init(this%wa1, dm_Xh, 'wa1')
-      call field_init(this%wa2, dm_Xh, 'wa2')
-      call field_init(this%wa3, dm_Xh, 'wa3')
-
-      call field_init(this%ta1, dm_Xh, 'ta1')
-      call field_init(this%ta2, dm_Xh, 'ta2')
-      call field_init(this%ta3, dm_Xh, 'ta3')
-    
       call field_init(this%du, dm_Xh, 'du')
       call field_init(this%dv, dm_Xh, 'dv')
       call field_init(this%dw, dm_Xh, 'dw')
       call field_init(this%dp, dm_Xh, 'dp')
-
-      call field_init(this%work1, dm_Xh, 'work1')
-      call field_init(this%work2, dm_Xh, 'work2')
 
       call this%ulag%init(this%u, 2)
       call this%vlag%init(this%v, 2)
@@ -288,31 +265,16 @@ contains
     call this%proj_v%free()
     call this%proj_w%free()
    
-    call field_free(this%u_e)
-    call field_free(this%v_e)
-    call field_free(this%w_e)
-
     call field_free(this%p_res)        
     call field_free(this%u_res)
     call field_free(this%v_res)
     call field_free(this%w_res)
     
-    call field_free(this%wa1)
-    call field_free(this%wa2)
-    call field_free(this%wa3)
-
-    call field_free(this%ta1)
-    call field_free(this%ta2)
-    call field_free(this%ta3)
-
     call field_free(this%du)
     call field_free(this%dv)
     call field_free(this%dw)
     call field_free(this%dp)
     
-    call field_free(this%work1)
-    call field_free(this%work2)
-
     call field_free(this%abx1)
     call field_free(this%aby1)
     call field_free(this%abz1)
@@ -368,9 +330,6 @@ contains
     call profiler_start_region('Fluid')
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
-         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
-         ta1 => this%ta1, ta2 => this%ta2, ta3 => this%ta3, &
-         wa1 => this%wa1, wa2 => this%wa2, wa3 => this%wa3, &
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
@@ -457,7 +416,7 @@ contains
       call profiler_start_region('Velocity residual')
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
-                           p, ta1, ta2, ta3, &
+                           p, &
                            f_Xh, c_Xh, msh, Xh, &
                            params%Re, params%rho, ext_bdf%diffusion_coeffs(1), &
                            params%dt, dm_Xh%size())
@@ -512,6 +471,8 @@ contains
       end if
       
       call fluid_step_info(tstep, t, params%dt, ksp_results)
+      
+      call this%scratch%relinquish_field(temp_indices)
       
     end associate
     call profiler_end_region

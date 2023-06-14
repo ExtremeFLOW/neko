@@ -36,7 +36,9 @@ module pnpn_res_device
   use operators
   use device_math
   use device_mathops
+  use scratch_registry, only : neko_scratch_registry
   use, intrinsic :: iso_c_binding
+  use scratch_registry, only: neko_scratch_registry
   implicit none
   private
  
@@ -321,13 +323,12 @@ contains
   end subroutine pnpn_prs_res_device_compute
 
   subroutine pnpn_vel_res_device_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, ta1, ta2, ta3, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+       p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(source_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
     real(kind=rp), intent(in) :: Re
@@ -335,7 +336,9 @@ contains
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
-    
+    integer :: temp_indices(3)
+    type(field_t), pointer :: ta1, ta2, ta3
+
     call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
     c_Xh%ifh2 = .true.
@@ -343,6 +346,10 @@ contains
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
+
+    call neko_scratch_registry%request_field(ta1, temp_indices(1))
+    call neko_scratch_registry%request_field(ta2, temp_indices(2))
+    call neko_scratch_registry%request_field(ta3, temp_indices(3))
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
@@ -357,6 +364,7 @@ contains
          ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
 #endif
     
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine pnpn_vel_res_device_compute
 
 end module pnpn_res_device
