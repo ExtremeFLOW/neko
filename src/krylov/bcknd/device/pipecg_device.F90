@@ -69,7 +69,6 @@ module pipecg_device
      type(c_ptr) :: beta_d = C_NULL_PTR
      type(c_ptr), allocatable :: u_d(:)
      type(c_ptr) :: gs_event = C_NULL_PTR
-!     integer :: p_space
    contains
      procedure, pass(this) :: init => pipecg_device_init
      procedure, pass(this) :: free => pipecg_device_free
