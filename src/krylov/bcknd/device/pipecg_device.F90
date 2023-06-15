@@ -296,7 +296,7 @@ contains
        call device_free(this%alpha_d)
     end if
     if (c_associated(this%beta_d)) then
-       call device_Free(this%beta_d)
+       call device_free(this%beta_d)
     end if
     if (allocated(this%u_d)) then
        do i = 1, DEVICE_PIPECG_P_SPACE
