@@ -36,10 +36,12 @@ module pipecg_device
   use math
   use num_types
   use device
-  use device_math    
-  
+  use device_math      
   use, intrinsic :: iso_c_binding
   implicit none
+  private
+
+  integer, parameter :: DEVICE_PIPECG_P_SPACE = 10
 
   !> Pipelined preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: pipecg_device_t
@@ -52,6 +54,8 @@ module pipecg_device
      real(kind=rp), allocatable :: z(:)
      real(kind=rp), allocatable :: mi(:)
      real(kind=rp), allocatable :: ni(:)
+     real(kind=rp), allocatable :: alpha(:)
+     real(kind=rp), allocatable :: beta(:)
      type(c_ptr) :: p_d = C_NULL_PTR
      type(c_ptr) :: q_d = C_NULL_PTR
      type(c_ptr) :: r_d = C_NULL_PTR
@@ -61,9 +65,11 @@ module pipecg_device
      type(c_ptr) :: z_d = C_NULL_PTR
      type(c_ptr) :: mi_d = C_NULL_PTR
      type(c_ptr) :: ni_d = C_NULL_PTR
+     type(c_ptr) :: alpha_d = C_NULL_PTR
+     type(c_ptr) :: beta_d = C_NULL_PTR
      type(c_ptr), allocatable :: u_d(:)
      type(c_ptr) :: gs_event = C_NULL_PTR
-     integer :: p_space
+!     integer :: p_space
    contains
      procedure, pass(this) :: init => pipecg_device_init
      procedure, pass(this) :: free => pipecg_device_free
@@ -167,18 +173,18 @@ contains
         
     call this%free()
 
-    this%p_space = 10
-    
     allocate(this%p(n))
     allocate(this%q(n))
     allocate(this%r(n))
     allocate(this%s(n))
-    allocate(this%u(n,this%p_space+1))
-    allocate(this%u_d(this%p_space+1))
+    allocate(this%u(n, DEVICE_PIPECG_P_SPACE+1))
+    allocate(this%u_d(DEVICE_PIPECG_P_SPACE+1))
     allocate(this%w(n))
     allocate(this%z(n))
     allocate(this%mi(n))
     allocate(this%ni(n))
+    allocate(this%alpha(DEVICE_PIPECG_P_SPACE))
+    allocate(this%beta(DEVICE_PIPECG_P_SPACE))
     
     if (present(M)) then 
        this%M => M
@@ -192,12 +198,14 @@ contains
     call device_map(this%z, this%z_d, n)
     call device_map(this%mi, this%mi_d, n)
     call device_map(this%ni, this%ni_d, n)
-    do i = 1, this%p_space+1
+    call device_map(this%alpha, this%alpha_d, DEVICE_PIPECG_P_SPACE)
+    call device_map(this%beta, this%beta_d, DEVICE_PIPECG_P_SPACE)
+    do i = 1, DEVICE_PIPECG_P_SPACE+1
        this%u_d(i) = C_NULL_PTR
        call device_map_r1(this%u(:,i), this%u_d(i), n)
     end do
     !Did not work with 4 for some reason...
-    u_size = 8*(this%p_space+1)
+    u_size = 8*(DEVICE_PIPECG_P_SPACE+1)
     call device_alloc(this%u_d_d, u_size)
     ptr = c_loc(this%u_d)
     call device_memcpy(ptr,this%u_d_d, u_size, HOST_TO_DEVICE)
@@ -250,6 +258,13 @@ contains
     if (allocated(this%ni)) then
        deallocate(this%ni)
     end if
+    if (allocated(this%alpha)) then
+       deallocate(this%alpha)
+    end if
+    if (allocated(this%beta)) then
+       deallocate(this%beta)
+    end if
+    
 
     if (c_associated(this%p_d)) then
        call device_free(this%p_d)
@@ -277,9 +292,15 @@ contains
     end if
     if (c_associated(this%ni_d)) then
        call device_free(this%ni_d)
-    end if    
+    end if
+    if (c_associated(this%alpha_d)) then
+       call device_free(this%alpha_d)
+    end if
+    if (c_associated(this%beta_d)) then
+       call device_Free(this%beta_d)
+    end if
     if (allocated(this%u_d)) then
-       do i = 1, this%p_space
+       do i = 1, DEVICE_PIPECG_P_SPACE
           if (c_associated(this%u_d(i))) then
              call device_free(this%u_d(i))
           end if
@@ -308,17 +329,13 @@ contains
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, ierr, p_cur, p_prev, u_prev
     real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac
-    real(kind=rp) :: alpha(this%p_space), beta(this%p_space), gamma1, gamma2, delta
+    real(kind=rp) :: gamma1, gamma2, delta
     real(kind=rp) :: tmp1, tmp2, tmp3
     type(MPI_Request) :: request
     type(MPI_Status) :: status
-    type(c_ptr) :: f_d, alpha_d, beta_d
+    type(c_ptr) :: f_d
     f_d = device_get_ptr(f)
-    alpha_d = C_NULL_PTR
-    call device_map(alpha, alpha_d, this%p_space)
-    beta_d = C_NULL_PTR
-    call device_map(beta, beta_d, this%p_space)
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -328,12 +345,14 @@ contains
 
     associate(p => this%p, q => this%q, r => this%r, s => this%s, &
          u => this%u, w => this%w, z => this%z, mi => this%mi, ni => this%ni, &
+         alpha => this%alpha, beta => this%beta,  &
+         alpha_d => this%alpha_d, beta_d => this%beta_d, &
          p_d => this%p_d, q_d => this%q_d, r_d => this%r_d, &
          s_d => this%s_d, u_d => this%u_d, u_d_d => this%u_d_d, &
          w_d => this%w_d, z_d => this%z_d, mi_d => this%mi_d, ni_d => this%ni_d)
       
-      p_prev = this%p_space
-      u_prev = this%p_space+1
+      p_prev = DEVICE_PIPECG_P_SPACE !this%p_space
+      u_prev = DEVICE_PIPECG_P_SPACE + 1 !this%p_space+1
       p_cur = 1
       call device_rzero(x%x_d, n)
       call device_rzero(z_d, n)
@@ -395,27 +414,18 @@ contains
             alpha(p_cur) = gamma1/delta
          end if
                   
-         !call device_add2s1(z_d, ni_d, beta(p_cur), n)
-         !call device_add2s1(q_d, mi_d, beta(p_cur), n)
-         !call device_add2s1(s_d, w_d, beta(p_cur), n)
-         !call device_add2s1(p_d, u_d(1), beta(p_cur), n)
-         !call device_add2s2(r_d, s_d, -alpha(p_cur), n)
-         !call device_add2s2(u_d(1), q_d, -alpha(p_cur), n)
-         !call device_add2s2(w_d, z_d, -alpha(p_cur), n)
-         !tmp1 = device_glsc3(r_d,coef%mult_d,u_d(1),n)
-         !tmp2 = device_glsc3(w_d,coef%mult_d,u_d(1),n)
-         !tmp3 = device_glsc3(r_d,coef%mult_d,r_d,n)
          call device_pipecg_vecops(p_d, q_d, r_d,&
                                  s_d, u_d(u_prev), u_d(p_cur),&
                                  w_d, z_d, ni_d,&
                                  mi_d, alpha(p_cur), beta(p_cur),&
                                  coef%mult_d, reduction,n) 
-         if (p_cur .eq. this%p_space) then
+         if (p_cur .eq. DEVICE_PIPECG_P_SPACE) then
             call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE)
             call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE)
-            call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, this%p_space, n)
+            call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
+                                     DEVICE_PIPECG_P_SPACE, n)
             p_prev = p_cur
-            u_prev = this%p_space+1
+            u_prev = DEVICE_PIPECG_P_SPACE + 1
             alpha(1) = alpha(p_cur) 
             beta(1) = beta(p_cur)
             p_cur = 1
@@ -425,10 +435,12 @@ contains
             p_cur = p_cur + 1
          end if
       end do
+      
       if ( p_cur .ne. 1) then
          call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE)
          call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE)
-         call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, this%p_space, n)
+         call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
+                                  DEVICE_PIPECG_P_SPACE, n)
       end if
 
       ksp_results%res_final = rnorm
