@@ -7,9 +7,25 @@ module user
   real(kind=rp) :: Pr = 0
 
   !> Arrays asociated with Method#1 for nusselt calculation
+  integer :: calc_frequency = 500 ! How frequently should we calculate Nu
   type(field_t) :: work_field ! Field to perform operations
   type(field_t) :: uzt ! u_z * T
+  type(field_t) :: dtdx ! Derivative of scalar wrt x
+  type(field_t) :: dtdy ! Detivative of scalar wrt y
+  type(field_t) :: dtdz ! Derivative of scalar wrt z
+  type(field_t) :: mass_area_top ! mass matrix for area on top wall
+  type(field_t) :: mass_area_bot ! mass matrix for area on bottom wall
   real(kind=rp) :: bar_uzt ! Volume integral
+  real(kind=rp) :: top_wall_bar_dtdz ! area integral
+  real(kind=rp) :: bot_wall_bar_dtdz ! area integral
+  real(kind=rp) :: top_wall_area ! area of top and bottom wall
+  real(kind=rp) :: bot_wall_area ! area of top and bottom wall
+
+
+  !> List of elements and facets in uper and lower boundary
+  type(stack_i4t4_t) :: wall_facet
+  type(tuple4_i4_t)  :: facet_el_type_0
+
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -38,6 +54,11 @@ contains
     ! This will be used on all zones without labels
     ! e.g. the ones hardcoded to 'v', 'w', etcetc
     s = 1.0_rp - z
+
+    !Debugging info
+    !if (pe_rank .eq. 0) then
+    !  write(*,*) 'Element:', ie, 'in boundary'
+    !end if 
   end subroutine set_scalar_boundary_conditions
 
   subroutine set_initial_conditions_for_u_and_s(u, v, w, p, params)
@@ -51,9 +72,12 @@ contains
     real(kind=rp) :: rand, r,z
     s => neko_field_registry%get_field('s')
 
+    !> Initialize with zero velocity
     call rzero(u%x,u%dof%size())
     call rzero(v%x,v%dof%size())
     call rzero(w%x,w%dof%size())
+
+    !> Initialize with rand perturbations on temperature
     call rzero(s%x,w%dof%size())
     do i = 1, s%dof%size()
        s%x(i,1,1,1) = 1-s%dof%z(i,1,1,1) 
@@ -92,17 +116,110 @@ contains
     type(coef_t), intent(inout) :: coef
     type(param_t), intent(inout) :: params
 
-    ! Reset the relevant nondimensional parameters
+    !> Parameters to populate the list of elements and facets
+    real(kind=rp) :: stack_size(1) !Do it like this so it is cast
+    real(kind=rp) :: stack_size_global
+    integer :: e, facet, typ, e_counter, facet_counter, i,j,k,n
+    real(kind=rp) :: normal(3)
+    real(kind=rp) :: area_mass, area_rank(1),area_global(1)
+    type(tuple4_i4_t), pointer :: wall_facet_list(:)
+    
+    !> Reset the relevant nondimensional parameters
     Pr = params%Pr
     Ra = params%Re
     params%Re = sqrt(Ra / Pr)
 
-    ! Initialize variables related to nusselt calculation
+    !> Initialize variables related to nusselt calculation
     call field_init(work_field, u%dof, 'work_field')
     call field_init(uzt, u%dof, 'uzt')
+    call field_init(dtdx, u%dof, 'dtdx')
+    call field_init(dtdy, u%dof, 'dtdy')
+    call field_init(dtdz, u%dof, 'dtdz')
+    call field_init(mass_area_top, u%dof, 'mat')
+    call field_init(mass_area_bot, u%dof, 'mab')
 
+    !> Initialize list with upper and lower wall facets
+    call wall_facet%init()
+
+    !> Populate the list with upper and lower wall facets 
+    do e = 1, u%msh%nelv !Go over all elements
+      do facet = 1, 6 ! Go over all facets of hex element
+        normal = coef_get_normal(coef,1,1,1,e,facet) ! Get facet normal
+        typ =  u%msh%facet_type(facet,e)             ! Get facet type
+        if (typ.ne.0.and.abs(normal(3)).ge.1-1e-5) then
+          write(*,*) 'In boundary: facet=', facet, 'and element=', e
+          write(*,*) 'BC facet type ', typ 
+          write(*,*) 'normal to this facet is: ', normal   
+          facet_el_type_0%x = (/facet, e, typ, 0/)
+          call wall_facet%push(facet_el_type_0)
+        end if
+      end do
+    end do
+    !! Determine the number of facets in the walls
+    stack_size = real(wall_facet%top_,kind=rp)
+    stack_size_global = glsum(stack_size,1)
+    if (pe_rank .eq. 0) then
+       write(*,*) 'Facets at the wall in this rank: ', stack_size
+       write(*,*) 'Facets at the wall global: ', stack_size_global
+    end if
+
+    !> Fill up arrays to serve as mass matrix for integration
+    !! we want <dt/dz>_A,t at z=0,1.
+    !! Average in Area is: (dt/dz * normal * Area_mass) / Area_total
+    wall_facet_list => wall_facet%array()
+    !! Initialize the mass as 0. This serves as a mask for nodes that are not integrated
+    call rzero(mass_area_top%x,u%dof%size())
+    call rzero(mass_area_bot%x,u%dof%size())
+    !! Fill up the top and bottom mass matrices
+    do e_counter=1,wall_facet%top_
+      do i = 1, u%Xh%lx
+        do j = 1 , u%Xh%lx
+           facet = wall_facet_list(e_counter)%x(1)
+           e = wall_facet_list(e_counter)%x(2)
+           normal = coef_get_normal(coef,1,1,1,e,facet) ! Get facet normal
+           area_mass = get_area_mass(coef,i,j,1,e,facet) ! We are interested only in facet 5 and 6 for our case
+           select case(facet) !Based on function: index_is_on_facet
+              case(5)
+                 mass_area_bot%x(i,j,1,e) = area_mass * normal(3)
+              case(6)
+                 mass_area_top%x(i,j,u%Xh%lz,e) = area_mass * normal(3)
+           end select                
+         end do
+      end do 
+    end do
+    n = size(coef%B)
+    top_wall_area = glsum(mass_area_top%x,n)
+    bot_wall_area = glsum(mass_area_bot%x,n)
+    !! Write it out
+    if (pe_rank .eq. 0) then
+       write(*,*) 'Area of top wall * normal= ', top_wall_area
+       write(*,*) 'Area of bottom wall * normal= ', bot_wall_area
+    end if 
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_memcpy(mass_area_top%x,mass_area_top%x_d, &
+                          mass_area_top%dof%size(),HOST_TO_DEVICE)
+       call device_memcpy(mass_area_bot%x,mass_area_bot%x_d, &
+                          mass_area_bot%dof%size(),HOST_TO_DEVICE)
+    end if
 
   end subroutine user_initialize
+
+
+  pure function get_area_mass(coef, i, j, k, e, facet) result(area_mass)
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: i, j, k, e, facet
+    real(kind=rp) :: area_mass
+      
+    select case (facet)               
+      case(1,2)
+        area_mass = coef%area(j, k, facet, e)
+      case(3,4)
+        area_mass = coef%area(i, k, facet, e)
+      case(5,6)
+        area_mass = coef%area(i, j, facet, e)
+      end select
+  end function get_area_mass
 
 
   subroutine user_finalize(t, param)
@@ -112,11 +229,17 @@ contains
     ! Finalize variables related to nusselt calculation
     call field_free(work_field)
     call field_free(uzt)
+    call field_free(dtdx)
+    call field_free(dtdy)
+    call field_free(dtdz)
+    call field_free(mass_area_top)
+    call field_free(mass_area_bot)
+    
+    ! Finilize list that contains uper and lower wall facets
+    call wall_facet%free()
 
-  
-end subroutine user_finalize
+  end subroutine user_finalize
 
-  !> Forcing
   subroutine set_bousinesq_forcing_term(f, t)
     class(source_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
@@ -150,7 +273,12 @@ end subroutine user_finalize
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(field_t), pointer :: s
-    integer :: n,ntot
+    integer :: n,ntot, i,j,k, facet, e
+    integer :: index(4)
+    type (tuple_i4_t) :: facet_el
+    real(kind=rp) :: normal(3)
+
+    if (mod(tstep,calc_frequency).ne.0) return
 
     s => neko_field_registry%get_field('s')
     n = size(coef%B)
@@ -179,18 +307,41 @@ end subroutine user_finalize
        bar_uzt = bar_uzt / coef%volume                     !2.3.
     end if
 
-    if (pe_rank .eq. 0) &
-    &  write(*,*) &
-    &  'Space average convective current = ', bar_uzt
 
-    if (pe_rank .eq. 0) &
-    &  write(*,*) &
-    &  'n = ', n
 
-    if (pe_rank .eq. 0) &
-    &  write(*,*) &
-    &  'ntot = ', ntot
+    !> ------ Method #2 for nusselt calculation -----
+    ! Calculate derivatives. Automatically in device with opgrad
+    call opgrad(dtdx%x,dtdy%x,dtdz%x,s%x,coef) 
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       ! Calculate for top wall
+       call device_col3(work_field%x_d,dtdz%x_d,mass_area_top%x_d,n)      
+       top_wall_bar_dtdz = device_glsum(work_field%x_d,n)                  
+       top_wall_bar_dtdz = top_wall_bar_dtdz / abs(top_wall_area)            
+       ! Calculate for bot wall
+       call device_col3(work_field%x_d,dtdz%x_d,mass_area_bot%x_d,n)      
+       bot_wall_bar_dtdz = device_glsum(work_field%x_d,n)                  
+       bot_wall_bar_dtdz = bot_wall_bar_dtdz / abs(bot_wall_area)            
+    else
+       ! Calculate for top wall
+       call col3(work_field%x,dtdz%x,mass_area_top%x,n)      
+       top_wall_bar_dtdz = glsum(work_field%x,n)                  
+       top_wall_bar_dtdz = top_wall_bar_dtdz / abs(top_wall_area)            
+       ! Calculate for bot wall
+       call col3(work_field%x,dtdz%x,mass_area_bot%x,n)      
+       bot_wall_bar_dtdz = glsum(work_field%x,n)                  
+       bot_wall_bar_dtdz = bot_wall_bar_dtdz / abs(bot_wall_area)            
+    end if
+    
+    !> Include variables to monitor
+    if (pe_rank .eq. 0) then
+       open(10,file="nusselt.txt",position="append")
+       write(10,*) t,'', bar_uzt, '', top_wall_bar_dtdz, '', &
+                   bot_wall_bar_dtdz
+       close(10)
+    end if
+  
+
   end subroutine calculate_nusselt
-
 
 end module user
