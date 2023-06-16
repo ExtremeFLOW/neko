@@ -35,7 +35,7 @@
 !! @details This module defines an interface for read/write operations of user 
 !! specified floating-point data
 module csv_file
-  use probe, only: probe_t, probe_init
+  use probe_format, only: probe_t, probe_init
   use vector, only: vector_t
   use matrix, only: matrix_t
   use logger

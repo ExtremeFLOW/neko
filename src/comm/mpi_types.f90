@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> MPI dervied types
+!> MPI derived types
 module mpi_types
   use comm
   use re2
@@ -38,28 +38,31 @@ module mpi_types
   use stl
   use mpi_f08  
   use parameters
+  use point, only: point_t
   implicit none
   private
 
-  type(MPI_Datatype) :: MPI_NMSH_HEX    !< MPI dervied type for 3D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_QUAD   !< MPI dervied type for 2D Neko nmsh data
-  type(MPI_Datatype) :: MPI_NMSH_ZONE   !< MPI dervied type for Neko nmsh zone data
-  type(MPI_Datatype) :: MPI_NMSH_CURVE   !< MPI dervied type for Neko nmsh curved elements
+  type(MPI_Datatype) :: MPI_NMSH_HEX    !< MPI derived type for 3D Neko nmsh data
+  type(MPI_Datatype) :: MPI_NMSH_QUAD   !< MPI derived type for 2D Neko nmsh data
+  type(MPI_Datatype) :: MPI_NMSH_ZONE   !< MPI derived type for Neko nmsh zone data
+  type(MPI_Datatype) :: MPI_NMSH_CURVE   !< MPI derived type for Neko nmsh curved elements
 
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_XYZ !< MPI derived type for 3D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_XY  !< MPI derived type for 2D NEKTON re2 data
   type(MPI_Datatype) :: MPI_RE2V1_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V1_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+  type(MPI_Datatype) :: MPI_RE2V1_DATA_BC  !< MPI derived type for NEKTON re2 bc data
 
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_XYZ !< MPI dervied type for 3D NEKTON re2 data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_XY  !< MPI dervied type for 2D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_XYZ !< MPI derived type for 3D NEKTON re2 data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_XY  !< MPI derived type for 2D NEKTON re2 data
   type(MPI_Datatype) :: MPI_RE2V2_DATA_CV  !< MPI derived type for NEKTON re2 cv data
-  type(MPI_Datatype) :: MPI_RE2V2_DATA_BC  !< MPI dervied type for NEKTON re2 bc data
+  type(MPI_Datatype) :: MPI_RE2V2_DATA_BC  !< MPI derived type for NEKTON re2 bc data
 
-  type(MPI_Datatype) :: MPI_NEKO_PARAMS    !< MPI dervied type for parameters
+  type(MPI_Datatype) :: MPI_NEKO_PARAMS    !< MPI derived type for parameters
 
   type(MPI_Datatype) :: MPI_STL_HEADER     !< MPI Derived type for a STL header
   type(MPI_Datatype) :: MPI_STL_TRIANGLE   !< MPI derived type for a STL triangle
+
+  type(MPI_Datatype) :: MPI_POINT          !< MPI derived type for a point
 
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
@@ -68,7 +71,7 @@ module mpi_types
   integer :: MPI_LOGICAL_SIZE          !< Size of MPI type logical
   integer :: MPI_REAL_PREC_SIZE        !< Size of working precision REAL types
 
-  ! Public dervied types and size definitions
+  ! Public derived types and size definitions
   public :: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
        MPI_NMSH_CURVE, &
        MPI_RE2V1_DATA_XYZ, MPI_RE2V1_DATA_XY, &
@@ -78,14 +81,15 @@ module mpi_types
        MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, &
        MPI_LOGICAL_SIZE, MPI_REAL_PREC_SIZE, &
-       MPI_NEKO_PARAMS, MPI_STL_HEADER, MPI_STL_TRIANGLE
+       MPI_NEKO_PARAMS, MPI_STL_HEADER, MPI_STL_TRIANGLE, &
+       MPI_POINT
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
 
 contains
 
-  !> Define all MPI dervied types
+  !> Define all MPI derived types
   subroutine mpi_types_init
     integer :: ierr
 
@@ -117,7 +121,7 @@ contains
 
   end subroutine mpi_types_init
 
-  !> Define a MPI dervied type for a 3d nmsh hex
+  !> Define a MPI derived type for a 3d nmsh hex
   subroutine mpi_type_nmsh_hex_init
     type(nmsh_hex_t) :: nmsh_hex
     type(MPI_Datatype) :: type(17)
@@ -159,7 +163,7 @@ contains
     call MPI_Type_commit(MPI_NMSH_HEX, ierr)    
   end subroutine mpi_type_nmsh_hex_init
 
-  !> Define a MPI dervied type for a 2d nmsh quad
+  !> Define a MPI derived type for a 2d nmsh quad
   subroutine mpi_type_nmsh_quad_init
     type(nmsh_quad_t) :: nmsh_quad
     type(MPI_Datatype) :: type(9)
@@ -353,7 +357,7 @@ contains
 
   end subroutine mpi_type_re2_xy_init
 
-  !> Define a MPI dervied type for re2 cv data
+  !> Define a MPI derived type for re2 cv data
   subroutine mpi_type_re2_cv_init
     type(re2v1_curve_t) :: re2v1_data
     type(re2v2_curve_t) :: re2v2_data
@@ -411,7 +415,7 @@ contains
     
   end subroutine mpi_type_re2_cv_init
   
-  !> Define a MPI dervied type for re2 bc data
+  !> Define a MPI derived type for re2 bc data
   subroutine mpi_type_re2_bc_init
     type(re2v1_bc_t) :: re2v1_data
     type(re2v2_bc_t) :: re2v2_data
@@ -611,7 +615,7 @@ contains
 
   end subroutine mpi_type_neko_params_init
 
-  !> Define a MPI dervied type for a STL header
+  !> Define a MPI derived type for a STL header
   subroutine mpi_type_stl_header_init
     type(stl_hdr_t) :: stl_hdr
     type(MPI_Datatype) :: type(2)
@@ -637,7 +641,7 @@ contains
       
   end subroutine mpi_type_stl_header_init
 
-  !> Define a MPI dervied type for a STL triangle
+  !> Define a MPI derived type for a STL triangle
   subroutine mpi_type_stl_triangle_init
     type(stl_triangle_t) :: tri
     type(MPI_Datatype) :: type(5)
@@ -666,7 +670,30 @@ contains
         
   end subroutine mpi_type_stl_triangle_init
 
-  !> Deallocate all dervied MPI types
+  !> Defines a MPI derived type for a point (point_t)
+  subroutine mpi_type_point_init
+    type(point_t) :: p
+    type(MPI_Datatype) :: type(3)
+    integer(kind=MPI_ADDRESS_KIND) :: disp(3), base
+    integer :: len(3), i, ierr
+
+    call MPI_Get_address(p%x(1), disp(1), ierr)
+    call MPI_Get_address(p%x(2), disp(2), ierr)
+    call MPI_Get_address(p%x(3), disp(3), ierr)
+
+    base = disp(1)
+    do i = 1, 3
+       disp(i) = MPI_Aint_diff(disp(i), base)
+    end do
+
+    len(1:3) = 1
+    type(1:3) = MPI_REAL_PRECISION
+
+    call MPI_Type_create_struct(3, len, disp, type, MPI_POINT, ierr)
+    call MPI_Type_commit(MPI_POINT, ierr)
+  end subroutine mpi_type_point_init
+
+  !> Deallocate all derived MPI types
   subroutine mpi_types_free
     call mpi_type_nmsh_hex_free
     call mpi_Type_nmsh_quad_free
@@ -678,6 +705,7 @@ contains
     call mpi_type_neko_params_free
     call mpi_type_stl_header_free
     call mpi_type_stl_triangle_free
+    call mpi_type_point_free
   end subroutine mpi_types_free
 
   !> Deallocate nmsh hex derived MPI type
@@ -704,50 +732,55 @@ contains
     call MPI_Type_free(MPI_NMSH_CURVE, ierr)
   end subroutine mpi_type_nmsh_curve_free
   
-  !> Deallocate re2 xyz dervied MPI type
+  !> Deallocate re2 xyz derived MPI type
   subroutine mpi_type_re2_xyz_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_XYZ, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_XYZ, ierr)
   end subroutine mpi_type_re2_xyz_free
 
-  !> Deallocate re2 xyz dervied MPI type
+  !> Deallocate re2 xyz derived MPI type
   subroutine mpi_type_re2_xy_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_XY, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_XY, ierr)
   end subroutine mpi_type_re2_xy_free
 
-  !> Deallocate re2 cv dervied MPI type
+  !> Deallocate re2 cv derived MPI type
   subroutine mpi_type_re2_cv_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_CV, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_CV, ierr)
   end subroutine mpi_type_re2_cv_free
   
-  !> Deallocate re2 bc dervied MPI type
+  !> Deallocate re2 bc derived MPI type
   subroutine mpi_type_re2_bc_free
     integer ierr
     call MPI_Type_free(MPI_RE2V1_DATA_BC, ierr)
     call MPI_Type_free(MPI_RE2V2_DATA_BC, ierr)
   end subroutine mpi_type_re2_bc_free
 
-  !> Deallocate parameters dervied MPI type
+  !> Deallocate parameters derived MPI type
   subroutine mpi_type_neko_params_free
     integer ierr
     call MPI_Type_free(MPI_NEKO_PARAMS, ierr)
   end subroutine mpi_type_neko_params_free
 
-  !> Deallocate STL header dervied MPI type
+  !> Deallocate STL header derived MPI type
   subroutine mpi_type_stl_header_free
     integer ierr
     call MPI_Type_free(MPI_STL_HEADER, ierr)
   end subroutine mpi_type_stl_header_free
   
-  !> Deallocate STL triangle dervied MPI type
+  !> Deallocate STL triangle derived MPI type
   subroutine mpi_type_stl_triangle_free
     integer ierr
     call MPI_Type_free(MPI_STL_TRIANGLE, ierr)
   end subroutine mpi_type_stl_triangle_free
-  
+
+  !> Deallocate point derived MPI type
+  subroutine mpi_type_point_free
+    integer ierr
+    call MPI_Type_free(MPI_POINT, ierr)
+  end subroutine mpi_type_point_free
 end module mpi_types
