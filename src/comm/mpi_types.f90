@@ -38,7 +38,6 @@ module mpi_types
   use stl
   use mpi_f08  
   use parameters
-  use point, only: point_t
   implicit none
   private
 
@@ -62,8 +61,6 @@ module mpi_types
   type(MPI_Datatype) :: MPI_STL_HEADER     !< MPI Derived type for a STL header
   type(MPI_Datatype) :: MPI_STL_TRIANGLE   !< MPI derived type for a STL triangle
 
-  type(MPI_Datatype) :: MPI_POINT          !< MPI derived type for a point
-
   integer :: MPI_REAL_SIZE             !< Size of MPI type real
   integer :: MPI_DOUBLE_PRECISION_SIZE !< Size of MPI type double precision
   integer :: MPI_CHARACTER_SIZE        !< Size of MPI type character
@@ -81,8 +78,7 @@ module mpi_types
        MPI_REAL_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_CHARACTER_SIZE, MPI_INTEGER_SIZE, &
        MPI_LOGICAL_SIZE, MPI_REAL_PREC_SIZE, &
-       MPI_NEKO_PARAMS, MPI_STL_HEADER, MPI_STL_TRIANGLE, &
-       MPI_POINT
+       MPI_NEKO_PARAMS, MPI_STL_HEADER, MPI_STL_TRIANGLE
 
   ! Public subroutines
   public :: mpi_types_init, mpi_types_free
@@ -670,29 +666,6 @@ contains
         
   end subroutine mpi_type_stl_triangle_init
 
-  !> Defines a MPI derived type for a point (point_t)
-  subroutine mpi_type_point_init
-    type(point_t) :: p
-    type(MPI_Datatype) :: type(3)
-    integer(kind=MPI_ADDRESS_KIND) :: disp(3), base
-    integer :: len(3), i, ierr
-
-    call MPI_Get_address(p%x(1), disp(1), ierr)
-    call MPI_Get_address(p%x(2), disp(2), ierr)
-    call MPI_Get_address(p%x(3), disp(3), ierr)
-
-    base = disp(1)
-    do i = 1, 3
-       disp(i) = MPI_Aint_diff(disp(i), base)
-    end do
-
-    len(1:3) = 1
-    type(1:3) = MPI_REAL_PRECISION
-
-    call MPI_Type_create_struct(3, len, disp, type, MPI_POINT, ierr)
-    call MPI_Type_commit(MPI_POINT, ierr)
-  end subroutine mpi_type_point_init
-
   !> Deallocate all derived MPI types
   subroutine mpi_types_free
     call mpi_type_nmsh_hex_free
@@ -705,7 +678,6 @@ contains
     call mpi_type_neko_params_free
     call mpi_type_stl_header_free
     call mpi_type_stl_triangle_free
-    call mpi_type_point_free
   end subroutine mpi_types_free
 
   !> Deallocate nmsh hex derived MPI type
@@ -777,10 +749,4 @@ contains
     integer ierr
     call MPI_Type_free(MPI_STL_TRIANGLE, ierr)
   end subroutine mpi_type_stl_triangle_free
-
-  !> Deallocate point derived MPI type
-  subroutine mpi_type_point_free
-    integer ierr
-    call MPI_Type_free(MPI_POINT, ierr)
-  end subroutine mpi_type_point_free
 end module mpi_types
