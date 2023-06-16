@@ -20,7 +20,21 @@ module user
   real(kind=rp) :: bot_wall_bar_dtdz ! area integral
   real(kind=rp) :: top_wall_area ! area of top and bottom wall
   real(kind=rp) :: bot_wall_area ! area of top and bottom wall
+  
+  !> Boundary conditions  
+  integer :: istep = 1
 
+  !> Variables to write extra files
+  character(len=NEKO_FNAME_LEN) :: fname_dtdx
+  character(len=NEKO_FNAME_LEN) :: fname_dtdy
+  character(len=NEKO_FNAME_LEN) :: fname_dtdz
+  character(len=NEKO_FNAME_LEN) :: fname_top_area
+  character(len=NEKO_FNAME_LEN) :: fname_bot_area
+  type(file_t) :: mf_dtdx
+  type(file_t) :: mf_dtdy
+  type(file_t) :: mf_dtdz
+  type(file_t) :: mf_top_area
+  type(file_t) :: mf_bot_area
 
   !> List of elements and facets in uper and lower boundary
   type(stack_i4t4_t) :: wall_facet
@@ -51,14 +65,19 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+
+    !> Variables for bias
+    real(kind=rp) :: arg, bias
+    
+    arg  = -istep*0.001
+    bias = x*0.2*exp(arg)
+    bias = 0
+
     ! This will be used on all zones without labels
     ! e.g. the ones hardcoded to 'v', 'w', etcetc
-    s = 1.0_rp - z
+    s = 1.0_rp - z + bias
 
-    !Debugging info
-    !if (pe_rank .eq. 0) then
-    !  write(*,*) 'Element:', ie, 'in boundary'
-    !end if 
+
   end subroutine set_scalar_boundary_conditions
 
   subroutine set_initial_conditions_for_u_and_s(u, v, w, p, params)
@@ -138,6 +157,19 @@ contains
     call field_init(mass_area_top, u%dof, 'mat')
     call field_init(mass_area_bot, u%dof, 'mab')
 
+    !> Initialize the file
+    fname_dtdx = 'dtdx.fld'
+    fname_dtdy = 'dtdy.fld'
+    fname_dtdz = 'dtdz.fld'
+    fname_top_area = 'top_area.fld'
+    fname_bot_area = 'bot_area.fld'
+    mf_dtdx =  file_t(fname_dtdx)
+    mf_dtdy =  file_t(fname_dtdy)
+    mf_dtdz =  file_t(fname_dtdz)
+    mf_top_area =  file_t(fname_top_area)
+    mf_bot_area =  file_t(fname_bot_area)
+
+
     !> Initialize list with upper and lower wall facets
     call wall_facet%init()
 
@@ -198,13 +230,15 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then 
        call device_memcpy(mass_area_top%x,mass_area_top%x_d, &
-                          mass_area_top%dof%size(),HOST_TO_DEVICE)
+                          n,HOST_TO_DEVICE)
        call device_memcpy(mass_area_bot%x,mass_area_bot%x_d, &
-                          mass_area_bot%dof%size(),HOST_TO_DEVICE)
+                          n,HOST_TO_DEVICE)
     end if
 
-  end subroutine user_initialize
+    call mf_top_area%write(mass_area_top,t)
+    call mf_bot_area%write(mass_area_bot,t)
 
+  end subroutine user_initialize
 
   pure function get_area_mass(coef, i, j, k, e, facet) result(area_mass)
     type(coef_t), intent(in) :: coef
@@ -278,6 +312,9 @@ contains
     type (tuple_i4_t) :: facet_el
     real(kind=rp) :: normal(3)
 
+    !> This value is used for breaking symtetries in bc
+    istep = istep + 1
+
     if (mod(tstep,calc_frequency).ne.0) return
 
     s => neko_field_registry%get_field('s')
@@ -307,11 +344,11 @@ contains
        bar_uzt = bar_uzt / coef%volume                     !2.3.
     end if
 
-
-
     !> ------ Method #2 for nusselt calculation -----
     ! Calculate derivatives. Automatically in device with opgrad
-    call opgrad(dtdx%x,dtdy%x,dtdz%x,s%x,coef) 
+    call dudxyz (dtdx%x, s%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (dtdy%x, s%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (dtdz%x, s%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then 
        ! Calculate for top wall
@@ -333,14 +370,24 @@ contains
        bot_wall_bar_dtdz = bot_wall_bar_dtdz / abs(bot_wall_area)            
     end if
     
-    !> Include variables to monitor
+
+    !> write variables to monitor
+    !! Integral quantities
     if (pe_rank .eq. 0) then
        open(10,file="nusselt.txt",position="append")
        write(10,*) t,'', bar_uzt, '', top_wall_bar_dtdz, '', &
                    bot_wall_bar_dtdz
        close(10)
     end if
-  
+    !! Fields
+    !call device_memcpy(dtdx%x,dtdx%x_d, n,DEVICE_TO_HOST)
+    !call device_memcpy(dtdy%x,dtdy%x_d, n,DEVICE_TO_HOST)
+    call device_memcpy(dtdz%x,dtdz%x_d, n,DEVICE_TO_HOST)
+    !call mf_dtdx%write(dtdx,t)
+    !call mf_dtdy%write(dtdy,t)
+    call mf_dtdz%write(dtdz,t)
+
+
 
   end subroutine calculate_nusselt
 

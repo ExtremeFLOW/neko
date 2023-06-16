@@ -1,15 +1,15 @@
 &NEKO_CASE
 mesh_file= 'cylinder.nmsh'                 ! Name of the mesh
 fluid_scheme='pnpn'                        ! Fluid scheme, which is only PnPn
-lx = 6                                     ! Polynomial order
+lx = 8                                    ! Polynomial order
 source_term = 'user_vector'                ! Enable the source term that couples the flow to the temp as a forcing. 
 initial_condition = 'user'                 ! Set the initial condition of the flow to be from a user 
-scalar = .true.                            ! Set scalar to true        
+scalar = .true.                            ! Activate the calculation of the scalar (temperature)    
 scalar_source_term = 'noforce'             ! Source term in the transport equation for the scalar. There is no forcing here for RBC
 /
 &NEKO_PARAMETERS
 dt = 2d-3                                  ! Time step
-T_end = 250                                ! Final simulation time
+T_end = 200                                ! Final simulation time
 fluid_write_control = 'simulationtime'     ! What condition should be used for writing
 fluid_write_par = 1.0                      ! Define how ofter neko should write
 uinf= 0.0,0.0,0.0                          ! Components of the free stream velocity. Here it is zero as temperature drives the flow
@@ -23,4 +23,5 @@ Pr = 1                                     ! Prandlt number
 Re = 1e8                                   ! Reynolds number
 proj_prs_dim = 0                           ! Projection space for pressure solution - This should reduce iterations if activated
 proj_vel_dim = 0                           ! Projection space for velocity solution - This should reduce iterations if activated
+restart_file='lx8_t150.chkp'             ! Restart file (if it exist)
 /
