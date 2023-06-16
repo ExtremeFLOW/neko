@@ -8,7 +8,6 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-	io/format/probe_format.f90\
         common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
