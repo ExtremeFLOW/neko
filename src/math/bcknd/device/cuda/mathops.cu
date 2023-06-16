@@ -43,10 +43,11 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     opchsign_kernel<real>
-      <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
-                           *gdim, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) a1, (real *) a2, (real *) a3,
+                                      *gdim, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
@@ -55,10 +56,11 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+        
     opcolv_kernel<real>
-      <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3, 
-                           (real *) c, *gdim, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) a1, (real *) a2, (real *) a3, 
+                                      (real *) c, *gdim, *n);
     CUDA_CHECK(cudaGetLastError());
     
   }
@@ -69,11 +71,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+        
     opcolv3c_kernel<real>
-      <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
-                           (real *) b1, (real *) b2, (real *) b3,
-                           (real *) c, *d, *gdim, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) a1, (real *) a2, (real *) a3,
+                                      (real *) b1, (real *) b2, (real *) b3,
+                                      (real *) c, *d, *gdim, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -84,11 +87,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     opadd2cm_kernel<real>
-      <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
-                           (real *) b1, (real *) b2, (real *) b3,
-                           *c, *gdim, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) a1, (real *) a2, (real *) a3,
+                                      (real *) b1, (real *) b2, (real *) b3,
+                                      *c, *gdim, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
@@ -99,11 +103,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     
     opadd2col_kernel<real>
-      <<<nblcks, nthrds>>>((real *) a1, (real *) a2, (real *) a3,
-                           (real *) b1, (real *) b2, (real *) b3,
-                           (real *) c, *gdim, *n);
+      <<<nblcks, nthrds, 0, stream>>>((real *) a1, (real *) a2, (real *) a3,
+                                      (real *) b1, (real *) b2, (real *) b3,
+                                      (real *) c, *gdim, *n);
     CUDA_CHECK(cudaGetLastError());
     
   }

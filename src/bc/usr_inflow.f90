@@ -58,7 +58,6 @@ module usr_inflow
      procedure, pass(this) :: set_scalar_bc => usr_set_scalar_bc
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
-     final :: usr_inflow_free
   end type usr_inflow_t
 
   abstract interface

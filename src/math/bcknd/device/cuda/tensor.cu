@@ -42,10 +42,12 @@ extern "C" {
 		   void *A, void *Bt, void *Ct, int *nel) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*nel, 1, 1);
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+          
     tnsr3d_kernel<real>
-      <<<nblcks, nthrds>>>((real *) v, *nv, (real *) u, 
-			   *nu, (real *) A, (real *) Bt, (real *) Ct);
+      <<<nblcks, nthrds, 0, stream>>>((real *) v, *nv,
+                                      (real *) u, *nu,
+                                      (real *) A, (real *) Bt, (real *) Ct);
     CUDA_CHECK(cudaGetLastError());
     
   }

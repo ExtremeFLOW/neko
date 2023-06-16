@@ -52,16 +52,18 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
 #define GEO_CASE(LX)                                                            \
     case LX:                                                                    \
       coef_generate_geo_kernel<real, LX, 1024>                                  \
-        <<<nblcks, nthrds>>>((real *) G11, (real *) G12, (real *) G13,          \
-                             (real *) G22, (real *) G23, (real *) G33,          \
-                             (real *) drdx, (real *) drdy, (real *) drdz,       \
-                             (real *) dsdx, (real *) dsdy, (real *) dsdz,       \
-                             (real *) dtdx, (real *) dtdy, (real *) dtdz,       \
-                             (real *) jacinv, (real *) w3, *gdim);              \
+        <<<nblcks, nthrds, 0, stream>>>                                         \
+        ((real *) G11, (real *) G12, (real *) G13,                              \
+         (real *) G22, (real *) G23, (real *) G33,                              \
+         (real *) drdx, (real *) drdy, (real *) drdz,                           \
+         (real *) dsdx, (real *) dsdy, (real *) dsdz,                           \
+         (real *) dtdx, (real *) dtdy, (real *) dtdz,                           \
+         (real *) jacinv, (real *) w3, *gdim);                                  \
       CUDA_CHECK(cudaGetLastError());                                           \
       break
     
@@ -107,15 +109,17 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks_dxyz((*nel), 1, 1);
     const dim3 nblcks_drst((n + 1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
 #define DXYZDRST_CASE(LX)					               \
     case LX:								       \
       coef_generate_dxyz_kernel<real, LX, 1024>                                \
-	<<<nblcks_dxyz, nthrds>>>((real *) dxdr, (real *) dydr, (real *) dzdr, \
-				  (real *) dxds, (real *) dyds, (real *) dzds, \
-				  (real *) dxdt, (real *) dydt, (real *) dzdt, \
-				  (real *) dx, (real *) dy, (real *) dz,       \
-				  (real *) x, (real *) y, (real *) z);	       \
+	<<<nblcks_dxyz, nthrds, 0, stream>>>                                   \
+        ((real *) dxdr, (real *) dydr, (real *) dzdr,                          \
+         (real *) dxds, (real *) dyds, (real *) dzds,                          \
+         (real *) dxdt, (real *) dydt, (real *) dzdt,                          \
+         (real *) dx, (real *) dy, (real *) dz,                                \
+         (real *) x, (real *) y, (real *) z);                                  \
       CUDA_CHECK(cudaGetLastError());					       \
       break
 
@@ -143,13 +147,14 @@ extern "C" {
     }
 
     coef_generate_drst_kernel<real>
-      <<<nblcks_drst, nthrds>>>((real *) jac, (real *) jacinv, 
-                                (real *) drdx, (real *) drdy, (real *) drdz,
-                                (real *) dsdx, (real *) dsdy, (real *) dsdz,
-                                (real *) dtdx, (real *) dtdy, (real *) dtdz,
-                                (real *) dxdr, (real *) dydr, (real *) dzdr, 
-                                (real *) dxds, (real *) dyds, (real *) dzds, 
-                                (real *) dxdt, (real *) dydt, (real *) dzdt, n);
+      <<<nblcks_drst, nthrds, 0, stream>>>
+      ((real *) jac, (real *) jacinv, 
+       (real *) drdx, (real *) drdy, (real *) drdz,
+       (real *) dsdx, (real *) dsdy, (real *) dsdz,
+       (real *) dtdx, (real *) dtdy, (real *) dtdz,
+       (real *) dxdr, (real *) dydr, (real *) dzdr, 
+       (real *) dxds, (real *) dyds, (real *) dzds, 
+       (real *) dxdt, (real *) dydt, (real *) dzdt, n);
     CUDA_CHECK(cudaGetLastError());
 
   }
