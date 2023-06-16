@@ -85,14 +85,14 @@ contains
       if (present(delta)) then
          this%delta = delta
       else 
-         this%delta = 0.01
+         this%delta = 0.01_rp
       end if
       this%uinf = uinf
       this%u => u
       this%v => v
       this%c_Xh=> c_Xh
       this%w => w
-      if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1)) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_alloc(this%normal_x_d,c_sizeof(dummy)*this%msk(0))
          call device_alloc(this%normal_y_d,c_sizeof(dummy)*this%msk(0))
          call device_alloc(this%normal_z_d,c_sizeof(dummy)*this%msk(0))

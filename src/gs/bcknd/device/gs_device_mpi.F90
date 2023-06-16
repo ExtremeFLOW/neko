@@ -63,6 +63,7 @@ module gs_device_mpi
      type(c_ptr), allocatable :: stream(:)
      type(c_ptr), allocatable :: event(:)
      integer :: nb_strtgy
+     type(c_ptr) :: send_event = C_NULL_PTR          
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -279,20 +280,22 @@ contains
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
     call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     ! Create a set of non-blocking streams
     allocate(this%stream(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_stream_create(this%stream(i), 1)
+       call device_stream_create_with_priority(this%stream(i), 1, STRM_HIGH_PRIO)
     end do
 
     allocate(this%event(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_event_create(this%event(i))
+       call device_event_create(this%event(i), 2)
     end do
+#endif
 
 
     this%nb_strtgy = 0
-    
+
   end subroutine gs_device_mpi_init
 
   !> Deallocate MPI based communication method
@@ -306,21 +309,24 @@ contains
     call this%free_order()
     call this%free_dofs()
 
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
     if (allocated(this%stream)) then
        do i = 1, size(this%stream)
           call device_stream_destroy(this%stream(i))
        end do
        deallocate(this%stream)
     end if
-
+#endif
+    
   end subroutine gs_device_mpi_free
 
   !> Post non-blocking send operations
-  subroutine gs_device_mpi_nbsend(this, u, n, deps)
+  subroutine gs_device_mpi_nbsend(this, u, n, deps, strm)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
     integer ::  i
     type(c_ptr) :: u_d
 
@@ -333,18 +339,18 @@ contains
                         this%send_buf%buf_d, &
                         this%send_buf%dof_d, &
                         0, this%send_buf%total, &
-                        C_NULL_PTR)
+                        strm)
 #elif HAVE_CUDA
        call cuda_gs_pack(u_d, &
                          this%send_buf%buf_d, &
                          this%send_buf%dof_d, &
                          0, this%send_buf%total, &
-                         C_NULL_PTR)
+                         strm)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
 
-       call device_sync()
+       call device_sync(strm)
        
        do i = 1, size(this%send_pe)
           call device_mpi_isend(this%send_buf%buf_d, &
@@ -402,11 +408,12 @@ contains
   end subroutine gs_device_mpi_nbrecv
 
   !> Wait for non-blocking operations
-  subroutine gs_device_mpi_nbwait(this, u, n, op)
+  subroutine gs_device_mpi_nbwait(this, u, n, op, strm)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
-    integer :: op, done_req
+    type(c_ptr), intent(inout) :: strm
+    integer :: op, done_req, i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
@@ -419,13 +426,13 @@ contains
                           this%recv_buf%buf_d, &
                           this%recv_buf%dof_d, &
                           0, this%recv_buf%total, &
-                          C_NULL_PTR)
+                          strm)
 #elif HAVE_CUDA
        call cuda_gs_unpack(u_d, op, &
                            this%recv_buf%buf_d, &
                            this%recv_buf%dof_d, &
                            0, this%recv_buf%total, &
-                           C_NULL_PTR)
+                           strm)
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
@@ -433,7 +440,7 @@ contains
        call device_mpi_waitall(size(this%send_pe), this%send_buf%reqs)
 
        ! Syncing here seems to prevent some race condition
-       call device_sync()
+       call device_sync(strm)
        
     else
 
@@ -464,13 +471,9 @@ contains
 
        ! Sync non-blocking streams
        do done_req = 1, size(this%recv_pe)
-          call device_stream_wait_event(C_NULL_PTR, &
-                                        this%event(done_req), 0)
+          call device_stream_wait_event(strm, &
+               this%event(done_req), 0)
        end do
-
-       !> @todo Remove as soon as the new gather-scatter
-       !! formulation is ready to be merged
-       call device_sync(C_NULL_PTR)
        
     end if
 

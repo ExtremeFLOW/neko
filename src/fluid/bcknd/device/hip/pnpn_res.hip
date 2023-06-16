@@ -51,7 +51,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( prs_res_part1_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) ta1, (real *) ta2, (real *) ta3, 
                        (real *) wa1, (real *) wa2, (real *) wa3,
                        (real *) f_u, (real *) f_v, (real *) f_w,
@@ -66,7 +66,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( prs_res_part2_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) p_res, (real *) wa1, (real *) wa2,
                        (real *) wa3, *n);
     HIP_CHECK(hipGetLastError());
@@ -80,7 +80,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( prs_res_part3_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) p_res, (real *) ta1, (real *) ta2,
                        (real *) ta3, *dtbd, *n);
     HIP_CHECK(hipGetLastError());
@@ -95,7 +95,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( vel_res_update_kernel<real> ),
-                       nblcks, nthrds, 0, 0,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) u_res, (real *) v_res, (real *) w_res,
                        (real *) ta1, (real *) ta2, (real *) ta3,
                        (real *) f_u, (real *) f_v, (real *) f_w, *n);

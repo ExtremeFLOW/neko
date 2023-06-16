@@ -1234,32 +1234,43 @@ contains
   end subroutine gs_schedule
 
   !> Gather-scatter operation on a field @a u with op @a op
-  subroutine gs_op_fld(gs, u, op)
+  subroutine gs_op_fld(gs, u, op, event)
     type(gs_t), intent(inout) :: gs
     type(field_t), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
     integer :: n, op
     
     n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
-    call gs_op_vector(gs, u%x, n, op)
+    if (present(event)) then
+       call gs_op_vector(gs, u%x, n, op, event)
+    else
+       call gs_op_vector(gs, u%x, n, op)
+    end if
     
   end subroutine gs_op_fld
   
   !> Gather-scatter operation on a rank 4 array
-  subroutine gs_op_r4(gs, u, n, op)
+  subroutine gs_op_r4(gs, u, n, op, event)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
     integer :: op
 
-    call gs_op_vector(gs, u, n, op)
+    if (present(event)) then
+       call gs_op_vector(gs, u, n, op, event)
+    else
+       call gs_op_vector(gs, u, n, op)
+    end if
     
   end subroutine gs_op_r4
   
   !> Gather-scatter operation on a vector @a u with op @a op
-  subroutine gs_op_vector(gs, u, n, op)
+  subroutine gs_op_vector(gs, u, n, op, event)
     type(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
     integer :: m, l, op, lo, so
     
     lo = gs%local_facet_offset
@@ -1278,7 +1289,8 @@ contains
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
        call profiler_end_region
        call profiler_start_region("gs_nbsend")
-       call gs%comm%nbsend(gs%shared_gs, l, gs%bcknd%gather_event)
+       call gs%comm%nbsend(gs%shared_gs, l, &
+            gs%bcknd%gather_event, gs%bcknd%gs_stream)
        call profiler_end_region
        
     end if
@@ -1288,16 +1300,25 @@ contains
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
-         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false.)
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false., C_NULL_PTR)
     call profiler_end_region
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait")
-       call gs%comm%nbwait(gs%shared_gs, l, op)
+       call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region
        call profiler_start_region("gs_scatter_shared")
-       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u, n, &
-            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, .true.)
+       if (present(event)) then
+          call gs%bcknd%scatter(gs%shared_gs, l,&
+                                gs%shared_dof_gs, u, n, &
+                                gs%shared_gs_dof, gs%nshared_blks, &
+                                gs%shared_blk_len, .true., event)
+       else
+          call gs%bcknd%scatter(gs%shared_gs, l,&
+                                gs%shared_dof_gs, u, n, &
+                                gs%shared_gs_dof, gs%nshared_blks, &
+                                gs%shared_blk_len, .true., C_NULL_PTR)
+       end if
        call profiler_end_region
     end if
 

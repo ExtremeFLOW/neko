@@ -59,6 +59,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
     if (cfl_d == NULL) {
       CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
@@ -69,7 +70,7 @@ extern "C" {
 #define CASE(LX)                                                                \
     case LX:                                                                    \
       cfl_kernel<real, LX, 1024>                                                \
-        <<<nblcks, nthrds>>>                                                    \
+        <<<nblcks, nthrds, 0, stream>>>                                         \
         (*dt, (real *) u, (real *) v, (real *) w,                               \
          (real *) drdx, (real *) dsdx, (real *) dtdx,                           \
          (real *) drdy, (real *) dsdy, (real *) dtdy,                           \
@@ -101,11 +102,11 @@ extern "C" {
 
     real cfl;
 #ifdef HAVE_DEVICE_MPI
-    cudaDeviceSynchronize();
+    cudaStreamSynchronize(stream);
     device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
 #else
-    CUDA_CHECK(cudaMemcpy(&cfl, cfl_d, sizeof(real),
-                          cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
 #endif
     
     return cfl;
