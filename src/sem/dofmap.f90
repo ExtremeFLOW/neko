@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -105,15 +105,17 @@ contains
     this%shared_dof = .false.
 
     !> @todo implement for 2d elements
+    !$omp parallel    
     if (msh%gdim .eq. 3) then
-       call dofmap_number_points(this)
+       call dofmap_number_points(this)       
        call dofmap_number_edges(this)
        call dofmap_number_faces(this)
     else
        call dofmap_number_points(this)
        call dofmap_number_edges(this)
     end if
-
+    !$omp end parallel 
+    
     !
     ! Generate x,y,z-coordinates for all dofs
     !
@@ -127,7 +129,9 @@ contains
     this%z = 0d0
     !> @note should be intialised differently in acissymmetric case
 
-    call dofmap_generate_xyz(this)    
+    !$omp parallel
+    call dofmap_generate_xyz(this)
+    !$omp end parallel
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%x, this%x_d, this%ntot)
@@ -201,6 +205,7 @@ contains
 
     msh => this%msh
     Xh => this%Xh
+    !$omp do
     do il = 1, msh%nelv
        do jl = 1, msh%npts
           ix = mod(jl - 1, 2) * (Xh%lx - 1) + 1
@@ -211,6 +216,7 @@ contains
                mesh_is_shared(msh, msh%elements(il)%e%pts(jl)%p)
        end do
     end do
+    !$omp end do
   end subroutine dofmap_number_points
 
   !> Assing numbers to dofs on edges
@@ -234,6 +240,7 @@ contains
     num_dofs_edges(3) =  int(Xh%lz - 2, i8)
     edge_offset = int(msh%glb_mpts, i8) + int(1, 4)
 
+    !$omp do
     do i = 1, msh%nelv
        
        select type(ep=>msh%elements(i)%e)
@@ -451,6 +458,7 @@ contains
        end select
        
     end do
+    !$omp end do
   end subroutine dofmap_number_edges
 
   !> Assign numbers to dofs on faces
@@ -477,6 +485,7 @@ contains
     num_dofs_faces(2) =  int((Xh%lx - 2) * (Xh%lz - 2), i8)
     num_dofs_faces(3) =  int((Xh%lx - 2) * (Xh%ly - 2), i8)
 
+    !$omp do
     do i = 1, msh%nelv
        
        !
@@ -568,14 +577,16 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
+    
   end subroutine dofmap_number_faces
 
- !> Get idx for GLL point on face depending on face ordering k and j
-  function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, lj1) result(facet_idx)
-     type(tuple4_i4_t) :: face_order, face
-     integer(kind=i8) :: facet_idx, facet_id
-     integer :: k1, j1, lk1, lj1
+  !> Get idx for GLL point on face depending on face ordering k and j
+  pure function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, lj1) result(facet_idx)
+     type(tuple4_i4_t), intent(in) :: face_order, face
+     integer(kind=i8), intent(in) :: facet_id
+     integer, intent(in) :: k1, j1, lk1, lj1
+     integer(kind=i8) :: facet_idx
      integer :: k,j,lk,lj
      
      k = k1 - 2
@@ -645,9 +656,12 @@ contains
        n_edge = 4
     end if
 
+    !$omp do
     do i = 1, msh%nelv       
        call dofmap_xyzlin(Xh,msh, msh%elements(i)%e,this%x(1,1,1,i),this%y(1,1,1,i), this%z(1,1,1,i)) 
     end do
+    !$omp end do
+    !$omp do
     do i =1, msh%curve%size 
        midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
@@ -664,6 +678,8 @@ contains
                               this%z(1,1,1,el_idx),curve_type, curve_data_tot)
        end if
     end do
+    !$omp end do
+    !$omp do
     do i =1, msh%curve%size 
        el_idx = msh%curve%curve_el(i)%el_idx
        do j = 1, 8
@@ -677,6 +693,7 @@ contains
           end if
        end do
     end do
+    !$omp end do
     if (associated(msh%apply_deform)) then
        call msh%apply_deform(this%x, this%y, this%z, Xh%lx, Xh%ly, Xh%lz)
     end if
