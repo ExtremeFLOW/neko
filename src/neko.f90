@@ -81,6 +81,7 @@ module neko
   use field_registry
   use vector
   use system
+  use scratch_registry, only : neko_scratch_registry
   !$ use omp_lib
 
 contains
@@ -251,6 +252,7 @@ contains
     end if
     
     call neko_field_registry%free()
+    call neko_scratch_registry%free()
     call device_finalize
     call mpi_types_free
     call comm_free
