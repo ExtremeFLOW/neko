@@ -75,7 +75,8 @@ module tensor
   end interface transpose
 
 public tensr3, transpose, trsp, trsp1, &
-     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr
+     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, tensor_scalar1, &
+     tensor_scalar3
 
 contains
 
@@ -237,5 +238,72 @@ contains
     end do
     
   end subroutine addtnsr
-  
+
+  !> Computes the tensor product \f$ v =(H_t \otimes H_s \otimes H_r) u \f$.
+  !! This operation is usually performed for spectral interpolation of a
+  !! scalar field as defined by
+  !! \f{eqnarray*}{
+  !!    v(r,s,t) = \sum_{i=0}^{N}{\sum_{j=0}^{N}{
+  !!      \sum_{k=0}^{N}{u_{ijk}h_i(r)h_j(s)h_k(t)}}}
+  !! \f}
+  !!
+  !! @param v Interpolated value (scalar)
+  !! @param u Field values at the GLL points (e.g. velocity in x-direction)
+  !! @param nu Size of the interpolation weights (usually `lx`)
+  !! @param Hr Interpolation weights in the r-direction
+  !! @param Hs Interpolation weights in the s-direction
+  !! @param Ht Interpolation weights in the t-direction
+  subroutine tensor_scalar1(v, u, nu, Hr, Hs, Ht)
+    real(kind=rp), intent(inout) :: v
+    integer, intent(in) :: nu
+    real(kind=rp), intent(inout) :: u(nu,nu,nu)
+    real(kind=rp), intent(inout) :: Hr(nu)
+    real(kind=rp), intent(inout) :: Hs(nu)
+    real(kind=rp), intent(inout) :: Ht(nu)
+
+    ! Artificially reshape v into a 1-dimensional array
+    ! since this is what tnsr3d_el needs as input argument
+    real(kind=rp) :: vv(1)
+    vv(1) = v
+
+    call tnsr3d_el(vv,1,u,nu,Hr,Hs,Ht)
+
+    v = vv(1)
+
+  end subroutine tensor_scalar1
+
+  !> Computes the tensor product on a vector field
+  !! \f$ \mathbf{v} =(H_t \otimes H_s \otimes H_r) \mathbf{u} \f$
+  !! This operation is usually performed for spectral interpolation on
+  !! a 3D vector field \f$ \mathbf{u} = (u_1,u_2,u_3)\f$ as defined by
+  !! \f{eqnarray*}{
+  !!    \mathbf{v}(r,s,t) = \sum_{i=0}^{N}{\sum_{j=0}^{N}{
+  !!      \sum_{k=0}^{N}{\mathbf{u}_{ijk}h_i(r)h_j(s)h_k(t)}}}
+  !! \f}
+  !!
+  !! @param v Interpolated value (scalar)
+  !! @param u1 3D-array containing values at the GLL points (e.g. velocity)
+  !! @param u2 3D-array containing values at the GLL points (e.g. velocity)
+  !! @param u3 3D-array containing values at the GLL points (e.g. velocity)
+  !! @param nu Size of the interpolation weights (usually `lx`)
+  !! @param Hr Interpolation weights in the r-direction
+  !! @param Hs Interpolation weights in the s-direction
+  !! @param Ht Interpolation weights in the t-direction
+  subroutine tensor_scalar3(v, u1, u2, u3, nu, Hr, Hs, Ht)
+    real(kind=rp), intent(inout) :: v(3)
+    integer, intent(in) :: nu
+    real(kind=rp), intent(inout) :: u1(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u2(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u3(nu,nu,nu)
+    real(kind=rp), intent(inout) :: Hr(nu)
+    real(kind=rp), intent(inout) :: Hs(nu)
+    real(kind=rp), intent(inout) :: Ht(nu)
+
+    call tensor_scalar1(v(1), u1, nu, Hr, Hs, Ht)
+    call tensor_scalar1(v(2), u2, nu, Hr, Hs, Ht)
+    call tensor_scalar1(v(3), u3, nu, Hr, Hs, Ht)
+
+  end subroutine tensor_scalar3
+
+
 end module tensor
