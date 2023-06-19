@@ -61,7 +61,7 @@ module usr_scalar
      !! boundary condition (pointwise)
      !! Just imitating inflow for now, but we should update this
      !! Probably passing the whole field, params, coef, etcetc would be good
-     !! @param s The scalar's value in this point
+     !! @param s The scalar in this point, the value of which will be evaluated and set.
      !! @param x The x coord in this point
      !! @param y The y coord in this point
      !! @param z The z coord in this point
