@@ -209,10 +209,9 @@ contains
   !> Read a vector (i.e. data on a single row) from a csv file
   !! @param d csv file from which to read.
   !! @param vec Vector object in which to store the file contents.
-  !! @note Equivalent to reading a matrix with `nrows = 1` and `ncols = N`.
+  !! @note - Equivalent to reading a matrix with `nrows = 1` and `ncols = N`.
   !! To read a vector in a column format, use a `matrix_t` with `ncols = 1`.
-  !!
-  !! @note If the number of lines in the file is larger than 1,
+  !! @note - If the number of lines in the file is larger than 1,
   !! it will be assumed that a one-line header is present.
   subroutine csv_file_read_vector(d, vec)
     type(csv_file_t), intent(inout) :: d
