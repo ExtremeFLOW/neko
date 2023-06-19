@@ -226,7 +226,6 @@ contains
     ! If there is more than 1 line, assume that means there is a header
     if (n_lines .lt. 1) then
        read (file_unit, '(A)') d%header
-       print *, "HEADER: ", d%header
     end if
 
     read (file_unit,*) vec%x
