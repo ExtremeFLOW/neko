@@ -7,12 +7,13 @@ module user
   real(kind=rp) :: Pr = 0
 
   !> Arrays asociated with Method#1 for nusselt calculation
-  integer :: calc_frequency = 500 ! How frequently should we calculate Nu
+  integer :: calc_frequency = 10 ! How frequently should we calculate Nu
   type(field_t) :: work_field ! Field to perform operations
   type(field_t) :: uzt ! u_z * T
   type(field_t) :: dtdx ! Derivative of scalar wrt x
   type(field_t) :: dtdy ! Detivative of scalar wrt y
   type(field_t) :: dtdz ! Derivative of scalar wrt z
+  type(field_t) :: dtdn ! Derivative of scalar wrt normal
   type(field_t) :: mass_area_top ! mass matrix for area on top wall
   type(field_t) :: mass_area_bot ! mass matrix for area on bottom wall
   real(kind=rp) :: bar_uzt ! Volume integral
@@ -154,6 +155,7 @@ contains
     call field_init(dtdx, u%dof, 'dtdx')
     call field_init(dtdy, u%dof, 'dtdy')
     call field_init(dtdz, u%dof, 'dtdz')
+    call field_init(dtdn, u%dof, 'dtdz')
     call field_init(mass_area_top, u%dof, 'mat')
     call field_init(mass_area_bot, u%dof, 'mab')
 
@@ -266,6 +268,7 @@ contains
     call field_free(dtdx)
     call field_free(dtdy)
     call field_free(dtdz)
+    call field_free(dtdn)
     call field_free(mass_area_top)
     call field_free(mass_area_bot)
     
@@ -307,7 +310,7 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(field_t), pointer :: s
-    integer :: n,ntot, i,j,k, facet, e
+    integer :: n,ntot, i,j,k, facet, e, lx,ly,lz
     integer :: index(4)
     type (tuple_i4_t) :: facet_el
     real(kind=rp) :: normal(3)
@@ -320,6 +323,9 @@ contains
     s => neko_field_registry%get_field('s')
     n = size(coef%B)
     ntot = coef%dof%size()
+    lx = u%Xh%lx
+    ly = u%Xh%ly
+    lz = u%Xh%lz
 
     !> ------ Method #1 for nusselt calculation -----
     !> Nu_v = 1 + sqrt(Ra) * <u_z * T>_{v,t}
@@ -370,7 +376,6 @@ contains
        bot_wall_bar_dtdz = bot_wall_bar_dtdz / abs(bot_wall_area)            
     end if
     
-
     !> write variables to monitor
     !! Integral quantities
     if (pe_rank .eq. 0) then
@@ -380,14 +385,94 @@ contains
        close(10)
     end if
     !! Fields
-    !call device_memcpy(dtdx%x,dtdx%x_d, n,DEVICE_TO_HOST)
-    !call device_memcpy(dtdy%x,dtdy%x_d, n,DEVICE_TO_HOST)
+    call device_memcpy(dtdx%x,dtdx%x_d, n,DEVICE_TO_HOST)
+    call device_memcpy(dtdy%x,dtdy%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdz%x,dtdz%x_d, n,DEVICE_TO_HOST)
     !call mf_dtdx%write(dtdx,t)
     !call mf_dtdy%write(dtdy,t)
     call mf_dtdz%write(dtdz,t)
 
 
+    !> Calculate normal derivative to verify BC
+    !! Zero out the vector
+    call rzero(dtdn%x,dtdn%dof%size())
+    !! Calculate the normal component for each facet in the domain
+    !! based on functions coef_get_normal and index_is_on_facet
+    do e = 1, u%msh%nelv !Go over all elements
+      do facet = 1, 6 ! Go over all facets of hex element
+         select case(facet)
+            case(1)
+               do j = 1 , dtdn%Xh%ly
+                  do k = 1 , dtdn%Xh%lz
+                     dtdn%x(1,j,k,e) = coef%nx(j, k, facet, e) &
+                                    *dtdx%x(1, j, k, e)  &
+                                    +coef%ny(j, k, facet, e)  &
+                                    *dtdy%x(1, j, k, e)  &
+                                    +coef%nz(j, k, facet, e)  &
+                                    *dtdz%x(1, j, k, e) 
+                  end do
+               end do
+            case(2)
+               do j = 1 , dtdn%Xh%ly
+                  do k = 1 , dtdn%Xh%lz
+                     dtdn%x(dtdn%Xh%lx,j,k,e) = coef%nx(j, k, facet, e) &
+                                    *dtdx%x(lx, j, k, e)  &
+                                    +coef%ny(j, k, facet, e)  &
+                                    *dtdy%x(lx, j, k, e)  &
+                                    +coef%nz(j, k, facet, e)  &
+                                    *dtdz%x(lx, j, k, e) 
+                  end do
+               end do
+            case(3)
+               do i = 1 , dtdn%Xh%lx
+                  do k = 1 , dtdn%Xh%lz
+                     dtdn%x(i,1,k,e) = coef%nx(i, k, facet, e) &
+                                    *dtdx%x(i, 1, k, e)  &
+                                    +coef%ny(i, k, facet, e)  &
+                                    *dtdy%x(i, 1, k, e)  &
+                                    +coef%nz(i, k, facet, e)  &
+                                    *dtdz%x(i, 1, k, e) 
+                  end do
+               end do
+            case(4)
+               do i = 1 , dtdn%Xh%lx
+                  do k = 1 , dtdn%Xh%lz
+                     dtdn%x(i,dtdn%Xh%ly,k,e) = coef%nx(i, k, facet, e) &
+                                    *dtdx%x(i, ly, k, e)  &
+                                    +coef%ny(i, k, facet, e)  &
+                                    *dtdy%x(i, ly, k, e)  &
+                                    +coef%nz(i, k, facet, e)  &
+                                    *dtdz%x(i, ly, k, e) 
+                  end do
+               end do
+            
+            case(5)
+               do i = 1 , dtdn%Xh%lx
+                  do j = 1 , dtdn%Xh%ly
+                     dtdn%x(i,j,1,e) = coef%nx(i, j, facet, e) &
+                                    *dtdx%x(i, j, 1, e)  &
+                                    +coef%ny(i, j, facet, e)  &
+                                    *dtdy%x(i, j, 1, e)  &
+                                    +coef%nz(i, j, facet, e)  &
+                                    *dtdz%x(i, j, 1, e) 
+                  end do
+               end do
+            case(6)
+               do i = 1 , dtdn%Xh%lx
+                  do j = 1 , dtdn%Xh%ly
+                     dtdn%x(i,j,dtdn%Xh%lz,e) = coef%nx(i, j, facet, e) &
+                                    *dtdx%x(i, j, lz, e)  &
+                                    +coef%ny(i, j, facet, e)  &
+                                    *dtdy%x(i, j, lz, e)  &
+                                    +coef%nz(i, j, facet, e)  &
+                                    *dtdz%x(i, j, lz, e) 
+                  end do
+               end do
+         end select
+      end do
+    end do
+
+    call mf_dtdx%write(dtdn,t)
 
   end subroutine calculate_nusselt
 
