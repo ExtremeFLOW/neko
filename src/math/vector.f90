@@ -42,9 +42,9 @@ module vector
   private
   
   type, public ::  vector_t
-     real(kind=rp), allocatable :: x(:) !< Vector entries
-     type(c_ptr) :: x_d = C_NULL_PTR    !< Device pointer
-     integer :: n  = 0                  !< Size of vector
+     real(kind=rp), allocatable :: x(:) !< Vector entries.
+     type(c_ptr) :: x_d = C_NULL_PTR    !< Device pointer.
+     integer :: n  = 0                  !< Size of vector.
    contains
      procedure, pass(v) :: init => vector_init
      procedure, pass(v) :: free => vector_free
@@ -61,7 +61,7 @@ module vector
 
 contains
 
-  !> Initialise a vector of size @a n
+  !> Initialise a vector of size @a n.
   subroutine vector_init(v, n)
     class(vector_t), intent(inout) :: v
     integer, intent(in) :: n
@@ -80,7 +80,7 @@ contains
     
   end subroutine vector_init
 
-  !> Deallocate a vector
+  !> Deallocate a vector.
   subroutine vector_free(v)
     class(vector_t), intent(inout) :: v
 
@@ -96,14 +96,14 @@ contains
         
   end subroutine vector_free
 
-  !> Return the number of entries in the vector
+  !> Return the number of entries in the vector.
   function vector_size(v) result(s)
     class(vector_t), intent(inout) :: v
     integer :: s
     s = v%n    
   end function vector_size
 
-  !> Assignment \f$ v = w \f$
+  !> Assignment \f$ v = w \f$.
   subroutine vector_assign_vector(v, w)
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
@@ -131,7 +131,7 @@ contains
 
   end subroutine vector_assign_vector
 
-  !> Assignment \f$ v = s \f$
+  !> Assignment \f$ v = s \f$.
   subroutine vector_assign_scalar(v, s)
     class(vector_t), intent(inout) :: v
     real(kind=rp), intent(in) :: s

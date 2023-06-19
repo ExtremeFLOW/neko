@@ -42,11 +42,11 @@ module matrix
   private
 
   type, public ::  matrix_t
-     real(kind=rp), allocatable :: x(:,:) !< matrix entrie
-     type(c_ptr) :: x_d = C_NULL_PTR      !< Device pointer
-     integer :: nrows  = 0 !< Number of matrix rows
-     integer :: ncols  = 0 !< Number of matrix columns
-     integer :: n = 0      !< Total size
+     real(kind=rp), allocatable :: x(:,:) !< Matrix entries.
+     type(c_ptr) :: x_d = C_NULL_PTR      !< Device pointer.
+     integer :: nrows  = 0 !< Number of matrix rows.
+     integer :: ncols  = 0 !< Number of matrix columns.
+     integer :: n = 0      !< Total size nows*ncols.
    contains
      procedure, pass(m) :: init => matrix_init
      procedure, pass(m) :: free => matrix_free
@@ -59,7 +59,9 @@ module matrix
   
 contains
 
-  !> Initialise a matrix of size @a n
+  !> Initialise a matrix of size `nrows*ncols`.
+  !! @param nrows Number of rows.
+  !! @param ncols Number of columns.
   subroutine matrix_init(m, nrows, ncols)
     class(matrix_t), intent(inout) :: m
     integer, intent(in) :: nrows
@@ -80,7 +82,7 @@ contains
 
   end subroutine matrix_init
 
-  !> Deallocate a matrix
+  !> Deallocate a matrix.
   subroutine matrix_free(m)
     class(matrix_t), intent(inout) :: m
 
@@ -98,7 +100,7 @@ contains
 
   end subroutine matrix_free
 
-  !> Return the number of entries in the matrix
+  !> Returns the number of entries in the matrix.
   function matrix_size(m) result(s)
     class(matrix_t), intent(inout) :: m
     integer :: s
@@ -135,7 +137,7 @@ contains
 
   end subroutine matrix_assign_matrix
 
-  !> Assignment \f$ m = s \f$
+  !> Assignment \f$ m = s \f$.
   subroutine matrix_assign_scalar(m, s)
     class(matrix_t), intent(inout) :: m
     real(kind=rp), intent(in) :: s
