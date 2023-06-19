@@ -105,7 +105,7 @@ contains
   !> Scalar apply
   !! Just imitating inflow for now, but we should look this over
   !! Applies boundary conditions in eval on x
-  !! @param x The array of values to apply.
+  !! @param x The field array to apply the boundary condition to.
   !! @param n The size of x.
   subroutine usr_scalar_apply_scalar(this, x, n)
     class(usr_scalar_t), intent(inout) :: this
