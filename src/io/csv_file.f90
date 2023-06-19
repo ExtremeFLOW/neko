@@ -31,32 +31,33 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> File format for .csv files, used for any read/write operations involving
-!> floating point data.
-!! @details This module defines an interface for read/write operations of user 
-!! specified floating-point data
+!! floating point data.
 module csv_file
   use vector, only: vector_t
   use matrix, only: matrix_t
-  use logger
   use generic_file, only: generic_file_t
-  use comm
-  use mpi_types, only: MPI_POINT
   use utils, only: neko_error
-  use num_types
+  use num_types, only: rp
+  use logger, only: neko_log, log_size
+  use comm, only : pe_rank
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
+     character(len=1024) :: header = ""     !< Contains header of file.
+     logical :: header_is_written = .false. !< Has header already been written?
    contains
+     procedure :: set_header => csv_file_set_header
      procedure :: write => csv_file_write
      procedure :: read => csv_file_read
+     procedure :: count_lines => csv_file_count_lines
   end type csv_file_t
 
 contains
 
-  !> Writes data to an output file
-  !! @param this csv file to write in
-  !! @param data Data to write, can be vector_t or matrix_t
-  !! @param t Time
+  !> Writes data to an output file.
+  !! @param this csv file to write in.
+  !! @param data Data to write, can be vector_t or matrix_t.
+  !! @param t Time.
   subroutine csv_file_write(this, data, t)
     class (csv_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
@@ -70,16 +71,16 @@ contains
     type is (vector_t)
        if (.not. allocated(data%x)) then
           call neko_error("Vector is not allocated! Use &
-               vector_output_t%init() to associate your array &
-               with the vector_output_t object")
+               vector%init() to associate your array &
+               with a vector_t object")
        end if
        vec => data
 
     type is (matrix_t)
        if (.not. allocated(data%x)) then
           call neko_error("Matrix is not allocated! Use &
-               matrix_output_t%init() to associate your array &
-               with the vector_output_t object")
+               matrix%init() to associate your array &
+               with a matrix_t object")
        end if
        mat => data
 
@@ -91,6 +92,7 @@ contains
     ! Write is performed on rank 0
     if (pe_rank .eq. 0) then
 
+       call neko_log%message("Writing to " // trim(this%fname))
        if (associated(vec)) then
           call csv_file_write_vector(this, vec, t)
        else if (associated(mat)) then
@@ -101,10 +103,12 @@ contains
 
   end subroutine csv_file_write
 
-  !> Writes a @ vector_t object to an output file
-  !! @param f csv file in which to write
-  !! @param data Vector to write
-  !! @param Time
+  !> Writes a `vector_t` object to an output file, in a row format.
+  !! @param f csv file in which to write.
+  !! @param data Vector to write.
+  !! @param Time.
+  !! @note Equivalent to writing a matrix with `nrows = 1` and `ncols = N`.
+  !! To write a vector in a column format, use a `matrix_t` with `ncols = 1`.
   subroutine csv_file_write_vector(f, data, t)
     class(csv_file_t), intent(inout) :: f
     type(vector_t), intent(in) :: data
@@ -114,6 +118,13 @@ contains
 
     open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
 
+    ! write header if not empty and if not already written
+    if (f%header .ne. "" .and. .not. f%header_is_written) then
+       write (file_unit, '(A)') trim(f%header)
+       f%header_is_written = .true.
+    end if
+
+    ! Add time at the beginning if specified
     if (present(t)) write (file_unit, '(g0,",")', advance="no") t
 
     write (file_unit, '(*(g0,","))', advance="no") data%x(1:data%n-1)
@@ -123,17 +134,23 @@ contains
 
   end subroutine csv_file_write_vector
 
-  !> Writes a @ matrix_t object to an output file
-  !! @param f csv file in which to write
-  !! @param data Matrix to write
-  !! @param Time
-  subroutine csv_file_write_matrix(d, data, t)
-    class(csv_file_t), intent(inout) :: d
+  !> Writes a `matrix_t` object to an output file.
+  !! @param f csv file in which to write.
+  !! @param data Matrix to write.
+  !! @param Time.
+  subroutine csv_file_write_matrix(f, data, t)
+    class(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
     integer :: file_unit, i,j, ierr
 
-    open(file=trim(d%fname), position="append", iostat=ierr, newunit=file_unit)
+    open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
+
+    ! write header if not empty and if not already written
+    if (f%header .ne. "" .and. .not. f%header_is_written) then
+       write (file_unit, '(A)') trim(f%header)
+       f%header_is_written = .true.
+    end if
 
     do i = 1, data%nrows
        if (present(t)) write (file_unit, '(g0,",")', advance="no") t
@@ -146,8 +163,8 @@ contains
   end subroutine csv_file_write_matrix
 
   !> Reads data from an input file.
-  !! @param this csv file in which to read
-  !! @param data Data to read
+  !! @param this csv file in which to read.
+  !! @param data `matrix_t` or `vector_t`, will contain the read data.
   subroutine csv_file_read(this, data)
     class(csv_file_t) :: this
     class(*), target, intent(inout) :: data
@@ -157,55 +174,128 @@ contains
     select type(data)
     type is (vector_t)
        vec => data
+       if (.not. allocated(data%x)) then
+          call neko_error("Vector is not allocated! Use &
+               vector%init() to associate your array &
+               with a vector_t object")
+       end if
+
     type is (matrix_t)
        mat => data
+       if (.not. allocated(data%x)) then
+          call neko_error("Matrix is not allocated! Use &
+               matrix%init() to associate your array &
+               with a matrix_t object")
+       end if
+
     class default
-       call neko_error("Invalid data type for csv_file (expected: probe_t)")
+       call neko_error("Invalid data type for csv_file (expected: vector_t, matrix_t)")
     end select
 
-    if (associated(vec)) then
-       call csv_file_read_vector(this, vec)
-    else if (associated(mat)) then
-       call csv_file_read_matrix(this, mat)
+    ! Read on rank 0
+    if (pe_rank .eq. 0) then
+
+       call neko_log%message("Reading from " // this%fname)
+       if (associated(vec)) then
+          call csv_file_read_vector(this, vec)
+       else if (associated(mat)) then
+          call csv_file_read_matrix(this, mat)
+       end if
+
     end if
 
   end subroutine csv_file_read
 
-  !> Read a vector from a csv file
-  !! @param d csv file from which to read
-  !! @param vec Vector object in which to store the file contents
-  !> @TODO: Broadcast to other processes
+  !> Read a vector (i.e. data on a single row) from a csv file
+  !! @param d csv file from which to read.
+  !! @param vec Vector object in which to store the file contents.
+  !! @note Equivalent to reading a matrix with `nrows = 1` and `ncols = N`.
+  !! To read a vector in a column format, use a `matrix_t` with `ncols = 1`.
+  !!
+  !! @note If the number of lines in the file is larger than 1,
+  !! it will be assumed that a one-line header is present.
   subroutine csv_file_read_vector(d, vec)
-    type(csv_file_t), intent(in) :: d
+    type(csv_file_t), intent(inout) :: d
     type(vector_t), intent(inout) :: vec
-    integer :: ierr, file_unit
+    integer :: ierr, file_unit, n_lines
 
-    if ( pe_rank .eq. 0 ) then
-       open(file=trim(d%fname), status='old', iostat=ierr, newunit=file_unit)
-       read (file_unit,*) vec%x
-       close(unit=file_unit)
+    n_lines = d%count_lines()
+
+    open(file=trim(d%fname), status='old', newunit=file_unit)
+
+    ! If there is more than 1 line, assume that means there is a header
+    if (n_lines .lt. 1) then
+       read (file_unit, '(A)') d%header
+       print *, "HEADER: ", d%header
     end if
+
+    read (file_unit,*) vec%x
+    close(unit=file_unit)
 
   end subroutine csv_file_read_vector
 
-  !> Read a vector from a csv file
-  !! @param d csv file from which to read
-  !! @param vec Matrix object in which to store the file contents
-  !! @TODO: Broadcast to other processes
+  !> Read a matrix from a csv file.
+  !! @param d csv file from which to read.
+  !! @param vec Matrix object in which to store the file contents.
+  !! @note If the number of lines in the file is larger than the number
+  !! of rows of `mat`, it will be assumed that a one-line header is present.
   subroutine csv_file_read_matrix(d, mat)
-    type(csv_file_t), intent(in) :: d
+    type(csv_file_t), intent(inout) :: d
     type(matrix_t), intent(inout) :: mat
-    integer :: ierr, file_unit, i
+    integer :: ierr, file_unit, i, n_lines
+    character(len=80) :: tmp
 
-    if ( pe_rank .eq. 0 ) then
-       open(file=trim(d%fname), status='old', iostat=ierr, newunit=file_unit)
-       do i=1, mat%nrows
-          read (file_unit,*) mat%x(i,:)
-       end do
-       close(unit=file_unit)
+    n_lines = d%count_lines()
+
+    open(file=trim(d%fname), status='old', newunit=file_unit)
+
+    ! If the number of lines is larger than the number of rows in the
+    ! matrix, assume that means there is a header
+    if (n_lines .lt. mat%nrows) then
+       read (file_unit, '(A)') tmp
+       d%header = trim(tmp)
     end if
 
+    do i=1, mat%nrows
+       read (file_unit,*) mat%x(i,:)
+    end do
+    close(unit=file_unit)
+
   end subroutine csv_file_read_matrix
+
+  !> Sets the header for a csv file. For example: `hd = "u,v,w,p"`.
+  !! @param hd Header.
+  !! @note The header will be written "as is", meaning there will be no
+  !! checks performed on the header separators, number of columns, etc.
+  subroutine csv_file_set_header(this, hd)
+    class(csv_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: hd
+
+    this%header = trim(hd)
+
+  end subroutine csv_file_set_header
+
+  !> Count the number of lines in a file by going through it entirely
+  !! until the end is reached.
+  function csv_file_count_lines(this) result(n)
+    class(csv_file_t), intent(in) :: this
+
+    integer :: n
+    integer :: ierr, file_unit
+
+    open(file=trim(this%fname), status='old', newunit=file_unit)
+    rewind(file_unit)
+
+    ! Keep reading (ierr = 0) until we reach the end (ierr != 0)
+    do
+       read (file_unit,*,iostat=ierr)
+       if (ierr .ne. 0) exit
+       n = n+1
+    end do
+    rewind(file_unit)
+    close(unit=file_unit)
+
+  end function csv_file_count_lines
 
 
 end module csv_file
