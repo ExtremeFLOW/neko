@@ -65,7 +65,7 @@ module fluid_scheme
   use field_registry
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_value
-
+  use scratch_registry, only : scratch_registry_t
   implicit none
   
   !> Base type of all fluid formulations
@@ -103,6 +103,7 @@ module fluid_scheme
      real(kind=rp) :: mu
      !> Density
      real(kind=rp) :: rho
+     type(scratch_registry_t) :: scratch       !< Manager for temporary fields
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -247,6 +248,8 @@ contains
     call coef_init(this%c_Xh, this%gs_Xh)
 
     call source_init(this%f_Xh, this%dm_Xh)
+    
+    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
     !
     ! Setup velocity boundary conditions
@@ -576,6 +579,8 @@ contains
     call source_free(this%f_Xh)
 
     call bc_list_free(this%bclst_vel)
+    
+    call this%scratch%free()
 
     nullify(this%params)
 

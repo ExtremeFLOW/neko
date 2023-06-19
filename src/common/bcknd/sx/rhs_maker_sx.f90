@@ -1,5 +1,6 @@
 module rhs_maker_sx
   use rhs_maker
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
   
@@ -48,16 +49,21 @@ contains
     
   end subroutine rhs_maker_sumab_sx
 
-  subroutine rhs_maker_ext_sx(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+  subroutine rhs_maker_ext_sx(fx_lag, fy_lag, fz_lag, &
                              fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
                              rho, ext_coeffs, n)
-    type(field_t), intent(inout) :: temp1, temp2, temp3
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
     real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     integer :: i
+    type(field_t), pointer :: temp1, temp2, temp3
+    integer :: temp_indices(3)
+    
+    call neko_scratch_registry%request_field(temp1, temp_indices(1))
+    call neko_scratch_registry%request_field(temp2, temp_indices(2))
+    call neko_scratch_registry%request_field(temp3, temp_indices(3))
 
     do i = 1, n
        temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
@@ -82,6 +88,8 @@ contains
        fy(i) = (ext_coeffs(1) * fy(i) + temp2%x(i,1,1,1)) * rho
        fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho
     end do
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
     
   end subroutine rhs_maker_ext_sx
 
@@ -111,18 +119,25 @@ contains
     
   end subroutine scalar_rhs_maker_ext_sx
 
-  subroutine rhs_maker_bdf_sx(ta1, ta2, ta3, tb1, tb2, tb3, &
-                               ulag, vlag, wlag, bfx, bfy, bfz, &
-                               u, v, w, B, rho, dt, bd, nbd, n)    
+  subroutine rhs_maker_bdf_sx(ulag, vlag, wlag, bfx, bfy, bfz, &
+                              u, v, w, B, rho, dt, bd, nbd, n)    
     integer, intent(in) :: n, nbd
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(field_t), intent(in) :: u, v, w
-    type(field_t), intent(inout) :: tb1, tb2, tb3
     type(field_series_t), intent(in) :: ulag, vlag, wlag        
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
+    type(field_t), pointer :: tb1, tb2, tb3
+    type(field_t), pointer :: ta1, ta2, ta3
+    integer :: temp_indices(6)
     integer :: i, ilag
+
+    call neko_scratch_registry%request_field(ta1, temp_indices(1))
+    call neko_scratch_registry%request_field(ta2, temp_indices(2))
+    call neko_scratch_registry%request_field(ta3, temp_indices(3))
+    call neko_scratch_registry%request_field(tb1, temp_indices(4))
+    call neko_scratch_registry%request_field(tb2, temp_indices(5))
+    call neko_scratch_registry%request_field(tb3, temp_indices(6))
 
     do i = 1, n
        tb1%x(i,1,1,1) = u%x(i,1,1,1) * B(i) * bd(2)
@@ -149,6 +164,8 @@ contains
        bfy(i) = bfy(i) + tb2%x(i,1,1,1) * (rho / dt)
        bfz(i) = bfz(i) + tb3%x(i,1,1,1) * (rho / dt)
     end do
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine rhs_maker_bdf_sx
 

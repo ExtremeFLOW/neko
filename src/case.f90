@@ -59,6 +59,7 @@ module case
   use scalar_pnpn ! todo directly load the pnpn? can we have other
   use json_module, only : json_file, json_value 
   use json_utils, only : json_get, json_get_or_default
+  use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   implicit none
 
   type :: case_t
@@ -173,6 +174,12 @@ contains
     call json_get(C%json_params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
     call C%fluid%init(C%msh, lx, C%json_params)
+
+    
+    !
+    ! Setup scratch registry
+    !
+    neko_scratch_registry = scratch_registry_t(C%fluid%dm_Xh, 10, 10)
 
     !
     ! Setup scalar scheme
