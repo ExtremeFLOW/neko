@@ -11,7 +11,7 @@ module user
   type(field_t) :: om1, om2, om3, w1, w2
 
   type(file_t) output_file ! output file
-  type(vector_t) :: vec    ! will store our output data
+  type(vector_t) :: vec_out    ! will store our output data
  contains
 
   ! Register user-defined functions (see user_intf.f90)
@@ -21,6 +21,7 @@ module user
     user%fluid_user_if => user_bc
     user%user_check => user_calc_quantities
     user%user_init_modules => user_initialize
+    user%user_finalize_modules => user_finalize
   end subroutine user_setup
 
   ! user-defined boundary condition
@@ -72,13 +73,13 @@ module user
     type(param_t), intent(inout) :: params
 
     integer tstep
+    type(file_t) :: input_file
 
     ! Initialize the file object and create the output.csv file
     ! in the working directory
     output_file = file_init("output.csv")
-
-    ! Initialize our vector with 3 elements (u,v,p)
-    call vec%init(3) ! we will write u,v,p
+    call output_file%set_header("t,Ekin,enst")
+    call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
 
     ! initialize work arrays for postprocessing
     call field_init(om1, u%dof, 'omega1')
@@ -121,17 +122,15 @@ module user
     call addcol3(w1%x,om2%x,om2%x,ntot)
     call addcol3(w1%x,om3%x,om3%x,ntot)
     e2 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
-      
-    if (pe_rank .eq. 0) &
-         &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-         &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
 
-    ! Dump some data (every 50th time step)
-    ! We arbitrarily choose the velocities to write
-    ! for the sake of simplicity
     call neko_log%message("Writing csv file")
-    vec%x = (/u%x(1,1,1,5), v%x(1,1,1,5), p%x(1,1,1,5)/)
-    call output_file%write(vec, t)
+    vec_out%x = (/e1, e2/)
+    call output_file%write(vec_out, t)
+
+    ! Code below shows how the output was done previously
+!!$    if (pe_rank .eq. 0) &
+!!$         &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
+!!$         &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
 
   end subroutine user_calc_quantities
 
@@ -153,5 +152,23 @@ module user
     end if
 
   end function step
-  
+
+  ! User-defined finalization routine called at the end of the simulation
+  subroutine user_finalize(t, params)
+    real(kind=rp) :: t
+    type(param_t), intent(inout) :: params
+
+    ! Deallocate the fields
+    call field_free(om1)
+    call field_free(om2)
+    call field_free(om3)
+    call field_free(w1)
+    call field_free(w2)
+
+    ! Deallocate output file and vector
+    call file_free(output_file)
+    call vec_out%free
+
+  end subroutine user_finalize
+
 end module user
