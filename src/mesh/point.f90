@@ -47,15 +47,19 @@ module point
      procedure :: point_ne
      procedure :: point_lt
      procedure :: point_gt
+     procedure :: point_ge
+     procedure :: point_le
      procedure :: point_assign
      procedure :: point_add
-     procedure :: point_substract
+     procedure :: point_subtract
      procedure :: point_scalar_mult
      procedure, pass(x) :: point_mat_mult
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
      generic :: operator(.gt.) => point_gt
+     generic :: operator(.ge.) => point_ge
+     generic :: operator(.le.) => point_le
      generic :: assignment(=) => point_assign
      generic :: operator(+) => point_add
      generic :: operator(-) => point_subtract
@@ -184,6 +188,28 @@ contains
     end if
 
   end function point_gt
+
+  !> Check if \f$ p_{1} \ge p_{2} \f$.
+  !! @note this only checks coordinates.
+  pure function point_ge(p1, p2) result(res)
+    class(point_t), intent(in) :: p1
+    class(point_t), intent(in) :: p2
+    logical :: res
+
+    res = .not. ( point_lt(p1, p2) )
+
+  end function point_ge
+
+  !> Check if \f$ p_{1} \le p_{2} \f$.
+  !! @note this only checks coordinates.
+  pure function point_le(p1, p2) result(res)
+    class(point_t), intent(in) :: p1
+    class(point_t), intent(in) :: p2
+    logical :: res
+
+    res = .not. ( point_gt(p1, p2) )
+
+  end function point_le
 
   !> Returns the addition of 2 points \f$ p_{1} + p_{2} \f$.
   function point_add(p1, p2) result(res)
