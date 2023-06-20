@@ -46,9 +46,13 @@ module csv_file
      character(len=1024) :: header = ""     !< Contains header of file.
      logical :: header_is_written = .false. !< Has header already been written?
    contains
-     procedure :: set_header => csv_file_set_header
+     !> Writes data to an output file.
      procedure :: write => csv_file_write
+     !> Reads data from an input file.
      procedure :: read => csv_file_read
+     !> Sets the header for a csv file.
+     procedure :: set_header => csv_file_set_header
+     !> Count the number of lines in a file
      procedure :: count_lines => csv_file_count_lines
   end type csv_file_t
 
