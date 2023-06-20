@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements a point
+!> Implements a point.
 !
 module point
   use num_types
@@ -39,7 +39,7 @@ module point
   implicit none
   private
 
-  !> A point in \f$ R^d \f$ with coordinates \f$ (x,y,z)\f$
+  !> A point in \f$ R^d \f$ with coordinates \f$ (x,y,z)\f$.
   type, extends(entity_t), public ::  point_t
      real(kind=dp), dimension(3) :: x
    contains
@@ -58,11 +58,11 @@ module point
      generic :: operator(.gt.) => point_gt
      generic :: assignment(=) => point_assign
      generic :: operator(+) => point_add
-     generic :: operator(-) => point_substract
+     generic :: operator(-) => point_subtract
      generic :: operator(*) => point_scalar_mult, point_mat_mult
   end type point_t
 
-  !> Defines a pointer to a point type
+  !> Defines a pointer to a point type.
   type, public ::  point_ptr
      type(point_t), pointer :: p
   end type point_ptr
@@ -73,7 +73,7 @@ module point
 
 contains
 
-  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates
+  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
   function point_init(x, id) result(this)
     real(kind=dp), dimension(3), intent(in) :: x
     integer, optional, intent(inout) :: id
@@ -89,7 +89,7 @@ contains
 
   end function point_init
 
-  !> Initialize a point from \f$ (x,y,z) \f$ coordinates
+  !> Initialize a point from \f$ (x,y,z) \f$ coordinates.
   function point_init_xyz(x, y, z, id) result(this)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
@@ -109,7 +109,7 @@ contains
 
   end function point_init_xyz
 
-  !> Assigns coordinates @a x to a point
+  !> Assigns coordinates @a x to a point.
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
     real(kind=dp), dimension(3), intent(in) :: x
@@ -118,8 +118,8 @@ contains
 
   end subroutine point_assign
 
-  !> Check if \f$ p_{1} = p_{2} \f$
-  !! @note this only checks coordinates
+  !> Check if \f$ p_{1} = p_{2} \f$.
+  !! @note this only checks coordinates.
   pure function point_eq(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
@@ -135,8 +135,8 @@ contains
 
   end function point_eq
 
-  !> Check if \f$ p_{1} \neq p_{2} \f$
-  !! @note this only checks coordinates
+  !> Check if \f$ p_{1} \neq p_{2} \f$.
+  !! @note this only checks coordinates.
   pure function point_ne(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
@@ -152,8 +152,8 @@ contains
 
   end function point_ne
 
-  !> Check if \f$ p_{1} < p_{2} \f$
-  !! @note this only checks coordinates
+  !> Check if \f$ p_{1} < p_{2} \f$.
+  !! @note this only checks coordinates.
   pure function point_lt(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
@@ -170,8 +170,8 @@ contains
 
   end function point_lt
 
-  !> Check if \f$ p_{1} > p_{2} \f$
-  !! @note this only checks coordinates
+  !> Check if \f$ p_{1} > p_{2} \f$.
+  !! @note this only checks coordinates.
   pure function point_gt(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
@@ -185,7 +185,7 @@ contains
 
   end function point_gt
 
-  !> Returns the addition of 2 points \f$ p_{1} + p_{2} \f$
+  !> Returns the addition of 2 points \f$ p_{1} + p_{2} \f$.
   function point_add(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
@@ -197,8 +197,8 @@ contains
 
   end function point_add
 
-  !> Returns the substraction of 2 points \f$ p_{1} + p_{2} \f$
-  function point_substract(p1, p2) result(res)
+  !> Returns the subtraction of 2 points \f$ p_{1} + p_{2} \f$.
+  function point_subtract(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
     type(point_t) :: res
@@ -207,9 +207,9 @@ contains
     res%x(2) = p1%x(2) - p2%x(2)
     res%x(3) = p1%x(3) - p2%x(3)
 
- end function point_substract
+ end function point_subtract
 
-  !> Returns the multiplication of a point by a scalar \f$ a*p_{1} \f$
+  !> Returns the multiplication of a point by a scalar \f$ a*p_{1} \f$.
   function point_scalar_mult(p, a) result(res)
     class(point_t), intent(in) :: p
     real(kind=rp), intent(in) :: a
