@@ -65,7 +65,7 @@ module point
   end interface point_t
 
 contains
-  
+
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates
   function point_init(x, id) result(this)
     real(kind=dp), dimension(3), intent(in) :: x
@@ -77,7 +77,7 @@ contains
     else
        call this%set_id(-1)
     end if
-    
+
     this%x = x
 
   end function point_init
@@ -101,7 +101,7 @@ contains
     this%x(3) = z
 
   end function point_init_xyz
-  
+
   !> Assigns coordinates @a x to a point
   subroutine point_assign(this, x)
     class(point_t), intent(inout) :: this
@@ -125,7 +125,7 @@ contains
     else
        res = .false.
     end if
-    
+
   end function point_eq
 
   !> Check if \f$ p_{1} \neq p_{2} \f$
@@ -142,9 +142,9 @@ contains
     else
        res = .false.
     end if
-    
+
   end function point_ne
-  
+
   !> Check if \f$ p_{1} < p_{2} \f$
   !! @note this only checks coordinates
   pure function point_lt(p1, p2) result(res)
@@ -160,7 +160,7 @@ contains
     else
        res = .false.
     end if
-    
+
   end function point_lt
 
   !> Check if \f$ p_{1} > p_{2} \f$
@@ -169,13 +169,13 @@ contains
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
     logical :: res
-    
+
     if (point_lt(p1, p2)) then
        res = .false.
     else
        res = .true.
     end if
 
-  end function point_gt  
-  
+  end function point_gt
+
 end module point
