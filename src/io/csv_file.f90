@@ -108,6 +108,8 @@ contains
   end subroutine csv_file_write
 
   !> Writes a `vector_t` object to an output file, in a row format.
+  !! If the parameter `t` is present, it will be appended at the start
+  !! of the row, followed by the contents of the vector.
   !! @param f csv file in which to write.
   !! @param data Vector to write.
   !! @param Time.
@@ -138,7 +140,8 @@ contains
 
   end subroutine csv_file_write_vector
 
-  !> Writes a `matrix_t` object to an output file.
+  !> Writes a `matrix_t` object to an output file. If the parameter `t`
+  !! is present, it will be appended at the start of **each row**.
   !! @param f csv file in which to write.
   !! @param data Matrix to write.
   !! @param Time.
