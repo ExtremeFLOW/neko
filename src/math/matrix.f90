@@ -48,10 +48,15 @@ module matrix
      integer :: ncols  = 0 !< Number of matrix columns.
      integer :: n = 0      !< Total size nows*ncols.
    contains
+     !> Initialise a matrix of size `nrows*ncols`.
      procedure, pass(m) :: init => matrix_init
+     !> Deallocate a matrix.
      procedure, pass(m) :: free => matrix_free
+     !> Returns the number of entries in the matrix.
      procedure, pass(m) :: size => matrix_size
+     !> Assignment \f$ m = w \f$
      procedure, pass(m) :: matrix_assign_matrix
+     !> Assignment \f$ m = s \f$.
      procedure, pass(m) :: matrix_assign_scalar
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
