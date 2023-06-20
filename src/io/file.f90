@@ -49,11 +49,17 @@ module file
   type file_t
      class(generic_file_t), allocatable :: file_type
    contains
+     !> Writes data to a file.
      procedure :: write => file_write
+     !> Read @a data from a file.
      procedure :: read => file_read
+     !> Set a file's counter.
      procedure :: set_counter => file_set_counter
+     !> Set a file's start counter.
      procedure :: set_start_counter => file_set_start_counter
+     !> Set a file's header
      procedure :: set_header => file_set_header
+     !> File operation destructor.
      final :: file_free
   end type file_t
 
