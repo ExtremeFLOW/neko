@@ -7,8 +7,8 @@
 /
 &NEKO_PARAMETERS
   dt = 1d-3
-  T_end = 2d-1
-  nsamples = 5
+  T_end = 50
+  nsamples = 500
   Re = 5000
   pc_vel = 'jacobi'
   pc_prs = 'hsmg'
