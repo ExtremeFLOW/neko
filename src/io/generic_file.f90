@@ -40,11 +40,16 @@ module generic_file
      integer :: counter
      integer :: start_counter = 0
    contains
-     procedure :: init => generic_file_init           !< Constructor.
-     procedure(generic_file_write), deferred :: write !< Write method.
-     procedure(generic_file_read), deferred :: read   !< Read method.
-     procedure :: set_counter => generic_file_set_counter !< Update counter.
-     procedure :: set_start_counter => generic_file_set_start_counter !< Set where counter starts.
+     !> Generic file constructor.
+     procedure :: init => generic_file_init
+     !< Write method.
+     procedure(generic_file_write), deferred :: write 
+     !< Read method.
+     procedure(generic_file_read), deferred :: read   
+     !> Set the file counter to @a n.
+     procedure :: set_counter => generic_file_set_counter
+     !> Set the file start counter to @a n.
+     procedure :: set_start_counter => generic_file_set_start_counter
   end type generic_file_t
 
   abstract interface
