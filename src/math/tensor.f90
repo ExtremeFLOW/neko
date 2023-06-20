@@ -247,12 +247,12 @@ contains
   !!      \sum_{k=0}^{N}{u_{ijk}h_i(r)h_j(s)h_k(t)}}}
   !! \f}
   !!
-  !! @param v Interpolated value (scalar)
-  !! @param u Field values at the GLL points (e.g. velocity in x-direction)
-  !! @param nu Size of the interpolation weights (usually `lx`)
-  !! @param Hr Interpolation weights in the r-direction
-  !! @param Hs Interpolation weights in the s-direction
-  !! @param Ht Interpolation weights in the t-direction
+  !! @param v Interpolated value (scalar).
+  !! @param u Field values at the GLL points (e.g. velocity in x-direction).
+  !! @param nu Size of the interpolation weights (usually `lx`).
+  !! @param Hr Interpolation weights in the r-direction.
+  !! @param Hs Interpolation weights in the s-direction.
+  !! @param Ht Interpolation weights in the t-direction.
   subroutine tensor_scalar1(v, u, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v
     integer, intent(in) :: nu
@@ -281,14 +281,14 @@ contains
   !!      \sum_{k=0}^{N}{\mathbf{u}_{ijk}h_i(r)h_j(s)h_k(t)}}}
   !! \f}
   !!
-  !! @param v Interpolated value (scalar)
-  !! @param u1 3D-array containing values at the GLL points (e.g. velocity)
-  !! @param u2 3D-array containing values at the GLL points (e.g. velocity)
-  !! @param u3 3D-array containing values at the GLL points (e.g. velocity)
-  !! @param nu Size of the interpolation weights (usually `lx`)
-  !! @param Hr Interpolation weights in the r-direction
-  !! @param Hs Interpolation weights in the s-direction
-  !! @param Ht Interpolation weights in the t-direction
+  !! @param v Interpolated value (scalar).
+  !! @param u1 3D-array containing values at the GLL points (e.g. velocity).
+  !! @param u2 3D-array containing values at the GLL points (e.g. velocity).
+  !! @param u3 3D-array containing values at the GLL points (e.g. velocity).
+  !! @param nu Size of the interpolation weights (usually `lx`).
+  !! @param Hr Interpolation weights in the r-direction.
+  !! @param Hs Interpolation weights in the s-direction.
+  !! @param Ht Interpolation weights in the t-direction.
   subroutine tensor_scalar3(v, u1, u2, u3, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v(3)
     integer, intent(in) :: nu

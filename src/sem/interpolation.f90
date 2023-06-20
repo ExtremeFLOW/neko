@@ -43,6 +43,7 @@ module interpolation
   use device
   use mxm_wrapper, only: mxm
   use coefs, only: coef_t
+  use point, only: point_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -74,21 +75,21 @@ module interpolation
      type(coef_t), pointer :: coef
    contains
 
-     !> Constructor
+     !> Constructor.
      procedure, pass(this) :: init => interpolator_init
-     !> Destructor
+     !> Destructor.
      procedure, pass(this) :: free => interpolator_free
      !> Interpolate an array to one of Xh or Yh.
      procedure, pass(this) :: map => interpolator_map_twospaces
      !> Interpolate an array to one of Xh or Yh on the host.
      procedure, pass(this) :: map_host => interpolator_map_host
-     !> Interpolate a set of points from a scalar field
+     !> Interpolates a scalar field \f$ X \f on a set of \f$ N \f$ points.
      procedure, pass(this) :: interp1d => interpolator_interp1d
-     !> Interpolate a set of points from a vector field
+     !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of \f$ N \f$ points.
      procedure, pass(this) :: interp3d => interpolator_interp3d
-     !> Build jacobian at a given point \f$ \mathbf{r} = (r,s,t)\f$
+     !> Constructs the Jacobian for a point \f$ (r,s,t) \f$.
      procedure, pass(this) :: jacobian => interpolator_jacobian
-     !> Build jacobian at a given point \f$ \mathbf{r} = (r,s,t)\f$
+     !> Interpolates a vector field and builds the Jacobian at a single point.
      procedure, pass(this) :: interp3d_jacobian => interpolator_interp3d_jacobian
 
   end type interpolator_t
@@ -98,9 +99,9 @@ contains
 
   !> Constructor for interpolation between two spaces if `Yh` is specifed,
   !! or regular spectral interpolation if `coef` is specified.
-  !! @param Xh The first space
-  !! @param Xh The second space
-  !! @param coef Coefficients for spectral interpolation
+  !! @param Xh The first space.
+  !! @param Xh The second space.
+  !! @param coef Coefficients.
   !! @NOTE: If `coef` is present, `Xh` and `Yh` will be disregarded and the
   !! initialization will be performed with the space in `coef%xh`.
   subroutine interpolator_init(this, Xh, Yh, coef)
@@ -117,9 +118,9 @@ contains
 
   end subroutine interpolator_init
 
-  !> Constructor 
-  !> @param Xh The first space
-  !> @param Xh The second space
+  !> Constructor to initialize with two different spaces.
+  !> @param Xh The first space.
+  !> @param Xh The second space.
   subroutine interpolator_init_twospaces(this, Xh, Yh)
     class(interpolator_t), intent(inout), target :: this
     type(space_t), intent(inout), target :: Xh
@@ -160,9 +161,9 @@ contains
 
   end subroutine interpolator_init_twospaces
 
-  !> Constructor with only one space
-  !! @param Xh Space with which to initialize
-  !! @param coef Coefficients for spectral interpolation
+  !> Constructor with only one space, for "regular" interpolation.
+  !! @param Xh Space with which to initialize.
+  !! @param coef Coefficients.
   subroutine interpolator_init_onespace(this, coef)
     class(interpolator_t), intent(inout), target :: this
     type(coef_t), intent(inout), target :: coef
@@ -231,18 +232,16 @@ contains
     end if
   end subroutine interpolator_map_twospaces
 
-
-
-  !> Interpolates a field \f$ X \f on a set of \f$ N \f$ points
-  !! \f$ \mathbf{r}_i \f$. Returns a vector of N coordinates
-  !! \f$ [x_i(\mathbf{r}_i)], i\in[1,N]\f$
-  !! @param N number of points (use `1` to interpolate a scalar)
-  !! @param rst r,s,t coordinates
-  !! @param X Values of the field \f$ X \f$ at GLL points
+  !> Interpolates a scalar field \f$ X \f$ on a set of \f$ N \f$ points
+  !! \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector of N coordinates
+  !! \f$ [x_i(\mathbf{r}_i)], i\in[1,N]\f$.
+  !! @param N number of points (use `1` to interpolate a scalar).
+  !! @param rst r,s,t coordinates.
+  !! @param X Values of the field \f$ X \f$ at GLL points.
   function interpolator_interp1d(this, N, rst, X) result(res)
     class(interpolator_t), intent(in) :: this
     integer, intent(in) :: N
-    real(kind=rp), intent(in) :: rst(3,N)
+    type(point_t), intent(in) :: rst(N)
     real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
     real(kind=rp) :: res(N)
 
@@ -256,9 +255,9 @@ contains
     ! Compute weights and perform interpolation for the first point
     !
 
-    call fd_weights_full(rst(1,1), this%xh%zg(:,1), lx-1, 0, hr)
-    call fd_weights_full(rst(2,1), this%xh%zg(:,2), ly-1, 0, hs)
-    call fd_weights_full(rst(3,1), this%xh%zg(:,3), lz-1, 0, ht)
+    call fd_weights_full(rst(1)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
+    call fd_weights_full(rst(1)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
+    call fd_weights_full(rst(1)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
 
     ! And interpolate!
     call tensor_scalar1(res(1),X,lx,hr,hs,ht)
@@ -266,22 +265,19 @@ contains
     if (N .eq. 1) return
 
     !
-    ! Now, if N is larger than 1, do all of this in a loop
-    ! The reason why we do this N=1 check is because in the loop
-    ! we are checking if the coordinates are changing from one point
-    ! to another, in order to avoid recalculating the weights
+    ! Loop through the rest of the points
     !
     do i = 2, N
 
        ! If the coordinates are different, then recompute weights
-       if ( .not. abscmp(rst(1,i), rst(1,i-1)) ) then
-          call fd_weights_full(rst(1,i), this%xh%zg(:,1), lx-1, 0, hr)
+       if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
+          call fd_weights_full(rst(i)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
        end if
-       if ( .not. abscmp(rst(2,i), rst(2,i-1)) ) then
-          call fd_weights_full(rst(2,i), this%xh%zg(:,2), ly-1, 0, hs)
+       if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
+          call fd_weights_full(rst(i)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
        end if
-       if ( .not. abscmp(rst(3,i), rst(3,i-1)) ) then
-          call fd_weights_full(rst(3,i), this%xh%zg(:,3), lz-1, 0, ht)
+       if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
+          call fd_weights_full(rst(i)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
@@ -291,23 +287,23 @@ contains
 
   end function interpolator_interp1d
 
-  !> Interpolates a 3D field \f$ \vec f = (X,Y,Z) \f on a set of \f$ N \f$ points
-  !! \f$ \mathbf{r}_i \f$. Returns a matrix of N coordinates
-  !! \f$ [x_i(\mathbf{r}_i), y_i(\mathbf{r}_i), z_i(\mathbf{r}_i)], i\in[1,N]\f$
-  !! @param N number of points (use `1` to interpolate a scalar)
-  !! @param rst r,s,t coordinates
-  !! @param X Values of the field \f$ X \f$ at GLL points
-  !! @param Y Values of the field \f$ Y \f$ at GLL points
-  !! @param Z Values of the field \f$ Z \f$ at GLL points
+  !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of \f$ N \f$ points
+  !! \f$ \mathbf{r}_i \f$. Returns an array of N points
+  !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
+  !! @param N number of points (use `1` to interpolate a scalar).
+  !! @param rst Array of `N` (r,s,t) coordinates.
+  !! @param X Values of the field \f$ X \f$ at GLL points.
+  !! @param Y Values of the field \f$ Y \f$ at GLL points.
+  !! @param Z Values of the field \f$ Z \f$ at GLL points.
   function interpolator_interp3d(this, N, rst, X, Y, Z) result(res)
     class(interpolator_t), intent(in) :: this
     integer, intent(in) :: N
-    real(kind=rp), intent(in) :: rst(3,N)
+    type(point_t), intent(in) :: rst(N)
     real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
     real(kind=rp), intent(inout) :: Y(this%xh%lx*this%xh%ly*this%xh%lz)
     real(kind=rp), intent(inout) :: Z(this%xh%lx*this%xh%ly*this%xh%lz)
 
-    real(kind=rp) :: res(3,N)
+    type(point_t):: res(N)
     real(kind=rp) :: hr(this%xh%lx), hs(this%xh%ly), ht(this%xh%lz)
     integer :: lx,ly,lz, i
     lx = this%xh%lx
@@ -317,68 +313,57 @@ contains
     !
     ! Compute weights and perform interpolation for the first point
     !
-    call fd_weights_full(rst(1,1), this%xh%zg(:,1), lx-1, 0, hr)
-    call fd_weights_full(rst(2,1), this%xh%zg(:,2), ly-1, 0, hs)
-    call fd_weights_full(rst(3,1), this%xh%zg(:,3), lz-1, 0, ht)
+    call fd_weights_full(rst(1)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
+    call fd_weights_full(rst(1)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
+    call fd_weights_full(rst(1)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
 
     ! And interpolate!
-    call tensor_scalar1(res(1,1),X,lx,hr,hs,ht)
-    call tensor_scalar1(res(2,1),Y,ly,hr,hs,ht)
-    call tensor_scalar1(res(3,1),Z,lz,hr,hs,ht)
+    call tensor_scalar1(res(1)%x(1),X,lx,hr,hs,ht)
+    call tensor_scalar1(res(1)%x(2),Y,ly,hr,hs,ht)
+    call tensor_scalar1(res(1)%x(3),Z,lz,hr,hs,ht)
 
-
-    if (N .eq. 1) then
-       res = res(:,1)
-       return
-    end if
-
+    if (N .eq. 1) return
 
     !
-    ! Now, if N is larger than 1, do all of this in a loop
-    ! The reason why we do this N=1 check is because in the loop
-    ! we are checking if the coordinates are changing from one point
-    ! to another, in order to avoid recalculating the weights
+    ! Loop through the rest of the points
     !
     do i = 2, N
 
        ! If the coordinates are different, then recompute weights
-       if ( .not. abscmp(rst(1,i), rst(1,i-1)) ) then
-          call fd_weights_full(rst(1,i), this%xh%zg(:,1), lx-1, 0, hr)
+       if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
+          call fd_weights_full(rst(i)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
        end if
-       if ( .not. abscmp(rst(2,i), rst(2,i-1)) ) then
-          call fd_weights_full(rst(2,i), this%xh%zg(:,2), ly-1, 0, hs)
+       if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
+          call fd_weights_full(rst(i)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
        end if
-       if ( .not. abscmp(rst(3,i), rst(3,i-1)) ) then
-          call fd_weights_full(rst(3,i), this%xh%zg(:,3), lz-1, 0, ht)
+       if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
+          call fd_weights_full(rst(i)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
-       call tensor_scalar1(res(1,i),X,lx,hr,hs,ht)
-       call tensor_scalar1(res(2,i),Y,ly,hr,hs,ht)
-       call tensor_scalar1(res(3,i),Z,lz,hr,hs,ht)
-
+       call tensor_scalar3(res(i)%x, X, Y, Z, lx, hr, hs, ht)
     end do
 
   end function interpolator_interp3d
 
-  !> Interpolates a 3D field \f$ \vec f = (X,Y,Z) \f and constructs the Jacobian
+  !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ and constructs the Jacobian
   !! at a point \f$ (r,s,t) \f$. Returns a vector
-  !! \f$ [x(r,s,t), y(r,s,t), z(r,s,t)\f$ and \f$ J(r,s,t)\f.
-  !! @param jac Jacobian
-  !! @param rst r,s,t coordinates
-  !! @param X Values of the field \f$ X \f$ at GLL points
-  !! @param Y Values of the field \f$ Y \f$ at GLL points
-  !! @param Z Values of the field \f$ Z \f$ at GLL points
+  !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
+  !! @param jac Jacobian.
+  !! @param rst r,s,t coordinates;
+  !! @param X Values of the field \f$ X \f$ at GLL points.
+  !! @param Y Values of the field \f$ Y \f$ at GLL points.
+  !! @param Z Values of the field \f$ Z \f$ at GLL points.
   function interpolator_interp3d_jacobian(this, jac, rst, X, Y, Z) result(res)
     class(interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: jac(3,3)
-    real(kind=rp), intent(in) :: rst(3)
+    type(point_t), intent(in) :: rst
     real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
     real(kind=rp), intent(inout) :: Y(this%xh%lx*this%xh%ly*this%xh%lz)
     real(kind=rp), intent(inout) :: Z(this%xh%lx*this%xh%ly*this%xh%lz)
 
     real(kind=rp) :: hr(this%xh%lx, 2), hs(this%xh%ly, 2), ht(this%xh%lz, 2)
-    real(kind=rp) :: res(3)
+    type(point_t) :: res
 
     integer :: lx,ly,lz, i
     lx = this%xh%lx
@@ -388,16 +373,16 @@ contains
     !
     ! Compute weights
     !
-    call fd_weights_full(rst(1), this%xh%zg(:,1), lx-1, 1, hr)
-    call fd_weights_full(rst(2), this%xh%zg(:,2), ly-1, 1, hs)
-    call fd_weights_full(rst(3), this%xh%zg(:,3), lz-1, 1, ht)
+    call fd_weights_full(rst%x(1), this%xh%zg(:,1), lx-1, 1, hr)
+    call fd_weights_full(rst%x(2), this%xh%zg(:,2), ly-1, 1, hs)
+    call fd_weights_full(rst%x(3), this%xh%zg(:,3), lz-1, 1, ht)
 
     !
     ! Interpolate
     !
-    call tensor_scalar1(res(1), X, lx, hr(:,1), hs(:,1), ht(:,1))
-    call tensor_scalar1(res(2), Y, ly, hr(:,1), hs(:,1), ht(:,1))
-    call tensor_scalar1(res(3), Z, lz, hr(:,1), hs(:,1), ht(:,1))
+    call tensor_scalar1(res%x(1), X, lx, hr(:,1), hs(:,1), ht(:,1))
+    call tensor_scalar1(res%x(2), Y, ly, hr(:,1), hs(:,1), ht(:,1))
+    call tensor_scalar1(res%x(3), Z, lz, hr(:,1), hs(:,1), ht(:,1))
 
     !
     ! Build jacobian
@@ -416,18 +401,14 @@ contains
   end function interpolator_interp3d_jacobian
 
   !> Constructs the Jacobian, returns a 3-by-3 array where
-  !! \f$ [J(\mathbf{r}]_{ij} = \frac{d\mathbf{x}_i}{d\mathbf{r}_j}\f$
-  !! @param r r-coordinate
-  !! @param s s-coordinate
-  !! @param t t-coordinate
-  !! @param X Values of the field \f$ X \f$ at GLL points
-  !! @param Y Values of the field \f$ Y \f$ at GLL points
-  !! @param Z Values of the field \f$ Z \f$ at GLL points
-  function interpolator_jacobian(this, r,s,t, X,Y,Z) result(jac)
+  !! \f$ [J(\mathbf{r}]_{ij} = \frac{d\mathbf{x}_i}{d\mathbf{r}_j}\f$.
+  !! @param rst r,s,t coordinates.
+  !! @param X Values of the field \f$ X \f$ at GLL points.
+  !! @param Y Values of the field \f$ Y \f$ at GLL points.
+  !! @param Z Values of the field \f$ Z \f$ at GLL points.
+  function interpolator_jacobian(this, rst, X,Y,Z) result(jac)
     class(interpolator_t), intent(in) :: this
-    real(kind=rp), intent(in) :: r
-    real(kind=rp), intent(in) :: s
-    real(kind=rp), intent(in) :: t
+    type(point_t), intent(in) :: rst
     real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
     real(kind=rp), intent(inout) :: Y(this%xh%lx*this%xh%ly*this%xh%lz)
     real(kind=rp), intent(inout) :: Z(this%xh%lx*this%xh%ly*this%xh%lz)
@@ -441,9 +422,9 @@ contains
     lz = this%xh%lz
 
     ! Weights
-    call fd_weights_full(r, this%xh%zg(:,1), lx-1, 1, hr)
-    call fd_weights_full(s, this%xh%zg(:,2), ly-1, 1, hs)
-    call fd_weights_full(t, this%xh%zg(:,3), lz-1, 1, ht)
+    call fd_weights_full(rst%x(1), this%xh%zg(:,1), lx-1, 1, hr)
+    call fd_weights_full(rst%x(2), this%xh%zg(:,2), ly-1, 1, hs)
+    call fd_weights_full(rst%x(3), this%xh%zg(:,3), lz-1, 1, ht)
 
     ! d(x,y,z)/dr
     call tensor_scalar3(jac(1,:), X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
