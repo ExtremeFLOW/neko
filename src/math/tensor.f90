@@ -57,7 +57,7 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall 
 ! not be used for advertising or product endorsement purposes.
 !
-!> Tensor operations
+!> Tensor operations.
 module tensor
   use tensor_xsmm
   use tensor_cpu
@@ -80,7 +80,7 @@ public tensr3, transpose, trsp, trsp1, &
 
 contains
 
-  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$.
   subroutine tensr3(v, nv, u, nu, A, Bt, Ct, w)
     integer :: nv
     integer :: nu
@@ -110,7 +110,7 @@ contains
     
   end subroutine tensr3
 
-  !> Transpose of a rectangular tensor \f$ A = B^T \f$
+  !> Transpose of a rectangular tensor \f$ A = B^T \f$.
   subroutine trsp(a, lda, b, ldb)
     integer, intent(in) :: lda
     integer, intent(in) :: ldb
@@ -126,7 +126,7 @@ contains
     
   end subroutine trsp
 
-  !> In-place transpose of a square tensor
+  !> In-place transpose of a square tensor.
   subroutine trsp1(a, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(n, n)
@@ -143,7 +143,7 @@ contains
     
   end subroutine trsp1
 
-  !> Computes \f$ v = A u B^T \f$
+  !> Computes \f$ v = A u B^T \f$.
   subroutine tnsr2d_el(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
@@ -160,7 +160,7 @@ contains
   end subroutine tnsr2d_el
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
-  !! performed on a single element
+  !! performed on a single element.
   subroutine tnsr3d_el(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
@@ -177,7 +177,7 @@ contains
   end subroutine tnsr3d_el
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
-  !!`nelv` elements
+  !!`nelv` elements.
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
@@ -202,7 +202,7 @@ contains
     
   end subroutine tnsr3d
 
-  !> In place tensor product \f$ v =(C \otimes B \otimes A) v \f$
+  !> In place tensor product \f$ v =(C \otimes B \otimes A) v \f$.
   subroutine tnsr1_3d(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
@@ -273,9 +273,9 @@ contains
   end subroutine tensor_scalar1
 
   !> Computes the tensor product on a vector field
-  !! \f$ \mathbf{v} =(H_t \otimes H_s \otimes H_r) \mathbf{u} \f$
+  !! \f$ \mathbf{v} =(H_t \otimes H_s \otimes H_r) \mathbf{u} \f$.
   !! This operation is usually performed for spectral interpolation on
-  !! a 3D vector field \f$ \mathbf{u} = (u_1,u_2,u_3)\f$ as defined by
+  !! a 3D vector field \f$ \mathbf{u} = (u_1,u_2,u_3) \f$ as defined by
   !! \f{eqnarray*}{
   !!    \mathbf{v}(r,s,t) = \sum_{i=0}^{N}{\sum_{j=0}^{N}{
   !!      \sum_{k=0}^{N}{\mathbf{u}_{ijk}h_i(r)h_j(s)h_k(t)}}}
@@ -304,6 +304,5 @@ contains
     call tensor_scalar1(v(3), u3, nu, Hr, Hs, Ht)
 
   end subroutine tensor_scalar3
-
 
 end module tensor
