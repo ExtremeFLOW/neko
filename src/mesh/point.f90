@@ -39,7 +39,7 @@ module point
   implicit none
   private
 
-  !> A point in \f$ \mathbb{R}^3 \f$ with coordinates \f$ (x,y,z)\f$.
+  !> A point in \f$ \mathbb{R}^d \f$ with coordinates \f$ (x,y,z)\f$.
   type, extends(entity_t), public ::  point_t
      real(kind=dp), dimension(3) :: x
    contains
