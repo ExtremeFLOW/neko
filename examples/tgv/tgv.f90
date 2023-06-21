@@ -176,7 +176,7 @@ contains
   ! User-defined finalization routine called at the end of the simulation
   subroutine user_finalize(t, params)
     real(kind=rp) :: t
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     ! Deallocate the fields
     call field_free(om1)
