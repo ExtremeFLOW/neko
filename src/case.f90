@@ -121,15 +121,15 @@ contains
     call neko_log%message('Reading case file ' // trim(case_file))
     
     if (pe_rank .eq. 0) then
-      call C%json_params%load(filename=trim(case_file))
-      call C%json_params%serialize(json_buffer)
+      call C%json_params%load_file(filename=trim(case_file))
+      call C%json_params%print_to_string(json_buffer)
       integer_val = len(json_buffer)
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
     if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
-    call C%json_params%deserialize(json_buffer)
+    call C%json_params%load_from_string(json_buffer)
 
     !call json_core%create_object(json_value, '')
     !call json_core%print(json_value,'test.json')

@@ -252,7 +252,7 @@ AX_NVTX
 AX_ROCTX
 
 # JSON-Fortran
-PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
+PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
 FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
 
