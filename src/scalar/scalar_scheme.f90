@@ -53,7 +53,7 @@ module scalar_scheme
   use time_scheme_controller
   use logger
   use field_registry
-  use usr_inflow
+  use usr_scalar
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_value
   implicit none
@@ -71,7 +71,7 @@ module scalar_scheme
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
-     type(usr_inflow_t) :: user_bc   !< Dirichlet conditions
+     type(usr_scalar_t) :: user_bc     !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
      type(json_file), pointer :: params          !< Parameters          
@@ -417,7 +417,7 @@ contains
     class(scalar_scheme_t), intent(inout) :: this
     procedure(usr_scalar_bc_eval) :: usr_eval
 
-    call this%user_bc%set_scalar_bc(usr_eval)
+    call this%user_bc%set_eval(usr_eval)
     
   end subroutine scalar_scheme_set_user_bc
 

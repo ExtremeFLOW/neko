@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ module user_intf
   use source_scalar
   use coefs
   use usr_inflow
+  use usr_scalar
   use num_types
   use json_module, only : json_file
   implicit none

@@ -7,7 +7,7 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-	common/log.f90\
+        common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
@@ -86,6 +86,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/matrix.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -97,6 +98,7 @@ neko_fortran_SOURCES = \
 	io/stl_file.f90\
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
+	io/csv_file.f90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
@@ -115,6 +117,7 @@ neko_fortran_SOURCES = \
 	bc/wall.f90\
 	bc/inflow.f90\
 	bc/usr_inflow.f90\
+	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
