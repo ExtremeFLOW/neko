@@ -254,7 +254,7 @@ contains
          makeext => this%makeext, makebdf => this%makebdf)
 
       call json_get(params, 'case.fluid.rho', rho)
-      call json_get(params, 'case.fluid.Pr', Pr)
+      call json_get(params, 'case.scalar.Pr', Pr)
       call json_get(params, 'case.fluid.Re', Re)
       call json_get(params, 'case.fluid.velocity_solver.max_iterations',&
                     ksp_vel_maxiter)
