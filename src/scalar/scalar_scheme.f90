@@ -406,7 +406,7 @@ contains
        end if
        call source_scalar_set_type(this%f_Xh, source_scalar_eval_noforce)
     else
-       call neko_error('Invalid source term')
+       call neko_error('Invalid scalar source term '//source_term_type)
     end if
 
   end subroutine scalar_scheme_set_source

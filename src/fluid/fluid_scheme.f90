@@ -744,7 +744,7 @@ contains
        end if
        call source_set_type(this%f_Xh, source_eval_noforce)
     else
-       call neko_error('Invalid source term')
+       call neko_error('Invalid fluid source term '//source_term_type)
     end if
 
   end subroutine fluid_scheme_set_source
