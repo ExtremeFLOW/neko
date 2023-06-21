@@ -39,7 +39,7 @@ module point
   implicit none
   private
 
-  !> A point in \f$ R^d \f$ with coordinates \f$ (x,y,z)\f$.
+  !> A point in \f$ \mathbb{R}^3 \f$ with coordinates \f$ (x,y,z)\f$.
   type, extends(entity_t), public ::  point_t
      real(kind=dp), dimension(3) :: x
    contains
@@ -188,28 +188,6 @@ contains
     end if
 
   end function point_gt
-
-  !> Check if \f$ p_{1} \ge p_{2} \f$.
-  !! @note this only checks coordinates.
-  pure function point_ge(p1, p2) result(res)
-    class(point_t), intent(in) :: p1
-    class(point_t), intent(in) :: p2
-    logical :: res
-
-    res = .not. ( point_lt(p1, p2) )
-
-  end function point_ge
-
-  !> Check if \f$ p_{1} \le p_{2} \f$.
-  !! @note this only checks coordinates.
-  pure function point_le(p1, p2) result(res)
-    class(point_t), intent(in) :: p1
-    class(point_t), intent(in) :: p2
-    logical :: res
-
-    res = .not. ( point_gt(p1, p2) )
-
-  end function point_le
 
   !> Returns the addition of 2 points \f$ p_{1} + p_{2} \f$.
   function point_add(p1, p2) result(res)
