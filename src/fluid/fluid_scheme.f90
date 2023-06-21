@@ -226,7 +226,8 @@ contains
     write(log_buf, '(A, L1)') 'Dealias    : ',  logical_val
     call neko_log%message(log_buf)
 
-    call json_get(params, 'case.output_boundary', logical_val)
+    call json_get_or_default(params, 'case.output_boundary', logical_val, &
+                             .false.)
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
@@ -325,7 +326,8 @@ contains
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
        
-    call json_get(params, 'case.output_boundary', logical_val)
+    call json_get_or_default(params, 'case.output_boundary', logical_val,&
+                             .false.)
     if (logical_val) then
        call field_init(this%bdry, this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
