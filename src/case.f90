@@ -42,6 +42,7 @@ module case
   use fluid_stats_output
   use field_list_output
   use mpi_types
+  use mpi_f08
   use mesh_field
   use parmetis
   use redist
@@ -104,22 +105,31 @@ contains
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part
     integer, parameter :: nbytes = NEKO_FNAME_LEN + (4 * 80) + 4 + 4
-    character buffer(nbytes)
+    character :: buffer(nbytes)
     integer :: pack_index
     type(mesh_fld_t) :: parts
-    logical found, logical_val
-    integer integer_val
-    real(kind=rp) real_val
+    logical :: found, logical_val
+    integer :: integer_val
+    real(kind=rp) :: real_val
     character(len=:), allocatable :: string_val
-    character(len=:), allocatable :: json_buffer
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval 
     integer :: output_dir_len
+    character(len=:), allocatable :: json_buffer
    
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file))
     
-    call C%json_params%load(filename=trim(case_file))
+    if (pe_rank .eq. 0) then
+      call C%json_params%load(filename=trim(case_file))
+      call C%json_params%serialize(json_buffer)
+      integer_val = len(json_buffer)
+    end if
+
+    call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+    if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
+    call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
+    call C%json_params%deserialize(json_buffer)
 
     !call json_core%create_object(json_value, '')
     !call json_core%print(json_value,'test.json')
