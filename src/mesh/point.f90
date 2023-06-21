@@ -47,8 +47,6 @@ module point
      procedure :: point_ne
      procedure :: point_lt
      procedure :: point_gt
-     procedure :: point_ge
-     procedure :: point_le
      procedure :: point_assign
      procedure :: point_add
      procedure :: point_subtract
@@ -58,8 +56,6 @@ module point
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
      generic :: operator(.gt.) => point_gt
-     generic :: operator(.ge.) => point_ge
-     generic :: operator(.le.) => point_le
      generic :: assignment(=) => point_assign
      generic :: operator(+) => point_add
      generic :: operator(-) => point_subtract
