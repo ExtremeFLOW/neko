@@ -5,7 +5,7 @@
 !
 module user
   use neko
-  use json_module, only : jsfon_file_t => json_file
+  use json_module, only : json_file
   implicit none
 
   ! Global user variables
@@ -57,7 +57,7 @@ module user
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     u = 0._rp
     v = 0._rp
     w = 0._rp
@@ -72,7 +72,7 @@ module user
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     integer tstep
     ! Initialize the file object and create the output.csv file
@@ -99,7 +99,7 @@ module user
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
-    type(json_file_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -152,7 +152,7 @@ module user
   ! User-defined finalization routine called at the end of the simulation
   subroutine user_finalize(t, params)
     real(kind=rp) :: t
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     ! Deallocate the fields
     call field_free(om1)
