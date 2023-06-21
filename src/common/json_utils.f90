@@ -40,7 +40,7 @@ module json_utils
 
   public :: json_get, json_get_or_default
   
-  !> Retrieves a parameter by name or throughs an error
+  !> Retrieves a parameter by name or throws an error
   interface json_get
     module procedure json_get_real, json_get_integer, json_get_logical, &
                      json_get_string, json_get_real_array,&
@@ -56,7 +56,7 @@ module json_utils
   
 contains
   
-  !> Retrieves a real parameter by name or throughs an error
+  !> Retrieves a real parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
   !! @value value The variable to be populated with the retrieved parameter.
@@ -73,7 +73,7 @@ contains
     end if
   end subroutine json_get_real
 
-  !> Retrieves an integer parameter by name or throughs an error
+  !> Retrieves an integer parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
   !! @value value The variable to be populated with the retrieved parameter.
@@ -90,7 +90,7 @@ contains
     end if
   end subroutine json_get_integer
 
-  !> Retrieves a logical parameter by name or throughs an error
+  !> Retrieves a logical parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
   !! @value value The variable to be populated with the retrieved parameter.
@@ -107,7 +107,7 @@ contains
     end if
   end subroutine json_get_logical
 
-  !> Retrieves a string parameter by name or throughs an error
+  !> Retrieves a string parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
   !! @value value The variable to be populated with the retrieved parameter.
@@ -124,7 +124,7 @@ contains
     end if
   end subroutine json_get_string
 
-  !> Retrieves a real array parameter by name or throughs an error
+  !> Retrieves a real array parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
   !! @value value The variable to be populated with the retrieved parameter.
@@ -141,7 +141,7 @@ contains
     end if
   end subroutine json_get_real_array
 
-  !> Retrieves a integer array parameter by name or throughs an error
+  !> Retrieves a integer array parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
   !! @value value The variable to be populated with the retrieved parameter.
@@ -158,7 +158,7 @@ contains
     end if
   end subroutine json_get_integer_array
 
-  !> Retrieves a logical array parameter by name or throughs an error
+  !> Retrieves a logical array parameter by name or throws an error
   !! @param json The json to retrieve the parameter from.
   !! @param name The full path to the parameter.
   !! @value value The variable to be populated with the retrieved parameter.
