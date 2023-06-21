@@ -114,6 +114,9 @@ contains
        call interpolator_init_onespace(this,coef)
     else if (present(Yh)) then
        call interpolator_init_twospaces(this,Xh,Yh)
+    else
+       call neko_error("Missing argument for initialization, Yh or &
+            &coef expected")
     end if
 
   end subroutine interpolator_init
