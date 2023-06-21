@@ -238,5 +238,4 @@ contains
 
   end function point_mat_mult
 
-
 end module point
