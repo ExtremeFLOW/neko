@@ -362,7 +362,7 @@ contains
     type(json_value), pointer :: json_val
     logical :: found, logical_val
     real(kind=rp) :: real_val, rho, mu, Re
-    integer :: integer_val, ksp_vel_maxiter, ksp_pr_maxiter
+    integer :: integer_val
     type(field_t), pointer :: u_e, v_e, w_e
     integer :: temp_indices(3)
 
@@ -380,12 +380,6 @@ contains
          makeabf => this%makeabf, makebdf => this%makebdf, &
          rho => this%rho, Re => this%Re, mu => this%mu)
 
-
-      call json_get(params, 'case.fluid.velocity_solver.max_iterations', &
-                    ksp_vel_maxiter)
-      call json_get(params, 'case.fluid.pressure_solver.max_iterations', &
-                    ksp_pr_maxiter)
-         
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
       call this%scratch%request_field(v_e, temp_indices(2))
@@ -435,18 +429,16 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
       call profiler_end_region
 
-      call params%get('case.fluid.pressure_solver.projection_space_size', &
-                      integer_val, found)
-     
-      if( tstep .gt. 5 .and. found .and. integer_val .gt. 0) then
+      if( tstep .gt. 5 .and. this%ksp_pr_projection_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
          call this%proj_prs%log_info('Pressure')
       end if
       
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve')
-      ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                          this%bclst_dp, gs_Xh, ksp_pr_maxiter)
+      ksp_results(1) = &
+         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh, &
+                            this%ksp_pr_maxiter)
       call profiler_end_region
 
       if( tstep .gt. 5 .and. found .and. integer_val .gt. 0) then
@@ -478,9 +470,7 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size())
       call profiler_end_region
       
-      call params%get('case.fluid.velocity_solver.projection_space_size', &
-                      integer_val, found)
-      if (tstep .gt. 5 .and. found .and. integer_val .gt. 0) then 
+      if (tstep .gt. 5 .and. this%ksp_vel_projection_dim .gt. 0) then 
          call this%proj_u%project_on(u_res%x, c_Xh, n)
          call this%proj_v%project_on(v_res%x, c_Xh, n)
          call this%proj_w%project_on(w_res%x, c_Xh, n)
@@ -490,11 +480,11 @@ contains
 
       call profiler_start_region("Velocity solve")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh, ksp_vel_maxiter)
+           c_Xh, this%bclst_du, gs_Xh, this%ksp_vel_maxiter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh, ksp_vel_maxiter)
+           c_Xh, this%bclst_dv, gs_Xh, this%ksp_vel_maxiter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh, ksp_vel_maxiter)
+           c_Xh, this%bclst_dw, gs_Xh, this%ksp_vel_maxiter)
       call profiler_end_region
 
       if (tstep .gt. 5 .and. found .and. integer_val .gt. 0) then 
@@ -513,14 +503,13 @@ contains
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
       end if
 
-      call params%get('case.fluid.flow_rate_force.rate', real_val, found)
-      if (found) then
+      if (this%forced_flow_rate) then
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho, Re,&
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-              this%ksp_vel, this%pc_prs, this%pc_vel, ksp_pr_maxiter, &
-              ksp_vel_maxiter)
+              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_pr_maxiter, &
+              this%ksp_vel_maxiter)
       end if
       
       call fluid_step_info(tstep, t, dt, ksp_results)

@@ -83,6 +83,10 @@ module fluid_scheme
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
+     integer :: ksp_vel_maxiter                !< Max iterations in ksp_vel
+     integer :: ksp_pr_maxiter                 !< Max iterattions in ksp_pr
+     integer :: ksp_vel_projection_dim         !< Size of the projection space for ksp_vel
+     integer :: ksp_pr_projection_dim          !< Size of the projection space for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
@@ -91,12 +95,13 @@ module fluid_scheme
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings     
-     type(json_file), pointer :: params      !< Parameters          
+     type(json_file), pointer :: params        !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
-     type(fluid_stats_t) :: stats                 !< Fluid statistics
+     type(fluid_stats_t) :: stats              !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
+     logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      !> The Reynolds number
      real(kind=rp) :: Re
      !> Dynamic viscosity
@@ -231,6 +236,27 @@ contains
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
 
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.max_iterations', &
+                            integer_val, 800)
+    this%ksp_vel_maxiter = integer_val
+    call json_get_or_default(params, &
+                            'case.fluid.pressure_solver.max_iterations', &
+                            integer_val, 800)
+    this%ksp_pr_maxiter = integer_val
+
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_space_size',&
+                            integer_val, 20)
+    this%ksp_vel_projection_dim = integer_val
+    call json_get_or_default(params, &
+                            'case.fluid.pressure_solver.projection_space_size',&
+                            integer_val, 20)
+    this%ksp_pr_projection_dim = integer_val
+
+   if (params%valid_path("case.fluid.flow_rate_force")) then
+      this%forced_flow_rate = .true.
+   end if
 
     if (msh%gdim .eq. 2) then
        call space_init(this%Xh, GLL, lx, lx)
@@ -506,6 +532,7 @@ contains
          dong_uchar, dong_delta)
 
     call bc_list_add(this%bclst_prs, this%bc_dong)
+
 
     if (kspv_init) then
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
