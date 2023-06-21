@@ -225,7 +225,7 @@ contains
     call json_get(C%json_params, 'case.fluid.source_term.type', string_val)
     if (trim(string_val) .eq. 'user') then
        call C%fluid%set_source(trim(string_val), usr_f=C%usr%fluid_user_f)
-    else if (found .and. trim(string_val) .eq. 'user_vector') then
+    else if (trim(string_val) .eq. 'user_vector') then
        call C%fluid%set_source(trim(string_val), &
             usr_f_vec=C%usr%fluid_user_f_vector)
     else 
