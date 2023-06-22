@@ -133,15 +133,15 @@ contains
     call coef_init(coef, gs)
 
     ! Initialize the r,s,t values
-    rst(1) = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
-    rst(2) = (/ 0.4_rp, -0.3_rp, -1.0_rp/)
-    rst(3) = (/-1.0_rp, -1.0_rp, -1.0_rp/)
-    rst(4) = (/ 1.0_rp,  1.0_rp,  1.0_rp/)
+    rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
+    rst(2)%x = (/ 0.4_rp, -0.3_rp, -1.0_rp/)
+    rst(3)%x = (/-1.0_rp, -1.0_rp, -1.0_rp/)
+    rst(4)%x = (/ 1.0_rp,  1.0_rp,  1.0_rp/)
 
-    xyz_equal(1) = (/2.0_rp,  1.5_rp , 1.25_rp/)
-    xyz_equal(2) = (/1.7_rp, 1.35_rp, 1.0_rp/)
-    xyz_equal(3) = (/1.0_rp, 1.0_rp, 1.0_rp/)
-    xyz_equal(4) = (/ 2.0_rp,  2.0_rp,  2.0_rp/)
+    xyz_equal(1)%x = (/2.0_rp,  1.5_rp , 1.25_rp/)
+    xyz_equal(2)%x = (/1.7_rp, 1.35_rp, 1.0_rp/)
+    xyz_equal(3)%x = (/1.0_rp, 1.0_rp, 1.0_rp/)
+    xyz_equal(4)%x = (/ 2.0_rp,  2.0_rp,  2.0_rp/)
 
     call interp%init(coef) ! initialize the interpolator object
     
@@ -198,9 +198,9 @@ contains
     call coef_init(coef, gs)
 
     ! Initialize the r,s,t values
-    rst(1) = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
+    rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
 
-    xyz_equal(1) = (/2.0_rp,  1.5_rp , 1.25_rp/)
+    xyz_equal(1)%x = (/2.0_rp,  1.5_rp , 1.25_rp/)
 
     call interp%init(coef) ! initialize the interpolator object
     
