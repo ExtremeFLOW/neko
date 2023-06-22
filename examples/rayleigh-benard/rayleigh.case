@@ -1,4 +1,5 @@
 {
+"version": 1.0,
 "case": {
     "mesh_file": "box.nmsh",
     "output_at_end": true,
