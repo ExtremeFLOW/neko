@@ -93,7 +93,7 @@ contains
   subroutine interpolator_init(this, Xh, Yh)
     class(interpolator_t), intent(inout), target :: this
     type(space_t), intent(inout), target :: Xh
-    type(space_t), intent(inout), target, optional :: Yh
+    type(space_t), intent(inout), target :: Yh
     integer :: deg_derivate
 
     call this%free()
