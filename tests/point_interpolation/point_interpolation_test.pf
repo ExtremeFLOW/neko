@@ -1,0 +1,123 @@
+subroutine point_interpolation_test_gen_msh(msh)
+  use pfunit
+  use mesh, only: mesh_t, mesh_init, mesh_add_element
+  use point, only: point_t
+  use num_types, only: rp
+  implicit none
+  type(mesh_t) :: msh
+
+  type(point_t) :: p(12)
+
+  p(1) = point_t(1d0, 1d0, 1d0)
+  call p(1)%set_id(1)
+  p(2) = point_t(2d0, 1d0, 1d0)
+  call p(2)%set_id(2)
+  p(3) = point_t(1d0, 2d0, 1d0)
+  call p(3)%set_id(4)
+  p(4) = point_t(2d0, 2d0, 1d0)
+  call p(4)%set_id(3)
+  p(5) = point_t(1d0, 1d0, 2d0)
+  call p(5)%set_id(5)
+  p(6) = point_t(2d0, 1d0, 2d0)
+  call p(6)%set_id(6)
+  p(7) = point_t(1d0, 2d0, 2d0)
+  call p(7)%set_id(7)
+  p(8) = point_t(2d0, 2d0, 2d0)
+  call p(8)%set_id(8)
+
+  call mesh_init(msh, 3, 1)
+  call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+
+end subroutine point_interpolation_test_gen_msh
+
+
+subroutine point_interpolation_test_gen_coef(msh, coef, lx)
+  use pfunit
+  use mesh, only: mesh_t
+  use coefs, only: coef_t, coef_init
+  use dofmap, only: dofmap_t
+  use gather_scatter, only: gs_t, gs_init
+  use space, only: space_t, GLL, space_init
+  use num_types, only: rp
+  implicit none
+  type(mesh_t) :: msh
+  type(coef_t) :: coef
+  integer :: lx
+  type(dofmap_t) :: dof
+  type(gs_t) :: gs
+  type(space_t) :: xh
+
+  call space_init(Xh, GLL, lx, lx, lx)
+  dof = dofmap_t(msh, xh)
+  call gs_init(gs, dof)
+  call coef_init(coef, gs)
+
+end subroutine point_interpolation_test_gen_coef
+
+@test
+subroutine point_interpolation_test_init
+  use pfunit
+  use mesh, only: mesh_t
+  use coefs, only: coef_t
+  use point_interpolation, only: point_interpolator_t
+  implicit none
+
+  type(point_interpolator_t) :: interp
+  type(coef_t) :: coef
+  type(mesh_t) :: msh
+  integer, parameter :: lx = 4
+
+  call point_interpolation_test_gen_msh(msh)
+  call point_interpolation_test_gen_coef(msh, coef, lx)
+
+  call interp%init(coef) ! initialize the interpolator object
+
+  @assertTrue(associated(interp%coef))
+  @assertTrue(associated(interp%xh))
+
+end subroutine point_interpolation_test_init
+
+@test
+subroutine point_interpolation_test_interpolation
+  use pfunit
+  use mesh, only: mesh_t
+  use coefs, only: coef_t
+  use point_interpolation, only: point_interpolator_t
+  use point, only: point_t
+  use num_types, only: rp
+  implicit none
+
+  type(point_interpolator_t) :: interp
+  type(coef_t) :: coef
+  type(mesh_t) :: msh
+  integer, parameter :: lx = 4
+  type(point_t) :: rst(4) ! A list of  r,s,t coordinates
+  type(point_t) :: xyz(4), xyz_equal(4) ! the results of the interpolation
+
+  integer :: e = 1 ! our element index (in this example we only use a 1-element mesh)
+
+  call point_interpolation_test_gen_msh(msh)
+  call point_interpolation_test_gen_coef(msh, coef, lx)
+
+  ! Initialize the r,s,t values
+  rst(1) = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
+  rst(2) = (/ 0.4_rp, -0.3_rp, -1.0_rp/)
+  rst(3) = (/-1.0_rp, -1.0_rp, -1.0_rp/)
+  rst(4) = (/ 1.0_rp,  1.0_rp,  1.0_rp/)
+
+  xyz_equal(1) = (/2.0_rp,  1.5_rp , 1.25_rp/)
+  xyz_equal(2) = (/1.7_rp, 1.35_rp, 1.0_rp/)
+  xyz_equal(3) = (/1.0_rp, 1.0_rp, 1.0_rp/)
+  xyz_equal(4) = (/ 2.0_rp,  2.0_rp,  2.0_rp/)
+
+  call interp%init(coef) ! initialize the interpolator object
+
+  xyz = interp%interpolate(4, rst, coef%dof%x(:,:,:,e), &
+       coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
+
+  @assertTrue(xyz(1) .eq. xyz_equal(1))
+  @assertTrue(xyz(2) .eq. xyz_equal(2))
+  @assertTrue(xyz(3) .eq. xyz_equal(3))
+  @assertTrue(xyz(4) .eq. xyz_equal(4))
+
+end subroutine point_interpolation_test_interpolation
