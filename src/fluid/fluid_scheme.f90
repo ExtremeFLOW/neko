@@ -238,21 +238,17 @@ contains
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.max_iterations', &
-                            integer_val, 800)
-    this%ksp_vel_maxiter = integer_val
+                            this%ksp_pr_maxiter, 800)
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.max_iterations', &
-                            integer_val, 800)
-    this%ksp_pr_maxiter = integer_val
+                            this%ksp_pr_maxiter, 800)
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
-                            integer_val, 20)
-    this%ksp_vel_projection_dim = integer_val
+                            this%ksp_vel_projection_dim, 20)
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_space_size',&
-                            integer_val, 20)
-    this%ksp_pr_projection_dim = integer_val
+                            this%ksp_pr_projection_dim, 20)
 
    if (params%valid_path("case.fluid.flow_rate_force")) then
       this%forced_flow_rate = .true.

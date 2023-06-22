@@ -375,7 +375,7 @@ contains
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-         params => this%params, msh => this%msh, prs_res => this%prs_res, &
+         msh => this%msh, prs_res => this%prs_res, &
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
          rho => this%rho, Re => this%Re, mu => this%mu)
