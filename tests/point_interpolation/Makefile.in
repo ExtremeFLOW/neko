@@ -1,3 +1,4 @@
+USEMPI=YES
 ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
 include @PFUNIT_DIR@/include/PFUNIT.mk
 endif
@@ -8,16 +9,16 @@ FC = @FC@
 	$(FC) -c $(FFLAGS) $<
 
 
-check: point_interpolation_test
+check: point_interpolation_suite
 
 
-point_interpolation_test_TESTS := point_interpolation_test.pf
-point_interpolation_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
-$(eval $(call make_pfunit_test,point_interpolation_test))
+point_interpolation_suite_TESTS := point_interpolation_test.pf
+point_interpolation_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,point_interpolation_suite))
 
 
 clean:
-	$(RM) *.o *.mod *.a  *.inc *.F90 point_interpolation_test
+	$(RM) *.o *.mod *.a  *.inc *.F90 point_interpolation_suite
 
 
 
