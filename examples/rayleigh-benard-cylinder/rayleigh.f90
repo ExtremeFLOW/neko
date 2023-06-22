@@ -1,5 +1,721 @@
+module speri
+
+  use neko
+  use, intrinsic :: iso_c_binding
+  implicit none
+  
+  !> include information needed for compressing fields
+  type :: speri_t
+     real(kind=rp), allocatable :: v(:,:) !< Transformation matrix
+     real(kind=rp), allocatable :: vt(:,:) !< Transformation matrix transposed
+     real(kind=rp), allocatable :: vinv(:,:) !< Transformation matrix inversed 
+     real(kind=rp), allocatable :: vinvt(:,:) !< Transformation matrix
+     !! inversed and transposed 
+     real(kind=rp), allocatable :: w(:,:) !< Diagonal matrix with weights
+     real(kind=rp), allocatable :: specmat(:,:) !< Transformation matrix
+     real(kind=rp), allocatable :: specmatt(:,:) !< Transformation matrix
+     type(field_t), pointer :: fld  => null()
+     type(field_t) :: fldhat
+     type(field_t) :: wk
+     type(space_t), pointer :: Xh => null()
+     type(mesh_t), pointer :: msh => null()
+     type(dofmap_t), pointer :: dof => null()
+     !> From adam
+     real(kind=rp) :: SERI_SMALL
+     ! used for ratios
+     real(kind=rp) :: SERI_SMALLR
+     ! used for gradients
+     real(kind=rp) :: SERI_SMALLG
+     ! used for sigma and rtmp in error calculations
+     real(kind=rp) :: SERI_SMALLS
+     ! number of points in fitting
+     integer :: SERI_NP
+     integer :: SERI_NP_MAX
+     ! last modes skipped
+     integer :: SERI_ELR
+     real(kind=rp), allocatable :: eind(:) !<
+     real(kind=rp), allocatable :: sig(:) !<
+
+     !
+     ! Device pointers (if present)
+     !
+     type(c_ptr) :: v_d = C_NULL_PTR
+     type(c_ptr) :: vt_d = C_NULL_PTR
+     type(c_ptr) :: vinv_d = C_NULL_PTR
+     type(c_ptr) :: vinvt_d = C_NULL_PTR
+     type(c_ptr) :: w_d = C_NULL_PTR
+     type(c_ptr) :: specmat_d = C_NULL_PTR
+     type(c_ptr) :: specmatt_d = C_NULL_PTR
+
+  end type speri_t
+
+  interface speri_init
+     module procedure speri_init_all
+  end interface speri_init
+
+  public :: speri_init, speri_free
+
+contains
+
+  !> Initialize
+  subroutine speri_init_all(speri, u)
+    type(speri_t), intent(inout) :: speri
+    type(field_t), intent(in), target :: u
+    integer :: il, jl, aa
+
+    call speri_free(speri)
+
+    speri%fld => u
+    speri%fldhat = u
+    speri%wk = u
+    speri%msh => u%msh
+    speri%Xh => u%Xh
+    speri%dof => u%dof
+
+    ! Allocate arrays
+    allocate(speri%v(speri%Xh%lx, speri%Xh%lx))
+    allocate(speri%vt(speri%Xh%lx, speri%Xh%lx))
+    allocate(speri%vinv(speri%Xh%lx, speri%Xh%lx))
+    allocate(speri%vinvt(speri%Xh%lx, speri%Xh%lx))
+    allocate(speri%w(speri%Xh%lx, speri%Xh%lx))
+    allocate(speri%specmat(speri%Xh%lx, speri%Xh%lx))
+    allocate(speri%specmatt(speri%Xh%lx, speri%Xh%lx))
+    allocate(speri%eind(speri%msh%nelv))
+    allocate(speri%sig(speri%msh%nelv))
+
+    ! Initialize all the matrices
+    call speri_generate_specmat(speri)
+
+    ! Generate the uhat field (legendre coeff)
+
+    call speri_goto_space(speri,'spec') !< 'spec' / 'phys'
+
+    !> From ADAM
+    ! set cutoff parameters
+    ! used for values
+    speri%SERI_SMALL = 1.e-14
+    ! used for ratios
+    speri%SERI_SMALLR = 1.e-10
+    ! used for gradients
+    speri%SERI_SMALLG = 1.e-5
+    ! used for sigma and rtmp in error calculations
+    speri%SERI_SMALLS = 0.2
+    ! number of points in fitting
+    speri%SERI_NP = 4
+    speri%SERI_NP_MAX = 4
+    ! last modes skipped
+    speri%SERI_ELR = 0
+
+    associate(LX1 => speri%Xh%lx, LY1 => speri%Xh%ly, &
+              LZ1 => speri%Xh%lz, &
+              SERI_SMALL  => speri%SERI_SMALL,  &
+              SERI_SMALLR => speri%SERI_SMALLR, &
+              SERI_SMALLG => speri%SERI_SMALLG, & 
+              SERI_SMALLS => speri%SERI_SMALLS, & 
+              SERI_NP     => speri%SERI_NP,     &
+              SERI_NP_MAX => speri%SERI_NP_MAX, &
+              SERI_ELR    => speri%SERI_ELR     &
+             )   
+     ! correctness check
+     if (SERI_NP.gt.SERI_NP_MAX) then
+       if (pe_rank.eq.0) write(*,*) 'SETI_NP greater than SERI_NP_MAX' 
+     endif
+     il = SERI_NP+SERI_ELR
+     jl = min(LX1,LY1)
+     jl = min(jl,LZ1)
+     if (il.gt.jl) then
+       if (pe_rank.eq.0) write(*,*) 'SERI_NP+SERI_ELR greater than L?1'
+     endif
+    end associate
+
+  end subroutine speri_init_all
+
+
+  !> Deallocate coefficients
+  subroutine speri_free(speri)
+    type(speri_t), intent(inout) :: speri
+
+    if(allocated(speri%v)) then
+       deallocate(speri%v)
+    end if
+
+    if(allocated(speri%vt)) then
+       deallocate(speri%vt)
+    end if
+
+    if(allocated(speri%vinv)) then
+       deallocate(speri%vinv)
+    end if
+
+    if(allocated(speri%vinvt)) then
+       deallocate(speri%vinvt)
+    end if
+
+    if(allocated(speri%w)) then
+       deallocate(speri%w)
+    end if
+    
+    if(allocated(speri%specmat)) then
+       deallocate(speri%specmat)
+    end if
+    
+    if(allocated(speri%specmatt)) then
+       deallocate(speri%specmatt)
+    end if
+
+    if(allocated(speri%eind)) then
+       deallocate(speri%eind)
+    end if
+
+    if(allocated(speri%sig)) then
+       deallocate(speri%sig)
+    end if
+
+    call field_free(speri%fldhat)
+
+    call field_free(speri%wk)
+    
+    nullify(speri%fld)
+    nullify(speri%msh)
+    nullify(speri%Xh)
+    nullify(speri%dof)
+
+
+    !
+    ! Cleanup the device (if present)
+    !
+    
+    if (c_associated(speri%v_d)) then
+       call device_free(speri%v_d)
+    end if
+
+    if (c_associated(speri%vt_d)) then
+       call device_free(speri%vt_d)
+    end if
+
+    if (c_associated(speri%vinv_d)) then
+       call device_free(speri%vinv_d)
+    end if
+
+    if (c_associated(speri%vinvt_d)) then
+       call device_free(speri%vinvt_d)
+    end if
+
+    if (c_associated(speri%w_d)) then
+       call device_free(speri%w_d)
+    end if
+    
+    if (c_associated(speri%specmat_d)) then
+       call device_free(speri%specmat_d)
+    end if
+
+    if (c_associated(speri%specmatt_d)) then
+       call device_free(speri%specmatt_d)
+    end if
+
+  end subroutine speri_free
+
+
+  !> Generate spectral tranform matrices
+  subroutine speri_generate_specmat(speri)
+    type(speri_t), intent(inout) :: speri
+    real(kind=rp) :: L(0:speri%Xh%lx-1)
+    real(kind=rp) :: delta(speri%Xh%lx)
+    integer :: i, kj, j, j2, kk
+    character(len=LOG_SIZE) :: log_buf 
+
+    associate(Xh => speri%Xh, v=> speri%v, vt => speri%vt, &
+         vinv => speri%vinv, vinvt => speri%vinvt, w => speri%w)
+      ! Get the Legendre polynomials for each point
+      ! Then proceed to compose the transform matrix
+      kj = 0
+      do j = 1, Xh%lx
+         L(0) = 1.
+         L(1) = Xh%zg(j,1)
+         do j2 = 2, Xh%lx-1
+            L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
+                 - (j2-1) * L(j2-2) ) / j2 
+         end do
+         do kk = 1, Xh%lx
+            kj = kj+1
+            v(kj,1) = L(KK-1)
+         end do
+      end do
+      
+      ! transpose the matrix
+      call trsp1(v, Xh%lx) !< non orthogonal wrt weights
+
+      ! Calculate the nominal scaling factors
+      do i = 1, Xh%lx
+         delta(i) = 2.0_rp / (2*(i-1)+1)
+      end do
+      ! modify last entry  
+      delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
+      
+      ! calculate the inverse to multiply the matrix
+      do i = 1, Xh%lx
+         delta(i) = sqrt(1.0_rp / delta(i))
+      end do
+      ! scale the matrix      
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+         end do
+      end do
+    
+      ! get the trasposed
+      call copy(vt, v, Xh%lx * Xh%lx)
+      call trsp1(vt, Xh%lx)
+      
+      !populate the mass matrix
+      kk = 1
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            if (i .eq. j) then
+               w(i,j) = Xh%wx(kk)
+               kk = kk+1
+            else
+               speri%w(i,j) = 0
+            end if
+         end do
+      end do
+      
+      !Get the inverse of the transform matrix
+      call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+      
+      !get the transposed of the inverse
+      call copy(vinvt, vinv, Xh%lx * Xh%lx)
+      call trsp1(vinvt, Xh%lx)
+    end associate
+
+    ! Copy the data to the GPU
+    ! Move all this to space.f90 to for next version 
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
+       call device_map(speri%v,     speri%v_d,     speri%Xh%lxy)
+       call device_map(speri%vt,    speri%vt_d,    speri%Xh%lxy)
+       call device_map(speri%vinv,  speri%vinv_d,  speri%Xh%lxy)
+       call device_map(speri%vinvt, speri%vinvt_d, speri%Xh%lxy)
+       call device_map(speri%w,     speri%w_d,     speri%Xh%lxy)
+       !Map the following pointers but do not copy data for them
+       call device_map(speri%specmat,  speri%specmat_d,  speri%Xh%lxy)
+       call device_map(speri%specmatt, speri%specmatt_d, speri%Xh%lxy)
+
+
+       call device_memcpy(speri%v,     speri%v_d,     speri%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(speri%vt,    speri%vt_d,    speri%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(speri%vinv,  speri%vinv_d,  speri%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(speri%vinvt, speri%vinvt_d, speri%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(speri%w,     speri%w_d,     speri%Xh%lxy, &
+                          HOST_TO_DEVICE)
+
+    end if
+
+  end subroutine speri_generate_specmat
+
+
+  !> Tranform to spectral space (using tensor product)
+  !the result of the transform is given in fldhat
+  subroutine speri_goto_space(speri, space)
+    type(speri_t), intent(inout) :: speri
+    integer :: i, j, k, e, nxyz, nelv, n
+    character(len=LOG_SIZE) :: log_buf 
+    character(len=4) :: space 
+
+    ! define some constants
+    nxyz = speri%Xh%lx*speri%Xh%lx*speri%Xh%lx
+    nelv = speri%msh%nelv
+    n    = nxyz*nelv
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
+
+       write(*,*) 'Transform in the GPU'
+
+       ! Define the matrix according to which transform to do 
+       if (space .eq. 'spec') then
+          call device_copy(speri%specmat_d,  speri%vinv_d,  speri%Xh%lxy)
+          call device_copy(speri%specmatt_d, speri%vinvt_d, speri%Xh%lxy)
+          call device_copy(speri%wk%x_d, speri%fld%x_d, n)
+       endif
+       if (space .eq. 'phys') then
+          call device_copy(speri%specmat_d,  speri%v_d,  speri%Xh%lxy)
+          call device_copy(speri%specmatt_d, speri%vt_d, speri%Xh%lxy)
+          call device_copy(speri%wk%x_d, speri%fldhat%x_d, n)
+       endif
+
+    else
+       
+       write(*,*) 'Transform in the CPU'
+
+       ! Define the matrix according to which transform to do 
+       if (space .eq. 'spec') then
+          call copy(speri%specmat, speri%vinv, speri%Xh%lx*speri%Xh%lx)
+          call copy(speri%specmatt, speri%vinvt, speri%Xh%lx*speri%Xh%lx)
+          call copy(speri%wk%x,speri%fld%x,n)
+       endif
+       if (space .eq. 'phys') then
+          call copy(speri%specmat, speri%v, speri%Xh%lx*speri%Xh%lx)
+          call copy(speri%specmatt, speri%vt, speri%Xh%lx*speri%Xh%lx)
+          call copy(speri%wk%x,speri%fldhat%x,n)
+       endif
+
+    end if
+
+    call tnsr3d(speri%fldhat%x, speri%Xh%lx, speri%wk%x, &
+                speri%Xh%lx,speri%specmat, &
+                speri%specmatt, speri%specmatt, nelv)
+
+    !! Synchronize
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
+
+       call device_memcpy(speri%fldhat%x,speri%fldhat%x_d, n, &
+                          DEVICE_TO_HOST)
+    end if
+
+  end subroutine speri_goto_space
+
+  subroutine speri_get(speri)
+    type(speri_t), intent(inout) :: speri
+    real(kind=rp) :: xa(speri%Xh%lx,speri%Xh%ly,speri%Xh%lz)
+    real(kind=rp) :: xb(speri%Xh%lx,speri%Xh%ly,speri%Xh%lz)
+
+    associate(eind        => speri%eind, &
+              sig         => speri%sig , &
+              lnelt       => speri%msh%nelv, &
+              LX1         => speri%Xh%lx, &
+              LY1         => speri%Xh%ly, &
+              LZ1         => speri%Xh%lz, &
+              var         => speri%fldhat%x &
+             )   
+      
+       ! zero arrays
+       call rzero(eind,lnelt)
+       call rzero(sig,lnelt)
+
+       write(*,*) 'currently in speri get'
+       write(*,*) 'currently in speri get'
+       write(*,*) 'currently in speri get'
+       write(*,*) 'currently in speri get'
+       call speri_var(speri, eind,sig,var,lnelt,xa,xb, LX1, LY1, LZ1)
+     end associate
+  end subroutine
+
+  subroutine speri_var(speri, est,sig,var,nell,xa,xb,LX1,LY1,LZ1)
+    type(speri_t), intent(inout) :: speri
+    integer :: nell
+    integer :: LX1
+    integer :: LY1
+    integer :: LZ1
+    real(kind=rp) :: est(nell)
+    real(kind=rp) :: sig(nell)
+    real(kind=rp) :: var(LX1,LY1,LZ1,nell)
+    real(kind=rp) :: xa(LX1,LY1,LZ1)
+    real(kind=rp) :: xb(LX1,LY1,LZ1)
+    
+    ! local variables
+    integer :: il, jl, kl, ll, j_st, j_en, ii
+    ! polynomial coefficients
+    real(kind=rp) :: coeff(LX1,LY1,LZ1)
+    ! Legendre coefficients; first value coeff(1,1,1)
+    real(kind=rp) ::  coef11
+    ! copy of last SERI_NP columns of coefficients
+    real(kind=rp) ::  coefx(speri%SERI_NP_MAX,LY1,LZ1), & 
+                      coefy(speri%SERI_NP_MAX,LX1,LZ1), &
+                      coefz(speri%SERI_NP_MAX,LX1,LY1)
+    ! estimated error
+    real(kind=rp) ::  estx, esty, estz
+    ! estimated decay rate
+    real(kind=rp) ::  sigx, sigy, sigz
+    real(kind=rp) ::  third
+    parameter (third = 1.0/3.0)
+
+    ! loop over elements
+    do il = 1,nell
+        ! go to Legendre space (done in two operations)
+        ! and square the coefficient
+        do ii = 1, LX1*LY1*LZ1
+           coeff(ii,1,1) = var(ii,1,1,il) * var(ii,1,1,il) 
+        end do
+
+        ! lower left corner
+        coef11 = coeff(1,1,1)
+
+        ! small value; nothing to od
+        if (coef11.ge.speri%SERI_SMALL) then
+           ! extrapolate coefficients
+           ! X - direction
+           ! copy last SERI_NP collumns (or less if NX1 is smaller)
+           ! SERI_ELR allows to exclude last row
+            j_st = max(1,LX1-speri%SERI_NP+1-speri%SERI_ELR)
+            j_en = max(1,LX1-speri%SERI_ELR)
+            do ll = 1,LZ1
+                do kl = 1,LY1
+                    do jl = j_st,j_en
+                        coefx(j_en-jl+1,kl,ll) = coeff(jl,kl,ll)
+                    enddo
+                enddo
+            enddo
+            ! get extrapolated values
+            call speri_extrap(speri,estx,sigx,coef11,coefx, &
+                 j_st,j_en,LY1,LZ1)
+         
+            ! Y - direction
+            ! copy last SERI_NP collumns (or less if NY1 is smaller)
+            ! SERI_ELR allows to exclude last row
+            j_st = max(1,LY1-speri%SERI_NP+1-speri%SERI_ELR)
+            j_en = max(1,LY1-speri%SERI_ELR)
+            do ll = 1,LZ1
+                do kl = j_st,j_en
+                    do jl = 1,LX1
+                        coefy(j_en-kl+1,jl,ll) = coeff(jl,kl,ll)
+                    enddo
+                enddo
+            enddo
+
+            ! get extrapolated values
+            call speri_extrap(speri, esty,sigy,coef11,coefy, &
+                j_st,j_en,LX1,LZ1)
+   
+            ! Z - direction
+            ! copy last SERI_NP collumns (or less if NZ1 is smaller)
+            ! SERI_ELR allows to exclude last row
+            j_st = max(1,LZ1-speri%SERI_NP+1-speri%SERI_ELR)
+            j_en = max(1,LZ1-speri%SERI_ELR)
+            do ll = j_st,j_en
+                do kl = 1,LY1
+                    do jl = 1,LX1
+                        coefz(j_en-ll+1,jl,kl) = coeff(jl,kl,ll)
+                    enddo
+                enddo
+            enddo
+
+            ! get extrapolated values
+            call speri_extrap(speri, estz,sigz,coef11,coefz, &
+               j_st,j_en,LX1,LY1)
+
+            ! average
+            est(il) =  sqrt(estx + esty + estz)
+            sig(il) =  third*(sigx + sigy + sigz)
+
+        else
+            ! for testing
+            estx = 0.0
+            esty = 0.0
+            estz = 0.0
+            sigx = -1.0
+            sigy = -1.0
+            sigz = -1.0
+            ! for testing; end
+
+            est(il) =  0.0
+            sig(il) = -1.0
+        endif
+
+    end do
+
+  end subroutine
+
+
+  subroutine speri_extrap(speri,estx,sigx,coef11,coef, &
+                ix_st,ix_en,nyl,nzl)
+      implicit none
+      type(speri_t), intent(inout) :: speri
+      ! argument list
+      integer :: ix_st,ix_en,nyl,nzl
+      ! Legendre coefficients; last SERI_NP columns
+      real(kind=rp) :: coef(speri%SERI_NP_MAX,nyl,nzl)
+      ! Legendre coefficients; first value coeff(1,1,1)
+      real(kind=rp) :: coef11
+      ! estimated error and decay rate
+      real(kind=rp) :: estx, sigx
+
+      ! local variables
+      integer :: il, jl, kl, ll  ! loop index
+      integer :: nsigt, pnr, nzlt
+      real(kind=rp) :: sigt, smallr, cmin, cmax, cnm, rtmp, rtmp2, rtmp3
+      real(kind=rp) :: sumtmp(4), cffl(speri%SERI_NP_MAX)
+      real(kind=rp) :: stmp, estt, clog, ctmp, cave, erlog
+      logical :: cuse(speri%SERI_NP_MAX)
+!-----------------------------------------------------------------------
+      
+     associate(LX1 => speri%Xh%lx, LY1 => speri%Xh%ly, &
+              LZ1 => speri%Xh%lz, &
+              SERI_SMALL  => speri%SERI_SMALL,  &
+              SERI_SMALLR => speri%SERI_SMALLR, &
+              SERI_SMALLG => speri%SERI_SMALLG, & 
+              SERI_SMALLS => speri%SERI_SMALLS, & 
+              SERI_NP     => speri%SERI_NP,     &
+              SERI_NP_MAX => speri%SERI_NP_MAX, &
+              SERI_ELR    => speri%SERI_ELR     &
+             )   
+      ! initial values
+      estx =  0.0
+      sigx = -1.0
+
+      ! relative cutoff
+      smallr = coef11*SERI_SMALLR
+
+      ! number of points
+      pnr = ix_en - ix_st +1
+
+      ! to few points to interpolate
+!      if ((ix_en - ix_st).le.1) return
+
+      ! for averaging, initial values
+      sigt = 0.0
+      nsigt = 0
+
+      ! loop over all face points
+      nzlt = max(1,nzl - SERI_ELR) !  for 2D runs
+      do il=1,nzlt
+        ! weight
+        rtmp3 = 1.0/(2.0*(il-1)+1.0)
+        do jl=1,nyl - SERI_ELR
+
+            ! find min and max coef along single row
+            cffl(1) = coef(1,jl,il)
+            cmin = cffl(1)
+            cmax = cmin
+            do kl =2,pnr
+                cffl(kl) = coef(kl,jl,il)
+                cmin = min(cmin,cffl(kl))
+                cmax = max(cmax,cffl(kl))
+            enddo
+
+            ! are coefficients sufficiently big
+            if((cmin.gt.0.0).and.(cmax.gt.smallr)) then
+                ! mark array position we use in iterpolation
+                do kl =1,pnr
+                    cuse(kl) = .TRUE.
+                enddo
+                ! max n for polynomial order
+                cnm = real(ix_en)
+
+                ! check if all the points should be taken into account
+                ! in original code by Catherine Mavriplis this part is written
+                ! for 4 points, so I place if statement first
+                if (pnr.eq.4) then
+                    ! should we neglect last values
+                    if ((cffl(1).lt.smallr).and. &
+                       (cffl(2).lt.smallr)) then
+                        if (cffl(3).lt.smallr) then
+                            cuse(1) = .FALSE.
+                            cuse(2) = .FALSE.
+                            cnm = real(ix_en-2)
+                        else
+                            cuse(1) = .FALSE.
+                            cnm = real(ix_en-1)
+                        endif
+                    else
+                        ! should we take stronger gradient
+                        if ((cffl(1)/cffl(2).lt.SERI_SMALLG).and. &
+                           (cffl(3)/cffl(4).lt.SERI_SMALLG)) then
+                            cuse(1) = .FALSE.
+                            cuse(3) = .FALSE.
+                            cnm = real(ix_en-1)
+                        elseif ((cffl(2)/cffl(1).lt.SERI_SMALLG).and. &
+                               (cffl(4)/cffl(3).lt.SERI_SMALLG)) then
+                            cuse(2) = .FALSE.
+                            cuse(4) = .FALSE.
+                        endif
+                    endif
+                endif
+
+                ! get sigma for given face point
+                do kl =1,4
+                    sumtmp(kl) = 0.0
+                enddo
+                ! find new min and count number of points
+                cmin = cmax
+                cmax = 0.0
+                do kl =1,pnr
+                    if(cuse(kl)) then
+                        rtmp  = real(ix_en-kl)
+                        rtmp2 = log(cffl(kl))
+                        sumtmp(1) = sumtmp(1) +rtmp2
+                        sumtmp(2) = sumtmp(2) +rtmp
+                        sumtmp(3) = sumtmp(3) +rtmp*rtmp
+                        sumtmp(4) = sumtmp(4) +rtmp2*rtmp
+                        ! find new min and count used points
+                        cmin = min(cffl(kl),cmin)
+                        cmax = cmax + 1.0
+                    endif
+                enddo
+                ! decay rate along single row
+                stmp = (sumtmp(1)*sumtmp(2) - sumtmp(4)*cmax)/ &
+                      (sumtmp(3)*cmax - sumtmp(2)*sumtmp(2))
+                ! for averaging
+                sigt = sigt + stmp
+                nsigt = nsigt + 1
+
+                ! get error estimator depending on calculated decay rate
+                estt = 0.0
+                if (stmp.lt.SERI_SMALLS) then
+                    estt = cmin
+                else
+                    ! get averaged constant in front of c*exp(-sig*n)
+                    clog = (sumtmp(1)+stmp*sumtmp(2))/cmax
+                    ctmp = exp(clog)
+                    ! average exponent
+                    cave = sumtmp(1)/cmax
+                    ! check quality of approximation comparing is to the constant cave
+                    do kl =1,2
+                        sumtmp(kl) = 0.0
+                    enddo
+                    do kl =1,pnr
+                        if(cuse(kl)) then
+                            erlog = clog - stmp*real(ix_en-kl)
+                            sumtmp(1) = sumtmp(1)+ &
+                               (erlog-log(cffl(kl)))**2
+                            sumtmp(2) = sumtmp(2)+ &
+                               (erlog-cave)**2
+                        endif
+                    enddo
+                    rtmp = 1.0 - sumtmp(1)/sumtmp(2)
+                    if (rtmp.lt.SERI_SMALLS) then
+                        estt = cmin
+                    else
+                        ! last coefficient is not included in error estimator
+                        estt = ctmp/stmp*exp(-stmp*cnm)
+                    endif
+                endif
+                ! add contribution to error estimator; variable weight
+                estx = estx + estt/(2.0*(jl-1)+1.0)*rtmp3
+            endif  ! if((cmin.gt.0.0).and.(cmax.gt.smallr))
+        enddo
+      enddo
+      ! constant weight
+      ! Multiplication by 4 in 2D / 8 in 3D
+      ! Normalization of the error by the volume of the reference element
+      ! which is equal to 4 in 2D / 8 in 3D
+      ! ==> Both operations cancel each other
+      estx = estx/(2.0*(ix_en-1)+1.0)
+
+      ! final everaging
+      ! sigt = 2*sigma so we divide by 2
+      if (nsigt.gt.0) then
+        sigx = 0.5*sigt/nsigt
+      endif
+
+      end associate
+
+      end subroutine
+
+
+
+end module speri
+
+
+
 module user
   use neko
+  use speri
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
@@ -7,7 +723,7 @@ module user
   real(kind=rp) :: Pr = 0
 
   !> Arrays asociated with Method#1 for nusselt calculation
-  integer :: calc_frequency = 500 ! How frequently should we calculate Nu
+  integer :: calc_frequency = 10 ! How frequently should we calculate Nu
   integer :: verify_bc = 0 ! How frequently should we calculate Nu
   type(field_t) :: work_field ! Field to perform operations
   type(field_t) :: uzt ! u_z * T
@@ -45,6 +761,8 @@ module user
   type(stack_i4t4_t) :: wall_facet
   type(tuple4_i4_t)  :: facet_el_type_0
 
+  !> Spectral error indicator
+  type(speri_t) :: speri_u
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -301,7 +1019,7 @@ contains
     
     ! Finilize list that contains uper and lower wall facets
     call wall_facet%free()
-
+  
   end subroutine user_finalize
 
   subroutine set_bousinesq_forcing_term(f, t)
@@ -499,6 +1217,21 @@ contains
      end do
      call mf_dtdx%write(dtdn,t)
     end if
+
+    !> Initialize spectral error indicator
+    call speri_init(speri_u,u)
+    !> Initialize spectral error indicator
+    call speri_get(speri_u)
+
+
+    if (pe_rank.eq.0) then
+        do i = 1, speri_u%msh%nelv
+           write(*,*) 'spectral error indicator', speri_u%eind(i)
+        end do
+    end if
+
+    ! Finalize specral error indicator
+    call speri_free(speri_u)
 
   end subroutine calculate_nusselt
 
