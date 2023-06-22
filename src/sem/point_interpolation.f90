@@ -179,9 +179,9 @@ contains
     !
     ! Compute weights and perform interpolation for the first point
     !
-    call fd_weights_full(rst(1)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
-    call fd_weights_full(rst(1)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
-    call fd_weights_full(rst(1)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
+    call fd_weights_full(rst(1)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
+    call fd_weights_full(rst(1)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
+    call fd_weights_full(rst(1)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
 
     ! And interpolate!
     call triple_tensor_product(res(1)%x, X, Y, Z, lx, hr, hs, ht)

@@ -125,5 +125,5 @@ EXTRA_DIST = \
 	time_scheme/test_ext.pf\
 	time_scheme/test_ab.pf\
 	time_scheme_controller/test_time_scheme_controller.pf\
-	point_interpolation/point_interpolation_test.pf\
+	point_interpolation/point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test

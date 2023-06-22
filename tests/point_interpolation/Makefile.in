@@ -12,7 +12,7 @@ FC = @FC@
 check: point_interpolation_suite
 
 
-point_interpolation_suite_TESTS := point_interpolation_test.pf
+point_interpolation_suite_TESTS := point_interpolation_parallel.pf
 point_interpolation_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,point_interpolation_suite))
 
