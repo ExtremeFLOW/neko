@@ -89,7 +89,6 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: params
-    type(field_t), pointer :: s
     logical :: found
     real(kind=rp) :: Re
     ! Reset the relevant nondimensional parameters
