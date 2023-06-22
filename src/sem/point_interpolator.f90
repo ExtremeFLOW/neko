@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Routines to interpolate scalar/vector fields
-module point_interpolation
+module point_interpolator
   use tensor, only: triple_tensor_product
   use coefs, only: coef_t
   use space, only: space_t, GL, GLL
@@ -298,4 +298,4 @@ contains
     call triple_tensor_product(jac(3,:), X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
   end function point_interpolator_interpolate_jacobian
 
-end module point_interpolation
+end module point_interpolator
