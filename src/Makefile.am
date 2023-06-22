@@ -26,6 +26,7 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/interpolation.f90\
+	sem/point_interpolation.f90\
 	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\

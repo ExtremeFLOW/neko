@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ module interpolation
   use utils
   use math
   use fast3d
+  use field
   use tensor
   use tensor_cpu
   use space
@@ -55,24 +56,22 @@ module interpolation
   !! (lx2, lx2, lx2, nelem), corresponding to a different polynomial order in
   !! each element.
   type, public :: interpolator_t
-     !> First space
+     !> First space.
      type(space_t), pointer :: Xh
-     !> Second space
+     !> Second space.
      type(space_t), pointer :: Yh
-     !> Interpolation weights from Xh to Yh
+     !> Interpolation weights from Xh to Yh.
      real(kind=rp), allocatable :: Xh_to_Yh(:,:), Xh_to_YhT(:,:)
-     !> Interpolation weights from Yh to Xh
+     !> Interpolation weights from Yh to Xh.
      real(kind=rp), allocatable :: Yh_to_Xh(:,:), Yh_to_XhT(:,:)
-     !> Device pointer for Xh_to_Yh
+     !> Device pointer for Xh_to_Yh.
      type(c_ptr) :: Xh_Yh_d = C_NULL_PTR
-     !> Device pointer for Xh_to_YhT
+     !> Device pointer for Xh_to_YhT.
      type(c_ptr) :: Xh_YhT_d = C_NULL_PTR
-     !> Device pointer for Yh_to_Xh
+     !> Device pointer for Yh_to_Xh.
      type(c_ptr) :: Yh_Xh_d = C_NULL_PTR
-     !> Device pointer for Yh_to_XhT
+     !> Device pointer for Yh_to_XhT.
      type(c_ptr) :: Yh_XhT_d = C_NULL_PTR
-     !> Pointer to coefficients (for interpolation)
-     type(coef_t), pointer :: coef
    contains
 
      !> Constructor.
@@ -80,51 +79,18 @@ module interpolation
      !> Destructor.
      procedure, pass(this) :: free => interpolator_free
      !> Interpolate an array to one of Xh or Yh.
-     procedure, pass(this) :: map => interpolator_map_twospaces
+     procedure, pass(this) :: map => interpolator_map
      !> Interpolate an array to one of Xh or Yh on the host.
      procedure, pass(this) :: map_host => interpolator_map_host
-     !> Interpolates a scalar field \f$ X \f on a set of \f$ N \f$ points.
-     procedure, pass(this) :: interp1d => interpolator_interp1d
-     !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of \f$ N \f$ points.
-     procedure, pass(this) :: interp3d => interpolator_interp3d
-     !> Constructs the Jacobian for a point \f$ (r,s,t) \f$.
-     procedure, pass(this) :: jacobian => interpolator_jacobian
-     !> Interpolates a vector field and builds the Jacobian at a single point.
-     procedure, pass(this) :: interp3d_jacobian => interpolator_interp3d_jacobian
 
   end type interpolator_t
 
 contains
 
-
-  !> Constructor for interpolation between two spaces if `Yh` is specifed,
-  !! or regular spectral interpolation if `coef` is specified.
-  !! @param Xh The first space.
-  !! @param Xh The second space.
-  !! @param coef Coefficients.
-  !! @NOTE: If `coef` is present, `Xh` and `Yh` will be disregarded and the
-  !! initialization will be performed with the space in `coef%xh`.
-  subroutine interpolator_init(this, Xh, Yh, coef)
-    class(interpolator_t), intent(inout), target :: this
-    type(space_t), intent(inout), target :: Xh
-    type(space_t), intent(inout), target, optional :: Yh
-    type(coef_t), intent(inout), target, optional :: coef
-
-    if (present(coef)) then
-       call interpolator_init_onespace(this,coef)
-    else if (present(Yh)) then
-       call interpolator_init_twospaces(this,Xh,Yh)
-    else
-       call neko_error("Missing argument for initialization, Yh or &
-            &coef expected")
-    end if
-
-  end subroutine interpolator_init
-
   !> Constructor to initialize with two different spaces.
   !> @param Xh The first space.
   !> @param Xh The second space.
-  subroutine interpolator_init_twospaces(this, Xh, Yh)
+  subroutine interpolator_init(this, Xh, Yh)
     class(interpolator_t), intent(inout), target :: this
     type(space_t), intent(inout), target :: Xh
     type(space_t), intent(inout), target, optional :: Yh
@@ -162,24 +128,7 @@ contains
        call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
     end if
 
-  end subroutine interpolator_init_twospaces
-
-  !> Constructor with only one space, for "regular" interpolation.
-  !! @param Xh Space with which to initialize.
-  !! @param coef Coefficients.
-  subroutine interpolator_init_onespace(this, coef)
-    class(interpolator_t), intent(inout), target :: this
-    type(coef_t), intent(inout), target :: coef
-
-    if ((coef%xh%t .eq. GL) .or. (coef%xh%t .eq. GLL)) then
-    else
-       call neko_error('Unsupported interpolation')
-    end if
-
-    this%Xh => coef%xh
-    this%coef => coef
-
-  end subroutine interpolator_init_onespace
+  end subroutine interpolator_init
 
   subroutine interpolator_free(this)
     class(interpolator_t), intent(inout) :: this
@@ -216,7 +165,7 @@ contains
   !! @param y Interpolated array.
   !! @param nel Number of elements in the mesh.
   !! @param to_space The space to interpolate to, must be either Xh or Yh.
-  subroutine interpolator_map_twospaces(this, y, x, nel, to_space)
+  subroutine interpolator_map(this, y, x, nel, to_space)
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
@@ -233,7 +182,7 @@ contains
     else
        call neko_error('Invalid interpolation')
     end if
-  end subroutine interpolator_map_twospaces
+  end subroutine interpolator_map
 
   !> Interpolates a scalar field \f$ X \f$ on a set of \f$ N \f$ points
   !! \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector of N coordinates
@@ -241,11 +190,11 @@ contains
   !! @param N number of points (use `1` to interpolate a scalar).
   !! @param rst r,s,t coordinates.
   !! @param X Values of the field \f$ X \f$ at GLL points.
-  function interpolator_interp1d(this, N, rst, X) result(res)
+  function interpolator_interpolate_scalar(this, N, rst, X) result(res)
     class(interpolator_t), intent(in) :: this
     integer, intent(in) :: N
     type(point_t), intent(in) :: rst(N)
-    real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
     real(kind=rp) :: res(N)
 
     real(kind=rp) :: hr(this%xh%lx), hs(this%xh%ly), ht(this%xh%lz)
@@ -262,8 +211,9 @@ contains
     call fd_weights_full(rst(1)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
     call fd_weights_full(rst(1)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
 
+
     ! And interpolate!
-    call tensor_scalar1(res(1),X,lx,hr,hs,ht)
+    call triple_tensor_product(res(1),X,lx,hr,hs,ht)
 
     if (N .eq. 1) return
 
@@ -284,11 +234,11 @@ contains
        end if
 
        ! And interpolate!
-       call tensor_scalar1(res(i),X,lx,hr,hs,ht)
+       call triple_tensor_product(res(i),X,lx,hr,hs,ht)
 
     end do
 
-  end function interpolator_interp1d
+  end function interpolator_interpolate_scalar
 
   !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of \f$ N \f$ points
   !! \f$ \mathbf{r}_i \f$. Returns an array of N points
@@ -298,15 +248,16 @@ contains
   !! @param X Values of the field \f$ X \f$ at GLL points.
   !! @param Y Values of the field \f$ Y \f$ at GLL points.
   !! @param Z Values of the field \f$ Z \f$ at GLL points.
-  function interpolator_interp3d(this, N, rst, X, Y, Z) result(res)
+  function interpolator_interpolate_vector(this, N, rst, X, Y, Z) result(res)
     class(interpolator_t), intent(in) :: this
     integer, intent(in) :: N
     type(point_t), intent(in) :: rst(N)
-    real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
-    real(kind=rp), intent(inout) :: Y(this%xh%lx*this%xh%ly*this%xh%lz)
-    real(kind=rp), intent(inout) :: Z(this%xh%lx*this%xh%ly*this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: Y(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: Z(this%xh%lx,this%xh%ly,this%xh%lz)
 
-    type(point_t):: res(N)
+    type(point_t) :: res(N)
+    real(kind=dp) :: tmp
     real(kind=rp) :: hr(this%xh%lx), hs(this%xh%ly), ht(this%xh%lz)
     integer :: lx,ly,lz, i
     lx = this%xh%lx
@@ -321,9 +272,8 @@ contains
     call fd_weights_full(rst(1)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
 
     ! And interpolate!
-    call tensor_scalar1(res(1)%x(1),X,lx,hr,hs,ht)
-    call tensor_scalar1(res(1)%x(2),Y,ly,hr,hs,ht)
-    call tensor_scalar1(res(1)%x(3),Z,lz,hr,hs,ht)
+    call triple_tensor_product(res(1)%x, X, Y, Z, lx, hr, hs, ht)
+
 
     if (N .eq. 1) return
 
@@ -344,10 +294,10 @@ contains
        end if
 
        ! And interpolate!
-       call tensor_scalar3(res(i)%x, X, Y, Z, lx, hr, hs, ht)
+       call triple_tensor_product(res(i)%x, X, Y, Z, lx, hr, hs, ht)
     end do
 
-  end function interpolator_interp3d
+  end function interpolator_interpolate_vector
 
   !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ and constructs the Jacobian
   !! at a point \f$ (r,s,t) \f$. Returns a vector
@@ -357,13 +307,13 @@ contains
   !! @param X Values of the field \f$ X \f$ at GLL points.
   !! @param Y Values of the field \f$ Y \f$ at GLL points.
   !! @param Z Values of the field \f$ Z \f$ at GLL points.
-  function interpolator_interp3d_jacobian(this, jac, rst, X, Y, Z) result(res)
+  function interpolator_interpolate_vector_jacobian(this, jac, rst, X, Y, Z) result(res)
     class(interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: jac(3,3)
     type(point_t), intent(in) :: rst
-    real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
-    real(kind=rp), intent(inout) :: Y(this%xh%lx*this%xh%ly*this%xh%lz)
-    real(kind=rp), intent(inout) :: Z(this%xh%lx*this%xh%ly*this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: Y(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: Z(this%xh%lx,this%xh%ly,this%xh%lz)
 
     real(kind=rp) :: hr(this%xh%lx, 2), hs(this%xh%ly, 2), ht(this%xh%lz, 2)
     type(point_t) :: res
@@ -383,25 +333,23 @@ contains
     !
     ! Interpolate
     !
-    call tensor_scalar1(res%x(1), X, lx, hr(:,1), hs(:,1), ht(:,1))
-    call tensor_scalar1(res%x(2), Y, ly, hr(:,1), hs(:,1), ht(:,1))
-    call tensor_scalar1(res%x(3), Z, lz, hr(:,1), hs(:,1), ht(:,1))
+    call triple_tensor_product(res%x, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,1))
 
     !
     ! Build jacobian
     !
 
     ! d(x,y,z)/dr
-    call tensor_scalar3(jac(1,:), X,Y,Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    call triple_tensor_product(jac(1,:), X,Y,Z, lx, hr(:,2), hs(:,1), ht(:,1))
 
     ! d(x,y,z)/ds
-    call tensor_scalar3(jac(2,:), X,Y,Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    call triple_tensor_product(jac(2,:), X,Y,Z, lx, hr(:,1), hs(:,2), ht(:,1))
 
     ! d(x,y,z)/dt
-    call tensor_scalar3(jac(3,:), X,Y,Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    call triple_tensor_product(jac(3,:), X,Y,Z, lx, hr(:,1), hs(:,1), ht(:,2))
 
 
-  end function interpolator_interp3d_jacobian
+  end function interpolator_interpolate_vector_jacobian
 
   !> Constructs the Jacobian, returns a 3-by-3 array where
   !! \f$ [J(\mathbf{r}]_{ij} = \frac{d\mathbf{x}_i}{d\mathbf{r}_j}\f$.
@@ -412,9 +360,9 @@ contains
   function interpolator_jacobian(this, rst, X,Y,Z) result(jac)
     class(interpolator_t), intent(in) :: this
     type(point_t), intent(in) :: rst
-    real(kind=rp), intent(inout) :: X(this%xh%lx*this%xh%ly*this%xh%lz)
-    real(kind=rp), intent(inout) :: Y(this%xh%lx*this%xh%ly*this%xh%lz)
-    real(kind=rp), intent(inout) :: Z(this%xh%lx*this%xh%ly*this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: Y(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: Z(this%xh%lx,this%xh%ly,this%xh%lz)
 
     real(kind=rp) :: jac(3,3)
 
@@ -430,13 +378,13 @@ contains
     call fd_weights_full(rst%x(3), this%xh%zg(:,3), lz-1, 1, ht)
 
     ! d(x,y,z)/dr
-    call tensor_scalar3(jac(1,:), X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    call triple_tensor_product(jac(1,:), X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
 
     ! d(x,y,z)/ds
-    call tensor_scalar3(jac(2,:), X, Y, Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    call triple_tensor_product(jac(2,:), X, Y, Z, lx, hr(:,1), hs(:,2), ht(:,1))
 
     ! d(x,y,z)/dt
-    call tensor_scalar3(jac(3,:), X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    call triple_tensor_product(jac(3,:), X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
   end function interpolator_jacobian
 
 

@@ -74,9 +74,14 @@ module tensor
      module procedure trsp, trsp1
   end interface transpose
 
+  interface triple_tensor_product
+     module procedure triple_tensor_product_scalar, triple_tensor_product_vector
+  end interface triple_tensor_product
+
 public tensr3, transpose, trsp, trsp1, &
-     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, tensor_scalar1, &
-     tensor_scalar3
+     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
+     triple_tensor_product
+
 
 contains
 
@@ -253,7 +258,7 @@ contains
   !! @param Hr Interpolation weights in the r-direction.
   !! @param Hs Interpolation weights in the s-direction.
   !! @param Ht Interpolation weights in the t-direction.
-  subroutine tensor_scalar1(v, u, nu, Hr, Hs, Ht)
+  subroutine triple_tensor_product_scalar(v, u, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v
     integer, intent(in) :: nu
     real(kind=rp), intent(inout) :: u(nu,nu,nu)
@@ -270,7 +275,7 @@ contains
 
     v = vv(1)
 
-  end subroutine tensor_scalar1
+  end subroutine triple_tensor_product_scalar
 
   !> Computes the tensor product on a vector field
   !! \f$ \mathbf{v} =(H_t \otimes H_s \otimes H_r) \mathbf{u} \f$.
@@ -289,7 +294,7 @@ contains
   !! @param Hr Interpolation weights in the r-direction.
   !! @param Hs Interpolation weights in the s-direction.
   !! @param Ht Interpolation weights in the t-direction.
-  subroutine tensor_scalar3(v, u1, u2, u3, nu, Hr, Hs, Ht)
+  subroutine triple_tensor_product_vector(v, u1, u2, u3, nu, Hr, Hs, Ht)
     real(kind=rp), intent(inout) :: v(3)
     integer, intent(in) :: nu
     real(kind=rp), intent(inout) :: u1(nu,nu,nu)
@@ -299,10 +304,10 @@ contains
     real(kind=rp), intent(inout) :: Hs(nu)
     real(kind=rp), intent(inout) :: Ht(nu)
 
-    call tensor_scalar1(v(1), u1, nu, Hr, Hs, Ht)
-    call tensor_scalar1(v(2), u2, nu, Hr, Hs, Ht)
-    call tensor_scalar1(v(3), u3, nu, Hr, Hs, Ht)
+    call triple_tensor_product_scalar(v(1), u1, nu, Hr, Hs, Ht)
+    call triple_tensor_product_scalar(v(2), u2, nu, Hr, Hs, Ht)
+    call triple_tensor_product_scalar(v(3), u3, nu, Hr, Hs, Ht)
 
-  end subroutine tensor_scalar3
+  end subroutine triple_tensor_product_vector
 
 end module tensor
