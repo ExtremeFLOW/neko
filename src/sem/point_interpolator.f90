@@ -120,9 +120,9 @@ contains
     ! Compute weights and perform interpolation for the first point
     !
 
-    call fd_weights_full(rst(1)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
-    call fd_weights_full(rst(1)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
-    call fd_weights_full(rst(1)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
+    call fd_weights_full(real(rst(1)%x(1), rp), this%Xh%zg(:,1), lx-1, 0, hr)
+    call fd_weights_full(real(rst(1)%x(2), rp), this%Xh%zg(:,2), ly-1, 0, hs)
+    call fd_weights_full(real(rst(1)%x(3), rp), this%Xh%zg(:,3), lz-1, 0, ht)
 
 
     ! And interpolate!
@@ -137,13 +137,16 @@ contains
 
        ! If the coordinates are different, then recompute weights
        if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
-          call fd_weights_full(rst(i)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
+          call fd_weights_full(real(rst(i)%x(1), rp), &
+                               this%Xh%zg(:,1), lx-1, 0, hr)
        end if
        if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
-          call fd_weights_full(rst(i)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
+          call fd_weights_full(real(rst(i)%x(2), rp), &
+                               this%Xh%zg(:,2), ly-1, 0, hs)
        end if
        if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
-          call fd_weights_full(rst(i)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
+          call fd_weights_full(real(rst(i)%x(3), rp), &
+                               this%Xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
@@ -168,7 +171,7 @@ contains
     real(kind=rp), intent(inout) :: Z(this%Xh%lx, this%Xh%ly, this%Xh%lz)
 
     type(point_t), allocatable :: res(:)
-    real(kind=rp) :: tmp
+    real(kind=rp), allocatable :: tmp(:,:)
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
     integer :: N
@@ -178,16 +181,17 @@ contains
     
     N = size(rst)
     allocate(res(N))
+    allocate(tmp(3, N))
 
     !
     ! Compute weights and perform interpolation for the first point
     !
-    call fd_weights_full(rst(1)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
-    call fd_weights_full(rst(1)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
-    call fd_weights_full(rst(1)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
+    call fd_weights_full(real(rst(1)%x(1), rp), this%Xh%zg(:,1), lx-1, 0, hr)
+    call fd_weights_full(real(rst(1)%x(2), rp), this%Xh%zg(:,2), ly-1, 0, hs)
+    call fd_weights_full(real(rst(1)%x(3), rp), this%Xh%zg(:,3), lz-1, 0, ht)
 
     ! And interpolate!
-    call triple_tensor_product(res(1)%x, X, Y, Z, lx, hr, hs, ht)
+    call triple_tensor_product(tmp(:,1), X, Y, Z, lx, hr, hs, ht)
 
     if (N .eq. 1) return
 
@@ -198,17 +202,25 @@ contains
 
        ! If the coordinates are different, then recompute weights
        if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
-          call fd_weights_full(rst(i)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
+          call fd_weights_full(real(rst(i)%x(1), rp), &
+                               this%Xh%zg(:,1), lx-1, 0, hr)
        end if
        if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
-          call fd_weights_full(rst(i)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
+          call fd_weights_full(real(rst(i)%x(2), rp), &
+                               this%Xh%zg(:,2), ly-1, 0, hs)
        end if
        if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
-          call fd_weights_full(rst(i)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
+          call fd_weights_full(real(rst(i)%x(3), rp), &
+                               this%Xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
-       call triple_tensor_product(res(i)%x, X, Y, Z, lx, hr, hs, ht)
+       call triple_tensor_product(tmp(:,i), X, Y, Z, lx, hr, hs, ht)
+    end do
+
+    ! Cast result to point_t dp
+    do i = 1, N
+       res(i)%x = tmp(:,i)
     end do
 
   end function point_interpolator_interpolate_vector
@@ -231,6 +243,7 @@ contains
 
     real(kind=rp) :: hr(this%Xh%lx, 2), hs(this%Xh%ly, 2), ht(this%Xh%lz, 2)
     type(point_t) :: res
+    real(kind=rp) :: tmp(3)
 
     integer :: lx,ly,lz, i
     lx = this%Xh%lx
@@ -240,14 +253,15 @@ contains
     !
     ! Compute weights
     !
-    call fd_weights_full(rst%x(1), this%Xh%zg(:,1), lx-1, 1, hr)
-    call fd_weights_full(rst%x(2), this%Xh%zg(:,2), ly-1, 1, hs)
-    call fd_weights_full(rst%x(3), this%Xh%zg(:,3), lz-1, 1, ht)
+    call fd_weights_full(real(rst%x(1), rp), this%Xh%zg(:,1), lx-1, 1, hr)
+    call fd_weights_full(real(rst%x(2), rp), this%Xh%zg(:,2), ly-1, 1, hs)
+    call fd_weights_full(real(rst%x(3), rp),this%Xh%zg(:,3), lz-1, 1, ht)
 
     !
     ! Interpolate
     !
-    call triple_tensor_product(res%x, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,1))
+    tmp = real(res%x, rp) ! Cast from point_t dp -> rp
+    call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,1))
 
     !
     ! Build jacobian
@@ -287,9 +301,9 @@ contains
     lz = this%xh%lz
 
     ! Weights
-    call fd_weights_full(rst%x(1), this%Xh%zg(:,1), lx-1, 1, hr)
-    call fd_weights_full(rst%x(2), this%Xh%zg(:,2), ly-1, 1, hs)
-    call fd_weights_full(rst%x(3), this%Xh%zg(:,3), lz-1, 1, ht)
+    call fd_weights_full(real(rst%x(1), rp), this%Xh%zg(:,1), lx-1, 1, hr)
+    call fd_weights_full(real(rst%x(2), rp), this%Xh%zg(:,2), ly-1, 1, hs)
+    call fd_weights_full(real(rst%x(3), rp), this%Xh%zg(:,3), lz-1, 1, ht)
 
     ! d(x,y,z)/dr
     call triple_tensor_product(jac(1,:), X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
