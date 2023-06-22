@@ -1,7 +1,7 @@
 module point_interpolation_parallel
   use mpi
   use pfunit
-  use point_interpolation, only : point_interpolator_t
+  use point_interpolator, only : point_interpolator_t
   use num_types, only : rp
   use mesh
   use coefs
