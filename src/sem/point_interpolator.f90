@@ -193,7 +193,11 @@ contains
     ! And interpolate!
     call triple_tensor_product(tmp(:,1), X, Y, Z, lx, hr, hs, ht)
 
-    if (N .eq. 1) return
+    if (N .eq. 1) then
+       res(1)%x = tmp(:, 1)
+       return
+    end if
+    
 
     !
     ! Loop through the rest of the points
