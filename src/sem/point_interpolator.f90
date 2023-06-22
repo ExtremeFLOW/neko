@@ -52,15 +52,15 @@ module point_interpolator
      procedure, pass(this) :: init => point_interpolator_init
      !> Destructor.
      procedure, pass(this) :: free => point_interpolator_free
-     !> Interpolates a scalar field \f$ X \f on a set of \f$ N \f$ points.
+     !> Interpolates a scalar field \f$ X \f on a set of points.
      procedure, pass(this) :: point_interpolator_interpolate_scalar
-     !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of \f$ N \f$ points.
+     !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of points.
      procedure, pass(this) :: point_interpolator_interpolate_vector
      !> Constructs the Jacobian at a single point.
      procedure, pass(this) :: point_interpolator_interpolate_jacobian
      !> Interpolates a vector field and builds the Jacobian at a single point.
      procedure, pass(this) :: point_interpolator_interpolate_vector_jacobian
-     !> Interpolates a scalar or vector field on a set of \f$ N \f$ points.
+     !> Interpolates a scalar or vector field on a set of points.
      generic :: interpolate => point_interpolator_interpolate_scalar, &
           point_interpolator_interpolate_vector
      !> Constructs the Jacobian for a point \f$ (r,s,t) \f$.
@@ -99,22 +99,23 @@ contains
   !> Interpolates a scalar field \f$ X \f$ on a set of \f$ N \f$ points
   !! \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector of N coordinates
   !! \f$ [x_i(\mathbf{r}_i)], i\in[1,N]\f$.
-  !! @param N number of points (use `1` to interpolate a scalar).
   !! @param rst r,s,t coordinates.
   !! @param X Values of the field \f$ X \f$ at GLL points.
-  function point_interpolator_interpolate_scalar(this, N, rst, X) result(res)
+  function point_interpolator_interpolate_scalar(this, rst, X) result(res)
     class(point_interpolator_t), intent(in) :: this
-    integer, intent(in) :: N
-    type(point_t), intent(in) :: rst(N)
+    type(point_t), intent(in) :: rst(:)
     real(kind=rp), intent(inout) :: X(this%Xh%lx, this%Xh%ly, this%Xh%lz)
-    real(kind=rp) :: res(N)
+    real(kind=rp), allocatable :: res(:)
 
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
+    integer :: N
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
 
+    N = size(rst)
+    allocate(res(N))
     !
     ! Compute weights and perform interpolation for the first point
     !
@@ -156,25 +157,27 @@ contains
   !! \f$ \mathbf{r}_i \f$. Returns an array of N points
   !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param N number of points (use `1` to interpolate a scalar).
-  !! @param rst Array of `N` (r,s,t) coordinates.
   !! @param X Values of the field \f$ X \f$ at GLL points.
   !! @param Y Values of the field \f$ Y \f$ at GLL points.
   !! @param Z Values of the field \f$ Z \f$ at GLL points.
-  function point_interpolator_interpolate_vector(this, N, rst, X, Y, Z) result(res)
+  function point_interpolator_interpolate_vector(this, rst, X, Y, Z) result(res)
     class(point_interpolator_t), intent(in) :: this
-    integer, intent(in) :: N
-    type(point_t), intent(in) :: rst(N)
+    type(point_t), intent(in) :: rst(:)
     real(kind=rp), intent(inout) :: X(this%Xh%lx, this%Xh%ly, this%Xh%lz)
     real(kind=rp), intent(inout) :: Y(this%Xh%lx, this%Xh%ly, this%Xh%lz)
     real(kind=rp), intent(inout) :: Z(this%Xh%lx, this%Xh%ly, this%Xh%lz)
 
-    type(point_t) :: res(N)
+    type(point_t), allocatable :: res(:)
     real(kind=rp) :: tmp
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
+    integer :: N
     lx = this%xh%lx
     ly = this%xh%ly
     lz = this%xh%lz
+    
+    N = size(rst)
+    allocate(res(N))
 
     !
     ! Compute weights and perform interpolation for the first point
