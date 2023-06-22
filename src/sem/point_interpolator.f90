@@ -106,22 +106,22 @@ contains
     class(point_interpolator_t), intent(in) :: this
     integer, intent(in) :: N
     type(point_t), intent(in) :: rst(N)
-    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%Xh%lx, this%Xh%ly, this%Xh%lz)
     real(kind=rp) :: res(N)
 
-    real(kind=rp) :: hr(this%xh%lx), hs(this%xh%ly), ht(this%xh%lz)
+    real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
 
     !
     ! Compute weights and perform interpolation for the first point
     !
 
-    call fd_weights_full(rst(1)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
-    call fd_weights_full(rst(1)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
-    call fd_weights_full(rst(1)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
+    call fd_weights_full(rst(1)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
+    call fd_weights_full(rst(1)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
+    call fd_weights_full(rst(1)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
 
 
     ! And interpolate!
@@ -136,17 +136,17 @@ contains
 
        ! If the coordinates are different, then recompute weights
        if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
-          call fd_weights_full(rst(i)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
+          call fd_weights_full(rst(i)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
        end if
        if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
-          call fd_weights_full(rst(i)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
+          call fd_weights_full(rst(i)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
        end if
        if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
-          call fd_weights_full(rst(i)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
+          call fd_weights_full(rst(i)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
-       call triple_tensor_product(res(i),X,lx,hr,hs,ht)
+       call triple_tensor_product(res(i), X, lx, hr, hs, ht)
 
     end do
 
@@ -164,13 +164,13 @@ contains
     class(point_interpolator_t), intent(in) :: this
     integer, intent(in) :: N
     type(point_t), intent(in) :: rst(N)
-    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
-    real(kind=rp), intent(inout) :: Y(this%xh%lx,this%xh%ly,this%xh%lz)
-    real(kind=rp), intent(inout) :: Z(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%Xh%lx, this%Xh%ly, this%Xh%lz)
+    real(kind=rp), intent(inout) :: Y(this%Xh%lx, this%Xh%ly, this%Xh%lz)
+    real(kind=rp), intent(inout) :: Z(this%Xh%lx, this%Xh%ly, this%Xh%lz)
 
     type(point_t) :: res(N)
     real(kind=rp) :: tmp
-    real(kind=rp) :: hr(this%xh%lx), hs(this%xh%ly), ht(this%xh%lz)
+    real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
     lx = this%xh%lx
     ly = this%xh%ly
@@ -195,13 +195,13 @@ contains
 
        ! If the coordinates are different, then recompute weights
        if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
-          call fd_weights_full(rst(i)%x(1), this%xh%zg(:,1), lx-1, 0, hr)
+          call fd_weights_full(rst(i)%x(1), this%Xh%zg(:,1), lx-1, 0, hr)
        end if
        if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
-          call fd_weights_full(rst(i)%x(2), this%xh%zg(:,2), ly-1, 0, hs)
+          call fd_weights_full(rst(i)%x(2), this%Xh%zg(:,2), ly-1, 0, hs)
        end if
        if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
-          call fd_weights_full(rst(i)%x(3), this%xh%zg(:,3), lz-1, 0, ht)
+          call fd_weights_full(rst(i)%x(3), this%Xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
@@ -222,24 +222,24 @@ contains
     class(point_interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: jac(3,3)
     type(point_t), intent(in) :: rst
-    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
-    real(kind=rp), intent(inout) :: Y(this%xh%lx,this%xh%ly,this%xh%lz)
-    real(kind=rp), intent(inout) :: Z(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%Xh%lx, this%Xh%ly, this%Xh%lz)
+    real(kind=rp), intent(inout) :: Y(this%Xh%lx, this%Xh%ly, this%Xh%lz)
+    real(kind=rp), intent(inout) :: Z(this%Xh%lx, this%Xh%ly, this%Xh%lz)
 
-    real(kind=rp) :: hr(this%xh%lx, 2), hs(this%xh%ly, 2), ht(this%xh%lz, 2)
+    real(kind=rp) :: hr(this%Xh%lx, 2), hs(this%Xh%ly, 2), ht(this%Xh%lz, 2)
     type(point_t) :: res
 
     integer :: lx,ly,lz, i
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
 
     !
     ! Compute weights
     !
-    call fd_weights_full(rst%x(1), this%xh%zg(:,1), lx-1, 1, hr)
-    call fd_weights_full(rst%x(2), this%xh%zg(:,2), ly-1, 1, hs)
-    call fd_weights_full(rst%x(3), this%xh%zg(:,3), lz-1, 1, ht)
+    call fd_weights_full(rst%x(1), this%Xh%zg(:,1), lx-1, 1, hr)
+    call fd_weights_full(rst%x(2), this%Xh%zg(:,2), ly-1, 1, hs)
+    call fd_weights_full(rst%x(3), this%Xh%zg(:,3), lz-1, 1, ht)
 
     !
     ! Interpolate
@@ -271,22 +271,22 @@ contains
   function point_interpolator_interpolate_jacobian(this, rst, X,Y,Z) result(jac)
     class(point_interpolator_t), intent(in) :: this
     type(point_t), intent(in) :: rst
-    real(kind=rp), intent(inout) :: X(this%xh%lx,this%xh%ly,this%xh%lz)
-    real(kind=rp), intent(inout) :: Y(this%xh%lx,this%xh%ly,this%xh%lz)
-    real(kind=rp), intent(inout) :: Z(this%xh%lx,this%xh%ly,this%xh%lz)
+    real(kind=rp), intent(inout) :: X(this%Xh%lx, this%Xh%ly, this%Xh%lz)
+    real(kind=rp), intent(inout) :: Y(this%Xh%lx, this%Xh%ly, this%Xh%lz)
+    real(kind=rp), intent(inout) :: Z(this%Xh%lx, this%Xh%ly, this%Xh%lz)
 
     real(kind=rp) :: jac(3,3)
 
-    real(kind=rp) :: hr(this%xh%lx, 2), hs(this%xh%ly, 2), ht(this%xh%lz, 2)
+    real(kind=rp) :: hr(this%Xh%lx, 2), hs(this%Xh%ly, 2), ht(this%Xh%lz, 2)
     integer :: lx, ly, lz
     lx = this%xh%lx
     ly = this%xh%ly
     lz = this%xh%lz
 
     ! Weights
-    call fd_weights_full(rst%x(1), this%xh%zg(:,1), lx-1, 1, hr)
-    call fd_weights_full(rst%x(2), this%xh%zg(:,2), ly-1, 1, hs)
-    call fd_weights_full(rst%x(3), this%xh%zg(:,3), lz-1, 1, ht)
+    call fd_weights_full(rst%x(1), this%Xh%zg(:,1), lx-1, 1, hr)
+    call fd_weights_full(rst%x(2), this%Xh%zg(:,2), ly-1, 1, hs)
+    call fd_weights_full(rst%x(3), this%Xh%zg(:,3), lz-1, 1, ht)
 
     ! d(x,y,z)/dr
     call triple_tensor_product(jac(1,:), X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
