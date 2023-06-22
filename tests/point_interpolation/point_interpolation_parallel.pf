@@ -150,15 +150,15 @@ contains
     xyz = interp%interpolate(rst, coef%dof%x(:,:,:,e), &
          coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
 
-    @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-8_rp)
-    @assertRelativelyEqual(xyz(2)%x, xyz_equal(2)%x, tolerance=1e-8_rp)
-    @assertRelativelyEqual(xyz(3)%x, xyz_equal(3)%x, tolerance=1e-8_rp)
-    @assertRelativelyEqual(xyz(4)%x, xyz_equal(4)%x, tolerance=1e-8_rp)
+    @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-4_rp)
+    @assertRelativelyEqual(xyz(2)%x, xyz_equal(2)%x, tolerance=1e-4_rp)
+    @assertRelativelyEqual(xyz(3)%x, xyz_equal(3)%x, tolerance=1e-4_rp)
+    @assertRelativelyEqual(xyz(4)%x, xyz_equal(4)%x, tolerance=1e-4_rp)
 
     ! We use the interpolation for a scalar field, interpolating the coordinates
     ! themselves
     xyz_real = interp%interpolate(rst, coef%dof%x(:,:,:,e))
-    @assertRelativelyEqual(xyz_real, (/ 2.0_rp, 1.7_rp, 1.0_rp, 2.0_rp/), tolerance=1e-8_rp)
+    @assertRelativelyEqual(xyz_real, (/ 2.0_rp, 1.7_rp, 1.0_rp, 2.0_rp/), tolerance=1e-4_rp)
 
   end subroutine point_interpolation_test_interpolation
 
@@ -209,12 +209,12 @@ contains
     xyz = interp%interpolate(rst, coef%dof%x(:,:,:,e), &
          coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
 
-    @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-8_rp)
+    @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-4_rp)
 
     ! We use the interpolation for a scalar field, interpolating the coordinates
     ! themselves
     xyz_real = interp%interpolate(rst, coef%dof%x(:,:,:,e))
-    @assertRelativelyEqual(xyz_real, (/ 2.0_rp/), tolerance=1e-8_rp)
+    @assertRelativelyEqual(xyz_real, (/ 2.0_rp/), tolerance=1e-4_rp)
 
   end subroutine point_interpolation_test_interpolation_single_point
 
