@@ -57,7 +57,7 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall 
 ! not be used for advertising or product endorsement purposes.
 !
-!> Tensor operations
+!> Tensor operations.
 module tensor
   use tensor_xsmm
   use tensor_cpu
@@ -74,12 +74,18 @@ module tensor
      module procedure trsp, trsp1
   end interface transpose
 
+  interface triple_tensor_product
+     module procedure triple_tensor_product_scalar, triple_tensor_product_vector
+  end interface triple_tensor_product
+
 public tensr3, transpose, trsp, trsp1, &
-     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr
+     tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
+     triple_tensor_product
+
 
 contains
 
-  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$.
   subroutine tensr3(v, nv, u, nu, A, Bt, Ct, w)
     integer :: nv
     integer :: nu
@@ -109,7 +115,7 @@ contains
     
   end subroutine tensr3
 
-  !> Transpose of a rectangular tensor \f$ A = B^T \f$
+  !> Transpose of a rectangular tensor \f$ A = B^T \f$.
   subroutine trsp(a, lda, b, ldb)
     integer, intent(in) :: lda
     integer, intent(in) :: ldb
@@ -125,7 +131,7 @@ contains
     
   end subroutine trsp
 
-  !> In-place transpose of a square tensor
+  !> In-place transpose of a square tensor.
   subroutine trsp1(a, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: a(n, n)
@@ -142,7 +148,7 @@ contains
     
   end subroutine trsp1
 
-  !> Computes \f$ v = A u B^T \f$
+  !> Computes \f$ v = A u B^T \f$.
   subroutine tnsr2d_el(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
@@ -159,7 +165,7 @@ contains
   end subroutine tnsr2d_el
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
-  !! performed on a single element
+  !! performed on a single element.
   subroutine tnsr3d_el(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
@@ -176,7 +182,7 @@ contains
   end subroutine tnsr3d_el
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
-  !!`nelv` elements
+  !!`nelv` elements.
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
@@ -201,7 +207,7 @@ contains
     
   end subroutine tnsr3d
 
-  !> In place tensor product \f$ v =(C \otimes B \otimes A) v \f$
+  !> In place tensor product \f$ v =(C \otimes B \otimes A) v \f$.
   subroutine tnsr1_3d(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(inout) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
@@ -237,5 +243,71 @@ contains
     end do
     
   end subroutine addtnsr
-  
+
+  !> Computes the tensor product \f$ v =(H_t \otimes H_s \otimes H_r) u \f$.
+  !! This operation is usually performed for spectral interpolation of a
+  !! scalar field as defined by
+  !! \f{eqnarray*}{
+  !!    v(r,s,t) = \sum_{i=0}^{N}{\sum_{j=0}^{N}{
+  !!      \sum_{k=0}^{N}{u_{ijk}h_i(r)h_j(s)h_k(t)}}}
+  !! \f}
+  !!
+  !! @param v Interpolated value (scalar).
+  !! @param u Field values at the GLL points (e.g. velocity in x-direction).
+  !! @param nu Size of the interpolation weights (usually `lx`).
+  !! @param Hr Interpolation weights in the r-direction.
+  !! @param Hs Interpolation weights in the s-direction.
+  !! @param Ht Interpolation weights in the t-direction.
+  subroutine triple_tensor_product_scalar(v, u, nu, Hr, Hs, Ht)
+    real(kind=rp), intent(inout) :: v
+    integer, intent(in) :: nu
+    real(kind=rp), intent(inout) :: u(nu,nu,nu)
+    real(kind=rp), intent(inout) :: Hr(nu)
+    real(kind=rp), intent(inout) :: Hs(nu)
+    real(kind=rp), intent(inout) :: Ht(nu)
+
+    ! Artificially reshape v into a 1-dimensional array
+    ! since this is what tnsr3d_el needs as input argument
+    real(kind=rp) :: vv(1)
+    vv(1) = v
+
+    call tnsr3d_el(vv,1,u,nu,Hr,Hs,Ht)
+
+    v = vv(1)
+
+  end subroutine triple_tensor_product_scalar
+
+  !> Computes the tensor product on a vector field
+  !! \f$ \mathbf{v} =(H_t \otimes H_s \otimes H_r) \mathbf{u} \f$.
+  !! This operation is usually performed for spectral interpolation on
+  !! a 3D vector field \f$ \mathbf{u} = (u_1,u_2,u_3) \f$ as defined by
+  !! \f{eqnarray*}{
+  !!    \mathbf{v}(r,s,t) = \sum_{i=0}^{N}{\sum_{j=0}^{N}{
+  !!      \sum_{k=0}^{N}{\mathbf{u}_{ijk}h_i(r)h_j(s)h_k(t)}}}
+  !! \f}
+  !!
+  !! @param v Interpolated value (scalar).
+  !! @param u1 3D-array containing values at the GLL points (e.g. velocity).
+  !! @param u2 3D-array containing values at the GLL points (e.g. velocity).
+  !! @param u3 3D-array containing values at the GLL points (e.g. velocity).
+  !! @param nu Size of the interpolation weights (usually `lx`).
+  !! @param Hr Interpolation weights in the r-direction.
+  !! @param Hs Interpolation weights in the s-direction.
+  !! @param Ht Interpolation weights in the t-direction.
+  subroutine triple_tensor_product_vector(v, u1, u2, u3, nu, Hr, Hs, Ht)
+    real(kind=rp), intent(inout) :: v(3)
+    integer, intent(in) :: nu
+    real(kind=rp), intent(inout) :: u1(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u2(nu,nu,nu)
+    real(kind=rp), intent(inout) :: u3(nu,nu,nu)
+    real(kind=rp), intent(inout) :: Hr(nu)
+    real(kind=rp), intent(inout) :: Hs(nu)
+    real(kind=rp), intent(inout) :: Ht(nu)
+
+    call triple_tensor_product_scalar(v(1), u1, nu, Hr, Hs, Ht)
+    call triple_tensor_product_scalar(v(2), u2, nu, Hr, Hs, Ht)
+    call triple_tensor_product_scalar(v(3), u3, nu, Hr, Hs, Ht)
+
+  end subroutine triple_tensor_product_vector
+
 end module tensor
