@@ -41,6 +41,7 @@ module point_interpolation
   use fast3d, only: fd_weights_full
   use utils, only: neko_error
 
+  !> Field interpolator to artbitrary points within an element.
   type :: point_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
