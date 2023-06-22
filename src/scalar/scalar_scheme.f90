@@ -69,6 +69,8 @@ module scalar_scheme
      type(coef_t), pointer  :: c_Xh    !< Coefficients associated with \f$ X_h \f$
      type(source_scalar_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
+     integer :: ksp_maxiter            !< Max iteration number in ksp.
+     integer :: ksp_projection_dim     !< Projection space size in ksp.
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
      type(usr_scalar_t) :: user_bc     !< Dirichlet conditions
@@ -77,6 +79,9 @@ module scalar_scheme
      type(json_file), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
+     real(kind=rp) :: Re                !< Reynolds number.
+     real(kind=rp) :: Pr                !< Prandtl number.
+     real(kind=rp) :: rho               !< Density.
    contains
      procedure, pass(this) :: scalar_scheme_init
      procedure, pass(this) :: scheme_free => scalar_scheme_free
@@ -206,6 +211,17 @@ contains
                   solver_precon)
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
+
+    call json_get(params, 'case.fluid.Re', this%Re)
+    call json_get(params, 'case.fluid.rho', this%rho)
+    call json_get(params, 'case.scalar.Pr', this%Pr)
+
+    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+                             this%ksp_maxiter, 800)
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_space_size',&
+                            this%ksp_projection_dim, 20)
+
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)

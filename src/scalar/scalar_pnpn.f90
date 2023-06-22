@@ -161,11 +161,8 @@ contains
 
     ! @todo not param stuff again, using velocity stuff
     ! Intialize projection space thingy
-    call json_get_or_default(params,&
-                            'case.fluid.velocity_solver.projection_space_size',&
-                             integer_val, 0)
-    if (integer_val .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), integer_val)
+    if (this%ksp_projection_dim .gt. 0) then
+       call this%proj_s%init(this%dm_Xh%size(), this%ksp_projection_dim)
     end if
 
     ! Add lagged term to checkpoint
@@ -250,14 +247,8 @@ contains
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
-         params => this%params, msh => this%msh, res => this%res, &
+         msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
-
-      call json_get(params, 'case.fluid.rho', rho)
-      call json_get(params, 'case.scalar.Pr', Pr)
-      call json_get(params, 'case.fluid.Re', Re)
-      call json_get(params, 'case.fluid.velocity_solver.max_iterations',&
-                    ksp_vel_maxiter)
 
       ! evaluate the source term and scale with the mass matrix
       call f_Xh%eval(t)
@@ -272,10 +263,10 @@ contains
                                  Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           rho, ext_bdf%advection_coeffs, n)
+           this%rho, ext_bdf%advection_coeffs, n)
 
       call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+           this%rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -285,8 +276,8 @@ contains
 
       ! compute scalar residual
       call profiler_start_region('Scalar residual')
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, Pr, &
-          Re, rho, ext_bdf%diffusion_coeffs(1), dt, &
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, this%Pr, &
+          this%Re, this%rho, ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
@@ -295,9 +286,7 @@ contains
            s_res%x, dm_Xh%size())
       call profiler_end_region
 
-      call params%get('case.fluid.velocity_solver.projection_space_size', &
-                      projection_space_dim, found)
-      if (tstep .gt. 5 .and. found .and. projection_space_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. this%ksp_projection_dim .gt. 0) then 
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
 
