@@ -24,4 +24,7 @@ Re = 1e8                                   ! Reynolds number
 proj_prs_dim = 0                           ! Projection space for pressure solution - This should reduce iterations if activated
 proj_vel_dim = 0                           ! Projection space for velocity solution - This should reduce iterations if activated
 restart_file='lx8_t150.chkp'             ! Restart file (if it exist)
+stats_fluid = .true.
+stats_write_control = 'simulationtime'     
+stats_write_par = 100                     
 /

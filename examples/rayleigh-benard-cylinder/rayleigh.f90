@@ -7,7 +7,8 @@ module user
   real(kind=rp) :: Pr = 0
 
   !> Arrays asociated with Method#1 for nusselt calculation
-  integer :: calc_frequency = 10 ! How frequently should we calculate Nu
+  integer :: calc_frequency = 500 ! How frequently should we calculate Nu
+  integer :: verify_bc = 0 ! How frequently should we calculate Nu
   type(field_t) :: work_field ! Field to perform operations
   type(field_t) :: uzt ! u_z * T
   type(field_t) :: dtdx ! Derivative of scalar wrt x
@@ -16,6 +17,7 @@ module user
   type(field_t) :: dtdn ! Derivative of scalar wrt normal
   type(field_t) :: mass_area_top ! mass matrix for area on top wall
   type(field_t) :: mass_area_bot ! mass matrix for area on bottom wall
+  type(field_t) :: bm1 ! mass matrix for area on bottom wall
   real(kind=rp) :: bar_uzt ! Volume integral
   real(kind=rp) :: top_wall_bar_dtdz ! area integral
   real(kind=rp) :: bot_wall_bar_dtdz ! area integral
@@ -31,11 +33,13 @@ module user
   character(len=NEKO_FNAME_LEN) :: fname_dtdz
   character(len=NEKO_FNAME_LEN) :: fname_top_area
   character(len=NEKO_FNAME_LEN) :: fname_bot_area
+  character(len=NEKO_FNAME_LEN) :: fname_bm1
   type(file_t) :: mf_dtdx
   type(file_t) :: mf_dtdy
   type(file_t) :: mf_dtdz
   type(file_t) :: mf_top_area
   type(file_t) :: mf_bot_area
+  type(file_t) :: mf_bm1
 
   !> List of elements and facets in uper and lower boundary
   type(stack_i4t4_t) :: wall_facet
@@ -70,7 +74,7 @@ contains
     !> Variables for bias
     real(kind=rp) :: arg, bias
     
-    arg  = -istep*0.001
+    arg  = -istep*0.0005
     bias = x*0.2*exp(arg)
     bias = 0
 
@@ -143,6 +147,7 @@ contains
     real(kind=rp) :: normal(3)
     real(kind=rp) :: area_mass, area_rank(1),area_global(1)
     type(tuple4_i4_t), pointer :: wall_facet_list(:)
+    real(kind=rp) :: voll(1), voll_temp(1)
     
     !> Reset the relevant nondimensional parameters
     Pr = params%Pr
@@ -155,9 +160,10 @@ contains
     call field_init(dtdx, u%dof, 'dtdx')
     call field_init(dtdy, u%dof, 'dtdy')
     call field_init(dtdz, u%dof, 'dtdz')
-    call field_init(dtdn, u%dof, 'dtdz')
+    call field_init(dtdn, u%dof, 'dtdn')
     call field_init(mass_area_top, u%dof, 'mat')
     call field_init(mass_area_bot, u%dof, 'mab')
+    call field_init(bm1, u%dof, 'mass_mat')
 
     !> Initialize the file
     fname_dtdx = 'dtdx.fld'
@@ -165,11 +171,13 @@ contains
     fname_dtdz = 'dtdz.fld'
     fname_top_area = 'top_area.fld'
     fname_bot_area = 'bot_area.fld'
+    fname_bm1 = 'bm1.fld'
     mf_dtdx =  file_t(fname_dtdx)
     mf_dtdy =  file_t(fname_dtdy)
     mf_dtdz =  file_t(fname_dtdz)
     mf_top_area =  file_t(fname_top_area)
     mf_bot_area =  file_t(fname_bot_area)
+    mf_bm1 =  file_t(fname_bm1)
 
 
     !> Initialize list with upper and lower wall facets
@@ -181,9 +189,9 @@ contains
         normal = coef_get_normal(coef,1,1,1,e,facet) ! Get facet normal
         typ =  u%msh%facet_type(facet,e)             ! Get facet type
         if (typ.ne.0.and.abs(normal(3)).ge.1-1e-5) then
-          write(*,*) 'In boundary: facet=', facet, 'and element=', e
-          write(*,*) 'BC facet type ', typ 
-          write(*,*) 'normal to this facet is: ', normal   
+          !write(*,*) 'In boundary: facet=', facet, 'and element=', e
+          !write(*,*) 'BC facet type ', typ 
+          !write(*,*) 'normal to this facet is: ', normal   
           facet_el_type_0%x = (/facet, e, typ, 0/)
           call wall_facet%push(facet_el_type_0)
         end if
@@ -197,7 +205,7 @@ contains
        write(*,*) 'Facets at the wall global: ', stack_size_global
     end if
 
-    !> Fill up arrays to serve as mass matrix for integration
+    !> Fill up arrays to serve as area mass matrix for integration
     !! we want <dt/dz>_A,t at z=0,1.
     !! Average in Area is: (dt/dz * normal * Area_mass) / Area_total
     wall_facet_list => wall_facet%array()
@@ -229,7 +237,7 @@ contains
        write(*,*) 'Area of top wall * normal= ', top_wall_area
        write(*,*) 'Area of bottom wall * normal= ', bot_wall_area
     end if 
-
+    !! Put it also on device
     if (NEKO_BCKND_DEVICE .eq. 1) then 
        call device_memcpy(mass_area_top%x,mass_area_top%x_d, &
                           n,HOST_TO_DEVICE)
@@ -237,8 +245,27 @@ contains
                           n,HOST_TO_DEVICE)
     end if
 
+    !> Store volume mass matrix for post processing
+    n = size(coef%B) 
+    call rzero(bm1%x,u%dof%size())
+    call copy(bm1%x,coef%B,n)
+    voll = glsum(bm1%x,n)
+    if (pe_rank .eq. 0) then
+       write(*,*) 'volume=', voll
+    end if 
+    !! rescale mass if volume is too small
+    do i = 1,n
+       bm1%x(i,1,1,1)=bm1%x(i,1,1,1) * 1e3
+    end do
+    voll = glsum(bm1%x,n)
+    if (pe_rank .eq. 0) then
+       write(*,*) 'rescaled volume=', voll
+    end if 
+
+    !> Perform IO
     call mf_top_area%write(mass_area_top,t)
     call mf_bot_area%write(mass_area_bot,t)
+    call mf_bm1%write(bm1,t)      
 
   end subroutine user_initialize
 
@@ -314,6 +341,7 @@ contains
     integer :: index(4)
     type (tuple_i4_t) :: facet_el
     real(kind=rp) :: normal(3)
+    real(kind=rp) :: voll(1), voll_temp(1)
 
     !> This value is used for breaking symtetries in bc
     istep = istep + 1
@@ -388,17 +416,15 @@ contains
     call device_memcpy(dtdx%x,dtdx%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdy%x,dtdy%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdz%x,dtdz%x_d, n,DEVICE_TO_HOST)
-    !call mf_dtdx%write(dtdx,t)
-    !call mf_dtdy%write(dtdy,t)
     call mf_dtdz%write(dtdz,t)
 
-
-    !> Calculate normal derivative to verify BC
-    !! Zero out the vector
-    call rzero(dtdn%x,dtdn%dof%size())
-    !! Calculate the normal component for each facet in the domain
-    !! based on functions coef_get_normal and index_is_on_facet
-    do e = 1, u%msh%nelv !Go over all elements
+    !> Calculate temp flux on each element boundary and chech boundary to verify BC
+    if (verify_bc.eq.1) then
+     !! Zero out the vector
+     call rzero(dtdn%x,dtdn%dof%size())
+     !! Calculate the normal component for each facet in the domain
+     !! based on functions coef_get_normal and index_is_on_facet
+     do e = 1, u%msh%nelv !Go over all elements
       do facet = 1, 6 ! Go over all facets of hex element
          select case(facet)
             case(1)
@@ -470,9 +496,9 @@ contains
                end do
          end select
       end do
-    end do
-
-    call mf_dtdx%write(dtdn,t)
+     end do
+     call mf_dtdx%write(dtdn,t)
+    end if
 
   end subroutine calculate_nusselt
 
