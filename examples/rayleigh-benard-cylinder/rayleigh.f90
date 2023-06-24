@@ -384,6 +384,7 @@ contains
     type(speri_t), intent(inout) :: speri
     real(kind=rp) :: xa(speri%Xh%lx,speri%Xh%ly,speri%Xh%lz)
     real(kind=rp) :: xb(speri%Xh%lx,speri%Xh%ly,speri%Xh%lz)
+    integer :: i, e
 
     associate(eind        => speri%eind, &
               sig         => speri%sig , &
@@ -397,13 +398,19 @@ contains
        ! zero arrays
        call rzero(eind,lnelt)
        call rzero(sig,lnelt)
-
-       write(*,*) 'currently in speri get'
-       write(*,*) 'currently in speri get'
-       write(*,*) 'currently in speri get'
-       write(*,*) 'currently in speri get'
+       
+       ! Get the indicator
        call speri_var(speri, eind,sig,var,lnelt,xa,xb, LX1, LY1, LZ1)
+
+       ! Put the indicator in the fieldhat to write it
+       do e = 1,lnelt
+          do i = 1,LX1*LY1*LZ1
+             var(i,1,1,e) = eind(e)
+          end do
+       end do
+
      end associate
+
   end subroutine
 
   subroutine speri_var(speri, est,sig,var,nell,xa,xb,LX1,LY1,LZ1)
@@ -750,12 +757,18 @@ module user
   character(len=NEKO_FNAME_LEN) :: fname_top_area
   character(len=NEKO_FNAME_LEN) :: fname_bot_area
   character(len=NEKO_FNAME_LEN) :: fname_bm1
+  character(len=NEKO_FNAME_LEN) :: fname_speri_x
+  character(len=NEKO_FNAME_LEN) :: fname_speri_y
+  character(len=NEKO_FNAME_LEN) :: fname_speri_z
   type(file_t) :: mf_dtdx
   type(file_t) :: mf_dtdy
   type(file_t) :: mf_dtdz
   type(file_t) :: mf_top_area
   type(file_t) :: mf_bot_area
   type(file_t) :: mf_bm1
+  type(file_t) :: mf_speri_x
+  type(file_t) :: mf_speri_y
+  type(file_t) :: mf_speri_z
 
   !> List of elements and facets in uper and lower boundary
   type(stack_i4t4_t) :: wall_facet
@@ -763,6 +776,8 @@ module user
 
   !> Spectral error indicator
   type(speri_t) :: speri_u
+  type(speri_t) :: speri_v
+  type(speri_t) :: speri_w
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -890,12 +905,18 @@ contains
     fname_top_area = 'top_area.fld'
     fname_bot_area = 'bot_area.fld'
     fname_bm1 = 'bm1.fld'
+    fname_speri_x = 'speri_x.fld'
+    fname_speri_y = 'speri_y.fld'
+    fname_speri_z = 'speri_z.fld'
     mf_dtdx =  file_t(fname_dtdx)
     mf_dtdy =  file_t(fname_dtdy)
     mf_dtdz =  file_t(fname_dtdz)
     mf_top_area =  file_t(fname_top_area)
     mf_bot_area =  file_t(fname_bot_area)
     mf_bm1 =  file_t(fname_bm1)
+    mf_speri_x =  file_t(fname_speri_x)
+    mf_speri_y =  file_t(fname_speri_y)
+    mf_speri_z =  file_t(fname_speri_z)
 
 
     !> Initialize list with upper and lower wall facets
@@ -1016,6 +1037,7 @@ contains
     call field_free(dtdn)
     call field_free(mass_area_top)
     call field_free(mass_area_bot)
+    call field_free(bm1)
     
     ! Finilize list that contains uper and lower wall facets
     call wall_facet%free()
@@ -1218,20 +1240,23 @@ contains
      call mf_dtdx%write(dtdn,t)
     end if
 
-    !> Initialize spectral error indicator
+    !> Get the spectral error indicators for the mesh
+    !! Initialize spectral error indicator
     call speri_init(speri_u,u)
-    !> Initialize spectral error indicator
+    call speri_init(speri_v,v)
+    call speri_init(speri_w,w)
+    !! calculate spectral error indicator
     call speri_get(speri_u)
-
-
-    if (pe_rank.eq.0) then
-        do i = 1, speri_u%msh%nelv
-           write(*,*) 'spectral error indicator', speri_u%eind(i)
-        end do
-    end if
-
-    ! Finalize specral error indicator
+    call speri_get(speri_v)
+    call speri_get(speri_w)
+    !! Write the data into a field
+    call mf_speri_x%write(speri_u%fldhat,t)      
+    call mf_speri_y%write(speri_v%fldhat,t)      
+    call mf_speri_z%write(speri_w%fldhat,t)      
+    !! Finalize specral error indicator
     call speri_free(speri_u)
+    call speri_free(speri_v)
+    call speri_free(speri_w)
 
   end subroutine calculate_nusselt
 
