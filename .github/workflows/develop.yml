@@ -112,6 +112,7 @@ jobs:
           cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
+          echo "DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
         with:
