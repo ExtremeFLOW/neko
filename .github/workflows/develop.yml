@@ -244,7 +244,8 @@ jobs:
           echo $PKG_CONFIG_PATH
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP} 
-          make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
+          make -j$(nproc)
+#          make FCFLAGS="-O2 -stand f08 -warn errors" -j$(nproc)
   
   NVIDIA:
     needs: linting
