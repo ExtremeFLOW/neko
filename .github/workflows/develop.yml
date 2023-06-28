@@ -149,7 +149,6 @@ jobs:
       - name: Check
         if: matrix.backend == 'cpu'
         run: |
-          echo $LD_LIBRARY_PATH
           echo $DYLD_LIBRARY_PATH
           ls ${HOME}/pkg/json-fortran/lib/"
           make -j$(nproc) check
