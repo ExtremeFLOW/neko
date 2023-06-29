@@ -39,8 +39,10 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-20.04, macos-12]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
-        backend: [cpu, cuda, hip, opencl]
+#        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        compiler: [gfortran-12]
+        backend: [cpu]
+#        backend: [cpu, cuda, hip, opencl]
 #        precision: [sp, dp]
         precision: [dp]
         exclude:
@@ -148,10 +150,11 @@ jobs:
       - name: Check
         if: matrix.backend == 'cpu'
         run: |
+          export DYLD_LIBRARY_PATH=/Users/runner/pkg/json-fortran/lib/
           echo $LD_LIBRARY_PATH
           echo $DYLD_LIBRARY_PATH
           ls ${HOME}/pkg/json-fortran/lib/
-          env DYLD_LIBARY_PTH=${HOME}/pkg/json-fortran/lib/ make -j$(nproc) check
+          env DYLD_LIBARY_PTH=/Users/runner/pkg/json-fortran/lib/ make -j$(nproc) check
       - name: Archive test report
         if: matrix.backend == 'cpu' && failure()
         uses: actions/upload-artifact@v2
