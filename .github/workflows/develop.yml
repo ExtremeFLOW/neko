@@ -112,7 +112,6 @@ jobs:
           cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
-          echo "DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -152,7 +151,7 @@ jobs:
           echo $LD_LIBRARY_PATH
           echo $DYLD_LIBRARY_PATH
           ls ${HOME}/pkg/json-fortran/lib/
-          make -j$(nproc) check
+          env DYLD_LIBARY_PTH=${HOME}/pkg/json-fortran/lib/ make -j$(nproc) check
       - name: Archive test report
         if: matrix.backend == 'cpu' && failure()
         uses: actions/upload-artifact@v2
