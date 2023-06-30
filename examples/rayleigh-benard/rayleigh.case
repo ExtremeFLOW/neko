@@ -4,11 +4,11 @@
     "mesh_file": "box.nmsh",
     "output_at_end": true,
     "output_boundary": true,
-    "end_time": 1,
+    "end_time": 10,
     "timestep": 0.01,
     "numerics": {
         "time_order": 3,
-        "polynomial_order": 5,
+        "polynomial_order": 7,
         "dealias": true
     },
     "fluid": {
