@@ -229,12 +229,10 @@ contains
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    ! Number of degrees of freedom
     integer :: n
+    ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
-    ! Variables for retrieving json parameters
-    logical :: found
-    real(kind=rp) :: real_val, rho, Pr, Re 
-    integer :: projection_space_dim, ksp_vel_maxiter
 
     n = this%dm_Xh%size()
     
@@ -293,10 +291,10 @@ contains
       call this%pc%update()
       call profiler_start_region('Scalar solve')
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh, ksp_vel_maxiter)
+           c_Xh, this%bclst_ds, gs_Xh, this%ksp_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. found .and. projection_space_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. this%ksp_projection_dim .gt. 0) then 
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
               this%bclst_ds, gs_Xh, n)
       end if
