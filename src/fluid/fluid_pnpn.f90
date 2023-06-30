@@ -119,8 +119,8 @@ contains
     character(len=20), dimension(:), allocatable :: bc_labels
     ! Variables for retrieving json parameters
     logical :: found, logical_val
-    real(kind=rp) :: real_val
     integer :: integer_val
+    real(kind=rp) :: real_val
     character(len=:), allocatable :: string_val1, string_val2
 
     call this%free()
@@ -246,20 +246,14 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    call json_get_or_default(params,&
-                            'case.fluid.pressure_solver.projection_space_size',&
-                             integer_val, 0)
-    if (integer_val .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%size(), integer_val)
+    if (this%ksp_pr_projection_dim .gt. 0) then
+       call this%proj_prs%init(this%dm_Xh%size(), this%ksp_pr_projection_dim)
     end if
     
-    call json_get_or_default(params,&
-                            'case.fluid.velocity_solver.projection_space_size',&
-                             integer_val, 0)
-    if (integer_val .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%size(), integer_val)
-       call this%proj_v%init(this%dm_Xh%size(), integer_val)
-       call this%proj_w%init(this%dm_Xh%size(), integer_val)
+    if (this%ksp_vel_projection_dim .gt. 0) then
+       call this%proj_u%init(this%dm_Xh%size(), this%ksp_vel_projection_dim)
+       call this%proj_v%init(this%dm_Xh%size(), this%ksp_vel_projection_dim)
+       call this%proj_w%init(this%dm_Xh%size(), this%ksp_vel_projection_dim)
     end if
 
     ! Add lagged term to checkpoint
@@ -346,6 +340,7 @@ contains
     
   end subroutine fluid_pnpn_free
 
+  !> Advance fluid simulation in time.
   !! @param t The time value.
   !! @param tstep The current interation.
   !! @param dt The timestep
@@ -356,14 +351,13 @@ contains
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    ! number of degrees of freedom
     integer :: n
+    ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
-    ! Variables for retrieving json parameters
-    type(json_value), pointer :: json_val
-    logical :: found, logical_val
-    real(kind=rp) :: real_val, rho, mu, Re
-    integer :: integer_val
+    ! Extrapolated velocity for the pressure residual
     type(field_t), pointer :: u_e, v_e, w_e
+    ! Indices for tracking temporary fields 
     integer :: temp_indices(3)
 
     n = this%dm_Xh%size()
@@ -379,7 +373,7 @@ contains
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
          rho => this%rho, Re => this%Re, mu => this%mu)
-
+      
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
       call this%scratch%request_field(v_e, temp_indices(2))
@@ -387,7 +381,7 @@ contains
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
-     
+        
       call f_Xh%eval(t)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -441,7 +435,7 @@ contains
                             this%ksp_pr_maxiter)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. found .and. integer_val .gt. 0) then
+      if( tstep .gt. 5 .and. this%ksp_pr_projection_dim .gt. 0) then
          call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                          this%bclst_dp, gs_Xh, n)
       end if
@@ -487,7 +481,7 @@ contains
            c_Xh, this%bclst_dw, gs_Xh, this%ksp_vel_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. found .and. integer_val .gt. 0) then 
+      if (tstep .gt. 5 .and. this%ksp_vel_projection_dim .gt. 0) then 
          call this%proj_u%project_back(du%x, Ax, c_Xh, &
                                   this%bclst_du, gs_Xh, n)
          call this%proj_v%project_back(dv%x, Ax, c_Xh, &

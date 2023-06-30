@@ -238,7 +238,7 @@ contains
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.max_iterations', &
-                            this%ksp_pr_maxiter, 800)
+                            this%ksp_vel_maxiter, 800)
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.max_iterations', &
                             this%ksp_pr_maxiter, 800)
