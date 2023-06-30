@@ -4,10 +4,8 @@
   {
   "mesh_file": "512.nmsh",
   "output_boundary": true,
-  "output_checkpoints": true,
+  "output_checkpoints": false,
   "output_at_end": true,
-  "checkpoint_control": "simulationtime",
-  "checkpoint_value": 10000,
   "load_balance": false,
   "job_timelimit": "00:00:00",
   "end_time": 3.0,
