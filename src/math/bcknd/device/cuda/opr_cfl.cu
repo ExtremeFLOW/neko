@@ -41,6 +41,7 @@
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
 
   /**
    * @todo Make sure that this gets deleted at some point...
@@ -103,7 +104,7 @@ extern "C" {
     real cfl;
 #ifdef HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
-    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
 #else
     CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
