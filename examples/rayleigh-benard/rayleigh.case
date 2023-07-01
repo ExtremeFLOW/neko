@@ -4,7 +4,7 @@
     "mesh_file": "box.nmsh",
     "output_at_end": true,
     "output_boundary": true,
-    "end_time": 10,
+    "end_time": 100,
     "timestep": 0.01,
     "numerics": {
         "time_order": 3,
@@ -15,7 +15,7 @@
         "scheme": "pnpn",
         "rho": 1,
         "mu": 1,
-        "Re": 1715,
+        "Re": 1.408541,
         "source_term": {
             "type": "user_vector"
         },
