@@ -1,9 +1,10 @@
 module user
   use neko
   use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
 
-  real(kind=rp) :: Ra = 0
+  real(kind=rp) :: Ra = 1e+8 
   real(kind=rp) :: Pr = 0
   real(kind=rp) :: ta2 = 0
   type(coef_t), pointer :: c_Xh
@@ -87,14 +88,10 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: Re
     logical :: found
     ! Reset the relevant nondimensional parameters
 
-    call params%get('case.fluid.Re', Ra, found)
-    call params%get('case.scalar.Pr', Pr, found)
-    Re = sqrt(Ra / Pr)
-    call params%update('case.fluid.Re', Re, found)
+    call json_get(params, 'case.scalar.Pr', Pr)
     call save_coef(coef)
   end subroutine set_Pr
 

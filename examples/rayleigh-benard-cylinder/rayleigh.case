@@ -15,7 +15,7 @@
         "scheme": "pnpn",
         "rho": 1,
         "mu": 1,
-        "Re": 1e+8,
+        "Re": 10000,
         "source_term": {
             "type": "user_vector"
         },
