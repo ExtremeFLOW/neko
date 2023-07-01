@@ -98,7 +98,7 @@ extern "C" {
       }
     }
 
-    cfl_reduce_kernel<real><<<1, 1024>>> (cfl_d, (*nel));
+    cfl_reduce_kernel<real><<<1, 1024, 0, stream>>> (cfl_d, (*nel));
     CUDA_CHECK(cudaGetLastError());
 
     real cfl;
