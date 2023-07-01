@@ -41,7 +41,7 @@
 #include <stdio.h>
 #include <mpi.h>
 
-#include "device_mpi_op.h"
+#include <math/bcknd/device/device_mpi_op.h>
 
 void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes, int op) {
 
