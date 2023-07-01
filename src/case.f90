@@ -355,8 +355,8 @@ contains
                              logical_val, .false.)
     if (logical_val) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
-       call json_get(C%json_params, 'case.fluid.output_control', string_val)
-       call json_get(C%json_params, 'case.checkpoint_value', string_val)
+       call json_get(C%json_params, 'case.checkpoint_control', string_val)
+       call json_get(C%json_params, 'case.checkpoint_value', real_val)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
