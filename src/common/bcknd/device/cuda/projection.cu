@@ -48,6 +48,7 @@ real * proj_bufred_d = NULL;
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
 
   void cuda_project_on(void *alpha, void * b, void *xx, void *bb, void *mult,
                        void *xbar, int *j, int *n){ 
@@ -82,7 +83,7 @@ extern "C" {
     CUDA_CHECK(cudaMemsetAsync(xbar, 0, (*n) * sizeof(real)));
 
     cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     const dim3 vec_nthrds(1024, 1, 1);
     const dim3 vec_nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -107,7 +108,7 @@ extern "C" {
                           cudaMemcpyDeviceToDevice));
 
     cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     /* Second vector operation block */
     project_on_vec_kernel<real><<<vec_nblcks, vec_nthrds>>>((real *) xbar,
@@ -150,7 +151,7 @@ extern "C" {
                           cudaMemcpyDeviceToDevice));
 
     cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     CUDA_CHECK(cudaMemcpy(nrm, (real *) alpha + (*j - 1),
                           sizeof(real), cudaMemcpyDeviceToHost));
@@ -179,7 +180,7 @@ extern "C" {
                           cudaMemcpyDeviceToDevice));
 
     cudaDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     /* Second vector operation block */
     project_ortho_vec_kernel<real>

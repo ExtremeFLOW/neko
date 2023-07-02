@@ -41,6 +41,7 @@
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
   
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
@@ -394,7 +395,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     cudaDeviceSynchronize();
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
@@ -436,7 +437,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     cudaDeviceSynchronize();
-    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
 #else    
     CUDA_CHECK(cudaMemcpy(h, bufred_d, (*j) * sizeof(real),
                           cudaMemcpyDeviceToHost));
@@ -472,7 +473,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     cudaDeviceSynchronize();
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));
@@ -507,7 +508,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     cudaDeviceSynchronize();
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     CUDA_CHECK(cudaMemcpy(bufred, bufred_d, sizeof(real),
                           cudaMemcpyDeviceToHost));    
