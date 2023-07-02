@@ -463,6 +463,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
+	math/bcknd/device/device_mpi_op.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\
