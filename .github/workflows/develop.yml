@@ -38,13 +38,12 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04, macos-12]
-#        compiler: [gfortran-10, gfortran-11, gfortran-12]
-        compiler: [gfortran-12]
+        #os: [ubuntu-20.04, macos-12]
+        os: [ubuntu-20.04]
+        compiler: [gfortran-10, gfortran-11, gfortran-12]
         backend: [cpu]
 #        backend: [cpu, cuda, hip, opencl]
-#        precision: [sp, dp]
-        precision: [dp]
+        precision: [sp, dp]
         exclude:
         - os: ubuntu-20.04
           compiler: gfortran-11
