@@ -262,7 +262,7 @@ jobs:
         precision: [dp]
         include:
         - os: ubuntu-20.04
-          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-23-5 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/23.5/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/23.5/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
+          setup-env: sudo apt-get update && sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev && curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list && sudo apt-get update -y && sudo apt-get install -y nvhpc-23-5 &&  NVARCH=`uname -s`_`uname -m`; export NVARCH && NVCOMPILERS=/opt/nvidia/hpc_sdk; export NVCOMPILERS && PATH=$NVCOMPILERS/$NVARCH/23.1/compilers/bin:$PATH; export PATH &&  export PATH=$NVCOMPILERS/$NVARCH/23.1/comm_libs/mpi/bin:$PATH && printenv >> $GITHUB_ENV
     env:
       CC: gcc
       FC: ${{ matrix.compiler }}
@@ -302,7 +302,7 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.5/cuda/
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.1/cuda/
           make
   ReFrame:
       needs: GNU
