@@ -162,11 +162,11 @@ class NekoTestBase(rfm.RegressionTest):
     case = variable(str)
 
     mesh_file = variable(str, value='')
-    dt = variable(str, value='')
-    T_end = variable(str, value='')
+    dt = variable(float, value=0)
+    T_end = variable(float, value=0)
 
-    abstol_vel = {'sp': '1d-5', 'dp': '1d-9'}
-    abstol_prs = {'sp': '1d-5', 'dp': '1d-9'}
+    abstol_vel = {'sp': 1e-5, 'dp': 1e-9}
+    abstol_prs = {'sp': 1e-5, 'dp': 1e-9}
 
     # Set dofs to enable workrate perf var
     dofs = variable(int, value=0)
@@ -313,8 +313,8 @@ class TgvBase(NekoTestBase):
 @rfm.simple_test
 class Tgv8(TgvBase):
     mesh_file = 'examples/tgv/512.nmsh'
-    dt = '1d-2'
-    T_end = '20'
+    dt = 1d-2
+    T_end = 20
     
     @run_before('performance')
     def set_reference(self):
@@ -335,8 +335,8 @@ class Tgv8(TgvBase):
 @rfm.simple_test
 class Tgv32(TgvBase):
     mesh_file = 'examples/tgv/32768.nmsh'
-    dt = '1d-3'
-    T_end = '20'    
+    dt = 1d-3
+    T_end = 20    
     dofs = 8**3 * 32**3
     # Where flow has become turbulent
     first_workrate_timestep = 12000
@@ -369,8 +369,8 @@ class MiniHemi(NekoTestBase):
 class MiniTgv8(NekoTestBase):
     descr = 'Two iterations of TGV as a smoke test'
     mesh_file = 'examples/tgv/512.nmsh'
-    dt = '1d-2'
-    T_end = '0.02'
+    dt = 1d-2
+    T_end = 0.02
     executable = './neko'
     case = 'tgv.case'
 
@@ -383,8 +383,8 @@ class MiniTgv8(NekoTestBase):
 class MiniRB(NekoTestBase):
     descr = 'Two iterations of 3D RB as a smoke test'
     mesh_file = 'examples/rayleigh-benard/box.nmsh'
-    dt = '1d-2'
-    T_end = '0.02'
+    dt = 1d-2
+    T_end = 0.02
     executable = './neko'
     case = 'rayleigh.case'
 
