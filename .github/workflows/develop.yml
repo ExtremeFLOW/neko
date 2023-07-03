@@ -305,39 +305,47 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/23.3/cuda/
           make
   ReFrame:
-      needs: GNU
-      runs-on: ubuntu-20.04
-      strategy:
-        fail-fast: true
-        matrix:
-          precision: [sp, dp]
-          compiler: [gfortran-10]
-      env:
-        FC: ${{ matrix.compiler }}
-        OMPI_FC: ${{ matrix.compiler}}
-        OMPI_ALLOW_RUN_AS_ROOT: 1
-        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-        OMPI_MCA_btl_vader_single_copy_mechanism: none
-        RP: ${{ matrix.precision }}
-      name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
-      steps:
-        - name: Setup env.
-          run: |
-            sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
-            pip install reframe-hpc 
-            echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/pkgconfig/" >> $GITHUB_ENV
-            echo "LD_LIBRAY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/jsonfortran-gnu-8.3.0/lib/" >> $GITHUB_ENV
-        - name: Topology
-          run: |
-            reframe --detect-host-topology
-        - name: Checkout
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 1
-        - name: Regression tests
-          run: |
-            ./regen.sh
-            cd reframe
-            env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
+    needs: GNU
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        precision: [sp, dp]
+        compiler: [gfortran-10]
+    env:
+      FC: ${{ matrix.compiler }}
+      OMPI_FC: ${{ matrix.compiler}}
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      RP: ${{ matrix.precision }}
+    name: ReFrame / ${{ matrix.compiler}} / ${{ matrix.precision }}
+    steps:
+      - name: Setup env.
+        run: |
+          sudo apt-get update && sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3
+          pip install reframe-hpc 
+      - name: Install json-fortran
+        run: |
+          git clone https://github.com/ExtremeFLOW/json-fortran/
+          cd json-fortran
+          mkdir build && cd build
+          cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
+          make -j$(nproc) && make install && cd ../../
+          cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
+      - name: Topology
+        run: |
+          reframe --detect-host-topology
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - name: Regression tests
+        run: |
+          ./regen.sh
+          cd reframe
+          env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu
 
 
