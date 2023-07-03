@@ -297,9 +297,12 @@ contains
     call this%bc_sym%init_msk(this%c_Xh)    
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
+    !
+    ! Inflow 
+    !
     if (params%valid_path('case.fluid.inflow_condition')) then
        call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
-       if (trim(string_val1) .eq. "default") then
+       if (trim(string_val1) .eq. "uniform") then
           allocate(inflow_t::this%bc_inflow)
        else if (trim(string_val1) .eq. "blasius") then
           allocate(blasius_t::this%bc_inflow)
@@ -316,7 +319,7 @@ contains
        call this%bc_inflow%finalize()
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
-       if (trim(string_val1) .eq. "default") then
+       if (trim(string_val1) .eq. "uniform") then
            call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
            call this%bc_inflow%set_inflow(real_vec)
        else if (trim(string_val1) .eq. "blasius") then
