@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,14 @@
  * Device kernel for scalar apply for a dong outflow condition
  */
 __kernel
-void dong_outflow_apply_scalar_kernel(const int * __restrict__ msk,
-				      real * __restrict__ x,
-				      const real * normal_x,
-				      const real * normal_y,
-				      const real * normal_z,
-				      const real * u,
-				      const real * v,
-				      const real * w,
+void dong_outflow_apply_scalar_kernel(__global const int * __restrict__ msk,
+				      __global real * __restrict__ x,
+				      __global const real * normal_x,
+				      __global const real * normal_y,
+				      __global const real * normal_z,
+				      __global const real * u,
+				      __global const real * v,
+				      __global const real * w,
 				      const real uinf,
 				      const real delta,
 				      const int m) {
@@ -53,11 +53,11 @@ void dong_outflow_apply_scalar_kernel(const int * __restrict__ msk,
 
   for (int i = idx; i < m; i += str) {
     const int k = msk[i + 1] - 1;
-    const T uk = u[k];
-    const T vk = v[k];
-    const T wk = w[k];
-    const T vn = uk*normal_x[i] + vk*normal_y[i] + wk*normal_z[i];
-    const T S0 = 0.5*(1.0 - tanh(vn/(uinf*delta)));
+    const real uk = u[k];
+    const real vk = v[k];
+    const real wk = w[k];
+    const real vn = uk*normal_x[i] + vk*normal_y[i] + wk*normal_z[i];
+    const real S0 = 0.5*(1.0 - tanh(vn/(uinf*delta)));
     x[k] = -0.5*(uk*uk+vk*vk+wk*wk)*S0;
   }
 }
