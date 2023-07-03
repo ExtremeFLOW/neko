@@ -25,6 +25,10 @@
             "type": "uniform",
             "value": [1.0, 0.0, 0.0]
         },
+        "inflow_condition": {
+            "type": "uniform",
+            "value": [1.0, 0.0, 0.0]
+        },
         "velocity_solver": {
             "type": "cg",
             "preconditioner": "jacobi",
