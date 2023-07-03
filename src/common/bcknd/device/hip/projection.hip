@@ -49,6 +49,7 @@ real * proj_bufred_d = NULL;
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
 
   void hip_project_on(void *alpha, void * b, void *xx, void *bb, void *mult,
                       void *xbar, int *j, int *n){ 
@@ -83,7 +84,7 @@ extern "C" {
     HIP_CHECK(hipMemsetAsync(xbar, 0, (*n) * sizeof(real)));
 
     hipDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     const dim3 vec_nthrds(1024, 1, 1);
     const dim3 vec_nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -106,7 +107,7 @@ extern "C" {
                           hipMemcpyDeviceToDevice));
 
     hipDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     /* Second vector operation block */
     hipLaunchKernelGGL(HIP_KERNEL_NAME(project_on_vec_kernel<real> ),
@@ -147,7 +148,7 @@ extern "C" {
                           hipMemcpyDeviceToDevice));
 
     hipDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     HIP_CHECK(hipMemcpy(nrm, (real *) alpha + (*j - 1),
                           sizeof(real), hipMemcpyDeviceToHost));
@@ -177,7 +178,7 @@ extern "C" {
                           hipMemcpyDeviceToDevice));
 
     hipDeviceSynchronize();
-    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real));
+    device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     /* Second vector operation block */
     hipLaunchKernelGGL( HIP_KERNEL_NAME( project_ortho_vec_kernel<real> ),
