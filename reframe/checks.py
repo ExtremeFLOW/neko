@@ -206,7 +206,7 @@ class NekoTestBase(rfm.RegressionTest):
             case_json["case"]["end_time"] = self.T_end
 
             with open(case_file, 'w') as cf:
-                case_json.dump(cf)
+                json.dump(case_json, cf)
         else:
             raise NekoError(f'Cannot find {case_file} or {case_template}')
 
