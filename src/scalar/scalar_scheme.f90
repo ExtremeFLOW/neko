@@ -200,7 +200,7 @@ contains
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! The boundary condition labels in the case file, if any
-    character(len=20), dimension(:), allocatable :: bc_labels
+    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
     ! A single label for retrieving one by one from the json
     character(len=:), allocatable :: bc_label
     ! Number of bc labels in the case file, if any
@@ -264,11 +264,7 @@ contains
     call bc_list_init(this%bclst)
     call this%user_bc%init(this%dm_Xh)
 
-    ! Check if boundary types are defined in the case file
-    if (allocated(bc_labels)) then
-       deallocate(bc_labels)
-    end if
-    allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+    ! Read boundary types from the case file
     ! A filler value
     bc_labels = "not"
 

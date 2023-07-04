@@ -173,7 +173,7 @@ contains
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     ! The boundary condition labels in the case file, if any
-    character(len=20), dimension(:), allocatable :: bc_labels
+    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
     ! A single label for retrieving one by one from the json
     character(len=:), allocatable :: bc_label
     ! Number of bc labels in the case file, if any
@@ -287,10 +287,6 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-    if (allocated(bc_labels)) then
-       deallocate(bc_labels)
-    end if
-    allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
     bc_labels = "not"
     if (params%valid_path('case.fluid.boundary_types')) then
        ! Get the number of bc labels in the case file and allocate
@@ -491,7 +487,7 @@ contains
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     ! The boundary condition labels in the case file, if any
-    character(len=20), dimension(:), allocatable :: bc_labels
+    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
     ! A single label for retrieving one by one from the json
     character(len=:), allocatable :: bc_label
     ! Number of bc labels in the case file, if any
@@ -526,10 +522,6 @@ contains
     ! Already run in common, can we reuse?
     
     ! Allocate and prefill with dummy value
-    if (allocated(bc_labels)) then
-       deallocate(bc_labels)
-    end if
-    allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
     bc_labels = "not"
     if (params%valid_path('case.fluid.boundary_types')) then
        ! Get the number of bc labels in the case file and allocate
