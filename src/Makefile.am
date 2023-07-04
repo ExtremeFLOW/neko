@@ -26,6 +26,7 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/interpolation.f90\
+	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
@@ -466,6 +467,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
+	math/bcknd/device/device_mpi_op.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -77,11 +77,12 @@ module neko
   use cpr
   use fluid_stats
   use field_list  
-  use field_registry
   use vector
   use system
+  use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
   !$ use omp_lib
+  implicit none
 
 contains
 
@@ -170,7 +171,7 @@ contains
           rw = 6
        end if
        
-       ntrhds = 1
+       nthrds = 1
        !$omp parallel
        !$omp master
        !$ nthrds = omp_get_num_threads()

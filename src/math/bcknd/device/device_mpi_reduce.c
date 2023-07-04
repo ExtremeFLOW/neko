@@ -41,13 +41,29 @@
 #include <stdio.h>
 #include <mpi.h>
 
-void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes) {
+#include "device_mpi_op.h"
+
+void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes, int op) {
 
   if (nbytes == sizeof(float)) {
-    MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    if (op == DEVICE_MPI_SUM)
+      MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    else if (op == DEVICE_MPI_MAX)
+      MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+    else {
+      fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
+      exit(1);
+    }
   }
   else if (nbytes == sizeof(double)) {
-    MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    if (op == DEVICE_MPI_SUM)
+      MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    else if (op == DEVICE_MPI_MAX)
+      MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    else {
+      fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
+      exit(1);
+    }
   }
   else {
     fprintf(stderr, __FILE__ ": Invalid data type)\n");
@@ -55,13 +71,27 @@ void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes) {
   }
 }
 
-void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes) {
+void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes, int op) {
 
   if (nbytes == sizeof(float)) {
-    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    if (op == DEVICE_MPI_SUM)
+      MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
+                    MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    else if (op == DEVICE_MPI_MAX)
+      MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
+                    MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+    else {
+      fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
+      exit(1);
+    }
   }
   else if (nbytes == sizeof(double)) {
-    MPI_Allreduce(MPI_IN_PLACE, buf_d, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    if (op == DEVICE_MPI_SUM)
+      MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
+                    MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    else if (op == DEVICE_MPI_MAX)
+      MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
+                    MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
   }
   else {
     fprintf(stderr, __FILE__ ": Invalid data type)\n");

@@ -40,6 +40,7 @@
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
   
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
@@ -389,7 +390,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     hipStreamSynchronize(stream);
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
@@ -437,7 +438,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     hipStreamSynchronize(stream);
-    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real));
+    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
                              hipMemcpyDeviceToHost, stream));
@@ -494,7 +495,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     hipStreamSynchronize(stream);
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
@@ -533,7 +534,7 @@ extern "C" {
 
 #ifdef HAVE_DEVICE_MPI
     hipStreamSynchronize(stream);
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real));
+    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
                              hipMemcpyDeviceToHost, stream));

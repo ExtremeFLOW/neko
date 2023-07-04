@@ -41,6 +41,7 @@
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
   
   /**
    * @todo Make sure that this gets deleted at some point...
@@ -103,9 +104,9 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
     real cfl = 0.0;
-    #ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_DEVICE_MPI
     hipStreamSynchronize((hipStream_t) glb_cmd_queue);
-    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
 #else
     HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
                              hipMemcpyDeviceToHost,

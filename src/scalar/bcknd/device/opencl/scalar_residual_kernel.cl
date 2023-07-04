@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -29,14 +29,14 @@
 
 
 __kernel void scalar_residual_update_kernel(__global real * __restrict__ s_res,
-                                         __global const real * __restrict__ f_s,
-                                         const int n) {
+                                            __global const real * __restrict__ f_s,
+                                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) {
-    u_res[i] = (-u_res[i]) + f_u[i];
+    s_res[i] = (-s_res[i]) + f_s[i];
   }
 
 }
