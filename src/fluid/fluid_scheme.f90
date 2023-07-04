@@ -287,16 +287,14 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-    if (.not. params%valid_path('case.fluid.boundary_types')) then
-       if (allocated(bc_labels)) then
-          deallocate(bc_labels)
-       end if
-       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
-       bc_labels = "not"
-    else
+    if (allocated(bc_labels)) then
+       deallocate(bc_labels)
+    end if
+    allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+    bc_labels = "not"
+    if (params%valid_path('case.fluid.boundary_types')) then
        ! Get the number of bc labels in the case file and allocate
        call params%info('case.fluid.boundary_types', n_children=nbcs)
-       allocate(bc_labels(nbcs))
 
        ! Get the object to iterate over using json_core
        call params%get('case.fluid.boundary_types', json_val, found)
@@ -309,8 +307,6 @@ contains
           ! Assign non-empty label
           if (len(bc_label) > 0) then
             bc_labels(i) = bc_label
-          else 
-            bc_labels(i) = "not" !filler
           end if
        end do
     end if
@@ -528,16 +524,16 @@ contains
     ! Setup pressure boundary conditions
     !
     ! Already run in common, can we reuse?
-    if (.not. params%valid_path('case.fluid.boundary_types')) then
-       if (allocated(bc_labels)) then
-          deallocate(bc_labels)
-       end if
-       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
-       bc_labels = "not"
-    else
+    
+    ! Allocate and prefill with dummy value
+    if (allocated(bc_labels)) then
+       deallocate(bc_labels)
+    end if
+    allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+    bc_labels = "not"
+    if (params%valid_path('case.fluid.boundary_types')) then
        ! Get the number of bc labels in the case file and allocate
        call params%info('case.fluid.boundary_types', n_children=nbcs)
-       allocate(bc_labels(nbcs))
 
        ! Get the object to iterate over using json_core
        call params%get('case.fluid.boundary_types', json_val, found)
@@ -550,8 +546,6 @@ contains
           ! Assign non-empty label
           if (len(bc_label) > 0) then
             bc_labels(i) = bc_label
-          else 
-            bc_labels(i) = "not" !filler
           end if
        end do
     end if

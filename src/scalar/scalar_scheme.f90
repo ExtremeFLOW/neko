@@ -166,9 +166,7 @@ contains
             this%n_dir_bcs = this%n_dir_bcs + 1
             call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
             call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-            write(*,*) bc_label
             read(bc_label(3:), *) dir_value
-            write(*,*) "parsed value", dir_value
             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
          end if
        end if
@@ -267,17 +265,16 @@ contains
     call this%user_bc%init(this%dm_Xh)
 
     ! Check if boundary types are defined in the case file
-    if (.not. params%valid_path('case.scalar.boundary_types')) then
-       if (allocated(bc_labels)) then
-          deallocate(bc_labels)
-       end if
-       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
-       ! A filler value
-       bc_labels = "not"
-    else 
+    if (allocated(bc_labels)) then
+       deallocate(bc_labels)
+    end if
+    allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+    ! A filler value
+    bc_labels = "not"
+
+    if (params%valid_path('case.scalar.boundary_types')) then
        ! Get the number of bc labels in the case file and allocate
        call params%info('case.scalar.boundary_types', n_children=nbcs)
-       allocate(bc_labels(nbcs))
 
        ! Get the object to iterate over using json_core
        call params%get('case.scalar.boundary_types', json_val, found)
@@ -290,8 +287,6 @@ contains
           ! Assign non-empty label
           if (len(bc_label) > 0) then
             bc_labels(i) = bc_label
-          else 
-            bc_labels(i) = "not" !filler
           end if
        end do
     end if
