@@ -335,7 +335,7 @@ class Tgv8(TgvBase):
 @rfm.simple_test
 class Tgv32(TgvBase):
     mesh_file = 'examples/tgv/32768.nmsh'
-    dt = 1d-3
+    dt = 1e-3
     T_end = 20    
     dofs = 8**3 * 32**3
     # Where flow has become turbulent
@@ -369,7 +369,7 @@ class MiniHemi(NekoTestBase):
 class MiniTgv8(NekoTestBase):
     descr = 'Two iterations of TGV as a smoke test'
     mesh_file = 'examples/tgv/512.nmsh'
-    dt = 1d-2
+    dt = 1e-2
     T_end = 0.02
     executable = './neko'
     case = 'tgv.case'
@@ -383,7 +383,7 @@ class MiniTgv8(NekoTestBase):
 class MiniRB(NekoTestBase):
     descr = 'Two iterations of 3D RB as a smoke test'
     mesh_file = 'examples/rayleigh-benard/box.nmsh'
-    dt = 1d-2
+    dt = 1e-2
     T_end = 0.02
     executable = './neko'
     case = 'rayleigh.case'
