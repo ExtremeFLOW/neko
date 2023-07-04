@@ -48,7 +48,7 @@ module fluid_pnpn
   use advection
   use profiler
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_value
+  use json_module, only : json_file, json_value, json_core
   implicit none
   private
 
@@ -77,6 +77,7 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp  
+     logical :: freeze
 
      class(advection_t), allocatable :: adv 
 
@@ -116,8 +117,19 @@ contains
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    character(len=20), dimension(:), allocatable :: bc_labels
+    ! The boundary condition labels in the case file, if any
+    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
+    ! A single label for retrieving one by one from the json
+    character(len=:), allocatable :: bc_label
+    ! Number of bc labels in the case file, if any
+    integer :: nbcs
+    ! Pointer to a single bc label in the json
+    type(json_value), pointer :: bc_ptr
+    ! Iterator variable
+    integer :: i
     ! Variables for retrieving json parameters
+    type(json_value), pointer :: json_val
+    type(json_core) :: core
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
@@ -173,13 +185,25 @@ contains
       
     end associate
     
-    call params%get('case.fluid.boundary_types', bc_labels, found) 
-    if (.not. found) then
-       if (allocated(bc_labels)) then
-          deallocate(bc_labels)
-       end if
-       allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
-       bc_labels = "not"
+    ! Prefill with dummy value
+    bc_labels = "not"
+    if (params%valid_path('case.fluid.boundary_types')) then
+       ! Get the number of bc labels in the case file and allocate
+       call params%info('case.fluid.boundary_types', n_children=nbcs)
+
+       ! Get the object to iterate over using json_core
+       call params%get('case.fluid.boundary_types', json_val, found)
+       call params%get_core(core)
+       do i=1, nbcs
+          ! Get a pointer to the array element extrac the value
+          call core%get_child(json_val, i, bc_ptr, found)
+          call core%get(bc_ptr, bc_label)
+          
+          ! Assign non-empty label
+          if (len(bc_label) > 0) then
+            bc_labels(i) = bc_label
+          end if
+       end do
     end if
 
     ! Initialize velocity surface terms in pressure rhs
