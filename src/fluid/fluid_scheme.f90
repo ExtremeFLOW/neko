@@ -64,7 +64,7 @@ module fluid_scheme
   use logger
   use field_registry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_value
+  use json_module, only : json_file, json_value, json_core
   use scratch_registry, only : scratch_registry_t
   implicit none
   
@@ -172,13 +172,23 @@ contains
     type(json_file), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
+    ! The boundary condition labels in the case file, if any
     character(len=20), dimension(:), allocatable :: bc_labels
+    ! A single label for retrieving one by one from the json
+    character(len=:), allocatable :: bc_label
+    ! Number of bc labels in the case file, if any
+    integer :: nbcs
+    ! Pointer to a single bc label in the json
+    type(json_value), pointer :: bc_ptr
+    ! Iterator variable
+    integer :: i
     ! Variables for retrieving json parameters
     logical :: found, logical_val
     real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val
     type(json_value), pointer :: json_val
+    type(json_core) :: core
     character(len=:), allocatable :: string_val1, string_val2
 
     
@@ -277,14 +287,32 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-    if (params%valid_path('case.fluid.boundary_types')) then
-      call params%get('case.fluid.boundary_types', bc_labels, found)
-    else
+    if (.not. params%valid_path('case.fluid.boundary_types')) then
        if (allocated(bc_labels)) then
           deallocate(bc_labels)
        end if
        allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
        bc_labels = "not"
+    else
+       ! Get the number of bc labels in the case file and allocate
+       call params%info('case.fluid.boundary_types', n_children=nbcs)
+       allocate(bc_labels(nbcs))
+
+       ! Get the object to iterate over using json_core
+       call params%get('case.fluid.boundary_types', json_val, found)
+       call params%get_core(core)
+       do i=1, nbcs
+          ! Get a pointer to the array element extrac the value
+          call core%get_child(json_val, i, bc_ptr, found)
+          call core%get(bc_ptr, bc_label)
+          
+          ! Assign non-empty label
+          if (len(bc_label) > 0) then
+            bc_labels(i) = bc_label
+          else 
+            bc_labels(i) = "not" !filler
+          end if
+       end do
     end if
     
     call bc_list_init(this%bclst_vel)
@@ -466,12 +494,23 @@ contains
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
+    ! The boundary condition labels in the case file, if any
     character(len=20), dimension(:), allocatable :: bc_labels
+    ! A single label for retrieving one by one from the json
+    character(len=:), allocatable :: bc_label
+    ! Number of bc labels in the case file, if any
+    integer :: nbcs
+    ! Pointer to a single bc label in the json
+    type(json_value), pointer :: bc_ptr
+    ! Iterator variable
+    integer :: i
     ! Variables for retrieving json parameters
     logical :: found, logical_val
     real(kind=rp) :: real_val, dong_delta, dong_uchar
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val
+    type(json_value), pointer :: json_val
+    type(json_core) :: core
     character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
@@ -488,14 +527,33 @@ contains
     !
     ! Setup pressure boundary conditions
     !
-    call params%get('case.fluid.boundary_types', bc_labels, found) 
-    
-    if (.not. found) then
+    ! Already run in common, can we reuse?
+    if (.not. params%valid_path('case.fluid.boundary_types')) then
        if (allocated(bc_labels)) then
           deallocate(bc_labels)
        end if
        allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
        bc_labels = "not"
+    else
+       ! Get the number of bc labels in the case file and allocate
+       call params%info('case.fluid.boundary_types', n_children=nbcs)
+       allocate(bc_labels(nbcs))
+
+       ! Get the object to iterate over using json_core
+       call params%get('case.fluid.boundary_types', json_val, found)
+       call params%get_core(core)
+       do i=1, nbcs
+          ! Get a pointer to the array element extrac the value
+          call core%get_child(json_val, i, bc_ptr, found)
+          call core%get(bc_ptr, bc_label)
+          
+          ! Assign non-empty label
+          if (len(bc_label) > 0) then
+            bc_labels(i) = bc_label
+          else 
+            bc_labels(i) = "not" !filler
+          end if
+       end do
     end if
 
     call bc_list_init(this%bclst_prs)
