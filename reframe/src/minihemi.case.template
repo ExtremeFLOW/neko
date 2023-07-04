@@ -5,8 +5,9 @@
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 2de-3,
+    "end_time": 2e-3,
     "timestep": 0.001,
+    "nsamples": 100,
     "numerics": {
         "time_order": 3,
         "polynomial_order": 5,
@@ -44,9 +45,7 @@
             "projection_space_size": 0,
             "absolute_tolerance": 1e-7,
             "max_iterations": 800
-        },
-        "output_control": "nsamples",
-        "output_value": 100
+        }
     }
 }
 }
