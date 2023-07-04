@@ -313,7 +313,7 @@ class TgvBase(NekoTestBase):
 @rfm.simple_test
 class Tgv8(TgvBase):
     mesh_file = 'examples/tgv/512.nmsh'
-    dt = 1d-2
+    dt = 1e-2
     T_end = 20
     
     @run_before('performance')
