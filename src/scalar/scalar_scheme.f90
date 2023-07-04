@@ -55,7 +55,7 @@ module scalar_scheme
   use field_registry
   use usr_scalar
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_value
+  use json_module, only : json_file, json_value, json_core
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -166,7 +166,9 @@ contains
             this%n_dir_bcs = this%n_dir_bcs + 1
             call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
             call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
+            write(*,*) bc_label
             read(bc_label(3:), *) dir_value
+            write(*,*) "parsed value", dir_value
             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
          end if
        end if
@@ -185,6 +187,11 @@ contains
   end subroutine scalar_scheme_add_bcs
 
   !> Initialize all related components of the current scheme
+  !! @param msh The mesh.
+  !! @param c_Xh The coefficients.
+  !! @param gs_Xh The gather-scatter.
+  !! @param params The case parameter file in json.
+  !! @param scheme The name of the scalar scheme.
   subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -192,13 +199,24 @@ contains
     type(gs_t), target, intent(inout) :: gs_Xh
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
+    ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
+    ! The boundary condition labels in the case file, if any
     character(len=20), dimension(:), allocatable :: bc_labels
+    ! A single label for retrieving one by one from the json
+    character(len=:), allocatable :: bc_label
+    ! Number of bc labels in the case file, if any
+    integer :: nbcs
+    ! Pointer to a single bc label in the json
+    type(json_value), pointer :: bc_ptr
+    ! Iterator variable
+    integer :: i
     ! Variables for retrieving json parameters
     logical :: found, logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val
     type(json_value), pointer :: json_val
+    type(json_core) :: core
     character(len=:), allocatable :: solver_type, solver_precon
 
     this%u => neko_field_registry%get_field('u')
@@ -248,13 +266,34 @@ contains
     call bc_list_init(this%bclst)
     call this%user_bc%init(this%dm_Xh)
 
-    call params%get('case.scalar.boundary_types', bc_labels, found) 
-    if (.not. found) then
+    ! Check if boundary types are defined in the case file
+    if (.not. params%valid_path('case.scalar.boundary_types')) then
        if (allocated(bc_labels)) then
           deallocate(bc_labels)
        end if
        allocate(bc_labels(NEKO_MSH_MAX_ZLBLS))
+       ! A filler value
        bc_labels = "not"
+    else 
+       ! Get the number of bc labels in the case file and allocate
+       call params%info('case.scalar.boundary_types', n_children=nbcs)
+       allocate(bc_labels(nbcs))
+
+       ! Get the object to iterate over using json_core
+       call params%get('case.scalar.boundary_types', json_val, found)
+       call params%get_core(core)
+       do i=1, nbcs
+          ! Get a pointer to the array element extrac the value
+          call core%get_child(json_val, i, bc_ptr, found)
+          call core%get(bc_ptr, bc_label)
+          
+          ! Assign non-empty label
+          if (len(bc_label) > 0) then
+            bc_labels(i) = bc_label
+          else 
+            bc_labels(i) = "not" !filler
+          end if
+       end do
     end if
     call scalar_scheme_add_bcs(this, msh%labeled_zones, bc_labels) 
 
