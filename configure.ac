@@ -154,6 +154,9 @@ fi
 # Checks for ADIOS2
 AX_ADIOS2
 
+# Checks for gslib
+AX_GSLIB
+
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
@@ -310,7 +313,8 @@ AC_CONFIG_FILES([tests/stack/Makefile\
                  tests/scratch_registry/Makefile\
                  tests/fast3d/Makefile\
                  tests/time_scheme/Makefile\
-                 tests/time_scheme_controller/Makefile])
+                 tests/time_scheme_controller/Makefile\
+                 tests/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\

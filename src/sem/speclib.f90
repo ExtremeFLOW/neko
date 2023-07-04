@@ -59,19 +59,19 @@
 !
 !==============================================================================
 !
-!     LIBRARY ROUTINES FOR SPECTRAL METHODS
-!
-!     March 1989
-!
-!     For questions, comments or suggestions, please contact:
-!
-!     Einar Malvin Ronquist
-!     Room 3-243
-!     Department of Mechanical Engineering
-!     Massachusetts Institute of Technology
-!     77 Massachusetts Avenue
-!     Cambridge, MA 0299
-!     U.S.A.
+!>     LIBRARY ROUTINES FOR SPECTRAL METHODS
+!!
+!!     March 1989
+!!
+!!     For questions, comments or suggestions, please contact:
+!!
+!!     Einar Malvin Ronquist
+!!     Room 3-243
+!!     Department of Mechanical Engineering
+!!     Massachusetts Institute of Technology
+!!     77 Massachusetts Avenue
+!!     Cambridge, MA 0299
+!!     U.S.A.
 !
 !------------------------------------------------------------------------------
 !
@@ -150,18 +150,13 @@ module speclib
 
 
 contains
-!
-!--------------------------------------------------------------------
+      !> Generate `NP` Gauss Legendre points `Z` and weights `W`
+      !! associated with Jacobi polynomial \f$ P(N)(\alpha=0, \beta=0) \f$.
+      !! The polynomial degree `N = NP-1`.
+      !! @param Z Quadrature points.
+      !! @param W Quadrature weights.
+      !! @param NP Number of quadrature points.
       SUBROUTINE ZWGL (Z,W,NP)
-!--------------------------------------------------------------------
-!
-!     Generate NP Gauss Legendre points (Z) and weights (W)
-!     associated with Jacobi polynomial P(N)(alpha=0,beta=0).
-!     The polynomial degree N=NP-1.
-!     Z and W are in single precision, but all the arithmetic
-!     operations are done in double precision.
-!
-!--------------------------------------------------------------------
       REAL(KIND=RP) Z(1),W(1), ALPHA, BETA
       ALPHA = 0.
       BETA  = 0.

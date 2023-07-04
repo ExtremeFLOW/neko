@@ -44,6 +44,18 @@ module space
 
   integer, parameter :: GL = 0, GLL = 1, GJ = 2
 
+  !> The function space for the SEM solution fields
+  !! @details
+  !! In SEM, the solution fields are represented as a linear combination of
+  !! basis functions for a particular function space. Thus, the properties of
+  !! the space define that of the solution. The global SEM basis is never build,
+  !! but is implictly defined by the local basis for each element. 
+  !! The latter is polynomial, and is therefore defined by the order of the
+  !! polys and the selected locations of the nodes for storing the solution.
+  !! In SEM, the latter coincides with a Gaussian quadrature (GL, GLL, etc.)
+  !! @note The standard variable name for the `space_t` type in Neko is `Xh`.
+  !! @warning Although the type has separate members for the poly orders in x,
+  !! y, and z, in the current implementation these are forced to be equal.
   type space_t
      integer :: t               !< Space type (GL, GLL, GJ, ...)
      integer :: lx              !< Polynomial dimension in x-direction
@@ -64,7 +76,7 @@ module space
      real(kind=rp), allocatable :: wy(:)   !< Quadrature weights
      real(kind=rp), allocatable :: wz(:)   !< Quadrature weights
 
-     real(kind=rp), allocatable :: w3(:,:,:)
+     real(kind=rp), allocatable :: w3(:,:,:) !< wx * wy * wz
 
      !> Derivative operator \f$ D_1 \f$
      real(kind=rp), allocatable :: dx(:,:)
@@ -162,6 +174,7 @@ contains
     allocate(s%dyt(s%ly, s%ly))
     allocate(s%dzt(s%lz, s%lz))
     
+    ! Call low-level routines to compute nodes and quadrature weights
     if (t .eq. GLL) then
        call zwgll(s%zg(1,1), s%wx, s%lx)
        call zwgll(s%zg(1,2), s%wy, s%ly)
@@ -202,10 +215,10 @@ contains
            s%dzt = 0d0
         end if
     else if (t .eq. GL) then
-       call setup_intp(s%dx,s%dxt,s%zg(1,1),s%zg(1,1),s%lx,s%lx,1)
-       call setup_intp(s%dy,s%dyt,s%zg(1,2),s%zg(1,2),s%ly,s%ly,1)
+       call setup_intp(s%dx, s%dxt, s%zg(1,1), s%zg(1,1), s%lx, s%lx,1)
+       call setup_intp(s%dy, s%dyt, s%zg(1,2), s%zg(1,2), s%ly, s%ly,1)
         if (s%lz .gt. 1) then
-           call setup_intp(s%dz,s%dzt,s%zg(1,3),s%zg(1,3),s%lz,s%lz,1)
+           call setup_intp(s%dz, s%dzt, s%zg(1,3), s%zg(1,3), s%lz, s%lz, 1)
         else
            s%dz = 0d0
            s%dzt = 0d0
