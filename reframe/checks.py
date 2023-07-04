@@ -162,8 +162,8 @@ class NekoTestBase(rfm.RegressionTest):
     case = variable(str)
 
     mesh_file = variable(str, value='')
-    dt = variable(float, value=0)
-    T_end = variable(float, value=0)
+    dt = variable(float, value=0.0)
+    T_end = variable(float, value=0.0)
 
     abstol_vel = {'sp': 1e-5, 'dp': 1e-9}
     abstol_prs = {'sp': 1e-5, 'dp': 1e-9}
@@ -314,7 +314,7 @@ class TgvBase(NekoTestBase):
 class Tgv8(TgvBase):
     mesh_file = 'examples/tgv/512.nmsh'
     dt = 1e-2
-    T_end = 20
+    T_end = 20.0
     
     @run_before('performance')
     def set_reference(self):
@@ -336,7 +336,7 @@ class Tgv8(TgvBase):
 class Tgv32(TgvBase):
     mesh_file = 'examples/tgv/32768.nmsh'
     dt = 1e-3
-    T_end = 20    
+    T_end = 20.0    
     dofs = 8**3 * 32**3
     # Where flow has become turbulent
     first_workrate_timestep = 12000
