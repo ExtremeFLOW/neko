@@ -81,6 +81,7 @@ module neko
   use system
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
+  use json_module, only : json_file, json_value, json_core
   !$ use omp_lib
   implicit none
 

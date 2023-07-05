@@ -1,7 +1,6 @@
 ! Martin Karp 13/3-2023
 module user
   use neko
-  use json_module, only : json_file
   implicit none
 
 contains

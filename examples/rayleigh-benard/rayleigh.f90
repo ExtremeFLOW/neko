@@ -1,7 +1,5 @@
 module user
   use neko
-  use json_module, only : json_file
-  use json_utils, only : json_get
   implicit none
 
   real(kind=rp) :: Ra = 1715 

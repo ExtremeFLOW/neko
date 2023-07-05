@@ -6,7 +6,6 @@
 !
 module user
   use neko
-  use json_module, only : json_file
   implicit none
 
   ! Global user variables
