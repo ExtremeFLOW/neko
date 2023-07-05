@@ -76,7 +76,7 @@ jobs:
         id: cache-pfunit
         uses: actions/cache@v3
         with:
-          path: ~/pkg/pfunit
+          path: ${HOME}/pkg/pfunit
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Build pFUnit
         if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
@@ -236,7 +236,7 @@ jobs:
         id: cache-json-fortran
         uses: actions/cache@v3
         with:
-          path: ~/pkg/json-fortran
+          path: ${HOME}/pkg/json-fortran
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
@@ -289,7 +289,7 @@ jobs:
         id: cache-json-fortran
         uses: actions/cache@v3
         with:
-          path: ~/pkg/json-fortran
+          path: ${HOME}/pkg/json-fortran
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
@@ -345,7 +345,7 @@ jobs:
         id: cache-json-fortran
         uses: actions/cache@v3
         with:
-          path: ~/pkg/json-fortran
+          path: ${HOME}/pkg/json-fortran
           key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
