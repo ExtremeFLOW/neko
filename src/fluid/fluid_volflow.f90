@@ -98,7 +98,7 @@ contains
 
   subroutine fluid_vol_flow_init(this, dm_Xh, param)
     class(fluid_volflow_t), intent(inout) :: this
-    type(dofmap_t), intent(inout) :: dm_Xh
+    type(dofmap_t), target, intent(inout) :: dm_Xh
     type(param_t), intent(inout) :: param
 
     call this%free()
