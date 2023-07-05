@@ -79,7 +79,6 @@ module case
      type(mean_flow_output_t) :: f_mf
      type(mean_sqr_flow_output_t) :: f_msqrf
      type(stats_t) :: q   
-     logical :: stats_enabled = .false.
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
@@ -207,8 +206,9 @@ contains
        call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%json_params)
        call C%fluid%chkp%add_scalar(C%scalar%s)
     end if
+
     !
-    ! Setup user defined conditions    
+    ! Setup user defined conditions
     !
     if (C%json_params%valid_path('case.fluid.inflow_condition')) then
        call json_get(C%json_params, 'case.fluid.inflow_condition.type',&
@@ -362,19 +362,25 @@ contains
     !
     ! Setup statistics
     !
+    
+    ! Always init, so that we can call eval in simulation.f90 with no if.
+    ! Note, don't use json_get_or_default here, because that will break the
+    ! valid_path if statement below (the path will become valid always).
+    call C%json_params%get('case.statistics.start_time', stats_start_time,&
+                           found)
+    if (.not. found) stats_start_time = 0.0_rp
+
+    call C%json_params%get('case.statistics.sampling_interval', &
+                           stats_sampling_interval, found)
+    if (.not. found) stats_sampling_interval = 10
+
+    call C%q%init(stats_start_time, stats_sampling_interval)
+
     found = C%json_params%valid_path('case.statistics')
     if (found) then
        call json_get_or_default(C%json_params, 'case.statistics.enabled',&
                                 logical_val, .true.)
        if (logical_val) then
-          C%stats_enabled = .true.
-          call json_get(C%json_params, 'case.statistics.start_time', &
-                        stats_start_time)
-          call json_get(C%json_params, 'case.statistics.sampling_interval', &
-                        stats_sampling_interval)
-          call C%q%init(stats_start_time, stats_sampling_interval)
-          
-
           call C%q%add(C%fluid%mean%u)
           call C%q%add(C%fluid%mean%v)
           call C%q%add(C%fluid%mean%w)

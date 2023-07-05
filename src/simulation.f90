@@ -122,7 +122,7 @@ contains
        end if                 
 
        call neko_log%section('Postprocessing')       
-       if (C%stats_enabled) call C%q%eval(t, C%dt, tstep)
+       call C%q%eval(t, C%dt, tstep)
        call C%s%sample(t, tstep)
        
        call C%usr%user_check(t, tstep,&
