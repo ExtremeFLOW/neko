@@ -292,11 +292,13 @@ contains
     open(file=trim(this%fname), status='old', newunit=file_unit)
     rewind(file_unit)
 
+    n = 0
+    
     ! Keep reading (ierr = 0) until we reach the end (ierr != 0)
     do
        read (file_unit,*,iostat=ierr)
        if (ierr .ne. 0) exit
-       n = n+1
+       n = n + 1
     end do
     rewind(file_unit)
     close(unit=file_unit)

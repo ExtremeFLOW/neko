@@ -182,6 +182,7 @@ contains
   subroutine uset_i4_free(this)
     class(uset_i4_t), intent(inout) :: this
 
+    nullify(this%it%t)
     call this%t%free()
     
   end subroutine uset_i4_free
@@ -281,6 +282,7 @@ contains
   subroutine uset_i8_free(this)
     class(uset_i8_t), intent(inout) :: this
 
+    nullify(this%it%t)
     call this%t%free()
     
   end subroutine uset_i8_free
