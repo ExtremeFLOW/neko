@@ -81,7 +81,7 @@ jobs:
       - name: Build pFUnit
         if: ${{ (steps.cache-pfunit.outputs.cache-hit != 'true') && (matrix.backend == 'cpu') }}
         run: |
-          git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
+          git clone --depth 1 https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
           cd pFUnit
           cat >> pfunit_error_stop.patch << _ACEOF
           diff --git a/src/funit/FUnit.F90 b/src/funit/FUnit.F90
@@ -106,11 +106,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/pkg/json-fortran
-          key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
+          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
         run: |
-          git clone https://github.com/ExtremeFLOW/json-fortran/
+          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
@@ -237,11 +237,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${HOME}/pkg/json-fortran
-          key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
+          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
         run: |
-          git clone https://github.com/ExtremeFLOW/json-fortran/
+          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
@@ -290,11 +290,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${HOME}/pkg/json-fortran
-          key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
+          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
         run: |
-          git clone https://github.com/ExtremeFLOW/json-fortran/
+          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
@@ -346,11 +346,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${HOME}/pkg/json-fortran
-          key: pfunit-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
+          key: json-fortran-${{ runner.os }}-${{ matrix.os }}-${{ matrix.compiler }}
       - name: Install json-fortran
         if: ${{ (steps.cache-json-fortran.outputs.cache-hit != 'true') }}
         run: |
-          git clone https://github.com/ExtremeFLOW/json-fortran/
+          git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
           cd json-fortran
           mkdir build && cd build
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
