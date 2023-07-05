@@ -79,6 +79,7 @@ module case
      type(mean_flow_output_t) :: f_mf
      type(mean_sqr_flow_output_t) :: f_msqrf
      type(stats_t) :: q   
+     logical :: stats_enabled = .false.
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
@@ -368,6 +369,7 @@ contains
        call json_get_or_default(C%json_params, 'case.statistics.enabled',&
                                 logical_val, .true.)
        if (logical_val) then
+          C%stats_enabled = .true.
           call json_get(C%json_params, 'case.statistics.start_time', &
                         stats_start_time)
           call json_get(C%json_params, 'case.statistics.sampling_interval', &
