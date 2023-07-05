@@ -40,6 +40,7 @@ module simulation
   use jobctrl
   use profiler
   use json_module, only : json_file_t => json_file
+  use json_utils, only : json_get_or_default
   implicit none
   private
 
@@ -134,7 +135,8 @@ contains
 
     call profiler_stop
 
-    call C%json_params%get('case.output_at_end', output_at_end, found)
+    call json_get_or_default(C%json_params, 'case.output_at_end',&
+                             output_at_end, .true.)
     call C%s%sample(t, tstep, output_at_end)
     
     if (.not. (output_at_end) .and. t .lt. C%end_time) then
