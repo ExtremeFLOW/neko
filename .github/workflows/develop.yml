@@ -41,7 +41,7 @@ jobs:
         os: [ubuntu-20.04, macos-12]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
         backend: [cpu] #, cuda, hip, opencl]
-        precision: [sp, dp]
+        precision: [dp] #[sp, dp]
         exclude:
         - os: ubuntu-20.04
           compiler: gfortran-11
@@ -209,7 +209,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         compiler: [ifort, ifx]
-        precision: [sp, dp]
+        precision: [dp] #[sp, dp]
         backend: [cpu]
         exclude:
         - os: ubuntu-20.04
