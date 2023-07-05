@@ -117,6 +117,9 @@ contains
        deallocate(this%fields)
        deallocate(this%inuse)
     end if
+
+    nullify(this%dof)
+    
   end subroutine scratch_registry_free
 
 
