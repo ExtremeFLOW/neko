@@ -248,7 +248,7 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
           make -j$(nproc) && make install && cd ../../
           cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-       - name: Setup json-fortran
+      - name: Setup json-fortran
         run: |
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
@@ -303,8 +303,8 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
           make -j$(nproc) && make install && cd ../../
           cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-       - name: Setup json-fortran
-       run: |
+      - name: Setup json-fortran
+        run: |
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
       - name: Checkout
@@ -361,7 +361,7 @@ jobs:
           cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
           make -j$(nproc) && make install && cd ../../
           cat ${HOME}/pkg/json-fortran/lib/pkgconfig/json-fortran.pc
-       - name: Setup json-fortran
+      - name: Setup json-fortran
         run: |
           echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
