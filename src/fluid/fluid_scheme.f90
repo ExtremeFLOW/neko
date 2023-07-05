@@ -174,21 +174,12 @@ contains
     character(len=LOG_SIZE) :: log_buf
     ! The boundary condition labels in the case file, if any
     character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
-    ! A single label for retrieving one by one from the json
-    character(len=:), allocatable :: bc_label
-    ! Number of bc labels in the case file, if any
-    integer :: nbcs
-    ! Pointer to a single bc label in the json
-    type(json_value), pointer :: bc_ptr
-    ! Iterator variable
-    integer :: i
     ! Variables for retrieving json parameters
     logical :: found, logical_val
     real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val
     type(json_value), pointer :: json_val
-    type(json_core) :: core
     character(len=:), allocatable :: string_val1, string_val2
 
     
@@ -287,25 +278,7 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-    bc_labels = "not"
-    if (params%valid_path('case.fluid.boundary_types')) then
-       ! Get the number of bc labels in the case file and allocate
-       call params%info('case.fluid.boundary_types', n_children=nbcs)
-
-       ! Get the object to iterate over using json_core
-       call params%get('case.fluid.boundary_types', json_val, found)
-       call params%get_core(core)
-       do i=1, nbcs
-          ! Get a pointer to the array element extrac the value
-          call core%get_child(json_val, i, bc_ptr, found)
-          call core%get(bc_ptr, bc_label)
-          
-          ! Assign non-empty label
-          if (len(bc_label) > 0) then
-            bc_labels(i) = bc_label
-          end if
-       end do
-    end if
+    call read_boundary_labels(params, bc_labels)
     
     call bc_list_init(this%bclst_vel)
 
@@ -488,21 +461,12 @@ contains
     character(len=*), intent(in) :: scheme
     ! The boundary condition labels in the case file, if any
     character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
-    ! A single label for retrieving one by one from the json
-    character(len=:), allocatable :: bc_label
-    ! Number of bc labels in the case file, if any
-    integer :: nbcs
-    ! Pointer to a single bc label in the json
-    type(json_value), pointer :: bc_ptr
-    ! Iterator variable
-    integer :: i
     ! Variables for retrieving json parameters
     logical :: found, logical_val
     real(kind=rp) :: real_val, dong_delta, dong_uchar
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val
     type(json_value), pointer :: json_val
-    type(json_core) :: core
     character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
@@ -520,27 +484,8 @@ contains
     ! Setup pressure boundary conditions
     !
     ! Already run in common, can we reuse?
+    call read_boundary_labels(params, bc_labels)
     
-    ! Allocate and prefill with dummy value
-    bc_labels = "not"
-    if (params%valid_path('case.fluid.boundary_types')) then
-       ! Get the number of bc labels in the case file and allocate
-       call params%info('case.fluid.boundary_types', n_children=nbcs)
-
-       ! Get the object to iterate over using json_core
-       call params%get('case.fluid.boundary_types', json_val, found)
-       call params%get_core(core)
-       do i=1, nbcs
-          ! Get a pointer to the array element extrac the value
-          call core%get_child(json_val, i, bc_ptr, found)
-          call core%get(bc_ptr, bc_label)
-          
-          ! Assign non-empty label
-          if (len(bc_label) > 0) then
-            bc_labels(i) = bc_label
-          end if
-       end do
-    end if
 
     call bc_list_init(this%bclst_prs)
     call this%bc_prs%init(this%dm_Xh)
@@ -843,5 +788,48 @@ contains
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
     
   end function fluid_compute_cfl
+  
+  !> Extract boundary type labels from the JSON into a string array.
+  !! @param params The json parameter file.
+  !! @param bc_labels The array of strings to contain the read labels.
+  subroutine read_boundary_labels(params, bc_labels)
+    type(json_file), intent(inout) :: params
+    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS), intent(inout) :: bc_labels
+    ! A single label for retrieving one by one from the json
+    character(len=:), allocatable :: bc_label
+    ! Number of bc labels in the case file, if any
+    integer :: nbcs
+    ! Pointer to a single bc label in the json
+    type(json_value), pointer :: bc_ptr
+    ! Iterator variable
+    integer :: i
+    ! Variables for retrieving json parameters
+    logical :: found, logical_val
+    type(json_value), pointer :: json_val
+    type(json_core) :: core
+
+    ! Init to dummy value
+    bc_labels = "not"
+
+    if (params%valid_path('case.fluid.boundary_types')) then
+       ! Get the number of bc labels in the case file and allocate
+       call params%info('case.fluid.boundary_types', n_children=nbcs)
+
+       ! Get the object to iterate over using json_core
+       call params%get('case.fluid.boundary_types', json_val, found)
+       call params%get_core(core)
+       do i=1, nbcs
+          ! Get a pointer to the array element extrac the value
+          call core%get_child(json_val, i, bc_ptr, found)
+          call core%get(bc_ptr, bc_label)
+          
+          ! Assign non-empty label
+          if (len(bc_label) .gt. 0) then
+            bc_labels(i) = bc_label
+          end if
+       end do
+    end if
+
+  end subroutine read_boundary_labels
      
 end module fluid_scheme

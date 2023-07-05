@@ -119,17 +119,8 @@ contains
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     ! The boundary condition labels in the case file, if any
     character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
-    ! A single label for retrieving one by one from the json
-    character(len=:), allocatable :: bc_label
-    ! Number of bc labels in the case file, if any
-    integer :: nbcs
-    ! Pointer to a single bc label in the json
-    type(json_value), pointer :: bc_ptr
-    ! Iterator variable
-    integer :: i
     ! Variables for retrieving json parameters
     type(json_value), pointer :: json_val
-    type(json_core) :: core
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
@@ -185,26 +176,8 @@ contains
       
     end associate
     
-    ! Prefill with dummy value
-    bc_labels = "not"
-    if (params%valid_path('case.fluid.boundary_types')) then
-       ! Get the number of bc labels in the case file and allocate
-       call params%info('case.fluid.boundary_types', n_children=nbcs)
-
-       ! Get the object to iterate over using json_core
-       call params%get('case.fluid.boundary_types', json_val, found)
-       call params%get_core(core)
-       do i=1, nbcs
-          ! Get a pointer to the array element extrac the value
-          call core%get_child(json_val, i, bc_ptr, found)
-          call core%get(bc_ptr, bc_label)
-          
-          ! Assign non-empty label
-          if (len(bc_label) > 0) then
-            bc_labels(i) = bc_label
-          end if
-       end do
-    end if
+    ! Read boundary type labels
+    call read_boundary_labels(params, bc_labels)
 
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%dm_Xh)
