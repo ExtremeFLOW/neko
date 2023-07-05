@@ -211,8 +211,6 @@ contains
     ! Setup user defined conditions    
     !
     if (C%json_params%valid_path('case.fluid.inflow_condition')) then
-       call C%json_params%get('case.fluid.inflow_condition.type', string_val,&
-                              found)
        call json_get(C%json_params, 'case.fluid.inflow_condition.type',&
                      string_val)
        if (trim(string_val) .eq. 'user') then
