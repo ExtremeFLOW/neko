@@ -174,8 +174,7 @@ contains
     call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
                     found)
     if (.not. found) then
-       call params%get('case.numerics.polynomial_order', integer_val, &
-                       found)
+       call json_get(params, 'case.numerics.polynomial_order', integer_val)
        integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
     end if
     call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
