@@ -72,6 +72,7 @@ module fluid_volflow
   use device_math
   use device_mathops
   use json_module, only : json_file
+  use json_utils, only: json_get
   use scratch_registry, only : scratch_registry_t
   implicit none
   private
@@ -107,25 +108,10 @@ contains
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    call params%get('case.fluid.flow_rate_force.direction', direction, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.flow_rate_force.direction missing in the case file")
-    end if
-
-    call params%get('case.fluid.flow_rate_force.rate', rate, found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.flow_rate_force.rate missing in the case file")
-    end if
-
-    call params%get('case.fluid.flow_rate_force.use_averaged_flow', average, &
-                    found)
-    if (.not. found) then
-       call neko_error(&
-         "Parameter fluid.flow_rate_force.use_averaged_flow missing in the case&
-         & file")
-    end if
+    call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
+    call json_get(params, 'case.fluid.flow_rate_force.rate', rate)
+    call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
+                  average)
 
     this%flow_dir = direction
     this%avflow = average
