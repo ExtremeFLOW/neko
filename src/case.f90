@@ -131,13 +131,6 @@ contains
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
-    !call json_core%create_object(json_value, '')
-    !call json_core%print(json_value,'test.json')
-    !json_file2 = json_file
-!    call json_core%serialize(json_value, json_buffer)
-!    call json_file2%deserialize(json_buffer)
-!    call json_file2%print()
-    
     call json_get(C%params, 'case.mesh_file', string_val)
     msh_file = file_t(string_val)
     
@@ -159,14 +152,12 @@ contains
     !
     ! Time step
     !
-    call json_get(C%params, 'case.timestep', real_val)
-    C%dt = real_val
+    call json_get(C%params, 'case.timestep', C%dt)
 
     !
     ! End time
     !
-    call json_get(C%params, 'case.end_time', real_val)
-    C%end_time = real_val
+    call json_get(C%params, 'case.end_time', C%end_time)
 
     !
     ! Setup user defined functions
@@ -194,7 +185,7 @@ contains
     !
     ! Setup scalar scheme
     !
-    ! @todo no scalar factroy for now, probably not needed
+    ! @todo no scalar factory for now, probably not needed
     if (C%params%valid_path('case.scalar')) then
        call json_get_or_default(C%params, 'case.scalar.enabled', scalar,&
                                 .false.)
@@ -202,7 +193,6 @@ contains
 
     if (scalar) then
        allocate(C%scalar)
-       ! Switch to json
        call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
        call C%fluid%chkp%add_scalar(C%scalar%s)
     end if
@@ -324,12 +314,9 @@ contains
     !
     ! Setup sampler
     !
-    call json_get(C%params, 'case.end_time', real_val)
-    call C%s%init(real_val)
+    call C%s%init(C%end_time)
+    C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
 
-    C%f_out = fluid_output_t(C%fluid, path=output_directory)
-
-    call C%params%get('case.fluid.output_control', string_val, found)
     call json_get_or_default(C%params, 'case.fluid.output_control',&
                              string_val, 'org')
 
