@@ -77,7 +77,6 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp  
-     logical :: freeze
 
      class(advection_t), allocatable :: adv 
 
