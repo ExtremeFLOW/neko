@@ -67,7 +67,7 @@ contains
     write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
     call neko_log%message(log_buf)
     
-    call C%json_params%get('case.restart_file', restart_file, found)
+    call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        call simulation_restart(C, t)
     end if
@@ -78,7 +78,7 @@ contains
     call C%s%sample(t, tstep)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
-                                 C%fluid%p, C%fluid%c_Xh, C%json_params)
+                                 C%fluid%p, C%fluid%c_Xh, C%params)
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -126,7 +126,7 @@ contains
        call C%s%sample(t, tstep)
        
        call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%json_params)
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
        call neko_log%end_section()
        
        call neko_log%end()
@@ -135,7 +135,7 @@ contains
 
     call profiler_stop
 
-    call json_get_or_default(C%json_params, 'case.output_at_end',&
+    call json_get_or_default(C%params, 'case.output_at_end',&
                              output_at_end, .true.)
     call C%s%sample(t, tstep, output_at_end)
     
@@ -143,7 +143,7 @@ contains
        call simulation_joblimit_chkp(C, t)
     end if
 
-    call C%usr%user_finalize_modules(t, C%json_params)
+    call C%usr%user_finalize_modules(t, C%params)
 
     call neko_log%end_section('Normal end.')
     
@@ -187,7 +187,7 @@ contains
     character(len=:), allocatable :: restart_file
     logical :: found
 
-    call C%json_params%get('case.restart_file', restart_file, found)
+    call C%params%get('case.restart_file', restart_file, found)
 
 
     chkpf = file_t(trim(restart_file))

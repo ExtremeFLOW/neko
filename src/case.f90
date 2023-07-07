@@ -65,7 +65,7 @@ module case
 
   type :: case_t
      type(mesh_t) :: msh
-     type(json_file) :: json_params
+     type(json_file) :: params
      type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
@@ -121,15 +121,15 @@ contains
     call neko_log%message('Reading case file ' // trim(case_file))
     
     if (pe_rank .eq. 0) then
-      call C%json_params%load_file(filename=trim(case_file))
-      call C%json_params%print_to_string(json_buffer)
+      call C%params%load_file(filename=trim(case_file))
+      call C%params%print_to_string(json_buffer)
       integer_val = len(json_buffer)
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
     if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
-    call C%json_params%load_from_string(json_buffer)
+    call C%params%load_from_string(json_buffer)
 
     !call json_core%create_object(json_value, '')
     !call json_core%print(json_value,'test.json')
@@ -138,7 +138,7 @@ contains
 !    call json_file2%deserialize(json_buffer)
 !    call json_file2%print()
     
-    call json_get(C%json_params, 'case.mesh_file', string_val)
+    call json_get(C%params, 'case.mesh_file', string_val)
     msh_file = file_t(string_val)
     
     call msh_file%read(C%msh)
@@ -146,7 +146,7 @@ contains
     !
     ! Load Balancing
     !
-    call json_get_or_default(C%json_params, 'case.load_balancing', logical_val,&
+    call json_get_or_default(C%params, 'case.load_balancing', logical_val,&
                              .false.)
 
     if (pe_size .gt. 1 .and. logical_val) then
@@ -159,13 +159,13 @@ contains
     !
     ! Time step
     !
-    call json_get(C%json_params, 'case.timestep', real_val)
+    call json_get(C%params, 'case.timestep', real_val)
     C%dt = real_val
 
     !
     ! End time
     !
-    call json_get(C%json_params, 'case.end_time', real_val)
+    call json_get(C%params, 'case.end_time', real_val)
     C%end_time = real_val
 
     !
@@ -177,13 +177,13 @@ contains
     !
     ! Setup fluid scheme
     !
-    call json_get(C%json_params, 'case.fluid.scheme', string_val)
+    call json_get(C%params, 'case.fluid.scheme', string_val)
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
-    call C%json_params%get('case.numerics.polynomial_order', lx)
-    call json_get(C%json_params, 'case.numerics.polynomial_order', lx)
+    call C%params%get('case.numerics.polynomial_order', lx)
+    call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
-    call C%fluid%init(C%msh, lx, C%json_params)
+    call C%fluid%init(C%msh, lx, C%params)
 
     
     !
@@ -195,23 +195,23 @@ contains
     ! Setup scalar scheme
     !
     ! @todo no scalar factroy for now, probably not needed
-    if (C%json_params%valid_path('case.scalar')) then
-       call json_get_or_default(C%json_params, 'case.scalar.enabled', scalar,&
+    if (C%params%valid_path('case.scalar')) then
+       call json_get_or_default(C%params, 'case.scalar.enabled', scalar,&
                                 .false.)
     end if
 
     if (scalar) then
        allocate(C%scalar)
        ! Switch to json
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%json_params)
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
        call C%fluid%chkp%add_scalar(C%scalar%s)
     end if
 
     !
     ! Setup user defined conditions
     !
-    if (C%json_params%valid_path('case.fluid.inflow_condition')) then
-       call json_get(C%json_params, 'case.fluid.inflow_condition.type',&
+    if (C%params%valid_path('case.fluid.inflow_condition')) then
+       call json_get(C%params, 'case.fluid.inflow_condition.type',&
                      string_val)
        if (trim(string_val) .eq. 'user') then
           call C%fluid%set_usr_inflow(C%usr%fluid_user_if)
@@ -221,7 +221,7 @@ contains
     !
     ! Setup source term
     ! 
-    call json_get(C%json_params, 'case.fluid.source_term.type', string_val)
+    call json_get(C%params, 'case.fluid.source_term.type', string_val)
     if (trim(string_val) .eq. 'user') then
        call C%fluid%set_source(trim(string_val), usr_f=C%usr%fluid_user_f)
     else if (trim(string_val) .eq. 'user_vector') then
@@ -234,7 +234,7 @@ contains
     ! Setup source term for the scalar
     ! @todo should be expanded for user sources etc. Now copies the fluid one
     if (scalar) then
-       call json_get(C%json_params, 'case.scalar.source_term.type', string_val)
+       call json_get(C%params, 'case.scalar.source_term.type', string_val)
        if (trim(string_val) .eq. 'user') then
           call C%scalar%set_source(trim(string_val), &
                usr_f=C%usr%scalar_user_f)
@@ -250,14 +250,14 @@ contains
     !
     ! Setup initial conditions
     ! 
-    call json_get(C%json_params, 'case.fluid.initial_condition.type',&
+    call json_get(C%params, 'case.fluid.initial_condition.type',&
                   string_val)
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-            C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%json_params)
+            C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
     else
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-            C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%json_params)
+            C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
     ! Add initial conditions to BDF scheme (if present)
@@ -282,13 +282,13 @@ contains
     !
     ! Set order of timestepper
     !
-    call json_get(C%json_params, 'case.numerics.time_order', integer_val)
+    call json_get(C%params, 'case.numerics.time_order', integer_val)
     call C%ext_bdf%init(integer_val)
 
     !
     ! Get and process output directory
     !
-    call json_get_or_default(C%json_params, 'case.output_directory',&
+    call json_get_or_default(C%params, 'case.output_directory',&
                              output_directory, '')
 
     output_dir_len = len(trim(output_directory))
@@ -301,7 +301,7 @@ contains
     !
     ! Save boundary markings for fluid (if requested)
     ! 
-    call json_get_or_default(C%json_params, 'case.output_boundary',&
+    call json_get_or_default(C%params, 'case.output_boundary',&
                              logical_val, .false.)
     if (logical_val) then
        bdry_file = file_t(trim(output_directory)//'bdry.fld')
@@ -311,7 +311,7 @@ contains
     !
     ! Save mesh partitions (if requested)
     !
-    call json_get_or_default(C%json_params, 'case.output_partitions',&
+    call json_get_or_default(C%params, 'case.output_partitions',&
                              logical_val, .false.)
     if (logical_val) then
        call mesh_field_init(msh_part, C%msh, 'MPI_Rank')
@@ -324,21 +324,21 @@ contains
     !
     ! Setup sampler
     !
-    call json_get(C%json_params, 'case.end_time', real_val)
+    call json_get(C%params, 'case.end_time', real_val)
     call C%s%init(real_val)
 
     C%f_out = fluid_output_t(C%fluid, path=output_directory)
 
-    call C%json_params%get('case.fluid.output_control', string_val, found)
-    call json_get_or_default(C%json_params, 'case.fluid.output_control',&
+    call C%params%get('case.fluid.output_control', string_val, found)
+    call json_get_or_default(C%params, 'case.fluid.output_control',&
                              string_val, 'org')
 
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
-       call json_get(C%json_params, 'case.nsamples', real_val)
+       call json_get(C%params, 'case.nsamples', real_val)
        call C%s%add(C%f_out, real_val, 'nsamples')
     else 
-       call json_get(C%json_params, 'case.fluid.output_value', real_val)
+       call json_get(C%params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
     end if
     
@@ -350,12 +350,12 @@ contains
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
-    call json_get_or_default(C%json_params, 'case.output_checkpoints',&
+    call json_get_or_default(C%params, 'case.output_checkpoints',&
                              logical_val, .false.)
     if (logical_val) then
        C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
-       call json_get(C%json_params, 'case.checkpoint_control', string_val)
-       call json_get(C%json_params, 'case.checkpoint_value', real_val)
+       call json_get(C%params, 'case.checkpoint_control', string_val)
+       call json_get(C%params, 'case.checkpoint_value', real_val)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
@@ -366,19 +366,19 @@ contains
     ! Always init, so that we can call eval in simulation.f90 with no if.
     ! Note, don't use json_get_or_default here, because that will break the
     ! valid_path if statement below (the path will become valid always).
-    call C%json_params%get('case.statistics.start_time', stats_start_time,&
+    call C%params%get('case.statistics.start_time', stats_start_time,&
                            found)
     if (.not. found) stats_start_time = 0.0_rp
 
-    call C%json_params%get('case.statistics.sampling_interval', &
+    call C%params%get('case.statistics.sampling_interval', &
                            stats_sampling_interval, found)
     if (.not. found) stats_sampling_interval = 10
 
     call C%q%init(stats_start_time, stats_sampling_interval)
 
-    found = C%json_params%valid_path('case.statistics')
+    found = C%params%valid_path('case.statistics')
     if (found) then
-       call json_get_or_default(C%json_params, 'case.statistics.enabled',&
+       call json_get_or_default(C%params, 'case.statistics.enabled',&
                                 logical_val, .true.)
        if (logical_val) then
           call C%q%add(C%fluid%mean%u)
@@ -389,9 +389,9 @@ contains
           C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, &
                                       path=output_directory)
 
-          call json_get(C%json_params, 'case.statistics.output_control', &
+          call json_get(C%params, 'case.statistics.output_control', &
                         string_val)
-          call json_get(C%json_params, 'case.statistics.output_value', &
+          call json_get(C%params, 'case.statistics.output_value', &
                         stats_output_val)
        
           call C%s%add(C%f_mf, stats_output_val, string_val)
@@ -421,8 +421,8 @@ contains
     !
     ! Setup joblimit
     !
-    if (C%json_params%valid_path('case.job_timelimit')) then
-       call json_get(C%json_params, 'case.job_timelimit', string_val)
+    if (C%params%valid_path('case.job_timelimit')) then
+       call json_get(C%params, 'case.job_timelimit', string_val)
        call jobctrl_set_time_limit(string_val)
     end if
 
