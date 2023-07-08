@@ -19,9 +19,6 @@
         "rho": 1,
         "mu": 1,
         "Re": 2860,
-        "source_term": {
-            "type": "noforce"
-        },
         "initial_condition": {
             "type": "user"
         },

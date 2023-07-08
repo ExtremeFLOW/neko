@@ -15,9 +15,6 @@
     "rho": 1.0,
     "mu": 1.0,
     "Re": 5000,
-    "source_term": {
-        "type": "noforce"
-    },
     "inflow_condition": {
       "type": "user"
     },

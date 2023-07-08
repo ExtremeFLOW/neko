@@ -17,9 +17,6 @@
         "rho": 1,
         "mu": 1,
         "Re": 1400,
-        "source_term": {
-            "type": "noforce"
-        },
         "initial_condition": {
             "type": "blasius"
         },
