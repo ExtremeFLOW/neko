@@ -42,6 +42,7 @@ module flow_ic
   use math
   use user_intf, only : useric
   use json_module, only : json_file
+  use json_utils, only: json_get, json_get_or_default
   implicit none
   private
 
@@ -70,34 +71,13 @@ contains
     character(len=:), allocatable :: blasius_approximation
 
     if (trim(type) .eq. 'uniform') then       
-       call params%get('case.fluid.initial_condition.value', uinf, found)
-       if (.not. found) then
-          call neko_error("Parameter fluid.initial_condition.value missing in &
-                          &the case file")
-       end if
-
+       call json_get(params, 'case.fluid.initial_condition.value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
     else if (trim(type) .eq. 'blasius') then
-       call params%get('case.fluid.blasius.delta', delta, found)
-       if (.not. found) then
-          call neko_error("Parameter fluid.blasius.delta missing in &
-                          &the case file")
-       end if
-
-       call params%get('case.fluid.blasius.approximation', &
-                       blasius_approximation, found)
-       if (.not. found) then
-          call neko_error("Parameter fluid.blasius.approximation missing in &
-                          &the case file")
-       end if
-
-       call params%get('case.fluid.blasius.freestream_velocity', &
-                       uinf, found)
-       if (.not. found) then
-          call neko_error("Parameter fluid.blasius.freeestream_velocity missing&
-                          & in the case file")
-       end if
-
+       call json_get(params, 'case.fluid.blasius.delta', delta)
+       call json_get(params, 'case.fluid.blasius.approximation',&
+                     blasius_approximation)
+       call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
        call set_flow_ic_blasius(u, v, w, delta, uinf, blasius_approximation)
     else
        call neko_error('Invalid initial condition')
