@@ -211,14 +211,19 @@ contains
     !
     ! Setup source term
     ! 
-    call json_get(C%params, 'case.fluid.source_term.type', string_val)
-    if (trim(string_val) .eq. 'user') then
-       call C%fluid%set_source(trim(string_val), usr_f=C%usr%fluid_user_f)
-    else if (trim(string_val) .eq. 'user_vector') then
-       call C%fluid%set_source(trim(string_val), &
-            usr_f_vec=C%usr%fluid_user_f_vector)
-    else 
+    logical_val = C%params%valid_path('case.fluid.source_term')
+    call json_get_or_default(C%params, 'case.fluid.source_term.type',&
+                             string_val, 'noforce')
+
+    if (.not. logical_val .or. trim(string_val) .eq. 'noforce') then
        call C%fluid%set_source(trim(string_val))
+    else
+       if (trim(string_val) .eq. 'user') then
+          call C%fluid%set_source(trim(string_val), usr_f=C%usr%fluid_user_f)
+       else if (trim(string_val) .eq. 'user_vector') then
+          call C%fluid%set_source(trim(string_val), &
+               usr_f_vec=C%usr%fluid_user_f_vector)
+       end if
     end if
 
     ! Setup source term for the scalar
@@ -228,6 +233,7 @@ contains
        if (trim(string_val) .eq. 'user') then
           call C%scalar%set_source(trim(string_val), &
                usr_f=C%usr%scalar_user_f)
+       ! is the branch below applicable to scalar?
        else if (trim(string_val) .eq. 'user_vector') then
           call C%scalar%set_source(trim(string_val), &
                usr_f_vec=C%usr%scalar_user_f_vector)
