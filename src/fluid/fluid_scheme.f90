@@ -753,11 +753,6 @@ contains
        call source_set_pw_type(this%f_Xh, usr_f)
     else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
        call source_set_type(this%f_Xh, usr_f_vec)
-    else if (trim(source_term_type) .eq. '') then
-       if (pe_rank .eq. 0) then
-          call neko_warning('No source term defined, using default (noforce)')
-       end if
-       call source_set_type(this%f_Xh, source_eval_noforce)
     else
        call neko_error('Invalid fluid source term '//source_term_type)
     end if
