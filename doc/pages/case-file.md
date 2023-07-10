@@ -17,7 +17,6 @@ choices.
 The current high-level structure of the case file is shown below.
 
 ~~~~~~~~~~~~~~~{.json}
-```
 {
     "version": 1.0
     "case": {
@@ -57,28 +56,28 @@ The three following options are possible.
 This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
 
-| Name                 | Description                                                                                           | Admissable values                         | Default value |
-|----------------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------|---------------|
-| `mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`               | -             |
-| `output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                         | `false`       |
-| `output_directory`   | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory             | `'.'`         |
-| `load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                         | `false`       |
-| `output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false`       |
-| `output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `.false.`     |
-| `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -             |
-| `time_step`          | Time-step size.                                                                                       | Positive reals                            | -             |
-| `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -             |
-| `job_timelimit`      | The maximum wall clock duration of the simulation.  stopped.                                          | String formatted as HH:MM:SS              | No limit      |
+Name                 | Description                                                    | Admissable values                         | Default value 
+-----                | -----------                                                    | -----------------                         | -------------
+`mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`               | -  
+`output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                         | `false`       
+`output_directory`   | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory             | `.` 
+`load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                         | `false` 
+`output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false` 
+`output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `.false.` 
+`checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
+`time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
+`end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -   
+`job_timelimit`      | The maximum wall clock duration of the simulation.  stopped.                                          | String formatted as HH:MM:SS              | No limit 
 
 ## Numerics
 Used to define the properties of the numerical discretization.
 
-| Name                 | Description                                                                                           | Admissable values                         | Default value |
-|----------------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------|---------------|
-| `polynomial_order`          | The oder of the polynomial basis.                                                                            | Integers, typically 5 to 9               | -             |
-| `time_order`    | The order of the time integration scheme. Refer to the `time_controller_scheme` type documention for details. | 1,2, 3                         | -       |
-| `dealias`    | Whether to apply dealiasing to advection terms. | `true` or `false`                         | -       |
-| `dealiased_polynomial order`    | The polynomial order in the higher-order space used in the dealising. | Integer                         | `3/2(polynomial_order + 1) - 1`       |
+Name                 | Description                                                        | Admissable values                         | Default value  
+----                 | -----------                                                        | -----------------                         | -------------
+`polynomial_order`   | The oder of the polynomial basis.                           | Integers, typically 5 to 9               | -             |
+`time_order`    | The order of the time integration scheme. Refer to the `time_controller_scheme` type documention for details. | 1,2, 3                         | -    
+`dealias`    | Whether to apply dealiasing to advection terms. | `true` or `false`                         | -     
+`dealiased_polynomial order`    | The polynomial order in the higher-order space used in the dealising. | Integer                         | `3/2(polynomial_order + 1) - 1`    
 
 ## Fluid
 
@@ -173,13 +172,13 @@ The following keywords are used, with the corresponding options.
 
 * `type`, solver type.
   - `cg`, a conjugate gradient solver.
-  - `pipecg`, a piped conjugate gradient solver.
+  - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `gmres`, a GMRES solver. Typically used for pressure.
 * `preconditioner`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
-  - `hsmg`, an HSMG precondtioner. Typically used for pressure. todo: WHAT IS THIS ABBREVIATION?
+  - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for pressure.
   - `ident`, an identity matrix (no preconditioner).
 * `absolute_tolerance`, tolerance criterion for convergence.
 * `max_iterations`, maximum number of iterations before giving up.
@@ -205,12 +204,12 @@ All the parameters are summarized in the table below.
 This includes all the subobjects discussed above, as well as keyword parameters
 that can be described concisely directly in the table.
 
-| Name                 | Description                                                                                           | Admissable values                         | Default value |
-|----------------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------|---------------|
-| `scheme`          | The fluid solve type.                                                                            | `pnpn`               | -             |
-| `Re`    | The Reynolds number. | Positive real                         | -       |
-| `density`    | The density of the fluid. | Positive real                         | -       |
-| `mu`    | The dynamic viscosity of the fluid. | Positive real                         | -       |
+Name                 | Description                            | Admissable values    | Default value 
+----                 | -----------                            | -----------------    | -------------
+`scheme`          | The fluid solve type.                     | `pnpn`               | -             
+`Re`    | The Reynolds number. | Positive real                | -                    |
+`density`    | The density of the fluid. | Positive real      | -                    |
+`mu`    | The dynamic viscosity of the fluid. | Positive real | -                    | 
 
 
 
