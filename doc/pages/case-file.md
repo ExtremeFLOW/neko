@@ -67,7 +67,7 @@ Name                 | Description                                              
 `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
 `time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
 `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -   
-`job_timelimit`      | The maximum wall clock duration of the simulation.  stopped.                                          | String formatted as HH:MM:SS              | No limit 
+`job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS              | No limit 
 
 ## Numerics
 Used to define the properties of the numerical discretization.
