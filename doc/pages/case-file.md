@@ -141,7 +141,7 @@ The object is not mandatory, by the default no forcing term is present.
 The optional `boundary_types` keyword can be used to specify boundary conditions.
 The reason for it being optional, is that some conditions can be specified
 directly inside the mesh file.
-In particular, this happens when Nek5000 `.re2` files are converted to `.nmesh`.
+In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
 Periodic boundary conditions are *always* defined inside the mesh file.
 
 The value of the keyword is an array of strings, with the following possible
