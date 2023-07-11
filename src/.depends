@@ -9,7 +9,7 @@ common/log.o : common/log.f90 config/num_types.o comm/comm.o
 comm/comm.o : comm/comm.F90 common/utils.o 
 mesh/curve.o : mesh/curve.f90 mesh/hex.o mesh/point.o common/structs.o common/utils.o adt/stack.o 
 comm/mpi_types.o : comm/mpi_types.f90 common/parameters.o io/format/stl.o io/format/nmsh.o io/format/re2.o comm/comm.o 
-common/datadist.o : common/datadist.f90 
+common/datadist.o : common/datadist.f90 common/log.o
 common/distdata.o : common/distdata.f90 adt/uset.o adt/tuple.o adt/stack.o 
 common/utils.o : common/utils.f90 
 common/system.o : common/system.f90 
