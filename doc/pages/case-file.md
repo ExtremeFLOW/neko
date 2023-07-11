@@ -63,7 +63,7 @@ Name                 | Description                                              
 `output_directory`   | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory             | `.` 
 `load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                         | `false` 
 `output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false` 
-`output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `.false.` 
+`output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false` 
 `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
 `time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
 `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -   
@@ -75,8 +75,8 @@ Used to define the properties of the numerical discretization.
 Name                 | Description                                                        | Admissable values                         | Default value  
 ----                 | -----------                                                        | -----------------                         | -------------
 `polynomial_order`   | The oder of the polynomial basis.                           | Integers, typically 5 to 9               | -             |
-`time_order`    | The order of the time integration scheme. Refer to the `time_controller_scheme` type documention for details. | 1,2, 3                         | -    
-`dealias`    | Whether to apply dealiasing to advection terms. | `true` or `false`                         | -     
+`time_order`    | The order of the time integration scheme. Refer to the `time_scheme_controller` type documention for details. | 1,2, 3                         | -    
+`dealias`    | Whether to apply dealiasing to advection terms. | `true` or `false`                         | `false`     
 `dealiased_polynomial order`    | The polynomial order in the higher-order space used in the dealising. | Integer                         | `3/2(polynomial_order + 1) - 1`    
 
 ## Fluid
