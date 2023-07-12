@@ -91,23 +91,12 @@ contains
     implicit none
     type(case_t), target, intent(inout) :: C
     character(len=*), intent(in) :: case_file
-
-    ! Namelist for case description
-    character(len=:), allocatable :: mesh_file_name
     character(len=:), allocatable :: output_directory
-    character(len=80) :: fluid_scheme  = ''
-    character(len=80) :: source_term = ''
     integer :: lx = 0
-    type(json_value), pointer :: json_val
     logical :: scalar = .false.
-    character(len=80) :: scalar_source_term = ''
     integer :: ierr
     type(file_t) :: msh_file, bdry_file, part_file
-    type(mesh_fld_t) :: msh_part
-    integer, parameter :: nbytes = NEKO_FNAME_LEN + (4 * 80) + 4 + 4
-    character :: buffer(nbytes)
-    integer :: pack_index
-    type(mesh_fld_t) :: parts
+    type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
