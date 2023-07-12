@@ -555,7 +555,6 @@ contains
 
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
-    implicit none
     class(fluid_scheme_t), intent(inout) :: this
 
     call field_free(this%bdry)
