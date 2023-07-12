@@ -611,7 +611,6 @@ contains
   !> Validate that all fields, solvers etc necessary for
   !! performing time-stepping are defined
   subroutine fluid_scheme_validate(this)
-    implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
     logical :: found, logical_val
