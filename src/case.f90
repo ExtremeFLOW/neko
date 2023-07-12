@@ -188,7 +188,7 @@ contains
     ! @todo no scalar factory for now, probably not needed
     if (C%params%valid_path('case.scalar')) then
        call json_get_or_default(C%params, 'case.scalar.enabled', scalar,&
-                                .false.)
+                                .true.)
     end if
 
     if (scalar) then
