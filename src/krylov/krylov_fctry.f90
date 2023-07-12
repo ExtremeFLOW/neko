@@ -60,7 +60,6 @@ contains
        call krylov_solver_destroy(ksp)
        deallocate(ksp)
     end if
-    
     if (trim(solver) .eq. 'cg') then
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_cg_t::ksp)
