@@ -134,8 +134,11 @@ momentum equation.
 The object is not mandatory, by the default no forcing term is present.
 
 1. `noforce`, no forcing. This is the default value.
-2. `user`, the values are set inside the compiled user file. todo: NOT SURE HOW THIS WORKS FOR VELOCITY, WHICH IS A VECTOR.
-2. `user_vector`, the values are set inside the compiled user file.
+2. `user`, the values are set inside the compiled user file, using the pointwise
+   user file subroutine. 
+2. `user_vector`, the values are set inside the compiled user file, using the 
+   non-pointwise user file subroutine. Should be used when running on the GPU.
+   
 
 ### Boundary types
 The optional `boundary_types` keyword can be used to specify boundary conditions.
@@ -150,10 +153,12 @@ values:
 * `v`, a Dirichlet boundary.
 * `sym`, a symmetry boundary.
 * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
-   the wall-normal. todo: WHERE IS THE VELOCITY AND AMBIENT PRESSURE SET?
+   the wall-normal. The wall-parallel velocity is defined by the initial
+   condition. 
 * `o`, outlet boundary. 
 * `o+dong`, outlet boundary using the Dong condition. 
-* `on+dong`, an `on` boundary using the Dong condition. todo: NOT SURE WHAT THIS IS EXACTLY. 
+* `on+dong`, an `on` boundary using the Dong condition, ensuring that the
+   wall-normal velocity is directed outwards. 
 
 In some cases, only some boundary types have to be provided.
 For example, when one has periodic boundaries, like in the channel flow example. 
