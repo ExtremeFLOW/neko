@@ -160,7 +160,6 @@ contains
     call json_get(C%params, 'case.fluid.scheme', string_val)
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
-    call C%params%get('case.numerics.polynomial_order', lx)
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
     call C%fluid%init(C%msh, lx, C%params)
