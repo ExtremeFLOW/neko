@@ -70,7 +70,7 @@ module scalar_scheme
      type(source_scalar_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
      integer :: ksp_maxiter            !< Max iteration number in ksp.
-     integer :: ksp_projection_dim     !< Projection space size in ksp.
+     integer :: projection_dim     !< Projection space size in ksp.
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
      type(usr_scalar_t) :: user_bc     !< Dirichlet conditions
@@ -236,7 +236,7 @@ contains
                              this%ksp_maxiter, 800)
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
-                            this%ksp_projection_dim, 20)
+                            this%projection_dim, 20)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)

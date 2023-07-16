@@ -161,8 +161,8 @@ contains
 
     ! @todo not param stuff again, using velocity stuff
     ! Intialize projection space thingy
-    if (this%ksp_projection_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), this%ksp_projection_dim)
+    if (this%projection_dim .gt. 0) then
+       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
     end if
 
     ! Add lagged term to checkpoint
@@ -245,6 +245,8 @@ contains
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
+         projection_dim => this%projection_dim, &
+         ksp_maxiter => this%ksp_maxiter, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
 
@@ -284,17 +286,17 @@ contains
            s_res%x, dm_Xh%size())
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. this%ksp_projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
 
       call this%pc%update()
       call profiler_start_region('Scalar solve')
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh, this%ksp_maxiter)
+           c_Xh, this%bclst_ds, gs_Xh, ksp_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. this%ksp_projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
               this%bclst_ds, gs_Xh, n)
       end if
