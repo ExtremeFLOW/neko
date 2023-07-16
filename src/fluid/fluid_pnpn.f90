@@ -242,14 +242,14 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    if (this%ksp_pr_projection_dim .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%size(), this%ksp_pr_projection_dim)
+    if (this%pr_projection_dim .gt. 0) then
+       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim)
     end if
     
-    if (this%ksp_vel_projection_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%size(), this%ksp_vel_projection_dim)
-       call this%proj_v%init(this%dm_Xh%size(), this%ksp_vel_projection_dim)
-       call this%proj_w%init(this%dm_Xh%size(), this%ksp_vel_projection_dim)
+    if (this%vel_projection_dim .gt. 0) then
+       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim)
+       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim)
+       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim)
     end if
 
     ! Add lagged term to checkpoint
@@ -419,7 +419,7 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. this%ksp_pr_projection_dim .gt. 0) then
+      if( tstep .gt. 5 .and. this%pr_projection_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
          call this%proj_prs%log_info('Pressure')
       end if
@@ -431,7 +431,7 @@ contains
                             this%ksp_pr_maxiter)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. this%ksp_pr_projection_dim .gt. 0) then
+      if( tstep .gt. 5 .and. this%pr_projection_dim .gt. 0) then
          call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                          this%bclst_dp, gs_Xh, n)
       end if
@@ -460,7 +460,7 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size())
       call profiler_end_region
       
-      if (tstep .gt. 5 .and. this%ksp_vel_projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. this%vel_projection_dim .gt. 0) then 
          call this%proj_u%project_on(u_res%x, c_Xh, n)
          call this%proj_v%project_on(v_res%x, c_Xh, n)
          call this%proj_w%project_on(w_res%x, c_Xh, n)
@@ -477,7 +477,7 @@ contains
            c_Xh, this%bclst_dw, gs_Xh, this%ksp_vel_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. this%ksp_vel_projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. this%vel_projection_dim .gt. 0) then 
          call this%proj_u%project_back(du%x, Ax, c_Xh, &
                                   this%bclst_du, gs_Xh, n)
          call this%proj_v%project_back(dv%x, Ax, c_Xh, &

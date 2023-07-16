@@ -85,8 +85,8 @@ module fluid_scheme
      class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
      integer :: ksp_vel_maxiter                !< Max iterations in ksp_vel
      integer :: ksp_pr_maxiter                 !< Max iterattions in ksp_pr
-     integer :: ksp_vel_projection_dim         !< Size of the projection space for ksp_vel
-     integer :: ksp_pr_projection_dim          !< Size of the projection space for ksp_pr
+     integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
+     integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
@@ -246,10 +246,10 @@ contains
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
-                            this%ksp_vel_projection_dim, 20)
+                            this%vel_projection_dim, 20)
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_space_size',&
-                            this%ksp_pr_projection_dim, 20)
+                            this%pr_projection_dim, 20)
 
    if (params%valid_path("case.fluid.flow_rate_force")) then
       this%forced_flow_rate = .true.
