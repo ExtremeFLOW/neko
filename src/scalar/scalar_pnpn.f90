@@ -237,6 +237,7 @@ contains
     
     call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
+         Re => this%Re, Pr => this%Pr, rho => this%rho, &
          ds => this%ds, &
          ta1 => this%ta1, &
          wa1 => this%wa1, &
@@ -260,10 +261,10 @@ contains
                                  Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           this%rho, ext_bdf%advection_coeffs, n)
+           rho, ext_bdf%advection_coeffs, n)
 
       call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           this%rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+           rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -273,8 +274,8 @@ contains
 
       ! compute scalar residual
       call profiler_start_region('Scalar residual')
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, this%Pr, &
-          this%Re, this%rho, ext_bdf%diffusion_coeffs(1), dt, &
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, &
+          ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
