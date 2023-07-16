@@ -368,6 +368,10 @@ contains
          msh => this%msh, prs_res => this%prs_res, &
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
+         vel_projection_dim => this%vel_projection_dim, &
+         pr_projection_dim => this%pr_projection_dim, &
+         ksp_vel_maxiter => this%ksp_vel_maxiter, &
+         ksp_pr_maxiter => this%ksp_pr_maxiter, &
          rho => this%rho, Re => this%Re, mu => this%mu)
       
       ! Get temporary arrays
@@ -386,7 +390,7 @@ contains
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       end if
 
-      call this%adv%apply(this%u, this%v, this%w, &
+      call this%adv%apply(u, v, w, &
                           f_Xh%u, f_Xh%v, f_Xh%w, &
                           Xh, this%c_Xh, dm_Xh%size())
 
@@ -419,7 +423,7 @@ contains
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. this%pr_projection_dim .gt. 0) then
+      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
          call this%proj_prs%log_info('Pressure')
       end if
@@ -428,10 +432,10 @@ contains
       call profiler_start_region('Pressure solve')
       ksp_results(1) = &
          this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh, &
-                            this%ksp_pr_maxiter)
+                            ksp_pr_maxiter)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. this%pr_projection_dim .gt. 0) then
+      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
          call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                          this%bclst_dp, gs_Xh, n)
       end if
@@ -460,7 +464,7 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size())
       call profiler_end_region
       
-      if (tstep .gt. 5 .and. this%vel_projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then 
          call this%proj_u%project_on(u_res%x, c_Xh, n)
          call this%proj_v%project_on(v_res%x, c_Xh, n)
          call this%proj_w%project_on(w_res%x, c_Xh, n)
@@ -470,14 +474,14 @@ contains
 
       call profiler_start_region("Velocity solve")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh, this%ksp_vel_maxiter)
+           c_Xh, this%bclst_du, gs_Xh, ksp_vel_maxiter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh, this%ksp_vel_maxiter)
+           c_Xh, this%bclst_dv, gs_Xh, ksp_vel_maxiter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh, this%ksp_vel_maxiter)
+           c_Xh, this%bclst_dw, gs_Xh, ksp_vel_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. this%vel_projection_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then 
          call this%proj_u%project_back(du%x, Ax, c_Xh, &
                                   this%bclst_du, gs_Xh, n)
          call this%proj_v%project_back(dv%x, Ax, c_Xh, &
@@ -498,8 +502,8 @@ contains
               c_Xh, gs_Xh, ext_bdf, rho, Re,&
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_pr_maxiter, &
-              this%ksp_vel_maxiter)
+              this%ksp_vel, this%pc_prs, this%pc_vel, ksp_pr_maxiter, &
+              ksp_vel_maxiter)
       end if
       
       call fluid_step_info(tstep, t, dt, ksp_results)
