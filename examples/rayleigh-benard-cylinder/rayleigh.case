@@ -44,9 +44,6 @@
     },
     "scalar": {
         "enabled": true,
-        "source_term": {
-            "type": "noforce"
-        },
         "Pr": 1.0
     }
 }

@@ -217,17 +217,19 @@ contains
     ! Setup source term for the scalar
     ! @todo should be expanded for user sources etc. Now copies the fluid one
     if (scalar) then
-       call json_get(C%params, 'case.scalar.source_term.type', string_val)
+       logical_val = C%params%valid_path('case.scalar.source_term')
+       call json_get_or_default(C%params, 'case.scalar.source_term.type',&
+                                string_val, 'noforce')
        if (trim(string_val) .eq. 'user') then
           call C%scalar%set_source(trim(string_val), &
                usr_f=C%usr%scalar_user_f)
-       ! is the branch below applicable to scalar?
        else if (trim(string_val) .eq. 'user_vector') then
           call C%scalar%set_source(trim(string_val), &
                usr_f_vec=C%usr%scalar_user_f_vector)
        else
           call C%scalar%set_source(trim(string_val))
        end if
+
        call C%scalar%set_user_bc(C%usr%scalar_user_bc)
     end if
 
