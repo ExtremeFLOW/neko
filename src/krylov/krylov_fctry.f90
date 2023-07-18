@@ -229,9 +229,6 @@ contains
        type is(bicgstab_t)
           call kp%free()
        end select
-
-       call ksp%free()
-
     end if
  
   end subroutine krylov_solver_destroy
