@@ -65,6 +65,7 @@ Name                 | Description                                              
 `output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false` 
 `output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false` 
 `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
+`checkpoint_value` | The frequency of sampling in terms of `checkpoint_control`. | Positive real or integer | -  
 `time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
 `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -   
 `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS              | No limit 
@@ -131,7 +132,8 @@ It requires  the following parameters:
 ### Source term
 The `source_term` object should be used to specify the source term in the
 momentum equation.
-The object is not mandatory, by the default no forcing term is present.
+The object is not mandatory, by default no forcing term is present.
+The forcing is selected using the `type` keyword.
 
 1. `noforce`, no forcing. This is the default value.
 2. `user`, the values are set inside the compiled user file, using the pointwise
@@ -199,9 +201,9 @@ The configuration uses the following parameters:
 
 * `direction`, the direction of the flow, defined as 0, 1, or 2, corresponding
   to x, y or z, respectively.
-* `rate`, the desired flow rate.
-* `use_averaged_flow`, whether `rate` specifies the domain-averaged (bulk) 
-   velocity or the volume flow rate. todo: RIGHT? THEN WE NEED TO RENAME 
+* `value`, the desired flow rate.
+* `use_averaged_flow`, whether `value` specifies the domain-averaged (bulk) 
+   velocity or the volume flow rate.
 
 
 ### Full parameter table
@@ -209,15 +211,68 @@ All the parameters are summarized in the table below.
 This includes all the subobjects discussed above, as well as keyword parameters
 that can be described concisely directly in the table.
 
-Name                 | Description                            | Admissable values    | Default value 
-----                 | -----------                            | -----------------    | -------------
-`scheme`          | The fluid solve type.                     | `pnpn`               | -             
-`Re`    | The Reynolds number. | Positive real                | -                    |
-`density`    | The density of the fluid. | Positive real      | -                    |
-`mu`    | The dynamic viscosity of the fluid. | Positive real | -                    | 
-
-
+Name                                    | Description                                                                      | Admissable values                                | Default value
+----------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------|--------------
+`scheme`                                | The fluid solve type.                                                            | `pnpn`                                           | -
+`Re`                                    | The Reynolds number.                                                             | Positive real                                    | -
+`density`                               | The density of the fluid.                                                        | Positive real                                    | -
+`mu`                                    | The dynamic viscosity of the fluid.                                              | Positive real                                    | -
+`output_control` | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
+`output_value` | The frequency of sampling in terms of `output_control`. | Positive real or integer | -  
+`inflow_condition.type`                 | Velocity inflow condition type.                                                  | `user`, `uniform`, `blasius`                     | -
+`inflow_condition.value`                | Value of the inflow velocity.                                                    | Vector of 3 reals                                | -
+`initial_condition.type`                | Initial condition type.                                                          | `user`, `uniform`, `blasius`                     | -
+`initial_condition.value`               | Value of the velocity initial condition.                                         | Vector of 3 reals                                | -
+`blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                 | Positive real                                    | -
+`blasius.freestream_velocity`           | Freestream velocity in the Blasius profile.                                      | Vector of 3 reals                                | -
+`blasius.approximation`                 | Numerical approximation of the Blasius profile.                                  | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -
+`source_term.type`                      | Source term in the momentum equation.                                            | `noforce`, `user`, `user_vector`                 | -
+`boundary_types`                        | Boundary types/conditions labels.                                                | Array of strings                                 | -
+`velocity_solver.type`                  | Linear solver for the momentum equation.                                         | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -
+`velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                          | `ident`, `hsmg`, `jacobi`                        | -
+`velocity_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                   | Positive real                                    | -
+`velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                     | Positive real                                    | 800
+`velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                 | Positive integer                                 | 0
+`pressure_solver.type`                  | Linear solver for the momentum equation.                                         | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -
+`pressure_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                          | `ident`, `hsmg`, `jacobi`                        | -
+`pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                   | Positive real                                    | -
+`pressure_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                     | Positive real                                    | 800
+`pressure_solver.projection_space_size` | Projection space size for the momentum equation.                                 | Positive integer                                 | 0
+`flow_rate_force.direction`             | Direction of the forced flow.                                                    | 0, 1, 2                                          | -
+`flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                           | Positive real                                    | -
+`flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter. | `true` or `false`                                | -            
 
 ## Scalar
+The scalar object allows to add a scalar transport equation to the solution.
+The solution variable is called `s`, but saved as `temperature` in the fld
+ files, which are written out separately from `fluid`. 
+Some properties of the object are inherited from `fluid`: the properties of the
+linear solver, the value of the density and the Re number, and the output
+control.
+
+The boundary conditions for the scalar are specified through the
+`boundary_types` keyword.
+It is possible to directly specify a uniform value for a Dirichlet boundary.
+The syntax is, e.g. `d=1`, to set the value to 1, see the Ryleigh-Benard
+example case.
+
+Name               | Description                               | Admissable values                | Default value
+-------------------|-------------------------------------------|----------------------------------|--------------
+`enabled`          | Whether to enable the scalar computation. | `true` or `false`                | `true`
+`Pr`               | The Prandtl number.                       | Positive real                    | -
+`source_term.type` | Source term in the momentum equation.     | `noforce`, `user`, `user_vector` | -
+`boundary_types`   | Boundary types/conditions labels.         | Array of strings                 | -
 
 ## Statistics
+
+This object adds the collection of statistics for the flud fields.
+For additional details on the workflow, see the corresponding page in the
+user manual.
+
+Name               | Description                               | Admissable values                | Default value
+-------------------|-------------------------------------------|----------------------------------|--------------
+`enabled`          | Whether to enable the statistics computation. | `true` or `false`                | `true`
+`start_time`          | Time at which to start gathering statistics. | Positive real                | 0 
+`sampling_interval`          | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer                | 10 
+
+
