@@ -269,10 +269,10 @@ This object adds the collection of statistics for the flud fields.
 For additional details on the workflow, see the corresponding page in the
 user manual.
 
-Name               | Description                               | Admissable values                | Default value
--------------------|-------------------------------------------|----------------------------------|--------------
-`enabled`          | Whether to enable the statistics computation. | `true` or `false`                | `true`
-`start_time`          | Time at which to start gathering statistics. | Positive real                | 0 
-`sampling_interval`          | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer                | 10 
+Name                | Description                                                          | Admissable values | Default value
+--------------------|----------------------------------------------------------------------|-------------------|--------------
+`enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`
+`start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0
+`sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10
 
 
