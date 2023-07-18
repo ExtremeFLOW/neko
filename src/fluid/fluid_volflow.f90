@@ -109,7 +109,7 @@ contains
 
     !Initialize vol_flow (if there is a forced volume flow)
     call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
-    call json_get(params, 'case.fluid.flow_rate_force.rate', rate)
+    call json_get(params, 'case.fluid.flow_rate_force.value', rate)
     call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
                   average)
 

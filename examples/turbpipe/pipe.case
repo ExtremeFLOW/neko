@@ -41,7 +41,7 @@
         },
         "flow_rate_force": {
             "direction": 3,
-            "rate": 1.0,
+            "value": 1.0,
             "use_averaged_flow": true
         },
         "output_control": "simulationtime",

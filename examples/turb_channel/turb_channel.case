@@ -38,7 +38,7 @@
         },
         "flow_rate_force": {
             "direction": 1,
-            "rate": 1.0,
+            "value": 1.0,
             "use_averaged_flow": true
         },
         "boundary_types": ["", "", "w", "w"],
