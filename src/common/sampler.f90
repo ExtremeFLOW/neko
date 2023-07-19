@@ -247,9 +247,9 @@ contains
        end do
     end select
     
-    if (write_output) then
-       call neko_log%section('Writer output ')
-    end if
+!!$    if (write_output) then
+!!$       call neko_log%section('Writer output ')
+!!$    end if
 
 
     ! We should not need this extra select block, and it works great
@@ -299,7 +299,7 @@ contains
        write(log_buf,'(A16,1x,F10.6,A,F9.6)') 'Writing at time:', t, &
             ' Output time (s): ', sample_time
        call neko_log%message(log_buf)
-       call neko_log%end_section()
+!!$       call neko_log%end_section()
     end if
     call profiler_end_region
   end subroutine sampler_sample
