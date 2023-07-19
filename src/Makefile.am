@@ -3,7 +3,6 @@ lib_LIBRARIES = libneko.a
 neko_fortran_SOURCES = \
 	config/num_types.f90\
 	common/structs.f90\
-	common/parameters.f90\
 	io/format/nmsh.f90\
 	io/format/re2.f90\
 	io/format/map.f90\
@@ -15,6 +14,7 @@ neko_fortran_SOURCES = \
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
+	common/json_utils.f90\
 	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
@@ -161,7 +161,6 @@ neko_fortran_SOURCES = \
 	common/user_intf.f90\
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
-	fluid/fluid_plan1.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
 	fluid/fluid_volflow.f90\

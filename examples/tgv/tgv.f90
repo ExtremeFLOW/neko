@@ -47,7 +47,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     integer :: i, ntot
     real(kind=rp) :: uvw(3)
 
@@ -80,7 +80,7 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     real(kind=rp) dt
     integer tstep
@@ -103,7 +103,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -175,7 +175,7 @@ contains
   ! User-defined finalization routine called at the end of the simulation
   subroutine user_finalize(t, params)
     real(kind=rp) :: t
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
 
     ! Deallocate the fields
     call field_free(om1)

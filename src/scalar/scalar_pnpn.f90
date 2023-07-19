@@ -46,6 +46,8 @@ module scalar_pnpn
   use logger
   use advection
   use profiler
+  use json_utils, only: json_get, json_get_or_default
+  use json_module, only : json_file
   implicit none
   private
 
@@ -92,19 +94,22 @@ module scalar_pnpn
 
 contains
 
-  subroutine scalar_pnpn_init(this, msh, coef, gs, param)    
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params)    
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
     type(gs_t), target, intent(inout) :: gs
-    type(param_t), target, intent(inout) :: param
+    type(json_file), target, intent(inout) :: params
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    ! Variables for retrieving json parameters
+    logical :: found, logical_val
+    integer :: integer_val
 
     call this%free()
 
     ! Setup fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, coef, gs, param, scheme)
+    call this%scheme_init(msh, coef, gs, params, scheme)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -156,8 +161,8 @@ contains
 
     ! @todo not param stuff again, using velocity stuff
     ! Intialize projection space thingy
-    if (param%proj_vel_dim .gt. 0) then
-       call this%proj_s%init(this%dm_Xh%size(), param%proj_vel_dim)
+    if (this%projection_dim .gt. 0) then
+       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
     end if
 
     ! Add lagged term to checkpoint
@@ -165,7 +170,14 @@ contains
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)    
     
     ! Uses sthe same parameter as the fluid to set dealiasing
-    call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
+    call json_get(params, 'case.numerics.dealias', logical_val)
+    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
+                    found)
+    if (.not. found) then
+       call json_get(params, 'case.numerics.polynomial_order', integer_val)
+       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
+    end if
+    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
 
   end subroutine scalar_pnpn_init
 
@@ -210,17 +222,22 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, ext_bdf)
+  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf)
     class(scalar_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: dt
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    ! Number of degrees of freedom
     integer :: n
+    ! Linear solver results monitor
     type(ksp_monitor_t) :: ksp_results(1)
+
     n = this%dm_Xh%size()
     
     call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
+         Re => this%Re, Pr => this%Pr, rho => this%rho, &
          ds => this%ds, &
          ta1 => this%ta1, &
          wa1 => this%wa1, &
@@ -228,7 +245,9 @@ contains
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
-         params => this%params, msh => this%msh, res => this%res, &
+         projection_dim => this%projection_dim, &
+         ksp_maxiter => this%ksp_maxiter, &
+         msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
 
       ! evaluate the source term and scale with the mass matrix
@@ -244,10 +263,10 @@ contains
                                  Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
-           params%rho, ext_bdf%advection_coeffs, n)
+           rho, ext_bdf%advection_coeffs, n)
 
       call makebdf%compute_scalar(ta1, wa1, slag, f_Xh%s, s, c_Xh%B, &
-           params%rho, params%dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+           rho, dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call slag%update()
       !> We assume that no change of boundary conditions 
@@ -257,8 +276,8 @@ contains
 
       ! compute scalar residual
       call profiler_start_region('Scalar residual')
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, params%Pr, &
-          params%Re, params%rho, ext_bdf%diffusion_coeffs(1), params%dt, &
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, &
+          ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
       call gs_op(gs_Xh, s_res, GS_OP_ADD) 
@@ -267,17 +286,17 @@ contains
            s_res%x, dm_Xh%size())
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
          call this%proj_s%project_on(s_res%x, c_Xh, n)
       end if
 
       call this%pc%update()
       call profiler_start_region('Scalar solve')
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
-           c_Xh, this%bclst_ds, gs_Xh, params%vel_max_iter)
+           c_Xh, this%bclst_ds, gs_Xh, ksp_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
+      if (tstep .gt. 5 .and. projection_dim .gt. 0) then 
          call this%proj_s%project_back(ds%x, Ax, c_Xh, &
               this%bclst_ds, gs_Xh, n)
       end if
@@ -288,7 +307,7 @@ contains
          call add2s2(s%x, ds%x, 1.0_rp, n)
       end if
 
-      call scalar_step_info(tstep, t, params%dt, ksp_results)
+      call scalar_step_info(tstep, t, dt, ksp_results)
 
     end associate
     call profiler_end_region
