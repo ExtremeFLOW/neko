@@ -33,7 +33,7 @@
 !> Utilities for retrieving parameters from the case files.
 module json_utils
   use num_types, only : rp
-  use json_module, only : json_file
+  use json_module, only : json_file, json_value, json_core
   use utils, only : neko_error
   implicit none
   private
@@ -43,8 +43,9 @@ module json_utils
   !> Retrieves a parameter by name or throws an error
   interface json_get
     module procedure json_get_real, json_get_integer, json_get_logical, &
-                     json_get_string, json_get_real_array,&
-                     json_get_integer_array, json_get_logical_array
+                     json_get_string, json_get_real_array, &
+                     json_get_integer_array, json_get_logical_array, &
+                     json_get_string_array
   end interface json_get
 
   !> Retrieves a parameter by name or assigns a provided default value.
@@ -174,6 +175,46 @@ contains
        call neko_error("Parameter "//name//" missing from the case file")
     end if
   end subroutine json_get_logical_array
+
+  !> Retrieves a string array parameter by name or throws an error
+  !! @param json The json to retrieve the parameter from.
+  !! @param name The full path to the parameter.
+  !! @value value The variable to be populated with the retrieved parameter.
+  subroutine json_get_string_array(json, name, value)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    character(len=*), allocatable, intent(out) :: value(:)
+    logical :: found, logical_val
+    type(json_value), pointer :: json_val, val_ptr
+    type(json_core) :: core
+    character(len=:), allocatable :: string_value        
+    integer :: i, n_children
+
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter "//name//" missing from the case file")
+    end if
+    call json%info(name, n_children=n_children)
+
+    if (.not. allocated(value)) then
+       allocate(value(n_children))
+    else if (len(value) .lt. n_children) then
+       deallocate(value)
+       allocate(value(n_children))
+    end if
+    
+    call json%get(name, json_val, found)
+    call json%get_core(core)
+
+    do i = 1, n_children
+       call core%get_child(json_val, i, val_ptr, found)
+       call core%get(val_ptr, string_value)
+          
+       if (len(string_value) .gt. 0) then
+          value(i) = string_value
+       end if
+    end do
+    
+  end subroutine json_get_string_array
 
   !> Retrieves a real parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
