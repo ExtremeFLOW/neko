@@ -39,7 +39,8 @@ module csv_file
   use utils, only: neko_error
   use num_types, only: rp
   use logger, only: neko_log, log_size
-  use comm, only : pe_rank
+  use comm
+  use probes, only: probes_t
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
@@ -123,6 +124,7 @@ contains
     integer :: suffix_pos, file_unit, i, ierr
 
     open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
     if (f%header .ne. "" .and. .not. f%header_is_written) then
@@ -152,6 +154,7 @@ contains
     integer :: file_unit, i,j, ierr
 
     open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
     if (f%header .ne. "" .and. .not. f%header_is_written) then
@@ -177,6 +180,7 @@ contains
     class(*), target, intent(inout) :: data
     type(vector_t), pointer :: vec => null()
     type(matrix_t), pointer :: mat => null()
+    type(probes_t), pointer :: p => null()
 
     select type(data)
     type is (vector_t)
@@ -195,21 +199,21 @@ contains
                &with a matrix_t object")
        end if
 
+    type is (probes_t)
+       p => data
+
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
             &matrix_t)")
     end select
 
-    ! Read on rank 0
-    if (pe_rank .eq. 0) then
-
-       call neko_log%message("Reading from " // this%fname)
-       if (associated(vec)) then
-          call csv_file_read_vector(this, vec)
-       else if (associated(mat)) then
-          call csv_file_read_matrix(this, mat)
-       end if
-
+    call neko_log%message("Reading csv file " // trim(this%fname))
+    if (associated(vec)) then
+       call csv_file_read_vector(this, vec)
+    else if (associated(mat)) then
+       call csv_file_read_matrix(this, mat)
+    else if (associated(p)) then
+       call csv_file_read_probes(this, p)
     end if
 
   end subroutine csv_file_read
@@ -221,22 +225,31 @@ contains
   !! To read a vector in a column format, use a `matrix_t` with `ncols = 1`.
   !! @note - If the number of lines in the file is larger than 1,
   !! it will be assumed that a one-line header is present.
-  subroutine csv_file_read_vector(d, vec)
-    type(csv_file_t), intent(inout) :: d
+  subroutine csv_file_read_vector(f, vec)
+    type(csv_file_t), intent(inout) :: f
     type(vector_t), intent(inout) :: vec
     integer :: ierr, file_unit, n_lines
+    character(len=80) :: tmp
 
-    n_lines = d%count_lines()
+    if (pe_rank .eq. 0) then
 
-    open(file=trim(d%fname), status='old', newunit=file_unit)
+       n_lines = f%count_lines()
 
-    ! If there is more than 1 line, assume that means there is a header
-    if (n_lines .lt. 1) then
-       read (file_unit, '(A)') d%header
+       open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+       if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
+
+       ! If there is more than 1 line, assume that means there is a header
+       if (n_lines .lt. 1) then
+          read (file_unit, '(A)') tmp
+          f%header = trim(tmp)
+       end if
+
+       read (file_unit,*) vec%x
+       close(unit=file_unit)
+
     end if
 
-    read (file_unit,*) vec%x
-    close(unit=file_unit)
+    ! @todo Add a brodcast here?
 
   end subroutine csv_file_read_vector
 
@@ -245,29 +258,72 @@ contains
   !! @param vec Matrix object in which to store the file contents.
   !! @note If the number of lines in the file is larger than the number
   !! of rows of `mat`, it will be assumed that a one-line header is present.
-  subroutine csv_file_read_matrix(d, mat)
-    type(csv_file_t), intent(inout) :: d
+  subroutine csv_file_read_matrix(f, mat)
+    type(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(inout) :: mat
     integer :: ierr, file_unit, i, n_lines
     character(len=80) :: tmp
 
-    n_lines = d%count_lines()
+    if (pe_rank .eq. 0) then
 
-    open(file=trim(d%fname), status='old', newunit=file_unit)
+       n_lines = f%count_lines()
 
-    ! If the number of lines is larger than the number of rows in the
-    ! matrix, assume that means there is a header
-    if (n_lines .lt. mat%nrows) then
-       read (file_unit, '(A)') tmp
-       d%header = trim(tmp)
+       open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+       if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
+
+       ! If the number of lines is larger than the number of rows in the
+       ! matrix, assume that means there is a header
+       if (n_lines .lt. mat%nrows) then
+          read (file_unit, '(A)') tmp
+          f%header = trim(tmp)
+       end if
+
+       do i=1, mat%nrows
+          read (file_unit,*) mat%x(i,:)
+       end do
+       close(unit=file_unit)
+
     end if
 
-    do i=1, mat%nrows
-       read (file_unit,*) mat%x(i,:)
-    end do
-    close(unit=file_unit)
-
   end subroutine csv_file_read_matrix
+
+  !> Read probes from a csv file
+  !! @note Assumes there is no header in the file.
+  subroutine csv_file_read_probes(f, p)
+    type(csv_file_t), intent(inout) :: f
+    type(probes_t), intent(inout) :: p
+    integer :: ierr, file_unit, i, n_lines, n_fields
+
+    !
+    ! Count # of probes and initialize probe_t object
+    !
+    if (pe_rank .eq. 0) n_lines = f%count_lines()
+    call MPI_Bcast(n_lines, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+    n_fields = 4 ! # of fields hardcoded here, u,v,w,p
+
+    ! Initialize probes_t object
+    call p%init(n_lines, n_fields)
+
+    !
+    ! Read xyz coordinates
+    !
+    if (pe_rank .eq. 0) then
+
+       open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+       if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
+
+       do i=1, n_lines
+          read (file_unit,*) p%xyz(:,i)
+       end do
+
+       close(unit=file_unit)
+    end if
+
+    ! Broadcast data to all processes
+    call MPI_Bcast(p%xyz, 3*n_lines, MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+
+  end subroutine csv_file_read_probes
 
   !> Sets the header for a csv file. For example: `hd = "u,v,w,p"`.
   !! @param hd Header.

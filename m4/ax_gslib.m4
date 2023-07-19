@@ -23,15 +23,18 @@ AC_DEFUN([AX_GSLIB],[
 	   LDFLAGS="$GSLIB_LDFLAGS $LDFLAGS"
 	   export LDFLAGS
 	fi
-			
+
+	_LIBS=$LIBS	
+
 	AC_LANG(Fortran)
 
-	AC_CHECK_LIB(gs, gs_setup,
+	AC_CHECK_LIB(gs, fgslib_gs_setup,
 			       [have_gslib=yes;GSLIB_LIBS="-lgs"],
 			       [have_gslib=no])
 	AC_SUBST(GSLIB_LIBS)
 	if test x"${have_gslib}" = xyes; then
 	   AC_DEFINE(HAVE_GSLIB,1,[Define if you have the GS library.])
+	   LIBS="$GSLIB_LIBS $_LIBS"
 	else
 		if test -d "$ac_gslib_path"; then	
 		   LDFLAGS="$LDFLAGS_SAVED"
