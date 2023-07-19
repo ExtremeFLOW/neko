@@ -215,7 +215,7 @@ Name                                    | Description                           
 ----------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------|--------------
 `scheme`                                | The fluid solve type.                                                            | `pnpn`                                           | -
 `Re`                                    | The Reynolds number.                                                             | Positive real                                    | -
-`density`                               | The density of the fluid.                                                        | Positive real                                    | -
+`rho`                                   | The density of the fluid.                                                        | Positive real                                    | -
 `mu`                                    | The dynamic viscosity of the fluid.                                              | Positive real                                    | -
 `output_control` | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
 `output_value` | The frequency of sampling in terms of `output_control`. | Positive real or integer | -  
