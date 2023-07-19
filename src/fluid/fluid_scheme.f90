@@ -64,7 +64,7 @@ module fluid_scheme
   use logger
   use field_registry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_value, json_core
+  use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   implicit none
   
@@ -109,6 +109,8 @@ module fluid_scheme
      !> Density
      real(kind=rp) :: rho
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
+     !> Boundary condition labels (if any)
+     character(len=20), allocatable :: bc_labels(:)
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
@@ -172,14 +174,10 @@ contains
     type(json_file), target, intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
-    ! The boundary condition labels in the case file, if any
-    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
-    real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vec(:)
+    real(kind=rp) :: real_val
+    logical :: logical_val
     integer :: integer_val
-    type(json_value), pointer :: json_val
     character(len=:), allocatable :: string_val1, string_val2
 
     
@@ -275,17 +273,24 @@ contains
     
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
+    allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
+    this%bc_labels = "not"
+    
     !
     ! Setup velocity boundary conditions
     !
-    call read_boundary_labels(params, bc_labels)
+    if (params%valid_path('case.fluid.boundary_types')) then
+       call json_get(params, &
+                                  'case.fluid.boundary_types', &
+                                  this%bc_labels)
+    end if
     
     call bc_list_init(this%bclst_vel)
 
     call this%bc_sym%init(this%dm_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
     call this%bc_sym%mark_zones_from_list(msh%labeled_zones,&
-                        'sym', bc_labels)
+                        'sym', this%bc_labels)
     call this%bc_sym%finalize()
     call this%bc_sym%init_msk(this%c_Xh)    
     call bc_list_add(this%bclst_vel, this%bc_sym)
@@ -308,7 +313,7 @@ contains
        call this%bc_inflow%init(this%dm_Xh)
        call this%bc_inflow%mark_zone(msh%inlet)
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones,&
-                        'v', bc_labels)
+                        'v', this%bc_labels)
        call this%bc_inflow%finalize()
        call bc_list_add(this%bclst_vel, this%bc_inflow)
 
@@ -340,7 +345,7 @@ contains
     call this%bc_wall%init(this%dm_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones,&
-                        'w', bc_labels)
+                        'w', this%bc_labels)
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
        
@@ -353,7 +358,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%wall)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'w', bc_labels)
+                      'w', this%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(1.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -362,7 +367,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%inlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'v', bc_labels)
+                      'v', this%bc_labels)
 
        call bdry_mask%finalize()
        call bdry_mask%set_g(2.0_rp)
@@ -372,7 +377,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'o', bc_labels)
+                      'o', this%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(3.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -381,7 +386,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%sympln)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'sym', bc_labels)
+                      'sym', this%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(4.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -397,7 +402,7 @@ contains
        call bdry_mask%init(this%dm_Xh)
        call bdry_mask%mark_zone(msh%outlet_normal)
        call bdry_mask%mark_zones_from_list(msh%labeled_zones,&
-                      'on', bc_labels)
+                      'on', this%bc_labels)
        call bdry_mask%finalize()
        call bdry_mask%set_g(6.0_rp)
        call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -459,14 +464,9 @@ contains
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
-    ! The boundary condition labels in the case file, if any
-    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
     real(kind=rp) :: real_val, dong_delta, dong_uchar
     real(kind=rp), allocatable :: real_vec(:)
     integer :: integer_val
-    type(json_value), pointer :: json_val
     character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
@@ -483,16 +483,12 @@ contains
     !
     ! Setup pressure boundary conditions
     !
-    ! Already run in common, can we reuse?
-    call read_boundary_labels(params, bc_labels)
-    
-
     call bc_list_init(this%bclst_prs)
     call this%bc_prs%init(this%dm_Xh)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'o', bc_labels)
+                        'o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
-                        'on', bc_labels)
+                        'on', this%bc_labels)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -506,9 +502,9 @@ contains
     call bc_list_add(this%bclst_prs, this%bc_prs)
     call this%bc_dong%init(this%dm_Xh)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
-                        'o+dong', bc_labels)
+                        'o+dong', this%bc_labels)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones,&
-                        'on+dong', bc_labels)
+                        'on+dong', this%bc_labels)
     call this%bc_dong%finalize()
 
     call json_get_or_default(params, 'case.fluid.outflow_condition.delta',&
@@ -588,6 +584,10 @@ contains
        deallocate(this%pc_prs)
     end if
 
+    if (allocated(this%bc_labels)) then
+       deallocate(this%bc_labels)
+    end if
+
     call gs_free(this%gs_Xh)
 
     call coef_free(this%c_Xh)
@@ -614,7 +614,6 @@ contains
     class(fluid_scheme_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
     logical :: found, logical_val
-    type(json_value), pointer :: json_val
 
     if ( (.not. associated(this%u)) .or. &
          (.not. associated(this%v)) .or. &
@@ -781,48 +780,5 @@ contains
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
     
   end function fluid_compute_cfl
-  
-  !> Extract boundary type labels from the JSON into a string array.
-  !! @param params The json parameter file.
-  !! @param bc_labels The array of strings to contain the read labels.
-  subroutine read_boundary_labels(params, bc_labels)
-    type(json_file), intent(inout) :: params
-    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS), intent(inout) :: bc_labels
-    ! A single label for retrieving one by one from the json
-    character(len=:), allocatable :: bc_label
-    ! Number of bc labels in the case file, if any
-    integer :: nbcs
-    ! Pointer to a single bc label in the json
-    type(json_value), pointer :: bc_ptr
-    ! Iterator variable
-    integer :: i
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
-    type(json_value), pointer :: json_val
-    type(json_core) :: core
-
-    ! Init to dummy value
-    bc_labels = "not"
-
-    if (params%valid_path('case.fluid.boundary_types')) then
-       ! Get the number of bc labels in the case file and allocate
-       call params%info('case.fluid.boundary_types', n_children=nbcs)
-
-       ! Get the object to iterate over using json_core
-       call params%get('case.fluid.boundary_types', json_val, found)
-       call params%get_core(core)
-       do i=1, nbcs
-          ! Get a pointer to the array element extrac the value
-          call core%get_child(json_val, i, bc_ptr, found)
-          call core%get(bc_ptr, bc_label)
-          
-          ! Assign non-empty label
-          if (len(bc_label) .gt. 0) then
-            bc_labels(i) = bc_label
-          end if
-       end do
-    end if
-
-  end subroutine read_boundary_labels
-     
+      
 end module fluid_scheme

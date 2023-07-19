@@ -48,7 +48,7 @@ module fluid_pnpn
   use advection
   use profiler
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_value, json_core
+  use json_module, only : json_file
   implicit none
   private
 
@@ -116,14 +116,9 @@ contains
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    ! The boundary condition labels in the case file, if any
-    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
-    ! Variables for retrieving json parameters
-    type(json_value), pointer :: json_val
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
-    character(len=:), allocatable :: string_val1, string_val2
 
     call this%free()
     
@@ -175,37 +170,36 @@ contains
       
     end associate
     
-    ! Read boundary type labels
-    call read_boundary_labels(params, bc_labels)
-
     ! Initialize velocity surface terms in pressure rhs
     call this%bc_prs_surface%init(this%dm_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'v', bc_labels)
+                                                 'v', this%bc_labels)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init(this%dm_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'sym', bc_labels)
+                                                 'sym', this%bc_labels)
     call this%bc_sym_surface%finalize()
     call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init(this%dm_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on', bc_labels)
+                                                         'on', this%bc_labels)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                        'on+dong', bc_labels)
+                                                         'on+dong', &
+                                                         this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init_msk(this%c_Xh)    
 
     call this%bc_dp%init(this%dm_Xh)
     call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
-                                         bc_labels)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'o+dong', bc_labels)
+                                         this%bc_labels)
+    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
+                                         'o+dong', this%bc_labels)
     call this%bc_dp%finalize()
     call this%bc_dp%set_g(0.0_rp)
     call bc_list_init(this%bclst_dp)
@@ -216,8 +210,10 @@ contains
     call this%bc_vel_res%init(this%dm_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, 'v', bc_labels)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, 'w', bc_labels)
+    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
+                                              'v', this%bc_labels)
+    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
+                                              'w', this%bc_labels)
     call this%bc_vel_res%finalize()
     call this%bc_vel_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_res)

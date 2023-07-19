@@ -55,7 +55,7 @@ module scalar_scheme
   use field_registry
   use usr_scalar
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_value, json_core
+  use json_module, only : json_file
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -82,6 +82,8 @@ module scalar_scheme
      real(kind=rp) :: Re                !< Reynolds number.
      real(kind=rp) :: Pr                !< Prandtl number.
      real(kind=rp) :: rho               !< Density.
+     !> Boundary condition labels (if any)
+     character(len=20), allocatable :: bc_labels(:)
    contains
      procedure, pass(this) :: scalar_scheme_init
      procedure, pass(this) :: scheme_free => scalar_scheme_free
@@ -199,22 +201,10 @@ contains
     character(len=*), intent(in) :: scheme
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
-    ! The boundary condition labels in the case file, if any
-    character(len=20), dimension(NEKO_MSH_MAX_ZLBLS) :: bc_labels
-    ! A single label for retrieving one by one from the json
-    character(len=:), allocatable :: bc_label
-    ! Number of bc labels in the case file, if any
-    integer :: nbcs
-    ! Pointer to a single bc label in the json
-    type(json_value), pointer :: bc_ptr
-    ! Iterator variable
-    integer :: i
     ! Variables for retrieving json parameters
-    logical :: found, logical_val
+    logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val
-    type(json_value), pointer :: json_val
-    type(json_core) :: core
     character(len=:), allocatable :: solver_type, solver_precon
 
     this%u => neko_field_registry%get_field('u')
@@ -265,28 +255,18 @@ contains
     call this%user_bc%init(this%dm_Xh)
 
     ! Read boundary types from the case file
+    allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
+
     ! A filler value
-    bc_labels = "not"
+    this%bc_labels = "not"
 
     if (params%valid_path('case.scalar.boundary_types')) then
-       ! Get the number of bc labels in the case file and allocate
-       call params%info('case.scalar.boundary_types', n_children=nbcs)
-
-       ! Get the object to iterate over using json_core
-       call params%get('case.scalar.boundary_types', json_val, found)
-       call params%get_core(core)
-       do i=1, nbcs
-          ! Get a pointer to the array element extrac the value
-          call core%get_child(json_val, i, bc_ptr, found)
-          call core%get(bc_ptr, bc_label)
-          
-          ! Assign non-empty label
-          if (len(bc_label) > 0) then
-            bc_labels(i) = bc_label
-          end if
-       end do
+       call json_get(params, &
+                     'case.scalar.boundary_types', &
+                     this%bc_labels)       
     end if
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, bc_labels) 
+    
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels) 
 
 
     call this%user_bc%mark_zone(msh%wall)
@@ -326,6 +306,10 @@ contains
     if (allocated(this%pc)) then
        call precon_destroy(this%pc)
        deallocate(this%pc)
+    end if
+
+    if (allocated(this%bc_labels)) then
+       deallocate(this%bc_labels)
     end if
 
     call source_scalar_free(this%f_Xh)
