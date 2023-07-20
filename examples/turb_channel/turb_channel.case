@@ -42,8 +42,8 @@
             "use_averaged_flow": true
         },
         "boundary_types": ["", "", "w", "w"],
-        "output_control": "simulationtime",
-        "output_value": 100
+        "output_control": "tsteps",
+        "output_value": 400
     },
     "statistics": {
         "enabled": true,
