@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -58,11 +58,11 @@ module case
   use jobctrl
   use user_intf  
   use scalar_pnpn ! todo directly load the pnpn? can we have other
-  use json_module, only : json_file, json_value 
+  use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   implicit none
-
+  
   type :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
@@ -84,26 +84,19 @@ module case
      type(scalar_pnpn_t), allocatable :: scalar 
   end type case_t
 
+  interface case_init
+     module procedure case_init_from_file
+  end interface case_init
+
+  private :: case_init_from_file, case_init_from_json, case_init_common
+
 contains
 
   !> Initialize a case from an input file @a case_file
-  subroutine case_init(C, case_file)
-    implicit none
+  subroutine case_init_from_file(C, case_file)
     type(case_t), target, intent(inout) :: C
     character(len=*), intent(in) :: case_file
-    character(len=:), allocatable :: output_directory
-    integer :: lx = 0
-    logical :: scalar = .false.
-    integer :: ierr
-    type(file_t) :: msh_file, bdry_file, part_file
-    type(mesh_fld_t) :: msh_part, parts
-    logical :: found, logical_val
-    integer :: integer_val
-    real(kind=rp) :: real_val
-    character(len=:), allocatable :: string_val
-    real(kind=rp) :: stats_start_time, stats_output_val
-    integer ::  stats_sampling_interval 
-    integer :: output_dir_len
+    integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
    
     call neko_log%section('Case')
@@ -120,6 +113,45 @@ contains
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
+    deallocate(json_buffer)
+
+    call case_init_common(C)
+    
+  end subroutine case_init_from_file
+
+  !> Initialize a case from a JSON object describing a case
+  subroutine case_init_from_json(C, case_json)
+    type(case_t), target, intent(inout) :: C
+    type(json_file), intent(in) :: case_json
+
+    call neko_log%section('Case')
+    call neko_log%message('Creating case from JSON object')
+
+    C%params = case_json
+
+    call case_init_common(C)
+    
+  end subroutine case_init_from_json
+
+  !> Initialize a case from its (loaded) params object
+  subroutine case_init_common(C)
+    type(case_t), target, intent(inout) :: C
+    character(len=:), allocatable :: output_directory
+    integer :: lx = 0
+    logical :: scalar = .false.
+    type(file_t) :: msh_file, bdry_file, part_file
+    type(mesh_fld_t) :: msh_part, parts
+    logical :: found, logical_val
+    integer :: integer_val
+    real(kind=rp) :: real_val
+    character(len=:), allocatable :: string_val
+    real(kind=rp) :: stats_start_time, stats_output_val
+    integer ::  stats_sampling_interval 
+    integer :: output_dir_len
+
+    !
+    ! Load mesh
+    !
     call json_get(C%params, 'case.mesh_file', string_val)
     msh_file = file_t(string_val)
     
@@ -411,7 +443,7 @@ contains
 
     call neko_log%end_section()
     
-  end subroutine case_init
+  end subroutine case_init_common
   
   !> Deallocate a case 
   subroutine case_free(C)
