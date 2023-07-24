@@ -417,7 +417,7 @@ contains
       call this%bc_apply_vel()
       call this%bc_apply_prs()
 
-      ! C ompute pressure.
+      ! Compute pressure.
       call profiler_start_region('Pressure residual')
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            f_Xh, c_Xh, gs_Xh, this%bc_prs_surface, &
