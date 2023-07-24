@@ -250,7 +250,7 @@ contains
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf)
 
-      ! evaluate the source term and scale with the mass matrix
+      ! Evaluate the source term and scale with the mass matrix.
       call f_Xh%eval(t)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -259,8 +259,9 @@ contains
          call col2(f_Xh%s, c_Xh%B, n)
       end if
 
-      call this%adv%apply_scalar(u, v, w, s, f_Xh%s, &
-                                 Xh, this%c_Xh, dm_Xh%size())
+      ! Add the advection operators to the right-hans-side.
+      call this%adv%compute_scalar(u, v, w, s, f_Xh%s, &
+                                   Xh, this%c_Xh, dm_Xh%size())
 
       call makeext%compute_scalar(ta1, this%abx1, this%abx2, f_Xh%s, &
            rho, ext_bdf%advection_coeffs, n)
@@ -274,7 +275,7 @@ contains
       !> Apply dirichlet
       call this%bc_apply()
 
-      ! compute scalar residual
+      ! Compute scalar residual.
       call profiler_start_region('Scalar residual')
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, &
           ext_bdf%diffusion_coeffs(1), dt, &
