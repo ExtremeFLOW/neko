@@ -85,6 +85,7 @@ extern "C" {
     HIP_CHECK(hipMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
                              hipMemcpyDeviceToHost,
                              (hipStream_t) glb_cmd_queue));
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
 #endif
     return gmres_bf1[0];
 

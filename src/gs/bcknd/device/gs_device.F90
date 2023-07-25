@@ -348,7 +348,7 @@ contains
          
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
-               call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
+               call device_memcpy(v, v_d, m, DEVICE_TO_HOST,strm=strm)
             end if
          end if
 
