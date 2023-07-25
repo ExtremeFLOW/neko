@@ -378,23 +378,31 @@ contains
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
         
+      ! Compute additional source terms
       call f_Xh%eval(t)
 
+      ! Pre-multiply the source terms with the mass matrix and add to the RHS.
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
       else
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       end if
 
-      call this%adv%apply(u, v, w, &
-                          f_Xh%u, f_Xh%v, f_Xh%w, &
-                          Xh, this%c_Xh, dm_Xh%size())
+      ! Add the advection operators to the right-hand-side.
+      call this%adv%compute(u, v, w, &
+                            f_Xh%u, f_Xh%v, f_Xh%w, &
+                            Xh, this%c_Xh, dm_Xh%size())
 
+      ! At this point the RHS contains the sum of the advection operator and
+      ! additional source terms, evaluated using the velocity field from the
+      ! previous time-step. Now, this value is used in the explicit time
+      ! scheme to advance both terms in time. 
       call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
                            rho, ext_bdf%advection_coeffs, n)
 
+      ! Add the RHS contributions coming from the BDF scheme.
       call makebdf%compute_fluid(ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
                            u, v, w, c_Xh%B, rho, dt, &
                            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
@@ -402,13 +410,14 @@ contains
       call ulag%update()
       call vlag%update()
       call wlag%update()
+
       !> We assume that no change of boundary conditions 
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
       call this%bc_apply_vel()
       call this%bc_apply_prs()
 
-      ! compute pressure
+      ! Compute pressure.
       call profiler_start_region('Pressure residual')
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            f_Xh, c_Xh, gs_Xh, this%bc_prs_surface, &
@@ -443,7 +452,7 @@ contains
       end if
       
 
-      ! compute velocity
+      ! Compute velocity.
       call profiler_start_region('Velocity residual')
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
