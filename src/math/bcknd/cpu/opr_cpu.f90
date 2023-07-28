@@ -60,6 +60,7 @@ contains
          intent(in) ::  u, dr, ds, dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+      !$omp parallel
       select case(coef%Xh%lx)
       case(14)
          call cpu_dudxyz_lx14(du, u, dr, ds, dt, & 
@@ -104,7 +105,7 @@ contains
          call cpu_dudxyz_lx(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, Xh%lx)
       end select
-
+      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_dudxyz
@@ -265,6 +266,7 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+      !$omp parallel
       select case(Xh%lx)
       case(14)
          call cpu_cdtp_lx14(dtx, x, dr, ds, dt, &
@@ -309,6 +311,7 @@ contains
          call cpu_cdtp_lx(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv, Xh%lx)
       end select
+      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_cdtp
@@ -477,7 +480,9 @@ contains
     real(kind=rp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
+    !$omp parallel private(e, k, j, i, cflr, cfls, cflt, cflm)
     if (gdim .eq. 3) then
+       !$omp do reduction(max:cfl)
        do e = 1,nelv
           do k = 1,Xh%lz
              do j = 1,Xh%ly
@@ -502,7 +507,9 @@ contains
              end do
           end do
        end do
+       !$omp end do
     else
+       !$omp do reduction(max:cfl)
        do e = 1,nelv
           do j = 1,Xh%ly
              do i = 1,Xh%lx
@@ -520,7 +527,9 @@ contains
              end do
           end do
        end do
+      !$omp end do
     end if
+    !$omp end parallel
   end function opr_cpu_cfl
 
 end module opr_cpu

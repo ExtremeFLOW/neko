@@ -46,7 +46,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
-
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -101,6 +101,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx
   
   subroutine cpu_cdtp_lx14(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -111,7 +112,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -192,6 +193,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx14
   
   subroutine cpu_cdtp_lx13(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -202,7 +204,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -280,6 +282,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx13
   
   subroutine cpu_cdtp_lx12(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -290,7 +293,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -365,6 +368,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx12
   
   subroutine cpu_cdtp_lx11(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -375,7 +379,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -447,6 +451,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx11
   
   subroutine cpu_cdtp_lx10(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -457,7 +462,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
 
        do i = 1, lx*lx*lx
@@ -527,6 +532,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx10
 
   subroutine cpu_cdtp_lx9(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -537,7 +543,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -603,6 +609,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx9
 
   subroutine cpu_cdtp_lx8(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -613,7 +620,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -676,6 +683,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx8
 
   subroutine cpu_cdtp_lx7(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -686,7 +694,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -746,6 +754,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx7
   
   subroutine cpu_cdtp_lx6(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -756,7 +765,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -813,6 +822,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx6
 
   subroutine cpu_cdtp_lx5(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -823,7 +833,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -877,6 +887,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx5
 
   subroutine cpu_cdtp_lx4(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -887,7 +898,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -938,6 +949,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx4
 
   subroutine cpu_cdtp_lx3(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -948,7 +960,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nel
        
        do i = 1, lx*lx*lx
@@ -996,6 +1008,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx3
   
   subroutine cpu_cdtp_lx2(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
@@ -1006,7 +1019,7 @@ contains
     real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)   
     real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nel
 
        do i = 1, lx*lx*lx
@@ -1051,6 +1064,7 @@ contains
        end do
        
     end do
+    !$omp end do
   end subroutine cpu_cdtp_lx2
 
 end module cpu_cdtp
