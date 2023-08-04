@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Simulation components are objects that encapsulate functionality that can be
-!! fit to a particular software pattern.
-!! The canonical way to abbreviate simulation_component is simcomp
+!> Defines a factory subroutine for simulation components.
 module simulation_component_fctry
-  use num_types
-  use simulation_component
-  use simcomp_one
+  use simulation_component, only : simulation_component_t
+  use vorticity, only : vorticity_t
+  use json_module, only : json_file
+  use fluid_scheme, only : fluid_scheme_t
+  use json_utils, only : json_get
   implicit none
   private
   
@@ -45,18 +45,22 @@ module simulation_component_fctry
   
   contains
 
-  subroutine simulation_component_factory(simcomp, json_dict)
+  !> Simulation component factory. Both constructs and initializes the object.
+  !! @param json JSON object initializing the simulation component.
+  subroutine simulation_component_factory(simcomp, json, fluid)
        class(simulation_component_t), allocatable, intent(inout) :: simcomp
-       !! stub for a json dict for a single component
-       integer, intent(in) :: json_dict
-       
-       ! Some logic to extract the component name from the dict according to the
-       ! JSON structure, followed by a standard factory switch across names
-       ! Here default to the one simcomp we have as an example
-       allocate(simcomp_one_t::simcomp)
+       type(json_file), intent(inout) :: json
+       class(fluid_scheme_t), intent(inout), target :: fluid
+       character(len=:), allocatable :: simcomp_type
+              
+       call json_get(json, "type", simcomp_type)
+
+       if (trim(simcomp_type) .eq. "vorticity") then 
+          allocate(vorticity_t::simcomp)
+       end if
        
        ! Initialize
-       call simcomp%init(json_dict)
+       call simcomp%init(json, fluid)
 
   end subroutine simulation_component_factory
    
