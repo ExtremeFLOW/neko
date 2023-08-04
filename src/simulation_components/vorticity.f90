@@ -87,7 +87,7 @@ module vorticity
        
        call this%init_base(json, fluid)
 
-       call vorticity_init_from_int(this)
+       call vorticity_init_from_attributes(this)
   end subroutine vorticity_init_from_json
 
   !> Actual constructor.
