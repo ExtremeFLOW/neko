@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[0.5.99])
+AC_INIT([neko],[0.6.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -60,6 +60,13 @@ AX_MPI_DTYPE
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
+
+        
+              
+# Checks for platform headers
+AC_LANG_PUSH([C])
+AC_CHECK_HEADERS([cpuid.h])
+AC_LANG_POP([C])  
 
 # Set necessary flags to fix issues with various compilers
 if test "x$ax_cv_fc_compiler_vendor" = xportland; then
@@ -147,6 +154,9 @@ fi
 # Checks for ADIOS2
 AX_ADIOS2
 
+# Checks for gslib
+AX_GSLIB
+
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
@@ -204,7 +214,7 @@ if (test "x${have_cuda}" = xyes ||
     test "x${have_opencl}" = xyes); then
    if test "x${enable_device_mpi}" = xyes; then
 
-      # Check that necessary acceleator modules are loaded
+      # Check that necessary accelerator modules are loaded
       if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
       	 AX_CRAY_ACCEL
       fi
@@ -240,6 +250,11 @@ AX_NVTX
 
 # Checks for ROCTX profiling
 AX_ROCTX
+
+# JSON-Fortran
+PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
+LIBS="$JSON_Fortran_LIBS $LIBS"
+FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
@@ -299,15 +314,20 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/mathops/Makefile\
 		 tests/device_mathops/Makefile\
 		 tests/octree/Makefile\
-       tests/vector/Makefile\
-       tests/scratch_registry/Makefile\
-       tests/fast3d/Makefile
-       ])
+                 tests/vector/Makefile\
+                 tests/scratch_registry/Makefile\
+                 tests/fast3d/Makefile\
+                 tests/time_scheme/Makefile\
+                 tests/time_scheme_controller/Makefile\
+                 tests/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
+		    contrib/average_fields_in_time/Makefile\
+		    contrib/postprocess_fluid_stats/Makefile\
+		    contrib/average_field_in_space/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen

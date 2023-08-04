@@ -125,7 +125,7 @@ contains
     this%x = 0d0
     this%y = 0d0
     this%z = 0d0
-    !> @note should be intialised differently in acissymmetric case
+    !> @note should be intialised differently in axissymmetric case
 
     call dofmap_generate_xyz(this)    
 
@@ -185,7 +185,7 @@ contains
     
   end subroutine dofmap_free
 
-  !> Return the total number of dofs in the dofmap
+  !> Return the total number of dofs in the dofmap, lx*ly*lz*nelv
   pure function dofmap_size(this) result(res)
     class(dofmap_t), intent(in) :: this
     integer :: res
@@ -203,9 +203,9 @@ contains
     Xh => this%Xh
     do il = 1, msh%nelv
        do jl = 1, msh%npts
-          ix = mod(jl - 1, 2) * (Xh%lx - 1) + 1
-          iy = (mod(jl - 1, 4)/2) *(Xh%ly - 1) + 1
-          iz = ((jl - 1)/4) * (Xh%lz - 1) + 1
+          ix = mod(jl - 1, 2)     * (Xh%lx - 1) + 1
+          iy = (mod(jl - 1, 4)/2) * (Xh%ly - 1) + 1
+          iz = ((jl - 1)/4)       * (Xh%lz - 1) + 1
           this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
           this%shared_dof(ix, iy, iz, il) = &
                mesh_is_shared(msh, msh%elements(il)%e%pts(jl)%p)
@@ -472,7 +472,7 @@ contains
     facet_offset = int(msh%glb_mpts, i8) + &
          int(msh%glb_meds, i8) * int(Xh%lx-2, i8) + int(1, i8)
 
-    ! Number of dofs on an edge excluding end-points
+    ! Number of dofs on an face excluding end-points
     num_dofs_faces(1) =  int((Xh%ly - 2) * (Xh%lz - 2), i8)
     num_dofs_faces(2) =  int((Xh%lx - 2) * (Xh%lz - 2), i8)
     num_dofs_faces(3) =  int((Xh%lx - 2) * (Xh%ly - 2), i8)
@@ -646,7 +646,8 @@ contains
     end if
 
     do i = 1, msh%nelv       
-       call dofmap_xyzlin(Xh,msh, msh%elements(i)%e,this%x(1,1,1,i),this%y(1,1,1,i), this%z(1,1,1,i)) 
+       call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x(1,1,1,i), &
+                          this%y(1,1,1,i), this%z(1,1,1,i)) 
     end do
     do i =1, msh%curve%size 
        midpoint = .false.
@@ -682,11 +683,21 @@ contains
     end if
   end subroutine dofmap_generate_xyz
 
+  !> Generate the x, y, z coordinates of the dofs in a signle element, assuming
+  !! linear element edges.
+  !! @param Xh The function space.
+  !! @param msh The mesh.
+  !! @param element The element.
+  !! @param x The x coordinates of the dofs.
+  !! @param y The y coordinates of the dofs.
+  !! @param z The z coordinates of the dofs.
   subroutine dofmap_xyzlin(Xh, msh, element, x, y, z)
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
     class(element_t), intent(in) :: element
-    real(kind=rp), intent(inout) :: x(Xh%lx,Xh%ly,Xh%lz), y(Xh%lx,Xh%ly,Xh%lz), z(Xh%lx,Xh%ly,Xh%lz)
+    real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz), &
+                                    y(Xh%lx, Xh%ly, Xh%lz), &
+                                    z(Xh%lx, Xh%ly, Xh%lz)
     real(kind=rp) :: xyzb(2,2,2,3), zgml(Xh%lx, 3)
     real(kind=rp) :: jx(Xh%lx*2)
     real(kind=rp) :: jxt(Xh%lx*2), jyt(Xh%lx*2), jzt(Xh%lx*2)
@@ -707,10 +718,10 @@ contains
     
     k = 1
     do j = 1, Xh%lx
-       call fd_weights_full(zgml(j,1),zlin,1,0,jxt(k))
-       call fd_weights_full(zgml(j,2),zlin,1,0,jyt(k))
+       call fd_weights_full(zgml(j,1), zlin, 1, 0, jxt(k))
+       call fd_weights_full(zgml(j,2), zlin, 1, 0, jyt(k))
        if (msh%gdim .gt. 2) then
-          call fd_weights_full(zgml(j,3),zlin,1,0,jzt(k))
+          call fd_weights_full(zgml(j,3), zlin, 1, 0, jzt(k))
        end if
        k = k + 2
     end do
@@ -822,12 +833,12 @@ contains
 
     call space_free(Xh3)
   end subroutine dofmap_xyzquad
+
  !> Extend faces into interior via gordon hall
  !! gh_type:  1 - vertex only                   
  !!           2 - vertex and edges
  !!           3 - vertex, edges, and faces      
  !! Original in Nek5000/core/navier5.f
-    
  subroutine gh_face_extend_3d(x, zg, n, gh_type, e, v)
    integer, intent(in) :: n
    real(kind=rp), intent(inout) ::  x(n, n, n)

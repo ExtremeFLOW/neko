@@ -58,7 +58,6 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module fluid_volflow
-  use parameters
   use operators
   use num_types
   use mathops    
@@ -67,11 +66,14 @@ module fluid_volflow
   use dofmap
   use field
   use coefs
-  use ext_bdf_scheme
+  use time_scheme_controller
   use math    
   use neko_config
   use device_math
   use device_mathops
+  use json_module, only : json_file
+  use json_utils, only: json_get
+  use scratch_registry, only : scratch_registry_t
   implicit none
   private
   
@@ -84,6 +86,8 @@ module fluid_volflow
      real(kind=rp) :: bdlag = 0d0 !< Really quite pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
+     !> Manager for temporary fields
+     type(scratch_registry_t) :: scratch
    contains
      procedure, pass(this) :: init => fluid_vol_flow_init
      procedure, pass(this) :: free => fluid_vol_flow_free
@@ -93,17 +97,25 @@ module fluid_volflow
 
 contains
 
-  subroutine fluid_vol_flow_init(this, dm_Xh, param)
+  subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), intent(inout) :: dm_Xh
-    type(param_t), intent(inout) :: param
+    type(json_file), intent(inout) :: params
+    logical average, found
+    integer :: direction
+    real(kind=rp) :: rate
 
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    this%flow_dir = param%vol_flow_dir
-    this%avflow = param%avflow
-    this%flow_rate = param%flow_rate
+    call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
+    call json_get(params, 'case.fluid.flow_rate_force.value', rate)
+    call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
+                  average)
+
+    this%flow_dir = direction
+    this%avflow = average
+    this%flow_rate = rate
 
     if (this%flow_dir .ne. 0) then
        call field_init(this%u_vol, dm_Xh, 'u_vol')
@@ -111,6 +123,8 @@ contains
        call field_init(this%w_vol, dm_Xh, 'w_vol')
        call field_init(this%p_vol, dm_Xh, 'p_vol')
     end if
+
+    this%scratch = scratch_registry_t(dm_Xh, 3, 1)
     
   end subroutine fluid_vol_flow_init
 
@@ -121,6 +135,8 @@ contains
     call field_free(this%v_vol)
     call field_free(this%w_vol)
     call field_free(this%p_vol)
+
+    call this%scratch%free()
         
   end subroutine fluid_vol_flow_free
 
@@ -128,27 +144,33 @@ contains
   !! @brief Compute pressure and velocity using fractional step method.
   !! (Tombo splitting scheme).
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
-       ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, bd, dt, &
+       ext_bdf, gs_Xh, c_Xh, rho, Re, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, niter)
+       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(inout) :: Ax
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
-    real(kind=rp), intent(inout) :: rho, Re, bd, dt
-    integer, intent(in) :: niter
+    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: rho, Re, dt
+    integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
     real(kind=rp) :: xlmin, xlmax
     real(kind=rp) :: ylmin, ylmax
     real(kind=rp) :: zlmin, zlmax
     type(ksp_monitor_t) :: ksp_result
+    type(field_t), pointer :: ta1, ta2, ta3
+    integer :: temp_indices(3)
+    
+    call this%scratch%request_field(ta1, temp_indices(1))
+    call this%scratch%request_field(ta2, temp_indices(2))
+    call this%scratch%request_field(ta3, temp_indices(3))
     
 
     associate(msh => c_Xh%msh, p_vol => this%p_vol, &
@@ -194,7 +216,7 @@ contains
       call bc_list_apply_scalar(bclst_dp, p_res%x, n)
       call pc_prs%update()
       ksp_result = ksp_prs%solve(Ax, p_vol, p_res%x, n, &
-           c_Xh, bclst_dp, gs_Xh, niter)    
+           c_Xh, bclst_dp, gs_Xh, prs_max_iter)    
 
       !   Compute velocity
       
@@ -255,11 +277,11 @@ contains
        call pc_vel%update()
 
        ksp_result = ksp_vel%solve(Ax, u_vol, u_res%x, n, &
-            c_Xh, bclst_du, gs_Xh, niter)
+            c_Xh, bclst_du, gs_Xh, vel_max_iter)
        ksp_result = ksp_vel%solve(Ax, v_vol, v_res%x, n, &
-            c_Xh, bclst_dv, gs_Xh, niter)
+            c_Xh, bclst_dv, gs_Xh, vel_max_iter)
        ksp_result = ksp_vel%solve(Ax, w_vol, w_res%x, n, &
-            c_Xh, bclst_dw, gs_Xh, niter)
+            c_Xh, bclst_dw, gs_Xh, vel_max_iter)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
@@ -291,6 +313,7 @@ contains
       end if
      end associate
 
+    call this%scratch%relinquish_field(temp_indices)
   end subroutine fluid_vol_flow_compute
 
   !> Adjust flow volume
@@ -303,28 +326,29 @@ contains
   !!
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
-       ta1, ta2, ta3, c_Xh, gs_Xh, ext_bdf, rho, Re, dt, &
+       c_Xh, gs_Xh, ext_bdf, rho, Re, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, niter)
+       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
-    real(kind=rp), intent(inout) :: rho, Re, dt
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    real(kind=rp), intent(in) :: rho, Re, dt
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(inout) :: Ax
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
-    integer, intent(in) :: niter
+    integer, intent(in) :: prs_max_iter, vel_max_iter
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, base_flow, scale
     integer :: n, ierr
-
+    type(field_t), pointer :: ta1, ta2, ta3
+    integer :: temp_indices(3)
+    
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)
       
@@ -335,21 +359,21 @@ contains
       
       ifcomp = 0.0_rp
 
-      if (dt .ne. this%dtlag .or. ext_bdf%bdf%coeffs(1) .ne. this%bdlag) then
+      if (dt .ne. this%dtlag .or. ext_bdf%diffusion_coeffs(1) .ne. this%bdlag) then
          ifcomp = 1.0_rp
       end if
       
       this%dtlag = dt
-      this%bdlag = ext_bdf%bdf%coeffs(1)
+      this%bdlag = ext_bdf%diffusion_coeffs(1)
 
       call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
-              ta1, ta2, ta3, ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%bdf%coeffs(1), dt, &
+              ext_bdf, gs_Xh, c_Xh, rho, Re, ext_bdf%diffusion_coeffs(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-              Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, niter)
+              Ax, ksp_vel, ksp_prs, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
       end if
       
       if (NEKO_BCKND_DEVICE .eq. 1) then

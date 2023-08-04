@@ -54,3 +54,20 @@ __kernel void inhom_dirichlet_apply_vector_kernel(__global const int *msk,
     z[k] = bla_z[i];
   }
 }
+
+/**
+ * Device kernel for scalar apply for an inhomogeneous Dirichlet condition
+ */
+__kernel void inhom_dirichlet_apply_scalar_kernel(__global const int *msk,
+					  __global real *x,
+					  __global real *bla_x,
+					  const int m) {
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < m; i += str) {
+    const int k = msk[i + 1] -1;
+    x[k] = bla_x[i];
+  }
+}

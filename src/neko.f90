@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@
 !> Master module
 module neko
   use num_types
-  use parameters    
   use comm
   use utils
   use logger
@@ -76,10 +75,18 @@ module neko
   use jobctrl
   use device
   use cpr
-  use field_registry
+  use fluid_stats
+  use field_list  
   use vector
   use simulation_component
   use simulation_component_fctry
+  use system
+  use field_registry, only : neko_field_registry    
+  use scratch_registry, only : neko_scratch_registry
+  use json_module, only : json_file, json_value, json_core
+  !$ use omp_lib
+  implicit none
+
 contains
 
   subroutine neko_init(C)
@@ -89,8 +96,8 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc
     integer :: n_simcomps, i
+    integer :: argc, nthrds, rw, sw
 
     call date_and_time(time=time, date=date)           
 
@@ -141,24 +148,59 @@ contains
             time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
        call neko_log%message(log_buf)
        write(log_buf, '(a)') 'Running on: '
+       sw = 10 
        if (pe_size .lt. 1e1)  then
           write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
           if (pe_size .eq. 1) then
              write(log_buf(19:), '(a)') 'rank'
+             sw = 9
           else
              write(log_buf(19:), '(a)') 'ranks'
           end if
+          rw = 1
        else if (pe_size .lt. 1e2) then
           write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
+          rw = 2
        else if (pe_size .lt. 1e3) then
           write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
+          rw = 3
        else if (pe_size .lt. 1e4) then
           write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
+          rw = 4
        else if (pe_size .lt. 1e5) then
           write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
+          rw = 5
        else
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
+          rw = 6
        end if
+       
+       nthrds = 1
+       !$omp parallel
+       !$omp master
+       !$ nthrds = omp_get_num_threads()
+       !$omp end master
+       !$omp end parallel
+
+       if (nthrds .gt. 1) then
+          if (nthrds .lt. 1e1) then                
+             write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e2) then
+             write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e3) then
+             write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e4) then
+             write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
+                  nthrds, ' thrds each'
+          end if
+       end if
+       call neko_log%message(log_buf)      
+
+       write(log_buf, '(a)') 'CPU type  : '
+       call system_cpu_name(log_buf(13:))
        call neko_log%message(log_buf)
 
        write(log_buf, '(a)') 'Bcknd type: '
@@ -230,6 +272,7 @@ contains
     end if
     
     call neko_field_registry%free()
+    call neko_scratch_registry%free()
     call device_finalize
     call mpi_types_free
     call comm_free

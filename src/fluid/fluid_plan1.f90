@@ -1,7 +1,7 @@
 !> Classic NEKTON formulation
 !! Compute pressure and velocity using consistent approximation spaces.
 module fluid_plan1
-  use fluid_method
+  use fluid_scheme
   implicit none
 
   type, extends(fluid_scheme_t) :: fluid_plan1_t
@@ -74,7 +74,7 @@ contains
     class(fluid_plan1_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
-    type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
 
   end subroutine fluid_plan1_step
   

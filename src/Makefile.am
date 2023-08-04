@@ -3,18 +3,19 @@ lib_LIBRARIES = libneko.a
 neko_fortran_SOURCES = \
 	config/num_types.f90\
 	common/structs.f90\
-	common/parameters.f90\
 	io/format/nmsh.f90\
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-	common/log.f90\
+        common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
+	common/json_utils.f90\
+	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	math/math.f90\
@@ -25,6 +26,7 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/interpolation.f90\
+	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
@@ -55,6 +57,7 @@ neko_fortran_SOURCES = \
 	field/field_registry.f90\
 	field/scratch_registry.f90\
 	field/field.f90\
+	field/field_list.f90\
 	field/field_series.f90\
 	field/mesh_field.f90\
 	field/mean_field.f90\
@@ -84,6 +87,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/matrix.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -95,12 +99,15 @@ neko_fortran_SOURCES = \
 	io/stl_file.f90\
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
+	io/csv_file.f90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
 	io/scalar_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
+	io/fluid_stats_output.f90\
+	io/field_list_output.f90\
 	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
 	common/profiler.F90\
@@ -111,6 +118,7 @@ neko_fortran_SOURCES = \
 	bc/wall.f90\
 	bc/inflow.f90\
 	bc/usr_inflow.f90\
+	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
@@ -135,8 +143,12 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/device/gmres_device.F90\
 	krylov/bcknd/device/pc_jacobi_device.F90\
 	krylov/bcknd/device/pc_identity_device.f90\
+	time_schemes/time_scheme.f90\
+	time_schemes/bdf_time_scheme.f90\
+	time_schemes/ext_time_scheme.f90\
+	time_schemes/ab_time_scheme.f90\
+	time_schemes/time_scheme_controller.f90\
 	common/source.f90\
-	common/ext_bdf_scheme.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	common/rhs_maker.f90\
@@ -147,15 +159,15 @@ neko_fortran_SOURCES = \
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
-	fluid/fluid_method.f90\
+	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
-	fluid/fluid_plan1.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
 	fluid/mean_flow.f90\
+	fluid/fluid_stats.f90\
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
@@ -182,6 +194,7 @@ neko_fortran_SOURCES = \
 	device/hip/roctx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
+	device/dummy_device.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/device_schwarz.F90\
@@ -196,7 +209,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
-	scalar/scalar_method.f90\
+	scalar/scalar_scheme.f90\
 	scalar/scalar_pnpn.f90\
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
@@ -210,6 +223,7 @@ neko_fortran_SOURCES = \
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
+		 common/cpuid.c\
                  gs/bcknd/device/device_mpi.c\
                  math/bcknd/device/device_mpi_reduce.c
 
@@ -456,6 +470,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
+	math/bcknd/device/device_mpi_op.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

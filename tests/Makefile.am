@@ -26,7 +26,10 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  scratch_registry\
-	  fast3d
+	  fast3d\
+	  time_scheme\
+	  time_scheme_controller\
+	  point_interpolation
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -53,10 +56,13 @@ TESTS = device/device_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
-    octree/octree_test\
+	octree/octree_test\
 	vector/vector_test\
 	scratch_registry/scratch_registry_test\
-	fast3d/fast3d_test
+	fast3d/fast3d_test\
+	time_scheme/time_scheme_test\
+	time_scheme_controller/time_scheme_controller_test\
+	point_interpolation/point_interpolation_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
@@ -113,4 +119,11 @@ EXTRA_DIST = \
 	octree/octree.pf\
 	vector/vector_parallel.pf\
 	scratch_registry/test_scratch_registry.pf\
-    fast3d/test_fd_weights_full.pf
+	fast3d/test_fd_weights_full.pf\
+	fast3d/test_setup_intp.pf\
+	time_scheme/test_bdf.pf\
+	time_scheme/test_ext.pf\
+	time_scheme/test_ab.pf\
+	time_scheme_controller/test_time_scheme_controller.pf\
+	point_interpolation/point_interpolation_parallel.pf\
+	point_interpolation/point_interpolation_test

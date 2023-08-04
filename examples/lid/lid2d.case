@@ -1,17 +1,41 @@
-&NEKO_CASE
-  mesh_file = 'lid2d.nmsh'
-  fluid_scheme = 'pnpn'
-  lx = 8
-  source_term = 'noforce'
-  initial_condition = 'user'
-/
-&NEKO_PARAMETERS
-  dt = 1d-3
-  T_end = 50
-  nsamples = 500
-  Re = 5000
-  pc_vel = 'jacobi'
-  pc_prs = 'hsmg'
-  proj_prs_dim = 8
-  fluid_inflow = 'user'
-/
+{
+  "version": 1.0,
+  "case":
+  {
+  "mesh_file": "lid2d.nmsh",
+  "end_time": 50,
+  "timestep": 1e-3,
+  "numerics": {
+    "time_order": 3,
+    "polynomial_order": 7,
+    "dealias": true
+  },
+  "fluid": {
+    "scheme": "pnpn",
+    "rho": 1.0,
+    "mu": 1.0,
+    "Re": 5000,
+    "inflow_condition": {
+      "type": "user"
+    },
+    "initial_condition": {
+      "type": "user"
+    },
+    "velocity_solver": {
+      "type": "cg",
+      "preconditioner": "jacobi",
+      "absolute_tolerance": 1e-7,
+      "max_iterations": 200
+    },
+    "pressure_solver": {
+      "type": "gmres",
+      "preconditioner": "hsmg",
+      "projection_space_size": 8,
+      "absolute_tolerance": 1e-7,
+      "max_iterations": 200
+    },
+    "output_control": "simulationtime",
+    "output_value": 5
+  }
+  }
+}

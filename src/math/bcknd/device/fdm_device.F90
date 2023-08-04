@@ -38,54 +38,56 @@ module fdm_device
   implicit none
 #ifdef HAVE_HIP
   interface
-     subroutine hip_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv) &
+     subroutine hip_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream) &
           bind(c, name='hip_fdm_do_fast')
        use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: e_d, r_d, s_d, d_d
+       type(c_ptr), value :: e_d, r_d, s_d, d_d, stream
        integer(c_int) :: nl, nelv
      end subroutine hip_fdm_do_fast
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv) &
+     subroutine cuda_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream) &
           bind(c, name='cuda_fdm_do_fast')
        use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: e_d, r_d, s_d, d_d
+       type(c_ptr), value :: e_d, r_d, s_d, d_d, stream
        integer(c_int) :: nl, nelv
      end subroutine cuda_fdm_do_fast
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv) &
+     subroutine opencl_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream) &
           bind(c, name='opencl_fdm_do_fast')
        use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: e_d, r_d, s_d, d_d
+       type(c_ptr), value :: e_d, r_d, s_d, d_d, stream
        integer(c_int) :: nl, nelv
      end subroutine opencl_fdm_do_fast
   end interface
 #endif
 contains
 
-  subroutine fdm_do_fast_device(e, r, s, d, nl, ldim, nelv)
+  subroutine fdm_do_fast_device(e, r, s, d, nl, ldim, nelv, stream)
     integer, intent(in) :: nl, nelv, ldim
     real(kind=rp), intent(inout) :: e(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
     real(kind=rp), intent(inout) :: d(nl**ldim, nelv)    
     type(c_ptr) :: e_d, r_d, s_d, d_d
+    type(c_ptr), optional :: stream
 
     e_d = device_get_ptr(e)
     r_d = device_get_ptr(r)
     s_d = device_get_ptr(s)
     d_d = device_get_ptr(d)
+    if (.not. present(stream)) stream = glb_cmd_queue
     if (ldim .ne. 3) call neko_error('fdm dim not supported')
 
 #ifdef HAVE_HIP
-    call hip_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv)
+    call hip_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream)
 #elif HAVE_CUDA
-    call cuda_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv)
+    call cuda_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream)
 #elif HAVE_OPENCL
-    call opencl_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv)
+    call opencl_fdm_do_fast(e_d, r_d, s_d, d_d, nl, nelv, stream)
 #else
     call neko_error('No device backend configured')
 #endif

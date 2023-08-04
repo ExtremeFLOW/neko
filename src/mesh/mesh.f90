@@ -153,7 +153,7 @@ module mesh
      module procedure mesh_get_global_edge, mesh_get_global_facet
   end interface mesh_get_global
 
-  !> Check if a mesh entitiy is shared
+  !> Check if a mesh entity is shared
   interface mesh_is_shared
      module procedure mesh_is_shared_point, mesh_is_shared_edge, &
           mesh_is_shared_facet

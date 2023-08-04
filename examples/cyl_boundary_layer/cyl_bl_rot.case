@@ -1,27 +1,50 @@
-&NEKO_CASE
-mesh_file= 'cyl.nmsh'
-fluid_scheme='pnpn'
-lx = 6
-source_term='noforce'
-initial_condition = 'user'
-/
-&NEKO_PARAMETERS
-dt = 5d-4
-T_end = 100
-nsamples = 400
-dealias=.true.
-uinf= 1.0,0.0,0.0
-output_bdry = .true.
-rho = 1
-Re = 500
-abstol_prs = 1d-5
-abstol_vel = 1d-8
-pc_vel = 'jacobi'
-pc_prs = 'hsmg'
-proj_prs_dim = 20
-proj_vel_dim = 3
-bc_labels='v','o+dong','sym','w','on','on+dong','v'
-fluid_inflow="user"
-dong_uchar = 1.0
-dong_delta = 0.01
-/
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "cyl.nmsh",
+    "output_at_end": true,
+    "output_boundary": true,
+    "output_checkpoints": false,
+    "output_directory": "results_rot",
+    "end_time": 100,
+    "timestep": 5e-4,
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "rho": 1,
+        "mu": 1,
+        "Re": 500,
+        "initial_condition": {
+            "type": "user",
+        },
+        "inflow_condition": {
+            "type": "user",
+        },
+        "outflow_condition": {
+            "delta": 0.01,
+            "velocity_scale": 1.0
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 3,
+            "absolute_tolerance": 1e-8,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 20,
+            "absolute_tolerance": 1e-5,
+            "max_iterations": 800
+        },
+        "boundary_types": ["v", "o+dong", "sym", "w", "on", "on+dong", "v"],
+        "output_control": "nsamples",
+        "output_value": 400
+    }
+}
+}

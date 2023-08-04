@@ -33,10 +33,9 @@
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
 
 ! todo: module name
-module scalar
+module scalar_scheme
   use gather_scatter
   use neko_config
-  use parameters
   use checkpoint
   use num_types
   use source
@@ -51,9 +50,12 @@ module scalar
   use precon_fctry
   use bc
   use mesh
-  use ext_bdf_scheme
+  use time_scheme_controller
   use logger
   use field_registry
+  use usr_scalar
+  use json_utils, only : json_get, json_get_or_default
+  use json_module, only : json_file
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -67,30 +69,39 @@ module scalar
      type(coef_t), pointer  :: c_Xh    !< Coefficients associated with \f$ X_h \f$
      type(source_scalar_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
      class(ksp_t), allocatable  :: ksp         !< Krylov solver
+     integer :: ksp_maxiter            !< Max iteration number in ksp.
+     integer :: projection_dim     !< Projection space size in ksp.
      class(pc_t), allocatable :: pc            !< Preconditioner
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)   !< Dirichlet conditions
+     type(usr_scalar_t) :: user_bc     !< Dirichlet conditions
      integer :: n_dir_bcs = 0
      type(bc_list_t) :: bclst                  !< List of boundary conditions
-     type(param_t), pointer :: params          !< Parameters          
+     type(json_file), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
+     real(kind=rp) :: Re                !< Reynolds number.
+     real(kind=rp) :: Pr                !< Prandtl number.
+     real(kind=rp) :: rho               !< Density.
+     !> Boundary condition labels (if any)
+     character(len=20), allocatable :: bc_labels(:)
    contains
      procedure, pass(this) :: scalar_scheme_init
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
      procedure, pass(this) :: set_source => scalar_scheme_set_source
-     procedure(scalar_method_init), pass(this), deferred :: init
-     procedure(scalar_method_free), pass(this), deferred :: free
-     procedure(scalar_method_step), pass(this), deferred :: step
+     procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
+     procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
+     procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
+     procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
      generic :: scheme_init => scalar_scheme_init
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_method_init(this, msh, coef, gs, param)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params)
        import scalar_scheme_t
-       import param_t
+       import json_file
        import coef_t
        import gs_t
        import mesh_t
@@ -98,34 +109,38 @@ module scalar
        type(mesh_t), target, intent(inout) :: msh       
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
-       type(param_t), target, intent(inout) :: param              
-     end subroutine scalar_method_init
+       type(json_file), target, intent(inout) :: params
+     end subroutine scalar_scheme_init_intrf
   end interface
 
   !> Abstract interface to dealocate a scalar formulation
   abstract interface
-     subroutine scalar_method_free(this)
+     subroutine scalar_scheme_free_intrf(this)
        import scalar_scheme_t
        class(scalar_scheme_t), intent(inout) :: this
-     end subroutine scalar_method_free
+     end subroutine scalar_scheme_free_intrf
   end interface
   
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_method_step(this, t, tstep, ext_bdf)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf)
        import scalar_scheme_t
-       import ext_bdf_scheme_t
+       import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: t
        integer, intent(inout) :: tstep
-       type(ext_bdf_scheme_t), intent(inout) :: ext_bdf
-     end subroutine scalar_method_step
+       real(kind=rp), intent(in) :: dt
+       type(time_scheme_controller_t), intent(inout) :: ext_bdf
+     end subroutine scalar_scheme_step_intrf
   end interface
 
 contains
 
   !> Initialize boundary conditions
+  !! @param zones List of zones
+  !! @param bc_labels List of user specified bcs from the parameter file
+  !! currently dirichlet 'd=X' and 'user' supported
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels) 
     class(scalar_scheme_t), intent(inout) :: this 
     type(zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
@@ -157,6 +172,11 @@ contains
             call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
          end if
        end if
+
+       !> Check if user bc on this zone
+       if (bc_label(1:4) .eq. 'user') then
+          call this%user_bc%mark_zone(zones(i))
+       end if
     end do
 
     do i = 1, this%n_dir_bcs
@@ -167,25 +187,53 @@ contains
   end subroutine scalar_scheme_add_bcs
 
   !> Initialize all related components of the current scheme
+  !! @param msh The mesh.
+  !! @param c_Xh The coefficients.
+  !! @param gs_Xh The gather-scatter.
+  !! @param params The case parameter file in json.
+  !! @param scheme The name of the scalar scheme.
   subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
     type(gs_t), target, intent(inout) :: gs_Xh
-    type(param_t), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
+    ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
+    ! Variables for retrieving json parameters
+    logical :: logical_val
+    real(kind=rp) :: real_val, solver_abstol
+    integer :: integer_val
+    character(len=:), allocatable :: solver_type, solver_precon
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
     call neko_log%section('Scalar')
+    call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
+    call json_get(params, 'case.fluid.velocity_solver.preconditioner',&
+                  solver_precon)
+    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
+                  solver_abstol)
+
+    call json_get(params, 'case.fluid.Re', this%Re)
+    call json_get(params, 'case.fluid.rho', this%rho)
+    call json_get(params, 'case.scalar.Pr', this%Pr)
+
+    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+                             this%ksp_maxiter, 800)
+    call json_get_or_default(params, &
+                            'case.fluid.velocity_solver.projection_space_size',&
+                            this%projection_dim, 20)
+
+
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
-    call neko_log%message('Ksp scalar : ('// trim(params%ksp_vel) // &
-         ', ' // trim(params%pc_vel) // ')')
-    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  params%abstol_vel
+    call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
+         ', ' // trim(solver_precon) // ')')
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  solver_abstol
     call neko_log%message(log_buf)
 
     this%Xh => this%u%Xh
@@ -204,14 +252,37 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst)
+    call this%user_bc%init(this%dm_Xh)
 
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%params%scalar_bcs) 
+    ! Read boundary types from the case file
+    allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
+
+    ! A filler value
+    this%bc_labels = "not"
+
+    if (params%valid_path('case.scalar.boundary_types')) then
+       call json_get(params, &
+                     'case.scalar.boundary_types', &
+                     this%bc_labels)       
+    end if
+    
+    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels) 
+
+
+    call this%user_bc%mark_zone(msh%wall)
+    call this%user_bc%mark_zone(msh%inlet)
+    call this%user_bc%mark_zone(msh%outlet)
+    call this%user_bc%mark_zone(msh%outlet_normal)
+    call this%user_bc%mark_zone(msh%sympln)
+    call this%user_bc%finalize()
+    call this%user_bc%set_coef(this%c_Xh)
+    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst, this%user_bc)
   
     ! todo parameter file ksp tol should be added
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         params%ksp_vel, params%abstol_vel)
+         solver_type, solver_abstol)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, params%pc_vel)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst, solver_precon)
   
     call neko_log%end_section()
   end subroutine scalar_scheme_init
@@ -235,6 +306,10 @@ contains
     if (allocated(this%pc)) then
        call precon_destroy(this%pc)
        deallocate(this%pc)
+    end if
+
+    if (allocated(this%bc_labels)) then
+       deallocate(this%bc_labels)
     end if
 
     call source_scalar_free(this%f_Xh)
@@ -299,7 +374,7 @@ contains
   subroutine scalar_scheme_solver_factory(ksp, n, solver, abstol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=20), intent(inout) :: solver
+    character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
 
     call krylov_solver_factory(ksp, n, solver, abstol)
@@ -314,7 +389,7 @@ contains
     type(dofmap_t), target, intent(inout) :: dof
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
-    character(len=20) :: pctype
+    character(len=*) :: pctype
     
     call precon_factory(pc, pctype)
     
@@ -355,15 +430,21 @@ contains
        call source_scalar_set_pw_type(this%f_Xh, usr_f)
     else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
        call source_scalar_set_type(this%f_Xh, usr_f_vec)
-    else if (trim(source_term_type) .eq. '') then
-       if (pe_rank .eq. 0) then
-          call neko_warning('No source term defined, using default (noforce)')
-       end if
-       call source_scalar_set_type(this%f_Xh, source_scalar_eval_noforce)
     else
-       call neko_error('Invalid source term')
+       call neko_error('Invalid scalar source term '//source_term_type)
     end if
 
   end subroutine scalar_scheme_set_source
-     
-end module scalar
+ 
+  !> Initialize a user defined scalar bc
+  !! @param usr_eval User specified boundary condition for scalar field
+  subroutine scalar_scheme_set_user_bc(this, usr_eval)
+    class(scalar_scheme_t), intent(inout) :: this
+    procedure(usr_scalar_bc_eval) :: usr_eval
+
+    call this%user_bc%set_eval(usr_eval)
+    
+  end subroutine scalar_scheme_set_user_bc
+
+    
+end module scalar_scheme

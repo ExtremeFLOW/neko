@@ -218,7 +218,7 @@ contains
     type(field_t), intent(inout) :: temp1, temp2, temp3
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
+    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     type(c_ptr) :: fx_d, fy_d, fz_d

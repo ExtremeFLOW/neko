@@ -48,25 +48,45 @@ module bc
   
   !> Base type for a boundary condition
   type, public, abstract :: bc_t
+     !> The linear index of each node in each boundary facet
      integer, allocatable :: msk(:)
+     !> A list of facet ids (1 to 6), one for each element in msk
      integer, allocatable :: facet(:)
+     !> Map of degrees of freedom
      type(dofmap_t), pointer :: dof
+     !> The mesh
      type(mesh_t), pointer :: msh
+     !> The function space
      type(space_t), pointer :: Xh
+     !> Index tuples (facet, element) marked as part of the boundary condition
      type(stack_i4t2_t) :: marked_facet
+     !> Device pointer for msk
      type(c_ptr) :: msk_d = C_NULL_PTR
+     !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
    contains     
+     !> Constructor
      procedure, pass(this) :: init => bc_init
+     !> Destructor
      procedure, pass(this) :: free => bc_free
+     !> Mark a facet on an element as part of the boundary condition
      procedure, pass(this) :: mark_facet => bc_mark_facet
+     !> Mark all facets from a (facet, element) tuple list
      procedure, pass(this) :: mark_facets => bc_mark_facets
+     !> Mark all facets from a list of zones, also marks type of bc in the mesh.
      procedure, pass(this) :: mark_zones_from_list => bc_mark_zones_from_list
+     !> Mark all facets from a zone
      procedure, pass(this) :: mark_zone => bc_mark_zone
+     !> Finalize the construction of the bc by populting the msk and facet
+     !! arrays
      procedure, pass(this) :: finalize => bc_finalize
+     !> Apply the boundary condition to a scalar field
      procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
+     !> Apply the boundary condition to a vector field
      procedure(bc_apply_vector), pass(this), deferred :: apply_vector
+     !> Device version of \ref apply_scalar
      procedure(bc_apply_scalar_dev), pass(this), deferred :: apply_scalar_dev
+     !> Device version of \ref apply_vector
      procedure(bc_apply_vector_dev), pass(this), deferred :: apply_vector_dev
   end type bc_t
 
@@ -83,6 +103,8 @@ module bc
   end type bc_list_t
     
   abstract interface
+     !! @param x The field for which to apply the boundary condition.
+     !! @param n The size of x.
      subroutine bc_apply_scalar(this, x, n)
        import :: bc_t
        import :: rp
@@ -93,6 +115,11 @@ module bc
   end interface
 
   abstract interface
+     !> Apply the boundary condition to a vector field
+     !! @param x The x comp of the field for which to apply the bc.
+     !! @param y The y comp of the field for which to apply the bc.
+     !! @param z The z comp of the field for which to apply the bc.
+     !! @param n The size of x, y, and z
      subroutine bc_apply_vector(this, x, y, z, n)
        import :: bc_t
        import :: rp
@@ -105,6 +132,8 @@ module bc
   end interface
   
   abstract interface
+     !> Apply the boundary condition to a scalar field on the device
+     !! @param x_d Device pointer to the field.
      subroutine bc_apply_scalar_dev(this, x_d)
        import :: c_ptr       
        import :: bc_t
@@ -114,6 +143,10 @@ module bc
   end interface
 
   abstract interface
+     !> Apply the boundary condition to a vector field on the device
+     !! @param x_d Device pointer to the values to be applied for the x comp.
+     !! @param y_d Device pointer to the values to be applied for the y comp.
+     !! @param z_d Device pointer to the values to be applied for the z comp.
      subroutine bc_apply_vector_dev(this, x_d, y_d, z_d)
        import :: c_ptr
        import :: bc_t
@@ -133,7 +166,8 @@ module bc
   
 contains
 
-  !> Initialize a boundary condition type
+  !> Constructor
+  !! @param dof Map of degrees of freedom.
   subroutine bc_init(this, dof)
     class(bc_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
@@ -148,7 +182,7 @@ contains
 
   end subroutine bc_init
 
-  !> Deallocate a boundary condition
+  !> Destructor
   subroutine bc_free(this)
     class(bc_t), intent(inout) :: this
 
@@ -167,16 +201,20 @@ contains
     end if
 
     if (c_associated(this%msk_d)) then
-       call device_free(this%msk_d)       
+       call device_free(this%msk_d)
+       this%msk_d = C_NULL_PTR
     end if
 
     if (c_associated(this%facet_d)) then
-       call device_free(this%facet_d)       
+       call device_free(this%facet_d)
+       this%facet_d = C_NULL_PTR
     end if
     
   end subroutine bc_free
 
   !> Mark @a facet on element @a el as part of the boundary condition
+  !! @param facet The index of the facet.
+  !! @param el The index of the element.
   subroutine bc_mark_facet(this, facet, el)
     class(bc_t), intent(inout) :: this
     integer, intent(in) :: facet
@@ -189,6 +227,7 @@ contains
   end subroutine bc_mark_facet
 
   !> Mark all facets from a (facet, el) tuple list
+  !! @param facet_list The list of tuples.
   subroutine bc_mark_facets(this, facet_list)
     class(bc_t), intent(inout) :: this
     type(stack_i4t2_t), intent(inout) :: facet_list
@@ -203,6 +242,7 @@ contains
   end subroutine bc_mark_facets
 
   !> Mark all facets from a zone
+  !! @param bc_zone Boundary zone to be marked.
   subroutine bc_mark_zone(this, bc_zone)
     class(bc_t), intent(inout) :: this
     class(zone_t), intent(inout) :: bc_zone
@@ -212,9 +252,12 @@ contains
     end do
   end subroutine bc_mark_zone
 
-  !> Mark all facets from a list of zones, also marks type of bc in mesh
+  !> Mark all facets from a list of zones, also marks type of bc in the mesh.
   !! The facet_type in mesh is because of the fdm from Nek5000...
   !! That is a hack that should be removed at some point...
+  !! @param bc_zone Array of boundary zones.
+  !! @param bc_key Boundary condition label, e.g. 'w' for wall.
+  !! @param bc_label List of boundary condition labels.
   subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
     class(zone_t), intent(inout) :: bc_zones(:)
@@ -237,6 +280,7 @@ contains
     do i = 1, NEKO_MSH_MAX_ZLBLS
        if (trim(bc_key) .eq. trim(bc_labels(i))) then
           call bc_mark_zone(this, bc_zones(i))
+          ! Loop across all faces in the mesh
           do j = 1,this%msh%nelv
              do k = 1, 2 * this%msh%gdim
                 if (this%msh%facet_type(k,j) .eq. -i) then
@@ -249,8 +293,9 @@ contains
   end subroutine bc_mark_zones_from_list
 
 
-  !> Finalize a boundary condition
-  !! @details This will linearize the marked facet's indicies in msk
+  !> Finalize the construction of the bc by populting the `msk` and `facet`
+  !! arrays.
+  !! @details This will linearize the marked facet's indicies in the msk array.
   subroutine bc_finalize(this)
     class(bc_t), target, intent(inout) :: this
     type(tuple_i4_t), pointer :: bfp(:)
@@ -272,6 +317,11 @@ contains
 
     msk_c = 0
     bfp => this%marked_facet%array()
+    
+    ! Loop through each (facet, element) id tuple
+    ! Then loop over all the nodes of the face and compute their linear index
+    ! This index goes into This%msk, whereas the corresponding face id goes into
+    ! this%facet
     do i = 1, this%marked_facet%size()
        bc_facet = bfp(i)
        facet = bc_facet%x(1)
@@ -342,7 +392,8 @@ contains
 
   end subroutine bc_finalize
 
-  !> Initialize a list of boundary conditions
+  !> Constructor for a list of boundary conditions
+  !! @param size The size of the list to allocate.
   subroutine bc_list_init(bclst, size)
     type(bc_list_t), intent(inout), target :: bclst
     integer, optional :: size
@@ -367,7 +418,7 @@ contains
         
   end subroutine bc_list_init
 
-  !> Deallocate a list of boundary conditions
+  !> Destructor for a list of boundary conditions
   !! @note This will only nullify all pointers, not deallocate any
   !! conditions pointed to by the list
   subroutine bc_list_free(bclst)
@@ -383,6 +434,7 @@ contains
   end subroutine bc_list_free
 
   !> Add a condition to a list of boundary conditions
+  !! @param bc The boundary condition to add.
   subroutine bc_list_add(bclst, bc)
     type(bc_list_t), intent(inout) :: bclst
     class(bc_t), intent(inout), target :: bc
@@ -403,7 +455,9 @@ contains
     
   end subroutine bc_list_add
 
-  !> Apply a list of (scalar) boundary conditions
+  !> Apply a list of boundary conditions to a scalar field
+  !! @param x The field to apply the boundary conditions to.
+  !! @param n The size of x.
   subroutine bc_list_apply_scalar(bclst, x, n)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
@@ -424,7 +478,11 @@ contains
 
   end subroutine bc_list_apply_scalar
 
-  !> Apply a list of (scalar) boundary conditions
+  !> Apply a list of boundary conditions to a vector field.
+  !! @param x The x comp of the field for which to apply the bcs.
+  !! @param y The y comp of the field for which to apply the bcs.
+  !! @param z The z comp of the field for which to apply the bcs.
+  !! @param n The size of x, y, z.
   subroutine bc_list_apply_vector(bclst, x, y, z, n)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n

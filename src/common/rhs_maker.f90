@@ -76,15 +76,14 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine rhs_maker_ext(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+     subroutine rhs_maker_ext(fx_lag, fy_lag, fz_lag, &
           fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
           rho, ext_coeffs, n)
        import field_t
        import rp
-       type(field_t), intent(inout) :: temp1, temp2, temp3
        type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
        type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-       real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
+       real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
      end subroutine rhs_maker_ext
@@ -98,27 +97,24 @@ module rhs_maker
        type(field_t), intent(inout) :: temp1
        type(field_t), intent(inout) :: fs_lag
        type(field_t), intent(inout) :: fs_laglag
-       real(kind=rp), intent(inout) :: rho, ext_coeffs(10)
+       real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fs(n)
      end subroutine scalar_rhs_maker_ext
   end interface
 
   abstract interface
-     subroutine rhs_maker_bdf(ta1, ta2, ta3, tb1, tb2, tb3, &
-          ulag, vlag, wlag, bfx, bfy, bfz, &
+     subroutine rhs_maker_bdf(ulag, vlag, wlag, bfx, bfy, bfz, &
           u, v, w, B, rho, dt, bd, nbd, n)
        import field_series_t
        import field_t
        import rp
        integer, intent(in) :: n, nbd
-       type(field_t), intent(inout) :: ta1, ta2, ta3
        type(field_t), intent(in) :: u, v, w
-       type(field_t), intent(inout) :: tb1, tb2, tb3
        type(field_series_t), intent(in) :: ulag, vlag, wlag        
        real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
        real(kind=rp), intent(in) :: B(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(10)
+       real(kind=rp), intent(in) :: dt, rho, bd(4)
      end subroutine rhs_maker_bdf
   end interface
 
@@ -134,7 +130,7 @@ module rhs_maker
        type(field_series_t), intent(in) :: s_lag
        real(kind=rp), intent(inout) :: fs(n)
        real(kind=rp), intent(in) :: B(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(10)
+       real(kind=rp), intent(in) :: dt, rho, bd(4)
      end subroutine scalar_rhs_maker_bdf
   end interface
 

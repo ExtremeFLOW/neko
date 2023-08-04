@@ -36,7 +36,16 @@ AC_DEFUN([AX_HPE_CRAY],[
 	[is_hpe_cray="no"
 	AC_MSG_RESULT([no])])
 	AC_LANG_POP([C])
-	AC_SUBST(is_hpe_cray)])
+        if test x"${is_hpe_cray}" = xyes; then
+           AC_MSG_CHECKING([if CrayPE wrappers are used])
+           if test "${FC}" = "ftn"; then
+              AC_MSG_RESULT([yes])
+           else
+              is_hpe_cray="no"
+              AC_MSG_RESULT([no])
+           fi
+        fi
+      	AC_SUBST(is_hpe_cray)]) 
 
 AC_DEFUN([AX_CRAY_PETSC],[
 	AC_MSG_CHECKING([Cray PETSc])

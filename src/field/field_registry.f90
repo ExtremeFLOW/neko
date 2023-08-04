@@ -68,6 +68,8 @@ contains
     integer, optional, intent(in) :: size
     integer, optional, intent(in) :: expansion_size
 
+    call this%free()
+
     if (present(size)) then
        allocate (this%fields(size))
     else
@@ -87,11 +89,14 @@ contains
   subroutine field_registry_free(this)
     class(field_registry_t), intent(inout):: this
     integer :: i
-
-    do i=1, this%n_fields()
-       call field_free(this%fields(i))
-    end do
-    deallocate(this%fields)
+    if (allocated(this%fields)) then
+       do i=1, this%n_fields()
+          call field_free(this%fields(i))
+       end do
+       deallocate(this%fields)
+    end if
+    this%n = 0
+    this%expansion_size = 0
   end subroutine field_registry_free
 
   !> expand the fields array so as to accomodate more fields

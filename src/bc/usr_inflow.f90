@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -56,11 +56,24 @@ module usr_inflow
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
-     final :: usr_inflow_free
   end type usr_inflow_t
 
-  !> Abstract interface defining a user defined inflow condition (pointwise)
   abstract interface
+   
+     !> Abstract interface defining a user defined inflow condition (pointwise)
+     !! @param u The x componenet of the velocity in this point
+     !! @param v The y componenet of the velocity in this point
+     !! @param w The w componenet of the velocity in this point
+     !! @param x The x coord in this point
+     !! @param y The y coord in this point
+     !! @param z The z coord in this point
+     !! @param nx The x component of the facet normal in this point
+     !! @param ny The y component of the facet normal in this point
+     !! @param nz The z component of the facet normal in this point
+     !! @param ix The r idx of this point
+     !! @param iy The s idx of this point
+     !! @param iz The t idx of this point
+     !! @param ie The element idx of this point
      subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
        import rp
        real(kind=rp), intent(inout) :: u
@@ -100,12 +113,18 @@ contains
     
   end subroutine usr_inflow_free
   
-  !> No-op scalar apply
+  !> No-op scalar apply 
   subroutine usr_inflow_apply_scalar(this, x, n)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
   end subroutine usr_inflow_apply_scalar
+  
+  !> No-op scalar apply (device version)
+  subroutine usr_inflow_apply_scalar_dev(this, x_d)
+    class(usr_inflow_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+  end subroutine usr_inflow_apply_scalar_dev
 
   !> Apply user defined inflow conditions (vector valued)
   subroutine usr_inflow_apply_vector(this, x, y, z, n)
@@ -240,15 +259,7 @@ contains
     end associate
 
   end subroutine usr_inflow_apply_vector_dev
-
-  !> No-op scalar apply (device version)
-  subroutine usr_inflow_apply_scalar_dev(this, x_d)
-    class(usr_inflow_t), intent(inout), target :: this
-    type(c_ptr) :: x_d
-  end subroutine usr_inflow_apply_scalar_dev
   
-
-
   !> Assign coefficients (facet normals etc)
   subroutine usr_inflow_set_coef(this, c)
     class(usr_inflow_t), intent(inout) :: this
@@ -257,6 +268,7 @@ contains
   end subroutine usr_inflow_set_coef
 
   !> Assign user provided eval function
+  !! @param user_eval User specified boundary condition for u,v,w (vector)
   subroutine usr_inflow_set_eval(this, usr_eval)
     class(usr_inflow_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval

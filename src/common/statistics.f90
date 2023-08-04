@@ -34,6 +34,8 @@
 module stats
   use num_types
   use stats_quant
+  use logger
+  use comm
   implicit none
 
   !> Pointer to an arbitrary quantitiy
@@ -46,7 +48,9 @@ module stats
      type(quantp_t), allocatable :: quant_list(:)
      integer :: n
      integer :: size
-     real(kind=rp) :: T_begin
+     real(kind=rp) :: T_begin !< Start time for averaging
+     real(kind=rp) :: t_diff !< Time since last sample
+     integer :: samp_interval !< Number of time steps between samples
    contains
      procedure, pass(this) :: init => stats_init
      procedure, pass(this) :: free => stats_free
@@ -57,9 +61,10 @@ module stats
 contains
 
   !> Initialize statistics, computed after @a T_begin
-  subroutine stats_init(this, T_begin, size)
+  subroutine stats_init(this, T_begin, samp_interval, size)
     class(stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: T_begin
+    integer, intent(in) :: samp_interval
     integer, intent(inout), optional ::size
     integer :: n, i
     
@@ -80,6 +85,8 @@ contains
     this%n = 0
     this%size = n
     this%T_begin = T_begin
+    this%samp_interval = samp_interval
+    this%t_diff = 0.0
     
   end subroutine stats_init
 
@@ -113,18 +120,38 @@ contains
   end subroutine stats_add
 
   !> Evaluated all statistical quantities
-  subroutine stats_eval(this, t, k)
+  subroutine stats_eval(this, t, dt, tstep)
     class(stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    real(kind=rp), intent(in) :: k
-    integer :: i
+    real(kind=rp), intent(in) :: dt
+    integer, intent(in) :: tstep
+    integer :: i, ierr
+    character(len=LOG_SIZE) :: log_buf    
+    real(kind=rp) :: sample_start_time, sample_end_time
+    real(kind=dp) :: sample_time
 
-    if (t .ge. this%T_begin) then
-       do i = 1, this%n
-          call this%quant_list(i)%quantp%update(k)
-       end do
+    if (t .ge. this%T_begin .and. this%n .gt. 0) then
+       this%t_diff = this%t_diff + dt
+       ! There is technically an issue here for the last sample if we
+       ! reset the stats If the reset is not on a multiple of
+       ! samp_interval the weight of the last sample is wrong.
+       if (mod(tstep,this%samp_interval) .eq. 0) then
+          call neko_log%section('Statistics')
+          call MPI_Barrier(NEKO_COMM, ierr)
+          sample_start_time = MPI_WTIME()
+          do i = 1, this%n
+             call this%quant_list(i)%quantp%update(this%t_diff)
+          end do
+          this%t_diff = 0.0_rp
+          call MPI_Barrier(NEKO_COMM, ierr)
+          sample_end_time = MPI_WTIME()
+          sample_time = sample_end_time - sample_start_time
+          write(log_buf,'(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
+          ' Sampling time (s): ', sample_time
+          call neko_log%message(log_buf)
+          call neko_log%end_section()
+       end if
     end if
-    
   end subroutine stats_eval
 
 end module stats

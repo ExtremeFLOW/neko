@@ -41,6 +41,7 @@
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
   
   /**
    * @todo Make sure that this gets deleted at some point...
@@ -67,7 +68,7 @@ extern "C" {
 #define CASE(LX)                                                                \
     case LX:                                                                    \
         hipLaunchKernelGGL(HIP_KERNEL_NAME( cfl_kernel<real, LX, 1024> ),       \
-                           nblcks, nthrds, 0, 0,                                \
+                           nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,      \
                            *dt, (real *) u, (real *) v, (real *) w,             \
                            (real *) drdx, (real *) dsdx, (real *) dtdx,         \
                            (real *) drdy, (real *) dsdy, (real *) dtdy,         \
@@ -98,17 +99,19 @@ extern "C" {
 
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cfl_reduce_kernel<real>),
-                       1, 1024, 0, 0,
+                       1, 1024, 0, (hipStream_t) glb_cmd_queue,
                        cfl_d, (*nel));
     HIP_CHECK(hipGetLastError());
 
     real cfl = 0.0;
-    #ifdef HAVE_DEVICE_MPI
-    hipDeviceSynchronize();
-    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
+#ifdef HAVE_DEVICE_MPI
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
 #else
-    HIP_CHECK(hipMemcpy(&cfl, cfl_d, sizeof(real),
-			hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
 #endif
 
 
