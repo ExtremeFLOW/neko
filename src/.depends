@@ -106,7 +106,7 @@ io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o device/device.o conf
 io/fluid_stats_output.o : io/fluid_stats_output.f90 io/output.o device/device.o config/num_types.o config/neko_config.o fluid/fluid_stats.o 
 io/field_list_output.o : io/field_list_output.f90 io/output.o config/num_types.o field/field_list.o field/field.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
-common/sampler.o : common/sampler.f90 common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
+common/sampler.o : common/sampler.f90 common/time_based_controller.o common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o common/utils.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
@@ -145,6 +145,7 @@ time_schemes/bdf_time_scheme.o : time_schemes/bdf_time_scheme.f90 common/utils.o
 time_schemes/ext_time_scheme.o : time_schemes/ext_time_scheme.f90 common/utils.o math/math.o time_schemes/time_scheme.o config/num_types.o config/neko_config.o 
 time_schemes/ab_time_scheme.o : time_schemes/ab_time_scheme.f90 common/utils.o math/math.o time_schemes/time_scheme.o config/num_types.o config/neko_config.o 
 time_schemes/time_scheme_controller.o : time_schemes/time_scheme_controller.f90 device/device.o time_schemes/ab_time_scheme.o time_schemes/ext_time_scheme.o time_schemes/bdf_time_scheme.o config/num_types.o config/neko_config.o 
+common/time_based_controller.o : common/time_based_controller.f90 common/utils.o config/num_types.o 
 common/source.o : common/source.f90 math/bcknd/device/device_math.o device/device.o common/utils.o sem/dofmap.o config/num_types.o config/neko_config.o 
 common/stats_quant.o : common/stats_quant.f90 config/num_types.o 
 common/statistics.o : common/statistics.f90 comm/comm.o common/log.o common/stats_quant.o config/num_types.o 
@@ -214,7 +215,7 @@ scalar/scalar_residual_fctry.o : scalar/scalar_residual_fctry.f90 scalar/bcknd/s
 scalar/bcknd/cpu/scalar_residual_cpu.o : scalar/bcknd/cpu/scalar_residual_cpu.f90 math/operators.o scalar/scalar_residual.o gs/gather_scatter.o 
 scalar/bcknd/sx/scalar_residual_sx.o : scalar/bcknd/sx/scalar_residual_sx.f90 math/operators.o scalar/scalar_residual.o gs/gather_scatter.o 
 scalar/source_scalar.o : scalar/source_scalar.f90 math/bcknd/device/device_math.o device/device.o common/utils.o sem/dofmap.o config/num_types.o config/neko_config.o 
-simulation_components/simulation_component.o : simulation_components/simulation_component.f90 fluid/fluid_scheme.o 
+simulation_components/simulation_component.o : simulation_components/simulation_component.f90 fluid/fluid_scheme.o config/num_types.o 
 simulation_components/vorticity.o : simulation_components/vorticity.f90 fluid/fluid_scheme.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
 simulation_components/simulation_component_factory.o : simulation_components/simulation_component_factory.f90 common/json_utils.o fluid/fluid_scheme.o simulation_components/vorticity.o simulation_components/simulation_component.o 
 neko.o : neko.f90 field/scratch_registry.o field/field_registry.o common/system.o simulation_components/simulation_component.o math/vector.o field/field_list.o fluid/fluid_stats.o sem/cpr.o device/device.o common/jobctrl.o common/signal.o comm/parmetis.o common/user_intf.o common/projection.o math/mathops.o math/operators.o simulation.o io/output.o common/sampler.o case.o config/neko_config.o math/ax.o krylov/precon.o math/ax_helm_fctry.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o bc/wall.o bc/bc.o sem/coef.o gs/gather_scatter.o comm/mpi_types.o field/field.o io/file.o math/mxm_wrapper.o io/format/map.o field/mesh_field.o mesh/mesh.o adt/tuple.o adt/stack.o adt/uset.o adt/htable.o sem/space.o sem/dofmap.o sem/speclib.o math/math.o common/log.o common/utils.o comm/comm.o config/num_types.o 
