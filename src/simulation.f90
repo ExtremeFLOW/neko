@@ -39,7 +39,7 @@ module simulation
   use logger
   use jobctrl
   use profiler
-  use simulation_component
+  use simulation_component, only : neko_simcomps
   use json_module, only : json_file_t => json_file
   use json_utils, only : json_get_or_default
   implicit none
@@ -130,9 +130,11 @@ contains
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
          
        ! Execute all simulation components
-       do i=1, size(neko_simcomps)
-          call neko_simcomps(i)%simcomp%compute()
-       end do
+       if (allocated(neko_simcomps)) then
+         do i=1, size(neko_simcomps)
+            call neko_simcomps(i)%simcomp%compute(t, tstep)
+         end do
+       end if
        call neko_log%end_section()
        
        call neko_log%end()
