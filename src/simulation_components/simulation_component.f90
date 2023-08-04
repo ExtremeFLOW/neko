@@ -32,22 +32,27 @@
 !
 !
 !> Simulation components are objects that encapsulate functionality that can be
-!! fit to a particular software pattern.
-!! The canonical way to abbreviate simulation_component is simcomp
+!! fit to a particular execution pattern.
+!! @note
+!! The canonical way to abbreviate simulation_component is simcomp.
 module simulation_component
-  use num_types
-  use math
+  use num_types, only : rp
+  use json_module, only : json_file
+  use fluid_scheme, only : fluid_scheme_t
   implicit none
   private
   
-  !> Base abstract class for simulation components
+  !> Base abstract class for simulation components.
   type, abstract, public :: simulation_component_t
+   class(fluid_scheme_t), pointer :: fluid
    contains
-     !> Constructor
+     !> Constructor for the simulation_component_t (base) class.
+     procedure, pass(this) :: init_base => simulation_component_init_base
+     !> The common constructor using a JSON dictionary.
      procedure(simulation_component_init), pass(this), deferred :: init
-     !> Destructor
+     !> Destructor.
      procedure(simulation_component_free), pass(this), deferred :: free
-     !> The main function to be called at each timestep
+     !> The main function to be executed during the run.
      procedure(simulation_component_compute), pass(this), deferred :: compute
   end type simulation_component_t
   
@@ -59,17 +64,19 @@ module simulation_component
   class(simulation_component_wrapper_t), public, allocatable :: neko_simcomps(:)
   
   abstract interface
-     subroutine simulation_component_init(this, json_dict)  
-       import simulation_component_t
+     !> The common constructor using a JSON dictionary.
+     !! @param json The JSON with properties.
+     !! @param fluid The fluid_scheme_t object. 
+     subroutine simulation_component_init(this, json, fluid)  
+       import simulation_component_t, json_file, fluid_scheme_t
        class(simulation_component_t), intent(inout) :: this
-       !! stub for a json dict. The idea is that the construct will plock the
-       !! necessary stuff for each concrete component from the dict, which is
-       !! extracted from the case file.
-       integer, intent(in) :: json_dict
+       type(json_file), intent(inout) :: json
+       class(fluid_scheme_t), intent(inout), target :: fluid
      end subroutine
   end interface
 
   abstract interface
+     !> Destructor.
      subroutine simulation_component_free(this)  
        import simulation_component_t
        class(simulation_component_t), intent(inout) :: this
@@ -77,10 +84,27 @@ module simulation_component
   end interface
 
   abstract interface
-     subroutine simulation_component_compute(this)  
-       import simulation_component_t
+     !> The main function to be executed during the run.
+     !! @param t The time value.
+     !! @param tstep The current time-step
+     subroutine simulation_component_compute(this, t, tstep)  
+       import simulation_component_t, rp
        class(simulation_component_t), intent(inout) :: this
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
      end subroutine
   end interface
+
+contains
+  !> Constructor for the simulation_component_t (base) class.
+  subroutine simulation_component_init_base(this, json, fluid)  
+    class(simulation_component_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(fluid_scheme_t), intent(inout), target :: fluid
+
+    this%fluid => fluid
+
+  end subroutine simulation_component_init_base
+
   
 end module simulation_component
