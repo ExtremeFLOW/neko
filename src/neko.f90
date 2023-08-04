@@ -79,7 +79,6 @@ module neko
   use field_list  
   use vector
   use simulation_component
-  use simulation_component_fctry
   use system
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
@@ -96,7 +95,6 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: n_simcomps, i
     integer :: argc, nthrds, rw, sw
 
     call date_and_time(time=time, date=date)           
@@ -243,22 +241,6 @@ contains
        ! Create case
        !
        call case_init(C, case_file)
-       
-       !
-       ! Create simulation components
-       !
-       
-       !! We read the number of entries in the simulation_components subdict in
-       !! the JSON
-       !! n_simpcomps = size(case_file.simulation_components)
-       n_simcomps = 2
-       allocate(neko_simcomps(n_simcomps))
-       do i=1, n_simcomps
-          ! Build the objects. 10 is a stub for the json dict
-          call simulation_component_factory(neko_simcomps(i)%simcomp, 10) 
-       end do
-
-       
        
     end if
     
