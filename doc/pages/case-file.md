@@ -241,6 +241,7 @@ Name                                    | Description                           
 `flow_rate_force.direction`             | Direction of the forced flow.                                                    | 0, 1, 2                                          | -
 `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                           | Positive real                                    | -
 `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter. | `true` or `false`                                | -            
+`freeze`                                | Whether to fix the velocity field at initial conditions.                          | `true` or `false`                                | `false`            
 
 ## Scalar
 The scalar object allows to add a scalar transport equation to the solution.
