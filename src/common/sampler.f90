@@ -245,8 +245,7 @@ contains
 
              call samp%output_list(i)%outp%sample(t)
 
-             this%controllers(i)%nexecutions = &
-               this%controllers(i)%nexecutions + 1
+             call this%controllers(i)%register_execution()
           end if
        end do
     class default
