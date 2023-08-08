@@ -102,6 +102,7 @@ module fluid_scheme
      type(fluid_stats_t) :: stats              !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
+     logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> The Reynolds number
      real(kind=rp) :: Re
      !> Dynamic viscosity
@@ -248,6 +249,8 @@ contains
     call json_get_or_default(params, &
                             'case.fluid.pressure_solver.projection_space_size',&
                             this%pr_projection_dim, 20)
+
+    call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
 
    if (params%valid_path("case.fluid.flow_rate_force")) then
       this%forced_flow_rate = .true.

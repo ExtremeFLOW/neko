@@ -352,6 +352,8 @@ contains
     ! Indices for tracking temporary fields 
     integer :: temp_indices(3)
 
+    if (this%freeze) return
+
     n = this%dm_Xh%size()
 
     call profiler_start_region('Fluid')
