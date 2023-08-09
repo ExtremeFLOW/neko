@@ -251,6 +251,11 @@ AX_NVTX
 # Checks for ROCTX profiling
 AX_ROCTX
 
+# JSON-Fortran
+PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
+LIBS="$JSON_Fortran_LIBS $LIBS"
+FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
+
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])

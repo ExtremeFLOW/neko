@@ -33,7 +33,7 @@
 !> Factory for all fluid schemes
 module fluid_fctry
   use fluid_scheme, only : fluid_scheme_t
-  use fluid_plan1, only : fluid_plan1_t
+!  use fluid_plan1, only : fluid_plan1_t
   use fluid_pnpn, only : fluid_pnpn_t    
   use neko_config
   use utils
@@ -47,7 +47,7 @@ contains
     character(len=*) :: fluid_scheme
 
     if (trim(fluid_scheme) .eq. 'plan1') then
-       allocate(fluid_plan1_t::fluid)
+!       allocate(fluid_plan1_t::fluid)
     else if (trim(fluid_scheme) .eq. 'pnpn') then
        allocate(fluid_pnpn_t::fluid)
     else

@@ -215,11 +215,11 @@ contains
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
     end if
-#endif
     
     if (c_associated(this%scatter_event)) then
-       call device_event_destroy(this%gather_event)
+       call device_event_destroy(this%scatter_event)
     end if
+#endif
 
     if (c_associated(this%gs_stream)) then
        this%gs_stream = C_NULL_PTR
@@ -348,7 +348,7 @@ contains
          
          if (this%shared_on_host) then
             if (this%nshared .eq. m) then
-               call device_memcpy(v, v_d, m, DEVICE_TO_HOST)
+               call device_memcpy(v, v_d, m, DEVICE_TO_HOST,strm=strm)
             end if
          end if
 

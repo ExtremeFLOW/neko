@@ -111,6 +111,7 @@ extern "C" {
     HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
                              hipMemcpyDeviceToHost,
                              (hipStream_t) glb_cmd_queue));
+    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
 #endif
 
 

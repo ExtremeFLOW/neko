@@ -47,6 +47,8 @@ module fluid_pnpn
   use logger
   use advection
   use profiler
+  use json_utils, only : json_get, json_get_or_default
+  use json_module, only : json_file
   implicit none
   private
 
@@ -108,17 +110,20 @@ module fluid_pnpn
 
 contains
   
-  subroutine fluid_pnpn_init(this, msh, lx, param)    
+  subroutine fluid_pnpn_init(this, msh, lx, params)    
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), target, intent(inout) :: param
+    type(json_file), target, intent(inout) :: params
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    logical :: found, logical_val
+    integer :: integer_val
+    real(kind=rp) :: real_val
 
     call this%free()
     
     ! Setup velocity and pressure fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, param, .true., .true., scheme)
+    call this%scheme_init(msh, lx, params, .true., .true., scheme)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -169,31 +174,32 @@ contains
     call this%bc_prs_surface%init(this%dm_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                        'v', this%params%bc_labels)
+                                                 'v', this%bc_labels)
     call this%bc_prs_surface%finalize()
     call this%bc_prs_surface%set_coef(this%c_Xh)
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init(this%dm_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
-                        'sym', this%params%bc_labels)
+                                                 'sym', this%bc_labels)
     call this%bc_sym_surface%finalize()
     call this%bc_sym_surface%set_coef(this%c_Xh)
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init(this%dm_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                        'on', this%params%bc_labels)
+                                                         'on', this%bc_labels)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                        'on+dong', this%params%bc_labels)
+                                                         'on+dong', &
+                                                         this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init_msk(this%c_Xh)    
 
     call this%bc_dp%init(this%dm_Xh)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones,&
-                        'on+dong', this%params%bc_labels)
-    call this%bc_dp%mark_zones_from_list(msh%labeled_zones,&
-                        'o+dong', this%params%bc_labels)
+    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, 'on+dong', &
+                                         this%bc_labels)
+    call this%bc_dp%mark_zones_from_list(msh%labeled_zones, &
+                                         'o+dong', this%bc_labels)
     call this%bc_dp%finalize()
     call this%bc_dp%set_g(0.0_rp)
     call bc_list_init(this%bclst_dp)
@@ -204,10 +210,10 @@ contains
     call this%bc_vel_res%init(this%dm_Xh)
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones,&
-                        'v', this%params%bc_labels)
-    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones,&
-                        'w', this%params%bc_labels)
+    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
+                                              'v', this%bc_labels)
+    call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
+                                              'w', this%bc_labels)
     call this%bc_vel_res%finalize()
     call this%bc_vel_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_res)
@@ -232,21 +238,32 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
 
     !Intialize projection space thingy
-    if (param%proj_prs_dim .gt. 0) then
-       call this%proj_prs%init(this%dm_Xh%size(), param%proj_prs_dim)
+    if (this%pr_projection_dim .gt. 0) then
+       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim)
     end if
     
-    if (param%proj_vel_dim .gt. 0) then
-       call this%proj_u%init(this%dm_Xh%size(), param%proj_vel_dim)
-       call this%proj_v%init(this%dm_Xh%size(), param%proj_vel_dim)
-       call this%proj_w%init(this%dm_Xh%size(), param%proj_vel_dim)
+    if (this%vel_projection_dim .gt. 0) then
+       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim)
+       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim)
+       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim)
     end if
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)    
-    call advection_factory(this%adv, this%c_Xh, param%dealias, param%lxd)
 
-    call this%vol_flow%init(this%dm_Xh, param)
+    call json_get(params, 'case.numerics.dealias', logical_val)
+    call params%get('case.numerics.dealiased_polynomial_order', integer_val, &
+                    found)
+    if (.not. found) then
+       call json_get(params, 'case.numerics.polynomial_order', integer_val)
+       integer_val =  3.0_rp / 2.0_rp * (integer_val + 1) - 1
+    end if
+    ! an extra +1 below to go from poly order to space size
+    call advection_factory(this%adv, this%c_Xh, logical_val, integer_val + 1)
+
+    if (params%valid_path('case.fluid.flow_rate_force')) then
+       call this%vol_flow%init(this%dm_Xh, params)
+    end if
     
   end subroutine fluid_pnpn_init
 
@@ -315,15 +332,27 @@ contains
     
   end subroutine fluid_pnpn_free
 
-  subroutine fluid_pnpn_step(this, t, tstep, ext_bdf)
+  !> Advance fluid simulation in time.
+  !! @param t The time value.
+  !! @param tstep The current interation.
+  !! @param dt The timestep
+  !! @param ext_bdf Time integration logic.
+  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf)
     class(fluid_pnpn_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
     integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: dt
+    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    ! number of degrees of freedom
     integer :: n
+    ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
+    ! Extrapolated velocity for the pressure residual
     type(field_t), pointer :: u_e, v_e, w_e
+    ! Indices for tracking temporary fields 
     integer :: temp_indices(3)
+
+    if (this%freeze) return
 
     n = this%dm_Xh%size()
 
@@ -334,12 +363,15 @@ contains
          p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-         params => this%params, msh => this%msh, prs_res => this%prs_res, &
+         msh => this%msh, prs_res => this%prs_res, &
          vel_res => this%vel_res, sumab => this%sumab, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
-         prs_max_iter => this%params%prs_max_iter, &
-         vel_max_iter => this%params%vel_max_iter)
-         
+         vel_projection_dim => this%vel_projection_dim, &
+         pr_projection_dim => this%pr_projection_dim, &
+         ksp_vel_maxiter => this%ksp_vel_maxiter, &
+         ksp_pr_maxiter => this%ksp_pr_maxiter, &
+         rho => this%rho, Re => this%Re, mu => this%mu)
+      
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
       call this%scratch%request_field(v_e, temp_indices(2))
@@ -347,60 +379,70 @@ contains
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
-     
+        
+      ! Compute additional source terms
       call f_Xh%eval(t)
 
+      ! Pre-multiply the source terms with the mass matrix and add to the RHS.
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
       else
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
       end if
 
-      call this%adv%apply(this%u, this%v, this%w, &
-                          f_Xh%u, f_Xh%v, f_Xh%w, &
-                          Xh, this%c_Xh, dm_Xh%size())
+      ! Add the advection operators to the right-hand-side.
+      call this%adv%compute(u, v, w, &
+                            f_Xh%u, f_Xh%v, f_Xh%w, &
+                            Xh, this%c_Xh, dm_Xh%size())
 
+      ! At this point the RHS contains the sum of the advection operator and
+      ! additional source terms, evaluated using the velocity field from the
+      ! previous time-step. Now, this value is used in the explicit time
+      ! scheme to advance both terms in time. 
       call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
                            f_Xh%u, f_Xh%v, f_Xh%w,&
-                           params%rho, ext_bdf%advection_coeffs, n)
+                           rho, ext_bdf%advection_coeffs, n)
 
+      ! Add the RHS contributions coming from the BDF scheme.
       call makebdf%compute_fluid(ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
-                           u, v, w, c_Xh%B, params%rho, params%dt, &
+                           u, v, w, c_Xh%B, rho, dt, &
                            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call ulag%update()
       call vlag%update()
       call wlag%update()
+
       !> We assume that no change of boundary conditions 
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
       call this%bc_apply_vel()
       call this%bc_apply_prs()
 
-      ! compute pressure
+      ! Compute pressure.
       call profiler_start_region('Pressure residual')
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            f_Xh, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
-                           params%dt, params%Re, params%rho)
+                           dt, Re, rho)
       
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
       call profiler_end_region
-     
-      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
+
+      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
          call this%proj_prs%project_on(p_res%x, c_Xh, n)
          call this%proj_prs%log_info('Pressure')
       end if
       
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve')
-      ksp_results(1) = this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh, &
-                                          this%bclst_dp, gs_Xh, prs_max_iter)
+      ksp_results(1) = &
+         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh, &
+                            ksp_pr_maxiter)
       call profiler_end_region
 
-      if( tstep .gt. 5 .and. params%proj_prs_dim .gt. 0) then
+      if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
          call this%proj_prs%project_back(dp%x, Ax, c_Xh, &
                                          this%bclst_dp, gs_Xh, n)
       end if
@@ -412,14 +454,14 @@ contains
       end if
       
 
-      ! compute velocity
+      ! Compute velocity.
       call profiler_start_region('Velocity residual')
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
                            p, &
                            f_Xh, c_Xh, msh, Xh, &
-                           params%Re, params%rho, ext_bdf%diffusion_coeffs(1), &
-                           params%dt, dm_Xh%size())
+                           Re, rho, ext_bdf%diffusion_coeffs(1), &
+                           dt, dm_Xh%size())
       
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
@@ -429,7 +471,7 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size())
       call profiler_end_region
       
-      if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then 
+      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then 
          call this%proj_u%project_on(u_res%x, c_Xh, n)
          call this%proj_v%project_on(v_res%x, c_Xh, n)
          call this%proj_w%project_on(w_res%x, c_Xh, n)
@@ -439,14 +481,14 @@ contains
 
       call profiler_start_region("Velocity solve")
       ksp_results(2) = this%ksp_vel%solve(Ax, du, u_res%x, n, &
-           c_Xh, this%bclst_du, gs_Xh, vel_max_iter)
+           c_Xh, this%bclst_du, gs_Xh, ksp_vel_maxiter)
       ksp_results(3) = this%ksp_vel%solve(Ax, dv, v_res%x, n, &
-           c_Xh, this%bclst_dv, gs_Xh, vel_max_iter)
+           c_Xh, this%bclst_dv, gs_Xh, ksp_vel_maxiter)
       ksp_results(4) = this%ksp_vel%solve(Ax, dw, w_res%x, n, &
-           c_Xh, this%bclst_dw, gs_Xh, vel_max_iter)
+           c_Xh, this%bclst_dw, gs_Xh, ksp_vel_maxiter)
       call profiler_end_region
 
-      if (tstep .gt. 5 .and. params%proj_vel_dim .gt. 0) then
+      if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then 
          call this%proj_u%project_back(du%x, Ax, c_Xh, &
                                   this%bclst_du, gs_Xh, n)
          call this%proj_v%project_back(dv%x, Ax, c_Xh, &
@@ -462,15 +504,16 @@ contains
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
       end if
 
-      if (params%vol_flow_dir .ne. 0) then                 
+      if (this%forced_flow_rate) then
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, params%rho, params%Re,&
-              params%dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              c_Xh, gs_Xh, ext_bdf, rho, Re,&
+              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
-              this%ksp_vel, this%pc_prs, this%pc_vel, prs_max_iter, vel_max_iter)
+              this%ksp_vel, this%pc_prs, this%pc_vel, ksp_pr_maxiter, &
+              ksp_vel_maxiter)
       end if
       
-      call fluid_step_info(tstep, t, params%dt, ksp_results)
+      call fluid_step_info(tstep, t, dt, ksp_results)
       
       call this%scratch%relinquish_field(temp_indices)
       
