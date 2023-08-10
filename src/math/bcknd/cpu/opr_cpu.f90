@@ -123,7 +123,7 @@ contains
          drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz)
-      
+      !$omp parallel
       select case(Xh%lx)
       case(18)
          call cpu_opgrad_lx18(ux, uy, uz, u, &
@@ -253,6 +253,7 @@ contains
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
               Xh%w3, e_len, Xh%lx) 
       end select
+      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_opgrad

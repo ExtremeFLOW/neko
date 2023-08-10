@@ -53,7 +53,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -103,7 +103,7 @@ contains
                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-    
+    !$omp end do
   end subroutine cpu_conv1_lx
   
   subroutine cpu_conv1_lx14(du, u, vx, vy, vz, dx, dy, dz, &
@@ -122,7 +122,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -199,7 +199,7 @@ contains
                           + dtdz(i,1,1,e) * dudt(i,1,1) ) )
        end do
     end do
-    
+    !$omp end do
   end subroutine cpu_conv1_lx14
    
   subroutine cpu_conv1_lx13(du, u, vx, vy, vz, dx, dy, dz, &
@@ -218,7 +218,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -292,7 +292,7 @@ contains
                          + dtdz(i,1,1,e) * dudt(i,1,1) ) )
       end do
    end do
-    
+    !$omp end do
  end subroutine cpu_conv1_lx13
    
   subroutine cpu_conv1_lx12(du, u, vx, vy, vz, dx, dy, dz, &
@@ -311,7 +311,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -382,7 +382,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx12
 
    subroutine cpu_conv1_lx11(du, u, vx, vy, vz, dx, dy, dz, &
@@ -401,7 +401,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -469,7 +469,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx11
    
    subroutine cpu_conv1_lx10(du, u, vx, vy, vz, dx, dy, dz, &
@@ -488,7 +488,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -553,7 +553,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx10
    
    subroutine cpu_conv1_lx9(du, u, vx, vy, vz, dx, dy, dz, &
@@ -572,7 +572,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -634,7 +634,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx9
 
    subroutine cpu_conv1_lx8(du, u, vx, vy, vz, dx, dy, dz, &
@@ -653,7 +653,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -712,7 +712,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx8
 
    subroutine cpu_conv1_lx7(du, u, vx, vy, vz, dx, dy, dz, &
@@ -731,7 +731,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -787,7 +787,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx7
 
    subroutine cpu_conv1_lx6(du, u, vx, vy, vz, dx, dy, dz, &
@@ -806,7 +806,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-    
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -859,7 +859,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx6
 
    subroutine cpu_conv1_lx5(du, u, vx, vy, vz, dx, dy, dz, &
@@ -878,7 +878,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -928,7 +928,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx5
 
    subroutine cpu_conv1_lx4(du, u, vx, vy, vz, dx, dy, dz, &
@@ -947,7 +947,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -994,7 +994,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx4
 
    subroutine cpu_conv1_lx3(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1013,7 +1013,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1057,7 +1057,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx3
 
    subroutine cpu_conv1_lx2(du, u, vx, vy, vz, dx, dy, dz, &
@@ -1076,7 +1076,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx) ::  duds
     real(kind=rp), dimension(lx,lx,lx) ::  dudt
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1117,7 +1117,7 @@ contains
                            + dtdz(i,1,1,e) * dudt(i,1,1) ) )
         end do
      end do
-    
+    !$omp end do
    end subroutine cpu_conv1_lx2
 
 end module cpu_conv1
