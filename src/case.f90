@@ -40,7 +40,6 @@ module case
   use mean_sqr_flow_output
   use mean_flow_output
   use fluid_stats_output
-  use field_list_output
   use mpi_types
   use mpi_f08
   use mesh_field
