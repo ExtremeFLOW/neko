@@ -1,0 +1,125 @@
+make: Entering directory '/home/martin/Nek5000/tools/n2to3'
+/usr/bin/gfortran -c -O2 -DMAXNEL=4000000 -std=legacy -cpp -mcmodel=medium -fdefault-real-8 -fdefault-double-8 n2to3.f 
+n2to3.f:1520:19:
+
+ 1520 |       len = indx1 (stringo,'$',1)
+      |                   1
+Warning: Rank mismatch in argument ‘s1’ at (1) (scalar and rank-1) [-Wargument-mismatch]
+n2to3.f:70:20:
+
+   70 |      $  call exitrr('Error, must have zmax > zmin.$',zmin,zmax)
+      |                    1
+Warning: Actual argument contains too few elements for dummy argument ‘stringi’ (30/132) at (1) [-Wargument-mismatch]
+n2to3.f:995:24:
+
+  995 |          if (indx1(sout,skey,nk).ne.0) return
+      |                        1
+Warning: Rank mismatch in argument ‘s2’ at (1) (scalar and rank-1) [-Wargument-mismatch]
+n2to3.f:1549:28:
+
+ 1549 |       call readwrite(string,'NEKTON',6)
+      |                            1
+Warning: Character length of actual argument shorter than of dummy argument ‘key’ (6/80) at (1)
+n2to3.f:1573:28:
+
+ 1573 |       call readwrite(string,'LOGICAL',7)
+      |                            1
+Warning: Character length of actual argument shorter than of dummy argument ‘key’ (7/80) at (1)
+n2to3.f:1582:25:
+
+ 1582 |      $      indx1(string,' T ',3).ne.0) ifflow=.true.
+      |                         1
+Warning: Character length of actual argument shorter than of dummy argument ‘s2’ (3/80) at (1)
+n2to3.f:1581:25:
+
+ 1581 |          if(indx1(string,'IFFLOW',6).ne.0.and.
+      |                         1
+Warning: Character length of actual argument shorter than of dummy argument ‘s2’ (6/80) at (1)
+n2to3.f:1584:25:
+
+ 1584 |      $      indx1(string,' T ',3).ne.0) ifheat=.true.
+      |                         1
+Warning: Character length of actual argument shorter than of dummy argument ‘s2’ (3/80) at (1)
+n2to3.f:1583:25:
+
+ 1583 |          if(indx1(string,'IFHEAT',6).ne.0.and.
+      |                         1
+Warning: Character length of actual argument shorter than of dummy argument ‘s2’ (6/80) at (1)
+n2to3.f:274:28:
+
+  274 |       call readwrite(string,'XFAC,YFAC',9)
+      |                            1
+Warning: Character length of actual argument shorter than of dummy argument ‘key’ (9/80) at (1)
+n2to3.f:1352:31:
+
+ 1352 |               call sweep_circ (xc,yc,zc,xm,ym,1,z0)  ! z0=theta
+      |                               1
+Warning: Rank mismatch in argument ‘xc’ at (1) (rank-1 and scalar) [-Wargument-mismatch]
+n2to3.f:1435:72:
+
+ 1435 |           call chcopy(buf(8),cc,1)
+      |                                                                        1
+Warning: Type mismatch in argument ‘x’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:1361:31:
+
+ 1361 |               call sweep_circ (xc,yc,zc,xm,ym,1,z1)  ! z1=theta
+      |                               1
+Warning: Rank mismatch in argument ‘xc’ at (1) (rank-1 and scalar) [-Wargument-mismatch]
+n2to3.f:1369:28:
+
+ 1369 |             call sweep_circ(xc,yc,zc,x(i,e),y(i,e),1,zh)  ! zh=theta
+      |                            1
+Warning: Rank mismatch in argument ‘xc’ at (1) (rank-1 and scalar) [-Wargument-mismatch]
+n2to3.f:1196:72:
+
+ 1196 |                  call chcopy(buf(8),ans,1)
+      |                                                                        1
+Warning: Type mismatch in argument ‘x’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:1205:72:
+
+ 1205 |                  call chcopy(buf(16),ans,1)
+      |                                                                        1
+Warning: Type mismatch in argument ‘x’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:1231:72:
+
+ 1231 |                  call chcopy(buf(8),ans,1)
+      |                                                                        1
+Warning: Type mismatch in argument ‘x’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:1240:72:
+
+ 1240 |                  call chcopy(buf(16),ans,1)
+      |                                                                        1
+Warning: Type mismatch in argument ‘x’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:717:72:
+
+  717 |                call blank     (buf(8),8)
+      |                                                                        1
+Warning: Type mismatch in argument ‘s’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:718:72:
+
+  718 |                call chcopy    (buf(8),cbc(k,e),3)
+      |                                                                        1
+Warning: Type mismatch in argument ‘x’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:780:72:
+
+  780 |                  call blank     (buf(8),8)
+      |                                                                        1
+Warning: Type mismatch in argument ‘s’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:781:72:
+
+  781 |                  call chcopy    (buf(8),cbc(k,e),3)
+      |                                                                        1
+Warning: Type mismatch in argument ‘x’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+n2to3.f:598:28:
+
+  598 |       call readwrite(string,'endendend',9)
+      |                            1
+Warning: Character length of actual argument shorter than of dummy argument ‘key’ (9/80) at (1)
+n2to3.f:550:28:
+
+  550 |       call readwrite(string,'endendend',9)
+      |                            1
+Warning: Character length of actual argument shorter than of dummy argument ‘key’ (9/80) at (1)
+/usr/bin/gcc -c  -DUNDERSCORE -mcmodel=medium ../../core/byte.c
+/usr/bin/gfortran -O2 -DMAXNEL=4000000 -std=legacy -cpp -mcmodel=medium -fdefault-real-8 -fdefault-double-8 -o /home/martin/Nek5000/bin/n2to3 n2to3.o byte.o  
+make: Leaving directory '/home/martin/Nek5000/tools/n2to3'

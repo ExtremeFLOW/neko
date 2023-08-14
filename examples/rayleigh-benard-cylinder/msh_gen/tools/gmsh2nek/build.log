@@ -1,0 +1,117 @@
+make: Entering directory '/home/martin/Nek5000/tools/gmsh2nek'
+/usr/bin/gfortran -c -O2 -DMAXNEL=4000000 -std=legacy -cpp -mcmodel=medium -fdefault-real-8 -fdefault-double-8 mod_SIZE.f90
+/usr/bin/gfortran -c -O2 -DMAXNEL=4000000 -std=legacy -cpp -mcmodel=medium -fdefault-real-8 -fdefault-double-8 gmsh2nek.f90
+gmsh2nek.f90:2170:27:
+
+ 2169 |       do nlength = 1,100
+      |                           2
+ 2170 |    read(fileid) singlechar(nlength)
+      |                           1
+Warning: Array reference at (1) out of bounds (100 > 1) in loop beginning at (2)
+gmsh2nek.f90:2145:34:
+
+ 2145 |       call chcopy(var_swap1,var,8)
+      |                                  1
+Warning: Type mismatch in argument ‘b’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:2146:34:
+
+ 2146 |       call chcopy(var_swap2,var,8)
+      |                                  1
+Warning: Type mismatch in argument ‘b’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:2157:34:
+
+ 2157 |       call chcopy(var,var_swap1,8)
+      |                                  1
+Warning: Type mismatch in argument ‘a’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:2127:34:
+
+ 2127 |       call chcopy(var_swap1,var,4)
+      |                                  1
+Warning: Type mismatch in argument ‘b’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:2128:34:
+
+ 2128 |       call chcopy(var_swap2,var,4)
+      |                                  1
+Warning: Type mismatch in argument ‘b’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:2135:34:
+
+ 2135 |       call chcopy(var,var_swap1,4)
+      |                                  1
+Warning: Type mismatch in argument ‘a’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:405:57:
+
+  405 |               call endian_swap_4(line_array(i,totalLine))
+      |                                                         1
+Warning: Type mismatch in argument ‘var’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:432:58:
+
+  432 |                call endian_swap_4(quad_array(i,totalQuad))
+      |                                                          1
+Warning: Type mismatch in argument ‘var’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:454:58:
+
+  454 |                call endian_swap_4(quad_array(i,totalQuad))
+      |                                                          1
+Warning: Type mismatch in argument ‘var’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:858:58:
+
+  858 |                call endian_swap_4(quad_array(i,totalQuad))
+      |                                                          1
+Warning: Type mismatch in argument ‘var’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:886:58:
+
+  886 |                call endian_swap_4(quad_array(i,totalQuad))
+      |                                                          1
+Warning: Type mismatch in argument ‘var’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:919:56:
+
+  919 |                call endian_swap_4(hex_array(i,totalHex))
+      |                                                        1
+Warning: Type mismatch in argument ‘var’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:950:56:
+
+  950 |                call endian_swap_4(hex_array(i,totalHex))
+      |                                                        1
+Warning: Type mismatch in argument ‘var’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:2102:11:
+
+ 2101 |       do i = 2,np-1
+      |                   2
+ 2102 |          z(i) = z(i-1) + dz
+      |           1
+Warning: Array reference at (1) out of bounds (2 > 1) in loop beginning at (2)
+gmsh2nek.f90:1897:39:
+
+ 1897 |           call gen_int_gz(j,jt,w,n,z,m)
+      |                                       1
+Warning: Type mismatch in argument ‘j’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:1923:39:
+
+ 1923 |           call gen_int_gz(j,jt,w,n,z,m)
+      |                                       1
+Warning: Type mismatch in argument ‘j’ at (1); passed INTEGER(4) to REAL(8) [-Wargument-mismatch]
+gmsh2nek.f90:1743:39:
+
+ 1743 |             call blank      (buf2(8),8)
+      |                                       1
+Warning: Type mismatch in argument ‘a’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:1744:42:
+
+ 1744 |             call chcopy     (buf2(8),cc,1)
+      |                                          1
+Warning: Type mismatch in argument ‘a’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:1783:35:
+
+ 1783 |             call blank  (buf2(8),8)
+      |                                   1
+Warning: Type mismatch in argument ‘a’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+gmsh2nek.f90:1784:39:
+
+ 1784 |             call chcopy (buf2(8),ch3,3)
+      |                                       1
+Warning: Type mismatch in argument ‘a’ at (1); passed REAL(8) to CHARACTER(1) [-Wargument-mismatch]
+/usr/bin/gcc -c  -DUNDERSCORE -mcmodel=medium ../../core/byte.c
+/usr/bin/gfortran -c -O2 -DMAXNEL=4000000 -std=legacy -cpp -mcmodel=medium -fdefault-real-8 -fdefault-double-8 ../../core/speclib.f
+/usr/bin/gfortran -c -O2 -DMAXNEL=4000000 -std=legacy -cpp -mcmodel=medium -fdefault-real-8 -fdefault-double-8 mxm.f
+/usr/bin/gfortran -O2 -DMAXNEL=4000000 -std=legacy -cpp -mcmodel=medium -fdefault-real-8 -fdefault-double-8 -o /home/martin/Nek5000/bin/gmsh2nek mod_SIZE.o gmsh2nek.o byte.o speclib.o mxm.o 
+make: Leaving directory '/home/martin/Nek5000/tools/gmsh2nek'
