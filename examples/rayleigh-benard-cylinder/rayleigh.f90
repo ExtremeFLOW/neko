@@ -29,8 +29,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     ! This will be used on all zones without labels
     ! e.g. the ones hardcoded to 'v', 'w', etcetc
     s = 1.0_rp-z

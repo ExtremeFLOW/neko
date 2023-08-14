@@ -30,8 +30,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     ! If we set scalar_bcs(*) = 'user' instead 
     ! this will be used instead on that zone
     s = 1.0_rp-z
