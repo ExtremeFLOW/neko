@@ -238,8 +238,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')    
   end subroutine dummy_scalar_user_bc
  
