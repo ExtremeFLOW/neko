@@ -72,7 +72,10 @@ module usr_scalar
      !! @param iy The s idx of this point
      !! @param iz The t idx of this point
      !! @param ie The element idx of this point
-     subroutine usr_scalar_bc_eval(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+     !! @param t Current time
+     !! @param tstep Current time-step
+     subroutine usr_scalar_bc_eval(s, x, y, z, nx, ny, nz, &
+                                   ix, iy, iz, ie, t, tstep)
        import rp
        real(kind=rp), intent(inout) :: s
        real(kind=rp), intent(in) :: x
@@ -85,6 +88,8 @@ module usr_scalar
        integer, intent(in) :: iy
        integer, intent(in) :: iz
        integer, intent(in) :: ie
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
      end subroutine usr_scalar_bc_eval
   end interface
 
@@ -107,11 +112,26 @@ contains
   !! Applies boundary conditions in eval on x
   !! @param x The field array to apply the boundary condition to.
   !! @param n The size of x.
-  subroutine usr_scalar_apply_scalar(this, x, n)
+  subroutine usr_scalar_apply_scalar(this, x, n, t, tstep)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
-    integer :: i, m, k, idx(4), facet
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    integer :: i, m, k, idx(4), facet, tstep_
+    real(kind=rp) :: t_
+
+    if (present(t)) then
+       t_ = t
+    else
+       t_ = 0.0_rp
+    end if
+
+    if (present(tstep)) then
+       tstep_ = tstep
+    else
+       tstep_ = 0
+    end if
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
@@ -130,7 +150,8 @@ contains
                  nx(idx(2), idx(3), facet, idx(4)), &
                  ny(idx(2), idx(3), facet, idx(4)), &
                  nz(idx(2), idx(3), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4))
+                 idx(1), idx(2), idx(3), idx(4), &
+                 t_, tstep_)
          case(3,4)
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
@@ -139,7 +160,8 @@ contains
                  nx(idx(1), idx(3), facet, idx(4)), &
                  ny(idx(1), idx(3), facet, idx(4)), &
                  nz(idx(1), idx(3), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4))
+                 idx(1), idx(2), idx(3), idx(4), &
+                 t_, tstep_)
          case(5,6)
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
@@ -148,7 +170,8 @@ contains
                  nx(idx(1), idx(2), facet, idx(4)), &
                  ny(idx(1), idx(2), facet, idx(4)), &
                  nz(idx(1), idx(2), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4))
+                 idx(1), idx(2), idx(3), idx(4), &
+                 t_, tstep_)
          end select
       end do
     end associate
@@ -159,13 +182,28 @@ contains
   !! Applies boundary conditions in eval on x
   !! @param x The array of values to apply.
   !! @param n The size of x.
-  subroutine usr_scalar_apply_scalar_dev(this, x_d)
+  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
-    integer :: i, m, k, idx(4), facet
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    integer :: i, m, k, idx(4), facet, tstep_
+    real(kind=rp) :: t_
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: x(:)
     m = this%msk(0)
+
+    if (present(t)) then
+       t_ = t
+    else
+       t_ = 0.0_rp
+    end if
+
+    if (present(tstep)) then
+       tstep_ = tstep
+    else
+       tstep_ = 0
+    end if
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
@@ -192,7 +230,8 @@ contains
                     nx(idx(2), idx(3), facet, idx(4)), &
                     ny(idx(2), idx(3), facet, idx(4)), &
                     nz(idx(2), idx(3), facet, idx(4)), &
-                    idx(1), idx(2), idx(3), idx(4))
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             case(3,4)
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
@@ -201,7 +240,8 @@ contains
                     nx(idx(1), idx(3), facet, idx(4)), &
                     ny(idx(1), idx(3), facet, idx(4)), &
                     nz(idx(1), idx(3), facet, idx(4)), &
-                    idx(1), idx(2), idx(3), idx(4))
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             case(5,6)
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
@@ -210,7 +250,8 @@ contains
                     nx(idx(1), idx(2), facet, idx(4)), &
                     ny(idx(1), idx(2), facet, idx(4)), &
                     nz(idx(1), idx(2), facet, idx(4)), &
-                    idx(1), idx(2), idx(3), idx(4))
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             end select
          end do
  
@@ -228,21 +269,25 @@ contains
   end subroutine usr_scalar_apply_scalar_dev
   
   !> No-op vector apply
-  subroutine usr_scalar_apply_vector(this, x, y, z, n)
+  subroutine usr_scalar_apply_vector(this, x, y, z, n, t, tstep)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
-    integer :: i, m, k, idx(4), facet
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    integer :: i, m, k, idx(4), facet    
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
-  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d)
+  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: x(:)

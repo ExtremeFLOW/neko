@@ -226,7 +226,7 @@ contains
   end subroutine dummy_scalar_user_f
  
   !> Dummy user boundary condition for scalar
-  subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine dummy_scalar_user_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -238,6 +238,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     call neko_warning('Dummy scalar user bc set, applied on all non-labeled zones')    
   end subroutine dummy_scalar_user_bc
  

@@ -103,14 +103,19 @@ module bc
   end type bc_list_t
     
   abstract interface
+     !> Apply the boundary condition to a scalar field
      !! @param x The field for which to apply the boundary condition.
      !! @param n The size of x.
-     subroutine bc_apply_scalar(this, x, n)
+     !! @param t Current ime
+     !! @param tstep Current time-step
+     subroutine bc_apply_scalar(this, x, n, t, tstep)
        import :: bc_t
        import :: rp
        class(bc_t), intent(inout) :: this
        integer, intent(in) :: n
        real(kind=rp), intent(inout), dimension(n) :: x
+       real(kind=rp), intent(in), optional :: t
+       integer, intent(in), optional :: tstep
      end subroutine bc_apply_scalar
   end interface
 
@@ -120,7 +125,9 @@ module bc
      !! @param y The y comp of the field for which to apply the bc.
      !! @param z The z comp of the field for which to apply the bc.
      !! @param n The size of x, y, and z
-     subroutine bc_apply_vector(this, x, y, z, n)
+     !! @param t Current ime
+     !! @param tstep Current time-step
+     subroutine bc_apply_vector(this, x, y, z, n, t, tstep)
        import :: bc_t
        import :: rp
        class(bc_t), intent(inout) :: this
@@ -128,17 +135,22 @@ module bc
        real(kind=rp), intent(inout), dimension(n) :: x
        real(kind=rp), intent(inout), dimension(n) :: y
        real(kind=rp), intent(inout), dimension(n) :: z
+       real(kind=rp), intent(in), optional :: t
+       integer, intent(in), optional :: tstep
      end subroutine bc_apply_vector
   end interface
   
   abstract interface
      !> Apply the boundary condition to a scalar field on the device
      !! @param x_d Device pointer to the field.
-     subroutine bc_apply_scalar_dev(this, x_d)
+     subroutine bc_apply_scalar_dev(this, x_d, t, tstep)
        import :: c_ptr       
        import :: bc_t
+       import :: rp
        class(bc_t), intent(inout), target :: this
        type(c_ptr) :: x_d
+       real(kind=rp), intent(in), optional :: t
+       integer, intent(in), optional :: tstep
      end subroutine bc_apply_scalar_dev
   end interface
 
@@ -147,13 +159,16 @@ module bc
      !! @param x_d Device pointer to the values to be applied for the x comp.
      !! @param y_d Device pointer to the values to be applied for the y comp.
      !! @param z_d Device pointer to the values to be applied for the z comp.
-     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d)
+     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
        import :: c_ptr
        import :: bc_t
+       import :: rp
        class(bc_t), intent(inout), target :: this
        type(c_ptr) :: x_d
        type(c_ptr) :: y_d
        type(c_ptr) :: z_d
+       real(kind=rp), intent(in), optional :: t
+       integer, intent(in), optional :: tstep
      end subroutine bc_apply_vector_dev
   end interface
 
@@ -458,22 +473,50 @@ contains
   !> Apply a list of boundary conditions to a scalar field
   !! @param x The field to apply the boundary conditions to.
   !! @param n The size of x.
-  subroutine bc_list_apply_scalar(bclst, x, n)
+  subroutine bc_list_apply_scalar(bclst, x, n, t, tstep)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     type(c_ptr) :: x_d
     integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       do i = 1, bclst%n
+       if (present(t)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t)
+          end do
+       else if (present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, tstep=tstep)
+          end do
+       else if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t, tstep=tstep)
+          end do
+       else
           call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
-       end do
-    else       
-       do i = 1, bclst%n
-          call bclst%bc(i)%bcp%apply_scalar(x, n)
-       end do
+       end if
+    else
+       if (present(t)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar(x, n, t=t)
+          end do
+       else if (present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar(x, n, tstep=tstep)
+          end do
+       else if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar(x, n, t, tstep)
+          end do
+       else
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar(x, n)
+          end do
+       end if
     end if
 
   end subroutine bc_list_apply_scalar
@@ -483,12 +526,14 @@ contains
   !! @param y The y comp of the field for which to apply the bcs.
   !! @param z The z comp of the field for which to apply the bcs.
   !! @param n The size of x, y, z.
-  subroutine bc_list_apply_vector(bclst, x, y, z, n)
+  subroutine bc_list_apply_vector(bclst, x, y, z, n, t, tstep)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
@@ -498,13 +543,41 @@ contains
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
-       do i = 1, bclst%n
-          call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
-       end do       
+       if (present(t)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t=t)
+          end do
+       else if (present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+          end do
+       else if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+          end do
+       else
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
+          end do
+       end if
     else
-       do i = 1, bclst%n
-          call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
-       end do
+       if (present(t)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t=t)
+          end do
+       else if (present(tstep)) then
+                    do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, tstep=tstep)
+          end do
+       else if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t, tstep)
+          end do
+       else
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
+          end do
+       end if
     end if
 
   end subroutine bc_list_apply_vector
