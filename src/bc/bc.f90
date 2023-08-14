@@ -106,8 +106,8 @@ module bc
      !> Apply the boundary condition to a scalar field
      !! @param x The field for which to apply the boundary condition.
      !! @param n The size of x.
-     !! @param t Current time
-     !! @param tstep Current time-step
+     !! @param t Current time.
+     !! @param tstep Current time-step.
      subroutine bc_apply_scalar(this, x, n, t, tstep)
        import :: bc_t
        import :: rp
@@ -124,9 +124,9 @@ module bc
      !! @param x The x comp of the field for which to apply the bc.
      !! @param y The y comp of the field for which to apply the bc.
      !! @param z The z comp of the field for which to apply the bc.
-     !! @param n The size of x, y, and z
-     !! @param t Current time
-     !! @param tstep Current time-step
+     !! @param n The size of x, y, and z.
+     !! @param t Current time.
+     !! @param tstep Current time-step.
      subroutine bc_apply_vector(this, x, y, z, n, t, tstep)
        import :: bc_t
        import :: rp
@@ -473,6 +473,8 @@ contains
   !> Apply a list of boundary conditions to a scalar field
   !! @param x The field to apply the boundary conditions to.
   !! @param n The size of x.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
   subroutine bc_list_apply_scalar(bclst, x, n, t, tstep)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
@@ -526,6 +528,8 @@ contains
   !! @param y The y comp of the field for which to apply the bcs.
   !! @param z The z comp of the field for which to apply the bcs.
   !! @param n The size of x, y, z.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
   subroutine bc_list_apply_vector(bclst, x, y, z, n, t, tstep)
     type(bc_list_t), intent(inout) :: bclst
     integer, intent(in) :: n
