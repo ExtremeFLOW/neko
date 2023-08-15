@@ -130,7 +130,7 @@ contains
     if (present(tstep)) then
        tstep_ = tstep
     else
-       tstep_ = 0
+       tstep_ = 1
     end if
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
@@ -202,7 +202,7 @@ contains
     if (present(tstep)) then
        tstep_ = tstep
     else
-       tstep_ = 0
+       tstep_ = 1
     end if
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
