@@ -35,7 +35,6 @@ module case
   use num_types
   use fluid_fctry
   use fluid_output
-  use scalar_output
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
@@ -73,7 +72,6 @@ module case
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
      type(fluid_stats_output_t) :: f_stats_output
-     type(scalar_output_t) :: s_out
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
      type(mean_sqr_flow_output_t) :: f_msqrf
@@ -345,7 +343,11 @@ contains
     ! Setup sampler
     !
     call C%s%init(C%end_time)
-    C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
+    if (scalar) then
+       C%f_out = fluid_output_t(C%fluid, C%scalar, path=trim(output_directory))
+    else
+       C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
+    end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
                              string_val, 'org')
@@ -357,12 +359,7 @@ contains
     else 
        call json_get(C%params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
-    end if
-    
-    if (scalar) then
-       C%s_out = scalar_output_t(C%scalar, path=output_directory)
-       call C%s%add(C%s_out, real_val, string_val)
-    end if
+    end if   
 
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)

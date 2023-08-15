@@ -246,7 +246,7 @@ Name                                    | Description                           
 ## Scalar
 The scalar object allows to add a scalar transport equation to the solution.
 The solution variable is called `s`, but saved as `temperature` in the fld
- files, which are written out separately from `fluid`. 
+ files. 
 Some properties of the object are inherited from `fluid`: the properties of the
 linear solver, the value of the density and the Re number, and the output
 control.
