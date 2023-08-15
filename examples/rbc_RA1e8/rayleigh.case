@@ -45,6 +45,11 @@
     "scalar": {
         "enabled": true,
         "Pr": 1.0
+    },
+    "monitor": {
+        "output_control": "simulationtime",
+        "calc_frequency": 1,
+        "verify_bc": false
     }
 }
 }
