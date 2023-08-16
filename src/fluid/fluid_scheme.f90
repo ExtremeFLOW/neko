@@ -679,17 +679,22 @@ contains
 
   !> Apply all boundary conditions defined for velocity
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_vel(this)
+  subroutine fluid_scheme_bc_apply_vel(this, t, tstep)
     class(fluid_scheme_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     call bc_list_apply_vector(this%bclst_vel,&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size())
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
   end subroutine fluid_scheme_bc_apply_vel
   
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_prs(this)
+  subroutine fluid_scheme_bc_apply_prs(this, t, tstep)
     class(fluid_scheme_t), intent(inout) :: this
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, this%p%dof%size())
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
+                              this%p%dof%size(), t, tstep)
   end subroutine fluid_scheme_bc_apply_prs
   
   !> Initialize a linear solver

@@ -18,7 +18,7 @@ contains
     u%scalar_user_bc => scalar_bc
   end subroutine user_setup
 
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -30,6 +30,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     ! If we set scalar_bcs(*) = 'user' instead 
     ! this will be used instead on that zone
     s = 1.0_rp-z
