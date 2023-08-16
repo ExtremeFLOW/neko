@@ -486,7 +486,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       if (present(t)) then
+       if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t, tstep=tstep)
+          end do
+       else if (present(t)) then
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t)
           end do
@@ -494,25 +498,21 @@ contains
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_scalar_dev(x_d, tstep=tstep)
           end do
-       else if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t, tstep=tstep)
-          end do
        else
           call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
        end if
     else
-       if (present(t)) then
+       if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar(x, n, t, tstep)
+          end do
+       else if (present(t)) then
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_scalar(x, n, t=t)
           end do
        else if (present(tstep)) then
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_scalar(x, n, tstep=tstep)
-          end do
-       else if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, t, tstep)
           end do
        else
           do i = 1, bclst%n
@@ -547,7 +547,11 @@ contains
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
-       if (present(t)) then
+       if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+          end do
+       else if (present(t)) then
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t=t)
           end do
@@ -555,27 +559,23 @@ contains
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
           end do
-       else if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t, tstep)
-          end do
        else
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
           end do
        end if
     else
-       if (present(t)) then
+       if (present(t) .and. present(tstep)) then
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t, tstep)
+          end do
+       else if (present(t)) then
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t=t)
           end do
        else if (present(tstep)) then
-                    do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, tstep=tstep)
-          end do
-       else if (present(t) .and. present(tstep)) then
           do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t, tstep)
+             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, tstep=tstep)
           end do
        else
           do i = 1, bclst%n
