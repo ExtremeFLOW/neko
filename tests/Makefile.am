@@ -29,6 +29,7 @@ SUBDIRS = tuple\
 	  fast3d\
 	  time_scheme\
 	  time_scheme_controller\
+	  time_based_controller\
 	  point_interpolation
 
 TESTS = device/device_test\
@@ -62,6 +63,7 @@ TESTS = device/device_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
 	time_scheme_controller/time_scheme_controller_test\
+	time_based_controller/time_based_controller_test\
 	point_interpolation/point_interpolation_test
 
 # Note we need to list .pf and runner scripts manually
@@ -125,5 +127,6 @@ EXTRA_DIST = \
 	time_scheme/test_ext.pf\
 	time_scheme/test_ab.pf\
 	time_scheme_controller/test_time_scheme_controller.pf\
+	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test

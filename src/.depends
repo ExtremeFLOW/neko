@@ -90,7 +90,7 @@ io/generic_file.o : io/generic_file.f90 config/num_types.o
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
 io/rea_file.o : io/rea_file.f90 common/log.o adt/htable.o common/datadist.o comm/comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
-io/fld_file.o : io/fld_file.f90 comm/mpi_types.o comm/comm.o common/utils.o mesh/mesh.o fluid/mean_sqr_flow.o fluid/mean_flow.o io/fld_file_data.o scalar/scalar_scheme.o fluid/fluid_scheme.o math/vector.o sem/dofmap.o field/field_list.o field/field.o io/generic_file.o 
+io/fld_file.o : io/fld_file.f90 comm/mpi_types.o comm/comm.o common/utils.o mesh/mesh.o fluid/mean_sqr_flow.o fluid/mean_flow.o io/fld_file_data.o math/vector.o sem/dofmap.o field/field_list.o field/field.o io/generic_file.o 
 io/fld_file_data.o : io/fld_file_data.f90 math/math.o math/vector.o 
 io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tri_mesh.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
 io/stl_file.o : io/stl_file.f90 io/format/stl.o comm/comm.o comm/mpi_types.o mesh/point.o common/log.o mesh/tri_mesh.o io/generic_file.o config/num_types.o 
@@ -99,12 +99,10 @@ io/chkp_file.o : io/chkp_file.f90 comm/mpi_types.o sem/interpolation.o mesh/mesh
 io/csv_file.o : io/csv_file.f90 comm/comm.o common/log.o config/num_types.o common/utils.o io/generic_file.o math/matrix.o math/vector.o 
 io/file.o : io/file.f90 io/csv_file.o io/stl_file.o io/vtk_file.o io/fld_file_data.o io/fld_file.o io/re2_file.o io/rea_file.o io/map_file.o io/chkp_file.o io/nmsh_file.o io/generic_file.o common/utils.o 
 io/output.o : io/output.f90 io/file.o config/num_types.o 
-io/fluid_output.o : io/fluid_output.f90 io/output.o device/device.o config/neko_config.o fluid/fluid_scheme.o 
-io/scalar_output.o : io/scalar_output.f90 io/output.o device/device.o config/neko_config.o scalar/scalar_scheme.o 
+io/fluid_output.o : io/fluid_output.f90 io/output.o device/device.o config/neko_config.o field/field_list.o scalar/scalar_scheme.o fluid/fluid_scheme.o 
 io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o 
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o device/device.o config/num_types.o fluid/mean_flow.o 
 io/fluid_stats_output.o : io/fluid_stats_output.f90 io/output.o device/device.o config/num_types.o config/neko_config.o fluid/fluid_stats.o 
-io/field_list_output.o : io/field_list_output.f90 io/output.o config/num_types.o field/field_list.o field/field.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 common/sampler.o : common/sampler.f90 common/time_based_controller.o common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o common/utils.o device/device.o config/neko_config.o 

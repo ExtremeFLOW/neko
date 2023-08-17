@@ -37,10 +37,11 @@ module time_based_controller
   implicit none
   private
 
-  !> A utility type for determening whether an action should be exectuted based
+  !> A utility type for determening whether an action should be executed based
   !! on the current time value. Used to e.g. control whether we should write a
-  !! file or exectue a simcomp.
-  !! Note that the nexpections variable should be incremented externally.
+  !! file or execute a simcomp.
+  !! Note that the nexecutions variable should be incremented externally by
+  !! calling the `register_execution` procedure.
   !! This is to allow running the the `check` multiple times at the same time
   !! step.
   type, public :: time_based_controller_t
@@ -60,6 +61,9 @@ module time_based_controller
      procedure, pass(this) :: init => time_based_controller_init
     !> Check if the execution should be performed.
      procedure, pass(this) :: check => time_based_controller_check
+    !> Increment `nexectutions`.
+     procedure, pass(this) :: register_execution => &
+       time_based_controller_register_execution
 
   end type time_based_controller_t
 
@@ -105,6 +109,9 @@ contains
   !! @param t Time value.
   !! @param tstep Current timestep.
   !! @param force Whether to force returning true. Optional.
+  !! @note In the logic, `nsteps` being zero corresponds to us not knowing the
+  !! number of time-steps between executions and thus having to rely on
+  !! `nexecutions`. This is done in anticipation of having a variable timestep.
   function time_based_controller_check(this, t, tstep, force) result(check)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
@@ -146,6 +153,14 @@ contains
     ctrl1%nexecutions = ctrl2%nexecutions
 
   end subroutine time_based_controller_assignment
+
+  !> Increment `nexectutions`.
+  subroutine time_based_controller_register_execution(this)
+    class(time_based_controller_t), intent(inout) :: this
+
+    this%nexecutions = this%nexecutions + 1
+
+  end subroutine time_based_controller_register_execution
 
 
 
