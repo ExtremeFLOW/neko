@@ -39,6 +39,12 @@
     },
     "output_control": "simulationtime",
     "output_value": 1 
-  }
+  },
+  "simulation_components": 
+  [
+    {
+      "type": "vorticity"
+    }
+  ]
   }
 }

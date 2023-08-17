@@ -78,10 +78,11 @@ module neko
   use fluid_stats
   use field_list  
   use vector
+  use simulation_component
   use system
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
-  use json_module, only : json_file, json_value, json_core
+  use simulation_component_global, only : simcomps_global_init
   !$ use omp_lib
   implicit none
 
@@ -240,6 +241,11 @@ contains
        ! Create case
        !
        call case_init(C, case_file)
+
+       !
+       ! Create simulation components
+       !
+       call simcomps_global_init(C)
        
     end if
     
