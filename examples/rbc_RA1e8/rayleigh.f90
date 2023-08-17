@@ -778,10 +778,14 @@ module user
   type(speri_t) :: speri_v
   type(speri_t) :: speri_w
 
+  !> Mesh deformation
+  real(kind=rp) :: delta_mesh = 0.0_rp !How much to deform to the top and bottom plate. =0 means no deformation
+
 contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
+    u%user_mesh_setup => deform_mesh
     u%user_init_modules => user_initialize
     u%user_finalize_modules => user_finalize
     u%fluid_user_ic => set_initial_conditions_for_u_and_s
@@ -790,6 +794,33 @@ contains
     u%user_check => calculate_nusselt
   end subroutine user_setup
 
+  subroutine deform_mesh(msh)
+    type(mesh_t), intent(inout) :: msh
+    msh%apply_deform => redistribute_elements
+  end subroutine deform_mesh
+  
+  subroutine redistribute_elements(msh, x, y, z, lx, ly, lz)
+    class(mesh_t) :: msh
+    integer, intent(in) :: lx, ly, lz
+    real(kind=rp), intent(inout) :: x(lx, lx, lx, msh%nelv)
+    real(kind=rp), intent(inout) :: y(lx, lx, lx, msh%nelv)
+    real(kind=rp), intent(inout) :: z(lx, lx, lx, msh%nelv)
+    type(tuple_i4_t) :: el_and_facet
+    real(kind=rp) :: th
+    integer :: e, i, j ,k, l,  facet, nxyze
+    real(kind=rp) :: Betaz, x_pt, y_pt, z_pt, z_pt_def
+    
+    nxyze = lx*ly*lz*msh%nelv
+    if (delta_mesh .gt. 1e-8_rp) then
+       Betaz = delta_mesh 
+       do i = 1, nxyze
+          z_pt = z(i,1,1,1)
+          z_pt_def = 0.5*(tanh(Betaz*(2*z_pt-1.0))/tanh(Betaz) + 1.0)
+          z(i,1,1,1) = z_pt_def
+       end do
+    end if
+  end subroutine redistribute_elements
+  
   subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
