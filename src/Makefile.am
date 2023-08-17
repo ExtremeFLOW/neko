@@ -217,6 +217,7 @@ neko_fortran_SOURCES = \
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
 	simulation_components/simulation_component.f90\
+	simulation_components/simulation_component_global.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/simulation_component_factory.f90\
 	neko.f90
