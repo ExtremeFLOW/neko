@@ -104,7 +104,7 @@ io/chkp_output.o : io/chkp_output.f90 io/output.o common/checkpoint.o
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o device/device.o config/num_types.o fluid/mean_flow.o 
 io/fluid_stats_output.o : io/fluid_stats_output.f90 io/output.o device/device.o config/num_types.o config/neko_config.o fluid/fluid_stats.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
-common/sampler.o : common/sampler.f90 common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
+common/sampler.o : common/sampler.f90 common/time_based_controller.o common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o common/utils.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
@@ -143,6 +143,7 @@ time_schemes/bdf_time_scheme.o : time_schemes/bdf_time_scheme.f90 common/utils.o
 time_schemes/ext_time_scheme.o : time_schemes/ext_time_scheme.f90 common/utils.o math/math.o time_schemes/time_scheme.o config/num_types.o config/neko_config.o 
 time_schemes/ab_time_scheme.o : time_schemes/ab_time_scheme.f90 common/utils.o math/math.o time_schemes/time_scheme.o config/num_types.o config/neko_config.o 
 time_schemes/time_scheme_controller.o : time_schemes/time_scheme_controller.f90 device/device.o time_schemes/ab_time_scheme.o time_schemes/ext_time_scheme.o time_schemes/bdf_time_scheme.o config/num_types.o config/neko_config.o 
+common/time_based_controller.o : common/time_based_controller.f90 common/utils.o config/num_types.o 
 common/source.o : common/source.f90 math/bcknd/device/device_math.o device/device.o common/utils.o sem/dofmap.o config/num_types.o config/neko_config.o 
 common/stats_quant.o : common/stats_quant.f90 config/num_types.o 
 common/statistics.o : common/statistics.f90 comm/comm.o common/log.o common/stats_quant.o config/num_types.o 
