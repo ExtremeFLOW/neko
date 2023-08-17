@@ -499,7 +499,9 @@ contains
              call bclst%bc(i)%bcp%apply_scalar_dev(x_d, tstep=tstep)
           end do
        else
-          call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
+          do i = 1, bclst%n
+             call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
+          end do
        end if
     else
        if (present(t) .and. present(tstep)) then
