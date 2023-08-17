@@ -39,7 +39,7 @@ module simulation
   use logger
   use jobctrl
   use profiler
-  use simulation_component, only : neko_simcomps
+  use simulation_component_global, only : neko_simcomps
   use json_module, only : json_file_t => json_file
   use json_utils, only : json_get_or_default
   implicit none
