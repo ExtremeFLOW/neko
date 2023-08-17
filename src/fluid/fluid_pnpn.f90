@@ -352,6 +352,8 @@ contains
     ! Indices for tracking temporary fields 
     integer :: temp_indices(3)
 
+    if (this%freeze) return
+
     n = this%dm_Xh%size()
 
     call profiler_start_region('Fluid')
@@ -414,8 +416,8 @@ contains
       !> We assume that no change of boundary conditions 
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply dirichlet
-      call this%bc_apply_vel()
-      call this%bc_apply_prs()
+      call this%bc_apply_vel(t, tstep)
+      call this%bc_apply_prs(t, tstep)
 
       ! Compute pressure.
       call profiler_start_region('Pressure residual')
@@ -425,7 +427,7 @@ contains
                            dt, Re, rho)
       
       call gs_op(gs_Xh, p_res, GS_OP_ADD) 
-      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
+      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
       if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
@@ -466,7 +468,9 @@ contains
       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_res,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%size())
+                                u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
+                                t, tstep)
+      
       call profiler_end_region
       
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then 

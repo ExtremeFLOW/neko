@@ -17,7 +17,7 @@ contains
     u%fluid_user_f_vector => forcing
   end subroutine user_setup
    
-  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -29,6 +29,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     ! This will be used on all zones without labels
     ! e.g. the ones hardcoded to 'v', 'w', etcetc
     s = 1.0_rp-z

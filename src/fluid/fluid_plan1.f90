@@ -76,6 +76,8 @@ contains
     integer, intent(inout) :: tstep
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
 
+    if (this%freeze) return
+
   end subroutine fluid_plan1_step
   
 end module fluid_plan1
