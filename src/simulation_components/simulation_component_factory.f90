@@ -36,7 +36,7 @@ module simulation_component_fctry
   use simulation_component, only : simulation_component_t
   use vorticity, only : vorticity_t
   use json_module, only : json_file
-  use fluid_scheme, only : fluid_scheme_t
+  use case, only : case_t
   use json_utils, only : json_get
   implicit none
   private
@@ -47,10 +47,10 @@ module simulation_component_fctry
 
   !> Simulation component factory. Both constructs and initializes the object.
   !! @param json JSON object initializing the simulation component.
-  subroutine simulation_component_factory(simcomp, json, fluid)
+  subroutine simulation_component_factory(simcomp, json, case)
        class(simulation_component_t), allocatable, intent(inout) :: simcomp
        type(json_file), intent(inout) :: json
-       class(fluid_scheme_t), intent(inout), target :: fluid
+       class(case_t), intent(inout), target :: case
        character(len=:), allocatable :: simcomp_type
               
        call json_get(json, "type", simcomp_type)
@@ -60,9 +60,8 @@ module simulation_component_fctry
        end if
        
        ! Initialize
-       call simcomp%init(json, fluid)
+       call simcomp%init(json, case)
 
   end subroutine simulation_component_factory
-   
-  
+
 end module simulation_component_fctry

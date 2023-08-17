@@ -42,7 +42,7 @@ module vorticity
   use field_registry, only : neko_field_registry
   use field, only : field_t, field_free, field_init
   use operators, only : curl
-  use fluid_scheme, only : fluid_scheme_t
+  use case, only : case_t
   implicit none
   private
   
@@ -80,12 +80,12 @@ module vorticity
   contains
   
   !> Constructor from json.
-  subroutine vorticity_init_from_json(this, json, fluid)
+  subroutine vorticity_init_from_json(this, json, case)
        class(vorticity_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       class(fluid_scheme_t), intent(inout), target :: fluid
+       class(case_t), intent(inout), target ::case 
        
-       call this%init_base(json, fluid)
+       call this%init_base(json, case)
 
        call vorticity_init_from_attributes(this)
   end subroutine vorticity_init_from_json
@@ -131,7 +131,7 @@ module vorticity
        integer, intent(in) :: tstep
 
        call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
-                 this%w, this%temp1, this%temp2, this%fluid%c_Xh)
+                 this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
   end subroutine vorticity_compute
   
 end module vorticity

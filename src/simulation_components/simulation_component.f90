@@ -38,13 +38,14 @@
 module simulation_component
   use num_types, only : rp
   use json_module, only : json_file
-  use fluid_scheme, only : fluid_scheme_t
+  use case, only : case_t
   implicit none
   private
   
   !> Base abstract class for simulation components.
   type, abstract, public :: simulation_component_t
-   class(fluid_scheme_t), pointer :: fluid
+     !> Pointer to the simulation case.
+     class(case_t), pointer :: case
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
@@ -57,21 +58,20 @@ module simulation_component
   end type simulation_component_t
   
   !> A helper type that is needed to have an array of polymorphic objects
-  type simulation_component_wrapper_t
+  type, public :: simulation_component_wrapper_t
     class(simulation_component_t), allocatable :: simcomp
   end type simulation_component_wrapper_t
 
-  class(simulation_component_wrapper_t), public, allocatable :: neko_simcomps(:)
   
   abstract interface
      !> The common constructor using a JSON dictionary.
      !! @param json The JSON with properties.
-     !! @param fluid The fluid_scheme_t object. 
-     subroutine simulation_component_init(this, json, fluid)  
-       import simulation_component_t, json_file, fluid_scheme_t
+     !! @param case The case_t object. 
+     subroutine simulation_component_init(this, json, case)  
+       import simulation_component_t, json_file, case_t
        class(simulation_component_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       class(fluid_scheme_t), intent(inout), target :: fluid
+       class(case_t), intent(inout), target :: case
      end subroutine
   end interface
 
@@ -96,13 +96,13 @@ module simulation_component
   end interface
 
 contains
-  !> Constructor for the simulation_component_t (base) class.
-  subroutine simulation_component_init_base(this, json, fluid)  
+  !> Constructor for the `simulation_component_t` (base) class.
+  subroutine simulation_component_init_base(this, json, case)  
     class(simulation_component_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(fluid_scheme_t), intent(inout), target :: fluid
+    class(case_t), intent(inout), target :: case
 
-    this%fluid => fluid
+    this%case => case
 
   end subroutine simulation_component_init_base
 
