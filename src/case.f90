@@ -59,8 +59,6 @@ module case
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
-  use simulation_component, only : neko_simcomps
-  use simulation_component_fctry, only : simulation_component_factory
   implicit none
   
   type :: case_t
@@ -445,28 +443,6 @@ contains
        call json_get(C%params, 'case.job_timelimit', string_val)
        call jobctrl_set_time_limit(string_val)
     end if
-
-    !
-    ! Create simulation components
-    !
-    if (C%params%valid_path('case.simulation_components')) then
-
-      call C%params%info('case.simulation_components', n_children=n_simcomps)
-      allocate(neko_simcomps(n_simcomps))
-
-      call C%params%get_core(core)
-      call C%params%get('case.simulation_components', json_val1, found)
-
-      do i=1, n_simcomps
-         ! Create a new json containing just the subdict for this simcomp
-         call core%get_child(json_val1, i, json_val2, found)
-         call core%print_to_string(json_val2, string_val)
-         call json_subdict%load_from_string(string_val)
-
-         call simulation_component_factory(neko_simcomps(i)%simcomp, &
-                                           json_subdict, C%fluid) 
-      end do
-   end if
 
     call neko_log%end_section()
     
