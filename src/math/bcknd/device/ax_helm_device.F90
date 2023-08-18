@@ -60,11 +60,13 @@ module ax_helm_device
 #elif HAVE_CUDA
     interface
      subroutine cuda_ax_helm(w_d, u_d, &
-          dx_d, dy_d, dz_d, h1_d, g11_d, g22_d, g33_d, &
-          g12_d, g13_d, g23_d, nelv, lx) bind(c, name='cuda_ax_helm')
+          dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d,&
+          h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d, nelv, lx) &
+          bind(c, name='cuda_ax_helm')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: w_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
        integer(c_int) :: nel, lx
      end subroutine cuda_ax_helm
@@ -105,8 +107,8 @@ contains
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
 #elif HAVE_CUDA
-    call cuda_ax_helm(w_d, u_d, &
-         Xh%dx_d, Xh%dy_d, Xh%dz_d, coef%h1_d, &
+    call cuda_ax_helm(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+         Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
          coef%G11_d, coef%G22_d, coef%G33_d, &
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
