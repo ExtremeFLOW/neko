@@ -47,7 +47,6 @@ module probes
 
   character(len=LOG_SIZE) :: log_buf ! For logging status
 
-  !@todo reformat the rst and xyz variables with array of points
   type probes_t
 
      integer :: handle !< handle to pass in each findpts call
@@ -75,7 +74,7 @@ module probes
 
 contains
 
-  !> Initialize probes object
+  !> Initialize probes object.
   !! @param n_probes Number of probes
   !! @param n_fields Number of fields to interpolate
   subroutine probes_init(this, n_probes, n_fields)
