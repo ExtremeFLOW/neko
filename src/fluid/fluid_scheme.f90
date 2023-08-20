@@ -333,7 +333,7 @@ contains
              call json_get(params, 'case.fluid.blasius.freestream_velocity',&
                            real_vec)
 
-             call this%bc_inflow%set_inflow(real_vec)
+             call bc_if%set_inflow(real_vec)
              call bc_if%set_params(real_val, string_val2)
 
           end select
