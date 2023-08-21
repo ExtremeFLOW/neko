@@ -739,12 +739,14 @@ module user
   type(field_t) :: dtdn ! Derivative of scalar wrt normal
   type(field_t) :: mass_area_top ! mass matrix for area on top wall
   type(field_t) :: mass_area_bot ! mass matrix for area on bottom wall
+  type(field_t) :: mass_area_side ! mass matrix for area on top wall
   type(field_t) :: bm1 ! mass matrix for area on bottom wall
   real(kind=rp) :: bar_uzt ! Volume integral
   real(kind=rp) :: top_wall_bar_dtdz ! area integral
   real(kind=rp) :: bot_wall_bar_dtdz ! area integral
   real(kind=rp) :: top_wall_area ! area of top and bottom wall
   real(kind=rp) :: bot_wall_area ! area of top and bottom wall
+  real(kind=rp) :: side_wall_area ! area of top and bottom wall
   
   !> Boundary conditions  
   integer :: istep = 1
@@ -755,6 +757,7 @@ module user
   character(len=NEKO_FNAME_LEN) :: fname_dtdz
   character(len=NEKO_FNAME_LEN) :: fname_top_area
   character(len=NEKO_FNAME_LEN) :: fname_bot_area
+  character(len=NEKO_FNAME_LEN) :: fname_side_area
   character(len=NEKO_FNAME_LEN) :: fname_bm1
   character(len=NEKO_FNAME_LEN) :: fname_speri_x
   character(len=NEKO_FNAME_LEN) :: fname_speri_y
@@ -764,12 +767,14 @@ module user
   type(file_t) :: mf_dtdz
   type(file_t) :: mf_top_area
   type(file_t) :: mf_bot_area
+  type(file_t) :: mf_side_area
   type(file_t) :: mf_bm1
   type(file_t) :: mf_speri_x
   type(file_t) :: mf_speri_y
   type(file_t) :: mf_speri_z
 
   !> List of elements and facets in uper and lower boundary
+  type(stack_i4t4_t) :: sidewall_facet
   type(stack_i4t4_t) :: wall_facet
   type(tuple4_i4_t)  :: facet_el_type_0
 
@@ -912,7 +917,9 @@ contains
     real(kind=rp) :: normal(3)
     real(kind=rp) :: area_mass, area_rank(1),area_global(1)
     type(tuple4_i4_t), pointer :: wall_facet_list(:)
+    type(tuple4_i4_t), pointer :: sidewall_facet_list(:)
     real(kind=rp) :: voll(1), voll_temp(1)
+    integer :: lx, ly, lz
     
     !> Recalculate the non dimensional parameters
     call json_get(params, 'case.scalar.Pr', Pr)
@@ -929,6 +936,7 @@ contains
     call field_init(dtdn, u%dof, 'dtdn')
     call field_init(mass_area_top, u%dof, 'mat')
     call field_init(mass_area_bot, u%dof, 'mab')
+    call field_init(mass_area_side, u%dof, 'masd')
     call field_init(bm1, u%dof, 'mass_mat')
 
     !> Initialize the file
@@ -937,6 +945,7 @@ contains
     fname_dtdz = 'dtdz.fld'
     fname_top_area = 'top_area.fld'
     fname_bot_area = 'bot_area.fld'
+    fname_side_area = 'side_area.fld'
     fname_bm1 = 'bm1.fld'
     fname_speri_x = 'speri_x.fld'
     fname_speri_y = 'speri_y.fld'
@@ -946,6 +955,7 @@ contains
     mf_dtdz =  file_t(fname_dtdz)
     mf_top_area =  file_t(fname_top_area)
     mf_bot_area =  file_t(fname_bot_area)
+    mf_side_area =  file_t(fname_side_area)
     mf_bm1 =  file_t(fname_bm1)
     mf_speri_x =  file_t(fname_speri_x)
     mf_speri_y =  file_t(fname_speri_y)
@@ -954,18 +964,27 @@ contains
 
     !> Initialize list with upper and lower wall facets
     call wall_facet%init()
+    call sidewall_facet%init()
 
-    !> Populate the list with upper and lower wall facets 
+    !> Populate the list with upper and lower and wall facets 
     do e = 1, u%msh%nelv !Go over all elements
       do facet = 1, 6 ! Go over all facets of hex element
         normal = coef_get_normal(coef,1,1,1,e,facet) ! Get facet normal
         typ =  u%msh%facet_type(facet,e)             ! Get facet type
-        if (typ.ne.0.and.abs(normal(3)).ge.1-1e-5) then
-          !write(*,*) 'In boundary: facet=', facet, 'and element=', e
-          !write(*,*) 'BC facet type ', typ 
-          !write(*,*) 'normal to this facet is: ', normal   
-          facet_el_type_0%x = (/facet, e, typ, 0/)
-          call wall_facet%push(facet_el_type_0)
+        if (typ.ne.0) then !then it is a boundary facet
+          if (abs(normal(3)).ge.1-1e-5) then !then it is on the plates
+            !write(*,*) 'In boundary: facet=', facet, 'and element=', e
+            !write(*,*) 'BC facet type ', typ 
+            !write(*,*) 'normal to this facet is: ', normal   
+            facet_el_type_0%x = (/facet, e, typ, 0/)
+            call wall_facet%push(facet_el_type_0)
+          else !then it is on the sidewall
+            !write(*,*) 'In boundary: facet=', facet, 'and element=', e
+            !write(*,*) 'BC facet type ', typ 
+            !write(*,*) 'normal to this facet is: ', normal   
+            facet_el_type_0%x = (/facet, e, typ, 0/)
+            call wall_facet%push(facet_el_type_0)
+          end if
         end if
       end do
     end do
@@ -981,39 +1000,77 @@ contains
     !! we want <dt/dz>_A,t at z=0,1.
     !! Average in Area is: (dt/dz * normal * Area_mass) / Area_total
     wall_facet_list => wall_facet%array()
+    sidewall_facet_list => sidewall_facet%array()
     !! Initialize the mass as 0. This serves as a mask for nodes that are not integrated
     call rzero(mass_area_top%x,u%dof%size())
     call rzero(mass_area_bot%x,u%dof%size())
+    call rzero(mass_area_side%x,u%dof%size())
     !! Fill up the top and bottom mass matrices
-    do e_counter=1,wall_facet%top_
-      do i = 1, u%Xh%lx
-        do j = 1 , u%Xh%lx
-           facet = wall_facet_list(e_counter)%x(1)
-           e = wall_facet_list(e_counter)%x(2)
-           normal = coef_get_normal(coef,1,1,1,e,facet) ! Get facet normal
-           area_mass = get_area_mass(coef,i,j,1,e,facet) ! We are interested only in facet 5 and 6 for our case
-           select case(facet) !Based on function: index_is_on_facet
-              case(5)
-                 mass_area_bot%x(i,j,1,e) = area_mass * normal(3)
-              case(6)
-                 mass_area_top%x(i,j,u%Xh%lz,e) = area_mass * normal(3)
-           end select                
-         end do
-      end do 
+    lx = u%Xh%lx
+    ly = u%Xh%ly
+    lz = u%Xh%lz
+    do e_counter = 1, wall_facet%top_
+      e = wall_facet_list(e_counter)%x(2)
+      facet = wall_facet_list(e_counter)%x(1)
+      select case(facet)
+         case(1)
+            do j = 1 , ly
+               do k = 1 , lz
+                  mass_area_side%x(1,j,k,e) = coef%area(j,k,facet,e) 
+               end do
+            end do
+         case(2)
+            do j = 1 , ly
+               do k = 1 , lz
+                  mass_area_side%x(lx,j,k,e) = coef%area(j,k,facet,e) 
+               end do
+            end do
+         case(3)
+            do i = 1 , lx
+               do k = 1 , lz
+                  mass_area_side%x(i,1,k,e) = coef%area(i,k,facet,e)    
+               end do
+            end do
+         case(4)
+            do i = 1 , lx
+               do k = 1 , lz
+                  mass_area_side%x(i,ly,k,e) = coef%area(i,k,facet,e)       
+               end do
+            end do
+         case(5)
+            normal = coef_get_normal(coef,1,1,1,e,facet)
+            do i = 1 , lx
+               do j = 1 , ly
+                  mass_area_bot%x(i,j,1,e) = coef%area(i,j,facet,e)*normal(3) 
+               end do
+            end do
+         case(6)
+            normal = coef_get_normal(coef,1,1,1,e,facet)
+            do i = 1 , lx
+               do j = 1 , ly
+                  mass_area_top%x(i,j,lz,e) = coef%area(i,j,facet,e)*normal(3)       
+               end do
+            end do
+      end select
     end do
+
     n = size(coef%B)
     top_wall_area = glsum(mass_area_top%x,n)
     bot_wall_area = glsum(mass_area_bot%x,n)
+    side_wall_area = glsum(mass_area_side%x,n)
     !! Write it out
     if (pe_rank .eq. 0) then
        write(*,*) 'Area of top wall * normal= ', top_wall_area
        write(*,*) 'Area of bottom wall * normal= ', bot_wall_area
+       write(*,*) 'Area of side wall= ', side_wall_area
     end if 
     !! Put it also on device
     if (NEKO_BCKND_DEVICE .eq. 1) then 
        call device_memcpy(mass_area_top%x,mass_area_top%x_d, &
                           n,HOST_TO_DEVICE)
        call device_memcpy(mass_area_bot%x,mass_area_bot%x_d, &
+                          n,HOST_TO_DEVICE)
+       call device_memcpy(mass_area_side%x,mass_area_side%x_d, &
                           n,HOST_TO_DEVICE)
     end if
 
@@ -1037,6 +1094,7 @@ contains
     !> Perform IO
     call mf_top_area%write(mass_area_top,t)
     call mf_bot_area%write(mass_area_bot,t)
+    call mf_side_area%write(mass_area_side,t)
     call mf_bm1%write(bm1,t)      
 
   end subroutine user_initialize
@@ -1070,10 +1128,12 @@ contains
     call field_free(dtdn)
     call field_free(mass_area_top)
     call field_free(mass_area_bot)
+    call field_free(mass_area_side)
     call field_free(bm1)
     
     ! Finilize list that contains uper and lower wall facets
     call wall_facet%free()
+    call sidewall_facet%free()
   
   end subroutine user_finalize
 
