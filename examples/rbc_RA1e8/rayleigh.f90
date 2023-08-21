@@ -821,7 +821,7 @@ contains
     end if
   end subroutine redistribute_elements
   
-  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
@@ -833,6 +833,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
 
     !> Variables for bias
     real(kind=rp) :: arg, bias
