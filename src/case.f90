@@ -56,7 +56,7 @@ module case
   use jobctrl
   use user_intf  
   use scalar_pnpn ! todo directly load the pnpn? can we have other
-  use json_module, only : json_file
+  use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   implicit none
@@ -145,6 +145,10 @@ contains
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval 
     integer :: output_dir_len
+    integer :: n_simcomps, i
+    type(json_core) :: core
+    type(json_value), pointer :: json_val1, json_val2 
+    type(json_file) :: json_subdict
 
     !
     ! Load mesh

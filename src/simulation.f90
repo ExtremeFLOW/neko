@@ -39,6 +39,7 @@ module simulation
   use logger
   use jobctrl
   use profiler
+  use simulation_component_global, only : neko_simcomps
   use json_module, only : json_file_t => json_file
   use json_utils, only : json_get_or_default
   implicit none
@@ -55,7 +56,7 @@ contains
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time
     character(len=LOG_SIZE) :: log_buf    
-    integer :: tstep
+    integer :: tstep, i
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
 
@@ -127,6 +128,13 @@ contains
        
        call C%usr%user_check(t, tstep,&
             C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+         
+       ! Execute all simulation components
+       if (allocated(neko_simcomps)) then
+         do i=1, size(neko_simcomps)
+            call neko_simcomps(i)%simcomp%compute(t, tstep)
+         end do
+       end if
        call neko_log%end_section()
        
        call neko_log%end()
