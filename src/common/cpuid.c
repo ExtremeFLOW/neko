@@ -7,11 +7,11 @@
 #if defined(HAVE_CPUID_H)
 #include <cpuid.h>
 #endif
-#elif defined(_ARCH_PPC64) || defined(__aarch64__)
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#endif
 
 #define MAXLEN 2048
 
