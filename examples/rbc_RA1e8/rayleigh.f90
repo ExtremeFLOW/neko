@@ -730,51 +730,57 @@ module user
   real(kind=rp) :: Re = 0
   real(kind=rp) :: Pr = 0
 
-  !> Arrays asociated with Method#1 for nusselt calculation
-  type(field_t) :: work_field ! Field to perform operations
-  type(field_t) :: uzt ! u_z * T
-  type(field_t) :: dtdx ! Derivative of scalar wrt x
-  type(field_t) :: dtdy ! Detivative of scalar wrt y
-  type(field_t) :: dtdz ! Derivative of scalar wrt z
-  type(field_t) :: dtdn ! Derivative of scalar wrt normal
-  type(field_t) :: mass_area_top ! mass matrix for area on top wall
-  type(field_t) :: mass_area_bot ! mass matrix for area on bottom wall
-  type(field_t) :: mass_area_side ! mass matrix for area on top wall
-  type(field_t) :: bm1 ! mass matrix for area on bottom wall
+  !> Fields and variables for calculations
+  type(field_t) , target:: work_field ! Field to perform operations
+  type(field_t) , target:: uzt ! u_z * T
+  type(field_t) , target:: dtdx ! Derivative of scalar wrt x
+  type(field_t) , target:: dtdy ! Detivative of scalar wrt y
+  type(field_t) , target:: dtdz ! Derivative of scalar wrt z
+  type(field_t) , target:: dtdn ! Derivative of scalar wrt normal
+  type(field_t) , target:: mass_area_top ! mass matrix for area on top wall
+  type(field_t) , target:: mass_area_bot ! mass matrix for area on bottom wall
+  type(field_t) , target:: mass_area_side ! mass matrix for area on top wall
+  type(field_t) , target:: bdry_mask ! mass matrix for area on top wall
+  type(field_t) , target:: bm1 ! mass matrix for area on bottom wall
+  type(field_t) , target:: normal_x ! normal vector in x (non zero at the boundaries)
+  type(field_t) , target:: normal_y ! normal vector in y (non zero at the boundaries)
+  type(field_t) , target:: normal_z ! normal vector in z (non zero at the boundaries)
   real(kind=rp) :: bar_uzt ! Volume integral
   real(kind=rp) :: top_wall_bar_dtdz ! area integral
   real(kind=rp) :: bot_wall_bar_dtdz ! area integral
   real(kind=rp) :: top_wall_area ! area of top and bottom wall
   real(kind=rp) :: bot_wall_area ! area of top and bottom wall
   real(kind=rp) :: side_wall_area ! area of top and bottom wall
+
+  real(kind=rp) :: heat_bot_wall
+  real(kind=rp) :: heat_top_wall
+  real(kind=rp) :: heat_side_wall
+  real(kind=rp) :: heat_balance
   
+  !> field list for outputs
+  type(field_list_t) :: speri_l
+  type(field_list_t) :: area_l
+  type(field_list_t) :: dtdX_l
+
   !> Boundary conditions  
   integer :: istep = 1
 
   !> Variables to write extra files
-  character(len=NEKO_FNAME_LEN) :: fname_dtdx
-  character(len=NEKO_FNAME_LEN) :: fname_dtdy
-  character(len=NEKO_FNAME_LEN) :: fname_dtdz
-  character(len=NEKO_FNAME_LEN) :: fname_top_area
-  character(len=NEKO_FNAME_LEN) :: fname_bot_area
-  character(len=NEKO_FNAME_LEN) :: fname_side_area
+  character(len=NEKO_FNAME_LEN) :: fname_dtdX
+  character(len=NEKO_FNAME_LEN) :: fname_dtdn
+  character(len=NEKO_FNAME_LEN) :: fname_area
   character(len=NEKO_FNAME_LEN) :: fname_bm1
-  character(len=NEKO_FNAME_LEN) :: fname_speri_x
-  character(len=NEKO_FNAME_LEN) :: fname_speri_y
-  character(len=NEKO_FNAME_LEN) :: fname_speri_z
-  type(file_t) :: mf_dtdx
-  type(file_t) :: mf_dtdy
-  type(file_t) :: mf_dtdz
-  type(file_t) :: mf_top_area
-  type(file_t) :: mf_bot_area
-  type(file_t) :: mf_side_area
+  character(len=NEKO_FNAME_LEN) :: fname_speri
+  type(file_t) :: mf_dtdn
+  type(file_t) :: mf_dtdX
+  type(file_t) :: mf_area
   type(file_t) :: mf_bm1
-  type(file_t) :: mf_speri_x
-  type(file_t) :: mf_speri_y
-  type(file_t) :: mf_speri_z
+  type(file_t) :: mf_speri
 
   !> List of elements and facets in uper and lower boundary
-  type(stack_i4t4_t) :: sidewall_facet
+  type(stack_i4t4_t) :: top_wall_facet
+  type(stack_i4t4_t) :: bot_wall_facet
+  type(stack_i4t4_t) :: side_wall_facet
   type(stack_i4t4_t) :: wall_facet
   type(tuple4_i4_t)  :: facet_el_type_0
 
@@ -919,7 +925,8 @@ contains
     type(tuple4_i4_t), pointer :: wall_facet_list(:)
     type(tuple4_i4_t), pointer :: sidewall_facet_list(:)
     real(kind=rp) :: voll(1), voll_temp(1)
-    integer :: lx, ly, lz
+    integer :: lx, ly, lz, nones
+    real(kind=rp) :: ones(u%Xh%lx,u%Xh%ly,6,u%msh%nelv)
     
     !> Recalculate the non dimensional parameters
     call json_get(params, 'case.scalar.Pr', Pr)
@@ -937,34 +944,37 @@ contains
     call field_init(mass_area_top, u%dof, 'mat')
     call field_init(mass_area_bot, u%dof, 'mab')
     call field_init(mass_area_side, u%dof, 'masd')
+    call field_init(bdry_mask, u%dof, 'bdry_mask')
     call field_init(bm1, u%dof, 'mass_mat')
+    call field_init(normal_x, u%dof, 'normal_x')
+    call field_init(normal_y, u%dof, 'normal_y')
+    call field_init(normal_z, u%dof, 'normal_z')
 
     !> Initialize the file
-    fname_dtdx = 'dtdx.fld'
-    fname_dtdy = 'dtdy.fld'
-    fname_dtdz = 'dtdz.fld'
-    fname_top_area = 'top_area.fld'
-    fname_bot_area = 'bot_area.fld'
-    fname_side_area = 'side_area.fld'
+    fname_dtdX = 'dtdX.fld'
+    fname_dtdn = 'dtdn.fld'
+    fname_area = 'area.fld'
     fname_bm1 = 'bm1.fld'
-    fname_speri_x = 'speri_x.fld'
-    fname_speri_y = 'speri_y.fld'
-    fname_speri_z = 'speri_z.fld'
-    mf_dtdx =  file_t(fname_dtdx)
-    mf_dtdy =  file_t(fname_dtdy)
-    mf_dtdz =  file_t(fname_dtdz)
-    mf_top_area =  file_t(fname_top_area)
-    mf_bot_area =  file_t(fname_bot_area)
-    mf_side_area =  file_t(fname_side_area)
+    fname_speri = 'speri.fld'
+    mf_dtdX =  file_t(fname_dtdX)
+    mf_dtdn =  file_t(fname_dtdn)
+    mf_area =  file_t(fname_area)
     mf_bm1 =  file_t(fname_bm1)
-    mf_speri_x =  file_t(fname_speri_x)
-    mf_speri_y =  file_t(fname_speri_y)
-    mf_speri_z =  file_t(fname_speri_z)
+    mf_speri =  file_t(fname_speri)
 
+    !> Initialize the list of pointers to write out files
+    call list_init3(speri_l,speri_u%fldhat,speri_v%fldhat, &
+                         speri_w%fldhat)
+    call list_init3(area_l,mass_area_top,mass_area_bot, &
+                         mass_area_side)
+    call list_init3(dtdX_l,dtdx,dtdy, &
+                         dtdz)
 
-    !> Initialize list with upper and lower wall facets
+    !> Initialize list to identify relevant facets in boundaries
     call wall_facet%init()
-    call sidewall_facet%init()
+    call top_wall_facet%init()
+    call bot_wall_facet%init()
+    call side_wall_facet%init()
 
     !> Populate the list with upper and lower and wall facets 
     do e = 1, u%msh%nelv !Go over all elements
@@ -972,18 +982,18 @@ contains
         normal = coef_get_normal(coef,1,1,1,e,facet) ! Get facet normal
         typ =  u%msh%facet_type(facet,e)             ! Get facet type
         if (typ.ne.0) then !then it is a boundary facet
-          if (abs(normal(3)).ge.1-1e-5) then !then it is on the plates
-            !write(*,*) 'In boundary: facet=', facet, 'and element=', e
-            !write(*,*) 'BC facet type ', typ 
-            !write(*,*) 'normal to this facet is: ', normal   
+          if ((normal(3)).ge.0.999) then !then it is on the top plate
             facet_el_type_0%x = (/facet, e, typ, 0/)
             call wall_facet%push(facet_el_type_0)
+            call top_wall_facet%push(facet_el_type_0)
+          else if ((normal(3)).le.(-0.999)) then !then it is on the bottom
+            facet_el_type_0%x = (/facet, e, typ, 0/)
+            call wall_facet%push(facet_el_type_0)
+            call bot_wall_facet%push(facet_el_type_0)
           else !then it is on the sidewall
-            !write(*,*) 'In boundary: facet=', facet, 'and element=', e
-            !write(*,*) 'BC facet type ', typ 
-            !write(*,*) 'normal to this facet is: ', normal   
             facet_el_type_0%x = (/facet, e, typ, 0/)
             call wall_facet%push(facet_el_type_0)
+            call side_wall_facet%push(facet_el_type_0)
           end if
         end if
       end do
@@ -996,63 +1006,20 @@ contains
        write(*,*) 'Facets at the wall global: ', stack_size_global
     end if
 
-    !> Fill up arrays to serve as area mass matrix for integration
-    !! we want <dt/dz>_A,t at z=0,1.
-    !! Average in Area is: (dt/dz * normal * Area_mass) / Area_total
-    wall_facet_list => wall_facet%array()
-    sidewall_facet_list => sidewall_facet%array()
-    !! Initialize the mass as 0. This serves as a mask for nodes that are not integrated
-    call rzero(mass_area_top%x,u%dof%size())
-    call rzero(mass_area_bot%x,u%dof%size())
-    call rzero(mass_area_side%x,u%dof%size())
-    !! Fill up the top and bottom mass matrices
-    lx = u%Xh%lx
-    ly = u%Xh%ly
-    lz = u%Xh%lz
-    do e_counter = 1, wall_facet%top_
-      e = wall_facet_list(e_counter)%x(2)
-      facet = wall_facet_list(e_counter)%x(1)
-      select case(facet)
-         case(1)
-            do j = 1 , ly
-               do k = 1 , lz
-                  mass_area_side%x(1,j,k,e) = coef%area(j,k,facet,e) 
-               end do
-            end do
-         case(2)
-            do j = 1 , ly
-               do k = 1 , lz
-                  mass_area_side%x(lx,j,k,e) = coef%area(j,k,facet,e) 
-               end do
-            end do
-         case(3)
-            do i = 1 , lx
-               do k = 1 , lz
-                  mass_area_side%x(i,1,k,e) = coef%area(i,k,facet,e)    
-               end do
-            end do
-         case(4)
-            do i = 1 , lx
-               do k = 1 , lz
-                  mass_area_side%x(i,ly,k,e) = coef%area(i,k,facet,e)       
-               end do
-            end do
-         case(5)
-            normal = coef_get_normal(coef,1,1,1,e,facet)
-            do i = 1 , lx
-               do j = 1 , ly
-                  mass_area_bot%x(i,j,1,e) = coef%area(i,j,facet,e)*normal(3) 
-               end do
-            end do
-         case(6)
-            normal = coef_get_normal(coef,1,1,1,e,facet)
-            do i = 1 , lx
-               do j = 1 , ly
-                  mass_area_top%x(i,j,lz,e) = coef%area(i,j,facet,e)*normal(3)       
-               end do
-            end do
-      end select
-    end do
+    ! Map from facet data to field data to have an easy way to perform operations with col3
+    !! Area mass matrices
+    call map_from_facets_to_field(mass_area_top, coef%area, top_wall_facet)
+    call map_from_facets_to_field(mass_area_bot, coef%area, bot_wall_facet)
+    call map_from_facets_to_field(mass_area_side, coef%area, side_wall_facet)
+    !! Normal vectors in the required facets
+    call map_from_facets_to_field(normal_x, coef%nx, wall_facet)
+    call map_from_facets_to_field(normal_y, coef%ny, wall_facet)
+    call map_from_facets_to_field(normal_z, coef%nz, wall_facet)
+    
+    !! Create a mask with the boundary facet data
+    nones = u%Xh%lx*u%Xh%ly*6*u%msh%nelv
+    call rone(ones, nones)
+    call map_from_facets_to_field(bdry_mask, ones, wall_facet)
 
     n = size(coef%B)
     top_wall_area = glsum(mass_area_top%x,n)
@@ -1064,15 +1031,6 @@ contains
        write(*,*) 'Area of bottom wall * normal= ', bot_wall_area
        write(*,*) 'Area of side wall= ', side_wall_area
     end if 
-    !! Put it also on device
-    if (NEKO_BCKND_DEVICE .eq. 1) then 
-       call device_memcpy(mass_area_top%x,mass_area_top%x_d, &
-                          n,HOST_TO_DEVICE)
-       call device_memcpy(mass_area_bot%x,mass_area_bot%x_d, &
-                          n,HOST_TO_DEVICE)
-       call device_memcpy(mass_area_side%x,mass_area_side%x_d, &
-                          n,HOST_TO_DEVICE)
-    end if
 
     !> Store volume mass matrix for post processing
     n = size(coef%B) 
@@ -1084,7 +1042,7 @@ contains
     end if 
     !! rescale mass if volume is too small
     do i = 1,n
-       bm1%x(i,1,1,1)=bm1%x(i,1,1,1) * 1e3
+       bm1%x(i,1,1,1)=bm1%x(i,1,1,1) * 1e0
     end do
     voll = glsum(bm1%x,n)
     if (pe_rank .eq. 0) then
@@ -1092,27 +1050,11 @@ contains
     end if 
 
     !> Perform IO
-    call mf_top_area%write(mass_area_top,t)
-    call mf_bot_area%write(mass_area_bot,t)
-    call mf_side_area%write(mass_area_side,t)
+    call mf_area%write(area_l,t)
     call mf_bm1%write(bm1,t)      
 
   end subroutine user_initialize
 
-  pure function get_area_mass(coef, i, j, k, e, facet) result(area_mass)
-    type(coef_t), intent(in) :: coef
-    integer, intent(in) :: i, j, k, e, facet
-    real(kind=rp) :: area_mass
-      
-    select case (facet)               
-      case(1,2)
-        area_mass = coef%area(j, k, facet, e)
-      case(3,4)
-        area_mass = coef%area(i, k, facet, e)
-      case(5,6)
-        area_mass = coef%area(i, j, facet, e)
-      end select
-  end function get_area_mass
 
 
   subroutine user_finalize(t, param)
@@ -1129,12 +1071,23 @@ contains
     call field_free(mass_area_top)
     call field_free(mass_area_bot)
     call field_free(mass_area_side)
+    call field_free(bdry_mask)
     call field_free(bm1)
+    call field_free(normal_x)
+    call field_free(normal_y)
+    call field_free(normal_z)
     
     ! Finilize list that contains uper and lower wall facets
     call wall_facet%free()
-    call sidewall_facet%free()
-  
+    call top_wall_facet%free()
+    call bot_wall_facet%free()
+    call side_wall_facet%free()
+ 
+    ! Finilize the field lists
+    call list_final3(speri_l)
+    call list_final3(area_l)
+    call list_final3(dtdX_l)
+
   end subroutine user_finalize
 
   subroutine set_bousinesq_forcing_term(f, t)
@@ -1198,7 +1151,7 @@ contains
         calc_frequency = int(calc_freq)
     end if
 
-    if (mod(tstep,calc_frequency).ne.0) return
+  if (mod(tstep,calc_frequency).eq.0) then
 
     s => neko_field_registry%get_field('s')
     n = size(coef%B)
@@ -1207,55 +1160,38 @@ contains
     ly = u%Xh%ly
     lz = u%Xh%lz
 
-    !> ------ Method #1 for nusselt calculation -----
+    !> ------ for method #1 for nusselt calculation -----
     !> Nu_v = 1 + sqrt(Ra) * <u_z * T>_{v,t}
     !> Steps:
        !1.    Calculate the convective current T*u_z
        !2.    Get <u_z * T>_{v}(t) (Average in volume)
-       !!2.1. Multiply field with mass matrix
-       !!2.2. Perform a global sum to get the integral
-       !!2.3. Normalize with total volume to get the average
-       !3.    Get <u_z * T>_{v,t} by averaging time signal
-       !4.    Multiply average by sqrt(Ra) and sum 1
-    !> Steps 1. and 2. are done here. Do 3. and 4. in post  
     if (NEKO_BCKND_DEVICE .eq. 1) then 
-       call device_col3(uzt%x_d,w%x_d,s%x_d,n)             !1.  
-       call device_col3(work_field%x_d,uzt%x_d,coef%B_d,n) !2.1.   
-       bar_uzt = device_glsum(work_field%x_d,n)            !2.2.
-       bar_uzt = bar_uzt / coef%volume                     !2.3. 
+       call device_col3(uzt%x_d,w%x_d,s%x_d,n)               
     else
-       call col3(uzt%x,w%x,s%x,n)                          !1.
-       call col3(work_field%x,uzt%x,coef%B,n)              !2.1.
-       bar_uzt = glsum(work_field%x,n)                     !2.2.
-       bar_uzt = bar_uzt / coef%volume                     !2.3.
+       call col3(uzt%x,w%x,s%x,n)                          
     end if
-
-    !> ------ Method #2 for nusselt calculation -----
-    ! Calculate derivatives. Automatically in device with opgrad
+    !> ------ For method #2 for nusselt calculation -----
+    !> Steps:
+       !1.    Calculate the heat flux in z dtdz
+       !2.    Get <dtdz>_{A}(t) (Average in area of plates)
+    !!> Calculate derivatives. Automatically in device with opgrad
     call dudxyz (dtdx%x, s%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (dtdy%x, s%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (dtdz%x, s%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    !> --------------------------------------------------
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then 
-       ! Calculate for top wall
-       call device_col3(work_field%x_d,dtdz%x_d,mass_area_top%x_d,n)      
-       top_wall_bar_dtdz = device_glsum(work_field%x_d,n)                  
-       top_wall_bar_dtdz = top_wall_bar_dtdz / abs(top_wall_area)            
-       ! Calculate for bot wall
-       call device_col3(work_field%x_d,dtdz%x_d,mass_area_bot%x_d,n)      
-       bot_wall_bar_dtdz = device_glsum(work_field%x_d,n)                  
-       bot_wall_bar_dtdz = bot_wall_bar_dtdz / abs(bot_wall_area)            
-    else
-       ! Calculate for top wall
-       call col3(work_field%x,dtdz%x,mass_area_top%x,n)      
-       top_wall_bar_dtdz = glsum(work_field%x,n)                  
-       top_wall_bar_dtdz = top_wall_bar_dtdz / abs(top_wall_area)            
-       ! Calculate for bot wall
-       call col3(work_field%x,dtdz%x,mass_area_bot%x,n)      
-       bot_wall_bar_dtdz = glsum(work_field%x,n)                  
-       bot_wall_bar_dtdz = bot_wall_bar_dtdz / abs(bot_wall_area)            
-    end if
-    
+    !> Get the required averages minding the appropiate weights
+    !> This function deals with device pointers internally
+    bar_uzt = 0_rp
+    top_wall_bar_dtdz = 0_rp
+    bot_wall_bar_dtdz = 0_rp
+    call average_from_weights(bar_uzt, uzt, &
+                        work_field, coef%B, coef%volume)
+    call average_from_weights(top_wall_bar_dtdz, dtdz, &
+                        work_field, mass_area_top%x, top_wall_area)
+    call average_from_weights(bot_wall_bar_dtdz, dtdz, &
+                        work_field, mass_area_bot%x, bot_wall_area)
+ 
     !> write variables to monitor
     !! Integral quantities
     if (pe_rank .eq. 0) then
@@ -1264,93 +1200,42 @@ contains
                    bot_wall_bar_dtdz
        close(10)
     end if
-    !! Fields
+
+    !> Write the derivatives
     call device_memcpy(dtdx%x,dtdx%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdy%x,dtdy%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdz%x,dtdz%x_d, n,DEVICE_TO_HOST)
-    call mf_dtdz%write(dtdz,t)
+    call mf_dtdX%write(dtdX_l,t)
 
-
+    ! Calculate some extra parameters to verify the boundary conditions
     if (verify_bc.eqv..true.) then
-    !> Calculate temp flux on each element boundary and chech boundary to verify BC
-     !! Zero out the vector
-     call rzero(dtdn%x,dtdn%dof%size())
-     !! Calculate the normal component for each facet in the domain
-     !! based on functions coef_get_normal and index_is_on_facet
-     do e = 1, u%msh%nelv !Go over all elements
-      do facet = 1, 6 ! Go over all facets of hex element
-         select case(facet)
-            case(1)
-               do j = 1 , dtdn%Xh%ly
-                  do k = 1 , dtdn%Xh%lz
-                     dtdn%x(1,j,k,e) = coef%nx(j, k, facet, e) &
-                                    *dtdx%x(1, j, k, e)  &
-                                    +coef%ny(j, k, facet, e)  &
-                                    *dtdy%x(1, j, k, e)  &
-                                    +coef%nz(j, k, facet, e)  &
-                                    *dtdz%x(1, j, k, e) 
-                  end do
-               end do
-            case(2)
-               do j = 1 , dtdn%Xh%ly
-                  do k = 1 , dtdn%Xh%lz
-                     dtdn%x(dtdn%Xh%lx,j,k,e) = coef%nx(j, k, facet, e) &
-                                    *dtdx%x(lx, j, k, e)  &
-                                    +coef%ny(j, k, facet, e)  &
-                                    *dtdy%x(lx, j, k, e)  &
-                                    +coef%nz(j, k, facet, e)  &
-                                    *dtdz%x(lx, j, k, e) 
-                  end do
-               end do
-            case(3)
-               do i = 1 , dtdn%Xh%lx
-                  do k = 1 , dtdn%Xh%lz
-                     dtdn%x(i,1,k,e) = coef%nx(i, k, facet, e) &
-                                    *dtdx%x(i, 1, k, e)  &
-                                    +coef%ny(i, k, facet, e)  &
-                                    *dtdy%x(i, 1, k, e)  &
-                                    +coef%nz(i, k, facet, e)  &
-                                    *dtdz%x(i, 1, k, e) 
-                  end do
-               end do
-            case(4)
-               do i = 1 , dtdn%Xh%lx
-                  do k = 1 , dtdn%Xh%lz
-                     dtdn%x(i,dtdn%Xh%ly,k,e) = coef%nx(i, k, facet, e) &
-                                    *dtdx%x(i, ly, k, e)  &
-                                    +coef%ny(i, k, facet, e)  &
-                                    *dtdy%x(i, ly, k, e)  &
-                                    +coef%nz(i, k, facet, e)  &
-                                    *dtdz%x(i, ly, k, e) 
-                  end do
-               end do
-            
-            case(5)
-               do i = 1 , dtdn%Xh%lx
-                  do j = 1 , dtdn%Xh%ly
-                     dtdn%x(i,j,1,e) = coef%nx(i, j, facet, e) &
-                                    *dtdx%x(i, j, 1, e)  &
-                                    +coef%ny(i, j, facet, e)  &
-                                    *dtdy%x(i, j, 1, e)  &
-                                    +coef%nz(i, j, facet, e)  &
-                                    *dtdz%x(i, j, 1, e) 
-                  end do
-               end do
-            case(6)
-               do i = 1 , dtdn%Xh%lx
-                  do j = 1 , dtdn%Xh%ly
-                     dtdn%x(i,j,dtdn%Xh%lz,e) = coef%nx(i, j, facet, e) &
-                                    *dtdx%x(i, j, lz, e)  &
-                                    +coef%ny(i, j, facet, e)  &
-                                    *dtdy%x(i, j, lz, e)  &
-                                    +coef%nz(i, j, facet, e)  &
-                                    *dtdz%x(i, j, lz, e) 
-                  end do
-               end do
-         end select
-      end do
-     end do
-     call mf_dtdx%write(dtdn,t)
+       
+       !find the normal derivatives to verify boundaries
+       call project_to_vector(dtdn, dtdx, dtdy, dtdz, &
+                              normal_x%x, normal_y%x, normal_z%x)
+
+       !> perform IO               
+       call device_memcpy(dtdn%x,dtdn%x_d, n,DEVICE_TO_HOST)
+       call mf_dtdn%write(dtdn,t)
+
+       !> get the heat flux averages this way. It should match
+       call average_from_weights(heat_bot_wall, dtdn, &
+                        work_field, mass_area_bot%x, bot_wall_area)
+       call average_from_weights(heat_top_wall, dtdn, &
+                        work_field, mass_area_top%x, top_wall_area)
+
+       call average_from_weights(heat_side_wall, dtdn, &
+                        work_field, mass_area_side%x, side_wall_area)
+
+       heat_balance = heat_bot_wall + heat_top_wall + heat_side_wall
+
+       if (pe_rank .eq. 0) then
+          open(20,file="bc_heat_balance.txt",position="append")
+          write(20,*) t,'', heat_top_wall, '', heat_bot_wall, '', &
+                      heat_side_wall, '', heat_balance
+          close(20)
+       end if
+
     end if
 
     !> Get the spectral error indicators for the mesh
@@ -1363,14 +1248,170 @@ contains
     call speri_get(speri_v)
     call speri_get(speri_w)
     !! Write the data into a field
-    call mf_speri_x%write(speri_u%fldhat,t)      
-    call mf_speri_y%write(speri_v%fldhat,t)      
-    call mf_speri_z%write(speri_w%fldhat,t)      
+    call mf_speri%write(speri_l,t)      
     !! Finalize specral error indicator
     call speri_free(speri_u)
     call speri_free(speri_v)
     call speri_free(speri_w)
 
+  end if
   end subroutine calculate_nusselt
+
+
+  !==================================================
+  !> Supporting subroutines
+  !==================================================
+
+
+  subroutine list_init3(list,uu,vv,ww)
+    type(field_list_t), intent(inout) :: list
+    type(field_t) , target:: uu
+    type(field_t) , target:: vv
+    type(field_t) , target:: ww
+    !> Initialize field lists
+    allocate(list%fields(3))
+    list%fields(1)%f => uu
+    list%fields(2)%f => vv
+    list%fields(3)%f => ww
+  end subroutine list_init3
+
+
+  subroutine list_final3(list)
+    type(field_list_t), intent(inout) :: list
+    !> Deallocate field lists
+    deallocate(list%fields)
+  end subroutine list_final3
+
+  
+  subroutine map_from_facets_to_field(u, area, wall_facet)
+    !> this is needed because the facet data is arrayed differently than filed data
+    !> u(lx,ly,lz,e) is the field where you want to put the facet data
+    !> area(lx,ly,facet,e) is the array in facet form
+    !> wall_facet is the list of facets that should be mapped
+    type(field_t), intent(inout) :: u
+    real(kind=rp) :: area(u%Xh%lx,u%Xh%ly,6,u%msh%nelv)
+    type(stack_i4t4_t) :: wall_facet
+
+    !> Parameters to populate the list of elements and facets
+    integer :: e, facet, e_counter, facet_counter, i,j,k,n
+    type(tuple4_i4_t), pointer :: wall_facet_list(:)
+    integer :: lx, ly, lz
+
+    wall_facet_list => wall_facet%array()
+    !! Initialize as 0. This serves as a mask for nodes that are not integrated
+    call rzero(u%x,u%dof%size())
+    !! Fill up the top and bottom mass matrices
+    lx = u%Xh%lx
+    ly = u%Xh%ly
+    lz = u%Xh%lz
+    do e_counter = 1, wall_facet%top_
+      e = wall_facet_list(e_counter)%x(2)
+      facet = wall_facet_list(e_counter)%x(1)
+      select case(facet)
+         case(1)
+            do j = 1 , ly
+               do k = 1 , lz
+                  u%x(1,j,k,e) = area(j,k,facet,e) 
+               end do
+            end do
+         case(2)
+            do j = 1 , ly
+               do k = 1 , lz
+                  u%x(lx,j,k,e) = area(j,k,facet,e) 
+               end do
+            end do
+         case(3)
+            do i = 1 , lx
+               do k = 1 , lz
+                  u%x(i,1,k,e) = area(i,k,facet,e)    
+               end do
+            end do
+         case(4)
+            do i = 1 , lx
+               do k = 1 , lz
+                  u%x(i,ly,k,e) = area(i,k,facet,e)       
+               end do
+            end do
+         case(5)
+            do i = 1 , lx
+               do j = 1 , ly
+                  u%x(i,j,1,e) = area(i,j,facet,e)
+               end do
+            end do
+         case(6)
+            do i = 1 , lx
+               do j = 1 , ly
+                  u%x(i,j,lz,e) = area(i,j,facet,e)
+               end do
+            end do
+      end select
+    end do
+
+
+    ! Put it also on device
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_memcpy(u%x,u%x_d, &
+                          u%dof%size(),HOST_TO_DEVICE)
+    end if
+
+  end subroutine map_from_facets_to_field
+
+
+  subroutine average_from_weights(avrg, field, work_field, weights, sum_weights)
+    real(kind=rp), intent(inout) :: avrg
+    type(field_t), intent(inout) :: field
+    type(field_t), intent(inout) :: work_field
+    real(kind=rp), dimension(field%Xh%lxyz,field%msh%nelv), intent(inout) :: weights
+    real(kind=rp), intent(inout) :: sum_weights
+    integer :: n
+    type(c_ptr) :: weights_d
+    
+    n = field%dof%size()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       weights_d = device_get_ptr(weights)
+       call device_col3(work_field%x_d,field%x_d,weights_d,n)      
+       avrg = device_glsum(work_field%x_d,n)                  
+       avrg = avrg / abs(sum_weights)            
+    else
+       call col3(work_field%x,field%x,weights,n)      
+       avrg = glsum(work_field%x,n)                  
+       avrg = avrg / abs(sum_weights)            
+    end if
+
+  end subroutine average_from_weights
+
+
+  subroutine project_to_vector(proj, uu, vv, ww, nx, ny, nz)
+    type(field_t), intent(inout) :: proj
+    type(field_t), intent(inout) :: uu
+    type(field_t), intent(inout) :: vv
+    type(field_t), intent(inout) :: ww
+    real(kind=rp), dimension(proj%Xh%lxyz,proj%msh%nelv), intent(inout) :: nx
+    real(kind=rp), dimension(proj%Xh%lxyz,proj%msh%nelv), intent(inout) :: ny
+    real(kind=rp), dimension(proj%Xh%lxyz,proj%msh%nelv), intent(inout) :: nz
+    integer :: n
+    type(c_ptr) :: nx_d
+    type(c_ptr) :: ny_d
+    type(c_ptr) :: nz_d
+    
+    n = proj%dof%size()
+
+    ! Find the normal temperature derivative at the boundaries
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       nx_d = device_get_ptr(nx)
+       ny_d = device_get_ptr(ny)
+       nz_d = device_get_ptr(nz)
+       call device_rzero(proj%x_d,n)
+       call device_vdot3(proj%x_d, uu%x_d,vv%x_d,ww%x_d, &
+                         nx_d,ny_d,nz_d, n) 
+    else
+       call rzero(proj%x,n)
+       call vdot3(proj%x, uu%x,vv%x,ww%x, &
+                         nx,ny,nz, n) 
+    end if
+
+  end subroutine project_to_vector
+
 
 end module user
