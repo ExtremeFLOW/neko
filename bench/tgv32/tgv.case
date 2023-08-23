@@ -1,19 +1,42 @@
-&NEKO_CASE
-mesh_file= '32768.nmsh'
-fluid_scheme='pnpn'
-lx = 8
-source_term = 'noforce'
-initial_condition = 'user'
-/
-&NEKO_PARAMETERS
-dt = 1d-3
-T_end = 20
-nsamples = 2
-rho = 1
-Re = 1600
-abstol_vel = 1d-9
-abstol_prs = 1d-9
-pc_vel = 'jacobi'
-pc_prs = 'hsmg'
-proj_prs_dim = 20
-/
+{
+  "version": 1.0,
+  "case":
+  {
+  "mesh_file": "32768.nmsh",
+  "output_boundary": false,
+  "output_checkpoints": false,
+  "output_at_end": false,
+  "end_time": 20.0,
+  "timestep": 1e-3,
+  "numerics": {
+    "time_order": 3,
+    "polynomial_order": 7,
+    "dealias": true
+  },
+  "fluid": {
+    "scheme": "pnpn",
+    "rho": 1.0,
+    "mu": 1.0,
+    "Re": 1600,
+    "initial_condition": {
+      "type": "user"
+    },
+    "velocity_solver": {
+      "type": "cg",
+      "preconditioner": "jacobi",
+      "projection_space_size": 0,
+      "absolute_tolerance": 1e-9,
+      "max_iterations": 800
+    },
+    "pressure_solver": {
+      "type": "gmres",
+      "preconditioner": "hsmg",
+      "projection_space_size": 20,
+      "absolute_tolerance": 1e-9,
+      "max_iterations": 800
+    },
+    "output_control": "simulationtime",
+    "output_value": 10 
+  }
+  }
+}

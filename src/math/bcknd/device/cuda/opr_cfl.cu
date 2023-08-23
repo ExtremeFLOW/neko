@@ -108,6 +108,7 @@ extern "C" {
 #else
     CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #endif
     
     return cfl;

@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Subroutines to apply advection to RHS
+!> Subroutines to add advection terms to the RHS of a transport equation. 
 module advection
   use num_types
   use math
@@ -48,8 +48,8 @@ module advection
   !> Base abstract type for computing the advection operator
   type, public, abstract :: advection_t
    contains
-     procedure(apply_adv), pass(this), deferred :: apply
-     procedure(apply_scalar_adv), pass(this), deferred :: apply_scalar
+     procedure(compute_adv), pass(this), deferred :: compute
+     procedure(compute_scalar_adv), pass(this), deferred :: compute_scalar
   end type advection_t
 
   !> Type encapsulating advection routines with no dealiasing applied
@@ -57,10 +57,12 @@ module advection
      real(kind=rp), allocatable :: temp(:)
      type(c_ptr) :: temp_d = C_NULL_PTR
    contains
-     !> Compute the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$
-     procedure, pass(this) :: apply => apply_advection_no_dealias
-     !> Compute the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$
-     procedure, pass(this) :: apply_scalar => apply_scalar_advection_no_dealias
+     !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+     !! the RHS
+     procedure, pass(this) :: compute => compute_advection_no_dealias
+     !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
+     !! the RHS
+     procedure, pass(this) :: compute_scalar => compute_scalar_advection_no_dealias
   end type adv_no_dealias_t
 
   !> Type encapsulating advection routines with dealiasing
@@ -97,26 +99,29 @@ module advection
      type(c_ptr) :: vt_d = C_NULL_PTR
 
    contains
-     !> Compute the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$
-     procedure, pass(this) :: apply => apply_advection_dealias
-     !> Compute the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$
-     procedure, pass(this) :: apply_scalar => apply_scalar_advection_dealias
+     !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+     !! the RHS.
+     procedure, pass(this) :: compute => compute_advection_dealias
+     !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
+     !! the RHS.
+     procedure, pass(this) :: compute_scalar => compute_scalar_advection_dealias
      !> Constructor
      procedure, pass(this) :: init => init_dealias
   end type adv_dealias_t
 
   abstract interface
-     !> Add advection operator to the right-hand-side for a fluld
-     !! @param this The object 
-     !! @param vx The x component of velocity
-     !! @param vy The y component of velocity
-     !! @param vz The z component of velocity
-     !! @param fx The x component of source term
-     !! @param fy The y component of source term
-     !! @param fz The z component of source term
-     !! @param coef The coefficients of the (Xh, mesh) pair
+     !> Add advection operator to the right-hand-side for a fluld.
+     !! @param this The object.
+     !! @param vx The x component of velocity.
+     !! @param vy The y component of velocity.
+     !! @param vz The z component of velocity.
+     !! @param fx The x component of source term.
+     !! @param fy The y component of source term.
+     !! @param fz The z component of source term.
+     !! @param Xh The function space.
+     !! @param coef The coefficients of the (Xh, mesh) pair.
      !! @param n Typically the size of the mesh.
-     subroutine apply_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+     subroutine compute_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
        import :: advection_t
        import :: coef_t
        import :: space_t
@@ -128,20 +133,21 @@ module advection
        type(field_t), intent(inout) :: vx, vy, vz
        integer, intent(in) :: n
        real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
-     end subroutine apply_adv
+     end subroutine compute_adv
   end interface
 
   abstract interface
-     !> Add advection operator to the right-hand-side for a fluld
-     !! @param this The object 
-     !! @param vx The x component of velocity
-     !! @param vy The y component of velocity
-     !! @param vz The z component of velocity
-     !! @param s The scalar
-     !! @param fs The source term
-     !! @param coef The coefficients of the (Xh, mesh) pair
+     !> Add advection operator to the right-hand-side for a scalar.
+     !! @param this The object. 
+     !! @param vx The x component of velocity.
+     !! @param vy The y component of velocity.
+     !! @param vz The z component of velocity.
+     !! @param s The scalar.
+     !! @param fs The source term.
+     !! @param Xh The function space.
+     !! @param coef The coefficients of the (Xh, mesh) pair.
      !! @param n Typically the size of the mesh.
-     subroutine apply_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
+     subroutine compute_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
        import :: advection_t
        import :: coef_t
        import :: space_t
@@ -154,7 +160,7 @@ module advection
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        integer, intent(in) :: n
-     end subroutine apply_scalar_adv
+     end subroutine compute_scalar_adv
   end interface
 
   public :: advection_factory
@@ -278,8 +284,18 @@ contains
 
   end subroutine init_dealias
   
-  !> Compute the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$
-  subroutine apply_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
+  !! the RHS.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
     implicit none
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -383,13 +399,20 @@ contains
     end if
     end associate
 
-  end subroutine apply_advection_dealias
+  end subroutine compute_advection_dealias
 
-
-
-  !> Eulerian scheme, add convection term to forcing function
-  !! at current time step.
-  subroutine apply_advection_no_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+  !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$ to the
+  !! RHS.
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param fx The x component of source term.
+  !! @param fy The y component of source term.
+  !! @param fz The z component of source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_advection_no_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
     implicit none
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -427,11 +450,20 @@ contains
        end if
     end if
 
-  end subroutine apply_advection_no_dealias
+  end subroutine compute_advection_no_dealias
 
-
-  !> Compute the advection term for the scalar without dealiasing
-  subroutine apply_scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
+  !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the
+  !! RHS.
+  !! @param this The object. 
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param s The scalar.
+  !! @param fs The source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_scalar_advection_no_dealias(this, vx, vy, vz, s, fs, Xh, &
                                                coef, n)
     implicit none
     class(adv_no_dealias_t), intent(inout) :: this
@@ -462,10 +494,20 @@ contains
        end if
     end if
 
-  end subroutine apply_scalar_advection_no_dealias
+  end subroutine compute_scalar_advection_no_dealias
 
-  !> Compute the advection term for the scalar with dealiasing
-  subroutine apply_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
+  !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the
+  !! RHS.
+  !! @param this The object. 
+  !! @param vx The x component of velocity.
+  !! @param vy The y component of velocity.
+  !! @param vz The z component of velocity.
+  !! @param s The scalar.
+  !! @param fs The source term.
+  !! @param Xh The function space.
+  !! @param coef The coefficients of the (Xh, mesh) pair.
+  !! @param n Typically the size of the mesh.
+  subroutine compute_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
                                             coef, n)
     implicit none
     class(adv_dealias_t), intent(inout) :: this
@@ -561,6 +603,6 @@ contains
    end if
    end associate
 
-  end subroutine apply_scalar_advection_dealias
+  end subroutine compute_scalar_advection_dealias
 
 end module advection

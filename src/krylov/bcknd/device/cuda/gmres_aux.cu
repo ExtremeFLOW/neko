@@ -83,6 +83,7 @@ extern "C" {
     
     CUDA_CHECK(cudaMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #endif
     return gmres_bf1[0];
   }

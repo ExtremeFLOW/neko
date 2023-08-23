@@ -1,106 +1,278 @@
 # Case File {#case-file}
 
-The case file defines all the parameters of a simulation. It uses the plain-text
-Fortran Namelist format and usually has a `.case` extension. A case file contains
-two sections: `NEKO_CASE` defines the simulation case, and `NEKO_PARAMETERS` defines
-the solver parameters.
+The case file defines all the parameters of a simulation.
+The format of the file is JSON, making it easy to read and write case files
+using the majority of the popular programming languages.
+JSON is heirarchical and, and consists of parameter blocks enclosed in curly
+braces.
+These blocks are referred to as objects.
+The case file makes use objects to separate the configuration of different parts
+ of the solver.
+We refer the reader to the examples shipped with the code to get a good
+idea of how a case file looks.
+The table below provides a complete reference for all possible configuration
+choices.
 
-## Example
+## High-level structure
+The current high-level structure of the case file is shown below.
 
-This example is available in the source repository as file `examples/hemi/hemi.case`:
+~~~~~~~~~~~~~~~{.json}
+{
+    "version": 1.0
+    "case": {
+        "numerics": {}
+        "fluid": {}
+        "scalar": {}
+        "statistics": {}
+    }
+}
+~~~~~~~~~~~~~~~
+The `version` keywords is reserved to track changes in the format of the file. 
+The the subsections below we list all the configuration options for each of the high-level objects. 
+Some parameters will have default values, and are therefore optional. 
 
-~~~
-&NEKO_CASE
-mesh_file= 'hemi.nmsh'
-fluid_scheme='pnpn'
-lx = 6
-source_term = 'noforce'
-initial_condition = 'uniform'
-/
-&NEKO_PARAMETERS
-dt = 1d-3
-T_end = 2.0
-nsamples = 100
-uinf= 1.0,0.0,0.0
-output_bdry = .true.
-rho = 1
-Re = 1400
-abstol_vel = 1d-9
-abstol_prs = 1d-9
-ksp_vel = 'cg'
-ksp_prs = 'gmres'
-pc_vel = 'jacobi'
-pc_prs = 'hsmg'
-/
-~~~
+## Output frequency control
+A common scheme for controlling the output frequency is applied for various
+outputs.
+It is described already now in order to clarify the meaning of several
+parameters found in the tables below.
 
-## Syntax
+The frequency is controlled by two paramters, ending with `_control` and 
+`_value`, respectively.
+The latter name is perhaps not ideal, but it is somewhat difficult to come up
+with a good one, suggestions are welcome.
 
-A section is started by a `&SECTION` line and ends with a `/` line. Inbetween
-is a list of `name = value` assignments. The names are not case sensistive. The
-values can be of type string (``'text'``), integer (`123`), floating point number (`1.2d3` \f$=1.2 \cdot 10^3\f$), or boolean (`.true.` or `.false.`).
-Comments can be added by prepending a `!`.
-
-## NEKO_CASE reference {#neko-case}
-
-Name                    | Description
-----                    | -----------
-`mesh_file`             | Path to the mesh file (`.nmsh` extension)
-`fluid_scheme`          | Solver scheme (should be ``'pnpn'``)
-`lx`                    | Number of quadrature points points per element and direction, i.e. polynomial degree + 1
-`source_term`           | Source term \f$ f \f$: default ``'noforce'`` for \f$ f=0 \f$, or ``'user'``/``'user_vector'`` for user defined function (point-wise/vector apply) 
-`initial_condition`     | Initial condition: ``'uniform'``, ``'blasius'`` or ``'user'``
-`scalar`                | Enable scalar transport (``.false.`` or ``.true.``)
-`scalar_source_term`    | Scalar source term
+The `_value` parameter is a number, that defines the output frequency, but the
+interpretation of that number depends on the choice of `_control`.
+The three following options are possible.
+1. `simulationtime`, then `_value` is the time interval between the outputs.
+2. `tsteps`, then `_value` is the number of time steps between the outputs.
+3. `nsamples`, then `_value` is the total number of outputs that will be
+   performed in the course of the simulation.
 
 
-## NEKO_PARAMETERS reference {#neko-params}
+## The `case` object 
 
-Name                    | Description                                                   | Default value
-----                    | -----------                                                   | -------------
-`nsamples`              | Number of output samples                                      | `0`
-`output_bdry`           | Output boundary markings                                      | `.false.`
-`output_part`           | Output partitions                                             | `.false.`
-`output_chkp`           | Output checkpoints                                            | `.false.`
-`dt`                    | Time-step size                                                | -
-`T_end`                 | Final time                                                    | -
-`rho`                   | Density \f$ \rho \f$                                          | `1d0`
-`mu`                    | Dynamic viscosity \f$ \mu \f$                                 | `1d0`
-`Re`                    | Reynolds number                                               | `1d0`
-`uinf`                  | Free-stream velocity \f$ u_\infty \f$                         | `0.0, 0.0, 0.0`
-`abstol_vel`            | Tolerance for velocity solver                                 | `1d-9`
-`abstol_prs`            | Tolerance for pressure solver                                 | `1d-9`
-`ksp_vel`               | Krylov solver for velocity (``'cg'``, ``'gmres'``)            | ``'cg'``
-`ksp_prs`               | Krylov solver for pressure (``'cg'``, ``'gmres'``)            | ``'gmres'``
-`pc_vel`                | Preconditioner for velocity solver (`jacobi`, `hsmg`)         | ``'jacobi'``
-`pc_prs`                | Preconditioner for pressure solver (`jacobi`, `hsmg`)                 | ``'hsmg'``
-`fluid_inflow`          | Fluid inflow condition (``'default'``, ``'blasius'``, ``'user'``)     | ``'default'``
-`vol_flow_dir`          | Direction of forced volume flow (none=0, x=1, y=2, z=3)               | `0`
-`avflow`                | Use averaged flow for forced volume flow                              | `.true.`
-`loadb`                 | Use load-balancing                                                    | `.false.`
-`flow_rate`             | Volume flow speed                                                     | `0d0`
-`proj_prs_dim`          | Projection space for pressure solution                                | `20`
-`proj_vel_dim`          | Projection space for velocity solution                                | `0`
-`time_order`            | Order of the time stepping                                            | `3`
-`jlimit`                | Job limit in ``'HH:MM:SS'``                                           | -
-`restart_file`          | Checkpoint filename                                                   | -
-`stats_begin`           | Start time for statistics                                                                                     | `0d0`
-`stats_mean_flow`       | Enable mean flow statistics                                                                                   | `.false.`
-`output_mean_flow`      | Output mean flow field                                                                                        | `.false.`
-`stats_mean_sqr_flow`   | Enable squared flow statistics                                                                                | `.false.`
-`output_mean_sqr_flow`  | Output mean squared flow field                                                                                | `.false.`
-`output_dir`            | Output directory                                                                                              | Current working directory
-`dealias`               | Enable dealiasing                                                                                             | `.true.`
-`lxd`                   | Size of dealiased space                                                                                       | `0`
-`delta`                 | Boundary layer thickness \f$ \delta \f$                                                                       | `1d0`
-`blasius_approx`        | Type of approximate Blasius profile (``'linear'``, ``'quadratic'``, ``'cubic'``, ``'quartic'``, ``'sin'``)    | ``'sin'``
-`bc_labels`             | Type of boundary condition for each label                      | -
-`user`                  | Array of sixteen user-defined parameters                      | `0.0,...,0.0`
-`stats_fluid`           | Enable fluid statistics                                       | `.false.`
-`fluid_write_par`       | Time interval for writes of fld files                         | `1d0`
-`fluid_write_control`   | How to control output of fluid data (``'simulationtime'``, ``'nsamples'``, ``'tsteps'``,``'org'``)            | ``'org'`` 
-`stats_write_par`       | Time interval over which we compute averages before output    | `10000d0`
-`stats_write_control`   | How to control output of stats data (``'simulationtime'``, ``'nsamples'``, ``'tsteps'``,``'org'``)                        | ``'simulationtime'`` 
-`chkp_write_par`        | Time interval between checkpoints                             | `10000d0`
-`chkp_write_control`    | How to control output of chkp data (``'simulationtime'``, ``'nsamples'``, ``'tsteps'``,``'org'``)            | ``'simulationtime'`` 
-`write_at_end`          | Force output at end of simulation                             | `.true.`
+This object is mostly used as a high-level container for all the other objects,
+but also defines several parameters that pertain to the simulation as a whole.
+
+Name                 | Description                                                    | Admissable values                         | Default value 
+-----                | -----------                                                    | -----------------                         | -------------
+`mesh_file`          | The name of the mesh file.                                                                            | Strings ending with `.nmsh`               | -  
+`output_boundary`    | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                         | `false`       
+`output_directory`   | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory             | `.` 
+`load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                         | `false` 
+`output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false` 
+`output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false` 
+`checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
+`checkpoint_value` | The frequency of sampling in terms of `checkpoint_control`. | Positive real or integer | -  
+`time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
+`end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -   
+`job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS              | No limit 
+
+## Numerics
+Used to define the properties of the numerical discretization.
+
+Name                 | Description                                                        | Admissable values                         | Default value  
+----                 | -----------                                                        | -----------------                         | -------------
+`polynomial_order`   | The oder of the polynomial basis.                           | Integers, typically 5 to 9               | -             |
+`time_order`    | The order of the time integration scheme. Refer to the `time_scheme_controller` type documention for details. | 1,2, 3                         | -    
+`dealias`    | Whether to apply dealiasing to advection terms. | `true` or `false`                         | `false`     
+`dealiased_polynomial order`    | The polynomial order in the higher-order space used in the dealising. | Integer                         | `3/2(polynomial_order + 1) - 1`    
+
+## Fluid
+
+The configuration of the fluid solver and the flow problem.
+Contains multiple subobjects for various parts of the setup.
+
+### Inflow boundary conditions
+The object `inflow_condition` is used to specify velocity values at a Dirichlet
+boundary.
+This does not necessarily have to be an inflow boundary, so the name is not so
+good, and will most likely be changed along with type changes in the code.
+Since not all cases have Dirichlet boundaries (note, the special case of a 
+no-slip boundary is treated separately in the configuration), this object
+is not obligatory.
+The means of prescribing the values are controlled via the `type` keyword:
+
+1. `user`, the values are set inside the compiled user file.
+2. `uniform`, the value is a constant vector, looked up under the `value`
+   keyword.
+3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
+   in the `case.fluid.blasius` object, see below.
+
+### Initial conditions
+The object `initial_condition` is used to provide initial conditions.
+It is mandatory.
+Note that this currently pertains to both the fluid, but also scalars.
+The means of prescribing the values are controlled via the `type` keyword:
+
+1. `user`, the values are set inside the compiled user file. The only way to
+   initialize scalars.
+2. `uniform`, the value is a constant vector, looked up under the `value`
+   keyword.
+3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
+   in the `case.fluid.blasius` object, see below.
+
+### Blasius profile
+The `blasius` object is used to specify the Blasius profile that can be used for the 
+initial and inflow condition.
+The boundary cannot be tilted with respect to the coordinate axes.
+It requires  the following parameters:
+
+1. `delta`, the thickness of the boundary layer.
+2. `freestream_velocity`, the velocity value in the free stream.
+3. `approximation`, the numerical approximation to the Blasius profile.
+   - `linear`, linear approximation.
+   - `quadratic`, quadratic approximation.
+   - `cubic`, cubic approximation.
+   - `quartic`, quartic approximation.
+   - `sin`, sine function approximation.
+
+### Source term
+The `source_term` object should be used to specify the source term in the
+momentum equation.
+The object is not mandatory, by default no forcing term is present.
+The forcing is selected using the `type` keyword.
+
+1. `noforce`, no forcing. This is the default value.
+2. `user`, the values are set inside the compiled user file, using the pointwise
+   user file subroutine. 
+2. `user_vector`, the values are set inside the compiled user file, using the 
+   non-pointwise user file subroutine. Should be used when running on the GPU.
+   
+
+### Boundary types
+The optional `boundary_types` keyword can be used to specify boundary conditions.
+The reason for it being optional, is that some conditions can be specified
+directly inside the mesh file.
+In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
+Periodic boundary conditions are *always* defined inside the mesh file.
+
+The value of the keyword is an array of strings, with the following possible
+values:
+* `w`, a no-slip wall.
+* `v`, a Dirichlet boundary.
+* `sym`, a symmetry boundary.
+* `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann for
+   the wall-normal. The wall-parallel velocity is defined by the initial
+   condition. 
+* `o`, outlet boundary. 
+* `o+dong`, outlet boundary using the Dong condition. 
+* `on+dong`, an `on` boundary using the Dong condition, ensuring that the
+   wall-normal velocity is directed outwards. 
+
+In some cases, only some boundary types have to be provided.
+For example, when one has periodic boundaries, like in the channel flow example. 
+In this case, to put the specification of the boundary at the right index,
+preceding boundary types can be marked with an empty string.
+For example, if boundaries with index 1 and 2 are periodic, and the third one is
+a wall, we can set.
+```
+"boundary_types": ["", "", "w"]
+```
+
+## Linear solver configuration
+The mandatory `velocity_solver` and `pressure_solver` objects are used to 
+configure the solvers for the momentum and pressure-Poisson equation.
+The following keywords are used, with the corresponding options.
+
+* `type`, solver type.
+  - `cg`, a conjugate gradient solver.
+  - `pipecg`, a pipelined conjugate gradient solver.
+  - `bicgstab`, a bi-conjugate gradient stabilized solver.
+  - `cacg`, a communication-avoiding conjugate gradient solver.
+  - `gmres`, a GMRES solver. Typically used for pressure.
+* `preconditioner`, preconditioner type.
+  - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
+  - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for pressure.
+  - `ident`, an identity matrix (no preconditioner).
+* `absolute_tolerance`, tolerance criterion for convergence.
+* `max_iterations`, maximum number of iterations before giving up.
+* `projection_space_size`, size of the vector space used for accelerating the
+   solution procedure. If 0, then the projection space is not used.
+   More important for the pressure equation.
+
+### Flow rate forcing
+The optional `flow_rate_force` object can be used to force a particular flow
+rate through the domain.
+Useful for channel and pipe flows.
+The configuration uses the following parameters:
+
+* `direction`, the direction of the flow, defined as 0, 1, or 2, corresponding
+  to x, y or z, respectively.
+* `value`, the desired flow rate.
+* `use_averaged_flow`, whether `value` specifies the domain-averaged (bulk) 
+   velocity or the volume flow rate.
+
+
+### Full parameter table
+All the parameters are summarized in the table below.
+This includes all the subobjects discussed above, as well as keyword parameters
+that can be described concisely directly in the table.
+
+Name                                    | Description                                                                      | Admissable values                                | Default value
+----------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------|--------------
+`scheme`                                | The fluid solve type.                                                            | `pnpn`                                           | -
+`Re`                                    | The Reynolds number.                                                             | Positive real                                    | -
+`rho`                                   | The density of the fluid.                                                        | Positive real                                    | -
+`mu`                                    | The dynamic viscosity of the fluid.                                              | Positive real                                    | -
+`output_control` | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
+`output_value` | The frequency of sampling in terms of `output_control`. | Positive real or integer | -  
+`inflow_condition.type`                 | Velocity inflow condition type.                                                  | `user`, `uniform`, `blasius`                     | -
+`inflow_condition.value`                | Value of the inflow velocity.                                                    | Vector of 3 reals                                | -
+`initial_condition.type`                | Initial condition type.                                                          | `user`, `uniform`, `blasius`                     | -
+`initial_condition.value`               | Value of the velocity initial condition.                                         | Vector of 3 reals                                | -
+`blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                 | Positive real                                    | -
+`blasius.freestream_velocity`           | Freestream velocity in the Blasius profile.                                      | Vector of 3 reals                                | -
+`blasius.approximation`                 | Numerical approximation of the Blasius profile.                                  | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -
+`source_term.type`                      | Source term in the momentum equation.                                            | `noforce`, `user`, `user_vector`                 | -
+`boundary_types`                        | Boundary types/conditions labels.                                                | Array of strings                                 | -
+`velocity_solver.type`                  | Linear solver for the momentum equation.                                         | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -
+`velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                          | `ident`, `hsmg`, `jacobi`                        | -
+`velocity_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                   | Positive real                                    | -
+`velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                     | Positive real                                    | 800
+`velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                 | Positive integer                                 | 0
+`pressure_solver.type`                  | Linear solver for the momentum equation.                                         | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -
+`pressure_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                          | `ident`, `hsmg`, `jacobi`                        | -
+`pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                   | Positive real                                    | -
+`pressure_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                     | Positive real                                    | 800
+`pressure_solver.projection_space_size` | Projection space size for the momentum equation.                                 | Positive integer                                 | 0
+`flow_rate_force.direction`             | Direction of the forced flow.                                                    | 0, 1, 2                                          | -
+`flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                           | Positive real                                    | -
+`flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter. | `true` or `false`                                | -            
+
+## Scalar
+The scalar object allows to add a scalar transport equation to the solution.
+The solution variable is called `s`, but saved as `temperature` in the fld
+ files, which are written out separately from `fluid`. 
+Some properties of the object are inherited from `fluid`: the properties of the
+linear solver, the value of the density and the Re number, and the output
+control.
+
+The boundary conditions for the scalar are specified through the
+`boundary_types` keyword.
+It is possible to directly specify a uniform value for a Dirichlet boundary.
+The syntax is, e.g. `d=1`, to set the value to 1, see the Ryleigh-Benard
+example case.
+
+Name               | Description                               | Admissable values                | Default value
+-------------------|-------------------------------------------|----------------------------------|--------------
+`enabled`          | Whether to enable the scalar computation. | `true` or `false`                | `true`
+`Pr`               | The Prandtl number.                       | Positive real                    | -
+`source_term.type` | Source term in the momentum equation.     | `noforce`, `user`, `user_vector` | -
+`boundary_types`   | Boundary types/conditions labels.         | Array of strings                 | -
+
+## Statistics
+
+This object adds the collection of statistics for the flud fields.
+For additional details on the workflow, see the corresponding page in the
+user manual.
+
+Name                | Description                                                          | Admissable values | Default value
+--------------------|----------------------------------------------------------------------|-------------------|--------------
+`enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`
+`start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0
+`sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10
+
+

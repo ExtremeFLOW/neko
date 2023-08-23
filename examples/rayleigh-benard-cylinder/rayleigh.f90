@@ -2,7 +2,7 @@ module user
   use neko
   implicit none
 
-  real(kind=rp) :: Ra = 0
+  real(kind=rp) :: Ra = 1e+8 
   real(kind=rp) :: Pr = 0
   real(kind=rp) :: ta2 = 0
   type(coef_t), pointer :: c_Xh
@@ -40,7 +40,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     type(field_t), pointer :: s
     integer :: i, j, k, e
     real(kind=rp) :: rand, r,z
@@ -85,11 +85,11 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
+    logical :: found
     ! Reset the relevant nondimensional parameters
-    Pr = params%Pr
-    Ra = params%Re
-    params%Re = sqrt(Ra / Pr)
+
+    call json_get(params, 'case.scalar.Pr', Pr)
     call save_coef(coef)
   end subroutine set_Pr
 
