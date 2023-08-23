@@ -384,8 +384,10 @@ contains
                            f_Xh, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
                            params%dt, params%Re, params%rho)
-      
-      call gs_op(gs_Xh, p_res, GS_OP_ADD) 
+
+      !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
+      call gs_op(gs_Xh, p_res, GS_OP_ADD)
+      !$omp end parallel
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size())
       call profiler_end_region
      
@@ -420,10 +422,12 @@ contains
                            f_Xh, c_Xh, msh, Xh, &
                            params%Re, params%rho, ext_bdf%diffusion_coeffs(1), &
                            params%dt, dm_Xh%size())
-      
+
+      !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
-      call gs_op(gs_Xh, w_res, GS_OP_ADD) 
+      call gs_op(gs_Xh, w_res, GS_OP_ADD)
+      !$omp end parallel
 
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size())

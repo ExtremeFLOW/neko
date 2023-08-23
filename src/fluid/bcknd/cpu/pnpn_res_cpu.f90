@@ -50,16 +50,19 @@ contains
     call neko_scratch_registry%request_field(work2, temp_indices(8))
 
     n = c_Xh%dof%size()
-
+    !$omp parallel do
     do i = 1, n
        c_Xh%h1(i,1,1,1) = 1.0_rp / rho
        c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
+    !$omp end parallel do
     c_Xh%ifh2 = .false.
     
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
+    !$omp parallel private(i)
+    !$omp do
     do i = 1, n
        ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho &
             - ((wa1%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
@@ -68,16 +71,20 @@ contains
        ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho &
             - ((wa3%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
     end do
-     
+    !$omp end do
+    
     call gs_op(gs_Xh, ta1, GS_OP_ADD) 
     call gs_op(gs_Xh, ta2, GS_OP_ADD) 
     call gs_op(gs_Xh, ta3, GS_OP_ADD) 
 
+    !$omp do
     do i = 1, n
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
     end do
+    !$omp end do
+    !$omp end parallel
 
     call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
@@ -85,36 +92,46 @@ contains
 
     call Ax%compute(p_res%x,p%x,c_Xh,p%msh,p%Xh)
 
+    !$omp parallel private(i)
+    !$omp do
     do i = 1, n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
                         + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
+    !$omp end do
 
     !
     ! Surface velocity terms
     !
+    !$omp do
     do i = 1, n
        wa1%x(i,1,1,1) = 0.0_rp
        wa2%x(i,1,1,1) = 0.0_rp
        wa3%x(i,1,1,1) = 0.0_rp
     end do
+    !$omp end do
+    !$omp end parallel
     
     call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
 
     dtbd = bd / dt
+    !$omp parallel do
     do i = 1, n
        ta1%x(i,1,1,1) = 0.0_rp
        ta2%x(i,1,1,1) = 0.0_rp
        ta3%x(i,1,1,1) = 0.0_rp
     end do
+    !$omp end parallel do
     
     call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
 
+    !$omp parallel do
     do i = 1, n
        p_res%x(i,1,1,1) = p_res%x(i,1,1,1) &
             - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
+    !$omp end parallel do
     
     call neko_scratch_registry%relinquish_field(temp_indices)
 
