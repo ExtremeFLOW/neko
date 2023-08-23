@@ -790,7 +790,7 @@ module user
   type(speri_t) :: speri_w
 
   !> Mesh deformation
-  real(kind=rp) :: delta_mesh = 0.0_rp !How much to deform to the top and bottom plate. =0 means no deformation
+  real(kind=rp) :: delta_mesh = 1.5_rp !How much to deform to the top and bottom plate. =0 means no deformation
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -1017,19 +1017,33 @@ contains
     call map_from_facets_to_field(normal_z, coef%nz, wall_facet)
     
     !! Create a mask with the boundary facet data
+    n = size(coef%B)
     nones = u%Xh%lx*u%Xh%ly*6*u%msh%nelv
     call rone(ones, nones)
     call map_from_facets_to_field(bdry_mask, ones, wall_facet)
 
-    n = size(coef%B)
     top_wall_area = glsum(mass_area_top%x,n)
     bot_wall_area = glsum(mass_area_bot%x,n)
     side_wall_area = glsum(mass_area_side%x,n)
+
+    !! Verify validity of averaging routines
+    bar_uzt = 0_rp
+    top_wall_bar_dtdz = 0_rp
+    bot_wall_bar_dtdz = 0_rp
+    call average_from_weights(bar_uzt, bdry_mask, &
+                        work_field, mass_area_side%x, side_wall_area)
+    call average_from_weights(top_wall_bar_dtdz, bdry_mask, &
+                        work_field, mass_area_top%x, top_wall_area)
+    call average_from_weights(bot_wall_bar_dtdz, bdry_mask, &
+                        work_field, mass_area_bot%x, bot_wall_area)
     !! Write it out
     if (pe_rank .eq. 0) then
        write(*,*) 'Area of top wall * normal= ', top_wall_area
        write(*,*) 'Area of bottom wall * normal= ', bot_wall_area
        write(*,*) 'Area of side wall= ', side_wall_area
+       write(*,*) 'Validity check of averaging #1 (should be 1): ', bar_uzt 
+       write(*,*) 'Validity check of averaging #2 (should be 1): ', top_wall_bar_dtdz 
+       write(*,*) 'Validity check of averaging #3 (should be 1): ', bot_wall_bar_dtdz 
     end if 
 
     !> Store volume mass matrix for post processing
