@@ -737,6 +737,7 @@ module user
   type(field_t) , target:: dtdy ! Detivative of scalar wrt y
   type(field_t) , target:: dtdz ! Derivative of scalar wrt z
   type(field_t) , target:: dtdn ! Derivative of scalar wrt normal
+  type(field_t) , target:: div_dtdX ! divergence of heat flux
   type(field_t) , target:: mass_area_top ! mass matrix for area on top wall
   type(field_t) , target:: mass_area_bot ! mass matrix for area on bottom wall
   type(field_t) , target:: mass_area_side ! mass matrix for area on top wall
@@ -746,6 +747,7 @@ module user
   type(field_t) , target:: normal_y ! normal vector in y (non zero at the boundaries)
   type(field_t) , target:: normal_z ! normal vector in z (non zero at the boundaries)
   real(kind=rp) :: bar_uzt ! Volume integral
+  real(kind=rp) :: bar_div_dtdX ! Volume integral
   real(kind=rp) :: top_wall_bar_dtdz ! area integral
   real(kind=rp) :: bot_wall_bar_dtdz ! area integral
   real(kind=rp) :: top_wall_area ! area of top and bottom wall
@@ -941,6 +943,7 @@ contains
     call field_init(dtdy, u%dof, 'dtdy')
     call field_init(dtdz, u%dof, 'dtdz')
     call field_init(dtdn, u%dof, 'dtdn')
+    call field_init(div_dtdX, u%dof, 'div_dtdX')
     call field_init(mass_area_top, u%dof, 'mat')
     call field_init(mass_area_bot, u%dof, 'mab')
     call field_init(mass_area_side, u%dof, 'masd')
@@ -1082,6 +1085,7 @@ contains
     call field_free(dtdy)
     call field_free(dtdz)
     call field_free(dtdn)
+    call field_free(div_dtdX)
     call field_free(mass_area_top)
     call field_free(mass_area_bot)
     call field_free(mass_area_side)
@@ -1228,6 +1232,13 @@ contains
        call project_to_vector(dtdn, dtdx, dtdy, dtdz, &
                               normal_x%x, normal_y%x, normal_z%x)
 
+       !>Calculate the divergence of the heat flux
+       call divergence_of_field(div_dtdX, dtdx, dtdy, dtdz, &
+                                work_field, coef)
+       !!> volume average of the divergence
+       call average_from_weights(bar_div_dtdX, div_dtdX, &
+                        work_field, coef%B, coef%volume)
+
        !> perform IO               
        call device_memcpy(dtdn%x,dtdn%x_d, n,DEVICE_TO_HOST)
        call mf_dtdn%write(dtdn,t)
@@ -1246,7 +1257,8 @@ contains
        if (pe_rank .eq. 0) then
           open(20,file="bc_heat_balance.txt",position="append")
           write(20,*) t,'', heat_top_wall, '', heat_bot_wall, '', &
-                      heat_side_wall, '', heat_balance
+                      heat_side_wall, '', heat_balance, '', &
+                      bar_div_dtdX
           close(20)
        end if
 
@@ -1427,5 +1439,37 @@ contains
 
   end subroutine project_to_vector
 
+
+  subroutine divergence_of_field(div_u, u, v, w, work_field, coef)
+    type(field_t), intent(inout) :: div_u
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: work_field
+    type(coef_t), intent(inout) :: coef
+    integer :: n
+    
+    n = div_u%dof%size()
+    
+    !dudx in div_u
+    call dudxyz (div_u%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    !dvdy in work_field
+    call dudxyz (work_field%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    ! Add dudx + dvdy    
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+          call device_add2(div_u%x_d,work_field%x_d,n)
+    else
+          call add2(div_u%x,work_field%x,n)
+    end if
+    ! dwdz in work_dielf
+    call dudxyz (work_field%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    ! Add (dudx + dvdy) + dwdz 
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+          call device_add2(div_u%x_d,work_field%x_d,n)
+    else
+          call add2(div_u%x,work_field%x,n)
+    end if
+     
+  end subroutine divergence_of_field
 
 end module user
