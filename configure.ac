@@ -319,6 +319,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
                  tests/fast3d/Makefile\
                  tests/time_scheme/Makefile\
                  tests/time_scheme_controller/Makefile\
+                 tests/time_based_controller/Makefile\
                  tests/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then

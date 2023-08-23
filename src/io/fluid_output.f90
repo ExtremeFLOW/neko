@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,9 @@
 !
 !> Defines an output for a fluid
 module fluid_output
-  use fluid_scheme
+  use fluid_scheme, only : fluid_scheme_t
+  use scalar_scheme, only : scalar_scheme_t
+  use field_list, only : field_list_t
   use neko_config
   use device
   use output
@@ -41,7 +43,7 @@ module fluid_output
 
   !> Fluid output
   type, public, extends(output_t) :: fluid_output_t
-     class(fluid_scheme_t), pointer :: fluid
+     type(field_list_t) :: fluid
    contains
      procedure, pass(this) :: sample => fluid_output_sample
   end type fluid_output_t
@@ -52,8 +54,9 @@ module fluid_output
 
 contains
 
-  function fluid_output_init(fluid, name, path) result(this)
+  function fluid_output_init(fluid, scalar, name, path) result(this)
     class(fluid_scheme_t), intent(in), target :: fluid
+    class(scalar_scheme_t), intent(in), optional, target :: scalar
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     type(fluid_output_t) :: this
@@ -68,28 +71,45 @@ contains
     else       
        fname = 'field.fld'
     end if
+
+    call output_init(this, fname)
+
+    if (allocated(this%fluid%fields)) then
+       deallocate(this%fluid%fields)
+    end if
+
+    if (present(scalar)) then
+       allocate(this%fluid%fields(5))
+    else
+       allocate(this%fluid%fields(4))
+    end if
+
+    this%fluid%fields(1)%f => fluid%p
+    this%fluid%fields(2)%f => fluid%u
+    this%fluid%fields(3)%f => fluid%v
+    this%fluid%fields(4)%f => fluid%w
+
+    if (present(scalar)) then
+       this%fluid%fields(5)%f => scalar%s
+    end if
     
-    call output_init(this, fname)    
-    this%fluid => fluid
   end function fluid_output_init
 
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       associate(p => this%fluid%p, u =>this%fluid%u, v => this%fluid%v, &
-            w => this%fluid%w, dm_Xh => this%fluid%dm_Xh)
-       
-         call device_memcpy(p%x, p%x_d, dm_Xh%size(), DEVICE_TO_HOST)
-         call device_memcpy(u%x, u%x_d, dm_Xh%size(), DEVICE_TO_HOST)
-         call device_memcpy(v%x, v%x_d, dm_Xh%size(), DEVICE_TO_HOST)
-         call device_memcpy(w%x, w%x_d, dm_Xh%size(), DEVICE_TO_HOST)
-         
+       associate(fields => this%fluid%fields)
+         do i = 1, size(fields)
+            call device_memcpy(fields(i)%f%x, fields(i)%f%x_d, &
+                 fields(i)%f%dof%size(), DEVICE_TO_HOST)
+         end do
        end associate
-       
+
     end if
        
     call this%file_%write(this%fluid, t)

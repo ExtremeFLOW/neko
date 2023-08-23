@@ -102,6 +102,7 @@ module fluid_scheme
      type(fluid_stats_t) :: stats              !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
+     logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> The Reynolds number
      real(kind=rp) :: Re
      !> Dynamic viscosity
@@ -249,6 +250,8 @@ contains
                             'case.fluid.pressure_solver.projection_space_size',&
                             this%pr_projection_dim, 20)
 
+    call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
+
    if (params%valid_path("case.fluid.flow_rate_force")) then
       this%forced_flow_rate = .true.
    end if
@@ -330,7 +333,7 @@ contains
              call json_get(params, 'case.fluid.blasius.freestream_velocity',&
                            real_vec)
 
-             call this%bc_inflow%set_inflow(real_vec)
+             call bc_if%set_inflow(real_vec)
              call bc_if%set_params(real_val, string_val2)
 
           end select
@@ -676,17 +679,22 @@ contains
 
   !> Apply all boundary conditions defined for velocity
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_vel(this)
+  subroutine fluid_scheme_bc_apply_vel(this, t, tstep)
     class(fluid_scheme_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     call bc_list_apply_vector(this%bclst_vel,&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size())
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
   end subroutine fluid_scheme_bc_apply_vel
   
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_prs(this)
+  subroutine fluid_scheme_bc_apply_prs(this, t, tstep)
     class(fluid_scheme_t), intent(inout) :: this
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, this%p%dof%size())
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
+                              this%p%dof%size(), t, tstep)
   end subroutine fluid_scheme_bc_apply_prs
   
   !> Initialize a linear solver

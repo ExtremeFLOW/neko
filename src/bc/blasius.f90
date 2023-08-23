@@ -82,25 +82,31 @@ contains
   end subroutine blasius_free
   
   !> No-op scalar apply
-  subroutine blasius_apply_scalar(this, x, n)
+  subroutine blasius_apply_scalar(this, x, n, t, tstep)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine blasius_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine blasius_apply_scalar_dev(this, x_d)
+  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine blasius_apply_scalar_dev
   
   !> Apply blasius conditions (vector valued)
-  subroutine blasius_apply_vector(this, x, y, z, n)
+  subroutine blasius_apply_vector(this, x, y, z, n, t, tstep)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
@@ -133,11 +139,13 @@ contains
   end subroutine blasius_apply_vector
 
   !> Apply blasius conditions (vector valued) (device version)
-  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d)
+  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)

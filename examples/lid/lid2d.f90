@@ -25,7 +25,7 @@ module user
   end subroutine user_setup
 
   ! user-defined boundary condition
-  subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
@@ -39,6 +39,8 @@ module user
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
     real(kind=rp) lsmoothing
     lsmoothing = 0.05_rp    ! length scale of smoothing at the edges
