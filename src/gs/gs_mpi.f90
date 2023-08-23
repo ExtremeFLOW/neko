@@ -131,7 +131,7 @@ contains
 
     thrdid = 0
     !$ thrdid = omp_get_thread_num()
-    
+    !$omp do
     do i = 1, size(this%send_pe)
        dst = this%send_pe(i)
        sp => this%send_dof(dst)%array()
@@ -148,6 +148,7 @@ contains
        end associate
        this%send_buf(i)%flag = .false.
     end do
+    !$omp end do
   end subroutine gs_nbsend_mpi
 
   !> Post non-blocking receive operations
@@ -157,7 +158,7 @@ contains
 
     thrdid = 0
     !$ thrdid = omp_get_thread_num()
-    
+    !$omp do
     do i = 1, size(this%recv_pe)
        ! We should not need this extra associate block, ant it works
        ! great without it for GNU, Intel, NEC and Cray, but throws an
@@ -169,7 +170,7 @@ contains
        end associate
        this%recv_buf(i)%flag = .false.
     end do
-    
+    !$omp end do
   end subroutine gs_nbrecv_mpi
 
   !> Wait for non-blocking operations
@@ -182,7 +183,7 @@ contains
     integer :: op
     integer , pointer :: sp(:)
     integer :: nreqs
-
+    !$omp single
     nreqs = size(this%recv_pe)
 
     do while (nreqs .gt. 0) 
@@ -232,7 +233,7 @@ contains
           end if
        end do
     end do
-
+    !$omp end single
   end subroutine gs_nbwait_mpi
   
 end module gs_mpi

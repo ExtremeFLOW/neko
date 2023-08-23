@@ -118,14 +118,18 @@ contains
     end do
     
     if (o .lt. 0) then
+       !$omp do
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do
     else
+       !$omp do
        do i = o, m, 2
           tmp  = u(gd(i)) + u(gd(i+1))
           v(dg(i)) = tmp
        end do
+       !$omp end do
     end if
     
   end subroutine gs_gather_kernel_add
@@ -157,14 +161,18 @@ contains
     end do
        
     if (o .lt. 0) then
+       !$omp do
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do
     else
+       !$omp do
        do i = o, m, 2
           tmp  = u(gd(i)) * u(gd(i+1))
           v(dg(i)) = tmp
        end do
+       !$omp end do
     end if
     
   end subroutine gs_gather_kernel_mul
@@ -196,14 +204,18 @@ contains
     end do
        
     if (o .lt. 0) then
+       !$omp do
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do
     else
+       !$omp do
        do i = o, m, 2
           tmp  = min(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
+       !$omp end do
     end if
     
   end subroutine gs_gather_kernel_min
@@ -235,14 +247,18 @@ contains
     end do
        
     if (o .lt. 0) then
+       !$omp do
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do
     else
+       !$omp do
        do i = o, m, 2
           tmp  = max(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
+       !$omp end do
     end if
     
   end subroutine gs_gather_kernel_max
@@ -287,11 +303,11 @@ contains
        end do
        k = k + blk_len
     end do
-
+    !$omp do    
     do i = k + 1, m
        u(gd(i)) = v(dg(i))
     end do
-
+    !$omp end do
   end subroutine gs_scatter_kernel
 
 end module gs_cpu
