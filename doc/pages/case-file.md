@@ -66,6 +66,7 @@ Name                 | Description                                              
 `output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false` 
 `checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
 `checkpoint_value` | The frequency of sampling in terms of `checkpoint_control`. | Positive real or integer | -  
+`restart_file` | checkpoint to use for a restart from previous data | Strings ending with `.chkp` | -  
 `time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
 `end_time`           | Final time at which the simulation is stopped.                                                        | Positive reals                            | -   
 `job_timelimit`      | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS              | No limit 
@@ -246,7 +247,7 @@ Name                                    | Description                           
 ## Scalar
 The scalar object allows to add a scalar transport equation to the solution.
 The solution variable is called `s`, but saved as `temperature` in the fld
- files, which are written out separately from `fluid`. 
+ files. 
 Some properties of the object are inherited from `fluid`: the properties of the
 linear solver, the value of the density and the Re number, and the output
 control.

@@ -64,7 +64,7 @@ contains
     end do
   end subroutine cylinder_gen_curve
   
-  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie)
+  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
@@ -78,6 +78,8 @@ contains
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     real(kind=rp) ::  u_th,dist,th, yy
     real(kind=rp) ::  arg
 

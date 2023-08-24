@@ -35,12 +35,10 @@ module case
   use num_types
   use fluid_fctry
   use fluid_output
-  use scalar_output
   use chkp_output
   use mean_sqr_flow_output
   use mean_flow_output
   use fluid_stats_output
-  use field_list_output
   use mpi_types
   use mpi_f08
   use mesh_field
@@ -58,7 +56,7 @@ module case
   use jobctrl
   use user_intf  
   use scalar_pnpn ! todo directly load the pnpn? can we have other
-  use json_module, only : json_file
+  use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   implicit none
@@ -74,7 +72,6 @@ module case
      type(sampler_t) :: s
      type(fluid_output_t) :: f_out
      type(fluid_stats_output_t) :: f_stats_output
-     type(scalar_output_t) :: s_out
      type(chkp_output_t) :: f_chkp
      type(mean_flow_output_t) :: f_mf
      type(mean_sqr_flow_output_t) :: f_msqrf
@@ -148,6 +145,10 @@ contains
     real(kind=rp) :: stats_start_time, stats_output_val
     integer ::  stats_sampling_interval 
     integer :: output_dir_len
+    integer :: n_simcomps, i
+    type(json_core) :: core
+    type(json_value), pointer :: json_val1, json_val2 
+    type(json_file) :: json_subdict
 
     !
     ! Load mesh
@@ -313,6 +314,9 @@ contains
     if (output_dir_len .gt. 0) then
        if (output_directory(output_dir_len:output_dir_len) .ne. "/") then
           output_directory = trim(output_directory)//"/"
+          if (pe_rank .eq. 0) then
+             call execute_command_line('mkdir -p '//output_directory)
+          end if
        end if
     end if
     
@@ -343,7 +347,11 @@ contains
     ! Setup sampler
     !
     call C%s%init(C%end_time)
-    C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
+    if (scalar) then
+       C%f_out = fluid_output_t(C%fluid, C%scalar, path=trim(output_directory))
+    else
+       C%f_out = fluid_output_t(C%fluid, path=trim(output_directory))
+    end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
                              string_val, 'org')
@@ -355,12 +363,7 @@ contains
     else 
        call json_get(C%params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
-    end if
-    
-    if (scalar) then
-       C%s_out = scalar_output_t(C%scalar, path=output_directory)
-       call C%s%add(C%s_out, real_val, string_val)
-    end if
+    end if   
 
     !
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
