@@ -1162,14 +1162,17 @@ contains
     call json_get(params, 'case.monitor.output_control', oc)
     call json_get(params, 'case.monitor.calc_frequency', calc_freq)
     call json_get(params, 'case.monitor.verify_bc', verify_bc)
- 
+
+    calculate_now = .false.
+
     if (oc(1:14).eq.'simulationtime') then
-        calc_frequency = int(calc_freq / dt)
+        if (mod(t,calc_freq).le.1e-10) calculate_now = .true.
     else
         calc_frequency = int(calc_freq)
+        if (mod(tstep,calc_frequency).eq.0) calculate_now = .true.
     end if
-
-  if (mod(tstep,calc_frequency).eq.0) then
+    
+  if (calculate_now.eqv..true.) then
 
     s => neko_field_registry%get_field('s')
     n = size(coef%B)
