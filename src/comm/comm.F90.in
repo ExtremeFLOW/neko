@@ -1,6 +1,7 @@
 module comm
   use mpi_f08
   use utils, only : neko_error
+  use neko_config
   !$ use omp_lib
   implicit none
   
@@ -45,9 +46,16 @@ contains
     if (.not.initialized) then       
 
        if (nthrds .gt. 1) then
-          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
-          if (provided .ne. MPI_THREAD_MULTIPLE) then
-             call neko_error('Invalid thread support provided by MPI')
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
+             if (provided .ne. MPI_THREAD_MULTIPLE) then
+                call neko_error('Invalid thread support provided by MPI')
+             end if
+          else
+             call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierr)
+             if (provided .ne. MPI_THREAD_SERIALIZED) then
+                call neko_error('Invalid thread support provided by MPI')
+             end if
           end if
        else
           call MPI_Init(ierr)
