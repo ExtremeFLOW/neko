@@ -1147,7 +1147,7 @@ contains
     real(kind=rp) :: normal(3)
     real(kind=rp) :: voll(1), voll_temp(1)
     ! output control
-    integer :: calc_freq = 0 ! How frequently should we calculate Nu
+    real(kind=rp) :: calc_freq = 0 ! How frequently should we calculate Nu
     integer :: calc_frequency = 0 ! How frequently should we calculate Nu
     logical :: verify_bc = .false. ! write boundary conditions
     logical :: calculate_now = .false. ! write boundary conditions
