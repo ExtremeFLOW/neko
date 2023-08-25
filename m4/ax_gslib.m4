@@ -24,8 +24,6 @@ AC_DEFUN([AX_GSLIB],[
 	   export LDFLAGS
 	fi
 
-	_LIBS=$LIBS	
-
 	AC_LANG(Fortran)
 
 	AC_CHECK_LIB(gs, fgslib_gs_setup,
