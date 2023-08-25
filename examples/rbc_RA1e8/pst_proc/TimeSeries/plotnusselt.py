@@ -10,7 +10,7 @@ rcParams['lines.linewidth'] = 1.5
 rcParams['font.size'] = 16
 
 
-filename = '../nusselt.txt'
+filename = '../../nusselt.txt'
 ra = 1e8
 
 if __name__ == "__main__":

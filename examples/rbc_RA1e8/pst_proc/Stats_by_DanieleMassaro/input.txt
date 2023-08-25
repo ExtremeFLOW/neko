@@ -1,0 +1,18 @@
+# 2D interpolating mesh input parameters
+# Nx, Ny number of interpolating elements in x,y direction (nR=Ny, nTh=Nx)
+# nu: kinematic viscosity where Re=U*D/nu
+# rho: fluid density
+# target Retau to build the interpolating mesh
+# pipe radius
+# wall distance of first GLL point in the interpolating mesh
+# compression through the wall of the interpolating mesh (1 compressed, 0 uniform)
+
+Nx  = 140
+Ny  = 141
+1/nu  = 2650
+rho = 1.0
+target_Retau = 180
+Rmax = 1.0
+drp1 = 0.5
+compressedMesh = 1
+

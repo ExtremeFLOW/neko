@@ -75,7 +75,7 @@ def get_SME_var(uqt,uqNu_v,Mb):
 
     return
 
-filename = '../nusselt.txt'
+filename = '../../nusselt.txt'
 ra = 1e8
 start_time = 0
 if __name__ == "__main__":
