@@ -723,6 +723,7 @@ end module speri
 module user
   use neko
   use speri
+  use time_based_controller, only : time_based_controller_t
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
@@ -792,7 +793,12 @@ module user
   type(speri_t) :: speri_w
 
   !> Mesh deformation
-  real(kind=rp) :: delta_mesh = 1.5_rp !How much to deform to the top and bottom plate. =0 means no deformation
+  real(kind=rp) :: delta_mesh = 0.0_rp !How much to deform to the top and bottom plate. =0 means no deformation
+    
+  !> Calculation controllers
+  type(time_based_controller_t), allocatable :: controllers(:)
+    
+    
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -929,7 +935,13 @@ contains
     real(kind=rp) :: voll(1), voll_temp(1)
     integer :: lx, ly, lz, nones
     real(kind=rp) :: ones(u%Xh%lx,u%Xh%ly,6,u%msh%nelv)
-    
+
+    !> Controller data
+    real(kind=rp)     :: monitor_write_par
+    character(len=:), allocatable  :: monitor_write_control
+    real(kind=rp)     :: T_end
+
+
     !> Recalculate the non dimensional parameters
     call json_get(params, 'case.scalar.Pr', Pr)
     call json_get(params, 'case.fluid.Re', Re)
@@ -1070,6 +1082,22 @@ contains
     call mf_area%write(area_l,t)
     call mf_bm1%write(bm1,t)      
 
+    !> Initialize the calculation controller
+    !!> Take data from case file
+    call json_get(params, 'case.end_time', T_end)
+    call json_get(params, 'case.monitor.output_control', &
+                                     monitor_write_control)
+    call json_get(params, 'case.monitor.calc_frequency', &
+                                     monitor_write_par)    
+    !!> Calculate relevant parameters and restart                     
+    allocate(controllers(1))
+    call controllers(1)%init(T_end, monitor_write_control, &
+                             monitor_write_par)
+    if (controllers(1)%nsteps .eq. 0) then
+       controllers(1)%nexecutions = &
+               int(t / controllers(1)%time_interval) + 1
+    end if
+
   end subroutine user_initialize
 
 
@@ -1106,6 +1134,11 @@ contains
     call list_final3(area_l)
     call list_final3(dtdX_l)
 
+    ! deallocate the calc controllers
+    if (allocated(controllers)) then
+       deallocate(controllers)       
+    end if
+  
   end subroutine user_finalize
 
   subroutine set_bousinesq_forcing_term(f, t)
@@ -1147,11 +1180,7 @@ contains
     real(kind=rp) :: normal(3)
     real(kind=rp) :: voll(1), voll_temp(1)
     ! output control
-    real(kind=rp) :: calc_freq = 0 ! How frequently should we calculate Nu
-    integer :: calc_frequency = 0 ! How frequently should we calculate Nu
     logical :: verify_bc = .false. ! write boundary conditions
-    logical :: calculate_now = .false. ! write boundary conditions
-    character(len=:), allocatable :: oc
     real(kind=rp) :: dt
     
     !> This value is used for breaking symtetries in bc
@@ -1159,20 +1188,9 @@ contains
 
     !> Get the control parameters
     call json_get(params, 'case.timestep', dt)
-    call json_get(params, 'case.monitor.output_control', oc)
-    call json_get(params, 'case.monitor.calc_frequency', calc_freq)
     call json_get(params, 'case.monitor.verify_bc', verify_bc)
 
-    calculate_now = .false.
-
-    if (oc(1:14).eq.'simulationtime') then
-        if (mod(t,calc_freq).le.1e-10) calculate_now = .true.
-    else
-        calc_frequency = int(calc_freq)
-        if (mod(tstep,calc_frequency).eq.0) calculate_now = .true.
-    end if
-    
-  if (calculate_now.eqv..true.) then
+  if (controllers(1)%check(t, tstep, .false.)) then
 
     s => neko_field_registry%get_field('s')
     n = size(coef%B)
@@ -1283,6 +1301,7 @@ contains
     call speri_free(speri_v)
     call speri_free(speri_w)
 
+  call controllers(1)%register_execution()
   end if
   end subroutine calculate_nusselt
 
