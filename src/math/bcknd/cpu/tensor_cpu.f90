@@ -879,6 +879,7 @@ contains
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
 
+    !$omp parallel
     if (nu .eq. 2 .and. nv .eq. 4) then
        call tnsr3d_nu2nv4_cpu(v, u, A, Bt, Ct, nelv)
     else if (nu .eq. 4) then
@@ -886,6 +887,7 @@ contains
     else
        call tnsr3d_nvnu_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     end if
+    !$omp end parallel
 
   end subroutine tnsr3d_cpu
   
@@ -901,6 +903,7 @@ contains
     nunu = nu * nu 
     nvnv = nv * nv
     
+    !$omp do
     do ie = 1,nelv
        do j = 1, nunu
           do i = 1, nv
@@ -939,7 +942,7 @@ contains
           end do
        end do
     end do
-    
+    !$omp end do
   end subroutine tnsr3d_nvnu_cpu
 
   subroutine tnsr3d_nu2nv4_cpu(v, u, A, Bt, Ct, nelv)
@@ -954,6 +957,7 @@ contains
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     
+    !$omp do
     do ie = 1,nelv
        do j = 1, nunu
           do i = 1, nv
@@ -985,7 +989,7 @@ contains
           end do
        end do
     end do
-    
+    !$omp end do
   end subroutine tnsr3d_nu2nv4_cpu
 
   subroutine tnsr3d_nu4_cpu(v, nv, u, A, Bt, Ct, nelv)
@@ -1001,6 +1005,7 @@ contains
     nvnu = nv * nu
     nvnv = nv * nv
     
+    !$omp do
     do ie = 1,nelv
        do j = 1, nunu
           do i = 1, nv
@@ -1036,7 +1041,7 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
   end subroutine tnsr3d_nu4_cpu
 
   subroutine tnsr1_3d_cpu(v, nv, nu, A, Bt, Ct, nelv)
@@ -1044,11 +1049,13 @@ contains
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
 
+    !$omp parallel
     if (nu .eq. 4 .and. nv .eq. 2) then
        call tnsr1_3d_nu4nv2_cpu(v, A, Bt, Ct, nelv)
     else
        call tnsr1_3d_nvnu_cpu(v, nv, nu, A, Bt, Ct, nelv)
     end if
+    !$omp end parallel
     
   end subroutine tnsr1_3d_cpu
 
@@ -1078,7 +1085,8 @@ contains
     
     nu3 = nu**3
     nv3 = nv**3
-
+    
+    !$omp do
     do e = e0,ee,es
        iu = (e-1)*nu3
        iv = (e-1)*nv3
@@ -1121,6 +1129,7 @@ contains
           end do
        end do
     end do
+    !$omp end do
     
   end subroutine tnsr1_3d_nvnu_cpu
 
@@ -1140,6 +1149,7 @@ contains
     integer :: i, j, k, l, ii, jj
     real(kind=rp) :: tmp
 
+    !$omp do
     do e = 1,nelv
        iu = (e-1)*nununu
        iv = (e-1)*nvnvnv
@@ -1179,6 +1189,7 @@ contains
           end do
        end do
     end do
+    !$omp end do
     
   end subroutine tnsr1_3d_nu4nv2_cpu
   
