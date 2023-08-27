@@ -44,23 +44,22 @@ contains
     !$omp end parallel
     
     if (.not.initialized) then       
-
        if (nthrds .gt. 1) then
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
-             if (provided .ne. MPI_THREAD_MULTIPLE) then
+          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
+          if (provided .ne. MPI_THREAD_MULTIPLE) then
+             ! MPI_THREAD_MULTIPLE is required for mt. device backends
+             if (NEKO_BCKND_DEVICE .eq. 1) then 
                 call neko_error('Invalid thread support provided by MPI')
-             end if
-          else
-             call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierr)
-             if (provided .ne. MPI_THREAD_SERIALIZED) then
-                call neko_error('Invalid thread support provided by MPI')
+             else
+                call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierr)
+                if (provided .ne. MPI_THREAD_SERIALIZED) then
+                   call neko_error('Invalid thread support provided by MPI')
+                end if
              end if
           end if
        else
           call MPI_Init(ierr)
        end if
-
     end if
 
 #ifndef HAVE_MPI_PARAM_DTYPE
