@@ -61,10 +61,12 @@ contains
     integer :: i, m, k
 
     m = this%msk(0)
+    !$omp do
     do i = 1, m
        k = this%msk(i)
        x(k) = 0d0
     end do
+    !$omp end do
     
   end subroutine no_slip_wall_apply_scalar
   
@@ -81,13 +83,14 @@ contains
     integer :: i, m, k
 
     m = this%msk(0)
+    !$omp do
     do i = 1, m
        k = this%msk(i)
        x(k) = 0d0
        y(k) = 0d0
        z(k) = 0d0
     end do
-    
+    !$omp end do
   end subroutine no_slip_wall_apply_vector
 
   !> Boundary condition apply for a no-slip wall condition

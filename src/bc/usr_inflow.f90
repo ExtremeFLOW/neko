@@ -163,6 +163,7 @@ contains
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
          lx => this%c%Xh%lx)
       m = this%msk(0)
+      !$omp do
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
@@ -200,6 +201,7 @@ contains
                  t_, tstep_)
          end select
       end do
+      !$omp end do
     end associate
     
   end subroutine usr_inflow_apply_vector
