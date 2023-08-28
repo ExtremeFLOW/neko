@@ -67,13 +67,10 @@ module hsmg
   use ax_helm_fctry  
   use krylov_fctry
   use gather_scatter
-  use fast3d
   use interpolation
   use bc
   use dirichlet
-  use fdm
   use schwarz
-  use tensor
   use jacobi
   use sx_jacobi
   use device_jacobi
