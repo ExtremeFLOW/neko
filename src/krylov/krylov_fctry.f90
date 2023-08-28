@@ -44,6 +44,7 @@ module krylov_fctry
   use gmres_device
   use krylov
   use neko_config
+  !$ use omp_lib
   implicit none
 
 contains
@@ -55,7 +56,15 @@ contains
     character(len=*), intent(in) :: solver
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(inout), target :: M
- 
+    integer :: nthrds
+
+    nthrds = 1
+    !$omp parallel
+    !$omp master
+    !$ nthrds = omp_get_num_threads()
+    !$omp end master
+    !$omp end parallel
+           
     if (allocated(ksp)) then
        call krylov_solver_destroy(ksp)
        deallocate(ksp)
@@ -66,7 +75,11 @@ contains
        else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(cg_device_t::ksp)
        else
-          allocate(cg_t::ksp)
+          if (nthrds .gt. 1) then
+             allocate(cg_omp_t::ksp)
+          else
+             allocate(cg_t::ksp)
+          end if
        end if
     else if (trim(solver) .eq. 'pipecg') then
        if (NEKO_BCKND_SX .eq. 1) then
@@ -99,6 +112,8 @@ contains
        select type(kp => ksp)
        type is(cg_t)
           call kp%init(n, M = M, abs_tol = abstol)
+       type is(cg_omp_t)
+          call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_cg_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(cg_device_t)
@@ -123,6 +138,8 @@ contains
     else if (present(abstol)) then
        select type(kp => ksp)
        type is(cg_t)
+          call kp%init(n, abs_tol = abstol)
+       type is(cg_omp_t)
           call kp%init(n, abs_tol = abstol)
        type is(sx_cg_t)
           call kp%init(n, abs_tol = abstol)       
@@ -149,6 +166,8 @@ contains
        select type(kp => ksp)
        type is(cg_t)
           call kp%init(n, M = M)
+       type is(cg_omp_t)
+          call kp%init(n, M = M)
        type is(sx_cg_t)
           call kp%init(n, M = M)       
        type is(cg_device_t)
@@ -173,6 +192,8 @@ contains
     else
        select type(kp => ksp)
        type is(cg_t)
+          call kp%init(n)
+       type is(cg_omp_t)
           call kp%init(n)
        type is(sx_cg_t)
           call kp%init(n)       
@@ -206,6 +227,8 @@ contains
     if (allocated(ksp)) then
        select type(kp => ksp)
        type is(cg_t)
+          call kp%free()
+       type is(cg_omp_t)
           call kp%free()
        type is(sx_cg_t)
           call kp%free()

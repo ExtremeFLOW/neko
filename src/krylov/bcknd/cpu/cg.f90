@@ -53,6 +53,19 @@ module cg
      procedure, pass(this) :: solve => cg_solve
   end type cg_t
 
+  !> Standard preconditioned conjugate gradient method
+  !! OpenMP version
+  type, public, extends(ksp_t) :: cg_omp_t
+     real(kind=rp), allocatable :: w(:)
+     real(kind=rp), allocatable :: r(:)
+     real(kind=rp), allocatable :: p(:)
+     real(kind=rp), allocatable :: z(:)
+   contains
+     procedure, pass(this) :: init => cg_omp_init
+     procedure, pass(this) :: free => cg_omp_free
+     procedure, pass(this) :: solve => cg_omp_solve
+  end type cg_omp_t
+
 contains
 
   !> Initialise a standard PCG solver
@@ -231,7 +244,183 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
-  end subroutine second_cg_part 
+  end subroutine second_cg_part
+
+  !> Initialise a standard PCG solver (OpenMP version)
+  subroutine cg_omp_init(this, n, M, rel_tol, abs_tol)
+    class(cg_omp_t), intent(inout) :: this
+    class(pc_t), optional, intent(inout), target :: M
+    integer, intent(in) :: n
+    real(kind=rp), optional, intent(inout) :: rel_tol
+    real(kind=rp), optional, intent(inout) :: abs_tol
+        
+    call this%free()
+    
+    allocate(this%w(n))
+    allocate(this%r(n))
+    allocate(this%p(n))
+    allocate(this%z(n))
+    
+    if (present(M)) then 
+       this%M => M
+    end if
+
+    if (present(rel_tol) .and. present(abs_tol)) then
+       call this%ksp_init(rel_tol, abs_tol)
+    else if (present(rel_tol)) then
+       call this%ksp_init(rel_tol=rel_tol)
+    else if (present(abs_tol)) then
+       call this%ksp_init(abs_tol=abs_tol)
+    else
+       call this%ksp_init()
+    end if
+          
+  end subroutine cg_omp_init
+
+  !> Deallocate a standard PCG solver (OpenMP version)
+  subroutine cg_omp_free(this)
+    class(cg_omp_t), intent(inout) :: this
+
+    call this%ksp_free()
+
+    if (allocated(this%w)) then
+       deallocate(this%w)
+    end if
+
+    if (allocated(this%r)) then
+       deallocate(this%r)
+    end if
+
+    if (allocated(this%p)) then
+       deallocate(this%p)
+    end if
+    
+    if (allocated(this%z)) then
+       deallocate(this%z)
+    end if
+
+    nullify(this%M)
+
+  end subroutine cg_omp_free
+  
+  !> Standard PCG solve (OpenMP version)
+  function cg_omp_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+    class(cg_omp_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: f
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blst
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t) :: ksp_results
+    integer, optional, intent(in) :: niter
+    integer :: i, iter, max_iter, ierr
+    real(kind=rp) :: rnorm, rtr, rtz2, rtz1
+    real(kind=rp) :: beta, pap, alpha, norm_fac
+    
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = KSP_MAX_ITER
+    end if
+    norm_fac = 1.0_rp / sqrt(coef%volume)
+
+    rtz1 = 1.0_rp
+    rtr = 0.0_rp
+    !$omp parallel
+    !$omp do
+    do i = 1, n
+       x%x(i,1,1,1) = 0.0_rp
+       this%p(i) = 0.0_rp
+       this%r(i) = f(i)
+    end do
+    !$omp end do
+
+    !$omp do reduction(+:rtr)
+    do i = 1, n
+       rtr = rtr + (this%r(i) * coef%mult(i,1,1,1) * this%r(i))
+    end do
+    !$omp end do
+    !$omp single
+    call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
+           MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    !$omp end single
+    !$omp end parallel
+
+    rnorm = sqrt(rtr)*norm_fac
+    ksp_results%res_start = rnorm
+    ksp_results%res_final = rnorm
+    ksp_results%iter = 0
+    if(rnorm .eq. 0.0_rp) return
+
+    do iter = 1, max_iter
+
+       call this%M%solve(this%z, this%r, n)
+
+       rtz2 = rtz1
+       rtz1 = 0.0_rp
+       !$omp parallel
+       !$omp do reduction(+:rtz1)
+       do i = 1, n
+          rtz1 = rtz1 + (this%r(i) * coef%mult(i,1,1,1) * this%z(i))
+       end do
+       !$omp end do
+       !$omp single
+       call MPI_Allreduce(MPI_IN_PLACE, rtz1, 1, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
+       beta = rtz1 / rtz2
+       if (iter .eq. 1) beta = 0.0_rp
+       !$omp end single
+       !$omp do
+       do i = 1, n
+          this%p(i) = beta * this%p(i) + this%z(i)
+       end do
+       !$omp end do
+       !$omp end parallel
+       
+       call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
+       !$omp parallel
+       call gs_op(gs_h, this%w, n, GS_OP_ADD)
+       !$omp end parallel
+       call bc_list_apply(blst, this%w, n)
+
+       pap = 0.0_rp
+       !$omp parallel
+       !$omp do reduction(+:pap)
+       do i = 1, n
+          pap = pap + (this%w(i) * coef%mult(i,1,1,1) * this%p(i))
+       end do
+       !$omp end do
+       !$omp single
+       call MPI_Allreduce(MPI_IN_PLACE, pap, 1, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
+       alpha = rtz1 / pap
+       rtr = 0.0_rp
+       !$omp end single 
+       !$omp do reduction(+:rtr)
+       do i = 1, n
+          x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * this%p(i)
+          this%r(i) = this%r(i) - alpha * this%w(i)
+          rtr = rtr + this%r(i) * coef%mult(i,1,1,1) * this%r(i)
+       end do
+       !$omp end do
+       !$omp single
+       call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       
+       rnorm = sqrt(rtr) * norm_fac
+       !$omp end single
+       !$omp end parallel
+       if (rnorm .lt. this%abs_tol) then
+          exit
+       end if
+    end do
+    ksp_results%res_final = rnorm
+    ksp_results%iter = iter
+  end function cg_omp_solve
 
 end module cg
   
