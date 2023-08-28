@@ -279,6 +279,7 @@ contains
     real(kind=rp), intent(inout) :: a(0:n+1, 0:n+1, 0:n+1, nelv)
     real(kind=rp), intent(inout) :: b(n,n,n,nelv)
     integer :: i, j, k, ie
+    !$omp do
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -288,6 +289,7 @@ contains
           end do
        end do
     end do
+    !$omp end do
   end subroutine schwarz_toreg3d
 
   !> convert array a from original size to size extended array with border
@@ -296,7 +298,19 @@ contains
     real (kind=rp), intent(inout) :: a(0:n+1,0:n+1,0:n+1,nelv), b(n,n,n,nelv)
     integer :: i,j,k,ie
 
-    call rzero(a, (n+2)*(n+2)*(n+2)*nelv)
+    !$omp do
+    do ie = 1, nelv
+       do k = 0, n+1
+          do j = 0, n+1
+             do i = 0, n+1
+                a(i,j,k,ie) = 0.0_rp
+             end do
+          end do
+       end do
+    end do
+    !$omp end do
+    
+    !$omp do
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -306,6 +320,7 @@ contains
           end do
        end do
     end do
+    !$omp end do
   end subroutine schwarz_toext3d
 
   !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1. 
@@ -320,6 +335,7 @@ contains
     i1=nx-1
     
     if(nz .eq. 1) then
+       !$omp do
        do ie = 1, nelv
           do j = i0, i1
              arr1(l1+1 ,j,1,ie) = f1*arr1(l1+1 ,j,1,ie) &
@@ -334,7 +350,9 @@ contains
                                  +f2*arr2(i,nx-l2,1,ie)
           end do
        end do
+       !$omp end do
     else
+       !$omp do
        do ie = 1, nelv
           do k = i0, i1
              do j = i0, i1
@@ -361,6 +379,7 @@ contains
              end do
           end do
        end do
+       !$omp end do
     endif
   end subroutine schwarz_extrude
   
@@ -419,6 +438,7 @@ contains
        call device_stream_wait_event(aux_cmd_queue, this%event, 0)
     else
        call bc_list_apply_scalar(this%bclst, r, n)
+       !$omp parallel       
        call schwarz_toext3d(work1, r, this%Xh%lx, this%msh%nelv)
 
        !  exchange interior nodes
@@ -427,7 +447,7 @@ contains
        call gs_op(this%gs_schwarz, work1, ns, GS_OP_ADD) 
        call schwarz_extrude(work1, 0, one, work1, 2, -one, &
                             enx, eny, enz, this%msh%nelv)
-       
+
        call this%fdm%compute(work2, work1) ! do local solves
 
        !   Sum overlap region (border excluded)
@@ -442,10 +462,12 @@ contains
        call schwarz_toreg3d(e, work2, this%Xh%lx, this%msh%nelv)
 
        ! sum border nodes
-       call gs_op(this%gs_h, e, n, GS_OP_ADD) 
+       call gs_op(this%gs_h, e, n, GS_OP_ADD)
+       !$omp end parallel
        call bc_list_apply_scalar(this%bclst, e, n)
-
+       !$omp parallel
        call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
+       !$omp end parallel
     end if
   end associate
   end subroutine schwarz_compute
@@ -456,7 +478,7 @@ contains
     real(kind=rp), intent(inout) :: e(n,n,n,nelv)
     real(kind=rp), intent(inout) ::  wt(n,n,4,3,nelv)
     integer :: ie, i, j, k
-
+    !$omp do
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
@@ -483,5 +505,6 @@ contains
           end do
        end do
     end do
+    !$omp end do
   end subroutine schwarz_wt3d
 end module schwarz

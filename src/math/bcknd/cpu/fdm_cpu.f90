@@ -15,7 +15,6 @@ contains
     integer ::  ie, nn, i
 
     nn = nl**ldim
-    !$omp parallel private(ie, i)
     if(.not. ldim .eq. 3) then
        !$omp do
        do ie = 1, nelv
@@ -39,7 +38,6 @@ contains
        end do
        !$omp end do
     end if
-    !$omp end parallel
   end subroutine fdm_do_fast_cpu
   
 end module fdm_cpu
