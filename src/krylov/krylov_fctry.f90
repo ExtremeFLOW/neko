@@ -100,7 +100,11 @@ contains
        else if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(gmres_device_t::ksp)
        else
-          allocate(gmres_t::ksp)
+          if (nthrds .gt. 1) then
+             allocate(gmres_omp_t::ksp)
+          else
+             allocate(gmres_t::ksp)
+          end if
        end if
     else if (trim(solver) .eq. 'bicgstab') then
        allocate(bicgstab_t::ksp)
@@ -127,6 +131,8 @@ contains
        type is(cacg_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(gmres_t)
+          call kp%init(n, M = M, abs_tol = abstol)
+       type is(gmres_omp_t)
           call kp%init(n, M = M, abs_tol = abstol)
        type is(sx_gmres_t)
           call kp%init(n, M = M, abs_tol = abstol)
@@ -155,6 +161,8 @@ contains
           call kp%init(n, abs_tol = abstol)
        type is(gmres_t)
           call kp%init(n, abs_tol = abstol)
+       type is(gmres_omp_t)
+          call kp%init(n, abs_tol = abstol)
        type is(sx_gmres_t)
           call kp%init(n, abs_tol = abstol)
        type is(gmres_device_t)
@@ -182,6 +190,8 @@ contains
           call kp%init(n, M = M)
        type is(gmres_t)
           call kp%init(n, M = M)
+       type is(gmres_omp_t)
+          call kp%init(n, M = M)
        type is(sx_gmres_t)
           call kp%init(n, M = M)
        type is(gmres_device_t)
@@ -208,6 +218,8 @@ contains
        type is(cacg_t)
           call kp%init(n)
        type is(gmres_t)
+          call kp%init(n)
+       type is(gmres_omp_t)
           call kp%init(n)
        type is(sx_gmres_t)
           call kp%init(n)
@@ -243,6 +255,8 @@ contains
        type is(cacg_t)
           call kp%free()
        type is(gmres_t)
+          call kp%free()
+       type is(gmres_omp_t)
           call kp%free()
        type is(sx_gmres_t)
           call kp%free()

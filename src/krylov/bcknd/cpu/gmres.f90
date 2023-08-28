@@ -58,6 +58,15 @@ module gmres
      procedure, pass(this) :: solve => gmres_solve
   end type gmres_t
 
+  !> Standard preconditioned generalized minimal residual method
+  !! OpenMP version
+  type, public, extends(gmres_t) :: gmres_omp_t
+   contains
+     procedure, pass(this) :: init => gmres_init
+     procedure, pass(this) :: free => gmres_free
+     procedure, pass(this) :: solve => gmres_omp_solve
+  end type gmres_omp_t
+
 contains
 
   !> Initialise a standard GMRES solver
@@ -349,6 +358,224 @@ contains
 
   end function gmres_solve
 
+  !> Standard GMRES solve (OpenMP version)
+  function gmres_omp_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+    class(gmres_omp_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: f
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blst
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t) :: ksp_results
+    integer, optional, intent(in) :: niter
+    integer :: i, j, k, iter, ierr 
+    real(kind=rp) ::  rnorm, alpha, temp, l, tmp_gam
+    real(kind=rp) :: ratio, div0, norm_fac
+    logical :: conv
+    integer outer
+
+    conv = .false.
+    iter = 0
+    norm_fac = 1.0_rp / sqrt(coef%volume)
+    this%gam(this%lgmres+1) = 0.0_rp
+    !$omp parallel
+    !$omp do
+    do i = 1, n
+       x%x(i,1,1,1) = 0.0_rp
+    end do
+    !$omp end do nowait
+    !$omp do
+    do i = 1, this%lgmres
+       this%s(i) = 1.0_rp
+       this%c(i) = 1.0_rp
+       this%gam(i) = 0.0_rp
+    end do
+    !$omp end do
+
+    !$omp do
+    do i = 1, this%lgmres**2
+       this%h(i, 1) = 0.0_rp
+    end do
+    !$omp end do
+    !$omp end parallel
+
+    outer = 0
+    do while (.not. conv .and. iter .lt. niter)
+       outer = outer + 1
+
+       !$omp parallel do
+       do i = 1, n
+          this%r(i) = f(i)
+       end do
+       !$omp end parallel do          
+
+       if(iter.ne.0) then          
+          call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
+          !$omp parallel
+          call gs_op(gs_h, this%w, n, GS_OP_ADD)
+          !$omp end parallel
+          call bc_list_apply(blst, this%w, n)
+          !$omp parallel
+          !$omp do
+          do i = 1, n
+             this%r(i) = this%r(i) - this%w(i)
+          end do          
+          !$omp end do
+          !$omp end parallel
+       endif
+
+       tmp_gam = 0.0_rp
+       !$omp parallel
+       !$omp do reduction(+:tmp_gam)
+       do i = 1, n
+          tmp_gam = tmp_gam + (this%r(i) * coef%mult(i,1,1,1) * this%r(i))
+       end do
+       !$omp end do
+       !$omp single
+       call MPI_Allreduce(tmp_gam, this%gam(1), 1, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       this%gam(1) = sqrt(this%gam(1))
+       if(iter.eq.0) then
+          div0 = this%gam(1) * norm_fac
+          ksp_results%res_start = div0
+       endif
+       !$omp end single
+       !$omp end parallel
+
+       if ( this%gam(1) .eq. 0) return
+
+       rnorm = 0.0_rp
+       temp = 1.0_rp / this%gam(1)
+       !$omp parallel do
+       do i = 1, n
+          this%v(i,1) = temp * this%r(i)
+       end do
+       !$omp end parallel do
+       do j = 1, this%lgmres
+          iter = iter+1
+          !$omp parallel do
+          do i = 1, n
+             this%w(i) = this%v(i,j)
+          end do
+          !$omp end parallel do
+
+          !Apply precond
+          call this%M%solve(this%z(1,j), this%w, n)
+
+          call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
+          !$omp parallel
+          call gs_op(gs_h, this%w, n, GS_OP_ADD)
+          !$omp end parallel
+          call bc_list_apply(blst, this%w, n)
+
+          !$omp parallel private(i,k)
+          do i = 1, j
+             !$omp single
+             this%h(i,j) = 0.0_rp
+             !$omp end single
+             !$omp do
+             do k = 1, n
+                this%h(i,j) = this%h(i,j) + &
+                     this%w(k) * this%v(k,i) * coef%mult(k,1,1,1)
+             end do
+             !$omp end do
+          end do
+          !$omp single
+          
+          !Could probably be done inplace...
+          call MPI_Allreduce(this%h(1,j), this%wk1, j, &
+               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+          call copy(this%h(1,j), this%wk1, j) 
+          !$omp end single
+          
+          do i = 1, j
+             !$omp do
+             do k = 1, n
+                this%w(k) = this%w(k) - this%h(i,j) * this%v(k,i)
+             end do
+             !$omp end do
+          end do
+          
+          !apply Givens rotations to new column
+          !$omp single
+          do i=1,j-1
+             temp = this%h(i,j)                   
+             this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)  
+             this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
+          end do
+
+          alpha = 0.0_rp
+          !$omp end single
+          !$omp do reduction(+:alpha)
+          do i = 1, n
+             alpha = alpha + (this%w(i) * coef%mult(i,1,1,1) * this%w(i))
+          end do
+          !$omp end do
+          !$omp single
+          call MPI_Allreduce(MPI_IN_PLACE, alpha, 1, &
+            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+          alpha = sqrt(alpha)          
+          !$omp end single
+          !$omp end parallel          
+
+          rnorm = 0.0_rp
+
+          if(alpha .eq. 0.0_rp) then 
+            conv = .true.
+            exit
+          end if
+          l = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
+          temp = 1.0_rp / l
+          this%c(j) = this%h(j,j) * temp
+          this%s(j) = alpha  * temp
+          this%h(j,j) = l
+          this%gam(j+1) = -this%s(j) * this%gam(j)
+          this%gam(j)   =  this%c(j) * this%gam(j)
+
+          rnorm = abs(this%gam(j+1)) * norm_fac
+          ratio = rnorm / div0
+
+          if (rnorm .lt. this%abs_tol) then 
+             conv = .true.
+             exit
+          end if
+         
+          if (iter + 1 .gt. niter) exit
+          
+          if( j .lt. this%lgmres) then
+             temp = 1.0_rp / alpha
+             !$omp parallel do
+             do i = 1, n
+                this%v(i, j+1) = temp * this%w(i)
+             end do
+             !$omp end parallel do
+          endif
+       end do
+       j = min(j, this%lgmres)
+       !back substitution
+       do k = j, 1, -1
+          temp = this%gam(k)
+          do i = j, k+1, -1
+             temp = temp - this%h(k,i) * this%c(i)
+          enddo
+          this%c(k) = temp / this%h(k,k)
+       enddo
+       !sum up Arnoldi vectors
+       do i = 1, j
+          !$omp parallel do
+          do k = 1, n
+             x%x(k,1,1,1) = x%x(k,1,1,1) + this%c(i) * this%z(k,i)
+          end do
+          !$omp end parallel do
+       end do
+    end do
+
+    ksp_results%res_final = rnorm
+    ksp_results%iter = iter
+  end function gmres_omp_solve
+  
 end module gmres
   
 
