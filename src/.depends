@@ -181,7 +181,7 @@ common/projection.o : common/projection.f90 common/log.o common/profiler.o commo
 common/bcknd/device/device_projection.o : common/bcknd/device/device_projection.F90 common/utils.o config/num_types.o 
 comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
 comm/redist.o : comm/redist.f90 mesh/zone.o io/format/nmsh.o mesh/mesh.o comm/comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o comm/mpi_types.o field/mesh_field.o 
-krylov/pc_hsmg.o : krylov/pc_hsmg.f90 common/profiler.o math/bcknd/device/device_math.o device/device.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/schwarz.o bc/dirichlet.o bc/bc.o sem/interpolation.o gs/gather_scatter.o krylov/krylov_fctry.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o math/math.o config/neko_config.o 
+krylov/pc_hsmg.o : krylov/pc_hsmg.f90 common/profiler.o math/bcknd/device/device_math.o device/device.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/schwarz.o bc/dirichlet.o bc/bc.o sem/interpolation.o gs/gather_scatter.o krylov/krylov_fctry.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o config/neko_config.o 
 common/signal.o : common/signal.f90 common/utils.o 
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
 device/cuda_intf.o : device/cuda_intf.F90 common/utils.o 

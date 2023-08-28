@@ -60,7 +60,6 @@
 !> Krylov preconditioner
 module hsmg
   use neko_config
-  use math
   use utils
   use precon
   use ax_product
@@ -428,28 +427,49 @@ contains
        call device_event_sync(this%gs_event)
        call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%size())
     else
-       !We should not work with the input 
-       call copy(this%r, r, n)
+       !We should not work with the input
+       !$omp parallel do
+       do i = 1, n
+          this%r(i) = r(i)
+       end do
+       !$omp end parallel do
 
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(3)%schwarz%compute(z, this%r)      
+       call this%grids(3)%schwarz%compute(z, this%r)
+
+       !$omp parallel private(i)
+       
        ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
-       call col2(this%r, this%grids(3)%coef%mult, &
-                 this%grids(3)%dof%size())
+       !$omp do
+       do i = 1, this%grids(3)%dof%size()
+          this%r(i) = this%r(i) * this%grids(3)%coef%mult(i,1,1,1)
+       end do
+       !$omp end do
+
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w, this%r, &
                                      this%msh%nelv, this%grids(2)%Xh)
        call gs_op(this%grids(2)%gs_h, this%w, &
                   this%grids(2)%dof%size(), GS_OP_ADD)
-       !OVERLAPPING Schwarz exchange and solve
-       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
-       call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
+       !$omp end parallel
+       
+       !OVERLAPPING Schwarz exchange and solve       
+       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
+
+       !$omp parallel private(i)
+       !$omp do
+       do i = 1, this%grids(2)%dof%size()
+          this%w(i) = this%w(i) * this%grids(2)%coef%mult(i,1,1,1)
+       end do
+       !$omp end do
+
        !restrict residual to crs
        call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
        !Crs solve
 
        call gs_op(this%grids(1)%gs_h, this%r, &
-                         this%grids(1)%dof%size(), GS_OP_ADD)
+                  this%grids(1)%dof%size(), GS_OP_ADD)
+       !$omp end parallel       
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
        call profiler_start_region('HSMG coarse-solve')
@@ -462,18 +482,33 @@ contains
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
-
+       !$omp parallel private(i)
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
                                     this%msh%nelv, this%grids(2)%Xh)
-       call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%size())
+
+       !$omp do
+       do i = 1, this%grids(2)%dof%size()
+          this%grids(2)%e%x(i,1,1,1) = this%grids(2)%e%x(i,1,1,1) + this%w(i)
+       end do
+       !$omp end do
 
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
                                      this%msh%nelv, this%grids(3)%Xh)
-       call add2(z, this%w, this%grids(3)%dof%size())
+
+       !$omp do
+       do i = 1, this%grids(3)%dof%size()
+          z(i) = z(i) + this%w(i)
+       end do
+       !$omp end do
+
        call gs_op(this%grids(3)%gs_h, z, &
                   this%grids(3)%dof%size(), GS_OP_ADD)
-       call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
-
+       !$omp do
+       do i = 1, this%grids(3)%dof%size()
+          z(i) = z(i) * this%grids(3)%coef%mult(i,1,1,1)
+       end do
+       !$omp end do
+       !$omp end parallel
     end if
     call profiler_end_region
   end subroutine hsmg_solve
