@@ -66,8 +66,10 @@ The call at line 99 is suspected to mess everything up (`fgslib_findpts`). In th
 Running with one rank should give the following output:
 
 ```
-                                # HERE
-0 / 0  0  0  0  0 /         0  962592768        553        554        555 /0 1 0 1 1 
+Rank #    List of process owners                     List of element owners              error code
+0       / 0     0     0     0     0 /         0  962592768     553     554     555 /0 1 0 1 1 
 ```
-The value labeled "# HERE", corresponding to `elid(2)` shows an example of how certain variables can be affected.
+In the list of element owners, notice an ugly value at `elid(2)`, whereas `elid(3), elid(4)` and `elid(5)` are showing
+correct values since we are running on a 1000 element-mesh.
+
 
