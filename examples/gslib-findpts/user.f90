@@ -71,9 +71,9 @@ contains
 !!$    xyz_raw(:,7) = (/-0.2,-0.5,-0.5/)
 !!$    xyz_raw(:,8) = (/-0.6,-0.2,-0.5/)
 
-    do i = 1,N
-       do j = 1,3
-          xyz_raw(j,i) = xyz_raw(j,i) + delta
+    do j = 1,N
+       do i = 1,3
+          xyz_raw(i,j) = xyz_raw(i,j) + delta
        end do
     end do
 
@@ -129,34 +129,33 @@ contains
     !
     ! INTERPOLATION
     !
-
-    call fgslib_findpts_eval(handle, interpolated_field(1,1), 4, &
+    call fgslib_findpts_eval(handle, interpolated_field(1,1), nfields, &
          rcode, 1, &
          proc, 1, &
          elid, 1, &
          rst_raw, coef%msh%gdim, &
          N, u%x(1,1,1,1))
-!!$
-!!$    call fgslib_findpts_eval(handle, interpolated_field(2,1), nfields, &
-!!$         rcode, 1, &
-!!$         proc, 1, &
-!!$         elid, 1, &
-!!$         rst_raw, coef%msh%gdim, &
-!!$         N, v%x(1,1,1,1))
-!!$
-!!$    call fgslib_findpts_eval(handle, interpolated_field(3,1), nfields, &
-!!$         rcode, 1, &
-!!$         proc, 1, &
-!!$         elid, 1, &
-!!$         rst_raw, coef%msh%gdim, &
-!!$         N, w%x(1,1,1,1))
-!!$
-!!$    call fgslib_findpts_eval(handle, interpolated_field(4,1), nfields, &
-!!$         rcode, 1, &
-!!$         proc, 1, &
-!!$         elid, 1, &
-!!$         rst_raw, coef%msh%gdim, &
-!!$         N, p%x(1,1,1,1))
+
+    call fgslib_findpts_eval(handle, interpolated_field(2,1), nfields, &
+         rcode, 1, &
+         proc, 1, &
+         elid, 1, &
+         rst_raw, coef%msh%gdim, &
+         N, v%x(1,1,1,1))
+
+    call fgslib_findpts_eval(handle, interpolated_field(3,1), nfields, &
+         rcode, 1, &
+         proc, 1, &
+         elid, 1, &
+         rst_raw, coef%msh%gdim, &
+         N, w%x(1,1,1,1))
+
+    call fgslib_findpts_eval(handle, interpolated_field(4,1), nfields, &
+         rcode, 1, &
+         proc, 1, &
+         elid, 1, &
+         rst_raw, coef%msh%gdim, &
+         N, p%x(1,1,1,1))
 
     !
     ! Initialize the output
