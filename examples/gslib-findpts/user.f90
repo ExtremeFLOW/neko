@@ -21,7 +21,6 @@ contains
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
     u%user_init_modules     => initialize ! Initialize parameters
-    u%user_check            => check      ! Generate fst
     u%user_finalize_modules => finalize ! Finalize
   end subroutine user_setup
 
@@ -179,45 +178,12 @@ contains
 
   end subroutine initialize
 
-  ! usrcheck, this is called at the end of every time step
-  subroutine check(t, tstep,u, v, w, p, coef, param)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(json_file), intent(inout) :: param
-
-    integer :: ierr, sampling_freq
-
-    ! Set the frequency of sampling here
-    ! (# of iterations)
-    sampling_freq = 1
-
-    if (mod(tstep, sampling_freq) .ne. 0) return
-
-!!$    call interpolate(coef, u, v, w, p, t)
-
-  end subroutine check
-
-  subroutine interpolate(coef, u, v, w, p, t)
-    type(coef_t), intent(in) :: coef
-    type(field_t), intent(in) :: u
-    type(field_t), intent(in) :: v
-    type(field_t), intent(in) :: w
-    type(field_t), intent(in) :: p
-    real(kind=rp), intent(in) :: t
-
-  end subroutine interpolate
-
   ! Free relevant objects
   subroutine finalize(t, params)
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
 
-!!$    call fgslib_findpts_free(handle)
+    call fgslib_findpts_free(handle)
     call mat_out%free
     call file_free(fout)
 
