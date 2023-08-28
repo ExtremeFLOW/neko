@@ -47,3 +47,27 @@ And then recompile Neko:
 ``` shell
 make install
 ```
+
+# Running the case
+
+``` shell
+makeneko user.f90
+./neko user.case
+```
+
+## Changing the number of points
+
+At line 44: set `N = ...` with the desired value
+
+## Which errors to expect
+
+The call at line 99 is suspected to mess everything up (`fgslib_findpts`). In the current configuration, it seems to be messing with the `elid` array, which contains the owning element for each point.
+
+Running with one rank should give the following output:
+
+```
+                                # HERE
+0 / 0  0  0  0  0 /         0  962592768        553        554        555 /0 1 0 1 1 
+```
+The value labeled "# HERE", corresponding to `elid(2)` shows an example of how certain variables can be affected.
+

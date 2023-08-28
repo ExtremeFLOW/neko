@@ -110,8 +110,8 @@ contains
     ! Quick check to see who owns what?
     ! Will show, for each point: process, process owner, element owner, error code
     !
-    write (*, 100) pe_rank, "/", proc, "/" , elid, "/", rcode
- 100 format(((I2," "),A1,5(I2," "),A1,5(I4," "),A1,5(I1," ")))
+    write (*, *) pe_rank, "/", proc, "/" , elid, "/", rcode
+!!$ 100 format(((I2," "),A1,5(I2," "),A1,5(I10," "),A1,5(I1," ")))
 
     !
     ! Final check to see if there are any problems
