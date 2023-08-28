@@ -50,9 +50,8 @@ module probes
   type probes_t
 
      integer :: handle !< handle to pass in each findpts call
-
      integer :: n_probes !< Number of probes
-     integer :: n_fields !< Number of output fields
+     integer :: n_fields !< Number of output fields (fixed at 4 for now)
      integer, allocatable :: proc_owner(:) !< List of owning processes
      integer, allocatable :: el_owner(:)   !< List of owning elements
      integer, allocatable :: dist2(:) !< Distance squared between original
@@ -63,11 +62,17 @@ module probes
      real(kind=rp), allocatable :: out_fields(:,:) !< interpolated fields
 
      contains
+       !> Initialize probes object.
        procedure, pass(this) :: init => probes_init
+       !> Destructor
        procedure, pass(this) :: free => probes_free
+       !> Print current probe status, with number of probes and coordinates
        procedure, pass(this) :: show => probes_show
+       !> Setup the probes for mapping process (with fgslib_findpts_setup).
        procedure, pass(this) :: setup => probes_setup
+       !> Maps `x,y,z` to `r,s,t` coordinates.
        procedure, pass(this) :: map => probes_map
+       !> Interpolate each probe from its `r,s,t` coordinates.
        procedure, pass(this) :: interpolate => probes_interpolate
 
     end type probes_t
@@ -85,12 +90,12 @@ contains
     this%n_probes = n_probes
     this%n_fields = n_fields
 
-    allocate(this%xyz(3, n_probes))
+    allocate(this%xyz(3, n_probes))     ! Size as used in gslib
     allocate(this%proc_owner(n_probes))
     allocate(this%el_owner(n_probes))
     allocate(this%dist2(n_probes))
     allocate(this%error_code(n_probes))
-    allocate(this%rst(3*n_probes))
+    allocate(this%rst(3*n_probes))      ! Size as used in gslib
     allocate(this%out_fields(n_fields, n_probes))
 
   end subroutine probes_init
@@ -107,11 +112,11 @@ contains
     if (allocated(this%error_code)) deallocate(this%error_code)
     if (allocated(this%out_fields)) deallocate(this%out_fields)
 
-!!$    call fgslib_findpts_free(this%handle)
+    call fgslib_findpts_free(this%handle)
 
   end subroutine probes_free
 
-  !> Show probes
+  !> Print current probe status, with number of probes and coordinates
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
     integer :: i
@@ -126,7 +131,7 @@ contains
 
   end subroutine probes_show
 
-  !> Setup for the mapping process.
+  !> Setup the probes for mapping process (with fgslib_findpts_setup).
   subroutine probes_setup(this, coef)
     class(probes_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
@@ -141,16 +146,16 @@ contains
     nelv = coef%msh%nelv
     max_pts_per_iter = 128 ! number of points to iterate on simultaneously
 
-!!$    call fgslib_findpts_setup(this%handle, &
-!!$         NEKO_COMM, pe_size, &
-!!$         coef%msh%gdim, &
-!!$         coef%dof%x, coef%dof%y, coef%dof%z, & ! Physical nodal values
-!!$         lx, ly, lz, nelv, & ! Mesh dimensions
-!!$         2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
-!!$         0.01, & ! relative size to expand bounding boxes by
-!!$         lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
-!!$         max_pts_per_iter, tolerance)
-!!$
+    call fgslib_findpts_setup(this%handle, &
+         NEKO_COMM, pe_size, &
+         coef%msh%gdim, &
+         coef%dof%x, coef%dof%y, coef%dof%z, & ! Physical nodal values
+         lx, ly, lz, nelv, & ! Mesh dimensions
+         2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
+         0.01, & ! relative size to expand bounding boxes by
+         lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
+         max_pts_per_iter, tolerance)
+
   end subroutine probes_setup
 
   !> Maps `x,y,z` to `r,s,t` coordinates. The result of the mapping for each
@@ -163,16 +168,16 @@ contains
     class(probes_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
 
-!!$    call fgslib_findpts(this%handle, &
-!!$         this%error_code, 1, &
-!!$         this%proc_owner, 1, &
-!!$         this%el_owner, 1, &
-!!$         this%rst, coef%msh%gdim, &
-!!$         this%dist2, 1, &
-!!$         this%xyz(1,1), coef%msh%gdim, &
-!!$         this%xyz(2,1), coef%msh%gdim, &
-!!$         this%xyz(3,1), coef%msh%gdim, this%n_probes)
-
+    call fgslib_findpts(this%handle, &
+         this%error_code, 1, &
+         this%proc_owner, 1, &
+         this%el_owner, 1, &
+         this%rst, coef%msh%gdim, &
+         this%dist2, 1, &
+         this%xyz(1,1), coef%msh%gdim, &
+         this%xyz(2,1), coef%msh%gdim, &
+         this%xyz(3,1), coef%msh%gdim, this%n_probes)
+!!$
   end subroutine probes_map
 
   !> Interpolate each probe from its `r,s,t` coordinates.
@@ -186,34 +191,34 @@ contains
     type(field_t), intent(in) :: w
     type(field_t), intent(in) :: p
 
-!!$    call fgslib_findpts_eval(this%handle, this%out_fields(1,1), this%n_fields, &
-!!$         this%error_code, 1, &
-!!$         this%proc_owner, 1, &
-!!$         this%el_owner, 1, &
-!!$         this%rst, coef%msh%gdim, &
-!!$         this%n_probes, coef%dof%x)
-!!$
-!!$    call fgslib_findpts_eval(this%handle, this%out_fields(2,1), this%n_fields, &
-!!$         this%error_code, 1, &
-!!$         this%proc_owner, 1, &
-!!$         this%el_owner, 1, &
-!!$         this%rst, coef%msh%gdim, &
-!!$         this%n_probes, coef%dof%y)
-!!$
-!!$    call fgslib_findpts_eval(this%handle, this%out_fields(3,1), this%n_fields, &
-!!$         this%error_code, 1, &
-!!$         this%proc_owner, 1, &
-!!$         this%el_owner, 1, &
-!!$         this%rst, coef%msh%gdim, &
-!!$         this%n_probes, coef%dof%z)
-!!$
-!!$    call fgslib_findpts_eval(this%handle, this%out_fields(this%n_fields,1), 4, &
-!!$         this%error_code, 1, &
-!!$         this%proc_owner, 1, &
-!!$         this%el_owner, 1, &
-!!$         this%rst, coef%msh%gdim, &
-!!$         this%n_probes, u%x)
-!!$
+    call fgslib_findpts_eval(this%handle, this%out_fields(1,1), this%n_fields, &
+         this%error_code, 1, &
+         this%proc_owner, 1, &
+         this%el_owner, 1, &
+         this%rst, coef%msh%gdim, &
+         this%n_probes, coef%dof%x)
+
+    call fgslib_findpts_eval(this%handle, this%out_fields(2,1), this%n_fields, &
+         this%error_code, 1, &
+         this%proc_owner, 1, &
+         this%el_owner, 1, &
+         this%rst, coef%msh%gdim, &
+         this%n_probes, coef%dof%y)
+
+    call fgslib_findpts_eval(this%handle, this%out_fields(3,1), this%n_fields, &
+         this%error_code, 1, &
+         this%proc_owner, 1, &
+         this%el_owner, 1, &
+         this%rst, coef%msh%gdim, &
+         this%n_probes, coef%dof%z)
+
+    call fgslib_findpts_eval(this%handle, this%out_fields(this%n_fields,1), 4, &
+         this%error_code, 1, &
+         this%proc_owner, 1, &
+         this%el_owner, 1, &
+         this%rst, coef%msh%gdim, &
+         this%n_probes, u%x)
+
   end subroutine probes_interpolate
 
 end module probes
