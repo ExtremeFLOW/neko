@@ -87,7 +87,14 @@ contains
     class(jacobi_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
-    call col3(z,r,this%d,n)
+    integer :: i
+    !$omp parallel
+    !$omp do
+    do i = 1, n
+       z(i) = r(i) * this%d(i,1,1,1)
+    end do
+    !$omp end do
+    !$omp end parallel
   end subroutine jacobi_solve
 
   subroutine jacobi_update(this)
