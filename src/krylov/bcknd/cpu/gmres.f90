@@ -40,8 +40,8 @@ module gmres
   implicit none
   private
 
-  !> Standard preconditioned generalized minimal residual method 
-  type, public, extends(ksp_t) :: gmres_t
+  !> Base type for standard preconditioned GMRES
+  type, private, abstract, extends(ksp_t) :: gmres_base_t
      integer :: lgmres
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
@@ -52,6 +52,10 @@ module gmres
      real(kind=rp), allocatable :: s(:)
      real(kind=rp), allocatable :: gam(:)
      real(kind=rp), allocatable :: wk1(:)
+  end type gmres_base_t
+  
+  !> Standard preconditioned generalized minimal residual method 
+  type, public, extends(gmres_base_t) :: gmres_t
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -60,10 +64,10 @@ module gmres
 
   !> Standard preconditioned generalized minimal residual method
   !! OpenMP version
-  type, public, extends(gmres_t) :: gmres_omp_t
+  type, public, extends(gmres_base_t) :: gmres_omp_t
    contains
-     procedure, pass(this) :: init => gmres_init
-     procedure, pass(this) :: free => gmres_free
+     procedure, pass(this) :: init => gmres_omp_init
+     procedure, pass(this) :: free => gmres_omp_free
      procedure, pass(this) :: solve => gmres_omp_solve
   end type gmres_omp_t
 
@@ -353,10 +357,105 @@ contains
 
      end associate
 
-       ksp_results%res_final = rnorm
-       ksp_results%iter = iter
+     ksp_results%res_final = rnorm
+     ksp_results%iter = iter
+     
+   end function gmres_solve
 
-  end function gmres_solve
+   !> Initialise a standard GMRES solver (OpenMP version)
+   subroutine gmres_omp_init(this, n, M, lgmres, rel_tol, abs_tol)
+    class(gmres_omp_t), intent(inout) :: this
+    integer, intent(in) :: n
+    class(pc_t), optional, intent(inout), target :: M
+    integer, optional, intent(inout) :: lgmres
+    real(kind=rp), optional, intent(inout) :: rel_tol
+    real(kind=rp), optional, intent(inout) :: abs_tol
+
+    if (present(lgmres)) then
+       this%lgmres = lgmres
+    else
+       this%lgmres = 30
+    end if
+    
+
+    call this%free()
+    
+    if (present(M)) then 
+       this%M => M
+    end if
+
+    allocate(this%w(n))
+    allocate(this%r(n))
+    allocate(this%wk1(n))
+    
+    allocate(this%c(this%lgmres))
+    allocate(this%s(this%lgmres))
+    allocate(this%gam(this%lgmres + 1))
+    
+    allocate(this%z(n,this%lgmres))
+    allocate(this%v(n,this%lgmres))
+    
+    allocate(this%h(this%lgmres,this%lgmres))
+    
+       
+    if (present(rel_tol) .and. present(abs_tol)) then
+       call this%ksp_init(rel_tol, abs_tol)
+    else if (present(rel_tol)) then
+       call this%ksp_init(rel_tol=rel_tol)
+    else if (present(abs_tol)) then
+       call this%ksp_init(abs_tol=abs_tol)
+    else
+       call this%ksp_init(abs_tol)
+    end if
+          
+  end subroutine gmres_omp_init
+
+  !> Deallocate a standard GMRES solver (OpenMP version)
+  subroutine gmres_omp_free(this)
+    class(gmres_omp_t), intent(inout) :: this
+
+    call this%ksp_free()
+
+    if (allocated(this%w)) then
+       deallocate(this%w)
+    end if
+
+    if (allocated(this%c)) then
+       deallocate(this%c)
+    end if
+
+    if (allocated(this%r)) then
+       deallocate(this%r)
+    end if
+ 
+    if (allocated(this%z)) then
+       deallocate(this%z)
+    end if
+
+    if (allocated(this%h)) then
+       deallocate(this%h)
+    end if
+    
+    if (allocated(this%v)) then
+       deallocate(this%v)
+    end if
+    
+    if (allocated(this%s)) then
+       deallocate(this%s)
+    end if
+    
+    
+    if (allocated(this%gam)) then
+       deallocate(this%gam)
+    end if
+    
+    if (allocated(this%wk1)) then
+       deallocate(this%wk1)
+    end if
+    
+    nullify(this%M)
+    
+  end subroutine gmres_omp_free
 
   !> Standard GMRES solve (OpenMP version)
   function gmres_omp_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
@@ -411,7 +510,7 @@ contains
        end do
        !$omp end parallel do          
 
-       if(iter.ne.0) then          
+       if(iter .gt. 0) then          
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           !$omp parallel
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
@@ -473,14 +572,16 @@ contains
           !$omp parallel private(i,k)
           do i = 1, j
              !$omp single
-             this%h(i,j) = 0.0_rp
+             tmp_gam = 0.0_rp
              !$omp end single
-             !$omp do
+             !$omp do reduction(+:tmp_gam)
              do k = 1, n
-                this%h(i,j) = this%h(i,j) + &
-                     this%w(k) * this%v(k,i) * coef%mult(k,1,1,1)
+                tmp_gam = tmp_gam + this%w(k) * this%v(k,i) * coef%mult(k,1,1,1)
              end do
              !$omp end do
+             !$omp single
+             this%h(i,j) = tmp_gam
+             !$omp end single
           end do
           !$omp single
           
@@ -563,13 +664,15 @@ contains
           this%c(k) = temp / this%h(k,k)
        enddo
        !sum up Arnoldi vectors
+       !$omp parallel private(i)
        do i = 1, j
-          !$omp parallel do
+          !$omp do
           do k = 1, n
              x%x(k,1,1,1) = x%x(k,1,1,1) + this%c(i) * this%z(k,i)
           end do
-          !$omp end parallel do
+          !$omp end do
        end do
+       !$omp end parallel       
     end do
 
     ksp_results%res_final = rnorm
