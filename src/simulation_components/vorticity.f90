@@ -129,9 +129,10 @@ module vorticity
        class(vorticity_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-
+       !$omp parallel
        call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
                  this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
+       !$omp end parallel
   end subroutine vorticity_compute
   
 end module vorticity

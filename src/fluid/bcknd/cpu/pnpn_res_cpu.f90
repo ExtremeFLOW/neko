@@ -53,17 +53,17 @@ contains
     dtbd = bd / dt
     c_Xh%ifh2 = .false.
     
-    !$omp parallel do
+    !$omp parallel private(i)
+    !$omp do
     do i = 1, n
        c_Xh%h1(i,1,1,1) = 1.0_rp / rho
        c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
-    !$omp end parallel do
+    !$omp end do
     
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
-    !$omp parallel private(i)
     !$omp do
     do i = 1, n
        ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho &
@@ -154,8 +154,12 @@ contains
     integer, intent(in) :: n
     integer :: i
 
+    call neko_scratch_registry%request_field(ta1, temp_indices(1))
+    call neko_scratch_registry%request_field(ta2, temp_indices(2))
+    call neko_scratch_registry%request_field(ta3, temp_indices(3))
+    
     c_Xh%ifh2 = .true.    
-    !$omp parallel
+    !$omp parallel private(i)
     !$omp do
     do i = 1, n
        c_Xh%h1(i,1,1,1) = (1.0_rp / Re)
@@ -166,20 +170,16 @@ contains
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
     call Ax%compute(v_res%x, v%x, c_Xh, msh, Xh)
     call Ax%compute(w_res%x, w%x, c_Xh, msh, Xh)
-    !$omp end parallel
-    
-    call neko_scratch_registry%request_field(ta1, temp_indices(1))
-    call neko_scratch_registry%request_field(ta2, temp_indices(2))
-    call neko_scratch_registry%request_field(ta3, temp_indices(3))
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
-    !$omp parallel do
+    !$omp do
     do i = 1, n
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_Xh%u(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_Xh%v(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_Xh%w(i,1,1,1)
     end do
-    !$omp end parallel do
+    !$omp end do
+    !$omp end parallel
     
     call neko_scratch_registry%relinquish_field(temp_indices)
   

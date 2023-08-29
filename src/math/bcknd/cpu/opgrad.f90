@@ -52,7 +52,7 @@ contains
     real(kind=rp) :: ut(lx,lx,lx)
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -101,6 +101,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx
   
   subroutine cpu_opgrad_lx18(ux, uy, uz, u, dx, dy, dz, &
@@ -118,7 +119,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -206,6 +207,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx18
   
   subroutine cpu_opgrad_lx17(ux, uy, uz, u, dx, dy, dz, &
@@ -223,7 +225,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -308,6 +310,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx17
   
   subroutine cpu_opgrad_lx16(ux, uy, uz, u, dx, dy, dz, &
@@ -325,7 +328,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -407,6 +410,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx16
   
   subroutine cpu_opgrad_lx15(ux, uy, uz, u, dx, dy, dz, &
@@ -424,7 +428,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -503,6 +507,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx15
 
   subroutine cpu_opgrad_lx14(ux, uy, uz, u, dx, dy, dz, &
@@ -520,7 +525,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -596,6 +601,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx14
   
   subroutine cpu_opgrad_lx13(ux, uy, uz, u, dx, dy, dz, &
@@ -613,7 +619,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -686,6 +692,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx13
   
   subroutine cpu_opgrad_lx12(ux, uy, uz, u, dx, dy, dz, &
@@ -703,7 +710,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -773,6 +780,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx12
 
   subroutine cpu_opgrad_lx11(ux, uy, uz, u, dx, dy, dz, &
@@ -790,7 +798,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -857,6 +865,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx11
 
   subroutine cpu_opgrad_lx10(ux, uy, uz, u, dx, dy, dz, &
@@ -874,7 +883,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -938,6 +947,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx10
 
   subroutine cpu_opgrad_lx9(ux, uy, uz, u, dx, dy, dz, &
@@ -955,7 +965,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1016,6 +1026,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx9
 
   subroutine cpu_opgrad_lx8(ux, uy, uz, u, dx, dy, dz, &
@@ -1033,7 +1044,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1091,6 +1102,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx8
 
   subroutine cpu_opgrad_lx7(ux, uy, uz, u, dx, dy, dz, &
@@ -1108,7 +1120,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1163,6 +1175,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx7
 
   subroutine cpu_opgrad_lx6(ux, uy, uz, u, dx, dy, dz, &
@@ -1180,7 +1193,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1232,6 +1245,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx6
 
   subroutine cpu_opgrad_lx5(ux, uy, uz, u, dx, dy, dz, &
@@ -1249,7 +1263,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1298,6 +1312,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx5
 
   subroutine cpu_opgrad_lx4(ux, uy, uz, u, dx, dy, dz, &
@@ -1315,7 +1330,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1361,6 +1376,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx4
 
   subroutine cpu_opgrad_lx3(ux, uy, uz, u, dx, dy, dz, &
@@ -1378,7 +1394,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1421,6 +1437,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx3
 
   subroutine cpu_opgrad_lx2(ux, uy, uz, u, dx, dy, dz, &
@@ -1438,7 +1455,7 @@ contains
     real(kind=rp) :: us(lx,lx,lx)
     real(kind=rp) :: ut(lx,lx,lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1478,6 +1495,7 @@ contains
                         + dsdz(i,1,1,e) * us(i,1,1) )
        end do
     end do
+    !$omp end do
   end subroutine cpu_opgrad_lx2
 
 end module cpu_opgrad

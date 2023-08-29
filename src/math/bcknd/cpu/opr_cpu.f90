@@ -120,7 +120,7 @@ contains
          drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz)
-      !$omp parallel
+
       select case(Xh%lx)
       case(18)
          call cpu_opgrad_lx18(ux, uy, uz, u, &
@@ -250,7 +250,6 @@ contains
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
               Xh%w3, e_len, Xh%lx) 
       end select
-      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_opgrad
@@ -432,7 +431,6 @@ contains
 
     n = w1%dof%size()
     gdim = c_Xh%msh%gdim
-    !$omp parallel private(i)
     !     this%work1=dw/dy ; this%work2=dv/dz
     call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     if (gdim .eq. 3) then
@@ -486,7 +484,7 @@ contains
     call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w3, GS_OP_ADD)
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
-    !$omp end parallel
+
   end subroutine opr_cpu_curl
 
   function opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)

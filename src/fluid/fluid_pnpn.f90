@@ -387,7 +387,9 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
       else
+         !$omp parallel if(NEKO_BCKND_SX .eq. 0)
          call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
+         !$omp end parallel
       end if
 
       ! Add the advection operators to the right-hand-side.
@@ -508,7 +510,9 @@ contains
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
               du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
       else
+         !$omp parallel if(NEKO_BCKND_SX .eq. 0)
          call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
+         !$omp end parallel
       end if
 
       if (this%forced_flow_rate) then
