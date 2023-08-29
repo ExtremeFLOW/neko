@@ -55,21 +55,4 @@ makeneko user.f90
 ./neko user.case
 ```
 
-## Changing the number of points
-
-At line 44: set `N = ...` with the desired value
-
-## Which errors to expect
-
-The call at line 99 is suspected to mess everything up (`fgslib_findpts`). In the current configuration, it seems to be messing with the `elid` array, which contains the owning element for each point.
-
-Running with one rank should give the following output:
-
-```
-Rank #    List of process owners                     List of element owners              error code
-0       / 0     0     0     0     0 /         0  962592768     553     554     555 /0 1 0 1 1 
-```
-In the list of element owners, notice an ugly value at `elid(2)`, whereas `elid(3), elid(4)` and `elid(5)` are showing
-correct values since we are running on a 1000 element-mesh.
-
 
