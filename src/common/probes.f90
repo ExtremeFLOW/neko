@@ -38,7 +38,7 @@ module probes
   use num_types, only: rp
   use matrix, only: matrix_t
   use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error
+  use utils, only: neko_error, neko_warning
   use comm
   use mpi_types
   use field, only: field_t
@@ -54,7 +54,7 @@ module probes
      integer :: n_fields !< Number of output fields (fixed at 4 for now)
      integer, allocatable :: proc_owner(:) !< List of owning processes
      integer, allocatable :: el_owner(:)   !< List of owning elements
-     real, allocatable :: dist2(:) !< Distance squared between original
+     real(kind=rp), allocatable :: dist2(:) !< Distance squared between original
      ! and interpolated point (in xyz space)
      integer, allocatable :: error_code(:) !< Error code for each point
      real(kind=rp), allocatable :: rst(:) !< r,s,t coordinates, findpts format
@@ -68,6 +68,8 @@ module probes
        procedure, pass(this) :: free => probes_free
        !> Print current probe status, with number of probes and coordinates
        procedure, pass(this) :: show => probes_show
+       !> Show the status of processor/element owner and error code for each point
+       procedure, pass(this) :: debug => probes_debug
        !> Setup the probes for mapping process (with fgslib_findpts_setup).
        procedure, pass(this) :: setup => probes_setup
        !> Maps `x,y,z` to `r,s,t` coordinates.
@@ -131,6 +133,15 @@ contains
 
   end subroutine probes_show
 
+  subroutine probes_debug(this)
+    class(probes_t) :: this
+
+    ! Will show, for each point: process, process owner, element owner, error code
+    write (*, *) pe_rank, "/", this%proc_owner, "/" , this%el_owner, "/", this%error_code
+
+
+  end subroutine probes_debug
+
   !> Setup the probes for mapping process (with fgslib_findpts_setup).
   subroutine probes_setup(this, coef)
     class(probes_t), intent(inout) :: this
@@ -168,6 +179,9 @@ contains
     class(probes_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
 
+    real(kind=rp) :: tol_dist = 5d-6
+    integer :: i
+
     call fgslib_findpts(this%handle, &
          this%error_code, 1, &
          this%proc_owner, 1, &
@@ -177,15 +191,28 @@ contains
          this%xyz(1,1), coef%msh%gdim, &
          this%xyz(2,1), coef%msh%gdim, &
          this%xyz(3,1), coef%msh%gdim, this%n_probes)
-!!$
+
+    !
+    ! Final check to see if there are any problems
+    !
+    do i=1,this%n_probes
+       if (this%error_code(i) .eq. 1) then
+          if (this%dist2(i) .gt. tol_dist) then
+             call neko_warning("Point on boundary or outside the mesh!")
+          end if
+       end if
+
+       if (this%error_code(i) .eq. 2) call neko_warning("Point not within mesh!")
+    end do
+
+
   end subroutine probes_map
 
   !> Interpolate each probe from its `r,s,t` coordinates.
   !! @note At the moment the interpolation is performed on fields
   !! `u,v,w,p`.
-  subroutine probes_interpolate(this, coef, u, v, w, p)
+  subroutine probes_interpolate(this, u, v, w, p)
     class(probes_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
     type(field_t), intent(in) :: u
     type(field_t), intent(in) :: v
     type(field_t), intent(in) :: w
@@ -195,29 +222,29 @@ contains
          this%error_code, 1, &
          this%proc_owner, 1, &
          this%el_owner, 1, &
-         this%rst, coef%msh%gdim, &
-         this%n_probes, coef%dof%x)
+         this%rst, u%msh%gdim, &
+         this%n_probes, u%x)
 
     call fgslib_findpts_eval(this%handle, this%out_fields(2,1), this%n_fields, &
          this%error_code, 1, &
          this%proc_owner, 1, &
          this%el_owner, 1, &
-         this%rst, coef%msh%gdim, &
-         this%n_probes, coef%dof%y)
+         this%rst, v%msh%gdim, &
+         this%n_probes, v%x)
 
     call fgslib_findpts_eval(this%handle, this%out_fields(3,1), this%n_fields, &
          this%error_code, 1, &
          this%proc_owner, 1, &
          this%el_owner, 1, &
-         this%rst, coef%msh%gdim, &
-         this%n_probes, coef%dof%z)
+         this%rst, w%msh%gdim, &
+         this%n_probes, w%x)
 
     call fgslib_findpts_eval(this%handle, this%out_fields(this%n_fields,1), 4, &
          this%error_code, 1, &
          this%proc_owner, 1, &
          this%el_owner, 1, &
-         this%rst, coef%msh%gdim, &
-         this%n_probes, u%x)
+         this%rst, p%msh%gdim, &
+         this%n_probes, p%x)
 
   end subroutine probes_interpolate
 
