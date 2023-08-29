@@ -6,6 +6,10 @@
     "output_boundary": true,
     "end_time": 250,
     "timestep": 2e-3,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 50,
+    "job_timelimit": "12:00:00",
     "numerics": {
         "time_order": 3,
         "polynomial_order": 7,
@@ -15,7 +19,7 @@
         "scheme": "pnpn",
         "rho": 1,
         "mu": 1,
-        "Re": 10000,
+        "Re": 1e4,
         "source_term": {
             "type": "user_vector"
         },
@@ -45,6 +49,16 @@
     "scalar": {
         "enabled": true,
         "Pr": 1.0
+    },
+    "probes": {
+        "pts_in_filename":  "int_pos.csv",
+        "pts_out_filename": "output.csv",
+        "n_fields": 2,
+        "fields": ["w","s"],
+        "sampler":{
+            "write_control": "simulationtime",
+            "write_par"    : 1,
+        }
     }
 }
 }
