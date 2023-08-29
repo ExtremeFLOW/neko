@@ -502,31 +502,27 @@ contains
 
     outer = 0
     do while (.not. conv .and. iter .lt. niter)
-       outer = outer + 1
-
-       !$omp parallel do
+       outer = outer + 1       
+       tmp_gam = 0.0_rp ! r^T mult r reduction
+       
+       !$omp parallel
+       !$omp do
        do i = 1, n
           this%r(i) = f(i)
        end do
-       !$omp end parallel do          
+       !$omp end do          
 
        if(iter .gt. 0) then          
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
-          !$omp parallel
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
-          !$omp end parallel
           call bc_list_apply(blst, this%w, n)
-          !$omp parallel
           !$omp do
           do i = 1, n
              this%r(i) = this%r(i) - this%w(i)
           end do          
           !$omp end do
-          !$omp end parallel
        endif
-
-       tmp_gam = 0.0_rp
-       !$omp parallel
+       
        !$omp do reduction(+:tmp_gam)
        do i = 1, n
           tmp_gam = tmp_gam + (this%r(i) * coef%mult(i,1,1,1) * this%r(i))
@@ -563,13 +559,11 @@ contains
           !Apply precond
           call this%M%solve(this%z(1,j), this%w, n)
 
+          !$omp parallel private(i,k)
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
-          !$omp parallel
           call gs_op(gs_h, this%w, n, GS_OP_ADD)
-          !$omp end parallel
           call bc_list_apply(blst, this%w, n)
 
-          !$omp parallel private(i,k)
           do i = 1, j
              !$omp single
              tmp_gam = 0.0_rp

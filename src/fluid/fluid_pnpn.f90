@@ -428,10 +428,9 @@ contains
 
       !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
       call gs_op(gs_Xh, p_res, GS_OP_ADD)
-      !$omp end parallel
 
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
-
+      !$omp end parallel
       call profiler_end_region
 
       if( tstep .gt. 5 .and. pr_projection_dim .gt. 0) then
@@ -472,12 +471,11 @@ contains
       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
       call gs_op(gs_Xh, w_res, GS_OP_ADD)
-      !$omp end parallel
 
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                 t, tstep)
-      
+      !$omp end parallel      
       call profiler_end_region
       
       if (tstep .gt. 5 .and. vel_projection_dim .gt. 0) then 

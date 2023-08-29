@@ -20,7 +20,7 @@ math/mathops.o : math/mathops.f90 config/num_types.o
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
 sem/space.o : sem/space.f90 math/math.o math/fast3d.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
 sem/dofmap.o : sem/dofmap.f90 math/math.o device/device.o math/tensor.o math/fast3d.o common/utils.o config/num_types.o adt/tuple.o sem/space.o mesh/mesh.o config/neko_config.o 
-sem/coef.o : sem/coef.f90 math/mxm_wrapper.o sem/bcknd/device/device_coef.o device/device.o mesh/mesh.o math/math.o sem/space.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
+sem/coef.o : sem/coef.f90 math/mxm_wrapper.o sem/bcknd/device/device_coef.o device/device.o mesh/mesh.o sem/space.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 sem/cpr.o : sem/cpr.f90 math/mxm_wrapper.o math/tensor.o sem/coef.o mesh/mesh.o math/math.o sem/space.o field/field.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 sem/interpolation.o : sem/interpolation.f90 mesh/point.o sem/coef.o math/mxm_wrapper.o sem/space.o math/bcknd/cpu/tensor_cpu.o math/tensor.o field/field.o math/fast3d.o math/math.o common/utils.o device/device.o sem/speclib.o 
 sem/point_interpolator.o : sem/point_interpolator.f90 common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o sem/coef.o math/tensor.o 
@@ -70,7 +70,7 @@ math/bcknd/sx/sx_dudxyz.o : math/bcknd/sx/sx_dudxyz.f90 math/math.o config/num_t
 math/bcknd/sx/sx_opgrad.o : math/bcknd/sx/sx_opgrad.f90 config/num_types.o 
 math/bcknd/sx/sx_cfl.o : math/bcknd/sx/sx_cfl.f90 config/num_types.o 
 math/operators.o : math/operators.f90 math/math.o field/field.o sem/coef.o sem/space.o math/bcknd/device/opr_device.o math/bcknd/xsmm/opr_xsmm.o math/bcknd/sx/opr_sx.o math/bcknd/cpu/opr_cpu.o config/num_types.o config/neko_config.o 
-math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/opgrad.o math/bcknd/cpu/dudxyz.o 
+math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o sem/coef.o sem/space.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/opgrad.o math/bcknd/cpu/dudxyz.o 
 math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o math/bcknd/sx/sx_cfl.o math/bcknd/sx/sx_cdtp.o math/bcknd/sx/sx_conv1.o math/bcknd/sx/sx_opgrad.o math/bcknd/sx/sx_dudxyz.o 
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
 math/bcknd/device/opr_device.o : math/bcknd/device/opr_device.F90 common/utils.o math/mathops.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o device/device.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o config/num_types.o gs/gather_scatter.o 

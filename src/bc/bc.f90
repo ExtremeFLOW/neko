@@ -504,7 +504,6 @@ contains
           end do
        end if
     else
-       !$omp parallel if (NEKO_BCKND_SX .ne. 1)
        if (present(t) .and. present(tstep)) then
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_scalar(x, n, t, tstep)
@@ -522,7 +521,6 @@ contains
              call bclst%bc(i)%bcp%apply_scalar(x, n)
           end do
        end if
-       !$omp end parallel
     end if
 
   end subroutine bc_list_apply_scalar
@@ -569,7 +567,6 @@ contains
           end do
        end if
     else
-       !$omp parallel private(i) if (NEKO_BCKND_SX .ne. 1)
        if (present(t) .and. present(tstep)) then
           do i = 1, bclst%n
              call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t, tstep)
@@ -587,7 +584,6 @@ contains
              call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
           end do
        end if
-       !$omp end parallel
     end if
 
   end subroutine bc_list_apply_vector

@@ -438,7 +438,7 @@ contains
        call device_stream_wait_event(aux_cmd_queue, this%event, 0)
     else
        call bc_list_apply_scalar(this%bclst, r, n)
-       !$omp parallel       
+
        call schwarz_toext3d(work1, r, this%Xh%lx, this%msh%nelv)
 
        !  exchange interior nodes
@@ -463,11 +463,11 @@ contains
 
        ! sum border nodes
        call gs_op(this%gs_h, e, n, GS_OP_ADD)
-       !$omp end parallel
+
        call bc_list_apply_scalar(this%bclst, e, n)
-       !$omp parallel
+
        call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
-       !$omp end parallel
+
     end if
   end associate
   end subroutine schwarz_compute

@@ -683,8 +683,10 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+    !$omp end parallel
   end subroutine fluid_scheme_bc_apply_vel
   
   !> Apply all boundary conditions defined for pressure
@@ -693,8 +695,10 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
     call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
                               this%p%dof%size(), t, tstep)
+    !$omp end parallel
   end subroutine fluid_scheme_bc_apply_prs
   
   !> Initialize a linear solver

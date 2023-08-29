@@ -39,7 +39,6 @@ module opr_cpu
   use num_types
   use space
   use coefs
-  use math
   use mesh
   use field
   use gather_scatter
@@ -60,7 +59,6 @@ contains
          intent(in) ::  u, dr, ds, dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      !$omp parallel
       select case(coef%Xh%lx)
       case(14)
          call cpu_dudxyz_lx14(du, u, dr, ds, dt, & 
@@ -105,7 +103,6 @@ contains
          call cpu_dudxyz_lx(du, u, dr, ds, dt, & 
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv, Xh%lx)
       end select
-      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_dudxyz
@@ -267,7 +264,6 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      !$omp parallel
       select case(Xh%lx)
       case(14)
          call cpu_cdtp_lx14(dtx, x, dr, ds, dt, &
@@ -312,7 +308,6 @@ contains
          call cpu_cdtp_lx(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv, Xh%lx)
       end select
-      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_cdtp
@@ -433,41 +428,65 @@ contains
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in)  :: c_Xh
-    integer :: gdim, n
+    integer :: gdim, n, i
 
     n = w1%dof%size()
     gdim = c_Xh%msh%gdim
-
+    !$omp parallel private(i)
     !     this%work1=dw/dy ; this%work2=dv/dz
     call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     if (gdim .eq. 3) then
        call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
+       !$omp do
+       do i = 1, n
+          w1%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+       end do
+       !$omp end do
     else
-       call copy(w1%x, work1%x, n)
+       !$omp do
+       do i = 1, n
+          w1%x(i,1,1,1) = work1%x(i,1,1,1)
+       end do
+       !$omp end do
     end if
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
        call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
        call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+       !$omp do
+       do i = 1, n
+          w2%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+       end do
+       !$omp end do
     else
-       call rzero(work1%x, n)
+       !$omp do
+       do i = 1, n
+          work1%x(i,1,1,1) = 0.0_rp
+       end do
+       !$omp end do
        call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+       !$omp do
+       do i = 1, n
+          w2%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+       end do
+       !$omp end do
     end if
     !     this%work1=dv/dx ; this%work2=du/dy
     call opr_cpu_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call opr_cpu_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
+    !$omp do
+    do i = 1, n
+       w3%x(i,1,1,1) = work1%x(i,1,1,1) - work2%x(i,1,1,1)
+    end do
+    !$omp end do
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
     call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
     call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
+    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD)
     call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
-
+    !$omp end parallel
   end subroutine opr_cpu_curl
 
   function opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)

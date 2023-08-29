@@ -225,10 +225,11 @@ contains
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x 
     type(c_ptr) :: x_d
+    integer :: i
 
     call profiler_start_region('Project back')
     this%m = min(this%m+1,this%L)
-
+    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
@@ -236,19 +237,33 @@ contains
        call device_copy(this%xx_d(this%m),x_d,n)   ! Update (X,B)
 
     else
-       if (this%m.gt.0) call add2(x,this%xbar,n)      ! Restore desired solution
-       call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
+       if (this%m .gt. 0) then
+          ! Restore desired solution          
+          !$omp do
+          do i = 1, n
+             x(i) = x(i) + this%xbar(i)
+          end do
+          !$omp end do
+       end if
+       ! Update (X,B)
+       !$omp do
+       do i = 1, n
+          this%xx(i, this%m) = x(i)
+       end do
+       !$omp end do
     end if
 
     call Ax%compute(this%bb(1,this%m), x, coef, coef%msh, coef%Xh)
     call gs_op_vector(gs_h, this%bb(1,this%m), n, GS_OP_ADD)
     call bc_list_apply_scalar(bclst, this%bb(1,this%m), n)
 
+    !$omp end parallel
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
     else
        call cpu_proj_ortho  (this,this%xx,this%bb,coef%mult,n) 
     end if
+
     call profiler_end_region
   end subroutine bcknd_project_back
  

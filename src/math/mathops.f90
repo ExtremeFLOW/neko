@@ -73,7 +73,7 @@ contains
     integer, intent(in) :: n, gdim
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
     integer :: i
-    !$omp parallel private(i)
+
     if (gdim .eq. 3) then
        !$omp do
        do i = 1, n
@@ -90,7 +90,7 @@ contains
        end do
        !$omp end do
     end if
-    !$omp end parallel
+
   end subroutine opchsign
   
   !> \f$ a_i(j) = a_i(j) * c(j) \f$
@@ -99,7 +99,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a1, a2, a3
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
-    !$omp parallel private(i)
+
     if (gdim .eq. 3) then
        !$omp do
        do i = 1, n
@@ -116,7 +116,7 @@ contains
        end do
        !$omp end do
     end if
-    !$omp end parallel
+
   end subroutine opcolv
 
   !> \f$ a_i(j) = b_i(j) * c(j) * d \f$ 
@@ -126,7 +126,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b1, b2, b3
     real(kind=rp), intent(in) :: c(n), d
     integer :: i
-    !$omp parallel private(i)
+
     if (gdim .eq. 3) then
        !$omp do
        do i = 1, n
@@ -143,7 +143,7 @@ contains
        end do
        !$omp end do
     endif
-    !$omp end parallel
+
   end subroutine opcolv3c
 
   !> \f$ a_i(j) = a_i(j) + b_i(j) * c \f$ 
@@ -153,7 +153,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b1, b2, b3
     real(kind=rp), intent(in) :: c
     integer :: i
-    !$omp parallel private(i)
+
     if (gdim .eq. 3) then
        !$omp do
        do i = 1, n
@@ -170,7 +170,7 @@ contains
        end do
        !$omp end do
     endif
-    !$omp end parallel
+
   end subroutine opadd2cm
 
   !> \f$ a_i(j) = a_i(j) + b_i(j) * c(j) \f$
@@ -180,7 +180,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b1, b2, b3
     real(kind=rp), intent(in) :: c(n)
     integer :: i
-    !$omp parallel private(i)
+
     if (gdim .eq. 3) then
        !$omp do
        do i = 1, n
@@ -197,7 +197,7 @@ contains
        end do
        !$omp end do
     endif
-    !$omp end parallel
+
   end subroutine opadd2col
   
 end module mathops

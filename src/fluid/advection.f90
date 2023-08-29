@@ -421,6 +421,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: fx, fy, fz
     type(c_ptr) :: fx_d, fy_d, fz_d
+    integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        fx_d = device_get_ptr(fx)
@@ -438,16 +439,34 @@ contains
           call device_subcol3(fz_d, coef%B_d, this%temp_d, n)
        end if
     else
+       !$omp parallel private(i)
        call conv1(this%temp, vx%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fx, coef%B, this%temp, n)
+       !$omp do
+       do i = 1, n
+          fx(i) = fx(i) - coef%B(i,1,1,1) * this%temp(i)
+       end do
+       !$omp end do
        call conv1(this%temp, vy%x, vx%x, vy%x, vz%x, Xh, coef)
-       call subcol3 (fy, coef%B, this%temp, n)
+      !$omp do
+       do i = 1, n
+          fy(i) = fy(i) - coef%B(i,1,1,1) * this%temp(i)
+       end do
+       !$omp end do
        if (coef%Xh%lz .eq. 1) then
-          call rzero (this%temp, n)
+          !$omp do
+          do i = 1, n
+             this%temp(i) = 0.0_rp
+          end do
+          !$omp end do
        else
           call conv1(this%temp, vz%x, vx%x, vy%x, vz%x, Xh, coef)
-          call subcol3(fz, coef%B, this%temp, n)
+          !$omp do
+          do i = 1, n
+             fz(i) = fz(i) - coef%B(i,1,1,1) * this%temp(i)
+          end do
+          !$omp end do
        end if
+       !$omp end parallel
     end if
 
   end subroutine compute_advection_no_dealias

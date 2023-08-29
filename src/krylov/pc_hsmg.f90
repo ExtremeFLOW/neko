@@ -427,17 +427,16 @@ contains
        call device_event_sync(this%gs_event)
        call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%size())
     else
+       !$omp parallel private(i)
        !We should not work with the input
-       !$omp parallel do
+       !$omp do 
        do i = 1, n
           this%r(i) = r(i)
        end do
-       !$omp end parallel do
+       !$omp end do
 
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(3)%schwarz%compute(z, this%r)
-
-       !$omp parallel private(i)
        
        ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        !$omp do
@@ -451,12 +450,10 @@ contains
                                      this%msh%nelv, this%grids(2)%Xh)
        call gs_op(this%grids(2)%gs_h, this%w, &
                   this%grids(2)%dof%size(), GS_OP_ADD)
-       !$omp end parallel
        
        !OVERLAPPING Schwarz exchange and solve       
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
 
-       !$omp parallel private(i)
        !$omp do
        do i = 1, this%grids(2)%dof%size()
           this%w(i) = this%w(i) * this%grids(2)%coef%mult(i,1,1,1)
@@ -469,9 +466,10 @@ contains
 
        call gs_op(this%grids(1)%gs_h, this%r, &
                   this%grids(1)%dof%size(), GS_OP_ADD)
-       !$omp end parallel       
+
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
+       !$omp end parallel       
        call profiler_start_region('HSMG coarse-solve')
        crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                                     this%grids(1)%dof%size(), &
@@ -479,10 +477,10 @@ contains
                                     this%grids(1)%bclst, &
                                     this%grids(1)%gs_h, this%niter)
        call profiler_end_region
+       !$omp parallel private(i)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
-       !$omp parallel private(i)
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
                                     this%msh%nelv, this%grids(2)%Xh)
 

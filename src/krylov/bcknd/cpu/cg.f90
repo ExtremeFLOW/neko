@@ -378,16 +378,15 @@ contains
           this%p(i) = beta * this%p(i) + this%z(i)
        end do
        !$omp end do
-       !$omp end parallel
        
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
-       !$omp parallel
        call gs_op(gs_h, this%w, n, GS_OP_ADD)
-       !$omp end parallel
        call bc_list_apply(blst, this%w, n)
 
+       !$omp single
        pap = 0.0_rp
-       !$omp parallel
+       !$omp end single
+
        !$omp do reduction(+:pap)
        do i = 1, n
           pap = pap + (this%w(i) * coef%mult(i,1,1,1) * this%p(i))

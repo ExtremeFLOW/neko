@@ -50,7 +50,6 @@ contains
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     integer :: i
     
-    !$omp parallel
     select case(Xh%lx)
     case (14)
        call ax_helm_lx14(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
@@ -104,7 +103,6 @@ contains
        end do
        !$omp end do
     end if
-    !$omp end parallel
  
   end subroutine ax_helm_compute
 
