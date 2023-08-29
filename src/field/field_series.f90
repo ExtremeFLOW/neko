@@ -99,12 +99,13 @@ contains
   subroutine field_series_update(this)
     class(field_series_t), intent(inout) :: this
     integer :: i
-
+    !$omp parallel private(i)
     do i = this%len, 2, -1
        this%lf(i) = this%lf(i-1)
     end do
 
     this%lf(1) = this%f
+    !$omp end parallel
     
   end subroutine field_series_update
 
@@ -113,11 +114,11 @@ contains
     class(field_series_t), intent(inout) :: this
     type(field_t), intent(in) :: g
     integer :: i
-
+    !$omp parallel
     do i = 1, this%len
        this%lf(i) = g
     end do
-    
+    !$omp end parallel
   end subroutine field_series_set
   
 end module field_series

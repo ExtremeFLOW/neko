@@ -37,7 +37,6 @@ module field
   use device_math
   use num_types
   use device
-  use math
   use mesh
   use space
   use dofmap
@@ -177,7 +176,7 @@ contains
   subroutine field_assign_field(f, g)
     type(field_t), intent(inout) :: f
     type(field_t), intent(in) :: g
-    integer :: n
+    integer :: i, n
 
     if (allocated(f%x)) then
        if (f%Xh .ne. g%Xh) then
@@ -210,7 +209,11 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(f%x_d, g%x_d, n)
     else
-       call copy(f%x, g%x, n)
+       !$omp do
+       do i = 1, n
+          f%x(i, 1, 1, 1) = g%x(i, 1, 1, 1)
+       end do
+       !$omp end do
     end if
     
   end subroutine field_assign_field
@@ -219,21 +222,17 @@ contains
   subroutine field_assign_scalar(f, a)
     type(field_t), intent(inout) :: f
     real(kind=rp), intent(in) :: a
-    integer :: n, i, j, k, l
+    integer :: i, n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(f%x_d, a, n)
     else
-       do i = 1, f%msh%nelv
-          do l = 1, f%Xh%lz
-             do k = 1, f%Xh%ly
-                do j = 1, f%Xh%lx
-                   f%x(j, k, l, i) = a
-                end do
-             end do
-          end do
+       !$omp do
+       do i = 1, n
+          f%x(i, 1, 1, 1) = a
        end do
+       !$omp end do
     end if
     
   end subroutine field_assign_scalar
@@ -244,13 +243,17 @@ contains
   subroutine field_add_field(f, g)
     type(field_t), intent(inout) :: f
     type(field_t), intent(in) :: g
-    integer :: n
+    integer :: i, n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(f%x_d, g%x_d, n)
     else
-       call add2(f%x, g%x, n)
+       !$omp do
+       do i = 1, n
+          f%x(i, 1, 1, 1) = f%x(i, 1, 1, 1) + g%x(i, 1, 1, 1)
+       end do
+       !$omp end do
     end if
 
   end subroutine field_add_field
@@ -261,13 +264,17 @@ contains
   subroutine field_add_scalar(f, a)
     type(field_t), intent(inout) :: f
     real(kind=rp), intent(in) :: a
-    integer :: n
+    integer :: i, n
 
     n = f%msh%nelv * f%Xh%lx * f%Xh%ly * f%Xh%lz
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd(f%x_d, a, n)
     else
-       call cadd(f%x, a, n)
+       !$omp do
+       do i = 1, n
+          f%x(i, 1, 1, 1) = f%x(i, 1, 1, 1) + a
+       end do
+       !$omp end do
     end if
 
   end subroutine field_add_scalar
