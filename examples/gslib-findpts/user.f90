@@ -38,17 +38,16 @@ contains
 
     type(matrix_t) :: mat_coords
 
-    real(kind=rp) :: delta = 0.04_rp
+    real(kind=rp) :: delta = 0.01_rp
 
     ! ******** # of POINTS *******
-    integer, parameter :: N = 5
+    integer, parameter :: N = 8
     ! ****************************
     integer, parameter :: nfields = 4
     integer :: handle
-    real(kind=rp) :: xyz_raw(3,N)
-    integer :: proc(N), elid(N), dist(N), rcode(N)
-    real(kind=rp) :: rst_raw(3*N)
-    real(kind=rp) :: interpolated_field(nfields,N)
+    real(kind=rp) :: xyz_raw(3,N), rst_raw(3*N), interpolated_field(nfields,N)
+    integer :: proc(N), elid(N), rcode(N)
+    real(kind=rp) :: dist(N)
 
     integer :: i, lx, ly, lz, ierr, nelv, j
     real(kind=rp) :: tol_dist ! Copied from Nek5000 hpts, tolerance for border points
@@ -67,9 +66,9 @@ contains
     xyz_raw(:,3) = (/-0.7,-0.5,-0.5/)
     xyz_raw(:,4) = (/-0.6,-0.5,-0.5/)
     xyz_raw(:,5) = (/-0.5,-0.5,-0.5/)
-!!$    xyz_raw(:,6) = (/-0.3,-0.5,-0.5/)
-!!$    xyz_raw(:,7) = (/-0.2,-0.5,-0.5/)
-!!$    xyz_raw(:,8) = (/-0.6,-0.2,-0.5/)
+    xyz_raw(:,6) = (/-0.3,-0.5,-0.5/)
+    xyz_raw(:,7) = (/-0.2,-0.5,-0.5/)
+    xyz_raw(:,8) = (/-0.6,-0.2,-0.5/)
 
     do j = 1,N
        do i = 1,3
