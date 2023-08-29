@@ -239,7 +239,7 @@ contains
          this%rst, w%msh%gdim, &
          this%n_probes, w%x)
 
-    call fgslib_findpts_eval(this%handle, this%out_fields(this%n_fields,1), 4, &
+    call fgslib_findpts_eval(this%handle, this%out_fields(4,1), this%n_fields, &
          this%error_code, 1, &
          this%proc_owner, 1, &
          this%el_owner, 1, &
