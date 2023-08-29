@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import sys 
 sys.path.append('./MODULES')
 import reader
+import csv
 
 class point:
     """class defining point variables"""
@@ -50,6 +51,18 @@ def write_int_pos(fname,wdsize,emode,data):
         data_pos = getattr(lptn,'pos')
         outfile.write(struct.pack(emode+data.ldim*realtype, *data_pos))
 
+def write_int_pos_csv(fname,data):
+    """ write point positions to the file"""
+    # open file
+    outfile = open(fname, 'w')
+    
+    writer = csv.writer(outfile)
+
+    for il in range(data.npoints):
+        lptn = data.pset[il]
+        data_pos = getattr(lptn,'pos')
+        writer.writerow(data_pos)
+
 def disk(Rmax,compressedMesh,ReTau,drp1,nR,nTh):
     """ polar mesh over a circular disk """
     if (compressedMesh==int(1)):
@@ -84,6 +97,7 @@ def disk(Rmax,compressedMesh,ReTau,drp1,nR,nTh):
 if __name__ == "__main__":
     # initialise variables
     fname = 'int_pos'
+    fname_csv = 'int_pos.csv'
     wdsize = 8
     # little endian
     emode = '<'
@@ -96,15 +110,14 @@ if __name__ == "__main__":
     nR = Ny
     nTh = Nx
 
-
     #
     # generate polar mesh over a circular disk
     xx,yy,theta = disk(Rmax,compressedMesh,ReTau,drp1,nR,nTh)
     
     # allocate space
-    ldim = 2   #2D grid
+    ldim = 3   #3D grid
     npoints = xx.size
-    data = pset(ldim,npoints)    
+    data = pset(ldim,npoints)
     print('Allocated {0} points'.format(npoints))
 
     # initialise point positions
@@ -115,19 +128,23 @@ if __name__ == "__main__":
     
     X = np.transpose(xx)
     Y = np.transpose(yy)
+    Z = np.ones_like(X)*0.3
 
     x = X.flatten()
     y = Y.flatten()
+    z = Z.flatten()
      
 
     for il in range(0,nR*nTh):
        lpos[0]=x[il]
        lpos[1]=y[il]
+       lpos[2]=z[il]
        set_pnt_pos(data,il,lpos)
        il = il +1
 
     # write points to the file
     write_int_pos(fname,wdsize,emode,data)
+    write_int_pos_csv(fname_csv,data)
 
     # plot the mesh
     plt.plot(x,y,'.b')
