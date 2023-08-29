@@ -3,7 +3,7 @@
     "case": {
         "mesh_file": "mesh.nmsh",
         "timestep": 2e-3,
-        "end_time": 2e-3,
+        "end_time": 1e-1,
         "numerics": {
             "time_order": 3,
             "polynomial_order": 4,
