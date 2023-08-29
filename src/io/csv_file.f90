@@ -303,7 +303,12 @@ contains
     n_fields = 4 ! # of fields hardcoded here, u,v,w,p
 
     ! Initialize probes_t object
-    call p%init(n_lines, n_fields)
+    !!> conditional incase fields are not hardcoded
+    if (p%n_fields.eq.0) then
+        call p%init(n_lines, n_fields)
+    else
+        call p%init(n_lines, p%n_fields)
+    end if
 
     !
     ! Read xyz coordinates

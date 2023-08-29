@@ -43,6 +43,12 @@ module probes
   use mpi_types
   use field, only: field_t
   use coefs, only: coef_t
+  use field_list
+  use time_based_controller
+  use field_registry
+  use json_module, only : json_file, json_value, json_core
+  use json_utils
+  use device
   implicit none
 
   character(len=LOG_SIZE) :: log_buf ! For logging status
@@ -51,7 +57,7 @@ module probes
 
      integer :: handle !< handle to pass in each findpts call
      integer :: n_probes !< Number of probes
-     integer :: n_fields !< Number of output fields (fixed at 4 for now)
+     integer :: n_fields = 0 !< Number of output fields (fixed at 4 for now)
      integer, allocatable :: proc_owner(:) !< List of owning processes
      integer, allocatable :: el_owner(:)   !< List of owning elements
      real(kind=rp), allocatable :: dist2(:) !< Distance squared between original
@@ -60,10 +66,17 @@ module probes
      real(kind=rp), allocatable :: rst(:) !< r,s,t coordinates, findpts format
      real(kind=rp), allocatable :: xyz(:,:) !< x,y,z coordinates, findpts format
      real(kind=rp), allocatable :: out_fields(:,:) !< interpolated fields
+     ! Time based controller for sampling
+     type(time_based_controller_t), allocatable :: controllers(:)
+     ! Fields to be probed
+     type(field_list_t) :: int_fields
+     character(len=20), allocatable  :: which_fields(:)
 
      contains
        !> Initialize probes object.
        procedure, pass(this) :: init => probes_init
+       !> Initialize user defined parameters.
+       procedure, pass(this) :: usr_init => probes_usr_init
        !> Destructor
        procedure, pass(this) :: free => probes_free
        !> Print current probe status, with number of probes and coordinates
@@ -102,6 +115,50 @@ contains
 
   end subroutine probes_init
 
+  !> Initialize user defined variables.
+  !! @param params case file
+  subroutine probes_usr_init(this, t, params)
+    class(probes_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    type(json_file), intent(inout) :: params
+    ! Counter
+    integer :: i
+    ! Controller parameters 
+    real(kind=rp)                  :: T_end
+    real(kind=rp)                  :: write_par
+    character(len=:), allocatable  :: write_control
+
+
+    !> Fields
+    ! Read the data from case file
+    call json_get(params, 'case.probes.fields', this%which_fields) 
+    ! List with fields
+    allocate(this%int_fields%fields(this%n_fields))
+    do i = 1, this%n_fields
+       this%int_fields%fields(i)%f => neko_field_registry%get_field(&
+                                          trim(this%which_fields(i)))
+    end do
+
+    !> Controllers
+    ! Read the data from the case file
+    call json_get(params, 'case.end_time', T_end)
+    call json_get(params, 'case.probes.sampler.write_control', &
+                                             write_control)
+    call json_get(params, 'case.probes.sampler.write_par', &
+                                                 write_par)     
+    ! Calculate relevant parameters and restart                     
+    allocate(this%controllers(1))
+    call this%controllers(1)%init(T_end, write_control, &
+                                  write_par)
+    ! Update nexecutions in restarts
+    if (this%controllers(1)%nsteps .eq. 0) then
+        this%controllers(1)%nexecutions = &
+               int(t / this%controllers(1)%time_interval) + 1
+    end if
+
+  end subroutine probes_usr_init
+
+
   !> Destructor
   subroutine probes_free(this)
     class(probes_t), intent(inout) :: this
@@ -113,6 +170,7 @@ contains
     if (allocated(this%dist2))       deallocate(this%dist2)
     if (allocated(this%error_code)) deallocate(this%error_code)
     if (allocated(this%out_fields)) deallocate(this%out_fields)
+    if (allocated(this%int_fields%fields)) deallocate(this%int_fields%fields)
 
     call fgslib_findpts_free(this%handle)
 
@@ -123,11 +181,19 @@ contains
     class(probes_t), intent(in) :: this
     integer :: i
 
+    !> Probes summary
     write(log_buf, '(A,I6)') "Number of probes: ", this%n_probes
     call neko_log%message(log_buf)
     call neko_log%message("xyz-coordinates:")
     do i=1,this%n_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
+       call neko_log%message(log_buf)
+    end do
+    !> Field summary
+    write(log_buf, '(A,I6)') "Number of fields: ", this%n_fields
+    call neko_log%message(log_buf)
+    do i=1,this%n_fields
+       write(log_buf, '(A,I6, A ,A)') "Field: ", i, " ", trim(this%which_fields(i))
        call neko_log%message(log_buf)
     end do
 
@@ -202,49 +268,54 @@ contains
           end if
        end if
 
-       if (this%error_code(i) .eq. 2) call neko_warning("Point not within mesh!")
+       if (this%error_code(i) .eq. 2) call neko_warning("Point not within the mesh!")
     end do
 
 
   end subroutine probes_map
 
   !> Interpolate each probe from its `r,s,t` coordinates.
-  !! @note At the moment the interpolation is performed on fields
-  !! `u,v,w,p`.
-  subroutine probes_interpolate(this, u, v, w, p)
+  subroutine probes_interpolate(this, t, tstep, write_output)
     class(probes_t), intent(inout) :: this
-    type(field_t), intent(in) :: u
-    type(field_t), intent(in) :: v
-    type(field_t), intent(in) :: w
-    type(field_t), intent(in) :: p
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep    
+    logical, intent(inout) :: write_output
 
-    call fgslib_findpts_eval(this%handle, this%out_fields(1,1), this%n_fields, &
-         this%error_code, 1, &
-         this%proc_owner, 1, &
-         this%el_owner, 1, &
-         this%rst, u%msh%gdim, &
-         this%n_probes, u%x)
+    !> Supporting variables
+    integer :: il 
+    integer :: n
+    
+    n = this%int_fields%fields(1)%f%dof%size()
 
-    call fgslib_findpts_eval(this%handle, this%out_fields(2,1), this%n_fields, &
-         this%error_code, 1, &
-         this%proc_owner, 1, &
-         this%el_owner, 1, &
-         this%rst, v%msh%gdim, &
-         this%n_probes, v%x)
+    !> Check controller to determine if we must write
+    if (this%controllers(1)%check(t, tstep, .false.)) then
 
-    call fgslib_findpts_eval(this%handle, this%out_fields(3,1), this%n_fields, &
-         this%error_code, 1, &
-         this%proc_owner, 1, &
-         this%el_owner, 1, &
-         this%rst, w%msh%gdim, &
-         this%n_probes, w%x)
+       !! Interpolate the fields
+       do il = 1, this%n_fields
 
-    call fgslib_findpts_eval(this%handle, this%out_fields(this%n_fields,1), 4, &
-         this%error_code, 1, &
-         this%proc_owner, 1, &
-         this%el_owner, 1, &
-         this%rst, p%msh%gdim, &
-         this%n_probes, p%x)
+          ! Copy the field to the CPU if the data is in the device
+          if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+                        (NEKO_BCKND_OPENCL .eq. 1)) then 
+             call device_memcpy(this%int_fields%fields(il)%f%x, &
+                             this%int_fields%fields(il)%f%x_d, &
+                             n, DEVICE_TO_HOST)
+          end if
+
+          call fgslib_findpts_eval(this%handle, this%out_fields(il,1), this%n_fields, &
+                                   this%error_code, 1, &
+                                   this%proc_owner, 1, &
+                                   this%el_owner, 1, &
+                                   this%rst, this%int_fields%fields(il)%f%msh%gdim, &
+                                   this%n_probes, this%int_fields%fields(il)%f%x)
+       end do
+
+       !! Turn on flag to write output
+       write_output = .true.
+
+       !! Register the execution of the activity
+       call this%controllers(1)%register_execution()
+
+    end if
 
   end subroutine probes_interpolate
 
