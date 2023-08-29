@@ -41,7 +41,6 @@ Now add the path to `libgs.a` to an environment variable `GSLIB`
 ``` shell
 export GSLIB=$(pwd)/build/lib
 ```
-``
 
 ### Building Neko
 
