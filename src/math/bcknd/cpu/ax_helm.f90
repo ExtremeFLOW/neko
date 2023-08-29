@@ -48,6 +48,7 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    integer :: i
     
     !$omp parallel
     select case(Xh%lx)
@@ -94,9 +95,16 @@ contains
        call ax_helm_lx(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, &
             coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv, Xh%lx)
     end select
-    !$omp end parallel
-    if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())
     
+    if (coef%ifh2) then
+       !$omp do
+       do i = 1, coef%dof%size()
+          w(i,1,1,1) = w(i,1,1,1) &
+                     + coef%h2(i,1,1,1) * coef%B(i,1,1,1) * u(i,1,1,1)
+       end do
+       !$omp end do
+    end if
+    !$omp end parallel
  
   end subroutine ax_helm_compute
 
