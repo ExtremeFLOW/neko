@@ -16,7 +16,13 @@ To build the project you will need: A Fortran compiler supporting the Fortran-08
 
 ### Building gslib
 
-If you haven't already, you should download and compile `gslib`. In a folder outside of Neko:
+If you have a Nek5000 installation, use:
+
+``` bash
+export GSLIB=/path/to/Nek5000/3rd_party/gslib/gslib/src
+```
+
+If not, you should download and compile `gslib`. In a folder outside of Neko:
 
 ``` shell
 git clone https://github.com/Nek5000/gslib.git
