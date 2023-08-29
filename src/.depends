@@ -128,7 +128,7 @@ krylov/bcknd/cpu/cacg.o : krylov/bcknd/cpu/cacg.f90 config/num_types.o math/mxm_
 krylov/bcknd/cpu/pipecg.o : krylov/bcknd/cpu/pipecg.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/cpu/bicgstab.o : krylov/bcknd/cpu/bicgstab.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/cpu/gmres.o : krylov/bcknd/cpu/gmres.f90 config/num_types.o math/operators.o math/math.o comm/comm.o krylov/krylov.o 
-krylov/bcknd/cpu/pc_jacobi.o : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o math/math.o 
+krylov/bcknd/cpu/pc_jacobi.o : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.o config/num_types.o sem/coef.o krylov/precon.o 
 krylov/bcknd/sx/cg_sx.o : krylov/bcknd/sx/cg_sx.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/sx/pipecg_sx.o : krylov/bcknd/sx/pipecg_sx.f90 config/num_types.o math/math.o krylov/krylov.o 
 krylov/bcknd/sx/gmres_sx.o : krylov/bcknd/sx/gmres_sx.f90 config/num_types.o math/operators.o math/math.o comm/comm.o krylov/krylov.o 

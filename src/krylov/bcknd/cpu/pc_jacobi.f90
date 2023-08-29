@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 !
 !> Jacobi preconditioner
 module jacobi
-  use math
   use precon
   use coefs
   use num_types
@@ -107,7 +106,8 @@ contains
       lz = dof%Xh%lz
 
       this%d = 0d0
-
+      !$omp parallel private(e,l,k,j,i)
+      !$omp do 
       do e = 1,dof%msh%nelv
          do l = 1,lx
             do k = 1,lz
@@ -174,10 +174,26 @@ contains
             end do
          end if
       end do
-      call col2(this%d,coef%h1,coef%dof%size())
-      if (coef%ifh2) call addcol3(this%d,coef%h2,coef%B,coef%dof%size())
+      !$omp end do
+      !$omp do
+      do i = 1, coef%dof%size()
+         this%d(i,1,1,1) = this%d(i,1,1,1) * coef%h1(i,1,1,1)
+      end do
+      !$omp end do     
+      if (coef%ifh2) then
+         !$omp do
+         do i = 1, coef%dof%size()
+            this%d(i,1,1,1) = this%d(i,1,1,1) + coef%h2(i,1,1,1) * coef%B(i,1,1,1)
+         end do
+         !$omp end do
+      end if
       call gs_op(gs_h, this%d, dof%size(), GS_OP_ADD)
-      call invcol1(this%d,dof%size())
+      !$omp do
+      do i = 1, dof%size()
+         this%d(i,1,1,1) = 1.0_rp / this%d(i,1,1,1)
+      end do
+      !$omp end do
+      !$omp end parallel
     end associate
   end subroutine jacobi_update
 
