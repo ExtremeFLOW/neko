@@ -264,8 +264,8 @@ contains
     !
     ! Interpolate
     !
-    tmp = real(res%x, rp) ! Cast from point_t dp -> rp
     call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,1))
+    res%x = dble(tmp)! Cast from rp -> point_t dp 
 
     !
     ! Build jacobian
