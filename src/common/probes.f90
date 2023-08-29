@@ -54,7 +54,7 @@ module probes
      integer :: n_fields !< Number of output fields (fixed at 4 for now)
      integer, allocatable :: proc_owner(:) !< List of owning processes
      integer, allocatable :: el_owner(:)   !< List of owning elements
-     integer, allocatable :: dist2(:) !< Distance squared between original
+     real, allocatable :: dist2(:) !< Distance squared between original
      ! and interpolated point (in xyz space)
      integer, allocatable :: error_code(:) !< Error code for each point
      real(kind=rp), allocatable :: rst(:) !< r,s,t coordinates, findpts format
