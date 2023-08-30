@@ -35,6 +35,16 @@
                 "preconditioner": "hsmg",
                 "absolute_tolerance": 1e-7
             }
+        },
+        "probes": {
+            "pts_in_filename":  "input.csv",
+            "pts_out_filename": "output.csv",
+            "n_fields": 3,
+            "fields": ["u","v","w"],
+            "sampler":{
+                "write_control": "nsamples",
+                "write_par"    : 5,
+            }
         }
     }
 }
