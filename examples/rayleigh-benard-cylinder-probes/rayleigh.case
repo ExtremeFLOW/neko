@@ -51,14 +51,11 @@
         "Pr": 1.0
     },
     "probes": {
-        "pts_in_filename":  "int_pos.csv",
-        "pts_out_filename": "output.csv",
-        "n_fields": 2,
+        "points_file":  "probes.csv",
+        "output_file":  "output.csv",
         "fields": ["w","s"],
-        "sampler":{
-            "write_control": "simulationtime",
-            "write_par"    : 1,
-        }
+        "output_control": "simulationtime",
+        "output_value"    : 1,
     }
 }
 }

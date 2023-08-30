@@ -1,5 +1,6 @@
 module user
   use neko
+  use probes, only : probes_t
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
@@ -22,8 +23,7 @@ module user
 
   !> Case IO parameters  
   integer            :: n_fields
-  character(len=:), allocatable  :: pts_in_filename
-  character(len=:), allocatable  :: pts_out_filename
+  character(len=:), allocatable  :: output_file
 
   !> Output control
   logical :: write_output = .false.
@@ -124,9 +124,7 @@ contains
 
     !> Support variables for probes 
     integer :: i
-    type(file_t) :: input_file
     type(matrix_t) :: mat_coords
-    type(vector_t) :: vec_header
 
     !> Recalculate the non dimensional parameters
     call json_get(params, 'case.scalar.Pr', Pr)
@@ -136,31 +134,21 @@ contains
 
     !> ========== Needed for Probes =================
     
-    !> Read from json how many fields to interpolate
-    call json_get(params, 'case.probes.n_fields', n_fields)
-    call json_get(params, 'case.probes.pts_in_filename', pts_in_filename) 
-    call json_get(params, 'case.probes.pts_out_filename', pts_out_filename) 
+    !> Read the output information
+    call json_get(params, 'case.probes.output_file', output_file) 
 
-    !> Define the input file object
-    input_file = file_t(trim(pts_in_filename))
-
-    !> Read file and initialize the probe object
-    !! Pre initialize the number of fields according to case file
-    pb%n_fields = n_fields
-    !! Read the data and initialize/allocate-memory in probe object
-    call input_file%read(pb)
-    !! Initialize data that depends on the case file in probe object
-    call pb%usr_init(t, params)
+    !> Probe set up
+    !! Read probe info and initialize the controller, arrays, etc.
+    call pb%init(t, params)
     !! Perform the set up of gslib_findpts
     call pb%setup(coef)
     !! Find the probes in the mesh. Map from xyz -> rst
     call pb%map(coef)
-
     !> Write a summary of the probe info
     call pb%show()
 
     !> Initialize the output
-    fout = file_t(trim(pts_out_filename))
+    fout = file_t(trim(output_file))
     call mat_out%init(pb%n_probes, pb%n_fields)
 
     !> Write coordinates in output file (imitate nek5000)

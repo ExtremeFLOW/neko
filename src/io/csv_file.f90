@@ -40,7 +40,6 @@ module csv_file
   use num_types, only: rp
   use logger, only: neko_log, log_size
   use comm
-  use probes, only: probes_t
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
@@ -180,7 +179,6 @@ contains
     class(*), target, intent(inout) :: data
     type(vector_t), pointer :: vec => null()
     type(matrix_t), pointer :: mat => null()
-    type(probes_t), pointer :: p => null()
 
     select type(data)
     type is (vector_t)
@@ -199,8 +197,6 @@ contains
                &with a matrix_t object")
        end if
 
-    type is (probes_t)
-       p => data
 
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
@@ -212,8 +208,6 @@ contains
        call csv_file_read_vector(this, vec)
     else if (associated(mat)) then
        call csv_file_read_matrix(this, mat)
-    else if (associated(p)) then
-       call csv_file_read_probes(this, p)
     end if
 
   end subroutine csv_file_read
@@ -286,49 +280,6 @@ contains
     end if
 
   end subroutine csv_file_read_matrix
-
-  !> Read probes from a csv file
-  !! @note Assumes there is no header in the file.
-  subroutine csv_file_read_probes(f, p)
-    type(csv_file_t), intent(inout) :: f
-    type(probes_t), intent(inout) :: p
-    integer :: ierr, file_unit, i, n_lines, n_fields
-
-    !
-    ! Count # of probes and initialize probe_t object
-    !
-    if (pe_rank .eq. 0) n_lines = f%count_lines()
-    call MPI_Bcast(n_lines, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-
-    n_fields = 4 ! # of fields hardcoded here, u,v,w,p
-
-    ! Initialize probes_t object
-    !!> conditional incase fields are not hardcoded
-    if (p%n_fields.eq.0) then
-        call p%init(n_lines, n_fields)
-    else
-        call p%init(n_lines, p%n_fields)
-    end if
-
-    !
-    ! Read xyz coordinates
-    !
-    if (pe_rank .eq. 0) then
-
-       open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
-       if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
-
-       do i=1, n_lines
-          read (file_unit,*) p%xyz(:,i)
-       end do
-
-       close(unit=file_unit)
-    end if
-
-    ! Broadcast data to all processes
-    call MPI_Bcast(p%xyz, 3*n_lines, MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
-
-  end subroutine csv_file_read_probes
 
   !> Sets the header for a csv file. For example: `hd = "u,v,w,p"`.
   !! @param hd Header.

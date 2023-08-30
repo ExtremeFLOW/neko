@@ -44,11 +44,14 @@ module probes
   use field, only: field_t
   use coefs, only: coef_t
   use field_list
-  use time_based_controller
-  use field_registry
-  use json_module, only : json_file, json_value, json_core
-  use json_utils
+  use time_based_controller, only : time_based_controller_t
+  use field_registry, only : neko_field_registry
+  use json_module, only : json_file
+  use json_utils, only : json_get
   use device
+  use file
+  use csv_file
+  use tensor
   implicit none
 
   character(len=LOG_SIZE) :: log_buf ! For logging status
@@ -69,14 +72,14 @@ module probes
      ! Time based controller for sampling
      type(time_based_controller_t), allocatable :: controllers(:)
      ! Fields to be probed
-     type(field_list_t) :: int_fields
+     type(field_list_t) :: sampled_fields
      character(len=20), allocatable  :: which_fields(:)
 
      contains
        !> Initialize probes object.
-       procedure, pass(this) :: init => probes_init
+       procedure, pass(this) :: allocate_fields => probes_allocate
        !> Initialize user defined parameters.
-       procedure, pass(this) :: usr_init => probes_usr_init
+       procedure, pass(this) :: init => probes_init
        !> Destructor
        procedure, pass(this) :: free => probes_free
        !> Print current probe status, with number of probes and coordinates
@@ -94,30 +97,9 @@ module probes
 
 contains
 
-  !> Initialize probes object.
-  !! @param n_probes Number of probes
-  !! @param n_fields Number of fields to interpolate
-  subroutine probes_init(this, n_probes, n_fields)
-    class(probes_t), intent(inout) :: this
-    integer, intent(in) :: n_probes
-    integer, intent(in) :: n_fields
-
-    this%n_probes = n_probes
-    this%n_fields = n_fields
-
-    allocate(this%xyz(3, n_probes))     ! Size as used in gslib
-    allocate(this%proc_owner(n_probes))
-    allocate(this%el_owner(n_probes))
-    allocate(this%dist2(n_probes))
-    allocate(this%error_code(n_probes))
-    allocate(this%rst(3*n_probes))      ! Size as used in gslib
-    allocate(this%out_fields(n_fields, n_probes))
-
-  end subroutine probes_init
-
   !> Initialize user defined variables.
   !! @param params case file
-  subroutine probes_usr_init(this, t, params)
+  subroutine probes_init(this, t, params)
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     type(json_file), intent(inout) :: params
@@ -125,38 +107,43 @@ contains
     integer :: i
     ! Controller parameters 
     real(kind=rp)                  :: T_end
-    real(kind=rp)                  :: write_par
-    character(len=:), allocatable  :: write_control
+    real(kind=rp)                  :: output_value
+    character(len=:), allocatable  :: output_control
+    character(len=:), allocatable  :: points_file
 
+    !> Read from case file
+    call params%info('case.probes.fields', n_children=this%n_fields)
+    call json_get(params, 'case.probes.fields', this%which_fields) 
+    call json_get(params, 'case.end_time', T_end)
+    call json_get(params, 'case.probes.output_control', &
+                                             output_control)
+    call json_get(params, 'case.probes.output_value', &
+                                                 output_value)     
+    call json_get(params, 'case.probes.points_file', points_file)
 
     !> Fields
-    ! Read the data from case file
-    call json_get(params, 'case.probes.fields', this%which_fields) 
     ! List with fields
-    allocate(this%int_fields%fields(this%n_fields))
+    allocate(this%sampled_fields%fields(this%n_fields))
     do i = 1, this%n_fields
-       this%int_fields%fields(i)%f => neko_field_registry%get_field(&
+       this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
                                           trim(this%which_fields(i)))
     end do
 
     !> Controllers
-    ! Read the data from the case file
-    call json_get(params, 'case.end_time', T_end)
-    call json_get(params, 'case.probes.sampler.write_control', &
-                                             write_control)
-    call json_get(params, 'case.probes.sampler.write_par', &
-                                                 write_par)     
     ! Calculate relevant parameters and restart                     
     allocate(this%controllers(1))
-    call this%controllers(1)%init(T_end, write_control, &
-                                  write_par)
+    call this%controllers(1)%init(T_end, output_control, &
+                                  output_value)
     ! Update nexecutions in restarts
     if (this%controllers(1)%nsteps .eq. 0) then
         this%controllers(1)%nexecutions = &
                int(t / this%controllers(1)%time_interval) + 1
     end if
 
-  end subroutine probes_usr_init
+    !> Read file
+    call read_probe_locations(this, points_file)
+
+  end subroutine probes_init
 
 
   !> Destructor
@@ -170,11 +157,13 @@ contains
     if (allocated(this%dist2))       deallocate(this%dist2)
     if (allocated(this%error_code)) deallocate(this%error_code)
     if (allocated(this%out_fields)) deallocate(this%out_fields)
-    if (allocated(this%int_fields%fields)) deallocate(this%int_fields%fields)
+    if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
+    if (allocated(this%controllers)) deallocate(this%controllers)
 
     call fgslib_findpts_free(this%handle)
 
   end subroutine probes_free
+
 
   !> Print current probe status, with number of probes and coordinates
   subroutine probes_show(this)
@@ -208,6 +197,7 @@ contains
 
   end subroutine probes_debug
 
+
   !> Setup the probes for mapping process (with fgslib_findpts_setup).
   subroutine probes_setup(this, coef)
     class(probes_t), intent(inout) :: this
@@ -216,12 +206,14 @@ contains
     real(kind=rp) :: tolerance
     integer :: lx, ly, lz, nelv, max_pts_per_iter
 
-    tolerance = 5d-13 ! Tolerance for Newton iterations
+    ! Tolerance for Newton iterations
+    tolerance = 5d-13
     lx = coef%xh%lx
     ly = coef%xh%ly
     lz = coef%xh%lz
     nelv = coef%msh%nelv
-    max_pts_per_iter = 128 ! number of points to iterate on simultaneously
+    !Number of points to iterate on simultaneosuly
+    max_pts_per_iter = 128
 
     call fgslib_findpts_setup(this%handle, &
          NEKO_COMM, pe_size, &
@@ -234,6 +226,7 @@ contains
          max_pts_per_iter, tolerance)
 
   end subroutine probes_setup
+
 
   !> Maps `x,y,z` to `r,s,t` coordinates. The result of the mapping for each
   !! point can be found in the following variables:
@@ -258,9 +251,7 @@ contains
          this%xyz(2,1), coef%msh%gdim, &
          this%xyz(3,1), coef%msh%gdim, this%n_probes)
 
-    !
     ! Final check to see if there are any problems
-    !
     do i=1,this%n_probes
        if (this%error_code(i) .eq. 1) then
           if (this%dist2(i) .gt. tol_dist) then
@@ -271,8 +262,8 @@ contains
        if (this%error_code(i) .eq. 2) call neko_warning("Point not within the mesh!")
     end do
 
-
   end subroutine probes_map
+
 
   !> Interpolate each probe from its `r,s,t` coordinates.
   subroutine probes_interpolate(this, t, tstep, write_output)
@@ -285,7 +276,7 @@ contains
     integer :: il 
     integer :: n
     
-    n = this%int_fields%fields(1)%f%dof%size()
+    n = this%sampled_fields%fields(1)%f%dof%size()
 
     !> Check controller to determine if we must write
     if (this%controllers(1)%check(t, tstep, .false.)) then
@@ -296,8 +287,8 @@ contains
           ! Copy the field to the CPU if the data is in the device
           if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
                         (NEKO_BCKND_OPENCL .eq. 1)) then 
-             call device_memcpy(this%int_fields%fields(il)%f%x, &
-                             this%int_fields%fields(il)%f%x_d, &
+             call device_memcpy(this%sampled_fields%fields(il)%f%x, &
+                             this%sampled_fields%fields(il)%f%x_d, &
                              n, DEVICE_TO_HOST)
           end if
 
@@ -305,8 +296,8 @@ contains
                                    this%error_code, 1, &
                                    this%proc_owner, 1, &
                                    this%el_owner, 1, &
-                                   this%rst, this%int_fields%fields(il)%f%msh%gdim, &
-                                   this%n_probes, this%int_fields%fields(il)%f%x)
+                                   this%rst, this%sampled_fields%fields(il)%f%msh%gdim, &
+                                   this%n_probes, this%sampled_fields%fields(il)%f%x)
        end do
 
        !! Turn on flag to write output
@@ -318,5 +309,84 @@ contains
     end if
 
   end subroutine probes_interpolate
+
+
+  subroutine read_probe_locations(this, points_file)
+    class(probes_t), intent(inout) :: this
+    character(len=:), allocatable  :: points_file
+    type(matrix_t) :: mat_in
+    !> Supporting variables
+    type(file_t) :: file_in
+    integer :: ierr, file_unit, n_lines
+
+    
+    file_in = file_t(trim(points_file))
+
+    select type(ft => file_in%file_type)
+      type is (csv_file_t)
+          call read_from_cvs(this, ft, mat_in)
+      class default
+          call neko_error("Invalid data. Expected vector_t or &
+            &matrix_t")
+    end select
+
+    !> After reading the number of probes is know, as well as number of fields
+    call this%allocate_fields()
+
+    ! Transpose
+    call trsp(this%xyz, 3, mat_in%x, this%n_probes)
+
+    ! Broadcast data to all processes
+    call MPI_Bcast(this%xyz, 3*this%n_probes, MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+
+    !> Close the file
+    call mat_in%free
+    call file_free(file_in)
+
+  end subroutine read_probe_locations
+
+
+  subroutine read_from_cvs(this, f, mat_in)
+    class(probes_t), intent(inout) :: this
+    type(csv_file_t), intent(inout) :: f
+    type(matrix_t), intent(inout) :: mat_in
+    integer :: ierr, file_unit, n_lines
+
+    if (pe_rank .eq. 0) n_lines = f%count_lines()
+    call MPI_Bcast(n_lines, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+    ! Update the number of probes
+    this%n_probes = n_lines
+
+    ! Initialize the temporal array
+    call mat_in%init(this%n_probes,3)
+
+    ! Read the data
+    call f%read(mat_in)
+
+  end subroutine read_from_cvs
+
+
+  !> Allocate arrays according to previously initialized # of probes and fields.
+  subroutine probes_allocate(this)
+    class(probes_t), intent(inout) :: this
+    integer :: n_probes
+    integer :: n_fields
+
+    n_probes = this%n_probes
+    n_fields = this%n_fields
+
+    ! Size of xyz as used in gslib
+    allocate(this%xyz(3, n_probes))    
+    allocate(this%proc_owner(n_probes))
+    allocate(this%el_owner(n_probes))
+    allocate(this%dist2(n_probes))
+    allocate(this%error_code(n_probes))
+    ! Size of rst as used in gslib
+    allocate(this%rst(3*n_probes))     
+    allocate(this%out_fields(n_fields, n_probes))
+
+  end subroutine probes_allocate
+
 
 end module probes
