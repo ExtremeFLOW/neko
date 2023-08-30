@@ -1,0 +1,140 @@
+! Copyright (c) 2020-2021, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Source terms
+module source_term
+  use neko_config
+  use num_types, only : rp
+  use dofmap, only : dofmap_t
+  use utils
+  use device
+  use device_math
+  use field_list, only : field_list_t
+  use json_module, only : json_file
+  use, intrinsic :: iso_c_binding
+  implicit none
+  private
+
+  !> Base abstract type for source terms.
+  type, abstract, public:: source_term_t
+     !> The fields to be updated with the source term values
+     type(field_list_t) :: fields
+     !> Dofmap for the given space
+     type(dofmap_t), pointer :: dofmap
+   contains
+     !> Constructor for the source_term_t (base) type.
+     procedure, pass(this) :: init_base => source_term_init_base
+     !> Destructor for the source_term_t (base) type.
+     procedure, pass(this) :: free_base => source_term_init_base
+     !> The common constructor using a JSON dictionary.
+     procedure(source_term_init), pass(this), deferred :: init
+     !> Destructor.
+     procedure(source_term_free), pass(this), deferred :: free
+     !> Computes the source term and adds the result to `fields`.
+     procedure(source_term_compute), pass(this), deferred :: compute
+  end type source_term_t
+
+  !> A helper type that is needed to have an array of polymorphic objects
+  type, public :: source_term_wrapper_t
+    class(source_term_t), allocatable :: source_term
+  end type source_term_wrapper_t
+
+  abstract interface
+     !> The common constructor using a JSON dictionary.
+     !! @param json The JSON with properties.
+     !! @param fields A list of pointers to fields to be updated by the source
+     !! term.
+     subroutine source_term_init(this, json, fields)  
+       import source_term_t, json_file, field_list_t
+       class(source_term_t), intent(inout) :: this
+       type(json_file), intent(inout) :: json
+       class(field_list_t), intent(inout), target :: fields
+     end subroutine
+  end interface
+
+  abstract interface
+     !> Destructor.
+     subroutine source_term_free(this)  
+       import source_term_t
+       class(source_term_t), intent(inout) :: this
+     end subroutine
+  end interface
+
+  abstract interface
+     !> Computes the source term and adds the result to `fields`.
+     !! @param t The time value.
+     !! @param tstep The current time-step
+     subroutine source_term_compute(this, t, tstep)  
+       import source_term_t, rp
+       class(source_term_t), intent(inout) :: this
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
+     end subroutine
+  end interface
+contains
+
+  !> Constructor for the `source_term_t` (base) type.
+  !> @param fields A list of pointers to fields to be updated by the source 
+  !! term.
+  !> @param dofmap Map of degrees of freedom.
+  subroutine source_term_init_base(this, fields, dofmap) 
+    class(source_term_t), intent(inout) :: this
+    type(field_list_t) :: fields
+    type(dofmap_t), target :: dofmap
+    integer :: n_fields, i
+
+    this%dofmap => dofmap
+
+    n_fields = size(fields%fields)
+    allocate(this%fields%fields(n_fields))
+
+    ! A lot of attribute nesting here due to Fortran needing wrapper types
+    ! but this is just pointer assignement for the fields.
+    do i=1, n_fields
+       this%fields%fields(i)%f => fields%fields(i)%f
+    end do
+  end subroutine source_term_init_base
+
+  !> Destructor for the `source_term_t` (base) class.
+  subroutine source_term_free_base(this) 
+    class(source_term_t), intent(inout) :: this
+    integer :: n_fields, i
+
+    n_fields = size(this%fields%fields)
+
+    do i=1, n_fields
+       nullify(this%fields%fields(i)%f)
+    end do
+    deallocate(this%fields%fields)
+  end subroutine source_term_free_base
+  
+end module source_term

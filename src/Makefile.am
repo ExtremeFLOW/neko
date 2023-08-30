@@ -220,6 +220,7 @@ neko_fortran_SOURCES = \
 	simulation_components/simulation_component_global.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/simulation_component_factory.f90\
+	source_terms/source_term.f90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
