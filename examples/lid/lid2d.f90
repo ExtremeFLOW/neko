@@ -39,8 +39,8 @@ module user
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
 
     real(kind=rp) lsmoothing
     lsmoothing = 0.05_rp    ! length scale of smoothing at the edges
