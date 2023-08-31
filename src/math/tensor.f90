@@ -269,7 +269,7 @@ contains
     ! Artificially reshape v into a 1-dimensional array
     ! since this is what tnsr3d_el needs as input argument
     real(kind=rp) :: vv(1)
-    vv(1) = v
+    ! vv(1) = v
 
     call tnsr3d_el(vv,1,u,nu,Hr,Hs,Ht)
 
