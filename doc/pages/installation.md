@@ -4,14 +4,17 @@
 
 ### Building JSON Fortran 
 
-Download and compile, at least  version 0.7.1 of JSON Fortran from the main repository. Please note that Neko requires JSON Fortran to be configured with `USE_GNU_INSTALL_CONVENTION`. 
+Download and compile, at least  version 0.7.1 of JSON Fortran from the main repository.
+@note Neko requires JSON Fortran to be configured with `USE_GNU_INSTALL_CONVENTION`.
+
 ``` shell
 git clone --depth=1 https://github.com/jacobwilliams/json-fortran.git
 cd json-fortran && mkdir b && cd b
 cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DUSE_GNU_INSTALL_CONVENTION=ON ..
 make install
 ```
-Now ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`). Note that on certain systems `lib` should be substituted with `lib64`
+Now ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`).
+@note On certain systems `lib` should be substituted with `lib64`
 
 ``` bash
 export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
