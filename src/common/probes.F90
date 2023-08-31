@@ -168,7 +168,12 @@ contains
     if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
     if (allocated(this%controllers)) deallocate(this%controllers)
 
+#ifdef HAVE_GSLIB
     call fgslib_findpts_free(this%handle)
+#else
+    call neko_error('NEKO needs to be built with GSLIB support')
+#endif
+    
 
   end subroutine probes_free
 
@@ -212,6 +217,8 @@ contains
     real(kind=rp) :: tolerance
     integer :: lx, ly, lz, nelv, max_pts_per_iter
 
+#ifdef HAVE_GSLIB
+    
     ! Tolerance for Newton iterations
     tolerance = 5d-13
     lx = coef%xh%lx
@@ -230,6 +237,9 @@ contains
          0.01, & ! relative size to expand bounding boxes by
          lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
          max_pts_per_iter, tolerance)
+#else
+    call neko_error('NEKO needs to be built with GSLIB support')
+#endif
 
   end subroutine probes_setup
 
@@ -247,6 +257,7 @@ contains
     real(kind=rp) :: tol_dist = 5d-6
     integer :: i
 
+#ifdef HAVE_GSLIB
     call fgslib_findpts(this%handle, &
          this%error_code, 1, &
          this%proc_owner, 1, &
@@ -268,6 +279,10 @@ contains
        if (this%error_code(i) .eq. 2) call neko_warning("Point not within the mesh!")
     end do
 
+#else
+    call neko_error('NEKO needs to be built with GSLIB support')
+#endif
+
   end subroutine probes_map
 
 
@@ -281,7 +296,8 @@ contains
     !> Supporting variables
     integer :: il 
     integer :: n
-    
+
+#ifdef HAVE_GSLIB
     n = this%sampled_fields%fields(1)%f%dof%size()
 
     !> Check controller to determine if we must write
@@ -291,8 +307,7 @@ contains
        do il = 1, this%n_fields
 
           ! Copy the field to the CPU if the data is in the device
-          if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-                        (NEKO_BCKND_OPENCL .eq. 1)) then 
+          if (NEKO_BCKND_DEVICE .eq. 1) then 
              call device_memcpy(this%sampled_fields%fields(il)%f%x, &
                              this%sampled_fields%fields(il)%f%x_d, &
                              n, DEVICE_TO_HOST)
@@ -313,6 +328,9 @@ contains
        call this%controllers(1)%register_execution()
 
     end if
+#else
+    call neko_error('NEKO needs to be built with GSLIB support')
+#endif
 
   end subroutine probes_interpolate
 

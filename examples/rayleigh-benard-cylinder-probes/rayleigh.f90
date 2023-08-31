@@ -1,6 +1,5 @@
 module user
   use neko
-  use probes, only : probes_t
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
@@ -105,8 +104,7 @@ contains
           end do
        end do
     end do
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x,s%x_d,s%dof%size(),HOST_TO_DEVICE)
     end if
 
@@ -190,8 +188,7 @@ contains
     w => neko_field_registry%get_field('w')
     s => neko_field_registry%get_field('s')
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%u_d,f%dm%size())
        call device_rzero(f%v_d,f%dm%size())
        call device_copy(f%w_d,s%x_d,f%dm%size())
