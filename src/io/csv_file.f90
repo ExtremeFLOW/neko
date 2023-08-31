@@ -203,11 +203,15 @@ contains
             &matrix_t)")
     end select
 
-    call neko_log%message("Reading csv file " // trim(this%fname))
-    if (associated(vec)) then
-       call csv_file_read_vector(this, vec)
-    else if (associated(mat)) then
-       call csv_file_read_matrix(this, mat)
+    if (pe_rank .eq. 0) then
+
+       call neko_log%message("Reading csv file " // trim(this%fname))
+       if (associated(vec)) then
+          call csv_file_read_vector(this, vec)
+       else if (associated(mat)) then
+          call csv_file_read_matrix(this, mat)
+       end if
+
     end if
 
   end subroutine csv_file_read
@@ -225,25 +229,20 @@ contains
     integer :: ierr, file_unit, n_lines
     character(len=80) :: tmp
 
-    if (pe_rank .eq. 0) then
+    n_lines = f%count_lines()
 
-       n_lines = f%count_lines()
+    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
-       open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
-       if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
-
-       ! If there is more than 1 line, assume that means there is a header
-       if (n_lines .lt. 1) then
-          read (file_unit, '(A)') tmp
-          f%header = trim(tmp)
-       end if
-
-       read (file_unit,*) vec%x
-       close(unit=file_unit)
-
+    ! If there is more than 1 line, assume that means there is a header
+    if (n_lines .lt. 1) then
+       read (file_unit, '(A)') tmp
+       f%header = trim(tmp)
     end if
 
-    ! @todo Add a brodcast here?
+    read (file_unit,*) vec%x
+    close(unit=file_unit)
+
 
   end subroutine csv_file_read_vector
 
@@ -258,26 +257,22 @@ contains
     integer :: ierr, file_unit, i, n_lines
     character(len=80) :: tmp
 
-    if (pe_rank .eq. 0) then
+    n_lines = f%count_lines()
 
-       n_lines = f%count_lines()
+    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
-       open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
-       if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
-
-       ! If the number of lines is larger than the number of rows in the
-       ! matrix, assume that means there is a header
-       if (n_lines .lt. mat%nrows) then
-          read (file_unit, '(A)') tmp
-          f%header = trim(tmp)
-       end if
-
-       do i=1, mat%nrows
-          read (file_unit,*) mat%x(i,:)
-       end do
-       close(unit=file_unit)
-
+    ! If the number of lines is larger than the number of rows in the
+    ! matrix, assume that means there is a header
+    if (n_lines .lt. mat%nrows) then
+       read (file_unit, '(A)') tmp
+       f%header = trim(tmp)
     end if
+
+    do i=1, mat%nrows
+       read (file_unit,*) mat%x(i,:)
+    end do
+    close(unit=file_unit)
 
   end subroutine csv_file_read_matrix
 
