@@ -152,7 +152,7 @@ neko_fortran_SOURCES = \
 	common/statistics.f90\
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
-	common/probes.f90\
+	common/probes.F90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
