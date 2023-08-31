@@ -55,7 +55,7 @@ We use automake to build the project. These instructions should work in general,
 ```bash
 cd neko
 ./regen.sh
-./configure --prefix=/path/to/neko_install --with-pfunit=/path/to/pFUnit/installed/PFUNIT-VERSION --with-gslib=$GSLIB
+./configure --prefix=/path/to/neko_install --with-pfunit=/path/to/pFUnit/installed/PFUNIT-VERSION
 make install
 ```
 
