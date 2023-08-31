@@ -14,40 +14,6 @@ git clone https://github.com/ExtremeFLOW/neko
 ## Building the project
 To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are gslib and ParMETIS.
 
-### Building gslib
-
-If you have a Nek5000 installation, use:
-
-``` bash
-export GSLIB=/path/to/Nek5000/3rd_party/gslib/gslib/src
-```
-
-If not, you should download and compile `gslib`. In a folder outside of Neko:
-
-``` shell
-git clone https://github.com/Nek5000/gslib.git
-cd gslib
-make
-```
-Note that on clusters such as Dardel, you need to compile `gslib` with the proper compiler wrapper: 
-
-``` shell
-make CC=cc
-```
-
-Check that `libgs.a` has been created:
-
-``` shell
-$ ls build/lib
-libgs.a 
-```
-
-Now add the path to `libgs.a` to an environment variable `GSLIB`
-
-``` shell
-export GSLIB=$(pwd)/build/lib
-```
-
 ### Building Neko
 
 We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change.
@@ -57,12 +23,6 @@ cd neko
 ./regen.sh
 ./configure --prefix=/path/to/neko_install --with-pfunit=/path/to/pFUnit/installed/PFUNIT-VERSION
 make install
-```
-
-Make sure you see the following message during the configuration:
-
-``` shell
-checking for fgslib_gs_setup in -lgs... yes
 ```
 
 ## Running examples
