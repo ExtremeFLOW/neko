@@ -205,6 +205,7 @@ contains
 
     if (pe_rank .eq. 0) then
 
+       call neko_log%newline()
        call neko_log%message("Reading csv file " // trim(this%fname))
        if (associated(vec)) then
           call csv_file_read_vector(this, vec)

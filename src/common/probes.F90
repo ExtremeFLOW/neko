@@ -53,10 +53,9 @@ module probes
   use csv_file
   use tensor
   implicit none
-
-  character(len=LOG_SIZE) :: log_buf ! For logging status
-
-  type probes_t
+  private
+  
+  type, public :: probes_t
      !> handle to pass in each findpts call
      integer :: handle
      !> Number of probes
@@ -181,9 +180,11 @@ contains
   !> Print current probe status, with number of probes and coordinates
   subroutine probes_show(this)
     class(probes_t), intent(in) :: this
+    character(len=LOG_SIZE) :: log_buf ! For logging status
     integer :: i
 
     !> Probes summary
+    call neko_log%section('Probes')
     write(log_buf, '(A,I6)') "Number of probes: ", this%n_probes
     call neko_log%message(log_buf)
     call neko_log%message("xyz-coordinates:")
@@ -198,7 +199,9 @@ contains
        write(log_buf, '(A,I6, A ,A)') "Field: ", i, " ", trim(this%which_fields(i))
        call neko_log%message(log_buf)
     end do
-
+    call neko_log%end_section()
+    call neko_log%newline()
+    
   end subroutine probes_show
 
   !> Show the status of processor/element owner and error code for each point

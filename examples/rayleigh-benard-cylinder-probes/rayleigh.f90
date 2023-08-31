@@ -10,9 +10,6 @@ module user
 
   !> ========== Needed for Probes =================
   
-  !> Log variable
-  character(len=LOG_SIZE) :: log_buf ! For logging status
-
   !> Probe type
   type(probes_t) :: pb
 
@@ -119,6 +116,8 @@ contains
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: params
 
+    !> Log variable
+    character(len=LOG_SIZE) :: log_buf ! For logging status
 
     !> Support variables for probes 
     integer :: i
@@ -128,7 +127,10 @@ contains
     call json_get(params, 'case.scalar.Pr', Pr)
     call json_get(params, 'case.fluid.Re', Re)
     Ra = (Re**2)*Pr
-    if (pe_rank.eq.0) write(*,*) 'Rayleigh Number is Ra=', Ra
+    write(log_buf,*) 'Rayleigh Number is Ra=', Ra
+    call neko_log%message(log_buf)
+    
+!    if (pe_rank.eq.0) write(*,*) 
 
     !> ========== Needed for Probes =================
     
