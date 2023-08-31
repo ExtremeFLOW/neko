@@ -291,8 +291,7 @@ contains
        do il = 1, this%n_fields
 
           ! Copy the field to the CPU if the data is in the device
-          if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-                        (NEKO_BCKND_OPENCL .eq. 1)) then 
+          if (NEKO_BCKND_DEVICE .eq. 1) then 
              call device_memcpy(this%sampled_fields%fields(il)%f%x, &
                              this%sampled_fields%fields(il)%f%x_d, &
                              n, DEVICE_TO_HOST)
