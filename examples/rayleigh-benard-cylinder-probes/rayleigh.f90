@@ -1,6 +1,5 @@
 module user
   use neko
-  use probes, only : probes_t
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
