@@ -57,27 +57,35 @@ module probes
   character(len=LOG_SIZE) :: log_buf ! For logging status
 
   type probes_t
-
-     integer :: handle !< handle to pass in each findpts call
-     integer :: n_probes !< Number of probes
-     integer :: n_fields = 0 !< Number of output fields (fixed at 4 for now)
-     integer, allocatable :: proc_owner(:) !< List of owning processes
-     integer, allocatable :: el_owner(:)   !< List of owning elements
-     real(kind=rp), allocatable :: dist2(:) !< Distance squared between original
-     ! and interpolated point (in xyz space)
-     integer, allocatable :: error_code(:) !< Error code for each point
-     real(kind=rp), allocatable :: rst(:) !< r,s,t coordinates, findpts format
-     real(kind=rp), allocatable :: xyz(:,:) !< x,y,z coordinates, findpts format
-     real(kind=rp), allocatable :: out_fields(:,:) !< interpolated fields
-     ! Time based controller for sampling
+     !> handle to pass in each findpts call
+     integer :: handle
+     !> Number of probes
+     integer :: n_probes
+     !> Number of output fields
+     integer :: n_fields = 0
+     !> List of owning processes
+     integer, allocatable :: proc_owner(:)
+     !> List of owning elements
+     integer, allocatable :: el_owner(:)
+     !> Distance squared between original and interpolated point (in xyz space)
+     real(kind=rp), allocatable :: dist2(:)
+     !> Error code for each point
+     integer, allocatable :: error_code(:)
+     !> r,s,t coordinates, findpts format
+     real(kind=rp), allocatable :: rst(:)
+     !> x,y,z coordinates, findpts format
+     real(kind=rp), allocatable :: xyz(:,:)
+     !> interpolated fields
+     real(kind=rp), allocatable :: out_fields(:,:)
+     !> Time based controller for sampling
      type(time_based_controller_t), allocatable :: controllers(:)
-     ! Fields to be probed
+     !> Fields to be probed
      type(field_list_t) :: sampled_fields
      character(len=20), allocatable  :: which_fields(:)
 
      contains
        !> Initialize probes object.
-       procedure, pass(this) :: allocate_fields => probes_allocate
+       procedure, pass(this) :: allocate_fields => probes_allocate_fields
        !> Initialize user defined parameters.
        procedure, pass(this) :: init => probes_init
        !> Destructor
@@ -188,15 +196,13 @@ contains
 
   end subroutine probes_show
 
+  !> Show the status of processor/element owner and error code for each point
   subroutine probes_debug(this)
     class(probes_t) :: this
 
-    ! Will show, for each point: process, process owner, element owner, error code
     write (*, *) pe_rank, "/", this%proc_owner, "/" , this%el_owner, "/", this%error_code
 
-
   end subroutine probes_debug
-
 
   !> Setup the probes for mapping process (with fgslib_findpts_setup).
   subroutine probes_setup(this, coef)
@@ -310,7 +316,7 @@ contains
 
   end subroutine probes_interpolate
 
-
+  !> Initialize the physical coordinates from a `csv` input file
   subroutine read_probe_locations(this, points_file)
     class(probes_t), intent(inout) :: this
     character(len=:), allocatable  :: points_file
@@ -319,24 +325,22 @@ contains
     type(file_t) :: file_in
     integer :: ierr, file_unit, n_lines
 
-    
     file_in = file_t(trim(points_file))
 
     select type(ft => file_in%file_type)
       type is (csv_file_t)
-          call read_from_cvs(this, ft, mat_in)
+          call read_from_csv(this, ft, mat_in)
       class default
-          call neko_error("Invalid data. Expected vector_t or &
-            &matrix_t")
+          call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
     !> After reading the number of probes is know, as well as number of fields
     call this%allocate_fields()
 
-    ! Transpose
+    ! Transpose mat%x and put it in this%xyz
     call trsp(this%xyz, 3, mat_in%x, this%n_probes)
 
-    ! Broadcast data to all processes
+    ! Broadcast the xyz coordinates to all processes
     call MPI_Bcast(this%xyz, 3*this%n_probes, MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
 
     !> Close the file
@@ -345,8 +349,8 @@ contains
 
   end subroutine read_probe_locations
 
-
-  subroutine read_from_cvs(this, f, mat_in)
+  !> Read and initialize the number of probes from a `csv` input file
+  subroutine read_from_csv(this, f, mat_in)
     class(probes_t), intent(inout) :: this
     type(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(inout) :: mat_in
@@ -364,11 +368,10 @@ contains
     ! Read the data
     call f%read(mat_in)
 
-  end subroutine read_from_cvs
-
+  end subroutine read_from_csv
 
   !> Allocate arrays according to previously initialized # of probes and fields.
-  subroutine probes_allocate(this)
+  subroutine probes_allocate_fields(this)
     class(probes_t), intent(inout) :: this
     integer :: n_probes
     integer :: n_fields
@@ -386,7 +389,7 @@ contains
     allocate(this%rst(3*n_probes))     
     allocate(this%out_fields(n_fields, n_probes))
 
-  end subroutine probes_allocate
+  end subroutine probes_allocate_fields
 
 
 end module probes
