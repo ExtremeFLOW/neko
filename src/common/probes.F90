@@ -213,6 +213,7 @@ contains
   end subroutine probes_debug
 
   !> Setup the probes for mapping process (with fgslib_findpts_setup).
+  !! @param coef Coefficients associated with the probe's fields.
   subroutine probes_setup(this, coef)
     class(probes_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
@@ -253,9 +254,10 @@ contains
   !! (check dist2), `2` if not found
   !! - `dist2`: distance squared (used to compare the points found by each
   !! processor)
+  !! @param coef Coefficients associated with the probe's fields.
   subroutine probes_map(this, coef)
     class(probes_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(in) :: coef 
 
     real(kind=rp) :: tol_dist = 5d-6
     integer :: i
@@ -290,6 +292,9 @@ contains
 
 
   !> Interpolate each probe from its `r,s,t` coordinates.
+  !! @param t Current simulation time.
+  !! @param tstep Current time step.
+  !! @param write_output Flag for writing output data.
   subroutine probes_interpolate(this, t, tstep, write_output)
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
@@ -338,6 +343,7 @@ contains
   end subroutine probes_interpolate
 
   !> Initialize the physical coordinates from a `csv` input file
+  !! @param points_file A cvs file containing probes.
   subroutine read_probe_locations(this, points_file)
     class(probes_t), intent(inout) :: this
     character(len=:), allocatable  :: points_file
