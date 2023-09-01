@@ -79,6 +79,7 @@ module neko
   use field_list  
   use vector
   use simulation_component
+  use probes
   use system
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry

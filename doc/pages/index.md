@@ -14,6 +14,8 @@ Technology.
 
 \tableofcontents
 
+\subpage installation
+
 \subpage case-file
 
 \subpage accelerators
