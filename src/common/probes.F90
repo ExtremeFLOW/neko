@@ -105,7 +105,8 @@ module probes
 contains
 
   !> Initialize user defined variables.
-  !! @param params case file
+  !! @param t Current simulation time.
+  !! @param params case file.
   subroutine probes_init(this, t, params)
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
