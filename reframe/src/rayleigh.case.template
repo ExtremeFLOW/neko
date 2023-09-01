@@ -48,9 +48,6 @@
     },
     "scalar": {
         "enabled": true,
-        "source_term": {
-            "type": "noforce"
-        },
         "Pr": 0.71,
         "boundary_types": [
             "",
