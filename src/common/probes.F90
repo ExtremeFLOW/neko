@@ -77,7 +77,7 @@ module probes
      !> interpolated fields
      real(kind=rp), allocatable :: out_fields(:,:)
      !> Time based controller for sampling
-     type(time_based_controller_t), allocatable :: controllers(:)
+     type(time_based_controller_t) :: controller
      !> Fields to be probed
      type(field_list_t) :: sampled_fields
      character(len=20), allocatable  :: which_fields(:)
@@ -139,13 +139,12 @@ contains
 
     !> Controllers
     ! Calculate relevant parameters and restart                     
-    allocate(this%controllers(1))
-    call this%controllers(1)%init(T_end, output_control, &
+    call this%controller%init(T_end, output_control, &
                                   output_value)
     ! Update nexecutions in restarts
-    if (this%controllers(1)%nsteps .eq. 0) then
-        this%controllers(1)%nexecutions = &
-               int(t / this%controllers(1)%time_interval) + 1
+    if (this%controller%nsteps .eq. 0) then
+        this%controller%nexecutions = &
+               int(t / this%controller%time_interval) + 1
     end if
 
     !> Read file
@@ -166,7 +165,6 @@ contains
     if (allocated(this%error_code)) deallocate(this%error_code)
     if (allocated(this%out_fields)) deallocate(this%out_fields)
     if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
-    if (allocated(this%controllers)) deallocate(this%controllers)
 
 #ifdef HAVE_GSLIB
     call fgslib_findpts_free(this%handle)
@@ -310,7 +308,7 @@ contains
     n = this%sampled_fields%fields(1)%f%dof%size()
 
     !> Check controller to determine if we must write
-    if (this%controllers(1)%check(t, tstep, .false.)) then
+    if (this%controller%check(t, tstep, .false.)) then
 
        !! Interpolate the fields
        do il = 1, this%n_fields
@@ -334,7 +332,7 @@ contains
        write_output = .true.
 
        !! Register the execution of the activity
-       call this%controllers(1)%register_execution()
+       call this%controller%register_execution()
 
     end if
 #else
