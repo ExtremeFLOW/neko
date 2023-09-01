@@ -10,6 +10,7 @@ rcParams['lines.linewidth'] = 1.5
 rcParams['font.size'] = 16
 import os
 import sys
+import time
 
 #From local Uqit folder
 UQit_ts_path=os.getcwd()+"/UQit_ts_module/UQit-ts/"  
@@ -53,10 +54,7 @@ def get_lag1_cor(uqt,uqNu_v,max_batch_size):
         out_nobm = SMEuncert(sme_nobm,{'method':'NOBM','batchSize':M}).estim
         var_NOBM[j] = out_nobm['fSME_var'][-1]
 
-    # Find indices of local minima
-    loc_min = (argrelextrema(abs(rho1_NOBM), np.less))[0]
-    uncorrelated_batch_size = batchsizes[loc_min[0]]
-    
+
     if 1==0:
         plt.figure(figsize=(8, 5))
         plt.plot(batchsizes, abs(rho1_NOBM),'dodgerblue', linewidth=4, marker='o', markeredgecolor='black', markerfacecolor='lime')
@@ -67,6 +65,23 @@ def get_lag1_cor(uqt,uqNu_v,max_batch_size):
         plt.yticks(fontsize=14)
         plt.legend(loc='best')
         plt.show()
+
+
+    # Find indices of local minima
+    loc_min = (argrelextrema(abs(rho1_NOBM), np.less))[0]
+    print(loc_min)
+    #print(loc_min[0])
+    #print(batchsizes[loc_min[0]])
+    if len(loc_min)==0:
+        print("Warning!")
+        print("Could not find local minima for autocorrelation")
+        time.sleep(5)
+        uncorrelated_batch_size = batchsizes[0]
+        print("Continuing with first batch size (10)")
+    else:    
+        uncorrelated_batch_size = batchsizes[loc_min[0]]
+    
+
     
     return uncorrelated_batch_size
 
@@ -142,7 +157,7 @@ def process_Nu_timeseries(start_time, ra, filename_list, map_name_sizes, ifplot)
 
 
         Nu_v_mean_list.append(abs(Nu_v_mean-Nu_v_ref)/Nu_v_ref)
-        Nu_a_mean_list.append(abs(Nu_a_mean-Nu_a_ref)/Nu_v_ref)
+        Nu_a_mean_list.append(abs(Nu_a_mean-Nu_a_ref)/Nu_a_ref)
 
         
         Nu_v_dict[(e_xy_l[i],e_z_l[i], lx_l[i])] = Nu_v_mean 
@@ -175,7 +190,7 @@ def process_Nu_timeseries(start_time, ra, filename_list, map_name_sizes, ifplot)
         ax2=ax
         c1 = ax.tricontourf(x1,y1,z1,50,cmap=cmapp)
         cbar=fig.colorbar(c1, ax=ax)
-        cbar.set_label(r'$Nu_a error$',rotation=0,labelpad=40)
+        cbar.set_label(r'$rel Nu_a error$',rotation=0,labelpad=40)
         ax.set_ylabel(r'e_z',labelpad=10)
         ax.set_xlabel(r'e_xy',labelpad=10)
         # Razterize
@@ -241,14 +256,14 @@ def GSA_3variables(exp_params1, exp_params2, exp_params3, Nu_dict, Nu_ref):
     for i in range(0,n[0]):
         for j in range(0,n[1]):
             for k in range(0,n[2]):
-                fEx[i,j,k] = Nu_dict.get((q[0][i],q[1][j],q[2][k]), 1)
-                #fEx[i,j,k] = abs(Nu_dict.get((q[0][i],q[1][j],q[2][k]), 2*Nu_ref) - Nu_ref)/Nu_ref
+                #fEx[i,j,k] = Nu_dict.get((q[0][i],q[1][j],q[2][k]), 1)
+                fEx[i,j,k] = abs(Nu_dict.get((q[0][i],q[1][j],q[2][k]), 2*Nu_ref) - Nu_ref)/Nu_ref
 
     print("=========")
     print("GSA") 
-    print("TEMPORALLY COPYING THE SAME VALUES FOR LX 6 AND LX 8")
+    #print("TEMPORALLY COPYING THE SAME VALUES FOR LX 6 AND LX 8")
     print("=========")
-    fEx[:,:,0] = fEx[:,:,1] ### This is a temporal step. Delete when you have more data points
+    #fEx[:,:,0] = fEx[:,:,1] ### This is a temporal step. Delete when you have more data points
     print('>q1 - ',q[0])
     print('>q2 - ',q[1])
     print('>q3 - ',q[2])
@@ -271,25 +286,35 @@ with open(master_filename) as f:
 
 # Code parameters
 ra = 1e11
-start_time = 200
+start_time = 100
 Nu_v_ref = 222
 Nu_a_ref = 229
 
 # Mesh parameters
 e_xy = 80
 e_z  = 60
-lx = 8
+lx1 = 8
+lx2 = 6
 ## Simulation code map to mesh size
 map_name_sizes={}
-map_name_sizes['001'] = np.array([e_xy   ,e_z   ,lx])
-map_name_sizes['003'] = np.array([e_xy*2 ,e_z   ,lx])
-map_name_sizes['004'] = np.array([e_xy*3 ,e_z   ,lx])
-map_name_sizes['005'] = np.array([e_xy   ,e_z*2 ,lx])
-map_name_sizes['006'] = np.array([e_xy*2 ,e_z*2 ,lx])
-map_name_sizes['007'] = np.array([e_xy*3 ,e_z*2 ,lx])
-map_name_sizes['008'] = np.array([e_xy   ,e_z*3 ,lx])
-map_name_sizes['009'] = np.array([e_xy*2 ,e_z*3 ,lx])
-map_name_sizes['010'] = np.array([e_xy*3 ,e_z*3 ,lx])
+map_name_sizes['001'] = np.array([e_xy   ,e_z   ,lx1])
+map_name_sizes['003'] = np.array([e_xy*2 ,e_z   ,lx1])
+map_name_sizes['004'] = np.array([e_xy*3 ,e_z   ,lx1])
+map_name_sizes['005'] = np.array([e_xy   ,e_z*2 ,lx1])
+map_name_sizes['006'] = np.array([e_xy*2 ,e_z*2 ,lx1])
+map_name_sizes['007'] = np.array([e_xy*3 ,e_z*2 ,lx1])
+map_name_sizes['008'] = np.array([e_xy   ,e_z*3 ,lx1])
+map_name_sizes['009'] = np.array([e_xy*2 ,e_z*3 ,lx1])
+map_name_sizes['010'] = np.array([e_xy*3 ,e_z*3 ,lx1])
+map_name_sizes['201'] = np.array([e_xy   ,e_z   ,lx2])
+map_name_sizes['203'] = np.array([e_xy*2 ,e_z   ,lx2])
+map_name_sizes['204'] = np.array([e_xy*3 ,e_z   ,lx2])
+map_name_sizes['205'] = np.array([e_xy   ,e_z*2 ,lx2])
+map_name_sizes['206'] = np.array([e_xy*2 ,e_z*2 ,lx2])
+map_name_sizes['207'] = np.array([e_xy*3 ,e_z*2 ,lx2])
+map_name_sizes['208'] = np.array([e_xy   ,e_z*3 ,lx2])
+map_name_sizes['209'] = np.array([e_xy*2 ,e_z*3 ,lx2])
+map_name_sizes['210'] = np.array([e_xy*3 ,e_z*3 ,lx2])
 
 # Create list and directories to hold the data
 Nu_v_mean_list = []
@@ -316,11 +341,19 @@ if __name__ == "__main__":
     print("=== GSA results ===")
     Si_v=sobol_nu_v_.Si
     Sij_v=sobol_nu_v_.Sij
-    print('> nu_v - main indices Si by uqit:',Si_v)
-    print('> nu_v main indices Sij by uqit:',Sij_v)
+    print('> nu_v - main indices Si (%) by uqit:')
+    print('\n'.join('{}: {}'.format(*k) for k in enumerate(Si_v*100)))
+    print('> nu_v main indices Sij (%) by uqit:')
+    print('\n'.join('{}: {}'.format(*k) for k in enumerate(Sij_v*100)))
     print("=========")
         
     Si_a=sobol_nu_a_.Si
     Sij_a=sobol_nu_a_.Sij
-    print('> nu_a - main indices Si by uqit:',Si_a)
-    print('> nu_a main indices Sij by uqit:',Sij_a)
+    print('> nu_a - main indices Si (%) by uqit:')
+    print('\n'.join('{}: {}'.format(*k) for k in enumerate(Si_a*100)))
+    print('> nu_a main indices Sij (%) by uqit:')
+    print('\n'.join('{}: {}'.format(*k) for k in enumerate(Sij_a*100)))
+    print("=========")
+
+
+
