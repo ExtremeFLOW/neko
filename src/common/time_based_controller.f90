@@ -93,9 +93,14 @@ contains
         this%frequency = 1/this%time_interval
         this%nsteps = 0 
     else if (trim(control_mode) .eq. 'nsamples') then
+        if (control_value .le. 0) then
+           call neko_error("nsamples must be positive")
+        end if
+
         this%frequency = control_value / end_time
         this%time_interval = 1.0_rp / this%frequency
         this%nsteps = 0
+        write(*,*) control_value, this%frequency, this%time_interval
     else if (trim(control_mode) .eq. 'tsteps') then 
         this%nsteps = control_value
         ! if the timestep will be variable, we cannot compute these.
@@ -105,7 +110,7 @@ contains
         this%never = .true.
     else
         call neko_error("The control parameter must be simulationtime, nsamples&
-          & or tsteps, but received "//trim(control_mode))
+          & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
 
