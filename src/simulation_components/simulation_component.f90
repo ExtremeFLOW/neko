@@ -39,22 +39,33 @@ module simulation_component
   use num_types, only : rp
   use json_module, only : json_file
   use case, only : case_t
+  use time_based_controller, only : time_based_controller_t
+  use json_utils, only : json_get_or_default
   implicit none
   private
   
   !> Base abstract class for simulation components.
   type, abstract, public :: simulation_component_t
      !> Pointer to the simulation case.
-     class(case_t), pointer :: case
+     type(case_t), pointer :: case
+     !> Controller for when to run `compute`.
+     type(time_based_controller_t) :: execution_controller
+     !> Controller for when to do output.
+     type(time_based_controller_t) :: output_controller
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
+     !> Destructor for the simulation_component_t (base) class.
+     procedure, pass(this) :: free_base => simulation_component_free_base
+     !> Wrapper for calling `compute_` based on the `execution_controller`.
+     !! Serves as the public interface.
+     procedure, pass(this) :: compute => simulation_component_compute_wrapper
      !> The common constructor using a JSON dictionary.
      procedure(simulation_component_init), pass(this), deferred :: init
      !> Destructor.
      procedure(simulation_component_free), pass(this), deferred :: free
      !> The main function to be executed during the run.
-     procedure(simulation_component_compute), pass(this), deferred :: compute
+     procedure(simulation_component_compute), pass(this), deferred :: compute_
   end type simulation_component_t
   
   !> A helper type that is needed to have an array of polymorphic objects
@@ -101,10 +112,48 @@ contains
     class(simulation_component_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
+    character(len=:), allocatable :: execution_control, output_control
+    real(kind=rp) :: execution_value, output_value
 
     this%case => case
+    call json_get_or_default(json, "execution_control", execution_control, &
+                             "tsteps")
+    call json_get_or_default(json, "execution_value", execution_value, 1.0_rp) 
+
+    ! We default to output whenever we execute
+    call json_get_or_default(json, "output_control", output_control, &
+                             execution_control)
+    call json_get_or_default(json, "output_value", output_value, &
+                             execution_value)
+
+    call this%execution_controller%init(case%end_time, execution_control, &
+                                        execution_value)
+    call this%output_controller%init(case%end_time, output_control, &
+                                     output_value)
 
   end subroutine simulation_component_init_base
+
+  !> Destructor for the `simulation_component_t` (base) class.
+  subroutine simulation_component_free_base(this)  
+    class(simulation_component_t), intent(inout) :: this
+
+    nullify(this%case)
+  end subroutine simulation_component_free_base
+
+  !> Wrapper for calling `compute_` based on the `execution_controller`.
+  !! Serves as the public interface.
+  !! @param t The time value.
+  !! @param tstep The current time-step
+  subroutine simulation_component_compute_wrapper(this, t, tstep)  
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    if (this%execution_controller%check(t, tstep)) then
+      call this%compute_(t, tstep)
+      call this%execution_controller%register_execution()
+    end if
+  end subroutine simulation_component_compute_wrapper
 
   
 end module simulation_component
