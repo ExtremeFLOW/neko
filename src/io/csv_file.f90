@@ -39,7 +39,7 @@ module csv_file
   use utils, only: neko_error
   use num_types, only: rp
   use logger, only: neko_log, log_size
-  use comm, only : pe_rank
+  use comm
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
@@ -123,6 +123,7 @@ contains
     integer :: suffix_pos, file_unit, i, ierr
 
     open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
     if (f%header .ne. "" .and. .not. f%header_is_written) then
@@ -152,6 +153,7 @@ contains
     integer :: file_unit, i,j, ierr
 
     open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
     if (f%header .ne. "" .and. .not. f%header_is_written) then
@@ -195,15 +197,16 @@ contains
                &with a matrix_t object")
        end if
 
+
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
             &matrix_t)")
     end select
 
-    ! Read on rank 0
     if (pe_rank .eq. 0) then
 
-       call neko_log%message("Reading from " // this%fname)
+       call neko_log%newline()
+       call neko_log%message("Reading csv file " // trim(this%fname))
        if (associated(vec)) then
           call csv_file_read_vector(this, vec)
        else if (associated(mat)) then
@@ -221,22 +224,26 @@ contains
   !! To read a vector in a column format, use a `matrix_t` with `ncols = 1`.
   !! @note - If the number of lines in the file is larger than 1,
   !! it will be assumed that a one-line header is present.
-  subroutine csv_file_read_vector(d, vec)
-    type(csv_file_t), intent(inout) :: d
+  subroutine csv_file_read_vector(f, vec)
+    type(csv_file_t), intent(inout) :: f
     type(vector_t), intent(inout) :: vec
     integer :: ierr, file_unit, n_lines
+    character(len=80) :: tmp
 
-    n_lines = d%count_lines()
+    n_lines = f%count_lines()
 
-    open(file=trim(d%fname), status='old', newunit=file_unit)
+    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If there is more than 1 line, assume that means there is a header
     if (n_lines .lt. 1) then
-       read (file_unit, '(A)') d%header
+       read (file_unit, '(A)') tmp
+       f%header = trim(tmp)
     end if
 
     read (file_unit,*) vec%x
     close(unit=file_unit)
+
 
   end subroutine csv_file_read_vector
 
@@ -245,21 +252,22 @@ contains
   !! @param vec Matrix object in which to store the file contents.
   !! @note If the number of lines in the file is larger than the number
   !! of rows of `mat`, it will be assumed that a one-line header is present.
-  subroutine csv_file_read_matrix(d, mat)
-    type(csv_file_t), intent(inout) :: d
+  subroutine csv_file_read_matrix(f, mat)
+    type(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(inout) :: mat
     integer :: ierr, file_unit, i, n_lines
     character(len=80) :: tmp
 
-    n_lines = d%count_lines()
+    n_lines = f%count_lines()
 
-    open(file=trim(d%fname), status='old', newunit=file_unit)
+    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If the number of lines is larger than the number of rows in the
     ! matrix, assume that means there is a header
     if (n_lines .lt. mat%nrows) then
        read (file_unit, '(A)') tmp
-       d%header = trim(tmp)
+       f%header = trim(tmp)
     end if
 
     do i=1, mat%nrows

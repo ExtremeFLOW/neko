@@ -12,8 +12,7 @@ git clone https://github.com/ExtremeFLOW/neko
 ```
 
 ## Building the project
-To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran and BLAS/lapack.
-We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change.
+To build the project you will need: A Fortran compiler supporting the Fortran-08 standard, a working MPI installation, JSON-Fortran, and BLAS/lapack. Optional dependencies are gslib and ParMETIS. We use automake to build the project. These instructions should work in general, but as the project is quickly developing, things might change.
 
 ```bash
 cd neko
@@ -21,6 +20,9 @@ cd neko
 ./configure --prefix=/path/to/neko_install --with-pfunit=/path/to/pFUnit/installed/PFUNIT-VERSION
 make install
 ```
+
+More detailed installation instructions can be found in the documentation.
+
 ## Running examples
 After the project has been built
 
