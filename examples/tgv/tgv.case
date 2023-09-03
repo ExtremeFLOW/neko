@@ -44,8 +44,8 @@
   [
     {
       "type": "vorticity",
-      "execution_control": "tsteps",
-      "execution_value": 50
+      "compute_control": "tsteps",
+      "compute_value": 50
     }
   ]
   }
