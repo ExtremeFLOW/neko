@@ -55,6 +55,8 @@ module time_based_controller
      real(kind=rp) :: end_time = 0
      !> Number of times already executed.
      integer :: nexecutions = 0
+     !> Whether to never output.
+     logical :: never = .false.
 
    contains
     !> Constructor.
@@ -99,6 +101,8 @@ contains
         ! if the timestep will be variable, we cannot compute these.
         this%frequency = 0
         this%time_interval = 0
+    else if (trim(control_mode) .eq. 'never') then 
+        this%never = .true.
     else
         call neko_error("The control parameter must be simulationtime, nsamples&
           & or tsteps, but received "//trim(control_mode))
@@ -129,6 +133,8 @@ contains
     check = .false.
     if (ifforce) then
         check = .true.
+    else if (this%never) then
+        check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
               (t .ge. this%nexecutions * this%time_interval) ) then
         check = .true.
