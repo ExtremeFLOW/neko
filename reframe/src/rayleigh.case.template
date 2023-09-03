@@ -6,7 +6,6 @@
     "output_boundary": true,
     "end_time": 100,
     "timestep": 0.01,
-    "nsamples": 0,
     "numerics": {
         "time_order": 3,
         "polynomial_order": 7,
@@ -44,7 +43,9 @@
             "",
             "w",
             "w"
-        ]
+        ],
+        "output_control": "never",
+        "output_value": 0
     },
     "scalar": {
         "enabled": true,

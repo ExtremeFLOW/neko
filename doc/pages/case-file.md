@@ -49,6 +49,7 @@ The three following options are possible.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
    performed in the course of the simulation.
+4. `never`, then `_value` is ignored and output is never performed.
 
 
 ## The `case` object 
