@@ -41,6 +41,7 @@ module coefs
   use device
   use device_coef
   use mxm_wrapper
+  use tensor, only : trsp1
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -89,6 +90,14 @@ module coefs
      real(kind=rp), allocatable :: nx(:,:,:,:)   !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:)   !< y-direction of facet normal
      real(kind=rp), allocatable :: nz(:,:,:,:)   !< z-direction of facet normal
+     !> Legendre transformation matrices
+     real(kind=rp), allocatable :: v(:,:)        !< legendre to physical
+     real(kind=rp), allocatable :: vt(:,:)       !< legendre to physical t
+     real(kind=rp), allocatable :: vinv(:,:)     !< Physical to legendre
+     real(kind=rp), allocatable :: vinvt(:,:)    !< Physical to legendre t
+     !> Legendre weights in matrix form
+     real(kind=rp), allocatable :: w(:,:)        !< Legendre weights
+     !> Pointers to main fields 
      
      real(kind=rp) :: volume
      
@@ -136,6 +145,11 @@ module coefs
      type(c_ptr) :: nx_d = C_NULL_PTR
      type(c_ptr) :: ny_d = C_NULL_PTR
      type(c_ptr) :: nz_d = C_NULL_PTR
+     type(c_ptr) :: v_d = C_NULL_PTR
+     type(c_ptr) :: vt_d = C_NULL_PTR
+     type(c_ptr) :: vinv_d = C_NULL_PTR
+     type(c_ptr) :: vinvt_d = C_NULL_PTR
+     type(c_ptr) :: w_d = C_NULL_PTR
 
   end type coef_t
 
@@ -169,6 +183,12 @@ contains
     allocate(coef%dsdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     allocate(coef%dtdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
     
+    allocate(coef%v(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%vt(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%vinv(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%vinvt(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%w(coef%Xh%lx, coef%Xh%lx))
+
     !
     ! Setup device memory (if present)
     !
@@ -188,6 +208,12 @@ contains
        call device_map(coef%dtdx, coef%dtdx_d, n)
        call device_map(coef%dtdy, coef%dtdy_d, n)
        call device_map(coef%dtdz, coef%dtdz_d, n)
+       
+       call device_map(coef%v,     coef%v_d,     coef%Xh%lxy)
+       call device_map(coef%vt,    coef%vt_d,    coef%Xh%lxy)
+       call device_map(coef%vinv,  coef%vinv_d,  coef%Xh%lxy)
+       call device_map(coef%vinvt, coef%vinvt_d, coef%Xh%lxy)
+       call device_map(coef%w,     coef%w_d,     coef%Xh%lxy)
        
     end if
     
@@ -255,6 +281,12 @@ contains
     allocate(coef%h2(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
 
     allocate(coef%mult(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    
+    allocate(coef%v(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%vt(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%vinv(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%vinvt(coef%Xh%lx, coef%Xh%lx))
+    allocate(coef%w(coef%Xh%lx, coef%Xh%lx))
 
     !
     ! Setup device memory (if present)
@@ -308,6 +340,12 @@ contains
        call device_map(coef%nx, coef%nx_d, m)
        call device_map(coef%ny, coef%ny_d, m)
        call device_map(coef%nz, coef%nz_d, m)
+       
+       call device_map(coef%v,     coef%v_d,     coef%Xh%lxy)
+       call device_map(coef%vt,    coef%vt_d,    coef%Xh%lxy)
+       call device_map(coef%vinv,  coef%vinv_d,  coef%Xh%lxy)
+       call device_map(coef%vinvt, coef%vinvt_d, coef%Xh%lxy)
+       call device_map(coef%w,     coef%w_d,     coef%Xh%lxy)
     end if
 
     call coef_generate_dxyzdrst(coef)
@@ -317,7 +355,9 @@ contains
     call coef_generate_area_and_normal(coef)
 
     call coef_generate_mass(coef)
-    
+
+    call coef_generate_transformation_matrices(coef)
+
     ! This is a placeholder, just for now
     ! We can probably find a prettier solution
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -496,6 +536,26 @@ contains
        deallocate(coef%nz)
     end if
     
+    if(allocated(coef%v)) then
+       deallocate(coef%v)
+    end if
+
+    if(allocated(coef%vt)) then
+       deallocate(coef%vt)
+    end if
+
+    if(allocated(coef%vinv)) then
+       deallocate(coef%vinv)
+    end if
+
+    if(allocated(coef%vinvt)) then
+       deallocate(coef%vinvt)
+    end if
+
+    if(allocated(coef%w)) then
+       deallocate(coef%w)
+    end if
+    
     nullify(coef%msh)
     nullify(coef%Xh)
     nullify(coef%dof)
@@ -642,6 +702,26 @@ contains
 
     if (c_associated(coef%nz_d)) then
        call device_Free(coef%nz_d)
+    end if
+    
+    if (c_associated(coef%v_d)) then
+       call device_free(coef%v_d)
+    end if
+
+    if (c_associated(coef%vt_d)) then
+       call device_free(coef%vt_d)
+    end if
+
+    if (c_associated(coef%vinv_d)) then
+       call device_free(coef%vinv_d)
+    end if
+
+    if (c_associated(coef%vinvt_d)) then
+       call device_free(coef%vinvt_d)
+    end if
+
+    if (c_associated(coef%w_d)) then
+       call device_free(coef%w_d)
     end if
 
   end subroutine coef_free
@@ -1123,5 +1203,99 @@ contains
     end if
     
   end subroutine coef_generate_area_and_normal
+  
+  !> Generate spectral tranform matrices
+  !! @param coef type with all geometrical variables
+  subroutine coef_generate_transformation_matrices(coef)
+    type(coef_t), intent(inout) :: coef
+    
+    real(kind=rp) :: L(0:coef%Xh%lx-1)
+    real(kind=rp) :: delta(coef%Xh%lx)
+    integer :: i, kj, j, j2, kk
+    character(len=LOG_SIZE) :: log_buf 
+
+    associate(Xh => coef%Xh, v=> coef%v, vt => coef%vt, &
+      vinv => coef%vinv, vinvt => coef%vinvt, w => coef%w)
+      ! Get the Legendre polynomials for each point
+      ! Then proceed to compose the transform matrix
+      kj = 0
+      do j = 1, Xh%lx
+         L(0) = 1.
+         L(1) = Xh%zg(j,1)
+         do j2 = 2, Xh%lx-1
+            L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
+                  - (j2-1) * L(j2-2) ) / j2 
+         end do
+         do kk = 1, Xh%lx
+            kj = kj+1
+            v(kj,1) = L(KK-1)
+         end do
+      end do
+
+      ! transpose the matrix
+      call trsp1(v, Xh%lx) !< non orthogonal wrt weights
+
+      ! Calculate the nominal scaling factors
+      do i = 1, Xh%lx
+         delta(i) = 2.0_rp / (2*(i-1)+1)
+      end do
+      ! modify last entry  
+      delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
+
+      ! calculate the inverse to multiply the matrix
+      do i = 1, Xh%lx
+         delta(i) = sqrt(1.0_rp / delta(i))
+      end do
+      ! scale the matrix      
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+         end do
+      end do
+
+      ! get the trasposed
+      call copy(vt, v, Xh%lx * Xh%lx)
+      call trsp1(vt, Xh%lx)
+
+      !populate the mass matrix
+      kk = 1
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            if (i .eq. j) then
+               w(i,j) = Xh%wx(kk)
+               kk = kk+1
+            else
+               w(i,j) = 0
+            end if
+         end do
+      end do
+
+      !Get the inverse of the transform matrix
+      call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+
+      !get the transposed of the inverse
+      call copy(vinvt, vinv, Xh%lx * Xh%lx)
+      call trsp1(vinvt, Xh%lx)
+    end associate
+
+    ! Copy the data to the GPU
+    ! Move all this to space.f90 to for next version 
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+    (NEKO_BCKND_OPENCL .eq. 1)) then 
+
+       call device_memcpy(coef%v,     coef%v_d,     coef%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(coef%vt,    coef%vt_d,    coef%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(coef%vinv,  coef%vinv_d,  coef%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(coef%vinvt, coef%vinvt_d, coef%Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(coef%w,     coef%w_d,     coef%Xh%lxy, &
+                          HOST_TO_DEVICE)
+
+    end if
+
+  end subroutine coef_generate_transformation_matrices
   
 end module coefs
