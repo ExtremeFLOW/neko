@@ -39,7 +39,8 @@ module fluid_scheme
   use mean_flow, only : mean_flow_t
   use num_types
   use source
-  use field, only : field_t, field_free
+  use field, only : field_t, field_free, field_init
+  use field_list, only : field_list_t
   use space
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
@@ -66,6 +67,8 @@ module fluid_scheme
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
+  use source_term, only : source_term_wrapper_t
+  use source_term_fctry, only : source_term_factory
   implicit none
   
   !> Base type of all fluid formulations
@@ -79,6 +82,14 @@ module fluid_scheme
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
      type(source_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
+     !> Source term associated with \f$ X_h \f$.
+     class(source_term_wrapper_t), allocatable :: source_terms(:)
+     !> X-component of the right-hand side
+     type(field_t) :: f_x
+     !> Y-component of the right-hand side
+     type(field_t) :: f_y
+     !> Z-component of the right-hand side
+     type(field_t) :: f_z
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
@@ -413,7 +424,13 @@ contains
 
     end if
 
-    
+    !
+    ! Setup right-hand side fields.
+    !
+    call field_init(this%f_x, this%dm_Xh, fld_name="fluid_rhs_x")
+    call field_init(this%f_y, this%dm_Xh, fld_name="fluid_rhs_y")
+    call field_init(this%f_z, this%dm_Xh, fld_name="fluid_rhs_z")
+
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
@@ -607,6 +624,10 @@ contains
     nullify(this%v)
     nullify(this%w)
     nullify(this%p)
+
+    call field_free(this%f_x)
+    call field_free(this%f_y)
+    call field_free(this%f_z)
     
     
   end subroutine fluid_scheme_free
@@ -746,11 +767,17 @@ contains
   end subroutine fluid_scheme_precon_factory
 
   !> Initialize source term
-  subroutine fluid_scheme_set_source(this, source_term_type, usr_f, usr_f_vec)
+  subroutine fluid_scheme_set_source(this, params,  source_term_type, usr_f, usr_f_vec)
     class(fluid_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
     character(len=*) :: source_term_type
     procedure(source_term_pw), optional :: usr_f
     procedure(source_term), optional :: usr_f_vec
+    integer :: n_sources, i
+    type(field_list_t) :: rhs_fields
+    type(json_core) :: core
+    type(json_value), pointer :: source_object, source_pointer 
+    type(json_file) :: source_subdict
 
     if (trim(source_term_type) .eq. 'noforce') then
        call source_set_type(this%f_Xh, source_eval_noforce)
@@ -760,6 +787,23 @@ contains
        call source_set_type(this%f_Xh, usr_f_vec)
     else
        call neko_error('Invalid fluid source term '//source_term_type)
+    end if
+
+
+    if (params%valid_path('case.fluid.source_terms')) then
+      ! We package the fields for the source term to operate on in a field list
+       allocate(rhs_fields%fields(3)
+       rhs_fields%fields(1)%f => this%f_x
+       rhs_fields%fields(2)%f => this%f_y
+       rhs_fields%fields(3)%f => this%f_z
+
+       call params%info('case.fuild.source_terms', n_children=n_sources)
+       allocate(this%source_terms(n_sources))
+
+       do i=1, size(this%source_terms)
+           call source_term_factory(this%source_terms(i)%source_term, json, &
+                                    velocity_fields)
+      end do 
     end if
 
   end subroutine fluid_scheme_set_source
@@ -775,7 +819,6 @@ contains
     class default
       call neko_error("Not a user defined inflow condition")
     end select
-    
   end subroutine fluid_scheme_set_usr_inflow
 
   !> Compute CFL

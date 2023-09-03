@@ -351,6 +351,8 @@ contains
     type(field_t), pointer :: u_e, v_e, w_e
     ! Indices for tracking temporary fields 
     integer :: temp_indices(3)
+    ! Counter
+    integer :: i
 
     if (this%freeze) return
 
@@ -382,6 +384,14 @@ contains
         
       ! Compute additional source terms
       call f_Xh%eval(t)
+
+      if (allocated(this%source_terms)) then
+         do i=1 , size(this%source_terms)
+            write(*,*) "HI"
+            call this%source_terms(i)%source_term%compute(t, tstep)
+         end do
+      end if
+
 
       ! Pre-multiply the source terms with the mass matrix and add to the RHS.
       if (NEKO_BCKND_DEVICE .eq. 1) then
