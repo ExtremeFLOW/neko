@@ -100,7 +100,6 @@ contains
         this%frequency = control_value / end_time
         this%time_interval = 1.0_rp / this%frequency
         this%nsteps = 0
-        write(*,*) control_value, this%frequency, this%time_interval
     else if (trim(control_mode) .eq. 'tsteps') then 
         this%nsteps = control_value
         ! if the timestep will be variable, we cannot compute these.
