@@ -30,17 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Source terms
+!> Implements the `source_term_t` type.
 module source_term
   use neko_config
   use num_types, only : rp
   use dofmap, only : dofmap_t
-  use utils
-  use device
-  use device_math
   use field_list, only : field_list_t
   use json_module, only : json_file
-  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -48,13 +44,11 @@ module source_term
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
-     !> Dofmap for the given space
-     type(dofmap_t), pointer :: dofmap
    contains
      !> Constructor for the source_term_t (base) type.
      procedure, pass(this) :: init_base => source_term_init_base
      !> Destructor for the source_term_t (base) type.
-     procedure, pass(this) :: free_base => source_term_init_base
+     procedure, pass(this) :: free_base => source_term_free_base
      !> The common constructor using a JSON dictionary.
      procedure(source_term_init), pass(this), deferred :: init
      !> Destructor.
@@ -105,14 +99,10 @@ contains
   !> Constructor for the `source_term_t` (base) type.
   !> @param fields A list of pointers to fields to be updated by the source 
   !! term.
-  !> @param dofmap Map of degrees of freedom.
-  subroutine source_term_init_base(this, fields, dofmap) 
+  subroutine source_term_init_base(this, fields) 
     class(source_term_t), intent(inout) :: this
     type(field_list_t) :: fields
-    type(dofmap_t), target :: dofmap
     integer :: n_fields, i
-
-    this%dofmap => dofmap
 
     n_fields = size(fields%fields)
     allocate(this%fields%fields(n_fields))
