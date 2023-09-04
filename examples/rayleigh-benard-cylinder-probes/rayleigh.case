@@ -4,7 +4,7 @@
     "mesh_file": "cylinder.nmsh",
     "output_at_end": true,
     "output_boundary": true,
-    "end_time": 250,
+    "end_time": 1,
     "timestep": 2e-3,
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
@@ -55,7 +55,7 @@
         "output_file":  "output.csv",
         "fields": ["w","s"],
         "output_control": "simulationtime",
-        "output_value"    : 1,
+        "output_value"    : 0.1,
     }
 }
 }
