@@ -38,6 +38,8 @@ module source_term_fctry
   use json_module, only : json_file
   use json_utils, only : json_get
   use field_list, only : field_list_t
+  use utils, only : neko_error
+  use coefs, only : coef_t
   implicit none
   private
   
@@ -47,20 +49,23 @@ module source_term_fctry
 
   !> Source term factory. Both constructs and initializes the object.
   !! @param json JSON object initializing the source term.
-  subroutine source_term_factory(source_term, json, fields)
+  subroutine source_term_factory(source_term, json, fields, coef)
        class(source_term_t), allocatable, intent(inout) :: source_term
        type(json_file), intent(inout) :: json
-       type(field_list_t) :: fields
+       type(field_list_t), intent(inout) :: fields
+       type(coef_t), intent(inout) :: coef
        character(len=:), allocatable :: source_type
               
        call json_get(json, "type", source_type)
 
        if (trim(source_type) .eq. "constant") then 
           allocate(const_source_term_t::source_term)
+       else
+           call neko_error('Unknown source term '//trim(source_type))
        end if
        
        ! Initialize
-       call source_term%init(json, fields)
+       call source_term%init(json, fields, coef)
 
   end subroutine source_term_factory
 
