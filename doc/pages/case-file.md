@@ -284,5 +284,5 @@ Simulation components enable the user to perform various additional operations,
 which are not strictly necessary to run the solver. An example could be
 computing and output of additional fields, e.g. vorticity.
 
-A full list of available components and their setup is provided in a sperate
-page of the manual.
+A more detailed description as well as a  full list of available components and
+ their setup is provided in a sperate page of the manual.
