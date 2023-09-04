@@ -36,7 +36,9 @@ module const_source_term
   use num_types, only : rp
   use field_list, only : field_list_t
   use json_module, only : json_file
+  use json_utils, only: json_get
   use source_term, only : source_term_t
+  use coefs, only : coef_t
   implicit none
   private
 
@@ -45,7 +47,10 @@ module const_source_term
      real(kind=rp) :: value
    contains
      !> The common constructor using a JSON dictionary.
-     procedure, pass(this) :: init => const_source_term_init
+     procedure, pass(this) :: init => const_source_term_init_from_json
+     !> The construct from type components.
+     procedure, pass(this) :: init_from_compenents => & 
+       const_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => const_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -53,13 +58,28 @@ module const_source_term
   end type const_source_term_t
 
 contains
-  subroutine const_source_term_init(this, json, fields) 
+  subroutine const_source_term_init_from_json(this, json, fields, coef) 
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(field_list_t), intent(inout), target :: fields
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp) :: value
 
-    call this%init_base(fields)
-  end subroutine const_source_term_init
+    call json_get(json, "value", value)
+    call const_source_term_init_from_components(this, json, fields, value, coef)
+
+  end subroutine const_source_term_init_from_json
+
+  subroutine const_source_term_init_from_components(this, json, fields, value, &
+                                                    coef) 
+    class(const_source_term_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(field_list_t), intent(inout), target :: fields
+    real(kind=rp), intent(in) :: value
+    type(coef_t) :: coef
+
+    call this%init_base(fields, coef)
+  end subroutine const_source_term_init_from_components
 
   subroutine const_source_term_free(this) 
     class(const_source_term_t), intent(inout) :: this
@@ -76,7 +96,7 @@ contains
     n_fields = size(this%fields%fields)
 
     do i=1, n_fields
-       this%fields%fields(i)%f%x  = this%fields%fields(i)%f%x +  0.0_rp
+       this%fields%fields(i)%f%x  = this%fields%fields(i)%f%x + this%value
     end do
   end subroutine const_source_term_compute
   
