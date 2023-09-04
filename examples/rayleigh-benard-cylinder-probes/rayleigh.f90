@@ -1,5 +1,6 @@
 module user
   use neko
+  use mesh_to_mesh_interpolator, only : mesh_to_mesh_interpolator_t
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
@@ -8,23 +9,7 @@ module user
   real(kind=rp) :: Pr = 0
 
 
-  !> ========== Needed for Probes =================
-  
-  !> Probe type
-  type(probes_t) :: pb
-
-  !> Output variables
-  type(file_t) :: fout
-  type(matrix_t) :: mat_out
-
-  !> Case IO parameters  
-  integer            :: n_fields
-  character(len=:), allocatable  :: output_file
-
-  !> Output control
-  logical :: write_output = .false.
-
-  !> =============================================
+  type(mesh_to_mesh_interpolator_t) :: msh_to_msh
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -130,38 +115,15 @@ contains
     write(log_buf,*) 'Rayleigh Number is Ra=', Ra
     call neko_log%message(log_buf)
     
-!    if (pe_rank.eq.0) write(*,*) 
+    ! Initialize the mesh to mesh interpolation  
+    call msh_to_msh%init(coef%dof%x, coef%dof%y, coef%dof%z, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv, &
+                         coef%dof%x, coef%dof%y, coef%dof%z, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv, &
+                         5)
 
-    !> ========== Needed for Probes =================
-    
-    !> Read the output information
-    call json_get(params, 'case.probes.output_file', output_file) 
-
-    !> Probe set up
-    !! Read probe info and initialize the controller, arrays, etc.
-    call pb%init(t, params)
-    !! Perform the set up of gslib_findpts
-    call pb%setup(coef)
-    !! Find the probes in the mesh. Map from xyz -> rst
-    call pb%map(coef)
-    !> Write a summary of the probe info
-    call pb%show()
-
-    !> Initialize the output
-    fout = file_t(trim(output_file))
-    call mat_out%init(pb%n_probes, pb%n_fields)
-
-    !> Write coordinates in output file (imitate nek5000)
-    !! Initialize the arrays
-    call mat_coords%init(pb%n_probes,3)
-    !! Array them as rows
-    call transpose(mat_coords%x, pb%n_probes, pb%xyz, 3)
-    !! Write the data to the file
-    call fout%write(mat_coords)
-    !! Free the memory 
-    call mat_coords%free
-
-    !> ==============================================
+    !> Set up gslib
+    call msh_to_msh%setup(coef)
+    !> Map the coordinates
+    call msh_to_msh%map(coef)
 
   end subroutine user_initialize
 
@@ -169,14 +131,10 @@ contains
     real(kind=rp) :: t
     type(json_file), intent(inout) :: param
 
-    !> ========== Needed for Probes =================
+    ! Free the interpolation object 
+    call msh_to_msh%free()
     
-    call pb%free
-    call mat_out%free
-    call file_free(fout)
-    
-    !> ==============================================
-     
+
   end subroutine user_finalize
 
   subroutine set_bousinesq_forcing_term(f, t)
@@ -211,18 +169,22 @@ contains
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
 
-    !> ========== Needed for Probes =================
+    integer :: i, lx, ly, lz, nelv, n
+   
+    lx = u%Xh%lx
+    ly = u%Xh%ly
+    lz = u%Xh%lz
+    nelv = u%msh%nelv
+    n = lx*ly*lz*nelv
 
-    !> Interpolate the desired fields
-    call pb%interpolate(t,tstep, write_output)
-    !! Write if the interpolate function returs write_output=.true.
-    if (write_output) then
-       call transpose(mat_out%x, pb%n_probes, pb%out_fields, pb%n_fields)
-       call fout%write(mat_out, t)
-       write_output = .false.
-    end if
+    if (mod(tstep,100).ne.0) return
 
-    !> ==============================================
+    ! Perform the interpolation
+    call msh_to_msh%interpolate()
+
+    do i = 1, n
+      write(*,*) "It should be: ", u%x(i,1,1,1), "and it is: ", msh_to_msh%out_fields(1,i)
+    end do
 
   end subroutine check
 
