@@ -80,6 +80,10 @@ module spectral_error_indicator
      real(kind=rp), allocatable :: eind_u(:), eind_v(:), eind_w(:)
      !!> fit coeficients per element
      real(kind=rp), allocatable :: sig_u(:), sig_v(:), sig_w(:)
+     !!> List to write the spectral error indicator as a field
+     type(field_list_t) :: speri_l
+     !!> File to write
+     type(file_t) :: mf_speri
      !!> Device pointers
 
      contains
@@ -89,6 +93,8 @@ module spectral_error_indicator
        procedure, pass(this) :: free => spec_err_ind_free
        !> Calculate the indicator
        procedure, pass(this) :: get_indicators => spec_err_ind_get
+       !> Calculate the indicator
+       procedure, pass(this) :: write_as_field => spec_err_ind_write
 
   end type spec_err_ind_t
 
@@ -106,6 +112,7 @@ contains
     type(field_t), intent(in), target :: w_
     type(coef_t), intent(in) :: coef
     integer :: il, jl, aa
+    character(len=NEKO_FNAME_LEN) :: fname_speri
 
     !> Assign the pointers
     this%u_ => u_
@@ -162,6 +169,13 @@ contains
          endif
     end associate
 
+    !> Initialize the list that holds the fields to write
+    call list_init3(this%speri_l,this%u_hat,this%v_hat, &
+                    this%w_hat)
+    ! Initialize the file
+    fname_speri = 'speri.fld'
+    this%mf_speri =  file_t(fname_speri)
+
   end subroutine spec_err_ind_init
 
 
@@ -201,6 +215,10 @@ contains
     nullify(this%u_)
     nullify(this%v_)
     nullify(this%w_)
+   
+    !> finalize data related to writing 
+    call list_final3(this%speri_l)
+    call file_free(this%mf_speri)
                 
     ! Cleanup the device (if present)
                 
@@ -278,6 +296,35 @@ contains
                              
   end subroutine spec_err_ind_get
 
+  !> Initialize user defined variables.
+  !! @param t Current simulation time.
+  subroutine spec_err_ind_write(this, t)
+    class(spec_err_ind_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    
+    integer i, e
+    integer lx, ly, lz, nelv
+    
+    lx = this%u_hat%Xh%lx
+    ly = this%u_hat%Xh%ly
+    lz = this%u_hat%Xh%lz
+    nelv = this%u_hat%msh%nelv
+
+    !> Copy the element indicator into all points of the field
+    do e = 1,nelv
+       do i = 1,lx*ly*lx
+          this%u_hat%x(i,1,1,e) = this%eind_u(e)
+          this%v_hat%x(i,1,1,e) = this%eind_v(e)
+          this%w_hat%x(i,1,1,e) = this%eind_w(e)
+       end do
+    end do
+
+    !> Write the file
+    !! Remember that the list is already ponting to the fields
+    !! that were just modified.
+    call this%mf_speri%write(this%speri_l,t)      
+
+  end subroutine spec_err_ind_write
 
   !> Wrapper for old fortran 77 subroutines
   subroutine calculate_indicators(this, coef, eind, sig, lnelt, LX1, LY1, LZ1, var)
@@ -301,13 +348,6 @@ contains
        
     ! Get the indicator
     call speri_var(this, eind,sig,var,lnelt,xa,xb, LX1, LY1, LZ1)
-
-    ! Put the indicator in the fieldhat to write it
-    do e = 1,lnelt
-       do i = 1,LX1*LY1*LZ1
-          var(i,1,1,e) = eind(e)
-       end do
-    end do
 
   end subroutine calculate_indicators 
 
@@ -429,186 +469,205 @@ contains
 
   subroutine speri_extrap(this,estx,sigx,coef11,coef, &
                 ix_st,ix_en,nyl,nzl)
-      implicit none
-      type(spec_err_ind_t), intent(inout) :: this
-      ! argument list
-      integer :: ix_st,ix_en,nyl,nzl
-      ! Legendre coefficients; last SERI_NP columns
-      real(kind=rp) :: coef(this%SERI_NP_MAX,nyl,nzl)
-      ! Legendre coefficients; first value coeff(1,1,1)
-      real(kind=rp) :: coef11
-      ! estimated error and decay rate
-      real(kind=rp) :: estx, sigx
+    implicit none
+    type(spec_err_ind_t), intent(inout) :: this
+    ! argument list
+    integer :: ix_st,ix_en,nyl,nzl
+    ! Legendre coefficients; last SERI_NP columns
+    real(kind=rp) :: coef(this%SERI_NP_MAX,nyl,nzl)
+    ! Legendre coefficients; first value coeff(1,1,1)
+    real(kind=rp) :: coef11
+    ! estimated error and decay rate
+    real(kind=rp) :: estx, sigx
 
-      ! local variables
-      integer :: il, jl, kl, ll  ! loop index
-      integer :: nsigt, pnr, nzlt
-      real(kind=rp) :: sigt, smallr, cmin, cmax, cnm, rtmp, rtmp2, rtmp3
-      real(kind=rp) :: sumtmp(4), cffl(this%SERI_NP_MAX)
-      real(kind=rp) :: stmp, estt, clog, ctmp, cave, erlog
-      logical :: cuse(this%SERI_NP_MAX)
-!-----------------------------------------------------------------------
+    ! local variables
+    integer :: il, jl, kl, ll  ! loop index
+    integer :: nsigt, pnr, nzlt
+    real(kind=rp) :: sigt, smallr, cmin, cmax, cnm, rtmp, rtmp2, rtmp3
+    real(kind=rp) :: sumtmp(4), cffl(this%SERI_NP_MAX)
+    real(kind=rp) :: stmp, estt, clog, ctmp, cave, erlog
+    logical :: cuse(this%SERI_NP_MAX)
       
-     associate(SERI_SMALL  => this%SERI_SMALL,  &
-              SERI_SMALLR => this%SERI_SMALLR, &
-              SERI_SMALLG => this%SERI_SMALLG, & 
-              SERI_SMALLS => this%SERI_SMALLS, & 
-              SERI_NP     => this%SERI_NP,     &
-              SERI_NP_MAX => this%SERI_NP_MAX, &
-              SERI_ELR    => this%SERI_ELR     &
-             )   
-      ! initial values
-      estx =  0.0
-      sigx = -1.0
+    associate(SERI_SMALL  => this%SERI_SMALL,  &
+             SERI_SMALLR => this%SERI_SMALLR, &
+             SERI_SMALLG => this%SERI_SMALLG, & 
+             SERI_SMALLS => this%SERI_SMALLS, & 
+             SERI_NP     => this%SERI_NP,     &
+             SERI_NP_MAX => this%SERI_NP_MAX, &
+             SERI_ELR    => this%SERI_ELR     &
+            )   
+       ! initial values
+       estx =  0.0
+       sigx = -1.0
 
-      ! relative cutoff
-      smallr = coef11*SERI_SMALLR
+       ! relative cutoff
+       smallr = coef11*SERI_SMALLR
 
-      ! number of points
-      pnr = ix_en - ix_st +1
+       ! number of points
+       pnr = ix_en - ix_st +1
 
-      ! to few points to interpolate
-!      if ((ix_en - ix_st).le.1) return
+       ! to few points to interpolate
+       !if ((ix_en - ix_st).le.1) return
 
-      ! for averaging, initial values
-      sigt = 0.0
-      nsigt = 0
+       ! for averaging, initial values
+       sigt = 0.0
+       nsigt = 0
 
-      ! loop over all face points
-      nzlt = max(1,nzl - SERI_ELR) !  for 2D runs
-      do il=1,nzlt
-        ! weight
-        rtmp3 = 1.0/(2.0*(il-1)+1.0)
-        do jl=1,nyl - SERI_ELR
+       ! loop over all face points
+       nzlt = max(1,nzl - SERI_ELR) !  for 2D runs
+       do il=1,nzlt
+         ! weight
+         rtmp3 = 1.0/(2.0*(il-1)+1.0)
+         do jl=1,nyl - SERI_ELR
 
-            ! find min and max coef along single row
-            cffl(1) = coef(1,jl,il)
-            cmin = cffl(1)
-            cmax = cmin
-            do kl =2,pnr
-                cffl(kl) = coef(kl,jl,il)
-                cmin = min(cmin,cffl(kl))
-                cmax = max(cmax,cffl(kl))
-            enddo
+             ! find min and max coef along single row
+             cffl(1) = coef(1,jl,il)
+             cmin = cffl(1)
+             cmax = cmin
+             do kl =2,pnr
+                 cffl(kl) = coef(kl,jl,il)
+                 cmin = min(cmin,cffl(kl))
+                 cmax = max(cmax,cffl(kl))
+             enddo
 
-            ! are coefficients sufficiently big
-            if((cmin.gt.0.0).and.(cmax.gt.smallr)) then
-                ! mark array position we use in iterpolation
-                do kl =1,pnr
-                    cuse(kl) = .TRUE.
-                enddo
-                ! max n for polynomial order
-                cnm = real(ix_en)
+             ! are coefficients sufficiently big
+             if((cmin.gt.0.0).and.(cmax.gt.smallr)) then
+                 ! mark array position we use in iterpolation
+                 do kl =1,pnr
+                     cuse(kl) = .TRUE.
+                 enddo
+                 ! max n for polynomial order
+                 cnm = real(ix_en)
 
-                ! check if all the points should be taken into account
-                ! in original code by Catherine Mavriplis this part is written
-                ! for 4 points, so I place if statement first
-                if (pnr.eq.4) then
-                    ! should we neglect last values
-                    if ((cffl(1).lt.smallr).and. &
-                       (cffl(2).lt.smallr)) then
-                        if (cffl(3).lt.smallr) then
-                            cuse(1) = .FALSE.
-                            cuse(2) = .FALSE.
-                            cnm = real(ix_en-2)
-                        else
-                            cuse(1) = .FALSE.
-                            cnm = real(ix_en-1)
-                        endif
-                    else
-                        ! should we take stronger gradient
-                        if ((cffl(1)/cffl(2).lt.SERI_SMALLG).and. &
-                           (cffl(3)/cffl(4).lt.SERI_SMALLG)) then
-                            cuse(1) = .FALSE.
-                            cuse(3) = .FALSE.
-                            cnm = real(ix_en-1)
-                        elseif ((cffl(2)/cffl(1).lt.SERI_SMALLG).and. &
-                               (cffl(4)/cffl(3).lt.SERI_SMALLG)) then
-                            cuse(2) = .FALSE.
-                            cuse(4) = .FALSE.
-                        endif
-                    endif
-                endif
+                 ! check if all the points should be taken into account
+                 ! in original code by Catherine Mavriplis this part is written
+                 ! for 4 points, so I place if statement first
+                 if (pnr.eq.4) then
+                     ! should we neglect last values
+                     if ((cffl(1).lt.smallr).and. &
+                        (cffl(2).lt.smallr)) then
+                         if (cffl(3).lt.smallr) then
+                             cuse(1) = .FALSE.
+                             cuse(2) = .FALSE.
+                             cnm = real(ix_en-2)
+                         else
+                             cuse(1) = .FALSE.
+                             cnm = real(ix_en-1)
+                         endif
+                     else
+                         ! should we take stronger gradient
+                         if ((cffl(1)/cffl(2).lt.SERI_SMALLG).and. &
+                            (cffl(3)/cffl(4).lt.SERI_SMALLG)) then
+                             cuse(1) = .FALSE.
+                             cuse(3) = .FALSE.
+                             cnm = real(ix_en-1)
+                         elseif ((cffl(2)/cffl(1).lt.SERI_SMALLG).and. &
+                                (cffl(4)/cffl(3).lt.SERI_SMALLG)) then
+                             cuse(2) = .FALSE.
+                             cuse(4) = .FALSE.
+                         endif
+                     endif
+                 endif
 
-                ! get sigma for given face point
-                do kl =1,4
-                    sumtmp(kl) = 0.0
-                enddo
-                ! find new min and count number of points
-                cmin = cmax
-                cmax = 0.0
-                do kl =1,pnr
-                    if(cuse(kl)) then
-                        rtmp  = real(ix_en-kl)
-                        rtmp2 = log(cffl(kl))
-                        sumtmp(1) = sumtmp(1) +rtmp2
-                        sumtmp(2) = sumtmp(2) +rtmp
-                        sumtmp(3) = sumtmp(3) +rtmp*rtmp
-                        sumtmp(4) = sumtmp(4) +rtmp2*rtmp
-                        ! find new min and count used points
-                        cmin = min(cffl(kl),cmin)
-                        cmax = cmax + 1.0
-                    endif
-                enddo
-                ! decay rate along single row
-                stmp = (sumtmp(1)*sumtmp(2) - sumtmp(4)*cmax)/ &
-                      (sumtmp(3)*cmax - sumtmp(2)*sumtmp(2))
-                ! for averaging
-                sigt = sigt + stmp
-                nsigt = nsigt + 1
+                 ! get sigma for given face point
+                 do kl =1,4
+                     sumtmp(kl) = 0.0
+                 enddo
+                 ! find new min and count number of points
+                 cmin = cmax
+                 cmax = 0.0
+                 do kl =1,pnr
+                     if(cuse(kl)) then
+                         rtmp  = real(ix_en-kl)
+                         rtmp2 = log(cffl(kl))
+                         sumtmp(1) = sumtmp(1) +rtmp2
+                         sumtmp(2) = sumtmp(2) +rtmp
+                         sumtmp(3) = sumtmp(3) +rtmp*rtmp
+                         sumtmp(4) = sumtmp(4) +rtmp2*rtmp
+                         ! find new min and count used points
+                         cmin = min(cffl(kl),cmin)
+                         cmax = cmax + 1.0
+                     endif
+                 enddo
+                 ! decay rate along single row
+                 stmp = (sumtmp(1)*sumtmp(2) - sumtmp(4)*cmax)/ &
+                       (sumtmp(3)*cmax - sumtmp(2)*sumtmp(2))
+                 ! for averaging
+                 sigt = sigt + stmp
+                 nsigt = nsigt + 1
 
-                ! get error estimator depending on calculated decay rate
-                estt = 0.0
-                if (stmp.lt.SERI_SMALLS) then
-                    estt = cmin
-                else
-                    ! get averaged constant in front of c*exp(-sig*n)
-                    clog = (sumtmp(1)+stmp*sumtmp(2))/cmax
-                    ctmp = exp(clog)
-                    ! average exponent
-                    cave = sumtmp(1)/cmax
-                    ! check quality of approximation comparing is to the constant cave
-                    do kl =1,2
-                        sumtmp(kl) = 0.0
-                    enddo
-                    do kl =1,pnr
-                        if(cuse(kl)) then
-                            erlog = clog - stmp*real(ix_en-kl)
-                            sumtmp(1) = sumtmp(1)+ &
-                               (erlog-log(cffl(kl)))**2
-                            sumtmp(2) = sumtmp(2)+ &
-                               (erlog-cave)**2
-                        endif
-                    enddo
-                    rtmp = 1.0 - sumtmp(1)/sumtmp(2)
-                    if (rtmp.lt.SERI_SMALLS) then
-                        estt = cmin
-                    else
-                        ! last coefficient is not included in error estimator
-                        estt = ctmp/stmp*exp(-stmp*cnm)
-                    endif
-                endif
-                ! add contribution to error estimator; variable weight
-                estx = estx + estt/(2.0*(jl-1)+1.0)*rtmp3
-            endif  ! if((cmin.gt.0.0).and.(cmax.gt.smallr))
-        enddo
-      enddo
-      ! constant weight
-      ! Multiplication by 4 in 2D / 8 in 3D
-      ! Normalization of the error by the volume of the reference element
-      ! which is equal to 4 in 2D / 8 in 3D
-      ! ==> Both operations cancel each other
-      estx = estx/(2.0*(ix_en-1)+1.0)
+                 ! get error estimator depending on calculated decay rate
+                 estt = 0.0
+                 if (stmp.lt.SERI_SMALLS) then
+                     estt = cmin
+                 else
+                     ! get averaged constant in front of c*exp(-sig*n)
+                     clog = (sumtmp(1)+stmp*sumtmp(2))/cmax
+                     ctmp = exp(clog)
+                     ! average exponent
+                     cave = sumtmp(1)/cmax
+                     ! check quality of approximation comparing is to the constant cave
+                     do kl =1,2
+                         sumtmp(kl) = 0.0
+                     enddo
+                     do kl =1,pnr
+                         if(cuse(kl)) then
+                             erlog = clog - stmp*real(ix_en-kl)
+                             sumtmp(1) = sumtmp(1)+ &
+                                (erlog-log(cffl(kl)))**2
+                             sumtmp(2) = sumtmp(2)+ &
+                                (erlog-cave)**2
+                         endif
+                     enddo
+                     rtmp = 1.0 - sumtmp(1)/sumtmp(2)
+                     if (rtmp.lt.SERI_SMALLS) then
+                         estt = cmin
+                     else
+                         ! last coefficient is not included in error estimator
+                         estt = ctmp/stmp*exp(-stmp*cnm)
+                     endif
+                 endif
+                 ! add contribution to error estimator; variable weight
+                 estx = estx + estt/(2.0*(jl-1)+1.0)*rtmp3
+             endif  ! if((cmin.gt.0.0).and.(cmax.gt.smallr))
+         enddo
+       enddo
+       ! constant weight
+       ! Multiplication by 4 in 2D / 8 in 3D
+       ! Normalization of the error by the volume of the reference element
+       ! which is equal to 4 in 2D / 8 in 3D
+       ! ==> Both operations cancel each other
+       estx = estx/(2.0*(ix_en-1)+1.0)
 
-      ! final everaging
-      ! sigt = 2*sigma so we divide by 2
-      if (nsigt.gt.0) then
-        sigx = 0.5*sigt/nsigt
-      endif
+       ! final everaging
+       ! sigt = 2*sigma so we divide by 2
+       if (nsigt.gt.0) then
+         sigx = 0.5*sigt/nsigt
+       endif
 
-      end associate
+    end associate
 
   end subroutine speri_extrap
+
+
+  subroutine list_init3(list,uu,vv,ww)
+    type(field_list_t), intent(inout) :: list
+    type(field_t) , target:: uu
+    type(field_t) , target:: vv
+    type(field_t) , target:: ww
+    !> Initialize field lists
+    allocate(list%fields(3))
+    list%fields(1)%f => uu
+    list%fields(2)%f => vv
+    list%fields(3)%f => ww
+  end subroutine list_init3
+
+
+  subroutine list_final3(list)
+    type(field_list_t), intent(inout) :: list
+    !> Deallocate field lists
+    deallocate(list%fields)
+  end subroutine list_final3
 
 
 end module spectral_error_indicator
