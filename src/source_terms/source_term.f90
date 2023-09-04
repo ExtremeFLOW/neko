@@ -34,7 +34,7 @@
 module source_term
   use neko_config
   use num_types, only : rp
-  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
   use field_list, only : field_list_t
   use json_module, only : json_file
   implicit none
@@ -44,6 +44,9 @@ module source_term
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
+     !> Coefficients for the SEM.
+     type(coef_t), pointer :: coef => null()
+
    contains
      !> Constructor for the source_term_t (base) type.
      procedure, pass(this) :: init_base => source_term_init_base
@@ -67,11 +70,12 @@ module source_term
      !! @param json The JSON with properties.
      !! @param fields A list of pointers to fields to be updated by the source
      !! term.
-     subroutine source_term_init(this, json, fields)  
-       import source_term_t, json_file, field_list_t
+     subroutine source_term_init(this, json, fields, coef)  
+       import source_term_t, json_file, field_list_t, coef_t
        class(source_term_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
        class(field_list_t), intent(inout), target :: fields
+       type(coef_t), intent(inout) :: coef
      end subroutine
   end interface
 
@@ -99,11 +103,14 @@ contains
   !> Constructor for the `source_term_t` (base) type.
   !> @param fields A list of pointers to fields to be updated by the source 
   !! term.
-  subroutine source_term_init_base(this, fields) 
+  !> @param coef SEM coefs.
+  subroutine source_term_init_base(this, fields, coef) 
     class(source_term_t), intent(inout) :: this
     type(field_list_t) :: fields
+    type(coef_t), intent(inout), target :: coef
     integer :: n_fields, i
 
+    this%coef => coef
     n_fields = size(fields%fields)
     allocate(this%fields%fields(n_fields))
 
@@ -125,6 +132,7 @@ contains
        nullify(this%fields%fields(i)%f)
     end do
     deallocate(this%fields%fields)
+    nullify(this%coef)
   end subroutine source_term_free_base
   
 end module source_term
