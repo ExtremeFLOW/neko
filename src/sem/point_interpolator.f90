@@ -33,7 +33,6 @@
 !> Routines to interpolate scalar/vector fields
 module point_interpolator
   use tensor, only: triple_tensor_product
-  use coefs, only: coef_t
   use space, only: space_t, GL, GLL
   use num_types, only: rp
   use point, only: point_t
@@ -45,8 +44,6 @@ module point_interpolator
   type :: point_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
-     !> Pointer to coefficients.
-     type(coef_t), pointer :: coef => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => point_interpolator_init
@@ -72,18 +69,17 @@ module point_interpolator
 contains
 
   !> Initialization of point interpolation.
-  !! @param coef Coefficients.
-  subroutine point_interpolator_init(this, coef)
+  !! @param xh Function space.
+  subroutine point_interpolator_init(this, xh)
     class(point_interpolator_t), intent(inout), target :: this
-    type(coef_t), intent(inout), target :: coef
+    type(space_t), intent(in), target :: xh
 
-    if ((coef%xh%t .eq. GL) .or. (coef%xh%t .eq. GLL)) then
+    if ((xh%t .eq. GL) .or. (xh%t .eq. GLL)) then
     else
        call neko_error('Unsupported interpolation')
     end if
 
-    this%Xh => coef%xh
-    this%coef => coef
+    this%Xh => xh
 
   end subroutine point_interpolator_init
 
@@ -92,7 +88,6 @@ contains
     class(point_interpolator_t), intent(inout) :: this
 
     if (associated(this%xh)) this%xh => null()
-    if (associated(this%coef)) this%coef => null()
 
   end subroutine point_interpolator_free
 
@@ -116,14 +111,13 @@ contains
 
     N = size(rst)
     allocate(res(N))
+
     !
     ! Compute weights and perform interpolation for the first point
     !
-
     call fd_weights_full(real(rst(1)%x(1), rp), this%Xh%zg(:,1), lx-1, 0, hr)
     call fd_weights_full(real(rst(1)%x(2), rp), this%Xh%zg(:,2), ly-1, 0, hs)
     call fd_weights_full(real(rst(1)%x(3), rp), this%Xh%zg(:,3), lz-1, 0, ht)
-
 
     ! And interpolate!
     call triple_tensor_product(res(1),X,lx,hr,hs,ht)
