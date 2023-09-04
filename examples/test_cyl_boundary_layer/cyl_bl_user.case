@@ -42,9 +42,9 @@
             "absolute_tolerance": 1e-5,
             "max_iterations": 800
         },
-        "boundary_types": ["v", "o", "sym", "w", "on", "on", "w"],
+        "boundary_types": ["v", "o", "w", "sym", "on", "on"],
         "output_control": "nsamples",
-        "output_value": 400
+        "output_value": 1200
     }
 }
 }

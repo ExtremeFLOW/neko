@@ -42,7 +42,7 @@
         },
         "boundary_types": ["v", "o", "sym", "w", "on", "on", "w"],
         "output_control": "nsamples",
-        "output_value": 400
+        "output_value": 1200
     }
 }
 }

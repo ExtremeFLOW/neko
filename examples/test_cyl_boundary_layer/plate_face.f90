@@ -148,10 +148,79 @@ contains
     end do
   end subroutine cylinder_gen_curve
   
-  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+!  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+!    real(kind=rp), intent(inout) :: u
+!    real(kind=rp), intent(inout) :: v
+!    real(kind=rp), intent(inout) :: w
+!    real(kind=rp), intent(in) :: x
+!    real(kind=rp), intent(in) :: y
+!    real(kind=rp), intent(in) :: z
+!    real(kind=rp), intent(in) :: nx
+!    real(kind=rp), intent(in) :: ny
+!    real(kind=rp), intent(in) :: nz
+!    integer, intent(in) :: ix
+!    integer, intent(in) :: iy
+!    integer, intent(in) :: iz
+!    integer, intent(in) :: ie
+!    real(kind=rp), intent(in) :: t
+!    integer, intent(in) :: tstep
+!    real(kind=rp) ::  u_th,dist,th, yy
+!    real(kind=rp) ::  arg
+!
+!!   Two different regions (inflow & cyl) have the label 'v  '
+!!   Let compute the distance from the (0,0) in the x-y plane
+!!   to identify the proper one
+!!    dist = sqrt(x**2 + z**2)
+!
+!!! --- INFLOW
+!!    if (dist .gt. 1.1*rad) then
+!!       u =  ucl*y**pw
+!!    end if
+!!! --- 
+!    u = 2.0
+!    w = 0.0
+!    v = 0.0
+!! --- SPINNING CYLINDER
+!
+!!    if (dist.lt.1.5*rad .and. y.gt. 0.1) then                      
+!!       th = atan2(z,x)
+!!       u = cos(th)*u_rho - sin(th)*u_th2
+!!       w = sin(th)*u_rho + cos(th)*u_th2   
+!!    end if     
+!                    
+!! --- 
+!
+!
+!!     Smoothing function for the velocity u_th on the spinning cylinder
+!!     to avoid gap in the at the bottom wall
+!
+!!     u_th is smoothed if z0 < z < delta
+!!     u_th=1 if z >= delta
+! 
+!
+!!    yy = y + abs(y0) ! coordinate shift 
+!
+!!    if (dist .lt. 1.5*rad) then 
+!!       if (yy.lt.delta) then
+!!          arg  = yy/delta
+!!          u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
+!!       else
+!!          u_th = u_th2
+!!       endif
+!
+!!       th = atan2(z,x)
+!
+!!       u = cos(th)*u_rho - sin(th)*u_th
+!!       w = sin(th)*u_rho + cos(th)*u_th  
+!!    end if
+!  end subroutine user_inflow_eval
+  
+  subroutine user_inflow_eval(this, mask_i, u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+    class(usr_inflow_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
+    integer, intent(in) :: mask_i
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
     real(kind=rp), intent(in) :: z
@@ -167,52 +236,12 @@ contains
     real(kind=rp) ::  u_th,dist,th, yy
     real(kind=rp) ::  arg
 
-!   Two different regions (inflow & cyl) have the label 'v  '
-!   Let compute the distance from the (0,0) in the x-y plane
-!   to identify the proper one
-    dist = sqrt(x**2 + z**2)
-
-! --- INFLOW
-    if (dist .gt. 1.1*rad) then
-       u =  ucl*y**pw
-    end if
-! --- 
-
+    u = 2.0
     w = 0.0
     v = 0.0
-! --- SPINNING CYLINDER
 
-    if (dist.lt.1.5*rad .and. y.gt. 0.1) then                      
-       th = atan2(z,x)
-       u = cos(th)*u_rho - sin(th)*u_th2
-       w = sin(th)*u_rho + cos(th)*u_th2   
-    end if     
-                    
-! --- 
+    write(*,*) this%msk(0), mask_i, size(this%msk)
 
-
-!     Smoothing function for the velocity u_th on the spinning cylinder
-!     to avoid gap in the at the bottom wall
-
-!     u_th is smoothed if z0 < z < delta
-!     u_th=1 if z >= delta
- 
-
-    yy = y + abs(y0) ! coordinate shift 
-
-    if (dist .lt. 1.5*rad) then 
-       if (yy.lt.delta) then
-          arg  = yy/delta
-          u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
-       else
-          u_th = u_th2
-       endif
-
-       th = atan2(z,x)
-
-       u = cos(th)*u_rho - sin(th)*u_th
-       w = sin(th)*u_rho + cos(th)*u_th  
-    end if
   end subroutine user_inflow_eval
 
   ! User defined initial condition
