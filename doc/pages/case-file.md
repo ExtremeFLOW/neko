@@ -24,6 +24,7 @@ The current high-level structure of the case file is shown below.
         "fluid": {}
         "scalar": {}
         "statistics": {}
+        "simulation_components" : {}
     }
 }
 ~~~~~~~~~~~~~~~
@@ -65,7 +66,7 @@ Name                 | Description                                              
 `load_balancing`     | Whether to apply load balancing.                                                                      | `true` or `false`                         | `false` 
 `output_partitions`  | Whether to write a `partitions.vtk` file with domain partitioning.                                    | `true` or `false`                         | `false` 
 `output_checkpoints` | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                         | `false` 
-`checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
+`checkpoint_control` | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -  
 `checkpoint_value` | The frequency of sampling in terms of `checkpoint_control`. | Positive real or integer | -  
 `restart_file` | checkpoint to use for a restart from previous data | Strings ending with `.chkp` | -  
 `time_step`          | Time-step size.                                                                                       | Positive reals                            | -  
@@ -219,7 +220,7 @@ Name                                    | Description                           
 `Re`                                    | The Reynolds number.                                                             | Positive real                                    | -
 `rho`                                   | The density of the fluid.                                                        | Positive real                                    | -
 `mu`                                    | The dynamic viscosity of the fluid.                                              | Positive real                                    | -
-`output_control` | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `timesteps` | -  
+`output_control` | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -  
 `output_value` | The frequency of sampling in terms of `output_control`. | Positive real or integer | -  
 `inflow_condition.type`                 | Velocity inflow condition type.                                                  | `user`, `uniform`, `blasius`                     | -
 `inflow_condition.value`                | Value of the inflow velocity.                                                    | Vector of 3 reals                                | -
@@ -278,4 +279,10 @@ Name                | Description                                               
 `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0
 `sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10
 
+## Simulation components
+Simulation components enable the user to perform various additional operations,
+which are not strictly necessary to run the solver. An example could be
+computing and output of additional fields, e.g. vorticity.
 
+A full list of available components and their setup is provided in a sperate
+page of the manual.
