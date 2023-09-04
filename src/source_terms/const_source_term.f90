@@ -39,6 +39,9 @@ module const_source_term
   use json_utils, only: json_get
   use source_term, only : source_term_t
   use coefs, only : coef_t
+  use math, only : cadd
+  use device_math, only : device_cadd
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -79,6 +82,7 @@ contains
     type(coef_t) :: coef
 
     call this%init_base(fields, coef)
+    this%value = value
   end subroutine const_source_term_init_from_components
 
   subroutine const_source_term_free(this) 
@@ -91,13 +95,20 @@ contains
     class(const_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    integer :: n_fields, i
+    integer :: n_fields, i, n
 
     n_fields = size(this%fields%fields)
+    n = this%fields%fields(1)%f%dof%size()
 
-    do i=1, n_fields
-       this%fields%fields(i)%f%x  = this%fields%fields(i)%f%x + this%value
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       do i=1, n_fields
+          call device_cadd(this%fields%fields(i)%f%x_d, this%value, n)
+       end do
+    else
+       do i=1, n_fields
+          call cadd(this%fields%fields(i)%f%x, this%value, n)
+       end do
+    end if
   end subroutine const_source_term_compute
   
 end module const_source_term
