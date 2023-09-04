@@ -65,7 +65,7 @@ module fluid_scheme
   use logger
   use field_registry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
+  use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
   use source_term, only : source_term_wrapper_t
   use source_term_fctry, only : source_term_factory
@@ -82,14 +82,14 @@ module fluid_scheme
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
      type(source_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
-     !> Source term associated with \f$ X_h \f$.
+     !> Source terms associated with \f$ X_h \f$.
      class(source_term_wrapper_t), allocatable :: source_terms(:)
      !> X-component of the right-hand side
-     type(field_t) :: f_x
+     type(field_t), pointer :: f_x => null()
      !> Y-component of the right-hand side
-     type(field_t) :: f_y
+     type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side
-     type(field_t) :: f_z
+     type(field_t), pointer :: f_z => null()
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
@@ -126,11 +126,12 @@ module fluid_scheme
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
+     procedure, pass(this) :: fluid_scheme_set_sources
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
-     procedure, pass(this) :: set_source => fluid_scheme_set_source
+     procedure, pass(this) :: set_user_source => fluid_scheme_set_user_source
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
@@ -427,9 +428,16 @@ contains
     !
     ! Setup right-hand side fields.
     !
+    allocate(this%f_x)
+    allocate(this%f_y)
+    allocate(this%f_z)
     call field_init(this%f_x, this%dm_Xh, fld_name="fluid_rhs_x")
     call field_init(this%f_y, this%dm_Xh, fld_name="fluid_rhs_y")
     call field_init(this%f_z, this%dm_Xh, fld_name="fluid_rhs_z")
+
+    ! Initialize source terms
+    call this%fluid_scheme_set_sources(params)
+
 
   end subroutine fluid_scheme_init_common
 
@@ -625,9 +633,21 @@ contains
     nullify(this%w)
     nullify(this%p)
 
-    call field_free(this%f_x)
-    call field_free(this%f_y)
-    call field_free(this%f_z)
+    if (associated(this%f_x)) then
+      call field_free(this%f_x)
+    end if
+
+    if (associated(this%f_y)) then
+      call field_free(this%f_y)
+    end if
+
+    if (associated(this%f_z)) then
+      call field_free(this%f_z)
+    end if
+
+    nullify(this%f_x)
+    nullify(this%f_y)
+    nullify(this%f_z)
     
     
   end subroutine fluid_scheme_free
@@ -766,18 +786,12 @@ contains
     
   end subroutine fluid_scheme_precon_factory
 
-  !> Initialize source term
-  subroutine fluid_scheme_set_source(this, params,  source_term_type, usr_f, usr_f_vec)
+  !> Initialize user source term
+  subroutine fluid_scheme_set_user_source(this, source_term_type, usr_f, usr_f_vec)
     class(fluid_scheme_t), intent(inout) :: this
-    type(json_file), intent(inout) :: params
     character(len=*) :: source_term_type
     procedure(source_term_pw), optional :: usr_f
     procedure(source_term), optional :: usr_f_vec
-    integer :: n_sources, i
-    type(field_list_t) :: rhs_fields
-    type(json_core) :: core
-    type(json_value), pointer :: source_object, source_pointer 
-    type(json_file) :: source_subdict
 
     if (trim(source_term_type) .eq. 'noforce') then
        call source_set_type(this%f_Xh, source_eval_noforce)
@@ -788,25 +802,48 @@ contains
     else
        call neko_error('Invalid fluid source term '//source_term_type)
     end if
+  end subroutine fluid_scheme_set_user_source
 
+  !> Initialize run-time selectable source terms
+  subroutine fluid_scheme_set_sources(this, params)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(field_list_t) :: rhs_fields
+    ! Json low-level manipulator
+    type(json_core) :: core
+    ! Pointer to the source_terms JSON object and the individual sources
+    type(json_value), pointer :: source_object, source_pointer 
+    ! Buffer for serializing the json
+    character(len=:), allocatable :: buffer
+    ! A single source term as its own json_file
+    type(json_file) :: source_subdict
+    logical :: found
+    integer :: n_sources, i
 
     if (params%valid_path('case.fluid.source_terms')) then
       ! We package the fields for the source term to operate on in a field list
-       allocate(rhs_fields%fields(3)
+       allocate(rhs_fields%fields(3))
        rhs_fields%fields(1)%f => this%f_x
        rhs_fields%fields(2)%f => this%f_y
        rhs_fields%fields(3)%f => this%f_z
 
-       call params%info('case.fuild.source_terms', n_children=n_sources)
+       call params%get_core(core)
+       call params%get('case.fluid.source_terms', source_object, found)
+
+       n_sources = core%count(source_object)
        allocate(this%source_terms(n_sources))
 
        do i=1, size(this%source_terms)
-           call source_term_factory(this%source_terms(i)%source_term, json, &
-                                    velocity_fields)
+         ! Create a new json containing just the subdict for this source
+          call core%get_child(source_object, i, source_pointer, found)
+          call core%print_to_string(source_pointer, buffer)
+          call source_subdict%load_from_string(buffer)
+          call source_term_factory(this%source_terms(i)%source_term, &
+                                   source_subdict, rhs_fields, this%c_Xh)
       end do 
     end if
 
-  end subroutine fluid_scheme_set_source
+  end subroutine fluid_scheme_set_sources
 
   !> Initialize a user defined inflow condition
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
