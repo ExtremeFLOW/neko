@@ -19,12 +19,12 @@ module pnpn_res_cpu
 
 contains
 
-  subroutine pnpn_prs_res_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_Xh, &
-       c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, Re, rho)
+  subroutine pnpn_prs_res_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
+       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, Re, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(source_t), intent(inout) :: f_Xh
+    type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
@@ -61,11 +61,11 @@ contains
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
     do i = 1, n
-       ta1%x(i,1,1,1) = f_Xh%u(i,1,1,1) / rho &
+       ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
             - ((wa1%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
-       ta2%x(i,1,1,1) = f_Xh%v(i,1,1,1) / rho &
+       ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
             - ((wa2%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
-       ta3%x(i,1,1,1) = f_Xh%w(i,1,1,1) / rho &
+       ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
             - ((wa3%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
     end do
      
@@ -121,13 +121,13 @@ contains
   end subroutine pnpn_prs_res_cpu_compute
 
   subroutine pnpn_vel_res_cpu_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+       p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(source_t), intent(inout) :: f_Xh
+    type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     real(kind=rp), intent(in) :: Re
     real(kind=rp), intent(in) :: rho
@@ -155,9 +155,9 @@ contains
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
     do i = 1, n
-       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_Xh%u(i,1,1,1)
-       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_Xh%v(i,1,1,1)
-       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_Xh%w(i,1,1,1)
+       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
+       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
+       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
     end do
     
     call neko_scratch_registry%relinquish_field(temp_indices)
