@@ -362,7 +362,7 @@ contains
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_res =>this%u_res, v_res => this%v_res, w_res => this%w_res, &
-         p_res => this%p_res, Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
+         p_res => this%p_res, Ax => this%Ax, user_source_term => this%user_source_term, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          msh => this%msh, prs_res => this%prs_res, &
@@ -372,7 +372,8 @@ contains
          pr_projection_dim => this%pr_projection_dim, &
          ksp_vel_maxiter => this%ksp_vel_maxiter, &
          ksp_pr_maxiter => this%ksp_pr_maxiter, &
-         rho => this%rho, Re => this%Re, mu => this%mu)
+         rho => this%rho, Re => this%Re, mu => this%mu, &
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
       
       ! Get temporary arrays
       call this%scratch%request_field(u_e, temp_indices(1))
@@ -382,27 +383,41 @@ contains
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
         
-      ! Compute additional source terms
-      call f_Xh%eval(t)
+      ! Compute the user source term
+      call user_source_term%eval(t)
 
+      ! Copy the user source values into the total cumulative source term
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_copy(this%f_x%x_d, user_source_term%u_d, n)
+         call device_copy(this%f_y%x_d, user_source_term%v_d, n)
+         call device_copy(this%f_z%x_d, user_source_term%w_d, n)
+      else
+         call copy(this%f_x%x, user_source_term%u, n)
+         call copy(this%f_y%x, user_source_term%v, n)
+         call copy(this%f_z%x, user_source_term%w, n)
+      end if
+
+      ! Add contribution from all source terms.
       if (allocated(this%source_terms)) then
-         do i=1 , size(this%source_terms)
-            write(*,*) "HI"
+         do i=1, size(this%source_terms)
             call this%source_terms(i)%source_term%compute(t, tstep)
          end do
       end if
 
+!      write(*,*) user_source_term%u(:3,:3,1,1)
+!      write(*,*) this%f_x%x(:3,:3,1,1)
+
 
       ! Pre-multiply the source terms with the mass matrix and add to the RHS.
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_opcolv(f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, c_Xh%B_d, msh%gdim, n)
+         call device_opcolv(f_x%x_d, f_y%x_d, f_z%x_d, c_Xh%B_d, msh%gdim, n)
       else
-         call opcolv(f_Xh%u, f_Xh%v, f_Xh%w, c_Xh%B, msh%gdim, n)
+         call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
       end if
 
       ! Add the advection operators to the right-hand-side.
       call this%adv%compute(u, v, w, &
-                            f_Xh%u, f_Xh%v, f_Xh%w, &
+                            f_x%x, f_y%x, f_z%x, &
                             Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and
@@ -411,11 +426,11 @@ contains
       ! scheme to advance both terms in time. 
       call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
                            this%abx2, this%aby2, this%abz2, &
-                           f_Xh%u, f_Xh%v, f_Xh%w,&
+                           f_x%x, f_y%x, f_z%x, &
                            rho, ext_bdf%advection_coeffs, n)
 
       ! Add the RHS contributions coming from the BDF scheme.
-      call makebdf%compute_fluid(ulag, vlag, wlag, f_Xh%u, f_Xh%v, f_Xh%w, &
+      call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
                            u, v, w, c_Xh%B, rho, dt, &
                            ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
@@ -432,7 +447,7 @@ contains
       ! Compute pressure.
       call profiler_start_region('Pressure residual')
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
-                           f_Xh, c_Xh, gs_Xh, this%bc_prs_surface, &
+                           f_x, f_y, f_z, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
                            dt, Re, rho)
       
@@ -469,7 +484,8 @@ contains
       call vel_res%compute(Ax, u, v, w, &
                            u_res, v_res, w_res, &
                            p, &
-                           f_Xh, c_Xh, msh, Xh, &
+                           f_x, f_y, f_z, &
+                           c_Xh, msh, Xh, &
                            Re, rho, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
       
