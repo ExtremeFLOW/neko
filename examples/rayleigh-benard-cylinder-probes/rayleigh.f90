@@ -217,7 +217,7 @@ contains
     call pb%interpolate(t,tstep, write_output)
     !! Write if the interpolate function returs write_output=.true.
     if (write_output) then
-       call transpose(mat_out%x, pb%n_probes, pb%out_fields, pb%n_fields)
+       mat_out%x = pb%out_fields
        call fout%write(mat_out, t)
        write_output = .false.
     end if

@@ -23,7 +23,7 @@ sem/dofmap.o : sem/dofmap.f90 math/math.o device/device.o math/tensor.o math/fas
 sem/coef.o : sem/coef.f90 math/mxm_wrapper.o sem/bcknd/device/device_coef.o device/device.o mesh/mesh.o math/math.o sem/space.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 sem/cpr.o : sem/cpr.f90 math/mxm_wrapper.o math/tensor.o sem/coef.o mesh/mesh.o math/math.o sem/space.o field/field.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 sem/interpolation.o : sem/interpolation.f90 mesh/point.o sem/coef.o math/mxm_wrapper.o sem/space.o math/bcknd/cpu/tensor_cpu.o math/tensor.o field/field.o math/fast3d.o math/math.o common/utils.o device/device.o sem/speclib.o 
-sem/point_interpolator.o : sem/point_interpolator.f90 common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o sem/coef.o math/tensor.o 
+sem/point_interpolator.o : sem/point_interpolator.f90 common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o math/tensor.o 
 sem/bcknd/device/device_coef.o : sem/bcknd/device/device_coef.F90 common/utils.o config/num_types.o 
 gs/gs_bcknd.o : gs/gs_bcknd.f90 config/num_types.o 
 gs/bcknd/cpu/gs_cpu.o : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.o gs/gs_bcknd.o config/num_types.o 
@@ -149,7 +149,7 @@ common/stats_quant.o : common/stats_quant.f90 config/num_types.o
 common/statistics.o : common/statistics.f90 comm/comm.o common/log.o common/stats_quant.o config/num_types.o 
 common/rhs_maker.o : common/rhs_maker.f90 field/field.o field/field_series.o config/num_types.o 
 common/rhs_maker_fctry.o : common/rhs_maker_fctry.f90 config/neko_config.o common/bcknd/device/rhs_maker_device.o common/bcknd/sx/rhs_maker_sx.o common/bcknd/cpu/rhs_maker_cpu.o common/rhs_maker.o 
-common/probes.o : common/probes.F90 math/tensor.o io/csv_file.o io/file.o device/device.o common/json_utils.o field/field_registry.o common/time_based_controller.o field/field_list.o sem/coef.o field/field.o comm/mpi_types.o comm/comm.o common/utils.o common/log.o math/matrix.o config/num_types.o 
+common/probes.o : common/probes.F90 sem/space.o mesh/point.o sem/point_interpolator.o math/tensor.o io/csv_file.o math/math.o io/file.o device/device.o common/json_utils.o field/field_registry.o common/time_based_controller.o field/field_list.o sem/coef.o field/field.o comm/mpi_types.o comm/comm.o common/utils.o common/log.o math/matrix.o config/num_types.o 
 common/bcknd/cpu/rhs_maker_cpu.o : common/bcknd/cpu/rhs_maker_cpu.f90 field/scratch_registry.o common/rhs_maker.o 
 common/bcknd/sx/rhs_maker_sx.o : common/bcknd/sx/rhs_maker_sx.f90 field/scratch_registry.o common/rhs_maker.o 
 common/bcknd/device/rhs_maker_device.o : common/bcknd/device/rhs_maker_device.F90 common/utils.o device/device.o common/rhs_maker.o 
@@ -214,7 +214,7 @@ scalar/scalar_residual_fctry.o : scalar/scalar_residual_fctry.f90 scalar/bcknd/s
 scalar/bcknd/cpu/scalar_residual_cpu.o : scalar/bcknd/cpu/scalar_residual_cpu.f90 math/operators.o scalar/scalar_residual.o gs/gather_scatter.o 
 scalar/bcknd/sx/scalar_residual_sx.o : scalar/bcknd/sx/scalar_residual_sx.f90 math/operators.o scalar/scalar_residual.o gs/gather_scatter.o 
 scalar/source_scalar.o : scalar/source_scalar.f90 math/bcknd/device/device_math.o device/device.o common/utils.o sem/dofmap.o config/num_types.o config/neko_config.o 
-simulation_components/simulation_component.o : simulation_components/simulation_component.f90 case.o config/num_types.o 
+simulation_components/simulation_component.o : simulation_components/simulation_component.f90 common/json_utils.o common/time_based_controller.o case.o config/num_types.o 
 simulation_components/simulation_component_global.o : simulation_components/simulation_component_global.f90 case.o simulation_components/simulation_component_factory.o simulation_components/simulation_component.o 
 simulation_components/vorticity.o : simulation_components/vorticity.f90 case.o math/operators.o field/field.o field/field_registry.o simulation_components/simulation_component.o config/num_types.o 
 simulation_components/simulation_component_factory.o : simulation_components/simulation_component_factory.f90 common/json_utils.o case.o simulation_components/vorticity.o simulation_components/simulation_component.o 
