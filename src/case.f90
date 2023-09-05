@@ -230,21 +230,21 @@ contains
     end if
     
     !
-    ! Setup user source term
+    ! Setup user source term for the fluid.
     ! 
     logical_val = C%params%valid_path('case.fluid.source_term')
     call json_get_or_default(C%params, 'case.fluid.source_term.type',&
                              string_val, 'noforce')
 
     if (.not. logical_val .or. trim(string_val) .eq. 'noforce') then
-       call C%fluid%set_user_source(trim(string_val))
+       call C%fluid%user_source_term%set_source_type(trim(string_val))
     else
        if (trim(string_val) .eq. 'user') then
-          call C%fluid%set_user_source(trim(string_val), &
-                                       usr_f=C%usr%fluid_user_f)
+          call C%fluid%user_source_term%set_source_type(trim(string_val), &
+                 user_proc_pw=C%usr%fluid_user_f)
        else if (trim(string_val) .eq. 'user_vector') then
-          call C%fluid%set_user_source(trim(string_val), &
-               usr_f_vec=C%usr%fluid_user_f_vector)
+          call C%fluid%user_source_term%set_source_type(trim(string_val), &
+                 user_proc_vector=C%usr%fluid_user_f_vector)
        end if
     end if
 

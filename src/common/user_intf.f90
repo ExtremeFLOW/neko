@@ -33,7 +33,7 @@
 !> Interfaces for user interaction with NEKO
 module user_intf
   use field
-  use source
+  use fluid_user_source_term
   use source_scalar
   use coefs
   use usr_inflow
@@ -189,7 +189,7 @@ contains
 
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)
-    class(source_t), intent(inout) :: f
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')    
   end subroutine dummy_user_f_vector

@@ -147,7 +147,6 @@ neko_fortran_SOURCES = \
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
 	common/time_based_controller.f90\
-	common/source.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	common/rhs_maker.f90\
@@ -175,6 +174,7 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
+	fluid/fluid_user_source_term.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\

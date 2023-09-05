@@ -31,18 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Source terms
-module source
-  use neko_config
-  use num_types
-  use dofmap
-  use utils
+module fluid_user_source_term
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use dofmap, only : dofmap_t
+  use utils, only : neko_error
   use device
   use device_math
   use, intrinsic :: iso_c_binding
   implicit none
 
   !> Defines a source term \f$ f \f$
-  type :: source_t
+  type :: fluid_user_source_term_t
      real(kind=rp), allocatable :: u(:,:,:,:) !< x-component of source term
      real(kind=rp), allocatable :: v(:,:,:,:) !< y-component of source term
      real(kind=rp), allocatable :: w(:,:,:,:) !< w-component of source term
@@ -52,14 +52,22 @@ module source
      type(c_ptr) :: w_d = C_NULL_PTR          !< dev. ptr for z-component
      procedure(source_term), pass(f), pointer  :: eval => null()
      procedure(source_term_pw), nopass, pointer  :: eval_pw => null()
-  end type source_t
+   contains
+     !> Constructor.
+     procedure, pass(this) :: init => fluid_user_source_term_init
+     !> Destructor.
+     procedure, pass(this) :: free => fluid_user_source_term_free
+     !> Set the source type (no force, user pointwise or user vector)
+     procedure, pass(this) :: set_source_type => &
+       fluid_user_source_term_set_source_type
+  end type fluid_user_source_term_t
 
   !> Abstract interface defining how to compute a source term
   abstract interface
      subroutine source_term(f, t)
-       import source_t
+       import fluid_user_source_term_t
        import rp
-       class(source_t), intent(inout) :: f
+       class(fluid_user_source_term_t), intent(inout) :: f
        real(kind=rp), intent(in) :: t
      end subroutine source_term
   end interface
@@ -81,73 +89,96 @@ module source
   
 contains
 
-  !> Initialize a source term @a f
-  subroutine source_init(f, dm)
-    type(source_t), intent(inout) :: f
+  !> Costructor.
+  subroutine fluid_user_source_term_init(this,dm)
+    class(fluid_user_source_term_t), intent(inout) :: this
     type(dofmap_t), intent(inout), target :: dm
 
-    call source_free(f)
+    call this%free()
 
-    f%dm => dm
+    this%dm => dm
 
-    allocate(f%u(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
-    allocate(f%v(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
-    allocate(f%w(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
+    allocate(this%u(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
+    allocate(this%v(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
+    allocate(this%w(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
 
-    f%u = 0d0
-    f%v = 0d0
-    f%w = 0d0
+    this%u = 0d0
+    this%v = 0d0
+    this%w = 0d0
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(f%u, f%u_d, dm%size())
-       call device_map(f%v, f%v_d, dm%size())
-       call device_map(f%w, f%w_d, dm%size())
+       call device_map(this%u, this%u_d, dm%size())
+       call device_map(this%v, this%v_d, dm%size())
+       call device_map(this%w, this%w_d, dm%size())
     end if
     
-  end subroutine source_init
+  end subroutine fluid_user_source_term_init
 
-  !> Deallocate a source term @a f
-  subroutine source_free(f)
-    type(source_t), intent(inout) :: f
+  !> Destructctor.
+  subroutine fluid_user_source_term_free(this)
+    class(fluid_user_source_term_t), intent(inout) :: this
 
-    if (allocated(f%u)) then
-       deallocate(f%u)
+    if (allocated(this%u)) then
+       deallocate(this%u)
     end if
 
-    if (allocated(f%v)) then
-       deallocate(f%v)
+    if (allocated(this%v)) then
+       deallocate(this%v)
     end if
 
-    if (allocated(f%w)) then
-       deallocate(f%w)
+    if (allocated(this%w)) then
+       deallocate(this%w)
     end if
 
-    nullify(f%dm)
+    nullify(this%dm)
 
-    if (c_associated(f%u_d)) then
-       call device_free(f%u_d)
+    if (c_associated(this%u_d)) then
+       call device_free(this%u_d)
     end if
 
-    if (c_associated(f%v_d)) then
-       call device_free(f%v_d)
+    if (c_associated(this%v_d)) then
+       call device_free(this%v_d)
     end if
 
-    if (c_associated(f%w_d)) then
-       call device_free(f%w_d)
+    if (c_associated(this%w_d)) then
+       call device_free(this%w_d)
     end if
-    
-  end subroutine source_free
+  end subroutine fluid_user_source_term_free
+
+  !> Set the source type (no force, user pointwise or user vector).
+  !! @param source_term_type The name of the type of the term: 'noforce', 'user'
+  !! or 'user_vector'.
+  subroutine fluid_user_source_term_set_source_type(this, source_term_type, &
+    user_proc_pw, user_proc_vector)
+    class(fluid_user_source_term_t), intent(inout) :: this
+    character(len=*) :: source_term_type
+    procedure(source_term_pw), optional :: user_proc_pw
+    procedure(source_term), optional :: user_proc_vector
+
+    if (trim(source_term_type) .eq. 'noforce') then
+       call source_set_type(this, source_eval_noforce)
+    else if (trim(source_term_type) .eq. 'user' .and. &
+              present(user_proc_pw)) then
+       call source_set_pw_type(this, user_proc_pw)
+    else if (trim(source_term_type) .eq. 'user_vector' .and. &
+             present(user_proc_vector)) then
+       call source_set_type(this, user_proc_vector)
+    else
+       call neko_error('Invalid fluid source term '//source_term_type)
+    end if
+ 
+  end subroutine fluid_user_source_term_set_source_type
 
   !> Set the eval method for the source term @a f
   subroutine source_set_type(f, f_eval)
-    type(source_t), intent(inout) :: f
+    type(fluid_user_source_term_t), intent(inout) :: f
     procedure(source_term) :: f_eval
     f%eval => f_eval
   end subroutine source_set_type
 
   !> Set the pointwise eval method for the source term @a f
   subroutine source_set_pw_type(f, f_eval_pw)
-    type(source_t), intent(inout) :: f
+    type(fluid_user_source_term_t), intent(inout) :: f
     procedure(source_term_pw) :: f_eval_pw
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_error('Pointwise source terms not supported on accelerators')
@@ -159,7 +190,7 @@ contains
   !> Eval routine for zero forcing
   !! @note Maybe this should be cache, avoding zeroing at each time-step
   subroutine source_eval_noforce(f, t)
-    class(source_t), intent(inout) :: f
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%u_d, f%dm%size())
@@ -174,7 +205,7 @@ contains
 
   !> Driver for all pointwise source term evaluatons
   subroutine source_eval_pw(f, t)
-    class(source_t), intent(inout) :: f
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     integer :: j, k, l, e
     integer :: jj,kk,ll,ee
@@ -196,4 +227,4 @@ contains
     
   end subroutine source_eval_pw
   
-end module source
+end module fluid_user_source_term

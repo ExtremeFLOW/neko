@@ -38,7 +38,7 @@ module fluid_scheme
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
   use num_types
-  use source
+  use fluid_user_source_term, only: fluid_user_source_term_t
   use field, only : field_t, field_free, field_init
   use field_list, only : field_list_t
   use space
@@ -82,7 +82,7 @@ module fluid_scheme
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
      !> The source term defined in the user file. Defaults to a zero-valued one. 
-     type(source_t) :: user_source_term
+     type(fluid_user_source_term_t) :: user_source_term
      !> Source terms associated with \f$ X_h \f$.
      class(source_term_wrapper_t), allocatable :: source_terms(:)
      !> X-component of the right-hand side.
@@ -133,8 +133,6 @@ module fluid_scheme
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
-     !> Initializes the user-defined source term.
-     procedure, pass(this) :: set_user_source => fluid_scheme_set_user_source
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
@@ -287,7 +285,6 @@ contains
 
     call coef_init(this%c_Xh, this%gs_Xh)
 
-    call source_init(this%user_source_term, this%dm_Xh)
     
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
@@ -437,6 +434,9 @@ contains
     call field_init(this%f_x, this%dm_Xh, fld_name="fluid_rhs_x")
     call field_init(this%f_y, this%dm_Xh, fld_name="fluid_rhs_y")
     call field_init(this%f_z, this%dm_Xh, fld_name="fluid_rhs_z")
+
+    ! Initialize user source term
+    call this%user_source_term%init(this%dm_Xh)
 
     ! Initialize source terms
     call this%fluid_scheme_set_sources(params)
@@ -631,7 +631,7 @@ contains
 
     call coef_free(this%c_Xh)
 
-    call source_free(this%user_source_term)
+    call this%user_source_term%free()
 
     call bc_list_free(this%bclst_vel)
     
@@ -796,24 +796,6 @@ contains
     call ksp%set_pc(pc)
     
   end subroutine fluid_scheme_precon_factory
-
-  !> Initialize user source term.
-  subroutine fluid_scheme_set_user_source(this, source_term_type, usr_f, usr_f_vec)
-    class(fluid_scheme_t), intent(inout) :: this
-    character(len=*) :: source_term_type
-    procedure(source_term_pw), optional :: usr_f
-    procedure(source_term), optional :: usr_f_vec
-
-    if (trim(source_term_type) .eq. 'noforce') then
-       call source_set_type(this%user_source_term, source_eval_noforce)
-    else if (trim(source_term_type) .eq. 'user' .and. present(usr_f)) then
-       call source_set_pw_type(this%user_source_term, usr_f)
-    else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
-       call source_set_type(this%user_source_term, usr_f_vec)
-    else
-       call neko_error('Invalid fluid source term '//source_term_type)
-    end if
-  end subroutine fluid_scheme_set_user_source
 
   !> Initialize run-time selectable source terms.
   subroutine fluid_scheme_set_sources(this, params)

@@ -36,7 +36,6 @@ module pnpn_residual
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
-  use source, only : source_t
   use facet_normal, only : facet_normal_t
   use space, only : space_t
   use mesh, only : mesh_t
@@ -64,7 +63,6 @@ module pnpn_residual
        import Ax_t
        import gs_t
        import facet_normal_t
-       import source_t
        import coef_t
        import rp
        type(field_t), intent(inout) :: p, u, v, w
@@ -91,7 +89,6 @@ module pnpn_residual
        import Ax_t
        import gs_t
        import facet_normal_t
-       import source_t
        import space_t              
        import coef_t
        import mesh_t
