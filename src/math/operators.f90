@@ -302,7 +302,12 @@ contains
   end subroutine strain_rate
 
   !> Lambda2 calcuation. 
-  subroutine lambda2op(lambda2, u, v, w,coef) ! weak form of grad     
+  !! @param lambda2 holds the second eigen values.
+  !! @param u, the x-velocity
+  !! @param v, the y-velocity
+  !! @param w, the z-velocity
+  !! @param coef, the field coefficients
+  subroutine lambda2op(lambda2, u, v, w,coef)      
     type(coef_t), intent(in) :: coef  
     type(field_t), intent(inout) :: lambda2 
     type(field_t), intent(in) :: u, v, w
@@ -314,10 +319,9 @@ contains
 
 
     if (NEKO_BCKND_SX .eq. 1) then 
-     !  call opr_sx_opgrad(ux, uy, uz, u, coef)
-
+       call neko_error('No lambda 2 implemented')
     else if (NEKO_BCKND_XSMM .eq. 1) then
-    !   call opr_xsmm_opgrad(ux, uy, uz, u, coef)
+       call neko_error('No lambda 2 implemented')
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_lambda2(lambda2, u, v, w, coef)
     else
