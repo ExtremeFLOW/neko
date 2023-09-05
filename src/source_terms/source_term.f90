@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,9 @@ module source_term
   implicit none
   private
 
-  !> Base abstract type for source terms.
+  !> Base abstract type for source terms selected at run time.
+  !! @note The user-provided source term is treated seperately in the type
+  !! `user_source_term.`
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
@@ -52,7 +54,7 @@ module source_term
      procedure, pass(this) :: init_base => source_term_init_base
      !> Destructor for the source_term_t (base) type.
      procedure, pass(this) :: free_base => source_term_free_base
-     !> The common constructor using a JSON dictionary.
+     !> The common constructor using a JSON object.
      procedure(source_term_init), pass(this), deferred :: init
      !> Destructor.
      procedure(source_term_free), pass(this), deferred :: free
@@ -66,10 +68,10 @@ module source_term
   end type source_term_wrapper_t
 
   abstract interface
-     !> The common constructor using a JSON dictionary.
-     !! @param json The JSON with properties.
-     !! @param fields A list of pointers to fields to be updated by the source
-     !! term.
+    !> The common constructor using a JSON object.
+    !! @param json The JSON object for the source.
+    !! @param fields A list of fields for adding the source values.
+    !! @param coef The SEM coeffs.
      subroutine source_term_init(this, json, fields, coef)  
        import source_term_t, json_file, field_list_t, coef_t
        class(source_term_t), intent(inout) :: this
