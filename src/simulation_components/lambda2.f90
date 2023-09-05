@@ -71,7 +71,7 @@ module lambda2
       !> Destructor.
       procedure, pass(this) :: free => lambda2_free
       !> Compute the lambda2 field
-     procedure, pass(this) :: compute => lambda2_compute
+     procedure, pass(this) :: compute_ => lambda2_compute
   end type lambda2_t
   
   contains
@@ -107,13 +107,12 @@ module lambda2
   !> Destructor.
   subroutine lambda2_free(this)
        class(lambda2_t), intent(inout) :: this
-
+       call this%free_base()
   end subroutine lambda2_free
 
   !> Compute the lambda2 field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  !! @note Currently computes every time step, but this should really only be computed when written to file.
   subroutine lambda2_compute(this, t, tstep)
     class(lambda2_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
