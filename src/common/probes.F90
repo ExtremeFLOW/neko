@@ -56,7 +56,6 @@ module probes
   use point_interpolator
   use point, only: point_t
   use space, only: space_t
-  use dofmap, only: dofmap_t
   implicit none
   private
   
