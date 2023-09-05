@@ -46,7 +46,7 @@ module lambda2
   use device
   implicit none
   private
-  
+
   type, public, extends(simulation_component_t) :: lambda2_t
      !> X velocity component.
      type(field_t), pointer :: u
@@ -62,52 +62,52 @@ module lambda2
      type(field_t) :: temp1
      type(field_t) :: temp2
 
-     contains
-      !> Constructor from json.
-      procedure, pass(this) :: init => lambda2_init_from_json
-      !> Actual constructor.
-      procedure, pass(this) :: init_from_attributes => &
-        lambda2_init_from_attributes
-      !> Destructor.
-      procedure, pass(this) :: free => lambda2_free
-      !> Compute the lambda2 field
+   contains
+     !> Constructor from json.
+     procedure, pass(this) :: init => lambda2_init_from_json
+     !> Actual constructor.
+     procedure, pass(this) :: init_from_attributes => &
+          lambda2_init_from_attributes
+     !> Destructor.
+     procedure, pass(this) :: free => lambda2_free
+     !> Compute the lambda2 field
      procedure, pass(this) :: compute_ => lambda2_compute
   end type lambda2_t
-  
-  contains
-  
+
+contains
+
   !> Constructor from json.
   subroutine lambda2_init_from_json(this, json, case)
-       class(lambda2_t), intent(inout) :: this
-       type(json_file), intent(inout) :: json
-       class(case_t), intent(inout), target ::case 
-       
-       call this%init_base(json, case)
+    class(lambda2_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(case_t), intent(inout), target ::case 
 
-       call lambda2_init_from_attributes(this)
+    call this%init_base(json, case)
+
+    call lambda2_init_from_attributes(this)
   end subroutine lambda2_init_from_json
 
   !> Actual constructor.
   subroutine lambda2_init_from_attributes(this)
-       class(lambda2_t), intent(inout) :: this
+    class(lambda2_t), intent(inout) :: this
 
-       this%u => neko_field_registry%get_field_by_name("u")
-       this%v => neko_field_registry%get_field_by_name("v")
-       this%w => neko_field_registry%get_field_by_name("w")
+    this%u => neko_field_registry%get_field_by_name("u")
+    this%v => neko_field_registry%get_field_by_name("v")
+    this%w => neko_field_registry%get_field_by_name("w")
 
-       if (.not. neko_field_registry%field_exists("lambda2")) then
-          call neko_field_registry%add_field(this%u%dof, "lambda2")
-       end if
-       this%lambda2 => neko_field_registry%get_field_by_name("lambda2")
-       !Store lambda2 in the next free field in the fluid output.
-       !If running without scalar this means the temperature field.
-       call this%case%f_out%fluid%append(this%lambda2)
+    if (.not. neko_field_registry%field_exists("lambda2")) then
+       call neko_field_registry%add_field(this%u%dof, "lambda2")
+    end if
+    this%lambda2 => neko_field_registry%get_field_by_name("lambda2")
+    !Store lambda2 in the next free field in the fluid output.
+    !If running without scalar this means the temperature field.
+    call this%case%f_out%fluid%append(this%lambda2)
   end subroutine lambda2_init_from_attributes
 
   !> Destructor.
   subroutine lambda2_free(this)
-       class(lambda2_t), intent(inout) :: this
-       call this%free_base()
+    class(lambda2_t), intent(inout) :: this
+    call this%free_base()
   end subroutine lambda2_free
 
   !> Compute the lambda2 field.
@@ -121,5 +121,5 @@ module lambda2
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 
   end subroutine lambda2_compute
-  
+
 end module lambda2
