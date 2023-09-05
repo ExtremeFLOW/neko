@@ -70,16 +70,16 @@ contains
 
   !> Initialization of point interpolation.
   !! @param xh Function space.
-  subroutine point_interpolator_init(this, xh)
+  subroutine point_interpolator_init(this, Xh)
     class(point_interpolator_t), intent(inout), target :: this
-    type(space_t), intent(in), target :: xh
+    type(space_t), intent(in), target :: Xh
 
-    if ((xh%t .eq. GL) .or. (xh%t .eq. GLL)) then
+    if ((Xh%t .eq. GL) .or. (Xh%t .eq. GLL)) then
     else
        call neko_error('Unsupported interpolation')
     end if
 
-    this%Xh => xh
+    this%Xh => Xh
 
   end subroutine point_interpolator_init
 
@@ -87,7 +87,7 @@ contains
   subroutine point_interpolator_free(this)
     class(point_interpolator_t), intent(inout) :: this
 
-    if (associated(this%xh)) this%xh => null()
+    if (associated(this%Xh)) this%Xh => null()
 
   end subroutine point_interpolator_free
 
@@ -169,9 +169,9 @@ contains
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
     integer :: N
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
     
     N = size(rst)
     allocate(res(N))
@@ -294,9 +294,9 @@ contains
 
     real(kind=rp) :: hr(this%Xh%lx, 2), hs(this%Xh%ly, 2), ht(this%Xh%lz, 2)
     integer :: lx, ly, lz
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
 
     ! Weights
     call fd_weights_full(real(rst%x(1), rp), this%Xh%zg(:,1), lx-1, 1, hr)
