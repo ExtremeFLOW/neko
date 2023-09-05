@@ -281,7 +281,6 @@ contains
        if (this%error_code(i) .eq. 2) then
           call neko_warning("Point not within the mesh!")
           write(*,*) 'point is:', this%xyz(:,i)
-          try_again = .true.
           
           placeholder = this%xyz(1,i) 
           if (placeholder.gt.0) then
@@ -307,6 +306,8 @@ contains
        end if
     end do
 
+    ! Always try again for now, to avoid deadlock
+    try_again = .true.
     if (try_again) then
       
       call neko_warning("Trying mapping again substracting user tols")

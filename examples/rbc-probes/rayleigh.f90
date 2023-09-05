@@ -131,7 +131,7 @@ contains
     !> Set up gslib
     call msh_to_msh%setup(coef)
     !> Map the coordinates
-    call msh_to_msh%map(coef, 1d-6, 1d-6, 1d-6)
+    call msh_to_msh%map(coef, 1d-8, 1d-8, 1d-8)
 
 
   end subroutine user_initialize
