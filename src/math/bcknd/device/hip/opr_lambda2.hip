@@ -35,6 +35,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <hip/hip_runtime.h>
 #include "lambda2_kernel.h"
 #include <device/device_config.h>
 #include <device/hip/check.h>
@@ -78,7 +79,7 @@ extern "C" {
                         (real *) drdx, (real *) dsdx, (real *) dtdx,            \
                         (real *) drdy, (real *) dsdy, (real *) dtdy,            \
                         (real *) drdz, (real *) dsdz, (real *) dtdz,            \
-                        (real *) w3);                                           \
+                        (real *) jacinv);                                           \
     HIP_CHECK(hipGetLastError());                                             
 
 
@@ -91,7 +92,7 @@ extern "C" {
                         (real *) drdx, (real *) dsdx, (real *) dtdx,            \
                         (real *) drdy, (real *) dsdy, (real *) dtdy,            \
                         (real *) drdz, (real *) dsdz, (real *) dtdz,            \
-                        (real *) w3);                                           \
+                        (real *) jacinv);                                           \
     HIP_CHECK(hipGetLastError());                                             
 
 #define CASE(LX)                                                                \
