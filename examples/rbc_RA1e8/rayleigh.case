@@ -52,7 +52,7 @@
     },
     "monitor": {
         "output_control": "simulationtime",
-        "calc_frequency": 1,
+        "calc_frequency": 0.1,
         "verify_bc": true
     }
 }
