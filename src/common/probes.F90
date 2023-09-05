@@ -56,6 +56,7 @@ module probes
   use point_interpolator
   use point, only: point_t
   use space, only: space_t
+  use dofmap, only: dofmap_t
   implicit none
   private
   
@@ -219,8 +220,15 @@ contains
   subroutine probes_debug(this)
     class(probes_t) :: this
 
-    write (*, *) pe_rank, "/", this%proc_owner, "/" , this%el_owner, "/", this%error_code
+    character(len=LOG_SIZE) :: log_buf ! For logging status
+    integer :: i
 
+    do i = 1, this%n_probes
+       write (log_buf, *) pe_rank, "/", this%proc_owner(i), "/" , this%el_owner(i), "/", this%error_code(i)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') "rst: ", this%rst(i)%x
+       call neko_log%message(log_buf)
+    end do
   end subroutine probes_debug
 
   !> Setup the probes for mapping process (with fgslib_findpts_setup).
@@ -293,9 +301,11 @@ contains
     do i=1,this%n_probes
 
        ! Reformat the rst array into points
-       this%rst(i)%x(1) = rst_gslib_raw(3*i)
-       this%rst(i)%x(2) = rst_gslib_raw(3*i + 1)
-       this%rst(i)%x(3) = rst_gslib_raw(3*i + 2)
+       this%rst(i)%x(1) = rst_gslib_raw(3*(i-1) + 1)
+       this%rst(i)%x(2) = rst_gslib_raw(3*(i-1) + 2)
+       this%rst(i)%x(3) = rst_gslib_raw(3*(i-1) + 3)
+
+!       write(*, *) "Old: ", rst_gslib_raw(3*(i-1)+1:3*(i-1)+3), "| new: ", this%rst(i)%x
 
        ! Check validity of points
        if (this%error_code(i) .eq. 1) then
@@ -312,7 +322,6 @@ contains
 #endif
 
   end subroutine probes_map
-
 
   !> Interpolate each probe from its `r,s,t` coordinates.
   !! @note The final interpolated field is only available on rank 0.
@@ -335,7 +344,6 @@ contains
     real(kind=rp) :: my_interpolated_field(1)
 
 #ifdef HAVE_GSLIB
-
 
     n = this%sampled_fields%fields(1)%f%dof%size()
 
@@ -362,17 +370,18 @@ contains
 
              ! Each rank interpolates their own points
              if (pe_rank .eq. this%proc_owner(i)) then
-                my_rst(1) = this%rst(i)
+
+                my_rst(1) = this%rst(i)%x
 
                 my_interpolated_field = this%interpolator%interpolate(my_rst, &
-                     this%sampled_fields%fields(il)%f%x(:,:,:,this%el_owner(i)))
+                     this%sampled_fields%fields(il)%f%x(:,:,:,this%el_owner(i)+1))
 
                 local_out_field(i) = my_interpolated_field(1)
              end if
           end do
 
           ! Artificial way to gather all values to rank 0
-          call MPI_Reduce(local_out_field, this%out_fields(il,1), this%n_probes, &
+          call MPI_Reduce(local_out_field, this%out_fields(1, il), this%n_probes, &
                MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
 
        end do
@@ -461,7 +470,7 @@ contains
     allocate(this%dist2(n_probes))
     allocate(this%error_code(n_probes))
     allocate(this%rst(n_probes))
-    allocate(this%out_fields(n_fields, n_probes))
+    allocate(this%out_fields(n_probes, n_fields))
 
   end subroutine probes_allocate_fields
 
