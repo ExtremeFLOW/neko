@@ -76,12 +76,15 @@ module mesh_to_mesh_interpolator
      integer, allocatable :: error_code(:)
      !> r,s,t coordinates, findpts format
      type(point_t), allocatable :: rst(:)
+     real(kind=rp), allocatable :: rst_raw(:)
      !> x,y,z coordinates, findpts format
      real(kind=rp), allocatable :: xyz(:,:)
      !> interpolated fields
      real(kind=rp), allocatable :: out_fields(:,:)
      !> Time based controller for sampling
      type(time_based_controller_t) :: controller
+     !> Time based controller for sampling
+     logical :: if_gslib_interpolator
      !> Fields to be probed
      type(field_list_t), pointer :: sampled_fields
      character(len=20), allocatable  :: which_fields(:)
@@ -118,7 +121,7 @@ contains
 
   !> Initialize the objects.
   subroutine msh_to_msh_int_init(this, x_in,  y_in,  z_in,  lx_in,  ly_in,  lz_in,  nelv_in,  &
-                                       x_out, y_out, z_out, n_out, field_list, Xh)
+                  x_out, y_out, z_out, n_out, field_list, Xh, if_gslib_interpolator)
 
     class(mesh_to_mesh_interpolator_t), intent(inout) :: this
     integer, intent(in) :: lx_in, ly_in, lz_in, nelv_in, n_out
@@ -130,6 +133,7 @@ contains
     real(kind=rp), intent(in) :: z_out(n_out)
     type(field_list_t), intent(in), target :: field_list
     type(space_t), intent(in) :: Xh
+    logical, intent(in), optional :: if_gslib_interpolator
     integer :: n_probes, n_in, i, n_fields
 
     ! Calculate parameters
@@ -145,6 +149,12 @@ contains
     this%lz_in     = lz_in
     this%nelv_in   = nelv_in
 
+    if (present(if_gslib_interpolator)) then
+        this%if_gslib_interpolator = if_gslib_interpolator
+    else
+        this%if_gslib_interpolator = .false.
+    end if
+
     ! Assign pointers
     this%sampled_fields => field_list
 
@@ -158,8 +168,14 @@ contains
     allocate(this%el_owner(n_probes))
     allocate(this%dist2(n_probes))
     allocate(this%error_code(n_probes))
-    allocate(this%rst(n_probes))
-    allocate(this%out_fields(n_probes, n_fields))
+    
+    if (this%if_gslib_interpolator) then
+       allocate(this%rst_raw(3*n_probes))     
+       allocate(this%out_fields(n_fields, n_probes))
+    else
+       allocate(this%rst(n_probes))
+       allocate(this%out_fields(n_probes, n_fields))
+    end if
 
     !> Copy the mesh data to appropiate place in object
     call copy(this%x_in, x_in, n_in)
@@ -171,7 +187,6 @@ contains
        this%xyz(2,i) = y_out(i)
        this%xyz(3,i) = z_out(i)
     end do
-
 
     !> Initialize the interpolator with a function space
     call this%interpolator%init(xh)
@@ -325,11 +340,6 @@ contains
       ! Final check to see if there are any problems
       do i=1,this%n_probes
              
-         ! Reformat the rst array into points
-         this%rst(i)%x(1) = rst_gslib_raw(3*(i-1) + 1)
-         this%rst(i)%x(2) = rst_gslib_raw(3*(i-1) + 2)
-         this%rst(i)%x(3) = rst_gslib_raw(3*(i-1) + 3)
-
          if (this%error_code(i) .eq. 1) then
             if (this%dist2(i) .gt. tol_dist) then
                call neko_warning("Point on boundary or outside the mesh!")
@@ -343,6 +353,19 @@ contains
       end do
 
       call neko_warning("New mapping done")
+    end if
+
+    ! Assign the rst coordinates in the appropiate format
+    ! depending on the interpolator of choice
+    if (this%if_gslib_interpolator) then
+         call copy(this%rst_raw, rst_gslib_raw, 3*this%n_probes)     
+    else
+       do i=1,this%n_probes
+         ! Reformat the rst array into points
+         this%rst(i)%x(1) = rst_gslib_raw(3*(i-1) + 1)
+         this%rst(i)%x(2) = rst_gslib_raw(3*(i-1) + 2)
+         this%rst(i)%x(3) = rst_gslib_raw(3*(i-1) + 3)
+       end do
     end if
 
 #else
@@ -371,39 +394,48 @@ contains
 #ifdef HAVE_GSLIB
     n = this%sampled_fields%fields(1)%f%dof%size()
 
-    !! Interpolate the fields
-    do il = 1, this%n_fields
 
-       ! Copy the field to the CPU if the data is in the device
-       if (NEKO_BCKND_DEVICE .eq. 1) then 
+    if (this%if_gslib_interpolator) then
+         
+      do il = 1, this%n_fields
+        ! Copy the field to the CPU if the data is in the device
+        if (NEKO_BCKND_DEVICE .eq. 1) then 
           call device_memcpy(this%sampled_fields%fields(il)%f%x, &
-                          this%sampled_fields%fields(il)%f%x_d, &
-                          n, DEVICE_TO_HOST)
-       end if
+                            this%sampled_fields%fields(il)%f%x_d, &
+                            n, DEVICE_TO_HOST)
+        end if
+        call fgslib_findpts_eval(this%handle, this%out_fields(il,1), this%n_fields, &
+                                 this%error_code, 1, &
+                                 this%proc_owner, 1, &
+                                 this%el_owner, 1, &
+                                 this%rst_raw, this%sampled_fields%fields(il)%f%msh%gdim, &
+                                 this%n_probes, this%sampled_fields%fields(il)%f%x)
+      end do
 
-       ! Initialize the local interpolated field with 0 since we are
-       ! Reducing later with MPI_MAX
-       call rzero(local_out_field, this%n_probes)
+    else
 
-       do i = 1, this%n_probes
-
-          ! Each rank interpolates their own points
-          if (pe_rank .eq. this%proc_owner(i)) then
-
-             my_rst(1) = this%rst(i)%x
-
-             my_interpolated_field = this%interpolator%interpolate(my_rst, &
+      !! Interpolate the fields
+      do il = 1, this%n_fields
+         ! Copy the field to the CPU if the data is in the device
+         if (NEKO_BCKND_DEVICE .eq. 1) then 
+            call device_memcpy(this%sampled_fields%fields(il)%f%x, &
+                            this%sampled_fields%fields(il)%f%x_d, &
+                            n, DEVICE_TO_HOST)
+         end if 
+          call rzero(local_out_field, this%n_probes)
+          do i = 1, this%n_probes
+             ! Each rank interpolates their own points
+             if (pe_rank .eq. this%proc_owner(i)) then
+                my_rst(1) = this%rst(i)%x
+                my_interpolated_field = this%interpolator%interpolate(my_rst, &
                      this%sampled_fields%fields(il)%f%x(:,:,:,this%el_owner(i)+1))
-
-             local_out_field(i) = my_interpolated_field(1)
-          end if
+                local_out_field(i) = my_interpolated_field(1)
+             end if
+          end do
+          call copy(this%out_fields(1,il), local_out_field, this%n_probes)
        end do
 
-       ! Copy the data to the output - be careful with comunicating it if needed
-       call copy(this%out_fields(1,il), local_out_field, this%n_probes)
-
-    end do
-
+    end if
 
 #else
     call neko_error('NEKO needs to be built with GSLIB support')

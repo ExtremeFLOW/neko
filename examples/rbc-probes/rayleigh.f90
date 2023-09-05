@@ -126,7 +126,7 @@ contains
     ! Initialize the mesh to mesh interpolation  
     call msh_to_msh%init(coef%dof%x, coef%dof%y, coef%dof%z, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv, &
                          coef%dof%x, coef%dof%y, coef%dof%z, coef%Xh%lx*coef%Xh%ly*coef%Xh%lz*coef%msh%nelv, &
-                         sampled_fields, coef%Xh)
+                         sampled_fields, coef%Xh, .false.)
 
     !> Set up gslib
     call msh_to_msh%setup(coef)
@@ -179,6 +179,8 @@ contains
     type(field_t), intent(inout) :: p
 
     integer :: i, lx, ly, lz, nelv, n
+    type(field_t), pointer :: s
+    s => neko_field_registry%get_field('s')
    
     lx = u%Xh%lx
     ly = u%Xh%ly
@@ -192,7 +194,7 @@ contains
     call msh_to_msh%interpolate()
 
     do i = 1, n
-      write(*,*) "It should be: ", u%x(i,1,1,1), "and it is: ", msh_to_msh%out_fields(i,1)
+      write(*,*) "It should be: ", s%x(i,1,1,1), "and it is: ", msh_to_msh%out_fields(i,5)
     end do
 
   end subroutine check
