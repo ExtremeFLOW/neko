@@ -739,6 +739,20 @@ module user
   type(field_t) , target:: dtdz ! Derivative of scalar wrt z
   type(field_t) , target:: dtdn ! Derivative of scalar wrt normal
   type(field_t) , target:: div_dtdX ! divergence of heat flux
+
+  type(field_t) , target:: dudx ! Derivative wrt x
+  type(field_t) , target:: dudy ! Detivative wrt y
+  type(field_t) , target:: dudz ! Derivative wrt z
+  type(field_t) , target:: dvdx ! Derivative wrt x
+  type(field_t) , target:: dvdy ! Detivative wrt y
+  type(field_t) , target:: dvdz ! Derivative wrt z
+  type(field_t) , target:: dwdx ! Derivative wrt x
+  type(field_t) , target:: dwdy ! Detivative wrt y
+  type(field_t) , target:: dwdz ! Derivative wrt z
+
+  type(field_t) , target:: eps_k ! Detivative wrt y
+  type(field_t) , target:: eps_t ! Derivative wrt z
+  
   type(field_t) , target:: mass_area_top ! mass matrix for area on top wall
   type(field_t) , target:: mass_area_bot ! mass matrix for area on bottom wall
   type(field_t) , target:: mass_area_side ! mass matrix for area on top wall
@@ -764,6 +778,7 @@ module user
   type(field_list_t) :: speri_l
   type(field_list_t) :: area_l
   type(field_list_t) :: dtdX_l
+  type(field_list_t) :: eps_l
 
   !> Boundary conditions  
   integer :: istep = 1
@@ -774,8 +789,10 @@ module user
   character(len=NEKO_FNAME_LEN) :: fname_area
   character(len=NEKO_FNAME_LEN) :: fname_bm1
   character(len=NEKO_FNAME_LEN) :: fname_speri
+  character(len=NEKO_FNAME_LEN) :: fname_eps
   type(file_t) :: mf_dtdn
   type(file_t) :: mf_dtdX
+  type(file_t) :: mf_eps
   type(file_t) :: mf_area
   type(file_t) :: mf_bm1
   type(file_t) :: mf_speri
@@ -955,6 +972,21 @@ contains
     call field_init(dtdy, u%dof, 'dtdy')
     call field_init(dtdz, u%dof, 'dtdz')
     call field_init(dtdn, u%dof, 'dtdn')
+    
+    call field_init(dudx, u%dof, 'dudx')
+    call field_init(dudy, u%dof, 'dudy')
+    call field_init(dudz, u%dof, 'dudz')
+    call field_init(dvdx, u%dof, 'dvdx')
+    call field_init(dvdy, u%dof, 'dvdy')
+    call field_init(dvdz, u%dof, 'dvdz')
+    call field_init(dwdx, u%dof, 'dwdx')
+    call field_init(dwdy, u%dof, 'dwdy')
+    call field_init(dwdz, u%dof, 'dwdz')
+
+
+    call field_init(eps_k, u%dof, 'eps_k')
+    call field_init(eps_t, u%dof, 'eps_t')
+
     call field_init(div_dtdX, u%dof, 'div_dtdX')
     call field_init(mass_area_top, u%dof, 'mat')
     call field_init(mass_area_bot, u%dof, 'mab')
@@ -967,11 +999,13 @@ contains
 
     !> Initialize the file
     fname_dtdX = 'dtdX.fld'
+    fname_eps = 'eps.fld'
     fname_dtdn = 'dtdn.fld'
     fname_area = 'area.fld'
     fname_bm1 = 'bm1.fld'
     fname_speri = 'speri.fld'
     mf_dtdX =  file_t(fname_dtdX)
+    mf_eps =  file_t(fname_eps)
     mf_dtdn =  file_t(fname_dtdn)
     mf_area =  file_t(fname_area)
     mf_bm1 =  file_t(fname_bm1)
@@ -983,6 +1017,8 @@ contains
     call list_init3(area_l,mass_area_top,mass_area_bot, &
                          mass_area_side)
     call list_init3(dtdX_l,dtdx,dtdy, &
+                         dtdz)
+    call list_init3(eps_l,eps_t,eps_k, &
                          dtdz)
 
     !> Initialize list to identify relevant facets in boundaries
@@ -1114,6 +1150,20 @@ contains
     call field_free(dtdz)
     call field_free(dtdn)
     call field_free(div_dtdX)
+
+    call field_free(dudx)
+    call field_free(dudy)
+    call field_free(dudz)
+    call field_free(dvdx)
+    call field_free(dvdy)
+    call field_free(dvdz)
+    call field_free(dwdx)
+    call field_free(dwdy)
+    call field_free(dwdz)
+
+    call field_free(eps_k)
+    call field_free(eps_t)
+    
     call field_free(mass_area_top)
     call field_free(mass_area_bot)
     call field_free(mass_area_side)
@@ -1133,6 +1183,7 @@ contains
     call list_final3(speri_l)
     call list_final3(area_l)
     call list_final3(dtdX_l)
+    call list_final3(eps_l)
 
     ! deallocate the calc controllers
     if (allocated(controllers)) then
@@ -1245,6 +1296,18 @@ contains
     call device_memcpy(dtdy%x,dtdy%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdz%x,dtdz%x_d, n,DEVICE_TO_HOST)
     call mf_dtdX%write(dtdX_l,t)
+
+
+    !> Calculate dissipations
+    call calculate_thermal_dissipation(eps_t, dtdx,dtdy,dtdz, &
+                                       work_field,Ra,Pr)
+
+    !> Write the derivatives
+    call device_memcpy(eps_t%x,eps_t%x_d, n,DEVICE_TO_HOST)
+    call device_memcpy(eps_k%x,eps_k%x_d, n,DEVICE_TO_HOST)
+    call mf_eps%write(eps_l,t)
+
+
 
     ! Calculate some extra parameters to verify the boundary conditions
     if (verify_bc.eqv..true.) then
@@ -1493,5 +1556,39 @@ contains
     end if
      
   end subroutine divergence_of_field
+
+  subroutine calculate_thermal_dissipation(eps_t, dtdx,dtdy,dtdz, work_field,Ra,Pr)
+    type(field_t), intent(inout) :: eps_t
+    type(field_t), intent(inout) :: dtdx
+    type(field_t), intent(inout) :: dtdy
+    type(field_t), intent(inout) :: dtdz
+    type(field_t), intent(inout) :: work_field
+    real(kind=rp), intent(in) :: Ra
+    real(kind=rp), intent(in) :: Pr
+     
+    real(kind=rp) :: sqrtRaPr_inv
+    integer :: n
+
+    n = eps_t%dof%size()
+    sqrtRaPr_inv = 1/sqrt(Ra*Pr)
+
+    !Thermal dissipation epsT=(grad T)**2/sqrt(RaPr)
+    !jorg did it as epsT=((dtdx)**2+(dtdy)**2+(dtdz)**2)/sqrt(RaPr)
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+        call device_rzero(eps_t%x_d,n)
+        call device_addsqr2s2(eps_t%x_d, dtdx%x_d, sqrtRaPr_inv, n)
+        call device_addsqr2s2(eps_t%x_d, dtdy%x_d, sqrtRaPr_inv, n)
+        call device_addsqr2s2(eps_t%x_d, dtdz%x_d, sqrtRaPr_inv, n)
+    else
+        call rzero(eps_t%x,n)
+        call addsqr2s2(eps_t%x, dtdx%x, sqrtRaPr_inv, n)
+        call addsqr2s2(eps_t%x, dtdy%x, sqrtRaPr_inv, n)
+        call addsqr2s2(eps_t%x, dtdz%x, sqrtRaPr_inv, n)
+  
+    end if
+
+  end subroutine calculate_thermal_dissipation
+
+
 
 end module user
