@@ -1268,6 +1268,18 @@ contains
     call dudxyz (dtdx%x, s%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (dtdy%x, s%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (dtdz%x, s%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    
+    call dudxyz (dudx%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (dudy%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (dudz%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    
+    call dudxyz (dvdx%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (dvdy%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (dvdz%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    
+    call dudxyz (dwdx%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz (dwdy%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz (dwdz%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     !> --------------------------------------------------
 
     !> Get the required averages minding the appropiate weights
@@ -1300,6 +1312,10 @@ contains
 
     !> Calculate dissipations
     call calculate_thermal_dissipation(eps_t, dtdx,dtdy,dtdz, &
+                                       work_field,Ra,Pr)
+    call calculate_kinetic_dissipation(eps_k, dudx,dudy,dudz, &
+                                       dvdx,dvdy,dvdz, &
+                                       dwdx,dwdy,dwdz, &
                                        work_field,Ra,Pr)
 
     !> Write the derivatives
@@ -1557,6 +1573,7 @@ contains
      
   end subroutine divergence_of_field
 
+
   subroutine calculate_thermal_dissipation(eps_t, dtdx,dtdy,dtdz, work_field,Ra,Pr)
     type(field_t), intent(inout) :: eps_t
     type(field_t), intent(inout) :: dtdx
@@ -1570,7 +1587,7 @@ contains
     integer :: n
 
     n = eps_t%dof%size()
-    sqrtRaPr_inv = 1/sqrt(Ra*Pr)
+    sqrtRaPr_inv = 1_rp/sqrt(Ra*Pr)
 
     !Thermal dissipation epsT=(grad T)**2/sqrt(RaPr)
     !jorg did it as epsT=((dtdx)**2+(dtdy)**2+(dtdz)**2)/sqrt(RaPr)
@@ -1588,6 +1605,84 @@ contains
     end if
 
   end subroutine calculate_thermal_dissipation
+  
+  
+  
+  subroutine calculate_kinetic_dissipation(eps_k, dudx,dudy,dudz, &
+                                                  dvdx,dvdy,dvdz, &
+                                                  dwdx,dwdy,dwdz, &
+                                                  work_field,Ra,Pr)
+    type(field_t), intent(inout) :: eps_k
+    type(field_t), intent(inout) :: dudx
+    type(field_t), intent(inout) :: dudy
+    type(field_t), intent(inout) :: dudz
+    type(field_t), intent(inout) :: dvdx
+    type(field_t), intent(inout) :: dvdy
+    type(field_t), intent(inout) :: dvdz
+    type(field_t), intent(inout) :: dwdx
+    type(field_t), intent(inout) :: dwdy
+    type(field_t), intent(inout) :: dwdz
+    type(field_t), intent(inout) :: work_field
+    real(kind=rp), intent(in) :: Ra
+    real(kind=rp), intent(in) :: Pr
+     
+    real(kind=rp) :: sqrtPr_Ra, c1 = 1, c2 = 1
+    integer :: n
+
+    n = eps_t%dof%size()
+    sqrtPr_Ra = sqrt(Pr/Ra)*0.5_rp
+
+    !Energy dissipation epsv=0.5*(du_i/dx_j+du_j/dx_i)**2*sqrt(Pr/Ra)
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+        call device_rzero(eps_k%x_d,n)
+        
+        call device_add3s2(work_field%x_d,dudx%x_d,dudx%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_add3s2(work_field%x_d,dudy%x_d,dvdx%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_add3s2(work_field%x_d,dudz%x_d,dwdx%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+
+        call device_add3s2(work_field%x_d,dvdx%x_d,dudy%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_add3s2(work_field%x_d,dvdy%x_d,dvdy%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_add3s2(work_field%x_d,dvdz%x_d,dwdy%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+
+        call device_add3s2(work_field%x_d,dwdx%x_d,dudz%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_add3s2(work_field%x_d,dwdy%x_d,dvdz%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+        call device_add3s2(work_field%x_d,dwdz%x_d,dwdz%x_d,c1,c1,n)
+        call device_addsqr2s2(eps_k%x_d, work_field%x_d, sqrtPr_Ra, n)
+    else
+        call rzero(eps_k%x,n)
+        
+        call add3s2(work_field%x,dudx%x,dudx%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call add3s2(work_field%x,dudy%x,dvdx%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call add3s2(work_field%x,dudz%x,dwdx%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+
+        call add3s2(work_field%x,dvdx%x,dudy%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call add3s2(work_field%x,dvdy%x,dvdy%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call add3s2(work_field%x,dvdz%x,dwdy%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+
+        call add3s2(work_field%x,dwdx%x,dudz%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call add3s2(work_field%x,dwdy%x,dvdz%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+        call add3s2(work_field%x,dwdz%x,dwdz%x,c1,c1,n)
+        call addsqr2s2(eps_k%x, work_field%x, sqrtPr_Ra, n)
+
+    end if
+
+  end subroutine calculate_kinetic_dissipation
 
 
 
