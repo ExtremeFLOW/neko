@@ -50,6 +50,7 @@ The three following options are possible.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
    performed in the course of the simulation.
+4. `never`, then `_value` is ignored and output is never performed.
 
 
 ## The `case` object 
@@ -283,5 +284,10 @@ Simulation components enable the user to perform various additional operations,
 which are not strictly necessary to run the solver. An example could be
 computing and output of additional fields, e.g. vorticity.
 
+<<<<<<< HEAD
 A full list of available components and their setup is provided in a sperate
 page of the manual.
+=======
+A more detailed description as well as a  full list of available components and
+ their setup is provided in a sperate page of the manual.
+>>>>>>> develop

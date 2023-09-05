@@ -50,8 +50,12 @@ module probes
   use json_utils, only : json_get
   use device
   use file
+  use math, only: rzero
   use csv_file
   use tensor
+  use point_interpolator
+  use point, only: point_t
+  use space, only: space_t
   implicit none
   private
   
@@ -71,7 +75,7 @@ module probes
      !> Error code for each point
      integer, allocatable :: error_code(:)
      !> r,s,t coordinates, findpts format
-     real(kind=rp), allocatable :: rst(:)
+     type(point_t), allocatable :: rst(:)
      !> x,y,z coordinates, findpts format
      real(kind=rp), allocatable :: xyz(:,:)
      !> interpolated fields
@@ -81,6 +85,8 @@ module probes
      !> Fields to be probed
      type(field_list_t) :: sampled_fields
      character(len=20), allocatable  :: which_fields(:)
+     !> Interpolator instead of findpts_eval
+     type(point_interpolator_t) :: interpolator
 
      contains
        !> Initialize probes object.
@@ -107,10 +113,13 @@ contains
   !> Initialize user defined variables.
   !! @param t Current simulation time.
   !! @param params case file.
-  subroutine probes_init(this, t, params)
+  !! @coef Xh Function space.
+  subroutine probes_init(this, t, params, xh)
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     type(json_file), intent(inout) :: params
+    type(space_t), intent(in) :: xh
+
     ! Counter
     integer :: i
     ! Controller parameters 
@@ -150,6 +159,9 @@ contains
     !> Read file
     call read_probe_locations(this, points_file)
 
+    !> Initialize the interpolator with a function space
+    call this%interpolator%init(xh)
+
   end subroutine probes_init
 
 
@@ -166,15 +178,15 @@ contains
     if (allocated(this%out_fields)) deallocate(this%out_fields)
     if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
 
+    call this%interpolator%free
+
 #ifdef HAVE_GSLIB
     call fgslib_findpts_free(this%handle)
 #else
     call neko_error('NEKO needs to be built with GSLIB support')
 #endif
-    
 
   end subroutine probes_free
-
 
   !> Print current probe status, with number of probes and coordinates
   subroutine probes_show(this)
@@ -207,8 +219,15 @@ contains
   subroutine probes_debug(this)
     class(probes_t) :: this
 
-    write (*, *) pe_rank, "/", this%proc_owner, "/" , this%el_owner, "/", this%error_code
+    character(len=LOG_SIZE) :: log_buf ! For logging status
+    integer :: i
 
+    do i = 1, this%n_probes
+       write (log_buf, *) pe_rank, "/", this%proc_owner(i), "/" , this%el_owner(i), "/", this%error_code(i)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') "rst: ", this%rst(i)%x
+       call neko_log%message(log_buf)
+    end do
   end subroutine probes_debug
 
   !> Setup the probes for mapping process (with fgslib_findpts_setup).
@@ -258,6 +277,8 @@ contains
     class(probes_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef 
 
+    real(kind=rp) :: rst_gslib_raw(3*this%n_probes)
+
     real(kind=rp) :: tol_dist = 5d-6
     integer :: i
 
@@ -266,14 +287,26 @@ contains
          this%error_code, 1, &
          this%proc_owner, 1, &
          this%el_owner, 1, &
-         this%rst, coef%msh%gdim, &
+         rst_gslib_raw, coef%msh%gdim, &
          this%dist2, 1, &
          this%xyz(1,1), coef%msh%gdim, &
          this%xyz(2,1), coef%msh%gdim, &
          this%xyz(3,1), coef%msh%gdim, this%n_probes)
 
-    ! Final check to see if there are any problems
+    !
+    ! Reformat the rst_raw array and
+    ! final check to see if there are any problems
+    !
     do i=1,this%n_probes
+
+       ! Reformat the rst array into points
+       this%rst(i)%x(1) = rst_gslib_raw(3*(i-1) + 1)
+       this%rst(i)%x(2) = rst_gslib_raw(3*(i-1) + 2)
+       this%rst(i)%x(3) = rst_gslib_raw(3*(i-1) + 3)
+
+!       write(*, *) "Old: ", rst_gslib_raw(3*(i-1)+1:3*(i-1)+3), "| new: ", this%rst(i)%x
+
+       ! Check validity of points
        if (this%error_code(i) .eq. 1) then
           if (this%dist2(i) .gt. tol_dist) then
              call neko_warning("Point on boundary or outside the mesh!")
@@ -289,8 +322,8 @@ contains
 
   end subroutine probes_map
 
-
   !> Interpolate each probe from its `r,s,t` coordinates.
+  !! @note The final interpolated field is only available on rank 0.
   !! @param t Current simulation time.
   !! @param tstep Current time step.
   !! @param write_output Flag for writing output data.
@@ -301,31 +334,55 @@ contains
     logical, intent(inout) :: write_output
 
     !> Supporting variables
-    integer :: il 
+    integer :: il, i
     integer :: n
+    integer :: ierr
+    !> Will store the local interpolated field for each rank
+    real(kind=rp) :: local_out_field(this%n_probes)
+    type(point_t) :: my_rst(1)
+    real(kind=rp) :: my_interpolated_field(1)
 
 #ifdef HAVE_GSLIB
+
     n = this%sampled_fields%fields(1)%f%dof%size()
 
     !> Check controller to determine if we must write
     if (this%controller%check(t, tstep, .false.)) then
 
-       !! Interpolate the fields
+       !
+       ! Interpolate the fields
+       !
        do il = 1, this%n_fields
 
           ! Copy the field to the CPU if the data is in the device
-          if (NEKO_BCKND_DEVICE .eq. 1) then 
+          if (NEKO_BCKND_DEVICE .eq. 1) then
              call device_memcpy(this%sampled_fields%fields(il)%f%x, &
                              this%sampled_fields%fields(il)%f%x_d, &
                              n, DEVICE_TO_HOST)
           end if
 
-          call fgslib_findpts_eval(this%handle, this%out_fields(il,1), this%n_fields, &
-                                   this%error_code, 1, &
-                                   this%proc_owner, 1, &
-                                   this%el_owner, 1, &
-                                   this%rst, this%sampled_fields%fields(il)%f%msh%gdim, &
-                                   this%n_probes, this%sampled_fields%fields(il)%f%x)
+          ! Initialize the local interpolated field with 0 since we are
+          ! Reducing later with MPI_MAX
+          call rzero(local_out_field, this%n_probes)
+
+          do i = 1, this%n_probes
+
+             ! Each rank interpolates their own points
+             if (pe_rank .eq. this%proc_owner(i)) then
+
+                my_rst(1) = this%rst(i)%x
+
+                my_interpolated_field = this%interpolator%interpolate(my_rst, &
+                     this%sampled_fields%fields(il)%f%x(:,:,:,this%el_owner(i)+1))
+
+                local_out_field(i) = my_interpolated_field(1)
+             end if
+          end do
+
+          ! Artificial way to gather all values to rank 0
+          call MPI_Reduce(local_out_field, this%out_fields(1, il), this%n_probes, &
+               MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
+
        end do
 
        !! Turn on flag to write output
@@ -411,9 +468,8 @@ contains
     allocate(this%el_owner(n_probes))
     allocate(this%dist2(n_probes))
     allocate(this%error_code(n_probes))
-    ! Size of rst as used in gslib
-    allocate(this%rst(3*n_probes))     
-    allocate(this%out_fields(n_fields, n_probes))
+    allocate(this%rst(n_probes))
+    allocate(this%out_fields(n_probes, n_fields))
 
   end subroutine probes_allocate_fields
 
