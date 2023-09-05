@@ -80,6 +80,7 @@ module neko
   use vector
   use simulation_component
   use probes
+  use mesh_to_mesh_interpolator
   use system
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry

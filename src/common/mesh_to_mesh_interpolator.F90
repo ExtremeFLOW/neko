@@ -80,7 +80,7 @@ module mesh_to_mesh_interpolator
      !> Time based controller for sampling
      type(time_based_controller_t) :: controller
      !> Fields to be probed
-     type(field_list_t) :: sampled_fields
+     type(field_list_t), pointer :: sampled_fields
      character(len=20), allocatable  :: which_fields(:)
      !> Coordinated of the input mesh
      real(kind=rp), allocatable :: x_in(:,:,:,:)       !< Mapping to x-coordinates
@@ -113,33 +113,34 @@ contains
 
   !> Initialize the objects.
   subroutine msh_to_msh_int_init(this, x_in,  y_in,  z_in,  lx_in,  ly_in,  lz_in,  nelv_in,  &
-                                   x_out, y_out, z_out, lx_out, ly_out, lz_out, nelv_out, &
-                                   n_fields)
+                                       x_out, y_out, z_out, n_out, field_list)
+
     class(mesh_to_mesh_interpolator_t), intent(inout) :: this
-    integer, intent(in) :: lx_in, ly_in, lz_in, nelv_in
+    integer, intent(in) :: lx_in, ly_in, lz_in, nelv_in, n_out
     real(kind=rp), intent(in) :: x_in(lx_in, ly_in, lz_in, nelv_in)
     real(kind=rp), intent(in) :: y_in(lx_in, ly_in, lz_in, nelv_in)
     real(kind=rp), intent(in) :: z_in(lx_in, ly_in, lz_in, nelv_in)
-    integer, intent(in) :: lx_out, ly_out, lz_out, nelv_out
-    real(kind=rp), intent(in) :: x_out(lx_out, ly_out, lz_out, nelv_out)
-    real(kind=rp), intent(in) :: y_out(lx_out, ly_out, lz_out, nelv_out)
-    real(kind=rp), intent(in) :: z_out(lx_out, ly_out, lz_out, nelv_out)
-    integer, intent(in) :: n_fields
-    integer :: n_probes, n_in, i
+    real(kind=rp), intent(in) :: x_out(n_out)
+    real(kind=rp), intent(in) :: y_out(n_out)
+    real(kind=rp), intent(in) :: z_out(n_out)
+    type(field_list_t), intent(in), target :: field_list
+    integer :: n_probes, n_in, i, n_fields
 
-    !Assign mesh parameters
+    ! Calculate parameters
     n_in           = lx_in * ly_in * lz_in * nelv_in
-    n_probes       = lx_out * ly_out * lz_out * nelv_out
+    n_probes       = n_out
+    n_fields       = size(field_list%fields)
+
+    ! Assign parameters
     this%n_probes  = n_probes
     this%n_fields  = n_fields
     this%lx_in     = lx_in
     this%ly_in     = ly_in
     this%lz_in     = lz_in
     this%nelv_in   = nelv_in
-    this%lx_out    = lx_out
-    this%ly_out    = ly_out
-    this%lz_out    = lz_out
-    this%nelv_out  = nelv_out
+
+    ! Assign pointers
+    this%sampled_fields => field_list
 
     !> Allocate memory
     ! Size of xyz as used in gslib
@@ -160,18 +161,10 @@ contains
     call copy(this%y_in, y_in, n_in)
     call copy(this%z_in, z_in, n_in)
     do i = 1, n_probes
-       this%xyz(1,i) = x_out(i,1,1,1)
-       this%xyz(2,i) = y_out(i,1,1,1)
-       this%xyz(3,i) = z_out(i,1,1,1)
+       this%xyz(1,i) = x_out(i)
+       this%xyz(2,i) = y_out(i)
+       this%xyz(3,i) = z_out(i)
     end do
-
-    !Consider passing this as an input now, or in interpolate
-    allocate(this%sampled_fields%fields(this%n_fields))
-    this%sampled_fields%fields(1)%f => neko_field_registry%get_field("u")
-    this%sampled_fields%fields(2)%f => neko_field_registry%get_field("v")
-    this%sampled_fields%fields(3)%f => neko_field_registry%get_field("w")
-    this%sampled_fields%fields(4)%f => neko_field_registry%get_field("p")
-    this%sampled_fields%fields(5)%f => neko_field_registry%get_field("s")
 
   end subroutine msh_to_msh_int_init
 
@@ -197,7 +190,6 @@ contains
     call neko_error('NEKO needs to be built with GSLIB support')
 #endif
     
-
   end subroutine msh_to_msh_int_free
 
   !> Setup gslib for mapping process (with fgslib_findpts_setup).
@@ -242,14 +234,13 @@ contains
   !! - `dist2`: distance squared (used to compare the points found by each
   !! processor)
   !! @param coef Coefficients associated with the probe's fields.
-  subroutine msh_to_msh_int_map(this, coef)
+  subroutine msh_to_msh_int_map(this, coef, tol_x, tol_y, tol_z)
     class(mesh_to_mesh_interpolator_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef 
-   
-    
-    real(kind=rp) :: tol_x = 1d-6
-    real(kind=rp) :: tol_y = 1d-6
-    real(kind=rp) :: tol_z = 1d-6
+    type(coef_t), intent(in) :: coef  
+    real(kind=rp), intent(in) :: tol_x
+    real(kind=rp), intent(in) :: tol_y
+    real(kind=rp), intent(in) :: tol_z
+
     type(logical) :: try_again = .false.
     real(kind=rp) :: tol_dist = 5d-6
     real(kind=rp) :: placeholder

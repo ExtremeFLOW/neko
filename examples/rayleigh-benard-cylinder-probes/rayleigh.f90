@@ -1,6 +1,5 @@
 module user
   use neko
-  use mesh_to_mesh_interpolator, only : mesh_to_mesh_interpolator_t
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
@@ -10,6 +9,7 @@ module user
 
 
   type(mesh_to_mesh_interpolator_t) :: msh_to_msh
+  type(field_list_t) :: sampled_fields
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -114,16 +114,24 @@ contains
     Ra = (Re**2)*Pr
     write(log_buf,*) 'Rayleigh Number is Ra=', Ra
     call neko_log%message(log_buf)
-    
+   
+    !Consider passing this as an input now, or in interpolate
+    allocate(sampled_fields%fields(5))
+    sampled_fields%fields(1)%f => neko_field_registry%get_field("u")
+    sampled_fields%fields(2)%f => neko_field_registry%get_field("v")
+    sampled_fields%fields(3)%f => neko_field_registry%get_field("w")
+    sampled_fields%fields(4)%f => neko_field_registry%get_field("p")
+    sampled_fields%fields(5)%f => neko_field_registry%get_field("s")
+
     ! Initialize the mesh to mesh interpolation  
     call msh_to_msh%init(coef%dof%x, coef%dof%y, coef%dof%z, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv, &
-                         coef%dof%x, coef%dof%y, coef%dof%z, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv, &
-                         5)
+                         coef%dof%x, coef%dof%y, coef%dof%z, coef%Xh%lx*coef%Xh%ly*coef%Xh%lz*coef%msh%nelv, sampled_fields)
 
     !> Set up gslib
     call msh_to_msh%setup(coef)
     !> Map the coordinates
-    call msh_to_msh%map(coef)
+    call msh_to_msh%map(coef, 1d-6, 1d-6, 1d-6)
+
 
   end subroutine user_initialize
 
