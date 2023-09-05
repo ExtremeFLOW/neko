@@ -123,18 +123,19 @@ contains
        end if                 
 
        call neko_log%section('Postprocessing')       
-       call C%q%eval(t, C%dt, tstep)
-       call C%s%sample(t, tstep)
-       
-       call C%usr%user_check(t, tstep,&
-            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
-         
        ! Execute all simulation components
        if (allocated(neko_simcomps)) then
          do i=1, size(neko_simcomps)
             call neko_simcomps(i)%simcomp%compute(t, tstep)
          end do
        end if
+
+       call C%usr%user_check(t, tstep,&
+            C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, C%fluid%c_Xh, C%params)
+
+       call C%q%eval(t, C%dt, tstep)
+       call C%s%sample(t, tstep)
+         
        call neko_log%end_section()
        
        call neko_log%end()
