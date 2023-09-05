@@ -18,6 +18,8 @@ Technology.
 
 \subpage case-file
 
+\subpage simcomps
+
 \subpage accelerators
 
 \subpage statistics-guide

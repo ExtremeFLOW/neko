@@ -14,7 +14,7 @@ AC_DEFUN([AX_GSLIB],[
                     [	   
                     if test -d "$withval"; then
                        ac_gslib_path="$withval";
-               	       AS_IF([test -d "$ac_cuda_path/lib64"],
+               	       AS_IF([test -d "$ac_gslib_path/lib64"],
           	             [suffix="64"],[suffix=""])
 		       GSLIB_LDFLAGS="-L$ac_gslib_path/lib$suffix -L$ac_gslib_path"
                     fi

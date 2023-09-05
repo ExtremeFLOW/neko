@@ -51,7 +51,7 @@ module case
   use utils
   use mesh
   use comm
-  use time_scheme_controller
+  use time_scheme_controller, only : time_scheme_controller_t
   use logger
   use jobctrl
   use user_intf  
@@ -360,6 +360,9 @@ contains
        ! yes, it should be real_val below for type compatibility
        call json_get(C%params, 'case.nsamples', real_val)
        call C%s%add(C%f_out, real_val, 'nsamples')
+    else if (trim(string_val) .eq. 'never') then
+       ! Fix a dummy 0.0 output_value
+       call C%s%add(C%f_out, 0.0_rp, string_val)
     else 
        call json_get(C%params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
