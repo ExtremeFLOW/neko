@@ -38,7 +38,9 @@
 
 
 template< typename T>
-__inline__ __device__ T eigen_val_calc(T grad11,T grad12,T grad13,T grad21,T grad22,T grad23, T grad31, T grad32, T grad33){
+__inline__ __device__ T eigen_val_calc(T grad11, T grad12, T grad13,
+                                       T grad21, T grad22, T grad23,
+                                       T grad31, T grad32, T grad33 ) {
     T s11 = grad11;
     T s22 = grad22;
     T s33 = grad33;
@@ -61,7 +63,8 @@ __inline__ __device__ T eigen_val_calc(T grad11,T grad12,T grad13,T grad21,T gra
                
     T B = -(a11 + a22 + a33);
     T C = -(a12*a12 + a13*a13 + a23*a23 - a11 * a22 - a11 * a33 - a22 * a33);
-    T D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33);
+    T D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 - a22 * a13*a13
+            - a33 * a12*a12  +  a11 * a22 * a33);
                      
                      
     T q = (3.0 * C - B*B) / 9.0;
@@ -222,7 +225,9 @@ __global__ void lambda2_kernel_1d(T * __restrict__ lambda2,
 	  * (drdz[ijk + ele] * rtmpw
 	   + dsdz[ijk + ele] * stmpw
 	   + dtdz[ijk + ele] * ttmpw);
-      lambda2[ijk + e*LX*LX*LX] = eigen_val_calc<T>( grad11, grad12, grad13, grad21, grad22, grad23, grad31, grad32, grad33);
+      lambda2[ijk + e*LX*LX*LX] = eigen_val_calc<T>( grad11, grad12, grad13,
+                                                     grad21, grad22, grad23,
+                                                     grad31, grad32, grad33);
     }
   } 
   
@@ -345,7 +350,9 @@ lambda2_kernel_kstep(T * __restrict__ lambda2,
     T grad33 = jinv * (drdz[ijk + ele] * rtmpw
                           + dsdz[ijk + ele] * stmpw
                           + dtdz[ijk + ele] * ttmpw);
-    lambda2[ijk + ele] = eigen_val_calc<T>( grad11, grad12, grad13, grad21, grad22, grad23, grad31, grad32, grad33);
+    lambda2[ijk + ele] = eigen_val_calc<T>( grad11, grad12, grad13,
+                                            grad21, grad22, grad23,
+                                            grad31, grad32, grad33);
     __syncthreads();
   }
 }

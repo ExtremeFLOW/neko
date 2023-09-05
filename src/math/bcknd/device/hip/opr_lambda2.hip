@@ -71,44 +71,44 @@ extern "C" {
     const dim3 nblcks((*nel), 1, 1);
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;      
 
-#define CASE_1D(LX)                                                             \
-       hipLaunchKernelGGL( HIP_KERNEL_NAME(lambda2_kernel_1d<real, LX, 1024> ),     \
-                        nblcks, nthrds_1d, 0, (hipStream_t) glb_cmd_queue,      \
-                        (real *) lambda2, (real *) u, (real *) v, (real *) w,      \
-                        (real *) dx, (real *) dy, (real *) dz,                  \
-                        (real *) drdx, (real *) dsdx, (real *) dtdx,            \
-                        (real *) drdy, (real *) dsdy, (real *) dtdy,            \
-                        (real *) drdz, (real *) dsdz, (real *) dtdz,            \
-                        (real *) jacinv);                                           \
+#define CASE_1D(LX)                                                            \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME(lambda2_kernel_1d<real, LX, 1024> ),   \
+                        nblcks, nthrds_1d, 0, (hipStream_t) glb_cmd_queue,     \
+                        (real *) lambda2, (real *) u, (real *) v, (real *) w,  \
+                        (real *) dx, (real *) dy, (real *) dz,                 \
+                        (real *) drdx, (real *) dsdx, (real *) dtdx,           \
+                        (real *) drdy, (real *) dsdy, (real *) dtdy,           \
+                        (real *) drdz, (real *) dsdz, (real *) dtdz,           \
+                        (real *) jacinv);                                      \
     HIP_CHECK(hipGetLastError());                                             
 
 
 
-#define CASE_KSTEP(LX)                                                          \
-    hipLaunchKernelGGL( HIP_KERNEL_NAME(lambda2_kernel_kstep<real, LX> ),        \
-                        nblcks, nthrds_kstep, 0, (hipStream_t) glb_cmd_queue,   \
-                        (real *) lambda2, (real *) u, (real *) v, (real *) w,      \
-                        (real *) dx, (real *) dy, (real *) dz,                  \
-                        (real *) drdx, (real *) dsdx, (real *) dtdx,            \
-                        (real *) drdy, (real *) dsdy, (real *) dtdy,            \
-                        (real *) drdz, (real *) dsdz, (real *) dtdz,            \
-                        (real *) jacinv);                                           \
+#define CASE_KSTEP(LX)                                                         \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME(lambda2_kernel_kstep<real, LX> ),      \
+                        nblcks, nthrds_kstep, 0, (hipStream_t) glb_cmd_queue,  \
+                        (real *) lambda2, (real *) u, (real *) v, (real *) w,  \
+                        (real *) dx, (real *) dy, (real *) dz,                 \
+                        (real *) drdx, (real *) dsdx, (real *) dtdx,           \
+                        (real *) drdy, (real *) dsdy, (real *) dtdy,           \
+                        (real *) drdz, (real *) dsdz, (real *) dtdz,           \
+                        (real *) jacinv);                                      \
     HIP_CHECK(hipGetLastError());                                             
 
-#define CASE(LX)                                                                \
-    case LX:                                                                    \
-      if(autotune[LX] == 0 ) {                                                  \
-        autotune[LX]=tune_lambda2<LX>(lambda2, u, v, w,                             \
-                                     dx, dy, dz,                                \
-                                     drdx, dsdx, dtdx,                          \
-                                     drdy, dsdy, dtdy,                          \
-                                     drdz, dsdz, dtdz,                          \
-                                     jacinv, nel, lx);                              \
-      } else if (autotune[LX] == 1 ) {                                          \
-        CASE_1D(LX);                                                            \
-      } else if (autotune[LX] == 2 ) {                                          \
-        CASE_KSTEP(LX);                                                         \
-      }                                                                         \
+#define CASE(LX)                                                               \
+    case LX:                                                                   \
+      if(autotune[LX] == 0 ) {                                                 \
+        autotune[LX]=tune_lambda2<LX>(lambda2, u, v, w,                        \
+                                     dx, dy, dz,                               \
+                                     drdx, dsdx, dtdx,                         \
+                                     drdy, dsdy, dtdy,                         \
+                                     drdz, dsdz, dtdz,                         \
+                                     jacinv, nel, lx);                         \
+      } else if (autotune[LX] == 1 ) {                                         \
+        CASE_1D(LX);                                                           \
+      } else if (autotune[LX] == 2 ) {                                         \
+        CASE_KSTEP(LX);                                                        \
+      }                                                                        \
       break
     
     switch(*lx) {
