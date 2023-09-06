@@ -80,7 +80,7 @@ module tensor
 
 public tensr3, transpose, trsp, trsp1, &
      tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
-     triple_tensor_product
+     triple_tensor_product, tnsr3d_el_list
 
 
 contains
@@ -180,6 +180,33 @@ contains
     end if
     
   end subroutine tnsr3d_el
+
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
+  !! performed on a subset of the  elements.
+  subroutine tnsr3d_el_list(v, nv, u, nu, A, Bt, Ct, el_list, n_pt)
+    integer, intent(in) :: nv, nu, n_pt, el_list(n_pt)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, n_pt), u(nu*nu*nu,1)
+    real(kind=rp), intent(inout) :: A(nv,nu,n_pt),Bt(nu, nv,n_pt),Ct(nu,nv,n_pt)
+    integer :: i
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       do i = 1, n_pt
+          call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+       end do
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       do i = 1, n_pt
+          call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+       end do
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+    !   call tnsr3d_el_list_device(1,i), nv, u(1,i), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+    else
+       do i = 1, n_pt
+          call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+       end do
+    end if
+    
+  end subroutine tnsr3d_el_list
+
 
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
   !!`nelv` elements.
