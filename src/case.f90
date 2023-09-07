@@ -79,6 +79,9 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
+
+   contains
+     procedure, private, pass(this) :: setup_fluid_user_source_term_
   end type case_t
 
   interface case_init
@@ -232,21 +235,7 @@ contains
     !
     ! Setup user source term for the fluid.
     ! 
-    logical_val = C%params%valid_path('case.fluid.source_term')
-    call json_get_or_default(C%params, 'case.fluid.source_term.type',&
-                             string_val, 'noforce')
-
-    if (.not. logical_val .or. trim(string_val) .eq. 'noforce') then
-       call C%fluid%user_source_term%set_source_type(trim(string_val))
-    else
-       if (trim(string_val) .eq. 'user') then
-          call C%fluid%user_source_term%set_source_type(trim(string_val), &
-                 user_proc_pw=C%usr%fluid_user_f)
-       else if (trim(string_val) .eq. 'user_vector') then
-          call C%fluid%user_source_term%set_source_type(trim(string_val), &
-                 user_proc_vector=C%usr%fluid_user_f_vector)
-       end if
-    end if
+    call C%setup_fluid_user_source_term_()
 
     ! Setup source term for the scalar
     ! @todo should be expanded for user sources etc. Now copies the fluid one
@@ -451,6 +440,52 @@ contains
     call neko_log%end_section()
     
   end subroutine case_init_common
+
+  !> Sets up the user source term in the fluid.
+  !> @details Traverses all the sources until it hits one of either type 
+  !! `user_vector` or `user_pointwise`, and inits it.
+  subroutine setup_fluid_user_source_term_(this)
+    class(case_t), intent(inout) :: this
+    ! Json low-level manipulator.
+    type(json_core) :: core
+    ! Pointer to the source_terms JSON object and the individual sources.
+    type(json_value), pointer :: source_object, source_pointer 
+    ! Buffer for serializing the json.
+    character(len=:), allocatable :: buffer
+    ! Source type
+    character(len=:), allocatable :: type
+    ! A single source term as its own json_file.
+    type(json_file) :: source_subdict
+    logical :: found
+    integer :: n_sources, i
+
+    if (this%params%valid_path('case.fluid.source_terms')) then
+       call this%params%get_core(core)
+       call this%params%get('case.fluid.source_terms', source_object, found)
+       n_sources = core%count(source_object)
+
+
+       ! Go through all sources until we find user_pointwise or user_vector
+       do i=1, n_sources
+          call core%get_child(source_object, i, source_pointer, found)
+          call core%print_to_string(source_pointer, buffer)
+          call source_subdict%load_from_string(buffer)
+          call json_get(source_subdict, "type", type)
+
+          if (trim(type) .eq. 'user_pointwise') then
+              call this%fluid%user_source_term%set_source_type(trim(type),&
+                     user_proc_pw=this%usr%fluid_user_f)
+              return
+          else if (trim(type) .eq. 'user_vector') then
+              call this%fluid%user_source_term%set_source_type(trim(type),&
+                     user_proc_vector=this%usr%fluid_user_f_vector)
+              return
+          end if
+       end do 
+       call this%fluid%user_source_term%set_source_type("none")
+
+    end if
+  end subroutine setup_fluid_user_source_term_
   
   !> Deallocate a case 
   subroutine case_free(C)
