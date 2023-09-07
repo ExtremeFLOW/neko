@@ -155,7 +155,7 @@ contains
     procedure(source_term_pw), optional :: user_proc_pw
     procedure(source_term), optional :: user_proc_vector
 
-    if (trim(source_term_type) .eq. 'noforce') then
+    if (trim(source_term_type) .eq. 'none') then
        call source_set_type(this, source_eval_noforce)
     else if (trim(source_term_type) .eq. 'user' .and. &
               present(user_proc_pw)) then
