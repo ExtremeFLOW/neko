@@ -42,6 +42,7 @@ module point_interpolator
   use field, only: field_t
   use field_list, only: field_list_t
   use device
+  use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -365,7 +366,7 @@ contains
     real(kind=rp), allocatable :: res(:,:)
 
     integer :: n_points, n_fields, lx, n, i,j
-    type(c_ptr) :: el_owners_d
+    type(c_ptr) :: res_d = C_NULL_PTR
 
     lx = this%Xh%lx
     n_points = size(rst)
@@ -411,6 +412,9 @@ contains
        call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE)
        call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE)
 
+       call device_map(res, res_d, n)
+       call device_rzero(res_d, n)
+
     end if
 
     !
@@ -421,6 +425,8 @@ contains
             this%weights_r, this%weights_s, this%weights_t, &
             el_owners, n_points)
     end do
+
+    device_free(res_d)
 
   end function point_interpolator_interpolate_fields
 
