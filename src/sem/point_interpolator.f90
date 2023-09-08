@@ -417,7 +417,9 @@ contains
 
     end if
 
-    ! Allocate variables for interpolation
+    !
+    ! Interpolation
+    !
     allocate(res(n_points, n_fields))
     allocate(tmp(n_points))
 
@@ -425,9 +427,8 @@ contains
        call device_map(tmp, tmp_d, n_points)
     end if
 
-    !
-    ! Interpolate each field
-    !
+    ! Interpolate each field at a time
+    ! @note This is inefficient and should be done in the GPU kernel
     do i = 1, n_fields
 
        ! This is a safety
