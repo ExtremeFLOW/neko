@@ -317,18 +317,16 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
 
-
-    if (NEKO_BCKND_SX .eq. 1) then 
-       call neko_error('No lambda 2 implemented')
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       call neko_error('No lambda 2 implemented')
-    else if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_lambda2(lambda2, u, v, w, coef)
     else
        do e = 1, coef%msh%nelv
-          call opr_cpu_opgrad(grad(1,1,1),grad(1,1,2),grad(1,1,3),u%x(1,1,1,e),coef,e,e)
-          call opr_cpu_opgrad(grad(1,2,1),grad(1,2,2),grad(1,2,3),v%x(1,1,1,e),coef,e,e)
-          call opr_cpu_opgrad(grad(1,3,1),grad(1,3,2),grad(1,3,3),w%x(1,1,1,e),coef,e,e)
+          call opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
+                              u%x(1,1,1,e),coef,e,e)
+          call opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
+                              v%x(1,1,1,e),coef,e,e)
+          call opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
+                              w%x(1,1,1,e),coef,e,e)
 
           do i = 1, coef%Xh%lxyz
              s11 = grad(i,1,1)
@@ -336,13 +334,13 @@ contains
              s33 = grad(i,3,3)
 
              
-             s12 = 0.5*(grad(i,1,2)+grad(i,2,1))
-             s13 = 0.5*(grad(i,1,3)+grad(i,3,1))
-             s23 = 0.5*(grad(i,2,3)+grad(i,3,2))
+             s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
+             s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
+             s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
 
-             o12 = 0.5*(grad(i,1,2)-grad(i,2,1))
-             o13 = 0.5*(grad(i,1,3)-grad(i,3,1))
-             o23 = 0.5*(grad(i,2,3)-grad(i,3,2))
+             o12 = 0.5*(grad(i,1,2) - grad(i,2,1))
+             o13 = 0.5*(grad(i,1,3) - grad(i,3,1))
+             o23 = 0.5*(grad(i,2,3) - grad(i,3,2))
 
              a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13
              a12 = s11 * s12  +  s12 * s22  +  s13 * s23 - o13 * o23
@@ -354,8 +352,10 @@ contains
 
 
              B = -(a11 + a22 + a33)
-             C = -(a12*a12 + a13*a13 + a23*a23 - a11 * a22 - a11 * a33 - a22 * a33)
-             D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)
+             C = -(a12*a12 + a13*a13 + a23*a23 &
+                  - a11 * a22 - a11 * a33 - a22 * a33)
+             D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &
+                  - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)
 
 
              q = (3.0 * C - B*B) / 9.0

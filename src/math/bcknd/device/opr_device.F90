@@ -297,6 +297,24 @@ module opr_device
        integer(c_int) :: nel, lx
      end function opencl_cfl
   end interface
+
+    interface
+     subroutine opencl_lambda2(lambda2_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, &
+          drdx_d, dsdx_d, dtdx_d, &
+          drdy_d, dsdy_d, dtdy_d, &
+          drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
+          bind(c, name='opencl_lambda2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: drdx_d, dsdx_d, dtdx_d
+       type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d
+       type(c_ptr), value :: drdz_d, dsdz_d, dtdz_d
+       type(c_ptr), value :: jacinv_d
+       integer(c_int) :: nel, lx
+     end subroutine opencl_lambda2
+  end interface
 #endif  
   
 contains
@@ -397,7 +415,12 @@ contains
            coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
            coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_OPENCL
-      call neko_error('No OpenCL backend implemented')
+      call opencl_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif
