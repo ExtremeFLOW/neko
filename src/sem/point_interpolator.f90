@@ -427,6 +427,8 @@ contains
        call device_map(tmp, tmp_d, n_points)
     end if
 
+    write (*,*) "sending elements", el_owners
+
     ! Interpolate each field at a time
     ! @note This is inefficient and should be done in the GPU kernel
     do i = 1, n_fields
