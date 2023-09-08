@@ -398,6 +398,14 @@ contains
                lx-1, 0, this%weights_t(:,i))
        end do
 
+       this%update_weights = .false.
+
+    end if
+
+    allocate(res(n_points, n_fields))
+    allocate(tmp(n_points))
+    n = n_points*lx
+
        !
        ! Associate device pointers
        !
@@ -415,20 +423,10 @@ contains
 
        end if
 
-       this%update_weights = .false.
-
-    end if
-
-    allocate(res(n_points, n_fields))
-    allocate(tmp(n_points))
-    n = n_points*lx
-
      !
     ! Interpolate each field
     !
     do i = 1, n_fields
-
-       if (NEKO_BCKND_DEVICE .eq. 1) call device_rzero(tmp_d, n_points)
 
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             this%weights_r, this%weights_s, this%weights_t, &
