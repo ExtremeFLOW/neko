@@ -427,6 +427,8 @@ contains
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             this%weights_r, this%weights_s, this%weights_t, &
             el_owners, n_points)
+
+       call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST)
        res(:,i) = tmp
     end do
 
