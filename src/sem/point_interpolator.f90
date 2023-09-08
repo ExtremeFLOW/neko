@@ -367,7 +367,7 @@ contains
 
     integer :: n_points, n_fields, lx, n, i,j
     type(c_ptr) :: tmp_d = C_NULL_PTR
-    real(kind=rp), allocatable :: tmp
+    real(kind=rp), allocatable :: tmp(:)
 
     lx = this%Xh%lx
     n_points = size(rst)
@@ -430,7 +430,7 @@ contains
        res(:,i) = tmp
     end do
 
-    device_free(tmp_d)
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_free(tmp_d)
 
   end function point_interpolator_interpolate_fields
 
