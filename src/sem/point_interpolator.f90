@@ -428,7 +428,10 @@ contains
             this%weights_r, this%weights_s, this%weights_t, &
             el_owners, n_points)
 
-       call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST)
+       end if
+
        res(:,i) = tmp
     end do
 
