@@ -118,6 +118,10 @@ contains
     if (allocated(this%weights_s)) deallocate(this%weights_s)
     if (allocated(this%weights_t)) deallocate(this%weights_t)
 
+    if (c_associated(this%weights_r_d)) call device_free(this%weights_r_d)
+    if (c_associated(this%weights_s_d)) call device_free(this%weights_s_d)
+    if (c_associated(this%weights_t_d)) call device_free(this%weights_t_d)
+
   end subroutine point_interpolator_free
 
   !> Interpolates a scalar field \f$ X \f$ on a set of \f$ N \f$ points
@@ -394,6 +398,23 @@ contains
                lx-1, 0, this%weights_t(:,i))
        end do
 
+       !
+       ! Associate device pointers
+       !
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+
+          call device_map(this%weights_r, this%weights_r_d, n)
+          call device_map(this%weights_s, this%weights_s_d, n)
+          call device_map(this%weights_t, this%weights_t_d, n)
+          call device_memcpy(this%weights_r, this%weights_r_d, n, HOST_TO_DEVICE)
+          call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE)
+          call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE)
+
+          call device_map(tmp, tmp_d, n_points)
+          call device_rzero(tmp_d, n_points)
+
+       end if
+
        this%update_weights = .false.
 
     end if
@@ -402,27 +423,12 @@ contains
     allocate(tmp(n_points))
     n = n_points*lx
 
-    !
-    ! Associate device pointers
-    !
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-
-       call device_map(this%weights_r, this%weights_r_d, n)
-       call device_map(this%weights_s, this%weights_s_d, n)
-       call device_map(this%weights_t, this%weights_t_d, n)
-       call device_memcpy(this%weights_r, this%weights_r_d, n, HOST_TO_DEVICE)
-       call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE)
-       call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE)
-
-       call device_map(tmp, tmp_d, n_points)
-       call device_rzero(tmp_d, n_points)
-
-    end if
-
-    !
+     !
     ! Interpolate each field
     !
     do i = 1, n_fields
+
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_rzero(tmp_d, n_points)
 
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             this%weights_r, this%weights_s, this%weights_t, &
