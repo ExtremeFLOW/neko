@@ -187,6 +187,7 @@ contains
     integer, intent(in) :: nv, nu, n_pt, el_list(n_pt)
     real(kind=rp), intent(inout) :: v(nv*nv*nv, n_pt), u(nu*nu*nu,1)
     real(kind=rp), intent(inout) :: A(nv,nu,n_pt),Bt(nu, nv,n_pt),Ct(nu,nv,n_pt)
+    type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, el_list_d
     integer :: i
 
     if (NEKO_BCKND_SX .eq. 1) then
@@ -198,7 +199,13 @@ contains
           call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
        end do
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call tnsr3d_el_list_device(1,i), nv, u(1,i), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+       v_d = device_get_ptr(v)
+       u_d = device_get_ptr(u)
+       A_d = device_get_ptr(A)
+       Bt_d = device_get_ptr(Bt)
+       Ct_d = device_get_ptr(Ct)
+       el_list_d = device_get_ptr(el_list)
+       call tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, el_list_d, n_pt)
     else
        do i = 1, n_pt
           !       Note the use of el_list(i) + 1, because of the gslib C interface
