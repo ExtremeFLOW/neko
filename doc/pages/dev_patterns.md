@@ -98,7 +98,31 @@ base as of now, but we should at least make all new code as clean as possible.
    developers' good judgement to not mess with the types in the wrong way. That
    being said, using `private` is not discouraged in any way.
 
-## C. Documentation
+## C. Constructors and destructors. 
+
+1.  If the type has a destructor, the constructor must begin with calling the
+    destructor.
+
+2.  Implement constructors and destructors as TBPs. This may change in the
+    future, but is currently the safest and most OOP-friendly way to do this.
+
+3.  Do not use `final` for destructors, the compilers don't support it well.
+
+4. If a base abstract class needs a constructor, call it `init_base`. Call the
+   destructor `free_base`.
+
+5. For types initializing from JSON, let `init` be the constructor from the
+   `json_file` type and `init_from_components` a constructor directly for component types.
+   The `init` constructor should parse the JSON and the call `init_from_components`.
+
+   This way we always have constructors that are independent of JSON.
+
+6. In the type hierarchy, `init` should be the name of the constructor, which
+   is introduced as a deferred procedure in the base abstract class. Same for
+   `free` for the destructor.
+
+
+## D. Documentation
 
 1. All procedures and interfaces must be documented, with the *minimal*
    requirement being a one-liner telling what the procedure does followed by
@@ -114,7 +138,11 @@ base as of now, but we should at least make all new code as clean as possible.
 4. When a module implements one type, the documentation should be for the type.
    The module documentation can simply be "implements type `mytype_t`".
 
-5. All components of the type should be documented. Put the docstring above the component.
+5. All types must have a docstring describing its purpose. The more detailed the
+   better.
+
+6. All components of the type should be documented. Put the docstring above the
+   component.
 
    The alternative is to put it on the same line as the component, but it only
    works for short docstrings and cannot be multiline. Since a future component
