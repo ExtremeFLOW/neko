@@ -20,8 +20,8 @@ EXTRA_DIST = pages/code-style.md\
 	     pages/accelerators.md\
 	     pages/case-file.md\
 	     pages/statistics.md\
-         pages/simcomps.md\
-         pages/testing.md\
-         pages/appendix.md\
-         pages/installation.md\
+             pages/simcomps.md\
+             pages/testing.md\
+             pages/appendix.md\
+             pages/installation.md\
 	     pages/index.md
