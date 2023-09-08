@@ -14,7 +14,8 @@ base as of now, but we should at least make all new code as clean as possible.
    exceptions take place, e.g. `Re` for the Reynolds number and `Xh` for the
    function space, but these should be kept to a minimum.
 
-2. Follow established naming conventions for certain types. For example, `Xh` for the function space.  
+2. Follow established naming conventions for certain types. For example, `Xh`
+   for the function space.  
 
 3. Use easy-to-remember unambiguous variable names. Avoid abbreviations unless
    they are universally understandable (e.g. RANS).
@@ -35,7 +36,8 @@ base as of now, but we should at least make all new code as clean as possible.
      exceptions.
    * Very important to observe in any code, which is intended as `public`,
      particularly interfaces.
-   * Desirable to observe even for code not derictly exposed to the outside world.
+   * Desirable to observe even for code not derictly exposed to the outside
+     world.
    
 4. All derived types should end with `_t` in the name.
 
@@ -84,8 +86,10 @@ base as of now, but we should at least make all new code as clean as possible.
 ## B. Scope
 
 1. Always use `only` when `using` something from another module.  The `neko`
-   module is an exception and imports everything. This is done so that the
-   `.usr` files need only `use` the `neko` module to get access to everything.
+   module is an exception and imports everything. 
+   
+   This latter is done so that the `.usr` files need only `use` the `neko`
+   module to get access to everything.
 
 2. All modules must have `implicit none` at module level.
 
@@ -106,20 +110,28 @@ base as of now, but we should at least make all new code as clean as possible.
 2.  Implement constructors and destructors as TBPs. This may change in the
     future, but is currently the safest and most OOP-friendly way to do this.
 
-3.  Do not use `final` for destructors, the compilers don't support it well.
+3.  Do not use the `final` attribute for destructors, the compilers don't
+    support it well.
 
 4. If a base abstract class needs a constructor, call it `init_base`. Call the
    destructor `free_base`.
 
 5. For types initializing from JSON, let `init` be the constructor from the
-   `json_file` type and `init_from_components` a constructor directly for component types.
-   The `init` constructor should parse the JSON and the call `init_from_components`.
+   `json_file` type and `init_from_components` a constructor directly for
+   component types. The `init` constructor should parse the JSON and the call
+   `init_from_components`.
 
-   This way we always have constructors that are independent of JSON.
+   This way we always have constructors for concrete types that are independent
+   of JSON.
 
-6. In the type hierarchy, `init` should be the name of the constructor, which
-   is introduced as a deferred procedure in the base abstract class. Same for
+6. In the type hierarchy, `init` should be the name of the constructor, which is
+   introduced as a deferred procedure in the base abstract class. Same for
    `free` for the destructor.
+
+7. All type components should be fully initialized in the constructor, e.g.
+   pointers should be associated, allocatable types allocated, etc. This implies
+   that the constructor interface should be sufficient for the type to fully
+   take care of its own initialization.
 
 
 ## D. Documentation
@@ -149,10 +161,43 @@ base as of now, but we should at least make all new code as clean as possible.
    may require a long docstring, and mixing the styles does not look nice, it is
    better to default to putting the string above.
 
+## E. Design
+
+The points here are mostly things to consider rather than strict rules.
+Hopefully, they can guide towards better implementation.
+
+1. For types doing have computations, consider creating separate subroutines for
+   each compute backend, and putting them in separate files in the `bcknd`.
+
+   This way nitty-gritty optimisation can happen in `bcknd`, whereas the main
+   code for the type is kept clean.
+
+2. Wrap legacy code with wrappers following correct naming conventions.
+
+   We will surely leverage the fact that Neko is written in Fortran, and lift
+   some old Nek5000 code to quickly add some functionalities. This old code
+   should be in an internal subroutine and called from a wrapper.
 
 
+3. If you find yourself using `optional` dummy arguments, consider whether it
+   makes more sense to split the code into separate procedures instead.
 
+4. Follow the single responsibility principle for types.
 
+   For example, don't mix I\O and other functionality into one type. It is very
+   common and completely fine to create helper types encapsulating some
+   necessary functionality. Don't try to map types to "real-world concepts",
+   that doesn't work.
+
+   This point represents the S in SOLID, which is a set of design principles for
+   types. Highly recommended to get acquainted with all of them. 
+
+5. When encountering code repetition, consider whether these two pieces of code
+will likely change at different rates and different reasons in the future. If
+so, code repetition is fine, it will eventually cease to exist naturally. 
+
+   True code duplication is when a change in one place will also necessary a
+   change in the other.
 
 
 
