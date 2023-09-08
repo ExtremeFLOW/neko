@@ -366,7 +366,8 @@ contains
     real(kind=rp), allocatable :: res(:,:)
 
     integer :: n_points, n_fields, lx, n, i,j
-    type(c_ptr) :: res_d = C_NULL_PTR
+    type(c_ptr) :: tmp_d = C_NULL_PTR
+    real(kind=rp), allocatable :: tmp
 
     lx = this%Xh%lx
     n_points = size(rst)
@@ -398,6 +399,7 @@ contains
     end if
 
     allocate(res(n_points, n_fields))
+    allocate(tmp(n_points))
     n = n_points*lx
 
     !
@@ -412,8 +414,8 @@ contains
        call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE)
        call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE)
 
-       call device_map(res, res_d, n)
-       call device_rzero(res_d, n)
+       call device_map(tmp, tmp_d, n)
+       call device_rzero(tmp_d, n)
 
     end if
 
@@ -421,12 +423,14 @@ contains
     ! Interpolate each field
     !
     do i = 1, n_fields
-       call tnsr3d_el_list(res(:,i), 1, sampled_fields_list%fields(i)%f%x, lx, &
+
+       call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             this%weights_r, this%weights_s, this%weights_t, &
             el_owners, n_points)
+       res(:,i) = tmp
     end do
 
-    device_free(res_d)
+    device_free(tmp_d)
 
   end function point_interpolator_interpolate_fields
 
