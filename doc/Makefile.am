@@ -24,4 +24,5 @@ EXTRA_DIST = pages/code-style.md\
              pages/testing.md\
              pages/appendix.md\
              pages/installation.md\
+             pages/dev_patterns.md\
 	     pages/index.md

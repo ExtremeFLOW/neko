@@ -25,6 +25,8 @@ Technology.
 \subpage statistics-guide
 
 \subpage code-style
+ 
+\subpage dev_patterns
 
 \subpage testing
 
