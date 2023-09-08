@@ -404,8 +404,6 @@ contains
          end do
       end if
 
-!      write(*,*) user_source_term%u(:3,:3,1,1)
-!      write(*,*) this%f_x%x(:3,:3,1,1)
 
 
       ! Pre-multiply the source terms with the mass matrix and add to the RHS.
