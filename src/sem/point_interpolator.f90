@@ -376,6 +376,7 @@ contains
     lx = this%Xh%lx
     n_points = size(rst)
     n_fields = size(sampled_fields_list%fields)
+    n = n_points*lx
 
     !
     ! Only update weights if necessary
@@ -398,14 +399,6 @@ contains
                lx-1, 0, this%weights_t(:,i))
        end do
 
-       this%update_weights = .false.
-
-    end if
-
-    allocate(res(n_points, n_fields))
-    allocate(tmp(n_points))
-    n = n_points*lx
-
        !
        ! Associate device pointers
        !
@@ -418,20 +411,36 @@ contains
           call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE)
           call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE)
 
-          call device_map(tmp, tmp_d, n_points)
-          call device_rzero(tmp_d, n_points)
-
        end if
 
-     !
+       this%update_weights = .false.
+
+    end if
+
+    ! Allocate variables for interpolation
+    allocate(res(n_points, n_fields))
+    allocate(tmp(n_points))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(tmp, tmp_d, n_points)
+    end if
+
+    !
     ! Interpolate each field
     !
     do i = 1, n_fields
 
+       ! This is a safety
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_rzero(tmp_d, n_points)
+       end if
+
+       ! The actual interpolation
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             this%weights_r, this%weights_s, this%weights_t, &
             el_owners, n_points)
 
+       ! Bring back tmp_d from the device for the output
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST)
        end if
