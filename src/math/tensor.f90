@@ -206,6 +206,7 @@ contains
        Ct_d = device_get_ptr(Ct)
        el_list_d = device_get_ptr(el_list)
        call tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, el_list_d, n_pt)
+       call device_memcpy(v, v_d, n_pt, DEVICE_TO_HOST)
     else
        do i = 1, n_pt
           !       Note the use of el_list(i) + 1, because of the gslib C interface
