@@ -33,7 +33,7 @@
 */
 
 /**
- * Device kernel for convective terms
+ * Device kernel for lambda2
  */
 
 #include <math/bcknd/device/cuda/opgrad_kernel.h>
