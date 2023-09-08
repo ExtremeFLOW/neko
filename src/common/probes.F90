@@ -56,6 +56,8 @@ module probes
   use point_interpolator
   use point, only: point_t
   use space, only: space_t
+  use device
+  use, intrinsic :: iso_c_binding
   implicit none
   private
   
@@ -87,6 +89,16 @@ module probes
      character(len=20), allocatable  :: which_fields(:)
      !> Interpolator instead of findpts_eval
      type(point_interpolator_t) :: interpolator
+     !> Local element ownership
+     integer, allocatable :: local_el_owner(:)
+     !> Local element ids on the device
+     type(c_ptr) :: local_el_owner_d = C_NULL_PTR
+     !> Number of local elements per rank
+     integer :: n_local_probes
+     !> Local to global mapping to retrieve the fields
+     integer, allocatable :: local_to_global(:)
+     !> Local rst
+     type(point_t), allocatable :: local_rst(:)
 
      contains
        !> Initialize probes object.
@@ -177,6 +189,11 @@ contains
     if (allocated(this%error_code)) deallocate(this%error_code)
     if (allocated(this%out_fields)) deallocate(this%out_fields)
     if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
+    if (allocated(this%local_el_owner)) deallocate(this%local_el_owner)
+    if (allocated(this%local_rst)) deallocate(this%local_rst)
+    if (allocated(this%local_to_global)) deallocate(this%local_to_global)
+
+    if (c_associated(this%local_el_owner_d)) call device_free(this%local_el_owner_d)
 
     call this%interpolator%free
 
@@ -240,7 +257,7 @@ contains
     integer :: lx, ly, lz, nelv, max_pts_per_iter
 
 #ifdef HAVE_GSLIB
-    
+
     ! Tolerance for Newton iterations
     tolerance = 5d-13
     lx = coef%xh%lx
@@ -280,9 +297,13 @@ contains
     real(kind=rp) :: rst_gslib_raw(3*this%n_probes)
 
     real(kind=rp) :: tol_dist = 5d-6
-    integer :: i
+    integer :: i, local_index
 
 #ifdef HAVE_GSLIB
+
+    !
+    ! ------------------------ gslib -----------------------------------------
+    !
     call fgslib_findpts(this%handle, &
          this%error_code, 1, &
          this%proc_owner, 1, &
@@ -293,20 +314,26 @@ contains
          this%xyz(2,1), coef%msh%gdim, &
          this%xyz(3,1), coef%msh%gdim, this%n_probes)
 
-    !
-    ! Reformat the rst_raw array and
-    ! final check to see if there are any problems
-    !
+    ! Number of points owned by a rank
+    this%n_local_probes = 0
+
     do i=1,this%n_probes
 
-       ! Reformat the rst array into points
+       !
+       ! Reformat the rst array into point_t
+       !
        this%rst(i)%x(1) = rst_gslib_raw(3*(i-1) + 1)
        this%rst(i)%x(2) = rst_gslib_raw(3*(i-1) + 2)
        this%rst(i)%x(3) = rst_gslib_raw(3*(i-1) + 3)
 
-!       write(*, *) "Old: ", rst_gslib_raw(3*(i-1)+1:3*(i-1)+3), "| new: ", this%rst(i)%x
+       !
+       ! Count the number of local points
+       !
+       if (pe_rank .eq. this%proc_owner(i)) this%n_local_probes = this%n_local_probes+1
 
+       !
        ! Check validity of points
+       !
        if (this%error_code(i) .eq. 1) then
           if (this%dist2(i) .gt. tol_dist) then
              call neko_warning("Point on boundary or outside the mesh!")
@@ -316,8 +343,47 @@ contains
        if (this%error_code(i) .eq. 2) call neko_warning("Point not within the mesh!")
     end do
 
+    ! -------------------------- END GSLIB ------------------------------------
+
+    !
+    ! Allocate local stuff
+    !
+    if (this%n_local_probes .ne. 0) then
+
+       !
+       ! Allocate and associate the element ownership locally
+       !
+       allocate(this%local_el_owner(this%n_local_probes))
+       allocate(this%local_to_global(this%n_local_probes))
+       allocate(this%local_rst(this%n_local_probes))
+
+       local_index = 1
+
+       do i = 1, this%n_probes
+          if (pe_rank .eq. this%proc_owner(i)) then
+             this%local_el_owner(local_index) = this%el_owner(i)
+             this%local_to_global(local_index) = i
+             this%local_rst(local_index) = this%rst(i)%x
+             local_index = local_index + 1
+          end if
+       end do
+
+       !
+       ! This could be another way to generate the local array
+       ! this%local_el_owner = pack(this%el_owner, this%proc_owner .eq. pe_rank)
+       !
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(this%local_el_owner, this%local_el_owner_d, &
+               this%n_local_probes)
+          call device_memcpy(this%local_el_owner, this%local_el_owner_d, &
+               this%n_local_probes, HOST_TO_DEVICE)
+       end if
+
+    end if
+
 #else
-    call neko_error('NEKO needs to be built with GSLIB support')
+    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine probes_map
@@ -330,68 +396,60 @@ contains
   subroutine probes_interpolate(this, t, tstep, write_output)
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep    
+    integer, intent(in) :: tstep
     logical, intent(inout) :: write_output
-
-    !> Supporting variables
-    integer :: il, i
-    integer :: n
-    integer :: ierr
-    !> Will store the local interpolated field for each rank
-    real(kind=rp) :: local_out_field(this%n_probes)
-    type(point_t) :: my_rst(1)
-    real(kind=rp) :: my_interpolated_field(1)
+    real(kind=rp), allocatable :: tmp(:,:)
+    integer :: i,n, ierr
 
 #ifdef HAVE_GSLIB
-
-    n = this%sampled_fields%fields(1)%f%dof%size()
 
     !> Check controller to determine if we must write
     if (this%controller%check(t, tstep, .false.)) then
 
-       !
-       ! Interpolate the fields
-       !
-       do il = 1, this%n_fields
+       n = this%n_probes * this%n_fields
 
-          ! Copy the field to the CPU if the data is in the device
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_memcpy(this%sampled_fields%fields(il)%f%x, &
-                             this%sampled_fields%fields(il)%f%x_d, &
-                             n, DEVICE_TO_HOST)
-          end if
+       ! Fill the out_field array with 0s as we are reducing later
+       ! with MPI_SUM
+       call rzero(this%out_fields, n)
 
-          ! Initialize the local interpolated field with 0 since we are
-          ! Reducing later with MPI_MAX
-          call rzero(local_out_field, this%n_probes)
+       ! Do not allocate/compute if current has no local probes
+       if (this%n_local_probes .ne. 0) then
 
-          do i = 1, this%n_probes
+          allocate(tmp(this%n_local_probes, this%n_fields))
 
-             ! Each rank interpolates their own points
-             if (pe_rank .eq. this%proc_owner(i)) then
+          !
+          ! Interpolate
+          !
+          tmp = this%interpolator%interpolate(this%local_rst, &
+               this%local_el_owner, this%sampled_fields)
 
-                my_rst(1) = this%rst(i)%x
-
-                my_interpolated_field = this%interpolator%interpolate(my_rst, &
-                     this%sampled_fields%fields(il)%f%x(:,:,:,this%el_owner(i)+1))
-
-                local_out_field(i) = my_interpolated_field(1)
-             end if
+          !
+          ! Reconstruct the global array using global to local mapping
+          !
+          do i = 1, this%n_local_probes
+             this%out_fields(this%local_to_global(i),:) = tmp(i,:)
           end do
 
-          ! Artificial way to gather all values to rank 0
-          call MPI_Reduce(local_out_field, this%out_fields(1, il), this%n_probes, &
-               MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
+          deallocate(tmp)
 
-       end do
+       end if
+
+       ! Artificial way to gather all values to rank 0
+       if (pe_rank .ne. 0) then
+          call MPI_Reduce(this%out_fields(1,1), this%out_fields(1,1), n, &
+               MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
+       else
+          call MPI_Reduce(MPI_IN_PLACE, this%out_fields(1,1), n, &
+               MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
+       end if
 
        !! Turn on flag to write output
        write_output = .true.
 
        !! Register the execution of the activity
        call this%controller%register_execution()
-
     end if
+
 #else
     call neko_error('NEKO needs to be built with GSLIB support')
 #endif
@@ -472,6 +530,5 @@ contains
     allocate(this%out_fields(n_probes, n_fields))
 
   end subroutine probes_allocate_fields
-
 
 end module probes
