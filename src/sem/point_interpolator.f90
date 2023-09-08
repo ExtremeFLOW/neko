@@ -414,8 +414,8 @@ contains
        call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE)
        call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE)
 
-       call device_map(tmp, tmp_d, n)
-       call device_rzero(tmp_d, n)
+       call device_map(tmp, tmp_d, n_points)
+       call device_rzero(tmp_d, n_points)
 
     end if
 
