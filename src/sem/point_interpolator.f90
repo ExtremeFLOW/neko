@@ -404,8 +404,6 @@ contains
     !
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call neko_error("No device interpolation yet!")
-
        call device_map(this%weights_r, this%weights_r_d, n)
        call device_map(this%weights_s, this%weights_s_d, n)
        call device_map(this%weights_t, this%weights_t_d, n)
