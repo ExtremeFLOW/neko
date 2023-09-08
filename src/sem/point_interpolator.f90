@@ -431,6 +431,8 @@ contains
     ! @note This is inefficient and should be done in the GPU kernel
     do i = 1, n_fields
 
+       tmp = 0.0_rp
+
        ! This is a safety
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_rzero(tmp_d, n_points)
@@ -450,6 +452,7 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) call device_free(tmp_d)
+    deallocate(tmp)
 
   end function point_interpolator_interpolate_fields
 
