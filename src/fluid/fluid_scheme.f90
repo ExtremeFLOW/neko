@@ -39,6 +39,7 @@ module fluid_scheme
   use mean_flow, only : mean_flow_t
   use num_types
   use fluid_user_source_term, only: fluid_user_source_term_t
+  use fluid_source_term, only: fluid_source_term_t
   use field, only : field_t, field_free, field_init
   use field_list, only : field_list_t
   use space
@@ -82,10 +83,8 @@ module fluid_scheme
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
-     !> The source term defined in the user file. Defaults to a zero-valued one. 
-     type(fluid_user_source_term_t) :: user_source_term
-     !> Source terms associated with \f$ X_h \f$.
-     class(source_term_wrapper_t), allocatable :: source_terms(:)
+     !> The source term for the momentum equation.
+     type(fluid_source_term_t) :: source_term
      !> X-component of the right-hand side.
      type(field_t), pointer :: f_x => null()
      !> Y-component of the right-hand side.
@@ -128,8 +127,6 @@ module fluid_scheme
    contains
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_uvw
-     !> Initializes the run-time selectable sources.
-     procedure, pass(this) :: fluid_scheme_set_sources
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
@@ -436,12 +433,8 @@ contains
     call field_init(this%f_y, this%dm_Xh, fld_name="fluid_rhs_y")
     call field_init(this%f_z, this%dm_Xh, fld_name="fluid_rhs_z")
 
-    ! Initialize user source term
-    call this%user_source_term%init(this%dm_Xh)
-
-    ! Initialize source terms
-    call this%fluid_scheme_set_sources(params)
-
+    ! Initialize the source term
+    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh)
 
   end subroutine fluid_scheme_init_common
 
@@ -621,18 +614,11 @@ contains
        deallocate(this%bc_labels)
     end if
 
-    if (allocated(this%source_terms)) then
-       do i=1, size(this%source_terms)
-          call this%source_terms(i)%source_term%free()
-       end do
-       deallocate(this%source_terms)
-    end if
+    call this%source_term%free()
 
     call gs_free(this%gs_Xh)
 
     call coef_free(this%c_Xh)
-
-    call this%user_source_term%free()
 
     call bc_list_free(this%bclst_vel)
     
@@ -691,10 +677,6 @@ contains
     
     if (.not. allocated(this%ksp_prs)) then
        call neko_error('No Krylov solver for pressure defined')
-    end if
-
-    if (.not. associated(this%user_source_term%eval)) then
-       call neko_error('No user source term defined')
     end if
 
     if (.not. associated(this%params)) then
@@ -797,64 +779,6 @@ contains
     call ksp%set_pc(pc)
     
   end subroutine fluid_scheme_precon_factory
-
-  !> Initialize run-time selectable source terms.
-  !! @params The JSON parameters .
-  subroutine fluid_scheme_set_sources(this, params)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(json_file), intent(inout) :: params
-    type(field_list_t) :: rhs_fields
-    ! Json low-level manipulator.
-    type(json_core) :: core
-    ! Pointer to the source_terms JSON object and the individual sources.
-    type(json_value), pointer :: source_object, source_pointer 
-    ! Buffer for serializing the json.
-    character(len=:), allocatable :: buffer
-    ! A single source term as its own json_file.
-    type(json_file) :: source_subdict
-    ! Source type
-    character(len=:), allocatable :: type
-    ! Dummy source strenth values
-    real(kind=rp) :: values(3)
-    logical :: found
-    integer :: n_sources, i
-
-    if (params%valid_path('case.fluid.source_terms')) then
-      ! We package the fields for the source term to operate on in a field list.
-       allocate(rhs_fields%fields(3))
-       rhs_fields%fields(1)%f => this%f_x
-       rhs_fields%fields(2)%f => this%f_y
-       rhs_fields%fields(3)%f => this%f_z
-
-       call params%get_core(core)
-       call params%get('case.fluid.source_terms', source_object, found)
-
-       n_sources = core%count(source_object)
-       allocate(this%source_terms(n_sources))
-
-       do i=1, n_sources
-         ! Create a new json containing just the subdict for this source.
-          call core%get_child(source_object, i, source_pointer, found)
-          call core%print_to_string(source_pointer, buffer)
-          call source_subdict%load_from_string(buffer)
-          call json_get(source_subdict, "type", type)
-          if ((trim(type) .eq. "user_vector") .or. &
-              (trim(type) .eq. "user_pointwise")) then
-              ! Make a dummy zero-valued source-term. This is a simple solution
-              ! for ignoring the user term and without fiddling around with the
-              ! number of sources, etc. 
-              values = 0.0_rp
-              call source_subdict%add("values", values)
-              call source_subdict%remove("type")
-              call source_subdict%add("type", "constant")
-          end if
-              
-          call source_term_factory(this%source_terms(i)%source_term, &
-                                   source_subdict, rhs_fields, this%c_Xh)
-      end do 
-    end if
-
-  end subroutine fluid_scheme_set_sources
 
   !> Initialize a user defined inflow condition
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)

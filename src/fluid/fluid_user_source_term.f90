@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,19 +30,27 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Source terms
+!> Implements the `fluid_user_source_term_t` type.
 module fluid_user_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use dofmap, only : dofmap_t
   use utils, only : neko_error
-  use device
-  use device_math
+  use device_math, only : device_rzero
+  use device, only : device_free
   use, intrinsic :: iso_c_binding
   implicit none
+  private
 
-  !> Defines a source term \f$ f \f$
-  type :: fluid_user_source_term_t
+  ! Public interfaces
+  public :: source_term, source_term_pw
+
+  !> A source-term for the fluid, with procedure pointers pointing to the
+  !! actual implementation in the user file.
+  !! @details The user source term can be applied either pointiwse or acting
+  !! on the whole array in a single call, which is referred to as "vector"
+  !! application. 
+  type, public :: fluid_user_source_term_t
      real(kind=rp), allocatable :: u(:,:,:,:) !< x-component of source term
      real(kind=rp), allocatable :: v(:,:,:,:) !< y-component of source term
      real(kind=rp), allocatable :: w(:,:,:,:) !< w-component of source term
@@ -86,6 +94,7 @@ module fluid_user_source_term
        real(kind=rp), intent(in) :: t
      end subroutine source_term_pw
   end interface
+
   
 contains
 
@@ -148,6 +157,8 @@ contains
   !> Set the source type (no force, user pointwise or user vector).
   !! @param source_term_type The name of the type of the term: 'noforce', 'user'
   !! or 'user_vector'.
+  !! @param user_proc_pw Procedure pointer to a pointwise evaluation.
+  !! @param user_proc_vector Procedure pointer to a vector evaluation.
   subroutine fluid_user_source_term_set_source_type(this, source_term_type, &
     user_proc_pw, user_proc_vector)
     class(fluid_user_source_term_t), intent(inout) :: this
@@ -169,7 +180,9 @@ contains
  
   end subroutine fluid_user_source_term_set_source_type
 
-  !> Set the eval method for the source term @a f
+  !> Set the eval method for the source term @a f.
+  !! @param f The source term.
+  !! @param f_eval The procedure to compute the source term.
   subroutine source_set_type(f, f_eval)
     type(fluid_user_source_term_t), intent(inout) :: f
     procedure(source_term) :: f_eval
@@ -177,6 +190,8 @@ contains
   end subroutine source_set_type
 
   !> Set the pointwise eval method for the source term @a f
+  !! @param f The source term.
+  !! @param f_eval The procedure to compute the source term.
   subroutine source_set_pw_type(f, f_eval_pw)
     type(fluid_user_source_term_t), intent(inout) :: f
     procedure(source_term_pw) :: f_eval_pw
@@ -187,8 +202,9 @@ contains
     f%eval_pw => f_eval_pw
   end subroutine source_set_pw_type
 
-  !> Eval routine for zero forcing
-  !! @note Maybe this should be cache, avoding zeroing at each time-step
+  !> Eval routine for zero forcing.
+  !! @param f The source term.
+  !! @param t Time value.
   subroutine source_eval_noforce(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
@@ -204,6 +220,8 @@ contains
   end subroutine source_eval_noforce
 
   !> Driver for all pointwise source term evaluatons
+  !! @param f The source term.
+  !! @param t Time value.
   subroutine source_eval_pw(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t

@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the `source_term_t` type.
+!> Implements the `source_term_t` type and a wrapper `source_term_wrapper_t`.
 module source_term
   use neko_config
   use num_types, only : rp
@@ -64,7 +64,11 @@ module source_term
 
   !> A helper type that is needed to have an array of polymorphic objects
   type, public :: source_term_wrapper_t
-    class(source_term_t), allocatable :: source_term
+     !> Wrapped polymorphic source term.
+     class(source_term_t), allocatable :: source_term
+   contains
+     !> Destructor.
+     procedure, pass(this) :: free => source_term_wrapper_free 
   end type source_term_wrapper_t
 
   abstract interface
@@ -123,7 +127,7 @@ contains
     end do
   end subroutine source_term_init_base
 
-  !> Destructor for the `source_term_t` (base) class.
+  !> Destructor for the `source_term_t` (base) type.
   subroutine source_term_free_base(this) 
     class(source_term_t), intent(inout) :: this
     integer :: n_fields, i
@@ -136,5 +140,16 @@ contains
     deallocate(this%fields%fields)
     nullify(this%coef)
   end subroutine source_term_free_base
+
+  !> Destructor for the `source_term_wrapper_t` type.
+  subroutine source_term_wrapper_free(this) 
+    class(source_term_wrapper_t), intent(inout) :: this
+    integer :: n_fields, i
+
+    if (allocated(this%source_term)) then
+       call this%source_term%free()
+       deallocate(this%source_term)
+    end if
+  end subroutine source_term_wrapper_free
   
 end module source_term
