@@ -466,23 +466,26 @@ contains
 
 
        ! Go through all sources until we find user_pointwise or user_vector
-       do i=1, n_sources
-          call core%get_child(source_object, i, source_pointer, found)
-          call core%print_to_string(source_pointer, buffer)
-          call source_subdict%load_from_string(buffer)
-          call json_get(source_subdict, "type", type)
 
-          if (trim(type) .eq. 'user_pointwise') then
-              call this%fluid%user_source_term%set_source_type(trim(type),&
-                     user_proc_pw=this%usr%fluid_user_f)
-              return
-          else if (trim(type) .eq. 'user_vector') then
-              call this%fluid%user_source_term%set_source_type(trim(type),&
-                     user_proc_vector=this%usr%fluid_user_f_vector)
-              return
-          end if
-       end do 
-       call this%fluid%user_source_term%set_source_type("none")
+       associate (source => this%fluid%source_term%user_source_term)
+         do i=1, n_sources
+            call core%get_child(source_object, i, source_pointer, found)
+            call core%print_to_string(source_pointer, buffer)
+            call source_subdict%load_from_string(buffer)
+            call json_get(source_subdict, "type", type)
+
+            if (trim(type) .eq. 'user_pointwise') then
+               call source%set_source_type(trim(type), &
+                        user_proc_pw=this%usr%fluid_user_f)
+               return
+            else if (trim(type) .eq. 'user_vector') then
+               call source%set_source_type(trim(type),&
+                        user_proc_vector=this%usr%fluid_user_f_vector)
+               return
+            end if
+         end do 
+         call source%set_source_type("none")
+       end associate
 
     end if
   end subroutine setup_fluid_user_source_term_
