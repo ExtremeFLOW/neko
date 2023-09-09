@@ -98,6 +98,10 @@ contains
 
     call this%free()
 
+    this%f_x => f_x
+    this%f_y => f_y
+    this%f_z => f_z
+
     ! NOTE: the user source procedure pointer is set externally in case.f90 !
     call this%user_source_term%init(f_x%dof)
 

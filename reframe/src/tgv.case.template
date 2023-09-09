@@ -21,9 +21,6 @@
     "rho": 1.0,
     "mu": 1.0,
     "Re": 1600,
-    "source_term": {
-        "type": "noforce"
-    },
     "initial_condition": {
       "type": "user"
     },

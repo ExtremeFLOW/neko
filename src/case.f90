@@ -484,10 +484,9 @@ contains
                return
             end if
          end do 
-         call source%set_source_type("none")
        end associate
-
     end if
+    call this%fluid%source_term%user_source_term%set_source_type("none")
   end subroutine setup_fluid_user_source_term_
   
   !> Deallocate a case 
