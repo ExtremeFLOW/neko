@@ -47,7 +47,7 @@ contains
   !! @param values The values of the source components
   subroutine const_source_term_compute_cpu(fields, values) 
     type(field_list_t), intent(inout) :: fields
-    real(kind=rp), allocatable, intent(in) :: values(:)
+    real(kind=rp), intent(in) :: values(:)
     integer :: n_fields, i, n
 
     n_fields = size(fields%fields)

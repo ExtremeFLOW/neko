@@ -37,7 +37,7 @@ module fluid_user_source_term
   use dofmap, only : dofmap_t
   use utils, only : neko_error
   use device_math, only : device_rzero
-  use device, only : device_free
+  use device, only : device_free, device_map
   use, intrinsic :: iso_c_binding
   implicit none
   private

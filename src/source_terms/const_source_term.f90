@@ -119,10 +119,7 @@ contains
     n = this%fields%fields(1)%f%dof%size()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       do i=1, n_fields
-          call device_cadd(this%fields%fields(i)%f%x_d, this%values(i), n)
-       end do
-       !call const_source_term_compute_device()
+       call const_source_term_compute_device(this%fields, this%values)
     else
        call const_source_term_compute_cpu(this%fields, this%values)
     end if
