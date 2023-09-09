@@ -83,12 +83,14 @@ base as of now, but we should at least make all new code as clean as possible.
 
 9. Use `free` for destructor TBPs.
 
+10. The dummy argument, which is `pass`ed to TBPs should be called  `this`.
+
 ## B. Scope
 
 1. Always use `only` when `using` something from another module.  The `neko`
    module is an exception and imports everything. 
    
-   This latter is done so that the `.usr` files need only `use` the `neko`
+   This latter is done so that the user `.f90` files need only `use` the `neko`
    module to get access to everything.
 
 2. All modules must have `implicit none` at module level.
