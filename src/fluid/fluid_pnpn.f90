@@ -382,33 +382,11 @@ contains
 
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+      
+      ! Compute the source terms
+      call this%source_term%compute(t, tstep)
         
-      ! Compute the user source term
-      call user_source_term%eval(t)
-
-      ! Copy the user source values into the total cumulative source term
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_copy(this%f_x%x_d, user_source_term%u_d, n)
-         call device_copy(this%f_y%x_d, user_source_term%v_d, n)
-         call device_copy(this%f_z%x_d, user_source_term%w_d, n)
-      else
-         call copy(this%f_x%x, user_source_term%u, n)
-         call copy(this%f_y%x, user_source_term%v, n)
-         call copy(this%f_z%x, user_source_term%w, n)
-      end if
-
-      ! Add contribution from all source terms.
-      if (allocated(this%source_terms)) then
-         do i=1, size(this%source_terms)
-            call this%source_terms(i)%source_term%compute(t, tstep)
-         end do
-      end if
-
-!      write(*,*) user_source_term%u(:3,:3,1,1)
-!      write(*,*) this%f_x%x(:3,:3,1,1)
-
-
-      ! Pre-multiply the source terms with the mass matrix and add to the RHS.
+      ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opcolv(f_x%x_d, f_y%x_d, f_z%x_d, c_Xh%B_d, msh%gdim, n)
       else
