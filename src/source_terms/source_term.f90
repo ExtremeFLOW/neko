@@ -80,7 +80,7 @@ module source_term
        import source_term_t, json_file, field_list_t, coef_t
        class(source_term_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       class(field_list_t), intent(inout), target :: fields
+       type(field_list_t), intent(inout), target :: fields
        type(coef_t), intent(inout) :: coef
      end subroutine
   end interface

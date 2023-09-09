@@ -39,10 +39,10 @@ module const_source_term
   use json_utils, only: json_get
   use source_term, only : source_term_t
   use coefs, only : coef_t
-  use math, only : cadd
-  use device_math, only : device_cadd
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
+  use const_source_term_cpu, only : const_source_term_compute_cpu
+  use const_source_term_device, only : const_source_term_compute_device
   implicit none
   private
 
@@ -72,7 +72,7 @@ contains
   subroutine const_source_term_init_from_json(this, json, fields, coef) 
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(field_list_t), intent(inout), target :: fields
+    type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout) :: coef
     real(kind=rp), allocatable :: values(:)
     ! Json low-level manipulator.
@@ -122,10 +122,9 @@ contains
        do i=1, n_fields
           call device_cadd(this%fields%fields(i)%f%x_d, this%values(i), n)
        end do
+       !call const_source_term_compute_device()
     else
-       do i=1, n_fields
-          call cadd(this%fields%fields(i)%f%x, this%values(i), n)
-       end do
+       call const_source_term_compute_cpu(this%fields, this%values)
     end if
   end subroutine const_source_term_compute
   
