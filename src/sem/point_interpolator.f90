@@ -366,7 +366,7 @@ contains
     class(point_interpolator_t), intent(inout) :: this
     type(point_t), intent(inout), allocatable :: rst(:)
     integer, intent(in), allocatable :: el_owners(:)
-    type(field_list_t), intent(in) :: sampled_fields_list
+    type(field_list_t), intent(inout) :: sampled_fields_list
     real(kind=rp), allocatable :: res(:,:)
 
     integer :: n_points, n_fields, lx, n, i,j
