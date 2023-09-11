@@ -77,6 +77,9 @@ extern void *coef_program;
 /** Device scalar residual kernels */
 extern void *scalar_residual_program;
 
+/** Device lambda2 kernel */
+extern void *lambda2_program;
+
 
 
 #endif

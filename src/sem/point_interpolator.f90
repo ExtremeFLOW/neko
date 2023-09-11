@@ -33,7 +33,6 @@
 !> Routines to interpolate scalar/vector fields
 module point_interpolator
   use tensor, only: triple_tensor_product
-  use coefs, only: coef_t
   use space, only: space_t, GL, GLL
   use num_types, only: rp
   use point, only: point_t
@@ -45,8 +44,6 @@ module point_interpolator
   type :: point_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
-     !> Pointer to coefficients.
-     type(coef_t), pointer :: coef => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init => point_interpolator_init
@@ -72,18 +69,17 @@ module point_interpolator
 contains
 
   !> Initialization of point interpolation.
-  !! @param coef Coefficients.
-  subroutine point_interpolator_init(this, coef)
+  !! @param xh Function space.
+  subroutine point_interpolator_init(this, Xh)
     class(point_interpolator_t), intent(inout), target :: this
-    type(coef_t), intent(inout), target :: coef
+    type(space_t), intent(in), target :: Xh
 
-    if ((coef%xh%t .eq. GL) .or. (coef%xh%t .eq. GLL)) then
+    if ((Xh%t .eq. GL) .or. (Xh%t .eq. GLL)) then
     else
        call neko_error('Unsupported interpolation')
     end if
 
-    this%Xh => coef%xh
-    this%coef => coef
+    this%Xh => Xh
 
   end subroutine point_interpolator_init
 
@@ -91,8 +87,7 @@ contains
   subroutine point_interpolator_free(this)
     class(point_interpolator_t), intent(inout) :: this
 
-    if (associated(this%xh)) this%xh => null()
-    if (associated(this%coef)) this%coef => null()
+    if (associated(this%Xh)) this%Xh => null()
 
   end subroutine point_interpolator_free
 
@@ -116,14 +111,13 @@ contains
 
     N = size(rst)
     allocate(res(N))
+
     !
     ! Compute weights and perform interpolation for the first point
     !
-
     call fd_weights_full(real(rst(1)%x(1), rp), this%Xh%zg(:,1), lx-1, 0, hr)
     call fd_weights_full(real(rst(1)%x(2), rp), this%Xh%zg(:,2), ly-1, 0, hs)
     call fd_weights_full(real(rst(1)%x(3), rp), this%Xh%zg(:,3), lz-1, 0, ht)
-
 
     ! And interpolate!
     call triple_tensor_product(res(1),X,lx,hr,hs,ht)
@@ -175,9 +169,9 @@ contains
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
     integer :: lx,ly,lz, i
     integer :: N
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
     
     N = size(rst)
     allocate(res(N))
@@ -264,8 +258,8 @@ contains
     !
     ! Interpolate
     !
-    tmp = real(res%x, rp) ! Cast from point_t dp -> rp
     call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,1))
+    res%x = dble(tmp)! Cast from rp -> point_t dp 
 
     !
     ! Build jacobian
@@ -300,9 +294,9 @@ contains
 
     real(kind=rp) :: hr(this%Xh%lx, 2), hs(this%Xh%ly, 2), ht(this%Xh%lz, 2)
     integer :: lx, ly, lz
-    lx = this%xh%lx
-    ly = this%xh%ly
-    lz = this%xh%lz
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
 
     ! Weights
     call fd_weights_full(real(rst%x(1), rp), this%Xh%zg(:,1), lx-1, 1, hr)

@@ -89,9 +89,8 @@ contains
     call gs_init(gs, dof)
     call coef_init(coef, gs)
 
-    call interp%init(coef) ! initialize the interpolator object
+    call interp%init(coef%Xh) ! initialize the interpolator object
 
-    @assertTrue(associated(interp%coef))
     @assertTrue(associated(interp%Xh))
 
     call device_finalize
@@ -143,7 +142,7 @@ contains
     xyz_equal(3)%x = (/1.0_rp, 1.0_rp, 1.0_rp/)
     xyz_equal(4)%x = (/ 2.0_rp,  2.0_rp,  2.0_rp/)
 
-    call interp%init(coef) ! initialize the interpolator object
+    call interp%init(coef%Xh) ! initialize the interpolator object
     
     ! We use the interpolation for a vector field, interpolating the coordinates
     ! themselves
@@ -202,7 +201,7 @@ contains
 
     xyz_equal(1)%x = (/2.0_rp,  1.5_rp , 1.25_rp/)
 
-    call interp%init(coef) ! initialize the interpolator object
+    call interp%init(coef%Xh) ! initialize the interpolator object
     
     ! We use the interpolation for a vector field, interpolating the coordinates
     ! themselves

@@ -152,6 +152,7 @@ neko_fortran_SOURCES = \
 	common/statistics.f90\
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
+	common/probes.F90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -219,6 +220,7 @@ neko_fortran_SOURCES = \
 	simulation_components/simulation_component.f90\
 	simulation_components/simulation_component_global.f90\
 	simulation_components/vorticity.f90\
+	simulation_components/lambda2.f90\
 	simulation_components/simulation_component_factory.f90\
 	neko.f90
 
@@ -246,6 +248,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	math/bcknd/device/hip/opr_lambda2.hip\
 	math/bcknd/device/hip/opr_cfl.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
@@ -278,6 +281,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/opr_lambda2.cu\
 	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
@@ -311,6 +315,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_cdtp.c\
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
+	math/bcknd/device/opencl/opr_lambda2.c\
 	math/bcknd/device/opencl/opr_cfl.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
@@ -404,6 +409,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/lambda2_kernel.h\
 	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
@@ -431,6 +437,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
+	math/bcknd/device/hip/lambda2_kernel.h\
 	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	common/bcknd/device/hip/sumab_kernel.h\
@@ -462,6 +469,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
+	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\

@@ -15,6 +15,13 @@ jobs:
       run: |
         sudo apt-get update && sudo apt-get install -y git openmpi-bin libopenmpi-dev autoconf automake autotools-dev libopenblas-dev make git m4 python3 doxygen fonts-freefont-ttf graphviz
         git clone https://github.com/ExtremeFLOW/doxygen-awesome-css doc/doxygen-awesome-css
+        git clone --depth 1 https://github.com/ExtremeFLOW/json-fortran/
+        cd json-fortran
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=${HOME}/pkg/json-fortran -DUSE_GNU_INSTALL_CONVENTION=ON ..
+        make -j$(nproc) && make install && cd ../../
+        echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOME}/pkg/json-fortran/lib/pkgconfig/" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/pkg/json-fortran/lib/" >> $GITHUB_ENV
     - name: Doxygen
       run: |
         ./regen.sh

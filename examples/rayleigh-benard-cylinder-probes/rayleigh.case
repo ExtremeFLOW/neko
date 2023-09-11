@@ -1,11 +1,15 @@
 {
 "version": 1.0,
 "case": {
-    "mesh_file": "box.nmsh",
+    "mesh_file": "cylinder.nmsh",
     "output_at_end": true,
     "output_boundary": true,
-    "end_time": 100,
-    "timestep": 0.01,
+    "end_time": 250,
+    "timestep": 2e-3,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 50,
+    "job_timelimit": "12:00:00",
     "numerics": {
         "time_order": 3,
         "polynomial_order": 7,
@@ -15,7 +19,7 @@
         "scheme": "pnpn",
         "rho": 1,
         "mu": 1,
-        "Re": 1.408541,
+        "Re": 1e4,
         "source_term": {
             "type": "user_vector"
         },
@@ -25,39 +29,33 @@
         "velocity_solver": {
             "type": "cg",
             "preconditioner": "jacobi",
-            "projection_space_size": 4,
+            "projection_space_size": 0,
             "absolute_tolerance": 1e-6,
             "max_iterations": 800
         },
         "pressure_solver": {
             "type": "gmres",
             "preconditioner": "hsmg",
-            "projection_space_size": 4,
-            "absolute_tolerance": 1e-6,
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
+        "output_control": "simulationtime",
+        "output_value": 1,
         "boundary_types": [
-            "",
-            "",
-            "",
-            "",
-            "w",
             "w"
-        ],
-        "output_control": "never",
-        "output_value": 0
+        ]
     },
     "scalar": {
         "enabled": true,
-        "Pr": 0.71,
-        "boundary_types": [
-            "",
-            "",
-            "",
-            "",
-            "d=1",
-            "d=0"
-        ]
+        "Pr": 1.0
+    },
+    "probes": {
+        "points_file":  "probes.csv",
+        "output_file":  "output.csv",
+        "fields": ["w","s"],
+        "output_control": "simulationtime",
+        "output_value"    : 1,
     }
 }
 }
