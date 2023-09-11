@@ -84,7 +84,7 @@ __global__ void tnsr3d_el_kernel(T  * __restrict__  v,
     T tmp = 0.0;
     const int ij2 = i + j*nv; 
     for( int l = 0; l < nu; l++){
-      tmp += Ct[l+k*nu*pt*nv*nu]*shwork2[ij2 + l*nv*nv];
+      tmp += Ct[l+k*nu+pt*nv*nu]*shwork2[ij2 + l*nv*nv];
     }
     v[ijk+pt*nv*nv*nv] = tmp;
   }
