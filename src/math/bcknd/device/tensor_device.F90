@@ -92,11 +92,11 @@ contains
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, elements
     integer(c_int) :: nu, nv, n_points
 #ifdef HAVE_HIP
-    call hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
+    call hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, n_points)
 #elif HAVE_CUDA
     call cuda_tnsr3d_el_list( v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
 #elif HAVE_OPENCL
-    call opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
+    call opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, n_points)
 #else
     call neko_error('No device backend configured')
 #endif
