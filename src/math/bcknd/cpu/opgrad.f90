@@ -37,6 +37,10 @@ module cpu_opgrad
 
 contains
 
+  !
+  ! Many element kernels
+  ! 
+
   subroutine cpu_opgrad_lx(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n, lx)
     integer, intent(in) :: n, lx
@@ -1497,5 +1501,1399 @@ contains
     end do
     !$omp end do
   end subroutine cpu_opgrad_lx2
+
+  !
+  ! Single element kernels
+  !
+
+  subroutine cpu_opgrad_lx_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, lx)
+    integer, intent(in) :: lx
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    real(kind=rp) :: tmp
+    integer :: i, j, k, l
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          tmp = 0.0_rp
+          do k = 1, lx
+             tmp = tmp + dx(i,k) * u(k,j,1)
+          end do
+          ur(i,j,1) = tmp
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             tmp = 0.0_rp
+             do l = 1, lx
+                tmp = tmp + dy(j,l) * u(i,l,k)
+             end do
+             us(i,j,k) = tmp
+          end do
+       end do
+    end do
+       
+    do k = 1, lx
+       do i = 1, lx*lx
+          tmp = 0.0_rp
+          do l = 1, lx
+             tmp = tmp + dz(k,l) * u(i,1,l)
+          end do
+          ut(i,1,k) = tmp
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx_single
+  
+  subroutine cpu_opgrad_lx18_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 18
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) &
+                    + dx(i,12) * u(12,j,1) &
+                    + dx(i,13) * u(13,j,1) &
+                    + dx(i,14) * u(14,j,1) &
+                    + dx(i,15) * u(15,j,1) &
+                    + dx(i,16) * u(16,j,1) &
+                    + dx(i,17) * u(17,j,1) &
+                    + dx(i,18) * u(18,j,1) 
+       end do
+    end do
+
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) &
+                       + dy(j,12) * u(i,12,k) &
+                       + dy(j,13) * u(i,13,k) &
+                       + dy(j,14) * u(i,14,k) &
+                       + dy(j,15) * u(i,15,k) &
+                       + dy(j,16) * u(i,16,k) &
+                       + dy(j,17) * u(i,17,k) &
+                       + dy(j,18) * u(i,18,k) 
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) &
+                    + dz(k,12) * u(i,1,12) &
+                    + dz(k,13) * u(i,1,13) &
+                    + dz(k,14) * u(i,1,14) &
+                    + dz(k,15) * u(i,1,15) &
+                    + dz(k,16) * u(i,1,16) &
+                    + dz(k,17) * u(i,1,17) &
+                    + dz(k,18) * u(i,1,18) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx18_single
+  
+  subroutine cpu_opgrad_lx17_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 17
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) &
+                    + dx(i,12) * u(12,j,1) &
+                    + dx(i,13) * u(13,j,1) &
+                    + dx(i,14) * u(14,j,1) &
+                    + dx(i,15) * u(15,j,1) &
+                    + dx(i,16) * u(16,j,1) &
+                    + dx(i,17) * u(17,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) &
+                       + dy(j,12) * u(i,12,k) &
+                       + dy(j,13) * u(i,13,k) &
+                       + dy(j,14) * u(i,14,k) &
+                       + dy(j,15) * u(i,15,k) &
+                       + dy(j,16) * u(i,16,k) &
+                       + dy(j,17) * u(i,17,k) 
+          end do
+       end do
+    end do
+       
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) &
+                    + dz(k,12) * u(i,1,12) &
+                    + dz(k,13) * u(i,1,13) &
+                    + dz(k,14) * u(i,1,14) &
+                    + dz(k,15) * u(i,1,15) &
+                    + dz(k,16) * u(i,1,16) &
+                    + dz(k,17) * u(i,1,17) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx17_single
+  
+  subroutine cpu_opgrad_lx16_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 16
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) &
+                    + dx(i,12) * u(12,j,1) &
+                    + dx(i,13) * u(13,j,1) &
+                    + dx(i,14) * u(14,j,1) &
+                    + dx(i,15) * u(15,j,1) &
+                    + dx(i,16) * u(16,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) &
+                       + dy(j,12) * u(i,12,k) &
+                       + dy(j,13) * u(i,13,k) &
+                       + dy(j,14) * u(i,14,k) &
+                       + dy(j,15) * u(i,15,k) &
+                       + dy(j,16) * u(i,16,k) 
+          end do
+       end do
+    end do
+
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) &
+                    + dz(k,12) * u(i,1,12) &
+                    + dz(k,13) * u(i,1,13) &
+                    + dz(k,14) * u(i,1,14) &
+                    + dz(k,15) * u(i,1,15) &
+                    + dz(k,16) * u(i,1,16)
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx16_single
+  
+  subroutine cpu_opgrad_lx15_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 15
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) &
+                    + dx(i,12) * u(12,j,1) &
+                    + dx(i,13) * u(13,j,1) &
+                    + dx(i,14) * u(14,j,1) &
+                    + dx(i,15) * u(15,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) &
+                       + dy(j,12) * u(i,12,k) &
+                       + dy(j,13) * u(i,13,k) &
+                       + dy(j,14) * u(i,14,k) &
+                       + dy(j,15) * u(i,15,k) 
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) &
+                    + dz(k,12) * u(i,1,12) &
+                    + dz(k,13) * u(i,1,13) &
+                    + dz(k,14) * u(i,1,14) &
+                    + dz(k,15) * u(i,1,15) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx15_single
+
+  subroutine cpu_opgrad_lx14_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 14
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) &
+                    + dx(i,12) * u(12,j,1) &
+                    + dx(i,13) * u(13,j,1) &
+                    + dx(i,14) * u(14,j,1) 
+       end do
+    end do
+       
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) &
+                       + dy(j,12) * u(i,12,k) &
+                       + dy(j,13) * u(i,13,k) &
+                       + dy(j,14) * u(i,14,k)
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) &
+                    + dz(k,12) * u(i,1,12) &
+                    + dz(k,13) * u(i,1,13) &
+                    + dz(k,14) * u(i,1,14)
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx14_single
+  
+  subroutine cpu_opgrad_lx13_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 13
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) &
+                    + dx(i,12) * u(12,j,1) &
+                    + dx(i,13) * u(13,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) &
+                       + dy(j,12) * u(i,12,k) &
+                       + dy(j,13) * u(i,13,k) 
+          end do
+       end do
+    end do
+
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) &
+                    + dz(k,12) * u(i,1,12) &
+                    + dz(k,13) * u(i,1,13)
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx13_single
+  
+  subroutine cpu_opgrad_lx12_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 12
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) &
+                    + dx(i,12) * u(12,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) &
+                       + dy(j,12) * u(i,12,k)
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) &
+                    + dz(k,12) * u(i,1,12)
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx12_single
+
+  subroutine cpu_opgrad_lx11_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 11
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) &
+                    + dx(i,11) * u(11,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) &
+                       + dy(j,11) * u(i,11,k) 
+          end do
+       end do
+    end do
+
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) &
+                    + dz(k,11) * u(i,1,11) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx11_single
+
+  subroutine cpu_opgrad_lx10_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 10
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) &
+                    + dx(i,10) * u(10,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) &
+                       + dy(j,10) * u(i,10,k) 
+          end do
+       end do
+    end do
+
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) &
+                    + dz(k,10) * u(i,1,10) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx10_single
+
+  subroutine cpu_opgrad_lx9_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 9
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) &
+                    + dx(i,9) * u(9,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) &
+                       + dy(j,9) * u(i,9,k) 
+          end do
+       end do
+    end do
+
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) &
+                    + dz(k,9) * u(i,1,9) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx9_single
+
+  subroutine cpu_opgrad_lx8_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 8
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) &
+                    + dx(i,8) * u(8,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) &
+                       + dy(j,8) * u(i,8,k) 
+          end do
+       end do
+    end do
+
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) &
+                    + dz(k,8) * u(i,1,8) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx8_single
+
+  subroutine cpu_opgrad_lx7_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 7
+        real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) &
+                    + dx(i,7) * u(7,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) &
+                       + dy(j,7) * u(i,7,k) 
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) &
+                    + dz(k,7) * u(i,1,7) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx7_single
+
+  subroutine cpu_opgrad_lx6_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 6
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) &
+                    + dx(i,6) * u(6,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) &
+                       + dy(j,6) * u(i,6,k) 
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) &
+                    + dz(k,6) * u(i,1,6) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx6_single
+  
+  subroutine cpu_opgrad_lx5_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 5
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) &
+                    + dx(i,5) * u(5,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) &
+                       + dy(j,5) * u(i,5,k) 
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) &
+                    + dz(k,5) * u(i,1,5) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx5_single
+
+  subroutine cpu_opgrad_lx4_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 4
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) &
+                    + dx(i,4) * u(4,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) &
+                       + dy(j,4) * u(i,4,k) 
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) &
+                    + dz(k,4) * u(i,1,4) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx4_single
+
+  subroutine cpu_opgrad_lx3_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 3
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) &
+                    + dx(i,3) * u(3,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) &
+                       + dy(j,3) * u(i,3,k) 
+          end do
+       end do
+    end do
+
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) &
+                    + dz(k,3) * u(i,1,3) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1) = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx3_single
+
+  subroutine cpu_opgrad_lx2_single(ux, uy, uz, u, dx, dy, dz, &
+       drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3)
+    integer, parameter :: lx = 2
+    real(kind=rp), dimension(lx,lx,lx), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: u
+    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx,lx,lx), intent(in) :: drdz, dsdz, dtdz    
+    real(kind=rp), dimension(lx, lx), intent(in) :: w3(lx,lx,lx)
+    real(kind=rp) :: ur(lx,lx,lx)
+    real(kind=rp) :: us(lx,lx,lx)
+    real(kind=rp) :: ut(lx,lx,lx)
+    integer :: i, j, k
+
+    do j = 1, lx * lx
+       do i = 1, lx
+          ur(i,j,1) = dx(i,1) * u(1,j,1) &
+                    + dx(i,2) * u(2,j,1) 
+       end do
+    end do
+    
+    do k = 1, lx
+       do j = 1, lx
+          do i = 1, lx
+             us(i,j,k) = dy(j,1) * u(i,1,k) &
+                       + dy(j,2) * u(i,2,k) 
+          end do
+       end do
+    end do
+    
+    do k = 1, lx
+       do i = 1, lx*lx
+          ut(i,1,k) = dz(k,1) * u(i,1,1) &
+                    + dz(k,2) * u(i,1,2) 
+       end do
+    end do
+    
+    do i = 1, lx * lx * lx
+       ux(i,1,1) = w3(i,1,1) &
+                   * ( drdx(i,1,1) * ur(i,1,1) &
+                     + dsdx(i,1,1) * us(i,1,1) &
+                     + dtdx(i,1,1) * ut(i,1,1) )
+       uy(i,1,1) = w3(i,1,1) &
+                   * ( dsdy(i,1,1) * us(i,1,1) &
+                     + drdy(i,1,1) * ur(i,1,1) &
+                     + dtdy(i,1,1) * ut(i,1,1) )          
+       uz(i,1,1)  = w3(i,1,1) &
+                   * ( dtdz(i,1,1) * ut(i,1,1) &
+                     + drdz(i,1,1) * ur(i,1,1) &
+                     + dsdz(i,1,1) * us(i,1,1) )
+    end do
+  end subroutine cpu_opgrad_lx2_single
 
 end module cpu_opgrad

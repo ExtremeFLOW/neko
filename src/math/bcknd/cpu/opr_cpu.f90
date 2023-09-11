@@ -123,132 +123,293 @@ contains
 
       select case(Xh%lx)
       case(18)
-         call cpu_opgrad_lx18(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx18(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx18_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
       case(17)
-         call cpu_opgrad_lx17(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx17(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx17_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if            
       case(16)
-         call cpu_opgrad_lx16(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx16(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx16_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
       case(15)
-         call cpu_opgrad_lx15(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx15(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx15_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if            
       case(14)
-         call cpu_opgrad_lx14(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx14(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx14_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if            
       case(13)
-         call cpu_opgrad_lx13(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx13(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx13_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
       case(12)
-         call cpu_opgrad_lx12(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx12(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx12_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
       case(11)
-         call cpu_opgrad_lx11(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx11(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx11_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
       case(10)
-         call cpu_opgrad_lx10(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx10(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx10_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if            
       case(9)
-         call cpu_opgrad_lx9(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)  
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx9(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx9_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
       case(8)
-         call cpu_opgrad_lx8(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)  
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx8(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx8_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
       case(7)
-         call cpu_opgrad_lx7(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)  
-      case(6)
-         call cpu_opgrad_lx6(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)  
-      case(5)
-         call cpu_opgrad_lx5(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)  
-      case(4)
-         call cpu_opgrad_lx4(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)  
-      case(3)
-         call cpu_opgrad_lx3(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len) 
-      case(2)
-         call cpu_opgrad_lx2(ux, uy, uz, u, &
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx7(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
               Xh%w3, e_len)
-      case default
-         call cpu_opgrad_lx(ux, uy, uz, u, &
+         else
+            call cpu_opgrad_lx7_single(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
               drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
               drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len, Xh%lx) 
+              Xh%w3)
+         end if
+      case(6)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx6(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx6_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
+      case(5)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx5(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx5_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
+      case(4)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx4(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx4_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
+      case(3)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx3(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx3_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
+      case(2)
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx2(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len)
+         else
+            call cpu_opgrad_lx2_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3)
+         end if
+      case default
+         if (e_len .gt. 1) then
+            call cpu_opgrad_lx(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, e_len, Xh%lx)
+         else
+            call cpu_opgrad_lx_single(ux, uy, uz, u, &
+                 Xh%dx, Xh%dy, Xh%dz, &
+                 drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+                 drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+                 drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+                 Xh%w3, Xh%lx)
+         end if
       end select
     end associate
 
