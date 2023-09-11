@@ -9,7 +9,7 @@
  
   
  -------Job Information--------  
- Start time: 13:43 / 2023-09-11
+ Start time: 14:33 / 2023-09-11
  Running on: 1 MPI rank
  CPU type  : Intel(R) Core(TM) i9-9940X CPU @ 3.30GHz
  Bcknd type: CPU
@@ -86,7 +86,7 @@
       --------Writer output---------  
       File name: results_user/field.fld
       Output number:     0
-      Writing at time:   0.000000 Output time (s):  0.108314
+      Writing at time:   0.000000 Output time (s):  0.133608
   
  ----------------------------------------------------------------
  t =   0.0000000E+00                                  [   0.00% ]
@@ -113,7 +113,7 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               3     0.4438353E+03       0.2143662E-11
-    Elapsed time (s):  0.6970519E+00 Step time:  0.6970489E+00
+    Elapsed time (s):  0.6750347E+00 Step time:  0.6750310E+00
   
     --------Postprocessing--------  
  ----------------------------------------------------------------
@@ -135,7 +135,7 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.1466238E+02       0.1117152E-08
-    Elapsed time (s):  0.1315148E+01 Step time:  0.6180813E+00
+    Elapsed time (s):  0.1293433E+01 Step time:  0.6183850E+00
   
     --------Postprocessing--------  
  ----------------------------------------------------------------
@@ -157,7 +157,7 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.6480870E+01       0.3350638E-09
-    Elapsed time (s):  0.1937643E+01 Step time:  0.6224809E+00
+    Elapsed time (s):  0.1914588E+01 Step time:  0.6211432E+00
   
     --------Postprocessing--------  
  ----------------------------------------------------------------
@@ -179,7 +179,7 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.2030219E+01       0.1255635E-09
-    Elapsed time (s):  0.2507113E+01 Step time:  0.5694583E+00
+    Elapsed time (s):  0.2477465E+01 Step time:  0.5628642E+00
   
     --------Postprocessing--------  
  ----------------------------------------------------------------
@@ -201,4 +201,632 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.5772351E+00       0.4425658E-10
-    Elapsed time (s):  0.3063335E+01 Step time:  0.5562083E+00
+    Elapsed time (s):  0.3010857E+01 Step time:  0.5333801E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.4000000E-02                                  [   0.00% ]
+ ----------------------------------------------------------------
+ Time-step:      6
+  CFL:  0.4864456E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              0     0.4644200-309
+    Pressure
+    Iterations:   Start residual:     Final residual:
+             13     0.1998182E+01       0.3959113E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.6840972E+00       0.4107542E-10
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.9764247E-01       0.7590518E-11
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.5121550E+00       0.3622466E-10
+    Elapsed time (s):  0.3506278E+01 Step time:  0.4953662E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.4800000E-02                                  [   0.00% ]
+ ----------------------------------------------------------------
+ Time-step:      7
+  CFL:  0.4850696E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              1     0.7137975E+05
+    Pressure
+    Iterations:   Start residual:     Final residual:
+             11     0.1086825E+01       0.4708015E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.1178311E+00       0.8167643E-11
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.4829226E-01       0.3704147E-11
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.7824689E-01       0.6333559E-11
+    Elapsed time (s):  0.3974101E+01 Step time:  0.4678113E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.5600000E-02                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:      8
+  CFL:  0.4836600E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              2     0.2911992E+05
+    Pressure
+    Iterations:   Start residual:     Final residual:
+             10     0.5440290E+00       0.5213439E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.5100737E-01       0.3184555E-11
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.2001504E-01       0.1873477E-11
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.4838345E-01       0.3371615E-11
+    Elapsed time (s):  0.4437950E+01 Step time:  0.4638369E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.6400000E-02                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:      9
+  CFL:  0.4823069E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              3     0.1442999E+05
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              9     0.1134381E+00       0.4314908E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.1925927E-01       0.1285395E-11
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.4751153E-02       0.5917607E-12
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.1286906E-01       0.1021552E-11
+    Elapsed time (s):  0.4883355E+01 Step time:  0.4453928E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.7200000E-02                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     10
+  CFL:  0.4811480E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              4     0.9892522E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              8     0.5538348E-01       0.4123937E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.9239772E-02       0.6406918E-12
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.2344609E-02       0.2523842E-12
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.5855911E-02       0.4051579E-12
+    Elapsed time (s):  0.5305810E+01 Step time:  0.4224417E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.8000000E-02                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     11
+  CFL:  0.4801207E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              5     0.6876089E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              7     0.3022267E-01       0.6723866E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.3816385E-02       0.2453117E-12
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.1443309E-02       0.1535134E-12
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.2690638E-02       0.2008828E-12
+    Elapsed time (s):  0.5706524E+01 Step time:  0.4007000E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.8800000E-02                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     12
+  CFL:  0.4792112E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              6     0.4789767E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              6     0.5603352E-02       0.5406923E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.2369073E-02       0.1566421E-12
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.6553363E-03       0.4522321E-08
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1034332E-02       0.6619657E-08
+    Elapsed time (s):  0.6076064E+01 Step time:  0.3695269E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.9600000E-02                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     13
+  CFL:  0.4783618E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              7     0.3432449E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              5     0.3786870E-02       0.7710843E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.9293531E-03       0.5272874E-08
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.3941271E-03       0.2242241E-08
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.5629251E-03       0.4021779E-08
+    Elapsed time (s):  0.6418170E+01 Step time:  0.3420935E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1040000E-01                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     14
+  CFL:  0.4775594E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              8     0.2538668E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              4     0.1253813E-02       0.8232040E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.5786881E-03       0.3294645E-08
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1669018E-03       0.1266329E-08
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1996980E-03       0.1415874E-08
+    Elapsed time (s):  0.6739290E+01 Step time:  0.3211077E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1120000E-01                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     15
+  CFL:  0.4767935E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+              9     0.1928983E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              4     0.5416585E-03       0.3618624E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.3583277E-03       0.1839611E-08
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.8032188E-04       0.5524254E-09
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1462929E-03       0.1029851E-08
+    Elapsed time (s):  0.7064535E+01 Step time:  0.3252327E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1200000E-01                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     16
+  CFL:  0.4760564E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.1502109E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              4     0.3493690E-03       0.3516822E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2378676E-03       0.1213005E-08
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.4871128E-04       0.4703348E-09
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.9806269E-04       0.7041524E-09
+    Elapsed time (s):  0.7389545E+01 Step time:  0.3249981E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1280000E-01                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     17
+  CFL:  0.4753418E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.1195782E+04
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              3     0.2263967E-03       0.6894766E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1282113E-03       0.6857480E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2159878E-04       0.1711135E-09
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.8044965E-04       0.5542151E-09
+    Elapsed time (s):  0.7690590E+01 Step time:  0.3010326E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1360000E-01                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     18
+  CFL:  0.4746450E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.9702515E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              3     0.1748235E-03       0.5580286E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.8592048E-04       0.4954142E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1314522E-04       0.1103734E-09
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.6501851E-04       0.4345170E-09
+    Elapsed time (s):  0.7993241E+01 Step time:  0.3026395E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1440000E-01                                  [   0.01% ]
+ ----------------------------------------------------------------
+ Time-step:     19
+  CFL:  0.4739624E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.8001302E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              3     0.1321301E-03       0.4060718E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.6167150E-04       0.3594601E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1331637E-04       0.1021202E-09
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.5185028E-04       0.3198598E-09
+    Elapsed time (s):  0.8295891E+01 Step time:  0.3026352E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1520000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     20
+  CFL:  0.4732911E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.6690035E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              3     0.8924796E-04       0.3225583E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.4809769E-04       0.2793294E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1548098E-04       0.8760870E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.4296972E-04       0.2824180E-09
+    Elapsed time (s):  0.8596390E+01 Step time:  0.3004864E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1600000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     21
+  CFL:  0.4726289E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.5659803E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.9273147E-04       0.8044228E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.4019361E-04       0.2375443E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.9230854E-05       0.6378370E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.3602047E-04       0.2387035E-09
+    Elapsed time (s):  0.8873731E+01 Step time:  0.2773283E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1680000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     22
+  CFL:  0.4719743E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.4836860E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.5158377E-04       0.4752187E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.3402321E-04       0.2072100E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.7455661E-05       0.5086879E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.3039848E-04       0.2051397E-09
+    Elapsed time (s):  0.9150585E+01 Step time:  0.2768413E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1760000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     23
+  CFL:  0.4713259E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.4169702E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.6797029E-04       0.6267065E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.3097422E-04       0.1916024E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.9976171E-05       0.5952213E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2785428E-04       0.1901693E-09
+    Elapsed time (s):  0.9427773E+01 Step time:  0.2771752E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1840000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     24
+  CFL:  0.4706827E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.3622144E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.4644872E-04       0.3936106E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2728292E-04       0.1817895E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.7857323E-05       0.5160280E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2343495E-04       0.1691055E-09
+    Elapsed time (s):  0.9705713E+01 Step time:  0.2779268E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.1920000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     25
+  CFL:  0.4700439E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.3167647E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.3849774E-04       0.3735437E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2440618E-04       0.1627084E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.8036919E-05       0.5176032E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2053241E-04       0.1393627E-09
+    Elapsed time (s):  0.9983605E+01 Step time:  0.2778791E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.2000000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     26
+  CFL:  0.4694088E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.2786859E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.3307047E-04       0.2801112E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2071631E-04       0.1406795E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.6865159E-05       0.4372601E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1770660E-04       0.1330069E-09
+    Elapsed time (s):  0.1026130E+02 Step time:  0.2776845E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.2080000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     27
+  CFL:  0.4687769E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.2465094E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              1     0.2617448E-04       0.9282058E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1705316E-04       0.1119632E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.6882942E-05       0.4364175E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1522801E-04       0.1031619E-09
+    Elapsed time (s):  0.1051546E+02 Step time:  0.2541445E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.2160000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     28
+  CFL:  0.4681479E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.2191187E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.4046346E-04       0.3586592E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1655473E-04       0.9930381E-10
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1047300E-04       0.6056280E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1320991E-04       0.9757669E-10
+    Elapsed time (s):  0.1079334E+02 Step time:  0.2778671E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.2240000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     29
+  CFL:  0.4675215E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.1956503E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              1     0.2927441E-04       0.9660837E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1845389E-04       0.1088175E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.9021115E-05       0.6905752E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1250110E-04       0.9597544E-10
+    Elapsed time (s):  0.1104890E+02 Step time:  0.2555502E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------
+ t =   0.2320000E-01                                  [   0.02% ]
+ ----------------------------------------------------------------
+ Time-step:     30
+  CFL:  0.4668973E-02 dt:  0.8000000E-03
+  
+    ------------Fluid-------------  
+    Projection Pressure
+    Proj. vec.:   Orig. residual:
+             10     0.1754291E+03
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              2     0.4152311E-04       0.3947327E-05
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.2099544E-04       0.1189966E-09
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.8626494E-05       0.6285620E-10
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              1     0.1092733E-04       0.8522975E-10
+    Elapsed time (s):  0.1132684E+02 Step time:  0.2779212E+00
+  
+    --------Postprocessing--------  
+ ----------------------------------------------------------------

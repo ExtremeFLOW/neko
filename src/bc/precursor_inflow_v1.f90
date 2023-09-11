@@ -122,6 +122,56 @@ contains
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
          lx => this%c%Xh%lx)
 
+!!   Later a better way to automatically get this should be implemented
+!    nely = 10 ! Total no. elements in y
+!    nelz = 10 ! Total no. elements in z
+!     
+!    !if (tstep==1)  write(*,*) 'Mask:', this%msk(0), mask_i, size(this%msk)
+!    ! Create the map on all processors in the 1st time step. We have tcounter1 as this routine is called per gll point and we only
+!    ! want tis part to be called once. 
+!    !if (tstep==1.and.tcounter1==0.and.pe_rank==0)  then 
+!!    if (tstep==1.and.tcounter1==0)  then 
+!    if (tstep==1)  then 
+!     allocate(yz_ele_plane(2,nely*nelz)) ! y,z gll coordinates of lower left corner of all element
+!     allocate(yz_map(1:nely*nelz))
+!     open(unit=10,file='vel_plane_ele',status='old',form='unformatted',access="stream")
+!     read(10) yz_ele_plane ! size(2,nely*nelz). (1, nely*nelz) is y coord and (2,nely*nelz) is z coord
+!     close(10)
+!     ! allocate(yz_map(1:nely*nelz))
+!     yz_map(1:nely*nelz) = 0 ! Shows which glbal element no. corr. to each element in inflow vel. plane
+!     ! Create map to find global element nos. that corr. to elements on vel. plane
+!     ! Check on all cpus, and bcast to all, and add face element global number in an array ordered correctly as the vel. plane.
+!     ! Later we can use findloc to get the index on vel slice corr. to a given global ele. no.
+!     do yz_ele=1,nely*nelz ! Loop over elements in vel. plane
+!      do l = 1,msh%labeled_zones(1)%size ! Loop over elements in Neko inflow plane 
+!       el_and_facet = msh%labeled_zones(1)%facet_el(l)
+!       facet = el_and_facet%x(1)
+!       e = el_and_facet%x(2)
+!       if (index_is_on_facet(1,1,1,lx,ly,lz, facet)) then
+!!        if ((y(1,1,1,e).eq.yz_ele_plane(1,yz_ele)).and.(z(1,1,1,e).eq.yz_ele_plane(2,yz_ele))) then
+!        if ((abs(y(1,1,1,e)-yz_ele_plane(1,yz_ele))<1e-8).and.(abs(z(1,1,1,e)-yz_ele_plane(2,yz_ele))<1e-8)) then
+!            write(*,001) 'Plane:',yz_ele,yz_ele_plane(1,yz_ele),yz_ele_plane(2,yz_ele),&
+!                & ' Neko:',e+msh%offset_el,y(1,1,1,e),z(1,1,1,e)
+!            yz_map(yz_ele) = e+msh%offset_el ! Assigning the global element number in Neko inlet corresponding to this element in the velocity plane
+!        end if      
+!       end if
+!      end do  
+!     end do
+!
+!
+!
+!        write(*,*) 'Mask:', 'pe_rank=',pe_rank, yz_map(:)!, yz_ele_plane(1,1)
+!        
+!        do i = 1, 1!this%msk(0)
+!           k = this%msk(i)
+!           idx = nonlinear_index(k, lx, lx, lx)
+!           loc = findloc(yz_map,idx(4)+msh%offset_el,dim=1) ! Finding index (loc) of the Neko element on the SIMSON inflow plane 
+!           write(*,*) 'idx(4)=', idx(4), ', offset=', msh%offset_el, &
+!&                ', idx(4)+msh%offset_el=',idx(4)+msh%offset_el, ', yz_map(loc)=', yz_map(loc), ', loc=',loc
+!        end do
+!        
+!!        tcounter1 = tcounter1+1
+!    end if
 
       if (tstep==1) then
 !      write(*,*) 'Printing mask: gl_ele, i,x,y,z'    
@@ -151,12 +201,38 @@ contains
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, lx, lx, lx)
+!         write(*,*) idx(4)+this%msh%offset_el, i, xc(idx(1), idx(2), idx(3), idx(4)), &
+!             yc(idx(1), idx(2), idx(3), idx(4)), &
+!             zc(idx(1), idx(2), idx(3), idx(4))
+
+!          if (i==1) write(*,*) 'First:', idx(4)+this%msh%offset_el, i, xc(idx(1), idx(2), idx(3), idx(4)), &
+!             yc(idx(1), idx(2), idx(3), idx(4)), &
+!             zc(idx(1), idx(2), idx(3), idx(4))
+!          if (i==m) write(*,*) 'Last:', idx(4)+this%msh%offset_el, i, xc(idx(1), idx(2), idx(3), idx(4)), &
+!             yc(idx(1), idx(2), idx(3), idx(4)), &
+!             zc(idx(1), idx(2), idx(3), idx(4))
+
          select case(facet)
          case(1,2)
+!            x(k) = 2.0_rp !this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
+!!                 this%delta, this%x(1))
+!            y(k) = 0.0_rp 
+!            z(k) = 0.0_rp
+!          loc_z(i)=zc(idx(1), idx(2), idx(3), idx(4))
           if (yc(idx(1), idx(2), idx(3), idx(4)).le.min_y) min_y=yc(idx(1), idx(2), idx(3), idx(4))
           if (yc(idx(1), idx(2), idx(3), idx(4)).ge.max_y) max_y=yc(idx(1), idx(2), idx(3), idx(4))
           if (zc(idx(1), idx(2), idx(3), idx(4)).le.min_z) min_z=zc(idx(1), idx(2), idx(3), idx(4))
           if (zc(idx(1), idx(2), idx(3), idx(4)).ge.max_z) max_z=zc(idx(1), idx(2), idx(3), idx(4))
+!         case(3,4)
+!            x(k) = 0.0_rp 
+!            y(k) = 2.0_rp !this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
+!!                 this%delta, this%x(2))
+!            z(k) = 0.0_rp
+!         case(5,6)
+!            x(k) = 0.0_rp
+!            y(k) = 0.0_rp
+!            z(k) = 2.0_rp !this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
+!!                 this%delta, this%x(3))
          end select            
       end do
 
@@ -180,6 +256,28 @@ contains
        end do ! do i = 1, m  
     
 
+!      first_gll=this%msk(1)
+!      first_idx=nonlinear_index(first_gll, lx, lx, lx)
+!      first_facet=this%facet(1)
+!      last_gll=this%msk(this%msk(0))
+!      last_idx=nonlinear_index(last_gll, lx, lx, lx)
+!      last_facet=this%facet(this%msk(0))
+!      select case(first_facet)
+!          case(1,2)
+!      write(*,*) 'Min y coord:',yc(first_idx(1), first_idx(2), first_idx(3), first_idx(4)), &
+!                 'and min z coord:',zc(first_idx(1), first_idx(2), first_idx(3), first_idx(4))
+!      end select
+!      select case(last_facet)
+!          case(1,2)
+!      write(*,*) 'Max y coord:', yc(last_idx(1), last_idx(2), last_idx(3), last_idx(4)), &
+!                  'and max z coord:', zc(last_idx(1), last_idx(2), last_idx(3), last_idx(4))
+!      end select
+
+
+!      write(*,*) 'Min and max y coord:',yc(first_idx(1), first_idx(2), first_idx(3), first_idx(4)), &
+!                         yc(last_idx(1), last_idx(2), last_idx(3), last_idx(4))
+!      write(*,*) 'Min and max z coord:',zc(first_idx(1), first_idx(2), first_idx(3), first_idx(4)), &
+!                         zc(last_idx(1), last_idx(2), last_idx(3), last_idx(4))
      end if !if (tstep==1) then
 
 
