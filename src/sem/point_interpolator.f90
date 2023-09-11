@@ -407,9 +407,9 @@ contains
           call device_map(this%weights_r, this%weights_r_d, n)
           call device_map(this%weights_s, this%weights_s_d, n)
           call device_map(this%weights_t, this%weights_t_d, n)
-          call device_memcpy(this%weights_r, this%weights_r_d, n, HOST_TO_DEVICE)
-          call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE)
-          call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE)
+          call device_memcpy(this%weights_r, this%weights_r_d, n, HOST_TO_DEVICE, sync = .true.)
+          call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE, sync = .true.)
+          call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE, sync = .true.)
 
        end if
 
@@ -445,7 +445,7 @@ contains
 
        ! Bring back tmp_d from the device for the output
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST)
+          call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST, sync = .true.)
        end if
 
        res(:,i) = tmp

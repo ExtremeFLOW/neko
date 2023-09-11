@@ -377,7 +377,7 @@ contains
           call device_map(this%local_el_owner, this%local_el_owner_d, &
                this%n_local_probes)
           call device_memcpy(this%local_el_owner, this%local_el_owner_d, &
-               this%n_local_probes, HOST_TO_DEVICE)
+               this%n_local_probes, HOST_TO_DEVICE, sync = .true.)
        end if
 
     end if
