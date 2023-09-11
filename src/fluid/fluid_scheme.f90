@@ -47,6 +47,7 @@ module fluid_scheme
   use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
+  use precursor_inflow, only : precursor_inflow_t
   use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
@@ -309,6 +310,8 @@ contains
           allocate(blasius_t::this%bc_inflow)
        else if (trim(string_val1) .eq. "user") then
           allocate(usr_inflow_t::this%bc_inflow)
+       else if (trim(string_val1) .eq. "precursor") then
+          allocate(precursor_inflow_t::this%bc_inflow)
        else
           call neko_error('Invalid inflow condition '//string_val1)
        end if
@@ -340,6 +343,11 @@ contains
        else if (trim(string_val1) .eq. "user") then
           select type(bc_if => this%bc_inflow)
              type is(usr_inflow_t)
+             call bc_if%set_coef(this%C_Xh)
+          end select
+       else if (trim(string_val1) .eq. "precursor") then
+          select type(bc_if => this%bc_inflow)
+             type is(precursor_inflow_t)
              call bc_if%set_coef(this%C_Xh)
           end select
        end if

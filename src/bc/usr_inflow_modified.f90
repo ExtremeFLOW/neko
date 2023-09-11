@@ -38,6 +38,7 @@ module usr_inflow
   use device
   use device_inhom_dirichlet
   use utils
+  use mesh, only : mesh_t
   implicit none
   private
   
@@ -56,32 +57,37 @@ module usr_inflow
      procedure, pass(this) :: set_eval => usr_inflow_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_inflow_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_inflow_apply_scalar_dev
-  end type usr_inflow_t
+  endtype usr_inflow_t
 
   abstract interface
    
      !> Abstract interface defining a user defined inflow condition (pointwise)
-     !! @param u The x componenet of the velocity in this point
-     !! @param v The y componenet of the velocity in this point
-     !! @param w The w componenet of the velocity in this point
-     !! @param x The x coord in this point
-     !! @param y The y coord in this point
-     !! @param z The z coord in this point
-     !! @param nx The x component of the facet normal in this point
-     !! @param ny The y component of the facet normal in this point
-     !! @param nz The z component of the facet normal in this point
-     !! @param ix The r idx of this point
-     !! @param iy The s idx of this point
-     !! @param iz The t idx of this point
-     !! @param ie The element idx of this point
-     !! @param t Current time
-     !! @param tstep Current time-step
-     subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz, &
-                                ix, iy, iz, ie, t, tstep)
-       import rp
+     ! @param u The x componenet of the velocity in this point
+     ! @param v The y componenet of the velocity in this point
+     ! @param w The w componenet of the velocity in this point
+     ! @param x The x coord in this point
+     ! @param y The y coord in this point
+     ! @param z The z coord in this point
+     ! @param nx The x component of the facet normal in this point
+     ! @param ny The y component of the facet normal in this point
+     ! @param nz The z component of the facet normal in this point
+     ! @param ix The r idx of this point
+     ! @param iy The s idx of this point
+     ! @param iz The t idx of this point
+     ! @param ie The element idx of this point
+     ! @param t Current time
+     ! @param tstep Current time-step
+     subroutine usr_inflow_eval(msh, this, mask_i, u, v, w, x, y, z, nx, ny, nz, &
+                               ix, iy, iz, ie, t, tstep)
+       import 
+       import :: usr_inflow_t
+       import :: mesh_t
+       class(mesh_t), intent(inout) :: msh
+       class(usr_inflow_t), intent(inout) :: this
        real(kind=rp), intent(inout) :: u
        real(kind=rp), intent(inout) :: v
        real(kind=rp), intent(inout) :: w
+       integer, intent(in) :: mask_i
        real(kind=rp), intent(in) :: x
        real(kind=rp), intent(in) :: y
        real(kind=rp), intent(in) :: z
@@ -168,8 +174,39 @@ contains
          facet = this%facet(i)
          idx = nonlinear_index(k, lx, lx, lx)
          select case(facet)
+!         case(1,2)          
+!            call this%eval(x(k), y(k), z(k), &
+!                 xc(idx(1), idx(2), idx(3), idx(4)), &
+!                 yc(idx(1), idx(2), idx(3), idx(4)), &
+!                 zc(idx(1), idx(2), idx(3), idx(4)), &
+!                 nx(idx(2), idx(3), facet, idx(4)), &
+!                 ny(idx(2), idx(3), facet, idx(4)), &
+!                 nz(idx(2), idx(3), facet, idx(4)), &
+!                 idx(1), idx(2), idx(3), idx(4), &
+!                 t_, tstep_)
+!         case(3,4)
+!            call this%eval(x(k), y(k), z(k), &
+!                 xc(idx(1), idx(2), idx(3), idx(4)), &
+!                 yc(idx(1), idx(2), idx(3), idx(4)), &
+!                 zc(idx(1), idx(2), idx(3), idx(4)), &       
+!                 nx(idx(1), idx(3), facet, idx(4)), &
+!                 ny(idx(1), idx(3), facet, idx(4)), &
+!                 nz(idx(1), idx(3), facet, idx(4)), &
+!                 idx(1), idx(2), idx(3), idx(4), &
+!                 t_, tstep_)
+!         case(5,6)
+!            call this%eval(x(k), y(k), z(k), &
+!                 xc(idx(1), idx(2), idx(3), idx(4)), &
+!                 yc(idx(1), idx(2), idx(3), idx(4)), &
+!                 zc(idx(1), idx(2), idx(3), idx(4)), &                     
+!                 nx(idx(1), idx(2), facet, idx(4)), &
+!                 ny(idx(1), idx(2), facet, idx(4)), &
+!                 nz(idx(1), idx(2), facet, idx(4)), &
+!                 idx(1), idx(2), idx(3), idx(4), &
+!                 t_, tstep_)
+!         end select
          case(1,2)          
-            call this%eval(x(k), y(k), z(k), &
+            call this%eval(this%msh, this, this%msk(i), x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
                  zc(idx(1), idx(2), idx(3), idx(4)), &
@@ -179,7 +216,7 @@ contains
                  idx(1), idx(2), idx(3), idx(4), &
                  t_, tstep_)
          case(3,4)
-            call this%eval(x(k), y(k), z(k), &
+            call this%eval(this%msh, this, this%msk(i), x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
                  zc(idx(1), idx(2), idx(3), idx(4)), &       
@@ -189,7 +226,7 @@ contains
                  idx(1), idx(2), idx(3), idx(4), &
                  t_, tstep_)
          case(5,6)
-            call this%eval(x(k), y(k), z(k), &
+            call this%eval(this%msh, this, this%msk(i), x(k), y(k), z(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
                  zc(idx(1), idx(2), idx(3), idx(4)), &                     
@@ -204,6 +241,106 @@ contains
     
   end subroutine usr_inflow_apply_vector
 
+!  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+!    class(usr_inflow_t), intent(inout), target :: this
+!    type(c_ptr) :: x_d
+!    type(c_ptr) :: y_d
+!    type(c_ptr) :: z_d
+!    real(kind=rp), intent(in), optional :: t
+!    integer, intent(in), optional :: tstep
+!    integer :: i, m, k, idx(4), facet, tstep_
+!    integer(c_size_t) :: s
+!    real(kind=rp) :: t_
+!    real(kind=rp), allocatable :: x(:)
+!    real(kind=rp), allocatable :: y(:)
+!    real(kind=rp), allocatable :: z(:)
+!
+!    if (present(t)) then
+!       t_ = t
+!    else
+!       t_ = 0.0_rp
+!    end if
+!
+!    if (present(tstep)) then
+!       tstep_ = tstep
+!    else
+!       tstep_ = 1
+!    end if
+!
+!    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
+!         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
+!         lx => this%c%Xh%lx, usr_x_d => this%usr_x_d, usr_y_d => this%usr_y_d, &
+!         usr_z_d => this%usr_z_d)
+!
+!      m = this%msk(0)
+!
+!
+!      ! Pretabulate values during first call to apply
+!      if (.not. c_associated(usr_x_d)) then
+!         allocate(x(m), y(m), z(m)) ! Temp arrays
+!         
+!         s = m*rp
+!
+!         call device_alloc(usr_x_d, s)
+!         call device_alloc(usr_y_d, s)
+!         call device_alloc(usr_z_d, s)
+!
+!         associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
+!                   nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
+!                   lx => this%c%Xh%lx)
+!           do i = 1, m
+!              k = this%msk(i)
+!              facet = this%facet(i)
+!              idx = nonlinear_index(k, lx, lx, lx)
+!              select case(facet)
+!              case(1,2)          
+!                 call this%eval(x(i), y(i), z(i), &
+!                      xc(idx(1), idx(2), idx(3), idx(4)), &
+!                      yc(idx(1), idx(2), idx(3), idx(4)), &
+!                      zc(idx(1), idx(2), idx(3), idx(4)), &
+!                      nx(idx(2), idx(3), facet, idx(4)), &
+!                      ny(idx(2), idx(3), facet, idx(4)), &
+!                      nz(idx(2), idx(3), facet, idx(4)), &
+!                      idx(1), idx(2), idx(3), idx(4), &
+!                      t_, tstep_)
+!              case(3,4)
+!                 call this%eval(x(i), y(i), z(i), &
+!                      xc(idx(1), idx(2), idx(3), idx(4)), &
+!                      yc(idx(1), idx(2), idx(3), idx(4)), &
+!                      zc(idx(1), idx(2), idx(3), idx(4)), &       
+!                      nx(idx(1), idx(3), facet, idx(4)), &
+!                      ny(idx(1), idx(3), facet, idx(4)), &
+!                      nz(idx(1), idx(3), facet, idx(4)), &
+!                      idx(1), idx(2), idx(3), idx(4), &
+!                      t_, tstep_)
+!              case(5,6)
+!                 call this%eval(x(i), y(i), z(i), &
+!                      xc(idx(1), idx(2), idx(3), idx(4)), &
+!                      yc(idx(1), idx(2), idx(3), idx(4)), &
+!                      zc(idx(1), idx(2), idx(3), idx(4)), &                     
+!                      nx(idx(1), idx(2), facet, idx(4)), &
+!                      ny(idx(1), idx(2), facet, idx(4)), &
+!                      nz(idx(1), idx(2), facet, idx(4)), &
+!                      idx(1), idx(2), idx(3), idx(4), &
+!                      t_, tstep_)
+!              end select
+!           end do
+!         end associate
+! 
+!        
+!         call device_memcpy(x, usr_x_d, m, HOST_TO_DEVICE)
+!         call device_memcpy(y, usr_y_d, m, HOST_TO_DEVICE)
+!         call device_memcpy(z, usr_z_d, m, HOST_TO_DEVICE)
+!
+!         deallocate(x, y, z)
+!      end if
+!
+!      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+!           usr_x_d, usr_y_d, usr_z_d, m)
+!      
+!    end associate
+!
+!  end subroutine usr_inflow_apply_vector_dev
   subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(usr_inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
@@ -257,7 +394,7 @@ contains
               idx = nonlinear_index(k, lx, lx, lx)
               select case(facet)
               case(1,2)          
-                 call this%eval(x(i), y(i), z(i), &
+                 call this%eval(this%msh, this, this%msk(i), x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
                       zc(idx(1), idx(2), idx(3), idx(4)), &
@@ -267,7 +404,7 @@ contains
                       idx(1), idx(2), idx(3), idx(4), &
                       t_, tstep_)
               case(3,4)
-                 call this%eval(x(i), y(i), z(i), &
+                 call this%eval(this%msh, this, this%msk(i), x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
                       zc(idx(1), idx(2), idx(3), idx(4)), &       
@@ -277,7 +414,7 @@ contains
                       idx(1), idx(2), idx(3), idx(4), &
                       t_, tstep_)
               case(5,6)
-                 call this%eval(x(i), y(i), z(i), &
+                 call this%eval(this%msh, this, this%msk(i), x(i), y(i), z(i), &
                       xc(idx(1), idx(2), idx(3), idx(4)), &
                       yc(idx(1), idx(2), idx(3), idx(4)), &
                       zc(idx(1), idx(2), idx(3), idx(4)), &                     

@@ -18,9 +18,10 @@ module user
   real(kind=rp), parameter :: y1 = 0.0
   real(kind=rp), parameter :: delta = 0.005*h
 
-!  real(kind=rp), allocatable, dimension(:,:) :: yz_ele_plane
-!  real(kind=rp), allocatable, dimension(:) :: yz_map
+  real(kind=rp), allocatable :: yz_ele_plane(:,:)
+  integer, allocatable :: yz_map(:)
   integer :: tcounter=0  ! Temp. counter to substitute tstep in id_face 
+  integer :: tcounter1=0  ! Temp. counter to substitute tstep in user_inflow_eval 
 contains
   
   
@@ -56,8 +57,8 @@ contains
     integer :: e, i, j ,k, l,  facet
     integer :: nely, nelz, yz_ele
 !    real(kind=rp) :: yz_ele_plane(2,100), yz_map(100)
-    real(kind=rp), allocatable :: yz_ele_plane(:,:)
-    real(kind=rp), allocatable  :: yz_map(:) 
+    !real(kind=rp), allocatable :: yz_ele_plane(:,:)
+    !real(kind=rp), allocatable  :: yz_map(:) 
 
     nely = 10 ! Total no. elements in y
     nelz = 10 ! Total no. elements in z
@@ -74,7 +75,7 @@ contains
      read(10) yz_ele_plane ! size(2,nely*nelz). (1, nely*nelz) is y coord and (2,nely*nelz) is z coord
      close(10)
      ! allocate(yz_map(1:nely*nelz))
-     yz_map(1:nely*nelz) = 0.0 ! Shows which glbal element no. corr. to each element in inflow vel. plane
+     yz_map(1:nely*nelz) = 0 ! Shows which glbal element no. corr. to each element in inflow vel. plane
      ! Create map to find global element nos. that corr. to elements on vel. plane
      ! Check on all cpus, and bcast to all, and add face element global number in an array ordered correctly as the vel. plane.
      ! Later we can use findloc to get the index on vel slice corr. to a given global ele. no.
@@ -148,79 +149,10 @@ contains
     end do
   end subroutine cylinder_gen_curve
   
-!  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-!    real(kind=rp), intent(inout) :: u
-!    real(kind=rp), intent(inout) :: v
-!    real(kind=rp), intent(inout) :: w
-!    real(kind=rp), intent(in) :: x
-!    real(kind=rp), intent(in) :: y
-!    real(kind=rp), intent(in) :: z
-!    real(kind=rp), intent(in) :: nx
-!    real(kind=rp), intent(in) :: ny
-!    real(kind=rp), intent(in) :: nz
-!    integer, intent(in) :: ix
-!    integer, intent(in) :: iy
-!    integer, intent(in) :: iz
-!    integer, intent(in) :: ie
-!    real(kind=rp), intent(in) :: t
-!    integer, intent(in) :: tstep
-!    real(kind=rp) ::  u_th,dist,th, yy
-!    real(kind=rp) ::  arg
-!
-!!   Two different regions (inflow & cyl) have the label 'v  '
-!!   Let compute the distance from the (0,0) in the x-y plane
-!!   to identify the proper one
-!!    dist = sqrt(x**2 + z**2)
-!
-!!! --- INFLOW
-!!    if (dist .gt. 1.1*rad) then
-!!       u =  ucl*y**pw
-!!    end if
-!!! --- 
-!    u = 2.0
-!    w = 0.0
-!    v = 0.0
-!! --- SPINNING CYLINDER
-!
-!!    if (dist.lt.1.5*rad .and. y.gt. 0.1) then                      
-!!       th = atan2(z,x)
-!!       u = cos(th)*u_rho - sin(th)*u_th2
-!!       w = sin(th)*u_rho + cos(th)*u_th2   
-!!    end if     
-!                    
-!! --- 
-!
-!
-!!     Smoothing function for the velocity u_th on the spinning cylinder
-!!     to avoid gap in the at the bottom wall
-!
-!!     u_th is smoothed if z0 < z < delta
-!!     u_th=1 if z >= delta
-! 
-!
-!!    yy = y + abs(y0) ! coordinate shift 
-!
-!!    if (dist .lt. 1.5*rad) then 
-!!       if (yy.lt.delta) then
-!!          arg  = yy/delta
-!!          u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
-!!       else
-!!          u_th = u_th2
-!!       endif
-!
-!!       th = atan2(z,x)
-!
-!!       u = cos(th)*u_rho - sin(th)*u_th
-!!       w = sin(th)*u_rho + cos(th)*u_th  
-!!    end if
-!  end subroutine user_inflow_eval
-  
-  subroutine user_inflow_eval(this, mask_i, u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    class(usr_inflow_t), intent(inout) :: this
+  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
-    integer, intent(in) :: mask_i
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y
     real(kind=rp), intent(in) :: z
@@ -236,13 +168,104 @@ contains
     real(kind=rp) ::  u_th,dist,th, yy
     real(kind=rp) ::  arg
 
+!   Two different regions (inflow & cyl) have the label 'v  '
+!   Let compute the distance from the (0,0) in the x-y plane
+!   to identify the proper one
+!    dist = sqrt(x**2 + z**2)
+
+!! --- INFLOW
+!    if (dist .gt. 1.1*rad) then
+!       u =  ucl*y**pw
+!    end if
+!! --- 
     u = 2.0
     w = 0.0
     v = 0.0
+! --- SPINNING CYLINDER
 
-    write(*,*) this%msk(0), mask_i, size(this%msk)
+!    if (dist.lt.1.5*rad .and. y.gt. 0.1) then                      
+!       th = atan2(z,x)
+!       u = cos(th)*u_rho - sin(th)*u_th2
+!       w = sin(th)*u_rho + cos(th)*u_th2   
+!    end if     
+                    
+! --- 
 
+
+!     Smoothing function for the velocity u_th on the spinning cylinder
+!     to avoid gap in the at the bottom wall
+
+!     u_th is smoothed if z0 < z < delta
+!     u_th=1 if z >= delta
+ 
+
+!    yy = y + abs(y0) ! coordinate shift 
+
+!    if (dist .lt. 1.5*rad) then 
+!       if (yy.lt.delta) then
+!          arg  = yy/delta
+!          u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
+!       else
+!          u_th = u_th2
+!       endif
+
+!       th = atan2(z,x)
+
+!       u = cos(th)*u_rho - sin(th)*u_th
+!       w = sin(th)*u_rho + cos(th)*u_th  
+!    end if
   end subroutine user_inflow_eval
+  
+!  subroutine user_inflow_eval(msh, this, mask_i, u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+!    class(mesh_t), intent(inout) :: msh
+!    class(usr_inflow_t), intent(inout) :: this
+!    real(kind=rp), intent(inout) :: u
+!    real(kind=rp), intent(inout) :: v
+!    real(kind=rp), intent(inout) :: w
+!    integer, intent(in) :: mask_i
+!    real(kind=rp), intent(in) :: x
+!    real(kind=rp), intent(in) :: y
+!    real(kind=rp), intent(in) :: z
+!    real(kind=rp), intent(in) :: nx
+!    real(kind=rp), intent(in) :: ny
+!    real(kind=rp), intent(in) :: nz
+!    integer, intent(in) :: ix
+!    integer, intent(in) :: iy
+!    integer, intent(in) :: iz
+!    integer, intent(in) :: ie
+!    real(kind=rp), intent(in) :: t
+!    integer, intent(in) :: tstep
+!    real(kind=rp) ::  u_th,dist,th, yy
+!    real(kind=rp) ::  arg
+!    integer :: i, k, idx(4)
+!    integer :: loc
+!
+!    u = 2.0
+!    w = 0.0
+!    v = 0.0
+!
+!    associate(lx => this%c%Xh%lx)
+!     
+!    !if (tstep==1)  write(*,*) 'Mask:', this%msk(0), mask_i, size(this%msk)
+!    ! Create the map on all processors in the 1st time step. We have tcounter1 as this routine is called per gll point and we only
+!    ! want tis part to be called once. 
+!    !if (tstep==1.and.tcounter1==0.and.pe_rank==0)  then 
+!    if (tstep==1.and.tcounter1==0)  then 
+!        write(*,*) 'Mask:', 'pe_rank=',pe_rank, yz_map(:)!, yz_ele_plane(1,1)
+!        
+!        do i = 1, 1!this%msk(0)
+!           k = this%msk(i)
+!           idx = nonlinear_index(k, lx, lx, lx)
+!           loc = findloc(yz_map,idx(4)+msh%offset_el,dim=1) ! Finding index (loc) of the Neko element on the SIMSON inflow plane 
+!           write(*,*) 'idx(4)=', idx(4), ', offset=', msh%offset_el, &
+!&                ', idx(4)+msh%offset_el=',idx(4)+msh%offset_el, ', yz_map(loc)=', yz_map(loc), ', loc=',loc
+!        end do
+!        
+!        tcounter1 = tcounter1+1
+!    end if
+!    end associate
+!
+!  end subroutine user_inflow_eval
 
   ! User defined initial condition
   subroutine user_ic(u, v, w, p, params)

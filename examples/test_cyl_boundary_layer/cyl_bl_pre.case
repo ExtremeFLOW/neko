@@ -1,0 +1,50 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "cyl.nmsh",
+    "output_at_end": true,
+    "output_boundary": true,
+    "output_checkpoints": false,
+    "end_time": 100,
+    "output_directory": "results_user",
+    "timestep": 8e-4,
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "rho": 1,
+        "mu": 1,
+        "Re": 500,
+        "source_term": {
+            "type": "noforce"
+        },
+        "initial_condition": {
+            "type": "uniform",
+            "value": [1.0, 0.0, 0.0]
+        },
+        "inflow_condition": {
+            "type": "precursor",
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 3,
+            "absolute_tolerance": 1e-8,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 10,
+            "absolute_tolerance": 1e-5,
+            "max_iterations": 800
+        },
+        "boundary_types": ["v", "o", "w", "sym", "on", "on"],
+        "output_control": "nsamples",
+        "output_value": 1200
+    }
+}
+}

@@ -116,6 +116,7 @@ neko_fortran_SOURCES = \
 	bc/wall.f90\
 	bc/inflow.f90\
 	bc/usr_inflow.f90\
+	bc/precursor_inflow.f90\
 	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
