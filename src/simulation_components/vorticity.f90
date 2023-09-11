@@ -41,6 +41,7 @@ module vorticity
   use field, only : field_t, field_free, field_init
   use operators, only : curl
   use case, only : case_t
+  use neko_config
   implicit none
   private
   
@@ -131,7 +132,7 @@ module vorticity
        class(vorticity_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-       !$omp parallel
+       !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
        call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
                  this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
        !$omp end parallel

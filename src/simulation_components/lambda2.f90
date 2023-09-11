@@ -40,10 +40,9 @@ module lambda2
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t, field_free, field_init, field_ptr_t
-  use field_list, only : field_list_t
   use operators, only : lambda2op
   use case, only : case_t
-  use device
+  use neko_config
   implicit none
   private
 
@@ -117,9 +116,9 @@ contains
     class(lambda2_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-
+    !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
-
+    !$omp end parallel
   end subroutine lambda2_compute
 
 end module lambda2
