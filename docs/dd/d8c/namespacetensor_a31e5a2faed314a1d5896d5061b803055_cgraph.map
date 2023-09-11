@@ -1,0 +1,17 @@
+<map id="tensor::tnsr3d" name="tensor::tnsr3d">
+<area shape="rect" id="node1" title="Tensor product &#160;performed on nelv elements." alt="" coords="5,282,117,309"/>
+<area shape="rect" id="node2" href="$d4/d59/namespacetensor__cpu.html#aeae131da4387ce23bd966ad7c0c863d8" title=" " alt="" coords="183,111,355,138"/>
+<area shape="rect" id="node6" href="$d1/d4a/namespacetensor__device.html#ab3183ebd1f5fe0fdf12a23a4ec4c9556" title=" " alt="" coords="188,245,351,287"/>
+<area shape="rect" id="node10" href="$db/de7/namespacetensor__sx.html#ae5375638cb4427796af59a81b96775ac" title=" " alt="" coords="191,333,347,359"/>
+<area shape="rect" id="node14" href="$dd/d89/namespacetensor__xsmm.html#aa91377dd88cec4f1f3727fb96185c3c8" title=" " alt="" coords="165,409,373,435"/>
+<area shape="rect" id="node3" href="$d4/d59/namespacetensor__cpu.html#aa493f078404879a3159ceb2f4140d3d9" title=" " alt="" coords="455,5,598,47"/>
+<area shape="rect" id="node4" href="$d4/d59/namespacetensor__cpu.html#ada0a24cbddb75484d70a5b6ced3a423d" title=" " alt="" coords="455,71,598,112"/>
+<area shape="rect" id="node5" href="$d4/d59/namespacetensor__cpu.html#a70f1fc9caaafaf4076e6bf446f38b91c" title=" " alt="" coords="455,136,598,177"/>
+<area shape="rect" id="node7" href="$d9/d0b/tensor_8cu.html#a6df9c12fe7b8cbdb29aebd6480f65c61" title=" " alt="" coords="476,202,577,229"/>
+<area shape="rect" id="node8" href="$d9/dbd/tensor_8c.html#a1c1f3461770465a6b3d4d1b3358e8527" title=" " alt="" coords="470,253,583,279"/>
+<area shape="rect" id="node9" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="680,253,812,279"/>
+<area shape="rect" id="node11" href="$db/de7/namespacetensor__sx.html#a179c41dd4683b20de855fd26d4d09773" title=" " alt="" coords="421,303,632,330"/>
+<area shape="rect" id="node12" href="$db/de7/namespacetensor__sx.html#afd602383d124be2e8870b846c16e399f" title=" " alt="" coords="433,354,620,381"/>
+<area shape="rect" id="node13" href="$db/de7/namespacetensor__sx.html#a4ef8c0019dd7d6442905690e766ef386" title=" " alt="" coords="429,405,624,431"/>
+<area shape="rect" id="node15" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="447,455,606,482"/>
+</map>

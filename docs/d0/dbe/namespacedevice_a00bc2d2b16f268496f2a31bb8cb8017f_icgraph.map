@@ -1,0 +1,5 @@
+<map id="device::device_event_record" name="device::device_event_record">
+<area shape="rect" id="node1" title="Record a device event." alt="" coords="245,39,405,80"/>
+<area shape="rect" id="node2" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="5,5,197,47"/>
+<area shape="rect" id="node3" href="$d8/dcd/namespacegs__device.html#a0dc20023a2019b907a4362fd93c2bd24" title="Gather kernel." alt="" coords="22,71,181,112"/>
+</map>

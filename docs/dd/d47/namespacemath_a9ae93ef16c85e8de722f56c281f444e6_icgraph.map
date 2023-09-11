@@ -1,0 +1,30 @@
+<map id="math::addcol3" name="math::addcol3">
+<area shape="rect" id="node1" title="Returns ." alt="" coords="908,507,1023,534"/>
+<area shape="rect" id="node2" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="679,5,838,47"/>
+<area shape="rect" id="node4" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="696,71,821,112"/>
+<area shape="rect" id="node5" href="$dd/d49/namespacejacobi.html#a2b15f287f6c23fdb2b2c5b113e9d04dd" title=" " alt="" coords="679,137,839,163"/>
+<area shape="rect" id="node7" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="675,188,843,229"/>
+<area shape="rect" id="node11" href="$d3/d6b/namespacesx__dudxyz.html#a5ad7d540f70084270dc860688588f461" title=" " alt="" coords="665,254,852,281"/>
+<area shape="rect" id="node14" href="$d3/d6b/namespacesx__dudxyz.html#acd8382ff959eda86ce98f0d7d1b21122" title=" " alt="" coords="657,305,860,331"/>
+<area shape="rect" id="node15" href="$d3/d6b/namespacesx__dudxyz.html#ae5605ef08a3f14cce510d3e8eb2a6907" title=" " alt="" coords="657,355,860,382"/>
+<area shape="rect" id="node16" href="$d3/d6b/namespacesx__dudxyz.html#a516f47fda73f7c92888865b8fc505e41" title=" " alt="" coords="657,406,860,433"/>
+<area shape="rect" id="node17" href="$d3/d6b/namespacesx__dudxyz.html#a777f23a2701f51ea449c2e30fe475730" title=" " alt="" coords="657,457,860,483"/>
+<area shape="rect" id="node18" href="$d3/d6b/namespacesx__dudxyz.html#a8b7bb900eb7c9d8237607d977216203d" title=" " alt="" coords="657,507,860,534"/>
+<area shape="rect" id="node19" href="$d3/d6b/namespacesx__dudxyz.html#a892ddfc921132fd9aefb11d02d0f0858" title=" " alt="" coords="661,558,856,585"/>
+<area shape="rect" id="node20" href="$d3/d6b/namespacesx__dudxyz.html#a61674d57f05689b6bf4f4e0d3050820d" title=" " alt="" coords="661,609,856,635"/>
+<area shape="rect" id="node21" href="$d3/d6b/namespacesx__dudxyz.html#a2ecde54d91c4b1703b49175ea052033c" title=" " alt="" coords="661,659,856,686"/>
+<area shape="rect" id="node22" href="$d3/d6b/namespacesx__dudxyz.html#ae9437e76b98e40c6a2cb9498aafb3e6b" title=" " alt="" coords="661,710,856,737"/>
+<area shape="rect" id="node23" href="$d3/d6b/namespacesx__dudxyz.html#a66effde2eceed44fe9e1bc41a5d92459" title=" " alt="" coords="661,761,856,787"/>
+<area shape="rect" id="node24" href="$d3/d6b/namespacesx__dudxyz.html#a771e6848212fb21a2bc56182196389f5" title=" " alt="" coords="661,811,856,838"/>
+<area shape="rect" id="node25" href="$d3/d6b/namespacesx__dudxyz.html#a154d7de7cc923ebb74dd23028a7e5c9b" title=" " alt="" coords="661,862,856,889"/>
+<area shape="rect" id="node26" href="$d3/d6b/namespacesx__dudxyz.html#af99daaaec0cc8286b7196b4522ae98a2" title=" " alt="" coords="661,913,856,939"/>
+<area shape="rect" id="node27" href="$dd/d6e/namespacesx__jacobi.html#add1b1766274e20b0a12d2f36627adecb" title=" " alt="" coords="683,964,835,1005"/>
+<area shape="rect" id="node3" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="438,13,582,39"/>
+<area shape="rect" id="node6" href="$dd/d49/namespacejacobi.html#a5c43a3d9d05e1ba76322ba2a8f1faea6" title=" " alt="" coords="442,137,578,163"/>
+<area shape="rect" id="node8" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute dU/dx or dU/dy or dU/dz." alt="" coords="220,351,359,378"/>
+<area shape="rect" id="node10" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="411,246,609,273"/>
+<area shape="rect" id="node9" href="$dd/d30/namespaceoperators.html#a3ae8922460ff216565442622b8326ae2" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i Similar to comp_sij in Nek5000." alt="" coords="5,351,168,378"/>
+<area shape="rect" id="node12" href="$df/db5/namespaceopr__sx.html#a56ac313734cbbecb066b0e45f68fafc4" title=" " alt="" coords="425,558,595,585"/>
+<area shape="rect" id="node13" href="$df/db5/namespaceopr__sx.html#aa4b37924e1cf872be2526581325b9ec9" title=" " alt="" coords="216,558,363,585"/>
+<area shape="rect" id="node28" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="420,971,600,998"/>
+</map>

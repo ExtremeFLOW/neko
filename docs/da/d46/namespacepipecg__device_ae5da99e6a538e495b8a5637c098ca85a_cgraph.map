@@ -1,0 +1,5 @@
+<map id="pipecg_device::pipecg_device_init" name="pipecg_device::pipecg_device_init">
+<area shape="rect" id="node1" title="Initialise a pipelined PCG solver." alt="" coords="5,27,172,69"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="223,5,377,32"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="220,57,380,98"/>
+</map>

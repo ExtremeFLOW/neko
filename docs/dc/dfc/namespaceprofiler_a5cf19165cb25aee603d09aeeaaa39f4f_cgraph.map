@@ -1,0 +1,4 @@
+<map id="profiler::profiler_stop" name="profiler::profiler_stop">
+<area shape="rect" id="node1" title="Stop profiling." alt="" coords="5,5,163,32"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a61bac73fa0ec55d800487ab4c645ad86" title="Stop device profiling." alt="" coords="211,5,415,32"/>
+</map>

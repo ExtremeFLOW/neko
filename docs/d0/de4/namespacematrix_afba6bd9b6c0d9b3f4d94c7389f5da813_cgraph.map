@@ -1,0 +1,7 @@
+<map id="matrix::matrix_init" name="matrix::matrix_init">
+<area shape="rect" id="node1" title="Initialise a matrix of size nrows*ncols." alt="" coords="5,31,149,57"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title=" " alt="" coords="197,23,355,65"/>
+<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#acb4fe9bc0a09e3ef698a39bb71086356" title=" " alt="" coords="409,5,491,32"/>
+<area shape="rect" id="node4" href="$d6/da3/math_8c.html#ace53d8c6b37b7549d3d1c15a5bda29ca" title=" " alt="" coords="403,56,497,83"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="545,56,677,83"/>
+</map>

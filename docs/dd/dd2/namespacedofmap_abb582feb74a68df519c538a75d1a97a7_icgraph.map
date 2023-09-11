@@ -1,0 +1,5 @@
+<map id="dofmap::dofmap_facetidx" name="dofmap::dofmap_facetidx">
+<area shape="rect" id="node1" title="Get idx for GLL point on face depending on face ordering k and j." alt="" coords="516,13,707,39"/>
+<area shape="rect" id="node2" href="$dd/dd2/namespacedofmap.html#ae20a989ae35a240199117fd84e0b1615" title="Assign numbers to dofs on faces." alt="" coords="281,5,468,47"/>
+<area shape="rect" id="node3" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,13,233,39"/>
+</map>

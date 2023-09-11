@@ -1,0 +1,4 @@
+<map id="simulation_component_global::simcomps_global_init" name="simulation_component_global::simcomps_global_init">
+<area shape="rect" id="node1" title="Populates the global neko_simcomps array with objects based on the json configuration and the simulat..." alt="" coords="5,13,224,54"/>
+<area shape="rect" id="node2" href="$d0/d8e/namespacesimulation__component__fctry.html#a21ee3968713277def381252c3ce5e0d8" title="Simulation component factory. Both constructs and initializes the object." alt="" coords="272,5,487,61"/>
+</map>

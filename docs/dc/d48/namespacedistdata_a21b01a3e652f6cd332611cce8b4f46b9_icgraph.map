@@ -1,0 +1,6 @@
+<map id="distdata::distdata_set_local_to_global_facet" name="distdata::distdata_set_local_to_global_facet">
+<area shape="rect" id="node1" title="Set local to global mapping (facets)" alt="" coords="677,5,872,47"/>
+<area shape="rect" id="node2" href="$db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237" title="Generate a unique facet numbering." alt="" coords="463,5,629,47"/>
+<area shape="rect" id="node3" href="$db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba" title="Generate element&#45;to&#45;element connectivity." alt="" coords="209,13,415,39"/>
+<area shape="rect" id="node4" href="$db/dfc/namespacemesh.html#ac2946fce1b2dd0901137b5d74e1d641a" title=" " alt="" coords="5,13,161,39"/>
+</map>

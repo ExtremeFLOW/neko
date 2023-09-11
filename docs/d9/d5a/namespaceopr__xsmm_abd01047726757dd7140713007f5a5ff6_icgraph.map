@@ -1,0 +1,6 @@
+<map id="opr_xsmm::opr_xsmm_dudxyz" name="opr_xsmm::opr_xsmm_dudxyz">
+<area shape="rect" id="node1" title=" " alt="" coords="463,23,631,65"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute dU/dx or dU/dy or dU/dz." alt="" coords="246,5,385,32"/>
+<area shape="rect" id="node4" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="216,56,415,83"/>
+<area shape="rect" id="node3" href="$dd/d30/namespaceoperators.html#a3ae8922460ff216565442622b8326ae2" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i Similar to comp_sij in Nek5000." alt="" coords="5,5,168,32"/>
+</map>

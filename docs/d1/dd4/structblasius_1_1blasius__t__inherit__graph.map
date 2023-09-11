@@ -1,0 +1,6 @@
+<map id="blasius::blasius_t" name="blasius::blasius_t">
+<area shape="rect" id="node1" title="Blasius profile for inlet (vector valued)" alt="" coords="12,229,147,256"/>
+<area shape="rect" id="node2" href="$d5/d8a/structinflow_1_1inflow__t.html" title="Dirichlet condition for inlet (vector valued)" alt="" coords="20,155,139,181"/>
+<area shape="rect" id="node3" href="$df/dd9/structdirichlet_1_1dirichlet__t.html" title="Generic Dirichlet boundary condition &#160;on ." alt="" coords="5,80,153,107"/>
+<area shape="rect" id="node4" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="43,5,115,32"/>
+</map>

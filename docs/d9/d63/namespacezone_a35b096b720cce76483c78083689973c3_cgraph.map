@@ -1,0 +1,4 @@
+<map id="zone::zone_init" name="zone::zone_init">
+<area shape="rect" id="node1" title="Initialize a zone." alt="" coords="5,5,125,32"/>
+<area shape="rect" id="node2" href="$d9/d63/namespacezone.html#a67a9f5d15025430001264b93217003a5" title="Deallocate a zone." alt="" coords="173,5,299,32"/>
+</map>

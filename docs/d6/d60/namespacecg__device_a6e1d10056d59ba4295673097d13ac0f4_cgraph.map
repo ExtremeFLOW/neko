@@ -1,0 +1,21 @@
+<map id="cg_device::cg_device_solve" name="cg_device::cg_device_solve">
+<area shape="rect" id="node1" title="Standard PCG solve." alt="" coords="5,230,165,271"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a15efe533d8411a3ff44ea486c8ce276d" title=" " alt="" coords="233,49,391,90"/>
+<area shape="rect" id="node6" href="$d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7" title=" " alt="" coords="233,146,391,187"/>
+<area shape="rect" id="node9" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title=" " alt="" coords="215,212,409,239"/>
+<area shape="rect" id="node12" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="213,263,411,289"/>
+<area shape="rect" id="node13" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title=" " alt="" coords="233,314,391,355"/>
+<area shape="rect" id="node17" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title=" " alt="" coords="233,403,391,445"/>
+<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#a77141a0277a105d29cbbcee0095dc17e" title=" " alt="" coords="465,5,571,32"/>
+<area shape="rect" id="node4" href="$d6/da3/math_8c.html#ad7645de3093aca20a011f8485e382380" title=" " alt="" coords="459,56,577,83"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="641,157,773,184"/>
+<area shape="rect" id="node7" href="$de/d1e/math_8cu.html#a305b5c802852471c9a4ecc0ae078cedd" title=" " alt="" coords="465,107,571,133"/>
+<area shape="rect" id="node8" href="$d6/da3/math_8c.html#a299eb8d523ba1c7d895b2430c2c2726b" title=" " alt="" coords="459,157,577,184"/>
+<area shape="rect" id="node10" href="$de/d1e/math_8cu.html#aaa922bf0afc80480ef12d8260376bf53" title=" " alt="" coords="473,208,563,235"/>
+<area shape="rect" id="node11" href="$d6/da3/math_8c.html#af2055c7811d3d143b549d14a0f302079" title=" " alt="" coords="467,259,569,285"/>
+<area shape="rect" id="node14" href="$de/d1e/math_8cu.html#ae5a1628374d65b302e8a5f9993fab70a" title=" " alt="" coords="471,360,565,387"/>
+<area shape="rect" id="node16" href="$d6/da3/math_8c.html#a278d2d449c09caeb2e42dabf6a5521b9" title=" " alt="" coords="465,309,571,336"/>
+<area shape="rect" id="node15" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="625,360,789,387"/>
+<area shape="rect" id="node18" href="$de/d1e/math_8cu.html#a929f7979761fc7dfdb31c1bc7dcd3897" title=" " alt="" coords="471,411,565,437"/>
+<area shape="rect" id="node19" href="$d6/da3/math_8c.html#a4759a87ec336639cbcd865aea0801da7" title=" " alt="" coords="465,461,571,488"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="htable::htable_iter_i4_t" name="htable::htable_iter_i4_t">
+<area shape="rect" id="node1" title="Iterator for an integer based hash table." alt="" coords="5,80,177,107"/>
+<area shape="rect" id="node2" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="15,5,168,32"/>
+</map>

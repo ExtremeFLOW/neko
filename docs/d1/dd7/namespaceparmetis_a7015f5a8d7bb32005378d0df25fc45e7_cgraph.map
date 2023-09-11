@@ -1,0 +1,8 @@
+<map id="parmetis::parmetis_partmeshkway" name="parmetis::parmetis_partmeshkway">
+<area shape="rect" id="node1" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="5,57,152,98"/>
+<area shape="rect" id="node2" href="$d1/dd7/namespaceparmetis.html#a4d14c4d16427d26c17bd770369629803" title="Compute the (parallel) vertex distribution of the dual graph." alt="" coords="200,5,377,32"/>
+<area shape="rect" id="node3" href="$d1/dd7/namespaceparmetis.html#a167b3313549fa07a2cd414118bd40489" title="Fill mesh field according to new partitions." alt="" coords="215,57,362,98"/>
+<area shape="rect" id="node6" href="$d1/dd7/namespaceparmetis.html#af3f78958dd47849888ed6650aed8e129" title="Setup weights and balance constraints for the dual graph." alt="" coords="200,123,377,149"/>
+<area shape="rect" id="node4" href="$da/dc3/namespacemesh__field.html#aaa97d6c142cefd8fa464a140d00aeb77" title=" " alt="" coords="425,64,625,91"/>
+<area shape="rect" id="node5" href="$da/dc3/namespacemesh__field.html#a8db8f80b2676dca5b068e135557fcf53" title=" " alt="" coords="673,64,879,91"/>
+</map>

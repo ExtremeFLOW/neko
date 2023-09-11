@@ -1,0 +1,12 @@
+<map id="mpi_types::mpi_types_free" name="mpi_types::mpi_types_free">
+<area shape="rect" id="node1" title="Deallocate all derived MPI types." alt="" coords="5,274,204,301"/>
+<area shape="rect" id="node2" href="$db/dd5/namespacempi__types.html#accaefc272c775018b2b6f12d8c62b442" title="Deallocate nmsh curve derived MPI type." alt="" coords="252,5,411,47"/>
+<area shape="rect" id="node3" href="$db/dd5/namespacempi__types.html#ad426289e024e51cf5d0993de8586f8e5" title="Deallocate nmsh hex derived MPI type." alt="" coords="252,71,411,112"/>
+<area shape="rect" id="node4" href="$db/dd5/namespacempi__types.html#a103671d517dd03e33cb03f5a4af67e3d" title="Deallocate nmsh quad derived MPI type." alt="" coords="252,136,411,177"/>
+<area shape="rect" id="node5" href="$db/dd5/namespacempi__types.html#a7f0e844ec8929c29ce9e1346543cb338" title="Deallocate nmsh zone derived MPI type." alt="" coords="252,201,411,243"/>
+<area shape="rect" id="node6" href="$db/dd5/namespacempi__types.html#a6c2cadd13dec4354de27c7cfd64151f1" title="Deallocate re2 bc derived MPI type." alt="" coords="252,267,411,308"/>
+<area shape="rect" id="node7" href="$db/dd5/namespacempi__types.html#a6d2ef4c5560b62e7c335418686eea087" title="Deallocate re2 xyz derived MPI type." alt="" coords="252,332,411,373"/>
+<area shape="rect" id="node8" href="$db/dd5/namespacempi__types.html#a474c5038a2cc34180d2e18db3f05f123" title="Deallocate re2 xyz derived MPI type." alt="" coords="252,397,411,439"/>
+<area shape="rect" id="node9" href="$db/dd5/namespacempi__types.html#aac7f732dce4c14a9a41d40576b728910" title="Deallocate STL header dervied MPI type." alt="" coords="252,463,411,504"/>
+<area shape="rect" id="node10" href="$db/dd5/namespacempi__types.html#a36e42173f35aa7a0f0cbb5c424c98674" title="Deallocate STL triangle derived MPI type." alt="" coords="252,528,411,569"/>
+</map>

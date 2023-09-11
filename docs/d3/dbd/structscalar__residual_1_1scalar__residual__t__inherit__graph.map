@@ -1,0 +1,6 @@
+<map id="scalar_residual::scalar_residual_t" name="scalar_residual::scalar_residual_t">
+<area shape="rect" id="node1" title="Abstract type to compute scalar residual." alt="" coords="5,71,172,112"/>
+<area shape="rect" id="node2" href="$db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html" title=" " alt="" coords="230,5,401,47"/>
+<area shape="rect" id="node3" href="$d3/de2/structscalar__residual__device_1_1scalar__residual__device__t.html" title=" " alt="" coords="220,71,411,112"/>
+<area shape="rect" id="node4" href="$dd/dd4/structscalar__residual__sx_1_1scalar__residual__sx__t.html" title=" " alt="" coords="234,136,397,177"/>
+</map>

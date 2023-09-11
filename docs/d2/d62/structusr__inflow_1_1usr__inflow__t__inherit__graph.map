@@ -1,0 +1,6 @@
+<map id="usr_inflow::usr_inflow_t" name="usr_inflow::usr_inflow_t">
+<area shape="rect" id="node1" title="User defined dirichlet condition for inlet (vector valued)" alt="" coords="5,229,179,256"/>
+<area shape="rect" id="node2" href="$d5/d8a/structinflow_1_1inflow__t.html" title="Dirichlet condition for inlet (vector valued)" alt="" coords="33,155,151,181"/>
+<area shape="rect" id="node3" href="$df/dd9/structdirichlet_1_1dirichlet__t.html" title="Generic Dirichlet boundary condition &#160;on ." alt="" coords="18,80,166,107"/>
+<area shape="rect" id="node4" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="56,5,128,32"/>
+</map>

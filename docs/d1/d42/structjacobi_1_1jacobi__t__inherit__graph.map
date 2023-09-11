@@ -1,0 +1,4 @@
+<map id="jacobi::jacobi_t" name="jacobi::jacobi_t">
+<area shape="rect" id="node1" title="Defines a jacobi preconditioner." alt="" coords="5,80,125,107"/>
+<area shape="rect" id="node2" href="$d7/d3a/structprecon_1_1pc__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="15,5,116,32"/>
+</map>

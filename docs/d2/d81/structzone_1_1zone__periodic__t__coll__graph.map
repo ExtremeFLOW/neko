@@ -1,0 +1,10 @@
+<map id="zone::zone_periodic_t" name="zone::zone_periodic_t">
+<area shape="rect" id="node1" title=" " alt="" coords="656,140,819,167"/>
+<area shape="rect" id="node2" href="$d7/dda/structzone_1_1zone__t.html" title=" " alt="" coords="503,140,607,167"/>
+<area shape="rect" id="node3" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="167,73,311,100"/>
+<area shape="rect" id="node4" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,40,117,67"/>
+<area shape="rect" id="node7" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="335,15,479,41"/>
+<area shape="rect" id="node5" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="175,197,302,224"/>
+<area shape="rect" id="node6" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="7,229,115,256"/>
+<area shape="rect" id="node8" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="339,268,474,295"/>
+</map>

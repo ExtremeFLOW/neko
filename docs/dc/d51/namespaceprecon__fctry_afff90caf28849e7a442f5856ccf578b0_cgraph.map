@@ -1,0 +1,4 @@
+<map id="precon_fctry::precon_factory" name="precon_fctry::precon_factory">
+<area shape="rect" id="node1" title="Create a preconditioner." alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node2" href="$dc/d51/namespaceprecon__fctry.html#a18ffcb1756eab1b82266908473cf1f99" title="Destroy a preconditioner." alt="" coords="208,5,363,47"/>
+</map>

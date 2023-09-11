@@ -1,0 +1,5 @@
+<map id="opr_device::opr_device_dudxyz" name="opr_device::opr_device_dudxyz">
+<area shape="rect" id="node1" title=" " alt="" coords="403,5,575,47"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute dU/dx or dU/dy or dU/dz." alt="" coords="216,13,355,39"/>
+<area shape="rect" id="node3" href="$dd/d30/namespaceoperators.html#a3ae8922460ff216565442622b8326ae2" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i Similar to comp_sij in Nek5000." alt="" coords="5,13,168,39"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="cpr::sortcoeff" name="cpr::sortcoeff">
+<area shape="rect" id="node1" title="Sort the spectral coefficient in descending order array vsort. The original indices are stored in the..." alt="" coords="5,31,112,57"/>
+<area shape="rect" id="node2" href="$d2/d80/namespacecpr.html#a93a6484bb575b9a2bb0a3fb6ff78064f" title="Flip vector b and ind." alt="" coords="163,5,241,32"/>
+<area shape="rect" id="node3" href="$d2/d80/namespacecpr.html#a46bc70f2ea480c8ca7a025a7c469694f" title="sort the array acording to ind vector" alt="" coords="160,56,244,83"/>
+</map>

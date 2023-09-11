@@ -1,0 +1,6 @@
+<map id="zone::zone_free" name="zone::zone_free">
+<area shape="rect" id="node1" title="Deallocate a zone." alt="" coords="464,31,589,57"/>
+<area shape="rect" id="node2" href="$d9/d63/namespacezone.html#a35b096b720cce76483c78083689973c3" title="Initialize a zone." alt="" coords="264,5,384,32"/>
+<area shape="rect" id="node4" href="$d9/d63/namespacezone.html#a194ff970d0efac7a101ac8b653662a65" title="Deallocate a zone." alt="" coords="232,56,416,83"/>
+<area shape="rect" id="node3" href="$d9/d63/namespacezone.html#a77561c7182c720c94c61f94ec3e999e8" title="Initialize a periodic zone." alt="" coords="5,5,184,32"/>
+</map>

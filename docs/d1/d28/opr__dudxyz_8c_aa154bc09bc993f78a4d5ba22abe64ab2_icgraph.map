@@ -1,0 +1,7 @@
+<map id="opencl_dudxyz" name="opencl_dudxyz">
+<area shape="rect" id="node1" title=" " alt="" coords="653,35,772,61"/>
+<area shape="rect" id="node2" href="$d3/d4d/namespaceopr__device.html#ac2d9d38cf7791597652343f897d3eab9" title=" " alt="" coords="403,5,605,32"/>
+<area shape="rect" id="node3" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="418,57,590,98"/>
+<area shape="rect" id="node4" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute dU/dx or dU/dy or dU/dz." alt="" coords="216,64,355,91"/>
+<area shape="rect" id="node5" href="$dd/d30/namespaceoperators.html#a3ae8922460ff216565442622b8326ae2" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i Similar to comp_sij in Nek5000." alt="" coords="5,64,168,91"/>
+</map>

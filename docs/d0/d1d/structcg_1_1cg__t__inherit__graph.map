@@ -1,0 +1,4 @@
+<map id="cg::cg_t" name="cg::cg_t">
+<area shape="rect" id="node1" title="Standard preconditioned conjugate gradient method." alt="" coords="22,80,94,107"/>
+<area shape="rect" id="node2" href="$d0/d3b/structkrylov_1_1ksp__t.html" title="Base type for a canonical Krylov method, solving ." alt="" coords="5,5,111,32"/>
+</map>

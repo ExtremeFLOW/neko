@@ -1,0 +1,9 @@
+<map id="gmres::gmres_solve" name="gmres::gmres_solve">
+<area shape="rect" id="node1" title="Standard GMRES solve." alt="" coords="5,132,160,159"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="208,5,317,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="215,56,310,83"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="213,107,312,133"/>
+<area shape="rect" id="node5" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="216,157,309,184"/>
+<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="214,208,311,235"/>
+<area shape="rect" id="node7" href="$dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="215,259,310,285"/>
+</map>

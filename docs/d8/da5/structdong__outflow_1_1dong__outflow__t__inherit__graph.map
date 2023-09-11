@@ -1,0 +1,5 @@
+<map id="dong_outflow::dong_outflow_t" name="dong_outflow::dong_outflow_t">
+<area shape="rect" id="node1" title="Dong outflow condition Follows &quot;A Convective&#45;like Energy&#45;Stable Open Boundary Condition for &#160;Simulati..." alt="" coords="5,155,153,196"/>
+<area shape="rect" id="node2" href="$df/dd9/structdirichlet_1_1dirichlet__t.html" title="Generic Dirichlet boundary condition &#160;on ." alt="" coords="5,80,153,107"/>
+<area shape="rect" id="node3" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="43,5,115,32"/>
+</map>

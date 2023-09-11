@@ -1,0 +1,4 @@
+<map id="htable::htable_t" name="htable::htable_t">
+<area shape="rect" id="node1" title="Base type for a hash table." alt="" coords="9,95,133,121"/>
+<area shape="rect" id="node2" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,5,136,32"/>
+</map>

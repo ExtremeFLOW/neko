@@ -1,0 +1,6 @@
+<map id="opr_cpu::opr_cpu_dudxyz" name="opr_cpu::opr_cpu_dudxyz">
+<area shape="rect" id="node1" title=" " alt="" coords="427,31,613,57"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute dU/dx or dU/dy or dU/dz." alt="" coords="228,5,367,32"/>
+<area shape="rect" id="node4" href="$d0/d94/namespaceopr__cpu.html#a12d6237f85e66a10649781a905bb60d2" title=" " alt="" coords="216,56,379,83"/>
+<area shape="rect" id="node3" href="$dd/d30/namespaceoperators.html#a3ae8922460ff216565442622b8326ae2" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i Similar to comp_sij in Nek5000." alt="" coords="5,5,168,32"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="math::add2s2" name="math::add2s2">
+<area shape="rect" id="node1" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="504,101,615,127"/>
+<area shape="rect" id="node2" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="289,5,429,47"/>
+<area shape="rect" id="node3" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="263,71,456,98"/>
+<area shape="rect" id="node5" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update a mean field." alt="" coords="272,123,447,164"/>
+<area shape="rect" id="node6" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="281,188,437,229"/>
+<area shape="rect" id="node4" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="5,71,215,98"/>
+</map>

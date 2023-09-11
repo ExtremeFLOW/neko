@@ -1,0 +1,26 @@
+<map id="space::space_init" name="space::space_init">
+<area shape="rect" id="node1" title="Initialize a function space s with given polynomial dimensions." alt="" coords="5,157,140,184"/>
+<area shape="rect" id="node2" href="$dd/df0/namespacespeclib.html#a7607422b2789c40eb57f272aa7a0849c" title=" " alt="" coords="239,5,339,32"/>
+<area shape="rect" id="node4" href="$dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc" title="Compute interpolation weights for points z_to using values at points z_from." alt="" coords="219,56,358,83"/>
+<area shape="rect" id="node6" href="$d5/d0d/namespacespace.html#abf1624ea96d6d74c2ad4d96272959544" title=" " alt="" coords="188,107,389,133"/>
+<area shape="rect" id="node7" href="$d5/d0d/namespacespace.html#ae0b8a6c7d8cb34ac618be6d7564460d4" title="Deallocate a space s." alt="" coords="219,157,358,184"/>
+<area shape="rect" id="node9" href="$d5/d0d/namespacespace.html#a5c41cc585bf24744ee74ef6a516cd3d7" title="Generate spectral tranform matrices." alt="" coords="193,209,384,250"/>
+<area shape="rect" id="node13" href="$dd/df0/namespacespeclib.html#ab11b66ebaf2ef6f202810bd016cfdf54" title="Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ...." alt="" coords="235,345,342,372"/>
+<area shape="rect" id="node20" href="$dd/df0/namespacespeclib.html#a179445887767b2f79644d8831c0aaa4a" title=" " alt="" coords="233,295,344,321"/>
+<area shape="rect" id="node3" href="$dd/df0/namespacespeclib.html#a2bc7fce76bcabd1bc0ed408a25d8a368" title=" " alt="" coords="467,5,579,32"/>
+<area shape="rect" id="node5" href="$dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4" title="Compute finite&#45;difference stencil weights for evaluating derivatives up to order &#160;at a point." alt="" coords="437,56,608,83"/>
+<area shape="rect" id="node8" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="448,111,597,137"/>
+<area shape="rect" id="node10" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="475,212,570,239"/>
+<area shape="rect" id="node11" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="443,263,602,289"/>
+<area shape="rect" id="node12" href="$dd/d8c/namespacetensor.html#a56be5127b81c9f41faab546d3d175e19" title="In&#45;place transpose of a square tensor." alt="" coords="471,161,575,188"/>
+<area shape="rect" id="node14" href="$dd/df0/namespacespeclib.html#a631f538efe1b48d5b557e06446dcb278" title=" " alt="" coords="662,364,769,391"/>
+<area shape="rect" id="node15" href="$dd/df0/namespacespeclib.html#a70378dbc00d8034b969f6b8143a9f79b" title=" " alt="" coords="825,364,939,391"/>
+<area shape="rect" id="node16" href="$dd/df0/namespacespeclib.html#a9f09a37ceba1bda3ba6d0bcb3a7c8ad5" title=" " alt="" coords="1160,288,1291,315"/>
+<area shape="rect" id="node17" href="$dd/df0/namespacespeclib.html#a6e4006c61e176baff378ff31472b6634" title=" " alt="" coords="999,465,1102,492"/>
+<area shape="rect" id="node18" href="$dd/df0/namespacespeclib.html#af7eaf2eb0994474cab3a5582bbf02903" title=" " alt="" coords="1167,465,1283,492"/>
+<area shape="rect" id="node19" href="$dd/df0/namespacespeclib.html#a0c8e13cf445167798ffba39b31becd5c" title=" " alt="" coords="989,364,1112,391"/>
+<area shape="rect" id="node21" href="$dd/df0/namespacespeclib.html#a7c5a4fdeafc7586a367bc910e26ba2a9" title=" " alt="" coords="467,313,578,340"/>
+<area shape="rect" id="node22" href="$dd/df0/namespacespeclib.html#ae2c64cf28960c6e471641deed404e86e" title=" " alt="" coords="656,313,775,340"/>
+<area shape="rect" id="node23" href="$dd/df0/namespacespeclib.html#ab618a625bedf7881d63d96ef454b9735" title=" " alt="" coords="991,263,1110,289"/>
+<area shape="rect" id="node24" href="$dd/df0/namespacespeclib.html#ad943093ff49bf43afa083fdee6b3a8cc" title=" " alt="" coords="823,225,941,252"/>
+</map>

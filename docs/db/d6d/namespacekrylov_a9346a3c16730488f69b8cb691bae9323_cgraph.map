@@ -1,0 +1,4 @@
+<map id="krylov::krylov_init" name="krylov::krylov_init">
+<area shape="rect" id="node1" title="Create a krylov solver." alt="" coords="5,5,144,32"/>
+<area shape="rect" id="node2" href="$db/d6d/namespacekrylov.html#a6b461bf26ab4402b452e62fd907103a7" title="Deallocate a Krylov solver." alt="" coords="192,5,336,32"/>
+</map>

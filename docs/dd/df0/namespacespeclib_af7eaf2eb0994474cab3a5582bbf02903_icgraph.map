@@ -1,0 +1,25 @@
+<map id="speclib::jacobf" name="speclib::jacobf">
+<area shape="rect" id="node1" title=" " alt="" coords="1161,183,1277,209"/>
+<area shape="rect" id="node2" href="$dd/df0/namespacespeclib.html#af784fd5864e8222445eb57b9e575ec59" title=" " alt="" coords="1001,5,1105,32"/>
+<area shape="rect" id="node4" href="$dd/df0/namespacespeclib.html#ab8b7717fad983f40af5b93ccea36269b" title=" " alt="" coords="999,56,1107,83"/>
+<area shape="rect" id="node6" href="$dd/df0/namespacespeclib.html#aa155dec8c72ae730ff1df0b63ccf95e2" title=" " alt="" coords="993,107,1113,133"/>
+<area shape="rect" id="node8" href="$dd/df0/namespacespeclib.html#aa7131d3661c26a9ca06d8e48043480d9" title=" " alt="" coords="1001,157,1105,184"/>
+<area shape="rect" id="node11" href="$dd/df0/namespacespeclib.html#ab578e6a16a7c5d5120615c8b996836cc" title=" " alt="" coords="999,208,1107,235"/>
+<area shape="rect" id="node14" href="$dd/df0/namespacespeclib.html#a6e4006c61e176baff378ff31472b6634" title=" " alt="" coords="1002,309,1105,336"/>
+<area shape="rect" id="node15" href="$dd/df0/namespacespeclib.html#a70378dbc00d8034b969f6b8143a9f79b" title=" " alt="" coords="831,309,945,336"/>
+<area shape="rect" id="node21" href="$dd/df0/namespacespeclib.html#ae2c64cf28960c6e471641deed404e86e" title=" " alt="" coords="664,360,783,387"/>
+<area shape="rect" id="node3" href="$dd/df0/namespacespeclib.html#a666178e339fe929fc25d129931971204" title=" " alt="" coords="840,5,936,32"/>
+<area shape="rect" id="node5" href="$dd/df0/namespacespeclib.html#a8310d8b6c00f1123b70be8ad9ab9b69f" title=" " alt="" coords="838,56,938,83"/>
+<area shape="rect" id="node7" href="$dd/df0/namespacespeclib.html#a4f3fa971fc915fa4235b1f73fc483ad2" title=" " alt="" coords="832,107,944,133"/>
+<area shape="rect" id="node9" href="$dd/df0/namespacespeclib.html#a43e2131bb1a410b8154ffcdb66d75b1f" title=" " alt="" coords="840,157,936,184"/>
+<area shape="rect" id="node10" href="$dd/df0/namespacespeclib.html#a942a971b52385e6f104302b9e566b9f9" title=" " alt="" coords="671,157,776,184"/>
+<area shape="rect" id="node12" href="$dd/df0/namespacespeclib.html#a784f6364aaf4871b26fdaee707a8e007" title=" " alt="" coords="838,208,938,235"/>
+<area shape="rect" id="node13" href="$dd/df0/namespacespeclib.html#aa417242e861205a649681dfffda171d4" title=" " alt="" coords="669,208,778,235"/>
+<area shape="rect" id="node16" href="$dd/df0/namespacespeclib.html#a631f538efe1b48d5b557e06446dcb278" title=" " alt="" coords="507,309,614,336"/>
+<area shape="rect" id="node17" href="$dd/df0/namespacespeclib.html#ab11b66ebaf2ef6f202810bd016cfdf54" title="Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ...." alt="" coords="349,309,455,336"/>
+<area shape="rect" id="node18" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="171,309,291,336"/>
+<area shape="rect" id="node20" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="164,360,299,387"/>
+<area shape="rect" id="node19" href="$d3/d4c/namespacefdm.html#af3a1a3b08ecd8ff4dd376ac7afaa555f" title=" " alt="" coords="5,309,116,336"/>
+<area shape="rect" id="node22" href="$dd/df0/namespacespeclib.html#a7c5a4fdeafc7586a367bc910e26ba2a9" title=" " alt="" coords="505,360,616,387"/>
+<area shape="rect" id="node23" href="$dd/df0/namespacespeclib.html#a179445887767b2f79644d8831c0aaa4a" title=" " alt="" coords="347,360,457,387"/>
+</map>

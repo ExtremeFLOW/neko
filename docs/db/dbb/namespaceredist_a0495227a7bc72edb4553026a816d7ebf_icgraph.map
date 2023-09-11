@@ -1,0 +1,6 @@
+<map id="redist::redist_mesh" name="redist::redist_mesh">
+<area shape="rect" id="node1" title="Redistribute a mesh msh according to new partitions." alt="" coords="475,42,621,69"/>
+<area shape="rect" id="node2" href="$dd/da8/namespacecase.html#ae8960a3867b359b819ddafa169747832" title="Initialize a case from its (loaded) params object." alt="" coords="244,42,427,69"/>
+<area shape="rect" id="node3" href="$d8/d36/interfacecase_1_1case__init.html#a96fd088f5a85b607a614f31a86b826e6" title="Initialize a case from an input file case_file." alt="" coords="23,5,179,47"/>
+<area shape="rect" id="node4" href="$dd/da8/namespacecase.html#a7afcfd035d13b3f9c55d8331a67247f3" title="Initialize a case from a JSON object describing a case." alt="" coords="5,71,196,98"/>
+</map>
