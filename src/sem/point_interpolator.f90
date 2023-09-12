@@ -362,7 +362,7 @@ contains
     real(kind=rp), intent(inout) :: wt(:,:)
     real(kind=rp), allocatable :: res(:,:)
 
-    integer :: n_points, n_fields, lx, n, i,j
+    integer :: n_points, n_fields, lx, n, i
     type(c_ptr) :: tmp_d = C_NULL_PTR
     real(kind=rp), allocatable :: tmp(:)
 

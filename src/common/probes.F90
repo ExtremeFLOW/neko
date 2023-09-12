@@ -454,14 +454,9 @@ contains
              !
              ! Build weights
              !
-             do i = 1, this%n_local_probes
-                call fd_weights_full(real(this%rst(i)%x(1), rp), this%interpolator%Xh%zg(:,1), &
-                     lx-1, 0, this%weights_r(:,i))
-                call fd_weights_full(real(this%rst(i)%x(2), rp), this%interpolator%Xh%zg(:,2), &
-                     lx-1, 0, this%weights_s(:,i))
-                call fd_weights_full(real(this%rst(i)%x(3), rp), this%interpolator%Xh%zg(:,3), &
-                     lx-1, 0, this%weights_t(:,i))
-             end do
+             call this%interpolator%compute_weights(this%rst(:)%x(1), &
+                  this%rst(:)%x(2), this%rst(:)%x(3), this%weights_r, this%weights_s, &
+                  this%weights_t)
 
              !
              ! Associate device pointers
@@ -486,6 +481,7 @@ contains
           !
           ! Interpolate
           !
+          write (*,*) "weights", this%weights_r
           tmp = this%interpolator%interpolate(this%local_rst, &
                this%local_el_owner, this%sampled_fields, &
                this%weights_r, this%weights_s, this%weights_t)
