@@ -313,7 +313,7 @@ contains
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: temp_indices(9), e, i, ind_sort(3)
-    real(kind=rp) :: eigen(3), B, C, D, q, r, theta
+    real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
 
@@ -366,8 +366,22 @@ contains
              eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
              eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
 
-             call sort(eigen,ind_sort,3)
-             lambda2%x(i,1,1,e) = eigen(2)/(coef%B(i,1,1,e)**2)
+             if (eigen(1) .le. eigen(2) .and. eigen(2) .le. eigen(3)) then
+                l2 = eigen(2)
+             else if (eigen(3) .le. eigen(2) .and. eigen(2) .le. eigen(1)) then
+                l2 = eigen(2)
+             else if (eigen(1) .le. eigen(3) .and. eigen(3) .le. eigen(2)) then
+                l2 = eigen(3)
+             else if (eigen(2) .le. eigen(3) .and. eigen(3) .le. eigen(1)) then
+                l2 = eigen(3)                
+             else if (eigen(2) .le. eigen(1) .and. eigen(1) .le. eigen(3)) then
+                l2 = eigen(1)
+             else if (eigen(3) .le. eigen(1) .and. eigen(1) .le. eigen(2)) then
+                l2 = eigen(1)
+             else
+                l2 = 0.0
+             end if
+             lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
           end do
        end do
     end if
