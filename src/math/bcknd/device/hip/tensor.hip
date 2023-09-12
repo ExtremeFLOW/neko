@@ -87,4 +87,47 @@ extern "C" {
       }
     }
   }
+
+ /** Fortran wrapper for tnsr3d **/
+  void hip_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
+		   void *A, void *Bt, void *Ct, int * elements, int* n_points) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(*n_points, 1, 1);
+
+    int n = max(*nu,*nv);
+#define CASE2(N)                                                    \
+    case N:                                                         \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_el_kernel<real, N>),  \
+                       nblcks, nthrds, 0,                           \
+                       (hipStream_t) glb_cmd_queue,                 \
+                       (real *) v, *nv,                             \
+                       (real *) u, *nu,                             \
+                       (real *) A, (real *) Bt, (real *) Ct,        \
+                       (int *) elements, *n_points);                \
+    HIP_CHECK(hipGetLastError());                                   \
+    break
+
+    switch(n) {
+      CASE2(2);
+      CASE2(3);
+      CASE2(4);
+      CASE2(5);
+      CASE2(6);
+      CASE2(7);
+      CASE2(8);
+      CASE2(9);
+      CASE2(10);
+      CASE2(11);
+      CASE2(12);
+      CASE2(13);
+      CASE2(14);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", n);
+        exit(1);
+      }
+    }
+  }
+
+
 }
