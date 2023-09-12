@@ -595,6 +595,7 @@ contains
        call sub2(fs, this%temp, n)
 
     else
+       !$omp parallel do private(e, i, idx)
        do e = 1, coef%msh%nelv
           ! Map advecting velocity onto the higher-order space
           call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
@@ -619,6 +620,7 @@ contains
 
           call sub2(fs(idx), temp, this%Xh_GLL%lxyz)
        end do
+       !$omp end parallel do
    end if
    end associate
 
