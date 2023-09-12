@@ -94,8 +94,6 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*n_points, 1, 1);
 
-    printf("YEEAAAAOOWWWWWW\n");
-
     int n = max(*nu,*nv);
 #define CASE2(N)                                                    \
     case N:                                                         \
