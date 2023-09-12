@@ -172,13 +172,25 @@ contains
     real(kind=rp), intent(inout) :: x(1,nel)
     real(kind=rp), intent(inout) :: y(1,nel)
     if (to_space .eq. this%Yh) then
-       call tnsr3d(y, this%Yh%lx, x, &
-                   this%Xh%lx,this%Yh_to_XhT, &
-                   this%Yh_to_Xh, this%Yh_to_Xh, nel)
+       if (nel .gt. 1) then
+          call tnsr3d(y, this%Yh%lx, x, &
+                      this%Xh%lx,this%Yh_to_XhT, &
+                      this%Yh_to_Xh, this%Yh_to_Xh, nel)
+       else
+          call tnsr3d_el(y, this%Yh%lx, x, &
+                         this%Xh%lx,this%Yh_to_XhT, &
+                         this%Yh_to_Xh, this%Yh_to_Xh)
+       end if
     else if (to_space .eq. this%Xh) then
-       call tnsr3d(y, this%Xh%lx, x, &
-                   this%Yh%lx,this%Yh_to_Xh, &
-                   this%Yh_to_XhT, this%Yh_to_XhT, nel)
+       if (nel .gt. 1) then
+          call tnsr3d(y, this%Xh%lx, x, &
+                      this%Yh%lx,this%Yh_to_Xh, &
+                      this%Yh_to_XhT, this%Yh_to_XhT, nel)
+       else
+          call tnsr3d_el(y, this%Xh%lx, x, &
+                         this%Yh%lx,this%Yh_to_Xh, &
+                         this%Yh_to_XhT, this%Yh_to_XhT)
+       end if
     else
        call neko_error('Invalid interpolation')
     end if
