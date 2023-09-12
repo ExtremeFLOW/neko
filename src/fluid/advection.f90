@@ -366,7 +366,8 @@ contains
        call sub2(fz, this%temp, n)
        
     else
-
+       !$omp parallel do private(e, i, idx, tx, ty, tz, vr, vs, vt)&
+       !$omp& private(tempx, tempy, tempz, tfx, tfy, tfz)
        do e = 1, coef%msh%nelv
           call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
           call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
@@ -396,6 +397,7 @@ contains
           call sub2(fy(idx), tempy, this%Xh_GLL%lxyz)
           call sub2(fz(idx), tempz, this%Xh_GLL%lxyz)
        end do
+       !$omp end parallel do
     end if
     end associate
 
@@ -595,7 +597,8 @@ contains
        call sub2(fs, this%temp, n)
 
     else
-       !$omp parallel do private(e, i, idx)
+       !$omp parallel do private(e, i, idx, vx_GL, vy_GL, vz_GL) &
+       !$omp& private(dsdx, dsdy, dsdz, s_Gl, temp, f_GL)
        do e = 1, coef%msh%nelv
           ! Map advecting velocity onto the higher-order space
           call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
