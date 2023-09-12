@@ -36,6 +36,14 @@ module tensor_device
   use, intrinsic :: iso_c_binding
   implicit none
 #ifdef HAVE_HIP
+   interface
+     subroutine hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
+          bind(c, name='hip_tnsr3d_el_list')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
+       integer(c_int) :: nu, nv, n_points
+     end subroutine hip_tnsr3d_el_list
+  end interface
   interface
      subroutine hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
           bind(c, name='hip_tnsr3d')
