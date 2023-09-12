@@ -351,7 +351,17 @@ contains
     call triple_tensor_product(jac(3,:), X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
   end function point_interpolator_interpolate_jacobian
 
-  !> Interpolates a list of fields on a list of points for several elements
+  !> Interpolates a list of fields based on a set of element ids.
+  !! @param rst r,s,t coordinates.
+  !! @param el_owners Array of element ids that "own" a given point `i`.
+  !! @param sampled_fields_list A list of fields to interpolate.
+  !! @param wr Weights in the r-direction of shape `(lx, N)` where `N` is the
+  !! number of points to interpolate.
+  !! @param ws Weights in the s-direction of shape `(lx, N)` where `N` is the
+  !! number of points to interpolate.
+  !! @param wt Weights in the t-direction of shape `(lx, N)` where `N` is the
+  !! number of points to interpolate.
+  !! @note The weights can be generated with the subroutine `compute_weights`.
   function point_interpolator_interpolate_fields(this, rst, el_owners, sampled_fields_list, wr, ws, wt) result(res)
     class(point_interpolator_t), intent(inout) :: this
     type(point_t), intent(inout), allocatable :: rst(:)
@@ -362,7 +372,7 @@ contains
     real(kind=rp), intent(inout) :: wt(:,:)
     real(kind=rp), allocatable :: res(:,:)
 
-    integer :: n_points, n_fields, lx, n, i
+    integer :: n_points, n_fields, lx, i
     type(c_ptr) :: tmp_d = C_NULL_PTR
     real(kind=rp), allocatable :: tmp(:)
 
@@ -370,9 +380,6 @@ contains
     n_points = size(rst)
     n_fields = size(sampled_fields_list%fields)
 
-    !
-    ! Interpolation
-    !
     allocate(res(n_points, n_fields))
     allocate(tmp(n_points))
 
@@ -381,17 +388,8 @@ contains
     end if
 
     ! Interpolate each field at a time
-    ! @note This is inefficient and should be done in the GPU kernel
     do i = 1, n_fields
 
-       tmp = 0.0_rp
-
-       ! This is a safety
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_rzero(tmp_d, n_points)
-       end if
-
-       ! The actual interpolation
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             wr, ws, wt, el_owners, n_points)
 

@@ -481,7 +481,6 @@ contains
           !
           ! Interpolate
           !
-          write (*,*) "weights", this%weights_r
           tmp = this%interpolator%interpolate(this%local_rst, &
                this%local_el_owner, this%sampled_fields, &
                this%weights_r, this%weights_s, this%weights_t)
