@@ -62,12 +62,13 @@ module probes
   private
   
   type, public :: probes_t
-     !> handle to pass in each findpts call
-     integer :: handle
      !> Number of probes
      integer :: n_probes
      !> Number of output fields
      integer :: n_fields = 0
+     !! ===================== gslib variables ==================================
+     !> handle to pass in each findpts call
+     integer :: handle
      !> List of owning processes
      integer, allocatable :: proc_owner(:)
      !> List of owning elements
@@ -76,29 +77,45 @@ module probes
      real(kind=rp), allocatable :: dist2(:)
      !> Error code for each point
      integer, allocatable :: error_code(:)
-     !> r,s,t coordinates, findpts format
-     type(point_t), allocatable :: rst(:)
      !> x,y,z coordinates, findpts format
      real(kind=rp), allocatable :: xyz(:,:)
+     !! ========================================================================
+     !> r,s,t coordinates
+     type(point_t), allocatable :: rst(:)
      !> interpolated fields
      real(kind=rp), allocatable :: out_fields(:,:)
-     !> Time based controller for sampling
-     type(time_based_controller_t) :: controller
-     !> Fields to be probed
-     type(field_list_t) :: sampled_fields
-     character(len=20), allocatable  :: which_fields(:)
-     !> Interpolator instead of findpts_eval
-     type(point_interpolator_t) :: interpolator
      !> Local element ownership
      integer, allocatable :: local_el_owner(:)
-     !> Local element ids on the device
-     type(c_ptr) :: local_el_owner_d = C_NULL_PTR
      !> Number of local elements per rank
      integer :: n_local_probes
      !> Local to global mapping to retrieve the fields
      integer, allocatable :: local_to_global(:)
      !> Local rst
      type(point_t), allocatable :: local_rst(:)
+     !> Interpolator instead of findpts_eval
+     type(point_interpolator_t) :: interpolator
+     !> Weights in the r direction on the host
+     real(kind=rp), allocatable :: weights_r(:,:)
+     !> Weights in the s direction on the host
+     real(kind=rp), allocatable :: weights_s(:,:)
+     !> Weights in the s direction on the host
+     real(kind=rp), allocatable :: weights_t(:,:)
+     !> Local element ids on the device
+     type(c_ptr) :: local_el_owner_d = C_NULL_PTR
+     !> Weights in the r direction on the device
+     type(c_ptr) :: weights_r_d = C_NULL_PTR
+     !> Weights in the s direction on the device
+     type(c_ptr) :: weights_s_d = C_NULL_PTR
+     !> Weights in the t direction on the device
+     type(c_ptr) :: weights_t_d = C_NULL_PTR
+     !> To know if we need to recompute the weights
+     logical :: update_weights = .true.
+     !> Time based controller for sampling
+     type(time_based_controller_t) :: controller
+     !> Fields to be probed
+     type(field_list_t) :: sampled_fields
+     character(len=20), allocatable  :: which_fields(:)
+
 
      contains
        !> Initialize probes object.
@@ -145,9 +162,9 @@ contains
     call json_get(params, 'case.probes.fields', this%which_fields) 
     call json_get(params, 'case.end_time', T_end)
     call json_get(params, 'case.probes.output_control', &
-                                             output_control)
+         output_control)
     call json_get(params, 'case.probes.output_value', &
-                                                 output_value)     
+         output_value)
     call json_get(params, 'case.probes.points_file', points_file)
 
     !> Fields
@@ -193,7 +210,14 @@ contains
     if (allocated(this%local_rst)) deallocate(this%local_rst)
     if (allocated(this%local_to_global)) deallocate(this%local_to_global)
 
+    if (allocated(this%weights_r)) deallocate(this%weights_r)
+    if (allocated(this%weights_s)) deallocate(this%weights_s)
+    if (allocated(this%weights_t)) deallocate(this%weights_t)
+
     if (c_associated(this%local_el_owner_d)) call device_free(this%local_el_owner_d)
+    if (c_associated(this%weights_r_d)) call device_free(this%weights_r_d)
+    if (c_associated(this%weights_s_d)) call device_free(this%weights_s_d)
+    if (c_associated(this%weights_t_d)) call device_free(this%weights_t_d)
 
     call this%interpolator%free
 
@@ -399,21 +423,63 @@ contains
     integer, intent(in) :: tstep
     logical, intent(inout) :: write_output
     real(kind=rp), allocatable :: tmp(:,:)
-    integer :: i,n, ierr
+    integer :: i, ierr, lx
+    integer :: size_outfields, size_weights
 
 #ifdef HAVE_GSLIB
+
+    lx = this%interpolator%Xh%lx
+    size_outfields = this%n_probes * this%n_fields
+    size_weights = this%n_local_probes * lx
 
     !> Check controller to determine if we must write
     if (this%controller%check(t, tstep, .false.)) then
 
-       n = this%n_probes * this%n_fields
-
        ! Fill the out_field array with 0s as we are reducing later
        ! with MPI_SUM
-       call rzero(this%out_fields, n)
+       call rzero(this%out_fields, size_outfields)
 
        ! Do not allocate/compute if current has no local probes
        if (this%n_local_probes .ne. 0) then
+
+          !
+          ! Only update weights if necessary
+          !
+          if (this%update_weights) then
+
+             if (.not. allocated(this%weights_r)) allocate(this%weights_r(lx,this%n_local_probes))
+             if (.not. allocated(this%weights_s)) allocate(this%weights_s(lx,this%n_local_probes))
+             if (.not. allocated(this%weights_t)) allocate(this%weights_t(lx,this%n_local_probes))
+
+             !
+             ! Build weights
+             !
+             do i = 1, this%n_local_probes
+                call fd_weights_full(this%rst(i)%x(1), this%interpolator%Xh%zg(:,1), &
+                     lx-1, 0, this%weights_r(:,i))
+                call fd_weights_full(this%rst(i)%x(2), this%interpolator%Xh%zg(:,2), &
+                     lx-1, 0, this%weights_s(:,i))
+                call fd_weights_full(this%rst(i)%x(3), this%interpolator%Xh%zg(:,3), &
+                     lx-1, 0, this%weights_t(:,i))
+             end do
+
+             !
+             ! Associate device pointers
+             !
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+
+                call device_map(this%weights_r, this%weights_r_d, size_weights)
+                call device_map(this%weights_s, this%weights_s_d, size_weights)
+                call device_map(this%weights_t, this%weights_t_d, size_weights)
+                call device_memcpy(this%weights_r, this%weights_r_d, size_weights, HOST_TO_DEVICE, sync = .true.)
+                call device_memcpy(this%weights_s, this%weights_s_d, size_weights, HOST_TO_DEVICE, sync = .true.)
+                call device_memcpy(this%weights_t, this%weights_t_d, size_weights, HOST_TO_DEVICE, sync = .true.)
+
+             end if
+
+             this%update_weights = .false.
+
+          end if
 
           allocate(tmp(this%n_local_probes, this%n_fields))
 
@@ -421,7 +487,8 @@ contains
           ! Interpolate
           !
           tmp = this%interpolator%interpolate(this%local_rst, &
-               this%local_el_owner, this%sampled_fields)
+               this%local_el_owner, this%sampled_fields, &
+               this%weights_r, this%weights_s, this%weights_t)
 
           !
           ! Reconstruct the global array using global to local mapping
@@ -436,10 +503,10 @@ contains
 
        ! Artificial way to gather all values to rank 0
        if (pe_rank .ne. 0) then
-          call MPI_Reduce(this%out_fields(1,1), this%out_fields(1,1), n, &
+          call MPI_Reduce(this%out_fields(1,1), this%out_fields(1,1), size_outfields, &
                MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
        else
-          call MPI_Reduce(MPI_IN_PLACE, this%out_fields(1,1), n, &
+          call MPI_Reduce(MPI_IN_PLACE, this%out_fields(1,1), size_outfields, &
                MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
        end if
 

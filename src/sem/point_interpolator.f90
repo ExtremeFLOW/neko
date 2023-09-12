@@ -44,32 +44,19 @@ module point_interpolator
   use device
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
-  use, intrinsic :: iso_c_binding
   implicit none
 
   !> Field interpolator to artbitrary points within an element.
   type :: point_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
-     !> Weights in the r direction on the host
-     real(kind=rp), allocatable :: weights_r(:,:)
-     !> Weights in the s direction on the host
-     real(kind=rp), allocatable :: weights_s(:,:)
-     !> Weights in the s direction on the host
-     real(kind=rp), allocatable :: weights_t(:,:)
-     !> Weights in the r direction on the device
-     type(c_ptr) :: weights_r_d = C_NULL_PTR
-     !> Weights in the s direction on the device
-     type(c_ptr) :: weights_s_d = C_NULL_PTR
-     !> Weights in the t direction on the device
-     type(c_ptr) :: weights_t_d = C_NULL_PTR
-     !> To know if we need to recompute the weights
-     logical :: update_weights = .true.
    contains
      !> Constructor.
      procedure, pass(this) :: init => point_interpolator_init
      !> Destructor.
      procedure, pass(this) :: free => point_interpolator_free
+     !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a list of points.
+     procedure, pass(this) :: compute_weights
      !> Interpolates a scalar field \f$ X \f$ on a set of points.
      procedure, pass(this) :: point_interpolator_interpolate_scalar
      !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of points.
@@ -78,13 +65,11 @@ module point_interpolator
      procedure, pass(this) :: point_interpolator_interpolate_jacobian
      !> Interpolates a vector field and builds the Jacobian at a single point.
      procedure, pass(this) :: point_interpolator_interpolate_vector_jacobian
-     !> Interpolates a scalar field \f$ X \f$ from a `field_t` object and element id
-     procedure, pass(this) :: point_interpolator_interpolate_field_el
+     !> Interpolates a list of fields on a list of points for several elements
      procedure, pass(this) :: point_interpolator_interpolate_fields
      !> Interpolates a scalar or vector field on a set of points.
      generic :: interpolate => point_interpolator_interpolate_scalar, &
           point_interpolator_interpolate_vector, &
-          point_interpolator_interpolate_field_el, &
           point_interpolator_interpolate_fields
      !> Constructs the Jacobian for a point \f$ (r,s,t) \f$.
      generic :: jacobian => point_interpolator_interpolate_jacobian, &
@@ -114,15 +99,35 @@ contains
     class(point_interpolator_t), intent(inout) :: this
 
     if (associated(this%Xh)) this%Xh => null()
-    if (allocated(this%weights_r)) deallocate(this%weights_r)
-    if (allocated(this%weights_s)) deallocate(this%weights_s)
-    if (allocated(this%weights_t)) deallocate(this%weights_t)
-
-    if (c_associated(this%weights_r_d)) call device_free(this%weights_r_d)
-    if (c_associated(this%weights_s_d)) call device_free(this%weights_s_d)
-    if (c_associated(this%weights_t_d)) call device_free(this%weights_t_d)
 
   end subroutine point_interpolator_free
+
+  !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a
+  !! list of points.
+  !! @param r local r-coordinates
+  !! @param s local s-coordinates
+  !! @param t local t-coordinates
+  !! @param wr Weights in the r-direction
+  !! @param ws Weights in the s-direction
+  !! @param wt Weights in the t-direction
+  !! @note `wr`, `ws` and `wt` must be arrays of dimensions `(lx, N)` where `N`
+  !! is the number of points (size of the `r`,`s`,`t` arrays)
+  subroutine compute_weights(this, r, s, t, wr, ws, wt)
+    class(point_interpolator_t), intent(in) :: this
+    real(kind=rp), intent(inout) :: r(:), s(:), t(:)
+    real(kind=rp), intent(inout) :: wr(:,:), ws(:,:), wt(:,:)
+
+    integer :: N, i, lx
+    lx = this%Xh%lx
+    N = size(r)
+
+    do i = 1, N
+       call fd_weights_full(r(i), this%Xh%zg(:,1), lx-1, 0, wr(:,i))
+       call fd_weights_full(s(i), this%Xh%zg(:,2), lx-1, 0, ws(:,i))
+       call fd_weights_full(t(i), this%Xh%zg(:,3), lx-1, 0, wt(:,i))
+    end do
+
+  end subroutine compute_weights
 
   !> Interpolates a scalar field \f$ X \f$ on a set of \f$ N \f$ points
   !! \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector of N coordinates
@@ -205,7 +210,7 @@ contains
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
-    
+
     N = size(rst)
     allocate(res(N))
     allocate(tmp(3, N))
@@ -224,7 +229,7 @@ contains
        res(1)%x = tmp(:, 1)
        return
     end if
-    
+
 
     !
     ! Loop through the rest of the points
@@ -292,7 +297,7 @@ contains
     ! Interpolate
     !
     call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,1))
-    res%x = dble(tmp)! Cast from rp -> point_t dp 
+    res%x = dble(tmp)! Cast from rp -> point_t dp
 
     !
     ! Build jacobian
@@ -346,27 +351,15 @@ contains
     call triple_tensor_product(jac(3,:), X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
   end function point_interpolator_interpolate_jacobian
 
-  !> Interpolates a `field_t` \f$ X \f$ for a given element on a set of
-  !! \f$ N \f$ points \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector
-  !! of N coordinates \f$ [x_i(\mathbf{r}_i)], i\in[1,N]\f$.
-  !! @param rst r,s,t coordinates.
-  !! @param X Values of the field \f$ X \f$ at GLL points.
-  function point_interpolator_interpolate_field_el(this, rst, f, el) result(res)
-    class(point_interpolator_t), intent(in) :: this
-    type(point_t), intent(in) :: rst(:)
-    type(field_t), intent(inout) :: f
-    integer, intent(in) :: el
-    real(kind=rp), allocatable :: res(:)
-
-    res = point_interpolator_interpolate_scalar(this, rst, f%x(:,:,:,el))
-
-  end function point_interpolator_interpolate_field_el
-
-  function point_interpolator_interpolate_fields(this, rst, el_owners, sampled_fields_list) result(res)
+  !> Interpolates a list of fields on a list of points for several elements
+  function point_interpolator_interpolate_fields(this, rst, el_owners, sampled_fields_list, wr, ws, wt) result(res)
     class(point_interpolator_t), intent(inout) :: this
     type(point_t), intent(inout), allocatable :: rst(:)
     integer, intent(in), allocatable :: el_owners(:)
     type(field_list_t), intent(inout) :: sampled_fields_list
+    real(kind=rp), intent(inout) :: wr(:,:)
+    real(kind=rp), intent(inout) :: ws(:,:)
+    real(kind=rp), intent(inout) :: wt(:,:)
     real(kind=rp), allocatable :: res(:,:)
 
     integer :: n_points, n_fields, lx, n, i,j
@@ -376,46 +369,6 @@ contains
     lx = this%Xh%lx
     n_points = size(rst)
     n_fields = size(sampled_fields_list%fields)
-    n = n_points*lx
-
-    !
-    ! Only update weights if necessary
-    !
-    if (this%update_weights) then
-
-       if (.not. allocated(this%weights_r)) allocate(this%weights_r(lx,n_points))
-       if (.not. allocated(this%weights_s)) allocate(this%weights_s(lx,n_points))
-       if (.not. allocated(this%weights_t)) allocate(this%weights_t(lx,n_points))
-
-       !
-       ! Build weights
-       !
-       do i = 1, n_points
-          call fd_weights_full(rst(i)%x(1), this%Xh%zg(:,1), &
-               lx-1, 0, this%weights_r(:,i))
-          call fd_weights_full(rst(i)%x(2), this%Xh%zg(:,2), &
-               lx-1, 0, this%weights_s(:,i))
-          call fd_weights_full(rst(i)%x(3), this%Xh%zg(:,3), &
-               lx-1, 0, this%weights_t(:,i))
-       end do
-
-       !
-       ! Associate device pointers
-       !
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-
-          call device_map(this%weights_r, this%weights_r_d, n)
-          call device_map(this%weights_s, this%weights_s_d, n)
-          call device_map(this%weights_t, this%weights_t_d, n)
-          call device_memcpy(this%weights_r, this%weights_r_d, n, HOST_TO_DEVICE, sync = .true.)
-          call device_memcpy(this%weights_s, this%weights_s_d, n, HOST_TO_DEVICE, sync = .true.)
-          call device_memcpy(this%weights_t, this%weights_t_d, n, HOST_TO_DEVICE, sync = .true.)
-
-       end if
-
-       this%update_weights = .false.
-
-    end if
 
     !
     ! Interpolation
@@ -440,8 +393,7 @@ contains
 
        ! The actual interpolation
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
-            this%weights_r, this%weights_s, this%weights_t, &
-            el_owners, n_points)
+            wr, ws, wt, el_owners, n_points)
 
        ! Bring back tmp_d from the device for the output
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -455,5 +407,6 @@ contains
     deallocate(tmp)
 
   end function point_interpolator_interpolate_fields
+
 
 end module point_interpolator
