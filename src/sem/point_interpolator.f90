@@ -104,14 +104,14 @@ contains
 
   !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a
   !! list of points.
-  !! @param r local r-coordinates
-  !! @param s local s-coordinates
-  !! @param t local t-coordinates
-  !! @param wr Weights in the r-direction
-  !! @param ws Weights in the s-direction
-  !! @param wt Weights in the t-direction
+  !! @param r local r-coordinates.
+  !! @param s local s-coordinates.
+  !! @param t local t-coordinates.
+  !! @param wr Weights in the r-direction.
+  !! @param ws Weights in the s-direction.
+  !! @param wt Weights in the t-direction.
   !! @note `wr`, `ws` and `wt` must be arrays of dimensions `(lx, N)` where `N`
-  !! is the number of points (size of the `r`,`s`,`t` arrays)
+  !! is the number of points (size of the `r`,`s`,`t` arrays).
   subroutine compute_weights(this, r, s, t, wr, ws, wt)
     class(point_interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: r(:), s(:), t(:)
