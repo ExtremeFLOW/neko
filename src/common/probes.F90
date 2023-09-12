@@ -455,11 +455,11 @@ contains
              ! Build weights
              !
              do i = 1, this%n_local_probes
-                call fd_weights_full(this%rst(i)%x(1), this%interpolator%Xh%zg(:,1), &
+                call fd_weights_full(real(this%rst(i)%x(1), rp), this%interpolator%Xh%zg(:,1), &
                      lx-1, 0, this%weights_r(:,i))
-                call fd_weights_full(this%rst(i)%x(2), this%interpolator%Xh%zg(:,2), &
+                call fd_weights_full(real(this%rst(i)%x(2), rp), this%interpolator%Xh%zg(:,2), &
                      lx-1, 0, this%weights_s(:,i))
-                call fd_weights_full(this%rst(i)%x(3), this%interpolator%Xh%zg(:,3), &
+                call fd_weights_full(real(this%rst(i)%x(3), rp), this%interpolator%Xh%zg(:,3), &
                      lx-1, 0, this%weights_t(:,i))
              end do
 
