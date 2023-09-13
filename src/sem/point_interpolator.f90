@@ -56,7 +56,7 @@ module point_interpolator
      !> Destructor.
      procedure, pass(this) :: free => point_interpolator_free
      !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a list of points.
-     procedure, pass(this) :: compute_weights
+     procedure, pass(this) :: compute_weights => point_interpolator_compute_weights
      !> Interpolates a scalar field \f$ X \f$ on a set of points.
      procedure, pass(this) :: point_interpolator_interpolate_scalar
      !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of points.
@@ -112,7 +112,7 @@ contains
   !! @param wt Weights in the t-direction.
   !! @note `wr`, `ws` and `wt` must be arrays of dimensions `(lx, N)` where `N`
   !! is the number of points (size of the `r`,`s`,`t` arrays).
-  subroutine compute_weights(this, r, s, t, wr, ws, wt)
+  subroutine point_interpolator_compute_weights(this, r, s, t, wr, ws, wt)
     class(point_interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: r(:), s(:), t(:)
     real(kind=rp), intent(inout) :: wr(:,:), ws(:,:), wt(:,:)
@@ -127,7 +127,7 @@ contains
        call fd_weights_full(t(i), this%Xh%zg(:,3), lx-1, 0, wt(:,i))
     end do
 
-  end subroutine compute_weights
+  end subroutine point_interpolator_compute_weights
 
   !> Interpolates a scalar field \f$ X \f$ on a set of \f$ N \f$ points
   !! \f$ \mathbf{r}_i , i\in[1,N]\f$. Returns a vector of N coordinates
@@ -389,6 +389,8 @@ contains
 
     ! Interpolate each field at a time
     do i = 1, n_fields
+
+       call device_rzero(tmp_d, n_points)
 
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             wr, ws, wt, el_owners, n_points)
