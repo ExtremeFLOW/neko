@@ -91,7 +91,7 @@ extern "C" {
 
  /** Fortran wrapper for tnsr3d **/
   void hip_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
-		   void *A, void *Bt, void *Ct, void * elements, int* n_points) {
+		   void *A, void *Bt, void *Ct, int * elements, int* n_points) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*n_points, 1, 1);
 
