@@ -383,14 +383,15 @@ contains
     allocate(res(n_points, n_fields))
     allocate(tmp(n_points))
 
+    tmp = 0.0_rp
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(tmp, tmp_d, n_points)
+       call device_memcpy(tmp, tmp_d, n_points, HOST_TO_DEVICE, sync = .true.)
     end if
 
     ! Interpolate each field at a time
     do i = 1, n_fields
-
-       call device_rzero(tmp_d, n_points)
 
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             wr, ws, wt, el_owners, n_points)
@@ -399,7 +400,7 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST, sync = .true.)
        end if
-
+       
        res(:,i) = tmp
     end do
 
