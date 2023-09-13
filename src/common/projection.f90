@@ -286,19 +286,21 @@ contains
       call rzero(alpha, this%m)
       this%proj_res = glsc3(b,b,coef%mult,n)
       this%proj_m = this%m
+      !$omp parallel do private(i,j,k) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m 
             alpha(k) = alpha(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
          end do
       end do
+      !$omp end parallel do
       
       !First one outside loop to avoid zeroing xbar and bbar
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
       
       call rzero(work, this%m)
-      
+      !$omp parallel do private(i,j,k) reduction(+:work)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          call cmult2(xbar(i), xx(i,1), alpha(1), j)
@@ -312,10 +314,11 @@ contains
             work(k) = work(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
          end do
       end do
+      !$omp end parallel do
       
       call MPI_Allreduce(work, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-      
+      !$omp parallel do private(i,j,k)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,this%m
@@ -323,6 +326,7 @@ contains
             call add2s2(b(i), bb(i,k), -alpha(k), j)
          end do
       end do
+      !$omp end parallel do
     end associate
   end subroutine cpu_project_on
 
@@ -489,6 +493,8 @@ contains
       ! AX = B
       ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb     
       call rzero(alpha, m)
+      !$omp parallel do private(i, j, k) &
+      !$omp$ reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m !First round CGS
@@ -496,6 +502,7 @@ contains
                  + vlsc3(bb(i,k), w(i), xx(i,m), j))
          end do
       end do
+      !$omp end parallel do
       
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -503,7 +510,8 @@ contains
       nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
       
       call rzero(beta,m)
-    
+      !$omp parallel do private(i, j, k) &
+      !$omp$ reduction(+:beta)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,m-1
@@ -513,12 +521,14 @@ contains
                  + vlsc3(bb(i,k), w(i), xx(i,m), j))
          end do
       end do
-    
+      !$omp end parallel do
+      
       call MPI_Allreduce(MPI_IN_PLACE, beta, this%m-1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
       alpha(m) = 0.0_rp
-      
+      !$omp parallel do private(i, j, k) &
+      !$omp$ reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1, m-1
@@ -527,9 +537,12 @@ contains
          end do
          alpha(m) = alpha(m) + vlsc3(xx(i,m), w(i), bb(i,m), j)
       end do
+      !$omp end parallel do
+      !$omp parallel do
       do k = 1, m-1
          alpha(k) = alpha(k) + beta(k)
       end do
+      !$omp end parallel do
       
       !alpha(m) = glsc3(xx(1,m), w, bb(1,m), n) 
       call MPI_Allreduce(MPI_IN_PLACE, alpha(m), 1, &
@@ -539,9 +552,13 @@ contains
 
       if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent    
          !Normalize dx and db
-         scl1 = 1.0_rp / alpha(m) 
-         call cmult(xx(1,m), scl1, n)   
-         call cmult(bb(1,m), scl1, n)   
+         scl1 = 1.0_rp / alpha(m)
+         !$omp parallel do
+         do i = 1, n
+            xx(i,m) = scl1 * xx(i,m)
+            bb(i,m) = scl1 * bb(i,m)
+         end do
+         !$omp end parallel do
 
          !We want to throw away the oldest information
          !The below propagates newest information to first vector.
@@ -550,7 +567,8 @@ contains
          do k = m, 2, -1
             h = k - 1   
             call givens_rotation(alpha(h), alpha(k), c, s, nrm)
-            alpha(h) = nrm     
+            alpha(h) = nrm
+            !$omp parallel do private(scl1, scl2)
             do i = 1, n !Apply rotation to xx and bb
                scl1 = c*xx(i,h) + s*xx(i,k)
                xx(i,k) = -s*xx(i,h) + c*xx(i,k)
@@ -559,6 +577,7 @@ contains
                bb(i,k) = -s*bb(i,h) + c*bb(i,k)    
                bb(i,h) = scl2        
             end do
+            !$omp end parallel do
          end do
          
       else !New vector is not linearly independent, forget about it
