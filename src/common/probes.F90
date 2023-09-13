@@ -455,9 +455,9 @@ contains
              !
              ! Build weights
              !
-             call this%interpolator%compute_weights(this%rst(:)%x(1), &
-                  this%rst(:)%x(2), this%rst(:)%x(3), this%weights_r, this%weights_s, &
-                  this%weights_t)
+             call this%interpolator%compute_weights(real(this%rst(:)%x(1), rp), &
+                  real(this%rst(:)%x(2), rp), real(this%rst(:)%x(3), rp), &
+                  this%weights_r, this%weights_s, this%weights_t)
 
              !
              ! Associate device pointers
