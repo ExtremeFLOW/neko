@@ -493,8 +493,7 @@ contains
       ! AX = B
       ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb     
       call rzero(alpha, m)
-      !$omp parallel do private(i, j, k) &
-      !$omp$ reduction(+:alpha)
+      !$omp parallel do private(i, j, k) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m !First round CGS
@@ -510,8 +509,7 @@ contains
       nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
       
       call rzero(beta,m)
-      !$omp parallel do private(i, j, k) &
-      !$omp$ reduction(+:beta)
+      !$omp parallel do private(i, j, k) reduction(+:beta)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,m-1
@@ -527,8 +525,7 @@ contains
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
       alpha(m) = 0.0_rp
-      !$omp parallel do private(i, j, k) &
-      !$omp$ reduction(+:alpha)
+      !$omp parallel do private(i, j, k) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1, m-1
