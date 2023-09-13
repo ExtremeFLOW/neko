@@ -428,13 +428,11 @@ contains
 
 #ifdef HAVE_GSLIB
 
-    lx = this%interpolator%Xh%lx
-    size_outfields = this%n_probes * this%n_fields
-    size_weights = this%n_local_probes * lx
-
     !> Check controller to determine if we must write
     if (this%controller%check(t, tstep, .false.)) then
 
+       size_outfields = this%n_probes * this%n_fields
+       
        ! Fill the out_field array with 0s as we are reducing later
        ! with MPI_SUM
        call rzero(this%out_fields, size_outfields)
@@ -442,6 +440,9 @@ contains
        ! Do not allocate/compute if current has no local probes
        if (this%n_local_probes .ne. 0) then
 
+          lx = this%interpolator%Xh%lx
+          size_weights = this%n_local_probes * lx
+          
           !
           ! Only update weights if necessary
           !
