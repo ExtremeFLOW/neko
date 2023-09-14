@@ -113,8 +113,8 @@ contains
   !! @note `wr`, `ws` and `wt` must be arrays of dimensions `(lx, N)` where `N`
   !! is the number of points (size of the `r`,`s`,`t` arrays).
   subroutine point_interpolator_compute_weights(this, r, s, t, wr, ws, wt)
-    class(point_interpolator_t), intent(in) :: this
-    real(kind=rp), intent(inout) :: r(:), s(:), t(:)
+    class(point_interpolator_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: r(:), s(:), t(:)
     real(kind=rp), intent(inout) :: wr(:,:), ws(:,:), wt(:,:)
 
     integer :: N, i, lx
