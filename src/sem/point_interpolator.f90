@@ -396,6 +396,9 @@ contains
        call tnsr3d_el_list(tmp, 1, sampled_fields_list%fields(i)%f%x, lx, &
             wr, ws, wt, el_owners, n_points)
 
+       ! Unfortunately we need this because we need to use tmp right away
+       call device_sync
+
        ! Bring back tmp_d from the device for the output
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(tmp, tmp_d, n_points, DEVICE_TO_HOST, sync = .true.)
