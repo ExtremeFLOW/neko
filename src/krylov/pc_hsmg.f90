@@ -157,7 +157,7 @@ contains
 
     
     ! Compute all elements as if they are deformed
-    call mesh_all_deformed(msh)
+    call msh%all_deformed()
 
     n = dof%size()
     call field_init(this%e, dof,'work array')

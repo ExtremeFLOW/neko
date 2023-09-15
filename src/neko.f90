@@ -45,6 +45,7 @@ module neko
   use stack
   use tuple
   use mesh
+  use point
   use mesh_field
   use map
   use mxm_wrapper

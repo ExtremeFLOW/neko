@@ -33,11 +33,11 @@ end subroutine set_bc
 subroutine set_f(f, c, dm, n, gs_h)
   use neko
   implicit none
-  
+
+  integer,  intent(inout) :: n  
   real(kind=rp), intent(inout), dimension(n) :: f
   real(kind=rp), intent(inout), dimension(n) :: c
   type(dofmap_t), intent(in) :: dm
-  integer,  intent(inout) :: n
   type(gs_t), intent(inout) :: gs_h
   real(kind=rp) :: dx, dy, dz
   real(kind=rp), parameter :: arg = 2d0
