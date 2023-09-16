@@ -35,7 +35,7 @@
 module field
   use neko_config
   use device_math
-  use num_types
+  use num_types, only : rp
   use device
   use math
   use mesh, only : mesh_t

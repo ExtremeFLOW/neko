@@ -233,9 +233,11 @@ contains
   !!
   !! @param jh Matrix of the interpolation weights.
   !! @param jht Same as `jh` but transposed.
-  !! @param nf Number of points in `z_to`.
-  !! @param nc Number of points in `z_from`.
-  !! @derivative Specifies if we want the derivative interpolation instead, e.g.
+  !! @param z_to Target points for interpolation.
+  !! @param z_from Quadrature points.
+  !! @param n_to Number of points in `z_to`.
+  !! @param n_from Number of points in `z_from`.
+  !! @param derivative Specifies if we want the derivative interpolation instead, e.g.
   !! `derivative = 1` refers to the first derivative etc.
   subroutine setup_intp(jh, jht, z_to, z_from, n_to, n_from, derivative)
     implicit none

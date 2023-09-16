@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[0.5.99])
+AC_INIT([neko],[0.6.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -154,6 +154,9 @@ fi
 # Checks for ADIOS2
 AX_ADIOS2
 
+# Checks for gslib
+AX_GSLIB
+
 # Select Working precision of REAL
 if test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
@@ -248,6 +251,11 @@ AX_NVTX
 # Checks for ROCTX profiling
 AX_ROCTX
 
+# JSON-Fortran
+PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
+LIBS="$JSON_Fortran_LIBS $LIBS"
+FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
+
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
@@ -310,7 +318,9 @@ AC_CONFIG_FILES([tests/stack/Makefile\
                  tests/scratch_registry/Makefile\
                  tests/fast3d/Makefile\
                  tests/time_scheme/Makefile\
-                 tests/time_scheme_controller/Makefile])
+                 tests/time_scheme_controller/Makefile\
+                 tests/time_based_controller/Makefile\
+                 tests/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\

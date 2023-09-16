@@ -48,7 +48,7 @@ module operators
   implicit none
   private
 
-  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl
+  public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, lambda2op
   
 contains
   
@@ -303,5 +303,92 @@ contains
     endif
   
   end subroutine strain_rate
+
+  !> Lambda2 calcuation. 
+  !! @param lambda2 holds the second eigen values.
+  !! @param u, the x-velocity
+  !! @param v, the y-velocity
+  !! @param w, the z-velocity
+  !! @param coef, the field coefficients
+  subroutine lambda2op(lambda2, u, v, w,coef)      
+    type(coef_t), intent(in) :: coef  
+    type(field_t), intent(inout) :: lambda2 
+    type(field_t), intent(in) :: u, v, w
+    real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
+    integer :: temp_indices(9), e, i, ind_sort(3)
+    real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
+    real(kind=rp) :: a11, a22, a33, a12, a13, a23
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call opr_device_lambda2(lambda2, u, v, w, coef)
+    else
+       do e = 1, coef%msh%nelv
+          call opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
+                              u%x(1,1,1,e),coef,e,e)
+          call opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
+                              v%x(1,1,1,e),coef,e,e)
+          call opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
+                              w%x(1,1,1,e),coef,e,e)
+
+          do i = 1, coef%Xh%lxyz
+             s11 = grad(i,1,1)
+             s22 = grad(i,2,2)
+             s33 = grad(i,3,3)
+
+             
+             s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
+             s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
+             s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
+
+             o12 = 0.5*(grad(i,1,2) - grad(i,2,1))
+             o13 = 0.5*(grad(i,1,3) - grad(i,3,1))
+             o23 = 0.5*(grad(i,2,3) - grad(i,3,2))
+
+             a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13
+             a12 = s11 * s12  +  s12 * s22  +  s13 * s23 - o13 * o23
+             a13 = s11 * s13  +  s12 * s23  +  s13 * s33 + o12 * o23
+
+             a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23
+             a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13
+             a33 = s13*s13 + s23*s23 + s33*s33 - o13*o13 - o23*o23
+
+
+             B = -(a11 + a22 + a33)
+             C = -(a12*a12 + a13*a13 + a23*a23 &
+                  - a11 * a22 - a11 * a33 - a22 * a33)
+             D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &
+                  - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)
+
+
+             q = (3.0 * C - B*B) / 9.0
+             r = (9.0 * C * B - 27.0 * D - 2.0 * B*B*B) / 54.0
+             theta = acos( r / sqrt(-q*q*q) )
+
+             eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - B / 3.0
+             eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
+             eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
+
+             if (eigen(1) .le. eigen(2) .and. eigen(2) .le. eigen(3)) then
+                l2 = eigen(2)
+             else if (eigen(3) .le. eigen(2) .and. eigen(2) .le. eigen(1)) then
+                l2 = eigen(2)
+             else if (eigen(1) .le. eigen(3) .and. eigen(3) .le. eigen(2)) then
+                l2 = eigen(3)
+             else if (eigen(2) .le. eigen(3) .and. eigen(3) .le. eigen(1)) then
+                l2 = eigen(3)                
+             else if (eigen(2) .le. eigen(1) .and. eigen(1) .le. eigen(3)) then
+                l2 = eigen(1)
+             else if (eigen(3) .le. eigen(1) .and. eigen(1) .le. eigen(2)) then
+                l2 = eigen(1)
+             else
+                l2 = 0.0
+             end if
+             lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
+          end do
+       end do
+    end if
+    
+  end subroutine lambda2op
   
 end module operators

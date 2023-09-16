@@ -292,10 +292,9 @@ contains
     
   end subroutine rhs_maker_sumab_device
 
-  subroutine rhs_maker_ext_device(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
+  subroutine rhs_maker_ext_device(fx_lag, fy_lag, fz_lag, &
                            fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
                            rho, ext_coeffs, n)
-    type(field_t), intent(inout) :: temp1, temp2, temp3
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
     real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
@@ -351,13 +350,10 @@ contains
     
   end subroutine scalar_rhs_maker_ext_device
 
-  subroutine rhs_maker_bdf_device(ta1, ta2, ta3, tb1, tb2, tb3, &
-                               ulag, vlag, wlag, bfx, bfy, bfz, &
+  subroutine rhs_maker_bdf_device(ulag, vlag, wlag, bfx, bfy, bfz, &
                                u, v, w, B, rho, dt, bd, nbd, n)    
     integer, intent(in) :: n, nbd
-    type(field_t), intent(inout) :: ta1, ta2, ta3
     type(field_t), intent(in) :: u, v, w
-    type(field_t), intent(inout) :: tb1, tb2, tb3
     type(field_series_t), intent(in) :: ulag, vlag, wlag        
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)

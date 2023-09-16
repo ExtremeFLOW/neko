@@ -33,10 +33,7 @@
 !> Defines various GMRES methods
 module gmres
   use krylov
-  use comm
   use math
-  use operators
-  use num_types
   implicit none
   private
 

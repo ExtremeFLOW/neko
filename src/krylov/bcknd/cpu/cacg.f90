@@ -35,7 +35,6 @@ module cacg
   use krylov
   use math
   use mxm_wrapper
-  use num_types
   implicit none
   private
   

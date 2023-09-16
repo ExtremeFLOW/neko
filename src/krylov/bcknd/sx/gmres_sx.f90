@@ -33,11 +33,7 @@
 !> Defines various GMRES methods
 module gmres_sx
   use krylov
-  use comm
   use math
-  use operators
-  use num_types, only : rp, c_rp
-  use gather_scatter
   implicit none
   private
 

@@ -1,7 +1,9 @@
 module user
   use neko
   implicit none
+
 contains
+
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
@@ -14,7 +16,7 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(param_t), intent(inout) :: params
+    type(json_file), intent(inout) :: params
     integer :: i
     real(kind=rp) :: uvw(3)
 

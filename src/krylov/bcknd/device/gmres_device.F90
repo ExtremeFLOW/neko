@@ -33,11 +33,7 @@
 !> Defines various GMRES methods
 module gmres_device
   use krylov
-  use comm
   use math
-  use num_types
-  use device
-  use device_identity
   use device_math
   use iso_c_binding, only : c_ptr, c_int, c_size_t, c_sizeof, C_NULL_PTR
   implicit none
@@ -63,6 +59,7 @@ module gmres_device
      type(c_ptr) :: z_d_d = C_NULL_PTR
      type(c_ptr) :: h_d_d = C_NULL_PTR
      type(c_ptr) :: v_d_d = C_NULL_PTR
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gmres_device_init
      procedure, pass(this) :: free => gmres_device_free
@@ -196,6 +193,8 @@ contains
     else
        call this%ksp_init(abs_tol)
     end if
+
+    call device_event_create(this%gs_event, 2)
           
   end subroutine gmres_device_init
 
@@ -279,6 +278,10 @@ contains
     end if
 
     nullify(this%M)
+
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
+    end if
     
   end subroutine gmres_device_free
  
@@ -332,6 +335,7 @@ contains
              call device_copy(r_d, f_d, n)      
              call Ax%compute(w, x%x, coef, x%msh, x%Xh)
              call gs_op(gs_h, w, n, GS_OP_ADD)
+             call device_event_sync(this%gs_event)
              call bc_list_apply(blst, w, n)
              call device_sub2(r_d, w_d, n) 
           end if
@@ -353,6 +357,7 @@ contains
 
              call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
              call gs_op(gs_h, w, n, GS_OP_ADD)
+             call device_event_sync(this%gs_event)
              call bc_list_apply(blst, w, n)
 
              if (NEKO_BCKND_OPENCL .eq. 1) then

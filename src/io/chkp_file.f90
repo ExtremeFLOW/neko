@@ -43,7 +43,7 @@ module chkp_file
   use mesh
   use interpolation
   use mpi_types
-  use mpi_f08
+  use comm
   implicit none
   private
 

@@ -53,25 +53,31 @@ module inflow
 contains
 
   !> No-op scalar apply
-  subroutine inflow_apply_scalar(this, x, n)
+  subroutine inflow_apply_scalar(this, x, n, t, tstep)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine inflow_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine inflow_apply_scalar_dev(this, x_d)
+  subroutine inflow_apply_scalar_dev(this, x_d, t, tstep)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
   end subroutine inflow_apply_scalar_dev
   
   !> Apply inflow conditions (vector valued)
-  subroutine inflow_apply_vector(this, x, y, z, n)
+  subroutine inflow_apply_vector(this, x, y, z, n, t, tstep)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
     integer :: i, m, k
 
     m = this%msk(0)
@@ -84,13 +90,17 @@ contains
   end subroutine inflow_apply_vector
 
   !> Apply inflow conditions (vector valued) (device version)
-  subroutine inflow_apply_vector_dev(this, x_d, y_d, z_d)
+  subroutine inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
     class(inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    
     call device_inflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
                                     c_loc(this%x), this%msk(0))
+    
   end subroutine inflow_apply_vector_dev
 
   !> Set inflow vector

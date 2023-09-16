@@ -41,6 +41,7 @@
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
 
   /**
    * @todo Make sure that this gets deleted at some point...
@@ -59,6 +60,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
 
     if (cfl_d == NULL) {
       CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
@@ -69,7 +71,7 @@ extern "C" {
 #define CASE(LX)                                                                \
     case LX:                                                                    \
       cfl_kernel<real, LX, 1024>                                                \
-        <<<nblcks, nthrds>>>                                                    \
+        <<<nblcks, nthrds, 0, stream>>>                                         \
         (*dt, (real *) u, (real *) v, (real *) w,                               \
          (real *) drdx, (real *) dsdx, (real *) dtdx,                           \
          (real *) drdy, (real *) dsdy, (real *) dtdy,                           \
@@ -96,16 +98,17 @@ extern "C" {
       }
     }
 
-    cfl_reduce_kernel<real><<<1, 1024>>> (cfl_d, (*nel));
+    cfl_reduce_kernel<real><<<1, 1024, 0, stream>>> (cfl_d, (*nel));
     CUDA_CHECK(cudaGetLastError());
 
     real cfl;
 #ifdef HAVE_DEVICE_MPI
-    cudaDeviceSynchronize();
-    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real));
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
 #else
-    CUDA_CHECK(cudaMemcpy(&cfl, cfl_d, sizeof(real),
-                          cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
 #endif
     
     return cfl;

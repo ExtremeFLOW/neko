@@ -10,3 +10,22 @@ structure and numerical methods are adopted.
 
 Neko is currently maintained and developed at KTH Royal Institute of
 Technology.
+
+
+\tableofcontents
+
+\subpage installation
+
+\subpage case-file
+
+\subpage simcomps
+
+\subpage accelerators
+
+\subpage statistics-guide
+
+\subpage code-style
+
+\subpage testing
+
+\subpage appendix

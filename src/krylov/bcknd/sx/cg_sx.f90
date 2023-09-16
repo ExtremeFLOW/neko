@@ -34,7 +34,6 @@
 module cg_sx
   use krylov
   use math
-  use num_types
   implicit none
   private
 

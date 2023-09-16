@@ -36,8 +36,8 @@
 module htable
   use num_types
   use utils
-  use point
-  use tuple
+  use point, only : point_t
+  use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_t
   use math, only : NEKO_M_LN2
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated
   implicit none
@@ -168,6 +168,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i4_init
      procedure, pass(this) :: value => htable_iter_i4_value
      procedure, pass(this) :: key => htable_iter_i4_key
+     final :: htable_iter_i4_free          
   end type htable_iter_i4_t
 
   !> Iterator for an integer*8 based hash table
@@ -176,6 +177,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i8_init
      procedure, pass(this) :: value => htable_iter_i8_value
      procedure, pass(this) :: key => htable_iter_i8_key
+     final :: htable_iter_i8_free
   end type htable_iter_i8_t
 
   !> Iterator for a double precision based hash table
@@ -184,6 +186,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_r8_init
      procedure, pass(this) :: value => htable_iter_r8_value
      procedure, pass(this) :: key => htable_iter_r8_key
+     final :: htable_iter_r8_free
   end type htable_iter_r8_t
 
   !> Iterator for a point based hash table
@@ -192,6 +195,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_pt_init
      procedure, pass(this) :: value => htable_iter_pt_value
      procedure, pass(this) :: key => htable_iter_pt_key
+     final :: htable_iter_pt_free
   end type htable_iter_pt_t
 
   !> Iterator for an integer based 2-tuple hash table
@@ -200,6 +204,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i4t2_init
      procedure, pass(this) :: value => htable_iter_i4t2_value
      procedure, pass(this) :: key => htable_iter_i4t2_key
+     final :: htable_iter_i4t2_free
   end type htable_iter_i4t2_t
 
   !> Iterator for an integer based 4-tuple hash table
@@ -208,6 +213,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_i4t4_init
      procedure, pass(this) :: value => htable_iter_i4t4_value
      procedure, pass(this) :: key => htable_iter_i4t4_key
+     final :: htable_iter_i4t4_free
   end type htable_iter_i4t4_t
 
   !> Iterator for a C pointer based hash table
@@ -216,6 +222,7 @@ module htable
      procedure, pass(this) :: init => htable_iter_cptr_init
      procedure, pass(this) :: value => htable_iter_cptr_value
      procedure, pass(this) :: key => htable_iter_cptr_key
+     final :: htable_iter_cptr_free
   end type htable_iter_cptr_t
 
   !
@@ -772,6 +779,12 @@ contains
 
   end subroutine htable_iter_i4_init
 
+  !> Destroy an integer based hash table iterator
+  subroutine htable_iter_i4_free(this)
+    type(htable_iter_i4_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i4_free
+
   !> Return the current value of the integer based hash table iterator
   function htable_iter_i4_value(this) result(value)
     class(htable_iter_i4_t), target, intent(inout) :: this
@@ -889,6 +902,12 @@ contains
 
   end subroutine htable_iter_i8_init
 
+  !> Destroy an integer*8 based hash table iterator
+  subroutine htable_iter_i8_free(this)
+    type(htable_iter_i8_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i8_free
+
   !> Return the current value of the integer*8 based hash table iterator
   function htable_iter_i8_value(this) result(value)
     class(htable_iter_i8_t), target, intent(inout) :: this
@@ -999,6 +1018,12 @@ contains
     this%n = -1    
 
   end subroutine htable_iter_r8_init
+
+  !> Destroy a double precision based hash table iterator
+  subroutine htable_iter_r8_free(this)
+    type(htable_iter_r8_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_r8_free
 
   !> Return the current value of the double precision based hash table iterator
   function htable_iter_r8_value(this) result(value)
@@ -1125,6 +1150,12 @@ contains
 
   end subroutine htable_iter_pt_init
 
+  !> Destroy a point based hash table iterator
+  subroutine htable_iter_pt_free(this)
+    type(htable_iter_pt_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_pt_free
+
   !> Return the current value of the point based hash table iterator
   function htable_iter_pt_value(this) result(value)
     class(htable_iter_pt_t), target, intent(inout) :: this
@@ -1247,6 +1278,12 @@ contains
     this%n = -1    
 
   end subroutine htable_iter_i4t2_init
+  
+  !> Destroy an integer 2-tuple based  hash table iterator
+  subroutine htable_iter_i4t2_free(this)
+    type(htable_iter_i4t2_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i4t2_free
 
   !> Return the current value of integer based 2-tuple hash table iterator
   function htable_iter_i4t2_value(this) result(value)
@@ -1371,6 +1408,12 @@ contains
 
   end subroutine htable_iter_i4t4_init
 
+  !> Destroy an integer 4-tuple based  hash table iterator
+  subroutine htable_iter_i4t4_free(this)
+    type(htable_iter_i4t4_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_i4t4_free
+
   !> Return the current value of integer based 4-tuple hash table iterator
   function htable_iter_i4t4_value(this) result(value)
     class(htable_iter_i4t4_t), target, intent(inout) :: this
@@ -1482,6 +1525,12 @@ contains
     this%n = -1    
 
   end subroutine htable_iter_cptr_init
+
+  !> Destroy a C pointer based  hash table iterator
+  subroutine htable_iter_cptr_free(this)
+    type(htable_iter_cptr_t), intent(inout) :: this
+    nullify(this%t)
+  end subroutine htable_iter_cptr_free
 
   !> Return the current value of C pointer based hash table iterator
   function htable_iter_cptr_value(this) result(value)

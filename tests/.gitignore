@@ -31,4 +31,5 @@ scratch_registry/scratch_registry_test
 fast3d/fast3d_test
 time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
-
+time_based_controller/time_based_controller_test
+point_interpolation/point_interpolation_suite

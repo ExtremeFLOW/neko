@@ -34,7 +34,6 @@
 module pipecg_sx
   use krylov
   use math
-  use num_types, only : rp
   implicit none
   private
   

@@ -33,7 +33,6 @@
 !> Master module
 module neko
   use num_types
-  use parameters    
   use comm
   use utils
   use logger
@@ -46,6 +45,7 @@ module neko
   use stack
   use tuple
   use mesh
+  use point
   use mesh_field
   use map
   use mxm_wrapper
@@ -78,10 +78,16 @@ module neko
   use cpr
   use fluid_stats
   use field_list  
-  use field_registry
   use vector
+  use simulation_component
+  use probes
   use system
+  use field_registry, only : neko_field_registry    
+  use scratch_registry, only : neko_scratch_registry
+  use simulation_component_global, only : simcomps_global_init
   use, intrinsic :: iso_fortran_env
+  !$ use omp_lib
+  implicit none
 
 contains
 
@@ -92,7 +98,7 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc
+    integer :: argc, nthrds, rw, sw
 
     call date_and_time(time=time, date=date)           
 
@@ -143,25 +149,56 @@ contains
             time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
        call neko_log%message(log_buf)
        write(log_buf, '(a)') 'Running on: '
+       sw = 10 
        if (pe_size .lt. 1e1)  then
           write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
           if (pe_size .eq. 1) then
              write(log_buf(19:), '(a)') 'rank'
+             sw = 9
           else
              write(log_buf(19:), '(a)') 'ranks'
           end if
+          rw = 1
        else if (pe_size .lt. 1e2) then
           write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
+          rw = 2
        else if (pe_size .lt. 1e3) then
           write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
+          rw = 3
        else if (pe_size .lt. 1e4) then
           write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
+          rw = 4
        else if (pe_size .lt. 1e5) then
           write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
+          rw = 5
        else
           write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
+          rw = 6
        end if
-       call neko_log%message(log_buf)
+       
+       nthrds = 1
+       !$omp parallel
+       !$omp master
+       !$ nthrds = omp_get_num_threads()
+       !$omp end master
+       !$omp end parallel
+
+       if (nthrds .gt. 1) then
+          if (nthrds .lt. 1e1) then                
+             write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e2) then
+             write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e3) then
+             write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
+                  nthrds, ' thrds each'
+          else if (nthrds .lt. 1e4) then
+             write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
+                  nthrds, ' thrds each'
+          end if
+       end if
+       call neko_log%message(log_buf)      
 
        write(log_buf, '(a)') 'CPU type  : '
        call system_cpu_name(log_buf(13:))
@@ -207,6 +244,11 @@ contains
        ! Create case
        !
        call case_init(C, case_file)
+
+       !
+       ! Create simulation components
+       !
+       call simcomps_global_init(C)
        
     end if
     
@@ -220,6 +262,7 @@ contains
     end if
     
     call neko_field_registry%free()
+    call neko_scratch_registry%free()
     call device_finalize
     call mpi_types_free
     call comm_free

@@ -47,7 +47,9 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     no_slip_wall_apply_scalar_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk, (real *) x, *m);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
+                                                            (real *) x,
+                                                            *m);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -61,8 +63,11 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     no_slip_wall_apply_vector_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk,
-                           (real *) x, (real *) y, (real *) z, *m);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
+                                                            (real *) x,
+                                                            (real *) y,
+                                                            (real *) z,
+                                                            *m);
     CUDA_CHECK(cudaGetLastError());
   }
  

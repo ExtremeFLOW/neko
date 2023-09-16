@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,14 +38,18 @@ module interpolation
   use utils
   use math
   use fast3d
+  use field
   use tensor
   use tensor_cpu
   use space
   use device
+  use mxm_wrapper, only: mxm
+  use coefs, only: coef_t
+  use point, only: point_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   !> Interpolation between two \ref space::space_t.
   !! @details
   !! This type implements functionality to interpolate between a pair of spaces.
@@ -53,39 +57,40 @@ module interpolation
   !! (lx2, lx2, lx2, nelem), corresponding to a different polynomial order in
   !! each element.
   type, public :: interpolator_t
-     !> First space
+     !> First space.
      type(space_t), pointer :: Xh
-     !> Second space
+     !> Second space.
      type(space_t), pointer :: Yh
-     !> Interpolation weights from Xh to Yh
+     !> Interpolation weights from Xh to Yh.
      real(kind=rp), allocatable :: Xh_to_Yh(:,:), Xh_to_YhT(:,:)
-     !> Interpolation weights from Yh to Xh
+     !> Interpolation weights from Yh to Xh.
      real(kind=rp), allocatable :: Yh_to_Xh(:,:), Yh_to_XhT(:,:)
-     !> Device pointer for Xh_to_Yh
+     !> Device pointer for Xh_to_Yh.
      type(c_ptr) :: Xh_Yh_d = C_NULL_PTR
-     !> Device pointer for Xh_to_YhT
+     !> Device pointer for Xh_to_YhT.
      type(c_ptr) :: Xh_YhT_d = C_NULL_PTR
-     !> Device pointer for Yh_to_Xh
+     !> Device pointer for Yh_to_Xh.
      type(c_ptr) :: Yh_Xh_d = C_NULL_PTR
-     !> Device pointer for Yh_to_XhT
+     !> Device pointer for Yh_to_XhT.
      type(c_ptr) :: Yh_XhT_d = C_NULL_PTR
-
    contains
-     !> Constructor
+
+     !> Constructor.
      procedure, pass(this) :: init => interpolator_init
-     !> Destructor
+     !> Destructor.
      procedure, pass(this) :: free => interpolator_free
      !> Interpolate an array to one of Xh or Yh.
      procedure, pass(this) :: map => interpolator_map
      !> Interpolate an array to one of Xh or Yh on the host.
      procedure, pass(this) :: map_host => interpolator_map_host
+
   end type interpolator_t
-  
+
 contains
-  
-  !> Constructor 
-  !> @param Xh The first space
-  !> @param Xh The second space
+
+  !> Constructor to initialize with two different spaces.
+  !> @param Xh The first space.
+  !> @param Xh The second space.
   subroutine interpolator_init(this, Xh, Yh)
     class(interpolator_t), intent(inout), target :: this
     type(space_t), intent(inout), target :: Xh
@@ -98,6 +103,7 @@ contains
     allocate(this%Xh_to_YhT(Xh%lx,Yh%lx))
     allocate(this%Yh_to_Xh(Xh%lx,Yh%lx))
     allocate(this%Yh_to_XhT(Yh%lx,Xh%lx))
+
     if (Xh%t .eq. GLL .and. Yh%t .eq. GLL) then
     else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. &
          (Yh%t .eq. GL .and. Xh%t .eq. GLL)) then
@@ -178,6 +184,7 @@ contains
        call neko_error('Invalid interpolation')
     end if
   end subroutine interpolator_map
+
 
   !> Interpolates an array to one of Xh or Yh on host.
   !! @param x Original array.

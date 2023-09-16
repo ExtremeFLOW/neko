@@ -1,27 +1,63 @@
-&NEKO_CASE
-mesh_file= '$mesh_file'
-fluid_scheme='$fluid_scheme'
-lx = 8
-source_term = 'user_vector'
-initial_condition = 'user'
-scalar = .true.
-scalar_source_term = 'noforce'
-/
-&NEKO_PARAMETERS
-dt = $dt
-T_end = $T_end
-nsamples = 0
-uinf= 0.0,0.0,0.0
-pc_vel = 'jacobi'
-pc_prs = 'hsmg'
-bc_labels(5) = 'w'
-bc_labels(6) = 'w'
-abstol_vel = 1d-6
-abstol_prs = 1d-6
-Pr = 0.71
-Re = 1715
-scalar_bcs(5) = 'd=1'
-scalar_bcs(6) = 'd=0'
-proj_prs_dim = 4
-proj_vel_dim = 4
-/
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "box.nmsh",
+    "output_at_end": true,
+    "output_boundary": true,
+    "end_time": 100,
+    "timestep": 0.01,
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 7,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "rho": 1,
+        "mu": 1,
+        "Re": 1.408541,
+        "source_term": {
+            "type": "user_vector"
+        },
+        "initial_condition": {
+            "type": "user"
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 4,
+            "absolute_tolerance": 1e-6,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 4,
+            "absolute_tolerance": 1e-6,
+            "max_iterations": 800
+        },
+        "boundary_types": [
+            "",
+            "",
+            "",
+            "",
+            "w",
+            "w"
+        ],
+        "output_control": "never",
+        "output_value": 0
+    },
+    "scalar": {
+        "enabled": true,
+        "Pr": 0.71,
+        "boundary_types": [
+            "",
+            "",
+            "",
+            "",
+            "d=1",
+            "d=0"
+        ]
+    }
+}
+}

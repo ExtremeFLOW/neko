@@ -33,33 +33,32 @@
 !> Defines a mesh
 module mesh
   use num_types, only : rp, dp, i8
-  use mpi_f08
-  use point
-  use element
+ ! use mpi_f08
+  use point, only : point_t
+  use element, only : element_t
   use hex
   use quad
-  use utils
-  use htable
-  use comm
-  use stack
-  use tuple
+  use utils, only : neko_error
+  use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
+  use tuple, only : tuple_i4_t, tuple4_i4_t
   use htable
   use datadist
   use distdata
-  use zone
+  use comm    
+  use zone, only : zone_t, zone_periodic_t
   use math
-  use uset
+  use uset, only : uset_i8_t
   use curve, only : curve_t
   implicit none
-
+  private
+  
   integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
 
   type, private :: mesh_element_t
      class(element_t), allocatable :: e
   end type mesh_element_t
 
-  type, public :: mesh_t
-
+  type, public ::  mesh_t
      integer :: nelv            !< Number of elements
      integer :: npts            !< Number of points per element
      integer :: gdim            !< Geometric dimension
@@ -114,6 +113,48 @@ module mesh
      !> enables user to specify a deformation
      !! that is applied to all x,y,z coordinates generated with this mesh
      procedure(mesh_deform), pass(msh), pointer  :: apply_deform => null()
+   contains
+     procedure, private, pass(m) :: init_nelv => mesh_init_nelv
+     procedure, private, pass(m) :: init_dist => mesh_init_dist
+     procedure, private, pass(m) :: add_quad => mesh_add_quad
+     procedure, private, pass(m) :: add_hex => mesh_add_hex
+     procedure, private, pass(m) :: get_local_point => mesh_get_local_point
+     procedure, private, pass(m) :: get_local_edge => mesh_get_local_edge
+     procedure, private, pass(m) :: get_local_facet => mesh_get_local_facet
+     procedure, private, pass(m) :: get_global_edge => mesh_get_global_edge
+     procedure, private, pass(m) :: get_global_facet => mesh_get_global_facet
+     procedure, private, pass(m) :: is_shared_point => mesh_is_shared_point
+     procedure, private, pass(m) :: is_shared_edge => mesh_is_shared_edge
+     procedure, private, pass(m) :: is_shared_facet => mesh_is_shared_facet
+     procedure, pass(m) :: free => mesh_free
+     procedure, pass(m) :: finalize => mesh_finalize
+     procedure, pass(m) :: mark_wall_facet => mesh_mark_wall_facet
+     procedure, pass(m) :: mark_inlet_facet => mesh_mark_inlet_facet
+     procedure, pass(m) :: mark_outlet_facet => mesh_mark_outlet_facet
+     procedure, pass(m) :: mark_sympln_facet => mesh_mark_sympln_facet
+     procedure, pass(m) :: mark_periodic_facet => mesh_mark_periodic_facet
+     procedure, pass(m) :: mark_outlet_normal_facet => &
+          mesh_mark_outlet_normal_facet
+     procedure, pass(m) :: mark_labeled_facet => mesh_mark_labeled_facet
+     procedure, pass(m) :: mark_curve_element => mesh_mark_curve_element
+     procedure, pass(m) :: apply_periodic_facet => mesh_apply_periodic_facet
+     procedure, pass(m) :: all_deformed => mesh_all_deformed
+     procedure, pass(m) :: get_facet_ids => mesh_get_facet_ids
+     procedure, pass(m) :: reset_periodic_ids => mesh_reset_periodic_ids
+     procedure, pass(m) :: create_periodic_ids => mesh_create_periodic_ids
+     procedure, pass(m) :: generate_conn => mesh_generate_conn
+     !> Initialise a mesh
+     generic :: init => init_nelv, init_dist
+     !> Add an element to the mesh
+     generic :: add_element => add_quad, add_hex
+     !> Get local id for a mesh entity
+     !! @todo Add similar mappings for element ids
+     generic :: get_local => get_local_point, get_local_edge, get_local_facet
+     !> Get global id for a mesh entity
+     !! @todo Add similar mappings for element ids
+     generic :: get_global => get_global_edge, get_global_facet
+     !> Check if a mesh entity is shared
+     generic :: is_shared => is_shared_point, is_shared_edge, is_shared_facet
   end type mesh_t
 
   abstract interface
@@ -128,54 +169,18 @@ module mesh
      end subroutine mesh_deform
   end interface
 
-
-
-  !> Initialise a mesh
-  interface mesh_init
-     module procedure mesh_init_nelv, mesh_init_dist
-  end interface mesh_init
+  public :: mesh_deform
   
-  !> Add an element to the mesh
-  interface mesh_add_element
-     module procedure mesh_add_quad, mesh_add_hex
-  end interface mesh_add_element
-
-  !> Get local id for a mesh entity
-  !! @todo Add similar mappings for element ids
-  interface mesh_get_local
-     module procedure mesh_get_local_point, mesh_get_local_edge, &
-          mesh_get_local_facet
-  end interface mesh_get_local
-
-  !> Get global id for a mesh entity
-  !! @todo Add similar mappings for element ids
-  interface mesh_get_global
-     module procedure mesh_get_global_edge, mesh_get_global_facet
-  end interface mesh_get_global
-
-  !> Check if a mesh entitiy is shared
-  interface mesh_is_shared
-     module procedure mesh_is_shared_point, mesh_is_shared_edge, &
-          mesh_is_shared_facet
-  end interface mesh_is_shared
-
-  public :: mesh_init, mesh_add_element, mesh_get_local, &
-       mesh_get_global, mesh_is_shared
-
-  private :: mesh_init_common, mesh_add_quad, mesh_add_hex, &
-       mesh_generate_external_facet_conn, mesh_generate_external_point_conn, &
-       mesh_generate_edge_conn, mesh_generate_facet_numbering
- 
 contains 
 
   !> Initialise a mesh @a m with @a nelv elements
   subroutine mesh_init_nelv(m, gdim, nelv)
-    type(mesh_t), intent(inout) :: m !< Mesh
-    integer, intent(in) :: gdim      !< Geometric dimension
-    integer, intent(in) :: nelv      !< Local number of elements
+    class(mesh_t), intent(inout) :: m !< Mesh
+    integer, intent(in) :: gdim       !< Geometric dimension
+    integer, intent(in) :: nelv       !< Local number of elements
     integer :: ierr
     
-    call mesh_free(m)
+    call m%free()
 
     m%nelv = nelv
     m%gdim = gdim
@@ -193,11 +198,11 @@ contains
 
   !> Initialise a mesh @a m based on a distribution @a dist
   subroutine mesh_init_dist(m, gdim, dist)
-    type(mesh_t), intent(inout) :: m        !< Mesh
+    class(mesh_t), intent(inout) :: m       !< Mesh
     integer, intent(in) :: gdim             !< Geometric dimension
     type(linear_dist_t), intent(in) :: dist !< Data distribution
 
-    call mesh_free(m)
+    call m%free()
     
     m%nelv = dist%num_local()
     m%glb_nelv = dist%num_global()
@@ -299,7 +304,7 @@ contains
   
   !> Deallocate a mesh @a m
   subroutine mesh_free(m)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer :: i
     
     call m%htp%free()
@@ -371,7 +376,7 @@ contains
   end subroutine mesh_free
 
   subroutine mesh_finalize(m)
-    type(mesh_t), target, intent(inout) :: m
+    class(mesh_t), target, intent(inout) :: m
     integer :: i
 
 
@@ -425,13 +430,13 @@ contains
 
   !> Set all elements as if they are deformed
   subroutine mesh_all_deformed(m)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     m%dfrmd_el = .true.
   end subroutine mesh_all_deformed
   
   !> Generate element-to-element connectivity
   subroutine mesh_generate_conn(m)
-    type(mesh_t), target, intent(inout) :: m
+    class(mesh_t), target, intent(inout) :: m
     type(tuple_i4_t) :: edge
     type(tuple4_i4_t) :: face, face_comp
     type(tuple_i4_t) :: facet_data
@@ -1320,7 +1325,7 @@ contains
   
   !> Add a quadrilateral element to the mesh @a m
   subroutine mesh_add_quad(m, el, p1, p2, p3, p4)
-    type(mesh_t), target, intent(inout) :: m
+    class(mesh_t), target, intent(inout) :: m
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
@@ -1342,7 +1347,7 @@ contains
     el_glb_idx = el + m%offset_el
 
     do i = 1, NEKO_QUAD_NPTS
-       p_local_idx = mesh_get_local(m, m%points(p(i)))
+       p_local_idx = m%get_local(m%points(p(i)))
        call m%point_neigh(p_local_idx)%push(el_glb_idx)
     end do
     
@@ -1365,7 +1370,7 @@ contains
 
   !> Add a hexahedral element to the mesh @a m
   subroutine mesh_add_hex(m, el, p1, p2, p3, p4, p5, p6, p7, p8)
-    type(mesh_t), target, intent(inout) :: m
+    class(mesh_t), target, intent(inout) :: m
     integer, value :: el
     type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
@@ -1392,7 +1397,7 @@ contains
     el_glb_idx = el + m%offset_el
     if (m%lgenc) then
        do i = 1, NEKO_HEX_NPTS
-          p_local_idx = mesh_get_local(m, m%points(p(i)))
+          p_local_idx = m%get_local(m%points(p(i)))
           call m%point_neigh(p_local_idx)%push(el_glb_idx)
        end do
     end if
@@ -1474,7 +1479,7 @@ contains
 
   !> Mark facet @a f in element @a e as a wall
   subroutine mesh_mark_wall_facet(m, f, e)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
     integer, intent(inout) :: e
 
@@ -1493,7 +1498,7 @@ contains
 
   !> Mark element @a e as a curve element
   subroutine mesh_mark_curve_element(m, e, curve_data, curve_type)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(in) :: e
     real(kind=dp), dimension(5,12), intent(in) :: curve_data 
     integer, dimension(12), intent(in) :: curve_type 
@@ -1511,7 +1516,7 @@ contains
 
   !> Mark facet @a f in element @a e as an inlet
   subroutine mesh_mark_inlet_facet(m, f, e)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(in) :: f
     integer, intent(in) :: e
 
@@ -1530,7 +1535,7 @@ contains
  
   !> Mark facet @a f in element @a e with label 
   subroutine mesh_mark_labeled_facet(m, f, e, label)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(in) :: f
     integer, intent(in) :: e
     integer, intent(in) :: label
@@ -1551,7 +1556,7 @@ contains
  
   !> Mark facet @a f in element @a e as an outlet normal
   subroutine mesh_mark_outlet_normal_facet(m, f, e)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
     integer, intent(inout) :: e
 
@@ -1571,7 +1576,7 @@ contains
 
   !> Mark facet @a f in element @a e as an outlet
   subroutine mesh_mark_outlet_facet(m, f, e)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
     integer, intent(inout) :: e
 
@@ -1590,7 +1595,7 @@ contains
 
   !> Mark facet @a f in element @a e as a symmetry plane
   subroutine mesh_mark_sympln_facet(m, f, e)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(inout) :: f
     integer, intent(inout) :: e
 
@@ -1609,7 +1614,7 @@ contains
 
   !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
   subroutine mesh_mark_periodic_facet(m, f, e, pf, pe, pids)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(in) :: f
     integer, intent(in) :: e
     integer, intent(in) :: pf
@@ -1623,7 +1628,7 @@ contains
 
   !> Get original ids of periodic points
   subroutine mesh_get_facet_ids(m, f, e, pids)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(in) :: f
     integer, intent(in) :: e
     integer, intent(inout) :: pids(4)
@@ -1647,7 +1652,7 @@ contains
   
   !> Reset ids of periodic points to their original ids
   subroutine mesh_reset_periodic_ids(m)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer :: i,j
     integer :: f
     integer :: e
@@ -1698,7 +1703,7 @@ contains
   
   !> Creates common ids for matching periodic points.
   subroutine mesh_create_periodic_ids(m, f, e, pf, pe)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(in) :: f
     integer, intent(in) :: e
     integer, intent(in) :: pf
@@ -1739,7 +1744,7 @@ contains
                 id = min(pi%id(), pj%id())
                 call pi%set_id(id)
                 call pj%set_id(id)
-                p_local_idx = mesh_get_local(m, m%points(id))
+                p_local_idx = m%get_local(m%points(id))
                 if (m%lgenc) then
                    id = ele%id()
                    call m%point_neigh(p_local_idx)%push(id)
@@ -1784,7 +1789,7 @@ contains
                 id = min(pi%id(), pj%id())
                 call pi%set_id(id)
                 call pj%set_id(id)
-                p_local_idx = mesh_get_local(m, m%points(id))
+                p_local_idx = m%get_local(m%points(id))
                 if (m%lgenc) then
                    id = ele%id()
                    call m%point_neigh(p_local_idx)%push(id)
@@ -1809,7 +1814,7 @@ contains
   !> Replaces the periodic point's id with a common id for matching
   !! periodic points
   subroutine mesh_apply_periodic_facet(m, f, e, pf, pe, pids)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     integer, intent(in) :: f
     integer, intent(in) :: e
     integer, intent(in) :: pf
@@ -1833,7 +1838,7 @@ contains
           pi => ele%pts(face_nodes(i,f))%p
           call pi%set_id(pids(i))
           call mesh_add_point(m,pi,id)
-          p_local_idx = mesh_get_local(m, m%points(id))
+          p_local_idx = m%get_local(m%points(id))
           id = ele%id()
           if (m%lgenc) then
              call m%point_neigh(p_local_idx)%push(id)
@@ -1856,7 +1861,7 @@ contains
 
   !> Return the local id of a point @a p
   function mesh_get_local_point(m, p) result(local_id)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p
     integer :: local_id
     integer :: tmp
@@ -1873,7 +1878,7 @@ contains
   !> Return the local id of an edge @a e
   !! @attention only defined for gdim .ne. 2
   function mesh_get_local_edge(m, e) result(local_id)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(tuple_i4_t), intent(inout) :: e
     integer :: local_id
 
@@ -1885,7 +1890,7 @@ contains
 
   !> Return the local id of a face @a f
   function mesh_get_local_facet(m, f) result(local_id)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(tuple4_i4_t), intent(inout) :: f
     integer :: local_id
 
@@ -1897,11 +1902,11 @@ contains
 
   !> Return the global id of an edge @a e
   function mesh_get_global_edge(m, e) result(global_id)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(tuple_i4_t), intent(inout) :: e
     integer :: global_id
 
-    global_id = mesh_get_local_edge(m, e)
+    global_id = m%get_local(e)
 
     if (m%gdim .eq. 2) then
        if (pe_size .gt. 1) then
@@ -1917,7 +1922,7 @@ contains
 
   !> Return the local id of a face @a f
   function mesh_get_global_facet(m, f) result(global_id)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(tuple4_i4_t), intent(inout) :: f
     integer :: global_id
 
@@ -1947,12 +1952,12 @@ contains
 
   !> Check if a point is shared
   function mesh_is_shared_point(m, p) result(shared)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(point_t), intent(inout) :: p
     integer :: local_index
     logical shared
 
-    local_index = mesh_get_local(m, p)
+    local_index = m%get_local(p)
     shared = m%ddata%shared_point%element(local_index)
     
   end function mesh_is_shared_point
@@ -1961,11 +1966,11 @@ contains
   !> Check if an edge is shared
   !! @attention only defined for gdim .ne. 2
   function mesh_is_shared_edge(m, e) result(shared)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(tuple_i4_t), intent(inout) :: e
     integer :: local_index
     logical shared
-    local_index = mesh_get_local(m, e)
+    local_index = m%get_local(e)
     if (m%gdim .eq. 2) then
        shared = m%ddata%shared_facet%element(local_index)
     else 
@@ -1975,12 +1980,12 @@ contains
 
   !> Check if a facet is shared
   function mesh_is_shared_facet(m, f) result(shared)
-    type(mesh_t), intent(inout) :: m
+    class(mesh_t), intent(inout) :: m
     type(tuple4_i4_t), intent(inout) :: f
     integer :: local_index
     logical shared
 
-    local_index = mesh_get_local(m, f)
+    local_index = m%get_local(f)
     shared = m%ddata%shared_facet%element(local_index)
     
   end function mesh_is_shared_facet

@@ -34,7 +34,6 @@
 module bicgstab
   use krylov
   use math
-  use num_types
   implicit none
   private
 

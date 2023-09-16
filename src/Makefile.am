@@ -3,18 +3,18 @@ lib_LIBRARIES = libneko.a
 neko_fortran_SOURCES = \
 	config/num_types.f90\
 	common/structs.f90\
-	common/parameters.f90\
 	io/format/nmsh.f90\
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-	common/log.f90\
+        common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
+	common/json_utils.f90\
 	common/system.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
@@ -26,6 +26,7 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/interpolation.f90\
+	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
@@ -86,6 +87,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/matrix.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -97,14 +99,13 @@ neko_fortran_SOURCES = \
 	io/stl_file.f90\
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
+	io/csv_file.f90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
-	io/scalar_output.f90\
 	io/chkp_output.f90\
 	io/mean_flow_output.f90\
 	io/fluid_stats_output.f90\
-	io/field_list_output.f90\
 	io/mean_sqr_flow_output.f90\
 	common/sampler.f90\
 	common/profiler.F90\
@@ -115,6 +116,7 @@ neko_fortran_SOURCES = \
 	bc/wall.f90\
 	bc/inflow.f90\
 	bc/usr_inflow.f90\
+	bc/usr_scalar.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
@@ -144,11 +146,13 @@ neko_fortran_SOURCES = \
 	time_schemes/ext_time_scheme.f90\
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
+	common/time_based_controller.f90\
 	common/source.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
+	common/probes.F90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
@@ -157,7 +161,6 @@ neko_fortran_SOURCES = \
 	common/user_intf.f90\
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
-	fluid/fluid_plan1.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_fctry.f90\
 	fluid/fluid_volflow.f90\
@@ -191,6 +194,7 @@ neko_fortran_SOURCES = \
 	device/hip/roctx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
+	device/dummy_device.F90\
 	device/device.F90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/device_schwarz.F90\
@@ -213,6 +217,11 @@ neko_fortran_SOURCES = \
 	scalar/bcknd/cpu/scalar_residual_cpu.f90\
 	scalar/bcknd/sx/scalar_residual_sx.f90\
 	scalar/source_scalar.f90\
+	simulation_components/simulation_component.f90\
+	simulation_components/simulation_component_global.f90\
+	simulation_components/vorticity.f90\
+	simulation_components/lambda2.f90\
+	simulation_components/simulation_component_factory.f90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
@@ -239,6 +248,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/hip/opr_cdtp.hip\
 	math/bcknd/device/hip/opr_conv1.hip\
 	math/bcknd/device/hip/opr_opgrad.hip\
+	math/bcknd/device/hip/opr_lambda2.hip\
 	math/bcknd/device/hip/opr_cfl.hip\
 	math/bcknd/device/hip/ax_helm.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
@@ -271,6 +281,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/cuda/opr_cdtp.cu\
 	math/bcknd/device/cuda/opr_conv1.cu\
 	math/bcknd/device/cuda/opr_opgrad.cu\
+	math/bcknd/device/cuda/opr_lambda2.cu\
 	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
@@ -304,6 +315,7 @@ libneko_a_SOURCES += \
 	math/bcknd/device/opencl/opr_cdtp.c\
 	math/bcknd/device/opencl/opr_conv1.c\
 	math/bcknd/device/opencl/opr_opgrad.c\
+	math/bcknd/device/opencl/opr_lambda2.c\
 	math/bcknd/device/opencl/opr_cfl.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
@@ -397,6 +409,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cdtp_kernel.h\
 	math/bcknd/device/cuda/conv1_kernel.h\
 	math/bcknd/device/cuda/opgrad_kernel.h\
+	math/bcknd/device/cuda/lambda2_kernel.h\
 	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
 	common/bcknd/device/cuda/sumab_kernel.h\
@@ -424,6 +437,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cdtp_kernel.h\
 	math/bcknd/device/hip/conv1_kernel.h\
 	math/bcknd/device/hip/opgrad_kernel.h\
+	math/bcknd/device/hip/lambda2_kernel.h\
 	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
 	common/bcknd/device/hip/sumab_kernel.h\
@@ -455,6 +469,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
 	math/bcknd/device/opencl/conv1_kernel.cl\
+	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
@@ -463,6 +478,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
+	math/bcknd/device/device_mpi_op.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

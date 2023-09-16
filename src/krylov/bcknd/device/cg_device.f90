@@ -34,7 +34,6 @@
 module cg_device
   use krylov
   use device_math    
-  use num_types
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -48,6 +47,7 @@ module cg_device
      type(c_ptr) :: r_d = C_NULL_PTR
      type(c_ptr) :: p_d = C_NULL_PTR
      type(c_ptr) :: z_d = C_NULL_PTR
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => cg_device_init
      procedure, pass(this) :: free => cg_device_free
@@ -90,7 +90,8 @@ contains
     else
        call this%ksp_init()
     end if
-          
+
+    call device_event_create(this%gs_event, 2)
   end subroutine cg_device_init
 
   !> Deallocate a device based PCG solver
@@ -133,6 +134,10 @@ contains
        call device_free(this%z_d)
     end if
 
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
+    end if
+    
   end subroutine cg_device_free
   
   !> Standard PCG solve
@@ -183,7 +188,8 @@ contains
        call device_add2s1(this%p_d, this%z_d, beta, n)
 
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)       
-       call gs_op(gs_h, this%w, n, GS_OP_ADD)       
+       call gs_op(gs_h, this%w, n, GS_OP_ADD, this%gs_event)
+       call device_event_sync(this%gs_event)
        call bc_list_apply(blst, this%w, n)       
 
        pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)

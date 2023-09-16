@@ -38,6 +38,18 @@ module hip_intf
   implicit none
 
 #ifdef HAVE_HIP
+
+  !> Global HIP command queue
+  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux HIP command queue
+  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> High priority stream setting
+  integer :: STRM_HIGH_PRIO
+
+  !> Low priority stream setting
+  integer :: STRM_LOW_PRIO
   
   !> Enum @a hipError_t
   enum, bind(c)
@@ -106,11 +118,11 @@ module hip_intf
   end interface
 
   interface
-     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir) &
+     integer (c_int) function hipMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
           bind(c, name='hipMemcpyAsync')
        use, intrinsic :: iso_c_binding
        implicit none
-       type(c_ptr), value :: ptr_dst, ptr_src
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function hipMemcpyAsync
@@ -155,6 +167,16 @@ module hip_intf
   end interface
 
   interface
+     integer (c_int) function hipStreamCreateWithPriority(stream, flags, prio) &
+          bind(c, name='hipStreamCreateWithPriority')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: stream
+       integer(c_int), value :: flags, prio
+     end function hipStreamCreateWithPriority
+  end interface
+
+  interface
      integer (c_int) function hipStreamDestroy(steam) &
           bind(c, name='hipStreamDestroy')
        use, intrinsic :: iso_c_binding
@@ -182,6 +204,15 @@ module hip_intf
      end function hipStreamWaitEvent
   end interface
 
+  interface
+     integer (c_int) function hipDeviceGetStreamPriorityRange(low_prio, high_prio) &
+          bind(c, name='hipDeviceGetStreamPriorityRange')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: low_prio, high_prio
+     end function hipDeviceGetStreamPriorityRange
+  end interface
+  
   interface
      integer (c_int) function hipEventCreate(event) &
           bind(c, name='hipEventCreate')
@@ -230,6 +261,34 @@ module hip_intf
   
 contains
 
+  subroutine hip_init
+
+    if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
+         .ne. hipSuccess) then 
+       call neko_error('Error retrieving stream priority range')
+    end if
+
+    if (hipStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
+         .ne. hipSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+
+    if (hipStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
+         .ne. hipSuccess) then
+       call neko_error('Error creating main stream')
+    end if
+  end subroutine hip_init
+
+  subroutine hip_finalize
+    if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
+       call neko_error('Error destroying main stream')
+    end if
+
+    if (hipStreamDestroy(aux_cmd_queue) .ne. hipSuccess) then
+       call neko_error('Error destroying aux stream')
+    end if
+  end subroutine hip_finalize
+  
   subroutine hip_device_name(name)
     character(len=*), intent(inout) :: name
     character(kind=c_char, len=1024), target :: c_name

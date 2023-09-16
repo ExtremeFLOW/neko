@@ -33,12 +33,10 @@
 !> Defines a mean square field
 !
 module mean_sqr_field
+  use num_types
   use neko_config
-  use mean_field, only : mean_field_t
-  use num_types, only : rp
-  use field, only : field_t
-  use device_math
-  use math
+  use mean_field
+  use device_math, only : device_cmult, device_addsqr2s2
   implicit none
   private
 

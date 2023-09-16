@@ -1,0 +1,221 @@
+module point_interpolation_parallel
+  use mpi
+  use pfunit
+  use point_interpolator, only : point_interpolator_t
+  use num_types, only : rp
+  use mesh
+  use coefs
+  use dofmap
+  use gather_scatter
+  use space
+  use point
+  use datadist
+  use neko_config
+  implicit none
+
+contains
+
+  !> Creates 8 points for a cube with diagonal (1, 1) - (2, 2)
+  subroutine create_points(p)
+    implicit none
+    type(point_t) :: p(8)
+
+    p(1) = point_t(1d0, 1d0, 1d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(2d0, 1d0, 1d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(1d0, 2d0, 1d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(2d0, 2d0, 1d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(1d0, 1d0, 2d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 2d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(1d0, 2d0, 2d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(2d0, 2d0, 2d0)
+    call p(8)%set_id(8)
+  end subroutine create_points
+
+  subroutine point_interpolation_test_gen_coef(msh, coef, lx)
+    implicit none
+    type(mesh_t), intent(inout) :: msh
+    type(coef_t), intent(inout) :: coef
+    integer, intent(in) :: lx
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(space_t) :: Xh
+
+    call space_init(Xh, GLL, lx, lx, lx)
+    dof = dofmap_t(msh, Xh)
+    call gs_init(gs, dof)
+    call coef_init(coef, gs)
+
+  end subroutine point_interpolation_test_gen_coef
+
+  @test(npes=[1])
+  subroutine point_interpolation_test_init(this)
+    implicit none
+    class (MpiTestMethod), intent(inout) :: this
+    type(point_interpolator_t) :: interp
+    type(coef_t) :: coef
+    type(mesh_t) :: msh
+    integer, parameter :: lx = 4
+    integer :: ierr
+    type(linear_dist_t) :: dist
+    type(point_t) :: p(8)
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(space_t) :: Xh
+
+
+    call device_init
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(1, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    call create_points(p)
+
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+
+    call msh%generate_conn()
+    call space_init(Xh, GLL, lx, lx, lx)
+    dof = dofmap_t(msh, Xh)
+    call gs_init(gs, dof)
+    call coef_init(coef, gs)
+
+    call interp%init(coef%Xh) ! initialize the interpolator object
+
+    @assertTrue(associated(interp%Xh))
+
+    call device_finalize
+  end subroutine point_interpolation_test_init
+
+  @test(npes=[1])
+  subroutine point_interpolation_test_interpolation(this)
+    implicit none
+    class (MpiTestMethod), intent(inout) :: this
+    type(point_interpolator_t) :: interp
+    type(coef_t) :: coef
+    type(mesh_t) :: msh
+    integer, parameter :: lx = 4
+    integer :: ierr
+    type(point_t) :: rst(4) ! A list of  r,s,t coordinates
+    type(point_t) :: xyz(4), xyz_equal(4) ! the results of the interpolation
+    real(kind=rp)  :: xyz_real(4)
+    type(linear_dist_t) :: dist
+    type(point_t) :: p(8)
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(space_t) :: Xh
+
+    integer :: e = 1 ! our element index (in this example we only use a 1-element mesh)
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(1, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+    call create_points(p)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+    call space_init(Xh, GLL, lx, lx, lx)
+    dof = dofmap_t(msh, Xh)
+    call gs_init(gs, dof)
+    call coef_init(coef, gs)
+
+    ! Initialize the r,s,t values
+    rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
+    rst(2)%x = (/ 0.4_rp, -0.3_rp, -1.0_rp/)
+    rst(3)%x = (/-1.0_rp, -1.0_rp, -1.0_rp/)
+    rst(4)%x = (/ 1.0_rp,  1.0_rp,  1.0_rp/)
+
+    xyz_equal(1)%x = (/2.0_rp,  1.5_rp , 1.25_rp/)
+    xyz_equal(2)%x = (/1.7_rp, 1.35_rp, 1.0_rp/)
+    xyz_equal(3)%x = (/1.0_rp, 1.0_rp, 1.0_rp/)
+    xyz_equal(4)%x = (/ 2.0_rp,  2.0_rp,  2.0_rp/)
+
+    call interp%init(coef%Xh) ! initialize the interpolator object
+    
+    ! We use the interpolation for a vector field, interpolating the coordinates
+    ! themselves
+    xyz = interp%interpolate(rst, coef%dof%x(:,:,:,e), &
+         coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
+
+    @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-4_rp)
+    @assertRelativelyEqual(xyz(2)%x, xyz_equal(2)%x, tolerance=1e-4_rp)
+    @assertRelativelyEqual(xyz(3)%x, xyz_equal(3)%x, tolerance=1e-4_rp)
+    @assertRelativelyEqual(xyz(4)%x, xyz_equal(4)%x, tolerance=1e-4_rp)
+
+    ! We use the interpolation for a scalar field, interpolating the coordinates
+    ! themselves
+    xyz_real = interp%interpolate(rst, coef%dof%x(:,:,:,e))
+    @assertRelativelyEqual(xyz_real, (/ 2.0_rp, 1.7_rp, 1.0_rp, 2.0_rp/), tolerance=1e-4_rp)
+
+  end subroutine point_interpolation_test_interpolation
+
+  @test(npes=[1])
+  subroutine point_interpolation_test_interpolation_single_point(this)
+    implicit none
+    class (MpiTestMethod), intent(inout) :: this
+    type(point_interpolator_t) :: interp
+    type(coef_t) :: coef
+    type(mesh_t) :: msh
+    integer, parameter :: lx = 4
+    integer :: ierr
+    type(point_t) :: rst(1) ! A list of  r,s,t coordinates
+    type(point_t) :: xyz(1), xyz_equal(1) ! the results of the interpolation
+    real(kind=rp) :: xyz_real(1)
+    type(linear_dist_t) :: dist
+    type(point_t) :: p(8)
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(space_t) :: Xh
+
+    integer :: e = 1 ! our element index (in this example we only use a 1-element mesh)
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(1, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+    call create_points(p)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+    call space_init(Xh, GLL, lx, lx, lx)
+    dof = dofmap_t(msh, Xh)
+    call gs_init(gs, dof)
+    call coef_init(coef, gs)
+
+    ! Initialize the r,s,t values
+    rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
+
+    xyz_equal(1)%x = (/2.0_rp,  1.5_rp , 1.25_rp/)
+
+    call interp%init(coef%Xh) ! initialize the interpolator object
+    
+    ! We use the interpolation for a vector field, interpolating the coordinates
+    ! themselves
+    xyz = interp%interpolate(rst, coef%dof%x(:,:,:,e), &
+         coef%dof%y(:,:,:,e), coef%dof%z(:,:,:,e))
+
+    @assertRelativelyEqual(xyz(1)%x, xyz_equal(1)%x, tolerance=1e-4_rp)
+
+    ! We use the interpolation for a scalar field, interpolating the coordinates
+    ! themselves
+    xyz_real = interp%interpolate(rst, coef%dof%x(:,:,:,e))
+    @assertRelativelyEqual(xyz_real, (/ 2.0_rp/), tolerance=1e-4_rp)
+
+  end subroutine point_interpolation_test_interpolation_single_point
+
+end module
