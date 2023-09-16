@@ -39,11 +39,9 @@ module coefs
   use space, only: space_t
   use math
   use mesh, only : mesh_t
-  use device
   use device_math
   use device_coef
   use mxm_wrapper
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
   

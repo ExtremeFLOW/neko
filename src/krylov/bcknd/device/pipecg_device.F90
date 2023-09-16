@@ -35,9 +35,7 @@ module pipecg_device
   use krylov
   use math
   use num_types
-  use device
   use device_math      
-  use, intrinsic :: iso_c_binding
   implicit none
   private
 

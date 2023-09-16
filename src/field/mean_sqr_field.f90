@@ -37,6 +37,7 @@ module mean_sqr_field
   use neko_config
   use mean_field
   use device_math, only : device_cmult, device_addsqr2s2
+  use math  
   implicit none
   private
 

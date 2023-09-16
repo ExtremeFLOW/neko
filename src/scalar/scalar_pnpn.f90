@@ -43,6 +43,7 @@ module scalar_pnpn
   use scalar_aux    
   use time_scheme_controller
   use projection
+  use math
   use logger
   use advection
   use profiler
