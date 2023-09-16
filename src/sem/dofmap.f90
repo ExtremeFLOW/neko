@@ -36,14 +36,13 @@ module dofmap
   use neko_config
   use mesh, only : mesh_t
   use space
-  use tuple, only : tuple_i4_t
+  use tuple, only : tuple_i4_t, tuple4_i4_t
   use num_types, only : i4, i8, rp
   use utils, only : neko_error, neko_warning
   use fast3d
   use tensor
   use device
   use math
-  use tuple
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
