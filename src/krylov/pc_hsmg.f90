@@ -168,13 +168,14 @@ contains
     this%dm_crs = dofmap_t(msh, this%Xh_crs) 
     call gs_init(this%gs_crs, this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
-    call coef_init(this%c_crs, this%gs_crs)
+    call this%c_crs%init(this%gs_crs)
     
     call space_init(this%Xh_mg, GLL, lx_mid, lx_mid, lx_mid)
     this%dm_mg = dofmap_t(msh, this%Xh_mg) 
     call gs_init(this%gs_mg, this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')
-    call coef_init(this%c_mg, this%gs_mg)
+    call this%c_mg%init(this%gs_mg)
+
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax)
 
@@ -316,11 +317,13 @@ contains
 
     call this%schwarz%free()
     call this%schwarz_mg%free()
-    call coef_free(this%c_crs)
-    call coef_free(this%c_mg)
+
+    call this%c_crs%free()
+    call this%c_mg%free()
     call this%e%free()
     call this%e_mg%free()
     call this%e_crs%free()
+
     call gs_free(this%gs_crs)
     call gs_free(this%gs_mg)
     call this%interp_mid_crs%free()

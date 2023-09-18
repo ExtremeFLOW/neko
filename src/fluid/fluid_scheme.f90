@@ -270,7 +270,7 @@ contains
 
     call gs_init(this%gs_Xh, this%dm_Xh)
 
-    call coef_init(this%c_Xh, this%gs_Xh)
+    call this%c_Xh%init(this%gs_Xh)
 
     call source_init(this%f_Xh, this%dm_Xh)
     
@@ -593,7 +593,7 @@ contains
 
     call gs_free(this%gs_Xh)
 
-    call coef_free(this%c_Xh)
+    call this%c_Xh%free()
 
     call source_free(this%f_Xh)
 
