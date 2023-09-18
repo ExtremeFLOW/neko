@@ -5,6 +5,7 @@
   use point
   use num_types
   use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
   @TestCase

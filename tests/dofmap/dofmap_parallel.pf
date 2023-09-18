@@ -9,6 +9,7 @@ module dofmap_parallel
   use point
   use datadist
   use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
   
 contains

@@ -10,6 +10,7 @@ module gather_scatter_parallel
   use datadist
   use gather_scatter
   use neko_config
+  use comm, only : NEKO_COMM, pe_rank, pe_size 
   implicit none
   
 contains
