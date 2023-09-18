@@ -109,7 +109,7 @@ common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o devi
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
-bc/dong_outflow.o : bc/dong_outflow.f90 bc/bcknd/device/device_dong_outflow.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o config/neko_config.o 
+bc/dong_outflow.o : bc/dong_outflow.f90 bc/bcknd/device/device_dong_outflow.o common/utils.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o config/neko_config.o 
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_wall.o 
 bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_inflow.o 
 bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/bcknd/device/device_inhom_dirichlet.o device/device.o bc/inflow.o sem/coef.o config/num_types.o 

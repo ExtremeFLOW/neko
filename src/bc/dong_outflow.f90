@@ -40,7 +40,9 @@ module dong_outflow
   use field
   use dofmap
   use coefs
+  use utils
   use device_dong_outflow
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
   implicit none
   private
 
