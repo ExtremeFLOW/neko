@@ -35,6 +35,7 @@ module checkpoint
   use neko_config
   use num_types
   use field_series
+  use space
   use device
   use field
   use space

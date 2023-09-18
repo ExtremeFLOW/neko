@@ -33,17 +33,21 @@
 !> Defines a registry for storing solution fields
 !
 module field_registry
-  use field
+  use field, only : field_t
   use dofmap, only : dofmap_t
   use utils, only : neko_error
   use htable, only : h_cptr_t
+  use utils, only: neko_error
   implicit none
   private
   
   type :: field_registry_t
-     type(field_t), private, allocatable :: fields(:) !< list of fields stored
-     integer, private :: n                            !< number of registered fields
-     integer, private :: expansion_size               !< the size the fields array is increased by upon reallocation
+     !> list of fields stored
+     type(field_t), private, allocatable :: fields(:) 
+     !> number of registered fields
+     integer, private :: n                            
+     !> the size the fields array is increased by upon reallocation
+     integer, private :: expansion_size               
    contains
      procedure, private, pass(this) :: expand
      procedure, pass(this) :: init => field_registry_init
@@ -92,7 +96,7 @@ contains
     integer :: i
     if (allocated(this%fields)) then
        do i=1, this%n_fields()
-          call field_free(this%fields(i))
+          call this%fields(i)%free()
        end do
        deallocate(this%fields)
     end if
@@ -117,7 +121,7 @@ contains
     class(field_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), target, intent(in) :: fld_name 
-    type(h_cptr_t) :: key
+!    type(h_cptr_t) :: key
     integer :: i
 
     if (this%field_exists(fld_name)) then
@@ -132,7 +136,7 @@ contains
     this%n = this%n + 1
 
     ! initialize the field at the appropraite index
-    call field_init(this%fields(this%n), dof, fld_name)
+    call this%fields(this%n)%init( dof, fld_name)
 
     ! generate a key for the name lookup map and assign it to the index
     !    key%ptr = c_loc(fld_name)

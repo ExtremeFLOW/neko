@@ -41,6 +41,7 @@ module coefs
   use mesh, only : mesh_t
   use device_math
   use device_coef
+  use device_math
   use mxm_wrapper
   implicit none
   private

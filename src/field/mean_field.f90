@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ module mean_field
   use num_types
   use field
   use math
+  use device_math
   use field_registry
   implicit none
   private
@@ -74,7 +75,7 @@ contains
        write(name, '(A,A)') 'mean_',trim(f%name)
     end if
 
-    call field_init(this%mf,f%dof, name)
+    call this%mf%init(f%dof, name)
 
   end subroutine mean_field_init
 
@@ -85,7 +86,7 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-    call field_free(this%mf)
+    call this%mf%free()
 
   end subroutine mean_field_free
 

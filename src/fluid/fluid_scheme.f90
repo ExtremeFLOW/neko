@@ -39,7 +39,7 @@ module fluid_scheme
   use mean_flow, only : mean_flow_t
   use num_types
   use source
-  use field
+  use field, only : field_t
   use space
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
@@ -355,7 +355,7 @@ contains
     call json_get_or_default(params, 'case.output_boundary', logical_val,&
                              .false.)
     if (logical_val) then
-       call field_init(this%bdry, this%dm_Xh, 'bdry')
+       call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
@@ -556,7 +556,7 @@ contains
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
 
-    call field_free(this%bdry)
+    call this%bdry%free()
 
     if (allocated(this%bc_inflow)) then
        call this%bc_inflow%free()

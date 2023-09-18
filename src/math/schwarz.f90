@@ -69,6 +69,7 @@ module schwarz
   use gather_scatter
   use fast3d
   use device_schwarz
+  use device_math
   use fdm
   use device_math
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
