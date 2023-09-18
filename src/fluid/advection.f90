@@ -244,7 +244,7 @@ contains
     this%coef_GLL => coef
     call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
 
-    call coef_init(this%coef_GL, this%Xh_GL, coef%msh)
+    call this%coef_GL%init(this%Xh_GL, coef%msh)
 
     nel = coef%msh%nelv
     n_GL = nel*this%Xh_GL%lxyz

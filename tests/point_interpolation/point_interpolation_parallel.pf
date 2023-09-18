@@ -49,7 +49,7 @@ contains
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
   end subroutine point_interpolation_test_gen_coef
 
@@ -87,7 +87,7 @@ contains
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
     call interp%init(coef%Xh) ! initialize the interpolator object
 
@@ -129,7 +129,7 @@ contains
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
     ! Initialize the r,s,t values
     rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
@@ -194,7 +194,7 @@ contains
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
     ! Initialize the r,s,t values
     rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
