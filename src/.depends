@@ -51,6 +51,7 @@ mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/zone.o comm
 mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
+<<<<<<< HEAD
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 
@@ -59,6 +60,16 @@ field/field_series.o : field/field_series.f90 field/field.o config/num_types.o
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o 
 field/mean_field.o : field/mean_field.f90 field/field_registry.o math/math.o field/field.o config/num_types.o math/bcknd/device/device_math.o common/stats_quant.o config/neko_config.o 
 field/mean_sqr_field.o : field/mean_sqr_field.f90 math/math.o math/bcknd/device/device_math.o field/mean_field.o config/neko_config.o config/num_types.o 
+=======
+field/field_registry.o : field/field_registry.f90 common/utils.o sem/dofmap.o field/field.o config/num_types.o 
+field/scratch_registry.o : field/scratch_registry.f90 common/utils.o sem/dofmap.o field/field.o config/num_types.o 
+field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 
+field/field_list.o : field/field_list.f90 field/field.o 
+field/field_series.o : field/field_series.f90 field/field.o config/num_types.o 
+field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o config/num_types.o 
+field/mean_field.o : field/mean_field.f90 field/field_registry.o math/bcknd/device/device_math.o math/math.o field/field.o config/num_types.o common/stats_quant.o 
+field/mean_sqr_field.o : field/mean_sqr_field.f90 math/math.o field/field.o config/num_types.o field/mean_field.o 
+>>>>>>> 8635efe63 (Fix build w. OpenCL)
 io/format/rea.o : io/format/rea.f90 mesh/mesh.o config/num_types.o 
 math/bcknd/cpu/cdtp.o : math/bcknd/cpu/cdtp.f90 config/num_types.o 
 math/bcknd/cpu/conv1.o : math/bcknd/cpu/conv1.f90 config/num_types.o 
@@ -82,20 +93,36 @@ math/fdm.o : math/fdm.f90 device/device.o math/bcknd/device/fdm_device.o math/bc
 math/bcknd/cpu/fdm_cpu.o : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.o config/num_types.o 
 math/bcknd/sx/fdm_sx.o : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.o config/num_types.o 
 math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.o config/num_types.o 
+<<<<<<< HEAD
 math/schwarz.o : math/schwarz.f90 math/bcknd/device/device_math.o math/fdm.o math/bcknd/device/device_schwarz.o math/fast3d.o gs/gather_scatter.o bc/dirichlet.o bc/bc.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o 
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
 common/checkpoint.o : common/checkpoint.f90 common/utils.o sem/space.o field/field.o device/device.o field/field_series.o config/num_types.o config/neko_config.o 
+=======
+math/schwarz.o : math/schwarz.f90 math/fdm.o math/bcknd/device/device_math.o math/bcknd/device/device_schwarz.o math/fast3d.o gs/gather_scatter.o bc/dirichlet.o bc/bc.o sem/dofmap.o sem/space.o math/math.o sem/speclib.o config/num_types.o 
+math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
+math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
+common/checkpoint.o : common/checkpoint.f90 common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
+>>>>>>> 8635efe63 (Fix build w. OpenCL)
 io/generic_file.o : io/generic_file.f90 config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
 io/rea_file.o : io/rea_file.f90 common/log.o adt/htable.o common/datadist.o comm/comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
+<<<<<<< HEAD
 io/fld_file.o : io/fld_file.f90 comm/mpi_types.o common/datadist.o comm/comm.o common/utils.o mesh/mesh.o sem/space.o fluid/mean_sqr_flow.o fluid/mean_flow.o io/fld_file_data.o math/vector.o sem/dofmap.o field/field_list.o field/field.o io/generic_file.o 
 io/fld_file_data.o : io/fld_file_data.f90 math/vector.o math/math.o config/num_types.o 
 io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tri_mesh.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
 io/stl_file.o : io/stl_file.f90 io/format/stl.o comm/comm.o comm/mpi_types.o mesh/point.o common/log.o mesh/tri_mesh.o io/generic_file.o config/num_types.o 
 io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o mesh/element.o io/format/nmsh.o adt/tuple.o mesh/point.o common/utils.o mesh/mesh.o comm/comm.o io/generic_file.o 
 io/chkp_file.o : io/chkp_file.f90 comm/comm.o comm/mpi_types.o sem/interpolation.o mesh/mesh.o sem/space.o common/utils.o field/field.o config/num_types.o common/checkpoint.o field/field_series.o io/generic_file.o 
+=======
+io/fld_file.o : io/fld_file.f90 comm/mpi_types.o comm/comm.o common/utils.o mesh/mesh.o fluid/mean_sqr_flow.o fluid/mean_flow.o io/fld_file_data.o math/vector.o sem/space.o sem/dofmap.o field/field_list.o field/field.o io/generic_file.o 
+io/fld_file_data.o : io/fld_file_data.f90 math/math.o math/vector.o 
+io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tri_mesh.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
+io/stl_file.o : io/stl_file.f90 io/format/stl.o comm/comm.o comm/mpi_types.o mesh/point.o common/log.o mesh/tri_mesh.o io/generic_file.o config/num_types.o 
+io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o io/format/nmsh.o common/utils.o mesh/mesh.o comm/comm.o io/generic_file.o 
+io/chkp_file.o : io/chkp_file.f90 comm/mpi_types.o sem/interpolation.o mesh/mesh.o sem/space.o common/utils.o field/field.o config/num_types.o common/checkpoint.o field/field_series.o io/generic_file.o 
+>>>>>>> 8635efe63 (Fix build w. OpenCL)
 io/csv_file.o : io/csv_file.f90 comm/comm.o common/log.o config/num_types.o common/utils.o io/generic_file.o math/matrix.o math/vector.o 
 io/file.o : io/file.f90 io/csv_file.o io/stl_file.o io/vtk_file.o io/fld_file_data.o io/fld_file.o io/re2_file.o io/rea_file.o io/map_file.o io/chkp_file.o io/nmsh_file.o io/generic_file.o common/utils.o 
 io/output.o : io/output.f90 io/file.o config/num_types.o 
@@ -109,7 +136,11 @@ common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o devi
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
+<<<<<<< HEAD
 bc/dong_outflow.o : bc/dong_outflow.f90 bc/bcknd/device/device_dong_outflow.o common/utils.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o config/neko_config.o 
+=======
+bc/dong_outflow.o : bc/dong_outflow.f90 config/neko_config.o bc/bcknd/device/device_dong_outflow.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o 
+>>>>>>> 8635efe63 (Fix build w. OpenCL)
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_wall.o 
 bc/inflow.o : bc/inflow.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_inflow.o 
 bc/usr_inflow.o : bc/usr_inflow.f90 common/utils.o bc/bcknd/device/device_inhom_dirichlet.o device/device.o bc/inflow.o sem/coef.o config/num_types.o 
@@ -168,11 +199,19 @@ fluid/fluid_stats.o : fluid/fluid_stats.f90 common/stats_quant.o gs/gather_scatt
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/field.o field/mean_sqr_field.o 
 fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o 
 fluid/flow_ic.o : fluid/flow_ic.f90 common/json_utils.o common/user_intf.o math/math.o sem/coef.o common/utils.o field/field.o math/bcknd/device/device_math.o fluid/flow_profile.o config/neko_config.o gs/gather_scatter.o 
+<<<<<<< HEAD
 fluid/advection.o : fluid/advection.f90 device/device.o math/bcknd/device/device_math.o sem/interpolation.o math/operators.o config/neko_config.o sem/coef.o field/field.o sem/space.o common/utils.o math/math.o config/num_types.o 
 fluid/bcknd/cpu/pnpn_res_cpu.o : fluid/bcknd/cpu/pnpn_res_cpu.f90 field/scratch_registry.o fluid/pnpn_res.o bc/facet_normal.o common/source.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
 fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 field/scratch_registry.o fluid/pnpn_res.o bc/facet_normal.o common/source.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
 fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 field/scratch_registry.o fluid/pnpn_res.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o bc/facet_normal.o common/source.o sem/coef.o math/ax.o field/field.o math/operators.o gs/gather_scatter.o 
 simulation.o : simulation.f90 common/json_utils.o simulation_components/simulation_component_global.o math/math.o common/profiler.o common/jobctrl.o common/log.o io/file.o time_schemes/time_scheme_controller.o gs/gather_scatter.o case.o 
+=======
+fluid/advection.o : fluid/advection.f90 sem/interpolation.o math/operators.o config/neko_config.o math/bcknd/device/device_math.o sem/coef.o field/field.o sem/space.o common/utils.o math/math.o config/num_types.o 
+fluid/bcknd/cpu/pnpn_res_cpu.o : fluid/bcknd/cpu/pnpn_res_cpu.f90 field/scratch_registry.o math/operators.o fluid/pnpn_res.o gs/gather_scatter.o 
+fluid/bcknd/sx/pnpn_res_sx.o : fluid/bcknd/sx/pnpn_res_sx.f90 field/scratch_registry.o math/operators.o fluid/pnpn_res.o gs/gather_scatter.o 
+fluid/bcknd/device/pnpn_res_device.o : fluid/bcknd/device/pnpn_res_device.F90 field/scratch_registry.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o math/operators.o gs/gather_scatter.o fluid/pnpn_res.o 
+simulation.o : simulation.f90 common/json_utils.o simulation_components/simulation_component_global.o common/profiler.o common/jobctrl.o common/log.o io/file.o time_schemes/time_scheme_controller.o gs/gather_scatter.o case.o 
+>>>>>>> 8635efe63 (Fix build w. OpenCL)
 math/ax_helm_fctry.o : math/ax_helm_fctry.f90 math/bcknd/cpu/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o math/bcknd/device/ax_helm_device.o math/ax.o config/neko_config.o 
 math/bcknd/cpu/ax_helm.o : math/bcknd/cpu/ax_helm.f90 math/math.o math/ax.o 
 math/bcknd/sx/ax_helm_sx.o : math/bcknd/sx/ax_helm_sx.f90 math/math.o math/ax.o 
