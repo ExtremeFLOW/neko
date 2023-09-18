@@ -77,6 +77,7 @@ module neko
   use device
   use device_math
   use cpr
+  use source
   use fluid_stats
   use field_list  
   use vector
