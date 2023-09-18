@@ -41,7 +41,6 @@ module dong_outflow
   use dofmap
   use coefs
   use device_dong_outflow
-  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
