@@ -75,6 +75,7 @@ module neko
   use signal
   use jobctrl
   use device
+  use device_math
   use cpr
   use fluid_stats
   use field_list  
