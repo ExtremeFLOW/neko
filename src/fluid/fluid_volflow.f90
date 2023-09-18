@@ -118,10 +118,10 @@ contains
     this%flow_rate = rate
 
     if (this%flow_dir .ne. 0) then
-       call field_init(this%u_vol, dm_Xh, 'u_vol')
-       call field_init(this%v_vol, dm_Xh, 'v_vol')
-       call field_init(this%w_vol, dm_Xh, 'w_vol')
-       call field_init(this%p_vol, dm_Xh, 'p_vol')
+       call this%u_vol%init(dm_Xh, 'u_vol')
+       call this%v_vol%init(dm_Xh, 'v_vol')
+       call this%w_vol%init(dm_Xh, 'w_vol')
+       call this%p_vol%init(dm_Xh, 'p_vol')
     end if
 
     this%scratch = scratch_registry_t(dm_Xh, 3, 1)
@@ -131,10 +131,10 @@ contains
   subroutine fluid_vol_flow_free(this)
     class(fluid_volflow_t), intent(inout) :: this
 
-    call field_free(this%u_vol)
-    call field_free(this%v_vol)
-    call field_free(this%w_vol)
-    call field_free(this%p_vol)
+    call this%u_vol%free()
+    call this%v_vol%free()
+    call this%w_vol%free()
+    call this%p_vol%free()
 
     call this%scratch%free()
         
