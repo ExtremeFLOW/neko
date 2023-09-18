@@ -52,6 +52,7 @@ module gather_scatter
   use utils
   use logger
   use profiler
+  use device
   use iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 

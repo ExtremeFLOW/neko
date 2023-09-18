@@ -71,7 +71,7 @@ module schwarz
   use device_schwarz
   use device_math
   use fdm
-  use device_math
+  use device
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private

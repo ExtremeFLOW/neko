@@ -36,8 +36,8 @@ module device_jacobi
   use coefs
   use num_types
   use device_math
+  use device
   use gather_scatter
-  use, intrinsic :: iso_c_binding
   implicit none
   private
 

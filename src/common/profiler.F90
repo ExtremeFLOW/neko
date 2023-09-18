@@ -33,7 +33,7 @@
 !> Profiling interface
 module profiler
   use neko_config
-  use device
+  use device, only : device_profiler_start, device_profiler_stop
   use nvtx
   use roctx
   use craypat

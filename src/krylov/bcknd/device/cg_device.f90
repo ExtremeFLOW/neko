@@ -33,8 +33,8 @@
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
   use krylov
-  use device_math    
-  use, intrinsic :: iso_c_binding
+  use device_math
+  use device
   implicit none
 
   !> Device based preconditioned conjugate gradient method
