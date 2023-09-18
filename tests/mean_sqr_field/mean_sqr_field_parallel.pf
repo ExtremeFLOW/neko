@@ -4,6 +4,12 @@ module mean_sqr_field_parallel
   use point
   use mean_sqr_field
   use num_types
+  use mesh
+  use field
+  use space
+  use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config
   implicit none
 
   @TestCase

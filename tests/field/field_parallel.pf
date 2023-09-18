@@ -5,6 +5,9 @@
   use point
   use num_types
   use device
+  use space
+  use mesh
+  use dofmap
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use neko_config
   implicit none

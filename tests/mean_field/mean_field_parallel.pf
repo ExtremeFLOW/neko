@@ -4,7 +4,12 @@ module mean_field_parallel
   use mean_field
   use num_types
   use point
+  use mesh
+  use field
+  use space
   use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config
   implicit none
 
   @TestCase

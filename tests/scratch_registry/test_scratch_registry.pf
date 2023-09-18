@@ -2,6 +2,10 @@ module test_scratch_registry
   use pfunit
   use field
   use point
+  use space
+  use mesh
+  use dofmap
+  use math
   use scratch_registry
   use num_types
   implicit none

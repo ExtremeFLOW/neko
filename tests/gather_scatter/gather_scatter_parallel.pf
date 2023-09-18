@@ -5,6 +5,8 @@ module gather_scatter_parallel
   use space
   use mesh
   use num_types
+  use field
+  use math
   use hex
   use point
   use datadist
