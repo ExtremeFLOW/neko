@@ -33,7 +33,6 @@
 !> Defines a mesh
 module mesh
   use num_types, only : rp, dp, i8
- ! use mpi_f08
   use point, only : point_t
   use element, only : element_t
   use hex

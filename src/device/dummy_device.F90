@@ -34,14 +34,15 @@
 module dummy_device
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
+  private
 
 #if !defined(HAVE_CUDA) && !defined(HAVE_HIP) && !defined(HAVE_OPENCL)
 
   !> Dummy global command queue
-  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: glb_cmd_queue = C_NULL_PTR
 
   !> Dummy aux command queue
-  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: aux_cmd_queue = C_NULL_PTR
 
 #endif
   
