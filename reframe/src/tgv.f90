@@ -6,11 +6,10 @@
 !
 module user
   use neko
-  use json_module, only : json_file
   implicit none
 
   ! Global user variables
-  type(field_t) :: om1, om2, om3, w1, w2
+  type(field_t) :: w1
 
 contains
 
@@ -87,11 +86,7 @@ contains
     integer tstep
 
     ! initialize work arrays for postprocessing
-    call field_init(om1, u%dof, 'omega1')
-    call field_init(om2, u%dof, 'omega2')
-    call field_init(om3, u%dof, 'omega3')
-    call field_init(w1, u%dof, 'work1')
-    call field_init(w2, u%dof, 'work1')
+    call w1%init(u%dof, 'work1')
 
     ! call usercheck also for tstep=0
     tstep = 0
@@ -109,14 +104,17 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
+    type(field_t), pointer :: omega_x, omega_y, omega_z
     integer :: ntot, i
-    real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo
+    real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo, e3
 
-    if (mod(tstep,50).ne.0) return
+    if (mod(tstep, 50) .ne. 0) return
+
+    omega_x => neko_field_registry%get_field("omega_x")
+    omega_y => neko_field_registry%get_field("omega_y")
+    omega_z => neko_field_registry%get_field("omega_z")
 
     ntot = u%dof%size()
-
-    call curl(om1, om2, om3, u, v, w, w1, w2, coef)
 
 !    Option 1:    
 !    sum_e1 = 0._rp
@@ -151,9 +149,9 @@ contains
        call device_addcol3(w1%x_d, w%x_d, w%x_d, ntot)
        e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
        
-       call device_col3(w1%x_d, om1%x_d, om1%x_d, ntot)
-       call device_addcol3(w1%x_d, om2%x_d, om2%x_d, ntot)
-       call device_addcol3(w1%x_d, om3%x_d, om3%x_d, ntot)
+       call device_col3(w1%x_d, omega_x%x_d, omega_x%x_d, ntot)
+       call device_addcol3(w1%x_d, omega_x%x_d, omega_y%x_d, ntot)
+       call device_addcol3(w1%x_d, omega_z%x_d, omega_z%x_d, ntot)
        e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
     else
        call col3(w1%x, u%x, u%x, ntot)
@@ -161,9 +159,9 @@ contains
        call addcol3(w1%x, w%x, w%x, ntot)
        e1 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
        
-       call col3(w1%x, om1%x, om1%x, ntot)
-       call addcol3(w1%x, om2%x, om2%x, ntot)
-       call addcol3(w1%x, om3%x, om3%x, ntot)
+       call col3(w1%x, omega_x%x, omega_x%x, ntot)
+       call addcol3(w1%x, omega_y%x, omega_y%x, ntot)
+       call addcol3(w1%x, omega_z%x, omega_z%x, ntot)
        e2 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
     end if
       
@@ -179,11 +177,7 @@ contains
     type(json_file), intent(inout) :: params
 
     ! Deallocate the fields
-    call field_free(om1)
-    call field_free(om2)
-    call field_free(om3)
-    call field_free(w1)
-    call field_free(w2)
+    call w1%free()
 
   end subroutine user_finalize
 
