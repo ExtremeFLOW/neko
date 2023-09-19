@@ -34,7 +34,6 @@
 module cg_device
   use krylov
   use device_math
-  use device
   implicit none
 
   !> Device based preconditioned conjugate gradient method

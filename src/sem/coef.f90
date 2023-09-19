@@ -42,7 +42,6 @@ module coefs
   use device_math
   use device_coef
   use device_math
-  use device
   use mxm_wrapper
   implicit none
   private

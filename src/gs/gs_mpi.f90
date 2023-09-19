@@ -39,7 +39,6 @@ module gs_mpi
   use stack, only : stack_i4_t
   use comm
   !$ use omp_lib
-  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
   

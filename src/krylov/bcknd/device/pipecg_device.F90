@@ -36,7 +36,6 @@ module pipecg_device
   use math
   use num_types
   use device_math
-  use device
   implicit none
   private
 
