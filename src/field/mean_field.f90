@@ -35,12 +35,10 @@
 module mean_field
   use neko_config
   use stats_quant
-  use device_math
-  use num_types
-  use field
-  use math
-  use device_math
-  use field_registry
+  use num_types, only : rp
+  use field, only : field_t
+  use math, only : add2s2
+  use device_math, only : device_cmult, device_add2s2
   implicit none
   private
   

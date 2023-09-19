@@ -35,8 +35,8 @@ module cpr
   use gather_scatter
   use neko_config
   use num_types, only : dp
-  use field  
-  use space
+  use field, only : field_t
+  use space, only : space_t
   use math
   use mesh, only : mesh_t
   use coefs, only : coef_t

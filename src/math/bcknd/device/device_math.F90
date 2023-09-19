@@ -34,7 +34,7 @@ module device_math
   use comm
   use utils, only : neko_error
   use num_types, only : rp, c_rp    
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 

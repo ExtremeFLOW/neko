@@ -35,6 +35,7 @@ module gmres_device
   use krylov
   use math
   use device_math
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
