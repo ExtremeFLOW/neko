@@ -38,7 +38,7 @@ module field
   use device
   use math
   use mesh, only : mesh_t
-  use space
+  use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
                                           c_associated

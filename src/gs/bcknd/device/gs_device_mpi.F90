@@ -32,17 +32,15 @@
 !
 !> Defines GPU aware MPI gather-scatter communication
 module gs_device_mpi
-  use neko_config
-  use num_types
-  use gs_comm
+  use num_types, only : rp, c_rp
+  use gs_comm, only : gs_comm_t
   use gs_ops
-  use stack
-  use mpi_f08
-  use comm
-  use htable
+  use stack, only : stack_i4_t
+  use comm, only : pe_size, pe_rank
+  use htable, only : htable_i4_t
   use device
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t
   implicit none
   private
 

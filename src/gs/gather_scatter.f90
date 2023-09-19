@@ -38,23 +38,22 @@ module gather_scatter
   use gs_sx, only : gs_sx_t
   use gs_cpu, only : gs_cpu_t
   use gs_ops
-  use gs_comm
+  use gs_comm, only : gs_comm_t
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
   use mesh, only : mesh_t
-  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use comm!, only : pe_rank, pe_size, NEKO_COMM
   use dofmap, only : dofmap_t
   use field, only : field_t
   use num_types
-  use mpi_f08
-  use htable
-  use stack
+  use htable, only : htable_i8_t, htable_iter_i8_t
+  use stack, only : stack_i4_t
   use utils
   use logger
   use profiler
   use device
-  use iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  
 
   type ::  gs_t
      real(kind=rp), allocatable :: local_gs(:)        !< Buffer for local gs-ops

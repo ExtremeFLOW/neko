@@ -61,23 +61,27 @@
 module hsmg
   use neko_config
   use math
-  use utils
-  use precon
-  use ax_product
-  use ax_helm_fctry  
-  use krylov_fctry
+  use utils, only : neko_error
+  use precon, only : pc_t
+  use ax_product, only : ax_t
+  use ax_helm_fctry, only : ax_helm_factory
   use gather_scatter
   use interpolation
   use bc
-  use dirichlet
-  use schwarz
-  use jacobi
-  use sx_jacobi
-  use device_jacobi
+  use dirichlet, only : dirichlet_t
+  use schwarz, only : schwarz_t
+  use jacobi, only : jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use device_jacobi, only : device_jacobi_t
   use device
   use device_math
   use profiler
-  use krylov
+  use space
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use krylov, only : ksp_t, ksp_monitor_t
+  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   !$ use omp_lib
   implicit none
   private

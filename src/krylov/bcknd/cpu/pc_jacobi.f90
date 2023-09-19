@@ -34,8 +34,8 @@
 module jacobi
   use math
   use precon
-  use coefs
-  use num_types
+  use coefs, only : coef_t
+  use num_types, only : rp
   use gather_scatter
   implicit none
   private

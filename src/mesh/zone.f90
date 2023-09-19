@@ -34,7 +34,7 @@
 module zone
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use stack, only : stack_i4t2_t, stack_i4t4_t
-  use utils
+  use utils, only : neko_error
   implicit none
   private
   

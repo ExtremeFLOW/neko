@@ -38,19 +38,19 @@ module neko
   use logger
   use math
   use speclib
-  use dofmap
+  use dofmap, only : dofmap_t
   use space
   use htable
   use uset
   use stack
   use tuple
-  use mesh
+  use mesh, only : mesh_t
   use point
-  use mesh_field
+  use mesh_field, only : mesh_fld_t
   use map
   use mxm_wrapper
   use file
-  use field
+  use field, only : field_t
   use mpi_types
   use gather_scatter
   use coefs
@@ -79,7 +79,7 @@ module neko
   use cpr
   use source
   use fluid_stats
-  use field_list  
+  use field_list, only : field_list_t
   use vector
   use simulation_component
   use probes

@@ -36,11 +36,8 @@ module space
   use num_types, only : rp
   use speclib
   use device
-  use fast3d
-  use math
+  use fast3d, only : setup_intp
   use utils, only : neko_error    
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
-                                          c_associated
   implicit none
   private
   
@@ -440,7 +437,9 @@ contains
        dx(i) = 0.5*(x(i+1) - x(i-1))
     enddo
     dx(lx) = x(lx) - x(lx-1)
-    call invcol1(dx, lx)
+    do i = 1, lx
+       dx(i) = 1.0_rp / dx(i)
+    end do
   end subroutine space_compute_dist
 
 end module space
