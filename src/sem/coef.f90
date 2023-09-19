@@ -40,6 +40,7 @@ module coefs
   use mesh
   use device
   use device_coef
+  use device_math
   use mxm_wrapper
   use, intrinsic :: iso_c_binding
   implicit none

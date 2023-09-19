@@ -1,6 +1,9 @@
 module test_scratch_registry
   use pfunit
   use field
+  use mesh
+  use space
+  use dofmap
   use point
   use scratch_registry
   use num_types

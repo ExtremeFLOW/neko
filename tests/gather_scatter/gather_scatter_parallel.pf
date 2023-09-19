@@ -75,7 +75,7 @@ contains
 
     d = dofmap_t(m, Xh)
     call gs_init(gs_h, d)
-    call field_init(x,m, Xh, "x")   
+    call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
@@ -164,7 +164,7 @@ contains
 
     d = dofmap_t(m, Xh)
     call gs_init(gs_h, d)
-    call field_init(x,m, Xh, "x")   
+    call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
@@ -252,7 +252,7 @@ contains
     call m%generate_conn()
     d = dofmap_t(m, Xh)
     call gs_init(gs_h, d)
-    call field_init(x,m, Xh, "x")   
+    call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
@@ -340,7 +340,7 @@ contains
     call m%generate_conn()
     d = dofmap_t(m, Xh)
     call gs_init(gs_h, d)
-    call field_init(x,m, Xh, "x")   
+    call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
@@ -428,7 +428,7 @@ contains
     call m%generate_conn()
     d = dofmap_t(m, Xh)
     call gs_init(gs_h, d)
-    call field_init(x,m, Xh, "x")   
+    call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)    
     call add2(x%x,real(d%dof,rp), n/2)
@@ -516,7 +516,7 @@ contains
     call m%generate_conn()
     d = dofmap_t(m, Xh)
     call gs_init(gs_h, d)
-    call field_init(x,m, Xh, "x")   
+    call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)
@@ -604,7 +604,7 @@ contains
     call m%generate_conn()
     d = dofmap_t(m, Xh)
     call gs_init(gs_h, d)
-    call field_init(x,m, Xh, "x")   
+    call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
     call add2(x%x,real(d%dof,rp), n/2)

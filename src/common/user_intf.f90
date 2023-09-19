@@ -36,6 +36,7 @@ module user_intf
   use source
   use source_scalar
   use coefs
+  use mesh
   use usr_inflow
   use usr_scalar
   use num_types

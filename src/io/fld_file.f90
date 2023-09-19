@@ -37,6 +37,7 @@ module fld_file
   use field
   use field_list
   use dofmap
+  use space
   use vector
   use fld_file_data
   use mean_flow

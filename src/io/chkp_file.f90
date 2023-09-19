@@ -39,6 +39,7 @@ module chkp_file
   use num_types
   use field
   use utils
+  use space
   use mesh
   use interpolation
   use mpi_types

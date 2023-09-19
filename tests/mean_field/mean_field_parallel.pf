@@ -2,6 +2,9 @@ module mean_field_parallel
   use mpi
   use pfunit
   use mean_field
+  use field
+  use mesh
+  use space
   use num_types
   use point
   use device
@@ -83,7 +86,7 @@ contains
     call test_mean_field_gen_msh(msh)
     call space_init(Xh, GLL, lx, lx, lx)
     
-    call field_init(f, msh, Xh, 'test')
+    call f%init(msh, Xh, 'test')
     
     call mf%init(f)
     @assertTrue(associated(mf%f))
@@ -107,7 +110,7 @@ contains
 
     call test_mean_field_gen_msh(msh)
     call space_init(Xh, GLL, lx, lx, lx)    
-    call field_init(f, msh, Xh, 'test')
+    call f%init(msh, Xh, 'test')
 
     f = 42.0_rp
     call mf%init(f)
