@@ -30,21 +30,17 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Compression
+!> spectral_error_indicator
 module spectral_error_indicator
   use num_types, only: rp
   use logger, only: neko_log, LOG_SIZE
-  use field, only: field_t, field_init, field_free
+  use field, only: field_t
   use coefs, only: coef_t
-  use field_list
-  use math
-  use file
-  use tensor
-  use mxm_wrapper
-  use speclib
-  use device
-  use device_math
-  use utils
+  use field_list, only: field_list_t
+  use math, only: rzero
+  use file, only: file_t, file_free
+  use tensor, only: tnsr3d
+  use device_math, only: device_copy
   use gather_scatter
   use neko_config
   use, intrinsic :: iso_c_binding
@@ -52,11 +48,11 @@ module spectral_error_indicator
   private
 
   !> include information needed for compressing fields
-  type, public :: spec_err_ind_t
+  type, public :: spectral_error_indicator_t
      !> Pointers to main fields 
-     type(field_t), pointer :: u_  => null()
-     type(field_t), pointer :: v_  => null()
-     type(field_t), pointer :: w_  => null()
+     type(field_t), pointer :: u  => null()
+     type(field_t), pointer :: v  => null()
+     type(field_t), pointer :: w  => null()
      !> Transformed fields
      type(field_t) :: u_hat
      type(field_t) :: v_hat
@@ -64,27 +60,27 @@ module spectral_error_indicator
      !> Working field - Consider making this a simple array
      type(field_t) :: wk
      !> Configuration of spectral error calculation
-     real(kind=rp) :: SERI_SMALL
-     !!> used for ratios
-     real(kind=rp) :: SERI_SMALLR
-     !!> used for gradients
-     real(kind=rp) :: SERI_SMALLG
-     !!> used for sigma and rtmp in error calculations
-     real(kind=rp) :: SERI_SMALLS
-     !!> number of points in fitting
-     integer :: SERI_NP
-     integer :: SERI_NP_MAX
-     !!> last modes skipped
-     integer :: SERI_ELR
-     !!> spectral error indicator per element
+     real(kind=rp) :: SERI_SMALL = 1.e-14
+     !> used for ratios
+     real(kind=rp) :: SERI_SMALLR = 1.e-10
+     !> used for gradients
+     real(kind=rp) :: SERI_SMALLG = 1.e-5
+     !> used for sigma and rtmp in error calculations
+     real(kind=rp) :: SERI_SMALLS = 0.2
+     !> number of points in fitting
+     integer :: SERI_NP = 4
+     integer :: SERI_NP_MAX = 4
+     !> last modes skipped
+     integer :: SERI_ELR = 0
+     !> spectral error indicator per element
      real(kind=rp), allocatable :: eind_u(:), eind_v(:), eind_w(:)
-     !!> fit coeficients per element
+     !> fit coeficients per element
      real(kind=rp), allocatable :: sig_u(:), sig_v(:), sig_w(:)
-     !!> List to write the spectral error indicator as a field
+     !> List to write the spectral error indicator as a field
      type(field_list_t) :: speri_l
-     !!> File to write
+     !> File to write
      type(file_t) :: mf_speri
-     !!> Device pointers
+     !> Device pointers
 
      contains
        !> Initialize object.
@@ -96,34 +92,34 @@ module spectral_error_indicator
        !> Calculate the indicator
        procedure, pass(this) :: write_as_field => spec_err_ind_write
 
-  end type spec_err_ind_t
+  end type spectral_error_indicator_t
 
 contains
 
   !> Initialize the object
-  !! @param u_ u velocity field
-  !! @param v_ v velocity field
-  !! @param w_ w velocity field
+  !! @param u u velocity field
+  !! @param v v velocity field
+  !! @param w w velocity field
   !! @param coef type with all geometrical variables
-  subroutine spec_err_ind_init(this, u_,v_,w_,coef)
-    class(spec_err_ind_t), intent(inout) :: this
-    type(field_t), intent(in), target :: u_
-    type(field_t), intent(in), target :: v_
-    type(field_t), intent(in), target :: w_
+  subroutine spec_err_ind_init(this, u,v,w,coef)
+    class(spectral_error_indicator_t), intent(inout) :: this
+    type(field_t), intent(in), target :: u
+    type(field_t), intent(in), target :: v
+    type(field_t), intent(in), target :: w
     type(coef_t), intent(in) :: coef
     integer :: il, jl, aa
     character(len=NEKO_FNAME_LEN) :: fname_speri
 
     !> Assign the pointers
-    this%u_ => u_
-    this%v_ => v_
-    this%w_ => w_
+    this%u => u
+    this%v => v
+    this%w => w
     !> Initialize fields and copy data from proper one
-    this%u_hat = u_
-    this%v_hat = v_
-    this%w_hat = w_
-    this%wk = u_
-    !!> Allocate arrays (Consider moving some to coef)
+    this%u_hat = u
+    this%v_hat = v
+    this%w_hat = w
+    this%wk = u
+    !> Allocate arrays (Consider moving some to coef)
     allocate(this%eind_u(coef%msh%nelv))
     allocate(this%eind_v(coef%msh%nelv))
     allocate(this%eind_w(coef%msh%nelv))
@@ -132,20 +128,6 @@ contains
     allocate(this%sig_w(coef%msh%nelv))
 
     !> The following code has been lifted from Adams implementation
-    ! set cutoff parameters
-    ! used for values
-    this%SERI_SMALL = 1.e-14
-    ! used for ratios
-    this%SERI_SMALLR = 1.e-10
-    ! used for gradients
-    this%SERI_SMALLG = 1.e-5
-    ! used for sigma and rtmp in error calculations
-    this%SERI_SMALLS = 0.2
-    ! number of points in fitting
-    this%SERI_NP = 4
-    this%SERI_NP_MAX = 4
-    ! last modes skipped
-    this%SERI_ELR = 0
 
     associate(LX1 => coef%Xh%lx, LY1 => coef%Xh%ly, &
       LZ1 => coef%Xh%lz, &
@@ -181,7 +163,7 @@ contains
 
   !> Detructor
   subroutine spec_err_ind_free(this)
-    class(spec_err_ind_t), intent(inout) :: this
+    class(spectral_error_indicator_t), intent(inout) :: this
 
     if(allocated(this%eind_u)) then
        deallocate(this%eind_u)
@@ -207,14 +189,15 @@ contains
        deallocate(this%sig_w)
     end if
 
-    call field_free(this%u_hat)
-    call field_free(this%v_hat)
-    call field_free(this%w_hat)
-    call field_free(this%wk)
+    call this%u_hat%free()
+    call this%v_hat%free()
+    call this%w_hat%free()
+    call this%wk%free()
 
-    nullify(this%u_)
-    nullify(this%v_)
-    nullify(this%w_)
+
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
    
     !> finalize data related to writing 
     call list_final3(this%speri_l)
@@ -233,10 +216,9 @@ contains
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: wk
     type(coef_t), intent(inout) :: coef
-                
+    character(len=4), intent(in) :: space             
     integer :: i, j, k, e, nxyz, nelv, n
     character(len=LOG_SIZE) :: log_buf 
-    character(len=4) :: space 
 
     ! Define some constants
     nxyz = coef%Xh%lx*coef%Xh%lx*coef%Xh%lx
@@ -267,22 +249,23 @@ contains
        (NEKO_BCKND_OPENCL .eq. 1)) then 
 
        call device_memcpy(u_hat%x,u_hat%x_d, n, &
-                          DEVICE_TO_HOST)
+                          DEVICE_TO_HOST, sync=.true.)
     end if
 
   end subroutine transform_to_spec_or_phys
 
-  !> Trnasform and get the indicators
+  !> Transform and get the indicators
   subroutine spec_err_ind_get(this,coef)
-    class(spec_err_ind_t), intent(inout) :: this
+    class(spectral_error_indicator_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
-    
+    integer :: i
+
     ! Generate the uvwhat field (legendre coeff)
-    call transform_to_spec_or_phys(this%u_hat, this%u_, this%wk, coef, 'spec')
-    call transform_to_spec_or_phys(this%v_hat, this%v_, this%wk, coef, 'spec')
-    call transform_to_spec_or_phys(this%w_hat, this%w_, this%wk, coef, 'spec')
+    call transform_to_spec_or_phys(this%u_hat, this%u, this%wk, coef, 'spec')
+    call transform_to_spec_or_phys(this%v_hat, this%v, this%wk, coef, 'spec')
+    call transform_to_spec_or_phys(this%w_hat, this%w, this%wk, coef, 'spec')
+   
     
-  
     ! Get the spectral error indicator
     call calculate_indicators(this, coef, this%eind_u, this%sig_u, coef%msh%nelv, &
                               coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
@@ -299,7 +282,7 @@ contains
   !> Initialize user defined variables.
   !! @param t Current simulation time.
   subroutine spec_err_ind_write(this, t)
-    class(spec_err_ind_t), intent(inout) :: this
+    class(spectral_error_indicator_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     
     integer i, e
@@ -309,7 +292,7 @@ contains
     ly = this%u_hat%Xh%ly
     lz = this%u_hat%Xh%lz
     nelv = this%u_hat%msh%nelv
-
+    
     !> Copy the element indicator into all points of the field
     do e = 1,nelv
        do i = 1,lx*ly*lx
@@ -328,7 +311,7 @@ contains
 
   !> Wrapper for old fortran 77 subroutines
   subroutine calculate_indicators(this, coef, eind, sig, lnelt, LX1, LY1, LZ1, var)
-    type(spec_err_ind_t), intent(inout) :: this
+    type(spectral_error_indicator_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer :: lnelt
     integer :: LX1
@@ -352,7 +335,7 @@ contains
   end subroutine calculate_indicators 
 
   subroutine speri_var(this, est,sig,var,nell,xa,xb,LX1,LY1,LZ1)
-    type(spec_err_ind_t), intent(inout) :: this
+    type(spectral_error_indicator_t), intent(inout) :: this
     integer :: nell
     integer :: LX1
     integer :: LY1
@@ -470,7 +453,7 @@ contains
   subroutine speri_extrap(this,estx,sigx,coef11,coef, &
                 ix_st,ix_en,nyl,nzl)
     implicit none
-    type(spec_err_ind_t), intent(inout) :: this
+    type(spectral_error_indicator_t), intent(inout) :: this
     ! argument list
     integer :: ix_st,ix_en,nyl,nzl
     ! Legendre coefficients; last SERI_NP columns
