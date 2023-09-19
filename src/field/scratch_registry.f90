@@ -36,31 +36,47 @@
 !! it on each call.
 module scratch_registry
   use num_types
-  use field
+  use field, only : field_t, field_ptr_t
+  use dofmap, only : dofmap_t
   use utils
   implicit none
   private
   
   
   type, public :: scratch_registry_t
-     type(field_ptr_t), private, allocatable :: fields(:)      !< list of scratch fields 
-     logical, private, allocatable :: inuse(:)                 !< Tracks which fields are used
-     integer, private :: nfields                      !< number of registered fields
-     integer, private :: nfields_inuse                !< number of fields in use
-     integer, private :: expansion_size               !< the size the fields array is increased by upon reallocation
-     type(dofmap_t), pointer :: dof                   !< Dofmap
+     !> list of scratch fields 
+     type(field_ptr_t), private, allocatable :: fields(:) 
+     !> Tracks which fields are used
+     logical, private, allocatable :: inuse(:) 
+     !> number of registered fields
+     integer, private :: nfields                      
+     !> number of fields in use
+     integer, private :: nfields_inuse                
+     !> the size the fields array is increased by upon reallocation
+     integer, private :: expansion_size               
+     !> Dofmap
+     type(dofmap_t), pointer :: dof                   
    contains
      procedure, private, pass(this) :: expand
-     procedure, pass(this) :: free => scratch_registry_free !< destructor
-     procedure, pass(this) :: get_nfields                   !< getter for nfields  
-     procedure, pass(this) :: get_nfields_inuse             !< getter for nfields_inuse 
-     procedure, pass(this) :: get_expansion_size            !< getter for expansion_size
-     procedure, pass(this) :: get_size                      !< return size of allocated fields
-     procedure, pass(this) :: get_inuse                     !< get value of inuse for a given index
-     procedure, pass(this) :: request_field                 !< get a new scratch field
+     !> destructor
+     procedure, pass(this) :: free => scratch_registry_free 
+     !> getter for nfields  
+     procedure, pass(this) :: get_nfields 
+     !> getter for nfields_inuse 
+     procedure, pass(this) :: get_nfields_inuse 
+     !> getter for expansion_size
+     procedure, pass(this) :: get_expansion_size 
+     !> return size of allocated fields
+     procedure, pass(this) :: get_size 
+     !> get value of inuse for a given index
+     procedure, pass(this) :: get_inuse 
+     !> get a new scratch field
+     procedure, pass(this) :: request_field 
      procedure, pass(this) :: relinquish_field_single
      procedure, pass(this) :: relinquish_field_multiple
-     generic :: relinquish_field => relinquish_field_single, relinquish_field_multiple  !< free a field for later reuse
+     !> free a field for later reuse
+     generic :: relinquish_field => relinquish_field_single, &
+          relinquish_field_multiple 
   end type scratch_registry_t
 
   interface scratch_registry_t
@@ -71,8 +87,9 @@ module scratch_registry
   type(scratch_registry_t), public, target :: neko_scratch_registry
 
 contains
+  
   !> Constructor, optionally taking initial registry and expansion
-  !> size as argument
+  !! size as argument
   type(scratch_registry_t) function init(dof, size, expansion_size) result(this)
     type(dofmap_t), target, intent(in) :: dof
     integer, optional, intent(in) :: size
@@ -110,7 +127,7 @@ contains
 
     if (allocated(this%fields)) then
        do i=1, this%nfields
-          call field_free(this%fields(i)%f)
+          call this%fields(i)%f%free()
           deallocate(this%fields(i)%f)
        end do
     
@@ -188,30 +205,30 @@ contains
 
     
     associate(nfields => this%nfields, nfields_inuse => this%nfields_inuse) 
-    
-    do index=1,this%get_size()
-       if (this%inuse(index) .eqv. .false.) then
-         write (name, "(A3,I0.3)") "wrk", index
-         
-         if (.not. allocated(this%fields(index)%f%x)) then
-           call field_init(this%fields(index)%f, this%dof, trim(name))
-           nfields = nfields + 1
+
+      do index=1,this%get_size()
+         if (this%inuse(index) .eqv. .false.) then
+            write (name, "(A3,I0.3)") "wrk", index
+            
+            if (.not. allocated(this%fields(index)%f%x)) then
+               call this%fields(index)%f%init(this%dof, trim(name))
+               nfields = nfields + 1
+            end if
+            f => this%fields(index)%f
+            this%inuse(index) = .true.
+            this%nfields_inuse = this%nfields_inuse + 1
+            return
          end if
-         f => this%fields(index)%f
-         this%inuse(index) = .true.
-         this%nfields_inuse = this%nfields_inuse + 1
-         return
-       end if
-    end do
-    ! all existing fields in use, we need to expand to add a new one
-    index = nfields +1
-    call this%expand()
-    nfields = nfields + 1
-    nfields_inuse = nfields_inuse + 1
-    this%inuse(nfields) = .true.
-    write (name, "(A3,I0.3)") "wrk", index
-    call field_init(this%fields(nfields)%f, this%dof, trim(name))
-    f => this%fields(nfields)%f
+      end do
+      ! all existing fields in use, we need to expand to add a new one
+      index = nfields +1
+      call this%expand()
+      nfields = nfields + 1
+      nfields_inuse = nfields_inuse + 1
+      this%inuse(nfields) = .true.
+      write (name, "(A3,I0.3)") "wrk", index
+      call this%fields(nfields)%f%init(this%dof, trim(name))
+      f => this%fields(nfields)%f
 
     end associate
   end subroutine request_field

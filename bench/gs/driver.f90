@@ -34,7 +34,7 @@ program gsbench
 
   nmsh_file = file_t(fname)
   call nmsh_file%read(msh)
-  call mesh_generate_conn(msh)
+  call msh%generate_conn()
 
   call space_init(Xh, GLL, lx, lx, lx)
 
@@ -83,7 +83,7 @@ program gsbench
 
   deallocate(u)
   call space_free(Xh)
-  call mesh_free(msh)
+  call msh%free()
 
   call neko_finalize
 

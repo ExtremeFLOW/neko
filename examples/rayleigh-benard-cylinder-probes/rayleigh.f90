@@ -139,7 +139,7 @@ contains
 
     !> Probe set up
     !! Read probe info and initialize the controller, arrays, etc.
-    call pb%init(t, params)
+    call pb%init(t, params, coef%Xh)
     !! Perform the set up of gslib_findpts
     call pb%setup(coef)
     !! Find the probes in the mesh. Map from xyz -> rst
@@ -217,7 +217,7 @@ contains
     call pb%interpolate(t,tstep, write_output)
     !! Write if the interpolate function returs write_output=.true.
     if (write_output) then
-       call transpose(mat_out%x, pb%n_probes, pb%out_fields, pb%n_fields)
+       mat_out%x = pb%out_fields
        call fout%write(mat_out, t)
        write_output = .false.
     end if

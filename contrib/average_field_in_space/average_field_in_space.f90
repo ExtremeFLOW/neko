@@ -86,7 +86,7 @@ program average_field_in_space
 
   dof = dofmap_t(msh, Xh)
   call gs_init(gs_h, dof)
-  call coef_init(coef, gs_h)
+  call coef%init(gs_h)
 
   call neko_field_registry%add_field(dof, 'u')
   u => neko_field_registry%get_field('u')

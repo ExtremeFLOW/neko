@@ -9,6 +9,7 @@ module point_interpolation_parallel
   use gather_scatter
   use space
   use point
+  use datadist
   use neko_config
   implicit none
 
@@ -49,7 +50,7 @@ contains
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
   end subroutine point_interpolation_test_gen_coef
 
@@ -80,18 +81,17 @@ contains
 
     call create_points(p)
 
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
 
-    call mesh_generate_conn(msh)
+    call msh%generate_conn()
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
-    call interp%init(coef) ! initialize the interpolator object
+    call interp%init(coef%Xh) ! initialize the interpolator object
 
-    @assertTrue(associated(interp%coef))
     @assertTrue(associated(interp%Xh))
 
     call device_finalize
@@ -124,13 +124,13 @@ contains
     dist = linear_dist_t(1, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
     call create_points(p)
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-    call mesh_generate_conn(msh)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
     ! Initialize the r,s,t values
     rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
@@ -143,7 +143,7 @@ contains
     xyz_equal(3)%x = (/1.0_rp, 1.0_rp, 1.0_rp/)
     xyz_equal(4)%x = (/ 2.0_rp,  2.0_rp,  2.0_rp/)
 
-    call interp%init(coef) ! initialize the interpolator object
+    call interp%init(coef%Xh) ! initialize the interpolator object
     
     ! We use the interpolation for a vector field, interpolating the coordinates
     ! themselves
@@ -189,20 +189,20 @@ contains
     dist = linear_dist_t(1, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
     call create_points(p)
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-    call mesh_generate_conn(msh)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call coef%init(gs)
 
     ! Initialize the r,s,t values
     rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
 
     xyz_equal(1)%x = (/2.0_rp,  1.5_rp , 1.25_rp/)
 
-    call interp%init(coef) ! initialize the interpolator object
+    call interp%init(coef%Xh) ! initialize the interpolator object
     
     ! We use the interpolation for a vector field, interpolating the coordinates
     ! themselves

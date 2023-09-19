@@ -36,6 +36,7 @@ module simulation
   use gather_scatter
   use time_scheme_controller
   use file
+  use math
   use logger
   use jobctrl
   use profiler
