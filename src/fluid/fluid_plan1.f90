@@ -34,14 +34,14 @@ contains
     !> Setup pressure field and related space \f$ Yh \f$
     lx2 = lx - 2        
     if (msh%gdim .eq. 2) then
-       call space_init(this%Yh, GLL, lx2, lx2)
+       call this%Yh%init(GLL, lx2, lx2)
     else
-       call space_init(this%Yh, GLL, lx2, lx2, lx2)
+       call this%Yh%init(GLL, lx2, lx2, lx2)
     end if
 
     this%dm_Yh = dofmap_t(msh, this%Yh)
         
-    call field_init(this%p, this%dm_Yh)
+    call this%p%init(this%dm_Yh)
 
     call gs_init(this%gs_Yh, this%dm_Yh)
 

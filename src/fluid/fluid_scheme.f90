@@ -257,9 +257,9 @@ contains
    end if
 
     if (msh%gdim .eq. 2) then
-       call space_init(this%Xh, GLL, lx, lx)
+       call this%Xh%init(GLL, lx, lx)
     else
-       call space_init(this%Xh, GLL, lx, lx, lx)
+       call this%Xh%init(GLL, lx, lx, lx)
     end if
 
     this%dm_Xh = dofmap_t(msh, this%Xh)
@@ -565,7 +565,7 @@ contains
     call this%bc_wall%free()
     call this%bc_sym%free()
 
-    call space_free(this%Xh)    
+    call this%Xh%free()
 
     if (allocated(this%ksp_vel)) then
        call krylov_solver_destroy(this%ksp_vel)

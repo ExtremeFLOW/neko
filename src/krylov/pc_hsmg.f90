@@ -168,13 +168,13 @@ contains
     call this%e%init(dof, 'work array')
     call this%wf%init(dof, 'work 2')
     
-    call space_init(this%Xh_crs, GLL, lx_crs, lx_crs, lx_crs)
+    call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
     this%dm_crs = dofmap_t(msh, this%Xh_crs) 
     call gs_init(this%gs_crs, this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
     call this%c_crs%init(this%gs_crs)
     
-    call space_init(this%Xh_mg, GLL, lx_mid, lx_mid, lx_mid)
+    call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
     this%dm_mg = dofmap_t(msh, this%Xh_mg) 
     call gs_init(this%gs_mg, this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')

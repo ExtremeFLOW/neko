@@ -108,6 +108,9 @@ module space
      type(c_ptr) :: wz_d = C_NULL_PTR
      type(c_ptr) :: zg_d = C_NULL_PTR
      type(c_ptr) :: w3_d = C_NULL_PTR
+   contains
+     procedure, pass(s) :: init => space_init
+     procedure, pass(s) :: free => space_free
 
   end type space_t
 
@@ -119,13 +122,13 @@ module space
      module procedure space_ne
   end interface operator(.ne.)
 
-  public :: space_init, space_free, operator(.eq.), operator(.ne.)
+  public :: operator(.eq.), operator(.ne.)
   
 contains
 
   !> Initialize a function space @a s with given polynomial dimensions
   subroutine space_init(s, t, lx, ly, lz)
-    type(space_t), intent(inout) :: s
+    class(space_t), intent(inout) :: s
     integer, intent(in) :: t            !< Quadrature type
     integer, intent(in) :: lx           !< Polynomial dimension in x-direction
     integer, intent(in) :: ly           !< Polynomial dimension in y-direction
@@ -274,7 +277,7 @@ contains
    
   !> Deallocate a space @a s
   subroutine space_free(s)
-    type(space_t), intent(inout) :: s
+    class(space_t), intent(inout) :: s
 
     if (allocated(s%zg)) then
        deallocate(s%zg)

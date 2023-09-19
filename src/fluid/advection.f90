@@ -244,7 +244,7 @@ contains
     type(coef_t), intent(inout), target :: coef
     integer :: nel, n_GL, n
 
-    call space_init(this%Xh_GL, GL, lxd, lxd, lxd)
+    call this%Xh_GL%init(GL, lxd, lxd, lxd)
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
     call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)

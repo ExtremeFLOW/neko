@@ -784,10 +784,10 @@ contains
     w = 0d0
     if (msh%gdim .eq. 3) then
        n_edges = 12
-       call space_init(Xh3, GLL, 3, 3, 3)
+       call Xh3%init(GLL, 3, 3, 3)
     else
        n_edges = 4
-       call space_init(Xh3, GLL, 3, 3)
+       call Xh3%init(GLL, 3, 3)
     end if
     call dofmap_xyzlin(Xh3, msh, element, x3, y3, z3)
 
@@ -834,7 +834,7 @@ contains
        call copy(y, tmp, Xh%lx*Xh%ly*Xh%lz)
     end if
 
-    call space_free(Xh3)
+    call Xh3%free()
   end subroutine dofmap_xyzquad
 
  !> Extend faces into interior via gordon hall
