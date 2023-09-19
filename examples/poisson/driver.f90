@@ -46,9 +46,9 @@ program poisson
   dm = dofmap_t(msh, Xh)
   call gs_init(gs_h, dm)
 
-  call coef_init(coef, gs_h)
+  call coef%init(gs_h)
   
-  call field_init(x, dm, "x")
+  call x%init(dm, "x")
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
@@ -86,7 +86,7 @@ program poisson
   call dir_bc%free()
   call bc_list_free(bclst)
   call space_free(Xh)
-  call field_free(x)
+  call x%free()
   call msh%free() 
   call neko_finalize
 
