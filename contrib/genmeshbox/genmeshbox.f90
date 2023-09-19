@@ -68,7 +68,7 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
   end if
 
   nel = nelx*nely*nelz
-  call mesh_init(msh, gdim, nel)
+  call msh%init(gdim, nel)
   call htable_pts%init( nel, gdim)
 
   el_len_x = (x1 - x0)/nelx
@@ -89,8 +89,8 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
                  end do
               end do
            end do
-           call mesh_add_element(msh, i, p(1,1,1), p(2,1,1),p(1,2,1),p(2,2,1),&
-                            p(1,1,2), p(2,1,2),p(1,2,2),p(2,2,2))
+           call msh%add_element(i, p(1,1,1), p(2,1,1),p(1,2,1),p(2,2,1),&
+                p(1,1,2), p(2,1,2),p(1,2,2),p(2,2,2))
            i = i + 1
         end do
      end do
@@ -110,10 +110,10 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
            end if 
            if (period_x) then
               call msh%elements(e_id)%e%facet_order(facet_ord,zone_id)
-              call mesh_mark_periodic_facet(msh, zone_id, el_idx, &
+              call msh%mark_periodic_facet(zone_id, el_idx, &
               1+mod(zone_id,2), p_el_idx, facet_ord%x)
            else
-              call mesh_mark_labeled_facet(msh, zone_id, el_idx,zone_id)
+              call msh%mark_labeled_facet(zone_id, el_idx,zone_id)
            end if 
         end do
      end do
@@ -133,10 +133,10 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
            end if 
            if (period_y) then
               call msh%elements(e_id)%e%facet_order(facet_ord,3)
-              call mesh_mark_periodic_facet(msh, zone_id, el_idx, &
+              call msh%mark_periodic_facet(zone_id, el_idx, &
               3+mod(zone_id,2), p_el_idx, facet_ord%x)
            else
-              call mesh_mark_labeled_facet(msh, zone_id, el_idx,zone_id)
+              call msh%mark_labeled_facet(zone_id, el_idx,zone_id)
            end if 
         end do
      end do
@@ -156,10 +156,10 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
            end if 
            if (period_z) then
               call msh%elements(e_id)%e%facet_order(facet_ord,5)
-              call mesh_mark_periodic_facet(msh, zone_id, el_idx, &
+              call msh%mark_periodic_facet(zone_id, el_idx, &
               5+mod(zone_id,2), p_el_idx, facet_ord%x)
            else
-              call mesh_mark_labeled_facet(msh, zone_id, el_idx,zone_id)
+              call msh%mark_labeled_facet(zone_id, el_idx,zone_id)
            end if 
         end do
      end do
@@ -178,7 +178,7 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
                  p_el_idx = 1+e_y*nelx+e_z*nely*nelx
                  el_idx = 1+(nelx-1)+e_y*nelx+e_z*nely*nelx
               end if 
-                 call mesh_create_periodic_ids(msh, zone_id, el_idx, &
+                 call msh%create_periodic_ids(zone_id, el_idx, &
                  1+mod(zone_id,2), p_el_idx)
            end do
         end do
@@ -198,7 +198,7 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
                  el_idx = 1+e_x+(nely-1)*nelx+e_z*nely*nelx
                  p_el_idx = 1+e_x+e_z*nely*nelx
               end if 
-              call mesh_create_periodic_ids(msh, zone_id, el_idx, &
+              call msh%create_periodic_ids(zone_id, el_idx, &
               3+mod(zone_id,2), p_el_idx)
            end do
         end do
@@ -217,21 +217,21 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
                  p_el_idx = 1+e_x+e_y*nelx
                  el_idx = 1+e_x+e_y*nelx+(nelz-1)*nely*nelx
               end if 
-              call mesh_create_periodic_ids(msh, zone_id, el_idx, &
+              call msh%create_periodic_ids(zone_id, el_idx, &
               5+mod(zone_id,2), p_el_idx)
            end do
         end do
      end do
   end if
 
-  call mesh_finalize(msh) 
+  call msh%finalize() 
   
   
   nmsh_file = file_t(fname)
   
   call nmsh_file%write(msh)
   
-  call mesh_free(msh)
+  call msh%free()
   
   call neko_finalize
 

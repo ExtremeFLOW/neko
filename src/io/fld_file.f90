@@ -45,6 +45,7 @@ module fld_file
   use mesh
   use utils
   use comm
+  use datadist
   use mpi_types
   use mpi_f08    
   implicit none

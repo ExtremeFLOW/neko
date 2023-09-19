@@ -154,8 +154,7 @@ contains
     j = 0
     do i = 1, msh%nelv
        write(unit, fmt='(I8,8I8)') msh%npts, &
-            (mesh_get_local_point(msh, &
-                                  msh%elements(i)%e%pts(vcyc_to_sym(j))%p) - 1, &
+            (msh%get_local(msh%elements(i)%e%pts(vcyc_to_sym(j))%p) - 1, &
             j=1, msh%npts)
     end do
 
@@ -211,7 +210,7 @@ contains
     
     do i = 1, fld%msh%nelv
        do j = 1, fld%msh%npts
-          id(j) = mesh_get_local(fld%msh, fld%msh%elements(i)%e%pts(j)%p)
+          id(j) = fld%msh%get_local(fld%msh%elements(i)%e%pts(j)%p)
        end do
 
        point_data(id(1)) = real(fld%x(1,1,1,i),dp)
@@ -320,7 +319,7 @@ contains
     j = 0
     do i = 1, tet_msh%nelv
        write(unit, fmt='(I8,8I8)') npts, &
-            (mesh_get_local_point(tet_msh%msh, tet_msh%el(i)%pts(j)%p) - 1, &
+            (tet_msh%msh%get_local(tet_msh%el(i)%pts(j)%p) - 1, &
             j=1, npts)
     end do
 

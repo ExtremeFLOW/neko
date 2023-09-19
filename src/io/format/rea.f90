@@ -25,7 +25,7 @@ contains
   subroutine rea_free(r)
     type(rea_t), intent(inout) :: r
 
-    call mesh_free(r%msh)
+    call r%msh%free()
     
     if (allocated(r%params)) then
        deallocate(r%params)

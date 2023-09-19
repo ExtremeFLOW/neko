@@ -417,84 +417,48 @@ contains
     logical, intent(in) :: sync_device
     type(c_ptr), intent(inout) :: stream
 #ifdef HAVE_HIP
-    if (sync_device) then
-       if (dir .eq. HOST_TO_DEVICE) then
-          if (hipMemcpy(x_d, ptr_h, s, hipMemcpyHostToDevice) &
-               .ne. hipSuccess) then
-             call neko_error('Device memcpy (host-to-device) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_HOST) then       
-          if (hipMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToHost) &
-               .ne. hipSuccess) then
-             call neko_error('Device memcpy (device-to-host) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_DEVICE) then       
-          if (hipMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToDevice) &
-               .ne. hipSuccess) then
-             call neko_error('Device memcpy (device-to-device) failed')
-          end if
-       else
-          call neko_error('Device memcpy failed (invalid direction')
+    if (dir .eq. HOST_TO_DEVICE) then
+       if (hipMemcpyAsync(x_d, ptr_h, s, &
+            hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
+          call neko_error('Device memcpy async (host-to-device) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_HOST) then       
+       if (hipMemcpyAsync(ptr_h, x_d, s, &
+            hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
+          call neko_error('Device memcpy async (device-to-host) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_DEVICE) then       
+       if (hipMemcpyAsync(ptr_h, x_d, s, &
+            hipMemcpyDeviceToDevice, stream) .ne. hipSuccess) then
+          call neko_error('Device memcpy async (device-to-device) failed')
        end if
     else
-       if (dir .eq. HOST_TO_DEVICE) then
-          if (hipMemcpyAsync(x_d, ptr_h, s, &
-               hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
-             call neko_error('Device memcpy async (host-to-device) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_HOST) then       
-          if (hipMemcpyAsync(ptr_h, x_d, s, &
-               hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
-             call neko_error('Device memcpy async (device-to-host) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_DEVICE) then       
-          if (hipMemcpyAsync(ptr_h, x_d, s, &
-               hipMemcpyDeviceToDevice, stream) .ne. hipSuccess) then
-             call neko_error('Device memcpy async (device-to-device) failed')
-          end if
-       else
-          call neko_error('Device memcpy failed (invalid direction')
-       end if
+       call neko_error('Device memcpy failed (invalid direction')
+    end if
+    if (sync_device) then
+       call device_sync_stream(stream)
     end if
 #elif HAVE_CUDA
-    if (sync_device) then
-       if (dir .eq. HOST_TO_DEVICE) then
-          if (cudaMemcpy(x_d, ptr_h, s, cudaMemcpyHostToDevice) &
-               .ne. cudaSuccess) then
-             call neko_error('Device memcpy (host-to-device) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_HOST) then       
-          if (cudaMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToHost) &
-               .ne. cudaSuccess) then
-             call neko_error('Device memcpy (device-to-host) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_DEVICE) then       
-          if (cudaMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToDevice) &
-               .ne. cudaSuccess) then
-             call neko_error('Device memcpy (device-to-device) failed')
-          end if
-       else
-          call neko_error('Device memcpy failed (invalid direction')
+    if (dir .eq. HOST_TO_DEVICE) then
+       if (cudaMemcpyAsync(x_d, ptr_h, s, &
+            cudaMemcpyHostToDevice, stream) .ne. cudaSuccess) then
+          call neko_error('Device memcpy async (host-to-device) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_HOST) then       
+       if (cudaMemcpyAsync(ptr_h, x_d, s, &
+            cudaMemcpyDeviceToHost, stream) .ne. cudaSuccess) then
+          call neko_error('Device memcpy async (device-to-host) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_DEVICE) then       
+       if (cudaMemcpyAsync(ptr_h, x_d, s, &
+            cudaMemcpyDeviceToDevice, stream) .ne. cudaSuccess) then
+          call neko_error('Device memcpy async (device-to-device) failed')
        end if
     else
-       if (dir .eq. HOST_TO_DEVICE) then
-          if (cudaMemcpyAsync(x_d, ptr_h, s, &
-               cudaMemcpyHostToDevice, stream) .ne. cudaSuccess) then
-             call neko_error('Device memcpy async (host-to-device) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_HOST) then       
-          if (cudaMemcpyAsync(ptr_h, x_d, s, &
-               cudaMemcpyDeviceToHost, stream) .ne. cudaSuccess) then
-             call neko_error('Device memcpy async (device-to-host) failed')
-          end if
-       else if (dir .eq. DEVICE_TO_DEVICE) then       
-          if (cudaMemcpyAsync(ptr_h, x_d, s, &
-               cudaMemcpyDeviceToDevice, stream) .ne. cudaSuccess) then
-             call neko_error('Device memcpy async (device-to-device) failed')
-          end if
-       else
-          call neko_error('Device memcpy failed (invalid direction')
-       end if
+       call neko_error('Device memcpy failed (invalid direction')
+    end if
+    if (sync_device) then
+       call device_sync_stream(stream)
     end if
 #elif HAVE_OPENCL
     if (sync_device) then
