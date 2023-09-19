@@ -41,14 +41,14 @@ program poisson
   nmsh_file = file_t(fname)
   call nmsh_file%read(msh)  
 
-  call space_init(Xh, GLL, lx, lx, lx)
+  call Xh%init(GLL, lx, lx, lx)
 
   dm = dofmap_t(msh, Xh)
-  call gs_init(gs_h, dm)
+  call gs_h%init(dm)
 
-  call coef_init(coef, gs_h)
+  call coef%init(gs_h)
   
-  call field_init(x, dm, "x")
+  call x%init(dm, "x")
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
@@ -85,8 +85,8 @@ program poisson
   call solver%free()
   call dir_bc%free()
   call bc_list_free(bclst)
-  call space_free(Xh)
-  call field_free(x)
+  call Xh%free()
+  call x%free()
   call msh%free() 
   call neko_finalize
 
