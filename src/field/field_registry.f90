@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2022, The Neko Authors
+! Copyright (c) 2018-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,17 +33,21 @@
 !> Defines a registry for storing solution fields
 !
 module field_registry
-  use num_types
   use field, only : field_t
   use dofmap, only : dofmap_t
-  use utils
+  use utils, only : neko_error
+  use htable, only : h_cptr_t
+  use utils, only: neko_error
   implicit none
   private
   
   type :: field_registry_t
-     type(field_t), private, allocatable :: fields(:) !< list of fields stored
-     integer, private :: n                            !< number of registered fields
-     integer, private :: expansion_size               !< the size the fields array is increased by upon reallocation
+     !> list of fields stored
+     type(field_t), private, allocatable :: fields(:) 
+     !> number of registered fields
+     integer, private :: n                            
+     !> the size the fields array is increased by upon reallocation
+     integer, private :: expansion_size               
    contains
      procedure, private, pass(this) :: expand
      procedure, pass(this) :: init => field_registry_init

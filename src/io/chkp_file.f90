@@ -43,7 +43,7 @@ module chkp_file
   use mesh
   use interpolation
   use mpi_types
-  use mpi_f08
+  use comm
   implicit none
   private
 
@@ -315,9 +315,9 @@ contains
     nel = msh%nelv
     this%sim_Xh => u%Xh
     if (gdim .eq. 3) then
-       call space_init(this%chkp_Xh, GLL, lx, lx, lx)
+       call this%chkp_Xh%init(GLL, lx, lx, lx)
     else
-       call space_init(this%chkp_Xh, GLL, lx, lx)
+       call this%chkp_Xh%init(GLL, lx, lx)
     end if
     call this%interp%init(this%sim_Xh, this%chkp_Xh) 
     dof_offset = int(msh%offset_el, i8) * int(this%chkp_Xh%lxyz, i8)

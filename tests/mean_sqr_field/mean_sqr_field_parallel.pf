@@ -7,6 +7,12 @@ module mean_sqr_field_parallel
   use mesh
   use space
   use num_types
+  use mesh
+  use field
+  use space
+  use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config
   implicit none
 
   @TestCase
@@ -84,7 +90,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_sqr_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
     call f%init(msh, Xh, 'test')
     
@@ -109,7 +115,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_sqr_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)    
+    call Xh%init(GLL, lx, lx, lx)    
     call f%init(msh, Xh, 'test')
 
     f = 42.0_rp

@@ -32,6 +32,7 @@
 !
 !> Defines a dong outflow condition
 module dong_outflow
+  use neko_config
   use dirichlet
   use device
   use num_types
@@ -39,9 +40,9 @@ module dong_outflow
   use field
   use dofmap
   use coefs
+  use utils
   use device_dong_outflow
-  use neko_config
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
   implicit none
   private
 

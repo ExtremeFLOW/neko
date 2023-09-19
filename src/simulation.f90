@@ -40,6 +40,7 @@ module simulation
   use logger
   use jobctrl
   use profiler
+  use math, only : col2
   use simulation_component_global, only : neko_simcomps
   use json_module, only : json_file_t => json_file
   use json_utils, only : json_get_or_default
@@ -220,21 +221,21 @@ contains
     end if
 
     call C%fluid%chkp%sync_device()
-    call gs_op(C%fluid%gs_Xh,C%fluid%u,GS_OP_ADD)
-    call gs_op(C%fluid%gs_Xh,C%fluid%v,GS_OP_ADD)
-    call gs_op(C%fluid%gs_Xh,C%fluid%w,GS_OP_ADD)
-    call gs_op(C%fluid%gs_Xh,C%fluid%p,GS_OP_ADD)
+    call C%fluid%gs_Xh%op(C%fluid%u,GS_OP_ADD)
+    call C%fluid%gs_Xh%op(C%fluid%v,GS_OP_ADD)
+    call C%fluid%gs_Xh%op(C%fluid%w,GS_OP_ADD)
+    call C%fluid%gs_Xh%op(C%fluid%p,GS_OP_ADD)
     select type (fld => C%fluid)
     type is(fluid_pnpn_t)
     do i = 1, fld%ulag%size()
-       call gs_op(fld%gs_Xh,fld%ulag%lf(i),GS_OP_ADD)
-       call gs_op(fld%gs_Xh,fld%vlag%lf(i),GS_OP_ADD)
-       call gs_op(fld%gs_Xh,fld%wlag%lf(i),GS_OP_ADD)
+       call fld%gs_Xh%op(fld%ulag%lf(i),GS_OP_ADD)
+       call fld%gs_Xh%op(fld%vlag%lf(i),GS_OP_ADD)
+       call fld%gs_Xh%op(fld%wlag%lf(i),GS_OP_ADD)
     end do
     end select
  
     if (allocated(C%scalar)) then
-       call gs_op(C%scalar%gs_Xh,C%scalar%s,GS_OP_ADD)
+       call C%scalar%gs_Xh%op(C%scalar%s,GS_OP_ADD)
     end if
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')

@@ -34,19 +34,19 @@
 !! @details A mapping defined based on a function space and a mesh
 module dofmap
   use neko_config
-  use mesh
+  use mesh, only : mesh_t
   use space
-  use tuple
-  use num_types
-  use utils
+  use tuple, only : tuple_i4_t, tuple4_i4_t
+  use num_types, only : i4, i8, rp
+  use utils, only : neko_error, neko_warning
   use fast3d
   use tensor
   use device
   use math
-  use element
-  use quad
-  use hex
-  use, intrinsic :: iso_c_binding
+  use element, only : element_t
+  use quad, only : quad_t
+  use hex, only : hex_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR    
   implicit none
   private
 
@@ -784,10 +784,10 @@ contains
     w = 0d0
     if (msh%gdim .eq. 3) then
        n_edges = 12
-       call space_init(Xh3, GLL, 3, 3, 3)
+       call Xh3%init(GLL, 3, 3, 3)
     else
        n_edges = 4
-       call space_init(Xh3, GLL, 3, 3)
+       call Xh3%init(GLL, 3, 3)
     end if
     call dofmap_xyzlin(Xh3, msh, element, x3, y3, z3)
 
@@ -834,7 +834,7 @@ contains
        call copy(y, tmp, Xh%lx*Xh%ly*Xh%lz)
     end if
 
-    call space_free(Xh3)
+    call Xh3%free()
   end subroutine dofmap_xyzquad
 
  !> Extend faces into interior via gordon hall

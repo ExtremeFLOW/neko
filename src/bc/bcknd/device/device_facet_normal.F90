@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_facet_normal
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_int, c_ptr
   implicit none
+  private
 
 #ifdef HAVE_HIP
   interface
@@ -70,6 +70,8 @@ module device_facet_normal
      end subroutine opencl_facet_normal_apply_surfvec
   end interface
 #endif
+
+  public :: device_facet_normal_apply_surfvec
   
 contains
 

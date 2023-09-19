@@ -41,9 +41,14 @@ module fluid_stats
   use math
   use operators
   use coefs
+  use field
   use field_registry
   use field_list
   use gather_scatter
+  use stats_quant
+  use device
+  use neko_config
+  use utils
   implicit none
   private
 

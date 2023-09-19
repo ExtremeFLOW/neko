@@ -33,15 +33,18 @@
 !> Operators
 module operators
   use neko_config
-  use num_types  
+  use num_types, only : rp
   use opr_cpu
   use opr_sx
   use opr_xsmm
   use opr_device
-  use space  
-  use coefs
-  use field
+  use space, only : space_t
+  use coefs, only : coef_t
+  use field, only: field_t
   use math
+  use comm
+  use device
+  use device_math    
   implicit none
   private
 

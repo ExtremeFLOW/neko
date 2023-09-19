@@ -50,7 +50,7 @@ subroutine set_f(f, c, dm, n, gs_h)
      dz = dm%z(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
      f(i) = 500d0*exp(-(dx**arg + dy**arg + dz**arg)/arg)
   end do
-  call gs_op(gs_h, f, n, GS_OP_ADD)
+  call gs_h%op(f, n, GS_OP_ADD)
   call col2(f,c,n)
 end subroutine set_f
 

@@ -36,10 +36,10 @@ program gsbench
   call nmsh_file%read(msh)
   call msh%generate_conn()
 
-  call space_init(Xh, GLL, lx, lx, lx)
+  call Xh%init(GLL, lx, lx, lx)
 
   dm = dofmap_t(msh, Xh)
-  call gs_init(gs_h, dm)
+  call gs_h%init(dm)
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
@@ -50,7 +50,7 @@ program gsbench
 
   ! warmup
   do i = 1, niter
-    call gs_op(gs_h, u, n, GS_OP_ADD)
+    call gs_h%op(u, n, GS_OP_ADD)
     call device_sync()
   end do
 
@@ -60,7 +60,7 @@ program gsbench
 
   do i = 1, niter
      t(i) = MPI_Wtime()
-     call gs_op(gs_h, u, n, GS_OP_ADD)
+     call gs_h%op(u, n, GS_OP_ADD)
      call device_sync()
      t(i) = MPI_Wtime() - t(i)
   end do
@@ -82,7 +82,7 @@ program gsbench
   stop
 
   deallocate(u)
-  call space_free(Xh)
+  call Xh%free()
   call msh%free()
 
   call neko_finalize

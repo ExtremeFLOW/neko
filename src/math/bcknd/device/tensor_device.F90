@@ -31,10 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module tensor_device
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
+  private
+
+  public :: tnsr3d_device, tnsr3d_el_list_device
+  
 #ifdef HAVE_HIP
    interface
      subroutine hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
