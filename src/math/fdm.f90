@@ -74,6 +74,7 @@ module fdm
   use fdm_cpu
   use fdm_device
   use device
+  use utils
   use comm, only : pe_rank
   use, intrinsic :: iso_c_binding
   implicit none

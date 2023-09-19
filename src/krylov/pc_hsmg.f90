@@ -377,7 +377,7 @@ contains
        !Restrict to middle level
        call this%interp_fine_mid%map(this%e%x, this%r, &
                                      this%msh%nelv, this%grids(2)%Xh)
-       call op(this%grids(2)%gs_h, this%e%x, &
+       call this%grids(2)%gs_h%op(this%e%x, &
                   this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_copy(this%r_d, r_d, n)
