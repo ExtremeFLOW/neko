@@ -103,7 +103,7 @@ program postprocess_fluid_stats
   call Xh%init(GLL, mean_data%lx, mean_data%ly, mean_data%lz)
 
   dof = dofmap_t(msh, Xh)
-  call gs_init(gs_h, dof)
+  call gs_h%init(dof)
   call coef%init(gs_h)
 
   call neko_field_registry%add_field(dof, 'u')
