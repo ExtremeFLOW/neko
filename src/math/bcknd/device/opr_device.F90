@@ -32,7 +32,7 @@
 !
 !> Operators accelerator backends
 module opr_device  
-  use gather_scatter, only : gs_op, GS_OP_ADD
+  use gather_scatter
   use num_types, only : rp, c_rp
   use device_math
   use device_mathops
@@ -43,7 +43,7 @@ module opr_device
   use field, only : field_t
   use utils, only : neko_error
   use comm
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use, intrinsic :: iso_c_binding
   implicit none
   private
   

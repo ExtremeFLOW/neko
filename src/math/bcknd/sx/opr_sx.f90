@@ -5,7 +5,7 @@ module opr_sx
   use sx_conv1
   use sx_cdtp
   use sx_cfl
-  use gather_scatter, only : gs_op, GS_OP_ADD
+  use gather_scatter
   use num_types, only : rp
   use space, only : space_t
   use coefs, only : coef_t
@@ -425,10 +425,10 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
-    call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD) 
-    call opcolv  (w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w3, GS_OP_ADD) 
+    call opcolv(w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
 
   end subroutine opr_sx_curl
 

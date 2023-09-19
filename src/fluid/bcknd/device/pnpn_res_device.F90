@@ -268,9 +268,9 @@ contains
 #endif
      c_Xh%ifh2 = .false.
          
-    call gs_op(gs_Xh, ta1, GS_OP_ADD) 
-    call gs_op(gs_Xh, ta2, GS_OP_ADD) 
-    call gs_op(gs_Xh, ta3, GS_OP_ADD) 
+    call gs_Xh%op(ta1, GS_OP_ADD) 
+    call gs_Xh%op(ta2, GS_OP_ADD) 
+    call gs_Xh%op(ta3, GS_OP_ADD) 
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
 

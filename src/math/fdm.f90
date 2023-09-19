@@ -63,6 +63,7 @@ module fdm
   use num_types
   use speclib
   use math
+  use mesh
   use space
   use dofmap
   use gather_scatter
@@ -73,6 +74,7 @@ module fdm
   use fdm_cpu
   use fdm_device
   use device
+  use comm, only : pe_rank
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -191,10 +193,10 @@ contains
          end do
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(), HOST_TO_DEVICE)
-            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
+            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), DEVICE_TO_HOST)
          else
-            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
+            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
 
          do e = 1,nelv
@@ -217,10 +219,10 @@ contains
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_memcpy(l, this%swplen_d, this%dof%size(),HOST_TO_DEVICE)
-            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
+            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(),DEVICE_TO_HOST)
          else
-            call gs_op(this%gs_h, l, this%dof%size(), GS_OP_ADD)
+            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
 
          do e = 1,nelv

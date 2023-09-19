@@ -34,7 +34,7 @@
 module cpr
   use gather_scatter
   use neko_config
-  use num_types, only : dp
+  use num_types
   use field, only : field_t
   use space, only : space_t
   use math
@@ -42,6 +42,8 @@ module cpr
   use coefs, only : coef_t
   use tensor
   use mxm_wrapper
+  use logger
+  use dofmap, only : dofmap_t
   implicit none
   private
 

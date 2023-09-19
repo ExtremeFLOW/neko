@@ -34,6 +34,7 @@
 module cacg
   use krylov
   use math
+  use comm
   use mxm_wrapper
   implicit none
   private
@@ -164,7 +165,7 @@ contains
          do i = 2, 2*s + 1
             if (mod(i,2) .eq. 0) then
                call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
-               call gs_op_vector(gs_h, PR(1,i), n, GS_OP_ADD)
+               call gs_h%gs_op_vector(PR(1,i), n, GS_OP_ADD)
                call bc_list_apply_scalar(blst, PR(1,i), n)
             else
                call this%M%solve(PR(1,i), PR(1,i-1), n)
@@ -176,7 +177,7 @@ contains
                call this%M%solve(PR(1,i+1), PR(1,i), n)
             else
                call Ax%compute(PR(1,i+1), PR(1,i), coef, x%msh, x%Xh)
-               call gs_op_vector(gs_h, PR(1,i+1), n, GS_OP_ADD)
+               call gs_h%gs_op_vector(PR(1,i+1), n, GS_OP_ADD)
                call bc_list_apply_scalar(blst, PR(1,1+i), n)
             end if
          end do

@@ -35,6 +35,7 @@ module sx_jacobi
   use math
   use precon
   use coefs
+  use dofmap
   use num_types
   use gather_scatter
   implicit none
@@ -147,7 +148,7 @@ contains
 
       call col2(this%d, coef%h1, coef%dof%size())
       if (coef%ifh2) call addcol3(this%d, coef%h2, coef%B, coef%dof%size())
-      call gs_op(gs_h, this%d, dof%size(), GS_OP_ADD)
+      call gs_h%op(this%d, dof%size(), GS_OP_ADD)
       if (.not. coef%ifh2) call col2(this%d, coef%mult, coef%dof%size())
       call invcol1(this%d, dof%size())
     end associate

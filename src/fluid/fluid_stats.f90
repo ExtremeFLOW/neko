@@ -46,6 +46,9 @@ module fluid_stats
   use field_list
   use gather_scatter
   use stats_quant
+  use device
+  use neko_config
+  use utils
   implicit none
   private
 

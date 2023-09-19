@@ -268,7 +268,7 @@ contains
 
     this%msh => msh
 
-    call gs_init(this%gs_Xh, this%dm_Xh)
+    call this%gs_Xh%init(this%dm_Xh)
 
     call this%c_Xh%init(this%gs_Xh)
 
@@ -591,7 +591,7 @@ contains
        deallocate(this%bc_labels)
     end if
 
-    call gs_free(this%gs_Xh)
+    call this%gs_Xh%free()
 
     call this%c_Xh%free()
 

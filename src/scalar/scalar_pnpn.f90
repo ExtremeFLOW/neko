@@ -282,7 +282,7 @@ contains
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
-      call gs_op(gs_Xh, s_res, GS_OP_ADD) 
+      call gs_Xh%op(s_res, GS_OP_ADD) 
 
       call bc_list_apply_scalar(this%bclst_ds,&
            s_res%x, dm_Xh%size())

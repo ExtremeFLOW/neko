@@ -34,6 +34,7 @@
 module pipecg
   use krylov
   use math
+  use comm
   implicit none
   private
 
@@ -173,7 +174,7 @@ contains
       call copy(r, f, n)
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
-      call gs_op(gs_h, w, n, GS_OP_ADD)
+      call gs_h%op(w, n, GS_OP_ADD)
       call bc_list_apply(blst, w, n)
       
       rtr = glsc3(r, coef%mult, r, n)
@@ -202,7 +203,7 @@ contains
          
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
-         call gs_op(gs_h, ni, n, GS_OP_ADD)
+         call gs_h%op(ni, n, GS_OP_ADD)
          call bc_list_apply(blst, ni, n)
          
          call MPI_Wait(request, status, ierr)
