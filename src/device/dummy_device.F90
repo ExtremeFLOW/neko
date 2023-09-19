@@ -32,7 +32,7 @@
 !
 !> Dummy device interface
 module dummy_device
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 

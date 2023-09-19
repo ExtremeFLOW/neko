@@ -40,8 +40,7 @@ module device
   use utils, only : neko_error
   use dummy_device  
   use opencl_prgm_lib
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, c_loc, &
-                                          C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding
   implicit none
 !  private
 
