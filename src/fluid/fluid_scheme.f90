@@ -429,9 +429,9 @@ contains
     allocate(this%f_x)
     allocate(this%f_y)
     allocate(this%f_z)
-    call field_init(this%f_x, this%dm_Xh, fld_name="fluid_rhs_x")
-    call field_init(this%f_y, this%dm_Xh, fld_name="fluid_rhs_y")
-    call field_init(this%f_z, this%dm_Xh, fld_name="fluid_rhs_z")
+    call this%f_x%init(this%dm_Xh, fld_name="fluid_rhs_x")
+    call this%f_y%init(this%dm_Xh, fld_name="fluid_rhs_y")
+    call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh)
@@ -632,15 +632,15 @@ contains
     nullify(this%p)
 
     if (associated(this%f_x)) then
-      call field_free(this%f_x)
+      call this%f_x%free()
     end if
 
     if (associated(this%f_y)) then
-      call field_free(this%f_y)
+      call this%f_y%free()
     end if
 
     if (associated(this%f_z)) then
-      call field_free(this%f_z)
+      call this%f_z%free()
     end if
 
     nullify(this%f_x)
