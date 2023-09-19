@@ -100,7 +100,7 @@ program postprocess_fluid_stats
      msh%elements(i)%e%pts(8)%p%x(3) = mean_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
   end do
 
-  call space_init(Xh, GLL, mean_data%lx, mean_data%ly, mean_data%lz)
+  call Xh%init(GLL, mean_data%lx, mean_data%ly, mean_data%lz)
 
   dof = dofmap_t(msh, Xh)
   call gs_init(gs_h, dof)

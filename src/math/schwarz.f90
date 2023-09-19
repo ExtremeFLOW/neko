@@ -109,7 +109,7 @@ contains
 
     call this%free()
     
-    call space_init(this%Xh_schwarz, GLL, Xh%lx+2, Xh%lx+2, Xh%lx+2)
+    call this%Xh_schwarz%init(GLL, Xh%lx+2, Xh%lx+2, Xh%lx+2)
     this%dm_schwarz = dofmap_t(msh, this%Xh_schwarz) 
     call gs_init(this%gs_schwarz, this%dm_schwarz)
 
@@ -148,7 +148,7 @@ contains
     if(allocated(this%work2)) deallocate(this%work2)
     if(allocated(this%wt)) deallocate(this%wt)
     
-    call space_free(this%Xh_schwarz)
+    call this%Xh_schwarz%free()
     call gs_free(this%gs_schwarz)
     !why cant I do this?
     !call dofmap_free(this%dm_schwarz)

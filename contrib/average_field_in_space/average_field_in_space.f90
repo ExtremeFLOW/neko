@@ -82,7 +82,7 @@ program average_field_in_space
      msh%elements(i)%e%pts(8)%p%x(3) = field_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
   end do
 
-  call space_init(Xh, GLL, field_data%lx, field_data%ly, field_data%lz)
+  call Xh%init(GLL, field_data%lx, field_data%ly, field_data%lz)
 
   dof = dofmap_t(msh, Xh)
   call gs_init(gs_h, dof)

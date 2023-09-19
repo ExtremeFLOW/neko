@@ -89,7 +89,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
     call f_msh_Xh%init(msh, Xh, 'test')
     @assertTrue(allocated(f_msh_Xh%x))
@@ -122,7 +122,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
     call f%init(msh, Xh, 'test')
     call f%free()
@@ -143,7 +143,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
     call f%init(msh, Xh, 'test')
     @assertEqual(maxval(f%x), 0d0)
@@ -169,7 +169,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
     call f%init(msh, Xh, 'test')
     call g%init(msh, Xh, 'test')
@@ -200,7 +200,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
     call f%init(msh, Xh, 'test')
 
@@ -227,7 +227,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
     call f%init(msh, Xh, 'test')
     call g%init(msh, Xh, 'test')
