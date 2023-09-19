@@ -1,6 +1,6 @@
 !> Interface to NVTX
 module nvtx
-  use iso_c_binding, only : c_char, C_NULL_CHAR
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
