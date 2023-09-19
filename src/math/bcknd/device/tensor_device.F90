@@ -36,6 +36,14 @@ module tensor_device
   use, intrinsic :: iso_c_binding
   implicit none
 #ifdef HAVE_HIP
+   interface
+     subroutine hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
+          bind(c, name='hip_tnsr3d_el_list')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
+       integer(c_int) :: nu, nv, n_points
+     end subroutine hip_tnsr3d_el_list
+  end interface
   interface
      subroutine hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
           bind(c, name='hip_tnsr3d')
@@ -46,6 +54,14 @@ module tensor_device
   end interface
 #elif HAVE_CUDA
   interface
+     subroutine cuda_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
+          bind(c, name='cuda_tnsr3d_el_list')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
+       integer(c_int) :: nu, nv, n_points
+     end subroutine cuda_tnsr3d_el_list
+  end interface
+  interface
      subroutine cuda_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
           bind(c, name='cuda_tnsr3d')
        use, intrinsic :: iso_c_binding
@@ -53,6 +69,7 @@ module tensor_device
        integer(c_int) :: nu, nv, nelv
      end subroutine cuda_tnsr3d
   end interface
+
 #elif HAVE_OPENCL
   interface
      subroutine opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
@@ -78,5 +95,21 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine tnsr3d_device
+
+  subroutine tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
+    type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, elements
+    integer(c_int) :: nu, nv, n_points
+#ifdef HAVE_HIP
+    call hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
+#elif HAVE_CUDA
+    call cuda_tnsr3d_el_list( v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
+#elif HAVE_OPENCL
+    call neko_error("No OpenCL backend for tnsr3d_el_list")
+!!$    call opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, n_points)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine tnsr3d_el_list_device
+
 
 end module tensor_device
