@@ -9,6 +9,7 @@ module point_interpolation_parallel
   use gather_scatter
   use space
   use point
+  use datadist
   use neko_config
   implicit none
 
@@ -80,10 +81,10 @@ contains
 
     call create_points(p)
 
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
 
-    call mesh_generate_conn(msh)
+    call msh%generate_conn()
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
@@ -123,9 +124,9 @@ contains
     dist = linear_dist_t(1, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
     call create_points(p)
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-    call mesh_generate_conn(msh)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)
@@ -188,9 +189,9 @@ contains
     dist = linear_dist_t(1, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
     call create_points(p)
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-    call mesh_generate_conn(msh)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
     call space_init(Xh, GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
     call gs_init(gs, dof)

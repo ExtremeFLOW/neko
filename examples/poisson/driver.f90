@@ -87,7 +87,7 @@ program poisson
   call bc_list_free(bclst)
   call space_free(Xh)
   call field_free(x)
-  call mesh_free(msh) 
+  call msh%free() 
   call neko_finalize
 
 end program poisson
