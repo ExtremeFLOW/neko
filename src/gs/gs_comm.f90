@@ -35,7 +35,7 @@ module gs_comm
   use num_types, only : rp
   use comm, only : pe_size
   use stack, only : stack_i4_t
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding 
   implicit none  
 
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2
