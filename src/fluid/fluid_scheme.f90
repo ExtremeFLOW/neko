@@ -40,8 +40,8 @@ module fluid_scheme
   use num_types
   use fluid_user_source_term, only: fluid_user_source_term_t
   use fluid_source_term, only: fluid_source_term_t
-  use field, only : field_t, field_free, field_init
   use field_list, only : field_list_t
+  use field, only : field_t
   use space
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
@@ -281,7 +281,7 @@ contains
 
     call gs_init(this%gs_Xh, this%dm_Xh)
 
-    call coef_init(this%c_Xh, this%gs_Xh)
+    call this%c_Xh%init(this%gs_Xh)
 
     
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
@@ -365,7 +365,7 @@ contains
     call json_get_or_default(params, 'case.output_boundary', logical_val,&
                              .false.)
     if (logical_val) then
-       call field_init(this%bdry, this%dm_Xh, 'bdry')
+       call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
@@ -579,7 +579,7 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     integer :: i
 
-    call field_free(this%bdry)
+    call this%bdry%free()
 
     if (allocated(this%bc_inflow)) then
        call this%bc_inflow%free()
@@ -618,7 +618,7 @@ contains
 
     call gs_free(this%gs_Xh)
 
-    call coef_free(this%c_Xh)
+    call this%c_Xh%free()
 
     call bc_list_free(this%bclst_vel)
     

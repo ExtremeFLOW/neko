@@ -45,7 +45,7 @@ contains
 
     call gs_init(this%gs_Yh, this%dm_Yh)
 
-    call coef_init(this%c_Yh, this%gs_Yh)
+    call this%c_Yh%init(this%gs_Yh)
     
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), &
          param%ksp_prs, param%abstol_prs)
@@ -66,7 +66,7 @@ contains
 
     call gs_free(this%gs_Yh)
 
-    call coef_free(this%c_Yh)
+    call this%c_Yh%free()
     
   end subroutine fluid_plan1_free
 

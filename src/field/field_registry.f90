@@ -34,7 +34,8 @@
 !
 module field_registry
   use num_types
-  use field
+  use field, only : field_t
+  use dofmap, only : dofmap_t
   use utils
   implicit none
   private
@@ -91,7 +92,7 @@ contains
     integer :: i
     if (allocated(this%fields)) then
        do i=1, this%n_fields()
-          call field_free(this%fields(i))
+          call this%fields(i)%free()
        end do
        deallocate(this%fields)
     end if
@@ -116,7 +117,7 @@ contains
     class(field_registry_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
     character(len=*), target, intent(in) :: fld_name 
-    type(h_cptr_t) :: key
+!    type(h_cptr_t) :: key
     integer :: i
 
     if (this%field_exists(fld_name)) then
@@ -131,7 +132,7 @@ contains
     this%n = this%n + 1
 
     ! initialize the field at the appropraite index
-    call field_init(this%fields(this%n), dof, fld_name)
+    call this%fields(this%n)%init( dof, fld_name)
 
     ! generate a key for the name lookup map and assign it to the index
     !    key%ptr = c_loc(fld_name)

@@ -8,6 +8,7 @@ module mesh_parallel
   use quad
   use point
   use tuple
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
 contains
@@ -23,7 +24,7 @@ contains
     do gdim = 2, 3
        nelv = 42
 
-       call mesh_init(m, gdim, nelv)
+       call m%init(gdim, nelv)
 
        @assertEqual(m%nelv, nelv)
        @assertEqual(m%gdim, gdim)
@@ -52,7 +53,7 @@ contains
          this%getNumProcesses(), NEKO_COMM)
 
     do gdim = 2, 3
-       call mesh_init(m, gdim, dist)
+       call m%init(gdim, dist)
 
        @assertEqual(m%nelv, dist%num_local())
        @assertEqual(m%gdim, gdim)
@@ -98,12 +99,12 @@ contains
     p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
 
-    call mesh_init(m, gdim, dist)
+    call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
+       call m%add_element(1, p(1), p(2), p(3), p(4))
 
-       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6))
+       call m%add_element(2, p(2), p(5), p(4), p(6))
 
        @assertEqual(6, m%htp%num_entries())
 
@@ -126,7 +127,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
+          call m%add_element(1, p(1), p(2), p(3), p(4))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -140,7 +141,7 @@ contains
 
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6))
+          call m%add_element(1, p(2), p(5), p(4), p(6))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -198,14 +199,14 @@ contains
     call p(12)%set_id(12)
 
 
-    call mesh_init(m, gdim, dist)
+    call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+       call m%add_element(1, p(1), p(2), p(3), p(4), &
             p(7), p(8), p(10), p(9))
 
 
-       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6), &
+       call m%add_element(2, p(2), p(5), p(4), p(6), &
             p(8), p(11), p(9), p(12))
 
        @assertEqual(12, m%htp%num_entries())
@@ -237,7 +238,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+          call m%add_element(1, p(1), p(2), p(3), p(4), &
                p(7), p(8), p(10), p(9))
 
           @assertEqual(8, m%htp%num_entries())
@@ -256,7 +257,7 @@ contains
 
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6), &
+          call m%add_element(1, p(2), p(5), p(4), p(6), &
                p(8), p(11), p(9), p(12))
 
           @assertEqual(8, m%htp%num_entries())
@@ -308,30 +309,30 @@ contains
     p(6) = point_t(2d0, 1d0, 0d0) !e2 p4
     call p(6)%set_id(6)
 
-    call mesh_init(m, gdim, dist)
+    call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
+       call m%add_element(1, p(1), p(2), p(3), p(4))
 
-       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6))
+       call m%add_element(2, p(2), p(5), p(4), p(6))
 
-       call mesh_generate_conn(m)
+       call m%generate_conn()
 
        @assertEqual(7, m%hte%num_entries())
 
 
-       p_local_idx = mesh_get_local(m, m%points(p(1)%id()))
+       p_local_idx = m%get_local(m%points(p(1)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, m%points(p(4)%id()))
+       p_local_idx = m%get_local(m%points(p(4)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, m%points(p(6)%id()))
+       p_local_idx = m%get_local(m%points(p(6)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, m%points(p(5)%id()))
+       p_local_idx = m%get_local(m%points(p(5)%id()))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
 
-       p_local_idx = mesh_get_local(m, m%points(p(3)%id()))
+       p_local_idx = m%get_local(m%points(p(3)%id()))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, m%points(p(2)%id()))
+       p_local_idx = m%get_local(m%points(p(2)%id()))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
        @assertEqual(0, m%facet_neigh(1, 1))
@@ -346,21 +347,21 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4))
+          call m%add_element(1, p(1), p(2), p(3), p(4))
 
-          call mesh_generate_conn(m)
+          call m%generate_conn()
 
           @assertEqual(4, m%hte%num_entries())
           @MPIassertEqual(2, m%glb_nelv)
        
 
-          p_local_idx = mesh_get_local(m, p(1))
+          p_local_idx = m%get_local(p(1))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(2))
+          p_local_idx = m%get_local(p(2))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(3))
+          p_local_idx = m%get_local(p(3))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(4))
+          p_local_idx = m%get_local(p(4))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(0, m%facet_neigh(1, 1))
@@ -370,20 +371,20 @@ contains
        
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6))
+          call m%add_element(1, p(2), p(5), p(4), p(6))
 
-          call mesh_generate_conn(m)
+          call m%generate_conn()
 
           @assertEqual(4, m%hte%num_entries())
           @MPIassertEqual(2, m%glb_nelv)
           
-          p_local_idx = mesh_get_local(m, p(2))
+          p_local_idx = m%get_local(p(2))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(5))
+          p_local_idx = m%get_local(p(5))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(6))
+          p_local_idx = m%get_local(p(6))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(4))
+          p_local_idx = m%get_local(p(4))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(-1, m%facet_neigh(1, 1))
@@ -440,55 +441,55 @@ contains
     call p(12)%set_id(12)
 
 
-    call mesh_init(m, gdim, dist)
+    call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+       call m%add_element(1, p(1), p(2), p(3), p(4), &
             p(7), p(8), p(10), p(9))
 
 
-       call mesh_add_element(m, 2, p(2), p(5), p(4), p(6), &
+       call m%add_element(2, p(2), p(5), p(4), p(6), &
             p(8), p(11), p(9), p(12))
 
-       call mesh_generate_conn(m)
+       call m%generate_conn()
        @MPIassertEqual(2, m%glb_nelv)
        @MPIassertEqual(11, m%glb_mfcs)
        @MPIassertEqual(20, m%glb_meds)
        
-       p_local_idx = mesh_get_local(m, p(1))
+       p_local_idx = m%get_local(p(1))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(2))
+       p_local_idx = m%get_local(p(2))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(3))
+       p_local_idx = m%get_local(p(3))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(4))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-
-       p_local_idx = mesh_get_local(m, p(7))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(8))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(9))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(10))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-
-       p_local_idx = mesh_get_local(m, p(2))
-       @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(5))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(6))
-       @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(4))
+       p_local_idx = m%get_local(p(4))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
-       p_local_idx = mesh_get_local(m, p(8))
+       p_local_idx = m%get_local(p(7))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%get_local(p(8))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(11))
+       p_local_idx = m%get_local(p(9))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%get_local(p(10))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(12))
+
+       p_local_idx = m%get_local(p(2))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%get_local(p(5))
        @assertEqual(1, m%point_neigh(p_local_idx)%size())
-       p_local_idx = mesh_get_local(m, p(9))
+       p_local_idx = m%get_local(p(6))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%get_local(p(4))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+
+       p_local_idx = m%get_local(p(8))
+       @assertEqual(2, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%get_local(p(11))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%get_local(p(12))
+       @assertEqual(1, m%point_neigh(p_local_idx)%size())
+       p_local_idx = m%get_local(p(9))
        @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
        @assertEqual(11, m%htf%num_entries())
@@ -508,44 +509,44 @@ contains
        @assertEqual(0, m%facet_neigh(6, 2))
 
        call m%elements(1)%e%facet_id(t, 1)
-       @assertFalse(mesh_is_shared(m, t))
+       @assertFalse(m%is_shared(t))
        call m%elements(1)%e%facet_id(t, 2)
-       @assertFalse(mesh_is_shared(m, t))
+       @assertFalse(m%is_shared(t))
        call m%elements(2)%e%facet_id(t, 1)
-       @assertFalse(mesh_is_shared(m, t))
+       @assertFalse(m%is_shared(t))
        call m%elements(2)%e%facet_id(t, 2)
-       @assertFalse(mesh_is_shared(m, t))
+       @assertFalse(m%is_shared(t))
        
        
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call mesh_add_element(m, 1, p(1), p(2), p(3), p(4), &
+          call m%add_element(1, p(1), p(2), p(3), p(4), &
                p(7), p(8), p(10), p(9))
 
-          call mesh_generate_conn(m)
+          call m%generate_conn()
 
           @assertEqual(6, m%htf%num_entries())
           @MPIassertEqual(2, m%glb_nelv)
           @MPIassertEqual(11, m%glb_mfcs)
           @MPIassertEqual(20, m%glb_meds)
           
-          p_local_idx = mesh_get_local(m, p(1))
+          p_local_idx = m%get_local(p(1))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(2))
+          p_local_idx = m%get_local(p(2))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(3))
+          p_local_idx = m%get_local(p(3))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(4))
+          p_local_idx = m%get_local(p(4))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
-          p_local_idx = mesh_get_local(m, p(7))
+          p_local_idx = m%get_local(p(7))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(8))
+          p_local_idx = m%get_local(p(8))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(9))
+          p_local_idx = m%get_local(p(9))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(10))
+          p_local_idx = m%get_local(p(10))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(0, m%facet_neigh(1, 1))
@@ -556,38 +557,38 @@ contains
           @assertEqual(0, m%facet_neigh(6, 1))
 
           call m%elements(1)%e%facet_id(t, 1)
-          @assertFalse(mesh_is_shared(m, t))
+          @assertFalse(m%is_shared(t))
           call m%elements(1)%e%facet_id(t, 2)
-          @assertTrue(mesh_is_shared(m, t))
+          @assertTrue(m%is_shared(t))
 
        else
 
-          call mesh_add_element(m, 1, p(2), p(5), p(4), p(6), &
+          call m%add_element(1, p(2), p(5), p(4), p(6), &
                p(8), p(11), p(9), p(12))
 
-          call mesh_generate_conn(m)
+          call m%generate_conn()
 
           @assertEqual(6, m%htf%num_entries())
           @MPIassertEqual(2, m%glb_nelv)
           @MPIassertEqual(11, m%glb_mfcs)
           @MPIassertEqual(20, m%glb_meds)
                     
-          p_local_idx = mesh_get_local(m, p(2))
+          p_local_idx = m%get_local(p(2))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(5))
+          p_local_idx = m%get_local(p(5))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(6))
+          p_local_idx = m%get_local(p(6))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(4))
+          p_local_idx = m%get_local(p(4))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
-          p_local_idx = mesh_get_local(m, p(8))
+          p_local_idx = m%get_local(p(8))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(11))
+          p_local_idx = m%get_local(p(11))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(12))
+          p_local_idx = m%get_local(p(12))
           @assertEqual(1, m%point_neigh(p_local_idx)%size())
-          p_local_idx = mesh_get_local(m, p(9))
+          p_local_idx = m%get_local(p(9))
           @assertEqual(2, m%point_neigh(p_local_idx)%size())
 
           @assertEqual(-1, m%facet_neigh(1, 1))
@@ -598,9 +599,9 @@ contains
           @assertEqual(0, m%facet_neigh(6, 1))
 
           call m%elements(1)%e%facet_id(t, 1)
-          @assertTrue(mesh_is_shared(m, t))
+          @assertTrue(m%is_shared(t))
           call m%elements(1)%e%facet_id(t, 2)
-          @assertFalse(mesh_is_shared(m, t))
+          @assertFalse(m%is_shared(t))
 
        end if
     end if

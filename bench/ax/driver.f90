@@ -32,7 +32,7 @@ program axbench
   call nmsh_file%read(msh)  
 
   call space_init(Xh, GLL, lx, lx, lx)
-  call field_init(w, msh, Xh, "w")
+  call w%init(msh, Xh, "w")
  
   allocate(g(6, Xh%lx, Xh%ly, Xh%lz, msh%nelv))
   call setup_g(g, Xh%wx, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
@@ -58,8 +58,8 @@ program axbench
   
   deallocate(u,ur,us,ut,wk)
   call space_free(Xh)
-  call field_free(w)
-  call mesh_free(msh)
+  call w%free()
+  call msh%free()
   
   call neko_finalize
 

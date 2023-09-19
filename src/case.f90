@@ -503,7 +503,7 @@ contains
        deallocate(C%scalar)
     end if
 
-    call mesh_free(C%msh)
+    call C%msh%free()
 
     call C%s%free()
 

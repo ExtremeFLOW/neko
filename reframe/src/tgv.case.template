@@ -38,6 +38,14 @@
       "absolute_tolerance": 1e-7,
       "max_iterations": 800
     }
-  }
+  },
+  "simulation_components": 
+  [
+    {
+      "type": "vorticity",
+      "compute_control": "tsteps",
+      "compute_value": 50
+    }
+  ]
   }
 }

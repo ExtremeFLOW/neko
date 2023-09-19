@@ -41,7 +41,7 @@ program rea2nbin
   
   call nmsh_file%write(msh)
   
-  call mesh_free(msh)
+  call msh%free()
   
   call neko_finalize
 

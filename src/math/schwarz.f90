@@ -69,8 +69,10 @@ module schwarz
   use gather_scatter
   use fast3d
   use device_schwarz
+  use device_math
   use fdm
-  implicit none  
+  implicit none
+  
   type, public :: schwarz_t
     real(kind=rp), allocatable :: work1(:)
     real(kind=rp), allocatable :: work2(:)

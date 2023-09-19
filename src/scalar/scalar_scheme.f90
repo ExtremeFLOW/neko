@@ -49,6 +49,7 @@ module scalar_scheme
   use precon_fctry
   use bc
   use mesh
+  use zone
   use time_scheme_controller
   use logger
   use field_registry
