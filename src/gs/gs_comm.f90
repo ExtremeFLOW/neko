@@ -36,7 +36,8 @@ module gs_comm
   use comm, only : pe_size
   use stack, only : stack_i4_t
   use, intrinsic :: iso_c_binding 
-  implicit none  
+  implicit none
+  private
 
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2
 
@@ -115,6 +116,7 @@ module gs_comm
      end subroutine gs_nbwait
   end interface
 
+  public :: gs_comm_init, gs_comm_free, gs_nbsend, gs_nbrecv, gs_nbwait
 contains
 
   subroutine init_dofs(this)

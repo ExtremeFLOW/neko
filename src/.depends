@@ -57,7 +57,7 @@ field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o
 field/field_list.o : field/field_list.f90 field/field.o 
 field/field_series.o : field/field_series.f90 field/field.o config/num_types.o 
 field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o 
-field/mean_field.o : field/mean_field.f90 field/field_registry.o math/math.o field/field.o config/num_types.o math/bcknd/device/device_math.o common/stats_quant.o config/neko_config.o 
+field/mean_field.o : field/mean_field.f90 math/bcknd/device/device_math.o math/math.o field/field.o config/num_types.o common/stats_quant.o config/neko_config.o 
 field/mean_sqr_field.o : field/mean_sqr_field.f90 math/math.o math/bcknd/device/device_math.o field/mean_field.o config/neko_config.o config/num_types.o 
 io/format/rea.o : io/format/rea.f90 mesh/mesh.o config/num_types.o 
 math/bcknd/cpu/cdtp.o : math/bcknd/cpu/cdtp.f90 config/num_types.o 
