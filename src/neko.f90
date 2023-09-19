@@ -60,7 +60,6 @@ module neko
   use krylov_fctry
   use precon_fctry
   use ax_helm_fctry
-  use precon
   use ax_product
   use neko_config
   use case
