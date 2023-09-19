@@ -36,7 +36,7 @@ module tensor_device
   implicit none
   private
 
-  public :: tnsr3d_device
+  public :: tnsr3d_device, tnsr3d_el_list_device
   
 #ifdef HAVE_HIP
    interface

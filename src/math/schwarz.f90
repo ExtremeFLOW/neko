@@ -60,17 +60,15 @@
 !> Overlapping schwarz solves
 module schwarz
   use num_types
-  use speclib
   use math
   use space
-  use dofmap
+  use dofmap, only : dofmap_t
   use bc
-  use dirichlet
+  use dirichlet, only : dirichlet_t
   use gather_scatter
-  use fast3d
   use device_schwarz
   use device_math
-  use fdm
+  use fdm, only : fdm_t
   use device
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
