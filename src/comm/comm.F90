@@ -11,7 +11,7 @@ module comm
 
   !> MPI type for working precision of REAL types
 #ifdef HAVE_MPI_PARAM_DTYPE
-  type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+  type(MPI_Datatype), parameter :: MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
 #else
   type(MPI_Datatype) :: MPI_REAL_PRECISION
 #endif
@@ -65,15 +65,15 @@ contains
     end if
 
 #ifndef HAVE_MPI_PARAM_DTYPE
-    MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
+    MPI_REAL_PRECISION = MPI_DOUBLE_PRECISION
 #endif
-    
-    !Original version duplicates the communicator:
+
+    !Original code duplicated the communicator
     !call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
-    !We split it to work asynchronously
+    !For asyncrhonous operation we need to split it
     call MPI_Comm_rank(MPI_COMM_WORLD, global_rank, ierr)
     call MPI_Comm_split(MPI_COMM_WORLD,0, global_rank,NEKO_COMM,ierr)
-
+    
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
 
