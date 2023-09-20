@@ -10,6 +10,8 @@ module point_interpolation_parallel
   use space
   use point
   use datadist
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use device
   use neko_config
   implicit none
 
@@ -47,9 +49,9 @@ contains
     type(gs_t) :: gs
     type(space_t) :: Xh
 
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
+    call gs%init(dof)
     call coef%init(gs)
 
   end subroutine point_interpolation_test_gen_coef
@@ -85,9 +87,9 @@ contains
     call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
 
     call msh%generate_conn()
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
+    call gs%init(dof)
     call coef%init(gs)
 
     call interp%init(coef%Xh) ! initialize the interpolator object
@@ -127,9 +129,9 @@ contains
     call msh%init(3, dist)
     call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
+    call gs%init(dof)
     call coef%init(gs)
 
     ! Initialize the r,s,t values
@@ -192,9 +194,9 @@ contains
     call msh%init(3, dist)
     call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
+    call gs%init(dof)
     call coef%init(gs)
 
     ! Initialize the r,s,t values

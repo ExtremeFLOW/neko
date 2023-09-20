@@ -430,7 +430,7 @@ contains
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
                            dt, Re, rho)
       
-      call gs_op(gs_Xh, p_res, GS_OP_ADD) 
+      call gs_Xh%op(p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
@@ -468,9 +468,9 @@ contains
                            Re, rho, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
       
-      call gs_op(gs_Xh, u_res, GS_OP_ADD) 
-      call gs_op(gs_Xh, v_res, GS_OP_ADD) 
-      call gs_op(gs_Xh, w_res, GS_OP_ADD) 
+      call gs_Xh%op(u_res, GS_OP_ADD) 
+      call gs_Xh%op(v_res, GS_OP_ADD) 
+      call gs_Xh%op(w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&

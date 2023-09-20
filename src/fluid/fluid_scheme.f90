@@ -45,7 +45,7 @@ module fluid_scheme
   use space
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
-  use coefs, only : coef_t
+  use coefs
   use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
@@ -57,8 +57,8 @@ module fluid_scheme
   use krylov_fctry
   use precon_fctry
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t
-  use mesh, only : mesh_t
+  use bc
+  use mesh
   use math
   use time_scheme_controller, only : time_scheme_controller_t
   use mathops
@@ -268,9 +268,9 @@ contains
    end if
 
     if (msh%gdim .eq. 2) then
-       call space_init(this%Xh, GLL, lx, lx)
+       call this%Xh%init(GLL, lx, lx)
     else
-       call space_init(this%Xh, GLL, lx, lx, lx)
+       call this%Xh%init(GLL, lx, lx, lx)
     end if
 
     this%dm_Xh = dofmap_t(msh, this%Xh)
@@ -279,7 +279,7 @@ contains
 
     this%msh => msh
 
-    call gs_init(this%gs_Xh, this%dm_Xh)
+    call this%gs_Xh%init(this%dm_Xh)
 
     call this%c_Xh%init(this%gs_Xh)
 
@@ -588,7 +588,7 @@ contains
     call this%bc_wall%free()
     call this%bc_sym%free()
 
-    call space_free(this%Xh)    
+    call this%Xh%free()
 
     if (allocated(this%ksp_vel)) then
        call krylov_solver_destroy(this%ksp_vel)
@@ -616,7 +616,7 @@ contains
 
     call this%source_term%free()
 
-    call gs_free(this%gs_Xh)
+    call this%gs_Xh%free()
 
     call this%c_Xh%free()
 

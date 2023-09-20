@@ -42,7 +42,10 @@ module advection
   use neko_config
   use operators
   use interpolation
-  use, intrinsic :: iso_c_binding
+  use device_math
+  use device, only : device_free, device_map, device_get_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+                                          c_associated
   implicit none
   private
   
@@ -241,7 +244,7 @@ contains
     type(coef_t), intent(inout), target :: coef
     integer :: nel, n_GL, n
 
-    call space_init(this%Xh_GL, GL, lxd, lxd, lxd)
+    call this%Xh_GL%init(GL, lxd, lxd, lxd)
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
     call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)

@@ -63,10 +63,11 @@ module tensor
   use tensor_cpu
   use tensor_sx
   use tensor_device
-  use num_types
+  use num_types, only : rp
   use mxm_wrapper
   use neko_config
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -78,7 +79,7 @@ module tensor
      module procedure triple_tensor_product_scalar, triple_tensor_product_vector
   end interface triple_tensor_product
 
-public tensr3, transpose, trsp, trsp1, &
+public :: tensr3, transpose, trsp, trsp1, &
      tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
      triple_tensor_product, tnsr3d_el_list
 

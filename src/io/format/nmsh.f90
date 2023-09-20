@@ -1,8 +1,8 @@
 !> Neko binary mesh format
 module nmsh
-  use num_types
+  use num_types, only : dp
   implicit none
-
+  private
 
   !> Neko binary mesh element data
   type, private :: nmsh_t

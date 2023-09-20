@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module pnpn_res_device
-  use pnpn_residual
   use gather_scatter
   use operators
+  use field
+  use ax_product
+  use coefs
+  use source
+  use facet_normal
   use device_math
   use device_mathops
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use scratch_registry, only : neko_scratch_registry
-  use, intrinsic :: iso_c_binding
-  use scratch_registry, only: neko_scratch_registry
   implicit none
   private
  
@@ -265,9 +269,9 @@ contains
 #endif
      c_Xh%ifh2 = .false.
          
-    call gs_op(gs_Xh, ta1, GS_OP_ADD) 
-    call gs_op(gs_Xh, ta2, GS_OP_ADD) 
-    call gs_op(gs_Xh, ta3, GS_OP_ADD) 
+    call gs_Xh%op(ta1, GS_OP_ADD) 
+    call gs_Xh%op(ta2, GS_OP_ADD) 
+    call gs_Xh%op(ta3, GS_OP_ADD) 
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
 

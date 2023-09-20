@@ -35,10 +35,10 @@
 !! often and you don't want to create temporary fields (work arrays) inside
 !! it on each call.
 module scratch_registry
-  use num_types
+  use num_types, only : rp
   use field, only : field_t, field_ptr_t
   use dofmap, only : dofmap_t
-  use utils
+  use utils, only : neko_error
   implicit none
   private
   

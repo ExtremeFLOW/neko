@@ -2,6 +2,7 @@
 module structs
   use num_types
   implicit none
+  private
   
   type, public :: struct_curve_t
     real(kind=dp) :: curve_data(5,12)

@@ -67,7 +67,8 @@ module fluid_volflow
   use field
   use coefs
   use time_scheme_controller
-  use math    
+  use math
+  use comm
   use neko_config
   use device_math
   use device_mathops
@@ -212,7 +213,7 @@ contains
          call cdtp(p_res%x, c_Xh%h1, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
       end if
 
-      call gs_op(gs_Xh, p_res, GS_OP_ADD) 
+      call gs_Xh%op(p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(bclst_dp, p_res%x, n)
       call pc_prs%update()
       ksp_result = ksp_prs%solve(Ax, p_vol, p_res%x, n, &
@@ -268,9 +269,9 @@ contains
       end if
       c_Xh%ifh2 = .true.
 
-       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
-       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
-       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
+       call gs_Xh%op(u_res, GS_OP_ADD) 
+       call gs_Xh%op(v_res, GS_OP_ADD) 
+       call gs_Xh%op(w_res, GS_OP_ADD) 
 
        call bc_list_apply_vector(bclst_vel_res,&
             u_res%x, v_res%x, w_res%x, n)

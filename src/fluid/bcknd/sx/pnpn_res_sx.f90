@@ -1,8 +1,13 @@
 !> Residuals in the Pn-Pn formulation (CPU version)
 module pnpn_res_sx
   use gather_scatter
-  use pnpn_residual
   use operators
+  use field
+  use ax_product
+  use coefs
+  use source
+  use facet_normal
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t    
   use scratch_registry, only: neko_scratch_registry
   implicit none
   private
@@ -29,7 +34,7 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
     type(facet_normal_t), intent(inout) :: bc_sym_surface
-    class(Ax_t), intent(inout) :: Ax
+    class(ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
     real(kind=rp), intent(in) :: Re
@@ -72,9 +77,9 @@ contains
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho - wa3%x(i,1,1,1)
     end do
      
-    call gs_op(gs_Xh, ta1, GS_OP_ADD) 
-    call gs_op(gs_Xh, ta2, GS_OP_ADD) 
-    call gs_op(gs_Xh, ta3, GS_OP_ADD) 
+    call gs_Xh%op(ta1, GS_OP_ADD) 
+    call gs_Xh%op(ta2, GS_OP_ADD) 
+    call gs_Xh%op(ta3, GS_OP_ADD) 
 
     do i = 1, n
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)

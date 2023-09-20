@@ -3,6 +3,7 @@ module math_parallel
   use pfunit
   use math
   use num_types
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
 contains
