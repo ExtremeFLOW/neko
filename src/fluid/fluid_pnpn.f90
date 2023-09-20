@@ -147,22 +147,22 @@ contains
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
-      call field_init(this%p_res, dm_Xh, "p_res")
-      call field_init(this%u_res, dm_Xh, "u_res")
-      call field_init(this%v_res, dm_Xh, "v_res")
-      call field_init(this%w_res, dm_Xh, "w_res")            
-      call field_init(this%abx1, dm_Xh, "abx1")
-      call field_init(this%aby1, dm_Xh, "aby1")
-      call field_init(this%abz1, dm_Xh, "abz1")
+      call this%p_res%init(dm_Xh, "p_res")
+      call this%u_res%init(dm_Xh, "u_res")
+      call this%v_res%init(dm_Xh, "v_res")
+      call this%w_res%init(dm_Xh, "w_res")            
+      call this%abx1%init(dm_Xh, "abx1")
+      call this%aby1%init(dm_Xh, "aby1")
+      call this%abz1%init(dm_Xh, "abz1")
 
-      call field_init(this%abx2, dm_Xh, "abx2")
-      call field_init(this%aby2, dm_Xh, "aby2")
-      call field_init(this%abz2, dm_Xh, "abz2")
+      call this%abx2%init(dm_Xh, "abx2")
+      call this%aby2%init(dm_Xh, "aby2")
+      call this%abz2%init(dm_Xh, "abz2")
                   
-      call field_init(this%du, dm_Xh, 'du')
-      call field_init(this%dv, dm_Xh, 'dv')
-      call field_init(this%dw, dm_Xh, 'dw')
-      call field_init(this%dp, dm_Xh, 'dp')
+      call this%du%init(dm_Xh, 'du')
+      call this%dv%init(dm_Xh, 'dv')
+      call this%dw%init(dm_Xh, 'dw')
+      call this%dp%init(dm_Xh, 'dp')
 
       call this%ulag%init(this%u, 2)
       call this%vlag%init(this%v, 2)
@@ -282,23 +282,23 @@ contains
     call this%proj_v%free()
     call this%proj_w%free()
    
-    call field_free(this%p_res)        
-    call field_free(this%u_res)
-    call field_free(this%v_res)
-    call field_free(this%w_res)
+    call this%p_res%free()
+    call this%u_res%free()
+    call this%v_res%free()
+    call this%w_res%free()
     
-    call field_free(this%du)
-    call field_free(this%dv)
-    call field_free(this%dw)
-    call field_free(this%dp)
+    call this%du%free()
+    call this%dv%free()
+    call this%dw%free()
+    call this%dp%free()
     
-    call field_free(this%abx1)
-    call field_free(this%aby1)
-    call field_free(this%abz1)
+    call this%abx1%free()
+    call this%aby1%free()
+    call this%abz1%free()
 
-    call field_free(this%abx2)
-    call field_free(this%aby2)
-    call field_free(this%abz2)
+    call this%abx2%free()
+    call this%aby2%free()
+    call this%abz2%free()
     
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
@@ -429,8 +429,7 @@ contains
                            dt, Re, rho)
 
       !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
-      call gs_op(gs_Xh, p_res, GS_OP_ADD)
-
+      call gs_Xh%op(p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       !$omp end parallel
       call profiler_end_region
@@ -470,9 +469,9 @@ contains
       
 
       !$omp parallel if((NEKO_BCKND_DEVICE .eq. 0) .and. (NEKO_BCKND_SX .eq. 0))
-      call gs_op(gs_Xh, u_res, GS_OP_ADD) 
-      call gs_op(gs_Xh, v_res, GS_OP_ADD) 
-      call gs_op(gs_Xh, w_res, GS_OP_ADD)
+      call gs_Xh%op(u_res, GS_OP_ADD) 
+      call gs_Xh%op(v_res, GS_OP_ADD) 
+      call gs_Xh%op(w_res, GS_OP_ADD) 
 
       call bc_list_apply_vector(this%bclst_vel_res,&
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&

@@ -34,16 +34,19 @@
 !! @details A mapping defined based on a function space and a mesh
 module dofmap
   use neko_config
-  use mesh
+  use mesh, only : mesh_t
   use space
-  use tuple
-  use num_types
-  use utils
+  use tuple, only : tuple_i4_t, tuple4_i4_t
+  use num_types, only : i4, i8, rp
+  use utils, only : neko_error, neko_warning
   use fast3d
   use tensor
   use device
   use math
-  use, intrinsic :: iso_c_binding
+  use element, only : element_t
+  use quad, only : quad_t
+  use hex, only : hex_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR    
   implicit none
   private
 
@@ -213,7 +216,7 @@ contains
           iz = ((jl - 1)/4)       * (Xh%lz - 1) + 1
           this%dof(ix, iy, iz, il) = int(msh%elements(il)%e%pts(jl)%p%id(), i8)
           this%shared_dof(ix, iy, iz, il) = &
-               mesh_is_shared(msh, msh%elements(il)%e%pts(jl)%p)
+               msh%is_shared(msh%elements(il)%e%pts(jl)%p)
        end do
     end do
     !$omp end do
@@ -249,8 +252,8 @@ contains
           ! Number edges in r-direction
           ! 
           call ep%edge_id(edge, 1)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
           do j = 2, Xh%lx - 1
@@ -262,8 +265,8 @@ contains
           end do
           
           call ep%edge_id(edge, 3)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
@@ -274,8 +277,8 @@ contains
           end do
 
           call ep%edge_id(edge, 2)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
@@ -286,8 +289,8 @@ contains
           end do
 
           call ep%edge_id(edge, 4)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
@@ -302,8 +305,8 @@ contains
           ! Number edges in s-direction
           ! 
           call ep%edge_id(edge, 5)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
@@ -314,8 +317,8 @@ contains
           end do
           
           call ep%edge_id(edge, 7)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
@@ -326,8 +329,8 @@ contains
           end do
 
           call ep%edge_id(edge, 6)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
@@ -338,8 +341,8 @@ contains
           end do
 
           call ep%edge_id(edge, i8)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
@@ -353,8 +356,8 @@ contains
           ! Number edges in t-direction
           ! 
           call ep%edge_id(edge, 9)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
@@ -365,8 +368,8 @@ contains
           end do
           
           call ep%edge_id(edge, 10)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
@@ -377,8 +380,8 @@ contains
           end do
 
           call ep%edge_id(edge, 11)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
@@ -389,8 +392,8 @@ contains
           end do
 
           call ep%edge_id(edge, 12)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
           do j = 2, Xh%lz - 1
              k = j
@@ -404,8 +407,8 @@ contains
           ! Number edges in r-direction
           ! 
           call ep%facet_id(edge, 3)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
           do j = 2, Xh%lx - 1
@@ -417,8 +420,8 @@ contains
           end do
 
           call ep%facet_id(edge, 4)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           do j = 2, Xh%lx - 1
              k = j
@@ -432,8 +435,8 @@ contains
           ! Number edges in s-direction
           ! 
           call ep%facet_id(edge, 1)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
@@ -444,8 +447,8 @@ contains
           end do
 
           call ep%facet_id(edge, 2)
-          shared_dof = mesh_is_shared(msh, edge)
-          global_id = mesh_get_global(msh, edge)
+          shared_dof = msh%is_shared(edge)
+          global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
           do j = 2, Xh%ly - 1
              k = j
@@ -493,8 +496,8 @@ contains
        !
        call msh%elements(i)%e%facet_id(face, 1)
        call msh%elements(i)%e%facet_order(face_order, 1)
-       shared_dof = mesh_is_shared(msh, face)
-       global_id = mesh_get_global(msh, face)
+       shared_dof = msh%is_shared(face)
+       global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
@@ -506,8 +509,8 @@ contains
        
        call msh%elements(i)%e%facet_id(face, 2)
        call msh%elements(i)%e%facet_order(face_order, 2)
-       shared_dof = mesh_is_shared(msh, face)
-       global_id = mesh_get_global(msh, face)
+       shared_dof = msh%is_shared(face)
+       global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
        do k = 2, Xh%lz -1
           do j = 2, Xh%ly - 1
@@ -523,8 +526,8 @@ contains
        !
        call msh%elements(i)%e%facet_id(face, 3)
        call msh%elements(i)%e%facet_order(face_order, 3)
-       shared_dof = mesh_is_shared(msh, face)
-       global_id = mesh_get_global(msh, face)
+       shared_dof = msh%is_shared(face)
+       global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
@@ -536,8 +539,8 @@ contains
        
        call msh%elements(i)%e%facet_id(face, 4)
        call msh%elements(i)%e%facet_order(face_order, 4)
-       shared_dof = mesh_is_shared(msh, face)
-       global_id = mesh_get_global(msh, face)
+       shared_dof = msh%is_shared(face)
+       global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
        do k = 2, Xh%lz - 1
           do j = 2, Xh%lx - 1
@@ -553,8 +556,8 @@ contains
        !
        call msh%elements(i)%e%facet_id(face, 5)
        call msh%elements(i)%e%facet_order(face_order, 5)
-       shared_dof = mesh_is_shared(msh, face)
-       global_id = mesh_get_global(msh, face)
+       shared_dof = msh%is_shared(face)
+       global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
@@ -566,8 +569,8 @@ contains
        
        call msh%elements(i)%e%facet_id(face, 6)
        call msh%elements(i)%e%facet_order(face_order, 6)
-       shared_dof = mesh_is_shared(msh, face)
-       global_id = mesh_get_global(msh, face)
+       shared_dof = msh%is_shared(face)
+       global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
        do k = 2, Xh%ly - 1
           do j = 2, Xh%lx - 1
@@ -798,10 +801,10 @@ contains
     w = 0d0
     if (msh%gdim .eq. 3) then
        n_edges = 12
-       call space_init(Xh3, GLL, 3, 3, 3)
+       call Xh3%init(GLL, 3, 3, 3)
     else
        n_edges = 4
-       call space_init(Xh3, GLL, 3, 3)
+       call Xh3%init(GLL, 3, 3)
     end if
     call dofmap_xyzlin(Xh3, msh, element, x3, y3, z3)
 
@@ -848,7 +851,7 @@ contains
        call copy(y, tmp, Xh%lx*Xh%ly*Xh%lz)
     end if
 
-    call space_free(Xh3)
+    call Xh3%free()
   end subroutine dofmap_xyzquad
 
  !> Extend faces into interior via gordon hall

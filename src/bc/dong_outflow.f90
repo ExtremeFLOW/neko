@@ -32,6 +32,7 @@
 !
 !> Defines a dong outflow condition
 module dong_outflow
+  use neko_config
   use dirichlet
   use device
   use num_types
@@ -39,8 +40,9 @@ module dong_outflow
   use field
   use dofmap
   use coefs
+  use utils
   use device_dong_outflow
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
   implicit none
   private
 
@@ -104,8 +106,8 @@ contains
             k = this%msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-            normal_xyz = coef_get_normal(this%c_Xh, &
-                 idx(1), idx(2), idx(3), idx(4),facet)
+            normal_xyz = &
+                 this%c_Xh%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
             temp_x(i) = normal_xyz(1)
             temp_y(i) = normal_xyz(2)
             temp_z(i) = normal_xyz(3)
@@ -138,8 +140,7 @@ contains
        uy = this%v%x(k,1,1,1)
        uz = this%w%x(k,1,1,1)
        idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-       normal_xyz = coef_get_normal(this%c_Xh, &
-            idx(1), idx(2), idx(3), idx(4),facet)       
+       normal_xyz = this%c_Xh%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
        vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3) 
        S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
                                      

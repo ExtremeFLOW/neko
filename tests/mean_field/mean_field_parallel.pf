@@ -2,8 +2,17 @@ module mean_field_parallel
   use mpi
   use pfunit
   use mean_field
+  use field
+  use mesh
+  use space
   use num_types
+  use point
+  use mesh
+  use field
+  use space
   use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config
   implicit none
 
   @TestCase
@@ -58,11 +67,11 @@ contains
     p(12) = point_t(2d0, 1d0, 1d0)
     call p(12)%set_id(12)
   
-    call mesh_init(msh, 3, 2)
-    call mesh_add_element(msh, 1, p(1), p(2), p(4), p(3), &
+    call msh%init(3, 2)
+    call msh%add_element(1, p(1), p(2), p(4), p(3), &
          p(7), p(8), p(9), p(10))
     
-    call mesh_add_element(msh, 2, p(2), p(5), p(6), p(4), &
+    call msh%add_element(2, p(2), p(5), p(6), p(4), &
          p(8), p(11), p(12), p(9))
     
   end subroutine test_mean_field_gen_msh
@@ -80,9 +89,9 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     
-    call field_init(f, msh, Xh, 'test')
+    call f%init(msh, Xh, 'test')
     
     call mf%init(f)
     @assertTrue(associated(mf%f))
@@ -105,8 +114,8 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call test_mean_field_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)    
-    call field_init(f, msh, Xh, 'test')
+    call Xh%init(GLL, lx, lx, lx)    
+    call f%init(msh, Xh, 'test')
 
     f = 42.0_rp
     call mf%init(f)

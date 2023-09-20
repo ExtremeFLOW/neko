@@ -67,7 +67,8 @@ module fluid_volflow
   use field
   use coefs
   use time_scheme_controller
-  use math    
+  use math
+  use comm
   use neko_config
   use device_math
   use device_mathops
@@ -118,10 +119,10 @@ contains
     this%flow_rate = rate
 
     if (this%flow_dir .ne. 0) then
-       call field_init(this%u_vol, dm_Xh, 'u_vol')
-       call field_init(this%v_vol, dm_Xh, 'v_vol')
-       call field_init(this%w_vol, dm_Xh, 'w_vol')
-       call field_init(this%p_vol, dm_Xh, 'p_vol')
+       call this%u_vol%init(dm_Xh, 'u_vol')
+       call this%v_vol%init(dm_Xh, 'v_vol')
+       call this%w_vol%init(dm_Xh, 'w_vol')
+       call this%p_vol%init(dm_Xh, 'p_vol')
     end if
 
     this%scratch = scratch_registry_t(dm_Xh, 3, 1)
@@ -131,10 +132,10 @@ contains
   subroutine fluid_vol_flow_free(this)
     class(fluid_volflow_t), intent(inout) :: this
 
-    call field_free(this%u_vol)
-    call field_free(this%v_vol)
-    call field_free(this%w_vol)
-    call field_free(this%p_vol)
+    call this%u_vol%free()
+    call this%v_vol%free()
+    call this%w_vol%free()
+    call this%p_vol%free()
 
     call this%scratch%free()
         
@@ -212,7 +213,7 @@ contains
          call cdtp(p_res%x, c_Xh%h1, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
       end if
 
-      call gs_op(gs_Xh, p_res, GS_OP_ADD) 
+      call gs_Xh%op(p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(bclst_dp, p_res%x, n)
       call pc_prs%update()
       ksp_result = ksp_prs%solve(Ax, p_vol, p_res%x, n, &
@@ -268,9 +269,9 @@ contains
       end if
       c_Xh%ifh2 = .true.
 
-       call gs_op(gs_Xh, u_res, GS_OP_ADD) 
-       call gs_op(gs_Xh, v_res, GS_OP_ADD) 
-       call gs_op(gs_Xh, w_res, GS_OP_ADD) 
+       call gs_Xh%op(u_res, GS_OP_ADD) 
+       call gs_Xh%op(v_res, GS_OP_ADD) 
+       call gs_Xh%op(w_res, GS_OP_ADD) 
 
        call bc_list_apply_vector(bclst_vel_res,&
             u_res%x, v_res%x, w_res%x, n)

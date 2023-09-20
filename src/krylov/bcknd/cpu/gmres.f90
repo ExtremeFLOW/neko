@@ -33,10 +33,8 @@
 !> Defines various GMRES methods
 module gmres
   use krylov
-  use comm
   use math
-  use operators
-  use num_types
+  use comm
   implicit none
   private
 
@@ -205,7 +203,7 @@ contains
           else
              call copy(r, f, n)      
              call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
              call sub2(r, w, n) 
           end if
@@ -226,7 +224,7 @@ contains
              call this%M%solve(z(1,j), v(1,j), n)
 
              call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
              call bc_list_apply(blst, w, n)
              
              do l = 1, j
@@ -514,7 +512,7 @@ contains
 
        if(iter .gt. 0) then          
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
-          call gs_op(gs_h, this%w, n, GS_OP_ADD)
+          call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
           !$omp do
           do i = 1, n
@@ -561,7 +559,7 @@ contains
 
           !$omp parallel private(i,k)
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
-          call gs_op(gs_h, this%w, n, GS_OP_ADD)
+          call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
 
           do i = 1, j

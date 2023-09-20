@@ -39,11 +39,11 @@ module fluid_scheme
   use mean_flow, only : mean_flow_t
   use num_types
   use source
-  use field, only : field_t, field_free
+  use field, only : field_t
   use space
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
-  use coefs, only : coef_t
+  use coefs
   use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
@@ -55,8 +55,8 @@ module fluid_scheme
   use krylov_fctry
   use precon_fctry
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t
-  use mesh, only : mesh_t
+  use bc
+  use mesh
   use math
   use time_scheme_controller, only : time_scheme_controller_t
   use mathops
@@ -257,9 +257,9 @@ contains
    end if
 
     if (msh%gdim .eq. 2) then
-       call space_init(this%Xh, GLL, lx, lx)
+       call this%Xh%init(GLL, lx, lx)
     else
-       call space_init(this%Xh, GLL, lx, lx, lx)
+       call this%Xh%init(GLL, lx, lx, lx)
     end if
 
     this%dm_Xh = dofmap_t(msh, this%Xh)
@@ -268,9 +268,9 @@ contains
 
     this%msh => msh
 
-    call gs_init(this%gs_Xh, this%dm_Xh)
+    call this%gs_Xh%init(this%dm_Xh)
 
-    call coef_init(this%c_Xh, this%gs_Xh)
+    call this%c_Xh%init(this%gs_Xh)
 
     call source_init(this%f_Xh, this%dm_Xh)
     
@@ -355,7 +355,7 @@ contains
     call json_get_or_default(params, 'case.output_boundary', logical_val,&
                              .false.)
     if (logical_val) then
-       call field_init(this%bdry, this%dm_Xh, 'bdry')
+       call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
        
        call bdry_mask%init(this%dm_Xh)
@@ -556,7 +556,7 @@ contains
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
 
-    call field_free(this%bdry)
+    call this%bdry%free()
 
     if (allocated(this%bc_inflow)) then
        call this%bc_inflow%free()
@@ -565,7 +565,7 @@ contains
     call this%bc_wall%free()
     call this%bc_sym%free()
 
-    call space_free(this%Xh)    
+    call this%Xh%free()
 
     if (allocated(this%ksp_vel)) then
        call krylov_solver_destroy(this%ksp_vel)
@@ -591,9 +591,9 @@ contains
        deallocate(this%bc_labels)
     end if
 
-    call gs_free(this%gs_Xh)
+    call this%gs_Xh%free()
 
-    call coef_free(this%c_Xh)
+    call this%c_Xh%free()
 
     call source_free(this%f_Xh)
 

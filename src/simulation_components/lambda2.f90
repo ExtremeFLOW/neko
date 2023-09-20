@@ -39,7 +39,8 @@ module lambda2
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use field, only : field_t, field_free, field_init, field_ptr_t
+  use field, only : field_t, field_ptr_t
+  use field_list, only : field_list_t
   use operators, only : lambda2op
   use case, only : case_t
   use neko_config

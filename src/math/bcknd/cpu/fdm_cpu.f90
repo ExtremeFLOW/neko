@@ -1,8 +1,11 @@
 !> Fast Diagonalization 
 module fdm_cpu
-  use num_types
+  use num_types, only : rp
   use tensor_cpu
   implicit none
+  private
+
+  public :: fdm_do_fast_cpu
 
 contains
 

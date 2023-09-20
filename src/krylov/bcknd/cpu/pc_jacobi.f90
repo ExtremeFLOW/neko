@@ -33,8 +33,9 @@
 !> Jacobi preconditioner
 module jacobi
   use precon
-  use coefs
-  use num_types
+  use coefs, only : coef_t
+  use num_types, only : rp
+  use dofmap
   use gather_scatter
   implicit none
   private
@@ -187,7 +188,7 @@ contains
          end do
          !$omp end do
       end if
-      call gs_op(gs_h, this%d, dof%size(), GS_OP_ADD)
+      call gs_h%op(this%d, dof%size(), GS_OP_ADD)
       !$omp do
       do i = 1, dof%size()
          this%d(i,1,1,1) = 1.0_rp / this%d(i,1,1,1)

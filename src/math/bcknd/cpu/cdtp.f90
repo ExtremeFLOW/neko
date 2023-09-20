@@ -32,8 +32,7 @@
 !
 !> DT*X kernels
 module cpu_cdtp
-  use num_types
-  use math
+  use num_types, only : rp
   implicit none
 
 contains

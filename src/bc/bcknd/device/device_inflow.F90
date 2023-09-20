@@ -33,8 +33,9 @@
 module device_inflow
   use num_types
   use utils
-  use, intrinsic :: iso_c_binding
-
+  use, intrinsic :: iso_c_binding, only : c_ptr
+  private
+  
 #ifdef HAVE_HIP
 
   interface
@@ -72,6 +73,8 @@ module device_inflow
   end interface
 
 #endif
+
+  public :: device_inflow_apply_vector
 
 contains
 

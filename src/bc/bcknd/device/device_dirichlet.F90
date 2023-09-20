@@ -33,8 +33,9 @@
 module device_dirichlet
   use num_types
   use utils
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
+  private
 
 #ifdef HAVE_HIP
   interface
@@ -109,6 +110,8 @@ module device_dirichlet
      end subroutine opencl_dirichlet_apply_vector
   end interface
 #endif
+
+  public :: device_dirichlet_apply_scalar, device_dirichlet_apply_vector
   
 contains
 
