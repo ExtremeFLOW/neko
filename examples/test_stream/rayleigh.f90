@@ -101,12 +101,27 @@ contains
   end subroutine data_streamer_free
   
   !> streamer
-  subroutine data_streamer_stream(this)
+  subroutine data_streamer_stream(this,u,v,w,p,coef)
     class(data_streamer_t), intent(inout) :: this
-
-    if (allocated(this%lglel))        deallocate(this%lglel)
+    type(coef_t), intent(inout) :: coef
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    integer :: nelv, npts
     
-    call adios2_finalize()
+    nelv  = coef%msh%nelv
+    npts  = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
+    
+    if (NEKO_BCKND_DEVICE .eq. 1) then 
+       ! Move the data to the CPU to be able to write it
+       call device_memcpy(u%x,  u%x_d, nelv*npts,DEVICE_TO_HOST)
+       call device_memcpy(v%x,  v%x_d, nelv*npts,DEVICE_TO_HOST)
+       call device_memcpy(w%x,  w%x_d, nelv*npts,DEVICE_TO_HOST)
+       call device_memcpy(p%x,  p%x_d, nelv*npts,DEVICE_TO_HOST)
+    end if
+
+    call adios2_stream(this%lglel,p%x, u%x, v%x, w%x, coef%B, u%x)
 
   end subroutine data_streamer_stream
   
@@ -128,12 +143,16 @@ end module data_streamer
 
 module user
   use neko
+  use data_streamer
+
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
   real(kind=rp) :: Ra = 0
   real(kind=rp) :: Re = 0
   real(kind=rp) :: Pr = 0
+
+  type(data_streamer_t) :: dstream
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -247,15 +266,17 @@ contains
     nelb2 = u%msh%offset_el
 
     
-    write(*,*) 'my sum is', nelb
-    write(*,*) 'my sum_neko is', nelb2
-    write(*,*) 'my number of points is', npts
-    write(*,*) 'my number of elements is', nelv
-    write(*,*) 'total number of elements is', nelgv
+    !write(*,*) 'my sum is', nelb
+    !write(*,*) 'my sum_neko is', nelb2
+    !write(*,*) 'my number of points is', npts
+    !write(*,*) 'my number of elements is', nelv
+    !write(*,*) 'total number of elements is', nelgv
 
-    call adios2_setup(npts,nelv,nelb2,nelgv, &
-                nelgv,u%dof%x,u%dof%y,  &
-                u%dof%z,if_asynch,NEKO_COMM)
+    !call adios2_setup(npts,nelv,nelb2,nelgv, &
+    !            nelgv,u%dof%x,u%dof%y,  &
+    !            u%dof%z,if_asynch,NEKO_COMM)
+
+    call dstream%init(coef, 1)
 
 
   end subroutine user_initialize
@@ -264,7 +285,8 @@ contains
     real(kind=rp) :: t
     type(json_file), intent(inout) :: param
          
-    call adios2_finalize()
+    !call adios2_finalize()
+    call dstream%free()
      
   end subroutine user_finalize
 
@@ -308,20 +330,22 @@ contains
     npts  = u%Xh%lx**3
     n = u%msh%nelv*npts
 
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-           (NEKO_BCKND_OPENCL .eq. 1)) then
+    !if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+    !       (NEKO_BCKND_OPENCL .eq. 1)) then
 
-           call device_memcpy(u%x,  u%x_d, &
-                       nelv*npts,                         &
-                       DEVICE_TO_HOST)
-        write(*,*) "copy the data to the cpu"
-        !call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST,synch = .true.)
+    !       call device_memcpy(u%x,  u%x_d, &
+    !                   nelv*npts,                         &
+    !                   DEVICE_TO_HOST)
+    !    write(*,*) "copy the data to the cpu"
+    !    !call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST,synch = .true.)
     
-    end if
+    !end if
 
-    !Write the fields into a file
-    call adios2_stream(lglel,u%x, u%x, &
-                        u%x, u%x, coef%B, u%x)
+    !!Write the fields into a file
+    !call adios2_stream(lglel,u%x, u%x, &
+    !                    u%x, u%x, coef%B, u%x)
+
+    call dstream%stream(u,v,w,p,coef)
 
   end subroutine check
   
