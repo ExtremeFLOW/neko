@@ -22,7 +22,8 @@
         "source_terms": 
         [
             {
-                "type": "user_vector"
+                "type": "constant",
+                "values": [0, 0, 0.0092274831]
             }
         ],
         "initial_condition": {
