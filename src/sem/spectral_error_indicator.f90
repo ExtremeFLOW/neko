@@ -236,12 +236,12 @@ contains
     select case(space)
        case('spec')
           call tnsr3d(u_hat%x, coef%Xh%lx, wk%x, &
-                      coef%Xh%lx,coef%vinv, &
-                      coef%vinvt, coef%vinvt, nelv)
+                      coef%Xh%lx,coef%Xh%vinv, &
+                      coef%Xh%vinvt, coef%Xh%vinvt, nelv)
        case('phys') 
           call tnsr3d(u_hat%x, coef%Xh%lx, wk%x, &
-                      coef%Xh%lx,coef%v, &
-                      coef%vt, coef%vt, nelv)
+                      coef%Xh%lx,coef%Xh%v, &
+                      coef%Xh%vt, coef%Xh%vt, nelv)
     end select
 
     ! Synchronize

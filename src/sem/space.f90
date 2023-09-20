@@ -39,6 +39,8 @@ module space
   use utils
   use fast3d
   use math
+  use tensor, only : trsp1
+  use mxm_wrapper, only: mxm
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -91,6 +93,14 @@ module space
      real(kind=rp), allocatable :: dyt(:,:)
      !> Transposed derivative operator \f$ D_3^T \f$
      real(kind=rp), allocatable :: dzt(:,:)
+     
+     !> Legendre transformation matrices
+     real(kind=rp), allocatable :: v(:,:)        !< legendre to physical
+     real(kind=rp), allocatable :: vt(:,:)       !< legendre to physical t
+     real(kind=rp), allocatable :: vinv(:,:)     !< Physical to legendre
+     real(kind=rp), allocatable :: vinvt(:,:)    !< Physical to legendre t
+     !> Legendre weights in matrix form
+     real(kind=rp), allocatable :: w(:,:)        !< Legendre weights
 
      !
      ! Device pointers (if present)
@@ -109,6 +119,11 @@ module space
      type(c_ptr) :: wz_d = C_NULL_PTR
      type(c_ptr) :: zg_d = C_NULL_PTR
      type(c_ptr) :: w3_d = C_NULL_PTR
+     type(c_ptr) :: v_d = C_NULL_PTR
+     type(c_ptr) :: vt_d = C_NULL_PTR
+     type(c_ptr) :: vinv_d = C_NULL_PTR
+     type(c_ptr) :: vinvt_d = C_NULL_PTR
+     type(c_ptr) :: w_d = C_NULL_PTR
 
   end type space_t
 
@@ -173,6 +188,12 @@ contains
     allocate(s%dxt(s%lx, s%lx))
     allocate(s%dyt(s%ly, s%ly))
     allocate(s%dzt(s%lz, s%lz))
+    
+    allocate(s%v(s%lx, s%lx))
+    allocate(s%vt(s%lx, s%lx))
+    allocate(s%vinv(s%lx, s%lx))
+    allocate(s%vinvt(s%lx, s%lx))
+    allocate(s%w(s%lx, s%lx))
     
     ! Call low-level routines to compute nodes and quadrature weights
     if (t .eq. GLL) then
@@ -249,6 +270,11 @@ contains
        call device_map(s%dyt, s%dyt_d, s%lxy)
        call device_map(s%dzt, s%dzt_d, s%lxy)
        call device_map(s%w3, s%w3_d, s%lxyz)
+       call device_map(s%v,     s%v_d,     s%lxy)
+       call device_map(s%vt,    s%vt_d,    s%lxy)
+       call device_map(s%vinv,  s%vinv_d,  s%lxy)
+       call device_map(s%vinvt, s%vinvt_d, s%lxy)
+       call device_map(s%w,     s%w_d,     s%lxy)
 
        call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE)
        call device_memcpy(s%ds_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE)
@@ -268,6 +294,8 @@ contains
        call device_map(s%zg, s%zg_d, ix)
        call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE)
     end if
+    
+    call space_generate_transformation_matrices(s)
 
   end subroutine space_init
    
@@ -330,6 +358,26 @@ contains
     if (allocated(s%dt_inv)) then
        deallocate(s%dt_inv)
     end if
+    
+    if(allocated(s%v)) then
+       deallocate(s%v)
+    end if
+
+    if(allocated(s%vt)) then
+       deallocate(s%vt)
+    end if
+
+    if(allocated(s%vinv)) then
+       deallocate(s%vinv)
+    end if
+
+    if(allocated(s%vinvt)) then
+       deallocate(s%vinvt)
+    end if
+
+    if(allocated(s%w)) then
+       deallocate(s%w)
+    end if
 
     !
     ! Cleanup the device (if present)
@@ -390,6 +438,26 @@ contains
     if (c_associated(s%zg_d)) then
        call device_free(s%zg_d)
     end if
+    
+    if (c_associated(s%v_d)) then
+       call device_free(s%v_d)
+    end if
+
+    if (c_associated(s%vt_d)) then
+       call device_free(s%vt_d)
+    end if
+
+    if (c_associated(s%vinv_d)) then
+       call device_free(s%vinv_d)
+    end if
+
+    if (c_associated(s%vinvt_d)) then
+       call device_free(s%vinvt_d)
+    end if
+
+    if (c_associated(s%w_d)) then
+       call device_free(s%w_d)
+    end if
 
   end subroutine space_free
 
@@ -438,5 +506,99 @@ contains
     dx(lx) = x(lx) - x(lx-1)
     call invcol1(dx, lx)
   end subroutine space_compute_dist
+  
+  
+  !> Generate spectral tranform matrices
+  !! @param coef type with all geometrical variables
+  subroutine space_generate_transformation_matrices(Xh)
+    type(space_t), intent(inout) :: Xh
+    
+    real(kind=rp) :: L(0:Xh%lx-1)
+    real(kind=rp) :: delta(Xh%lx)
+    integer :: i, kj, j, j2, kk
+
+    associate(v=> Xh%v, vt => Xh%vt, &
+      vinv => Xh%vinv, vinvt => Xh%vinvt, w => Xh%w)
+      ! Get the Legendre polynomials for each point
+      ! Then proceed to compose the transform matrix
+      kj = 0
+      do j = 1, Xh%lx
+         L(0) = 1.
+         L(1) = Xh%zg(j,1)
+         do j2 = 2, Xh%lx-1
+            L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
+                  - (j2-1) * L(j2-2) ) / j2 
+         end do
+         do kk = 1, Xh%lx
+            kj = kj+1
+            v(kj,1) = L(KK-1)
+         end do
+      end do
+
+      ! transpose the matrix
+      call trsp1(v, Xh%lx) !< non orthogonal wrt weights
+
+      ! Calculate the nominal scaling factors
+      do i = 1, Xh%lx
+         delta(i) = 2.0_rp / (2*(i-1)+1)
+      end do
+      ! modify last entry  
+      delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
+
+      ! calculate the inverse to multiply the matrix
+      do i = 1, Xh%lx
+         delta(i) = sqrt(1.0_rp / delta(i))
+      end do
+      ! scale the matrix      
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+         end do
+      end do
+
+      ! get the trasposed
+      call copy(vt, v, Xh%lx * Xh%lx)
+      call trsp1(vt, Xh%lx)
+
+      !populate the mass matrix
+      kk = 1
+      do i = 1, Xh%lx
+         do j = 1, Xh%lx
+            if (i .eq. j) then
+               w(i,j) = Xh%wx(kk)
+               kk = kk+1
+            else
+               w(i,j) = 0
+            end if
+         end do
+      end do
+
+      !Get the inverse of the transform matrix
+      call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+
+      !get the transposed of the inverse
+      call copy(vinvt, vinv, Xh%lx * Xh%lx)
+      call trsp1(vinvt, Xh%lx)
+    end associate
+
+    ! Copy the data to the GPU
+    ! Move all this to space.f90 to for next version 
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+    (NEKO_BCKND_OPENCL .eq. 1)) then 
+
+       call device_memcpy(Xh%v,     Xh%v_d,     Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(Xh%vt,    Xh%vt_d,    Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(Xh%vinv,  Xh%vinv_d,  Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(Xh%vinvt, Xh%vinvt_d, Xh%lxy, &
+                          HOST_TO_DEVICE)
+       call device_memcpy(Xh%w,     Xh%w_d,     Xh%lxy, &
+                          HOST_TO_DEVICE)
+
+    end if
+
+  end subroutine space_generate_transformation_matrices
 
 end module space
