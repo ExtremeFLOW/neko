@@ -36,7 +36,6 @@ module pnpn_res_device
   use field
   use ax_product
   use coefs
-  use source
   use facet_normal
   use device_math
   use device_mathops

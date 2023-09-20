@@ -5,7 +5,6 @@ module pnpn_res_sx
   use field
   use ax_product
   use coefs
-  use source
   use facet_normal
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t    
   use scratch_registry, only: neko_scratch_registry
