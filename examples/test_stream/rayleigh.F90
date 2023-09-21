@@ -59,8 +59,8 @@ contains
 
 !#ifdef HAVE_ADIOS2
     call fortran_adios2_setup(npts,nelv,nelb,nelgv, &
-!                nelgv,coef%dof%x,coef%dof%y,  &
-!                coef%dof%z,if_asynch,NEKO_COMM)
+                nelgv,coef%dof%x,coef%dof%y,  &
+                coef%dof%z,if_asynch,NEKO_COMM)
 !#else
 !    call neko_error('NEKO needs to be built with ADIOS2 support')
 !#endif
