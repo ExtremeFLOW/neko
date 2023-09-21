@@ -36,7 +36,6 @@ module data_streamer
   use num_types, only: rp
   use field, only: field_t
   use coefs, only: coef_t
- 
   use device 
   use comm
   use mpi_types
@@ -62,7 +61,7 @@ module data_streamer
        !> Stream data
        procedure, pass(this) :: stream => data_streamer_stream
 
-    end type data_streamer_t
+  end type data_streamer_t
 
 contains
 
@@ -90,13 +89,14 @@ contains
     ! Alternative way to get nelb:
     !nelb = elem_running_sum(nelv)
     !nelb = nelb - nelv
-!!#ifdef HAVE_ADIOS
-    call adios2_setup(npts,nelv,nelb,nelgv, &
+
+#ifdef HAVE_ADIOS2
+    call fortran_adios2_setup(npts,nelv,nelb,nelgv, &
                 nelgv,coef%dof%x,coef%dof%y,  &
                 coef%dof%z,if_asynch,NEKO_COMM)
-!!#else
+#else
     call neko_error('NEKO needs to be built with ADIOS2 support')
-!!#endif
+#endif
 
 
   end subroutine data_streamer_init
@@ -107,14 +107,12 @@ contains
 
     if (allocated(this%lglel))        deallocate(this%lglel)
 
-!!#ifdef HAVE_ADIOS2
-    call adios2_finalize()
-!!#else
+#ifdef HAVE_ADIOS2
+    call fortran_adios2_finalize()
+#else
     call neko_error('NEKO needs to be built with ADIOS2 support')
-!!#endif
+#endif
     
-
-
   end subroutine data_streamer_free
   
   !> streamer
@@ -138,16 +136,15 @@ contains
        call device_memcpy(p%x,  p%x_d, nelv*npts,DEVICE_TO_HOST)
     end if
 
-#if HAVE_ADIOS2
-    call adios2_stream(this%lglel,p%x, u%x, v%x, w%x, coef%B, u%x)
+#ifdef HAVE_ADIOS2
+    call fortran_adios2_stream(this%lglel,p%x, u%x, v%x, w%x, coef%B, u%x)
 #else
     call neko_error('NEKO needs to be built with ADIOS2 support')
 #endif
 
-
   end subroutine data_streamer_stream
   
-  
+  !> Supporting function to calculate the element number offset.  
   function elem_running_sum(nelv) result(rbuff)
 
     integer, intent(in) :: nelv
@@ -160,5 +157,75 @@ contains
     call mpi_scan(xbuff,rbuff,1,mpi_integer,mpi_sum,NEKO_COMM,ierr)
 
   end function elem_running_sum
+
+  !> Interfaces to C++ code:
+  subroutine fortran_adios2_setup(npts,nelv,nelb,nelgv, nelgt,x,y,z,asynch,comm)  
+     use, intrinsic :: ISO_C_BINDING
+     implicit none
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: x
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: y
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: z
+     integer, intent(in) :: npts, nelv, nelb,nelgv, nelgt, asynch
+     type(MPI_COMM) :: comm
+     interface
+        ! C-definition is: int func(double *data, const int nx, const int ny)
+        subroutine c_adios2_setup(npts,nelv,nelb,nelgv,nelgt,x,y,z,asynch,comm) bind(C,name="adios2_setup_")
+           use, intrinsic :: ISO_C_BINDING
+           implicit none
+           integer(kind=C_INT) :: npts
+           integer(kind=C_INT) :: nelv
+           integer(kind=C_INT) :: nelb
+           integer(kind=C_INT) :: nelgv
+           integer(kind=C_INT) :: nelgt
+           real(kind=C_DOUBLE), intent(INOUT) :: x(*)
+           real(kind=C_DOUBLE), intent(INOUT)  :: y(*)
+           real(kind=C_DOUBLE), intent(INOUT)  :: z(*)
+           integer(kind=C_INT) :: asynch
+           type(*) :: comm
+        end subroutine c_adios2_setup
+     end interface
+     call c_adios2_setup(npts,nelv,nelb,nelgv, nelgt,x,y,z,asynch,comm)  
+  end subroutine fortran_adios2_setup
+
+  subroutine fortran_adios2_finalize()  
+     use, intrinsic :: ISO_C_BINDING
+     implicit none
+     interface
+        ! C-definition is: int func(double *data, const int nx, const int ny)
+        subroutine c_adios2_finalize() bind(C,name="adios2_finalize_")
+           use, intrinsic :: ISO_C_BINDING
+           implicit none
+        end subroutine c_adios2_finalize
+     end interface
+     call c_adios2_finalize()  
+  end subroutine fortran_adios2_finalize
+  
+  subroutine fortran_adios2_stream(lglel,p,u,v,w,bm1,t)  
+     use, intrinsic :: ISO_C_BINDING
+     implicit none
+     integer, dimension(:), intent(inout) :: lglel
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: p
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: v
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: w
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: bm1
+     real(kind=rp), dimension(:,:,:,:), intent(inout) :: t
+
+     interface
+        ! C-definition is: int func(double *data, const int nx, const int ny)
+        subroutine c_adios2_stream(lglel,p,u,v,w,bm1,t) bind(C,name="adios2_stream_")
+           use, intrinsic :: ISO_C_BINDING
+           implicit none
+           integer(kind=C_INT), intent(INOUT) :: lglel(*)
+           real(kind=C_DOUBLE), intent(INOUT) :: p(*)
+           real(kind=C_DOUBLE), intent(INOUT)  :: u(*)
+           real(kind=C_DOUBLE), intent(INOUT)  :: v(*)
+           real(kind=C_DOUBLE), intent(INOUT)  :: w(*)
+           real(kind=C_DOUBLE), intent(INOUT)  :: bm1(*)
+           real(kind=C_DOUBLE), intent(INOUT)  :: t(*)
+        end subroutine c_adios2_stream
+     end interface
+     call c_adios2_stream(lglel,p,u,v,w,bm1,t)  
+  end subroutine fortran_adios2_stream
 
 end module data_streamer
