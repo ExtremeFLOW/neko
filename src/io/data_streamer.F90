@@ -90,13 +90,13 @@ contains
     !nelb = elem_running_sum(nelv)
     !nelb = nelb - nelv
 
-#ifdef HAVE_ADIOS2
-    call fortran_adios2_setup(npts,nelv,nelb,nelgv, &
-                nelgv,coef%dof%x,coef%dof%y,  &
-                coef%dof%z,if_asynch,NEKO_COMM)
-#else
-    call neko_error('NEKO needs to be built with ADIOS2 support')
-#endif
+!#ifdef HAVE_ADIOS2
+!    call fortran_adios2_setup(npts,nelv,nelb,nelgv, &
+!                nelgv,coef%dof%x,coef%dof%y,  &
+!                coef%dof%z,if_asynch,NEKO_COMM)
+!#else
+!    call neko_error('NEKO needs to be built with ADIOS2 support')
+!#endif
 
 
   end subroutine data_streamer_init
@@ -107,11 +107,11 @@ contains
 
     if (allocated(this%lglel))        deallocate(this%lglel)
 
-#ifdef HAVE_ADIOS2
-    call fortran_adios2_finalize()
-#else
-    call neko_error('NEKO needs to be built with ADIOS2 support')
-#endif
+!#ifdef HAVE_ADIOS2
+!    call fortran_adios2_finalize()
+!#else
+!    call neko_error('NEKO needs to be built with ADIOS2 support')
+!#endif
     
   end subroutine data_streamer_free
   
@@ -136,11 +136,11 @@ contains
        call device_memcpy(p%x,  p%x_d, nelv*npts,DEVICE_TO_HOST)
     end if
 
-#ifdef HAVE_ADIOS2
-    call fortran_adios2_stream(this%lglel,p%x, u%x, v%x, w%x, coef%B, u%x)
-#else
-    call neko_error('NEKO needs to be built with ADIOS2 support')
-#endif
+!#ifdef HAVE_ADIOS2
+!    call fortran_adios2_stream(this%lglel,p%x, u%x, v%x, w%x, coef%B, u%x)
+!#else
+!    call neko_error('NEKO needs to be built with ADIOS2 support')
+!#endif
 
   end subroutine data_streamer_stream
   
