@@ -183,7 +183,7 @@ contains
   subroutine field_assign_field(this, g)
     class(field_t), intent(inout) :: this
     type(field_t), intent(in) :: g
-    integer :: i, n
+    integer :: i
 
     if (allocated(this%x)) then
        if (this%Xh .ne. g%Xh) then
@@ -214,7 +214,7 @@ contains
        call device_copy(this%x_d, g%x_d, this%dof%size())
     else
        !$omp do
-       do i = 1, n
+       do i = 1, this%dof%size()
           this%x(i, 1, 1, 1) = g%x(i, 1, 1, 1)
        end do
        !$omp end do
@@ -226,13 +226,13 @@ contains
   subroutine field_assign_scalar(this, a)
     class(field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: a
-    integer :: i, n
+    integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%x_d, a, this%dof%size())
     else
        !$omp do
-       do i = 1, n
+       do i = 1, this%dof%size()
           this%x(i, 1, 1, 1) = a
        end do
        !$omp end do
@@ -246,13 +246,13 @@ contains
   subroutine field_add_field(this, g)
     class(field_t), intent(inout) :: this
     type(field_t), intent(in) :: g
-    integer :: i, n
+    integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(this%x_d, g%x_d, this%dof%size())
     else
        !$omp do
-       do i = 1, n
+       do i = 1, this%dof%size()
           this%x(i, 1, 1, 1) = this%x(i, 1, 1, 1) + g%x(i, 1, 1, 1)
        end do
        !$omp end do
@@ -266,13 +266,13 @@ contains
   subroutine field_add_scalar(this, a)
     class(field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: a
-    integer :: i, n
+    integer :: i
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd(this%x_d, a, this%dof%size())
     else
        !$omp do
-       do i = 1, n
+       do i = 1, this%dof%size()
           this%x(i, 1, 1, 1) = this%x(i, 1, 1, 1) + a
        end do
        !$omp end do
