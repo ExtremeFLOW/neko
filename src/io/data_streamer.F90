@@ -90,13 +90,14 @@ contains
     !nelb = elem_running_sum(nelv)
     !nelb = nelb - nelv
 
-!#ifdef HAVE_ADIOS2
+#ifdef HAVE_ADIOS2
     call fortran_adios2_setup(npts,nelv,nelb,nelgv, &
                 nelgv,coef%dof%x,coef%dof%y,  &
                 coef%dof%z,if_asynch,NEKO_COMM)
-!#else
-!    call neko_error('NEKO needs to be built with ADIOS2 support')
-!#endif
+#else
+    call neko_warning('Is not being built with ADIOS2 support.')
+    call neko_warning('Not able to use stream/compression functionality')
+#endif
 
 
   end subroutine data_streamer_init
@@ -107,11 +108,12 @@ contains
 
     if (allocated(this%lglel))        deallocate(this%lglel)
 
-!#ifdef HAVE_ADIOS2
+#ifdef HAVE_ADIOS2
     call fortran_adios2_finalize()
-!#else
-!    call neko_error('NEKO needs to be built with ADIOS2 support')
-!#endif
+#else
+    call neko_warning('Is not being built with ADIOS2 support.')
+    call neko_warning('Not able to use stream/compression functionality')
+#endif
     
   end subroutine data_streamer_free
   
@@ -136,11 +138,12 @@ contains
        call device_memcpy(p%x,  p%x_d, nelv*npts,DEVICE_TO_HOST)
     end if
 
-!#ifdef HAVE_ADIOS2
+#ifdef HAVE_ADIOS2
     call fortran_adios2_stream(this%lglel,p%x, u%x, v%x, w%x, coef%B, u%x)
-!#else
-!    call neko_error('NEKO needs to be built with ADIOS2 support')
-!#endif
+#else
+    call neko_warning('Is not being built with ADIOS2 support.')
+    call neko_warning('Not able to use stream/compression functionality')
+#endif
 
   end subroutine data_streamer_stream
   
@@ -168,7 +171,11 @@ contains
      integer, intent(in) :: npts, nelv, nelb,nelgv, nelgt, asynch
      type(MPI_COMM) :: comm
      interface
-        ! C-definition is: int func(double *data, const int nx, const int ny)
+        ! C-definition is: void adios2_setup_(const int *nval,
+        ! const int *nelvin,const int *nelb, const int *nelgv,
+        ! const int *nelgt, const double *xml,const double *yml,
+        ! const double *zml, const int *if_asynchronous,
+        ! const int *comm_int)
         subroutine c_adios2_setup(npts,nelv,nelb,nelgv,nelgt,x,y,z,asynch,comm) bind(C,name="adios2_setup_")
            use, intrinsic :: ISO_C_BINDING
            implicit none
@@ -191,7 +198,7 @@ contains
      use, intrinsic :: ISO_C_BINDING
      implicit none
      interface
-        ! C-definition is: int func(double *data, const int nx, const int ny)
+        ! C-definition is: void adios2_finalize_()
         subroutine c_adios2_finalize() bind(C,name="adios2_finalize_")
            use, intrinsic :: ISO_C_BINDING
            implicit none
@@ -212,7 +219,10 @@ contains
      real(kind=rp), dimension(:,:,:,:), intent(inout) :: t
 
      interface
-        ! C-definition is: int func(double *data, const int nx, const int ny)
+        ! C-definition is: void adios2_stream_(
+        !const int *lglel, const double *pr, const double *u,
+        !const double *v, const double *w, const double *mass1,
+        !const double *temp)
         subroutine c_adios2_stream(lglel,p,u,v,w,bm1,t) bind(C,name="adios2_stream_")
            use, intrinsic :: ISO_C_BINDING
            implicit none
