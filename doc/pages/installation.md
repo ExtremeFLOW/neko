@@ -13,7 +13,7 @@ cd json-fortran && mkdir b && cd b
 cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DUSE_GNU_INSTALL_CONVENTION=ON ..
 make install
 ```
-Now ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`).
+Now add the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PATH`).
 @note On certain systems `lib` should be substituted with `lib64`
 
 ``` bash
