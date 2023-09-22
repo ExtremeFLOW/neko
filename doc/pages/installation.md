@@ -47,7 +47,7 @@ libgs.a
 Now add the path to gslib to an environment variable `GSLIB`
 
 ``` shell
-export GSLIB=$(pwd)/build
+export GSLIB=$(pwd)/build/lib
 ```
 
 Later, when configuring Neko, add the following option to enable gslib
