@@ -21,7 +21,7 @@ import pandas as pd
 print("it imports")
 
 # Import adios2
-sys.path.append('/home/adalberto/NekDCTB/Nek5000/3rd_party/adios2/lib/python3.8/site-packages/adios2')
+sys.path.append('/scratch/adperez/adios2/scratch/adperez/miniconda3/.conda/envs/mypython3.9.5-spMoDePy/lib/python3.9/site-packages/adios2')
 import adios2
 
 
@@ -85,6 +85,7 @@ else:
 if __name__ == "__main__":
 
     # MPI - MPMD
+    print("it imported")
     worldcomm = MPI.COMM_WORLD
     worldrank = worldcomm.Get_rank()
     worldsize = worldcomm.Get_size()
@@ -92,13 +93,14 @@ if __name__ == "__main__":
     comm = worldcomm.Split(col,worldrank)
     rank = comm.Get_rank()
     size = comm.Get_size()
+    print("it divided")
     
     # ADIOS portion
     adios = adios2.ADIOS(comm)
 
     # ADIOS IO - Engine
     ioRead = adios.DeclareIO("ioReader")
-    ioRead.SetEngine('InSituMPI')
+    ioRead.SetEngine('SST')
 
     if rank ==0: print(outprefix)
     
@@ -255,8 +257,8 @@ if __name__ == "__main__":
 
             ibpStream.EndStep()
 
-            print(Xi)
-            print(inLGLEL)
+            print(bm1i)
+            print(np.sum(bm1i))
 
             print("scale data")
             #Scale the data with the mass matrix

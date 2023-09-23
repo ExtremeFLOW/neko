@@ -121,7 +121,7 @@
 
     <io name="writerISMPI">     
 
-        <engine type="InSituMPI">
+        <engine type="SST">
             <!--parameter key="MarshalMethod" value="BP"/-->
 
             <!--parameter key="DataTransport" value="RDMA"/-->
@@ -133,7 +133,7 @@
 
     <io name="reader">
 
-        <engine type="InSituMPI">
+        <engine type="SST">
             <!--parameter key="DataTransport" value="RDMA"/-->
             <!--parameter key="ReserveQueueLimit", value="3"/-->
             <!--parameter key="MarshalMethod" value="BP"/-->
