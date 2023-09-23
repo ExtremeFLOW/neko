@@ -104,7 +104,7 @@ io/chkp_output.o : io/chkp_output.f90 config/num_types.o io/output.o common/chec
 io/mean_flow_output.o : io/mean_flow_output.f90 io/output.o device/device.o config/num_types.o fluid/mean_flow.o 
 io/fluid_stats_output.o : io/fluid_stats_output.f90 io/output.o device/device.o config/num_types.o config/neko_config.o fluid/fluid_stats.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
-io/data_streamer.o : io/data_streamer.F90 config/neko_config.o comm/mpi_types.o comm/comm.o device/device.o sem/coef.o field/field.o config/num_types.o 
+io/data_streamer.o : io/data_streamer.F90 config/neko_config.o comm/mpi_types.o comm/comm.o device/device.o common/utils.o sem/coef.o field/field.o config/num_types.o 
 common/sampler.o : common/sampler.f90 common/time_based_controller.o config/num_types.o common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o 
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 

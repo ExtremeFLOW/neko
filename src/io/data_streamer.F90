@@ -36,6 +36,7 @@ module data_streamer
   use num_types, only: rp
   use field, only: field_t
   use coefs, only: coef_t
+  use utils, only: neko_warning
   use device 
   use comm
   use mpi_types
@@ -161,6 +162,7 @@ contains
 
   end function elem_running_sum
 
+#ifdef HAVE_ADIOS2
   !> Interfaces to C++ code:
   subroutine fortran_adios2_setup(npts,nelv,nelb,nelgv, nelgt,x,y,z,asynch,comm)  
      use, intrinsic :: ISO_C_BINDING
@@ -237,5 +239,6 @@ contains
      end interface
      call c_adios2_stream(lglel,p,u,v,w,bm1,t)  
   end subroutine fortran_adios2_stream
+#endif
 
 end module data_streamer
