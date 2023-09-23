@@ -33,7 +33,7 @@
 !> Implements data streaming.
 module data_streamer
 
-  use num_types, only: rp
+  use num_types, only: rp, c_rp
   use field, only: field_t
   use coefs, only: coef_t
   use utils, only: neko_warning
@@ -180,15 +180,16 @@ contains
         ! const int *comm_int)
         subroutine c_adios2_setup(npts,nelv,nelb,nelgv,nelgt,x,y,z,asynch,comm) bind(C,name="adios2_setup_")
            use, intrinsic :: ISO_C_BINDING
+           import c_rp
            implicit none
            integer(kind=C_INT) :: npts
            integer(kind=C_INT) :: nelv
            integer(kind=C_INT) :: nelb
            integer(kind=C_INT) :: nelgv
            integer(kind=C_INT) :: nelgt
-           real(kind=C_DOUBLE), intent(INOUT) :: x(*)
-           real(kind=C_DOUBLE), intent(INOUT)  :: y(*)
-           real(kind=C_DOUBLE), intent(INOUT)  :: z(*)
+           real(kind=c_rp), intent(INOUT) :: x(*)
+           real(kind=c_rp), intent(INOUT)  :: y(*)
+           real(kind=c_rp), intent(INOUT)  :: z(*)
            integer(kind=C_INT) :: asynch
            type(*) :: comm
         end subroutine c_adios2_setup
@@ -227,14 +228,15 @@ contains
         !const double *temp)
         subroutine c_adios2_stream(lglel,p,u,v,w,bm1,t) bind(C,name="adios2_stream_")
            use, intrinsic :: ISO_C_BINDING
+           import c_rp
            implicit none
            integer(kind=C_INT), intent(INOUT) :: lglel(*)
-           real(kind=C_DOUBLE), intent(INOUT) :: p(*)
-           real(kind=C_DOUBLE), intent(INOUT)  :: u(*)
-           real(kind=C_DOUBLE), intent(INOUT)  :: v(*)
-           real(kind=C_DOUBLE), intent(INOUT)  :: w(*)
-           real(kind=C_DOUBLE), intent(INOUT)  :: bm1(*)
-           real(kind=C_DOUBLE), intent(INOUT)  :: t(*)
+           real(kind=c_rp), intent(INOUT) :: p(*)
+           real(kind=c_rp), intent(INOUT)  :: u(*)
+           real(kind=c_rp), intent(INOUT)  :: v(*)
+           real(kind=c_rp), intent(INOUT)  :: w(*)
+           real(kind=c_rp), intent(INOUT)  :: bm1(*)
+           real(kind=c_rp), intent(INOUT)  :: t(*)
         end subroutine c_adios2_stream
      end interface
      call c_adios2_stream(lglel,p,u,v,w,bm1,t)  
