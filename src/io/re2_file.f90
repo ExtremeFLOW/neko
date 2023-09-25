@@ -552,6 +552,9 @@ contains
                   p_facet, p_el_idx, pids)
           case ('MSH', 'msh')
              label = int(re2v2_data_bc(i)%bc_data(5))
+             if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
+                call neko_error('Invalid label id (valid range [1,...,20])')
+             end if
              call msh%mark_labeled_facet(sym_facet, el_idx, label)
           case default
               write (*,*) re2v2_data_bc(i)%type, 'bc type not supported yet'
