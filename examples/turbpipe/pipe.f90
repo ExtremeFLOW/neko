@@ -8,7 +8,6 @@ contains
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
     u%fluid_user_ic => user_ic
-    u%fluid_user_f_vector => forcing
   end subroutine user_setup
   ! User defined initial condition
   subroutine user_ic(u, v, w, p, params)
@@ -74,28 +73,4 @@ contains
     uvw(3) = uz
 
   end function pipe_ic
-
-  !> Forcing for if not using vol_flow
-  subroutine forcing(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
-    real(kind=rp), intent(in) :: t
-    real(kind=rp) :: Re_tau, Re_B, w
-    integer :: i
-    Re_tau = 180_rp
-    Re_B = 5300_rp 
-    w = 2d0 * (2d0*Re_tau/Re_B)**2
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(f%u_d,f%dm%size())
-       call device_rzero(f%v_d,f%dm%size())
-       call device_rzero(f%w_d,f%dm%size())
-       call device_cfill(f%w_d, w, f%dm%size())
-    else
-       do i = 1, f%dm%size()
-          f%u(i,1,1,1) = 0.0_rp
-          f%v(i,1,1,1) = 0.0_rp
-          f%w(i,1,1,1) = w
-       end do
-    end if
-  end subroutine forcing
 end module user
