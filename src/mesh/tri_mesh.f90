@@ -34,7 +34,7 @@
 !! @details Mesh derived from a surface geometry 
 module tri_mesh
   use tri
-  use point
+  use point, only : point_t
   implicit none
   private
 

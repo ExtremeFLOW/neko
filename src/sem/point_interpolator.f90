@@ -304,14 +304,16 @@ contains
     !
 
     ! d(x,y,z)/dr
-    call triple_tensor_product(jac(1,:), X,Y,Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    call triple_tensor_product(tmp, X,Y,Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    jac(1,:) = tmp
 
     ! d(x,y,z)/ds
-    call triple_tensor_product(jac(2,:), X,Y,Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    call triple_tensor_product(tmp, X,Y,Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    jac(2,:) = tmp
 
     ! d(x,y,z)/dt
-    call triple_tensor_product(jac(3,:), X,Y,Z, lx, hr(:,1), hs(:,1), ht(:,2))
-
+    call triple_tensor_product(tmp, X,Y,Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    jac(3,:) = tmp
 
   end function point_interpolator_interpolate_vector_jacobian
 
@@ -329,6 +331,7 @@ contains
     real(kind=rp), intent(inout) :: Z(this%Xh%lx, this%Xh%ly, this%Xh%lz)
 
     real(kind=rp) :: jac(3,3)
+    real(kind=rp) :: tmp(3)
 
     real(kind=rp) :: hr(this%Xh%lx, 2), hs(this%Xh%ly, 2), ht(this%Xh%lz, 2)
     integer :: lx, ly, lz
@@ -342,13 +345,17 @@ contains
     call fd_weights_full(real(rst%x(3), rp), this%Xh%zg(:,3), lz-1, 1, ht)
 
     ! d(x,y,z)/dr
-    call triple_tensor_product(jac(1,:), X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,2), hs(:,1), ht(:,1))
+    jac(1,:) = tmp
 
     ! d(x,y,z)/ds
-    call triple_tensor_product(jac(2,:), X, Y, Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,2), ht(:,1))
+    jac(2,:) = tmp
 
     ! d(x,y,z)/dt
-    call triple_tensor_product(jac(3,:), X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    call triple_tensor_product(tmp, X, Y, Z, lx, hr(:,1), hs(:,1), ht(:,2))
+    jac(3,:) = tmp
+
   end function point_interpolator_interpolate_jacobian
 
   !> Interpolates a list of fields based on a set of element ids.

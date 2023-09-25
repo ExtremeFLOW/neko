@@ -33,11 +33,14 @@
 !> Coefficients 
 module coefs
   use gather_scatter
+  use gs_ops
   use neko_config
   use num_types
-  use space  
+  use dofmap, only : dofmap_t
+  use space, only: space_t
   use math
-  use mesh
+  use mesh, only : mesh_t
+  use device_math
   use device_coef
   use device_math
   use mxm_wrapper
@@ -348,7 +351,7 @@ contains
        call rone(this%mult, n)
     end if
        
-    call gs_op(gs_h, this%mult, n, GS_OP_ADD)
+    call gs_h%op(this%mult, n, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
@@ -949,7 +952,7 @@ contains
        call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE)
     end if
     
-    call gs_op(c%gs_h, c%Binv, ntot, GS_OP_ADD)
+    call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(c%Binv_d, ntot)

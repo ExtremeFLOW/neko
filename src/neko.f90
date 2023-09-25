@@ -38,19 +38,19 @@ module neko
   use logger
   use math
   use speclib
-  use dofmap
+  use dofmap, only : dofmap_t
   use space
   use htable
   use uset
   use stack
   use tuple
-  use mesh
+  use mesh, only : mesh_t
   use point
-  use mesh_field
+  use mesh_field, only : mesh_fld_t
   use map
   use mxm_wrapper
   use file
-  use field
+  use field, only : field_t
   use mpi_types
   use gather_scatter
   use coefs
@@ -60,7 +60,6 @@ module neko
   use krylov_fctry
   use precon_fctry
   use ax_helm_fctry
-  use precon
   use ax_product
   use neko_config
   use case
@@ -75,9 +74,11 @@ module neko
   use signal
   use jobctrl
   use device
+  use device_math
   use cpr
+  use source
   use fluid_stats
-  use field_list  
+  use field_list, only : field_list_t
   use vector
   use simulation_component
   use probes
@@ -86,6 +87,7 @@ module neko
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
+  use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
 

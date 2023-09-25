@@ -38,10 +38,14 @@ module jobctrl
   use comm
   use logger
   implicit none
-
+  private
+  
   interface jobctrl_set_time_limit
      module procedure jobctrl_set_time_limit_sec, jobctrl_set_time_limit_str
   end interface jobctrl_set_time_limit
+
+  public :: jobctrl_init, jobctrl_set_time_limit, &
+       jobctrl_time_limit, jobctrl_jobtime
 
 contains
 

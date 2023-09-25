@@ -31,21 +31,24 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Operators accelerator backends
-module opr_device
-  use gather_scatter  
-  use num_types
+module opr_device  
+  use gather_scatter
+  use num_types, only : rp, c_rp
   use device_math
   use device_mathops
-  use device    
-  use space
-  use coefs
-  use math
-  use mesh
-  use field
-  use mathops
-  use utils
+  use device, only : device_get_ptr 
+  use space, only : space_t
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use field, only : field_t
+  use utils, only : neko_error
+  use comm
   use, intrinsic :: iso_c_binding
   implicit none
+  private
+  
+  public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
+       opr_device_conv1, opr_device_curl, opr_device_cfl, opr_device_lambda2
 
 #ifdef HAVE_HIP
   interface
@@ -648,9 +651,9 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)    
-    call gs_op(c_Xh%gs_h, w1, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w2, GS_OP_ADD) 
-    call gs_op(c_Xh%gs_h, w3, GS_OP_ADD)
+    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
+    call c_Xh%gs_h%op(w3, GS_OP_ADD)
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)    
 
 #else

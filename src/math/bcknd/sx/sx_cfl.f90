@@ -32,8 +32,14 @@
 !
 !> CFL SX-Aurora kernels
 module sx_cfl
-  use num_types
+  use num_types, only : rp
   implicit none
+  private
+
+  public :: sx_cfl_lx, sx_cfl_lx14, sx_cfl_lx13, sx_cfl_lx12, &
+       sx_cfl_lx11, sx_cfl_lx10, sx_cfl_lx9, sx_cfl_lx8, &
+       sx_cfl_lx7, sx_cfl_lx6, sx_cfl_lx5, sx_cfl_lx4, &
+       sx_cfl_lx3, sx_cfl_lx2
 
 contains
 

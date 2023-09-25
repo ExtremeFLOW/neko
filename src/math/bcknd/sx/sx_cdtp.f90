@@ -32,9 +32,15 @@
 !
 !> DT*X kernels for SX-Aurora
 module sx_cdtp
-  use num_types
+  use num_types, only : rp
   use math
   implicit none
+  private
+
+  public :: sx_cdtp_lx, sx_cdtp_lx14, sx_cdtp_lx13, sx_cdtp_lx12, &
+       sx_cdtp_lx11, sx_cdtp_lx10, sx_cdtp_lx9, sx_cdtp_lx8, &
+       sx_cdtp_lx7, sx_cdtp_lx6, sx_cdtp_lx5, sx_cdtp_lx4, &
+       sx_cdtp_lx3, sx_cdtp_lx2
 
 contains
 

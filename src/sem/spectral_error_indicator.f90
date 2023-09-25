@@ -43,6 +43,9 @@ module spectral_error_indicator
   use device_math, only: device_copy
   use gather_scatter
   use neko_config
+  use device, only: DEVICE_TO_HOST, device_memcpy
+  use comm, only: pe_rank
+  use utils, only: NEKO_FNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -249,7 +252,7 @@ contains
        (NEKO_BCKND_OPENCL .eq. 1)) then 
 
        call device_memcpy(u_hat%x,u_hat%x_d, n, &
-                          DEVICE_TO_HOST, sync=.true.)
+                          DEVICE_TO_HOST)
     end if
 
   end subroutine transform_to_spec_or_phys

@@ -34,13 +34,12 @@
 module field
   use neko_config
   use device_math
-  use num_types
+  use num_types, only : rp
   use device
   use math
-  use mesh
-  use space
-  use dofmap
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use mesh, only : mesh_t
+  use space, only : space_t, operator(.ne.)
+  use dofmap, only : dofmap_t
   implicit none
   private
   

@@ -1,10 +1,11 @@
 module test_scratch_registry
   use pfunit
   use field
-  use mesh
-  use space
-  use dofmap
   use point
+  use space
+  use mesh
+  use dofmap
+  use math
   use scratch_registry
   use num_types
   implicit none
@@ -56,7 +57,7 @@ contains
     integer :: ierr
 
     call test_scratch_registry_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dm = dofmap_t(msh, Xh)
     
     scratch = scratch_registry_t(dm) 
@@ -79,7 +80,7 @@ contains
     integer :: ierr
 
     call test_scratch_registry_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dm = dofmap_t(msh, Xh)
     
     scratch = scratch_registry_t(dm, 5, 3) 
@@ -103,7 +104,7 @@ contains
 
     ! write(*,*) "TEST FRESH"
     call test_scratch_registry_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dm = dofmap_t(msh, Xh)
     
     scratch = scratch_registry_t(dm, 5, 3) 
@@ -138,7 +139,7 @@ contains
     integer, parameter :: LX = 3
 
     call test_scratch_registry_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dm = dofmap_t(msh, Xh)
     
     scratch = scratch_registry_t(dm, 5, 3) 
@@ -163,7 +164,7 @@ contains
     ! write(*,*) "TEST EXPAND"
 
     call test_scratch_registry_gen_msh(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dm = dofmap_t(msh, Xh)
     
     scratch = scratch_registry_t(dm, 1, 1) 
@@ -201,7 +202,7 @@ contains
    integer, parameter :: LX = 2
 
    call test_scratch_registry_gen_msh(msh)
-   call space_init(Xh, GLL, lx, lx, lx)
+   call Xh%init(GLL, lx, lx, lx)
    dm = dofmap_t(msh, Xh)
     
   !  write(*,*) "TEST COMBO"
@@ -275,7 +276,7 @@ end subroutine test_scratch_registry_combo
    integer, parameter :: LX = 2
 
    call test_scratch_registry_gen_msh(msh)
-   call space_init(Xh, GLL, lx, lx, lx)
+   call Xh%init(GLL, lx, lx, lx)
    dm = dofmap_t(msh, Xh)
     
   !  write(*,*) "TEST COMBO"

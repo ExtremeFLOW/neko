@@ -5,11 +5,15 @@ module gather_scatter_parallel
   use space
   use mesh
   use num_types
+  use field
+  use math
   use hex
   use point
   use datadist
   use gather_scatter
-  use neko_config
+  use device
+  use neko_config  
+  use comm, only : NEKO_COMM, pe_rank, pe_size 
   implicit none
   
 contains
@@ -63,7 +67,7 @@ contains
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    Call Xh%init(GLL, lx,lx,lx)
 
     call m%add_element(1, p(1), p(2), p(4), p(3), &
          p(5), p(6), p(8), p(7))
@@ -74,7 +78,7 @@ contains
     call m%generate_conn()
 
     d = dofmap_t(m, Xh)
-    call gs_init(gs_h, d)
+    call gs_h%init(d)
     call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
@@ -85,7 +89,7 @@ contains
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
 
-    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+    call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -153,7 +157,7 @@ contains
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
     call m%add_element(1, p(5), p(1), p(8), p(4), &
@@ -163,7 +167,7 @@ contains
     call m%generate_conn()
 
     d = dofmap_t(m, Xh)
-    call gs_init(gs_h, d)
+    call gs_h%init(d)
     call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
@@ -174,7 +178,7 @@ contains
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(gs_h,x%x, n, GS_OP_ADD)
+    call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -241,7 +245,7 @@ contains
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
     call m%add_element(1, p(7), p(8), p(6), p(5), &
@@ -251,7 +255,7 @@ contains
 
     call m%generate_conn()
     d = dofmap_t(m, Xh)
-    call gs_init(gs_h, d)
+    call gs_h%init(d)
     call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
@@ -262,7 +266,7 @@ contains
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+    call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -329,7 +333,7 @@ contains
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
     call m%add_element(1, p(6), p(5), p(7), p(8), &
@@ -339,7 +343,7 @@ contains
 
     call m%generate_conn()
     d = dofmap_t(m, Xh)
-    call gs_init(gs_h, d)
+    call gs_h%init(d)
     call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
@@ -350,7 +354,7 @@ contains
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+    call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -417,7 +421,7 @@ contains
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
     call m%add_element(1, p(2), p(6), p(3), p(7), &
@@ -427,7 +431,7 @@ contains
 
     call m%generate_conn()
     d = dofmap_t(m, Xh)
-    call gs_init(gs_h, d)
+    call gs_h%init(d)
     call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)    
@@ -438,7 +442,7 @@ contains
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+    call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -505,7 +509,7 @@ contains
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
     call m%add_element(1, p(4), p(1), p(3), p(2), &
@@ -515,7 +519,7 @@ contains
 
     call m%generate_conn()
     d = dofmap_t(m, Xh)
-    call gs_init(gs_h, d)
+    call gs_h%init(d)
     call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
@@ -526,7 +530,7 @@ contains
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+    call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -593,7 +597,7 @@ contains
     call p(12)%set_id(12)
 
     call m%init(gdim, dist)
-    Call space_init(Xh, GLL, lx,lx,lx)
+    Call Xh%init(GLL, lx,lx,lx)
 
 
     call m%add_element(1, p(2), p(3), p(1), p(4), &
@@ -603,7 +607,7 @@ contains
 
     call m%generate_conn()
     d = dofmap_t(m, Xh)
-    call gs_init(gs_h, d)
+    call gs_h%init(d)
     call x%init(m, Xh, "x")   
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
     call rone(x%x, n)
@@ -614,7 +618,7 @@ contains
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE)
     end if
     
-    call gs_op_vector(gs_h, x%x, n, GS_OP_ADD)
+    call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then

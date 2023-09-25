@@ -38,6 +38,7 @@ module checkpoint
   use space
   use device
   use field
+  use space
   use utils
   implicit none
   private

@@ -33,18 +33,19 @@
 !> Defines a function space
 module space
   use neko_config
-  use num_types
+  use num_types, only : rp
   use speclib
   use device
-  use utils
-  use fast3d
+  use utils, only : neko_error    
+  use fast3d, only : setup_intp
   use math
   use tensor, only : trsp1
   use mxm_wrapper, only: mxm
   use, intrinsic :: iso_c_binding
   implicit none
-
-  integer, parameter :: GL = 0, GLL = 1, GJ = 2
+  private
+  
+  integer, public, parameter :: GL = 0, GLL = 1, GJ = 2
 
   !> The function space for the SEM solution fields
   !! @details
@@ -58,7 +59,7 @@ module space
   !! @note The standard variable name for the `space_t` type in Neko is `Xh`.
   !! @warning Although the type has separate members for the poly orders in x,
   !! y, and z, in the current implementation these are forced to be equal.
-  type space_t
+  type, public :: space_t
      integer :: t               !< Space type (GL, GLL, GJ, ...)
      integer :: lx              !< Polynomial dimension in x-direction
      integer :: ly              !< Polynomial dimension in y-direction
@@ -124,6 +125,9 @@ module space
      type(c_ptr) :: vinv_d = C_NULL_PTR
      type(c_ptr) :: vinvt_d = C_NULL_PTR
      type(c_ptr) :: w_d = C_NULL_PTR
+   contains
+     procedure, pass(s) :: init => space_init
+     procedure, pass(s) :: free => space_free
 
   end type space_t
 
@@ -134,12 +138,14 @@ module space
   interface operator(.ne.)
      module procedure space_ne
   end interface operator(.ne.)
+
+  public :: operator(.eq.), operator(.ne.)
   
 contains
 
   !> Initialize a function space @a s with given polynomial dimensions
   subroutine space_init(s, t, lx, ly, lz)
-    type(space_t), intent(inout) :: s
+    class(space_t), intent(inout) :: s
     integer, intent(in) :: t            !< Quadrature type
     integer, intent(in) :: lx           !< Polynomial dimension in x-direction
     integer, intent(in) :: ly           !< Polynomial dimension in y-direction
@@ -301,7 +307,7 @@ contains
    
   !> Deallocate a space @a s
   subroutine space_free(s)
-    type(space_t), intent(inout) :: s
+    class(space_t), intent(inout) :: s
 
     if (allocated(s%zg)) then
        deallocate(s%zg)
@@ -504,7 +510,9 @@ contains
        dx(i) = 0.5*(x(i+1) - x(i-1))
     enddo
     dx(lx) = x(lx) - x(lx-1)
-    call invcol1(dx, lx)
+    do i = 1, lx
+       dx(i) = 1.0_rp / dx(i)
+    end do
   end subroutine space_compute_dist
   
   

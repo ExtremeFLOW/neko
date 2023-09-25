@@ -32,24 +32,22 @@
 !
 !> Defines a mesh
 module mesh
-  use num_types
-  use mpi_f08
-  use point
-  use element
+  use num_types, only : rp, dp, i8
+  use point, only : point_t
+  use element, only : element_t
   use hex
   use quad
-  use utils
-  use htable
-  use comm
-  use stack
-  use tuple
+  use utils, only : neko_error
+  use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
+  use tuple, only : tuple_i4_t, tuple4_i4_t
   use htable
   use datadist
   use distdata
-  use zone
+  use comm    
+  use zone, only : zone_t, zone_periodic_t
   use math
-  use uset
-  use curve
+  use uset, only : uset_i8_t
+  use curve, only : curve_t
   implicit none
   private
   
@@ -175,7 +173,7 @@ module mesh
   end interface
 
   public :: mesh_deform
-   
+  
 contains 
 
   !> Initialise a mesh @a this with @a nelv elements
