@@ -60,7 +60,7 @@ extern "C" void adios2_setup_(
     const int *if_asynchronous,
     const int *comm_int
 ){
-    std::string configFile="config/config.xml";
+    std::string configFile="adios2_config/config.xml";
     MPI_Comm comm = MPI_Comm_f2c(*comm_int);
     adios = adios2::ADIOS(configFile, comm);
     MPI_Comm_rank(comm, &rank);
@@ -205,7 +205,7 @@ extern "C" void adios2_read_(
     char *fname
 ){
     startT = std::clock();
-    std::string configFile="config/config.xml";
+    std::string configFile="adios2_config/config.xml";
     MPI_Comm comm = MPI_Comm_f2c(*comm_int);
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
