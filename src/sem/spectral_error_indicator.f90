@@ -217,7 +217,7 @@ contains
   !! @param u field to transform
   !! @param wk working field
   !! @param coef type coef for mesh parameters
-  !! @param space string that indicates which space to transform
+  !! @param space String that indicates which space to transform, "spec" or "phys".
   subroutine transform_to_spec_or_phys(u_hat, u, wk, coef, space)
     type(field_t), intent(inout) :: u_hat
     type(field_t), intent(inout) :: u
