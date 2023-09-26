@@ -35,7 +35,7 @@
 module const_source_term
   use num_types, only : rp
   use field_list, only : field_list_t
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use json_utils, only: json_get
   use source_term, only : source_term_t
   use coefs, only : coef_t
@@ -75,8 +75,6 @@ contains
     type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout) :: coef
     real(kind=rp), allocatable :: values(:)
-    ! Json low-level manipulator.
-    type(json_core) :: core
 
     call json_get(json, "values", values)
     call const_source_term_init_from_components(this, fields, values, coef)
@@ -94,6 +92,7 @@ contains
     real(kind=rp), intent(in) :: values(:)
     type(coef_t) :: coef
 
+    call this%free()
     call this%init_base(fields, coef)
 
     if (size(values) .ne. size(fields%fields)) then
@@ -109,6 +108,9 @@ contains
     call this%free_base()
   end subroutine const_source_term_free
 
+  !> Computes the source term and adds the result to `fields`.
+  !! @param t The time value.
+  !! @param tstep The current time-step.
   subroutine const_source_term_compute(this, t, tstep) 
     class(const_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t

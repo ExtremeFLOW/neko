@@ -36,7 +36,7 @@ module fluid_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use fluid_user_source_term, only: fluid_user_source_term_t
-  use source_term, only : source_term_wrapper_t
+  use source_term, only : source_term_wrapper_t, source_term_t
   use source_term_fctry, only : source_term_factory
   use field, only : field_t
   use field_list, only : field_list_t
@@ -52,10 +52,8 @@ module fluid_source_term
   !> Wrapper combining the user-file fluid source term and the ones defined in
   !! the JSON.
   type, public :: fluid_source_term_t
-     !> The source term for the right-hand side.
-     type(fluid_user_source_term_t) :: user_source_term
      !> Array of ordinary source terms.
-     class(source_term_wrapper_t), allocatable :: json_source_terms(:)
+     class(source_term_wrapper_t), allocatable :: source_terms(:)
      !> X-component of the right-hand side.
      type(field_t), pointer :: f_x => null()
      !> Y-component of the right-hand side.
@@ -104,8 +102,6 @@ contains
     this%f_y => f_y
     this%f_z => f_z
 
-    ! NOTE: the user source procedure pointer is set externally in case.f90 !
-    call this%user_source_term%init(f_x%dof)
 
     if (json%valid_path('case.fluid.source_terms')) then
       ! We package the fields for the source term to operate on in a field list.
@@ -118,11 +114,13 @@ contains
        call json%get('case.fluid.source_terms', source_object, found)
 
        n_sources = core%count(source_object)
-       allocate(this%json_source_terms(n_sources))
+       allocate(this%source_terms(n_sources))
        call json_get(source_subdict, "type", type)
 
 
        do i=1, n_sources
+         associate(sourcei => this%source_terms(i)%source_term)
+
          ! Create a new json containing just the subdict for this source.
           call core%get_child(source_object, i, source_pointer, found)
           call core%print_to_string(source_pointer, buffer)
@@ -130,26 +128,22 @@ contains
           call json_get(source_subdict, "type", type)
           if ((trim(type) .eq. "user_vector") .or. &
               (trim(type) .eq. "user_pointwise")) then
-              ! Make a dummy zero-valued source-term. This is a simple solution
-              ! for ignoring the user term and without fiddling around with the
-              ! number of sources, etc. 
-              values = 0.0_rp
-              call source_subdict%add("values", values)
-              call source_subdict%remove("type")
-              call source_subdict%add("type", "constant")
 
-              ! Init the user source term
-              if (trim(type) .eq. 'user_pointwise') then
-                 call this%user_source_term%set_source_type(trim(type), & 
-                        user_proc_pw=user%fluid_user_f)
-              else if (trim(type) .eq. 'user_vector') then
-                 call this%user_source_term%set_source_type(trim(type), &
-                        user_proc_vector=user%fluid_user_f_vector)
-              end if
+              allocate(fluid_user_source_term_t::sourcei)
+
+              select type (sourcei)
+              type is (fluid_user_source_term_t)
+                call sourcei%init_from_compenents(rhs_fields, coef, &
+                                                  type, &
+                                                  user%fluid_user_f_vector, &
+                                                  user%fluid_user_f)
+              end select
+
+              continue
           end if
               
-          call source_term_factory(this%json_source_terms(i)%source_term, &
-                                   source_subdict, rhs_fields, coef)
+          call source_term_factory(sourcei, source_subdict, rhs_fields, coef)
+          end associate
       end do 
     end if
     
@@ -164,13 +158,11 @@ contains
     nullify(this%f_y)
     nullify(this%f_z)
 
-    call this%user_source_term%free()
-
-    if (allocated(this%json_source_terms)) then
-       do i=1, size(this%json_source_terms)
-          call this%json_source_terms(i)%free()
+    if (allocated(this%source_terms)) then
+       do i=1, size(this%source_terms)
+          call this%source_terms(i)%free()
        end do
-       deallocate(this%json_source_terms)
+       deallocate(this%source_terms)
     end if
 
   end subroutine fluid_source_term_free
@@ -184,27 +176,14 @@ contains
     integer, intent(in) :: tstep
     integer :: i, n
 
-    n = this%f_x%dof%size()
-
-    ! Compute the user source term
-    call this%user_source_term%eval(t)
-
-    ! Copy the user source values into the total cumulative source term
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(this%f_x%x_d, this%user_source_term%u_d, n)
-       call device_copy(this%f_y%x_d, this%user_source_term%v_d, n)
-       call device_copy(this%f_z%x_d, this%user_source_term%w_d, n)
-    else
-       call copy(this%f_x%x, this%user_source_term%u, n)
-       call copy(this%f_y%x, this%user_source_term%v, n)
-       call copy(this%f_z%x, this%user_source_term%w, n)
-    end if
-
+    this%f_x = 0.0_rp
+    this%f_y = 0.0_rp
+    this%f_z = 0.0_rp
 
     ! Add contribution from all source terms.
-    if (allocated(this%json_source_terms)) then
-       do i=1, size(this%json_source_terms)
-          call this%json_source_terms(i)%source_term%eval(t, tstep)
+    if (allocated(this%source_terms)) then
+       do i=1, size(this%source_terms)
+          call this%source_terms(i)%source_term%compute(t, tstep)
        end do
     end if
 

@@ -38,211 +38,150 @@ module fluid_user_source_term
   use utils, only : neko_error
   use device_math, only : device_rzero
   use device, only : device_free, device_map
+  use source_term
+  use field, only : field_t
+  use json_module, only : json_file
+  use field_list, only : field_list_t
+  use coefs, only : coef_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
-
-  ! Public interfaces
-  public :: source_term, source_term_pw
 
   !> A source-term for the fluid, with procedure pointers pointing to the
   !! actual implementation in the user file.
   !! @details The user source term can be applied either pointiwse or acting
   !! on the whole array in a single call, which is referred to as "vector"
   !! application. 
-  type, public :: fluid_user_source_term_t
-     real(kind=rp), allocatable :: u(:,:,:,:) !< x-component of source term
-     real(kind=rp), allocatable :: v(:,:,:,:) !< y-component of source term
-     real(kind=rp), allocatable :: w(:,:,:,:) !< w-component of source term
-     type(dofmap_t), pointer :: dm            !< dofmap for the given space
-     type(c_ptr) :: u_d = C_NULL_PTR          !< dev. ptr for x-component
-     type(c_ptr) :: v_d = C_NULL_PTR          !< dev. ptr for y-component
-     type(c_ptr) :: w_d = C_NULL_PTR          !< dev. ptr for z-component
-     procedure(source_term), pass(f), pointer  :: eval => null()
-     procedure(source_term_pw), nopass, pointer  :: eval_pw => null()
+  type, public, extends(source_term_t) :: fluid_user_source_term_t
+     !> x-component of source term.
+     type(field_t), pointer :: u
+     !> y-component of source term.
+     type(field_t), pointer :: v
+     !> z-component of source term.
+     type(field_t), pointer :: w
+     !>
+     procedure(source_term_compute_pointwise), nopass, pointer :: eval_pw => null()
+     procedure(source_term_compute), nopass, pointer :: eval => null()
    contains
-     !> Constructor.
+     !> Constructor from JSON (will throw!).
      procedure, pass(this) :: init => fluid_user_source_term_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_compenents => &
+       fluid_user_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => fluid_user_source_term_free
-     !> Set the source type (no force, user pointwise or user vector)
-     procedure, pass(this) :: set_source_type => &
-       fluid_user_source_term_set_source_type
+     !> Computes the source term and adds the result to `fields`.
+     procedure, pass(this) :: compute => fluid_user_source_term_compute
   end type fluid_user_source_term_t
 
-  !> Abstract interface defining how to compute a source term
-  abstract interface
-     subroutine source_term(f, t)
-       import fluid_user_source_term_t
-       import rp
-       class(fluid_user_source_term_t), intent(inout) :: f
-       real(kind=rp), intent(in) :: t
-     end subroutine source_term
-  end interface
-
-  !> Abstract interface defining how to compute a source term pointwise
-  abstract interface
-     subroutine source_term_pw(u, v, w, j, k, l, e, t)
-       import rp
-       real(kind=rp), intent(inout) :: u
-       real(kind=rp), intent(inout) :: v
-       real(kind=rp), intent(inout) :: w
-       integer, intent(in) :: j
-       integer, intent(in) :: k
-       integer, intent(in) :: l
-       integer, intent(in) :: e
-       real(kind=rp), intent(in) :: t
-     end subroutine source_term_pw
-  end interface
-
-  
 contains
 
-  !> Costructor.
-  subroutine fluid_user_source_term_init(this,dm)
+  !> Costructor from JSON.
+  !! @details
+  !! This will throw, as the user source term should be initialized directly
+  !! from components.
+  subroutine fluid_user_source_term_init(this, json, fields, coef)
     class(fluid_user_source_term_t), intent(inout) :: this
-    type(dofmap_t), intent(inout), target :: dm
+    type(json_file), intent(inout) :: json
+    type(field_list_t), intent(inout), target :: fields
+    type(coef_t), intent(inout) :: coef
 
-    call this%free()
+    call neko_error("The user fluid source term should be init from components")
 
-    this%dm => dm
-
-    allocate(this%u(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
-    allocate(this%v(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
-    allocate(this%w(dm%Xh%lx, dm%Xh%ly, dm%Xh%lz, dm%msh%nelv))
-
-    this%u = 0d0
-    this%v = 0d0
-    this%w = 0d0
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%u, this%u_d, dm%size())
-       call device_map(this%v, this%v_d, dm%size())
-       call device_map(this%w, this%w_d, dm%size())
-    end if
-    
   end subroutine fluid_user_source_term_init
 
-  !> Destructctor.
-  subroutine fluid_user_source_term_free(this)
+  !> Costructor from components.
+  subroutine fluid_user_source_term_init_from_components(this, fields, coef, &
+    source_term_type, eval, eval_pointwise)
     class(fluid_user_source_term_t), intent(inout) :: this
-
-    if (allocated(this%u)) then
-       deallocate(this%u)
-    end if
-
-    if (allocated(this%v)) then
-       deallocate(this%v)
-    end if
-
-    if (allocated(this%w)) then
-       deallocate(this%w)
-    end if
-
-    nullify(this%dm)
-
-    if (c_associated(this%u_d)) then
-       call device_free(this%u_d)
-    end if
-
-    if (c_associated(this%v_d)) then
-       call device_free(this%v_d)
-    end if
-
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-  end subroutine fluid_user_source_term_free
-
-  !> Set the source type (no force, user pointwise or user vector).
-  !! @param source_term_type The name of the type of the term: 'noforce', 'user'
-  !! or 'user_vector'.
-  !! @param user_proc_pw Procedure pointer to a pointwise evaluation.
-  !! @param user_proc_vector Procedure pointer to a vector evaluation.
-  subroutine fluid_user_source_term_set_source_type(this, source_term_type, &
-    user_proc_pw, user_proc_vector)
-    class(fluid_user_source_term_t), intent(inout) :: this
+    type(field_list_t), intent(inout), target :: fields
+    type(coef_t), intent(inout) :: coef
     character(len=*) :: source_term_type
-    procedure(source_term_pw), optional :: user_proc_pw
-    procedure(source_term), optional :: user_proc_vector
+    procedure(source_term_compute), optional :: eval
+    procedure(source_term_compute_pointwise), optional :: eval_pointwise
 
-    if (trim(source_term_type) .eq. 'none') then
-       call source_set_type(this, source_eval_noforce)
-    else if (trim(source_term_type) .eq. 'user' .and. &
-              present(user_proc_pw)) then
-       call source_set_pw_type(this, user_proc_pw)
+    call this%free()
+    call this%init_base(fields, coef)
+
+    this%u => fields%fields(1)%f
+    this%v => fields%fields(2)%f
+    this%w => fields%fields(3)%f
+
+
+    if (trim(source_term_type) .eq. 'user_poinwise' .and. &
+              present(eval_pointwise)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('Pointwise source terms not supported on accelerators')
+       end if
+       this%eval => pointwise_eval_driver
+       this%eval_pw => eval_pointwise
     else if (trim(source_term_type) .eq. 'user_vector' .and. &
-             present(user_proc_vector)) then
-       call source_set_type(this, user_proc_vector)
+             present(eval)) then
+       this%eval => eval
     else
        call neko_error('Invalid fluid source term '//source_term_type)
     end if
- 
-  end subroutine fluid_user_source_term_set_source_type
+  end subroutine fluid_user_source_term_init_from_components
 
-  !> Set the eval method for the source term @a f.
-  !! @param f The source term.
-  !! @param f_eval The procedure to compute the source term.
-  subroutine source_set_type(f, f_eval)
-    type(fluid_user_source_term_t), intent(inout) :: f
-    procedure(source_term) :: f_eval
-    f%eval => f_eval
-  end subroutine source_set_type
+  !> Destructor.
+  subroutine fluid_user_source_term_free(this)
+    class(fluid_user_source_term_t), intent(inout) :: this
 
-  !> Set the pointwise eval method for the source term @a f
-  !! @param f The source term.
-  !! @param f_eval The procedure to compute the source term.
-  subroutine source_set_pw_type(f, f_eval_pw)
-    type(fluid_user_source_term_t), intent(inout) :: f
-    procedure(source_term_pw) :: f_eval_pw
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error('Pointwise source terms not supported on accelerators')
-    end if
-    f%eval => source_eval_pw
-    f%eval_pw => f_eval_pw
-  end subroutine source_set_pw_type
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+    nullify(this%eval)
+    nullify(this%eval_pw)
 
-  !> Eval routine for zero forcing.
-  !! @param f The source term.
-  !! @param t Time value.
-  subroutine source_eval_noforce(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
+    call this%free_base()
+  end subroutine fluid_user_source_term_free
+
+  !> Computes the source term and adds the result to `fields`.
+  !! @param t The time value.
+  !! @param tstep The current time-step.
+  !> Computes the source term and adds the result to `fields`.
+  subroutine fluid_user_source_term_compute(this, t, tstep)
+    class(fluid_user_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(f%u_d, f%dm%size())
-       call device_rzero(f%v_d, f%dm%size())
-       call device_rzero(f%w_d, f%dm%size())
-    else
-       f%u = 0d0
-       f%v = 0d0
-       f%w = 0d0
-    end if
-  end subroutine source_eval_noforce
+    integer, intent(in) :: tstep
+
+    call this%eval(this, t, tstep)
+
+  end subroutine fluid_user_source_term_compute
 
   !> Driver for all pointwise source term evaluatons
   !! @param f The source term.
-  !! @param t Time value.
-  subroutine source_eval_pw(f, t)
-    class(fluid_user_source_term_t), intent(inout) :: f
+  !! @param t The time value.
+  !! @param tstep The current time-step.
+  subroutine pointwise_eval_driver(this, t, tstep)
+    class(source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     integer :: j, k, l, e
-    integer :: jj,kk,ll,ee
+    integer :: jj, kk, ll, ee
 
-    do e = 1, f%dm%msh%nelv
-       ee = e
-       do l = 1, f%dm%Xh%lz
-          ll = l
-          do k = 1, f%dm%Xh%ly
-             kk = k
-             do j = 1, f%dm%Xh%lx
-                jj =j
-                call f%eval_pw(f%u(j,k,l,e), f%v(j,k,l,e), f%w(j,k,l,e), &
-                     jj, kk, ll, ee, t)
-             end do
-          end do
-       end do
-    end do
+    select type (this)
+    type is (fluid_user_source_term_t)
+      do e = 1, this%u%dof%msh%nelv
+         ee = e
+         do l = 1, this%u%dof%Xh%lz
+            ll = l
+            do k = 1, this%u%dof%Xh%ly
+               kk = k
+               do j = 1, this%u%dof%Xh%lx
+                  jj =j
+                  call this%eval_pw(this%u%x(j,k,l,e), &
+                                    this%v%x(j,k,l,e), &
+                                    this%w%x(j,k,l,e), &
+                                    jj, kk, ll, ee, t)
+               end do
+            end do
+         end do
+      end do
+    class default
+       call neko_error('Incorrect source type in pointwise eval driver!')
+    end select
     
-  end subroutine source_eval_pw
+  end subroutine pointwise_eval_driver
   
 end module fluid_user_source_term

@@ -39,6 +39,8 @@ module source_term
   use json_module, only : json_file
   implicit none
   private
+  
+  public :: source_term_compute, source_term_compute_pointwise
 
   !> Base abstract type for source terms selected at run time.
   !! @note The user-provided source term is treated seperately in the type
@@ -61,6 +63,7 @@ module source_term
      !> Computes the source term and adds the result to `fields`.
      procedure(source_term_compute), pass(this), deferred :: compute
   end type source_term_t
+
 
   !> A helper type that is needed to have an array of polymorphic objects
   type, public :: source_term_wrapper_t
@@ -96,13 +99,27 @@ module source_term
   abstract interface
      !> Computes the source term and adds the result to `fields`.
      !! @param t The time value.
-     !! @param tstep The current time-step
+     !! @param tstep The current time-step.
      subroutine source_term_compute(this, t, tstep)  
        import source_term_t, rp
        class(source_term_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
      end subroutine
+  end interface
+
+  abstract interface
+     subroutine source_term_compute_pointwise(u, v, w, j, k, l, e, t)
+       import rp
+       real(kind=rp), intent(inout) :: u
+       real(kind=rp), intent(inout) :: v
+       real(kind=rp), intent(inout) :: w
+       integer, intent(in) :: j
+       integer, intent(in) :: k
+       integer, intent(in) :: l
+       integer, intent(in) :: e
+       real(kind=rp), intent(in) :: t
+     end subroutine source_term_compute_pointwise
   end interface
 contains
 
