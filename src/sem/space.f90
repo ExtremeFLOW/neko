@@ -517,7 +517,7 @@ contains
   
   
   !> Generate spectral tranform matrices
-  !! @param coef type with all geometrical variables
+  !! @param Xh SEM function space.
   subroutine space_generate_transformation_matrices(Xh)
     type(space_t), intent(inout) :: Xh
     
