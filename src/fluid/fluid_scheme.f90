@@ -71,6 +71,7 @@ module fluid_scheme
   use source_term, only : source_term_wrapper_t
   use source_term_fctry, only : source_term_factory
   use const_source_term, only : const_source_term_t
+  use user_intf, only : user_t
   implicit none
   
   !> Base type of all fluid formulations
@@ -141,14 +142,16 @@ module fluid_scheme
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_init_intrf(this, msh, lx, params)
+     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user)
        import fluid_scheme_t
        import json_file
        import mesh_t
+       import user_t
        class(fluid_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh       
+       type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
-       type(json_file), target, intent(inout) :: params              
+       type(json_file), target, intent(inout) :: params
+       type(user_t), intent(in) :: user
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -177,13 +180,14 @@ module fluid_scheme
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme)
+  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
@@ -434,17 +438,20 @@ contains
     call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh)
+    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
+                               user)
 
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme, &
+                                   user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
@@ -453,7 +460,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
 
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
     
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
@@ -480,12 +487,13 @@ contains
 
   !> Initialize all components of the current scheme
   subroutine fluid_scheme_init_all(this, msh, lx, params, &
-                                   kspv_init, kspp_init, scheme)
+                                   kspv_init, kspp_init, scheme, user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
@@ -494,7 +502,7 @@ contains
     integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
 
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')

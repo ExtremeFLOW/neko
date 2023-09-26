@@ -110,11 +110,12 @@ module fluid_pnpn
 
 contains
   
-  subroutine fluid_pnpn_init(this, msh, lx, params)    
+  subroutine fluid_pnpn_init(this, msh, lx, params, user)    
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
+    type(user_t), intent(in) :: user
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
@@ -122,8 +123,8 @@ contains
 
     call this%free()
     
-    ! Setup velocity and pressure fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, lx, params, .true., .true., scheme)
+    ! Initialize base class
+    call this%scheme_init(msh, lx, params, .true., .true., scheme, user)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)

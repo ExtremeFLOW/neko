@@ -45,6 +45,7 @@ module fluid_source_term
   use coefs, only : coef_t
   use device_math, only : device_copy
   use math, only : copy
+  use user_intf, only : user_t 
   implicit none
   private
 
@@ -74,11 +75,12 @@ module fluid_source_term
 contains
 
   !> Costructor.
-  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, coef)
+  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, coef, user)
     class(fluid_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: coef
+    type(user_t), intent(in) :: user
 
     type(field_list_t) :: rhs_fields
     ! Json low-level manipulator.
@@ -117,6 +119,8 @@ contains
 
        n_sources = core%count(source_object)
        allocate(this%json_source_terms(n_sources))
+       call json_get(source_subdict, "type", type)
+
 
        do i=1, n_sources
          ! Create a new json containing just the subdict for this source.
@@ -133,6 +137,15 @@ contains
               call source_subdict%add("values", values)
               call source_subdict%remove("type")
               call source_subdict%add("type", "constant")
+
+              ! Init the user source term
+              if (trim(type) .eq. 'user_pointwise') then
+                 call this%user_source_term%set_source_type(trim(type), & 
+                        user_proc_pw=user%fluid_user_f)
+              else if (trim(type) .eq. 'user_vector') then
+                 call this%user_source_term%set_source_type(trim(type), &
+                        user_proc_vector=user%fluid_user_f_vector)
+              end if
           end if
               
           call source_term_factory(this%json_source_terms(i)%source_term, &
@@ -187,10 +200,11 @@ contains
        call copy(this%f_z%x, this%user_source_term%w, n)
     end if
 
+
     ! Add contribution from all source terms.
     if (allocated(this%json_source_terms)) then
        do i=1, size(this%json_source_terms)
-          call this%json_source_terms(i)%source_term%compute(t, tstep)
+          call this%json_source_terms(i)%source_term%eval(t, tstep)
        end do
     end if
 
