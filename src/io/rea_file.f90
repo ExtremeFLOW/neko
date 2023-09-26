@@ -282,6 +282,8 @@ contains
                       call msh%mark_inlet_facet(sym_facet, el_idx)
                    case ('O', 'o')
                       call msh%mark_outlet_facet(sym_facet, el_idx)
+                   case ('ON', 'on')
+                      call msh%mark_outlet_normal_facet(sym_facet, el_idx)
                    case ('SYM')
                       call msh%mark_sympln_facet(sym_facet, el_idx)
                    case ('P')
