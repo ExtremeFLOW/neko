@@ -40,8 +40,6 @@ module source_term
   implicit none
   private
   
-  public :: source_term_compute
-
   !> Base abstract type for source terms.
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
