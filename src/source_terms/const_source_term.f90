@@ -102,6 +102,7 @@ contains
     this%values = values
   end subroutine const_source_term_init_from_components
 
+  !> Destructor.
   subroutine const_source_term_free(this) 
     class(const_source_term_t), intent(inout) :: this
 

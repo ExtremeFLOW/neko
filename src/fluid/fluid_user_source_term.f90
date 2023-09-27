@@ -34,36 +34,47 @@
 module fluid_user_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use dofmap, only : dofmap_t
   use utils, only : neko_error
-  use device_math, only : device_rzero
-  use device, only : device_free, device_map
   use source_term, only : source_term_t
   use field, only : field_t
   use json_module, only : json_file
   use field_list, only : field_list_t
   use coefs, only : coef_t
+  use device, only : device_map, device_free
+  use device_math, only : device_add2
+  use math, only : add2
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  public :: source_term_compute_pointwise, user_source_term_compute
+  public :: fluid_source_compute_pointwise, fluid_source_compute_vector
 
   !> A source-term for the fluid, with procedure pointers pointing to the
   !! actual implementation in the user file.
   !! @details The user source term can be applied either pointiwse or acting
   !! on the whole array in a single call, which is referred to as "vector"
   !! application. 
+  !! @warning
+  !! The user source term does not support init from JSON and should instead be
+  !! directly initialized from components.
   type, public, extends(source_term_t) :: fluid_user_source_term_t
      !> x-component of source term.
-     type(field_t), pointer :: u
+     real(kind=rp), allocatable :: u(:, :, :, :)
      !> y-component of source term.
-     type(field_t), pointer :: v
+     real(kind=rp), allocatable :: v(:, :, :, :)
      !> z-component of source term.
-     type(field_t), pointer :: w
-     !>
-     procedure(source_term_compute_pointwise), nopass, pointer :: eval_pw => null()
-     procedure(user_source_term_compute), nopass, pointer :: eval => null()
+     real(kind=rp), allocatable :: w(:, :, :, :)
+
+     !> Device pointer for `u`.
+     type(c_ptr) :: u_d = C_NULL_PTR
+     !> Device pointer for `v`.
+     type(c_ptr) :: v_d = C_NULL_PTR
+     !> Device pointer for `w`.
+     type(c_ptr) :: w_d = C_NULL_PTR
+     !> Compute the source term for a single point
+     procedure(fluid_source_compute_pointwise), nopass, pointer :: eval_pw => null()
+     !> Compute the source term for the entire boundary
+     procedure(fluid_source_compute_vector), nopass, pointer :: eval => null()
    contains
      !> Constructor from JSON (will throw!).
      procedure, pass(this) :: init => fluid_user_source_term_init
@@ -80,16 +91,15 @@ module fluid_user_source_term
      !> Computes the source term and adds the result to `fields`.
      !! @param t The time value.
      !! @param tstep The current time-step.
-     subroutine user_source_term_compute(this, t, tstep)  
+     subroutine fluid_source_compute_vector(this, t)  
        import fluid_user_source_term_t, rp
        class(fluid_user_source_term_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-     end subroutine
+     end subroutine fluid_source_compute_vector
   end interface
 
   abstract interface
-     subroutine source_term_compute_pointwise(u, v, w, j, k, l, e, t)
+     subroutine fluid_source_compute_pointwise(u, v, w, j, k, l, e, t)
        import rp
        real(kind=rp), intent(inout) :: u
        real(kind=rp), intent(inout) :: v
@@ -99,7 +109,7 @@ module fluid_user_source_term
        integer, intent(in) :: l
        integer, intent(in) :: e
        real(kind=rp), intent(in) :: t
-     end subroutine source_term_compute_pointwise
+     end subroutine fluid_source_compute_pointwise
   end interface
 
 contains
@@ -125,15 +135,27 @@ contains
     type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout) :: coef
     character(len=*) :: source_term_type
-    procedure(user_source_term_compute), optional :: eval
-    procedure(source_term_compute_pointwise), optional :: eval_pointwise
+    procedure(fluid_source_compute_vector), optional :: eval
+    procedure(fluid_source_compute_pointwise), optional :: eval_pointwise
 
     call this%free()
     call this%init_base(fields, coef)
 
-    this%u => fields%fields(1)%f
-    this%v => fields%fields(2)%f
-    this%w => fields%fields(3)%f
+    associate (dof => fields%fields(1)%f%dof)
+    allocate(this%u(dof%Xh%lx, dof%Xh%ly, dof%Xh%lz, dof%msh%nelv))
+    allocate(this%v(dof%Xh%lx, dof%Xh%ly, dof%Xh%lz, dof%msh%nelv))
+    allocate(this%w(dof%Xh%lx, dof%Xh%ly, dof%Xh%lz, dof%msh%nelv))
+
+    this%u = 0d0
+    this%v = 0d0
+    this%w = 0d0
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%u, this%u_d, dof%size())
+       call device_map(this%v, this%v_d, dof%size())
+       call device_map(this%w, this%w_d, dof%size())
+    end if
+    end associate
 
 
     if (trim(source_term_type) .eq. 'user_poinwise' .and. &
@@ -155,9 +177,14 @@ contains
   subroutine fluid_user_source_term_free(this)
     class(fluid_user_source_term_t), intent(inout) :: this
 
-    nullify(this%u)
-    nullify(this%v)
-    nullify(this%w)
+    if (allocated(this%u)) deallocate(this%u)
+    if (allocated(this%v)) deallocate(this%v)
+    if (allocated(this%w)) deallocate(this%w)
+
+    if (c_associated(this%u_d)) call device_free(this%u_d)
+    if (c_associated(this%v_d)) call device_free(this%v_d)
+    if (c_associated(this%w_d)) call device_free(this%w_d)
+
     nullify(this%eval)
     nullify(this%eval_pw)
 
@@ -172,35 +199,44 @@ contains
     class(fluid_user_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    integer :: n
 
-    call this%eval(this, t, tstep)
+    call this%eval(this, t)
+    n = this%fields%fields(1)%f%dof%size()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add2(this%fields%fields(1)%f%x_d, this%u_d, n)
+       call device_add2(this%fields%fields(2)%f%x_d, this%v_d, n)
+       call device_add2(this%fields%fields(3)%f%x_d, this%w_d, n)
+    else 
+       call add2(this%fields%fields(1)%f%x, this%u, n)
+       call add2(this%fields%fields(2)%f%x, this%v, n)
+       call add2(this%fields%fields(3)%f%x, this%w, n)
+    end if
 
   end subroutine fluid_user_source_term_compute
 
   !> Driver for all pointwise source term evaluatons
   !! @param f The source term.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine pointwise_eval_driver(this, t, tstep)
+  subroutine pointwise_eval_driver(this, t)
     class(fluid_user_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
     integer :: j, k, l, e
     integer :: jj, kk, ll, ee
 
     select type (this)
     type is (fluid_user_source_term_t)
-      do e = 1, this%u%dof%msh%nelv
+      do e = 1, size(this%u, 4)
          ee = e
-         do l = 1, this%u%dof%Xh%lz
+         do l = 1, size(this%u, 3)
             ll = l
-            do k = 1, this%u%dof%Xh%ly
+            do k = 1, size(this%u, 2)
                kk = k
-               do j = 1, this%u%dof%Xh%lx
+               do j = 1, size(this%u, 1)
                   jj =j
-                  call this%eval_pw(this%u%x(j,k,l,e), &
-                                    this%v%x(j,k,l,e), &
-                                    this%w%x(j,k,l,e), &
+                  call this%eval_pw(this%u(j,k,l,e), &
+                                    this%v(j,k,l,e), &
+                                    this%w(j,k,l,e), &
                                     jj, kk, ll, ee, t)
                end do
             end do

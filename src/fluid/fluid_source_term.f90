@@ -43,14 +43,14 @@ module fluid_source_term
   use json_utils, only : json_get
   use json_module, only : json_file, json_core, json_value
   use coefs, only : coef_t
-  use device_math, only : device_copy
-  use math, only : copy
   use user_intf, only : user_t 
   implicit none
   private
 
-  !> Wrapper combining the user-file fluid source term and the ones defined in
-  !! the JSON.
+  !> Wrapper contaning and executing the fluid source terms.
+  !! @details
+  !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
+  !! placeholder for future optimizations.
   type, public :: fluid_source_term_t
      !> Array of ordinary source terms.
      class(source_term_wrapper_t), allocatable :: source_terms(:)
@@ -67,6 +67,8 @@ module fluid_source_term
      procedure, pass(this) :: free => fluid_source_term_free
      !> Add all the source term to the passed right-hand side fields.
      procedure, pass(this) :: compute => fluid_source_term_compute
+     !> Initialize the user source term.
+     procedure, nopass, private :: init_user_source
 
   end type fluid_source_term_t
 
@@ -115,7 +117,7 @@ contains
 
        n_sources = core%count(source_object)
        allocate(this%source_terms(n_sources))
-       call json_get(source_subdict, "type", type)
+       write(*,*) "HI"
 
 
        do i=1, n_sources
@@ -124,20 +126,30 @@ contains
           call core%print_to_string(source_pointer, buffer)
           call source_subdict%load_from_string(buffer)
           call json_get(source_subdict, "type", type)
+
+          ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
               (trim(type) .eq. "user_pointwise")) then
               
-              call init_user_source(this%source_terms(i)%source_term, rhs_fields, coef, type, user)
-              continue
-          end if
+              call init_user_source(this%source_terms(i)%source_term, &
+                                    rhs_fields, coef, type, user)
+          else 
               
-          call source_term_factory(this%source_terms(i)%source_term, &
-                                   source_subdict, rhs_fields, coef)
+              call source_term_factory(this%source_terms(i)%source_term, &
+                                       source_subdict, rhs_fields, coef)
+          end if
       end do 
     end if
     
   end subroutine fluid_source_term_init
 
+  !> Initialize the user source term.
+  !! @param source_term The allocatable source term to be initialized to a user.
+  !! @param rhs_fields The field list with the 3 right-hand-side components.
+  !! @param coef The SEM coefs.
+  !! @param type The type of the user source term, "user_vector" or 
+  !! "user_poinwise".
+  !! @param user The user type containing the user source term routines.
   subroutine init_user_source(source_term, rhs_fields, coef, type, user)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
@@ -149,17 +161,13 @@ contains
 
     select type (source_term)
     type is (fluid_user_source_term_t)
-      call source_term%init_from_components( &
-             rhs_fields, coef, &
-             type, &
-             user%fluid_user_f_vector, &
-             user%fluid_user_f)
+      call source_term%init_from_components(rhs_fields, coef, type, &
+                                            user%fluid_user_f_vector, &
+                                            user%fluid_user_f)
     end select
-
-  
   end subroutine
 
-  !> Destructctor.
+  !> Destructor.
   subroutine fluid_source_term_free(this)
     class(fluid_source_term_t), intent(inout) :: this
     integer :: i

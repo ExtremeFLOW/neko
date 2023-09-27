@@ -42,15 +42,12 @@ module source_term
   
   public :: source_term_compute
 
-  !> Base abstract type for source terms selected at run time.
-  !! @note The user-provided source term is treated seperately in the type
-  !! `user_source_term.`
+  !> Base abstract type for source terms.
   type, abstract, public:: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
      !> Coefficients for the SEM.
      type(coef_t), pointer :: coef => null()
-
    contains
      !> Constructor for the source_term_t (base) type.
      procedure, pass(this) :: init_base => source_term_init_base
@@ -134,14 +131,8 @@ contains
   !> Destructor for the `source_term_t` (base) type.
   subroutine source_term_free_base(this) 
     class(source_term_t), intent(inout) :: this
-    integer :: n_fields, i
 
-    n_fields = size(this%fields%fields)
-
-    do i=1, n_fields
-       nullify(this%fields%fields(i)%f)
-    end do
-    deallocate(this%fields%fields)
+    call this%fields%free()
     nullify(this%coef)
   end subroutine source_term_free_base
 
