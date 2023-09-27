@@ -117,7 +117,6 @@ contains
 
        n_sources = core%count(source_object)
        allocate(this%source_terms(n_sources))
-       write(*,*) "HI"
 
 
        do i=1, n_sources
