@@ -44,7 +44,7 @@ contains
 
   !> Computs the constant source term on the cpu.
   !! @param fields The right-hand side.
-  !! @param values The values of the source components
+  !! @param values The values of the source components.
   subroutine const_source_term_compute_cpu(fields, values) 
     type(field_list_t), intent(inout) :: fields
     real(kind=rp), intent(in) :: values(:)
