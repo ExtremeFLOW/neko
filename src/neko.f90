@@ -82,6 +82,7 @@ module neko
   use vector
   use simulation_component
   use probes
+  use spectral_error_indicator
   use system
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
