@@ -7,26 +7,45 @@ module field_list
   type, public :: field_list_t
      type(field_ptr_t), allocatable :: fields(:)
    contains
-     procedure, pass(field_list) :: append => field_list_append
+     !> Append a field to the list.
+     procedure, pass(this) :: append => field_list_append
+     !> Destructor
+     procedure, pass(this) :: free => field_list_free
   end type field_list_t
 
   contains
-  !> Add a condition to a list of boundary conditions
-  !! @param field The boundary condition to add.
-  subroutine field_list_append(field_list, field)
-    class(field_list_t), intent(inout) :: field_list
+  !> Append a field to the list.
+  !! @param field The field to append.
+  subroutine field_list_append(this, field)
+    class(field_list_t), intent(inout) :: this
     class(field_t), intent(inout), target :: field
     type(field_ptr_t), allocatable :: tmp(:)
     integer :: len
     
-    len = size(field_list%fields)
+    len = size(this%fields)
 
     allocate(tmp(len+1))
-    tmp(1:len) = field_list%fields
-    call move_alloc(tmp, field_list%fields)
-    field_list%fields(len+1)%f => field
+    tmp(1:len) = this%fields
+    call move_alloc(tmp, this%fields)
+    this%fields(len+1)%f => field
 
   end subroutine field_list_append
+
+  !> Destructor.
+  subroutine field_list_free(this)
+    class(field_list_t), intent(inout) :: this
+    integer :: i, n_fields
+    
+    if (allocated(this%fields)) then
+       n_fields = size(this%fields)
+       do i=1, n_fields
+          call this%fields(i)%f%free()
+          nullify(this%fields(i)%f)
+       end do
+       deallocate(this%fields)
+    end if
+
+  end subroutine field_list_free
 
 
   
