@@ -119,7 +119,7 @@ module user_intf
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
      procedure(source_term_compute_pointwise), nopass, pointer :: fluid_user_f => null()
-     procedure(source_term_compute), nopass, pointer :: fluid_user_f_vector => null()
+     procedure(user_source_term_compute), nopass, pointer :: fluid_user_f_vector => null()
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
      procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
@@ -194,7 +194,7 @@ contains
 
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t, tstep)
-    class(source_term_t), intent(inout) :: f
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     call neko_error('Dummy user defined vector valued forcing set')    

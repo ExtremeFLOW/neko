@@ -40,7 +40,7 @@ module source_term
   implicit none
   private
   
-  public :: source_term_compute, source_term_compute_pointwise
+  public :: source_term_compute
 
   !> Base abstract type for source terms selected at run time.
   !! @note The user-provided source term is treated seperately in the type
@@ -108,19 +108,6 @@ module source_term
      end subroutine
   end interface
 
-  abstract interface
-     subroutine source_term_compute_pointwise(u, v, w, j, k, l, e, t)
-       import rp
-       real(kind=rp), intent(inout) :: u
-       real(kind=rp), intent(inout) :: v
-       real(kind=rp), intent(inout) :: w
-       integer, intent(in) :: j
-       integer, intent(in) :: k
-       integer, intent(in) :: l
-       integer, intent(in) :: e
-       real(kind=rp), intent(in) :: t
-     end subroutine source_term_compute_pointwise
-  end interface
 contains
 
   !> Constructor for the `source_term_t` (base) type.

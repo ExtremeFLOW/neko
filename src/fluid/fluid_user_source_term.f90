@@ -38,7 +38,7 @@ module fluid_user_source_term
   use utils, only : neko_error
   use device_math, only : device_rzero
   use device, only : device_free, device_map
-  use source_term
+  use source_term, only : source_term_t
   use field, only : field_t
   use json_module, only : json_file
   use field_list, only : field_list_t
@@ -46,6 +46,8 @@ module fluid_user_source_term
   use, intrinsic :: iso_c_binding
   implicit none
   private
+
+  public :: source_term_compute_pointwise, user_source_term_compute
 
   !> A source-term for the fluid, with procedure pointers pointing to the
   !! actual implementation in the user file.
@@ -61,18 +63,44 @@ module fluid_user_source_term
      type(field_t), pointer :: w
      !>
      procedure(source_term_compute_pointwise), nopass, pointer :: eval_pw => null()
-     procedure(source_term_compute), nopass, pointer :: eval => null()
+     procedure(user_source_term_compute), nopass, pointer :: eval => null()
    contains
      !> Constructor from JSON (will throw!).
      procedure, pass(this) :: init => fluid_user_source_term_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_compenents => &
+     procedure, pass(this) :: init_from_components => &
        fluid_user_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => fluid_user_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute => fluid_user_source_term_compute
   end type fluid_user_source_term_t
+
+  abstract interface
+     !> Computes the source term and adds the result to `fields`.
+     !! @param t The time value.
+     !! @param tstep The current time-step.
+     subroutine user_source_term_compute(this, t, tstep)  
+       import fluid_user_source_term_t, rp
+       class(fluid_user_source_term_t), intent(inout) :: this
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
+     end subroutine
+  end interface
+
+  abstract interface
+     subroutine source_term_compute_pointwise(u, v, w, j, k, l, e, t)
+       import rp
+       real(kind=rp), intent(inout) :: u
+       real(kind=rp), intent(inout) :: v
+       real(kind=rp), intent(inout) :: w
+       integer, intent(in) :: j
+       integer, intent(in) :: k
+       integer, intent(in) :: l
+       integer, intent(in) :: e
+       real(kind=rp), intent(in) :: t
+     end subroutine source_term_compute_pointwise
+  end interface
 
 contains
 
@@ -97,7 +125,7 @@ contains
     type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout) :: coef
     character(len=*) :: source_term_type
-    procedure(source_term_compute), optional :: eval
+    procedure(user_source_term_compute), optional :: eval
     procedure(source_term_compute_pointwise), optional :: eval_pointwise
 
     call this%free()
@@ -154,7 +182,7 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine pointwise_eval_driver(this, t, tstep)
-    class(source_term_t), intent(inout) :: this
+    class(fluid_user_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: j, k, l, e

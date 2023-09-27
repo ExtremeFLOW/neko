@@ -119,8 +119,6 @@ contains
 
 
        do i=1, n_sources
-         associate(sourcei => this%source_terms(i)%source_term)
-
          ! Create a new json containing just the subdict for this source.
           call core%get_child(source_object, i, source_pointer, found)
           call core%print_to_string(source_pointer, buffer)
@@ -128,26 +126,38 @@ contains
           call json_get(source_subdict, "type", type)
           if ((trim(type) .eq. "user_vector") .or. &
               (trim(type) .eq. "user_pointwise")) then
-
-              allocate(fluid_user_source_term_t::sourcei)
-
-              select type (sourcei)
-              type is (fluid_user_source_term_t)
-                call sourcei%init_from_compenents(rhs_fields, coef, &
-                                                  type, &
-                                                  user%fluid_user_f_vector, &
-                                                  user%fluid_user_f)
-              end select
-
+              
+              call init_user_source(this%source_terms(i)%source_term, rhs_fields, coef, type, user)
               continue
           end if
               
-          call source_term_factory(sourcei, source_subdict, rhs_fields, coef)
-          end associate
+          call source_term_factory(this%source_terms(i)%source_term, &
+                                   source_subdict, rhs_fields, coef)
       end do 
     end if
     
   end subroutine fluid_source_term_init
+
+  subroutine init_user_source(source_term, rhs_fields, coef, type, user)
+    class(source_term_t), allocatable, intent(inout) :: source_term
+    type(field_list_t) :: rhs_fields
+    type(coef_t), intent(inout) :: coef
+    character(len=*) :: type
+    type(user_t), intent(in) :: user
+
+    allocate(fluid_user_source_term_t::source_term)
+
+    select type (source_term)
+    type is (fluid_user_source_term_t)
+      call source_term%init_from_components( &
+             rhs_fields, coef, &
+             type, &
+             user%fluid_user_f_vector, &
+             user%fluid_user_f)
+    end select
+
+  
+  end subroutine
 
   !> Destructctor.
   subroutine fluid_source_term_free(this)
