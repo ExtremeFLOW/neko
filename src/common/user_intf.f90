@@ -34,7 +34,6 @@
 module user_intf
   use field
   use fluid_user_source_term
-  use source_term
   use source_scalar
   use coefs
   use mesh
