@@ -10,7 +10,7 @@
     "timestep": 8e-4,
     "numerics": {
         "time_order": 3,
-        "polynomial_order": 5,
+        "polynomial_order": 7,
         "dealias": true
     },
     "fluid": {

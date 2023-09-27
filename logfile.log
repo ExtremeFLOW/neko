@@ -1,0 +1,65 @@
+Making install in src
+make[1]: Entering directory '/scratch/ronith/Neko_1/neko/src'
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o sem/coef.o sem/coef.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o field/mean_field.o field/mean_field.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o math/fdm.o math/fdm.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o common/checkpoint.o common/checkpoint.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o io/rea_file.o io/rea_file.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o bc/inflow.o bc/inflow.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o bc/wall.o bc/wall.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o bc/precursor_inflow.o bc/precursor_inflow.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o common/rhs_maker.o common/rhs_maker.f90
+bc/precursor_inflow.f90:59:14:
+
+   59 |      procedure, pass(this) :: init => precursor_inflow_init
+      |              1
+Error: Non-polymorphic passed-object dummy argument of ‘precursor_inflow_init’ at (1)
+bc/precursor_inflow.f90:445:14:
+
+  445 |          facet = this%facet(i)
+      |              1
+Error: Symbol ‘facet’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:446:12:
+
+  446 |          idx = nonlinear_index(k, lx, lx, lx)
+      |            1
+Error: Symbol ‘idx’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:295:63:
+
+  295 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+      |                                                               1
+Error: Symbol ‘nel_yz_simson’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:295:38:
+
+  295 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+      |                                      1
+Error: Symbol ‘ny1_simson’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:295:49:
+
+  295 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+      |                                                 1
+Error: Symbol ‘nz1_simson’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:404:36:
+
+  404 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
+      |                                    1
+Error: Function ‘yz_map’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:405:36:
+
+  405 |          u_in_loc(2,i) = u_in_glob2(yz_map(i))
+      |                                    1
+Error: Function ‘yz_map’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:404:42:
+
+  404 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
+      |                                          1
+Error: Symbol ‘yz_map’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:447:21:
+
+  447 |          select case(facet)
+      |                     1
+Error: Argument of SELECT statement at (1) cannot be UNKNOWN
+make[1]: *** [Makefile:2819: bc/precursor_inflow.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+make[1]: Leaving directory '/scratch/ronith/Neko_1/neko/src'
+make: *** [Makefile:707: install-recursive] Error 1

@@ -1,0 +1,1638 @@
+grep: ./contrib/rea2nbin/rea2nbin: binary file matches
+grep: ./contrib/rea2nbin/rea2nbin.o: binary file matches
+grep: ./contrib/genmeshbox/genmeshbox: binary file matches
+./contrib/genmeshbox/genmeshbox.f90:72:  call htable_pts%init( nel, gdim)
+grep: ./contrib/genmeshbox/genmeshbox.o: binary file matches
+grep: ./contrib/postprocess_fluid_stats/postprocess_fluid_stats.o: binary file matches
+grep: ./contrib/postprocess_fluid_stats/postprocess_fluid_stats: binary file matches
+./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:68:  call mean_data%init(msh%nelv,msh%offset_el)
+./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:69:  call stats_data%init(msh%nelv,msh%offset_el)
+./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:119:  call avg_flow%init(u, v, w, p)
+./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:120:  call fld_stats%init(coef,avg_flow%u,avg_flow%v,avg_flow%w,avg_flow%p)
+grep: ./contrib/average_fields_in_time/average_fields_in_time.o: binary file matches
+grep: ./contrib/average_fields_in_time/average_fields_in_time: binary file matches
+./contrib/average_fields_in_time/average_fields_in_time.f90:37:  call fld_data%init()
+./contrib/average_fields_in_time/average_fields_in_time.f90:38:  call fld_data_avg%init()
+grep: ./contrib/average_field_in_space/average_field_in_space.o: binary file matches
+./contrib/average_field_in_space/average_field_in_space.f90:51:  call field_data%init(msh%nelv,msh%offset_el)
+grep: ./contrib/average_field_in_space/average_field_in_space: binary file matches
+grep: ./contrib/prepart/prepart.o: binary file matches
+grep: ./contrib/prepart/prepart: binary file matches
+./contrib/pyneko/examples/hemi/hemi.py:4:pyNeko.init()
+./contrib/pyneko/pyNeko/__init__.py:4:from pyNeko.intf import init, finalize, solve
+./contrib/pyneko/pyNeko/intf.py:6:neko.init.resType = None
+./contrib/pyneko/pyNeko/intf.py:12:def init():
+./contrib/pyneko/pyNeko/intf.py:13:    neko.init()
+./contrib/pyneko/src/json_case.f90:78:    call neko_case%usr%init()
+./contrib/pyneko/src/json_case.f90:91:       call neko_case%fluid%init(neko_case%msh, lx, neko_case%params)
+./contrib/pyneko/src/json_case.f90:122:    call neko_case%s%init(neko_case%params%nsamples, neko_case%params%T_end)
+./contrib/pyneko/src/json_case.f90:127:    call neko_case%q%init(neko_case%params%stats_begin)
+./contrib/pyneko/src/neko_intf.f90:43:  subroutine neko_intf_init() bind(c, name='init')
+./tests/uset/uset_r8.pf:8:  call s%init()
+./tests/uset/uset_r8.pf:20:  call s%init()
+./tests/uset/uset_r8.pf:36:  call s%init()
+./tests/uset/uset_r8.pf:61:  call s%init()
+./tests/uset/uset_r8.pf:87:  call s%init()
+./tests/uset/uset_r8.pf:121:  call s%init()
+./tests/uset/uset_r8.pf:165:  call s%init()
+./tests/uset/uset_i4.pf:8:  call s%init()
+./tests/uset/uset_i4.pf:20:  call s%init()
+./tests/uset/uset_i4.pf:34:  call s%init()
+./tests/uset/uset_i4.pf:57:  call s%init()
+./tests/uset/uset_i4.pf:81:  call s%init()
+./tests/uset/uset_i4.pf:113:  call s%init()
+./tests/uset/uset_i4.pf:156:  call s%init()
+./tests/uset/uset_i8.pf:8:  call s%init()
+./tests/uset/uset_i8.pf:20:  call s%init()
+./tests/uset/uset_i8.pf:36:  call s%init()
+./tests/uset/uset_i8.pf:61:  call s%init()
+./tests/uset/uset_i8.pf:87:  call s%init()
+./tests/uset/uset_i8.pf:121:  call s%init()
+./tests/uset/uset_i8.pf:165:  call s%init()
+./tests/tri/tri.pf:27:  call t%init(id, p1, p2, p3)
+./tests/tri/tri.pf:64:  call t%init(id, p1, p2, p3)
+./tests/tri/tri.pf:90:  call t%init(id, p1, p2, p3)
+./tests/tri/tri.pf:118:  call t%init(id, p1, p2, p3)
+./tests/tri/tri.pf:146:  call t1%init(id, p1, p2, p3)
+./tests/tri/tri.pf:149:  call t2%init(id, p1, p2, p3)
+./tests/tri/tri.pf:158:  call t3%init(id, p5, p6, p7)
+./tests/tri/tri.pf:195:  call tr%init(id, p1, p2, p3)
+./tests/vector/vector_parallel.pf:44:    call v%init(n)
+./tests/vector/vector_parallel.pf:67:    call v%init(n)
+./tests/vector/vector_parallel.pf:86:    call w%init(n)
+./tests/vector/vector_parallel.pf:92:    call w%init(m)
+./tests/vector/vector_parallel.pf:108:    call v%init(n)
+./tests/hex/hex.pf:46:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./tests/hex/hex.pf:109:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./tests/hex/hex.pf:146:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./tests/hex/hex.pf:185:  call h%init(id, p1, p2, p4, p3, p5, p6, p8, p7)
+./tests/hex/hex.pf:229:  call h1%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./tests/hex/hex.pf:232:  call h2%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./tests/hex/hex.pf:247:  call h3%init(id, pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8)
+./tests/hex/hex.pf:310:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./tests/hex/hex.pf:398:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./tests/time_scheme_controller/test_time_scheme_controller.pf:26:  call ctrl%init(1)
+./tests/time_scheme_controller/test_time_scheme_controller.pf:106:  call ctrl%init(1)
+./tests/time_scheme_controller/test_time_scheme_controller.pf:179:  call ctrl%init(2)
+./tests/time_scheme_controller/test_time_scheme_controller.pf:254:  call ctrl%init(3)
+./tests/htable/htable_i4.pf:17:  call h%init(4, data_i4)
+./tests/htable/htable_i4.pf:20:  call h%init(4, data_i8)
+./tests/htable/htable_i4.pf:23:  call h%init(4, data_r8)
+./tests/htable/htable_i4.pf:26:  call h%init(4, data_ti4)
+./tests/htable/htable_i4.pf:29:  call h%init(4, data_t4i4)
+./tests/htable/htable_i4.pf:32:  call h%init(4, data_pt)
+./tests/htable/htable_i4.pf:54:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4.pf:55:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4.pf:56:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4.pf:57:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4.pf:58:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4.pf:59:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4.pf:119:  call h%init(64)
+./tests/htable/htable_i4.pf:140:  call h%init(64)
+./tests/htable/htable_i4.pf:171:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4.pf:172:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4.pf:173:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4.pf:174:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4.pf:175:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4.pf:176:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4.pf:278:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4.pf:279:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4.pf:280:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4.pf:281:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4.pf:282:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4.pf:283:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4.pf:366:  call h%init(4, data=data_i4)
+./tests/htable/htable_i4.pf:374:  call it%init(h)
+./tests/htable/htable_pt.pf:17:  call h%init(4, data_i4)
+./tests/htable/htable_pt.pf:20:  call h%init(4, data_i8)
+./tests/htable/htable_pt.pf:23:  call h%init(4, data_r8)
+./tests/htable/htable_pt.pf:26:  call h%init(4, data_ti4)
+./tests/htable/htable_pt.pf:29:  call h%init(4, data_t4i4)
+./tests/htable/htable_pt.pf:32:  call h%init(4, data_pt)
+./tests/htable/htable_pt.pf:54:  call h1%init(4, data=data_i4)
+./tests/htable/htable_pt.pf:55:  call h2%init(4, data=data_i8)
+./tests/htable/htable_pt.pf:56:  call h3%init(4, data=data_r8)
+./tests/htable/htable_pt.pf:57:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_pt.pf:58:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_pt.pf:59:  call h6%init(4, data=data_pt)
+./tests/htable/htable_pt.pf:121:  call h%init(64)
+./tests/htable/htable_pt.pf:144:  call h%init(64)
+./tests/htable/htable_pt.pf:175:  call h1%init(4, data=data_i4)
+./tests/htable/htable_pt.pf:176:  call h2%init(4, data=data_i8)
+./tests/htable/htable_pt.pf:177:  call h3%init(4, data=data_r8)
+./tests/htable/htable_pt.pf:178:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_pt.pf:179:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_pt.pf:180:  call h6%init(4, data=data_pt)
+./tests/htable/htable_pt.pf:282:  call h1%init(4, data=data_i4)
+./tests/htable/htable_pt.pf:283:  call h2%init(4, data=data_i8)
+./tests/htable/htable_pt.pf:284:  call h3%init(4, data=data_r8)
+./tests/htable/htable_pt.pf:285:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_pt.pf:286:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_pt.pf:287:  call h6%init(4, data=data_pt)
+./tests/htable/htable_pt.pf:368:  call h%init(4, data=data_pt)
+./tests/htable/htable_pt.pf:376:  call it%init(h)
+./tests/htable/htable_i8.pf:17:  call h%init(4, data_i4)
+./tests/htable/htable_i8.pf:20:  call h%init(4, data_i8)
+./tests/htable/htable_i8.pf:23:  call h%init(4, data_r8)
+./tests/htable/htable_i8.pf:26:  call h%init(4, data_ti4)
+./tests/htable/htable_i8.pf:29:  call h%init(4, data_t4i4)
+./tests/htable/htable_i8.pf:32:  call h%init(4, data_pt)
+./tests/htable/htable_i8.pf:54:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i8.pf:55:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i8.pf:56:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i8.pf:57:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i8.pf:58:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i8.pf:59:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i8.pf:121:  call h%init(64)
+./tests/htable/htable_i8.pf:144:  call h%init(64)
+./tests/htable/htable_i8.pf:175:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i8.pf:176:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i8.pf:177:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i8.pf:178:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i8.pf:179:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i8.pf:180:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i8.pf:282:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i8.pf:283:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i8.pf:284:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i8.pf:285:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i8.pf:286:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i8.pf:287:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i8.pf:368:  call h%init(4, data=data_i8)
+./tests/htable/htable_i8.pf:376:  call it%init(h)
+./tests/htable/htable_r8.pf:17:  call h%init(4, data_i4)
+./tests/htable/htable_r8.pf:20:  call h%init(4, data_i8)
+./tests/htable/htable_r8.pf:23:  call h%init(4, data_r8)
+./tests/htable/htable_r8.pf:26:  call h%init(4, data_ti4)
+./tests/htable/htable_r8.pf:29:  call h%init(4, data_t4i4)
+./tests/htable/htable_r8.pf:32:  call h%init(4, data_pt)
+./tests/htable/htable_r8.pf:54:  call h1%init(4, data=data_i4)
+./tests/htable/htable_r8.pf:55:  call h2%init(4, data=data_i8)
+./tests/htable/htable_r8.pf:56:  call h3%init(4, data=data_r8)
+./tests/htable/htable_r8.pf:57:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_r8.pf:58:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_r8.pf:59:  call h6%init(4, data=data_pt)
+./tests/htable/htable_r8.pf:121:  call h%init(64)
+./tests/htable/htable_r8.pf:144:  call h%init(64)
+./tests/htable/htable_r8.pf:175:  call h1%init(4, data=data_i4)
+./tests/htable/htable_r8.pf:176:  call h2%init(4, data=data_i8)
+./tests/htable/htable_r8.pf:177:  call h3%init(4, data=data_r8)
+./tests/htable/htable_r8.pf:178:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_r8.pf:179:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_r8.pf:180:  call h6%init(4, data=data_pt)
+./tests/htable/htable_r8.pf:282:  call h1%init(4, data=data_i4)
+./tests/htable/htable_r8.pf:283:  call h2%init(4, data=data_i8)
+./tests/htable/htable_r8.pf:284:  call h3%init(4, data=data_r8)
+./tests/htable/htable_r8.pf:285:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_r8.pf:286:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_r8.pf:287:  call h6%init(4, data=data_pt)
+./tests/htable/htable_r8.pf:368:  call h%init(4, data=data_r8)
+./tests/htable/htable_r8.pf:376:  call it%init(h)
+./tests/htable/htable_i4t2.pf:17:  call h%init(4, data_i4)
+./tests/htable/htable_i4t2.pf:20:  call h%init(4, data_i8)
+./tests/htable/htable_i4t2.pf:23:  call h%init(4, data_r8)
+./tests/htable/htable_i4t2.pf:26:  call h%init(4, data_ti4)
+./tests/htable/htable_i4t2.pf:29:  call h%init(4, data_t4i4)
+./tests/htable/htable_i4t2.pf:32:  call h%init(4, data_pt)
+./tests/htable/htable_i4t2.pf:54:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4t2.pf:55:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4t2.pf:56:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4t2.pf:57:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4t2.pf:58:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4t2.pf:59:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4t2.pf:121:  call h%init(64)
+./tests/htable/htable_i4t2.pf:144:  call h%init(64)
+./tests/htable/htable_i4t2.pf:175:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4t2.pf:176:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4t2.pf:177:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4t2.pf:178:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4t2.pf:179:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4t2.pf:180:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4t2.pf:282:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4t2.pf:283:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4t2.pf:284:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4t2.pf:285:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4t2.pf:286:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4t2.pf:287:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4t2.pf:368:  call h%init(4, data=data_ti4)
+./tests/htable/htable_i4t2.pf:376:  call it%init(h)
+./tests/htable/htable_i4t4.pf:17:  call h%init(4, data_i4)
+./tests/htable/htable_i4t4.pf:20:  call h%init(4, data_i8)
+./tests/htable/htable_i4t4.pf:23:  call h%init(4, data_r8)
+./tests/htable/htable_i4t4.pf:26:  call h%init(4, data_ti4)
+./tests/htable/htable_i4t4.pf:29:  call h%init(4, data_t4i4)
+./tests/htable/htable_i4t4.pf:32:  call h%init(4, data_pt)
+./tests/htable/htable_i4t4.pf:54:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4t4.pf:55:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4t4.pf:56:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4t4.pf:57:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4t4.pf:58:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4t4.pf:59:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4t4.pf:121:  call h%init(64)
+./tests/htable/htable_i4t4.pf:144:  call h%init(64)
+./tests/htable/htable_i4t4.pf:175:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4t4.pf:176:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4t4.pf:177:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4t4.pf:178:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4t4.pf:179:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4t4.pf:180:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4t4.pf:282:  call h1%init(4, data=data_i4)
+./tests/htable/htable_i4t4.pf:283:  call h2%init(4, data=data_i8)
+./tests/htable/htable_i4t4.pf:284:  call h3%init(4, data=data_r8)
+./tests/htable/htable_i4t4.pf:285:  call h4%init(4, data=data_ti4)
+./tests/htable/htable_i4t4.pf:286:  call h5%init(4, data=data_t4i4)
+./tests/htable/htable_i4t4.pf:287:  call h6%init(4, data=data_pt)
+./tests/htable/htable_i4t4.pf:368:  call h%init(4, data=data_t4i4)
+./tests/htable/htable_i4t4.pf:376:  call it%init(h)
+./tests/mean_field/mean_field_parallel.pf:87:    call mf%init(f)
+./tests/mean_field/mean_field_parallel.pf:112:    call mf%init(f)
+./tests/mean_field/mean_field_parallel.pf:125:    call mf2%init(f)
+./tests/mean_sqr_field/mean_sqr_field_parallel.pf:87:    call mf%init(f)
+./tests/mean_sqr_field/mean_sqr_field_parallel.pf:112:    call mf%init(f)
+./tests/mean_sqr_field/mean_sqr_field_parallel.pf:125:    call mf2%init(f)
+./tests/quad/quad.pf:30:  call q%init(id, p1, p2, p3, p4)
+./tests/quad/quad.pf:72:  call q%init(id, p1, p2, p3, p4)
+./tests/quad/quad.pf:100:  call q%init(id, p1, p2, p3, p4)
+./tests/quad/quad.pf:132:  call q%init(id, p1, p2, p3, p4)
+./tests/quad/quad.pf:163:  call q1%init(id, p1, p2, p3, p4)
+./tests/quad/quad.pf:166:  call q2%init(id, p1, p2, p3, p4)
+./tests/quad/quad.pf:176:  call q3%init(id, p5, p6, p7, p8)
+./tests/quad/quad.pf:218:  call q%init(id, p1, p2, p3, p4)
+./tests/time_based_controller/test_time_based_controller.pf:11:  call ctrl%init(1.0_rp, "simulationtime", 10.0_rp)
+./tests/time_based_controller/test_time_based_controller.pf:17:  call ctrl%init(1.0_rp, "nsamples", 10.0_rp)
+./tests/time_based_controller/test_time_based_controller.pf:23:  call ctrl%init(1.0_rp, "tsteps", 10.0_rp)
+./tests/time_based_controller/test_time_based_controller.pf:41:  call ctrl1%init(1.0_rp, "simulationtime", 10.0_rp)
+./tests/time_based_controller/test_time_based_controller.pf:61:  call ctrl%init(10.0_rp, "simulationtime", 1.0_rp)
+./tests/time_based_controller/test_time_based_controller.pf:84:  call ctrl%init(10.0_rp, "nsamples", 10.0_rp)
+./tests/time_based_controller/test_time_based_controller.pf:107:  call ctrl%init(10.0_rp, "tsteps", 10.0_rp)
+./tests/time_based_controller/test_time_based_controller.pf:130:  call ctrl%init(1.0_rp, "simulationtime", 10.0_rp)
+./tests/octree/octree.pf:10:  call t%init(10d0)
+./tests/octree/octree.pf:23:  call t%init(1d0)
+./tests/octree/octree.pf:42:  call t%init(100d0)
+./tests/octree/octree.pf:64:  call t%init(100d0)
+./tests/stack/stack_pt.pf:11:  call s1%init()
+./tests/stack/stack_pt.pf:19:  call s2%init(10)
+./tests/stack/stack_pt.pf:27:  call s3%init(0)
+./tests/stack/stack_pt.pf:44:  call s%init()
+./tests/stack/stack_pt.pf:64:  call s%init()  
+./tests/stack/stack_pt.pf:97:  call s%init()
+./tests/stack/stack_pt.pf:123:  call s%init()
+./tests/stack/stack_i4t2.pf:11:  call s1%init()
+./tests/stack/stack_i4t2.pf:19:  call s2%init(10)
+./tests/stack/stack_i4t2.pf:27:  call s3%init(0)
+./tests/stack/stack_i4t2.pf:44:  call s%init()
+./tests/stack/stack_i4t2.pf:64:  call s%init()  
+./tests/stack/stack_i4t2.pf:97:  call s%init()
+./tests/stack/stack_i4t2.pf:123:  call s%init()
+./tests/stack/stack_nq.pf:11:  call s1%init()
+./tests/stack/stack_nq.pf:19:  call s2%init(10)
+./tests/stack/stack_nq.pf:27:  call s3%init(0)
+./tests/stack/stack_nq.pf:44:  call s%init()
+./tests/stack/stack_nq.pf:64:  call s%init()  
+./tests/stack/stack_nq.pf:112:  call s%init()
+./tests/stack/stack_nq.pf:150:  call s%init()
+./tests/stack/stack_r8.pf:11:  call s1%init()
+./tests/stack/stack_r8.pf:19:  call s2%init(10)
+./tests/stack/stack_r8.pf:27:  call s3%init(0)
+./tests/stack/stack_r8.pf:44:  call s%init()
+./tests/stack/stack_r8.pf:64:  call s%init()  
+./tests/stack/stack_r8.pf:96:  call s%init()
+./tests/stack/stack_r8.pf:121:  call s%init()
+./tests/stack/stack_i4.pf:11:  call s1%init()
+./tests/stack/stack_i4.pf:19:  call s2%init(10)
+./tests/stack/stack_i4.pf:27:  call s3%init(0)
+./tests/stack/stack_i4.pf:44:  call s%init()
+./tests/stack/stack_i4.pf:62:  call s%init()  
+./tests/stack/stack_i4.pf:92:  call s%init()
+./tests/stack/stack_i4.pf:115:  call s%init()
+./tests/stack/stack_2i4r8t3.pf:11:  call s1%init()
+./tests/stack/stack_2i4r8t3.pf:19:  call s2%init(10)
+./tests/stack/stack_2i4r8t3.pf:27:  call s3%init(0)
+./tests/stack/stack_2i4r8t3.pf:44:  call s%init()
+./tests/stack/stack_2i4r8t3.pf:64:  call s%init()  
+./tests/stack/stack_2i4r8t3.pf:97:  call s%init()
+./tests/stack/stack_2i4r8t3.pf:123:  call s%init()
+./tests/stack/stack_i4r8t2.pf:11:  call s1%init()
+./tests/stack/stack_i4r8t2.pf:19:  call s2%init(10)
+./tests/stack/stack_i4r8t2.pf:27:  call s3%init(0)
+./tests/stack/stack_i4r8t2.pf:44:  call s%init()
+./tests/stack/stack_i4r8t2.pf:64:  call s%init()  
+./tests/stack/stack_i4r8t2.pf:97:  call s%init()
+./tests/stack/stack_i4r8t2.pf:123:  call s%init()
+./tests/stack/stack_i8.pf:11:  call s1%init()
+./tests/stack/stack_i8.pf:19:  call s2%init(10)
+./tests/stack/stack_i8.pf:27:  call s3%init(0)
+./tests/stack/stack_i8.pf:44:  call s%init()
+./tests/stack/stack_i8.pf:64:  call s%init()  
+./tests/stack/stack_i8.pf:96:  call s%init()
+./tests/stack/stack_i8.pf:121:  call s%init()
+./tests/stack/stack_i4t4.pf:11:  call s1%init()
+./tests/stack/stack_i4t4.pf:19:  call s2%init(10)
+./tests/stack/stack_i4t4.pf:27:  call s3%init(0)
+./tests/stack/stack_i4t4.pf:44:  call s%init()
+./tests/stack/stack_i4t4.pf:64:  call s%init()  
+./tests/stack/stack_i4t4.pf:97:  call s%init()
+./tests/stack/stack_i4t4.pf:123:  call s%init()
+./tests/stack/stack_nh.pf:11:  call s1%init()
+./tests/stack/stack_nh.pf:19:  call s2%init(10)
+./tests/stack/stack_nh.pf:27:  call s3%init(0)
+./tests/stack/stack_nh.pf:44:  call s%init()
+./tests/stack/stack_nh.pf:64:  call s%init()  
+./tests/stack/stack_nh.pf:112:  call s%init()
+./tests/stack/stack_nh.pf:150:  call s%init()
+./tests/point_interpolation/point_interpolation_parallel.pf:92:    call interp%init(coef) ! initialize the interpolator object
+./tests/point_interpolation/point_interpolation_parallel.pf:146:    call interp%init(coef) ! initialize the interpolator object
+./tests/point_interpolation/point_interpolation_parallel.pf:205:    call interp%init(coef) ! initialize the interpolator object
+./tests/tet/tet.pf:31:  call t%init(id, p1, p2, p3, p4)
+./tests/tet/tet.pf:73:  call t%init(id, p1, p2, p3, p4)
+./tests/tet/tet.pf:101:  call t%init(id, p1, p2, p3, p4)
+./tests/tet/tet.pf:131:  call t%init(id, p1, p2, p3, p4)
+./tests/tet/tet.pf:162:  call t1%init(id, p1, p2, p3, p4)
+./tests/tet/tet.pf:165:  call t2%init(id, p1, p2, p3, p4)
+./tests/tet/tet.pf:175:  call t3%init(id, p5, p6, p7, p8)
+./tests/tet/tet.pf:217:  call tr%init(id, p1, p2, p3, p4)
+./tests/bc/bc.pf:10:!   call b%init(dof)
+./examples/lid/lid2d.f90:83:    call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
+./examples/lid/lid.f90:83:    call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
+grep: ./examples/test_cyl_boundary_layer/neko: binary file matches
+grep: ./examples/test_cyl_boundary_layer/neko_mar17: binary file matches
+./examples/poisson/driver.f90:55:  call dir_bc%init(dm)
+./examples/poisson/driver.f90:64:  call solver%init(n, abs_tol = tol)
+grep: ./.git/objects/pack/pack-2af7649938e4bdcf0713ab072a1a340bd142b614.pack: binary file matches
+./init.txt:1:./contrib/genmeshbox/genmeshbox.f90:72:  call htable_pts%init( nel, gdim)
+./init.txt:2:./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:68:  call mean_data%init(msh%nelv,msh%offset_el)
+./init.txt:3:./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:69:  call stats_data%init(msh%nelv,msh%offset_el)
+./init.txt:4:./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:119:  call avg_flow%init(u, v, w, p)
+./init.txt:5:./contrib/postprocess_fluid_stats/postprocess_fluid_stats.f90:120:  call fld_stats%init(coef,avg_flow%u,avg_flow%v,avg_flow%w,avg_flow%p)
+./init.txt:6:./contrib/average_fields_in_time/average_fields_in_time.f90:37:  call fld_data%init()
+./init.txt:7:./contrib/average_fields_in_time/average_fields_in_time.f90:38:  call fld_data_avg%init()
+./init.txt:8:./contrib/average_field_in_space/average_field_in_space.f90:51:  call field_data%init(msh%nelv,msh%offset_el)
+./init.txt:9:./contrib/pyneko/examples/hemi/hemi.py:4:pyNeko.init()
+./init.txt:10:./contrib/pyneko/pyNeko/__init__.py:4:from pyNeko.intf import init, finalize, solve
+./init.txt:11:./contrib/pyneko/pyNeko/intf.py:6:neko.init.resType = None
+./init.txt:12:./contrib/pyneko/pyNeko/intf.py:12:def init():
+./init.txt:13:./contrib/pyneko/pyNeko/intf.py:13:    neko.init()
+./init.txt:14:./contrib/pyneko/src/json_case.f90:78:    call neko_case%usr%init()
+./init.txt:15:./contrib/pyneko/src/json_case.f90:91:       call neko_case%fluid%init(neko_case%msh, lx, neko_case%params)
+./init.txt:16:./contrib/pyneko/src/json_case.f90:122:    call neko_case%s%init(neko_case%params%nsamples, neko_case%params%T_end)
+./init.txt:17:./contrib/pyneko/src/json_case.f90:127:    call neko_case%q%init(neko_case%params%stats_begin)
+./init.txt:18:./contrib/pyneko/src/neko_intf.f90:43:  subroutine neko_intf_init() bind(c, name='init')
+./init.txt:19:./tests/uset/uset_r8.pf:8:  call s%init()
+./init.txt:20:./tests/uset/uset_r8.pf:20:  call s%init()
+./init.txt:21:./tests/uset/uset_r8.pf:36:  call s%init()
+./init.txt:22:./tests/uset/uset_r8.pf:61:  call s%init()
+./init.txt:23:./tests/uset/uset_r8.pf:87:  call s%init()
+./init.txt:24:./tests/uset/uset_r8.pf:121:  call s%init()
+./init.txt:25:./tests/uset/uset_r8.pf:165:  call s%init()
+./init.txt:26:./tests/uset/uset_i4.pf:8:  call s%init()
+./init.txt:27:./tests/uset/uset_i4.pf:20:  call s%init()
+./init.txt:28:./tests/uset/uset_i4.pf:34:  call s%init()
+./init.txt:29:./tests/uset/uset_i4.pf:57:  call s%init()
+./init.txt:30:./tests/uset/uset_i4.pf:81:  call s%init()
+./init.txt:31:./tests/uset/uset_i4.pf:113:  call s%init()
+./init.txt:32:./tests/uset/uset_i4.pf:156:  call s%init()
+./init.txt:33:./tests/uset/uset_i8.pf:8:  call s%init()
+./init.txt:34:./tests/uset/uset_i8.pf:20:  call s%init()
+./init.txt:35:./tests/uset/uset_i8.pf:36:  call s%init()
+./init.txt:36:./tests/uset/uset_i8.pf:61:  call s%init()
+./init.txt:37:./tests/uset/uset_i8.pf:87:  call s%init()
+./init.txt:38:./tests/uset/uset_i8.pf:121:  call s%init()
+./init.txt:39:./tests/uset/uset_i8.pf:165:  call s%init()
+./init.txt:40:./tests/tri/tri.pf:27:  call t%init(id, p1, p2, p3)
+./init.txt:41:./tests/tri/tri.pf:64:  call t%init(id, p1, p2, p3)
+./init.txt:42:./tests/tri/tri.pf:90:  call t%init(id, p1, p2, p3)
+./init.txt:43:./tests/tri/tri.pf:118:  call t%init(id, p1, p2, p3)
+./init.txt:44:./tests/tri/tri.pf:146:  call t1%init(id, p1, p2, p3)
+./init.txt:45:./tests/tri/tri.pf:149:  call t2%init(id, p1, p2, p3)
+./init.txt:46:./tests/tri/tri.pf:158:  call t3%init(id, p5, p6, p7)
+./init.txt:47:./tests/tri/tri.pf:195:  call tr%init(id, p1, p2, p3)
+./init.txt:48:./tests/vector/vector_parallel.pf:44:    call v%init(n)
+./init.txt:49:./tests/vector/vector_parallel.pf:67:    call v%init(n)
+./init.txt:50:./tests/vector/vector_parallel.pf:86:    call w%init(n)
+./init.txt:51:./tests/vector/vector_parallel.pf:92:    call w%init(m)
+./init.txt:52:./tests/vector/vector_parallel.pf:108:    call v%init(n)
+./init.txt:53:./tests/hex/hex.pf:46:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./init.txt:54:./tests/hex/hex.pf:109:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./init.txt:55:./tests/hex/hex.pf:146:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./init.txt:56:./tests/hex/hex.pf:185:  call h%init(id, p1, p2, p4, p3, p5, p6, p8, p7)
+./init.txt:57:./tests/hex/hex.pf:229:  call h1%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./init.txt:58:./tests/hex/hex.pf:232:  call h2%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./init.txt:59:./tests/hex/hex.pf:247:  call h3%init(id, pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8)
+./init.txt:60:./tests/hex/hex.pf:310:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./init.txt:61:./tests/hex/hex.pf:398:  call h%init(id, p1, p2, p3, p4, p5, p6, p7, p8)
+./init.txt:62:./tests/time_scheme_controller/test_time_scheme_controller.pf:26:  call ctrl%init(1)
+./init.txt:63:./tests/time_scheme_controller/test_time_scheme_controller.pf:106:  call ctrl%init(1)
+./init.txt:64:./tests/time_scheme_controller/test_time_scheme_controller.pf:179:  call ctrl%init(2)
+./init.txt:65:./tests/time_scheme_controller/test_time_scheme_controller.pf:254:  call ctrl%init(3)
+./init.txt:66:./tests/htable/htable_i4.pf:17:  call h%init(4, data_i4)
+./init.txt:67:./tests/htable/htable_i4.pf:20:  call h%init(4, data_i8)
+./init.txt:68:./tests/htable/htable_i4.pf:23:  call h%init(4, data_r8)
+./init.txt:69:./tests/htable/htable_i4.pf:26:  call h%init(4, data_ti4)
+./init.txt:70:./tests/htable/htable_i4.pf:29:  call h%init(4, data_t4i4)
+./init.txt:71:./tests/htable/htable_i4.pf:32:  call h%init(4, data_pt)
+./init.txt:72:./tests/htable/htable_i4.pf:54:  call h1%init(4, data=data_i4)
+./init.txt:73:./tests/htable/htable_i4.pf:55:  call h2%init(4, data=data_i8)
+./init.txt:74:./tests/htable/htable_i4.pf:56:  call h3%init(4, data=data_r8)
+./init.txt:75:./tests/htable/htable_i4.pf:57:  call h4%init(4, data=data_ti4)
+./init.txt:76:./tests/htable/htable_i4.pf:58:  call h5%init(4, data=data_t4i4)
+./init.txt:77:./tests/htable/htable_i4.pf:59:  call h6%init(4, data=data_pt)
+./init.txt:78:./tests/htable/htable_i4.pf:119:  call h%init(64)
+./init.txt:79:./tests/htable/htable_i4.pf:140:  call h%init(64)
+./init.txt:80:./tests/htable/htable_i4.pf:171:  call h1%init(4, data=data_i4)
+./init.txt:81:./tests/htable/htable_i4.pf:172:  call h2%init(4, data=data_i8)
+./init.txt:82:./tests/htable/htable_i4.pf:173:  call h3%init(4, data=data_r8)
+./init.txt:83:./tests/htable/htable_i4.pf:174:  call h4%init(4, data=data_ti4)
+./init.txt:84:./tests/htable/htable_i4.pf:175:  call h5%init(4, data=data_t4i4)
+./init.txt:85:./tests/htable/htable_i4.pf:176:  call h6%init(4, data=data_pt)
+./init.txt:86:./tests/htable/htable_i4.pf:278:  call h1%init(4, data=data_i4)
+./init.txt:87:./tests/htable/htable_i4.pf:279:  call h2%init(4, data=data_i8)
+./init.txt:88:./tests/htable/htable_i4.pf:280:  call h3%init(4, data=data_r8)
+./init.txt:89:./tests/htable/htable_i4.pf:281:  call h4%init(4, data=data_ti4)
+./init.txt:90:./tests/htable/htable_i4.pf:282:  call h5%init(4, data=data_t4i4)
+./init.txt:91:./tests/htable/htable_i4.pf:283:  call h6%init(4, data=data_pt)
+./init.txt:92:./tests/htable/htable_i4.pf:366:  call h%init(4, data=data_i4)
+./init.txt:93:./tests/htable/htable_i4.pf:374:  call it%init(h)
+./init.txt:94:./tests/htable/htable_pt.pf:17:  call h%init(4, data_i4)
+./init.txt:95:./tests/htable/htable_pt.pf:20:  call h%init(4, data_i8)
+./init.txt:96:./tests/htable/htable_pt.pf:23:  call h%init(4, data_r8)
+./init.txt:97:./tests/htable/htable_pt.pf:26:  call h%init(4, data_ti4)
+./init.txt:98:./tests/htable/htable_pt.pf:29:  call h%init(4, data_t4i4)
+./init.txt:99:./tests/htable/htable_pt.pf:32:  call h%init(4, data_pt)
+./init.txt:100:./tests/htable/htable_pt.pf:54:  call h1%init(4, data=data_i4)
+./init.txt:101:./tests/htable/htable_pt.pf:55:  call h2%init(4, data=data_i8)
+./init.txt:102:./tests/htable/htable_pt.pf:56:  call h3%init(4, data=data_r8)
+./init.txt:103:./tests/htable/htable_pt.pf:57:  call h4%init(4, data=data_ti4)
+./init.txt:104:./tests/htable/htable_pt.pf:58:  call h5%init(4, data=data_t4i4)
+./init.txt:105:./tests/htable/htable_pt.pf:59:  call h6%init(4, data=data_pt)
+./init.txt:106:./tests/htable/htable_pt.pf:121:  call h%init(64)
+./init.txt:107:./tests/htable/htable_pt.pf:144:  call h%init(64)
+./init.txt:108:./tests/htable/htable_pt.pf:175:  call h1%init(4, data=data_i4)
+./init.txt:109:./tests/htable/htable_pt.pf:176:  call h2%init(4, data=data_i8)
+./init.txt:110:./tests/htable/htable_pt.pf:177:  call h3%init(4, data=data_r8)
+./init.txt:111:./tests/htable/htable_pt.pf:178:  call h4%init(4, data=data_ti4)
+./init.txt:112:./tests/htable/htable_pt.pf:179:  call h5%init(4, data=data_t4i4)
+./init.txt:113:./tests/htable/htable_pt.pf:180:  call h6%init(4, data=data_pt)
+./init.txt:114:./tests/htable/htable_pt.pf:282:  call h1%init(4, data=data_i4)
+./init.txt:115:./tests/htable/htable_pt.pf:283:  call h2%init(4, data=data_i8)
+./init.txt:116:./tests/htable/htable_pt.pf:284:  call h3%init(4, data=data_r8)
+./init.txt:117:./tests/htable/htable_pt.pf:285:  call h4%init(4, data=data_ti4)
+./init.txt:118:./tests/htable/htable_pt.pf:286:  call h5%init(4, data=data_t4i4)
+./init.txt:119:./tests/htable/htable_pt.pf:287:  call h6%init(4, data=data_pt)
+./init.txt:120:./tests/htable/htable_pt.pf:368:  call h%init(4, data=data_pt)
+./init.txt:121:./tests/htable/htable_pt.pf:376:  call it%init(h)
+./init.txt:122:./tests/htable/htable_i8.pf:17:  call h%init(4, data_i4)
+./init.txt:123:./tests/htable/htable_i8.pf:20:  call h%init(4, data_i8)
+./init.txt:124:./tests/htable/htable_i8.pf:23:  call h%init(4, data_r8)
+./init.txt:125:./tests/htable/htable_i8.pf:26:  call h%init(4, data_ti4)
+./init.txt:126:./tests/htable/htable_i8.pf:29:  call h%init(4, data_t4i4)
+./init.txt:127:./tests/htable/htable_i8.pf:32:  call h%init(4, data_pt)
+./init.txt:128:./tests/htable/htable_i8.pf:54:  call h1%init(4, data=data_i4)
+./init.txt:129:./tests/htable/htable_i8.pf:55:  call h2%init(4, data=data_i8)
+./init.txt:130:./tests/htable/htable_i8.pf:56:  call h3%init(4, data=data_r8)
+./init.txt:131:./tests/htable/htable_i8.pf:57:  call h4%init(4, data=data_ti4)
+./init.txt:132:./tests/htable/htable_i8.pf:58:  call h5%init(4, data=data_t4i4)
+./init.txt:133:./tests/htable/htable_i8.pf:59:  call h6%init(4, data=data_pt)
+./init.txt:134:./tests/htable/htable_i8.pf:121:  call h%init(64)
+./init.txt:135:./tests/htable/htable_i8.pf:144:  call h%init(64)
+./init.txt:136:./tests/htable/htable_i8.pf:175:  call h1%init(4, data=data_i4)
+./init.txt:137:./tests/htable/htable_i8.pf:176:  call h2%init(4, data=data_i8)
+./init.txt:138:./tests/htable/htable_i8.pf:177:  call h3%init(4, data=data_r8)
+./init.txt:139:./tests/htable/htable_i8.pf:178:  call h4%init(4, data=data_ti4)
+./init.txt:140:./tests/htable/htable_i8.pf:179:  call h5%init(4, data=data_t4i4)
+./init.txt:141:./tests/htable/htable_i8.pf:180:  call h6%init(4, data=data_pt)
+./init.txt:142:./tests/htable/htable_i8.pf:282:  call h1%init(4, data=data_i4)
+./init.txt:143:./tests/htable/htable_i8.pf:283:  call h2%init(4, data=data_i8)
+./init.txt:144:./tests/htable/htable_i8.pf:284:  call h3%init(4, data=data_r8)
+./init.txt:145:./tests/htable/htable_i8.pf:285:  call h4%init(4, data=data_ti4)
+./init.txt:146:./tests/htable/htable_i8.pf:286:  call h5%init(4, data=data_t4i4)
+./init.txt:147:./tests/htable/htable_i8.pf:287:  call h6%init(4, data=data_pt)
+./init.txt:148:./tests/htable/htable_i8.pf:368:  call h%init(4, data=data_i8)
+./init.txt:149:./tests/htable/htable_i8.pf:376:  call it%init(h)
+./init.txt:150:./tests/htable/htable_r8.pf:17:  call h%init(4, data_i4)
+./init.txt:151:./tests/htable/htable_r8.pf:20:  call h%init(4, data_i8)
+./init.txt:152:./tests/htable/htable_r8.pf:23:  call h%init(4, data_r8)
+./init.txt:153:./tests/htable/htable_r8.pf:26:  call h%init(4, data_ti4)
+./init.txt:154:./tests/htable/htable_r8.pf:29:  call h%init(4, data_t4i4)
+./init.txt:155:./tests/htable/htable_r8.pf:32:  call h%init(4, data_pt)
+./init.txt:156:./tests/htable/htable_r8.pf:54:  call h1%init(4, data=data_i4)
+./init.txt:157:./tests/htable/htable_r8.pf:55:  call h2%init(4, data=data_i8)
+./init.txt:158:./tests/htable/htable_r8.pf:56:  call h3%init(4, data=data_r8)
+./init.txt:159:./tests/htable/htable_r8.pf:57:  call h4%init(4, data=data_ti4)
+./init.txt:160:./tests/htable/htable_r8.pf:58:  call h5%init(4, data=data_t4i4)
+./init.txt:161:./tests/htable/htable_r8.pf:59:  call h6%init(4, data=data_pt)
+./init.txt:162:./tests/htable/htable_r8.pf:121:  call h%init(64)
+./init.txt:163:./tests/htable/htable_r8.pf:144:  call h%init(64)
+./init.txt:164:./tests/htable/htable_r8.pf:175:  call h1%init(4, data=data_i4)
+./init.txt:165:./tests/htable/htable_r8.pf:176:  call h2%init(4, data=data_i8)
+./init.txt:166:./tests/htable/htable_r8.pf:177:  call h3%init(4, data=data_r8)
+./init.txt:167:./tests/htable/htable_r8.pf:178:  call h4%init(4, data=data_ti4)
+./init.txt:168:./tests/htable/htable_r8.pf:179:  call h5%init(4, data=data_t4i4)
+./init.txt:169:./tests/htable/htable_r8.pf:180:  call h6%init(4, data=data_pt)
+./init.txt:170:./tests/htable/htable_r8.pf:282:  call h1%init(4, data=data_i4)
+./init.txt:171:./tests/htable/htable_r8.pf:283:  call h2%init(4, data=data_i8)
+./init.txt:172:./tests/htable/htable_r8.pf:284:  call h3%init(4, data=data_r8)
+./init.txt:173:./tests/htable/htable_r8.pf:285:  call h4%init(4, data=data_ti4)
+./init.txt:174:./tests/htable/htable_r8.pf:286:  call h5%init(4, data=data_t4i4)
+./init.txt:175:./tests/htable/htable_r8.pf:287:  call h6%init(4, data=data_pt)
+./init.txt:176:./tests/htable/htable_r8.pf:368:  call h%init(4, data=data_r8)
+./init.txt:177:./tests/htable/htable_r8.pf:376:  call it%init(h)
+./init.txt:178:./tests/htable/htable_i4t2.pf:17:  call h%init(4, data_i4)
+./init.txt:179:./tests/htable/htable_i4t2.pf:20:  call h%init(4, data_i8)
+./init.txt:180:./tests/htable/htable_i4t2.pf:23:  call h%init(4, data_r8)
+./init.txt:181:./tests/htable/htable_i4t2.pf:26:  call h%init(4, data_ti4)
+./init.txt:182:./tests/htable/htable_i4t2.pf:29:  call h%init(4, data_t4i4)
+./init.txt:183:./tests/htable/htable_i4t2.pf:32:  call h%init(4, data_pt)
+./init.txt:184:./tests/htable/htable_i4t2.pf:54:  call h1%init(4, data=data_i4)
+./init.txt:185:./tests/htable/htable_i4t2.pf:55:  call h2%init(4, data=data_i8)
+./init.txt:186:./tests/htable/htable_i4t2.pf:56:  call h3%init(4, data=data_r8)
+./init.txt:187:./tests/htable/htable_i4t2.pf:57:  call h4%init(4, data=data_ti4)
+./init.txt:188:./tests/htable/htable_i4t2.pf:58:  call h5%init(4, data=data_t4i4)
+./init.txt:189:./tests/htable/htable_i4t2.pf:59:  call h6%init(4, data=data_pt)
+./init.txt:190:./tests/htable/htable_i4t2.pf:121:  call h%init(64)
+./init.txt:191:./tests/htable/htable_i4t2.pf:144:  call h%init(64)
+./init.txt:192:./tests/htable/htable_i4t2.pf:175:  call h1%init(4, data=data_i4)
+./init.txt:193:./tests/htable/htable_i4t2.pf:176:  call h2%init(4, data=data_i8)
+./init.txt:194:./tests/htable/htable_i4t2.pf:177:  call h3%init(4, data=data_r8)
+./init.txt:195:./tests/htable/htable_i4t2.pf:178:  call h4%init(4, data=data_ti4)
+./init.txt:196:./tests/htable/htable_i4t2.pf:179:  call h5%init(4, data=data_t4i4)
+./init.txt:197:./tests/htable/htable_i4t2.pf:180:  call h6%init(4, data=data_pt)
+./init.txt:198:./tests/htable/htable_i4t2.pf:282:  call h1%init(4, data=data_i4)
+./init.txt:199:./tests/htable/htable_i4t2.pf:283:  call h2%init(4, data=data_i8)
+./init.txt:200:./tests/htable/htable_i4t2.pf:284:  call h3%init(4, data=data_r8)
+./init.txt:201:./tests/htable/htable_i4t2.pf:285:  call h4%init(4, data=data_ti4)
+./init.txt:202:./tests/htable/htable_i4t2.pf:286:  call h5%init(4, data=data_t4i4)
+./init.txt:203:./tests/htable/htable_i4t2.pf:287:  call h6%init(4, data=data_pt)
+./init.txt:204:./tests/htable/htable_i4t2.pf:368:  call h%init(4, data=data_ti4)
+./init.txt:205:./tests/htable/htable_i4t2.pf:376:  call it%init(h)
+./init.txt:206:./tests/htable/htable_i4t4.pf:17:  call h%init(4, data_i4)
+./init.txt:207:./tests/htable/htable_i4t4.pf:20:  call h%init(4, data_i8)
+./init.txt:208:./tests/htable/htable_i4t4.pf:23:  call h%init(4, data_r8)
+./init.txt:209:./tests/htable/htable_i4t4.pf:26:  call h%init(4, data_ti4)
+./init.txt:210:./tests/htable/htable_i4t4.pf:29:  call h%init(4, data_t4i4)
+./init.txt:211:./tests/htable/htable_i4t4.pf:32:  call h%init(4, data_pt)
+./init.txt:212:./tests/htable/htable_i4t4.pf:54:  call h1%init(4, data=data_i4)
+./init.txt:213:./tests/htable/htable_i4t4.pf:55:  call h2%init(4, data=data_i8)
+./init.txt:214:./tests/htable/htable_i4t4.pf:56:  call h3%init(4, data=data_r8)
+./init.txt:215:./tests/htable/htable_i4t4.pf:57:  call h4%init(4, data=data_ti4)
+./init.txt:216:./tests/htable/htable_i4t4.pf:58:  call h5%init(4, data=data_t4i4)
+./init.txt:217:./tests/htable/htable_i4t4.pf:59:  call h6%init(4, data=data_pt)
+./init.txt:218:./tests/htable/htable_i4t4.pf:121:  call h%init(64)
+./init.txt:219:./tests/htable/htable_i4t4.pf:144:  call h%init(64)
+./init.txt:220:./tests/htable/htable_i4t4.pf:175:  call h1%init(4, data=data_i4)
+./init.txt:221:./tests/htable/htable_i4t4.pf:176:  call h2%init(4, data=data_i8)
+./init.txt:222:./tests/htable/htable_i4t4.pf:177:  call h3%init(4, data=data_r8)
+./init.txt:223:./tests/htable/htable_i4t4.pf:178:  call h4%init(4, data=data_ti4)
+./init.txt:224:./tests/htable/htable_i4t4.pf:179:  call h5%init(4, data=data_t4i4)
+./init.txt:225:./tests/htable/htable_i4t4.pf:180:  call h6%init(4, data=data_pt)
+./init.txt:226:./tests/htable/htable_i4t4.pf:282:  call h1%init(4, data=data_i4)
+./init.txt:227:./tests/htable/htable_i4t4.pf:283:  call h2%init(4, data=data_i8)
+./init.txt:228:./tests/htable/htable_i4t4.pf:284:  call h3%init(4, data=data_r8)
+./init.txt:229:./tests/htable/htable_i4t4.pf:285:  call h4%init(4, data=data_ti4)
+./init.txt:230:./tests/htable/htable_i4t4.pf:286:  call h5%init(4, data=data_t4i4)
+./init.txt:231:./tests/htable/htable_i4t4.pf:287:  call h6%init(4, data=data_pt)
+./init.txt:232:./tests/htable/htable_i4t4.pf:368:  call h%init(4, data=data_t4i4)
+./init.txt:233:./tests/htable/htable_i4t4.pf:376:  call it%init(h)
+./init.txt:234:./tests/mean_field/mean_field_parallel.pf:87:    call mf%init(f)
+./init.txt:235:./tests/mean_field/mean_field_parallel.pf:112:    call mf%init(f)
+./init.txt:236:./tests/mean_field/mean_field_parallel.pf:125:    call mf2%init(f)
+./init.txt:237:./tests/mean_sqr_field/mean_sqr_field_parallel.pf:87:    call mf%init(f)
+./init.txt:238:./tests/mean_sqr_field/mean_sqr_field_parallel.pf:112:    call mf%init(f)
+./init.txt:239:./tests/mean_sqr_field/mean_sqr_field_parallel.pf:125:    call mf2%init(f)
+./init.txt:240:./tests/quad/quad.pf:30:  call q%init(id, p1, p2, p3, p4)
+./init.txt:241:./tests/quad/quad.pf:72:  call q%init(id, p1, p2, p3, p4)
+./init.txt:242:./tests/quad/quad.pf:100:  call q%init(id, p1, p2, p3, p4)
+./init.txt:243:./tests/quad/quad.pf:132:  call q%init(id, p1, p2, p3, p4)
+./init.txt:244:./tests/quad/quad.pf:163:  call q1%init(id, p1, p2, p3, p4)
+./init.txt:245:./tests/quad/quad.pf:166:  call q2%init(id, p1, p2, p3, p4)
+./init.txt:246:./tests/quad/quad.pf:176:  call q3%init(id, p5, p6, p7, p8)
+./init.txt:247:./tests/quad/quad.pf:218:  call q%init(id, p1, p2, p3, p4)
+./init.txt:248:./tests/time_based_controller/test_time_based_controller.pf:11:  call ctrl%init(1.0_rp, "simulationtime", 10.0_rp)
+./init.txt:249:./tests/time_based_controller/test_time_based_controller.pf:17:  call ctrl%init(1.0_rp, "nsamples", 10.0_rp)
+./init.txt:250:./tests/time_based_controller/test_time_based_controller.pf:23:  call ctrl%init(1.0_rp, "tsteps", 10.0_rp)
+./init.txt:251:./tests/time_based_controller/test_time_based_controller.pf:41:  call ctrl1%init(1.0_rp, "simulationtime", 10.0_rp)
+./init.txt:252:./tests/time_based_controller/test_time_based_controller.pf:61:  call ctrl%init(10.0_rp, "simulationtime", 1.0_rp)
+./init.txt:253:./tests/time_based_controller/test_time_based_controller.pf:84:  call ctrl%init(10.0_rp, "nsamples", 10.0_rp)
+./init.txt:254:./tests/time_based_controller/test_time_based_controller.pf:107:  call ctrl%init(10.0_rp, "tsteps", 10.0_rp)
+./init.txt:255:./tests/time_based_controller/test_time_based_controller.pf:130:  call ctrl%init(1.0_rp, "simulationtime", 10.0_rp)
+./init.txt:256:./tests/octree/octree.pf:10:  call t%init(10d0)
+./init.txt:257:./tests/octree/octree.pf:23:  call t%init(1d0)
+./init.txt:258:./tests/octree/octree.pf:42:  call t%init(100d0)
+./init.txt:259:./tests/octree/octree.pf:64:  call t%init(100d0)
+./init.txt:260:./tests/stack/stack_pt.pf:11:  call s1%init()
+./init.txt:261:./tests/stack/stack_pt.pf:19:  call s2%init(10)
+./init.txt:262:./tests/stack/stack_pt.pf:27:  call s3%init(0)
+./init.txt:263:./tests/stack/stack_pt.pf:44:  call s%init()
+./init.txt:264:./tests/stack/stack_pt.pf:64:  call s%init()  
+./init.txt:265:./tests/stack/stack_pt.pf:97:  call s%init()
+./init.txt:266:./tests/stack/stack_pt.pf:123:  call s%init()
+./init.txt:267:./tests/stack/stack_i4t2.pf:11:  call s1%init()
+./init.txt:268:./tests/stack/stack_i4t2.pf:19:  call s2%init(10)
+./init.txt:269:./tests/stack/stack_i4t2.pf:27:  call s3%init(0)
+./init.txt:270:./tests/stack/stack_i4t2.pf:44:  call s%init()
+./init.txt:271:./tests/stack/stack_i4t2.pf:64:  call s%init()  
+./init.txt:272:./tests/stack/stack_i4t2.pf:97:  call s%init()
+./init.txt:273:./tests/stack/stack_i4t2.pf:123:  call s%init()
+./init.txt:274:./tests/stack/stack_nq.pf:11:  call s1%init()
+./init.txt:275:./tests/stack/stack_nq.pf:19:  call s2%init(10)
+./init.txt:276:./tests/stack/stack_nq.pf:27:  call s3%init(0)
+./init.txt:277:./tests/stack/stack_nq.pf:44:  call s%init()
+./init.txt:278:./tests/stack/stack_nq.pf:64:  call s%init()  
+./init.txt:279:./tests/stack/stack_nq.pf:112:  call s%init()
+./init.txt:280:./tests/stack/stack_nq.pf:150:  call s%init()
+./init.txt:281:./tests/stack/stack_r8.pf:11:  call s1%init()
+./init.txt:282:./tests/stack/stack_r8.pf:19:  call s2%init(10)
+./init.txt:283:./tests/stack/stack_r8.pf:27:  call s3%init(0)
+./init.txt:284:./tests/stack/stack_r8.pf:44:  call s%init()
+./init.txt:285:./tests/stack/stack_r8.pf:64:  call s%init()  
+./init.txt:286:./tests/stack/stack_r8.pf:96:  call s%init()
+./init.txt:287:./tests/stack/stack_r8.pf:121:  call s%init()
+./init.txt:288:./tests/stack/stack_i4.pf:11:  call s1%init()
+./init.txt:289:./tests/stack/stack_i4.pf:19:  call s2%init(10)
+./init.txt:290:./tests/stack/stack_i4.pf:27:  call s3%init(0)
+./init.txt:291:./tests/stack/stack_i4.pf:44:  call s%init()
+./init.txt:292:./tests/stack/stack_i4.pf:62:  call s%init()  
+./init.txt:293:./tests/stack/stack_i4.pf:92:  call s%init()
+./init.txt:294:./tests/stack/stack_i4.pf:115:  call s%init()
+./init.txt:295:./tests/stack/stack_2i4r8t3.pf:11:  call s1%init()
+./init.txt:296:./tests/stack/stack_2i4r8t3.pf:19:  call s2%init(10)
+./init.txt:297:./tests/stack/stack_2i4r8t3.pf:27:  call s3%init(0)
+./init.txt:298:./tests/stack/stack_2i4r8t3.pf:44:  call s%init()
+./init.txt:299:./tests/stack/stack_2i4r8t3.pf:64:  call s%init()  
+./init.txt:300:./tests/stack/stack_2i4r8t3.pf:97:  call s%init()
+./init.txt:301:./tests/stack/stack_2i4r8t3.pf:123:  call s%init()
+./init.txt:302:./tests/stack/stack_i4r8t2.pf:11:  call s1%init()
+./init.txt:303:./tests/stack/stack_i4r8t2.pf:19:  call s2%init(10)
+./init.txt:304:./tests/stack/stack_i4r8t2.pf:27:  call s3%init(0)
+./init.txt:305:./tests/stack/stack_i4r8t2.pf:44:  call s%init()
+./init.txt:306:./tests/stack/stack_i4r8t2.pf:64:  call s%init()  
+./init.txt:307:./tests/stack/stack_i4r8t2.pf:97:  call s%init()
+./init.txt:308:./tests/stack/stack_i4r8t2.pf:123:  call s%init()
+./init.txt:309:./tests/stack/stack_i8.pf:11:  call s1%init()
+./init.txt:310:./tests/stack/stack_i8.pf:19:  call s2%init(10)
+./init.txt:311:./tests/stack/stack_i8.pf:27:  call s3%init(0)
+./init.txt:312:./tests/stack/stack_i8.pf:44:  call s%init()
+./init.txt:313:./tests/stack/stack_i8.pf:64:  call s%init()  
+./init.txt:314:./tests/stack/stack_i8.pf:96:  call s%init()
+./init.txt:315:./tests/stack/stack_i8.pf:121:  call s%init()
+./init.txt:316:./tests/stack/stack_i4t4.pf:11:  call s1%init()
+./init.txt:317:./tests/stack/stack_i4t4.pf:19:  call s2%init(10)
+./init.txt:318:./tests/stack/stack_i4t4.pf:27:  call s3%init(0)
+./init.txt:319:./tests/stack/stack_i4t4.pf:44:  call s%init()
+./init.txt:320:./tests/stack/stack_i4t4.pf:64:  call s%init()  
+./init.txt:321:./tests/stack/stack_i4t4.pf:97:  call s%init()
+./init.txt:322:./tests/stack/stack_i4t4.pf:123:  call s%init()
+./init.txt:323:./tests/stack/stack_nh.pf:11:  call s1%init()
+./init.txt:324:./tests/stack/stack_nh.pf:19:  call s2%init(10)
+./init.txt:325:./tests/stack/stack_nh.pf:27:  call s3%init(0)
+./init.txt:326:./tests/stack/stack_nh.pf:44:  call s%init()
+./init.txt:327:./tests/stack/stack_nh.pf:64:  call s%init()  
+./init.txt:328:./tests/stack/stack_nh.pf:112:  call s%init()
+./init.txt:329:./tests/stack/stack_nh.pf:150:  call s%init()
+./init.txt:330:./tests/point_interpolation/point_interpolation_parallel.pf:92:    call interp%init(coef) ! initialize the interpolator object
+./init.txt:331:./tests/point_interpolation/point_interpolation_parallel.pf:146:    call interp%init(coef) ! initialize the interpolator object
+./init.txt:332:./tests/point_interpolation/point_interpolation_parallel.pf:205:    call interp%init(coef) ! initialize the interpolator object
+./init.txt:333:./tests/tet/tet.pf:31:  call t%init(id, p1, p2, p3, p4)
+./init.txt:334:./tests/tet/tet.pf:73:  call t%init(id, p1, p2, p3, p4)
+./init.txt:335:./tests/tet/tet.pf:101:  call t%init(id, p1, p2, p3, p4)
+./init.txt:336:./tests/tet/tet.pf:131:  call t%init(id, p1, p2, p3, p4)
+./init.txt:337:./tests/tet/tet.pf:162:  call t1%init(id, p1, p2, p3, p4)
+./init.txt:338:./tests/tet/tet.pf:165:  call t2%init(id, p1, p2, p3, p4)
+./init.txt:339:./tests/tet/tet.pf:175:  call t3%init(id, p5, p6, p7, p8)
+./init.txt:340:./tests/tet/tet.pf:217:  call tr%init(id, p1, p2, p3, p4)
+./init.txt:341:./tests/bc/bc.pf:10:!   call b%init(dof)
+./init.txt:342:./examples/lid/lid2d.f90:83:    call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
+./init.txt:343:./examples/lid/lid.f90:83:    call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
+./init.txt:344:./examples/poisson/driver.f90:55:  call dir_bc%init(dm)
+./init.txt:345:./examples/poisson/driver.f90:64:  call solver%init(n, abs_tol = tol)
+./init.txt:346:./logfile.log:14:   59 |      procedure, pass(this) :: init => precursor_inflow_init
+./init.txt:347:./src/mesh/octree.f90:60:     procedure, pass(t) :: init => octree_init
+./init.txt:348:./src/mesh/zone.f90:47:     procedure, pass(z) :: init => zone_init
+./init.txt:349:./src/mesh/zone.f90:61:     procedure, pass(z) :: init => zone_periodic_init
+./init.txt:350:./src/mesh/zone.f90:77:       call z%scratch%init(size)
+./init.txt:351:./src/mesh/zone.f90:79:       call z%scratch%init()
+./init.txt:352:./src/mesh/zone.f90:149:       call z%p_scratch%init(size)
+./init.txt:353:./src/mesh/zone.f90:150:       call z%p_id_scratch%init(size)
+./init.txt:354:./src/mesh/zone.f90:151:       call z%org_id_scratch%init(size)
+./init.txt:355:./src/mesh/zone.f90:154:       call z%p_scratch%init()
+./init.txt:356:./src/mesh/zone.f90:155:       call z%p_id_scratch%init()
+./init.txt:357:./src/mesh/zone.f90:156:       call z%org_id_scratch%init()
+./init.txt:358:./src/mesh/hex.f90:65:     procedure, pass(this) :: init => hex_init
+./init.txt:359:./src/mesh/tri.f90:62:     procedure, pass(this) :: init => tri_init
+./init.txt:360:./src/mesh/tet.f90:65:     procedure, pass(this) :: init => tet_init
+./init.txt:361:./src/mesh/tet_mesh.f90:51:     procedure, pass(this) :: init => tet_mesh_init
+./init.txt:362:./src/mesh/tet_mesh.f90:121:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:363:./src/mesh/tet_mesh.f90:128:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:364:./src/mesh/tet_mesh.f90:135:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:365:./src/mesh/tet_mesh.f90:142:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:366:./src/mesh/tet_mesh.f90:149:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:367:./src/mesh/tet_mesh.f90:156:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:368:./src/mesh/tet_mesh.f90:163:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:369:./src/mesh/tet_mesh.f90:170:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:370:./src/mesh/tet_mesh.f90:190:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:371:./src/mesh/tet_mesh.f90:197:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:372:./src/mesh/tet_mesh.f90:204:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:373:./src/mesh/tet_mesh.f90:211:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:374:./src/mesh/tet_mesh.f90:218:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:375:./src/mesh/tet_mesh.f90:236:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:376:./src/mesh/tet_mesh.f90:243:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:377:./src/mesh/tet_mesh.f90:250:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:378:./src/mesh/tet_mesh.f90:257:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:379:./src/mesh/tet_mesh.f90:264:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:380:./src/mesh/tet_mesh.f90:271:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./init.txt:381:./src/mesh/quad.f90:60:     procedure, pass(this) :: init => quad_init
+./init.txt:382:./src/mesh/curve.f90:18:     procedure, pass(z) :: init => curve_element_init
+./init.txt:383:./src/mesh/curve.f90:35:       call z%scratch%init(size)
+./init.txt:384:./src/mesh/curve.f90:37:       call z%scratch%init()
+./init.txt:385:./src/mesh/mesh.f90:227:             call fmp%init(m%nelv, facet_data)
+./init.txt:386:./src/mesh/mesh.f90:232:          call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
+./init.txt:387:./src/mesh/mesh.f90:233:          call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+./init.txt:388:./src/mesh/mesh.f90:244:             call fmp%init(m%nelv, facet_data)
+./init.txt:389:./src/mesh/mesh.f90:249:          call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+./init.txt:390:./src/mesh/mesh.f90:259:    !! Only init if we generate connectivity
+./init.txt:391:./src/mesh/mesh.f90:263:          call m%point_neigh(i)%init()
+./init.txt:392:./src/mesh/mesh.f90:270:    call m%htp%init(m%npts*m%nelv, i)
+./init.txt:393:./src/mesh/mesh.f90:272:    call m%wall%init(m%nelv)
+./init.txt:394:./src/mesh/mesh.f90:273:    call m%inlet%init(m%nelv)
+./init.txt:395:./src/mesh/mesh.f90:274:    call m%outlet%init(m%nelv)
+./init.txt:396:./src/mesh/mesh.f90:275:    call m%outlet_normal%init(m%nelv)
+./init.txt:397:./src/mesh/mesh.f90:276:    call m%sympln%init(m%nelv)
+./init.txt:398:./src/mesh/mesh.f90:277:    call m%periodic%init(m%nelv)
+./init.txt:399:./src/mesh/mesh.f90:281:       call m%labeled_zones(i)%init(m%nelv)
+./init.txt:400:./src/mesh/mesh.f90:284:    call m%curve%init(m%nelv)
+./init.txt:401:./src/mesh/mesh.f90:556:       call neigh_order%init(pe_size)
+./init.txt:402:./src/mesh/mesh.f90:620:    call buffer%init()
+./init.txt:403:./src/mesh/mesh.f90:777:    call send_buffer%init(m%mpts * 2)
+./init.txt:404:./src/mesh/mesh.f90:857:    call edge_idx%init(m%hte%num_entries())
+./init.txt:405:./src/mesh/mesh.f90:858:    call send_buff%init(m%hte%num_entries())
+./init.txt:406:./src/mesh/mesh.f90:859:    call owner%init(m%hte%num_entries())
+./init.txt:407:./src/mesh/mesh.f90:861:    call glb_to_loc%init(32, i)
+./init.txt:408:./src/mesh/mesh.f90:875:    call non_shared_edges%init(m%hte%num_entries())
+./init.txt:409:./src/mesh/mesh.f90:877:    call it%init(m%hte)
+./init.txt:410:./src/mesh/mesh.f90:936:    call ghost%init(send_buff%size())
+./init.txt:411:./src/mesh/mesh.f90:1103:       call edge_owner%init(m%meds)
+./init.txt:412:./src/mesh/mesh.f90:1104:       call edge_ghost%init(64, i)       
+./init.txt:413:./src/mesh/mesh.f90:1108:       call face_owner%init(m%mfcs)
+./init.txt:414:./src/mesh/mesh.f90:1109:       call face_ghost%init(64, i)       
+./init.txt:415:./src/mesh/mesh.f90:1122:       call edge_it%init(m%hte)
+./init.txt:416:./src/mesh/mesh.f90:1149:       call face_it%init(m%htf)
+./init.txt:417:./src/mesh/mesh.f90:1190:          call send_buff%init(owned_facets)
+./init.txt:418:./src/mesh/mesh.f90:1192:          call send_buff%init()
+./init.txt:419:./src/mesh/mesh.f90:1214:          call send_buff%init(owned_facets)
+./init.txt:420:./src/mesh/mesh.f90:1216:          call send_buff%init()
+./init.txt:421:./src/mesh/mesh.f90:1348:       call ep%init(el_glb_idx, &
+./init.txt:422:./src/mesh/mesh.f90:1398:       call ep%init(el_glb_idx, &
+./init.txt:423:./src/mesh/tri_mesh.f90:48:     procedure, pass(this) :: init => tri_mesh_init
+./init.txt:424:./src/mesh/tri_mesh.f90:95:    call this%el(this%melv)%init(this%melv, &
+./init.txt:425:./src/gs/gather_scatter.f90:186:    call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
+./init.txt:426:./src/gs/gather_scatter.f90:333:    call dm%init(dm_size, i)
+./init.txt:427:./src/gs/gather_scatter.f90:335:    !!but having many collisions makes the init take too long.
+./init.txt:428:./src/gs/gather_scatter.f90:336:    call sdm%init(dofmap%size(), i)
+./init.txt:429:./src/gs/gather_scatter.f90:339:    call local_dof%init()
+./init.txt:430:./src/gs/gather_scatter.f90:340:    call dof_local%init()
+./init.txt:431:./src/gs/gather_scatter.f90:342:    call local_face_dof%init()
+./init.txt:432:./src/gs/gather_scatter.f90:343:    call face_dof_local%init()   
+./init.txt:433:./src/gs/gather_scatter.f90:345:    call shared_dof%init()
+./init.txt:434:./src/gs/gather_scatter.f90:346:    call dof_shared%init()
+./init.txt:435:./src/gs/gather_scatter.f90:348:    call shared_face_dof%init()
+./init.txt:436:./src/gs/gather_scatter.f90:349:    call face_dof_shared%init()   
+./init.txt:437:./src/gs/gather_scatter.f90:1091:      call blks%init()
+./init.txt:438:./src/gs/gather_scatter.f90:1134:    call it%init(gs%shared_dofs)
+./init.txt:439:./src/gs/gather_scatter.f90:1142:    call send_pe%init()
+./init.txt:440:./src/gs/gather_scatter.f90:1143:    call recv_pe%init()
+./init.txt:441:./src/gs/gather_scatter.f90:1223:    call gs%comm%init(send_pe, recv_pe)
+./init.txt:442:./src/gs/gs_bcknd.f90:48:     procedure(gs_backend_init), pass(this), deferred :: init
+./init.txt:443:./src/gs/gs_mpi.f90:59:     procedure, pass(this) :: init => gs_mpi_init
+./init.txt:444:./src/gs/gs_comm.f90:50:     procedure(gs_comm_init), pass(this), deferred :: init
+./init.txt:445:./src/gs/gs_comm.f90:130:       call this%send_dof(i)%init()
+./init.txt:446:./src/gs/gs_comm.f90:131:       call this%recv_dof(i)%init()
+./init.txt:447:./src/gs/bcknd/device/gs_device.F90:62:     procedure, pass(this) :: init => gs_device_init
+./init.txt:448:./src/gs/bcknd/device/gs_device_mpi.F90:54:     procedure, pass(this) :: init => gs_device_mpi_buf_init
+./init.txt:449:./src/gs/bcknd/device/gs_device_mpi.F90:68:     procedure, pass(this) :: init => gs_device_mpi_init
+./init.txt:450:./src/gs/bcknd/device/gs_device_mpi.F90:222:    if (mark_dupes) call doftable%init(2*total)
+./init.txt:451:./src/gs/bcknd/device/gs_device_mpi.F90:280:    call this%send_buf%init(this%send_pe, this%send_dof, .false.)
+./init.txt:452:./src/gs/bcknd/device/gs_device_mpi.F90:281:    call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
+./init.txt:453:./src/gs/bcknd/cpu/gs_cpu.f90:44:     procedure, pass(this) :: init => gs_cpu_init
+./init.txt:454:./src/gs/bcknd/sx/gs_sx.f90:48:     procedure, pass(this) :: init => gs_sx_init
+./init.txt:455:./src/simulation_components/simulation_component.f90:53:     procedure(simulation_component_init), pass(this), deferred :: init
+./init.txt:456:./src/simulation_components/simulation_component_factory.f90:63:       call simcomp%init(json, case)
+./init.txt:457:./src/simulation_components/simulation_component_global.f90:34:!> Contains the global simulation component array and its init for the given 
+./init.txt:458:./src/simulation_components/vorticity.f90:70:      procedure, pass(this) :: init => vorticity_init_from_json
+./init.txt:459:./src/comm/redist.f90:89:       call new_zone_dist(i)%init()
+./init.txt:460:./src/comm/redist.f90:109:       call new_curve_dist(i)%init()
+./init.txt:461:./src/comm/redist.f90:120:       call new_mesh_dist(i)%init()
+./init.txt:462:./src/comm/redist.f90:211:    call el_map%init(new_mesh_dist(pe_rank)%size())
+./init.txt:463:./src/comm/redist.f90:212:    call glb_map%init(new_mesh_dist(pe_rank)%size())
+./init.txt:464:./src/comm/redist.f90:245:    call pe_lst%init()
+./init.txt:465:./src/krylov/krylov_fctry.f90:101:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:466:./src/krylov/krylov_fctry.f90:103:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:467:./src/krylov/krylov_fctry.f90:105:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:468:./src/krylov/krylov_fctry.f90:107:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:469:./src/krylov/krylov_fctry.f90:109:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:470:./src/krylov/krylov_fctry.f90:111:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:471:./src/krylov/krylov_fctry.f90:113:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:472:./src/krylov/krylov_fctry.f90:115:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:473:./src/krylov/krylov_fctry.f90:117:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:474:./src/krylov/krylov_fctry.f90:119:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:475:./src/krylov/krylov_fctry.f90:121:          call kp%init(n, M = M, abs_tol = abstol)
+./init.txt:476:./src/krylov/krylov_fctry.f90:126:          call kp%init(n, abs_tol = abstol)
+./init.txt:477:./src/krylov/krylov_fctry.f90:128:          call kp%init(n, abs_tol = abstol)       
+./init.txt:478:./src/krylov/krylov_fctry.f90:130:          call kp%init(n, abs_tol = abstol)       
+./init.txt:479:./src/krylov/krylov_fctry.f90:132:          call kp%init(n, abs_tol = abstol)
+./init.txt:480:./src/krylov/krylov_fctry.f90:134:          call kp%init(n, abs_tol = abstol)
+./init.txt:481:./src/krylov/krylov_fctry.f90:136:          call kp%init(n, abs_tol = abstol)
+./init.txt:482:./src/krylov/krylov_fctry.f90:138:          call kp%init(n, abs_tol = abstol)
+./init.txt:483:./src/krylov/krylov_fctry.f90:140:          call kp%init(n, abs_tol = abstol)
+./init.txt:484:./src/krylov/krylov_fctry.f90:142:          call kp%init(n, abs_tol = abstol)
+./init.txt:485:./src/krylov/krylov_fctry.f90:144:          call kp%init(n, abs_tol = abstol)
+./init.txt:486:./src/krylov/krylov_fctry.f90:146:          call kp%init(n, abs_tol = abstol)
+./init.txt:487:./src/krylov/krylov_fctry.f90:151:          call kp%init(n, M = M)
+./init.txt:488:./src/krylov/krylov_fctry.f90:153:          call kp%init(n, M = M)       
+./init.txt:489:./src/krylov/krylov_fctry.f90:155:          call kp%init(n, M = M)
+./init.txt:490:./src/krylov/krylov_fctry.f90:157:          call kp%init(n, M = M)
+./init.txt:491:./src/krylov/krylov_fctry.f90:159:          call kp%init(n, M = M)
+./init.txt:492:./src/krylov/krylov_fctry.f90:161:          call kp%init(n, M = M)
+./init.txt:493:./src/krylov/krylov_fctry.f90:163:          call kp%init(n, M = M)
+./init.txt:494:./src/krylov/krylov_fctry.f90:165:          call kp%init(n, M = M)
+./init.txt:495:./src/krylov/krylov_fctry.f90:167:          call kp%init(n, M = M)
+./init.txt:496:./src/krylov/krylov_fctry.f90:169:          call kp%init(n, M = M)
+./init.txt:497:./src/krylov/krylov_fctry.f90:171:          call kp%init(n, M = M)
+./init.txt:498:./src/krylov/krylov_fctry.f90:176:          call kp%init(n)
+./init.txt:499:./src/krylov/krylov_fctry.f90:178:          call kp%init(n)       
+./init.txt:500:./src/krylov/krylov_fctry.f90:180:          call kp%init(n)       
+./init.txt:501:./src/krylov/krylov_fctry.f90:182:          call kp%init(n)
+./init.txt:502:./src/krylov/krylov_fctry.f90:184:          call kp%init(n)
+./init.txt:503:./src/krylov/krylov_fctry.f90:186:          call kp%init(n)
+./init.txt:504:./src/krylov/krylov_fctry.f90:188:          call kp%init(n)
+./init.txt:505:./src/krylov/krylov_fctry.f90:190:          call kp%init(n)
+./init.txt:506:./src/krylov/krylov_fctry.f90:192:          call kp%init(n)
+./init.txt:507:./src/krylov/krylov_fctry.f90:194:          call kp%init(n)
+./init.txt:508:./src/krylov/krylov_fctry.f90:196:          call kp%init(n)
+./init.txt:509:./src/krylov/pc_hsmg.f90:121:     procedure, pass(this) :: init => hsmg_init
+./init.txt:510:./src/krylov/pc_hsmg.f90:202:    call this%bc_crs%init(this%dm_crs)
+./init.txt:511:./src/krylov/pc_hsmg.f90:203:    call this%bc_mg%init(this%dm_mg)
+./init.txt:512:./src/krylov/pc_hsmg.f90:204:    call this%bc_reg%init(dof)
+./init.txt:513:./src/krylov/pc_hsmg.f90:228:    call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
+./init.txt:514:./src/krylov/pc_hsmg.f90:229:    call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
+./init.txt:515:./src/krylov/pc_hsmg.f90:232:    call this%interp_fine_mid%init(Xh,this%Xh_mg)
+./init.txt:516:./src/krylov/pc_hsmg.f90:233:    call this%interp_mid_crs%init(this%Xh_mg,this%Xh_crs)
+./init.txt:517:./src/krylov/pc_hsmg.f90:251:       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+./init.txt:518:./src/krylov/pc_hsmg.f90:253:       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+./init.txt:519:./src/krylov/pc_hsmg.f90:255:       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+./init.txt:520:./src/krylov/bcknd/device/pipecg_device.F90:73:     procedure, pass(this) :: init => pipecg_device_init
+./init.txt:521:./src/krylov/bcknd/device/cg_device.f90:53:     procedure, pass(this) :: init => cg_device_init
+./init.txt:522:./src/krylov/bcknd/device/gmres_device.F90:67:     procedure, pass(this) :: init => gmres_device_init
+./init.txt:523:./src/krylov/bcknd/device/pc_jacobi_device.F90:52:     procedure, pass(this) :: init => device_jacobi_init
+./init.txt:524:./src/krylov/bcknd/cpu/cacg.f90:49:     procedure, pass(this) :: init => cacg_init
+./init.txt:525:./src/krylov/bcknd/cpu/gmres.f90:56:     procedure, pass(this) :: init => gmres_init
+./init.txt:526:./src/krylov/bcknd/cpu/pc_jacobi.f90:50:     procedure, pass(this) :: init => jacobi_init
+./init.txt:527:./src/krylov/bcknd/cpu/pipecg.f90:55:     procedure, pass(this) :: init => pipecg_init
+./init.txt:528:./src/krylov/bcknd/cpu/bicgstab.f90:51:     procedure, pass(this) :: init => bicgstab_init
+./init.txt:529:./src/krylov/bcknd/cpu/cg.f90:51:     procedure, pass(this) :: init => cg_init
+./init.txt:530:./src/krylov/bcknd/sx/pc_jacobi_sx.f90:50:     procedure, pass(this) :: init => sx_jacobi_init
+./init.txt:531:./src/krylov/bcknd/sx/gmres_sx.f90:59:     procedure, pass(this) :: init => sx_gmres_init
+./init.txt:532:./src/krylov/bcknd/sx/pipecg_sx.f90:53:     procedure, pass(this) :: init => sx_pipecg_init
+./init.txt:533:./src/krylov/bcknd/sx/cg_sx.f90:48:     procedure, pass(this) :: init => sx_cg_init
+./init.txt:534:./src/neko.f90:107:    call neko_log%init()
+./init.txt:535:./src/neko.f90:108:    call neko_field_registry%init()
+./init.txt:536:./src/common/craypat.F90:18:    call region_depth%init()
+./init.txt:537:./src/common/jobctrl.f90:122:    logical, save :: init = .false.
+./init.txt:538:./src/common/jobctrl.f90:124:    if (.not. init) then
+./init.txt:539:./src/common/jobctrl.f90:126:       init = .true.
+./init.txt:540:./src/common/projection.f90:100:     procedure, pass(this) :: init => projection_init
+./init.txt:541:./src/common/checkpoint.f90:61:     procedure, pass(this) :: init => chkp_init
+./init.txt:542:./src/common/statistics.f90:55:     procedure, pass(this) :: init => stats_init
+./init.txt:543:./src/common/distdata.f90:66:    call ddata%shared_el_facet%init()
+./init.txt:544:./src/common/distdata.f90:68:    call ddata%shared_facet%init()
+./init.txt:545:./src/common/distdata.f90:69:    call ddata%shared_edge%init()   
+./init.txt:546:./src/common/distdata.f90:70:    call ddata%shared_point%init()
+./init.txt:547:./src/common/user_intf.f90:125:     procedure, pass(u) :: init => user_intf_init
+./init.txt:548:./src/common/time_based_controller.f90:61:     procedure, pass(this) :: init => time_based_controller_init
+./init.txt:549:./src/common/sampler.f90:64:     procedure, pass(this) :: init => sampler_init
+./init.txt:550:./src/common/sampler.f90:153:       call this%controllers(n)%init(this%T_end, write_control, write_par)
+./init.txt:551:./src/common/log.f90:47:     procedure, pass(this) :: init => log_init
+./init.txt:552:./src/math/matrix.f90:52:     procedure, pass(m) :: init => matrix_init
+./init.txt:553:./src/math/schwarz.f90:81:    type(space_t) :: Xh_schwarz !< needed to init gs
+./init.txt:554:./src/math/schwarz.f90:83:    type(dofmap_t) :: dm_schwarz !< needed to init gs
+./init.txt:555:./src/math/schwarz.f90:92:    procedure, pass(this) :: init => schwarz_init
+./init.txt:556:./src/math/schwarz.f90:115:    call this%fdm%init(Xh, dm, gs_h)
+./init.txt:557:./src/math/vector.f90:49:     procedure, pass(v) :: init => vector_init
+./init.txt:558:./src/math/fdm.f90:95:     procedure, pass(this) :: init => fdm_init
+./init.txt:559:./src/adt/htable.f90:84:     procedure, pass(this) :: init => htable_i4_init
+./init.txt:560:./src/adt/htable.f90:94:     procedure, pass(this) :: init => htable_i8_init
+./init.txt:561:./src/adt/htable.f90:104:     procedure, pass(this) :: init => htable_r8_init
+./init.txt:562:./src/adt/htable.f90:114:     procedure, pass(this) :: init => htable_pt_init
+./init.txt:563:./src/adt/htable.f90:124:     procedure, pass(this) :: init => htable_i4t2_init
+./init.txt:564:./src/adt/htable.f90:134:     procedure, pass(this) :: init => htable_i4t4_init
+./init.txt:565:./src/adt/htable.f90:144:     procedure, pass(this) :: init => htable_cptr_init
+./init.txt:566:./src/adt/htable.f90:168:     procedure, pass(this) :: init => htable_iter_i4_init
+./init.txt:567:./src/adt/htable.f90:177:     procedure, pass(this) :: init => htable_iter_i8_init
+./init.txt:568:./src/adt/htable.f90:186:     procedure, pass(this) :: init => htable_iter_r8_init
+./init.txt:569:./src/adt/htable.f90:195:     procedure, pass(this) :: init => htable_iter_pt_init
+./init.txt:570:./src/adt/htable.f90:204:     procedure, pass(this) :: init => htable_iter_i4t2_init
+./init.txt:571:./src/adt/htable.f90:213:     procedure, pass(this) :: init => htable_iter_i4t4_init
+./init.txt:572:./src/adt/htable.f90:222:     procedure, pass(this) :: init => htable_iter_cptr_init
+./init.txt:573:./src/adt/uset.f90:45:     procedure(uset_init), pass(this), deferred :: init
+./init.txt:574:./src/adt/uset.f90:59:     procedure, pass(this) :: init => uset_i4_init
+./init.txt:575:./src/adt/uset.f90:76:     procedure, pass(this) :: init => uset_i8_init
+./init.txt:576:./src/adt/uset.f90:93:     procedure, pass(this) :: init => uset_r8_init
+./init.txt:577:./src/adt/uset.f90:175:       call this%t%init(n)
+./init.txt:578:./src/adt/uset.f90:177:       call this%t%init(64)
+./init.txt:579:./src/adt/uset.f90:252:    call this%it%init(this%t)    
+./init.txt:580:./src/adt/uset.f90:275:       call this%t%init(n)
+./init.txt:581:./src/adt/uset.f90:277:       call this%t%init(64)
+./init.txt:582:./src/adt/uset.f90:352:    call this%it%init(this%t)    
+./init.txt:583:./src/adt/uset.f90:384:       call this%t%init(n)
+./init.txt:584:./src/adt/uset.f90:386:       call this%t%init(64)
+./init.txt:585:./src/adt/uset.f90:461:    call this%it%init(this%t)    
+./init.txt:586:./src/adt/stack.f90:54:     procedure, non_overridable, pass(this) :: init => stack_init
+./init.txt:587:./src/fluid/fluid_scheme.f90:126:     procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
+./init.txt:588:./src/fluid/fluid_scheme.f90:294:    call this%bc_sym%init(this%dm_Xh)
+./init.txt:589:./src/fluid/fluid_scheme.f90:319:       call this%bc_inflow%init(this%dm_Xh)
+./init.txt:590:./src/fluid/fluid_scheme.f90:356:    call this%bc_wall%init(this%dm_Xh)
+./init.txt:591:./src/fluid/fluid_scheme.f90:369:       call bdry_mask%init(this%dm_Xh)
+./init.txt:592:./src/fluid/fluid_scheme.f90:378:       call bdry_mask%init(this%dm_Xh)
+./init.txt:593:./src/fluid/fluid_scheme.f90:388:       call bdry_mask%init(this%dm_Xh)
+./init.txt:594:./src/fluid/fluid_scheme.f90:397:       call bdry_mask%init(this%dm_Xh)
+./init.txt:595:./src/fluid/fluid_scheme.f90:406:       call bdry_mask%init(this%dm_Xh)
+./init.txt:596:./src/fluid/fluid_scheme.f90:413:       call bdry_mask%init(this%dm_Xh)
+./init.txt:597:./src/fluid/fluid_scheme.f90:498:    call this%bc_prs%init(this%dm_Xh)
+./init.txt:598:./src/fluid/fluid_scheme.f90:514:    call this%bc_dong%init(this%dm_Xh)
+./init.txt:599:./src/fluid/fluid_scheme.f90:667:    call this%chkp%init(this%u, this%v, this%w, this%p)
+./init.txt:600:./src/fluid/fluid_scheme.f90:676:          call this%mean%init(this%u, this%v, this%w, this%p)
+./init.txt:601:./src/fluid/fluid_scheme.f90:677:          call this%stats%init(this%c_Xh, this%mean%u, &
+./init.txt:602:./src/fluid/fluid_scheme.f90:683:!       call this%mean_sqr%init(this%u, this%v, this%w, this%p)
+./init.txt:603:./src/fluid/fluid_scheme.f90:734:       call pcp%init(coef, dof, gs)
+./init.txt:604:./src/fluid/fluid_scheme.f90:736:       call pcp%init(coef, dof, gs)
+./init.txt:605:./src/fluid/fluid_scheme.f90:738:       call pcp%init(coef, dof, gs)
+./init.txt:606:./src/fluid/fluid_scheme.f90:742:             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
+./init.txt:607:./src/fluid/fluid_scheme.f90:748:          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+./init.txt:608:./src/fluid/mean_flow.f90:46:     procedure, pass(this) :: init => mean_flow_init
+./init.txt:609:./src/fluid/mean_flow.f90:63:    call this%u%init(u)
+./init.txt:610:./src/fluid/mean_flow.f90:64:    call this%v%init(v)
+./init.txt:611:./src/fluid/mean_flow.f90:65:    call this%w%init(w)
+./init.txt:612:./src/fluid/mean_flow.f90:66:    call this%p%init(p)
+./init.txt:613:./src/fluid/fluid_volflow.f90:92:     procedure, pass(this) :: init => fluid_vol_flow_init
+./init.txt:614:./src/fluid/advection.f90:109:     procedure, pass(this) :: init => init_dealias
+./init.txt:615:./src/fluid/advection.f90:245:    call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
+./init.txt:616:./src/fluid/fluid_stats.f90:140:     procedure, pass(this) :: init => fluid_stats_init
+./init.txt:617:./src/fluid/fluid_stats.f90:182:    call this%uu%init(this%stats_u, 'uu')
+./init.txt:618:./src/fluid/fluid_stats.f90:183:    call this%vv%init(this%stats_v, 'vv')
+./init.txt:619:./src/fluid/fluid_stats.f90:184:    call this%ww%init(this%stats_w, 'ww')
+./init.txt:620:./src/fluid/fluid_stats.f90:185:    call this%uv%init(this%stats_work, 'uv')
+./init.txt:621:./src/fluid/fluid_stats.f90:186:    call this%uw%init(this%stats_work, 'uw')
+./init.txt:622:./src/fluid/fluid_stats.f90:187:    call this%vw%init(this%stats_work, 'vw')
+./init.txt:623:./src/fluid/fluid_stats.f90:188:    call this%uuu%init(this%stats_work, 'uuu')!< <uuu>
+./init.txt:624:./src/fluid/fluid_stats.f90:189:    call this%vvv%init(this%stats_work, 'vvv')!< <vvv>
+./init.txt:625:./src/fluid/fluid_stats.f90:190:    call this%www%init(this%stats_work, 'www')!< <www>
+./init.txt:626:./src/fluid/fluid_stats.f90:191:    call this%uuv%init(this%stats_work, 'uuv')!< <uuv>
+./init.txt:627:./src/fluid/fluid_stats.f90:192:    call this%uuw%init(this%stats_work, 'uuw')!< <uuw>
+./init.txt:628:./src/fluid/fluid_stats.f90:193:    call this%uvv%init(this%stats_work, 'uvv')!< <uvv>
+./init.txt:629:./src/fluid/fluid_stats.f90:194:    call this%uvw%init(this%stats_work, 'uvw')!< <uvv>
+./init.txt:630:./src/fluid/fluid_stats.f90:195:    call this%vvw%init(this%stats_work, 'vvw')!< <vvw>
+./init.txt:631:./src/fluid/fluid_stats.f90:196:    call this%uww%init(this%stats_work, 'uww')!< <uww>
+./init.txt:632:./src/fluid/fluid_stats.f90:197:    call this%vww%init(this%stats_work, 'vww')!< <vww>
+./init.txt:633:./src/fluid/fluid_stats.f90:198:    call this%uuuu%init(this%stats_work, 'uuuu') !< <uuuu>
+./init.txt:634:./src/fluid/fluid_stats.f90:199:    call this%vvvv%init(this%stats_work, 'vvvv') !< <vvvv>
+./init.txt:635:./src/fluid/fluid_stats.f90:200:    call this%wwww%init(this%stats_work, 'wwww') !< <wwww>
+./init.txt:636:./src/fluid/fluid_stats.f90:202:    call this%pp%init(this%stats_p, 'pp')
+./init.txt:637:./src/fluid/fluid_stats.f90:203:    call this%ppp%init(this%stats_work, 'ppp')
+./init.txt:638:./src/fluid/fluid_stats.f90:204:    call this%pppp%init(this%stats_work, 'pppp')
+./init.txt:639:./src/fluid/fluid_stats.f90:206:    call this%pu%init(this%stats_work, 'pu')
+./init.txt:640:./src/fluid/fluid_stats.f90:207:    call this%pv%init(this%stats_work, 'pv')
+./init.txt:641:./src/fluid/fluid_stats.f90:208:    call this%pw%init(this%stats_work, 'pw')
+./init.txt:642:./src/fluid/fluid_stats.f90:210:    call this%pdudx%init(this%stats_work, 'pdudx')
+./init.txt:643:./src/fluid/fluid_stats.f90:211:    call this%pdudy%init(this%stats_work, 'pdudy')
+./init.txt:644:./src/fluid/fluid_stats.f90:212:    call this%pdudz%init(this%stats_work, 'pdudz')
+./init.txt:645:./src/fluid/fluid_stats.f90:213:    call this%pdvdx%init(this%stats_work, 'pdvdx')
+./init.txt:646:./src/fluid/fluid_stats.f90:214:    call this%pdvdy%init(this%stats_work, 'pdvdy')
+./init.txt:647:./src/fluid/fluid_stats.f90:215:    call this%pdvdz%init(this%stats_work, 'pdvdz')
+./init.txt:648:./src/fluid/fluid_stats.f90:216:    call this%pdwdx%init(this%stats_work, 'pdwdx')
+./init.txt:649:./src/fluid/fluid_stats.f90:217:    call this%pdwdy%init(this%stats_work, 'pdwdy')
+./init.txt:650:./src/fluid/fluid_stats.f90:218:    call this%pdwdz%init(this%stats_work, 'pdwdz')
+./init.txt:651:./src/fluid/fluid_stats.f90:220:    call this%e11%init(this%stats_work, 'e11')
+./init.txt:652:./src/fluid/fluid_stats.f90:221:    call this%e22%init(this%stats_work, 'e22')
+./init.txt:653:./src/fluid/fluid_stats.f90:222:    call this%e33%init(this%stats_work, 'e33')
+./init.txt:654:./src/fluid/fluid_stats.f90:223:    call this%e12%init(this%stats_work, 'e12')
+./init.txt:655:./src/fluid/fluid_stats.f90:224:    call this%e13%init(this%stats_work, 'e13')
+./init.txt:656:./src/fluid/fluid_stats.f90:225:    call this%e23%init(this%stats_work, 'e23')
+./init.txt:657:./src/fluid/fluid_pnpn.f90:106:     procedure, pass(this) :: init => fluid_pnpn_init
+./init.txt:658:./src/fluid/fluid_pnpn.f90:167:      call this%ulag%init(this%u, 2)
+./init.txt:659:./src/fluid/fluid_pnpn.f90:168:      call this%vlag%init(this%v, 2)
+./init.txt:660:./src/fluid/fluid_pnpn.f90:169:      call this%wlag%init(this%w, 2)
+./init.txt:661:./src/fluid/fluid_pnpn.f90:174:    call this%bc_prs_surface%init(this%dm_Xh)
+./init.txt:662:./src/fluid/fluid_pnpn.f90:181:    call this%bc_sym_surface%init(this%dm_Xh)
+./init.txt:663:./src/fluid/fluid_pnpn.f90:188:    call this%bc_vel_res_non_normal%init(this%dm_Xh)
+./init.txt:664:./src/fluid/fluid_pnpn.f90:198:    call this%bc_dp%init(this%dm_Xh)
+./init.txt:665:./src/fluid/fluid_pnpn.f90:210:    call this%bc_vel_res%init(this%dm_Xh)
+./init.txt:666:./src/fluid/fluid_pnpn.f90:242:       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim)
+./init.txt:667:./src/fluid/fluid_pnpn.f90:246:       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim)
+./init.txt:668:./src/fluid/fluid_pnpn.f90:247:       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim)
+./init.txt:669:./src/fluid/fluid_pnpn.f90:248:       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim)
+./init.txt:670:./src/fluid/fluid_pnpn.f90:265:       call this%vol_flow%init(this%dm_Xh, params)
+./init.txt:671:./src/fluid/mean_sqr_flow.f90:46:     procedure, pass(this) :: init => mean_sqr_flow_init
+./init.txt:672:./src/fluid/mean_sqr_flow.f90:62:    call this%uu%init(u)
+./init.txt:673:./src/fluid/mean_sqr_flow.f90:63:    call this%vv%init(v)
+./init.txt:674:./src/fluid/mean_sqr_flow.f90:64:    call this%ww%init(w)
+./init.txt:675:./src/fluid/mean_sqr_flow.f90:65:    call this%pp%init(p)
+./init.txt:676:./src/fluid/fluid_plan1.f90:14:     procedure, pass(this) :: init => fluid_plan1_init
+./init.txt:677:./src/scalar/scalar_scheme.f90:94:     procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
+./init.txt:678:./src/scalar/scalar_scheme.f90:169:            call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+./init.txt:679:./src/scalar/scalar_scheme.f90:255:    call this%user_bc%init(this%dm_Xh)
+./init.txt:680:./src/scalar/scalar_scheme.f90:361:!    call this%chkp%init(this%u, this%v, this%w, this%p)
+./init.txt:681:./src/scalar/scalar_scheme.f90:398:       call pcp%init(coef, dof, gs)
+./init.txt:682:./src/scalar/scalar_scheme.f90:400:       call pcp%init(coef, dof, gs)
+./init.txt:683:./src/scalar/scalar_scheme.f90:402:       call pcp%init(coef, dof, gs)
+./init.txt:684:./src/scalar/scalar_scheme.f90:406:             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
+./init.txt:685:./src/scalar/scalar_scheme.f90:412:          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+./init.txt:686:./src/scalar/scalar_pnpn.f90:90:     procedure, pass(this) :: init => scalar_pnpn_init
+./init.txt:687:./src/scalar/scalar_pnpn.f90:142:      call this%slag%init(this%s, 2)
+./init.txt:688:./src/scalar/scalar_pnpn.f90:148:    call this%bc_res%init(this%dm_Xh)
+./init.txt:689:./src/scalar/scalar_pnpn.f90:165:       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
+./init.txt:690:./src/time_schemes/time_scheme_controller.f90:97:     procedure, pass(this) :: init => time_scheme_controller_init
+./init.txt:691:./src/case.f90:187:    call C%usr%init()
+./init.txt:692:./src/case.f90:198:    call C%fluid%init(C%msh, lx, C%params)
+./init.txt:693:./src/case.f90:217:       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
+./init.txt:694:./src/case.f90:305:    call C%ext_bdf%init(integer_val)
+./init.txt:695:./src/case.f90:349:    call C%s%init(C%end_time)
+./init.txt:696:./src/case.f90:384:    ! Always init, so that we can call eval in simulation.f90 with no if.
+./init.txt:697:./src/case.f90:395:    call C%q%init(stats_start_time, stats_sampling_interval)
+./init.txt:698:./src/device/device.F90:99:    call device_addrtbl%init(64)
+./init.txt:699:./src/simulation.f90:76:    !> Call stats, samplers and user-init before time loop
+./init.txt:700:./src/io/file.f90:108:    call this%file_type%init(fname)
+./init.txt:701:./src/io/csv_file.f90:78:               &vector%init() to associate your array &
+./init.txt:702:./src/io/csv_file.f90:86:               &matrix%init() to associate your array &
+./init.txt:703:./src/io/csv_file.f90:186:               &vector%init() to associate your array &
+./init.txt:704:./src/io/csv_file.f90:194:               &matrix%init() to associate your array &
+./init.txt:705:./src/io/output.f90:43:     procedure, pass(this) :: init => output_init
+./init.txt:706:./src/io/re2_file.f90:123:       call map_file%init(map_fname)
+./init.txt:707:./src/io/re2_file.f90:314:    call htp%init(2*nel, ndim)
+./init.txt:708:./src/io/stl_file.f90:89:    call tri_msh%init(stl_hdr%ntri)
+./init.txt:709:./src/io/generic_file.f90:44:     procedure :: init => generic_file_init
+./init.txt:710:./src/io/fld_file.f90:593:         if (data%x%n .ne. n) call data%x%init(n)
+./init.txt:711:./src/io/fld_file.f90:594:         if (data%y%n .ne. n) call data%y%init(n)
+./init.txt:712:./src/io/fld_file.f90:595:         if (data%z%n .ne. n) call data%z%init(n)
+./init.txt:713:./src/io/fld_file.f90:600:         if (data%u%n .ne. n) call data%u%init(n)
+./init.txt:714:./src/io/fld_file.f90:601:         if (data%v%n .ne. n) call data%v%init(n)
+./init.txt:715:./src/io/fld_file.f90:602:         if (data%w%n .ne. n) call data%w%init(n)
+./init.txt:716:./src/io/fld_file.f90:607:         if (data%p%n .ne. n) call data%p%init(n)
+./init.txt:717:./src/io/fld_file.f90:612:         if (data%t%n .ne. n) call data%t%init(n)
+./init.txt:718:./src/io/fld_file.f90:633:                  call data%s(j)%init(n)
+./init.txt:719:./src/io/fld_file.f90:640:               call data%s(j)%init(n)
+./init.txt:720:./src/io/chkp_file.f90:321:    call this%interp%init(this%sim_Xh, this%chkp_Xh) 
+./init.txt:721:./src/io/fld_file_data.f90:40:     procedure, pass(this) :: init => fld_file_data_init
+./init.txt:722:./src/io/rea_file.f90:152:       call re2_file%init(re2_fname)
+./init.txt:723:./src/io/rea_file.f90:163:          call map_file%init(map_fname)
+./init.txt:724:./src/io/rea_file.f90:177:       call htp%init(2**ndim * nel, ndim)
+./init.txt:725:./src/field/field_series.f90:45:     procedure, pass(this) :: init => field_series_init
+./init.txt:726:./src/field/scratch_registry.f90:67:     procedure :: init
+./init.txt:727:./src/field/scratch_registry.f90:76:  type(scratch_registry_t) function init(dof, size, expansion_size) result(this)
+./init.txt:728:./src/field/scratch_registry.f90:104:  end function init
+./init.txt:729:./src/field/field_registry.f90:48:     procedure, pass(this) :: init => field_registry_init
+./init.txt:730:./src/field/mean_field.f90:48:     procedure, pass(this) :: init => mean_field_init
+./init.txt:731:./src/sem/point_interpolator.f90:52:     procedure, pass(this) :: init => point_interpolator_init
+./init.txt:732:./src/sem/interpolation.f90:78:     procedure, pass(this) :: init => interpolator_init
+./init.txt:733:./src/sem/interpolation.f90:193:  !! @note Not optimized for performance, should only be used during init.
+./init.txt:734:./src/bc/bc.f90:69:     procedure, pass(this) :: init => bc_init
+./init.txt:735:./src/bc/bc.f90:196:    call this%marked_facet%init()
+./init.txt:736:./src/bc/precursor_inflow.f90:59:     procedure, pass(this) :: init => precursor_inflow_init  
+./init.txt:737:./src/bc/non_normal.f90:70:    call this%bc_x%init(c%dof)
+./init.txt:738:./src/bc/non_normal.f90:71:    call this%bc_y%init(c%dof)
+./init.txt:739:./src/bc/non_normal.f90:72:    call this%bc_z%init(c%dof)
+./init.txt:740:./src/bc/symmetry.f90:78:    call this%bc_x%init(c%dof)
+./init.txt:741:./src/bc/symmetry.f90:79:    call this%bc_y%init(c%dof)
+./init.txt:742:./src/bc/symmetry.f90:80:    call this%bc_z%init(c%dof)
+./logfile.log:14:   59 |      procedure, pass(this) :: init => precursor_inflow_init
+grep: ./src/mesh/quad.o: binary file matches
+./src/mesh/octree.f90:60:     procedure, pass(t) :: init => octree_init
+./src/mesh/zone.f90:47:     procedure, pass(z) :: init => zone_init
+./src/mesh/zone.f90:61:     procedure, pass(z) :: init => zone_periodic_init
+./src/mesh/zone.f90:77:       call z%scratch%init(size)
+./src/mesh/zone.f90:79:       call z%scratch%init()
+./src/mesh/zone.f90:149:       call z%p_scratch%init(size)
+./src/mesh/zone.f90:150:       call z%p_id_scratch%init(size)
+./src/mesh/zone.f90:151:       call z%org_id_scratch%init(size)
+./src/mesh/zone.f90:154:       call z%p_scratch%init()
+./src/mesh/zone.f90:155:       call z%p_id_scratch%init()
+./src/mesh/zone.f90:156:       call z%org_id_scratch%init()
+grep: ./src/mesh/mesh.o: binary file matches
+grep: ./src/mesh/zone.o: binary file matches
+grep: ./src/mesh/octree.o: binary file matches
+grep: ./src/mesh/tri_mesh.o: binary file matches
+grep: ./src/mesh/tet_mesh.o: binary file matches
+./src/mesh/hex.f90:65:     procedure, pass(this) :: init => hex_init
+./src/mesh/tri.f90:62:     procedure, pass(this) :: init => tri_init
+./src/mesh/tet.f90:65:     procedure, pass(this) :: init => tet_init
+./src/mesh/tet_mesh.f90:51:     procedure, pass(this) :: init => tet_mesh_init
+./src/mesh/tet_mesh.f90:121:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:128:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:135:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:142:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:149:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:156:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:163:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:170:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:190:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:197:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:204:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:211:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:218:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:236:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:243:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:250:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:257:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:264:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/tet_mesh.f90:271:       call tet_msh%el(j)%init(j, p1, p2, p3, p4)
+./src/mesh/quad.f90:60:     procedure, pass(this) :: init => quad_init
+./src/mesh/curve.f90:18:     procedure, pass(z) :: init => curve_element_init
+./src/mesh/curve.f90:35:       call z%scratch%init(size)
+./src/mesh/curve.f90:37:       call z%scratch%init()
+grep: ./src/mesh/hex.o: binary file matches
+./src/mesh/mesh.f90:227:             call fmp%init(m%nelv, facet_data)
+./src/mesh/mesh.f90:232:          call m%htf%init(m%nelv * NEKO_HEX_NFCS, i)
+./src/mesh/mesh.f90:233:          call m%hte%init(m%nelv * NEKO_HEX_NEDS, i)
+./src/mesh/mesh.f90:244:             call fmp%init(m%nelv, facet_data)
+./src/mesh/mesh.f90:249:          call m%hte%init(m%nelv * NEKO_QUAD_NEDS, i)
+./src/mesh/mesh.f90:259:    !! Only init if we generate connectivity
+./src/mesh/mesh.f90:263:          call m%point_neigh(i)%init()
+./src/mesh/mesh.f90:270:    call m%htp%init(m%npts*m%nelv, i)
+./src/mesh/mesh.f90:272:    call m%wall%init(m%nelv)
+./src/mesh/mesh.f90:273:    call m%inlet%init(m%nelv)
+./src/mesh/mesh.f90:274:    call m%outlet%init(m%nelv)
+./src/mesh/mesh.f90:275:    call m%outlet_normal%init(m%nelv)
+./src/mesh/mesh.f90:276:    call m%sympln%init(m%nelv)
+./src/mesh/mesh.f90:277:    call m%periodic%init(m%nelv)
+./src/mesh/mesh.f90:281:       call m%labeled_zones(i)%init(m%nelv)
+./src/mesh/mesh.f90:284:    call m%curve%init(m%nelv)
+./src/mesh/mesh.f90:556:       call neigh_order%init(pe_size)
+./src/mesh/mesh.f90:620:    call buffer%init()
+./src/mesh/mesh.f90:777:    call send_buffer%init(m%mpts * 2)
+./src/mesh/mesh.f90:857:    call edge_idx%init(m%hte%num_entries())
+./src/mesh/mesh.f90:858:    call send_buff%init(m%hte%num_entries())
+./src/mesh/mesh.f90:859:    call owner%init(m%hte%num_entries())
+./src/mesh/mesh.f90:861:    call glb_to_loc%init(32, i)
+./src/mesh/mesh.f90:875:    call non_shared_edges%init(m%hte%num_entries())
+./src/mesh/mesh.f90:877:    call it%init(m%hte)
+./src/mesh/mesh.f90:936:    call ghost%init(send_buff%size())
+./src/mesh/mesh.f90:1103:       call edge_owner%init(m%meds)
+./src/mesh/mesh.f90:1104:       call edge_ghost%init(64, i)       
+./src/mesh/mesh.f90:1108:       call face_owner%init(m%mfcs)
+./src/mesh/mesh.f90:1109:       call face_ghost%init(64, i)       
+./src/mesh/mesh.f90:1122:       call edge_it%init(m%hte)
+./src/mesh/mesh.f90:1149:       call face_it%init(m%htf)
+./src/mesh/mesh.f90:1190:          call send_buff%init(owned_facets)
+./src/mesh/mesh.f90:1192:          call send_buff%init()
+./src/mesh/mesh.f90:1214:          call send_buff%init(owned_facets)
+./src/mesh/mesh.f90:1216:          call send_buff%init()
+./src/mesh/mesh.f90:1348:       call ep%init(el_glb_idx, &
+./src/mesh/mesh.f90:1398:       call ep%init(el_glb_idx, &
+./src/mesh/tri_mesh.f90:48:     procedure, pass(this) :: init => tri_mesh_init
+./src/mesh/tri_mesh.f90:95:    call this%el(this%melv)%init(this%melv, &
+grep: ./src/mesh/tet.o: binary file matches
+grep: ./src/mesh/curve.o: binary file matches
+grep: ./src/mesh/tri.o: binary file matches
+grep: ./src/gs/gs_mpi.o: binary file matches
+./src/gs/gather_scatter.f90:186:    call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
+./src/gs/gather_scatter.f90:333:    call dm%init(dm_size, i)
+./src/gs/gather_scatter.f90:335:    !!but having many collisions makes the init take too long.
+./src/gs/gather_scatter.f90:336:    call sdm%init(dofmap%size(), i)
+./src/gs/gather_scatter.f90:339:    call local_dof%init()
+./src/gs/gather_scatter.f90:340:    call dof_local%init()
+./src/gs/gather_scatter.f90:342:    call local_face_dof%init()
+./src/gs/gather_scatter.f90:343:    call face_dof_local%init()   
+./src/gs/gather_scatter.f90:345:    call shared_dof%init()
+./src/gs/gather_scatter.f90:346:    call dof_shared%init()
+./src/gs/gather_scatter.f90:348:    call shared_face_dof%init()
+./src/gs/gather_scatter.f90:349:    call face_dof_shared%init()   
+./src/gs/gather_scatter.f90:1091:      call blks%init()
+./src/gs/gather_scatter.f90:1134:    call it%init(gs%shared_dofs)
+./src/gs/gather_scatter.f90:1142:    call send_pe%init()
+./src/gs/gather_scatter.f90:1143:    call recv_pe%init()
+./src/gs/gather_scatter.f90:1223:    call gs%comm%init(send_pe, recv_pe)
+grep: ./src/gs/gs_comm.o: binary file matches
+./src/gs/gs_bcknd.f90:48:     procedure(gs_backend_init), pass(this), deferred :: init
+grep: ./src/gs/gs_bcknd.o: binary file matches
+./src/gs/gs_mpi.f90:59:     procedure, pass(this) :: init => gs_mpi_init
+grep: ./src/gs/gather_scatter.o: binary file matches
+./src/gs/gs_comm.f90:50:     procedure(gs_comm_init), pass(this), deferred :: init
+./src/gs/gs_comm.f90:130:       call this%send_dof(i)%init()
+./src/gs/gs_comm.f90:131:       call this%recv_dof(i)%init()
+grep: ./src/gs/bcknd/device/gs_device.o: binary file matches
+./src/gs/bcknd/device/gs_device.F90:62:     procedure, pass(this) :: init => gs_device_init
+./src/gs/bcknd/device/gs_device_mpi.F90:54:     procedure, pass(this) :: init => gs_device_mpi_buf_init
+./src/gs/bcknd/device/gs_device_mpi.F90:68:     procedure, pass(this) :: init => gs_device_mpi_init
+./src/gs/bcknd/device/gs_device_mpi.F90:222:    if (mark_dupes) call doftable%init(2*total)
+./src/gs/bcknd/device/gs_device_mpi.F90:280:    call this%send_buf%init(this%send_pe, this%send_dof, .false.)
+./src/gs/bcknd/device/gs_device_mpi.F90:281:    call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
+grep: ./src/gs/bcknd/device/gs_device_mpi.o: binary file matches
+grep: ./src/gs/bcknd/cpu/gs_cpu.o: binary file matches
+./src/gs/bcknd/cpu/gs_cpu.f90:44:     procedure, pass(this) :: init => gs_cpu_init
+./src/gs/bcknd/sx/gs_sx.f90:48:     procedure, pass(this) :: init => gs_sx_init
+grep: ./src/gs/bcknd/sx/gs_sx.o: binary file matches
+grep: ./src/neko.o: binary file matches
+grep: ./src/simulation_components/vorticity.o: binary file matches
+./src/simulation_components/simulation_component.f90:53:     procedure(simulation_component_init), pass(this), deferred :: init
+grep: ./src/simulation_components/simulation_component.o: binary file matches
+./src/simulation_components/simulation_component_factory.f90:63:       call simcomp%init(json, case)
+grep: ./src/simulation_components/simulation_component_global.o: binary file matches
+./src/simulation_components/simulation_component_global.f90:34:!> Contains the global simulation component array and its init for the given 
+grep: ./src/simulation_components/simulation_component_factory.o: binary file matches
+./src/simulation_components/vorticity.f90:70:      procedure, pass(this) :: init => vorticity_init_from_json
+grep: ./src/comm/redist.o: binary file matches
+./src/comm/redist.f90:89:       call new_zone_dist(i)%init()
+./src/comm/redist.f90:109:       call new_curve_dist(i)%init()
+./src/comm/redist.f90:120:       call new_mesh_dist(i)%init()
+./src/comm/redist.f90:211:    call el_map%init(new_mesh_dist(pe_rank)%size())
+./src/comm/redist.f90:212:    call glb_map%init(new_mesh_dist(pe_rank)%size())
+./src/comm/redist.f90:245:    call pe_lst%init()
+grep: ./src/krylov/pc_hsmg.o: binary file matches
+./src/krylov/krylov_fctry.f90:101:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:103:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:105:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:107:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:109:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:111:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:113:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:115:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:117:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:119:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:121:          call kp%init(n, M = M, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:126:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:128:          call kp%init(n, abs_tol = abstol)       
+./src/krylov/krylov_fctry.f90:130:          call kp%init(n, abs_tol = abstol)       
+./src/krylov/krylov_fctry.f90:132:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:134:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:136:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:138:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:140:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:142:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:144:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:146:          call kp%init(n, abs_tol = abstol)
+./src/krylov/krylov_fctry.f90:151:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:153:          call kp%init(n, M = M)       
+./src/krylov/krylov_fctry.f90:155:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:157:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:159:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:161:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:163:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:165:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:167:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:169:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:171:          call kp%init(n, M = M)
+./src/krylov/krylov_fctry.f90:176:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:178:          call kp%init(n)       
+./src/krylov/krylov_fctry.f90:180:          call kp%init(n)       
+./src/krylov/krylov_fctry.f90:182:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:184:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:186:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:188:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:190:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:192:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:194:          call kp%init(n)
+./src/krylov/krylov_fctry.f90:196:          call kp%init(n)
+grep: ./src/krylov/krylov_fctry.o: binary file matches
+grep: ./src/krylov/krylov.o: binary file matches
+grep: ./src/krylov/precon_fctry.o: binary file matches
+./src/krylov/pc_hsmg.f90:121:     procedure, pass(this) :: init => hsmg_init
+./src/krylov/pc_hsmg.f90:202:    call this%bc_crs%init(this%dm_crs)
+./src/krylov/pc_hsmg.f90:203:    call this%bc_mg%init(this%dm_mg)
+./src/krylov/pc_hsmg.f90:204:    call this%bc_reg%init(dof)
+./src/krylov/pc_hsmg.f90:228:    call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
+./src/krylov/pc_hsmg.f90:229:    call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
+./src/krylov/pc_hsmg.f90:232:    call this%interp_fine_mid%init(Xh,this%Xh_mg)
+./src/krylov/pc_hsmg.f90:233:    call this%interp_mid_crs%init(this%Xh_mg,this%Xh_crs)
+./src/krylov/pc_hsmg.f90:251:       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+./src/krylov/pc_hsmg.f90:253:       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+./src/krylov/pc_hsmg.f90:255:       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+./src/krylov/bcknd/device/pipecg_device.F90:73:     procedure, pass(this) :: init => pipecg_device_init
+./src/krylov/bcknd/device/cg_device.f90:53:     procedure, pass(this) :: init => cg_device_init
+grep: ./src/krylov/bcknd/device/pc_jacobi_device.o: binary file matches
+./src/krylov/bcknd/device/gmres_device.F90:67:     procedure, pass(this) :: init => gmres_device_init
+grep: ./src/krylov/bcknd/device/cg_device.o: binary file matches
+grep: ./src/krylov/bcknd/device/gmres_device.o: binary file matches
+grep: ./src/krylov/bcknd/device/pipecg_device.o: binary file matches
+./src/krylov/bcknd/device/pc_jacobi_device.F90:52:     procedure, pass(this) :: init => device_jacobi_init
+grep: ./src/krylov/bcknd/cpu/cacg.o: binary file matches
+grep: ./src/krylov/bcknd/cpu/gmres.o: binary file matches
+grep: ./src/krylov/bcknd/cpu/pipecg.o: binary file matches
+./src/krylov/bcknd/cpu/cacg.f90:49:     procedure, pass(this) :: init => cacg_init
+./src/krylov/bcknd/cpu/gmres.f90:56:     procedure, pass(this) :: init => gmres_init
+./src/krylov/bcknd/cpu/pc_jacobi.f90:50:     procedure, pass(this) :: init => jacobi_init
+grep: ./src/krylov/bcknd/cpu/bicgstab.o: binary file matches
+grep: ./src/krylov/bcknd/cpu/pc_jacobi.o: binary file matches
+./src/krylov/bcknd/cpu/pipecg.f90:55:     procedure, pass(this) :: init => pipecg_init
+./src/krylov/bcknd/cpu/bicgstab.f90:51:     procedure, pass(this) :: init => bicgstab_init
+grep: ./src/krylov/bcknd/cpu/cg.o: binary file matches
+./src/krylov/bcknd/cpu/cg.f90:51:     procedure, pass(this) :: init => cg_init
+grep: ./src/krylov/bcknd/sx/gmres_sx.o: binary file matches
+grep: ./src/krylov/bcknd/sx/pipecg_sx.o: binary file matches
+./src/krylov/bcknd/sx/pc_jacobi_sx.f90:50:     procedure, pass(this) :: init => sx_jacobi_init
+grep: ./src/krylov/bcknd/sx/pc_jacobi_sx.o: binary file matches
+grep: ./src/krylov/bcknd/sx/cg_sx.o: binary file matches
+./src/krylov/bcknd/sx/gmres_sx.f90:59:     procedure, pass(this) :: init => sx_gmres_init
+./src/krylov/bcknd/sx/pipecg_sx.f90:53:     procedure, pass(this) :: init => sx_pipecg_init
+./src/krylov/bcknd/sx/cg_sx.f90:48:     procedure, pass(this) :: init => sx_cg_init
+grep: ./src/driver.o: binary file matches
+./src/neko.f90:107:    call neko_log%init()
+./src/neko.f90:108:    call neko_field_registry%init()
+grep: ./src/neko: binary file matches
+grep: ./src/common/user_intf.o: binary file matches
+grep: ./src/common/log.o: binary file matches
+grep: ./src/common/jobctrl.o: binary file matches
+grep: ./src/common/sampler.o: binary file matches
+grep: ./src/common/distdata.o: binary file matches
+grep: ./src/common/checkpoint.o: binary file matches
+./src/common/craypat.F90:18:    call region_depth%init()
+./src/common/jobctrl.f90:122:    logical, save :: init = .false.
+./src/common/jobctrl.f90:124:    if (.not. init) then
+./src/common/jobctrl.f90:126:       init = .true.
+./src/common/projection.f90:100:     procedure, pass(this) :: init => projection_init
+grep: ./src/common/projection.o: binary file matches
+./src/common/checkpoint.f90:61:     procedure, pass(this) :: init => chkp_init
+./src/common/statistics.f90:55:     procedure, pass(this) :: init => stats_init
+./src/common/distdata.f90:66:    call ddata%shared_el_facet%init()
+./src/common/distdata.f90:68:    call ddata%shared_facet%init()
+./src/common/distdata.f90:69:    call ddata%shared_edge%init()   
+./src/common/distdata.f90:70:    call ddata%shared_point%init()
+./src/common/user_intf.f90:125:     procedure, pass(u) :: init => user_intf_init
+grep: ./src/common/statistics.o: binary file matches
+./src/common/time_based_controller.f90:61:     procedure, pass(this) :: init => time_based_controller_init
+./src/common/sampler.f90:64:     procedure, pass(this) :: init => sampler_init
+./src/common/sampler.f90:153:       call this%controllers(n)%init(this%T_end, write_control, write_par)
+./src/common/log.f90:47:     procedure, pass(this) :: init => log_init
+grep: ./src/common/time_based_controller.o: binary file matches
+grep: ./src/libneko.a: binary file matches
+./src/math/matrix.f90:52:     procedure, pass(m) :: init => matrix_init
+grep: ./src/math/schwarz.o: binary file matches
+grep: ./src/math/operators.o: binary file matches
+./src/math/schwarz.f90:81:    type(space_t) :: Xh_schwarz !< needed to init gs
+./src/math/schwarz.f90:83:    type(dofmap_t) :: dm_schwarz !< needed to init gs
+./src/math/schwarz.f90:92:    procedure, pass(this) :: init => schwarz_init
+./src/math/schwarz.f90:115:    call this%fdm%init(Xh, dm, gs_h)
+grep: ./src/math/ax.o: binary file matches
+grep: ./src/math/matrix.o: binary file matches
+./src/math/vector.f90:49:     procedure, pass(v) :: init => vector_init
+./src/math/fdm.f90:95:     procedure, pass(this) :: init => fdm_init
+grep: ./src/math/fdm.o: binary file matches
+grep: ./src/math/vector.o: binary file matches
+grep: ./src/math/ax_helm_fctry.o: binary file matches
+grep: ./src/math/bcknd/device/ax_helm_device.o: binary file matches
+grep: ./src/math/bcknd/device/opr_device.o: binary file matches
+grep: ./src/math/bcknd/cpu/ax_helm.o: binary file matches
+grep: ./src/math/bcknd/cpu/opr_cpu.o: binary file matches
+grep: ./src/math/bcknd/xsmm/ax_helm_xsmm.o: binary file matches
+grep: ./src/math/bcknd/xsmm/opr_xsmm.o: binary file matches
+grep: ./src/math/bcknd/sx/ax_helm_sx.o: binary file matches
+grep: ./src/math/bcknd/sx/opr_sx.o: binary file matches
+grep: ./src/case.o: binary file matches
+./src/adt/htable.f90:84:     procedure, pass(this) :: init => htable_i4_init
+./src/adt/htable.f90:94:     procedure, pass(this) :: init => htable_i8_init
+./src/adt/htable.f90:104:     procedure, pass(this) :: init => htable_r8_init
+./src/adt/htable.f90:114:     procedure, pass(this) :: init => htable_pt_init
+./src/adt/htable.f90:124:     procedure, pass(this) :: init => htable_i4t2_init
+./src/adt/htable.f90:134:     procedure, pass(this) :: init => htable_i4t4_init
+./src/adt/htable.f90:144:     procedure, pass(this) :: init => htable_cptr_init
+./src/adt/htable.f90:168:     procedure, pass(this) :: init => htable_iter_i4_init
+./src/adt/htable.f90:177:     procedure, pass(this) :: init => htable_iter_i8_init
+./src/adt/htable.f90:186:     procedure, pass(this) :: init => htable_iter_r8_init
+./src/adt/htable.f90:195:     procedure, pass(this) :: init => htable_iter_pt_init
+./src/adt/htable.f90:204:     procedure, pass(this) :: init => htable_iter_i4t2_init
+./src/adt/htable.f90:213:     procedure, pass(this) :: init => htable_iter_i4t4_init
+./src/adt/htable.f90:222:     procedure, pass(this) :: init => htable_iter_cptr_init
+grep: ./src/adt/uset.o: binary file matches
+./src/adt/uset.f90:45:     procedure(uset_init), pass(this), deferred :: init
+./src/adt/uset.f90:59:     procedure, pass(this) :: init => uset_i4_init
+./src/adt/uset.f90:76:     procedure, pass(this) :: init => uset_i8_init
+./src/adt/uset.f90:93:     procedure, pass(this) :: init => uset_r8_init
+./src/adt/uset.f90:175:       call this%t%init(n)
+./src/adt/uset.f90:177:       call this%t%init(64)
+./src/adt/uset.f90:252:    call this%it%init(this%t)    
+./src/adt/uset.f90:275:       call this%t%init(n)
+./src/adt/uset.f90:277:       call this%t%init(64)
+./src/adt/uset.f90:352:    call this%it%init(this%t)    
+./src/adt/uset.f90:384:       call this%t%init(n)
+./src/adt/uset.f90:386:       call this%t%init(64)
+./src/adt/uset.f90:461:    call this%it%init(this%t)    
+grep: ./src/adt/htable.o: binary file matches
+./src/adt/stack.f90:54:     procedure, non_overridable, pass(this) :: init => stack_init
+grep: ./src/fluid/fluid_volflow.o: binary file matches
+./src/fluid/fluid_scheme.f90:126:     procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
+./src/fluid/fluid_scheme.f90:294:    call this%bc_sym%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:319:       call this%bc_inflow%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:356:    call this%bc_wall%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:369:       call bdry_mask%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:378:       call bdry_mask%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:388:       call bdry_mask%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:397:       call bdry_mask%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:406:       call bdry_mask%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:413:       call bdry_mask%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:498:    call this%bc_prs%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:514:    call this%bc_dong%init(this%dm_Xh)
+./src/fluid/fluid_scheme.f90:667:    call this%chkp%init(this%u, this%v, this%w, this%p)
+./src/fluid/fluid_scheme.f90:676:          call this%mean%init(this%u, this%v, this%w, this%p)
+./src/fluid/fluid_scheme.f90:677:          call this%stats%init(this%c_Xh, this%mean%u, &
+./src/fluid/fluid_scheme.f90:683:!       call this%mean_sqr%init(this%u, this%v, this%w, this%p)
+./src/fluid/fluid_scheme.f90:734:       call pcp%init(coef, dof, gs)
+./src/fluid/fluid_scheme.f90:736:       call pcp%init(coef, dof, gs)
+./src/fluid/fluid_scheme.f90:738:       call pcp%init(coef, dof, gs)
+./src/fluid/fluid_scheme.f90:742:             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
+./src/fluid/fluid_scheme.f90:748:          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+grep: ./src/fluid/advection.o: binary file matches
+grep: ./src/fluid/fluid_pnpn.o: binary file matches
+grep: ./src/fluid/pnpn_res.o: binary file matches
+grep: ./src/fluid/pnpn_res_fctry.o: binary file matches
+grep: ./src/fluid/mean_flow.o: binary file matches
+grep: ./src/fluid/fluid_fctry.o: binary file matches
+./src/fluid/mean_flow.f90:46:     procedure, pass(this) :: init => mean_flow_init
+./src/fluid/mean_flow.f90:63:    call this%u%init(u)
+./src/fluid/mean_flow.f90:64:    call this%v%init(v)
+./src/fluid/mean_flow.f90:65:    call this%w%init(w)
+./src/fluid/mean_flow.f90:66:    call this%p%init(p)
+grep: ./src/fluid/mean_sqr_flow.o: binary file matches
+grep: ./src/fluid/fluid_stats.o: binary file matches
+./src/fluid/fluid_volflow.f90:92:     procedure, pass(this) :: init => fluid_vol_flow_init
+./src/fluid/advection.f90:109:     procedure, pass(this) :: init => init_dealias
+./src/fluid/advection.f90:245:    call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
+./src/fluid/fluid_stats.f90:140:     procedure, pass(this) :: init => fluid_stats_init
+./src/fluid/fluid_stats.f90:182:    call this%uu%init(this%stats_u, 'uu')
+./src/fluid/fluid_stats.f90:183:    call this%vv%init(this%stats_v, 'vv')
+./src/fluid/fluid_stats.f90:184:    call this%ww%init(this%stats_w, 'ww')
+./src/fluid/fluid_stats.f90:185:    call this%uv%init(this%stats_work, 'uv')
+./src/fluid/fluid_stats.f90:186:    call this%uw%init(this%stats_work, 'uw')
+./src/fluid/fluid_stats.f90:187:    call this%vw%init(this%stats_work, 'vw')
+./src/fluid/fluid_stats.f90:188:    call this%uuu%init(this%stats_work, 'uuu')!< <uuu>
+./src/fluid/fluid_stats.f90:189:    call this%vvv%init(this%stats_work, 'vvv')!< <vvv>
+./src/fluid/fluid_stats.f90:190:    call this%www%init(this%stats_work, 'www')!< <www>
+./src/fluid/fluid_stats.f90:191:    call this%uuv%init(this%stats_work, 'uuv')!< <uuv>
+./src/fluid/fluid_stats.f90:192:    call this%uuw%init(this%stats_work, 'uuw')!< <uuw>
+./src/fluid/fluid_stats.f90:193:    call this%uvv%init(this%stats_work, 'uvv')!< <uvv>
+./src/fluid/fluid_stats.f90:194:    call this%uvw%init(this%stats_work, 'uvw')!< <uvv>
+./src/fluid/fluid_stats.f90:195:    call this%vvw%init(this%stats_work, 'vvw')!< <vvw>
+./src/fluid/fluid_stats.f90:196:    call this%uww%init(this%stats_work, 'uww')!< <uww>
+./src/fluid/fluid_stats.f90:197:    call this%vww%init(this%stats_work, 'vww')!< <vww>
+./src/fluid/fluid_stats.f90:198:    call this%uuuu%init(this%stats_work, 'uuuu') !< <uuuu>
+./src/fluid/fluid_stats.f90:199:    call this%vvvv%init(this%stats_work, 'vvvv') !< <vvvv>
+./src/fluid/fluid_stats.f90:200:    call this%wwww%init(this%stats_work, 'wwww') !< <wwww>
+./src/fluid/fluid_stats.f90:202:    call this%pp%init(this%stats_p, 'pp')
+./src/fluid/fluid_stats.f90:203:    call this%ppp%init(this%stats_work, 'ppp')
+./src/fluid/fluid_stats.f90:204:    call this%pppp%init(this%stats_work, 'pppp')
+./src/fluid/fluid_stats.f90:206:    call this%pu%init(this%stats_work, 'pu')
+./src/fluid/fluid_stats.f90:207:    call this%pv%init(this%stats_work, 'pv')
+./src/fluid/fluid_stats.f90:208:    call this%pw%init(this%stats_work, 'pw')
+./src/fluid/fluid_stats.f90:210:    call this%pdudx%init(this%stats_work, 'pdudx')
+./src/fluid/fluid_stats.f90:211:    call this%pdudy%init(this%stats_work, 'pdudy')
+./src/fluid/fluid_stats.f90:212:    call this%pdudz%init(this%stats_work, 'pdudz')
+./src/fluid/fluid_stats.f90:213:    call this%pdvdx%init(this%stats_work, 'pdvdx')
+./src/fluid/fluid_stats.f90:214:    call this%pdvdy%init(this%stats_work, 'pdvdy')
+./src/fluid/fluid_stats.f90:215:    call this%pdvdz%init(this%stats_work, 'pdvdz')
+./src/fluid/fluid_stats.f90:216:    call this%pdwdx%init(this%stats_work, 'pdwdx')
+./src/fluid/fluid_stats.f90:217:    call this%pdwdy%init(this%stats_work, 'pdwdy')
+./src/fluid/fluid_stats.f90:218:    call this%pdwdz%init(this%stats_work, 'pdwdz')
+./src/fluid/fluid_stats.f90:220:    call this%e11%init(this%stats_work, 'e11')
+./src/fluid/fluid_stats.f90:221:    call this%e22%init(this%stats_work, 'e22')
+./src/fluid/fluid_stats.f90:222:    call this%e33%init(this%stats_work, 'e33')
+./src/fluid/fluid_stats.f90:223:    call this%e12%init(this%stats_work, 'e12')
+./src/fluid/fluid_stats.f90:224:    call this%e13%init(this%stats_work, 'e13')
+./src/fluid/fluid_stats.f90:225:    call this%e23%init(this%stats_work, 'e23')
+grep: ./src/fluid/fluid_aux.o: binary file matches
+./src/fluid/fluid_pnpn.f90:106:     procedure, pass(this) :: init => fluid_pnpn_init
+./src/fluid/fluid_pnpn.f90:167:      call this%ulag%init(this%u, 2)
+./src/fluid/fluid_pnpn.f90:168:      call this%vlag%init(this%v, 2)
+./src/fluid/fluid_pnpn.f90:169:      call this%wlag%init(this%w, 2)
+./src/fluid/fluid_pnpn.f90:174:    call this%bc_prs_surface%init(this%dm_Xh)
+./src/fluid/fluid_pnpn.f90:181:    call this%bc_sym_surface%init(this%dm_Xh)
+./src/fluid/fluid_pnpn.f90:188:    call this%bc_vel_res_non_normal%init(this%dm_Xh)
+./src/fluid/fluid_pnpn.f90:198:    call this%bc_dp%init(this%dm_Xh)
+./src/fluid/fluid_pnpn.f90:210:    call this%bc_vel_res%init(this%dm_Xh)
+./src/fluid/fluid_pnpn.f90:242:       call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim)
+./src/fluid/fluid_pnpn.f90:246:       call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim)
+./src/fluid/fluid_pnpn.f90:247:       call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim)
+./src/fluid/fluid_pnpn.f90:248:       call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim)
+./src/fluid/fluid_pnpn.f90:265:       call this%vol_flow%init(this%dm_Xh, params)
+./src/fluid/mean_sqr_flow.f90:46:     procedure, pass(this) :: init => mean_sqr_flow_init
+./src/fluid/mean_sqr_flow.f90:62:    call this%uu%init(u)
+./src/fluid/mean_sqr_flow.f90:63:    call this%vv%init(v)
+./src/fluid/mean_sqr_flow.f90:64:    call this%ww%init(w)
+./src/fluid/mean_sqr_flow.f90:65:    call this%pp%init(p)
+grep: ./src/fluid/flow_ic.o: binary file matches
+grep: ./src/fluid/fluid_scheme.o: binary file matches
+./src/fluid/fluid_plan1.f90:14:     procedure, pass(this) :: init => fluid_plan1_init
+grep: ./src/fluid/bcknd/device/pnpn_res_device.o: binary file matches
+grep: ./src/fluid/bcknd/cpu/pnpn_res_cpu.o: binary file matches
+grep: ./src/fluid/bcknd/sx/pnpn_res_sx.o: binary file matches
+./src/scalar/scalar_scheme.f90:94:     procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
+./src/scalar/scalar_scheme.f90:169:            call this%dir_bcs(this%n_dir_bcs)%init(this%dm_Xh)
+./src/scalar/scalar_scheme.f90:255:    call this%user_bc%init(this%dm_Xh)
+./src/scalar/scalar_scheme.f90:361:!    call this%chkp%init(this%u, this%v, this%w, this%p)
+./src/scalar/scalar_scheme.f90:398:       call pcp%init(coef, dof, gs)
+./src/scalar/scalar_scheme.f90:400:       call pcp%init(coef, dof, gs)
+./src/scalar/scalar_scheme.f90:402:       call pcp%init(coef, dof, gs)
+./src/scalar/scalar_scheme.f90:406:             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
+./src/scalar/scalar_scheme.f90:412:          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+grep: ./src/scalar/scalar_residual_fctry.o: binary file matches
+grep: ./src/scalar/scalar_residual.o: binary file matches
+grep: ./src/scalar/scalar_scheme.o: binary file matches
+grep: ./src/scalar/scalar_pnpn.o: binary file matches
+grep: ./src/scalar/scalar_aux.o: binary file matches
+./src/scalar/scalar_pnpn.f90:90:     procedure, pass(this) :: init => scalar_pnpn_init
+./src/scalar/scalar_pnpn.f90:142:      call this%slag%init(this%s, 2)
+./src/scalar/scalar_pnpn.f90:148:    call this%bc_res%init(this%dm_Xh)
+./src/scalar/scalar_pnpn.f90:165:       call this%proj_s%init(this%dm_Xh%size(), this%projection_dim)
+grep: ./src/scalar/bcknd/device/scalar_residual_device.o: binary file matches
+grep: ./src/scalar/bcknd/cpu/scalar_residual_cpu.o: binary file matches
+grep: ./src/scalar/bcknd/sx/scalar_residual_sx.o: binary file matches
+grep: ./src/time_schemes/time_scheme_controller.o: binary file matches
+./src/time_schemes/time_scheme_controller.f90:97:     procedure, pass(this) :: init => time_scheme_controller_init
+./src/case.f90:187:    call C%usr%init()
+./src/case.f90:198:    call C%fluid%init(C%msh, lx, C%params)
+./src/case.f90:217:       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
+./src/case.f90:305:    call C%ext_bdf%init(integer_val)
+./src/case.f90:349:    call C%s%init(C%end_time)
+./src/case.f90:384:    ! Always init, so that we can call eval in simulation.f90 with no if.
+./src/case.f90:395:    call C%q%init(stats_start_time, stats_sampling_interval)
+grep: ./src/simulation.o: binary file matches
+grep: ./src/device/device.o: binary file matches
+./src/device/device.F90:99:    call device_addrtbl%init(64)
+./src/simulation.f90:76:    !> Call stats, samplers and user-init before time loop
+grep: ./src/io/vtk_file.o: binary file matches
+grep: ./src/io/map_file.o: binary file matches
+grep: ./src/io/chkp_file.o: binary file matches
+grep: ./src/io/fld_file.o: binary file matches
+grep: ./src/io/mean_flow_output.o: binary file matches
+./src/io/file.f90:108:    call this%file_type%init(fname)
+grep: ./src/io/mean_sqr_flow_output.o: binary file matches
+./src/io/csv_file.f90:78:               &vector%init() to associate your array &
+./src/io/csv_file.f90:86:               &matrix%init() to associate your array &
+./src/io/csv_file.f90:186:               &vector%init() to associate your array &
+./src/io/csv_file.f90:194:               &matrix%init() to associate your array &
+grep: ./src/io/output.o: binary file matches
+./src/io/output.f90:43:     procedure, pass(this) :: init => output_init
+./src/io/re2_file.f90:123:       call map_file%init(map_fname)
+./src/io/re2_file.f90:314:    call htp%init(2*nel, ndim)
+grep: ./src/io/re2_file.o: binary file matches
+grep: ./src/io/fld_file_data.o: binary file matches
+grep: ./src/io/chkp_output.o: binary file matches
+./src/io/stl_file.f90:89:    call tri_msh%init(stl_hdr%ntri)
+./src/io/generic_file.f90:44:     procedure :: init => generic_file_init
+./src/io/fld_file.f90:593:         if (data%x%n .ne. n) call data%x%init(n)
+./src/io/fld_file.f90:594:         if (data%y%n .ne. n) call data%y%init(n)
+./src/io/fld_file.f90:595:         if (data%z%n .ne. n) call data%z%init(n)
+./src/io/fld_file.f90:600:         if (data%u%n .ne. n) call data%u%init(n)
+./src/io/fld_file.f90:601:         if (data%v%n .ne. n) call data%v%init(n)
+./src/io/fld_file.f90:602:         if (data%w%n .ne. n) call data%w%init(n)
+./src/io/fld_file.f90:607:         if (data%p%n .ne. n) call data%p%init(n)
+./src/io/fld_file.f90:612:         if (data%t%n .ne. n) call data%t%init(n)
+./src/io/fld_file.f90:633:                  call data%s(j)%init(n)
+./src/io/fld_file.f90:640:               call data%s(j)%init(n)
+./src/io/chkp_file.f90:321:    call this%interp%init(this%sim_Xh, this%chkp_Xh) 
+grep: ./src/io/generic_file.o: binary file matches
+grep: ./src/io/stl_file.o: binary file matches
+grep: ./src/io/csv_file.o: binary file matches
+grep: ./src/io/file.o: binary file matches
+grep: ./src/io/nmsh_file.o: binary file matches
+grep: ./src/io/fluid_output.o: binary file matches
+./src/io/fld_file_data.f90:40:     procedure, pass(this) :: init => fld_file_data_init
+./src/io/rea_file.f90:152:       call re2_file%init(re2_fname)
+./src/io/rea_file.f90:163:          call map_file%init(map_fname)
+./src/io/rea_file.f90:177:       call htp%init(2**ndim * nel, ndim)
+grep: ./src/io/rea_file.o: binary file matches
+grep: ./src/io/fluid_stats_output.o: binary file matches
+grep: ./src/field/mean_field.o: binary file matches
+grep: ./src/field/scratch_registry.o: binary file matches
+grep: ./src/field/field_registry.o: binary file matches
+grep: ./src/field/mean_sqr_field.o: binary file matches
+./src/field/field_series.f90:45:     procedure, pass(this) :: init => field_series_init
+./src/field/scratch_registry.f90:67:     procedure :: init
+./src/field/scratch_registry.f90:76:  type(scratch_registry_t) function init(dof, size, expansion_size) result(this)
+./src/field/scratch_registry.f90:104:  end function init
+./src/field/field_registry.f90:48:     procedure, pass(this) :: init => field_registry_init
+./src/field/mean_field.f90:48:     procedure, pass(this) :: init => mean_field_init
+grep: ./src/field/field_series.o: binary file matches
+./src/sem/point_interpolator.f90:52:     procedure, pass(this) :: init => point_interpolator_init
+grep: ./src/sem/cpr.o: binary file matches
+./src/sem/interpolation.f90:78:     procedure, pass(this) :: init => interpolator_init
+./src/sem/interpolation.f90:193:  !! @note Not optimized for performance, should only be used during init.
+grep: ./src/sem/point_interpolator.o: binary file matches
+grep: ./src/sem/dofmap.o: binary file matches
+grep: ./src/sem/interpolation.o: binary file matches
+grep: ./src/sem/coef.o: binary file matches
+./src/bc/bc.f90:69:     procedure, pass(this) :: init => bc_init
+./src/bc/bc.f90:196:    call this%marked_facet%init()
+grep: ./src/bc/bc.o: binary file matches
+grep: ./src/bc/non_normal.o: binary file matches
+grep: ./src/bc/precursor_inflow.o: binary file matches
+grep: ./src/bc/dirichlet.o: binary file matches
+grep: ./src/bc/wall.o: binary file matches
+grep: ./src/bc/blasius.o: binary file matches
+grep: ./src/bc/usr_scalar.o: binary file matches
+grep: ./src/bc/inflow.o: binary file matches
+grep: ./src/bc/dong_outflow.o: binary file matches
+grep: ./src/bc/usr_inflow.o: binary file matches
+./src/bc/precursor_inflow.f90:59:     procedure, pass(this) :: init => precursor_inflow_init  
+grep: ./src/bc/facet_normal.o: binary file matches
+./src/bc/non_normal.f90:70:    call this%bc_x%init(c%dof)
+./src/bc/non_normal.f90:71:    call this%bc_y%init(c%dof)
+./src/bc/non_normal.f90:72:    call this%bc_z%init(c%dof)
+./src/bc/symmetry.f90:78:    call this%bc_x%init(c%dof)
+./src/bc/symmetry.f90:79:    call this%bc_y%init(c%dof)
+./src/bc/symmetry.f90:80:    call this%bc_z%init(c%dof)
+grep: ./src/bc/symmetry.o: binary file matches
+grep: ./init.tx: input file is also the output
