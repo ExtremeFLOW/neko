@@ -174,6 +174,10 @@ Hopefully, they can guide towards better implementation.
    This way nitty-gritty optimisation can happen in `bcknd`, whereas the main
    code for the type is kept clean.
 
+   Try to add support for as many backends as possible. CPU-only will be merged,
+   but should throw a clear error message when run on an accelerator.
+   
+
 2. Wrap legacy code with wrappers following correct naming conventions.
 
    We will surely leverage the fact that Neko is written in Fortran, and lift
@@ -182,7 +186,8 @@ Hopefully, they can guide towards better implementation.
 
 
 3. If you find yourself using `optional` dummy arguments, consider whether it
-   makes more sense to split the code into separate procedures instead.
+   makes more sense to split the code into separate procedures instead. However,
+   `optional` is not as such disapproved of.
 
 4. Follow the single responsibility principle for types.
 
