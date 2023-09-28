@@ -49,6 +49,25 @@ __global__ void cmult_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for masked copy
+ */
+template< typename T >
+__global__ void masked_copy_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,                    
+                                   const int n,
+                                   const int m) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < m; i += str) {
+    a[mask[i+1]-1] = b[mask[i+1]-1];
+  }
+}
+
+
+/**
  * Device kernel for cmult2
  */
 template< typename T >
