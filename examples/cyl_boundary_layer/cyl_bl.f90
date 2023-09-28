@@ -25,8 +25,7 @@ contains
     type(user_t), intent(inout) :: u
     u%fluid_user_ic => user_ic
     u%fluid_user_if => user_inflow_eval
-    !u%user_check => user_do_stuff
-    u%user_mesh_setup => cylinder_deform
+    u%user_dirichlet_update => dirichlet_update
   end subroutine user_setup
  
   subroutine cylinder_deform(msh)
@@ -148,5 +147,57 @@ contains
        w%x(i,1,1,1) = 0.0
     end do
   end subroutine user_ic
+  !Initial example of using user specified dirichlet bcs
+  !TODO: should we pass down coef? 
+  !Can it perhaps be made prettier, should one always check allocated?
+  !RIght now they are only allocated if there is a user specified dirichlet bc for that field
+  subroutine dirichlet_update(field_bc_list, t, tstep)
+    type(field_list_t), intent(inout) :: field_bc_list
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (allocated(field_bc_list%fields(1)%f%x)) &
+       call device_cfill(field_bc_list%fields(1)%f%x_d,1d0,field_bc_list%fields(1)%f%dof%size())
+       if (allocated(field_bc_list%fields(2)%f%x)) &
+       call device_cfill(field_bc_list%fields(2)%f%x_d,0d0,field_bc_list%fields(2)%f%dof%size())
+       if (allocated(field_bc_list%fields(3)%f%x)) &
+       call device_cfill(field_bc_list%fields(3)%f%x_d,0d0,field_bc_list%fields(3)%f%dof%size())
+       if (allocated(field_bc_list%fields(4)%f%x)) &
+       call device_cfill(field_bc_list%fields(4)%f%x_d,2d0,field_bc_list%fields(4)%f%dof%size())
+    else
+       if (allocated(field_bc_list%fields(1)%f%x)) &
+       call cfill(field_bc_list%fields(1)%f%x,1d0,field_bc_list%fields(1)%f%dof%size())
+       if (allocated(field_bc_list%fields(2)%f%x)) &
+       call cfill(field_bc_list%fields(2)%f%x,0d0,field_bc_list%fields(2)%f%dof%size())
+       if (allocated(field_bc_list%fields(3)%f%x)) &
+       call cfill(field_bc_list%fields(3)%f%x,0d0,field_bc_list%fields(3)%f%dof%size())
+       if (allocated(field_bc_list%fields(4)%f%x)) &
+       call cfill(field_bc_list%fields(4)%f%x,2d0,field_bc_list%fields(4)%f%dof%size())
+    end if
+  end subroutine dirichlet_update
+
+  subroutine user_init_stuff(t, u, v, w, p, coef, params)
+    real(kind=rp) :: t
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(coef_t), intent(inout) :: coef
+    type(json_file), intent(inout) :: params
+    type(field_t), pointer :: fml_u => null()
+    type(field_t), pointer :: fml_v => null()
+    type(field_t), pointer :: fml_w => null()
+    type(field_t), pointer :: fml_p => null()
+    fml_u => neko_field_registry%get_field('du')
+    if (associated(fml_u)) call cfill(fml_u%x,1d0, u%dof%size())    
+    !fml_v => neko_field_registry%get_field('dv')
+    !if (associated(fml_v)) call cfill(fml_v%x,2d0, u%dof%size())    
+    !fml_w => neko_field_registry%get_field('dw')
+    !if (associated(fml_w)) call cfill(fml_w%x,3d0, u%dof%size())    
+    !fml_p => neko_field_registry%get_field('dp')
+    !if (associated(fml_p)) call cfill(fml_p%x,4d0, u%dof%size())    
+  end subroutine user_init_stuff
+
+
 
 end module user
