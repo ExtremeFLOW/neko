@@ -80,7 +80,7 @@ module math
        glsum, glmax, glmin, chsign, vlmax, invcol1, invcol3, invers2, vcross, &
        vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, add2s1, add2s2, &
        addsqr2s2, cmult2, invcol2, col2, col3, subcol3, add3s2, subcol4, addcol3,&
-       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort
+       addcol4, ascol5, p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy
 
 contains
 
@@ -170,7 +170,23 @@ contains
     end do
 
   end subroutine copy
+ 
+  !> Copy a masked vector \f$ a(mask) = b(mask) \f$
+  subroutine masked_copy(a, b, mask, n, m)
+    integer, intent(in) :: n, m
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(0:m) :: mask
+    integer :: i, j
+
+    do i = 1, m
+       j = mask(i)
+       a(j) = b(j)
+    end do
+
+  end subroutine masked_copy
   
+ 
   !> Multiplication by constant c \f$ a = c \cdot a \f$
   subroutine cmult(a, c, n)
     integer, intent(in) :: n
