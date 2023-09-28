@@ -39,6 +39,7 @@ module fluid_scheme
   use mean_flow, only : mean_flow_t
   use num_types
   use source
+  use comm
   use field, only : field_t
   use space
   use dofmap, only : dofmap_t
@@ -52,6 +53,7 @@ module fluid_scheme
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
+  use field_dirichlet, only : field_dirichlet_t
   use krylov_fctry
   use precon_fctry
   use fluid_stats, only : fluid_stats_t
@@ -89,7 +91,11 @@ module fluid_scheme
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(inflow_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     type(field_dirichlet_t) :: bc_field_u   !< Dirichlet pressure condition
+     type(field_dirichlet_t) :: bc_field_v   !< Dirichlet pressure condition
+     type(field_dirichlet_t) :: bc_field_w   !< Dirichlet pressure condition
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(field_dirichlet_t) :: bc_field_prs   !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
@@ -178,7 +184,7 @@ contains
     real(kind=rp), allocatable :: real_vec(:)
     real(kind=rp) :: real_val
     logical :: logical_val
-    integer :: integer_val
+    integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
 
     
@@ -354,6 +360,36 @@ contains
        
     call json_get_or_default(params, 'case.output_boundary', logical_val,&
                              .false.)
+    !dirichlet for velocity
+    call this%bc_field_u%init(this%dm_Xh)
+    call this%bc_field_u%mark_zones_from_list(msh%labeled_zones,&
+                        'du', this%bc_labels)
+    call this%bc_field_u%finalize()
+    !Perhaps this should be moved inside bc, but I dont want MPI comm in bc
+    !Allocates the bc_field if there is a field dirichlet on any rank
+    call MPI_Allreduce(this%bc_field_u%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0)  call this%bc_field_u%init_field('du')
+
+    call this%bc_field_v%init(this%dm_Xh)
+    call this%bc_field_v%mark_zones_from_list(msh%labeled_zones,&
+                        'dv', this%bc_labels)
+    call this%bc_field_v%finalize()
+    call MPI_Allreduce(this%bc_field_v%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0)  call this%bc_field_v%init_field('dv')
+
+    call this%bc_field_w%init(this%dm_Xh)
+    call this%bc_field_w%mark_zones_from_list(msh%labeled_zones,&
+                        'dw', this%bc_labels)
+    call this%bc_field_w%finalize()
+    call this%bc_field_w%init_field('dw')
+    call MPI_Allreduce( this%bc_field_w%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0)  call this%bc_field_w%init_field('dw')
+
+
+
     if (logical_val) then
        call this%bdry%init(this%dm_Xh, 'bdry')
        this%bdry = 0.0_rp
@@ -469,7 +505,7 @@ contains
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: real_val, dong_delta, dong_uchar
     real(kind=rp), allocatable :: real_vec(:)
-    integer :: integer_val
+    integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme)
@@ -492,6 +528,15 @@ contains
                         'o', this%bc_labels)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones,&
                         'on', this%bc_labels)
+    call this%bc_field_prs%init(this%dm_Xh)
+    !Field bc
+    call this%bc_field_prs%mark_zones_from_list(msh%labeled_zones,&
+                        'dp', this%bc_labels)
+    call this%bc_field_prs%finalize()
+    call MPI_Allreduce(this%bc_field_prs%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    if (integer_val .gt. 0)  call this%bc_field_prs%init_field('dp')
+    call bc_list_add(this%bclst_prs, this%bc_field_prs)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -685,6 +730,17 @@ contains
     integer, intent(in) :: tstep
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+    !Same as in fluid_pnpn, we should add another bc that implements apply_vector
+    !This is a bit hacky
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%bc_field_u%apply_scalar_dev(this%u%x_d, t, tstep)
+       call this%bc_field_v%apply_scalar_dev(this%v%x_d, t, tstep)
+       call this%bc_field_w%apply_scalar_dev(this%w%x_d, t, tstep)
+    else 
+       call this%bc_field_u%apply_scalar(this%u%x, this%dm_Xh%size(), t, tstep)
+       call this%bc_field_v%apply_scalar(this%v%x, this%dm_Xh%size(), t, tstep)
+       call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
+    end if
   end subroutine fluid_scheme_bc_apply_vel
   
   !> Apply all boundary conditions defined for pressure
