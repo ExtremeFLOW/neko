@@ -5,6 +5,7 @@ module comm
   !$ use omp_lib
   implicit none
   
+  
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
 

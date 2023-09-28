@@ -32,7 +32,7 @@
 !
 module ax_helm_sx
   use ax_product
-  use num_types
+  use math, only : addcol4
   implicit none
   private
 

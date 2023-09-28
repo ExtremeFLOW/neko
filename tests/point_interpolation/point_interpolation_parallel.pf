@@ -9,6 +9,9 @@ module point_interpolation_parallel
   use gather_scatter
   use space
   use point
+  use datadist
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use device
   use neko_config
   implicit none
 
@@ -46,10 +49,10 @@ contains
     type(gs_t) :: gs
     type(space_t) :: Xh
 
-    call space_init(Xh, GLL, lx, lx, lx)
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call gs%init(dof)
+    call coef%init(gs)
 
   end subroutine point_interpolation_test_gen_coef
 
@@ -80,14 +83,14 @@ contains
 
     call create_points(p)
 
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
 
-    call mesh_generate_conn(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call msh%generate_conn()
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call gs%init(dof)
+    call coef%init(gs)
 
     call interp%init(coef%Xh) ! initialize the interpolator object
 
@@ -123,13 +126,13 @@ contains
     dist = linear_dist_t(1, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
     call create_points(p)
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-    call mesh_generate_conn(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call gs%init(dof)
+    call coef%init(gs)
 
     ! Initialize the r,s,t values
     rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)
@@ -188,13 +191,13 @@ contains
     dist = linear_dist_t(1, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
     call create_points(p)
-    call mesh_init(msh, 3, dist)
-    call mesh_add_element(msh, 1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
-    call mesh_generate_conn(msh)
-    call space_init(Xh, GLL, lx, lx, lx)
+    call msh%init(3, dist)
+    call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+    call Xh%init(GLL, lx, lx, lx)
     dof = dofmap_t(msh, Xh)
-    call gs_init(gs, dof)
-    call coef_init(coef, gs)
+    call gs%init(dof)
+    call coef%init(gs)
 
     ! Initialize the r,s,t values
     rst(1)%x = (/ 1.0_rp,  0.0_rp, -0.5_rp/)

@@ -36,11 +36,13 @@ module user_intf
   use source
   use source_scalar
   use coefs
+  use mesh
   use usr_inflow
   use usr_scalar
   use num_types
   use json_module, only : json_file
   implicit none
+  private
 
   !> Abstract interface for user defined initial conditions
   abstract interface
@@ -109,7 +111,7 @@ module user_intf
      end subroutine user_final_modules
   end interface
 
-  type :: user_t
+  type, public :: user_t
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
@@ -124,8 +126,10 @@ module user_intf
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
-  
+
+  public :: useric, user_initialize_modules, usermsh
 contains
+  
   !> User interface initialization
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u

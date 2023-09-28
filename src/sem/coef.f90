@@ -33,14 +33,18 @@
 !> Coefficients 
 module coefs
   use gather_scatter
+  use gs_ops
   use neko_config
   use num_types
-  use space  
+  use dofmap, only : dofmap_t
+  use space, only: space_t
   use math
-  use mesh
-  use device
+  use mesh, only : mesh_t
+  use device_math
   use device_coef
+  use device_math
   use mxm_wrapper
+  use device
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -89,6 +93,7 @@ module coefs
      real(kind=rp), allocatable :: nx(:,:,:,:)   !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:)   !< y-direction of facet normal
      real(kind=rp), allocatable :: nz(:,:,:,:)   !< z-direction of facet normal
+     !> Pointers to main fields 
      
      real(kind=rp) :: volume
      
@@ -137,512 +142,519 @@ module coefs
      type(c_ptr) :: ny_d = C_NULL_PTR
      type(c_ptr) :: nz_d = C_NULL_PTR
 
-  end type coef_t
 
-  interface coef_init
-     module procedure coef_init_empty, coef_init_all
-  end interface coef_init
-  
-  public :: coef_init, coef_free, coef_get_normal
+   contains
+     procedure, private, pass(this) :: init_empty => coef_init_empty
+     procedure, private, pass(this) :: init_all => coef_init_all
+     procedure, pass(this) :: free => coef_free
+     procedure, pass(this) :: get_normal => coef_get_normal
+     generic :: init => init_empty, init_all
+  end type coef_t
   
 contains
   
   !> Initialize empty coefs for a space and a mesh 
-  subroutine coef_init_empty(coef, Xh, msh)
-    type(coef_t), intent(inout) :: coef
+  subroutine coef_init_empty(this, Xh, msh)
+    class(coef_t), intent(inout) :: this
     type(space_t), intent(inout), target :: Xh
     type(mesh_t), intent(inout), target :: msh
     integer :: n    
-    call coef_free(coef)
-    coef%msh => msh
-    coef%Xh => Xh
+    call this%free()
+    this%msh => msh
+    this%Xh => Xh
     
-    allocate(coef%drdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dsdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dtdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%drdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dsdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dtdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%drdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dsdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dtdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%drdy(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dsdy(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dtdy(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%drdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dsdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dtdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%drdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dsdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dtdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
+
     !
     ! Setup device memory (if present)
     !
     
-    n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
         (NEKO_BCKND_OPENCL .eq. 1)) then
 
-       call device_map(coef%drdx, coef%drdx_d, n)
-       call device_map(coef%drdy, coef%drdy_d, n)
-       call device_map(coef%drdz, coef%drdz_d, n)
+       call device_map(this%drdx, this%drdx_d, n)
+       call device_map(this%drdy, this%drdy_d, n)
+       call device_map(this%drdz, this%drdz_d, n)
 
-       call device_map(coef%dsdx, coef%dsdx_d, n)
-       call device_map(coef%dsdy, coef%dsdy_d, n)
-       call device_map(coef%dsdz, coef%dsdz_d, n)
+       call device_map(this%dsdx, this%dsdx_d, n)
+       call device_map(this%dsdy, this%dsdy_d, n)
+       call device_map(this%dsdz, this%dsdz_d, n)
 
-       call device_map(coef%dtdx, coef%dtdx_d, n)
-       call device_map(coef%dtdy, coef%dtdy_d, n)
-       call device_map(coef%dtdz, coef%dtdz_d, n)
+       call device_map(this%dtdx, this%dtdx_d, n)
+       call device_map(this%dtdy, this%dtdy_d, n)
+       call device_map(this%dtdz, this%dtdz_d, n)
        
     end if
     
   end subroutine coef_init_empty
 
   !> Initialize coefficients
-  subroutine coef_init_all(coef, gs_h)
-    type(coef_t), intent(inout) :: coef
+  subroutine coef_init_all(this, gs_h)
+    class(coef_t), intent(inout) :: this
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m
-    call coef_free(coef)
+    call this%free()
     
-    coef%msh => gs_h%dofmap%msh
-    coef%Xh => gs_h%dofmap%Xh
-    coef%dof => gs_h%dofmap
-    coef%gs_h => gs_h
+    this%msh => gs_h%dofmap%msh
+    this%Xh => gs_h%dofmap%Xh
+    this%dof => gs_h%dofmap
+    this%gs_h => gs_h
 
     !
     ! Allocate arrays for geometric data
     !
     !>@todo Be clever and try to avoid allocating zeroed geom. factors
-    allocate(coef%G11(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G22(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G33(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G12(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G13(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%G23(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%G11(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%G22(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%G33(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%G12(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%G13(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%G23(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%dxdr(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dxds(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dxdt(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%dxdr(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dxds(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dxdt(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%dydr(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dyds(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dydt(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%dydr(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dyds(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dydt(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%dzdr(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dzds(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dzdt(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%dzdr(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dzds(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dzdt(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%drdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dsdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dtdx(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%drdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dsdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dtdx(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%drdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dsdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dtdy(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%drdy(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dsdy(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dtdy(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%drdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dsdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%dtdz(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%drdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dsdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%dtdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%jac(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%jacinv(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%jac(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%jacinv(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
-    allocate(coef%area(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
-    allocate(coef%nx(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
-    allocate(coef%ny(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
-    allocate(coef%nz(coef%Xh%lx, coef%Xh%ly, 6, coef%msh%nelv))
+    allocate(this%area(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+    allocate(this%nx(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+    allocate(this%ny(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+    allocate(this%nz(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
     
-    allocate(coef%B(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%Binv(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%B(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%Binv(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
-    allocate(coef%h1(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
-    allocate(coef%h2(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%h1(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%h2(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
-    allocate(coef%mult(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv))
+    allocate(this%mult(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    
 
     !
     ! Setup device memory (if present)
     !
     
-    n = coef%Xh%lx * coef%Xh%ly * coef%Xh%lz * coef%msh%nelv
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(coef%G11, coef%G11_d, n)
-       call device_map(coef%G22, coef%G22_d, n)
-       call device_map(coef%G33, coef%G33_d, n)
-       call device_map(coef%G12, coef%G12_d, n)
-       call device_map(coef%G13, coef%G13_d, n)
-       call device_map(coef%G23, coef%G23_d, n)
+       call device_map(this%G11, this%G11_d, n)
+       call device_map(this%G22, this%G22_d, n)
+       call device_map(this%G33, this%G33_d, n)
+       call device_map(this%G12, this%G12_d, n)
+       call device_map(this%G13, this%G13_d, n)
+       call device_map(this%G23, this%G23_d, n)
        
-       call device_map(coef%dxdr, coef%dxdr_d, n)
-       call device_map(coef%dydr, coef%dydr_d, n)
-       call device_map(coef%dzdr, coef%dzdr_d, n)
+       call device_map(this%dxdr, this%dxdr_d, n)
+       call device_map(this%dydr, this%dydr_d, n)
+       call device_map(this%dzdr, this%dzdr_d, n)
 
-       call device_map(coef%dxds, coef%dxds_d, n)
-       call device_map(coef%dyds, coef%dyds_d, n)
-       call device_map(coef%dzds, coef%dzds_d, n)
+       call device_map(this%dxds, this%dxds_d, n)
+       call device_map(this%dyds, this%dyds_d, n)
+       call device_map(this%dzds, this%dzds_d, n)
        
-       call device_map(coef%dxdt, coef%dxdt_d, n)
-       call device_map(coef%dydt, coef%dydt_d, n)
-       call device_map(coef%dzdt, coef%dzdt_d, n)
+       call device_map(this%dxdt, this%dxdt_d, n)
+       call device_map(this%dydt, this%dydt_d, n)
+       call device_map(this%dzdt, this%dzdt_d, n)
 
-       call device_map(coef%drdx, coef%drdx_d, n)
-       call device_map(coef%drdy, coef%drdy_d, n)
-       call device_map(coef%drdz, coef%drdz_d, n)
+       call device_map(this%drdx, this%drdx_d, n)
+       call device_map(this%drdy, this%drdy_d, n)
+       call device_map(this%drdz, this%drdz_d, n)
 
-       call device_map(coef%dsdx, coef%dsdx_d, n)
-       call device_map(coef%dsdy, coef%dsdy_d, n)
-       call device_map(coef%dsdz, coef%dsdz_d, n)
+       call device_map(this%dsdx, this%dsdx_d, n)
+       call device_map(this%dsdy, this%dsdy_d, n)
+       call device_map(this%dsdz, this%dsdz_d, n)
 
-       call device_map(coef%dtdx, coef%dtdx_d, n)
-       call device_map(coef%dtdy, coef%dtdy_d, n)
-       call device_map(coef%dtdz, coef%dtdz_d, n)
+       call device_map(this%dtdx, this%dtdx_d, n)
+       call device_map(this%dtdy, this%dtdy_d, n)
+       call device_map(this%dtdz, this%dtdz_d, n)
 
-       call device_map(coef%mult, coef%mult_d, n)
-       call device_map(coef%h1, coef%h1_d, n)
-       call device_map(coef%h2, coef%h2_d, n)
+       call device_map(this%mult, this%mult_d, n)
+       call device_map(this%h1, this%h1_d, n)
+       call device_map(this%h2, this%h2_d, n)
 
-       call device_map(coef%jac, coef%jac_d, n)
-       call device_map(coef%jacinv, coef%jacinv_d, n)
-       call device_map(coef%B, coef%B_d, n)
-       call device_map(coef%Binv, coef%Binv_d, n)
+       call device_map(this%jac, this%jac_d, n)
+       call device_map(this%jacinv, this%jacinv_d, n)
+       call device_map(this%B, this%B_d, n)
+       call device_map(this%Binv, this%Binv_d, n)
 
-       m = coef%Xh%lx * coef%Xh%ly * 6 * coef%msh%nelv
+       m = this%Xh%lx * this%Xh%ly * 6 * this%msh%nelv
        
-       call device_map(coef%area, coef%area_d, m)
-       call device_map(coef%nx, coef%nx_d, m)
-       call device_map(coef%ny, coef%ny_d, m)
-       call device_map(coef%nz, coef%nz_d, m)
+       call device_map(this%area, this%area_d, m)
+       call device_map(this%nx, this%nx_d, m)
+       call device_map(this%ny, this%ny_d, m)
+       call device_map(this%nz, this%nz_d, m)
+       
     end if
 
-    call coef_generate_dxyzdrst(coef)
+    call coef_generate_dxyzdrst(this)
     
-    call coef_generate_geo(coef)
+    call coef_generate_geo(this)
 
-    call coef_generate_area_and_normal(coef)
+    call coef_generate_area_and_normal(this)
 
-    call coef_generate_mass(coef)
-    
+    call coef_generate_mass(this)
+
+
     ! This is a placeholder, just for now
     ! We can probably find a prettier solution
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rone(coef%h1_d, n)
-       call device_rone(coef%h2_d, n)
-       call device_memcpy(coef%h1, coef%h1_d, n, DEVICE_TO_HOST)
-       call device_memcpy(coef%h2, coef%h2_d, n, DEVICE_TO_HOST)
+       call device_rone(this%h1_d, n)
+       call device_rone(this%h2_d, n)
+       call device_memcpy(this%h1, this%h1_d, n, DEVICE_TO_HOST)
+       call device_memcpy(this%h2, this%h2_d, n, DEVICE_TO_HOST)
     else
-       call rone(coef%h1,n)
-       call rone(coef%h2,n)
+       call rone(this%h1,n)
+       call rone(this%h2,n)
     end if
 
-    coef%ifh2 = .false.
+    this%ifh2 = .false.
     
     !
     ! Set up multiplicity
     !
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rone(coef%mult_d, n)
+       call device_rone(this%mult_d, n)
     else
-       call rone(coef%mult, n)
+       call rone(this%mult, n)
     end if
        
-    call gs_op(gs_h, coef%mult, n, GS_OP_ADD)
+    call gs_h%op(this%mult, n, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_invcol1(coef%mult_d, n)
-       call device_memcpy(coef%mult, coef%mult_d, n, DEVICE_TO_HOST)
+       call device_invcol1(this%mult_d, n)
+       call device_memcpy(this%mult, this%mult_d, n, DEVICE_TO_HOST)
     else    
-       call invcol1(coef%mult, n)
+       call invcol1(this%mult, n)
     end if
 
   end subroutine coef_init_all
 
   !> Deallocate coefficients
-  subroutine coef_free(coef)
-    type(coef_t), intent(inout) :: coef
+  subroutine coef_free(this)
+    class(coef_t), intent(inout) :: this
 
-    if (allocated(coef%G11)) then
-       deallocate(coef%G11)
-    end if
-
-    if (allocated(coef%G22)) then
-       deallocate(coef%G22)
+    if (allocated(this%G11)) then
+       deallocate(this%G11)
     end if
 
-    if (allocated(coef%G33)) then
-       deallocate(coef%G33)
+    if (allocated(this%G22)) then
+       deallocate(this%G22)
     end if
 
-    if (allocated(coef%G12)) then
-       deallocate(coef%G12)
+    if (allocated(this%G33)) then
+       deallocate(this%G33)
     end if
 
-    if (allocated(coef%G13)) then
-       deallocate(coef%G13)
-    end if
-    
-    if (allocated(coef%G23)) then
-       deallocate(coef%G23)
+    if (allocated(this%G12)) then
+       deallocate(this%G12)
     end if
 
-    if (allocated(coef%mult)) then
-       deallocate(coef%mult)
+    if (allocated(this%G13)) then
+       deallocate(this%G13)
     end if
     
-    if (allocated(coef%B)) then
-       deallocate(coef%B)
-    end if
-    
-    if (allocated(coef%Binv)) then
-       deallocate(coef%Binv)
-    end if
-    
-    if(allocated(coef%dxdr)) then
-       deallocate(coef%dxdr)
-    end if
-    
-    if(allocated(coef%dxds)) then
-       deallocate(coef%dxds)
-    end if
-    
-    if(allocated(coef%dxdt)) then
-       deallocate(coef%dxdt)
-    end if
-    
-    if(allocated(coef%dydr)) then
-       deallocate(coef%dydr)
-    end if
-    
-    if(allocated(coef%dyds)) then
-       deallocate(coef%dyds)
-    end if
-    
-    if(allocated(coef%dydt)) then
-       deallocate(coef%dydt)
-    end if
-    
-    if(allocated(coef%dzdr)) then
-       deallocate(coef%dzdr)
-    end if
-    
-    if(allocated(coef%dzds)) then
-       deallocate(coef%dzds)
-    end if
-    
-    if(allocated(coef%dzdt)) then
-       deallocate(coef%dzdt)
-    end if
-    
-    if(allocated(coef%drdx)) then
-       deallocate(coef%drdx)
-    end if
-    
-    if(allocated(coef%dsdx)) then
-       deallocate(coef%dsdx)
-    end if
-    
-    if(allocated(coef%dtdx)) then
-       deallocate(coef%dtdx)
-    end if
-    
-    if(allocated(coef%drdy)) then
-       deallocate(coef%drdy)
-    end if
-    
-    if(allocated(coef%dsdy)) then
-       deallocate(coef%dsdy)
-    end if
-    
-    if(allocated(coef%dtdy)) then
-       deallocate(coef%dtdy)
-    end if
-    
-    if(allocated(coef%drdz)) then
-       deallocate(coef%drdz)
-    end if
-    
-    if(allocated(coef%dsdz)) then
-       deallocate(coef%dsdz)
-    end if
-    
-    if(allocated(coef%dtdz)) then
-       deallocate(coef%dtdz)
-    end if
-    
-    if(allocated(coef%jac)) then
-       deallocate(coef%jac)
-    end if
-    
-    if(allocated(coef%jacinv)) then
-       deallocate(coef%jacinv)
-    end if
-    
-    if(allocated(coef%h1)) then
-       deallocate(coef%h1)
-    end if
-    
-    if(allocated(coef%h2)) then
-       deallocate(coef%h2)
+    if (allocated(this%G23)) then
+       deallocate(this%G23)
     end if
 
-    if (allocated(coef%area)) then
-       deallocate(coef%area)
-    end if
-
-    if (allocated(coef%nx)) then
-       deallocate(coef%nx)
-    end if
-
-    if (allocated(coef%ny)) then
-       deallocate(coef%ny)
-    end if
-
-    if (allocated(coef%nz)) then
-       deallocate(coef%nz)
+    if (allocated(this%mult)) then
+       deallocate(this%mult)
     end if
     
-    nullify(coef%msh)
-    nullify(coef%Xh)
-    nullify(coef%dof)
+    if (allocated(this%B)) then
+       deallocate(this%B)
+    end if
+    
+    if (allocated(this%Binv)) then
+       deallocate(this%Binv)
+    end if
+    
+    if(allocated(this%dxdr)) then
+       deallocate(this%dxdr)
+    end if
+    
+    if(allocated(this%dxds)) then
+       deallocate(this%dxds)
+    end if
+    
+    if(allocated(this%dxdt)) then
+       deallocate(this%dxdt)
+    end if
+    
+    if(allocated(this%dydr)) then
+       deallocate(this%dydr)
+    end if
+    
+    if(allocated(this%dyds)) then
+       deallocate(this%dyds)
+    end if
+    
+    if(allocated(this%dydt)) then
+       deallocate(this%dydt)
+    end if
+    
+    if(allocated(this%dzdr)) then
+       deallocate(this%dzdr)
+    end if
+    
+    if(allocated(this%dzds)) then
+       deallocate(this%dzds)
+    end if
+    
+    if(allocated(this%dzdt)) then
+       deallocate(this%dzdt)
+    end if
+    
+    if(allocated(this%drdx)) then
+       deallocate(this%drdx)
+    end if
+    
+    if(allocated(this%dsdx)) then
+       deallocate(this%dsdx)
+    end if
+    
+    if(allocated(this%dtdx)) then
+       deallocate(this%dtdx)
+    end if
+    
+    if(allocated(this%drdy)) then
+       deallocate(this%drdy)
+    end if
+    
+    if(allocated(this%dsdy)) then
+       deallocate(this%dsdy)
+    end if
+    
+    if(allocated(this%dtdy)) then
+       deallocate(this%dtdy)
+    end if
+    
+    if(allocated(this%drdz)) then
+       deallocate(this%drdz)
+    end if
+    
+    if(allocated(this%dsdz)) then
+       deallocate(this%dsdz)
+    end if
+    
+    if(allocated(this%dtdz)) then
+       deallocate(this%dtdz)
+    end if
+    
+    if(allocated(this%jac)) then
+       deallocate(this%jac)
+    end if
+    
+    if(allocated(this%jacinv)) then
+       deallocate(this%jacinv)
+    end if
+    
+    if(allocated(this%h1)) then
+       deallocate(this%h1)
+    end if
+    
+    if(allocated(this%h2)) then
+       deallocate(this%h2)
+    end if
+
+    if (allocated(this%area)) then
+       deallocate(this%area)
+    end if
+
+    if (allocated(this%nx)) then
+       deallocate(this%nx)
+    end if
+
+    if (allocated(this%ny)) then
+       deallocate(this%ny)
+    end if
+
+    if (allocated(this%nz)) then
+       deallocate(this%nz)
+    end if
+    
+    
+    nullify(this%msh)
+    nullify(this%Xh)
+    nullify(this%dof)
 
     !
     ! Cleanup the device (if present)
     !
     
-    if (c_associated(coef%G11_d)) then
-       call device_free(coef%G11_d)
+    if (c_associated(this%G11_d)) then
+       call device_free(this%G11_d)
     end if
 
-    if (c_associated(coef%G22_d)) then
-       call device_free(coef%G22_d)
+    if (c_associated(this%G22_d)) then
+       call device_free(this%G22_d)
     end if
 
-    if (c_associated(coef%G33_d)) then
-       call device_free(coef%G33_d)
+    if (c_associated(this%G33_d)) then
+       call device_free(this%G33_d)
     end if
 
-    if (c_associated(coef%G12_d)) then
-       call device_free(coef%G12_d)
+    if (c_associated(this%G12_d)) then
+       call device_free(this%G12_d)
     end if
 
-    if (c_associated(coef%G13_d)) then
-       call device_free(coef%G13_d)
+    if (c_associated(this%G13_d)) then
+       call device_free(this%G13_d)
     end if
 
-    if (c_associated(coef%G23_d)) then
-       call device_free(coef%G23_d)
+    if (c_associated(this%G23_d)) then
+       call device_free(this%G23_d)
     end if
 
-    if (c_associated(coef%dxdr_d)) then
-       call device_Free(coef%dxdr_d)
+    if (c_associated(this%dxdr_d)) then
+       call device_Free(this%dxdr_d)
     end if
 
-    if (c_associated(coef%dydr_d)) then
-       call device_Free(coef%dydr_d)
+    if (c_associated(this%dydr_d)) then
+       call device_Free(this%dydr_d)
     end if
 
-    if (c_associated(coef%dzdr_d)) then
-       call device_Free(coef%dzdr_d)
+    if (c_associated(this%dzdr_d)) then
+       call device_Free(this%dzdr_d)
     end if
 
-    if (c_associated(coef%dxds_d)) then
-       call device_Free(coef%dxds_d)
+    if (c_associated(this%dxds_d)) then
+       call device_Free(this%dxds_d)
     end if
 
-    if (c_associated(coef%dyds_d)) then
-       call device_free(coef%dyds_d)
+    if (c_associated(this%dyds_d)) then
+       call device_free(this%dyds_d)
     end if
 
-    if (c_associated(coef%dzds_d)) then
-       call device_free(coef%dzds_d)
+    if (c_associated(this%dzds_d)) then
+       call device_free(this%dzds_d)
     end if
     
-    if (c_associated(coef%dxdt_d)) then
-       call device_free(coef%dxdt_d)
+    if (c_associated(this%dxdt_d)) then
+       call device_free(this%dxdt_d)
     end if
 
-    if (c_associated(coef%dydt_d)) then
-       call device_free(coef%dydt_d)
+    if (c_associated(this%dydt_d)) then
+       call device_free(this%dydt_d)
     end if
 
-    if (c_associated(coef%dzdt_d)) then
-       call device_free(coef%dzdt_d)
+    if (c_associated(this%dzdt_d)) then
+       call device_free(this%dzdt_d)
     end if
 
-    if (c_associated(coef%drdx_d)) then
-       call device_Free(coef%drdx_d)
+    if (c_associated(this%drdx_d)) then
+       call device_Free(this%drdx_d)
     end if
 
-    if (c_associated(coef%drdy_d)) then
-       call device_Free(coef%drdy_d)
+    if (c_associated(this%drdy_d)) then
+       call device_Free(this%drdy_d)
     end if
 
-    if (c_associated(coef%drdz_d)) then
-       call device_Free(coef%drdz_d)
+    if (c_associated(this%drdz_d)) then
+       call device_Free(this%drdz_d)
     end if
 
-    if (c_associated(coef%dsdx_d)) then
-       call device_Free(coef%dsdx_d)
+    if (c_associated(this%dsdx_d)) then
+       call device_Free(this%dsdx_d)
     end if
 
-    if (c_associated(coef%dsdy_d)) then
-       call device_free(coef%dsdy_d)
+    if (c_associated(this%dsdy_d)) then
+       call device_free(this%dsdy_d)
     end if
 
-    if (c_associated(coef%dsdz_d)) then
-       call device_free(coef%dsdz_d)
+    if (c_associated(this%dsdz_d)) then
+       call device_free(this%dsdz_d)
     end if
     
-    if (c_associated(coef%dtdx_d)) then
-       call device_free(coef%dtdx_d)
+    if (c_associated(this%dtdx_d)) then
+       call device_free(this%dtdx_d)
     end if
 
-    if (c_associated(coef%dtdy_d)) then
-       call device_free(coef%dtdy_d)
+    if (c_associated(this%dtdy_d)) then
+       call device_free(this%dtdy_d)
     end if
 
-    if (c_associated(coef%dtdz_d)) then
-       call device_free(coef%dtdz_d)
+    if (c_associated(this%dtdz_d)) then
+       call device_free(this%dtdz_d)
     end if
     
-    if (c_associated(coef%mult_d)) then
-       call device_free(coef%mult_d)
+    if (c_associated(this%mult_d)) then
+       call device_free(this%mult_d)
     end if
 
-    if (c_associated(coef%h1_d)) then
-       call device_free(coef%h1_d)
+    if (c_associated(this%h1_d)) then
+       call device_free(this%h1_d)
     end if
     
-    if (c_associated(coef%h2_d)) then
-       call device_free(coef%h2_d)
+    if (c_associated(this%h2_d)) then
+       call device_free(this%h2_d)
     end if
 
-    if (c_associated(coef%jac_d)) then
-       call device_free(coef%jac_d)
+    if (c_associated(this%jac_d)) then
+       call device_free(this%jac_d)
     end if
 
-    if (c_associated(coef%jacinv_d)) then
-       call device_free(coef%jacinv_d)
+    if (c_associated(this%jacinv_d)) then
+       call device_free(this%jacinv_d)
     end if
     
-    if (c_associated(coef%B_d)) then
-       call device_free(coef%B_d)
+    if (c_associated(this%B_d)) then
+       call device_free(this%B_d)
     end if
     
-    if (c_associated(coef%Binv_d)) then
-       call device_free(coef%Binv_d)
+    if (c_associated(this%Binv_d)) then
+       call device_free(this%Binv_d)
     end if
 
-    if (c_associated(coef%area_d)) then
-       call device_free(coef%area_d)
+    if (c_associated(this%area_d)) then
+       call device_free(this%area_d)
     end if
     
-    if (c_associated(coef%nx_d)) then
-       call device_free(coef%nx_d)
+    if (c_associated(this%nx_d)) then
+       call device_free(this%nx_d)
     end if
 
-    if (c_associated(coef%ny_d)) then
-       call device_free(coef%ny_d)
+    if (c_associated(this%ny_d)) then
+       call device_free(this%ny_d)
     end if
 
-    if (c_associated(coef%nz_d)) then
-       call device_Free(coef%nz_d)
+    if (c_associated(this%nz_d)) then
+       call device_Free(this%nz_d)
     end if
+    
 
   end subroutine coef_free
 
@@ -940,7 +952,7 @@ contains
        call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE)
     end if
     
-    call gs_op(c%gs_h, c%Binv, ntot, GS_OP_ADD)
+    call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(c%Binv_d, ntot)
@@ -958,24 +970,24 @@ contains
 
   end subroutine coef_generate_mass
 
-  pure function coef_get_normal(coef, i, j, k, e, facet) result(normal)
-    type(coef_t), intent(in) :: coef
+  pure function coef_get_normal(this, i, j, k, e, facet) result(normal)
+    class(coef_t), intent(in) :: this
     integer, intent(in) :: i, j, k, e, facet
     real(kind=rp) :: normal(3)
       
     select case (facet)               
       case(1,2)
-        normal(1) = coef%nx(j, k, facet, e)
-        normal(2) = coef%ny(j, k, facet, e)
-        normal(3) = coef%nz(j, k, facet, e)
+        normal(1) = this%nx(j, k, facet, e)
+        normal(2) = this%ny(j, k, facet, e)
+        normal(3) = this%nz(j, k, facet, e)
       case(3,4)
-        normal(1) = coef%nx(i, k, facet, e)
-        normal(2) = coef%ny(i, k, facet, e)
-        normal(3) = coef%nz(i, k, facet, e)
+        normal(1) = this%nx(i, k, facet, e)
+        normal(2) = this%ny(i, k, facet, e)
+        normal(3) = this%nz(i, k, facet, e)
       case(5,6)
-        normal(1) = coef%nx(i, j, facet, e)
-        normal(2) = coef%ny(i, j, facet, e)
-        normal(3) = coef%nz(i, j, facet, e)
+        normal(1) = this%nx(i, j, facet, e)
+        normal(2) = this%ny(i, j, facet, e)
+        normal(3) = this%nz(i, j, facet, e)
       end select
   end function coef_get_normal
 
@@ -1123,5 +1135,6 @@ contains
     end if
     
   end subroutine coef_generate_area_and_normal
+  
   
 end module coefs

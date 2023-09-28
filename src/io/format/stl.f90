@@ -1,16 +1,17 @@
 !> Stereolithography format
 module stl
-  use num_types
+  use num_types, only : sp, i2
   implicit none
+  private
 
   !> Defines a STL hdr
-  type :: stl_hdr_t
+  type, public :: stl_hdr_t
      character(len=80) :: hdr
      integer :: ntri
   end type stl_hdr_t
   
   !> Defines a STL triangle
-  type :: stl_triangle_t
+  type, public :: stl_triangle_t
      real(kind=sp) :: n(3)
      real(kind=sp) :: v1(3)
      real(kind=sp) :: v2(3)

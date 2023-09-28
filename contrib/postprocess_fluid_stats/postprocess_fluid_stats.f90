@@ -100,11 +100,11 @@ program postprocess_fluid_stats
      msh%elements(i)%e%pts(8)%p%x(3) = mean_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
   end do
 
-  call space_init(Xh, GLL, mean_data%lx, mean_data%ly, mean_data%lz)
+  call Xh%init(GLL, mean_data%lx, mean_data%ly, mean_data%lz)
 
   dof = dofmap_t(msh, Xh)
-  call gs_init(gs_h, dof)
-  call coef_init(coef, gs_h)
+  call gs_h%init(dof)
+  call coef%init(gs_h)
 
   call neko_field_registry%add_field(dof, 'u')
   call neko_field_registry%add_field(dof, 'v')
@@ -135,15 +135,15 @@ program postprocess_fluid_stats
 
   allocate(reynolds%fields(7))
   !Temp fields used for the computations to come
-  call field_init(uu,dof)
-  call field_init(vv,dof)
-  call field_init(ww,dof)
-  call field_init(uv,dof)
-  call field_init(uw,dof)
-  call field_init(vw,dof)
-  call field_init(pp,dof)
-  call field_init(tmp1,dof)
-  call field_init(tmp2,dof)
+  call uu%init(dof)
+  call vv%init(dof)
+  call ww%init(dof)
+  call uv%init(dof)
+  call uw%init(dof)
+  call vw%init(dof)
+  call pp%init(dof)
+  call tmp1%init(dof) 
+  call tmp2%init(dof)
 
   reynolds%fields(1)%f => pp
   reynolds%fields(2)%f => uu

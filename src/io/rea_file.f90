@@ -172,7 +172,7 @@ contains
        start_el = dist%start_idx() + 1
        end_el = dist%end_idx() + 1
 
-       call mesh_init(msh, ndim, dist)
+       call msh%init(ndim, dist)
 
        call htp%init(2**ndim * nel, ndim)
 
@@ -189,7 +189,7 @@ contains
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
-                call mesh_add_element(msh, el_idx, p(1), p(2), p(4), p(3))
+                call msh%add_element(el_idx, p(1), p(2), p(4), p(3))
              end if
           else if (ndim .eq. 3) then
              read(9, *) (xc(j),j=1,4)
@@ -204,7 +204,7 @@ contains
                    call rea_file_add_point(htp, p(j), pt_idx)
                 end do
                 ! swap vertices to keep symmetric vertex numbering in neko
-                call mesh_add_element(msh, el_idx, &
+                call msh%add_element(el_idx, &
                      p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
              end if
           end if
@@ -251,7 +251,7 @@ contains
        else
           do el_idx = 1, nelgv
              if (curve_element(el_idx)) then
-                call mesh_mark_curve_element(msh, el_idx, &
+                call msh%mark_curve_element(el_idx, &
                      curve_data(1,1,el_idx), curve_type(1,el_idx))
              end if
           end do 
@@ -277,18 +277,20 @@ contains
                    sym_facet = facet_map(j)
                    select case(trim(cbc(j,i)))
                    case ('W')
-                      call mesh_mark_wall_facet(msh, sym_facet, el_idx)
+                      call msh%mark_wall_facet(sym_facet, el_idx)
                    case ('v', 'V')
-                      call mesh_mark_inlet_facet(msh, sym_facet, el_idx)
+                      call msh%mark_inlet_facet(sym_facet, el_idx)
                    case ('O', 'o')
-                      call mesh_mark_outlet_facet(msh, sym_facet, el_idx)
+                      call msh%mark_outlet_facet(sym_facet, el_idx)
+                   case ('ON', 'on')
+                      call msh%mark_outlet_normal_facet(sym_facet, el_idx)
                    case ('SYM')
-                      call mesh_mark_sympln_facet(msh, sym_facet, el_idx)
+                      call msh%mark_sympln_facet(sym_facet, el_idx)
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_get_facet_ids(msh, sym_facet, el_idx, pids)
-                      call mesh_mark_periodic_facet(msh, sym_facet, el_idx, &
+                      call msh%get_facet_ids(sym_facet, el_idx, pids)
+                      call msh%mark_periodic_facet(sym_facet, el_idx, &
                                         p_facet, p_el_idx, pids)
                    end select
                 end do
@@ -303,8 +305,8 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
-                                                    p_facet, p_el_idx) 
+                      call msh%create_periodic_ids(sym_facet, el_idx, &
+                                                   p_facet, p_el_idx) 
                    end select
                 end do
              end if
@@ -318,8 +320,8 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
-                                                    p_facet, p_el_idx) 
+                      call msh%create_periodic_ids(sym_facet, el_idx, &
+                                                   p_facet, p_el_idx) 
                    end select
                 end do
              end if
@@ -333,8 +335,8 @@ contains
                    case ('P')
                       p_el_idx = int(bc_data(2+off,j,i))
                       p_facet = facet_map(int(bc_data(3+off,j,i)))
-                      call mesh_create_periodic_ids(msh, sym_facet, el_idx, &
-                                                    p_facet, p_el_idx) 
+                      call msh%create_periodic_ids(sym_facet, el_idx, &
+                                                   p_facet, p_el_idx) 
                    end select
                 end do
              end if
@@ -350,7 +352,7 @@ contains
           end do
        end if
 
-       call mesh_finalize(msh)
+       call msh%finalize()
        
        call neko_log%message('Done')
        close(9)

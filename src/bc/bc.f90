@@ -35,14 +35,14 @@ module bc
   use neko_config
   use num_types
   use device
-  use dofmap
-  use space
-  use mesh
-  use zone
-  use stack
-  use tuple
-  use utils
-  use, intrinsic :: iso_c_binding
+  use dofmap, only : dofmap_t
+  use space, only : space_t
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use zone, only : zone_t
+  use stack, only : stack_i4t2_t
+  use tuple, only : tuple_i4_t
+  use utils, only : neko_error, linear_index
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
   

@@ -34,8 +34,9 @@
 module parameters
   use num_types
   implicit none  
-
-  type param_t
+  private
+  
+  type, public ::  param_t
      integer :: nsamples        !< Number of samples
      logical :: output_bdry     !< Output boundary markings
      logical :: output_part     !< Output partitions
@@ -91,7 +92,7 @@ module parameters
      integer :: stats_sample_nstep !< Number of time steps between statistics samples
   end type param_t
 
-  type param_io_t
+  type, public ::  param_io_t
      type(param_t) p
    contains
      procedure  :: param_read

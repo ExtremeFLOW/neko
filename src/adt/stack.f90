@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,15 @@
 !! @details a stack storing values @a data of an arbitrary type
 module stack
   use num_types
-  use tuple
   use nmsh
-  use utils
-  use point
-  use structs
+  use utils, only : neko_error, neko_warning
+  use point, only : point_t
+  use structs, only : struct_curve_t
   use math, only : NEKO_M_LN2
+  use tuple, only : tuple_t, tuple_i4_t, tuple4_i4_t, tuple_i4r8_t, tuple_2i4r8_t
   implicit none
   private
-
+  
   integer, parameter :: NEKO_STACK_SIZE_T = 32
 
   !> Base type for a stack

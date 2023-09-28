@@ -1,9 +1,10 @@
 !> Interfxace to ROCTX
 module roctx
-  use iso_c_binding
+  use, intrinsic :: iso_c_binding
   implicit none
-
-  integer, private, parameter :: ROCTX_MAX_LEN = 256
+  private
+  
+  integer, parameter :: ROCTX_MAX_LEN = 256
 
 #ifdef HAVE_ROCTX
   interface roctxRangePushA
@@ -18,7 +19,8 @@ module roctx
      end subroutine roctxRangePop
   end interface roctxRangePop
 
-
+  public :: roctxStartRange, roctxRangePushA, roctxRangePop
+  
 contains
   
   subroutine roctxStartRange(name)

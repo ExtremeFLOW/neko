@@ -139,7 +139,7 @@ contains
 
     !> Probe set up
     !! Read probe info and initialize the controller, arrays, etc.
-    call pb%init(t, params)
+    call pb%init(t, params, coef%Xh)
     !! Perform the set up of gslib_findpts
     call pb%setup(coef)
     !! Find the probes in the mesh. Map from xyz -> rst
