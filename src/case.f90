@@ -79,6 +79,7 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
+     type(field_list_t) :: bc_field_list
   end type case_t
 
   interface case_init
@@ -287,6 +288,12 @@ contains
        call f%wlag%set(f%w)
     end select
 
+
+    allocate(C%bc_field_list%fields(4))
+    C%bc_field_list%fields(1)%f => C%fluid%bc_field_u%field_bc
+    C%bc_field_list%fields(2)%f => C%fluid%bc_field_v%field_bc
+    C%bc_field_list%fields(3)%f => C%fluid%bc_field_w%field_bc
+    C%bc_field_list%fields(4)%f => C%fluid%bc_field_prs%field_bc
 
     !
     ! Validate that the case is properly setup for time-stepping
