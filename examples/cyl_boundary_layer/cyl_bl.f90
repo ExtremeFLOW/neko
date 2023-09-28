@@ -176,28 +176,4 @@ contains
     end if
   end subroutine dirichlet_update
 
-  subroutine user_init_stuff(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-    type(field_t), pointer :: fml_u => null()
-    type(field_t), pointer :: fml_v => null()
-    type(field_t), pointer :: fml_w => null()
-    type(field_t), pointer :: fml_p => null()
-    fml_u => neko_field_registry%get_field('du')
-    if (associated(fml_u)) call cfill(fml_u%x,1d0, u%dof%size())    
-    !fml_v => neko_field_registry%get_field('dv')
-    !if (associated(fml_v)) call cfill(fml_v%x,2d0, u%dof%size())    
-    !fml_w => neko_field_registry%get_field('dw')
-    !if (associated(fml_w)) call cfill(fml_w%x,3d0, u%dof%size())    
-    !fml_p => neko_field_registry%get_field('dp')
-    !if (associated(fml_p)) call cfill(fml_p%x,4d0, u%dof%size())    
-  end subroutine user_init_stuff
-
-
-
 end module user
