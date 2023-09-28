@@ -93,7 +93,6 @@ contains
     end if
     do while( .true.)
        i = scan(string(offset:), delimiter, back=.false.) 
-       print *, i
        if (i .eq. 0) exit
        length = length + 1
        offset = offset + i
@@ -110,7 +109,6 @@ contains
           exit
        end if
        split_str(j) = trim(string(offset:offset+i2-2))
-       print *, 'string ', string, ' split ',split_str
        offset = offset+i2
        j = j + 1
     end do
