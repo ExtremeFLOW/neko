@@ -33,12 +33,14 @@
 !> Interfaces for user interaction with NEKO
 module user_intf
   use field
+  use field_list, only : field_list_t
   use source
   use source_scalar
   use coefs
   use mesh
   use usr_inflow
   use usr_scalar
+  use field_dirichlet
   use num_types
   use json_module, only : json_file
   implicit none
@@ -122,6 +124,7 @@ module user_intf
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
      procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
+     procedure(field_dirichlet_update), nopass, pointer :: user_dirichlet_update => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
    contains
      procedure, pass(u) :: init => user_intf_init
@@ -156,6 +159,9 @@ contains
 
     if (.not. associated(u%scalar_user_bc)) then
        u%scalar_user_bc => dummy_scalar_user_bc
+    end if
+    if (.not. associated(u%user_dirichlet_update)) then
+       u%user_dirichlet_update => dirichlet_do_nothing
     end if
     
     if (.not. associated(u%user_mesh_setup)) then
@@ -279,4 +285,9 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
+  subroutine dirichlet_do_nothing(field_bc_list, t, tstep)
+    type(field_list_t), intent(inout) :: field_bc_list
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+  end subroutine dirichlet_do_nothing
 end module user_intf
