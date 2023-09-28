@@ -38,10 +38,14 @@ module advection
   use space
   use field
   use coefs
+  use device_math
   use neko_config
   use operators
   use interpolation
-  use, intrinsic :: iso_c_binding
+  use device_math
+  use device, only : device_free, device_map, device_get_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+                                          c_associated
   implicit none
   private
   
@@ -62,7 +66,8 @@ module advection
      procedure, pass(this) :: compute => compute_advection_no_dealias
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
      !! the RHS
-     procedure, pass(this) :: compute_scalar => compute_scalar_advection_no_dealias
+     procedure, pass(this) :: compute_scalar => &
+          compute_scalar_advection_no_dealias
   end type adv_no_dealias_t
 
   !> Type encapsulating advection routines with dealiasing
@@ -239,12 +244,12 @@ contains
     type(coef_t), intent(inout), target :: coef
     integer :: nel, n_GL, n
 
-    call space_init(this%Xh_GL, GL, lxd, lxd, lxd)
+    call this%Xh_GL%init(GL, lxd, lxd, lxd)
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
     call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
 
-    call coef_init(this%coef_GL, this%Xh_GL, coef%msh)
+    call this%coef_GL%init(this%Xh_GL, coef%msh)
 
     nel = coef%msh%nelv
     n_GL = nel*this%Xh_GL%lxyz

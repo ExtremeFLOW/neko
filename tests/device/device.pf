@@ -191,7 +191,7 @@ subroutine test_device_memcpy
 
      x = 0
 
-     call device_memcpy(x, x_d, size(x), DEVICE_TO_HOST)
+     call device_memcpy(x, x_d, size(x), DEVICE_TO_HOST, sync=.true.)
      
      do i = 1, size(x)
         @assertEqual(x(i), i)
@@ -203,7 +203,7 @@ subroutine test_device_memcpy
 
      x = 0
 
-     call device_memcpy(x, y_d, size(x), DEVICE_TO_HOST)
+     call device_memcpy(x, y_d, size(x), DEVICE_TO_HOST, sync=.true.)
      
      do i = 1, size(x)
         @assertEqual(x(i), i)

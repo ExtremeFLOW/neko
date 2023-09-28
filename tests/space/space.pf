@@ -15,7 +15,7 @@ subroutine test_space_init
      ! 3D case
      ! 
   
-     call space_init(Xh, GLL, n, n, n)
+     call Xh%init(GLL, n, n, n)
      
      @assertTrue(Xh%lx .eq. n)
      @assertTrue(Xh%lx .eq. Xh%ly)
@@ -46,13 +46,13 @@ subroutine test_space_init
      @assertTrue(size(Xh%dyt) .eq. n * n)
      @assertTrue(size(Xh%dzt) .eq. n * n)
 
-     call space_free(Xh)
+     call Xh%free()
      
      !
      ! 2D case
      !
      
-     call space_init(Yh, GLL, n, n)
+     call Yh%init(GLL, n, n)
 
      @assertTrue(Yh%lx .eq. n)
      @assertTrue(Yh%lx .eq. Yh%ly)
@@ -84,7 +84,7 @@ subroutine test_space_init
      @assertTrue(size(Yh%dyt) .eq. n * n)
      @assertTrue(size(Yh%dzt) .eq. 1)
 
-     call space_free(Yh)
+     call Yh%free()
   end do
   
 end subroutine test_space_init
@@ -106,7 +106,7 @@ subroutine test_space_free
      ! 3D case
      !
      
-     call space_init(Xh, GLL, n, n, n)
+     call Xh%init(GLL, n, n, n)
   
      @assertTrue(allocated(Xh%zg))
      
@@ -128,7 +128,7 @@ subroutine test_space_free
      @assertTrue(allocated(Xh%dyt))
      @assertTrue(allocated(Xh%dzt))
      
-     call space_free(Xh)
+     call Xh%free()
 
      @assertTrue(.not. allocated(Xh%zg))
   
@@ -154,7 +154,7 @@ subroutine test_space_free
      ! 2D case
      !
      
-     call space_init(Yh, GLL, n, n)
+     call Yh%init(GLL, n, n)
   
      @assertTrue(allocated(Yh%zg))
      
@@ -176,7 +176,7 @@ subroutine test_space_free
      @assertTrue(allocated(Yh%dyt))
      @assertTrue(allocated(Yh%dzt))
      
-     call space_free(Yh)
+     call Yh%free()
 
      @assertTrue(.not. allocated(Yh%zg))
   
@@ -214,30 +214,30 @@ subroutine test_space_eq
   !
   ! 3D case
   !
-  call space_init(Xh, GLL, 10, 10, 10)
-  call space_init(Yh, GLL, 10, 10, 10)
-  call space_init(Zh, GLL, 4, 4, 4)
+  call Xh%init(GLL, 10, 10, 10)
+  call Yh%init(GLL, 10, 10, 10)
+  call Zh%init(GLL, 4, 4, 4)
 
   @assertTrue(Xh .eq. Yh)
   @assertFalse(Xh .eq. Zh)
 
-  call space_free(Xh)
-  call space_free(Yh)
-  call space_free(Zh)
+  call Xh%free()
+  call Yh%free()
+  call Zh%free()
 
   !
   ! 2xD case
   !
-  call space_init(Xh, GLL, 10, 10)
-  call space_init(Yh, GLL, 10, 10)
-  call space_init(Zh, GLL, 4, 4)
+  call Xh%init(GLL, 10, 10)
+  call Yh%init(GLL, 10, 10)
+  call Zh%init(GLL, 4, 4)
 
   @assertTrue(Xh .eq. Yh)
   @assertFalse(Xh .eq. Zh)
 
-  call space_free(Xh)
-  call space_free(Yh)
-  call space_free(Zh)
+  call Xh%free()
+  call Yh%free()
+  call Zh%free()
   
 end subroutine test_space_eq
 
@@ -254,31 +254,31 @@ subroutine test_space_ne
   !
   ! 3D case
   !
-  call space_init(Xh, GLL, 10, 10, 10)
-  call space_init(Yh, GLL, 10, 10, 10)
-  call space_init(Zh, GLL, 4, 4, 4)
+  call Xh%init(GLL, 10, 10, 10)
+  call Yh%init(GLL, 10, 10, 10)
+  call Zh%init(GLL, 4, 4, 4)
 
   @assertFalse(Xh .ne. Yh)
   @assertTrue(Xh .ne. Zh)
   @assertTrue(Yh .ne. Zh)
 
-  call space_free(Xh)
-  call space_free(Yh)
-  call space_free(Zh)
+  call Xh%free()
+  call Yh%free()
+  call Zh%free()
 
   !
   ! 2xD case
   !
-  call space_init(Xh, GLL, 10, 10)
-  call space_init(Yh, GLL, 10, 10)
-  call space_init(Zh, GLL, 4, 4)
+  call Xh%init(GLL, 10, 10)
+  call Yh%init(GLL, 10, 10)
+  call Zh%init(GLL, 4, 4)
 
   @assertFalse(Xh .ne. Yh)
   @assertTrue(Xh .ne. Zh)
   @assertTrue(Yh .ne. Zh)
 
-  call space_free(Xh)
-  call space_free(Yh)
-  call space_free(Zh)
+  call Xh%free()
+  call Yh%free()
+  call Zh%free()
   
 end subroutine test_space_ne

@@ -31,11 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_math
-  use num_types
-  use utils
   use comm
+  use utils, only : neko_error
+  use num_types, only : rp, c_rp    
   use, intrinsic :: iso_c_binding
   implicit none
+  private
 
 #ifdef HAVE_HIP
   interface
@@ -876,6 +877,13 @@ module device_math
      end function opencl_glsum
   end interface
 #endif
+
+  public :: device_copy, device_rzero, device_rone, device_cmult, device_cmult2,&
+       device_cadd, device_cfill, device_add2, device_add2s1, device_add2s2, &
+       device_addsqr2s2, device_add3s2, device_invcol1, device_invcol2, &
+       device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
+       device_addcol3, device_addcol4, device_vdot3, device_glsc3, &
+       device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum
   
 contains
 

@@ -43,6 +43,7 @@ module scalar_pnpn
   use scalar_aux    
   use time_scheme_controller
   use projection
+  use math
   use logger
   use advection
   use profiler
@@ -127,17 +128,17 @@ contains
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
-      call field_init(this%s_res, dm_Xh, "s_res")
+      call this%s_res%init(dm_Xh, "s_res")
 
-      call field_init(this%abx1, dm_Xh, "abx1")
+      call this%abx1%init(dm_Xh, "abx1")
 
-      call field_init(this%abx2, dm_Xh, "abx2")
+      call this%abx2%init(dm_Xh, "abx2")
 
-      call field_init(this%wa1, dm_Xh, 'wa1')
+      call this%wa1%init(dm_Xh, 'wa1')
 
-      call field_init(this%ta1, dm_Xh, 'ta1')
+      call this%ta1%init(dm_Xh, 'ta1')
 
-      call field_init(this%ds, dm_Xh, 'ds')
+      call this%ds%init(dm_Xh, 'ds')
 
       call this%slag%init(this%s, 2)
 
@@ -190,16 +191,16 @@ contains
     call bc_list_free(this%bclst_ds)
     call this%proj_s%free()
 
-    call field_free(this%s_res)        
+    call this%s_res%free()
 
-    call field_free(this%wa1)
+    call this%wa1%free()
 
-    call field_free(this%ta1)
+    call this%ta1%free()
 
-    call field_free(this%ds)
+    call this%ds%free()
 
-    call field_free(this%abx1)
-    call field_free(this%abx2)
+    call this%abx1%free()
+    call this%abx2%free()
 
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
@@ -281,7 +282,7 @@ contains
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
-      call gs_op(gs_Xh, s_res, GS_OP_ADD) 
+      call gs_Xh%op(s_res, GS_OP_ADD) 
 
       call bc_list_apply_scalar(this%bclst_ds,&
            s_res%x, dm_Xh%size())

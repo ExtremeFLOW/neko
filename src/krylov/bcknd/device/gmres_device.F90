@@ -33,12 +33,11 @@
 !> Defines various GMRES methods
 module gmres_device
   use krylov
-  use comm
   use math
-  use num_types
-  use device
-  use device_identity
   use device_math
+  use device
+  use comm
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -327,9 +326,9 @@ contains
        call device_rone(this%c_d, this%m_restart)
 
        call rzero(this%h, this%m_restart**2)
-       do j = 1, this%m_restart
-          call device_rzero(h_d(j), this%m_restart)
-       end do
+!       do j = 1, this%m_restart
+!          call device_rzero(h_d(j), this%m_restart)
+!       end do
        do while (.not. conv .and. iter .lt. niter)
 
           if(iter.eq.0) then               
@@ -337,7 +336,7 @@ contains
           else
              call device_copy(r_d, f_d, n)      
              call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
              call device_event_sync(this%gs_event)
              call bc_list_apply(blst, w, n)
              call device_sub2(r_d, w_d, n) 
@@ -359,7 +358,7 @@ contains
              call this%M%solve(z(1,j), v(1,j), n)
 
              call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-             call gs_op(gs_h, w, n, GS_OP_ADD)
+             call gs_h%op(w, n, GS_OP_ADD)
              call device_event_sync(this%gs_event)
              call bc_list_apply(blst, w, n)
 

@@ -35,9 +35,9 @@ module pipecg_device
   use krylov
   use math
   use num_types
+  use device_math
   use device
-  use device_math      
-  use, intrinsic :: iso_c_binding
+  use comm
   implicit none
   private
 
@@ -201,7 +201,7 @@ contains
     call device_map(this%beta, this%beta_d, DEVICE_PIPECG_P_SPACE)
     do i = 1, DEVICE_PIPECG_P_SPACE+1
        this%u_d(i) = C_NULL_PTR
-       call device_map_r1(this%u(:,i), this%u_d(i), n)
+       call device_map(this%u(:,i), this%u_d(i), n)
     end do
     !Did not work with 4 for some reason...
     u_size = 8*(DEVICE_PIPECG_P_SPACE+1)
@@ -363,7 +363,7 @@ contains
       !call device_copy(u_d(u_prev), r_d, n)
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
-      call gs_op(gs_h, w, n, GS_OP_ADD, this%gs_event)
+      call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
       call bc_list_apply(blst, w, n)
     
@@ -391,7 +391,7 @@ contains
          
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
-         call gs_op(gs_h, ni, n, GS_OP_ADD, this%gs_event)
+         call gs_h%op(ni, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
          call bc_list_apply(blst, ni, n)
 

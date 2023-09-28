@@ -32,7 +32,7 @@
 !
 !> Krylov preconditioner
 module precon
-  use num_types
+  use num_types, only : rp
   implicit none
   
   !> Defines a canonical Krylov preconditioner

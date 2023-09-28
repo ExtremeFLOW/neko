@@ -34,7 +34,6 @@
 module cg_sx
   use krylov
   use math
-  use num_types
   implicit none
   private
 
@@ -158,7 +157,7 @@ contains
        call add2s1(this%p, this%z, beta, n)
        
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
-       call gs_op(gs_h, this%w, n, GS_OP_ADD)
+       call gs_h%op(this%w, n, GS_OP_ADD)
        call bc_list_apply(blst, this%w, n)
 
        pap = glsc3(this%w, coef%mult, this%p, n)

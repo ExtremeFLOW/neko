@@ -36,13 +36,13 @@ module gs_mpi
   use num_types
   use gs_comm
   use gs_ops
-  use stack
-  use mpi_f08
+  use stack, only : stack_i4_t
   use comm
+  use, intrinsic :: iso_c_binding 
   !$ use omp_lib
-  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
-
+  private
+  
   !> MPI buffer for non-blocking operations
   type, private :: gs_comm_mpi_t
      type(MPI_Status) :: status
@@ -52,7 +52,7 @@ module gs_mpi
   end type  gs_comm_mpi_t
 
   !> Gather-scatter communication using MPI
-  type, extends(gs_comm_t) :: gs_mpi_t
+  type, public, extends(gs_comm_t) :: gs_mpi_t
      type(gs_comm_mpi_t), allocatable :: send_buf(:)     !< Comm. buffers
      type(gs_comm_mpi_t), allocatable :: recv_buf(:)     !< Comm. buffers
    contains
