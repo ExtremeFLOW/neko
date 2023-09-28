@@ -76,6 +76,49 @@ contains
 
   end subroutine filename_chsuffix
 
+  !> Split a string based on delimiter (tokenizer)
+  !! OBS: very hacky, this should really be improved, it is rather embarrasing code.
+  function split_string(string, delimiter) result(split_str)
+    character(len=*) :: string
+    character(len=*) :: delimiter
+    character(len=100), allocatable :: split_str(:)
+    integer :: length, i, i2,offset, j
+    i = 0
+    offset = 1
+    length = 1
+    if (len(trim(string)) .eq. 0) then 
+       allocate(split_str(1))
+       split_str(1) = trim(string)
+       return
+    end if
+    do while( .true.)
+       i = scan(string(offset:), delimiter, back=.false.) 
+       print *, i
+       if (i .eq. 0) exit
+       length = length + 1
+       offset = offset + i
+    end do
+
+    allocate(split_str(length))
+    i = 0
+    j = 1
+    offset=1
+    do while( .true.)
+       i2 = scan(trim(string(offset:)), delimiter, back=.false.) 
+       if (i2 .eq. 0) then
+          split_str(j) = trim(string(offset:)) 
+          exit
+       end if
+       split_str(j) = trim(string(offset:offset+i2-2))
+       print *, 'string ', string, ' split ',split_str
+       offset = offset+i2
+       j = j + 1
+    end do
+  end function split_string
+
+
+
+
   !> Compute the address of a (i,j,k,l) array
   !! with sizes (1:lx, 1:ly, 1:lz, :)
   pure function linear_index(i,j,k,l,lx,ly,lz) result(index)
