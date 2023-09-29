@@ -76,9 +76,9 @@ module neko
   use device
   use device_math
   use cpr
-  use source
   use fluid_stats
   use field_list, only : field_list_t
+  use fluid_user_source_term
   use vector
   use simulation_component
   use probes

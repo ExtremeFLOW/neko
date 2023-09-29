@@ -33,7 +33,7 @@
 !> Interfaces for user interaction with NEKO
 module user_intf
   use field
-  use source
+  use fluid_user_source_term
   use source_scalar
   use coefs
   use mesh
@@ -117,8 +117,8 @@ module user_intf
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
-     procedure(source_term_pw), nopass, pointer :: fluid_user_f => null()
-     procedure(source_term), nopass, pointer :: fluid_user_f_vector => null()
+     procedure(fluid_source_compute_pointwise), nopass, pointer :: fluid_user_f => null()
+     procedure(fluid_source_compute_vector), nopass, pointer :: fluid_user_f_vector => null()
      procedure(source_scalar_term_pw), nopass, pointer :: scalar_user_f => null()
      procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
@@ -193,7 +193,7 @@ contains
 
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)
-    class(source_t), intent(inout) :: f
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     call neko_error('Dummy user defined vector valued forcing set')    
   end subroutine dummy_user_f_vector

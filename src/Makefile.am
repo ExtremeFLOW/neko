@@ -149,7 +149,6 @@ neko_fortran_SOURCES = \
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
 	common/time_based_controller.f90\
-	common/source.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
 	common/rhs_maker.f90\
@@ -177,6 +176,8 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
+	fluid/fluid_user_source_term.f90\
+	fluid/fluid_source_term.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/bcknd/cpu/ax_helm.f90\
@@ -224,6 +225,11 @@ neko_fortran_SOURCES = \
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/simulation_component_factory.f90\
+	source_terms/source_term.f90\
+	source_terms/const_source_term.f90\
+	source_terms/bcknd/cpu/const_source_term_cpu.f90\
+	source_terms/bcknd/device/const_source_term_device.f90\
+	source_terms/source_term_factory.f90\
 	neko.f90
 
 neko_c_SOURCES = common/sighdl.c\
