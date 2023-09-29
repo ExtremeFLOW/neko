@@ -108,6 +108,7 @@ neko_fortran_SOURCES = \
 	io/mean_flow_output.f90\
 	io/fluid_stats_output.f90\
 	io/mean_sqr_flow_output.f90\
+	io/data_streamer.F90\
 	common/sampler.f90\
 	common/profiler.F90\
 	common/craypat.F90\
@@ -343,14 +344,28 @@ if ENABLE_ADIOS2
 # to libneko_fortran_SOURCES (as above)
 #
 # To avoid linker issues, any C++ code related to ADIOS2
-# must be added to libneko_a_LIBADD, with a manual build
-# rule as illustrated below
+# must be added to libneko_a_LIBADD and neko_LDADD,
+# with a manual build rule as illustrated below
 #
 #io/adios2_example.o: io/adios2_example.cpp
 #	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
 #
 #libneko_a_LIBADD = \
 #	io/adios2_example.o
+#
+#neko_LDADD = \
+#	io/adios2_example.o
+#
+#
+io/nek_adios2.o: io/nek_adios2.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+
+libneko_a_LIBADD = \
+	io/nek_adios2.o
+
+neko_LDADD = \
+	io/nek_adios2.o
+
 endif
 
 

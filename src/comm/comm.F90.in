@@ -66,8 +66,16 @@ contains
 #ifndef HAVE_MPI_PARAM_DTYPE
     MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
 #endif
+    
 
+#ifdef HAVE_ADIOS2
+    ! We split the communicator it to work asynchronously (MPMD)
+    call MPI_Comm_rank(MPI_COMM_WORLD, pe_rank, ierr)
+    call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_COMM, ierr)
+#else    
+    ! Original version duplicates the communicator:
     call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
+#endif
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
