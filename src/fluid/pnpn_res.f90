@@ -58,7 +58,7 @@ module pnpn_residual
     
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
-          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
+          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
        import field_t
        import Ax_t
        import gs_t
@@ -77,14 +77,14 @@ module pnpn_residual
        class(Ax_t), intent(inout) :: Ax
        real(kind=rp), intent(inout) :: bd
        real(kind=rp), intent(in) :: dt
-       real(kind=rp), intent(in) :: Re
+       real(kind=rp), intent(in) :: mu
        real(kind=rp), intent(in) :: rho
      end subroutine prs_res
   end interface
 
   abstract interface
      subroutine vel_res(Ax, u, v, w, u_res, v_res, w_res, &
-          p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+          p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
@@ -100,7 +100,7 @@ module pnpn_residual
        type(field_t), intent(inout) :: u_res, v_res, w_res
        type(field_t), intent(inout) :: f_x, f_y, f_z
        type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: Re
+       real(kind=rp), intent(in) :: mu
        real(kind=rp), intent(in) :: rho
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt

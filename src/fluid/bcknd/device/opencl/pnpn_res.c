@@ -44,7 +44,7 @@
 void pnpn_prs_res_part1_opencl(void *ta1, void *ta2, void *ta3, 
                                void *wa1, void *wa2, void *wa3,
                                void *f_u, void *f_v, void *f_w,
-                               void *B, void *h1, real *Re,
+                               void *B, void *h1, real *mu,
                                real *rho, int *n) {
   cl_int err;
   
@@ -66,7 +66,7 @@ void pnpn_prs_res_part1_opencl(void *ta1, void *ta2, void *ta3,
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &f_w));
   CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &B));
   CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &h1));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(real), Re));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(real), mu));
   CL_CHECK(clSetKernelArg(kernel, 12, sizeof(real), rho));
   CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), n));
   

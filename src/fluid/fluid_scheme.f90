@@ -116,8 +116,6 @@ module fluid_scheme
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
-     !> The Reynolds number
-     real(kind=rp) :: Re
      !> Dynamic viscosity
      real(kind=rp) :: mu
      !> Density
@@ -208,17 +206,30 @@ contains
        write(log_buf, '(A, I3)') 'lx         : ', lx
     end if
 
-    call json_get(params, 'case.fluid.Re', this%Re)
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'Re         :',  this%Re
+    ! Set density to 1, for the fully incompressible regime.
+    this%rho = 1.0_rp
 
-    call json_get(params, 'case.fluid.rho', this%rho)
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    if (params%valid_path('case.fluid.Re') .and. &
+        params%valid_path('case.fluid.nu')) then
+        call neko_error("Set either Re or nu in the case file, not both.")
+    else if (params%valid_path('case.fluid.Re')) then
+      ! Read Re into mu for further manipulation
+       call json_get(params, 'case.fluid.Re', this%mu)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
 
-    call json_get(params, 'case.fluid.mu', this%mu)
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
+       ! Invert the Re to get kinematic viscosity.
+       this%mu = 1.0_rp/this%mu
+       this%mu = this%mu * this%rho
+    else  if (params%valid_path('case.fluid.nu')) then
+       call json_get(params, 'case.fluid.nu', this%mu)
+       this%mu = this%mu * this%rho
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'nu         :',  this%mu
+    end if
+
+
+
 
     call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
     call json_get(params, 'case.fluid.velocity_solver.preconditioner', &

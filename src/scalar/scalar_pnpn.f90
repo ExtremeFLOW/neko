@@ -238,7 +238,7 @@ contains
     
     call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         Re => this%Re, Pr => this%Pr, rho => this%rho, &
+         mu => this%mu, Pr => this%Pr, rho => this%rho, &
          ds => this%ds, &
          ta1 => this%ta1, &
          wa1 => this%wa1, &
@@ -278,7 +278,7 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual')
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, &
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, Pr, mu, rho, &
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 

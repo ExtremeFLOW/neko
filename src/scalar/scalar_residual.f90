@@ -50,7 +50,7 @@ module scalar_residual
   end type scalar_residual_t
     
   abstract interface
-     subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd,&
+     subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, mu, rho, bd,&
                 dt, n)
        import field_t
        import Ax_t
@@ -69,7 +69,7 @@ module scalar_residual
        type(source_scalar_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
        real(kind=rp), intent(in) :: Pr
-       real(kind=rp), intent(in) :: Re
+       real(kind=rp), intent(in) :: mu
        real(kind=rp), intent(in) :: rho
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt

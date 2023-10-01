@@ -79,9 +79,11 @@ module scalar_scheme
      type(json_file), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
-     real(kind=rp) :: Re                !< Reynolds number.
+     !> Dynamic viscosity.
+     real(kind=rp) :: mu
      real(kind=rp) :: Pr                !< Prandtl number.
-     real(kind=rp) :: rho               !< Density.
+     !> Density.
+     real(kind=rp) :: rho
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
    contains
@@ -218,8 +220,29 @@ contains
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
 
-    call json_get(params, 'case.fluid.Re', this%Re)
-    call json_get(params, 'case.fluid.rho', this%rho)
+
+    ! Set density to 1 for fully incompressible regime.
+    this%rho = 1.0_rp
+   
+    if (params%valid_path('case.fluid.Re') .and. &
+        params%valid_path('case.fluid.nu')) then
+        call neko_error("Set either Re or nu in the case file, not both.")
+    else if (params%valid_path('case.fluid.Re')) then
+      ! Read Re into mu for further manipulation
+       call json_get(params, 'case.fluid.Re', this%mu)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
+
+       ! Invert the Re to get kinematic viscosity.
+       this%mu = 1.0_rp/this%mu
+       this%mu = this%mu * this%rho
+    else  if (params%valid_path('case.fluid.nu')) then
+       call json_get(params, 'case.fluid.nu', this%mu)
+       this%mu = this%mu * this%rho
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'nu         :',  this%mu
+    end if
+
     call json_get(params, 'case.scalar.Pr', this%Pr)
 
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
