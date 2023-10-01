@@ -78,7 +78,7 @@ contains
   !! is to be enabled.
   subroutine data_streamer_init(this, coef, if_asynch)
     class(data_streamer_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(inout) :: coef
     integer, intent(in) :: if_asynch
     integer :: nelb, nelb2, nelv, nelgv,npts,e
 
