@@ -5,6 +5,12 @@ module comm
   !$ use omp_lib
   implicit none
   
+  interface
+     subroutine neko_comm_wrapper_init(fcomm) &
+          bind(c, name='neko_comm_wrapper_init')
+       integer, value :: fcomm
+     end subroutine neko_comm_wrapper_init
+  end interface
   
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
@@ -79,6 +85,9 @@ contains
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
+
+    ! Setup C/C++ wrapper
+    call neko_comm_wrapper_init(NEKO_COMM%mpi_val)
 
   end subroutine comm_init
 
