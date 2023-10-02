@@ -82,11 +82,11 @@ program average_field_in_space
      msh%elements(i)%e%pts(8)%p%x(3) = field_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
   end do
 
-  call space_init(Xh, GLL, field_data%lx, field_data%ly, field_data%lz)
+  call Xh%init(GLL, field_data%lx, field_data%ly, field_data%lz)
 
   dof = dofmap_t(msh, Xh)
-  call gs_init(gs_h, dof)
-  call coef_init(coef, gs_h)
+  call gs_h%init(dof)
+  call coef%init(gs_h)
 
   call neko_field_registry%add_field(dof, 'u')
   u => neko_field_registry%get_field('u')
@@ -171,7 +171,7 @@ subroutine perform_global_summation(u, avg_u, old_u, n_levels, hom_dir_el, gs_h,
      !compute average 
      if (NEKO_BCKND_DEVICE .eq. 1) &
         call device_memcpy(u%x, u%x_d, n, HOST_TO_DEVICE)
-     call gs_op(gs_h,u,GS_OP_ADD)
+     call gs_h%op(u,GS_OP_ADD)
      if (NEKO_BCKND_DEVICE .eq. 1) &
         call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST)
      call col2(u%x,mult,n)

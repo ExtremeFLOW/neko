@@ -6,7 +6,6 @@
     "output_boundary": true,
     "end_time": 100,
     "timestep": 0.01,
-    "nsamples": 0,
     "numerics": {
         "time_order": 3,
         "polynomial_order": 7,
@@ -17,9 +16,12 @@
         "rho": 1,
         "mu": 1,
         "Re": 1.408541,
-        "source_term": {
-            "type": "user_vector"
-        },
+        "source_terms": 
+        [
+            {
+                "type": "user_vector"
+            }
+        ],
         "initial_condition": {
             "type": "user"
         },
@@ -44,13 +46,12 @@
             "",
             "w",
             "w"
-        ]
+        ],
+        "output_control": "never",
+        "output_value": 0
     },
     "scalar": {
         "enabled": true,
-        "source_term": {
-            "type": "noforce"
-        },
         "Pr": 0.71,
         "boundary_types": [
             "",

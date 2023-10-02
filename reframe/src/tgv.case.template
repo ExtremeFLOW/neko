@@ -21,9 +21,6 @@
     "rho": 1.0,
     "mu": 1.0,
     "Re": 1600,
-    "source_term": {
-        "type": "noforce"
-    },
     "initial_condition": {
       "type": "user"
     },
@@ -41,6 +38,14 @@
       "absolute_tolerance": 1e-7,
       "max_iterations": 800
     }
-  }
+  },
+  "simulation_components": 
+  [
+    {
+      "type": "vorticity",
+      "compute_control": "tsteps",
+      "compute_value": 50
+    }
+  ]
   }
 }

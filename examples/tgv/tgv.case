@@ -43,7 +43,9 @@
   "simulation_components": 
   [
     {
-      "type": "vorticity"
+      "type": "vorticity",
+      "compute_control": "tsteps",
+      "compute_value": 50
     }
   ]
   }

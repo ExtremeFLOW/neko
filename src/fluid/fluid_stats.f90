@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,6 @@
 !> Computes various statistics for the fluid fields.
 !! We use the Reynolds decomposition for a field u = <u> + u' = U + u'
 !! Spatial derivatives i.e. du/dx we denote dudx
-!! 
-
 module fluid_stats
   use mean_field
   use device_math
@@ -43,9 +41,14 @@ module fluid_stats
   use math
   use operators
   use coefs
+  use field
   use field_registry
   use field_list
   use gather_scatter
+  use stats_quant
+  use device
+  use neko_config
+  use utils
   implicit none
   private
 
@@ -163,21 +166,21 @@ contains
     this%w => w_mf%f
     this%p => p_mf%f
 
-    call field_init(this%stats_work, this%u%dof, 'stats')
-    call field_init(this%stats_u, this%u%dof, 'u temp')
-    call field_init(this%stats_v, this%u%dof, 'v temp')
-    call field_init(this%stats_w, this%u%dof, 'w temp')
-    call field_init(this%stats_p, this%u%dof, 'p temp')
+    call this%stats_work%init(this%u%dof, 'stats')
+    call this%stats_u%init(this%u%dof, 'u temp')
+    call this%stats_v%init(this%u%dof, 'v temp')
+    call this%stats_w%init(this%u%dof, 'w temp')
+    call this%stats_p%init(this%u%dof, 'p temp')
  
-    call field_init(this%dudx, this%u%dof, 'dudx')
-    call field_init(this%dudy, this%u%dof, 'dudy')
-    call field_init(this%dudz, this%u%dof, 'dudz')
-    call field_init(this%dvdx, this%u%dof, 'dvdx')
-    call field_init(this%dvdy, this%u%dof, 'dvdy')
-    call field_init(this%dvdz, this%u%dof, 'dvdz')
-    call field_init(this%dwdx, this%u%dof, 'dwdx')
-    call field_init(this%dwdy, this%u%dof, 'dwdy')
-    call field_init(this%dwdz, this%u%dof, 'dwdz')
+    call this%dudx%init(this%u%dof, 'dudx')
+    call this%dudy%init(this%u%dof, 'dudy')
+    call this%dudz%init(this%u%dof, 'dudz')
+    call this%dvdx%init(this%u%dof, 'dvdx')
+    call this%dvdy%init(this%u%dof, 'dvdy')
+    call this%dvdz%init(this%u%dof, 'dvdz')
+    call this%dwdx%init(this%u%dof, 'dwdx')
+    call this%dwdy%init(this%u%dof, 'dwdy')
+    call this%dwdz%init(this%u%dof, 'dwdz')
     
     call this%uu%init(this%stats_u, 'uu')
     call this%vv%init(this%stats_v, 'vv')
@@ -506,10 +509,10 @@ contains
   subroutine fluid_stats_free(this)
     class(fluid_stats_t), intent(inout) :: this
 
-    call field_free(this%stats_work)
-    call field_free(this%stats_u)
-    call field_free(this%stats_v)
-    call field_free(this%stats_w)
+    call this%stats_work%free()
+    call this%stats_u%free()
+    call this%stats_v%free()
+    call this%stats_w%free()
     
     call this%uu%free()
     call this%vv%free()
@@ -519,15 +522,15 @@ contains
     call this%vw%free()
     call this%pp%free()
 
-    call field_free(this%dUdx)
-    call field_free(this%dUdy)
-    call field_free(this%dUdz)
-    call field_free(this%dVdx)
-    call field_free(this%dVdy)
-    call field_free(this%dVdz)
-    call field_free(this%dWdx)
-    call field_free(this%dWdy)
-    call field_free(this%dWdz)
+    call this%dUdx%free()
+    call this%dUdy%free()
+    call this%dUdz%free()
+    call this%dVdx%free()
+    call this%dVdy%free()
+    call this%dVdz%free()
+    call this%dWdx%free()
+    call this%dWdy%free()
+    call this%dWdz%free()
  
   end subroutine fluid_stats_free
  

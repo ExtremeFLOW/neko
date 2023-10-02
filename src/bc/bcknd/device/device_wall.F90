@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_wall
-  use num_types
-  use utils
-  use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  private
 
 #ifdef HAVE_HIP
     interface
@@ -96,6 +96,8 @@ module device_wall
      end subroutine opencl_no_slip_wall_apply_vector
   end interface
 #endif
+
+  public :: device_no_slip_wall_apply_scalar, device_no_slip_wall_apply_vector
   
 contains
 

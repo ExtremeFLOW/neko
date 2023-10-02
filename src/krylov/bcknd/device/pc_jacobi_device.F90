@@ -34,10 +34,11 @@
 module device_jacobi
   use precon
   use coefs
+  use dofmap
   use num_types
   use device_math
+  use device
   use gather_scatter
-  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -176,7 +177,7 @@ contains
          call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%size())
       end if
       
-      call gs_op(gs_h, this%d, dof%size(), GS_OP_ADD)
+      call gs_h%op(this%d, dof%size(), GS_OP_ADD)
 
       call device_invcol1(this%d_d, dof%size())
     end associate

@@ -34,19 +34,22 @@
 module system
   use, intrinsic :: iso_c_binding
   implicit none
+  private
 
   interface
-  !> Interface to a C function to retrieve the CPU name (type).
-  !! @param name Stores the retrieved name. Should be a `character` of length 
-  !! `len` and `c_char` kind.
-  !! @param len The maximum anticipated length of the retrieved name.
+     !> Interface to a C function to retrieve the CPU name (type).
+     !! @param name Stores the retrieved name. Should be a `character`
+     !! of length `len` and `c_char` kind.
+     !! @param len The maximum anticipated length of the retrieved name.
      subroutine system_cpuid(name, len) &
           bind(c, name='system_cpuid')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: name
        integer(c_int), value :: len
      end subroutine system_cpuid
-   end interface
+  end interface
+
+  public :: system_cpuid, system_cpu_name
 
  contains
 

@@ -51,7 +51,7 @@ module case
   use utils
   use mesh
   use comm
-  use time_scheme_controller
+  use time_scheme_controller, only : time_scheme_controller_t
   use logger
   use jobctrl
   use user_intf  
@@ -195,7 +195,7 @@ contains
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
-    call C%fluid%init(C%msh, lx, C%params)
+    call C%fluid%init(C%msh, lx, C%params, C%usr)
 
     
     !
@@ -229,24 +229,6 @@ contains
        end if
     end if
     
-    !
-    ! Setup source term
-    ! 
-    logical_val = C%params%valid_path('case.fluid.source_term')
-    call json_get_or_default(C%params, 'case.fluid.source_term.type',&
-                             string_val, 'noforce')
-
-    if (.not. logical_val .or. trim(string_val) .eq. 'noforce') then
-       call C%fluid%set_source(trim(string_val))
-    else
-       if (trim(string_val) .eq. 'user') then
-          call C%fluid%set_source(trim(string_val), usr_f=C%usr%fluid_user_f)
-       else if (trim(string_val) .eq. 'user_vector') then
-          call C%fluid%set_source(trim(string_val), &
-               usr_f_vec=C%usr%fluid_user_f_vector)
-       end if
-    end if
-
     ! Setup source term for the scalar
     ! @todo should be expanded for user sources etc. Now copies the fluid one
     if (scalar) then
@@ -360,6 +342,9 @@ contains
        ! yes, it should be real_val below for type compatibility
        call json_get(C%params, 'case.nsamples', real_val)
        call C%s%add(C%f_out, real_val, 'nsamples')
+    else if (trim(string_val) .eq. 'never') then
+       ! Fix a dummy 0.0 output_value
+       call C%s%add(C%f_out, 0.0_rp, string_val)
     else 
        call json_get(C%params, 'case.fluid.output_value', real_val)
        call C%s%add(C%f_out, real_val, string_val)
@@ -462,7 +447,7 @@ contains
        deallocate(C%scalar)
     end if
 
-    call mesh_free(C%msh)
+    call C%msh%free()
 
     call C%s%free()
 

@@ -31,21 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> A simulation component that computes the vorticity field.
-!! The values are stored in the field registry under the names omega_x, omega_y
-!! and omega_z.
+!> Implements the `vorticity_t` type. 
 
 module vorticity
   use num_types, only : rp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use field, only : field_t, field_free, field_init
+  use field, only : field_t
   use operators, only : curl
   use case, only : case_t
   implicit none
   private
   
+  !> A simulation component that computes the vorticity field.
+  !! Added to the field registry as `omega_x`, `omega_y``, and `omega_z`.
   type, public, extends(simulation_component_t) :: vorticity_t
      !> X velocity component.
      type(field_t), pointer :: u
@@ -61,20 +61,21 @@ module vorticity
      !> Z vorticity component.
      type(field_t), pointer :: omega_z
 
-     !> Work arrays.
+     !> Work array.
      type(field_t) :: temp1
+     !> Work array.
      type(field_t) :: temp2
 
      contains
-      !> Constructor from json.
+      !> Constructor from json, wrapping the actual constructor.
       procedure, pass(this) :: init => vorticity_init_from_json
       !> Actual constructor.
       procedure, pass(this) :: init_from_attributes => &
         vorticity_init_from_attributes
       !> Destructor.
       procedure, pass(this) :: free => vorticity_free
-      !> Compute the vorticity field
-     procedure, pass(this) :: compute => vorticity_compute
+      !> Compute the vorticity field.
+      procedure, pass(this) :: compute_ => vorticity_compute
   end type vorticity_t
   
   contains
@@ -83,7 +84,7 @@ module vorticity
   subroutine vorticity_init_from_json(this, json, case)
        class(vorticity_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       class(case_t), intent(inout), target ::case 
+       class(case_t), intent(inout), target :: case 
        
        call this%init_base(json, case)
 
@@ -111,15 +112,16 @@ module vorticity
        this%omega_y => neko_field_registry%get_field_by_name("omega_y")
        this%omega_z => neko_field_registry%get_field_by_name("omega_z")
 
-       call field_init(this%temp1, this%u%dof)
-       call field_init(this%temp2, this%u%dof)
+       call this%temp1%init(this%u%dof)
+       call this%temp2%init(this%u%dof)
   end subroutine vorticity_init_from_attributes
 
   !> Destructor.
   subroutine vorticity_free(this)
        class(vorticity_t), intent(inout) :: this
-       call field_free(this%temp1)
-       call field_free(this%temp2)
+       call this%free_base()
+       call this%temp1%free()
+       call this%temp2%free()
   end subroutine vorticity_free
 
   !> Compute the vorticity field.

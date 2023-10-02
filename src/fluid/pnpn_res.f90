@@ -36,41 +36,40 @@ module pnpn_residual
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
-  use source, only : source_t
   use facet_normal, only : facet_normal_t
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
   use scratch_registry, only : scratch_registry_t
   implicit none
+  private
   
   !> Abstract type to compute pressure residual
-  type, abstract :: pnpn_prs_res_t
+  type, public, abstract :: pnpn_prs_res_t
    contains
      procedure(prs_res), nopass, deferred :: compute     
   end type pnpn_prs_res_t
 
   !> Abstract type to compute velocity residual
-  type, abstract :: pnpn_vel_res_t
+  type, public, abstract :: pnpn_vel_res_t
    contains
      procedure(vel_res), nopass, deferred :: compute
   end type pnpn_vel_res_t
-
     
   abstract interface
-     subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_Xh, c_xh, gs_Xh, &
-          bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
+     subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
+          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
        import field_t
        import Ax_t
        import gs_t
        import facet_normal_t
-       import source_t
        import coef_t
        import rp
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_e, v_e, w_e !< time-extrapolated velocity
        type(field_t), intent(inout) :: p_res
-       type(source_t), intent(inout) :: f_Xh !< momentum source terms
+       !> Momentum source terms
+       type(field_t), intent(inout) :: f_x, f_y, f_z
        type(coef_t), intent(inout) :: c_Xh
        type(gs_t), intent(inout) :: gs_Xh
        type(facet_normal_t), intent(inout) :: bc_prs_surface
@@ -85,12 +84,11 @@ module pnpn_residual
 
   abstract interface
      subroutine vel_res(Ax, u, v, w, u_res, v_res, w_res, &
-          p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+          p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
        import facet_normal_t
-       import source_t
        import space_t              
        import coef_t
        import mesh_t
@@ -100,7 +98,7 @@ module pnpn_residual
        type(space_t), intent(inout) :: Xh    
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_res, v_res, w_res
-       type(source_t), intent(inout) :: f_Xh
+       type(field_t), intent(inout) :: f_x, f_y, f_z
        type(coef_t), intent(inout) :: c_Xh
        real(kind=rp), intent(in) :: Re
        real(kind=rp), intent(in) :: rho

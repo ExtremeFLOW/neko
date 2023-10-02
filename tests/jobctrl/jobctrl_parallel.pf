@@ -4,6 +4,8 @@ module jobctrl_parallel
   use num_types
   use mesh
   use jobctrl
+  use signal
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
   
 contains

@@ -60,26 +60,30 @@
 !> Krylov preconditioner
 module hsmg
   use neko_config
+  use num_types
   use math
-  use utils
-  use precon
-  use ax_product
-  use ax_helm_fctry  
-  use krylov_fctry
+  use utils, only : neko_error
+  use precon, only : pc_t
+  use ax_product, only : ax_t
+  use ax_helm_fctry, only : ax_helm_factory
   use gather_scatter
-  use fast3d
   use interpolation
   use bc
-  use dirichlet
-  use fdm
-  use schwarz
-  use tensor
-  use jacobi
-  use sx_jacobi
-  use device_jacobi
+  use dirichlet, only : dirichlet_t
+  use schwarz, only : schwarz_t
+  use jacobi, only : jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use device_jacobi, only : device_jacobi_t
   use device
   use device_math
   use profiler
+  use space
+  use dofmap, only : dofmap_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use krylov, only : ksp_t, ksp_monitor_t
+  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   !$ use omp_lib
   implicit none
   private
@@ -160,23 +164,24 @@ contains
 
     
     ! Compute all elements as if they are deformed
-    call mesh_all_deformed(msh)
+    call msh%all_deformed()
 
     n = dof%size()
-    call field_init(this%e, dof,'work array')
-    call field_init(this%wf, dof,'work 2')
+    call this%e%init(dof, 'work array')
+    call this%wf%init(dof, 'work 2')
     
-    call space_init(this%Xh_crs, GLL, lx_crs, lx_crs, lx_crs)
+    call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
     this%dm_crs = dofmap_t(msh, this%Xh_crs) 
-    call gs_init(this%gs_crs, this%dm_crs)
-    call field_init(this%e_crs, this%dm_crs,'work crs')
-    call coef_init(this%c_crs, this%gs_crs)
+    call this%gs_crs%init(this%dm_crs)
+    call this%e_crs%init(this%dm_crs, 'work crs')
+    call this%c_crs%init(this%gs_crs)
     
-    call space_init(this%Xh_mg, GLL, lx_mid, lx_mid, lx_mid)
+    call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
     this%dm_mg = dofmap_t(msh, this%Xh_mg) 
-    call gs_init(this%gs_mg, this%dm_mg)
-    call field_init(this%e_mg, this%dm_mg,'work midl')
-    call coef_init(this%c_mg, this%gs_mg)
+    call this%gs_mg%init(this%dm_mg)
+    call this%e_mg%init(this%dm_mg, 'work midl')
+    call this%c_mg%init(this%gs_mg)
+
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax)
 
@@ -318,13 +323,15 @@ contains
 
     call this%schwarz%free()
     call this%schwarz_mg%free()
-    call coef_free(this%c_crs)
-    call coef_free(this%c_mg)
-    call field_free(this%e)
-    call field_free(this%e_mg)
-    call field_free(this%e_crs)
-    call gs_free(this%gs_crs)
-    call gs_free(this%gs_mg)
+
+    call this%c_crs%free()
+    call this%c_mg%free()
+    call this%e%free()
+    call this%e_mg%free()
+    call this%e_crs%free()
+
+    call this%gs_crs%free()
+    call this%gs_mg%free()
     call this%interp_mid_crs%free()
     call this%interp_fine_mid%free()
 
@@ -370,7 +377,7 @@ contains
        !Restrict to middle level
        call this%interp_fine_mid%map(this%e%x, this%r, &
                                      this%msh%nelv, this%grids(2)%Xh)
-       call gs_op(this%grids(2)%gs_h, this%e%x, &
+       call this%grids(2)%gs_h%op(this%e%x, &
                   this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_copy(this%r_d, r_d, n)
@@ -401,7 +408,7 @@ contains
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w) 
        end if
        if (nthrds .eq. 1 .or. thrdid .eq. 1) then 
-          call gs_op(this%grids(1)%gs_h, this%wf%x, &
+          call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
@@ -426,8 +433,8 @@ contains
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
                                      this%msh%nelv, this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
-       call gs_op(this%grids(3)%gs_h, z, &
-                  this%grids(3)%dof%size(), GS_OP_ADD, this%gs_event)
+       call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), &
+                                     GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%size())
     else
@@ -442,8 +449,7 @@ contains
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w, this%r, &
                                      this%msh%nelv, this%grids(2)%Xh)
-       call gs_op(this%grids(2)%gs_h, this%w, &
-                  this%grids(2)%dof%size(), GS_OP_ADD)
+       call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)  
        call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
@@ -451,8 +457,7 @@ contains
        call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
        !Crs solve
 
-       call gs_op(this%grids(1)%gs_h, this%r, &
-                         this%grids(1)%dof%size(), GS_OP_ADD)
+       call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
        call profiler_start_region('HSMG coarse-solve')
@@ -473,8 +478,7 @@ contains
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
                                      this%msh%nelv, this%grids(3)%Xh)
        call add2(z, this%w, this%grids(3)%dof%size())
-       call gs_op(this%grids(3)%gs_h, z, &
-                  this%grids(3)%dof%size(), GS_OP_ADD)
+       call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), GS_OP_ADD)
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if

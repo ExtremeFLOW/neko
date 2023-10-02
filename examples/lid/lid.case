@@ -36,6 +36,14 @@
     },
     "output_control": "simulationtime",
     "output_value": 5
-  }
+  },
+  "simulation_components": 
+  [
+    {
+      "type": "vorticity",
+      "compute_control": "tsteps",
+      "compute_value": 50
+    }
+  ]
   }
 }

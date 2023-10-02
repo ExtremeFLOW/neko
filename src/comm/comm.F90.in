@@ -5,6 +5,13 @@ module comm
   !$ use omp_lib
   implicit none
   
+  interface
+     subroutine neko_comm_wrapper_init(fcomm) &
+          bind(c, name='neko_comm_wrapper_init')
+       integer, value :: fcomm
+     end subroutine neko_comm_wrapper_init
+  end interface
+  
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
 
@@ -44,33 +51,43 @@ contains
     !$omp end parallel
     
     if (.not.initialized) then       
-
        if (nthrds .gt. 1) then
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
-             if (provided .ne. MPI_THREAD_MULTIPLE) then
+          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
+          if (provided .ne. MPI_THREAD_MULTIPLE) then
+             ! MPI_THREAD_MULTIPLE is required for mt. device backends
+             if (NEKO_BCKND_DEVICE .eq. 1) then 
                 call neko_error('Invalid thread support provided by MPI')
-             end if
-          else
-             call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierr)
-             if (provided .ne. MPI_THREAD_SERIALIZED) then
-                call neko_error('Invalid thread support provided by MPI')
+             else
+                call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierr)
+                if (provided .ne. MPI_THREAD_SERIALIZED) then
+                   call neko_error('Invalid thread support provided by MPI')
+                end if
              end if
           end if
        else
           call MPI_Init(ierr)
        end if
-
     end if
 
 #ifndef HAVE_MPI_PARAM_DTYPE
     MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
 #endif
+    
 
+#ifdef HAVE_ADIOS2
+    ! We split the communicator it to work asynchronously (MPMD)
+    call MPI_Comm_rank(MPI_COMM_WORLD, pe_rank, ierr)
+    call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_COMM, ierr)
+#else    
+    ! Original version duplicates the communicator:
     call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
+#endif
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
+
+    ! Setup C/C++ wrapper
+    call neko_comm_wrapper_init(NEKO_COMM%mpi_val)
 
   end subroutine comm_init
 

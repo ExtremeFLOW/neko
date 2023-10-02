@@ -14,7 +14,11 @@ Technology.
 
 \tableofcontents
 
+\subpage installation
+
 \subpage case-file
+
+\subpage simcomps
 
 \subpage accelerators
 

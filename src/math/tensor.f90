@@ -63,10 +63,11 @@ module tensor
   use tensor_cpu
   use tensor_sx
   use tensor_device
-  use num_types
+  use num_types, only : rp
   use mxm_wrapper
   use neko_config
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -78,9 +79,9 @@ module tensor
      module procedure triple_tensor_product_scalar, triple_tensor_product_vector
   end interface triple_tensor_product
 
-public tensr3, transpose, trsp, trsp1, &
+public :: tensr3, transpose, trsp, trsp1, &
      tnsr2d_el, tnsr3d_el, tnsr3d, tnsr1_3d, addtnsr, &
-     triple_tensor_product
+     triple_tensor_product, tnsr3d_el_list
 
 
 contains
@@ -181,6 +182,41 @@ contains
     
   end subroutine tnsr3d_el
 
+  !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$
+  !! performed on a subset of the  elements.
+  subroutine tnsr3d_el_list(v, nv, u, nu, A, Bt, Ct, el_list, n_pt)
+    integer, intent(in) :: nv, nu, n_pt, el_list(n_pt)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, n_pt), u(nu*nu*nu,1)
+    real(kind=rp), intent(inout) :: A(nv,nu,n_pt),Bt(nu, nv,n_pt),Ct(nu,nv,n_pt)
+    type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, el_list_d
+    integer :: i
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       do i = 1, n_pt
+          call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+       end do
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       do i = 1, n_pt
+          call tnsr3d_el_xsmm(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+       end do
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       v_d = device_get_ptr(v)
+       u_d = device_get_ptr(u)
+       A_d = device_get_ptr(A)
+       Bt_d = device_get_ptr(Bt)
+       Ct_d = device_get_ptr(Ct)
+       el_list_d = device_get_ptr(el_list)
+       call tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, el_list_d, n_pt)
+    else
+       do i = 1, n_pt
+          !       Note the use of el_list(i) + 1, because of the gslib C interface
+          call tnsr3d_el_cpu(v(1,i), nv, u(1,el_list(i)+1), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
+       end do
+    end if
+    
+  end subroutine tnsr3d_el_list
+
+
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
   !!`nelv` elements.
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
@@ -269,7 +305,7 @@ contains
     ! Artificially reshape v into a 1-dimensional array
     ! since this is what tnsr3d_el needs as input argument
     real(kind=rp) :: vv(1)
-    vv(1) = v
+    ! vv(1) = v
 
     call tnsr3d_el(vv,1,u,nu,Hr,Hs,Ht)
 

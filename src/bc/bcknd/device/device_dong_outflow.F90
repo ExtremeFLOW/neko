@@ -35,6 +35,7 @@ module device_dong_outflow
   use utils
   use, intrinsic :: iso_c_binding
   implicit none
+  private
 
 #ifdef HAVE_HIP
   interface
@@ -76,6 +77,8 @@ module device_dong_outflow
      end subroutine opencl_dong_outflow_apply_scalar
   end interface
 #endif
+
+  public :: device_dong_outflow_apply_scalar
 
 contains
 

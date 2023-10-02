@@ -8,7 +8,7 @@ module user
   implicit none
 
   ! Global user variables
-  type(field_t) :: om1, om2, om3, w1, w2
+  type(field_t) :: w1
 
   type(file_t) output_file ! output file
   type(vector_t) :: vec_out    ! will store our output data
@@ -39,8 +39,8 @@ module user
     integer, intent(in) :: iy
     integer, intent(in) :: iz
     integer, intent(in) :: ie
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
 
     real(kind=rp) lsmoothing
     lsmoothing = 0.05_rp    ! length scale of smoothing at the edges
@@ -83,11 +83,7 @@ module user
     call vec_out%init(2) ! Initialize our vector with 2 elements (Ekin, enst)
 
     ! initialize work arrays for postprocessing
-    call field_init(om1, u%dof, 'omega1')
-    call field_init(om2, u%dof, 'omega2')
-    call field_init(om3, u%dof, 'omega3')
-    call field_init(w1, u%dof, 'work1')
-    call field_init(w2, u%dof, 'work1')
+    call w1%init(u%dof, 'work1')
 
     ! call usercheck also for tstep=0
     tstep = 0
@@ -105,14 +101,17 @@ module user
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
+    type(field_t), pointer :: om1, om2, om3
     integer :: ntot, i
     real(kind=rp) :: e1, e2
 
     if (mod(tstep,50).ne.0) return
 
+    om1 => neko_field_registry%get_field("omega_x")
+    om2 => neko_field_registry%get_field("omega_y")
+    om3 => neko_field_registry%get_field("omega_z")
+    
     ntot = u%dof%size()
-
-    call curl(om1, om2, om3, u, v, w, w1, w2, coef)
 
     call col3(w1%x,u%x,u%x,ntot)
     call addcol3(w1%x,v%x,v%x,ntot)
@@ -156,11 +155,7 @@ module user
     type(json_file), intent(inout) :: params
 
     ! Deallocate the fields
-    call field_free(om1)
-    call field_free(om2)
-    call field_free(om3)
-    call field_free(w1)
-    call field_free(w2)
+    call w1%free()
 
     ! Deallocate output file and vector
     call file_free(output_file)

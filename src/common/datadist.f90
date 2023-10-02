@@ -32,7 +32,7 @@
 !
 !> Defines practical data distributions
 module datadist
-  use mpi_f08
+  use mpi_f08, only : MPI_Comm
   implicit none
   private
 

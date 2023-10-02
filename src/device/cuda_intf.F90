@@ -32,8 +32,9 @@
 !
 !> Fortran CUDA interface
 module cuda_intf
-  use utils
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
+  !$ use omp_lib
   implicit none
 
 #ifdef HAVE_CUDA
@@ -253,11 +254,50 @@ module cuda_intf
        type(c_ptr), value :: event
      end function cudaEventSynchronize
   end interface
+
+  interface
+     integer (c_int) function cudaGetDevice(device) &
+          bind(c, name='cudaGetDevice')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: device
+     end function cudaGetDevice
+  end interface
+
+  interface
+     integer (c_int) function cudaSetDevice(device) &
+          bind(c, name='cudaSetDevice')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: device
+     end function cudaSetDevice
+  end interface
   
 contains
 
   subroutine cuda_init
+    integer(c_int) :: device_id
+    integer :: nthrds = 1
 
+    !$omp parallel
+    !$omp master
+    !$ nthrds = omp_get_num_threads()
+    !$omp end master
+    !$omp end parallel
+
+    ! Ensure that all threads are assigned to the same device
+    if (nthrds .gt. 1) then
+       if (cudaGetDevice(device_id) .ne. cudaSuccess) then
+          call neko_error('Error retrieving device id')
+       end if
+
+       !$omp parallel
+       if (cudaSetDevice(device_id) .ne. cudaSuccess) then
+          call neko_error('Error setting device id')
+       end if
+       !$omp end parallel
+    end if
+    
     if (cudaDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
          .ne. cudaSuccess) then
        call neko_error('Error retrieving stream priority range')       
