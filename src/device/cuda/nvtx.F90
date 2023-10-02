@@ -19,7 +19,7 @@ module nvtx
      end subroutine nvtxRangePop
   end interface nvtxRangePop
 
-  public : nvtxStartRange, nvtxRangePushA, nvtxRangePop
+  public :: nvtxStartRange, nvtxRangePushA, nvtxRangePop
   
 contains
   
