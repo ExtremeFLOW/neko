@@ -232,7 +232,8 @@ neko_fortran_SOURCES = \
 	source_terms/source_term_factory.f90\
 	neko.f90
 
-neko_c_SOURCES = common/sighdl.c\
+neko_c_SOURCES = comm/comm_wrapper.c\
+		 common/sighdl.c\
 		 common/cpuid.c\
                  gs/bcknd/device/device_mpi.c\
                  math/bcknd/device/device_mpi_reduce.c
@@ -506,6 +507,7 @@ EXTRA_DIST = \
 	device/opencl/check.h\
 	device/hip/check.h\
 	device/cuda/check.h\
+	comm/comm.h\
 	common/neko_log.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')

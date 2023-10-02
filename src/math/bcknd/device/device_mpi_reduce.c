@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
+#include <comm/comm.h>
 
 #include "device_mpi_op.h"
 
@@ -47,9 +48,9 @@ void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes, int op)
 
   if (nbytes == sizeof(float)) {
     if (op == DEVICE_MPI_SUM)
-      MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_SUM, NEKO_COMM);
     else if (op == DEVICE_MPI_MAX)
-      MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+      MPI_Allreduce(buf_d, buf, count, MPI_FLOAT, MPI_MAX, NEKO_COMM);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
       exit(1);
@@ -57,9 +58,9 @@ void device_mpi_allreduce(void *buf_d, void *buf, int count, int nbytes, int op)
   }
   else if (nbytes == sizeof(double)) {
     if (op == DEVICE_MPI_SUM)
-      MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_SUM, NEKO_COMM);
     else if (op == DEVICE_MPI_MAX)
-      MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+      MPI_Allreduce(buf_d, buf, count, MPI_DOUBLE, MPI_MAX, NEKO_COMM);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
       exit(1);
@@ -76,10 +77,10 @@ void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes, int op) {
   if (nbytes == sizeof(float)) {
     if (op == DEVICE_MPI_SUM)
       MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
-                    MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+                    MPI_FLOAT, MPI_SUM, NEKO_COMM);
     else if (op == DEVICE_MPI_MAX)
       MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
-                    MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+                    MPI_FLOAT, MPI_MAX, NEKO_COMM);
     else {
       fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
       exit(1);
@@ -88,10 +89,10 @@ void device_mpi_allreduce_inplace(void *buf_d, int count, int nbytes, int op) {
   else if (nbytes == sizeof(double)) {
     if (op == DEVICE_MPI_SUM)
       MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
-                    MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                    MPI_DOUBLE, MPI_SUM, NEKO_COMM);
     else if (op == DEVICE_MPI_MAX)
       MPI_Allreduce(MPI_IN_PLACE, buf_d, count,
-                    MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+                    MPI_DOUBLE, MPI_MAX, NEKO_COMM);
   }
   else {
     fprintf(stderr, __FILE__ ": Invalid data type)\n");

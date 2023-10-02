@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2023, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@
 /**
  * C wrapper for MPI calls, since passing device pointers does not work in the
  * Fortran MPI interface.
- * @note We use @c MPI_COMM_WORLD which @e should be equal to @c NEKO_COMM.
  */
 
 #include <stdlib.h>
@@ -43,6 +42,8 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
+#include <comm/comm.h>
 
 void device_mpi_init_reqs(int n, void **reqs_out) {
   MPI_Request *reqs = malloc(n * sizeof(MPI_Request));
@@ -62,7 +63,7 @@ void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
 #else
   int tid = 0;
 #endif
-  MPI_Isend(buf_d+offset, nbytes, MPI_BYTE, rank, tid, MPI_COMM_WORLD, &reqs[i-1]);
+  MPI_Isend(buf_d+offset, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
 }
 
 void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
@@ -74,7 +75,7 @@ void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
   int tid = 0;
 #endif
 
-  MPI_Irecv(buf_d+offset, nbytes, MPI_BYTE, rank, tid, MPI_COMM_WORLD, &reqs[i-1]);
+  MPI_Irecv(buf_d+offset, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
 }
 
 int device_mpi_test(void *vreqs, int i) {
