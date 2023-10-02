@@ -689,7 +689,7 @@ contains
   subroutine list_final3(list)
     type(field_list_t), intent(inout) :: list
     !> Deallocate field lists
-    deallocate(list%fields)
+    if (allocated(list%fields)) deallocate(list%fields)
   end subroutine list_final3
 
 
