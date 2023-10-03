@@ -1,62 +1,71 @@
 Making install in src
 make[1]: Entering directory '/scratch/ronith/Neko_1/neko/src'
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o sem/coef.o sem/coef.f90
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o field/mean_field.o field/mean_field.f90
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o math/fdm.o math/fdm.f90
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o common/checkpoint.o common/checkpoint.f90
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o io/rea_file.o io/rea_file.f90
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o bc/inflow.o bc/inflow.f90
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o bc/wall.o bc/wall.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o mesh/curve.o mesh/curve.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o common/distdata.o common/distdata.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o sem/space.o sem/space.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o math/tensor.o math/tensor.f90
+mpif90 -DPACKAGE_NAME=\"neko\" -DPACKAGE_TARNAME=\"neko\" -DPACKAGE_VERSION=\"0.6.99\" -DPACKAGE_STRING=\"neko\ 0.6.99\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"neko\" -DVERSION=\"0.6.99\" -DHAVE_DERIVED_TYPE_IO=1 -DHAVE_REAL128=1 -DHAVE_MPI_F08=1 -DHAVE_MPI_PARAM_DTYPE=1 -DHAVE_STDIO_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_UNISTD_H=1 -DSTDC_HEADERS=1 -DHAVE_CPUID_H=1 -DHAVE_BLAS=1 -DHAVE_LAPACK=1 -I.     -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o common/profiler.o common/profiler.F90
+mpif90 -DPACKAGE_NAME=\"neko\" -DPACKAGE_TARNAME=\"neko\" -DPACKAGE_VERSION=\"0.6.99\" -DPACKAGE_STRING=\"neko\ 0.6.99\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"neko\" -DVERSION=\"0.6.99\" -DHAVE_DERIVED_TYPE_IO=1 -DHAVE_REAL128=1 -DHAVE_MPI_F08=1 -DHAVE_MPI_PARAM_DTYPE=1 -DHAVE_STDIO_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_UNISTD_H=1 -DSTDC_HEADERS=1 -DHAVE_CPUID_H=1 -DHAVE_BLAS=1 -DHAVE_LAPACK=1 -I.     -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o gs/bcknd/device/gs_device_mpi.o gs/bcknd/device/gs_device_mpi.F90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o gs/gs_mpi.o gs/gs_mpi.f90
+mpif90 -DPACKAGE_NAME=\"neko\" -DPACKAGE_TARNAME=\"neko\" -DPACKAGE_VERSION=\"0.6.99\" -DPACKAGE_STRING=\"neko\ 0.6.99\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"neko\" -DVERSION=\"0.6.99\" -DHAVE_DERIVED_TYPE_IO=1 -DHAVE_REAL128=1 -DHAVE_MPI_F08=1 -DHAVE_MPI_PARAM_DTYPE=1 -DHAVE_STDIO_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_UNISTD_H=1 -DSTDC_HEADERS=1 -DHAVE_CPUID_H=1 -DHAVE_BLAS=1 -DHAVE_LAPACK=1 -I.     -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o gs/bcknd/device/gs_device.o gs/bcknd/device/gs_device.F90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o mesh/tri_mesh.o mesh/tri_mesh.f90
+mpif90 -DPACKAGE_NAME=\"neko\" -DPACKAGE_TARNAME=\"neko\" -DPACKAGE_VERSION=\"0.6.99\" -DPACKAGE_STRING=\"neko\ 0.6.99\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"neko\" -DVERSION=\"0.6.99\" -DHAVE_DERIVED_TYPE_IO=1 -DHAVE_REAL128=1 -DHAVE_MPI_F08=1 -DHAVE_MPI_PARAM_DTYPE=1 -DHAVE_STDIO_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_UNISTD_H=1 -DSTDC_HEADERS=1 -DHAVE_CPUID_H=1 -DHAVE_BLAS=1 -DHAVE_LAPACK=1 -I.     -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o math/bcknd/device/fdm_device.o math/bcknd/device/fdm_device.F90
+mpif90 -DPACKAGE_NAME=\"neko\" -DPACKAGE_TARNAME=\"neko\" -DPACKAGE_VERSION=\"0.6.99\" -DPACKAGE_STRING=\"neko\ 0.6.99\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"neko\" -DVERSION=\"0.6.99\" -DHAVE_DERIVED_TYPE_IO=1 -DHAVE_REAL128=1 -DHAVE_MPI_F08=1 -DHAVE_MPI_PARAM_DTYPE=1 -DHAVE_STDIO_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_UNISTD_H=1 -DSTDC_HEADERS=1 -DHAVE_CPUID_H=1 -DHAVE_BLAS=1 -DHAVE_LAPACK=1 -I.     -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o math/bcknd/device/device_schwarz.o math/bcknd/device/device_schwarz.F90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o math/vector.o math/vector.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o math/matrix.o math/matrix.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o time_schemes/time_scheme_controller.o time_schemes/time_scheme_controller.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o krylov/bcknd/device/pc_identity_device.o krylov/bcknd/device/pc_identity_device.f90
 mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o bc/precursor_inflow.o bc/precursor_inflow.f90
-mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o common/rhs_maker.o common/rhs_maker.f90
-bc/precursor_inflow.f90:59:14:
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o io/stl_file.o io/stl_file.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o mesh/mesh.o mesh/mesh.f90
+bc/precursor_inflow.f90:61:14:
 
-   59 |      procedure, pass(this) :: init => precursor_inflow_init
+   61 |      procedure, pass(this) :: init => precursor_inflow_init
       |              1
-Error: Non-polymorphic passed-object dummy argument of ‘precursor_inflow_init’ at (1)
-bc/precursor_inflow.f90:445:14:
+Error: Argument mismatch for the overriding procedure ‘init’ at (1): Type mismatch in argument 'dof' (TYPE(inflow_t)/TYPE(dofmap_t))
+bc/precursor_inflow.f90:451:14:
 
-  445 |          facet = this%facet(i)
+  451 |          facet = this%facet(i)
       |              1
 Error: Symbol ‘facet’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:446:12:
+bc/precursor_inflow.f90:452:12:
 
-  446 |          idx = nonlinear_index(k, lx, lx, lx)
+  452 |          idx = nonlinear_index(k, lx, lx, lx)
       |            1
 Error: Symbol ‘idx’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:295:63:
+bc/precursor_inflow.f90:301:63:
 
-  295 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+  301 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
       |                                                               1
 Error: Symbol ‘nel_yz_simson’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:295:38:
+bc/precursor_inflow.f90:301:38:
 
-  295 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+  301 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
       |                                      1
 Error: Symbol ‘ny1_simson’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:295:49:
+bc/precursor_inflow.f90:301:49:
 
-  295 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+  301 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
       |                                                 1
 Error: Symbol ‘nz1_simson’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:404:36:
+bc/precursor_inflow.f90:410:36:
 
-  404 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
+  410 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
       |                                    1
 Error: Function ‘yz_map’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:405:36:
+bc/precursor_inflow.f90:411:36:
 
-  405 |          u_in_loc(2,i) = u_in_glob2(yz_map(i))
+  411 |          u_in_loc(2,i) = u_in_glob2(yz_map(i))
       |                                    1
 Error: Function ‘yz_map’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:404:42:
+bc/precursor_inflow.f90:410:42:
 
-  404 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
+  410 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
       |                                          1
 Error: Symbol ‘yz_map’ at (1) has no IMPLICIT type
-bc/precursor_inflow.f90:447:21:
+bc/precursor_inflow.f90:453:21:
 
-  447 |          select case(facet)
+  453 |          select case(facet)
       |                     1
 Error: Argument of SELECT statement at (1) cannot be UNKNOWN
 make[1]: *** [Makefile:2819: bc/precursor_inflow.o] Error 1

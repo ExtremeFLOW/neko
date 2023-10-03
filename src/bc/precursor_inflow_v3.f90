@@ -39,8 +39,7 @@ module precursor_inflow
   use device
   use device_inhom_dirichlet
   use comm, only: pe_rank
-  use dofmap, only : dofmap_t
-  !  use flow_profile
+!  use flow_profile
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -50,12 +49,8 @@ module precursor_inflow
      type(coef_t), pointer :: c => null()
      !> Map between GLL points on SIMSON inflow plane to Neko inflow plane
      integer, allocatable :: yz_map(:) 
-     !integer, dimension(:) :: idx(4)!, facet
-     !integer :: nel_yz_simson
-     integer :: ny1_simson, nz1_simson, nely_simson, nelz_simson, nel_yz_simson
-
      !> Map of degrees of freedom
-!     type(dofmap_t), pointer :: dof
+     type(dofmap_t), pointer :: dof
 !     real(kind=rp) :: delta
 !     procedure(blasius_profile), nopass, pointer :: bla => null()
      type(c_ptr), private :: blax_d = C_NULL_PTR
@@ -82,7 +77,6 @@ subroutine precursor_inflow_init(this, dof)
 !   type(precursor_inflow_t), intent(inout) :: this
    class(precursor_inflow_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dof
-!    type(precursor_inflow_t), target, intent(in) :: dof
 !    integer, intent(in) :: n
 !    real(kind=rp), intent(inout),  dimension(n) :: x
 !    real(kind=rp), intent(inout),  dimension(n) :: y
@@ -99,7 +93,7 @@ subroutine precursor_inflow_init(this, dof)
     real(kind=rp), allocatable :: y_simson(:,:,:), z_simson(:,:,:)
     real(kind=rp) :: y_min, y_max, z_min, z_max  
     real(kind=rp) :: y_coord, z_coord
-    !integer :: ny1_simson, nz1_simson, nely_simson, nelz_simson, nel_yz_simson
+    integer :: ny1_simson, nz1_simson, nely_simson, nelz_simson, nel_yz_simson
     integer :: el_simson
     real(kind=rp) :: y_min_el_simson, y_max_el_simson, z_min_el_simson, z_max_el_simson
     real(kind=rp), allocatable :: flat_y(:), flat_z(:)
@@ -107,10 +101,7 @@ subroutine precursor_inflow_init(this, dof)
 
     associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
          nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-         lx => this%c%Xh%lx, &
-         ny1_simson => this%ny1_simson, nz1_simson => this%nz1_simson, &
-         nely_simson => this%nely_simson, nelz_simson => this%nelz_simson, &
-         nel_yz_simson => this%nel_yz_simson)
+         lx => this%c%Xh%lx)
 
 ! Setting up the map at tstep==1
    !   if (tstep==1) then
@@ -264,7 +255,7 @@ subroutine precursor_inflow_init(this, dof)
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, facet, idx(4)!, facet
+    integer :: i, m, k!, idx(4), facet
 !    integer, allocatable :: yz_map(:)
     real(kind=rp), allocatable :: u_in_glob1(:), u_in_glob2(:)
     real(kind=rp), allocatable :: u_in_loc(:,:)
@@ -306,8 +297,8 @@ subroutine precursor_inflow_init(this, dof)
 !      y_simson(1:ny1_simson,1:nz1_simson,1:nely_simson*nelz_simson) = 0.0_rp
 !      z_simson(1:ny1_simson,1:nz1_simson,1:nely_simson*nelz_simson) = 0.0_rp
       ! Global/Whole inflow velocity plane
-      allocate(u_in_glob1(1:this%ny1_simson*this%nz1_simson*this%nel_yz_simson))
-      allocate(u_in_glob2(1:this%ny1_simson*this%nz1_simson*this%nel_yz_simson))
+      allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+      allocate(u_in_glob2(1:ny1_simson*nz1_simson*nel_yz_simson))
 !      ! Local/rank-specific inflow velocity plane
 !      allocate(u_in_loc(1:2,1:m))
       u_in_glob1(:) = 0.0_rp
@@ -415,8 +406,8 @@ subroutine precursor_inflow_init(this, dof)
          !      do j = 1, ny1_simson
                   ! Use the flattened 1D index of the 3D array y_simson(1:ny1_simson, 1:nz1_simson,1_nel_yz_simson) as map
         !write(*,*) 'i=',i, '/',m,', ' ,yz_map(i),'/',ny1_simson*nz1_simson*nel_yz_simson
-         u_in_loc(1,i) = u_in_glob1(this%yz_map(i))
-         u_in_loc(2,i) = u_in_glob2(this%yz_map(i))
+         u_in_loc(1,i) = u_in_glob1(yz_map(i))
+         u_in_loc(2,i) = u_in_glob2(yz_map(i))
          !      end do ! j =1, ny1_simson
          !   end do ! k =1, nz1_simson   
          !end do ! el_simson = 1, nel_yz_simson
@@ -448,8 +439,8 @@ subroutine precursor_inflow_init(this, dof)
 
   !   end if !if (tstep==1) then
 
-      write(*,*) 'size of yz_map:',size(this%yz_map)
-      write(*,*) 'shape of yz_map:',shape(this%yz_map)
+      write(*,*) 'size of yz_map:',size(yz_map)
+      write(*,*) 'shape of yz_map:',shape(yz_map)
       write(*,*) 'size of u_in_loc:',size(u_in_loc)
       write(*,*) 'shape of u_in_loc:',shape(u_in_loc)
 
@@ -461,7 +452,7 @@ subroutine precursor_inflow_init(this, dof)
          select case(facet)
          case(1,2)
             write(*,*) 'tstep=',tstep,', i=',i,', k=',k
-            x(k) = 2.0_rp !u_in_loc(1,i) !2.0_rp !this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
+            x(k) = u_in_loc(1,i) !2.0_rp !this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
 !                 this%delta, this%x(1))
             y(k) = 0.0_rp 
             z(k) = 0.0_rp

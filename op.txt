@@ -1,51 +1,83 @@
-./contrib/prepart/prepart.f90:88:     idx = idx_map(msh%wall%facet_el(i)%x(2))
-./contrib/prepart/prepart.f90:89:     call mesh_mark_wall_facet(new_msh, msh%wall%facet_el(i)%x(1), idx)
-./contrib/prepart/prepart.f90:93:     idx = idx_map(msh%inlet%facet_el(i)%x(2))
-./contrib/prepart/prepart.f90:94:     call mesh_mark_inlet_facet(new_msh, msh%inlet%facet_el(i)%x(1), idx)
-./contrib/prepart/prepart.f90:98:     idx = idx_map(msh%outlet%facet_el(i)%x(2))
-./contrib/prepart/prepart.f90:99:     call mesh_mark_outlet_facet(new_msh, msh%outlet%facet_el(i)%x(1), idx)
-./contrib/prepart/prepart.f90:103:     idx = idx_map(msh%sympln%facet_el(i)%x(2))
-./contrib/prepart/prepart.f90:104:     call mesh_mark_sympln_facet(new_msh, msh%sympln%facet_el(i)%x(1), idx)
-./contrib/prepart/prepart.f90:108:     idx = idx_map(msh%periodic%facet_el(i)%x(2))
-./contrib/prepart/prepart.f90:110:     call mesh_mark_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
-./contrib/prepart/prepart.f90:116:        idx = idx_map(msh%labeled_zones(j)%facet_el(i)%x(2))
-./contrib/prepart/prepart.f90:119:             msh%labeled_zones(j)%facet_el(i)%x(1), idx, label)
-./contrib/prepart/prepart.f90:124:     idx = idx_map(msh%periodic%facet_el(i)%x(2))
-./contrib/prepart/prepart.f90:126:     call mesh_apply_periodic_facet(new_msh, msh%periodic%facet_el(i)%x(1), idx, &
-./examples/cyl_boundary_layer/cyl_bl.f90:50:       el_and_facet = msh%labeled_zones(7)%facet_el(l)
-./examples/test_cyl_boundary_layer/old_cyl_bl.f90:50:       el_and_facet = msh%labeled_zones(7)%facet_el(l)
-./examples/test_cyl_boundary_layer/cyl_bl.f90:50:       el_and_facet = msh%labeled_zones(7)%facet_el(l)
-./examples/test_cyl_boundary_layer/plate_face.f90:84:       el_and_facet = msh%labeled_zones(1)%facet_el(l)
-./examples/test_cyl_boundary_layer/plate_face.f90:100:       el_and_facet = msh%labeled_zones(1)%facet_el(l)
-./examples/test_cyl_boundary_layer/plate_face.f90:135:       el_and_facet = msh%labeled_zones(7)%facet_el(l)
-./src/mesh/zone.f90:42:     type(tuple_i4_t), allocatable :: facet_el(:)
-./src/mesh/zone.f90:87:    if (allocated(z%facet_el)) then
-./src/mesh/zone.f90:88:       deallocate(z%facet_el)
-./src/mesh/zone.f90:107:       allocate(z%facet_el(z%scratch%size()))
-./src/mesh/zone.f90:111:          z%facet_el(i) = tp(i)
-./src/mesh/mesh.f90:1669:       e = m%periodic%facet_el(i)%x(2) 
-./src/mesh/mesh.f90:1670:       f = m%periodic%facet_el(i)%x(1)
-./src/mesh/mesh.f90:1678:       e = m%periodic%facet_el(i)%x(2) 
-./src/mesh/mesh.f90:1679:       f = m%periodic%facet_el(i)%x(1)
-./src/comm/redist.f90:384:          zone_el =  zp%facet_el(i)%x(2)
-./src/comm/redist.f90:385:          nmsh_zone%e = zp%facet_el(i)%x(2) + msh%offset_el
-./src/comm/redist.f90:386:          nmsh_zone%f = zp%facet_el(i)%x(1)
-./src/comm/redist.f90:395:          zone_el =  zp%facet_el(i)%x(2)
-./src/comm/redist.f90:396:          nmsh_zone%e = zp%facet_el(i)%x(2) + msh%offset_el
-./src/comm/redist.f90:397:          nmsh_zone%f = zp%facet_el(i)%x(1)
-./src/io/nmsh_file.f90:535:          nmsh_zone(j)%e = msh%wall%facet_el(i)%x(2) + msh%offset_el
-./src/io/nmsh_file.f90:536:          nmsh_zone(j)%f = msh%wall%facet_el(i)%x(1)
-./src/io/nmsh_file.f90:542:          nmsh_zone(j)%e = msh%inlet%facet_el(i)%x(2) + msh%offset_el
-./src/io/nmsh_file.f90:543:          nmsh_zone(j)%f = msh%inlet%facet_el(i)%x(1)
-./src/io/nmsh_file.f90:549:          nmsh_zone(j)%e = msh%outlet%facet_el(i)%x(2) + msh%offset_el
-./src/io/nmsh_file.f90:550:          nmsh_zone(j)%f = msh%outlet%facet_el(i)%x(1)
-./src/io/nmsh_file.f90:556:          nmsh_zone(j)%e = msh%sympln%facet_el(i)%x(2) + msh%offset_el
-./src/io/nmsh_file.f90:557:          nmsh_zone(j)%f = msh%sympln%facet_el(i)%x(1)
-./src/io/nmsh_file.f90:563:          nmsh_zone(j)%e = msh%periodic%facet_el(i)%x(2) + msh%offset_el
-./src/io/nmsh_file.f90:564:          nmsh_zone(j)%f = msh%periodic%facet_el(i)%x(1)
-./src/io/nmsh_file.f90:572:          nmsh_zone(j)%e = msh%outlet_normal%facet_el(i)%x(2) + msh%offset_el
-./src/io/nmsh_file.f90:573:          nmsh_zone(j)%f = msh%outlet_normal%facet_el(i)%x(1)
-./src/io/nmsh_file.f90:579:             nmsh_zone(j)%e = msh%labeled_zones(k)%facet_el(i)%x(2) + msh%offset_el
-./src/io/nmsh_file.f90:580:             nmsh_zone(j)%f = msh%labeled_zones(k)%facet_el(i)%x(1)
-./src/bc/bc.f90:266:       call this%marked_facet%push(bc_zone%facet_el(i))
-./src/bc/precursor_inflow_v1.f90:147:!       el_and_facet = msh%labeled_zones(1)%facet_el(l)
+Making install in src
+make[1]: Entering directory '/scratch/ronith/Neko_1/neko/src'
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o krylov/krylov_fctry.o krylov/krylov_fctry.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o io/chkp_output.o io/chkp_output.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o io/mean_flow_output.o io/mean_flow_output.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o io/fluid_stats_output.o io/fluid_stats_output.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o io/mean_sqr_flow_output.o io/mean_sqr_flow_output.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o common/sampler.o common/sampler.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o bc/precursor_inflow.o bc/precursor_inflow.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o scalar/scalar_aux.o scalar/scalar_aux.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o scalar/scalar_residual_fctry.o scalar/scalar_residual_fctry.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o fluid/fluid_aux.o fluid/fluid_aux.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o fluid/fluid_volflow.o fluid/fluid_volflow.f90
+mpif90  -I/scratch/ronith/json-fortran/pkg/json-fortran/include  -g -O2 -c -o fluid/bcknd/sx/pnpn_res_sx.o fluid/bcknd/sx/pnpn_res_sx.f90
+bc/precursor_inflow.f90:156:26:
+
+  156 |          y_coord = yc(idx(1), idx(2), idx(3), idx(4))
+      |                          1
+Error: Invalid form of array reference at (1)
+bc/precursor_inflow.f90:157:26:
+
+  157 |          z_coord = zc(idx(1), idx(2), idx(3), idx(4))
+      |                          1
+Error: Invalid form of array reference at (1)
+bc/precursor_inflow.f90:175:26:
+
+  175 |          y_coord = yc(idx(1), idx(2), idx(3), idx(4))
+      |                          1
+Error: Invalid form of array reference at (1)
+bc/precursor_inflow.f90:176:26:
+
+  176 |          z_coord = zc(idx(1), idx(2), idx(3), idx(4))
+      |                          1
+Error: Invalid form of array reference at (1)
+bc/precursor_inflow.f90:455:12:
+
+  455 |          idx = nonlinear_index(k, lx, lx, lx)
+      |            1
+Error: Symbol ‘idx’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:304:63:
+
+  304 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+      |                                                               1
+Error: Symbol ‘nel_yz_simson’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:304:38:
+
+  304 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+      |                                      1
+Error: Symbol ‘ny1_simson’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:304:49:
+
+  304 |       allocate(u_in_glob1(1:ny1_simson*nz1_simson*nel_yz_simson))
+      |                                                 1
+Error: Symbol ‘nz1_simson’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:413:36:
+
+  413 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
+      |                                    1
+Error: Function ‘yz_map’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:414:36:
+
+  414 |          u_in_loc(2,i) = u_in_glob2(yz_map(i))
+      |                                    1
+Error: Function ‘yz_map’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:413:42:
+
+  413 |          u_in_loc(1,i) = u_in_glob1(yz_map(i))
+      |                                          1
+Error: Symbol ‘yz_map’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:154:14:
+
+  154 |          facet = this%facet(i)
+      |              1
+Error: Symbol ‘facet’ at (1) has no IMPLICIT type
+bc/precursor_inflow.f90:155:12:
+
+  155 |          idx = nonlinear_index(k, lx, lx, lx)
+      |            1
+Error: Symbol ‘idx’ at (1) has no IMPLICIT type
+make[1]: *** [Makefile:2819: bc/precursor_inflow.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+make[1]: Leaving directory '/scratch/ronith/Neko_1/neko/src'
+make: *** [Makefile:707: install-recursive] Error 1
