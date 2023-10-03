@@ -228,6 +228,8 @@ contains
     !> Controller data
     real(kind=rp)     :: monitor_write_par
     character(len=:), allocatable  :: monitor_write_control
+    real(kind=rp)     :: monitor_nu_write_par
+    character(len=:), allocatable  :: monitor_nu_write_control
     real(kind=rp)     :: T_end
 
 
@@ -393,13 +395,23 @@ contains
                                      monitor_write_control)
     call json_get(params, 'case.monitor.calc_frequency', &
                                      monitor_write_par)    
+    call json_get(params, 'case.monitor_nu.output_control', &
+                                     monitor_nu_write_control)
+    call json_get(params, 'case.monitor_nu.calc_frequency', &
+                                     monitor_nu_write_par)    
     !!> Calculate relevant parameters and restart                     
-    allocate(controllers(1))
+    allocate(controllers(2))
     call controllers(1)%init(T_end, monitor_write_control, &
                              monitor_write_par)
+    call controllers(2)%init(T_end, monitor_nu_write_control, &
+                             monitor_nu_write_par)
     if (controllers(1)%nsteps .eq. 0) then
        controllers(1)%nexecutions = &
                int(t / controllers(1)%time_interval) + 1
+    end if
+    if (controllers(2)%nsteps .eq. 0) then
+       controllers(2)%nexecutions = &
+               int(t / controllers(2)%time_interval) + 1
     end if
     
     !> Initialize the spectral error indicator
@@ -515,7 +527,8 @@ contains
     call json_get(params, 'case.timestep', dt)
     call json_get(params, 'case.monitor.verify_bc', verify_bc)
 
-  if (controllers(1)%check(t, tstep, .false.)) then
+  if (controllers(1)%check(t, tstep, .false.) .or. &
+      controllers(2)%check(t, tstep, .false.)) then
 
     s => neko_field_registry%get_field('s')
     n = size(coef%B)
@@ -568,20 +581,22 @@ contains
     call average_from_weights(bot_wall_bar_dtdz, dtdz, &
                         work_field, mass_area_bot%x, bot_wall_area)
  
-    !> write variables to monitor
-    !! Integral quantities
-    if (pe_rank .eq. 0) then
-       open(10,file="nusselt.txt",position="append")
-       write(10,*) t,'', bar_uzt, '', top_wall_bar_dtdz, '', &
+    !> write variables to monitor 
+    if (controllers(2)%check(t, tstep, .false.)) then
+       !! Integral quantities
+       if (pe_rank .eq. 0) then
+          open(10,file="nusselt.txt",position="append")
+          write(10,*) t,'', bar_uzt, '', top_wall_bar_dtdz, '', &
                    bot_wall_bar_dtdz
-       close(10)
+          close(10)
+       end if
     end if
 
     !> Write the derivatives
     call device_memcpy(dtdx%x,dtdx%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdy%x,dtdy%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(dtdz%x,dtdz%x_d, n,DEVICE_TO_HOST)
-    call mf_dtdX%write(dtdX_l,t)
+    if (controllers(1)%check(t, tstep, .false.)) call mf_dtdX%write(dtdX_l,t)
 
 
     !> Calculate dissipations
@@ -595,7 +610,7 @@ contains
     !> Write the derivatives
     call device_memcpy(eps_t%x,eps_t%x_d, n,DEVICE_TO_HOST)
     call device_memcpy(eps_k%x,eps_k%x_d, n,DEVICE_TO_HOST)
-    call mf_eps%write(eps_l,t)
+    if (controllers(1)%check(t, tstep, .false.))  call mf_eps%write(eps_l,t)
 
 
 
@@ -615,7 +630,7 @@ contains
 
        !> perform IO               
        call device_memcpy(dtdn%x,dtdn%x_d, n,DEVICE_TO_HOST)
-       call mf_dtdn%write(dtdn,t)
+       if (controllers(1)%check(t, tstep, .false.))  call mf_dtdn%write(dtdn,t)
 
        !> get the heat flux averages this way. It should match
        call average_from_weights(heat_bot_wall, dtdn, &
@@ -628,21 +643,30 @@ contains
 
        heat_balance = heat_bot_wall + heat_top_wall + heat_side_wall
 
-       if (pe_rank .eq. 0) then
-          open(20,file="bc_heat_balance.txt",position="append")
-          write(20,*) t,'', heat_top_wall, '', heat_bot_wall, '', &
+
+       if (controllers(2)%check(t, tstep, .false.)) then
+          if (pe_rank .eq. 0) then
+             open(20,file="bc_heat_balance.txt",position="append")
+             write(20,*) t,'', heat_top_wall, '', heat_bot_wall, '', &
                       heat_side_wall, '', heat_balance, '', &
                       bar_div_dtdX
-          close(20)
+             close(20)
+          end if
        end if
 
     end if
 
     !> Get the spectral error indicators for the mesh
     call spectral_error_indicator%get_indicators(coef)
-    call spectral_error_indicator%write_as_field(t)
+    if (controllers(1)%check(t, tstep, .false.)) call spectral_error_indicator%write_as_field(t)
 
-  call controllers(1)%register_execution()
+    if (controllers(1)%check(t, tstep, .false.)) then
+      call controllers(1)%register_execution()
+    end if
+    if (controllers(2)%check(t, tstep, .false.)) then
+      call controllers(2)%register_execution()
+    end if
+
   end if
   end subroutine calculate_nusselt
 

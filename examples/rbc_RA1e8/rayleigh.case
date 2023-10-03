@@ -4,11 +4,11 @@
     "mesh_file": "cylinder.nmsh",
     "output_at_end": false,
     "output_boundary": true,
-    "end_time": 100,
+    "end_time": 200,
     "timestep": 2e-3,
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
-    "checkpoint_value": 10,
+    "checkpoint_value": 50,
     "job_timelimit": "11:45:00",
     "numerics": {
         "time_order": 3,
@@ -53,10 +53,21 @@
         "enabled": true,
         "Pr": 1.0
     },
+    "statistics": {
+        "enabled": true,
+        "start_time": 100,
+        "sampling_interval": 10,
+        "output_control": "simulationtime",
+        "output_value": 25	
+    },
     "monitor": {
         "output_control": "simulationtime",
-        "calc_frequency": 0.1,
+        "calc_frequency": 10,
         "verify_bc": true
+    },
+    "monitor_nu": {
+        "output_control": "simulationtime",
+        "calc_frequency": 0.5
     }
 }
 }
