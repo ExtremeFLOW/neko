@@ -70,6 +70,8 @@
         "calc_frequency": 0.1
     },
     "probes": {
+        "mesh_name" : "cylinder.nmsh",
+        "field_name": "mean_field0.fld",
         "points_file":  "probes.csv",
         "output_file":  "output.csv",
         "fields": ["v1","v2"],

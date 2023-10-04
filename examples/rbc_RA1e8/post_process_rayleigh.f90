@@ -1,5 +1,7 @@
 module field_file_interpolator
   use neko
+  use json_utils, only : json_get
+  use tensor, only : trsp
   implicit none
   private
 
@@ -7,6 +9,8 @@ module field_file_interpolator
   !! @details
   !! no details
   type, public :: field_file_interpolator_t
+     !> File names
+     character(len=:), allocatable  :: mesh_fname, field_fname
      !> Files 
      type(file_t) :: field_file, mesh_file
      !> Data read from files
@@ -17,10 +21,8 @@ module field_file_interpolator
      type(space_t) :: Xh
      type(mesh_t) :: msh
      type(gs_t) :: gs_h
-     !> Pointer for fields to add to the registry
-     type(field_t), pointer :: field_pointer
      !> List to point to the fields inside the file
-     type(vector_ptr_t), allocatable :: fields(:)
+     type(vector_ptr_t), allocatable :: fields_in_file(:)
      real(kind=rp) :: t
 
      !> Fields to be probed
@@ -44,126 +46,126 @@ module field_file_interpolator
      
      !> Initialize object.
      procedure, pass(this) :: init => initialize
-     !> Execute object.
-     procedure, pass(this) :: interpolate => interpolate_field
-     !> Destructor
-     procedure, pass(this) :: free => finalize
+     !!> Execute object.
+     !procedure, pass(this) :: interpolate => interpolate_field
+     !!> Destructor
+     !procedure, pass(this) :: free => finalize
 
   end type field_file_interpolator_t
 
 contains
 
   !> Constructor
-  !! @param u u velocity field
-  !! @param v v velocity field
-  !! @param w w velocity field
-  !! @param coef type with all geometrical variables
+  !! @param param parameter file
   subroutine initialize(this, params)
     class(field_file_interpolator_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
+    integer :: i,j,k,lx 
+    type(matrix_t) :: mat_coords
+
+    !> Read from case file
+    call params%info('case.probes.fields', n_children=this%n_fields)
+    call json_get(params, 'case.probes.fields', this%which_fields) 
+
+
+    call json_get(params, 'case.probes.mesh_name', &
+         this%mesh_fname)
+    call json_get(params, 'case.probes.field_name', &
+         this%field_fname)
+
+    !!> Define the file names. The counters are defined in the .nek5000 file 
+    !mesh_fname  = 'cylinder.nmsh'
+    !field_fname = 'mean_field0.fld'
+    !file_point = 1  
+    this%mesh_file = file_t(trim(this%mesh_fname))
+    this%field_file = file_t(trim(this%field_fname))
+
+    !> Read the mesh
+    call this%mesh_file%read(this%msh) 
+    call this%field_data%init(this%msh%nelv,this%msh%offset_el)
+
+    !> Read the first field in sequence
+    if (pe_rank .eq. 0) write(*,*) 'Reading file:', 1
+    call this%field_file%read(this%field_data)
+    if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', this%field_data%time 
+    this%t = this%field_data%time
      
-    !> Support variables for probes 
-     type(matrix_t) :: mat_coords
+    !> Copy the mesh from the read field to ensure mesh deformation
+    lx = this%field_data%lx
+    !To make sure any deformation made in the user file is passed onto here as well
+    do i = 1,this%msh%nelv
+       this%msh%elements(i)%e%pts(1)%p%x(1) = this%field_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
+       this%msh%elements(i)%e%pts(2)%p%x(1) = this%field_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(3)%p%x(1) = this%field_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(4)%p%x(1) = this%field_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(5)%p%x(1) = this%field_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(6)%p%x(1) = this%field_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(7)%p%x(1) = this%field_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(8)%p%x(1) = this%field_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     !> Define the file names. The counters are defined in the .nek5000 file 
-     mesh_fname  = 'cylinder.nmsh'
-     field_fname = 'mean_field0.fld'
-     file_point = 1  
-     mesh_file = file_t(trim(mesh_fname))
-     field_file = file_t(trim(field_fname))
+       this%msh%elements(i)%e%pts(1)%p%x(2) = this%field_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
+       this%msh%elements(i)%e%pts(2)%p%x(2) = this%field_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(3)%p%x(2) = this%field_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(4)%p%x(2) = this%field_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(5)%p%x(2) = this%field_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(6)%p%x(2) = this%field_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(7)%p%x(2) = this%field_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(8)%p%x(2) = this%field_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
 
-     !> Read the mesh
-     call mesh_file%read(msh) 
-     call field_data%init(msh%nelv,msh%offset_el)
-
-     !> Read the first field in sequence
-     if (pe_rank .eq. 0) write(*,*) 'Reading file:', 1
-     call field_file%read(field_data)
-     if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', field_data%time 
-     t = field_data%time
-
-     !> Copy the mesh from the read field to ensure mesh deformation
-     lx = field_data%lx
-     !To make sure any deformation made in the user file is passed onto here as well
-     do i = 1,msh%nelv
-        msh%elements(i)%e%pts(1)%p%x(1) = field_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
-        msh%elements(i)%e%pts(2)%p%x(1) = field_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(3)%p%x(1) = field_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(4)%p%x(1) = field_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(5)%p%x(1) = field_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(6)%p%x(1) = field_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(7)%p%x(1) = field_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(8)%p%x(1) = field_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-
-        msh%elements(i)%e%pts(1)%p%x(2) = field_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
-        msh%elements(i)%e%pts(2)%p%x(2) = field_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(3)%p%x(2) = field_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(4)%p%x(2) = field_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(5)%p%x(2) = field_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(6)%p%x(2) = field_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(7)%p%x(2) = field_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(8)%p%x(2) = field_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-
-        msh%elements(i)%e%pts(1)%p%x(3) = field_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
-        msh%elements(i)%e%pts(2)%p%x(3) = field_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(3)%p%x(3) = field_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(4)%p%x(3) = field_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(5)%p%x(3) = field_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(6)%p%x(3) = field_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(7)%p%x(3) = field_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(8)%p%x(3) = field_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-     end do
+       this%msh%elements(i)%e%pts(1)%p%x(3) = this%field_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
+       this%msh%elements(i)%e%pts(2)%p%x(3) = this%field_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(3)%p%x(3) = this%field_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(4)%p%x(3) = this%field_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(5)%p%x(3) = this%field_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(6)%p%x(3) = this%field_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(7)%p%x(3) = this%field_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
+       this%msh%elements(i)%e%pts(8)%p%x(3) = this%field_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
+    end do
    
-     !> Based on data read, initialize dofmap, gs, coef
-     call Xh%init(GLL, field_data%lx, field_data%ly, field_data%lz)
-     dof = dofmap_t(msh, Xh)
-     call gs_h%init(dof)
-     call coef%init(gs_h)
+    !> Based on data read, initialize dofmap, gs, coef
+    call this%Xh%init(GLL, this%field_data%lx, this%field_data%ly, this%field_data%lz)
+    this%dof = dofmap_t(this%msh, this%Xh)
+    call this%gs_h%init(this%dof)
+    call this%coef%init(this%gs_h)
  
-     !> Now create the field in the field registry such that probes can find it
-     call neko_field_registry%add_field(dof, 'v1')
-     v1 => neko_field_registry%get_field('v1')
-     n = v1%dof%size()
-
-    !> ========== Initialize Probes =================
+    !> Fields
+    !! First create fields in the registry 
+    do i = 1, this%n_fields
+       call neko_field_registry%add_field(this%dof, trim(this%which_fields(i)))
+    end do
+    !! Then get a list with pointers to the fields
+    allocate(this%sampled_fields%fields(this%n_fields))
+    do i = 1, this%n_fields
+       this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
+                                          trim(this%which_fields(i)))
+    end do
     
+    !> Initialize the probes asumming t=0
     !> Read the output information
-    call json_get(params, 'case.probes.output_file', output_file) 
-
-    !> Probe set up
+    call json_get(params, 'case.probes.output_file', this%output_file) 
     !! Read probe info and initialize the controller, arrays, etc.
-    call pb%init(0.0_rp, params, coef%Xh)
+    call this%pb%init(0.0_rp, params, this%coef%Xh)
     !! Perform the set up of gslib_findpts
-    call pb%setup(coef)
+    call this%pb%setup(this%coef)
     !! Find the probes in the mesh. Map from xyz -> rst
-    call pb%map(coef)
+    call this%pb%map(this%coef)
     !> Write a summary of the probe info
-    call pb%show()
-
+    call this%pb%show()
     !> Initialize the output
-    fout = file_t(trim(output_file))
-    call mat_out%init(pb%n_probes, pb%n_fields)
+    this%fout = file_t(trim(this%output_file))
+    call this%mat_out%init(this%pb%n_probes, this%pb%n_fields)
 
     !> Write coordinates in output file (imitate nek5000)
     !! Initialize the arrays
-    call mat_coords%init(pb%n_probes,3)
+    call mat_coords%init(this%pb%n_probes,3)
     !! Array them as rows
-    call trsp(mat_coords%x, pb%n_probes, pb%xyz, 3)
+    call trsp(mat_coords%x, this%pb%n_probes, this%pb%xyz, 3)
     !! Write the data to the file
-    call fout%write(mat_coords)
+    call this%fout%write(mat_coords)
     !! Free the memory 
     call mat_coords%free
 
     !> ==============================================
-
-     
-     !> Allocate list to contain the fields that are read
-     allocate(fields(field_data%size()))
-     !> Get a list that contains pointers to the fields in the file
-     call field_data%get_list(fields,field_data%size())
-
-
-
 
   end subroutine initialize
 
@@ -174,6 +176,7 @@ end module field_file_interpolator
 
 module user
   use neko
+  use field_file_interpolator
   use time_based_controller, only : time_based_controller_t
   use tensor, only : trsp
   implicit none
@@ -182,6 +185,7 @@ module user
   real(kind=rp) :: Ra = 0
   real(kind=rp) :: Re = 0
   real(kind=rp) :: Pr = 0
+  type(field_file_interpolator_t) :: file_interpolator
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -329,7 +333,8 @@ contains
     type(field_t), intent(inout) :: p
 
   
-    call interpolate_from_file(params)
+    call file_interpolator%init(params)
+    !call interpolate_from_file(params)
 
  
   end subroutine user_check
