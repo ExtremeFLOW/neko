@@ -74,7 +74,8 @@
         "field_name": "mean_field0.fld",
         "points_file":  "probes.csv",
         "output_file":  "output.csv",
-        "fields": ["v1","v2"],
+        "fields": ["w_mean"],
+        "field_pos_file": [3],
         "output_control": "tsteps",
         "output_value"    : 1,
     }

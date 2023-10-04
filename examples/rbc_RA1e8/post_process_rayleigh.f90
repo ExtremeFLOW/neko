@@ -46,8 +46,10 @@ module field_file_interpolator
      
      !> Initialize object.
      procedure, pass(this) :: init => initialize
-     !!> Execute object.
-     !procedure, pass(this) :: interpolate => interpolate_field
+     
+     !> Execute object.
+     procedure, pass(this) :: interpolate => interpolate_field
+     
      !!> Destructor
      !procedure, pass(this) :: free => finalize
 
@@ -66,6 +68,7 @@ contains
     !> Read from case file
     call params%info('case.probes.fields', n_children=this%n_fields)
     call json_get(params, 'case.probes.fields', this%which_fields) 
+    call json_get(params, 'case.probes.field_pos_file', this%field_pos) 
 
 
     call json_get(params, 'case.probes.mesh_name', &
@@ -165,9 +168,80 @@ contains
     !! Free the memory 
     call mat_coords%free
 
-    !> ==============================================
+    !> Allocate list to contain the fields that are read
+    allocate(this%fields_in_file(this%field_data%size()))
+    
 
   end subroutine initialize
+
+
+  subroutine interpolate_field(this)
+    class(field_file_interpolator_t), intent(inout) :: this
+    integer :: i,j,k,n
+
+    
+    !>======================= Do a run with the first file in the queue that has already been read
+    call this%field_data%get_list(this%fields_in_file,this%field_data%size())
+    n =  this%dof%size()   
+
+    do i = 1, this%n_fields
+       !> Copy the data from the file to our pointer
+       call copy(this%sampled_fields%fields(i)%f%x,this%fields_in_file(this%field_pos(i))%v%x,n)
+       ! Put it also on device
+       if (NEKO_BCKND_DEVICE .eq. 1) then 
+         call device_memcpy(this%sampled_fields%fields(i)%f%x, &
+                            this%sampled_fields%fields(i)%f%x_d, &
+                            n,HOST_TO_DEVICE)
+       end if
+    end do
+
+    !> Interpolate the desired fields
+    call this%pb%interpolate(this%t,1, this%write_output)
+    !! Write if the interpolate function returs write_output=.true.
+    if (this%write_output) then
+       this%mat_out%x = this%pb%out_fields
+       call this%fout%write(this%mat_out, this%t)
+       this%write_output = .false.
+    end if
+
+    !>======================= Loop over the rest of the files
+    !> Read the rest of the fields in the sequence
+    do i = 1, this%field_data%meta_nsamples-1
+       if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
+       call this%field_file%read(this%field_data)
+       if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', this%field_data%time 
+       this%t = this%field_data%time
+       
+       call this%field_data%get_list(this%fields_in_file,this%field_data%size())
+
+       do j = 1, this%n_fields
+          !> Copy the data from the file to our pointer
+          call copy(this%sampled_fields%fields(j)%f%x,this%fields_in_file(this%field_pos(j))%v%x,n)
+          ! Put it also on device
+          if (NEKO_BCKND_DEVICE .eq. 1) then 
+             call device_memcpy(this%sampled_fields%fields(j)%f%x, &
+                            this%sampled_fields%fields(j)%f%x_d, &
+                            n,HOST_TO_DEVICE)
+          end if
+       end do
+
+       !> Interpolate the desired fields
+       call this%pb%interpolate(this%t,1, this%write_output)
+       !! Write if the interpolate function returs write_output=.true.
+       if (this%write_output) then
+          this%mat_out%x = this%pb%out_fields
+          call this%fout%write(this%mat_out, this%t)
+          this%write_output = .false.
+       end if
+   
+     end do
+     
+
+  end subroutine interpolate_field
+
+
+
+
 
 
 end module field_file_interpolator
@@ -334,7 +408,7 @@ contains
 
   
     call file_interpolator%init(params)
-    !call interpolate_from_file(params)
+    call file_interpolator%interpolate()
 
  
   end subroutine user_check
