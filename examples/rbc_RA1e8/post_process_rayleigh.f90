@@ -50,8 +50,8 @@ module field_file_interpolator
      !> Execute object.
      procedure, pass(this) :: interpolate => interpolate_field
      
-     !!> Destructor
-     !procedure, pass(this) :: free => finalize
+     !> Destructor
+     procedure, pass(this) :: free => finalize
 
   end type field_file_interpolator_t
 
@@ -63,7 +63,6 @@ contains
     class(field_file_interpolator_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
     integer :: i,j,k,lx 
-    type(matrix_t) :: mat_coords
 
     !> Read from case file
     call params%info('case.probes.fields', n_children=this%n_fields)
@@ -77,9 +76,6 @@ contains
          this%field_fname)
 
     !!> Define the file names. The counters are defined in the .nek5000 file 
-    !mesh_fname  = 'cylinder.nmsh'
-    !field_fname = 'mean_field0.fld'
-    !file_point = 1  
     this%mesh_file = file_t(trim(this%mesh_fname))
     this%field_file = file_t(trim(this%field_fname))
 
@@ -92,7 +88,138 @@ contains
     call this%field_file%read(this%field_data)
     if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', this%field_data%time 
     this%t = this%field_data%time
+
+    !> Create dof map and adjust the mesh if deformed
+    call adjust_mesh_deformation_and_create_space(this)
+
+    !> IMPORTANT! 
+    !! Because the interpolator works with fields in the registry, create the ones with appropiate names
+    !! based on the case file. Later when using the interpolator, make sure to copy the data to these fields
+    do i = 1, this%n_fields
+       call neko_field_registry%add_field(this%dof, trim(this%which_fields(i)))
+    end do
+    !! Then get a list with pointers to the fields
+    allocate(this%sampled_fields%fields(this%n_fields))
+    do i = 1, this%n_fields
+       this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
+                                          trim(this%which_fields(i)))
+    end do
+   
+    !> Initialize the interpolator
+    call initialize_interpolator(this, params)
+
+    !> Allocate list to contain the fields that are read
+    allocate(this%fields_in_file(this%field_data%size()))
+    
+
+  end subroutine initialize
+
+
+  subroutine interpolate_field(this)
+    class(field_file_interpolator_t), intent(inout) :: this
+    integer :: i,j,k,n
+
+    !> For the first field that is already in memory
+    !> Copy the data from the field_data to the correct field and use the probe interpolator
+    call use_interpolator(this)
+    
+    !> Read the rest of the fields in the sequence
+    do i = 1, this%field_data%meta_nsamples-1
+       
+       if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
+       call this%field_file%read(this%field_data)
+       if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', this%field_data%time 
+       this%t = this%field_data%time
+    
+       !> Copy the data from the field_data to the correct field and use the probe interpolator
+       call use_interpolator(this)
+       
+    end do
      
+
+  end subroutine interpolate_field
+
+
+  subroutine finalize(this)
+    class(field_file_interpolator_t), intent(inout) :: this
+    
+    if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
+    call this%pb%free
+    call this%mat_out%free
+    call file_free(this%fout)
+  
+    call this%Xh%free()
+    call this%msh%free()
+    call this%gs_h%free()
+
+  end subroutine finalize
+
+
+  subroutine use_interpolator(this)
+    class(field_file_interpolator_t), intent(inout) :: this
+    integer :: i,j,k,n
+
+    call this%field_data%get_list(this%fields_in_file,this%field_data%size())
+    n =  this%dof%size()   
+
+    do i = 1, this%n_fields
+       !> Copy the data from the file to our pointer
+       call copy(this%sampled_fields%fields(i)%f%x,this%fields_in_file(this%field_pos(i))%v%x,n)
+       ! Put it also on device
+       if (NEKO_BCKND_DEVICE .eq. 1) then 
+         call device_memcpy(this%sampled_fields%fields(i)%f%x, &
+                            this%sampled_fields%fields(i)%f%x_d, &
+                            n,HOST_TO_DEVICE)
+       end if
+    end do
+
+    !> Interpolate the desired fields
+    call this%pb%interpolate(this%t,1, this%write_output)
+    !! Write if the interpolate function returs write_output=.true.
+    if (this%write_output) then
+       this%mat_out%x = this%pb%out_fields
+       call this%fout%write(this%mat_out, this%t)
+       this%write_output = .false.
+    end if
+
+  end subroutine use_interpolator
+
+  subroutine initialize_interpolator(this,params)
+    class(field_file_interpolator_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(matrix_t) :: mat_coords
+
+    !> Initialize the probes asumming t=0
+    !> Read the output information
+    call json_get(params, 'case.probes.output_file', this%output_file) 
+    !! Read probe info and initialize the controller, arrays, etc.
+    call this%pb%init(0.0_rp, params, this%coef%Xh)
+    !! Perform the set up of gslib_findpts
+    call this%pb%setup(this%coef)
+    !! Find the probes in the mesh. Map from xyz -> rst
+    call this%pb%map(this%coef)
+    !> Write a summary of the probe info
+    call this%pb%show()
+    !> Initialize the output
+    this%fout = file_t(trim(this%output_file))
+    call this%mat_out%init(this%pb%n_probes, this%pb%n_fields)
+
+    !> Write coordinates in output file (imitate nek5000)
+    !! Initialize the arrays
+    call mat_coords%init(this%pb%n_probes,3)
+    !! Array them as rows
+    call trsp(mat_coords%x, this%pb%n_probes, this%pb%xyz, 3)
+    !! Write the data to the file
+    call this%fout%write(mat_coords)
+    !! Free the memory 
+    call mat_coords%free
+
+  end subroutine initialize_interpolator
+    
+  subroutine adjust_mesh_deformation_and_create_space(this)
+    class(field_file_interpolator_t), intent(inout) :: this
+    integer :: i,j,k,e,lx 
+
     !> Copy the mesh from the read field to ensure mesh deformation
     lx = this%field_data%lx
     !To make sure any deformation made in the user file is passed onto here as well
@@ -128,125 +255,38 @@ contains
     !> Based on data read, initialize dofmap, gs, coef
     call this%Xh%init(GLL, this%field_data%lx, this%field_data%ly, this%field_data%lz)
     this%dof = dofmap_t(this%msh, this%Xh)
-    call this%gs_h%init(this%dof)
-    call this%coef%init(this%gs_h)
- 
-    !> Fields
-    !! First create fields in the registry 
-    do i = 1, this%n_fields
-       call neko_field_registry%add_field(this%dof, trim(this%which_fields(i)))
-    end do
-    !! Then get a list with pointers to the fields
-    allocate(this%sampled_fields%fields(this%n_fields))
-    do i = 1, this%n_fields
-       this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
-                                          trim(this%which_fields(i)))
+
+    !> Update dof map to account for non linear defformations of the elements
+    !! %apply_deform is the last thing done in dofmat_init before copying to the gpu
+    !! so now we will just override that with direct copy from the file
+    do e = 1,this%msh%nelv
+       do k = 1,lx
+          do j = 1,lx
+             do i = 1,lx
+                this%dof%x(i,j,k,e) = this%field_data%x%x(linear_index(i,j,k,e,lx,lx,lx))  
+                this%dof%y(i,j,k,e) = this%field_data%y%x(linear_index(i,j,k,e,lx,lx,lx))  
+                this%dof%z(i,j,k,e) = this%field_data%z%x(linear_index(i,j,k,e,lx,lx,lx))   
+             end do 
+          end do
+       end do
     end do
     
-    !> Initialize the probes asumming t=0
-    !> Read the output information
-    call json_get(params, 'case.probes.output_file', this%output_file) 
-    !! Read probe info and initialize the controller, arrays, etc.
-    call this%pb%init(0.0_rp, params, this%coef%Xh)
-    !! Perform the set up of gslib_findpts
-    call this%pb%setup(this%coef)
-    !! Find the probes in the mesh. Map from xyz -> rst
-    call this%pb%map(this%coef)
-    !> Write a summary of the probe info
-    call this%pb%show()
-    !> Initialize the output
-    this%fout = file_t(trim(this%output_file))
-    call this%mat_out%init(this%pb%n_probes, this%pb%n_fields)
-
-    !> Write coordinates in output file (imitate nek5000)
-    !! Initialize the arrays
-    call mat_coords%init(this%pb%n_probes,3)
-    !! Array them as rows
-    call trsp(mat_coords%x, this%pb%n_probes, this%pb%xyz, 3)
-    !! Write the data to the file
-    call this%fout%write(mat_coords)
-    !! Free the memory 
-    call mat_coords%free
-
-    !> Allocate list to contain the fields that are read
-    allocate(this%fields_in_file(this%field_data%size()))
-    
-
-  end subroutine initialize
-
-
-  subroutine interpolate_field(this)
-    class(field_file_interpolator_t), intent(inout) :: this
-    integer :: i,j,k,n
-
-    
-    !>======================= Do a run with the first file in the queue that has already been read
-    call this%field_data%get_list(this%fields_in_file,this%field_data%size())
-    n =  this%dof%size()   
-
-    do i = 1, this%n_fields
-       !> Copy the data from the file to our pointer
-       call copy(this%sampled_fields%fields(i)%f%x,this%fields_in_file(this%field_pos(i))%v%x,n)
-       ! Put it also on device
-       if (NEKO_BCKND_DEVICE .eq. 1) then 
-         call device_memcpy(this%sampled_fields%fields(i)%f%x, &
-                            this%sampled_fields%fields(i)%f%x_d, &
-                            n,HOST_TO_DEVICE)
-       end if
-    end do
-
-    !> Interpolate the desired fields
-    call this%pb%interpolate(this%t,1, this%write_output)
-    !! Write if the interpolate function returs write_output=.true.
-    if (this%write_output) then
-       this%mat_out%x = this%pb%out_fields
-       call this%fout%write(this%mat_out, this%t)
-       this%write_output = .false.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%dof%x, this%dof%x_d, this%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%dof%y, this%dof%y_d, this%dof%size(), HOST_TO_DEVICE)
+       call device_memcpy(this%dof%z, this%dof%z_d, this%dof%size(), HOST_TO_DEVICE)
     end if
 
-    !>======================= Loop over the rest of the files
-    !> Read the rest of the fields in the sequence
-    do i = 1, this%field_data%meta_nsamples-1
-       if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
-       call this%field_file%read(this%field_data)
-       if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', this%field_data%time 
-       this%t = this%field_data%time
-       
-       call this%field_data%get_list(this%fields_in_file,this%field_data%size())
+    write(*,*) "dof size is= ", this%dof%size()
 
-       do j = 1, this%n_fields
-          !> Copy the data from the file to our pointer
-          call copy(this%sampled_fields%fields(j)%f%x,this%fields_in_file(this%field_pos(j))%v%x,n)
-          ! Put it also on device
-          if (NEKO_BCKND_DEVICE .eq. 1) then 
-             call device_memcpy(this%sampled_fields%fields(j)%f%x, &
-                            this%sampled_fields%fields(j)%f%x_d, &
-                            n,HOST_TO_DEVICE)
-          end if
-       end do
+    call this%gs_h%init(this%dof)
+    call this%coef%init(this%gs_h)
 
-       !> Interpolate the desired fields
-       call this%pb%interpolate(this%t,1, this%write_output)
-       !! Write if the interpolate function returs write_output=.true.
-       if (this%write_output) then
-          this%mat_out%x = this%pb%out_fields
-          call this%fout%write(this%mat_out, this%t)
-          this%write_output = .false.
-       end if
-   
-     end do
-     
-
-  end subroutine interpolate_field
-
-
-
-
-
+  end subroutine adjust_mesh_deformation_and_create_space
 
 end module field_file_interpolator
 
-
+!==============================================================================
 
 module user
   use neko
@@ -409,208 +449,8 @@ contains
   
     call file_interpolator%init(params)
     call file_interpolator%interpolate()
+    call file_interpolator%free()
 
- 
   end subroutine user_check
-
-
-  subroutine interpolate_from_file(params)
-     type(json_file), intent(inout) :: params
-     character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, field_fname, hom_dir, output_fname
-     type(file_t) :: field_file, output_file_fld, mesh_file
-     real(kind=rp) :: start_time, el_h, el_dim(3,3), domain_height
-     real(kind=rp), allocatable :: temp_el(:,:,:)
-     type(fld_file_data_t) :: field_data
-     type(coef_t) :: coef
-     type(dofmap_t) :: dof
-     type(space_t) :: Xh
-     type(mesh_t) :: msh
-     type(gs_t) :: gs_h
-     type(field_t), pointer :: v1, avg_u, old_u, el_heights
-     type(vector_ptr_t), allocatable :: fields(:)
-     integer, allocatable :: hom_dir_el(:)
-     integer :: argc, i, n, lx, j, e, n_levels
-     integer :: file_point
-     real(kind=rp) :: t
-     !> ========== Needed for Probes =================
-  
-     !> Probe type
-     type(probes_t) :: pb
-
-     !> Output variables
-     type(file_t) :: fout
-     type(matrix_t) :: mat_out
-
-     !> Case IO parameters  
-     integer            :: n_fields
-     character(len=:), allocatable  :: output_file
-
-     !> Output control
-     logical :: write_output = .false.
-
-     !> =============================================
-    
-     !> Support variables for probes 
-     type(matrix_t) :: mat_coords
-
-     !> Define the file names. The counters are defined in the .nek5000 file 
-     mesh_fname  = 'cylinder.nmsh'
-     field_fname = 'mean_field0.fld'
-     file_point = 1  
-     mesh_file = file_t(trim(mesh_fname))
-     field_file = file_t(trim(field_fname))
-
-     !> Read the mesh
-     call mesh_file%read(msh) 
-     call field_data%init(msh%nelv,msh%offset_el)
-
-     !> Read the first field in sequence
-     if (pe_rank .eq. 0) write(*,*) 'Reading file:', 1
-     call field_file%read(field_data)
-     if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', field_data%time 
-     t = field_data%time
-
-     !> Copy the mesh from the read field to ensure mesh deformation
-     lx = field_data%lx
-     !To make sure any deformation made in the user file is passed onto here as well
-     do i = 1,msh%nelv
-        msh%elements(i)%e%pts(1)%p%x(1) = field_data%x%x(linear_index(1,1,1,i,lx,lx,lx))  
-        msh%elements(i)%e%pts(2)%p%x(1) = field_data%x%x(linear_index(lx,1,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(3)%p%x(1) = field_data%x%x(linear_index(1,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(4)%p%x(1) = field_data%x%x(linear_index(lx,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(5)%p%x(1) = field_data%x%x(linear_index(1,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(6)%p%x(1) = field_data%x%x(linear_index(lx,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(7)%p%x(1) = field_data%x%x(linear_index(1,lx,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(8)%p%x(1) = field_data%x%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-
-        msh%elements(i)%e%pts(1)%p%x(2) = field_data%y%x(linear_index(1,1,1,i,lx,lx,lx))  
-        msh%elements(i)%e%pts(2)%p%x(2) = field_data%y%x(linear_index(lx,1,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(3)%p%x(2) = field_data%y%x(linear_index(1,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(4)%p%x(2) = field_data%y%x(linear_index(lx,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(5)%p%x(2) = field_data%y%x(linear_index(1,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(6)%p%x(2) = field_data%y%x(linear_index(lx,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(7)%p%x(2) = field_data%y%x(linear_index(1,lx,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(8)%p%x(2) = field_data%y%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-
-        msh%elements(i)%e%pts(1)%p%x(3) = field_data%z%x(linear_index(1,1,1,i,lx,lx,lx))  
-        msh%elements(i)%e%pts(2)%p%x(3) = field_data%z%x(linear_index(lx,1,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(3)%p%x(3) = field_data%z%x(linear_index(1,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(4)%p%x(3) = field_data%z%x(linear_index(lx,lx,1,i,lx,lx,lx))
-        msh%elements(i)%e%pts(5)%p%x(3) = field_data%z%x(linear_index(1,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(6)%p%x(3) = field_data%z%x(linear_index(lx,1,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(7)%p%x(3) = field_data%z%x(linear_index(1,lx,lx,i,lx,lx,lx))
-        msh%elements(i)%e%pts(8)%p%x(3) = field_data%z%x(linear_index(lx,lx,lx,i,lx,lx,lx))
-     end do
-   
-     !> Based on data read, initialize dofmap, gs, coef
-     call Xh%init(GLL, field_data%lx, field_data%ly, field_data%lz)
-     dof = dofmap_t(msh, Xh)
-     call gs_h%init(dof)
-     call coef%init(gs_h)
- 
-     !> Now create the field in the field registry such that probes can find it
-     call neko_field_registry%add_field(dof, 'v1')
-     v1 => neko_field_registry%get_field('v1')
-     n = v1%dof%size()
-
-    !> ========== Initialize Probes =================
-    
-    !> Read the output information
-    call json_get(params, 'case.probes.output_file', output_file) 
-
-    !> Probe set up
-    !! Read probe info and initialize the controller, arrays, etc.
-    call pb%init(0.0_rp, params, coef%Xh)
-    !! Perform the set up of gslib_findpts
-    call pb%setup(coef)
-    !! Find the probes in the mesh. Map from xyz -> rst
-    call pb%map(coef)
-    !> Write a summary of the probe info
-    call pb%show()
-
-    !> Initialize the output
-    fout = file_t(trim(output_file))
-    call mat_out%init(pb%n_probes, pb%n_fields)
-
-    !> Write coordinates in output file (imitate nek5000)
-    !! Initialize the arrays
-    call mat_coords%init(pb%n_probes,3)
-    !! Array them as rows
-    call trsp(mat_coords%x, pb%n_probes, pb%xyz, 3)
-    !! Write the data to the file
-    call fout%write(mat_coords)
-    !! Free the memory 
-    call mat_coords%free
-
-    !> ==============================================
-
-     
-     !> Allocate list to contain the fields that are read
-     allocate(fields(field_data%size()))
-     !> Get a list that contains pointers to the fields in the file
-     call field_data%get_list(fields,field_data%size())
-      
-          
-     !> Copy the data from the file to our pointer
-     call copy(v1%x,fields(file_point)%v%x,v1%dof%size())
-     ! Put it also on device
-     if (NEKO_BCKND_DEVICE .eq. 1) then 
-       call device_memcpy(v1%x,v1%x_d, &
-                      v1%dof%size(),HOST_TO_DEVICE)
-     end if
-
-     !> ========== Needed for Probes =================
-
-     !> Interpolate the desired fields
-     call pb%interpolate(t,1, write_output)
-     !! Write if the interpolate function returs write_output=.true.
-     if (write_output) then
-        mat_out%x = pb%out_fields
-        call fout%write(mat_out, t)
-        write_output = .false.
-     end if
-
-     !> ==============================================
-     
-
-     !> Read the rest of the fields in the sequence
-     do i = 1, field_data%meta_nsamples-1
-        if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
-        call field_file%read(field_data)
-        if (pe_rank .eq. 0) write(*,*) 'time_in_file= ', field_data%time 
-        t = field_data%time
-        !> Get a list that contains pointers to the fields in the file
-        call field_data%get_list(fields,field_data%size())
-       
-        !> Copy the data from the file to our pointer
-        call copy(v1%x,fields(file_point)%v%x,v1%dof%size())
-        ! Put it also on device
-        if (NEKO_BCKND_DEVICE .eq. 1) then 
-           call device_memcpy(v1%x,v1%x_d, &
-                          v1%dof%size(),HOST_TO_DEVICE)
-        end if
-    
-        !> ========== Needed for Probes =================
-
-        !> Interpolate the desired fields
-        call pb%interpolate(t,i+1, write_output)
-        !! Write if the interpolate function returs write_output=.true.
-        if (write_output) then
-           mat_out%x = pb%out_fields
-           call fout%write(mat_out, t)
-           write_output = .false.
-        end if
-
-    !> ==============================================
-
-     end do
-    
-     call pb%free
-     call mat_out%free
-     call file_free(fout)
-
-  end subroutine interpolate_from_file
-
-
 
 end module user
