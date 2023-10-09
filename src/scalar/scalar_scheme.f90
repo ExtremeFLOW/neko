@@ -221,16 +221,16 @@ contains
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
 
-    if (params%valid_path('case.scalar.Pr') .and. &
+    if (params%valid_path('case.scalar.Pe') .and. &
         params%valid_path('case.scalar.kappa')) then
-        call neko_error("Set either Pr or kappa in the case file, not both.")
-    else if (params%valid_path('case.fluid.Pr')) then
-      ! Read Pr into lambda for further manipulation
-       call json_get(params, 'case.fluid.Pr', this%lambda)
+        call neko_error("Set either Pe or kappa in the case file, not both.")
+    else if (params%valid_path('case.fluid.Pe')) then
+      ! Read Pe into lambda for further manipulation
+       call json_get(params, 'case.fluid.Pe', this%lambda)
        call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'Pr         :',  this%lambda
+       write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
 
-       ! Invert the Pr to get thermal diffusivity
+       ! Invert the Pe to get thermal diffusivity
        this%lambda = 1.0_rp/this%lambda
        ! Premultiply by rho * cp to get thermal conductivity
        this%lambda = this%lambda * this%rho * this%cp
