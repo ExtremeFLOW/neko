@@ -81,7 +81,8 @@ module scalar_scheme
      type(chkp_t) :: chkp                      !< Checkpoint
      !> Dynamic viscosity.
      real(kind=rp) :: mu
-     real(kind=rp) :: Pr                !< Prandtl number.
+     !> Thermal diffusivity.
+     real(kind=rp) :: lambda
      !> Density.
      real(kind=rp) :: rho
      !> Boundary condition labels (if any)
@@ -243,7 +244,7 @@ contains
        write(log_buf, '(A,ES13.6)') 'nu         :',  this%mu
     end if
 
-    call json_get(params, 'case.scalar.Pr', this%Pr)
+    call json_get(params, 'case.scalar.lambda', this%lambda)
 
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
                              this%ksp_maxiter, 800)

@@ -87,7 +87,7 @@ contains
 
 
   subroutine scalar_residual_device_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-             Pr, mu, rho, bd, dt, n)
+             lambda, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
@@ -95,14 +95,14 @@ contains
     type(field_t), intent(inout) :: s_res
     type(source_scalar_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: Pr
+    real(kind=rp), intent(in) :: lambda
     real(kind=rp), intent(in) :: mu
     real(kind=rp), intent(in) :: rho
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     
-    call device_cfill(c_Xh%h1_d, mu / Pr, n)
+    call device_cfill(c_Xh%h1_d, lambda, n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
     c_Xh%ifh2 = .true.
     
