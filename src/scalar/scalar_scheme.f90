@@ -241,8 +241,6 @@ contains
        write(log_buf, '(A,ES13.6)') 'lambda        :',  this%lambda
     end if
 
-    call json_get(params, 'case.scalar.lambda', this%lambda)
-
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
                              this%ksp_maxiter, 800)
     call json_get_or_default(params, &
