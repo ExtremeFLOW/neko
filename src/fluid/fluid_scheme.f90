@@ -728,6 +728,7 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
     !Same as in fluid_pnpn, we should add another bc that implements apply_vector
@@ -736,11 +737,34 @@ contains
        call this%bc_field_u%apply_scalar_dev(this%u%x_d, t, tstep)
        call this%bc_field_v%apply_scalar_dev(this%v%x_d, t, tstep)
        call this%bc_field_w%apply_scalar_dev(this%w%x_d, t, tstep)
-    else 
+    else
        call this%bc_field_u%apply_scalar(this%u%x, this%dm_Xh%size(), t, tstep)
        call this%bc_field_v%apply_scalar(this%v%x, this%dm_Xh%size(), t, tstep)
        call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
     end if
+
+    call this%gs_Xh%op(this%u%x, GS_OP_MAX)
+    call this%gs_Xh%op(this%v%x, GS_OP_MAX)
+    call this%gs_Xh%op(this%w%x, GS_OP_MAX)
+
+    call bc_list_apply_vector(this%bclst_vel,&
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+    !Same as in fluid_pnpn, we should add another bc that implements apply_vector
+    !This is a bit hacky
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%bc_field_u%apply_scalar_dev(this%u%x_d, t, tstep)
+       call this%bc_field_v%apply_scalar_dev(this%v%x_d, t, tstep)
+       call this%bc_field_w%apply_scalar_dev(this%w%x_d, t, tstep)
+    else
+       call this%bc_field_u%apply_scalar(this%u%x, this%dm_Xh%size(), t, tstep)
+       call this%bc_field_v%apply_scalar(this%v%x, this%dm_Xh%size(), t, tstep)
+       call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
+    end if
+
+    call this%gs_Xh%op(this%u%x, GS_OP_MIN)
+    call this%gs_Xh%op(this%v%x, GS_OP_MIN)
+    call this%gs_Xh%op(this%w%x, GS_OP_MIN)
+
   end subroutine fluid_scheme_bc_apply_vel
   
   !> Apply all boundary conditions defined for pressure
@@ -749,8 +773,17 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
     call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
                               this%p%dof%size(), t, tstep)
+
+    call this%gs_Xh%op(this%p%x, GS_OP_MAX)
+
+    call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
+                              this%p%dof%size(), t, tstep)
+
+    call this%gs_Xh%op(this%p%x, GS_OP_MIN)
+
   end subroutine fluid_scheme_bc_apply_prs
   
   !> Initialize a linear solver
