@@ -111,6 +111,20 @@ module user_intf
      end subroutine user_final_modules
   end interface
 
+  !> Abstract interface for setting material properties.
+  !! @param rho Fluid density.
+  !! @param mu Fluid dynamic viscosity.
+  !! @param cp Scalar specific heat capacity.
+  !! @param lambda Scalar thermal conductivity.
+  abstract interface
+     subroutine user_material_properties(rho, mu, cp, lambda, params)
+       import rp
+       import json_file
+       real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+       type(json_file), intent(inout) :: params
+     end subroutine user_material_properties
+  end interface
+
   type, public :: user_t
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
@@ -123,6 +137,8 @@ module user_intf
      procedure(source_scalar_term), nopass, pointer :: scalar_user_f_vector => null()
      procedure(usr_inflow_eval), nopass, pointer :: fluid_user_if => null()
      procedure(usr_scalar_bc_eval), nopass, pointer :: scalar_user_bc => null()
+     !> Routine to set material properties
+     procedure(user_material_properties), nopass, pointer :: material_properties => null()
    contains
      procedure, pass(u) :: init => user_intf_init
   end type user_t
@@ -172,6 +188,10 @@ contains
 
     if (.not. associated(u%user_finalize_modules)) then
        u%user_finalize_modules => dummy_user_final_no_modules
+    end if
+
+    if (.not. associated(u%material_properties)) then
+       u%material_properties => dummy_user_material_properties
     end if
   end subroutine user_intf_init
 
@@ -278,5 +298,10 @@ contains
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
+
+  subroutine dummy_user_material_properties(rho, mu, cp, lambda, params)
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+  end subroutine dummy_user_material_properties
 
 end module user_intf

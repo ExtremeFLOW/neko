@@ -219,6 +219,12 @@ contains
     end if
 
     !
+    ! Setup user defined material properties
+    !
+    call C%usr%material_properties(C%fluid%rho, C%fluid%mu, C%scalar%cp,&
+                                   C%scalar%lambda, C%params)
+
+    !
     ! Setup user defined conditions
     !
     if (C%params%valid_path('case.fluid.inflow_condition')) then

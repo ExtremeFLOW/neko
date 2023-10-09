@@ -11,11 +11,26 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%user_init_modules => set_Pr
     u%fluid_user_ic => set_ic
     u%scalar_user_bc => scalar_bc
     u%fluid_user_f_vector => forcing
+    u%material_properties => set_material_properties
   end subroutine user_setup
+
+  subroutine set_material_properties(rho, mu, cp, lambda, params)
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+    real(kind=rp) :: Re
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+
+
+    Re = sqrt(Ra / Pr)
+    mu = 1.0_rp / Re
+    lambda = mu / Pr
+
+  end subroutine set_material_properties
    
   subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -88,10 +103,7 @@ contains
     type(field_t), intent(inout) :: p
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: params
-    logical :: found
-    ! Reset the relevant nondimensional parameters
 
-    call json_get(params, 'case.scalar.Pr', Pr)
     call save_coef(coef)
   end subroutine set_Pr
 
