@@ -79,12 +79,12 @@ module scalar_scheme
      type(json_file), pointer :: params          !< Parameters          
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
-     !> Dynamic viscosity.
-     real(kind=rp) :: mu
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> Density.
-     real(kind=rp) :: rho
+     real(kind=rp) :: rho = 1.0_rp
+     !> Specific heat capacity
+     real(kind=rp) :: cp = 1.0_rp
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
    contains
@@ -221,27 +221,24 @@ contains
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
 
-
-    ! Set density to 1 for fully incompressible regime.
-    this%rho = 1.0_rp
-   
-    if (params%valid_path('case.fluid.Re') .and. &
-        params%valid_path('case.fluid.nu')) then
-        call neko_error("Set either Re or nu in the case file, not both.")
-    else if (params%valid_path('case.fluid.Re')) then
-      ! Read Re into mu for further manipulation
-       call json_get(params, 'case.fluid.Re', this%mu)
+    if (params%valid_path('case.scalar.Pr') .and. &
+        params%valid_path('case.scalar.kappa')) then
+        call neko_error("Set either Pr or kappa in the case file, not both.")
+    else if (params%valid_path('case.fluid.Pr')) then
+      ! Read Pr into lambda for further manipulation
+       call json_get(params, 'case.fluid.Pr', this%lambda)
        call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
+       write(log_buf, '(A,ES13.6)') 'Pr         :',  this%lambda
 
-       ! Invert the Re to get kinematic viscosity.
-       this%mu = 1.0_rp/this%mu
-       this%mu = this%mu * this%rho
-    else  if (params%valid_path('case.fluid.nu')) then
-       call json_get(params, 'case.fluid.nu', this%mu)
-       this%mu = this%mu * this%rho
+       ! Invert the Pr to get thermal diffusivity
+       this%lambda = 1.0_rp/this%lambda
+       ! Premultiply by rho * cp to get thermal conductivity
+       this%lambda = this%lambda * this%rho * this%cp
+    else  if (params%valid_path('case.fluid.kappa')) then
+       call json_get(params, 'case.fluid.kappa', this%lambda)
+       this%lambda = this%lambda * this%rho * this%cp
        call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'nu         :',  this%mu
+       write(log_buf, '(A,ES13.6)') 'lambda        :',  this%lambda
     end if
 
     call json_get(params, 'case.scalar.lambda', this%lambda)

@@ -51,7 +51,7 @@ module scalar_residual
     
   abstract interface
      subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-                                          lambda, mu, rho, bd, dt, n)
+                                          lambda, rhocp, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
@@ -69,8 +69,7 @@ module scalar_residual
        type(source_scalar_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
        real(kind=rp), intent(in) :: lambda
-       real(kind=rp), intent(in) :: mu
-       real(kind=rp), intent(in) :: rho
+       real(kind=rp), intent(in) :: rhocp
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n
