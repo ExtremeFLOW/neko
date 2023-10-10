@@ -112,14 +112,18 @@ module user_intf
   end interface
 
   !> Abstract interface for setting material properties.
+  !! @param t Time value.
+  !! @param tstep Current time step.
   !! @param rho Fluid density.
   !! @param mu Fluid dynamic viscosity.
   !! @param cp Scalar specific heat capacity.
   !! @param lambda Scalar thermal conductivity.
   abstract interface
-     subroutine user_material_properties(rho, mu, cp, lambda, params)
+     subroutine user_material_properties(t, tstep, rho, mu, cp, lambda, params)
        import rp
        import json_file
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
        real(kind=rp), intent(inout) :: rho, mu, cp, lambda
        type(json_file), intent(inout) :: params
      end subroutine user_material_properties
@@ -300,7 +304,10 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
-  subroutine dummy_user_material_properties(rho, mu, cp, lambda, params)
+  subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
+                                            params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp), intent(inout) :: rho, mu, cp, lambda
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_material_properties

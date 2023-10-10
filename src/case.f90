@@ -221,8 +221,8 @@ contains
     !
     ! Setup user defined material properties
     !
-    call C%usr%material_properties(C%fluid%rho, C%fluid%mu, C%scalar%cp,&
-                                   C%scalar%lambda, C%params)
+    call C%usr%material_properties(0.0_rp, 0, C%fluid%rho, C%fluid%mu, &
+                                    C%scalar%cp, C%scalar%lambda, C%params)
 
     !
     ! Setup user defined conditions
