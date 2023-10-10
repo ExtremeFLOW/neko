@@ -56,7 +56,8 @@ module scalar_scheme
   use usr_scalar
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use user_intf, only : user_t
+  use user_intf, only : user_t, dummy_user_material_properties
+  use comm, only : pe_rank
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -84,7 +85,7 @@ module scalar_scheme
      real(kind=rp) :: lambda
      !> Density.
      real(kind=rp) :: rho
-     !> Specific heat capacity
+     !> Specific heat capacity.
      real(kind=rp) :: cp
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
@@ -225,24 +226,46 @@ contains
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
 
-    if (params%valid_path('case.scalar.Pe') .and. &
-        params%valid_path('case.scalar.kappa')) then
-        call neko_error("Set either Pe or kappa in the case file, not both.")
-    else if (params%valid_path('case.fluid.Pe')) then
-      ! Read Pe into lambda for further manipulation
-       call json_get(params, 'case.fluid.Pe', this%lambda)
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
+    !
+    ! Material properties
+    !
 
-       ! Invert the Pe to get thermal diffusivity
-       this%lambda = 1.0_rp/this%lambda
-       ! Premultiply by rho * cp to get thermal conductivity
-       this%lambda = this%lambda * this%rho * this%cp
-    else  if (params%valid_path('case.fluid.kappa')) then
-       call json_get(params, 'case.fluid.kappa', this%lambda)
-       this%lambda = this%lambda * this%rho * this%cp
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'lambda        :',  this%lambda
+    ! Check if the user material properties routine points to a dummy.
+    if (associated(user%material_properties, &
+                   dummy_user_material_properties)) then
+
+       ! Incorrect user input
+       if (params%valid_path('case.scalar.Pe') .and. &
+           (params%valid_path('case.scalar.lambda') .or. &
+            params%valid_path('case.scalar.cp'))) then
+           call neko_error("Set Pe OR lambda and cp in the case file, not both")
+
+       ! Non-dimensional case
+       else if (params%valid_path('case.fluid.Pe')) then
+          ! Read Pe into lambda for further manipulation.
+          call json_get(params, 'case.fluid.Pe', this%lambda)
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
+
+          ! Set cp and rho to 1 since the setup is non-dimensional.
+          this%cp = 1.0_rp
+          this%rho = 1.0_rp
+          ! Invert the Pe to get conductivity
+          this%lambda = 1.0_rp/this%lambda
+       ! Dimensional case
+       else 
+          call json_get(params, 'case.scalar.lambda', this%lambda)
+          call json_get(params, 'case.scalar.cp', this%cp)
+          call json_get(params, 'case.fluid.rho', this%rho)
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+          write(log_buf, '(A,ES13.6)') 'lambda         :',  this%lambda
+       end if
+    else
+       if (pe_rank .eq. 0) then
+          call neko_warning("Scalar material properties must be set in the &
+                            user file!")
+       end if
     end if
 
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&

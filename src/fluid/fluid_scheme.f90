@@ -212,7 +212,7 @@ contains
     ! Material properties
     !
 
-    ! Check if there is a user material properties routine points to a dummy.
+    ! Check if the user material properties routine points to a dummy.
     if (associated(user%material_properties, &
                    dummy_user_material_properties)) then
 
@@ -220,8 +220,7 @@ contains
        if (params%valid_path('case.fluid.Re') .and. &
            (params%valid_path('case.fluid.mu') .or. &
             params%valid_path('case.fluid.rho'))) then
-           call neko_error("Set either Re or (mu, rho) in the case file, not &
-                           both.")
+           call neko_error("Set Re OR mu and rho in the case file, not both")
 
        ! Non-dimensional case
        else if (params%valid_path('case.fluid.Re')) then
