@@ -71,7 +71,9 @@ module fluid_scheme
   use source_term, only : source_term_wrapper_t
   use source_term_fctry, only : source_term_factory
   use const_source_term, only : const_source_term_t
-  use user_intf, only : user_t
+  use user_intf, only : user_t, dummy_user_material_properties
+  use utils, only : neko_warning, neko_error
+  use comm, only : pe_rank
   implicit none
   
   !> Base type of all fluid formulations
@@ -206,30 +208,48 @@ contains
        write(log_buf, '(A, I3)') 'lx         : ', lx
     end if
 
-    ! Set density to 1, for the fully incompressible regime.
-    this%rho = 1.0_rp
+    !
+    ! Material properties
+    !
 
-    if (params%valid_path('case.fluid.Re') .and. &
-        params%valid_path('case.fluid.nu')) then
-        call neko_error("Set either Re or nu in the case file, not both.")
-    else if (params%valid_path('case.fluid.Re')) then
-      ! Read Re into mu for further manipulation
-       call json_get(params, 'case.fluid.Re', this%mu)
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
+    ! Check if there is a user material properties routine points to a dummy.
+    if (associated(user%material_properties, &
+                   dummy_user_material_properties)) then
 
-       ! Invert the Re to get kinematic viscosity.
-       this%mu = 1.0_rp/this%mu
-       this%mu = this%mu * this%rho
-    else  if (params%valid_path('case.fluid.nu')) then
-       call json_get(params, 'case.fluid.nu', this%mu)
-       this%mu = this%mu * this%rho
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'nu         :',  this%mu
+       ! Incorrect user input
+       if (params%valid_path('case.fluid.Re') .and. &
+           (params%valid_path('case.fluid.mu') .or. &
+            params%valid_path('case.fluid.rho'))) then
+           call neko_error("Set either Re or (mu, rho) in the case file, not &
+                           both.")
+
+       ! Non-dimensional case
+       else if (params%valid_path('case.fluid.Re')) then
+          ! Read Re into mu for further manipulation.
+          call json_get(params, 'case.fluid.Re', this%mu)
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
+
+          ! Set rho to 1 since the setup is non-dimensional.
+          this%rho = 1.0_rp
+          ! Invert the Re to get viscosity.
+          this%mu = 1.0_rp/this%mu
+       ! Dimensional case
+       else 
+          call json_get(params, 'case.fluid.mu', this%mu)
+          call json_get(params, 'case.fluid.rho', this%mu)
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,ES13.6)') 'rho         :',  this%rho
+          write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
     end if
 
+    else
+       if (pe_rank .eq. 0) then
+          call neko_warning("Fluid material properties must be set in the &
+                            user file!")
+       end if
 
-
+    end if
 
     call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
     call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
