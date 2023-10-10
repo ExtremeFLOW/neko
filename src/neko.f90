@@ -80,6 +80,7 @@ module neko
   use field_list, only : field_list_t
   use fluid_user_source_term
   use vector
+  use tensor
   use simulation_component
   use probes
   use spectral_error_indicator
