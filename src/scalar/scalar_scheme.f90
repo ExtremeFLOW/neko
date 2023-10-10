@@ -56,7 +56,8 @@ module scalar_scheme
   use usr_scalar
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use user_intf, only : user_t, dummy_user_material_properties
+  use user_intf, only : user_t, dummy_user_material_properties, &
+                        user_material_properties
   use comm, only : pe_rank
   implicit none
 
@@ -214,6 +215,8 @@ contains
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val
     character(len=:), allocatable :: solver_type, solver_precon
+    ! A local pointer that is needed to make Intel happy
+    procedure(user_material_properties),  pointer :: user_mp_ptr
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
@@ -231,8 +234,9 @@ contains
     !
 
     ! Check if the user material properties routine points to a dummy.
-    if (associated(user%material_properties, &
-                   dummy_user_material_properties)) then
+    ! We need to use this local pointer to make Intel happy.
+    user_mp_ptr => dummy_user_material_properties
+    if (associated(user%material_properties, user_mp_ptr)) then
 
        ! Incorrect user input
        if (params%valid_path('case.scalar.Pe') .and. &

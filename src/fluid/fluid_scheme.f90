@@ -196,6 +196,7 @@ contains
     logical :: logical_val
     integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
+    ! A local pointer that is needed to make Intel happy
     procedure(user_material_properties),  pointer :: user_mp_ptr
 
     
@@ -215,9 +216,9 @@ contains
     !
 
     ! Check if the user material properties routine points to a dummy.
+    ! We need to use this local pointer to make Intel happy.
     user_mp_ptr => dummy_user_material_properties
-    if (associated(user%material_properties, &
-                   user_mp_ptr)) then
+    if (associated(user%material_properties, user_mp_ptr)) then
 
        ! Incorrect user input
        if (params%valid_path('case.fluid.Re') .and. &
