@@ -56,6 +56,7 @@ module scalar_scheme
   use usr_scalar
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
+  use user_intf, only : user_t
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -82,13 +83,13 @@ module scalar_scheme
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> Density.
-     real(kind=rp) :: rho = 1.0_rp
+     real(kind=rp) :: rho
      !> Specific heat capacity
-     real(kind=rp) :: cp = 1.0_rp
+     real(kind=rp) :: cp
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
    contains
-     procedure, pass(this) :: scalar_scheme_init
+     procedure, pass(this) :: scheme_init => scalar_scheme_init
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      procedure, pass(this) :: validate => scalar_scheme_validate
      procedure, pass(this) :: bc_apply => scalar_scheme_bc_apply
@@ -97,22 +98,23 @@ module scalar_scheme
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      procedure(scalar_scheme_free_intrf), pass(this), deferred :: free
      procedure(scalar_scheme_step_intrf), pass(this), deferred :: step
-     generic :: scheme_init => scalar_scheme_init
   end type scalar_scheme_t
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
+       import user_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh       
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
+       type(user_t), target, intent(in) :: user
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -195,13 +197,15 @@ contains
   !! @param gs_Xh The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param scheme The name of the scalar scheme.
-  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme)
+  !! @param user Type with user-defined procedures.
+  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
     type(gs_t), target, intent(inout) :: gs_Xh
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
+    type(user_t), target, intent(in) :: user
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters

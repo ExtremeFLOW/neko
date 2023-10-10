@@ -214,7 +214,7 @@ contains
 
     if (scalar) then
        allocate(C%scalar)
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr)
        call C%fluid%chkp%add_scalar(C%scalar%s)
     end if
 
