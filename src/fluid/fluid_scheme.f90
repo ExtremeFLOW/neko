@@ -71,7 +71,8 @@ module fluid_scheme
   use source_term, only : source_term_wrapper_t
   use source_term_fctry, only : source_term_factory
   use const_source_term, only : const_source_term_t
-  use user_intf, only : user_t, dummy_user_material_properties
+  use user_intf, only : user_t, dummy_user_material_properties, &
+                        user_material_properties
   use utils, only : neko_warning, neko_error
   use comm, only : pe_rank
   implicit none
@@ -195,6 +196,7 @@ contains
     logical :: logical_val
     integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
+    procedure(user_material_properties),  pointer :: user_mp_ptr
 
     
     call neko_log%section('Fluid')
@@ -213,8 +215,9 @@ contains
     !
 
     ! Check if the user material properties routine points to a dummy.
+    user_mp_ptr => dummy_user_material_properties
     if (associated(user%material_properties, &
-                   dummy_user_material_properties)) then
+                   user_mp_ptr)) then
 
        ! Incorrect user input
        if (params%valid_path('case.fluid.Re') .and. &

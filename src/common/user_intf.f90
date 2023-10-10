@@ -148,7 +148,7 @@ module user_intf
   end type user_t
 
   public :: useric, user_initialize_modules, usermsh, &
-            dummy_user_material_properties
+            dummy_user_material_properties, user_material_properties
 contains
   
   !> User interface initialization
