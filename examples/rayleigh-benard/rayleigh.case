@@ -13,7 +13,6 @@
     },
     "fluid": {
         "scheme": "pnpn",
-        "nu": 1,
         "Ra": 1750,
         "source_terms": 
         [
@@ -52,7 +51,6 @@
     "scalar": {
         "enabled": true,
         "Pr": 0.71,
-        "kappa": 1,
         "boundary_types": [
             "",
             "",

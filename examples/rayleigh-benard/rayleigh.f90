@@ -2,8 +2,8 @@ module user
   use neko
   implicit none
 
-  real(kind=rp) :: Ra = 1715 
-  real(kind=rp) :: Pr = 0
+  real(kind=rp) :: Ra
+  real(kind=rp) :: Pr
   real(kind=rp) :: ta2 = 0
 
 contains
@@ -28,6 +28,8 @@ contains
     
     mu = 1.0_rp / Re
     lambda = mu / Pr
+    rho = 1.0_rp
+    cp = 1.0_rp
   end subroutine set_material_properties
 
   subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
