@@ -18,8 +18,6 @@
   },
   "fluid": {
     "scheme": "pnpn",
-    "rho": 1.0,
-    "mu": 1.0,
     "Re": 1600,
     "initial_condition": {
       "type": "user"
