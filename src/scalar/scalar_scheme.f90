@@ -264,7 +264,7 @@ contains
     else
        if (pe_rank .eq. 0) then
           call neko_warning("Scalar material properties must be set in the &
-                            user file!")
+                            & user file!")
        end if
     end if
 
