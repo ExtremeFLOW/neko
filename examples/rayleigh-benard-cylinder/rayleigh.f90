@@ -1,6 +1,5 @@
 module user
   use neko
-  use tensor
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
