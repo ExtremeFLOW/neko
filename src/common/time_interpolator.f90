@@ -44,11 +44,7 @@ module time_interpolator
   implicit none
   private
 
-  !> Provides tools to calculate the spectral error indicator
-  !! @details
-  !! This is a posteriori error measure, based on the local properties of 
-  !! the spectral solution, which was developed by Mavriplis. This method
-  !! formally only gives an indication of the error. 
+  !> Provides a tool to perform interpolation in time
   type, public :: time_interpolator_t
      !> Order of the interpolation
      integer :: order
@@ -96,45 +92,26 @@ contains
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t,t_past,t_future 
     type(field_t), intent(inout) :: f,f_past,f_future
-
+    real(kind=rp) :: w_past,w_future !Weights for the interpolation
+    integer :: n
 
     if (this%order .eq. 2) then
-      call interpolate_order_2(t,f, t_past, f_past, t_future,f_future)
+
+      n = f%dof%size()
+      w_past   = ( t_future - t ) / ( t_future - t_past )
+      w_future = ( t - t_past ) / ( t_future - t_past )
+
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
+        w_past, w_future ,n) 
+      else
+        call add3s2(f%x, f_past%x, f_future%x, w_past, w_future ,n)
+      end if
+    
     else
       call neko_error("Time interpolation of required order is not implemented")
     end if
 
   end subroutine time_interpolator_interpolate
-
-
-  !> Linear interpolation 
-  !! @details The weights are inversely related to the distance 
-  !! from the end points to the unknown point; the closer point 
-  !! has more influence than the farther point.
-  !! @param t time to get interpolated field
-  !! @param f interpolated field
-  !! @param t_past time in the past for interpolation
-  !! @param f_past field in the past for interpolation
-  !! @param t_future time in future for interpolation
-  !! @param f_future time in future for interpolation
-  subroutine interpolate_order_2(t,f, t_past, f_past, t_future,f_future)
-    real(kind=rp), intent(inout) :: t,t_past,t_future 
-    type(field_t), intent(inout) :: f,f_past,f_future
-    real(kind=rp) :: w_past,w_future !Weights for the interpolation
-    integer :: n
-
-    n = f%dof%size()
-    w_past   = ( t_future - t ) / ( t_future - t_past )
-    w_future = ( t - t_past ) / ( t_future - t_past )
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
-      w_past, w_future ,n) 
-    else
-      call add3s2(f%x, f_past%x, f_future%x, w_past, w_future ,n)
-    end if
-
-  end subroutine interpolate_order_2
-
 
 end module time_interpolator
