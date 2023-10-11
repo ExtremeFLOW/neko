@@ -49,6 +49,7 @@ module neko
   use mesh_field, only : mesh_fld_t
   use map
   use mxm_wrapper
+  use global_interpolation
   use file
   use field, only : field_t
   use mpi_types
