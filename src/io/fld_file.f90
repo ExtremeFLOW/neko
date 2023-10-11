@@ -43,7 +43,6 @@ module fld_file
   use fld_file_data
   use mean_flow
   use mean_sqr_flow
-  use structs
   use vector, only : vector_t
   use space, only : space_t
   use mesh, only : mesh_t
