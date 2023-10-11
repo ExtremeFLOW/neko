@@ -50,7 +50,7 @@ module global_interpolation
   private
   
   type, public :: global_interpolation_t
-     !> Dofmap of which we interpolate from
+     !> Dofmap from which we interpolate the points
      type(dofmap_t), pointer :: dof
      !> Mesh on which we interpolate
      type(mesh_t), pointer :: mesh
@@ -63,14 +63,14 @@ module global_interpolation
      !> Number of points we want to evaluate
      integer :: n_points
      !> x,y,z coordinates, findpts format
-     !! @note: When rplacing gs we change format
+     !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: xyz(:,:)
      !> List of owning processes
      integer, allocatable :: proc_owner(:)
      !> List of owning elements
      integer, allocatable :: el_owner(:)
      !> r,s,t coordinates findpts format
-     !! @note: When replacing gs we change format
+     !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: rst(:,:)
      !> Distance squared between original and interpolated point (in xyz space) (according to gslib)
      real(kind=rp), allocatable :: dist2(:)
@@ -87,6 +87,7 @@ module global_interpolation
        procedure, pass(this) :: free_points => global_interpolation_free_points
        !> Finds the process owner, global element number,
        !! and local rst coordinates for each point.
+       !! Sets up correct values to be able to evalute the points
        procedure, pass(this) :: find_points => global_interpolation_find
        !> Evaluate the value of the field in each point.
        procedure, pass(this) :: evaluate => global_interpolation_evaluate
@@ -167,7 +168,7 @@ contains
   !> Finds the corresponding r,s,t coordinates 
   !! in the correct global element as well as which process that owns the point.
   !! After this the values at these points can be evaluated.
-  !! If the locations of hte points change this must be called again.
+  !! If the locations of the points change this must be called again.
   !! - `error_code`: returns `0` if point found, `1` if closest point on a border
   !! (check dist2), `2` if not found
   !! - `dist2`: distance squared (used to compare the points found by each
@@ -285,7 +286,7 @@ contains
   end subroutine global_interpolation_find
 
 
-  !> Evalute the interpolated value in the points given a field of values.
+  !> Evalute the interpolated value in the points given a field on the dofmap
   !! @param intrp_points array of values in the given points.
   !! @param field array of values used for interpolation.
   subroutine global_interpolation_evaluate(this, intrp_points, field)
