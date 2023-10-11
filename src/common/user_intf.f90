@@ -34,7 +34,6 @@
 module user_intf
   use field
   use field_list, only : field_list_t
-  use source
   use fluid_user_source_term
   use source_scalar
   use coefs

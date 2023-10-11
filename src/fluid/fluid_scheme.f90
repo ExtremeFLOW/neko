@@ -38,7 +38,6 @@ module fluid_scheme
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
   use num_types
-  use source
   use comm
   use fluid_user_source_term, only: fluid_user_source_term_t
   use fluid_source_term, only: fluid_source_term_t
