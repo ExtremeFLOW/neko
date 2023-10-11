@@ -89,7 +89,7 @@ contains
   subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, t_future, f_future)
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t, t_past, t_future 
-    type(field_t), intent(inout) :: f,f_past,f_future
+    type(field_t), intent(inout) :: f, f_past, f_future
     real(kind=rp) :: w_past,w_future !Weights for the interpolation
     integer :: n
 
