@@ -90,7 +90,7 @@ contains
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t, t_past, t_future 
     type(field_t), intent(inout) :: f, f_past, f_future
-    real(kind=rp) :: w_past,w_future !Weights for the interpolation
+    real(kind=rp) :: w_past, w_future !Weights for the interpolation
     integer :: n
 
     if (this%order .eq. 2) then
