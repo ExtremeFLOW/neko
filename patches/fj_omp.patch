@@ -1,0 +1,98 @@
+diff --git a/src/field/field.f90 b/src/field/field.f90
+index 6bb1d7a1..51019405 100644
+--- a/src/field/field.f90
++++ b/src/field/field.f90
+@@ -59,7 +59,7 @@ module field
+           field_init_external_dof
+      procedure, private, pass(this) :: init_internal_dof => &
+           field_init_internal_dof
+-     procedure, private, pass(this) :: assign_field => field_assign_field
++     procedure, pass(this) :: assign_field => field_assign_field
+      procedure, private, pass(this) :: assign_scalar => field_assign_scalar
+      procedure, private, pass(this) :: add_field => field_add_field
+      procedure, private, pass(this) :: add_Scalar => field_add_scalar
+diff --git a/src/field/field_series.f90 b/src/field/field_series.f90
+index ad99a25f..0845ed03 100644
+--- a/src/field/field_series.f90
++++ b/src/field/field_series.f90
+@@ -101,10 +101,10 @@ contains
+     integer :: i
+     !$omp parallel private(i)
+     do i = this%len, 2, -1
+-       this%lf(i) = this%lf(i-1)
++       call this%lf(i)%assign_field(this%lf(i-1))
+     end do
+ 
+-    this%lf(1) = this%f
++    call this%lf(1)%assign_field(this%f)
+     !$omp end parallel
+     
+   end subroutine field_series_update
+@@ -116,7 +116,7 @@ contains
+     integer :: i
+     !$omp parallel
+     do i = 1, this%len
+-       this%lf(i) = g
++       call this%lf(i)%assign_field(g)
+     end do
+     !$omp end parallel
+   end subroutine field_series_set
+diff --git a/src/gs/gs_mpi.f90 b/src/gs/gs_mpi.f90
+index d570ecaf..16161679 100644
+--- a/src/gs/gs_mpi.f90
++++ b/src/gs/gs_mpi.f90
+@@ -131,24 +131,28 @@ contains
+ 
+     thrdid = 0
+     !$ thrdid = omp_get_thread_num()
+-    !$omp do
++
+     do i = 1, size(this%send_pe)
+        dst = this%send_pe(i)
+        sp => this%send_dof(dst)%array()
++       !$omp do
+        do j = 1, this%send_dof(dst)%size()
+           this%send_buf(i)%data(j) = u(sp(j))
+        end do
++       !$omp end do
++       !$omp single
+        ! We should not need this extra associate block, ant it works
+        ! great without it for GNU, Intel, NEC and Cray, but throws an
+        ! ICE with NAG.
+        associate(send_data => this%send_buf(i)%data)
+          call MPI_Isend(send_data, size(send_data), &
+-              MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
++              MPI_REAL_PRECISION, this%send_pe(i), 0, &
+               NEKO_COMM, this%send_buf(i)%request, ierr)
+        end associate
+        this%send_buf(i)%flag = .false.
++       !$omp end single
+     end do
+-    !$omp end do
++
+   end subroutine gs_nbsend_mpi
+ 
+   !> Post non-blocking receive operations
+@@ -158,19 +162,19 @@ contains
+ 
+     thrdid = 0
+     !$ thrdid = omp_get_thread_num()
+-    !$omp do
++    !$omp single
+     do i = 1, size(this%recv_pe)
+        ! We should not need this extra associate block, ant it works
+        ! great without it for GNU, Intel, NEC and Cray, but throws an
+        ! ICE with NAG.
+        associate(recv_data => this%recv_buf(i)%data)
+          call MPI_IRecv(recv_data, size(recv_data), &
+-              MPI_REAL_PRECISION, this%recv_pe(i), thrdid, &
++              MPI_REAL_PRECISION, this%recv_pe(i), 0, &
+               NEKO_COMM, this%recv_buf(i)%request, ierr)
+        end associate
+        this%recv_buf(i)%flag = .false.
+     end do
+-    !$omp end do
++    !$omp end single
+   end subroutine gs_nbrecv_mpi
+ 
+   !> Wait for non-blocking operations
