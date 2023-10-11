@@ -38,7 +38,9 @@ module fluid_scheme
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
   use num_types
-  use source
+  use fluid_user_source_term, only: fluid_user_source_term_t
+  use fluid_source_term, only: fluid_source_term_t
+  use field_list, only : field_list_t
   use field, only : field_t
   use space
   use dofmap, only : dofmap_t
@@ -64,8 +66,12 @@ module fluid_scheme
   use logger
   use field_registry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
+  use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
+  use source_term, only : source_term_wrapper_t
+  use source_term_fctry, only : source_term_factory
+  use const_source_term, only : const_source_term_t
+  use user_intf, only : user_t
   implicit none
   
   !> Base type of all fluid formulations
@@ -78,7 +84,14 @@ module fluid_scheme
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
-     type(source_t) :: f_Xh     !< Source term associated with \f$ X_h \f$
+     !> The source term for the momentum equation.
+     type(fluid_source_term_t) :: source_term
+     !> X-component of the right-hand side.
+     type(field_t), pointer :: f_x => null()
+     !> Y-component of the right-hand side.
+     type(field_t), pointer :: f_y => null()
+     !> Z-component of the right-hand side.
+     type(field_t), pointer :: f_z => null()
      class(ksp_t), allocatable  :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable  :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
@@ -119,7 +132,6 @@ module fluid_scheme
      procedure, pass(this) :: validate => fluid_scheme_validate
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
-     procedure, pass(this) :: set_source => fluid_scheme_set_source
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
@@ -130,14 +142,16 @@ module fluid_scheme
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_init_intrf(this, msh, lx, params)
+     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user)
        import fluid_scheme_t
        import json_file
        import mesh_t
+       import user_t
        class(fluid_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh       
+       type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
-       type(json_file), target, intent(inout) :: params              
+       type(json_file), target, intent(inout) :: params
+       type(user_t), intent(in) :: user
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -166,13 +180,14 @@ module fluid_scheme
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme)
+  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
@@ -272,7 +287,6 @@ contains
 
     call this%c_Xh%init(this%gs_Xh)
 
-    call source_init(this%f_Xh, this%dm_Xh)
     
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
@@ -413,16 +427,31 @@ contains
 
     end if
 
-    
+    !
+    ! Setup right-hand side fields.
+    !
+    allocate(this%f_x)
+    allocate(this%f_y)
+    allocate(this%f_z)
+    call this%f_x%init(this%dm_Xh, fld_name="fluid_rhs_x")
+    call this%f_y%init(this%dm_Xh, fld_name="fluid_rhs_y")
+    call this%f_z%init(this%dm_Xh, fld_name="fluid_rhs_z")
+
+    ! Initialize the source term
+    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
+                               user)
+
   end subroutine fluid_scheme_init_common
 
   !> Initialize all velocity related components of the current scheme
-  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme)
+  subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme, &
+                                   user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
@@ -431,7 +460,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
 
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
     
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
@@ -458,12 +487,13 @@ contains
 
   !> Initialize all components of the current scheme
   subroutine fluid_scheme_init_all(this, msh, lx, params, &
-                                   kspv_init, kspp_init, scheme)
+                                   kspv_init, kspp_init, scheme, user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
@@ -472,7 +502,7 @@ contains
     integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
 
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
@@ -555,6 +585,7 @@ contains
   !> Deallocate a fluid formulation
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
+    integer :: i
 
     call this%bdry%free()
 
@@ -591,11 +622,11 @@ contains
        deallocate(this%bc_labels)
     end if
 
+    call this%source_term%free()
+
     call this%gs_Xh%free()
 
     call this%c_Xh%free()
-
-    call source_free(this%f_Xh)
 
     call bc_list_free(this%bclst_vel)
     
@@ -607,6 +638,22 @@ contains
     nullify(this%v)
     nullify(this%w)
     nullify(this%p)
+
+    if (associated(this%f_x)) then
+      call this%f_x%free()
+    end if
+
+    if (associated(this%f_y)) then
+      call this%f_y%free()
+    end if
+
+    if (associated(this%f_z)) then
+      call this%f_z%free()
+    end if
+
+    nullify(this%f_x)
+    nullify(this%f_y)
+    nullify(this%f_z)
     
     
   end subroutine fluid_scheme_free
@@ -638,10 +685,6 @@ contains
     
     if (.not. allocated(this%ksp_prs)) then
        call neko_error('No Krylov solver for pressure defined')
-    end if
-
-    if (.not. associated(this%f_Xh%eval)) then
-       call neko_error('No source term defined')
     end if
 
     if (.not. associated(this%params)) then
@@ -745,25 +788,6 @@ contains
     
   end subroutine fluid_scheme_precon_factory
 
-  !> Initialize source term
-  subroutine fluid_scheme_set_source(this, source_term_type, usr_f, usr_f_vec)
-    class(fluid_scheme_t), intent(inout) :: this
-    character(len=*) :: source_term_type
-    procedure(source_term_pw), optional :: usr_f
-    procedure(source_term), optional :: usr_f_vec
-
-    if (trim(source_term_type) .eq. 'noforce') then
-       call source_set_type(this%f_Xh, source_eval_noforce)
-    else if (trim(source_term_type) .eq. 'user' .and. present(usr_f)) then
-       call source_set_pw_type(this%f_Xh, usr_f)
-    else if (trim(source_term_type) .eq. 'user_vector' .and. present(usr_f_vec)) then
-       call source_set_type(this%f_Xh, usr_f_vec)
-    else
-       call neko_error('Invalid fluid source term '//source_term_type)
-    end if
-
-  end subroutine fluid_scheme_set_source
-
   !> Initialize a user defined inflow condition
   subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
     class(fluid_scheme_t), intent(inout) :: this
@@ -775,7 +799,6 @@ contains
     class default
       call neko_error("Not a user defined inflow condition")
     end select
-    
   end subroutine fluid_scheme_set_usr_inflow
 
   !> Compute CFL

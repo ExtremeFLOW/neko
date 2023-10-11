@@ -20,9 +20,12 @@
         "rho": 1,
         "mu": 1,
         "Re": 1e4,
-        "source_term": {
-            "type": "user_vector"
-        },
+        "source_terms": 
+        [
+            {
+                "type": "user_vector"
+            }
+        ],
         "initial_condition": {
             "type": "user"
         },

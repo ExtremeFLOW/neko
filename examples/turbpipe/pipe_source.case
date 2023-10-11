@@ -19,9 +19,13 @@
         "rho": 1,
         "mu": 1,
         "Re": 2650,
-        "source_term": {
-            "type": "user_vector"
-        },
+        "source_terms": 
+        [
+            {
+                "type": "constant",
+                "values": [0, 0, 0.0092274831]
+            }
+        ],
         "initial_condition": {
             "type": "user"
         },

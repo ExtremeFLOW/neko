@@ -38,7 +38,6 @@ module scalar_scheme
   use neko_config
   use checkpoint
   use num_types
-  use source
   use source_scalar
   use field
   use space
