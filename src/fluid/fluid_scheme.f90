@@ -743,9 +743,9 @@ contains
        call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
     end if
 
-    call this%gs_Xh%op(this%u%x, GS_OP_MAX)
-    call this%gs_Xh%op(this%v%x, GS_OP_MAX)
-    call this%gs_Xh%op(this%w%x, GS_OP_MAX)
+    call this%gs_Xh%op(this%u, GS_OP_MAX)
+    call this%gs_Xh%op(this%v, GS_OP_MAX)
+    call this%gs_Xh%op(this%w, GS_OP_MAX)
 
     call bc_list_apply_vector(this%bclst_vel,&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
@@ -761,9 +761,9 @@ contains
        call this%bc_field_w%apply_scalar(this%w%x, this%dm_Xh%size(), t, tstep)
     end if
 
-    call this%gs_Xh%op(this%u%x, GS_OP_MIN)
-    call this%gs_Xh%op(this%v%x, GS_OP_MIN)
-    call this%gs_Xh%op(this%w%x, GS_OP_MIN)
+    call this%gs_Xh%op(this%u, GS_OP_MIN)
+    call this%gs_Xh%op(this%v, GS_OP_MIN)
+    call this%gs_Xh%op(this%w, GS_OP_MIN)
 
   end subroutine fluid_scheme_bc_apply_vel
   
@@ -777,12 +777,12 @@ contains
     call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
                               this%p%dof%size(), t, tstep)
 
-    call this%gs_Xh%op(this%p%x, GS_OP_MAX)
+    call this%gs_Xh%op(this%p, GS_OP_MAX)
 
     call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
                               this%p%dof%size(), t, tstep)
 
-    call this%gs_Xh%op(this%p%x, GS_OP_MIN)
+    call this%gs_Xh%op(this%p, GS_OP_MIN)
 
   end subroutine fluid_scheme_bc_apply_prs
   
