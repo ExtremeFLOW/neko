@@ -39,7 +39,6 @@ module time_interpolator
   use math, only : add3s2
   use utils, only : neko_error
   !use device, only: DEVICE_TO_HOST, device_memcpy
-  !use utils, only: NEKO_FNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
