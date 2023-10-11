@@ -36,7 +36,6 @@ module pnpn_res_device
   use field
   use ax_product
   use coefs
-  use source
   use facet_normal
   use device_math
   use device_mathops
@@ -218,11 +217,12 @@ module pnpn_res_device
 contains
 
   subroutine pnpn_prs_res_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
-       f_Xh, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
+       f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
+       Re, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(source_t), intent(inout) :: f_Xh
+    type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(facet_normal_t), intent(inout) :: bc_prs_surface
@@ -254,16 +254,16 @@ contains
 
 #ifdef HAVE_HIP
     call pnpn_prs_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
 
 #elif HAVE_CUDA
     call pnpn_prs_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
 #elif HAVE_OPENCL
     call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
 #endif
      c_Xh%ifh2 = .false.
@@ -327,13 +327,13 @@ contains
   end subroutine pnpn_prs_res_device_compute
 
   subroutine pnpn_vel_res_device_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_Xh, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+       p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(source_t), intent(inout) :: f_Xh
+    type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     real(kind=rp), intent(in) :: Re
     real(kind=rp), intent(in) :: rho
@@ -359,13 +359,13 @@ contains
 
 #ifdef HAVE_HIP
     call pnpn_vel_res_update_hip(u_res%x_d, v_res%x_d, w_res%x_d, &
-         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #elif HAVE_CUDA
     call pnpn_vel_res_update_cuda(u_res%x_d, v_res%x_d, w_res%x_d, &
-         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
-         ta1%x_d, ta2%x_d, ta3%x_d, f_Xh%u_d, f_Xh%v_d, f_Xh%w_d, n)
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #endif
     
     call neko_scratch_registry%relinquish_field(temp_indices)

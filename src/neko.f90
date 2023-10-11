@@ -76,16 +76,18 @@ module neko
   use device
   use device_math
   use cpr
-  use source
   use fluid_stats
   use field_list, only : field_list_t
+  use fluid_user_source_term
   use vector
   use simulation_component
   use probes
+  use spectral_error_indicator
   use system
   use field_registry, only : neko_field_registry    
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
+  use data_streamer
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none

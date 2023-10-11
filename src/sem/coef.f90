@@ -92,6 +92,7 @@ module coefs
      real(kind=rp), allocatable :: nx(:,:,:,:)   !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:)   !< y-direction of facet normal
      real(kind=rp), allocatable :: nz(:,:,:,:)   !< z-direction of facet normal
+     !> Pointers to main fields 
      
      real(kind=rp) :: volume
      
@@ -140,6 +141,7 @@ module coefs
      type(c_ptr) :: ny_d = C_NULL_PTR
      type(c_ptr) :: nz_d = C_NULL_PTR
 
+
    contains
      procedure, private, pass(this) :: init_empty => coef_init_empty
      procedure, private, pass(this) :: init_all => coef_init_all
@@ -172,6 +174,7 @@ contains
     allocate(this%dsdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%dtdz(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     
+
     !
     ! Setup device memory (if present)
     !
@@ -258,6 +261,7 @@ contains
     allocate(this%h2(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
     allocate(this%mult(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    
 
     !
     ! Setup device memory (if present)
@@ -311,6 +315,7 @@ contains
        call device_map(this%nx, this%nx_d, m)
        call device_map(this%ny, this%ny_d, m)
        call device_map(this%nz, this%nz_d, m)
+       
     end if
 
     call coef_generate_dxyzdrst(this)
@@ -320,7 +325,8 @@ contains
     call coef_generate_area_and_normal(this)
 
     call coef_generate_mass(this)
-    
+
+
     ! This is a placeholder, just for now
     ! We can probably find a prettier solution
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -499,6 +505,7 @@ contains
        deallocate(this%nz)
     end if
     
+    
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%dof)
@@ -646,6 +653,7 @@ contains
     if (c_associated(this%nz_d)) then
        call device_Free(this%nz_d)
     end if
+    
 
   end subroutine coef_free
 
@@ -1174,5 +1182,6 @@ contains
     end if
     
   end subroutine coef_generate_area_and_normal
+  
   
 end module coefs

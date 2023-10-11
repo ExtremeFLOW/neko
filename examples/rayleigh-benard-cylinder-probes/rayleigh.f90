@@ -180,7 +180,7 @@ contains
   end subroutine user_finalize
 
   subroutine set_bousinesq_forcing_term(f, t)
-    class(source_t), intent(inout) :: f
+    class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
     integer :: i
     type(field_t), pointer :: u, v, w, s
