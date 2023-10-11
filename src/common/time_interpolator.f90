@@ -38,7 +38,6 @@ module time_interpolator
   use device_math, only : device_add3s2
   use math, only : add3s2
   use utils, only : neko_error
-  !use device, only: DEVICE_TO_HOST, device_memcpy
   use, intrinsic :: iso_c_binding
   implicit none
   private
