@@ -101,7 +101,7 @@ contains
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
         call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
-        w_past, w_future ,n) 
+        w_past, w_future, n) 
       else
         call add3s2(f%x, f_past%x, f_future%x, w_past, w_future ,n)
       end if
