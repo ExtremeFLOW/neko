@@ -291,7 +291,7 @@ contains
   !! @param field array of values used for interpolation.
   subroutine global_interpolation_evaluate(this, intrp_points, field)
     class(global_interpolation_t), intent(inout) :: this
-    real(kind=rp), intent(out) :: intrp_points(this%n_points)
+    real(kind=rp), intent(inout) :: intrp_points(this%n_points)
     real(kind=rp), intent(in) :: field(this%dof%size())
 
 #ifdef HAVE_GSLIB
