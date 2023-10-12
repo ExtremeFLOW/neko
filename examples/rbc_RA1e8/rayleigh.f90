@@ -1,6 +1,7 @@
 module user
   use neko
   use time_based_controller, only : time_based_controller_t
+  use mean_field, only : mean_field_t
   implicit none
 
   !> Variables to store the Rayleigh and Prandlt numbers
@@ -29,6 +30,8 @@ module user
 
   type(field_t) , target:: eps_k ! Detivative wrt y
   type(field_t) , target:: eps_t ! Derivative wrt z
+  type(mean_field_t) , target:: mean_eps_k ! Detivative wrt y
+  type(mean_field_t) , target:: mean_eps_t ! Derivative wrt z
   
   type(field_t) , target:: mass_area_top ! mass matrix for area on top wall
   type(field_t) , target:: mass_area_bot ! mass matrix for area on bottom wall
@@ -55,6 +58,7 @@ module user
   type(field_list_t) :: area_l
   type(field_list_t) :: dtdX_l
   type(field_list_t) :: eps_l
+  type(field_list_t) :: mean_eps_l
 
   !> Boundary conditions  
   integer :: istep = 1
@@ -65,9 +69,11 @@ module user
   character(len=NEKO_FNAME_LEN) :: fname_area
   character(len=NEKO_FNAME_LEN) :: fname_bm1
   character(len=NEKO_FNAME_LEN) :: fname_eps
+  character(len=NEKO_FNAME_LEN) :: fname_mean_eps
   type(file_t) :: mf_dtdn
   type(file_t) :: mf_dtdX
   type(file_t) :: mf_eps
+  type(file_t) :: mf_mean_eps
   type(file_t) :: mf_area
   type(file_t) :: mf_bm1
 
@@ -88,6 +94,8 @@ module user
   type(time_based_controller_t), allocatable :: controllers(:)
     
     
+  !> for mean
+  real(kind = rp):: eps_t_mean = 0_rp
 
 contains
   ! Register user defined functions (see user_intf.f90)
@@ -260,6 +268,8 @@ contains
 
     call eps_k%init( u%dof, 'eps_k')
     call eps_t%init( u%dof, 'eps_t')
+    call mean_eps_k%init( eps_k, 'mean_eps_k')
+    call mean_eps_t%init( eps_t, 'mean_eps_t')
 
     call div_dtdX%init( u%dof, 'div_dtdX')
     call mass_area_top%init( u%dof, 'mat')
@@ -274,11 +284,13 @@ contains
     !> Initialize the file
     fname_dtdX = 'dtdX.fld'
     fname_eps = 'eps.fld'
+    fname_mean_eps = 'mean_eps.fld'
     fname_dtdn = 'dtdn.fld'
     fname_area = 'area.fld'
     fname_bm1 = 'bm1.fld'
     mf_dtdX =  file_t(fname_dtdX)
     mf_eps =  file_t(fname_eps)
+    mf_mean_eps =  file_t(fname_mean_eps)
     mf_dtdn =  file_t(fname_dtdn)
     mf_area =  file_t(fname_area)
     mf_bm1 =  file_t(fname_bm1)
@@ -289,6 +301,8 @@ contains
     call list_init3(dtdX_l,dtdx,dtdy, &
                          dtdz)
     call list_init3(eps_l,eps_t,eps_k, &
+                         dtdz)
+    call list_init3(mean_eps_l,mean_eps_t%mf,mean_eps_k%mf, &
                          dtdz)
 
     !> Initialize list to identify relevant facets in boundaries
@@ -447,6 +461,8 @@ contains
 
     call eps_k%free()
     call eps_t%free()
+    call mean_eps_k%free()
+    call mean_eps_t%free()
     
     call mass_area_top%free()
     call mass_area_bot%free()
@@ -612,6 +628,20 @@ contains
     call device_memcpy(eps_k%x,eps_k%x_d, n,DEVICE_TO_HOST)
     if (controllers(1)%check(t, tstep, .false.))  call mf_eps%write(eps_l,t)
 
+    
+
+    call mean_eps_k%update(t-eps_t_mean)
+    call mean_eps_t%update(t-eps_t_mean)
+    eps_t_mean = t !< Update the last time that we updated
+    if (controllers(1)%check(t, tstep, .false.)) then
+       !! Write
+       call device_memcpy(mean_eps_t%mf%x,mean_eps_t%mf%x_d, n,DEVICE_TO_HOST)
+       call device_memcpy(mean_eps_k%mf%x,mean_eps_k%mf%x_d, n,DEVICE_TO_HOST)
+       call mf_mean_eps%write(mean_eps_l,t)
+       !! 
+       call mean_eps_k%reset()
+       call mean_eps_t%reset() 
+    end if
 
 
     ! Calculate some extra parameters to verify the boundary conditions
