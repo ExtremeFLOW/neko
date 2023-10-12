@@ -38,20 +38,25 @@ module chkp_file
   use checkpoint    
   use num_types
   use field
+  use dofmap, only: dofmap_t
   use utils
   use space
   use mesh
+  use math
   use interpolation
   use mpi_types
   use comm
+  use global_interpolation
   implicit none
   private
 
   !> Interface for Neko checkpoint files
   type, public, extends(generic_file_t) :: chkp_file_t
-     type(space_t) :: chkp_Xh
-     type(space_t), pointer :: sim_Xh
-     type(interpolator_t) :: interp
+     type(space_t) :: chkp_Xh !< Function space in the loaded checkpoint file
+     type(space_t), pointer :: sim_Xh !< Function space used in the simulation
+     type(interpolator_t) :: space_interp !< Interpolation when only changing lx
+     type(global_interpolation_t) :: global_interp !< Interpolation for different meshes
+     logical :: mesh2mesh !< Flag if previous mesh difers from current.
    contains
      procedure :: read => chkp_file_read
      procedure :: read_field => chkp_read_field
@@ -253,7 +258,10 @@ contains
     integer(kind=i8) :: n_glb_dofs, dof_offset
     integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel, optional_fields
     logical :: read_lag, read_scalar
+    real(kind=rp) :: tol
     integer :: i
+    type(dofmap_t) :: dof
+
     
     select type(data)
     type is (chkp_t)       
@@ -269,7 +277,15 @@ contains
        v => data%v
        w => data%w
        p => data%p
-       msh => u%msh
+       !> If checkpoint used another mesh
+       if (allocated(data%previous_mesh%elements)) then
+          msh => data%previous_mesh
+          this%mesh2mesh = .true.
+          tol = data%mesh2mesh_tol
+       else !< The checkpoint was written on the same mesh
+          msh => u%msh
+          this%mesh2mesh = .false.
+       end if 
 
        if (associated(data%ulag)) then       
           ulag => data%ulag
@@ -319,7 +335,13 @@ contains
     else
        call this%chkp_Xh%init(GLL, lx, lx)
     end if
-    call this%interp%init(this%sim_Xh, this%chkp_Xh) 
+    if (this%mesh2mesh) then
+       dof = dofmap_t(msh, this%chkp_Xh)
+       call this%global_interp%init(dof,tol=tol)
+       call this%global_interp%find_points(u%dof%x,u%dof%y,u%dof%z,u%dof%size())
+    else
+       call this%space_interp%init(this%sim_Xh, this%chkp_Xh) 
+    end if
     dof_offset = int(msh%offset_el, i8) * int(this%chkp_Xh%lxyz, i8)
     n_glb_dofs = int(this%chkp_Xh%lxyz, i8) * int(msh%glb_nelv, i8)    
     
@@ -384,6 +406,9 @@ contains
     end if
     
     call MPI_File_close(fh, ierr)      
+
+    call this%global_interp%free()
+    call this%space_interp%free()
     
   end subroutine chkp_file_read
 
@@ -401,7 +426,13 @@ contains
     allocate(read_array(this%chkp_Xh%lxyz*nel)) 
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
                nel*this%chkp_Xh%lxyz, MPI_REAL_PRECISION, status, ierr)
-    call this%interp%map_host(x, read_array, nel, this%sim_Xh)
+    if (this%mesh2mesh) then
+       x = 0.0_rp
+       call this%global_interp%evaluate(x,read_array)
+
+    else
+       call this%space_interp%map_host(x, read_array, nel, this%sim_Xh)
+    end if
     deallocate(read_array)
   end subroutine chkp_read_field
   
