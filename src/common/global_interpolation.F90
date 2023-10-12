@@ -128,7 +128,7 @@ contains
          dof%x, dof%y, dof%z, & ! Physical nodal values
          lx, ly, lz, nelv, & ! Mesh dimensions
          2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
-         1, & ! relative size to expand bounding boxes by
+         0.1, & ! relative size to expand bounding boxes by
          lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
          max_pts_per_iter, this%tol)
 #else
