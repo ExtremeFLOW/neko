@@ -60,7 +60,7 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_copy_kernel<real>),
-                       nblcks, nthrds, 0, (hipstream_t) glb_cmd_queue,
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, (int *) mask, *n, *m);
 
     HIP_CHECK(hipGetLastError());
