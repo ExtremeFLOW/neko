@@ -49,6 +49,15 @@ module device_math
   end interface
 
   interface
+     subroutine hip_masked_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='hip_masked_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine hip_masked_copy
+  end interface
+  
+  interface
      subroutine hip_cmult(a_d, c, n) &
           bind(c, name='hip_cmult')
        use, intrinsic :: iso_c_binding
@@ -913,7 +922,7 @@ contains
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, m
 #ifdef HAVE_HIP
-    call neko_error('no HIP backend')
+    call hip_masked_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_CUDA
     call cuda_masked_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_OPENCL
