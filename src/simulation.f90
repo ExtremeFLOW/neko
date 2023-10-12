@@ -192,16 +192,33 @@ contains
     type(case_t), intent(inout) :: C
     real(kind=rp), intent(inout) :: t
     integer :: i
-    type(file_t) :: chkpf
+    type(file_t) :: chkpf, previous_meshf
     character(len=LOG_SIZE) :: log_buf   
     character(len=:), allocatable :: restart_file
+    character(len=:), allocatable :: restart_mesh_file
+    real(kind=rp) :: tol
     logical :: found
 
     call C%params%get('case.restart_file', restart_file, found)
+    call C%params%get('case.restart_mesh_file', restart_mesh_file,&
+                      found)
+
+    if (found) then
+       previous_meshf = file_t(trim(restart_mesh_file))
+       call previous_meshf%read(C%fluid%chkp%previous_mesh)
+    end if
+
+    call C%params%get('case.mesh2mesh_tolerance', tol,&
+                      found)
+
+    if (found) C%fluid%chkp%mesh2mesh_tol = tol
+
 
 
     chkpf = file_t(trim(restart_file))
     call chkpf%read(C%fluid%chkp)
+    !Free the previous mesh, dont need it anymore
+    call C%fluid%chkp%previous_mesh%free()
     
     ! Make sure that continuity is maintained (important for interpolation) 
     call col2(C%fluid%u%x,C%fluid%c_Xh%mult,C%fluid%u%dof%size())
