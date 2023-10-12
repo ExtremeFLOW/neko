@@ -72,12 +72,13 @@ module global_interpolation
      !> r,s,t coordinates findpts format
      !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: rst(:,:)
-     !> Distance squared between original and interpolated point (in xyz space) (according to gslib)
+     !> Distance squared between original and interpolated point
+     !! (in xyz space) (according to gslib)
      real(kind=rp), allocatable :: dist2(:)
      !> Error code for each point, needed for gslib
      integer, allocatable :: error_code(:)
      !> Tolerance for distance squared between original and interpolated point
-     real(kind=rp) :: tol = 5e-8
+     real(kind=rp) :: tol = 5e-13
      contains
        !> Initialize the global interpolation object on a dofmap.
        procedure, pass(this) :: init => global_interpolation_init
@@ -98,9 +99,9 @@ module global_interpolation
 
 
 contains
-
   !> Initialize user defined variables.
-  !! @dof dofmap on which the interpolation is to be carried out.
+  !! @param dof Dofmap on which the interpolation is to be carried out.
+  !! @param tol Tolerance for Newton iterations.
   subroutine global_interpolation_init(this, dof, tol)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
@@ -170,6 +171,7 @@ contains
 
   end subroutine global_interpolation_free_points
   
+  !> Common routine for finding the points. 
   subroutine global_interpolation_find_common(this)
     class(global_interpolation_t), intent(inout) :: this
     !!Perhaps this should be kind dp
@@ -273,7 +275,19 @@ contains
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
   end subroutine global_interpolation_find_common
-
+  
+  !> Finds the corresponding r,s,t coordinates 
+  !! in the correct global element as well as which process that owns the point.
+  !! After this the values at these points can be evaluated.
+  !! If the locations of the points change this must be called again.
+  !! - `error_code`: returns `0` if point found, `1` if closest point on a border
+  !! (check dist2), `2` if not found
+  !! - `dist2`: distance squared (used to compare the points found by each
+  !! processor)
+  !! @param x The x-coordinates of the points.
+  !! @param y The y-coordinates of the points.
+  !! @param z The z-coordinates of the points.
+  !! @param n_points The number of points.
   subroutine global_interpolation_find_coords(this, x, y, z, n_points)
     class(global_interpolation_t), intent(inout) :: this
     integer :: n_points
@@ -314,6 +328,8 @@ contains
   !! (check dist2), `2` if not found
   !! - `dist2`: distance squared (used to compare the points found by each
   !! processor)
+  !! @param xyz The coordinates of the points.
+  !! @param n_points The number of points.
   subroutine global_interpolation_find_xyz(this, xyz, n_points)
     class(global_interpolation_t), intent(inout) :: this
     integer, intent(in) :: n_points
@@ -340,16 +356,16 @@ contains
 
 
   !> Evalute the interpolated value in the points given a field on the dofmap
-  !! @param intrp_points array of values in the given points.
-  !! @param field array of values used for interpolation.
-  subroutine global_interpolation_evaluate(this, intrp_points, field)
+  !! @param interp_values Array of values in the given points.
+  !! @param field Array of values used for interpolation.
+  subroutine global_interpolation_evaluate(this, interp_values, field)
     class(global_interpolation_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: intrp_points(this%n_points)
+    real(kind=rp), intent(inout) :: interp_values(this%n_points)
     real(kind=rp), intent(in) :: field(this%dof%size())
 
 #ifdef HAVE_GSLIB
        
-    call fgslib_findpts_eval(this%gs_handle, intrp_points, &
+    call fgslib_findpts_eval(this%gs_handle, interp_values, &
                              1, this%error_code, 1, &
                              this%proc_owner, 1, this%el_owner, 1, &  
                              this%rst, this%mesh%gdim, &
