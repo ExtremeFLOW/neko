@@ -40,6 +40,7 @@ module checkpoint
   use field
   use space
   use utils
+  use mesh, only: mesh_t
   implicit none
   private
 
@@ -59,6 +60,9 @@ module checkpoint
      type(field_t), pointer :: s => null()
 
      real(kind=dp) :: t         !< Restart time (valid after load)
+     type(mesh_t) :: previous_mesh
+     real(kind=rp) :: mesh2mesh_tol = 1d-6
+
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
