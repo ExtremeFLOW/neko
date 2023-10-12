@@ -97,7 +97,7 @@ module global_interpolation
 contains
 
   !> Initialize user defined variables.
-  !! @dof dofmap on which the interpolation is to be carried out.
+  !! @param dof Dofmap on which the interpolation is to be carried out.
   subroutine global_interpolation_init(this, dof)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
