@@ -895,9 +895,11 @@ contains
     select type(dof_array => local_dof%data)
     type is (integer)
        j = local_dof%size()
+       !$omp parallel do
        do i = 1, j
           gs%local_dof_gs(i) = dof_array(i)
        end do
+       !$omp end parallel do
     end select
     call local_dof%free()
 
@@ -908,9 +910,11 @@ contains
     ! certain data types
     select type(dof_array => local_face_dof%data)
     type is (integer)
+       !$omp parallel do
        do i = 1, local_face_dof%size()
           gs%local_dof_gs(i + j) = dof_array(i)
        end do
+       !$omp end parallel do
     end select
     call local_face_dof%free()
 
@@ -925,9 +929,11 @@ contains
     select type(dof_array => dof_local%data)
     type is (integer)
        j = dof_local%size()
+       !$omp parallel do
        do i = 1, j
           gs%local_gs_dof(i) = dof_array(i)
        end do
+       !$omp end parallel do
     end select
     call dof_local%free()
 
@@ -936,9 +942,11 @@ contains
     ! certain data types
     select type(dof_array => face_dof_local%data)
     type is (integer)
+       !$omp parallel do
        do i = 1, face_dof_local%size()
           gs%local_gs_dof(i+j) = dof_array(i)
        end do
+       !$omp end parallel do
     end select
     call face_dof_local%free()
        
@@ -965,9 +973,11 @@ contains
     select type(dof_array => shared_dof%data)
     type is (integer)
        j =  shared_dof%size()
+       !$omp parallel do
        do i = 1, j
           gs%shared_dof_gs(i) = dof_array(i)
        end do
+       !$omp end parallel do
     end select
     call shared_dof%free()
 
@@ -978,9 +988,11 @@ contains
     ! certain data types
     select type(dof_array => shared_face_dof%data)
     type is (integer)
+       !$omp parallel
        do i = 1, shared_face_dof%size()
           gs%shared_dof_gs(i + j) = dof_array(i)
        end do
+       !$omp end parallel
     end select
     call shared_face_dof%free()
     
@@ -995,9 +1007,11 @@ contains
     select type(dof_array => dof_shared%data)
     type is(integer)
        j = dof_shared%size()
+       !$omp parallel do
        do i = 1, j
           gs%shared_gs_dof(i) = dof_array(i)
        end do
+       !$omp end parallel do
     end select
     call dof_shared%free()
 
@@ -1006,9 +1020,11 @@ contains
     ! certain data types
     select type(dof_array => face_dof_shared%data)
     type is (integer)
+       !$omp parallel do
        do i = 1, face_dof_shared%size()
           gs%shared_gs_dof(i + j) = dof_array(i)
        end do
+       !$omp end parallel do
     end select
     call face_dof_shared%free()
 

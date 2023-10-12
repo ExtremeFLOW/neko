@@ -165,16 +165,20 @@ contains
     allocate(this%send_pe(send_pe%size()))
 
     sp => send_pe%array()
+    !$omp parallel do
     do i = 1, send_pe%size()
        this%send_pe(i) = sp(i)
     end do
+    !$omp end parallel do
 
     allocate(this%recv_pe(recv_pe%size()))
 
     sp => recv_pe%array()
+    !$omp parallel do
     do i = 1, recv_pe%size()
        this%recv_pe(i) = sp(i)
     end do
+    !$omp end parallel do
     
   end subroutine init_order
 
