@@ -38,6 +38,7 @@ module fld_file
   use field_list
   use dofmap
   use space
+  use structs, only: array_ptr_t
   use vector
   use fld_file_data
   use mean_flow
@@ -64,9 +65,6 @@ module fld_file
      procedure :: set_precision => fld_file_set_precision
   end type fld_file_t
 
-  type, private :: array_ptr_t
-     real(kind=rp), pointer :: x(:)
-  end type array_ptr_t
 
 contains
 
