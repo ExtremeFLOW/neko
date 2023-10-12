@@ -173,6 +173,8 @@ contains
   !! (check dist2), `2` if not found
   !! - `dist2`: distance squared (used to compare the points found by each
   !! processor)
+  !! @param xyz The coordinates of the points.
+  !! @param n_points The number of points.
   subroutine global_interpolation_find(this, xyz, n_points)
     class(global_interpolation_t), intent(inout) :: this
     integer :: n_points
