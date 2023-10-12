@@ -56,6 +56,8 @@ module material_properties
    contains
      !> Constructor.
      procedure, pass(this) :: init => material_properties_init
+     !> Write final dimensional values to the log.
+     procedure, private, pass(this) :: write_to_log
    end type material_properties_t
 
 contains
@@ -126,6 +128,13 @@ contains
        !
        ! Scalar
        !
+       if (.not. params%valid_path('case.scalar')) then
+         ! Set dummy values
+         this%cp = 1.0_rp
+         this%lambda = 1.0_rp
+         call this%write_to_log(.false.)
+         return
+       end if
 
        ! Incorrect user input
        if (nondimensional .and. &
@@ -165,17 +174,28 @@ contains
        end if
     end if
 
+    call this%write_to_log(.true.)
+
+  end subroutine material_properties_init
+
+  !> Write final dimensional values to the log.
+  subroutine write_to_log(this, scalar)
+    class(material_properties_t), intent(inout) :: this
+    logical, intent(in) :: scalar
+    character(len=LOG_SIZE) :: log_buf
+
     write(log_buf, '(A)') 'Set dimensional values:'
     call neko_log%message(log_buf)
     write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
     call neko_log%message(log_buf)
     write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
-    call neko_log%message(log_buf)
-
-  end subroutine material_properties_init
+    if (scalar) then
+       write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
+       call neko_log%message(log_buf)
+    end if
+  end subroutine write_to_log
 
 end module material_properties
