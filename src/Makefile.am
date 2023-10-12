@@ -26,6 +26,7 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/spectral_error_indicator.f90\
+	common/time_interpolator.f90\
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\

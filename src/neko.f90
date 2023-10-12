@@ -89,6 +89,7 @@ module neko
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
   use data_streamer
+  use time_interpolator
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
