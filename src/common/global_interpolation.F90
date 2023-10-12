@@ -72,28 +72,28 @@ module global_interpolation
      !> r,s,t coordinates findpts format
      !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: rst(:,:)
-     !> Distance squared between original and interpolated point (in xyz space) (according to gslib)
+     !> Distance squared between original and interpolated point
+     !! (in xyz space) (according to gslib)
      real(kind=rp), allocatable :: dist2(:)
      !> Error code for each point, needed for gslib
      integer, allocatable :: error_code(:)
      !> Tolerance for distance squared between original and interpolated point
      real(kind=rp) :: tol = 5e-13
-     contains
-       !> Initialize the global interpolation object on a dofmap.
-       procedure, pass(this) :: init => global_interpolation_init
-       !> Destructor
-       procedure, pass(this) :: free => global_interpolation_free
-       !> Destructor for arrays related to evaluation points
-       procedure, pass(this) :: free_points => global_interpolation_free_points
-       !> Finds the process owner, global element number,
-       !! and local rst coordinates for each point.
-       !! Sets up correct values to be able to evalute the points
-       procedure, pass(this) :: find_points => global_interpolation_find
-       !> Evaluate the value of the field in each point.
-       procedure, pass(this) :: evaluate => global_interpolation_evaluate
-
-    end type global_interpolation_t
-
+   contains
+     !> Initialize the global interpolation object on a dofmap.
+     procedure, pass(this) :: init => global_interpolation_init
+     !> Destructor
+     procedure, pass(this) :: free => global_interpolation_free
+     !> Destructor for arrays related to evaluation points
+     procedure, pass(this) :: free_points => global_interpolation_free_points
+     !> Finds the process owner, global element number,
+     !! and local rst coordinates for each point.
+     !! Sets up correct values to be able to evalute the points
+     procedure, pass(this) :: find_points => global_interpolation_find
+     !> Evaluate the value of the field in each point.
+     procedure, pass(this) :: evaluate => global_interpolation_evaluate     
+  end type global_interpolation_t
+  
 contains
 
   !> Initialize user defined variables.
