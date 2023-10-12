@@ -288,7 +288,7 @@ contains
 
   !> Evalute the interpolated value in the points given a field on the dofmap
   !! @param intrp_points Array of values in the given points.
-  !! @param field array of values used for interpolation.
+  !! @param field Array of values used for interpolation.
   subroutine global_interpolation_evaluate(this, intrp_points, field)
     class(global_interpolation_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: intrp_points(this%n_points)
