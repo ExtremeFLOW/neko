@@ -71,10 +71,9 @@ module fluid_scheme
   use source_term, only : source_term_wrapper_t
   use source_term_fctry, only : source_term_factory
   use const_source_term, only : const_source_term_t
-  use user_intf, only : user_t, dummy_user_material_properties, &
-                        user_material_properties
+  use user_intf, only : user_t
   use utils, only : neko_warning, neko_error
-  use comm, only : pe_rank
+  use material_properties, only : material_properties_t
   implicit none
   
   !> Base type of all fluid formulations
@@ -120,9 +119,9 @@ module fluid_scheme
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
-     real(kind=rp) :: mu
+     real(kind=rp), pointer :: mu
      !> Density
-     real(kind=rp) :: rho
+     real(kind=rp), pointer :: rho
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
@@ -143,16 +142,19 @@ module fluid_scheme
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user)
+     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user, &
+                                        material_properties)
        import fluid_scheme_t
        import json_file
        import mesh_t
        import user_t
+       import material_properties_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
+       type(material_properties_t), intent(inout) :: material_properties
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -181,7 +183,8 @@ module fluid_scheme
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user)
+  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+      material_properties)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -189,6 +192,7 @@ contains
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), target, intent(inout) :: material_properties
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
@@ -197,7 +201,6 @@ contains
     integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties),  pointer :: dummy_mp_ptr
 
     
     call neko_log%section('Fluid')
@@ -215,44 +218,13 @@ contains
     ! Material properties
     !
 
-    ! Check if the user material properties routine points to a dummy.
-    ! We need to use this local pointer to make Intel happy.
-    dummy_mp_ptr => dummy_user_material_properties
-    if (associated(user%material_properties, dummy_mp_ptr)) then
+    this%rho => material_properties%rho
+    this%mu => material_properties%mu
 
-       ! Incorrect user input
-       if (params%valid_path('case.fluid.Re') .and. &
-           (params%valid_path('case.fluid.mu') .or. &
-            params%valid_path('case.fluid.rho'))) then
-           call neko_error("Set Re OR mu and rho in the case file, not both")
-
-       ! Non-dimensional case
-       else if (params%valid_path('case.fluid.Re')) then
-          ! Read Re into mu for further manipulation.
-          call json_get(params, 'case.fluid.Re', this%mu)
-          call neko_log%message(log_buf)
-          write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
-
-          ! Set rho to 1 since the setup is non-dimensional.
-          this%rho = 1.0_rp
-          ! Invert the Re to get viscosity.
-          this%mu = 1.0_rp/this%mu
-       ! Dimensional case
-       else 
-          call json_get(params, 'case.fluid.mu', this%mu)
-          call json_get(params, 'case.fluid.rho', this%mu)
-          call neko_log%message(log_buf)
-          write(log_buf, '(A,ES13.6)') 'rho         :',  this%rho
-          write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
-    end if
-
-    else
-       if (pe_rank .eq. 0) then
-          call neko_warning("Fluid material properties must be set in the &
-                             & user file!")
-       end if
-
-    end if
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'mu         :',  this%mu
 
     call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
     call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
@@ -479,13 +451,14 @@ contains
 
   !> Initialize all velocity related components of the current scheme
   subroutine fluid_scheme_init_uvw(this, msh, lx, params, kspv_init, scheme, &
-                                   user)
+                                   user, material_properties)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), target, intent(inout) :: material_properties
     logical :: kspv_init
     character(len=*), intent(in) :: scheme
     ! Variables for extracting json
@@ -494,7 +467,8 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
 
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+                                  material_properties)
     
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
@@ -520,14 +494,15 @@ contains
   end subroutine fluid_scheme_init_uvw
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, &
-                                   kspv_init, kspp_init, scheme, user)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init,&
+                                   scheme, user, material_properties)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), target, intent(inout) :: material_properties
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
@@ -536,7 +511,8 @@ contains
     integer :: integer_val
     character(len=:), allocatable :: string_val1, string_val2
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme, user)
+    call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+                                  material_properties)
 
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')

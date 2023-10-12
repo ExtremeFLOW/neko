@@ -56,9 +56,8 @@ module scalar_scheme
   use usr_scalar
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use user_intf, only : user_t, dummy_user_material_properties, &
-                        user_material_properties
-  use comm, only : pe_rank
+  use user_intf, only : user_t
+  use material_properties, only : material_properties_t
   implicit none
 
   type, abstract :: scalar_scheme_t
@@ -83,11 +82,11 @@ module scalar_scheme
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      !> Thermal diffusivity.
-     real(kind=rp) :: lambda
+     real(kind=rp), pointer :: lambda
      !> Density.
-     real(kind=rp) :: rho
+     real(kind=rp), pointer :: rho
      !> Specific heat capacity.
-     real(kind=rp) :: cp
+     real(kind=rp), pointer :: cp
      !> Boundary condition labels (if any)
      character(len=20), allocatable :: bc_labels(:)
    contains
@@ -104,19 +103,22 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user,&
+                                         material_properties)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
        import user_t
+       import material_properties_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh       
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
+       type(material_properties_t), intent(inout) :: material_properties
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -200,7 +202,8 @@ contains
   !! @param params The case parameter file in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
-  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user)
+  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user, &
+                                material_properties)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
@@ -208,6 +211,7 @@ contains
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), target,  intent(inout) :: material_properties
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -215,8 +219,6 @@ contains
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val
     character(len=:), allocatable :: solver_type, solver_precon
-    ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties),  pointer :: dummy_mp_ptr
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
@@ -232,45 +234,16 @@ contains
     !
     ! Material properties
     !
+    this%rho => material_properties%rho
+    this%lambda => material_properties%lambda
+    this%cp => material_properties%cp
 
-    ! Check if the user material properties routine points to a dummy.
-    ! We need to use this local pointer to make Intel happy.
-    dummy_mp_ptr => dummy_user_material_properties
-    if (associated(user%material_properties, dummy_mp_ptr)) then
-
-       ! Incorrect user input
-       if (params%valid_path('case.scalar.Pe') .and. &
-           (params%valid_path('case.scalar.lambda') .or. &
-            params%valid_path('case.scalar.cp'))) then
-           call neko_error("Set Pe OR lambda and cp in the case file, not both")
-
-       ! Non-dimensional case
-       else if (params%valid_path('case.fluid.Pe')) then
-          ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'case.fluid.Pe', this%lambda)
-          call neko_log%message(log_buf)
-          write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
-
-          ! Set cp and rho to 1 since the setup is non-dimensional.
-          this%cp = 1.0_rp
-          this%rho = 1.0_rp
-          ! Invert the Pe to get conductivity
-          this%lambda = 1.0_rp/this%lambda
-       ! Dimensional case
-       else 
-          call json_get(params, 'case.scalar.lambda', this%lambda)
-          call json_get(params, 'case.scalar.cp', this%cp)
-          call json_get(params, 'case.fluid.rho', this%rho)
-          call neko_log%message(log_buf)
-          write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
-          write(log_buf, '(A,ES13.6)') 'lambda         :',  this%lambda
-       end if
-    else
-       if (pe_rank .eq. 0) then
-          call neko_warning("Scalar material properties must be set in the &
-                            & user file!")
-       end if
-    end if
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+    call neko_log%message(log_buf)
 
     call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
                              this%ksp_maxiter, 800)

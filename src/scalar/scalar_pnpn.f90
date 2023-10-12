@@ -59,6 +59,7 @@ module scalar_pnpn
   use json_utils, only: json_get, json_get_or_default
   use json_module, only : json_file
   use user_intf, only : user_t
+  use material_properties, only : material_properties_t
   implicit none
   private
 
@@ -113,13 +114,15 @@ contains
   !! @param gs The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user)    
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
+                              material_properties)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(material_properties_t), intent(inout) :: material_properties
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     ! Variables for retrieving json parameters
@@ -129,7 +132,8 @@ contains
     call this%free()
 
     ! Initiliaze base type.
-    call this%scheme_init(msh, coef, gs, params, scheme, user)
+    call this%scheme_init(msh, coef, gs, params, scheme, user, &
+                          material_properties)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)

@@ -139,8 +139,11 @@ contains
        end if
 
        ! Update material properties
-       call C%usr%material_properties(t, tstep, C%fluid%rho, C%fluid%mu, &
-                                      C%scalar%cp, C%scalar%lambda, C%params)
+       call C%usr%material_properties(t, tstep, C%material_properties%rho,&
+                                      C%material_properties%mu, &
+                                      C%material_properties%lambda, &
+                                      C%material_properties%cp, &
+                                      C%params)
        call neko_log%end_section()
        
        call neko_log%end()
