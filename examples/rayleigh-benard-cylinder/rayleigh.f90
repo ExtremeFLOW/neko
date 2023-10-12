@@ -143,15 +143,6 @@ contains
     integer :: i
     type(matrix_t) :: mat_coords
 
-    !> Recalculate the non dimensional parameters
-    call json_get(params, 'case.scalar.Pr', Pr)
-    call json_get(params, 'case.fluid.Re', Re)
-    Ra = (Re**2)*Pr
-    write(log_buf,*) 'Rayleigh Number is Ra=', Ra
-    call neko_log%message(log_buf)
-    
-!    if (pe_rank.eq.0) write(*,*) 
-
     !> ========== Needed for Probes =================
     
     !> Read the output information
