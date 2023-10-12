@@ -289,16 +289,16 @@ contains
 
 
   !> Evalute the interpolated value in the points given a field on the dofmap
-  !! @param intrp_points Array of values in the given points.
+  !! @param interp_values Array of values in the given points.
   !! @param field Array of values used for interpolation.
-  subroutine global_interpolation_evaluate(this, intrp_points, field)
+  subroutine global_interpolation_evaluate(this, interp_values, field)
     class(global_interpolation_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: intrp_points(this%n_points)
+    real(kind=rp), intent(inout) :: interp_values(this%n_points)
     real(kind=rp), intent(in) :: field(this%dof%size())
 
 #ifdef HAVE_GSLIB
        
-    call fgslib_findpts_eval(this%gs_handle, intrp_points, &
+    call fgslib_findpts_eval(this%gs_handle, interp_values, &
                              1, this%error_code, 1, &
                              this%proc_owner, 1, this%el_owner, 1, &  
                              this%rst, this%mesh%gdim, &
