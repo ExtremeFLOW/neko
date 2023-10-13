@@ -79,23 +79,22 @@ module global_interpolation
      integer, allocatable :: error_code(:)
      !> Tolerance for distance squared between original and interpolated point
      real(kind=rp) :: tol = 5e-13
-     contains
-       !> Initialize the global interpolation object on a dofmap.
-       procedure, pass(this) :: init => global_interpolation_init
-       !> Destructor
-       procedure, pass(this) :: free => global_interpolation_free
-       !> Destructor for arrays related to evaluation points
-       procedure, pass(this) :: free_points => global_interpolation_free_points
-       !> Finds the process owner, global element number,
-       !! and local rst coordinates for each point.
-       !! Sets up correct values to be able to evalute the points
-       procedure, pass(this) :: find_points_coords => global_interpolation_find_coords
-       procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
-       generic :: find_points => find_points_xyz, find_points_coords
-       !> Evaluate the value of the field in each point.
-       procedure, pass(this) :: evaluate => global_interpolation_evaluate
-
-    end type global_interpolation_t
+   contains
+     !> Initialize the global interpolation object on a dofmap.
+     procedure, pass(this) :: init => global_interpolation_init
+     !> Destructor
+     procedure, pass(this) :: free => global_interpolation_free
+     !> Destructor for arrays related to evaluation points
+     procedure, pass(this) :: free_points => global_interpolation_free_points
+     !> Finds the process owner, global element number,
+     !! and local rst coordinates for each point.
+     !! Sets up correct values to be able to evalute the points
+     procedure, pass(this) :: find_points_coords => global_interpolation_find_coords
+     procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
+     generic :: find_points => find_points_xyz, find_points_coords
+     !> Evaluate the value of the field in each point.
+     procedure, pass(this) :: evaluate => global_interpolation_evaluate
+  end type global_interpolation_t
 
 
 contains
