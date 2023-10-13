@@ -47,7 +47,7 @@ module material_properties
   type, public :: material_properties_t
      !> Density, f$\rho \f$
      real(kind=rp) :: rho
-     !> Dynamic viscosity.
+     !> Dynamic viscosity, f$\mu \f$.
      real(kind=rp) :: mu
      !> Scalar conductivity
      real(kind=rp) :: lambda
