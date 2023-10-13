@@ -66,4 +66,6 @@ program rea2nbin_dirichlet
   
   call neko_finalize
 
+  if (remove_at_end) call execute_command_line("rm temp.readirichlet")
+
 end program rea2nbin_dirichlet
