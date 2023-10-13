@@ -68,7 +68,7 @@ for i in range(0,number_of_cases):
 
         print("proceeding to copy it to "+path+chkp_file)
         command = ""
-        command = command + "cp "+file_names[option-1]+" "+path+chkp_file 
+        command = command + "mv "+file_names[option-1]+" "+path+chkp_file 
         print(command)
         process = subprocess.run(command, capture_output=True, shell=True)
         print(process.stdout.decode())
