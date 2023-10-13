@@ -15,6 +15,7 @@ Makefile.in
 genmeshbox
 prepart
 rea2nbin
+rea2nbin_dirichlet
 libneko.a
 .vscode
 neko
