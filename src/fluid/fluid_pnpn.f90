@@ -126,7 +126,8 @@ contains
     call this%free()
     
     ! Initialize base class
-    call this%scheme_init(msh, lx, params, .true., .true., scheme, user, material_properties)
+    call this%scheme_init(msh, lx, params, .true., .true., scheme, user, &
+                          material_properties)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
