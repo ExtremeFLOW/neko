@@ -49,7 +49,7 @@ module material_properties
      real(kind=rp) :: rho
      !> Dynamic viscosity, f$\mu \f$.
      real(kind=rp) :: mu
-     !> Scalar conductivity
+     !> Scalar conductivity, f$\lambda \f$.
      real(kind=rp) :: lambda
      !> Scalar specific heat capacity.
      real(kind=rp) :: cp
