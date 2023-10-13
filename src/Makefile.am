@@ -99,6 +99,7 @@ neko_fortran_SOURCES = \
 	io/vtk_file.f90\
 	io/stl_file.f90\
 	io/nmsh_file.f90\
+	io/rea_file_dirichlet.f90\
 	io/chkp_file.f90\
 	io/csv_file.f90\
 	io/file.f90\
