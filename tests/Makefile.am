@@ -8,6 +8,7 @@ SUBDIRS = tuple\
 	  tet\
 	  tri\
 	  math\
+	  alignment\
 	  mesh\
 	  space\
 	  dofmap\
@@ -43,6 +44,7 @@ TESTS = device/device_test\
 	tet/tet_test\
 	tri/tri_test\
 	math/math_test\
+	alignment/alignment_test\
 	mesh/mesh_test\
 	space/space_test\
 	dofmap/dofmap_test\
@@ -68,6 +70,8 @@ TESTS = device/device_test\
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
+	alignment/alignment_edge.pf\
+	alignment/alignment_quad.pf\
 	mesh/mesh_parallel.pf\
 	quad/quad.pf\
 	gather_scatter/gather_scatter_parallel.pf\

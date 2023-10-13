@@ -298,6 +298,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/tet/Makefile\
 		 tests/tri/Makefile\
 		 tests/math/Makefile\
+		 tests/alignment/Makefile\
 		 tests/mesh/Makefile\
 		 tests/space/Makefile\
 		 tests/dofmap/Makefile\
