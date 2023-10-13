@@ -289,5 +289,6 @@ contains
     type(field_list_t), intent(inout) :: field_bc_list
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    call neko_warning("Dirichlet user bc set, but nothing will be done.")
   end subroutine dirichlet_do_nothing
 end module user_intf
