@@ -51,7 +51,7 @@ module material_properties
      real(kind=rp) :: mu
      !> Scalar conductivity, f$\lambda \f$.
      real(kind=rp) :: lambda
-     !> Scalar specific heat capacity.
+     !> Scalar specific heat capacity, f$c_p \f$.
      real(kind=rp) :: cp
    contains
      !> Constructor.
