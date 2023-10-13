@@ -102,8 +102,6 @@ contains
        allocate(stl_file_t::this%file_type)
     else if (suffix .eq. "csv") then
       allocate(csv_file_t::this%file_type)
-    else if (suffix .eq. "readirichlet") then
-      allocate(rea_file_dirichlet_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
