@@ -45,7 +45,7 @@ module material_properties
   
   !> Contains all the material properties necessary in the simulation.
   type, public :: material_properties_t
-     !> Density
+     !> Density, f$\rho \f$
      real(kind=rp) :: rho
      !> Dynamic viscosity.
      real(kind=rp) :: mu
