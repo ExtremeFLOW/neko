@@ -128,11 +128,11 @@ contains
          dof%x, dof%y, dof%z, & ! Physical nodal values
          lx, ly, lz, nelv, & ! Mesh dimensions
          2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
-         0.1, & ! relative size to expand bounding boxes by
+         0.01, & ! relative size to expand bounding boxes by
          lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
          max_pts_per_iter, this%tol)
 #else
-    call neko_error('NEKO needs to be built with GSLIB support')
+    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine global_interpolation_init
@@ -151,7 +151,7 @@ contains
 #ifdef HAVE_GSLIB
     call fgslib_findpts_free(this%gs_handle)
 #else
-    call neko_error('NEKO needs to be built with GSLIB support')
+    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine global_interpolation_free
@@ -207,14 +207,17 @@ contains
                 this%xyz(1,i),&
                 this%xyz(2,i),&
                 this%xyz(3,i),&
-                'Did not converge to tol. Absolute differences squared: ', this%dist2(i)
+                'Did not converge to tol. Absolute differences squared: ',&
+                this%dist2(i)
           end if
        end if
 
        if (this%error_code(i) .eq. 2) &
              write(*,*) 'Point with coords: ',&
                 this%xyz(1,i), this%xyz(2,i), this%xyz(3,i),&
-                'outside the mesh! Interpolation on these points will return 0.0. dist2: ', this%dist2(i),&
+                'Outside the mesh!',&
+                ' Interpolation on these points will return 0.0. dist2: ', &
+                this%dist2(i),&
                 'el_owner, rst coords: ',&
                 this%el_owner(i), this%rst(1,i), this%rst(2,i), this%rst(3,i)
 
@@ -372,7 +375,7 @@ contains
                              this%n_points, field)
 
 #else
-    call neko_error('NEKO needs to be built with GSLIB support')
+    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine global_interpolation_evaluate
