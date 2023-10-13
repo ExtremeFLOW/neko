@@ -325,7 +325,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
-		    contrib/rea2nbin_configure/Makefile\
+		    contrib/rea2nbin_dirichlet/Makefile\
 		    contrib/genmeshbox/Makefile\
 		    contrib/average_fields_in_time/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\

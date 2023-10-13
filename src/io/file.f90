@@ -38,6 +38,7 @@ module file
   use chkp_file        
   use map_file
   use rea_file
+  use rea_file_dirichlet
   use re2_file
   use fld_file
   use fld_file_data
@@ -101,6 +102,8 @@ contains
        allocate(stl_file_t::this%file_type)
     else if (suffix .eq. "csv") then
       allocate(csv_file_t::this%file_type)
+    else if (suffix .eq. "readirichlet") then
+      allocate(rea_file_dirichlet_t::this%file_type)
     else
        call neko_error('Unknown file format')
     end if
