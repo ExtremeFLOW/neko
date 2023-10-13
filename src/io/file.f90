@@ -38,7 +38,6 @@ module file
   use chkp_file        
   use map_file
   use rea_file
-  use rea_file_dirichlet
   use re2_file
   use fld_file
   use fld_file_data
