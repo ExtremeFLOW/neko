@@ -9,5 +9,10 @@ module structs
     integer :: curve_type(12)
     integer :: el_idx
   end type struct_curve_t
+
+  !> Pointer to array
+  type, public :: array_ptr_t
+     real(kind=rp), pointer :: x(:)
+  end type array_ptr_t
 end module structs
 

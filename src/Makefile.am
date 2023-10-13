@@ -26,6 +26,7 @@ neko_fortran_SOURCES = \
 	sem/coef.f90\
 	sem/cpr.f90\
 	sem/spectral_error_indicator.f90\
+	common/time_interpolator.f90\
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\
@@ -111,6 +112,7 @@ neko_fortran_SOURCES = \
 	io/mean_sqr_flow_output.f90\
 	io/data_streamer.F90\
 	common/sampler.f90\
+	common/global_interpolation.F90\
 	common/profiler.F90\
 	common/craypat.F90\
 	bc/bc.f90\
