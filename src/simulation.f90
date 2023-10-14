@@ -137,6 +137,13 @@ contains
             call neko_simcomps(i)%simcomp%compute(t, tstep)
          end do
        end if
+
+       ! Update material properties
+       call C%usr%material_properties(t, tstep, C%material_properties%rho,&
+                                      C%material_properties%mu, &
+                                      C%material_properties%lambda, &
+                                      C%material_properties%cp, &
+                                      C%params)
        call neko_log%end_section()
        
        call neko_log%end()
