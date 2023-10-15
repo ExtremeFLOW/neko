@@ -193,12 +193,31 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    logical :: get_spec_err_ind = .false.
+    logical :: get_spec_err_ind = .true.
   
 
-    call rbc%calculate(t, tstep, coef, params, Ra, Pr, get_spec_err_ind)
-    call rbc%get_integral_quantities(t, tstep, coef)
-    !call rbc%sync()
+    if (rbc%controllers(2)%check(t, tstep, .false.)) then
+       
+       !> Calculate at sampling time
+       call rbc%calculate(t, tstep, coef, params, Ra, Pr, get_spec_err_ind)
+       call rbc%update_stats(t)
+       call rbc%get_integral_quantities(t, tstep, coef)
+
+       !> Register the execution of the controller
+       call rbc%controllers(2)%register_execution()
+
+    end if
+
+    if (rbc%controllers(1)%check(t, tstep, .false.)) then
+    
+       !> Write fields
+       call rbc%sync()
+       call rbc%write_fields_and_stats(t)
+       
+       !> Register the execution of the controller
+       call rbc%controllers(1)%register_execution()
+    
+    end if
 
 
   end subroutine calculate_nusselt

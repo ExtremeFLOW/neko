@@ -13,6 +13,8 @@ module rbc
      
      !> Flow quantities
      type(field_t) :: work_field ! Field to perform operations
+     type(field_t) :: uxt ! u_z * T
+     type(field_t) :: uyt ! u_z * T
      type(field_t) :: uzt ! u_z * T
      type(field_t) :: dtdx ! Derivative of scalar wrt x
      type(field_t) :: dtdy ! Detivative of scalar wrt y
@@ -32,8 +34,20 @@ module rbc
      type(field_t) :: eps_t ! thermal dissipation
      
      !> Mean fields     
+     type(mean_field_t) :: mean_t     ! Derivative wrt z
+     type(mean_field_t) :: mean_uxt   ! Derivative wrt z
+     type(mean_field_t) :: mean_uyt   ! Derivative wrt z
+     type(mean_field_t) :: mean_uzt   ! Derivative wrt z
+     type(mean_field_t) :: mean_dtdx     ! Derivative wrt z
+     type(mean_field_t) :: mean_dtdy     ! Derivative wrt z
+     type(mean_field_t) :: mean_dtdz     ! Derivative wrt z
+     type(mean_field_t) :: mean_dtdn  ! Derivative wrt z
      type(mean_field_t) :: mean_eps_k ! Detivative wrt y
      type(mean_field_t) :: mean_eps_t ! Derivative wrt z
+     type(mean_field_t) :: mean_speri_u  ! Derivative wrt z
+     type(mean_field_t) :: mean_speri_v  ! Derivative wrt z
+     type(mean_field_t) :: mean_speri_w  ! Derivative wrt z
+     real(kind = rp):: t_last_sample = 0_rp
  
      !> Support fields for boundary/facet 
      type(field_t) :: mass_area_top ! mass matrix for area on top wall
@@ -62,7 +76,7 @@ module rbc
      type(field_list_t) :: area_l
      type(field_list_t) :: dtdX_l
      type(field_list_t) :: eps_l
-     type(field_list_t) :: mean_eps_l
+     type(field_list_t) :: mean_fields_l
 
      !> Variables to write extra files
      character(len=NEKO_FNAME_LEN) :: fname
@@ -71,7 +85,7 @@ module rbc
      type(file_t) :: mf_dtdn
      type(file_t) :: mf_dtdX
      type(file_t) :: mf_eps
-     type(file_t) :: mf_mean_eps
+     type(file_t) :: mf_mean_fields
      type(file_t) :: mf_area
      type(file_t) :: mf_bm1
 
@@ -99,6 +113,10 @@ module rbc
      procedure, pass(this) :: calculate => rbc_calculate
      !> Sync the values in the cpu to those of GPU
      procedure, pass(this) :: sync => rbc_sync_fromGPU
+     !> Sync the values in the cpu to those of GPU
+     procedure, pass(this) :: write_fields_and_stats => rbc_write_fields
+     !> Sync the values in the cpu to those of GPU
+     procedure, pass(this) :: update_stats => rbc_update_stats
      !> Integrate relevant quantities
      procedure, pass(this) :: get_integral_quantities => rbc_get_integral_quantities
 
@@ -119,7 +137,8 @@ contains
     
     ! Local variables 
     character(len=NEKO_FNAME_LEN) :: fname
-    
+    type(field_t), pointer :: s
+
     !> Parameters to populate the list of elements and facets
     real(kind=rp) :: stack_size(1) !Do it like this so it is cast
     real(kind=rp) :: stack_size_global
@@ -139,6 +158,11 @@ contains
     real(kind=rp)     :: monitor_nu_write_par
     character(len=:), allocatable  :: monitor_nu_write_control
     real(kind=rp)     :: T_end
+    
+    s => neko_field_registry%get_field('s')
+    
+    !> Initialize the spectral error indicator
+    call this%spectral_error_indicator%init(u,v,w,coef)
     
     !> Initialize variables related to nusselt calculation
     call this%work_field%init( u%dof, 'work_field')
@@ -161,8 +185,6 @@ contains
 
     call this%eps_k%init( u%dof, 'eps_k')
     call this%eps_t%init( u%dof, 'eps_t')
-    call this%mean_eps_k%init( this%eps_k, 'mean_eps_k')
-    call this%mean_eps_t%init( this%eps_t, 'mean_eps_t')
 
     call this%div_dtdX%init( u%dof, 'div_dtdX')
     call this%mass_area_top%init( u%dof, 'mat')
@@ -173,14 +195,29 @@ contains
     call this%normal_x%init( u%dof, 'normal_x')
     call this%normal_y%init( u%dof, 'normal_y')
     call this%normal_z%init( u%dof, 'normal_z')
+    
+    !> Mean fields
+    call this%mean_t%init( s, 'mean_t')
+    call this%mean_uxt%init( this%uzt, 'mean_uxt')
+    call this%mean_uyt%init( this%uzt, 'mean_uyt')
+    call this%mean_uzt%init( this%uzt, 'mean_uzt')
+    call this%mean_dtdx%init( this%dtdn, 'mean_dtdx')
+    call this%mean_dtdy%init( this%dtdn, 'mean_dtdy')
+    call this%mean_dtdz%init( this%dtdn, 'mean_dtdz')
+    call this%mean_dtdn%init( this%dtdn, 'mean_dtdn')
+    call this%mean_eps_k%init( this%eps_k, 'mean_eps_k')
+    call this%mean_eps_t%init( this%eps_t, 'mean_eps_t')
+    call this%mean_speri_u%init( this%spectral_error_indicator%u_hat, 'mean_speri_u')
+    call this%mean_speri_v%init( this%spectral_error_indicator%v_hat, 'mean_speri_v')
+    call this%mean_speri_w%init( this%spectral_error_indicator%w_hat, 'mean_speri_w')
 
     !> Initialize the file
     fname = 'dtdX.fld'
     this%mf_dtdX =  file_t(fname)
     fname = 'eps.fld'
     this%mf_eps =  file_t(fname)
-    fname = 'mean_eps.fld'
-    this%mf_mean_eps =  file_t(fname)
+    fname = 'mean_fiels_usr.fld'
+    this%mf_mean_fields =  file_t(fname)
     fname = 'dtdn.fld'
     this%mf_dtdn =  file_t(fname)
     fname = 'area.fld'
@@ -204,9 +241,21 @@ contains
     this%eps_l%fields(1)%f => this%eps_t
     this%eps_l%fields(2)%f => this%eps_k
 
-    allocate(this%mean_eps_l%fields(2))
-    this%mean_eps_l%fields(1)%f => this%eps_t
-    this%mean_eps_l%fields(2)%f => this%eps_k
+    allocate(this%mean_fields_l%fields(13))
+    this%mean_fields_l%fields(1)%f => this%mean_t%mf
+    this%mean_fields_l%fields(2)%f => this%mean_uxt%mf
+    this%mean_fields_l%fields(3)%f => this%mean_uyt%mf
+    this%mean_fields_l%fields(4)%f => this%mean_uzt%mf
+    this%mean_fields_l%fields(5)%f => this%mean_dtdx%mf
+    this%mean_fields_l%fields(6)%f => this%mean_dtdy%mf
+    this%mean_fields_l%fields(7)%f => this%mean_dtdz%mf
+    this%mean_fields_l%fields(8)%f => this%mean_dtdn%mf
+    this%mean_fields_l%fields(9)%f => this%mean_eps_t%mf
+    this%mean_fields_l%fields(10)%f => this%mean_eps_k%mf
+    this%mean_fields_l%fields(11)%f => this%mean_speri_u%mf
+    this%mean_fields_l%fields(12)%f => this%mean_speri_v%mf
+    this%mean_fields_l%fields(13)%f => this%mean_speri_w%mf
+
 
     !> Initialize list to identify relevant facets in boundaries
     call this%wall_facet%init()
@@ -322,10 +371,7 @@ contains
        this%controllers(2)%nexecutions = &
                int(t / this%controllers(2)%time_interval) + 1
     end if
-    
-    !> Initialize the spectral error indicator
-    call this%spectral_error_indicator%init(u,v,w,coef)
-
+   
   end subroutine rbc_init
 
 
@@ -353,8 +399,21 @@ contains
 
     call this%eps_k%free()
     call this%eps_t%free()
+    
+    !> Mean fields
+    call this%mean_t%free()
+    call this%mean_uxt%free()
+    call this%mean_uyt%free()
+    call this%mean_uzt%free()
+    call this%mean_dtdx%free()
+    call this%mean_dtdy%free()
+    call this%mean_dtdz%free()
+    call this%mean_dtdn%free()
     call this%mean_eps_k%free()
     call this%mean_eps_t%free()
+    call this%mean_speri_u%free()
+    call this%mean_speri_v%free()
+    call this%mean_speri_w%free()
     
     call this%mass_area_top%free()
     call this%mass_area_bot%free()
@@ -381,8 +440,8 @@ contains
     if (allocated(this%eps_l%fields)) then
        deallocate(this%eps_l%fields)       
     end if
-    if (allocated(this%mean_eps_l%fields)) then
-       deallocate(this%mean_eps_l%fields)       
+    if (allocated(this%mean_fields_l%fields)) then
+       deallocate(this%mean_fields_l%fields)       
     end if
 
     ! deallocate the calc controllers
@@ -394,6 +453,34 @@ contains
     call this%spectral_error_indicator%free()
 
   end subroutine rbc_free
+  
+  subroutine rbc_write_fields(this, t)
+    class(rbc_t), intent(inout), target :: this
+    real(kind=rp) :: t
+
+    !> Write instantaneous quantitiess
+    call this%mf_eps%write(this%eps_l,t)
+    call this%mf_dtdn%write(this%dtdn,t)
+    call this%mf_dtdX%write(this%dtdX_l,t)
+    call this%spectral_error_indicator%write_as_field(t)
+
+    !> Write and reset mean fields
+    call this%mf_mean_fields%write(this%mean_fields_l,t) 
+    call this%mean_t%reset() 
+    call this%mean_uxt%reset() 
+    call this%mean_uyt%reset() 
+    call this%mean_uzt%reset() 
+    call this%mean_dtdx%reset() 
+    call this%mean_dtdy%reset() 
+    call this%mean_dtdz%reset() 
+    call this%mean_dtdn%reset() 
+    call this%mean_eps_k%reset()   
+    call this%mean_eps_t%reset() 
+    call this%mean_speri_u%reset() 
+    call this%mean_speri_v%reset() 
+    call this%mean_speri_w%reset() 
+
+  end subroutine rbc_write_fields
 
  
   subroutine rbc_calculate(this, t, tstep, coef, params, Ra, Pr, get_spec_err_ind)
@@ -468,8 +555,12 @@ contains
     
     !> Convective heat flux
     if (NEKO_BCKND_DEVICE .eq. 1) then 
+       call device_col3(this%uxt%x_d,u%x_d,s%x_d,n)               
+       call device_col3(this%uyt%x_d,v%x_d,s%x_d,n)               
        call device_col3(this%uzt%x_d,w%x_d,s%x_d,n)               
     else
+       call col3(this%uxt%x,u%x,s%x,n)                          
+       call col3(this%uyt%x,v%x,s%x,n)                          
        call col3(this%uzt%x,w%x,s%x,n)                          
     end if
     
@@ -515,6 +606,27 @@ contains
     end if
 
   end subroutine rbc_calculate
+
+
+  subroutine rbc_update_stats(this, t)
+    class(rbc_t), intent(inout), target :: this
+    real(kind=rp), intent(in) :: t
+    call this%mean_t%update(t-this%t_last_sample)
+    call this%mean_uxt%update(t-this%t_last_sample)
+    call this%mean_uyt%update(t-this%t_last_sample)
+    call this%mean_uzt%update(t-this%t_last_sample)
+    call this%mean_dtdx%update(t-this%t_last_sample)
+    call this%mean_dtdy%update(t-this%t_last_sample)
+    call this%mean_dtdz%update(t-this%t_last_sample)
+    call this%mean_dtdn%update(t-this%t_last_sample)
+    call this%mean_speri_u%update(t-this%t_last_sample)
+    call this%mean_speri_v%update(t-this%t_last_sample)
+    call this%mean_speri_w%update(t-this%t_last_sample)
+    call this%mean_eps_k%update(t-this%t_last_sample)
+    call this%mean_eps_t%update(t-this%t_last_sample)
+    this%t_last_sample = t !< Update the last time that we updated
+
+  end subroutine rbc_update_stats
 
   
   subroutine rbc_get_integral_quantities(this, t, tstep, coef)
@@ -666,6 +778,60 @@ contains
        
        call device_memcpy(this%eps_t%x, &
                           this%eps_t%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       !> Mean quantities
+       
+       call device_memcpy(this%mean_t%mf%x, &
+                          this%mean_t%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_uxt%mf%x, &
+                          this%mean_uxt%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_uyt%mf%x, &
+                          this%mean_uyt%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_uzt%mf%x, &
+                          this%mean_uzt%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_dtdx%mf%x, &
+                          this%mean_dtdx%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_dtdy%mf%x, &
+                          this%mean_dtdy%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_dtdz%mf%x, &
+                          this%mean_dtdz%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_dtdn%mf%x, &
+                          this%mean_dtdn%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_eps_k%mf%x, &
+                          this%mean_eps_k%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+       
+       call device_memcpy(this%mean_eps_t%mf%x, &
+                          this%mean_eps_t%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+
+       call device_memcpy(this%mean_speri_u%mf%x, &
+                          this%mean_speri_u%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+
+       call device_memcpy(this%mean_speri_v%mf%x, &
+                          this%mean_speri_v%mf%x_d, &
+                          n,DEVICE_TO_HOST)
+
+       call device_memcpy(this%mean_speri_w%mf%x, &
+                          this%mean_speri_w%mf%x_d, &
                           n,DEVICE_TO_HOST)
        
     end if

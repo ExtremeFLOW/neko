@@ -43,7 +43,7 @@ module spectral_error_indicator
   use device_math, only: device_copy
   use gather_scatter
   use neko_config
-  use device, only: DEVICE_TO_HOST, device_memcpy
+  use device, only: DEVICE_TO_HOST, device_memcpy, HOST_TO_DEVICE
   use comm, only: pe_rank
   use utils, only: NEKO_FNAME_LEN
   use, intrinsic :: iso_c_binding
@@ -266,7 +266,13 @@ contains
   subroutine spec_err_ind_get(this,coef)
     class(spectral_error_indicator_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
-    integer :: i
+    integer i, e
+    integer lx, ly, lz, nelv,n
+    
+    lx = this%u_hat%Xh%lx
+    ly = this%u_hat%Xh%ly
+    lz = this%u_hat%Xh%lz
+    nelv = this%u_hat%msh%nelv
 
     ! Generate the uvwhat field (legendre coeff)
     call transform_to_spec_or_phys(this%u_hat, this%u, this%wk, coef, 'spec')
@@ -284,23 +290,8 @@ contains
     call calculate_indicators(this, coef, this%eind_w, this%sig_w, coef%msh%nelv, &
                               coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
                               this%w_hat%x)
-                             
-  end subroutine spec_err_ind_get
 
-  !> Write error indicators in a field file.
-  !! @param t Current simulation time.
-  subroutine spec_err_ind_write(this, t)
-    class(spectral_error_indicator_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    
-    integer i, e
-    integer lx, ly, lz, nelv
-    
-    lx = this%u_hat%Xh%lx
-    ly = this%u_hat%Xh%ly
-    lz = this%u_hat%Xh%lz
-    nelv = this%u_hat%msh%nelv
-    
+
     !> Copy the element indicator into all points of the field
     do e = 1,nelv
        do i = 1,lx*ly*lx
@@ -309,6 +300,44 @@ contains
           this%w_hat%x(i,1,1,e) = this%eind_w(e)
        end do
     end do
+    
+    n    = lx*ly*lz*nelv
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+       (NEKO_BCKND_OPENCL .eq. 1)) then 
+       !> Syncrhonize with GPU for statistics  
+       call device_memcpy(this%u_hat%x,this%u_hat%x_d, n, &
+                         HOST_TO_DEVICE)
+       call device_memcpy(this%v_hat%x,this%v_hat%x_d, n, &
+                         HOST_TO_DEVICE)
+       call device_memcpy(this%w_hat%x,this%w_hat%x_d, n, &
+                         HOST_TO_DEVICE)
+    end if
+
+  end subroutine spec_err_ind_get
+
+  !> Write error indicators in a field file.
+  !! @param t Current simulation time.
+  subroutine spec_err_ind_write(this, t)
+    class(spectral_error_indicator_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    
+    !integer i, e
+    !integer lx, ly, lz, nelv
+    
+    !lx = this%u_hat%Xh%lx
+    !ly = this%u_hat%Xh%ly
+    !lz = this%u_hat%Xh%lz
+    !nelv = this%u_hat%msh%nelv
+    
+    !> Copy the element indicator into all points of the field
+    !do e = 1,nelv
+    !   do i = 1,lx*ly*lx
+    !      this%u_hat%x(i,1,1,e) = this%eind_u(e)
+    !      this%v_hat%x(i,1,1,e) = this%eind_v(e)
+    !      this%w_hat%x(i,1,1,e) = this%eind_w(e)
+    !   end do
+    !end do
 
     !> Write the file
     !! Remember that the list is already ponting to the fields
