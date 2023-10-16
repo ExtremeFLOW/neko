@@ -10,7 +10,7 @@ module user
   real(kind=rp) :: Re = 0
   real(kind=rp) :: Pr = 0
 
-  !> Type for post processing
+  !> Type for run time
   type(rbc_t) :: rbc
      
   !> Mesh deformation
@@ -146,7 +146,6 @@ contains
     Ra = (Re**2)*Pr
     if (pe_rank.eq.0) write(*,*) 'Rayleigh Number is Ra=', Ra
 
-    !> Initialize the post processing object
     call rbc%init(t, u, v, w, p, coef, params)
     
 

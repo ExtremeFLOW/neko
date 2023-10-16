@@ -53,27 +53,11 @@
         "enabled": true,
         "Pr": 1.0
     },
-    "statistics": {
-        "enabled": true,
-        "start_time": 100,
-        "sampling_interval": 10,
-        "output_control": "simulationtime",
-        "output_value": 25	
-    },
-    "monitor": {
-        "output_control": "simulationtime",
-        "calc_frequency": 10,
-        "verify_bc": true
-    },
-    "monitor_nu": {
-        "output_control": "simulationtime",
-        "calc_frequency": 0.1
-    },
     "probes": {
         "mesh_name" : "cylinder.nmsh",
         "field_name": "mean_field0.fld",
-        "points_file":  "probes.csv",
-        "output_file":  "output.csv",
+        "points_file":  "coordinates.csv",
+        "output_file":  "interpolated_fields.csv",
         "fields": ["w_mean"],
         "field_pos_file": [3],
         "output_control": "tsteps",
