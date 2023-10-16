@@ -58,8 +58,8 @@
         "field_name": "mean_field0.fld",
         "points_file":  "coordinates.csv",
         "output_file":  "interpolated_fields.csv",
-        "fields": ["w_mean"],
-        "field_pos_file": [3],
+        "fields": ["u_mean","v_mean","w_mean"],
+        "field_pos_file": [1,2,3],
         "output_control": "tsteps",
         "output_value"    : 1,
     }

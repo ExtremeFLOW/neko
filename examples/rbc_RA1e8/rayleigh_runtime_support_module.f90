@@ -248,7 +248,7 @@ contains
     call this%mf_eps%set_counter(this%field_write_control%nexecutions)
     call this%mf_eps%set_start_counter(this%field_write_control%nexecutions)
     
-    fname = 'mean_fiels_usr.fld'
+    fname = 'mean_fields_usr.fld'
     this%mf_mean_fields =  file_t(fname)
     call this%mf_mean_fields%set_counter(this%field_write_control%nexecutions)
     call this%mf_mean_fields%set_start_counter(this%field_write_control%nexecutions)
