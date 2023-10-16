@@ -59,7 +59,7 @@ module pnpn_res_device
     interface
      subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, Re, rho, n) &
+          B_d, h1_d, mu, rho, n) &
           bind(c, name='pnpn_prs_res_part1_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -68,7 +68,7 @@ module pnpn_res_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: Re, rho
+       real(c_rp) :: mu, rho
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part1_hip
   end interface
@@ -111,7 +111,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_prs_res_part1_cuda(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, Re, rho, n) &
+          B_d, h1_d, mu, rho, n) &
           bind(c, name='pnpn_prs_res_part1_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -120,7 +120,7 @@ module pnpn_res_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: Re, rho
+       real(c_rp) :: mu, rho
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part1_cuda
   end interface
@@ -163,7 +163,7 @@ module pnpn_res_device
   interface
      subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, Re, rho, n) &
+          B_d, h1_d, mu, rho, n) &
           bind(c, name='pnpn_prs_res_part1_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -172,7 +172,7 @@ module pnpn_res_device
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: Re, rho
+       real(c_rp) :: mu, rho
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part1_opencl
   end interface
@@ -218,7 +218,7 @@ contains
 
   subroutine pnpn_prs_res_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, &
        f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
-       Re, rho)
+       mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -230,7 +230,7 @@ contains
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), intent(in) :: Re
+    real(kind=rp), intent(in) :: mu
     real(kind=rp), intent(in) :: rho
     real(kind=rp) :: dtbd
     integer :: n, gdim
@@ -255,16 +255,16 @@ contains
 #ifdef HAVE_HIP
     call pnpn_prs_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
+         c_Xh%B_d, c_Xh%h1_d, mu, rho, n) 
 
 #elif HAVE_CUDA
     call pnpn_prs_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
+         c_Xh%B_d, c_Xh%h1_d, mu, rho, n) 
 #elif HAVE_OPENCL
     call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_z%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, Re, rho, n) 
+         c_Xh%B_d, c_Xh%h1_d, mu, rho, n) 
 #endif
      c_Xh%ifh2 = .false.
          
@@ -327,7 +327,7 @@ contains
   end subroutine pnpn_prs_res_device_compute
 
   subroutine pnpn_vel_res_device_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+       p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
@@ -335,7 +335,7 @@ contains
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: Re
+    real(kind=rp), intent(in) :: mu 
     real(kind=rp), intent(in) :: rho
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
@@ -343,7 +343,7 @@ contains
     integer :: temp_indices(3)
     type(field_t), pointer :: ta1, ta2, ta3
 
-    call device_cfill(c_Xh%h1_d, (1.0_rp / Re), n)
+    call device_cfill(c_Xh%h1_d, mu, n)
     call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
     c_Xh%ifh2 = .true.
     

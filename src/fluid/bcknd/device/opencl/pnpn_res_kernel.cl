@@ -38,20 +38,19 @@ __kernel void prs_res_part1_kernel(__global real * __restrict__ ta1,
                                    __global const real * __restrict__ f_w,
                                    __global const real * __restrict__ B,
                                    __global real * __restrict__ h1,
-                                   const real Re,
+                                   const real mu,
                                    const real rho,
                                    const int n) {
   
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real inv_rho = 1.0 / rho;
-  const real inv_Re = 1.0 / Re;
   
   for (int i = idx; i < n; i += str) {
     h1[i] = inv_rho;
-    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (inv_Re / rho)) * B[i]);
-    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (inv_Re / rho)) * B[i]);
-    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (inv_Re / rho)) * B[i]);
+    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]);
+    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]);
+    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]);
   }
 
 }
