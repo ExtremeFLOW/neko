@@ -120,7 +120,7 @@ contains
     character(len=LOG_SIZE) :: log_buf ! For logging status
 
     !> Support variables for probes 
-    integer :: i
+    integer :: i, ierr
     type(matrix_t) :: mat_coords
 
     !> Recalculate the non dimensional parameters
@@ -149,13 +149,29 @@ contains
 
     !> Initialize the output
     fout = file_t(trim(output_file))
-    call mat_out%init(pb%n_probes, pb%n_fields)
+    call mat_out%init(pb%n_global_probes, pb%n_fields)
 
     !> Write coordinates in output file (imitate nek5000)
     !! Initialize the arrays
-    call mat_coords%init(pb%n_probes,3)
+    call mat_coords%init(pb%n_global_probes,3)
+    call rzero(mat_coords%x,pb%n_global_probes*3)
     !! Array them as rows
-    call transpose(mat_coords%x, pb%n_probes, pb%xyz, 3)
+    do i = 1, pb%n_local_probes
+       mat_coords%x(pb%n_probes_offset+i,1) = pb%xyz(1,i)
+       mat_coords%x(pb%n_probes_offset+i,2) = pb%xyz(2,i)
+       mat_coords%x(pb%n_probes_offset+i,3) = pb%xyz(3,i)
+    end do
+
+    ! Artificial way to gather all values to rank 0
+    if (pe_rank .ne. 0) then
+       call MPI_Reduce(mat_coords%x, mat_coords%x, 3*pb%n_global_probes, &
+            MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
+    else
+       call MPI_Reduce(MPI_IN_PLACE, mat_coords%x,3*pb%n_global_probes, &
+            MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
+    end if
+
+
     !! Write the data to the file
     call fout%write(mat_coords)
     !! Free the memory 
@@ -217,8 +233,10 @@ contains
     call pb%interpolate(t,tstep, write_output)
     !! Write if the interpolate function returs write_output=.true.
     if (write_output) then
-       mat_out%x = pb%out_fields
-       call fout%write(mat_out, t)
+       if (pe_rank .eq. 0) then
+          call trsp(mat_out%x,pb%n_global_probes,pb%global_output_values,pb%n_fields)
+          call fout%write(mat_out, t)
+       end if
        write_output = .false.
     end if
 
