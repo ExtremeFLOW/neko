@@ -141,8 +141,8 @@ contains
        ! Update material properties
        call C%usr%material_properties(t, tstep, C%material_properties%rho,&
                                       C%material_properties%mu, &
-                                      C%material_properties%lambda, &
                                       C%material_properties%cp, &
+                                      C%material_properties%lambda, &
                                       C%params)
        call neko_log%end_section()
        

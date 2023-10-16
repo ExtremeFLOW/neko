@@ -83,7 +83,7 @@ contains
                               & file!"
           call neko_log%message(log_buf)
           call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
-                                        this%lambda, this%cp, params)
+                                        this%cp, this%lambda, params)
     else
 
        !
