@@ -32,10 +32,19 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for scalars
 module scalar_pnpn
-  use scalar_residual_fctry
-  use ax_helm_fctry
+  use scalar_residual_fctry, only : scalar_residual_factory
+  use ax_helm_fctry, only: ax_helm_factory
   use rhs_maker_fctry
-  use scalar_scheme
+  use scalar_scheme, only : scalar_scheme_t
+  use dirichlet, only : dirichlet_t
+  use field, only : field_t
+  use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
+                 bc_list_add
+  use mesh, only : mesh_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use scalar_residual, only :scalar_residual_t
+  use ax_product, only : ax_t
   use field_series  
   use facet_normal
   use device_math
@@ -49,6 +58,8 @@ module scalar_pnpn
   use profiler
   use json_utils, only: json_get, json_get_or_default
   use json_module, only : json_file
+  use user_intf, only : user_t
+  use material_properties, only : material_properties_t
   implicit none
   private
 
@@ -88,19 +99,30 @@ module scalar_pnpn
      class(rhs_maker_bdf_t), allocatable :: makebdf
 
    contains
+     !> Constructor.
      procedure, pass(this) :: init => scalar_pnpn_init
+     !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
      procedure, pass(this) :: step => scalar_pnpn_step
   end type scalar_pnpn_t
 
 contains
 
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params)    
+  !> Constructor.
+  !! @param msh The mesh.
+  !! @param coef The coefficients.
+  !! @param gs The gather-scatter.
+  !! @param params The case parameter file in json.
+  !! @param user Type with user-defined procedures.
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
+                              material_properties)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
+    type(user_t), target, intent(in) :: user
+    type(material_properties_t), intent(inout) :: material_properties
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     ! Variables for retrieving json parameters
@@ -109,8 +131,9 @@ contains
 
     call this%free()
 
-    ! Setup fields on the space \f$ Xh \f$
-    call this%scheme_init(msh, coef, gs, params, scheme)
+    ! Initiliaze base type.
+    call this%scheme_init(msh, coef, gs, params, scheme, user, &
+                          material_properties)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -238,7 +261,7 @@ contains
     
     call profiler_start_region('Scalar')
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         Re => this%Re, Pr => this%Pr, rho => this%rho, &
+         cp => this%cp, lambda => this%lambda, rho => this%rho, &
          ds => this%ds, &
          ta1 => this%ta1, &
          wa1 => this%wa1, &
@@ -278,7 +301,7 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual')
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, &
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
           ext_bdf%diffusion_coeffs(1), dt, &
           dm_Xh%size())
 
