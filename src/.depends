@@ -15,6 +15,7 @@ common/json_utils.o : common/json_utils.f90 common/utils.o config/num_types.o
 common/system.o : common/system.f90 
 math/mxm_wrapper.o : math/mxm_wrapper.F90 common/utils.o config/num_types.o 
 sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o 
+sem/local_interpolation.o : sem/local_interpolation.f90 config/neko_config.o math/bcknd/device/device_math.o device/device.o field/field_list.o field/field.o common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o math/tensor.o 
 math/math.o : math/math.f90 comm/comm.o config/num_types.o 
 math/mathops.o : math/mathops.f90 config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
@@ -108,7 +109,7 @@ io/fluid_stats_output.o : io/fluid_stats_output.f90 io/output.o device/device.o 
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 io/data_streamer.o : io/data_streamer.F90 config/neko_config.o comm/mpi_types.o comm/comm.o device/device.o common/utils.o sem/coef.o field/field.o config/num_types.o 
 common/sampler.o : common/sampler.f90 common/time_based_controller.o config/num_types.o common/profiler.o common/utils.o common/log.o comm/comm.o io/output.o 
-common/global_interpolation.o : common/global_interpolation.F90 comm/mpi_types.o math/math.o comm/comm.o common/utils.o common/log.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o 
+common/global_interpolation.o : common/global_interpolation.F90 comm/mpi_types.o math/math.o comm/comm.o sem/local_interpolation.o common/utils.o common/log.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
