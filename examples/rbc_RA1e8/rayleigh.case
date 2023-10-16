@@ -60,14 +60,13 @@
         "output_control": "simulationtime",
         "output_value": 25	
     },
-    "monitor": {
+    "rbc_sampler": {
         "output_control": "simulationtime",
-        "calc_frequency": 10,
-        "verify_bc": true
+        "calc_frequency": 0.1,
     },
-    "monitor_nu": {
+    "rbc_field_writer": {
         "output_control": "simulationtime",
-        "calc_frequency": 0.5
+        "calc_frequency": 1
     }
 }
 }

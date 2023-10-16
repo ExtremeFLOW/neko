@@ -99,7 +99,8 @@ module rbc
      type(spectral_error_indicator_t) :: spectral_error_indicator
     
      !> Calculation controllers
-     type(time_based_controller_t), allocatable :: controllers(:)
+     type(time_based_controller_t) :: sample_control
+     type(time_based_controller_t) :: field_write_control
         
      !> for mean
      real(kind = rp):: eps_t_mean = 0_rp
@@ -153,10 +154,8 @@ contains
     type(tuple4_i4_t)  :: facet_el_type_0
 
     !> Controller data
-    real(kind=rp)     :: monitor_write_par
-    character(len=:), allocatable  :: monitor_write_control
-    real(kind=rp)     :: monitor_nu_write_par
-    character(len=:), allocatable  :: monitor_nu_write_control
+    real(kind=rp)     :: write_par
+    character(len=:), allocatable  :: write_control
     real(kind=rp)     :: T_end
     
     s => neko_field_registry%get_field('s')
@@ -166,6 +165,8 @@ contains
     
     !> Initialize variables related to nusselt calculation
     call this%work_field%init( u%dof, 'work_field')
+    call this%uxt%init( u%dof, 'uxt')
+    call this%uyt%init( u%dof, 'uyt')
     call this%uzt%init( u%dof, 'uzt')
     call this%dtdx%init( u%dof, 'dtdx')
     call this%dtdy%init( u%dof, 'dtdy')
@@ -198,28 +199,65 @@ contains
     
     !> Mean fields
     call this%mean_t%init( s, 'mean_t')
-    call this%mean_uxt%init( this%uzt, 'mean_uxt')
-    call this%mean_uyt%init( this%uzt, 'mean_uyt')
+    call this%mean_uxt%init( this%uxt, 'mean_uxt')
+    call this%mean_uyt%init( this%uyt, 'mean_uyt')
     call this%mean_uzt%init( this%uzt, 'mean_uzt')
-    call this%mean_dtdx%init( this%dtdn, 'mean_dtdx')
-    call this%mean_dtdy%init( this%dtdn, 'mean_dtdy')
-    call this%mean_dtdz%init( this%dtdn, 'mean_dtdz')
+    call this%mean_dtdx%init( this%dtdx, 'mean_dtdx')
+    call this%mean_dtdy%init( this%dtdy, 'mean_dtdy')
+    call this%mean_dtdz%init( this%dtdz, 'mean_dtdz')
     call this%mean_dtdn%init( this%dtdn, 'mean_dtdn')
     call this%mean_eps_k%init( this%eps_k, 'mean_eps_k')
     call this%mean_eps_t%init( this%eps_t, 'mean_eps_t')
     call this%mean_speri_u%init( this%spectral_error_indicator%u_hat, 'mean_speri_u')
     call this%mean_speri_v%init( this%spectral_error_indicator%v_hat, 'mean_speri_v')
     call this%mean_speri_w%init( this%spectral_error_indicator%w_hat, 'mean_speri_w')
+    
+    !> Initialize the controllers
+    call json_get(params, 'case.end_time', T_end)
+    !! Sample controller
+    call json_get(params, 'case.rbc_sampler.output_control', &
+                                     write_control)
+    call json_get(params, 'case.rbc_sampler.calc_frequency', &
+                                     write_par)    
+    call this%sample_control%init(T_end, write_control, &
+                                      write_par)
+    if (this%sample_control%nsteps .eq. 0) then
+       this%sample_control%nexecutions = &
+               int(t / this%sample_control%time_interval) + 1
+    end if
+    !! Field writer controller
+    call json_get(params, 'case.rbc_field_writer.output_control', &
+                                     write_control)
+    call json_get(params, 'case.rbc_field_writer.calc_frequency', &
+                                     write_par)    
+    call this%field_write_control%init(T_end, write_control, &
+                                      write_par)
+    if (this%field_write_control%nsteps .eq. 0) then
+       this%field_write_control%nexecutions = &
+               int(t / this%field_write_control%time_interval) + 1
+    end if
 
-    !> Initialize the file
+    !> Initialize the files
     fname = 'dtdX.fld'
     this%mf_dtdX =  file_t(fname)
+    call this%mf_dtdX%set_counter(this%field_write_control%nexecutions)
+    call this%mf_dtdX%set_start_counter(this%field_write_control%nexecutions)
+
     fname = 'eps.fld'
     this%mf_eps =  file_t(fname)
+    call this%mf_eps%set_counter(this%field_write_control%nexecutions)
+    call this%mf_eps%set_start_counter(this%field_write_control%nexecutions)
+    
     fname = 'mean_fiels_usr.fld'
     this%mf_mean_fields =  file_t(fname)
+    call this%mf_mean_fields%set_counter(this%field_write_control%nexecutions)
+    call this%mf_mean_fields%set_start_counter(this%field_write_control%nexecutions)
+    
     fname = 'dtdn.fld'
     this%mf_dtdn =  file_t(fname)
+    call this%mf_dtdn%set_counter(this%field_write_control%nexecutions)
+    call this%mf_dtdn%set_start_counter(this%field_write_control%nexecutions)
+
     fname = 'area.fld'
     this%mf_area =  file_t(fname)
     fname = 'bm1.fld'
@@ -346,31 +384,6 @@ contains
     call this%mf_area%write(this%area_l,t)
     call this%mf_bm1%write(this%bm1,t)      
 
-    !> Initialize the calculation controller
-    !!> Take data from case file
-    call json_get(params, 'case.end_time', T_end)
-    call json_get(params, 'case.monitor.output_control', &
-                                     monitor_write_control)
-    call json_get(params, 'case.monitor.calc_frequency', &
-                                     monitor_write_par)    
-    call json_get(params, 'case.monitor_nu.output_control', &
-                                     monitor_nu_write_control)
-    call json_get(params, 'case.monitor_nu.calc_frequency', &
-                                     monitor_nu_write_par)    
-    !!> Calculate relevant parameters and restart                     
-    allocate(this%controllers(2))
-    call this%controllers(1)%init(T_end, monitor_write_control, &
-                             monitor_write_par)
-    call this%controllers(2)%init(T_end, monitor_nu_write_control, &
-                             monitor_nu_write_par)
-    if (this%controllers(1)%nsteps .eq. 0) then
-       this%controllers(1)%nexecutions = &
-               int(t / this%controllers(1)%time_interval) + 1
-    end if
-    if (this%controllers(2)%nsteps .eq. 0) then
-       this%controllers(2)%nexecutions = &
-               int(t / this%controllers(2)%time_interval) + 1
-    end if
    
   end subroutine rbc_init
 
@@ -380,6 +393,8 @@ contains
 
     ! Finalize variables related to nusselt calculation
     call this%work_field%free()
+    call this%uxt%free()
+    call this%uyt%free()
     call this%uzt%free()
     call this%dtdx%free()
     call this%dtdy%free()
@@ -442,11 +457,6 @@ contains
     end if
     if (allocated(this%mean_fields_l%fields)) then
        deallocate(this%mean_fields_l%fields)       
-    end if
-
-    ! deallocate the calc controllers
-    if (allocated(this%controllers)) then
-       deallocate(this%controllers)       
     end if
     
     !> Finalize the spectral error indicator
