@@ -49,6 +49,7 @@ module probes
   use json_module, only : json_file
   use json_utils, only : json_get
   use global_interpolation
+  use datadist
   use device
   use file
   use math, only: rzero
@@ -63,48 +64,30 @@ module probes
   private
   
   type, public :: probes_t
-     !> Number of probes
-     integer :: n_probes
      !> Number of output fields
      integer :: n_fields = 0
      type(global_interpolation_t) :: global_interp
+     !> Global number of probes (needed for i/o)
+     integer :: n_global_probes
+     !> global offset for writing
+     integer :: n_probes_offset
      !> x,y,z coordinates
      real(kind=rp), allocatable :: xyz(:,:)
-     !> r,s,t coordinates
-     type(point_t), allocatable :: rst(:)
-     !> interpolated fields
-     real(kind=rp), allocatable :: out_fields(:,:)
-     !> Local element ownership
-     integer, allocatable :: local_el_owner(:)
+     !> Interpolated values
+     real(kind=rp), allocatable :: out_values(:,:)
      !> Number of local elements per rank
      integer :: n_local_probes
-     !> Local to global mapping to retrieve the fields
-     integer, allocatable :: local_to_global(:)
-     !> Local rst
-     type(point_t), allocatable :: local_rst(:)
-     !> Interpolator instead of findpts_eval
-     type(point_interpolator_t) :: interpolator
-     !> Weights in the r direction on the host
-     real(kind=rp), allocatable :: weights_r(:,:)
-     !> Weights in the s direction on the host
-     real(kind=rp), allocatable :: weights_s(:,:)
-     !> Weights in the s direction on the host
-     real(kind=rp), allocatable :: weights_t(:,:)
-     !> Local element ids on the device
-     type(c_ptr) :: local_el_owner_d = C_NULL_PTR
-     !> Weights in the r direction on the device
-     type(c_ptr) :: weights_r_d = C_NULL_PTR
-     !> Weights in the s direction on the device
-     type(c_ptr) :: weights_s_d = C_NULL_PTR
-     !> Weights in the t direction on the device
-     type(c_ptr) :: weights_t_d = C_NULL_PTR
-     !> To know if we need to recompute the weights
-     logical :: update_weights = .true.
      !> Time based controller for sampling
      type(time_based_controller_t) :: controller
      !> Fields to be probed
      type(field_list_t) :: sampled_fields
      character(len=20), allocatable  :: which_fields(:)
+     !> Allocated on rank 0
+     integer, allocatable :: n_local_probes_tot_offset(:)
+     integer, allocatable :: n_local_probes_tot(:)
+     !>  For output on rank 0
+     real(kind=rp), allocatable :: global_output_values(:,:)
+
 
 
      contains
@@ -120,6 +103,8 @@ module probes
        procedure, pass(this) :: debug => probes_debug
        !> Setup the probes for mapping process (with fgslib_findpts_setup).
        procedure, pass(this) :: setup => probes_setup
+       !> Setup the probes for mapping process (with fgslib_findpts_setup).
+       procedure, pass(this) :: setup_offset => probes_setup_offset
        !> Maps `x,y,z` to `r,s,t` coordinates.
        procedure, pass(this) :: map => probes_map
        !> Interpolate each probe from its `r,s,t` coordinates.
@@ -164,6 +149,9 @@ contains
        this%sampled_fields%fields(i)%f => neko_field_registry%get_field(&
                                           trim(this%which_fields(i)))
     end do
+    !> Only relevant at root really
+    allocate(this%n_local_probes_tot(pe_size))
+    allocate(this%n_local_probes_tot_offset(pe_size))
 
     !> Controllers
     ! Calculate relevant parameters and restart                     
@@ -177,9 +165,7 @@ contains
 
     !> Read file
     call read_probe_locations(this, points_file)
-
-    !> Initialize the interpolator with a function space
-    call this%interpolator%init(xh)
+    allocate(this%global_output_values(this%n_fields,this%n_global_probes))
 
   end subroutine probes_init
 
@@ -189,23 +175,9 @@ contains
     class(probes_t), intent(inout) :: this
 
     if (allocated(this%xyz))        deallocate(this%xyz)
-    if (allocated(this%rst))        deallocate(this%rst)
-    if (allocated(this%out_fields)) deallocate(this%out_fields)
+    if (allocated(this%out_values)) deallocate(this%out_values)
     if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
-    if (allocated(this%local_el_owner)) deallocate(this%local_el_owner)
-    if (allocated(this%local_rst)) deallocate(this%local_rst)
-    if (allocated(this%local_to_global)) deallocate(this%local_to_global)
 
-    if (allocated(this%weights_r)) deallocate(this%weights_r)
-    if (allocated(this%weights_s)) deallocate(this%weights_s)
-    if (allocated(this%weights_t)) deallocate(this%weights_t)
-
-    if (c_associated(this%local_el_owner_d)) call device_free(this%local_el_owner_d)
-    if (c_associated(this%weights_r_d)) call device_free(this%weights_r_d)
-    if (c_associated(this%weights_s_d)) call device_free(this%weights_s_d)
-    if (c_associated(this%weights_t_d)) call device_free(this%weights_t_d)
-
-    call this%interpolator%free()
     call this%global_interp%free()
 
   end subroutine probes_free
@@ -218,10 +190,10 @@ contains
 
     !> Probes summary
     call neko_log%section('Probes')
-    write(log_buf, '(A,I6)') "Number of probes: ", this%n_probes
+    write(log_buf, '(A,I6)') "Number of probes: ", this%n_global_probes
     call neko_log%message(log_buf)
-    call neko_log%message("xyz-coordinates:")
-    do i=1,this%n_probes
+    call neko_log%message("PE 0 xyz-coordinates:")
+    do i=1,this%n_local_probes
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf)
     end do
@@ -244,11 +216,11 @@ contains
     character(len=LOG_SIZE) :: log_buf ! For logging status
     integer :: i
 
-    do i = 1, this%n_probes
+    do i = 1, this%n_local_probes
        write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), "/" ,&
         this%global_interp%el_owner(i), "/",this%global_interp%error_code(i)
        call neko_log%message(log_buf)
-       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') "rst: ", this%rst(i)%x
+       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') "rst: ", this%global_interp%rst(:,i)
        call neko_log%message(log_buf)
     end do
   end subroutine probes_debug
@@ -277,75 +249,34 @@ contains
   subroutine probes_map(this, coef)
     class(probes_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef 
+    integer :: i, local_index, ierr
 
-    real(kind=rp) :: rst_gslib_raw(3*this%n_probes)
+    
+    call this%global_interp%find_points_and_redist(this%xyz, this%n_local_probes)
 
-    real(kind=rp) :: tol_dist = 5d-6
-    integer :: i, local_index
-
-    ! Global mapping, finding the points
-    call this%global_interp%find_points(this%xyz, this%n_probes)
-
-    ! Number of points owned by a rank
-    this%n_local_probes = 0
-
-    do i=1,this%n_probes
-
-       !
-       ! Reformat the rst array into point_t
-       !
-       this%rst(i)%x(1) = this%global_interp%rst(1,i)
-       this%rst(i)%x(2) = this%global_interp%rst(2,i)
-       this%rst(i)%x(3) = this%global_interp%rst(3,i)
-
-       !
-       ! Count the number of local points
-       !
-       if (pe_rank .eq. this%global_interp%proc_owner(i)) this%n_local_probes = this%n_local_probes+1
-
-    end do
-
-    ! -------------------------- END GSLIB ------------------------------------
-
-    !
-    ! Allocate local stuff
-    !
-    if (this%n_local_probes .ne. 0) then
-
-       !
-       ! Allocate and associate the element ownership locally
-       !
-       allocate(this%local_el_owner(this%n_local_probes))
-       allocate(this%local_to_global(this%n_local_probes))
-       allocate(this%local_rst(this%n_local_probes))
-
-       local_index = 1
-
-       do i = 1, this%n_probes
-          if (pe_rank .eq. this%global_interp%proc_owner(i)) then
-             this%local_el_owner(local_index) = this%global_interp%el_owner(i)
-             this%local_to_global(local_index) = i
-             this%local_rst(local_index) = this%rst(i)%x
-             local_index = local_index + 1
-          end if
-       end do
-
-       !
-       ! This could be another way to generate the local array
-       ! this%local_el_owner = pack(this%el_owner, this%proc_owner .eq. pe_rank)
-       !
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%local_el_owner, this%local_el_owner_d, &
-               this%n_local_probes)
-          call device_memcpy(this%local_el_owner, this%local_el_owner_d, &
-               this%n_local_probes, HOST_TO_DEVICE, sync = .true.)
-       end if
-
-    end if
-
+    deallocate(this%out_values)
+    allocate(this%out_values(this%n_fields,this%n_local_probes))
+    call this%setup_offset()
   end subroutine probes_map
+  !> Setup offset for rank 0
+  subroutine probes_setup_offset(this)
+    class(probes_t) :: this
+    integer :: ierr
+    this%n_local_probes_tot = 0
+    this%n_local_probes_tot_offset = 0
+    call MPI_Gather(this%n_local_probes, 1, MPI_INTEGER,&
+                    this%n_local_probes_tot, 1, MPI_INTEGER,&
+                    0, NEKO_COMM, ierr)
 
+    call MPI_Exscan(this%n_local_probes, this%n_probes_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Gather(this%n_probes_offset, 1, MPI_INTEGER,&
+                    this%n_local_probes_tot_offset, 1, MPI_INTEGER,&
+                    0, NEKO_COMM, ierr)
+
+
+
+  end subroutine probes_setup_offset
   !> Interpolate each probe from its `r,s,t` coordinates.
   !! @note The final interpolated field is only available on rank 0.
   !! @param t Current simulation time.
@@ -358,85 +289,25 @@ contains
     logical, intent(inout) :: write_output
     real(kind=rp), allocatable :: tmp(:,:)
     integer :: i, ierr, lx
-    integer :: size_outfields, size_weights
+    integer :: size_outfields
 
     !> Check controller to determine if we must write
     if (this%controller%check(t, tstep, .false.)) then
 
-       size_outfields = this%n_probes * this%n_fields
        
-       ! Fill the out_field array with 0s as we are reducing later
-       ! with MPI_SUM
-       call rzero(this%out_fields, size_outfields)
-
        ! Do not allocate/compute if current has no local probes
-       if (this%n_local_probes .ne. 0) then
+       do i = 1,this%n_fields
+          call this%global_interp%evaluate(this%out_values(i,:), &
+                                           this%sampled_fields%fields(i)%f%x)
+       end do
 
-          lx = this%interpolator%Xh%lx
-          size_weights = this%n_local_probes * lx
-          
-          !
-          ! Only update weights if necessary
-          !
-          if (this%update_weights) then
 
-             if (.not. allocated(this%weights_r)) allocate(this%weights_r(lx,this%n_local_probes))
-             if (.not. allocated(this%weights_s)) allocate(this%weights_s(lx,this%n_local_probes))
-             if (.not. allocated(this%weights_t)) allocate(this%weights_t(lx,this%n_local_probes))
-
-             !
-             ! Build weights
-             !
-             call this%interpolator%compute_weights(real(this%rst(:)%x(1), rp), &
-                  real(this%rst(:)%x(2), rp), real(this%rst(:)%x(3), rp), &
-                  this%weights_r, this%weights_s, this%weights_t)
-
-             !
-             ! Associate device pointers
-             !
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-
-                call device_map(this%weights_r, this%weights_r_d, size_weights)
-                call device_map(this%weights_s, this%weights_s_d, size_weights)
-                call device_map(this%weights_t, this%weights_t_d, size_weights)
-                call device_memcpy(this%weights_r, this%weights_r_d, size_weights, HOST_TO_DEVICE, sync = .true.)
-                call device_memcpy(this%weights_s, this%weights_s_d, size_weights, HOST_TO_DEVICE, sync = .true.)
-                call device_memcpy(this%weights_t, this%weights_t_d, size_weights, HOST_TO_DEVICE, sync = .true.)
-
-             end if
-
-             this%update_weights = .false.
-
-          end if
-
-          allocate(tmp(this%n_local_probes, this%n_fields))
-
-          !
-          ! Interpolate
-          !
-          tmp = this%interpolator%interpolate(this%local_rst, &
-               this%local_el_owner, this%sampled_fields, &
-               this%weights_r, this%weights_s, this%weights_t)
-
-          !
-          ! Reconstruct the global array using global to local mapping
-          !
-          do i = 1, this%n_local_probes
-             this%out_fields(this%local_to_global(i),:) = tmp(i,:)
-          end do
-
-          deallocate(tmp)
-
-       end if
-
-       ! Artificial way to gather all values to rank 0
-       if (pe_rank .ne. 0) then
-          call MPI_Reduce(this%out_fields(1,1), this%out_fields(1,1), size_outfields, &
-               MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
-       else
-          call MPI_Reduce(MPI_IN_PLACE, this%out_fields(1,1), size_outfields, &
-               MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
-       end if
+       ! Gather all values to rank 0
+       call MPI_Gatherv(this%out_values, this%n_fields*this%n_local_probes,&
+                        MPI_DOUBLE_PRECISION, this%global_output_values,&
+                        this%n_fields*this%n_local_probes_tot,&
+                        this%n_fields*this%n_local_probes_tot_offset,&
+                        MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr) 
 
        !! Turn on flag to write output
        write_output = .true.
@@ -452,69 +323,68 @@ contains
   subroutine read_probe_locations(this, points_file)
     class(probes_t), intent(inout) :: this
     character(len=:), allocatable  :: points_file
-    type(matrix_t) :: mat_in
     !> Supporting variables
     type(file_t) :: file_in
     integer :: ierr, file_unit, n_lines
 
     file_in = file_t(trim(points_file))
-
+    !> Reads on rank 0 and distributes the probes across the different ranks
     select type(ft => file_in%file_type)
       type is (csv_file_t)
-          call read_from_csv(this, ft, mat_in)
+          call read_from_csv(this, ft)
       class default
           call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
-    !> After reading the number of probes is know, as well as number of fields
-    call this%allocate_fields()
-
-    ! Transpose mat%x and put it in this%xyz
-    call trsp(this%xyz, 3, mat_in%x, this%n_probes)
-
-    ! Broadcast the xyz coordinates to all processes
-    call MPI_Bcast(this%xyz, 3*this%n_probes, MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
-
     !> Close the file
-    call mat_in%free
     call file_free(file_in)
 
   end subroutine read_probe_locations
 
   !> Read and initialize the number of probes from a `csv` input file
-  subroutine read_from_csv(this, f, mat_in)
+  subroutine read_from_csv(this, f)
     class(probes_t), intent(inout) :: this
     type(csv_file_t), intent(inout) :: f
-    type(matrix_t), intent(inout) :: mat_in
+    type(matrix_t) :: mat_in, mat_in2
     integer :: ierr, file_unit, n_lines
+    type(linear_dist_t) :: dist
 
     if (pe_rank .eq. 0) n_lines = f%count_lines()
     call MPI_Bcast(n_lines, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
 
     ! Update the number of probes
-    this%n_probes = n_lines
+    this%n_global_probes = n_lines
+    dist = linear_dist_t(n_lines, pe_rank, pe_size, NEKO_COMM)
+    this%n_local_probes = dist%num_local()
+
+    call this%setup_offset()
+
 
     ! Initialize the temporal array
-    call mat_in%init(this%n_probes,3)
-
-    ! Read the data
-    call f%read(mat_in)
-
+    if (pe_rank .eq. 0) then
+       call mat_in%init(this%n_global_probes,3)
+       call mat_in2%init(3,this%n_global_probes)
+       call f%read(mat_in)
+       call trsp(mat_in2%x, 3, mat_in%x, this%n_global_probes)
+    end if
+    call this%allocate_fields()
+    !> Scatter from rank 0
+    call MPI_Scatterv(mat_in2%x, 3*this%n_local_probes_tot,&
+                        3*this%n_local_probes_tot_offset,&
+                        MPI_DOUBLE_PRECISION,this%xyz,&
+                        3*this%n_local_probes,&
+                        MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr) 
+   call mat_in%free()
+   call mat_in2%free()
   end subroutine read_from_csv
 
   !> Allocate arrays according to previously initialized # of probes and fields.
   subroutine probes_allocate_fields(this)
     class(probes_t), intent(inout) :: this
-    integer :: n_probes
-    integer :: n_fields
-
-    n_probes = this%n_probes
-    n_fields = this%n_fields
 
     ! Size of xyz as used in gslib
-    allocate(this%xyz(3, n_probes))    
-    allocate(this%rst(n_probes))
-    allocate(this%out_fields(n_probes, n_fields))
+    allocate(this%xyz(3, this%n_local_probes))    
+    allocate(this%out_values(this%n_fields,this%n_local_probes))
 
   end subroutine probes_allocate_fields
 
