@@ -36,7 +36,27 @@ contains
     u%scalar_user_bc => set_scalar_boundary_conditions
     u%fluid_user_f_vector => set_bousinesq_forcing_term
     u%user_check => check
+    u%material_properties => set_material_properties
   end subroutine user_setup
+
+  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+    real(kind=rp) :: Re
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+
+
+    Re = sqrt(Ra / Pr)
+    mu = 1.0_rp / Re
+    lambda = mu / Pr
+    rho = 1.0_rp
+    cp = 1.0_rp
+  end subroutine set_material_properties
+   
  
   subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -122,15 +142,6 @@ contains
     !> Support variables for probes 
     integer :: i
     type(matrix_t) :: mat_coords
-
-    !> Recalculate the non dimensional parameters
-    call json_get(params, 'case.scalar.Pr', Pr)
-    call json_get(params, 'case.fluid.Re', Re)
-    Ra = (Re**2)*Pr
-    write(log_buf,*) 'Rayleigh Number is Ra=', Ra
-    call neko_log%message(log_buf)
-    
-!    if (pe_rank.eq.0) write(*,*) 
 
     !> ========== Needed for Probes =================
     

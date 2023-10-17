@@ -48,7 +48,7 @@ module global_interpolation
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+  !> Implements global interpolation for arbitrary points in the domain. 
   type, public :: global_interpolation_t
      !> Dofmap from which we interpolate the points
      type(dofmap_t), pointer :: dof
@@ -89,23 +89,28 @@ module global_interpolation
      !> Finds the process owner, global element number,
      !! and local rst coordinates for each point.
      !! Sets up correct values to be able to evalute the points
-     procedure, pass(this) :: find_points => global_interpolation_find
+     procedure, pass(this) :: find_points_coords => global_interpolation_find_coords
+     procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
+     generic :: find_points => find_points_xyz, find_points_coords
      !> Evaluate the value of the field in each point.
-     procedure, pass(this) :: evaluate => global_interpolation_evaluate     
+     procedure, pass(this) :: evaluate => global_interpolation_evaluate
   end type global_interpolation_t
-  
-contains
 
+
+contains
   !> Initialize user defined variables.
   !! @param dof Dofmap on which the interpolation is to be carried out.
-  subroutine global_interpolation_init(this, dof)
+  !! @param tol Tolerance for Newton iterations.
+  subroutine global_interpolation_init(this, dof, tol)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
+    real(kind=rp), optional :: tol
     integer :: lx, ly, lz, nelv, max_pts_per_iter
 
     this%dof => dof
     this%Xh => dof%Xh
     this%mesh => dof%msh
+    if(present(tol)) this%tol = tol
 
 #ifdef HAVE_GSLIB
     
@@ -126,7 +131,7 @@ contains
          lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
          max_pts_per_iter, this%tol)
 #else
-    call neko_error('NEKO needs to be built with GSLIB support')
+    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine global_interpolation_init
@@ -145,7 +150,7 @@ contains
 #ifdef HAVE_GSLIB
     call fgslib_findpts_free(this%gs_handle)
 #else
-    call neko_error('NEKO needs to be built with GSLIB support')
+    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine global_interpolation_free
@@ -164,43 +169,18 @@ contains
     if (allocated(this%error_code)) deallocate(this%error_code)
 
   end subroutine global_interpolation_free_points
-
-  !> Finds the corresponding r,s,t coordinates 
-  !! in the correct global element as well as which process that owns the point.
-  !! After this the values at these points can be evaluated.
-  !! If the locations of the points change this must be called again.
-  !! - `error_code`: returns `0` if point found, `1` if closest point on a border
-  !! (check dist2), `2` if not found
-  !! - `dist2`: distance squared (used to compare the points found by each
-  !! processor)
-  !! @param xyz The coordinates of the points.
-  !! @param n_points The number of points.
-  subroutine global_interpolation_find(this, xyz, n_points)
+  
+  !> Common routine for finding the points. 
+  subroutine global_interpolation_find_common(this)
     class(global_interpolation_t), intent(inout) :: this
-    integer :: n_points
     !!Perhaps this should be kind dp
-    real(kind=rp) :: xyz(3,n_points)
     real(kind=rp) :: xdiff, ydiff, zdiff
-    character(len=LOG_SIZE) :: log_buf
+    character(len=8000) :: log_buf
     real(kind=rp), allocatable :: x_check(:)
     real(kind=rp), allocatable :: y_check(:)
     real(kind=rp), allocatable :: z_check(:)
     logical :: isdiff
     integer :: i
-
-
-    call this%free_points()
-
-    this%n_points = n_points
-    
-    allocate(this%xyz(3,n_points))
-    allocate(this%rst(3,n_points))
-    allocate(this%proc_owner(n_points))
-    allocate(this%el_owner(n_points))
-    allocate(this%dist2(n_points))
-    allocate(this%error_code(n_points))
-    !> make deep copy incase xyz goes out of scope or deallocated
-    call copy(this%xyz,xyz,3*n_points)
 
 #ifdef HAVE_GSLIB
 
@@ -222,12 +202,24 @@ contains
        !
        if (this%error_code(i) .eq. 1) then
           if (this%dist2(i) .gt. this%tol) then
-             call neko_warning("Point on boundary or outside the mesh!")
+             write(*,*) 'Point with coords: ',&
+                this%xyz(1,i),&
+                this%xyz(2,i),&
+                this%xyz(3,i),&
+                'Did not converge to tol. Absolute differences squared: ',&
+                this%dist2(i)
           end if
        end if
 
        if (this%error_code(i) .eq. 2) &
-          call neko_warning("Point not within the mesh!")
+             write(*,*) 'Point with coords: ',&
+                this%xyz(1,i), this%xyz(2,i), this%xyz(3,i),&
+                'Outside the mesh!',&
+                ' Interpolation on these points will return 0.0. dist2: ', &
+                this%dist2(i),&
+                'el_owner, rst coords: ',&
+                this%el_owner(i), this%rst(1,i), this%rst(2,i), this%rst(3,i)
+
     end do
 
     allocate(x_check(this%n_points))
@@ -259,20 +251,20 @@ contains
        ! Check validity of points
        !
        isdiff = .false.
-       xdiff = abs(x_check(i)-xyz(1,i))
-       if ( xdiff .gt. sqrt(this%tol)) isdiff = .true.
-       ydiff = abs(y_check(i)-xyz(2,i))
-       if ( ydiff .gt. sqrt(this%tol)) isdiff = .true.
-       zdiff = abs(z_check(i)-xyz(3,i))
-       if ( zdiff .gt. sqrt(this%tol)) isdiff = .true.
+       xdiff = (x_check(i)-this%xyz(1,i))**2
+       if ( xdiff .gt. this%tol) isdiff = .true.
+       ydiff = (y_check(i)-this%xyz(2,i))**2
+       if ( ydiff .gt. this%tol) isdiff = .true.
+       zdiff = (z_check(i)-this%xyz(3,i))**2
+       if ( zdiff .gt. this%tol) isdiff = .true.
 
        if (isdiff) then
-          write(log_buf,*) 'Point with coords: ',&
-                xyz(:,i),&
-                ' Differ from interpolated coords: ',&
+          write(*,*) 'Points with coords: ',&
+                this%xyz(1,i),this%xyz(2,i),this%xyz(3,i), &
+                'Differ from interpolated coords: ',&
                 x_check(i), y_check(i), z_check(i),&
-                'Absolute differences(x,y,z): ', xdiff, ydiff, zdiff
-          call neko_warning(log_buf)
+                'Distance squared: ',&
+                xdiff, ydiff, zdiff
        end if
     end do
     
@@ -284,8 +276,85 @@ contains
 #else
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
+  end subroutine global_interpolation_find_common
+  
+  !> Finds the corresponding r,s,t coordinates 
+  !! in the correct global element as well as which process that owns the point.
+  !! After this the values at these points can be evaluated.
+  !! If the locations of the points change this must be called again.
+  !! - `error_code`: returns `0` if point found, `1` if closest point on a border
+  !! (check dist2), `2` if not found
+  !! - `dist2`: distance squared (used to compare the points found by each
+  !! processor)
+  !! @param x The x-coordinates of the points.
+  !! @param y The y-coordinates of the points.
+  !! @param z The z-coordinates of the points.
+  !! @param n_points The number of points.
+  subroutine global_interpolation_find_coords(this, x, y, z, n_points)
+    class(global_interpolation_t), intent(inout) :: this
+    integer :: n_points
+    !!Perhaps this should be kind dp
+    !!this is to get around that x,y,z often is 4 dimensional...
+    !!Should maybe add interface for 1d aswell
+    real(kind=rp) :: x(n_points,1,1,1)
+    real(kind=rp) :: y(n_points,1,1,1)
+    real(kind=rp) :: z(n_points,1,1,1)
+    integer :: i
 
-  end subroutine global_interpolation_find
+    call this%free_points()
+
+    this%n_points = n_points
+    
+    allocate(this%xyz(3,n_points))
+    allocate(this%rst(3,n_points))
+    allocate(this%proc_owner(n_points))
+    allocate(this%el_owner(n_points))
+    allocate(this%dist2(n_points))
+    allocate(this%error_code(n_points))
+
+    do i = 1, n_points
+       this%xyz(1,i) = x(i,1,1,1)
+       this%xyz(2,i) = y(i,1,1,1)
+       this%xyz(3,i) = z(i,1,1,1)
+    end do
+
+    call global_interpolation_find_common(this)
+
+  end subroutine global_interpolation_find_coords
+
+  !> Finds the corresponding r,s,t coordinates 
+  !! in the correct global element as well as which process that owns the point.
+  !! After this the values at these points can be evaluated.
+  !! If the locations of the points change this must be called again.
+  !! - `error_code`: returns `0` if point found, `1` if closest point on a border
+  !! (check dist2), `2` if not found
+  !! - `dist2`: distance squared (used to compare the points found by each
+  !! processor)
+  !! @param xyz The coordinates of the points.
+  !! @param n_points The number of points.
+  subroutine global_interpolation_find_xyz(this, xyz, n_points)
+    class(global_interpolation_t), intent(inout) :: this
+    integer, intent(in) :: n_points
+    !!Perhaps this should be kind dp
+    real(kind=rp), intent(inout) :: xyz(3,n_points)
+
+
+    call this%free_points()
+
+    this%n_points = n_points
+    
+    allocate(this%xyz(3,n_points))
+    allocate(this%rst(3,n_points))
+    allocate(this%proc_owner(n_points))
+    allocate(this%el_owner(n_points))
+    allocate(this%dist2(n_points))
+    allocate(this%error_code(n_points))
+    !> make deep copy incase xyz goes out of scope or deallocated
+    call copy(this%xyz,xyz,3*n_points)
+
+    call global_interpolation_find_common(this)
+
+  end subroutine global_interpolation_find_xyz
 
 
   !> Evalute the interpolated value in the points given a field on the dofmap
@@ -305,7 +374,7 @@ contains
                              this%n_points, field)
 
 #else
-    call neko_error('NEKO needs to be built with GSLIB support')
+    call neko_error('Neko needs to be built with GSLIB support')
 #endif
 
   end subroutine global_interpolation_evaluate

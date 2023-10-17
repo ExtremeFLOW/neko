@@ -59,6 +59,7 @@ module case
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
+  use material_properties, only : material_properties_t
   implicit none
   
   type :: case_t
@@ -80,6 +81,7 @@ module case
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar 
      type(field_list_t) :: bc_field_list
+     type(material_properties_t):: material_properties
   end type case_t
 
   interface case_init
@@ -187,6 +189,12 @@ contains
     !
     call C%usr%init()
     call C%usr%user_mesh_setup(C%msh)
+
+
+    !
+    ! Material properties
+    !
+    call C%material_properties%init(C%params, C%usr)
     
     !
     ! Setup fluid scheme
@@ -196,7 +204,7 @@ contains
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get poly order
-    call C%fluid%init(C%msh, lx, C%params, C%usr)
+    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
 
     
     !
@@ -215,7 +223,8 @@ contains
 
     if (scalar) then
        allocate(C%scalar)
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params)
+       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
+                          C%material_properties)
        call C%fluid%chkp%add_scalar(C%scalar%s)
     end if
 

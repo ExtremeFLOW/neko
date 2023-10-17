@@ -24,7 +24,7 @@ module pnpn_res_cpu
 contains
 
   subroutine pnpn_prs_res_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, Re, rho)
+       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -36,7 +36,7 @@ contains
     class(Ax_t), intent(inout) :: Ax
     real(kind=rp), intent(inout) :: bd
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), intent(in) :: Re
+    real(kind=rp), intent(in) :: mu
     real(kind=rp), intent(in) :: rho
     real(kind=rp) :: dtbd
     integer :: n
@@ -66,11 +66,11 @@ contains
 
     do i = 1, n
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
-            - ((wa1%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
+            - ((wa1%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
-            - ((wa2%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
+            - ((wa2%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
-            - ((wa3%x(i,1,1,1) * ((1.0_rp / Re) /rho)) * c_Xh%B(i,1,1,1))
+            - ((wa3%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1))
     end do
      
     call gs_Xh%op(ta1, GS_OP_ADD) 
@@ -125,7 +125,7 @@ contains
   end subroutine pnpn_prs_res_cpu_compute
 
   subroutine pnpn_vel_res_cpu_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+       p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh    
@@ -133,7 +133,7 @@ contains
     type(field_t), intent(inout) :: u_res, v_res, w_res
     type(field_t), intent(inout) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: Re
+    real(kind=rp), intent(in) :: mu
     real(kind=rp), intent(in) :: rho
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
@@ -143,7 +143,7 @@ contains
     integer :: i
 
     do i = 1, n
-       c_Xh%h1(i,1,1,1) = (1.0_rp / Re)
+       c_Xh%h1(i,1,1,1) = mu
        c_Xh%h2(i,1,1,1) = rho * (bd / dt)
     end do
     c_Xh%ifh2 = .true.
