@@ -12,8 +12,6 @@
   },
   "fluid": {
     "scheme": "pnpn",
-    "rho": 1.0,
-    "mu": 1.0,
     "Re": 5000,
     "inflow_condition": {
       "type": "user"

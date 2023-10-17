@@ -7,36 +7,36 @@ module user
   real(kind=rp) :: Re = 0
   real(kind=rp) :: Pr = 0
 
-
-  !> ========== Needed for Probes =================
-  
-  !> Probe type
-  type(probes_t) :: pb
-
-  !> Output variables
-  type(file_t) :: fout
-  type(matrix_t) :: mat_out
-
-  !> Case IO parameters  
-  integer            :: n_fields
-  character(len=:), allocatable  :: output_file
-
-  !> Output control
-  logical :: write_output = .false.
-
   !> =============================================
 
 contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%user_init_modules => user_initialize
-    u%user_finalize_modules => user_finalize
     u%fluid_user_ic => set_initial_conditions_for_u_and_s
     u%scalar_user_bc => set_scalar_boundary_conditions
     u%fluid_user_f_vector => set_bousinesq_forcing_term
-    u%user_check => check
+    u%material_properties => set_material_properties
   end subroutine user_setup
+
+  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+    real(kind=rp) :: Re
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+
+
+    Re = sqrt(Ra / Pr)
+    mu = 1.0_rp / Re
+    lambda = mu / Pr
+    rho = 1.0_rp
+    cp = 1.0_rp
+  end subroutine set_material_properties
+   
  
   subroutine set_scalar_boundary_conditions(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -107,94 +107,6 @@ contains
 
   end subroutine set_initial_conditions_for_u_and_s
 
-  subroutine user_initialize(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-
-    !> Log variable
-    character(len=LOG_SIZE) :: log_buf ! For logging status
-
-    !> Support variables for probes 
-    integer :: i, ierr
-    type(matrix_t) :: mat_coords
-
-    !> Recalculate the non dimensional parameters
-    call json_get(params, 'case.scalar.Pr', Pr)
-    call json_get(params, 'case.fluid.Re', Re)
-    Ra = (Re**2)*Pr
-    write(log_buf,*) 'Rayleigh Number is Ra=', Ra
-    call neko_log%message(log_buf)
-    
-!    if (pe_rank.eq.0) write(*,*) 
-
-    !> ========== Needed for Probes =================
-    
-    !> Read the output information
-    call json_get(params, 'case.probes.output_file', output_file) 
-
-    !> Probe set up
-    !! Read probe info and initialize the controller, arrays, etc.
-    call pb%init(t, params, coef%Xh)
-    !! Perform the set up of gslib_findpts
-    call pb%setup(coef)
-    !! Find the probes in the mesh. Map from xyz -> rst
-    call pb%map(coef)
-    !> Write a summary of the probe info
-    call pb%show()
-
-    !> Initialize the output
-    fout = file_t(trim(output_file))
-    call mat_out%init(pb%n_global_probes, pb%n_fields)
-
-    !> Write coordinates in output file (imitate nek5000)
-    !! Initialize the arrays
-    call mat_coords%init(pb%n_global_probes,3)
-    call rzero(mat_coords%x,pb%n_global_probes*3)
-    !! Array them as rows
-    do i = 1, pb%n_local_probes
-       mat_coords%x(pb%n_probes_offset+i,1) = pb%xyz(1,i)
-       mat_coords%x(pb%n_probes_offset+i,2) = pb%xyz(2,i)
-       mat_coords%x(pb%n_probes_offset+i,3) = pb%xyz(3,i)
-    end do
-
-    ! Artificial way to gather all values to rank 0
-    if (pe_rank .ne. 0) then
-       call MPI_Reduce(mat_coords%x, mat_coords%x, 3*pb%n_global_probes, &
-            MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
-    else
-       call MPI_Reduce(MPI_IN_PLACE, mat_coords%x,3*pb%n_global_probes, &
-            MPI_REAL_PRECISION, MPI_SUM, 0, NEKO_COMM, ierr)
-    end if
-
-
-    !! Write the data to the file
-    call fout%write(mat_coords)
-    !! Free the memory 
-    call mat_coords%free
-
-    !> ==============================================
-
-  end subroutine user_initialize
-
-  subroutine user_finalize(t, param)
-    real(kind=rp) :: t
-    type(json_file), intent(inout) :: param
-
-    !> ========== Needed for Probes =================
-    
-    call pb%free
-    call mat_out%free
-    call file_free(fout)
-    
-    !> ==============================================
-     
-  end subroutine user_finalize
-
   subroutine set_bousinesq_forcing_term(f, t)
     class(fluid_user_source_term_t), intent(inout) :: f
     real(kind=rp), intent(in) :: t
@@ -216,32 +128,4 @@ contains
        call copy(f%w,s%x,f%dm%size())
     end if
   end subroutine set_bousinesq_forcing_term
-
-  subroutine check(t, tstep, u, v, w, p, coef, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-
-    !> ========== Needed for Probes =================
-
-    !> Interpolate the desired fields
-    call pb%interpolate(t,tstep, write_output)
-    !! Write if the interpolate function returs write_output=.true.
-    if (write_output) then
-       if (pe_rank .eq. 0) then
-          call trsp(mat_out%x,pb%n_global_probes,pb%global_output_values,pb%n_fields)
-          call fout%write(mat_out, t)
-       end if
-       write_output = .false.
-    end if
-
-    !> ==============================================
-
-  end subroutine check
-
 end module user
