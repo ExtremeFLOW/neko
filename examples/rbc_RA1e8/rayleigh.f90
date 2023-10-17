@@ -11,7 +11,7 @@ module user
   real(kind=rp) :: Pr = 0
 
   !> Type for run time
-  type(rbc_t) :: rbc
+  type(rbc_t) :: runtime_rbc
      
   !> Mesh deformation
   real(kind=rp) :: delta_mesh = 0.0_rp !How much to deform to the top and bottom plate. =0 means no deformation
@@ -159,7 +159,7 @@ contains
     type(json_file), intent(inout) :: params
 
 
-    call rbc%init(t, u, v, w, p, coef, params)
+    call runtime_rbc%init(t, u, v, w, p, coef, params)
     
 
   end subroutine user_initialize
@@ -169,7 +169,7 @@ contains
     real(kind=rp) :: t
     type(json_file), intent(inout) :: param
 
-    call rbc%free()
+    call runtime_rbc%free()
   
   end subroutine user_finalize
 
@@ -207,26 +207,26 @@ contains
     logical :: get_spec_err_ind = .true.
   
 
-    if (rbc%sample_control%check(t, tstep, .false.)) then
+    if (runtime_rbc%sample_control%check(t, tstep, .false.)) then
        
        !> Calculate at sampling time
-       call rbc%calculate(t, tstep, coef, params, Ra, Pr, get_spec_err_ind)
-       call rbc%update_stats(t)
-       call rbc%get_integral_quantities(t, tstep, coef)
+       call runtime_rbc%calculate(t, tstep, coef, params, Ra, Pr, get_spec_err_ind)
+       call runtime_rbc%update_stats(t)
+       call runtime_rbc%get_integral_quantities(t, tstep, coef)
 
        !> Register the execution of the controller
-       call rbc%sample_control%register_execution()
+       call runtime_rbc%sample_control%register_execution()
 
     end if
 
-    if (rbc%field_write_control%check(t, tstep, .false.)) then
+    if (runtime_rbc%field_write_control%check(t, tstep, .false.)) then
     
        !> Write fields
-       call rbc%sync()
-       call rbc%write_fields_and_stats(t)
+       call runtime_rbc%sync()
+       call runtime_rbc%write_fields_and_stats(t)
        
        !> Register the execution of the controller
-       call rbc%field_write_control%register_execution()
+       call runtime_rbc%field_write_control%register_execution()
     
     end if
 
