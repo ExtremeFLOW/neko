@@ -26,7 +26,26 @@ contains
     u%scalar_user_bc => set_scalar_boundary_conditions
     u%fluid_user_f_vector => set_bousinesq_forcing_term
     u%user_check => check
+    u%material_properties => set_material_properties
   end subroutine user_setup
+
+  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+
+    Re = sqrt(Ra / Pr)
+    mu = 1.0_rp / Re
+    lambda = mu / Pr
+    rho = 1.0_rp
+    cp = 1.0_rp
+
+  end subroutine set_material_properties
+
 
   subroutine deform_mesh(msh)
     type(mesh_t), intent(inout) :: msh
@@ -123,8 +142,7 @@ contains
           end do
        end do
     end do
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x,s%x_d,s%dof%size(),HOST_TO_DEVICE)
     end if
 
@@ -139,12 +157,10 @@ contains
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: params
 
-    !> Recalculate the non dimensional parameters
-    call json_get(params, 'case.scalar.Pr', Pr)
-    call json_get(params, 'case.fluid.Re', Re)
-    Ra = (Re**2)*Pr
-    if (pe_rank.eq.0) write(*,*) 'Rayleigh Number is Ra=', Ra
+
     
+
+
   end subroutine user_initialize
 
 
@@ -165,8 +181,7 @@ contains
     w => neko_field_registry%get_field('w')
     s => neko_field_registry%get_field('s')
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(f%u_d,f%dm%size())
        call device_rzero(f%v_d,f%dm%size())
        call device_copy(f%w_d,s%x_d,f%dm%size())

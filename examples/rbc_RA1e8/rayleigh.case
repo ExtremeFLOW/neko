@@ -17,9 +17,7 @@
     },
     "fluid": {
         "scheme": "pnpn",
-        "rho": 1,
-        "mu": 1,
-        "Re": 1e4,
+        "Ra": 1e8,
         "source_terms": 
         [
             {
