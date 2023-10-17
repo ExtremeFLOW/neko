@@ -64,6 +64,7 @@ module global_interpolation
      !! Gslib handle
      !! @note: Remove when we remove gslib
      integer :: gs_handle
+     logical :: gs_init = .false.
      !> Components related to the points we want to evalute
      !> Number of points we want to evaluate
      integer :: n_points
@@ -74,6 +75,7 @@ module global_interpolation
      integer, allocatable :: proc_owner(:)
      !> List of owning elements
      integer, allocatable :: el_owner(:)
+     type(c_ptr) :: el_owner_d = c_null_ptr
      !> r,s,t coordinates findpts format
      !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: rst(:,:)
@@ -138,6 +140,7 @@ contains
          0.01, & ! relative size to expand bounding boxes by
          lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
          max_pts_per_iter, this%tol)
+    this%gs_init = .true.
 #else
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
@@ -156,7 +159,10 @@ contains
     call this%free_points()
 
 #ifdef HAVE_GSLIB
-    call fgslib_findpts_free(this%gs_handle)
+   if (this%gs_init) then
+      call fgslib_findpts_free(this%gs_handle)
+      this%gs_init = .false.
+   end if
 #else
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
@@ -176,6 +182,10 @@ contains
     if (allocated(this%el_owner))   deallocate(this%el_owner)
     if (allocated(this%dist2))       deallocate(this%dist2)
     if (allocated(this%error_code)) deallocate(this%error_code)
+
+    if (c_associated(this%el_owner_d)) then
+       call device_free(this%el_owner_d)
+    end if
 
   end subroutine global_interpolation_free_points
   
@@ -283,6 +293,10 @@ contains
     deallocate(y_check)
     deallocate(z_check)
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%el_owner, this%el_owner_d, &
+            this%n_points, HOST_TO_DEVICE, sync = .true.)
+    end if
 #else
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
@@ -336,6 +350,9 @@ contains
     allocate(this%el_owner(this%n_points))
     allocate(this%dist2(this%n_points))
     allocate(this%error_code(this%n_points))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) &
+       call device_map(this%el_owner, this%el_owner_d,this%n_points)
 
   end subroutine global_interpolation_init_point_arrays
 
