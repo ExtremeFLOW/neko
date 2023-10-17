@@ -53,12 +53,16 @@
         "enabled": true,
         "Pr": 1.0
     },
-    "probes": {
+    "simulation_components": 
+    [
+      {
+        "type": "probes",
+        "compute_control": "simulationtime",
+        "compute_value"    : 1,
         "points_file":  "probes.csv",
-        "output_file":  "output.csv",
-        "fields": ["w","s"],
-        "output_control": "simulationtime",
-        "output_value"    : 1,
-    }
+        "output_file":  "outputw.csv",
+        "fields": ["w,s"]
+       }
+     ]
 }
 }
