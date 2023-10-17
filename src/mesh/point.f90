@@ -51,7 +51,7 @@ module point
      procedure :: point_add
      procedure :: point_subtract
      procedure :: point_scalar_mult
-     procedure :: dist => point_euclid_dist
+     procedure, pass(p1) :: dist => point_euclid_dist
      procedure, pass(x) :: point_mat_mult
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
@@ -225,8 +225,8 @@ contains
   !> Returns the Euclidean distance between two points \f$ \mid p_1 -  p_2 \mid \f$
   pure function point_euclid_dist(p1, p2) result(res)
     class(point_t), intent(in) :: p1
-    class(point_t), intent(in) :: p2
-    real(kind=rp), intent(inout) :: res
+    type(point_t), intent(in) :: p2
+    real(kind=rp) :: res
 
     res = sqrt(  (p1%x(1) - p2%x(1))**2 &
                + (p1%x(2) - p2%x(2))**2 &         
