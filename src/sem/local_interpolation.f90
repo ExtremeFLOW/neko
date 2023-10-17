@@ -57,9 +57,9 @@ module local_interpolation
      real(kind=rp), allocatable :: weights_r(:,:)
      real(kind=rp), allocatable :: weights_s(:,:)
      real(kind=rp), allocatable :: weights_t(:,:)
-     type(c_ptr) :: weights_r_d
-     type(c_ptr) :: weights_s_d
-     type(c_ptr) :: weights_t_d
+     type(c_ptr) :: weights_r_d = c_null_ptr
+     type(c_ptr) :: weights_s_d = c_null_ptr
+     type(c_ptr) :: weights_t_d = c_null_ptr
    contains
      !> Constructor.
      procedure, pass(this) :: init => local_interpolator_init
@@ -82,7 +82,7 @@ contains
     integer, intent(in) :: n_points
     real(kind=rp) :: r(n_points), s(n_points), t(n_points) 
     integer :: size_weights
-
+    call this%free()
     if ((Xh%t .eq. GL) .or. (Xh%t .eq. GLL)) then
     else
        call neko_error('Unsupported interpolation')
@@ -116,6 +116,18 @@ contains
 
     if (associated(this%Xh)) this%Xh => null()
 
+    if(allocated(this%weights_r)) deallocate(this%weights_r)
+    if(allocated(this%weights_s)) deallocate(this%weights_s)
+    if(allocated(this%weights_t)) deallocate(this%weights_t)
+    if (c_associated(this%weights_r_d)) then
+       call device_free(this%weights_r_d)
+    end if
+    if (c_associated(this%weights_s_d)) then
+       call device_free(this%weights_s_d)
+    end if
+    if (c_associated(this%weights_t_d)) then
+       call device_free(this%weights_t_d)
+    end if
   end subroutine local_interpolator_free
 
   !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a
