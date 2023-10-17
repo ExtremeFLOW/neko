@@ -91,6 +91,7 @@ module neko
   use simulation_component_global, only : simcomps_global_init
   use data_streamer
   use time_interpolator
+  use point_interpolator, only : point_interpolator_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
