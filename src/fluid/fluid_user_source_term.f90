@@ -146,7 +146,7 @@ contains
   !! @param fields A list of 3 fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param sourc_termtype The type of the user source term, "user_vector" or 
-  !! "user_poinwise".
+  !! "user_pointwise".
   !! @param eval_vector The procedure to vector-compute the source term.
   !! @param eval_pointwise The procedure to pointwise-compute the source term.
   subroutine fluid_user_source_term_init_from_components(this, fields, coef, &
@@ -181,7 +181,7 @@ contains
     end if
 
 
-    if (trim(source_term_type) .eq. 'user_poinwise' .and. &
+    if (trim(source_term_type) .eq. 'user_pointwise' .and. &
               present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Pointwise source terms not supported on accelerators')

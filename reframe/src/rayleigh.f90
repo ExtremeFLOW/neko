@@ -4,19 +4,37 @@ module user
   use json_utils, only : json_get
   implicit none
 
-  real(kind=rp) :: Ra = 1715 
-  real(kind=rp) :: Pr = 0
+  real(kind=rp) :: Ra
+  real(kind=rp) :: Pr
   real(kind=rp) :: ta2 = 0
 
 contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%user_init_modules => set_Pr
     u%fluid_user_ic => set_ic
     u%fluid_user_f_vector => forcing
     u%scalar_user_bc => scalar_bc
+    u%material_properties => set_material_properties
   end subroutine user_setup
+
+  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+    type(json_file), intent(inout) :: params
+    real(kind=rp) :: Re
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+
+    Re = 1.0_rp / Pr
+    
+    mu = 1.0_rp / Re
+    lambda = mu / Pr
+    rho = 1.0_rp
+    cp = 1.0_rp
+  end subroutine set_material_properties
 
   subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -84,19 +102,6 @@ contains
 
   end subroutine set_ic
 
-  subroutine set_Pr(t, u, v, w, p, coef, params)
-    real(kind=rp) :: t
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
-    type(coef_t), intent(inout) :: coef
-    type(json_file), intent(inout) :: params
-    logical :: found
-
-    call json_get(params, 'case.scalar.Pr', Pr)
-    return
-  end subroutine set_Pr
 
 
 

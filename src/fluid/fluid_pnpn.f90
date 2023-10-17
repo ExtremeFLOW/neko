@@ -49,6 +49,7 @@ module fluid_pnpn
   use profiler
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
+  use material_properties, only : material_properties_t
   implicit none
   private
 
@@ -110,12 +111,13 @@ module fluid_pnpn
 
 contains
   
-  subroutine fluid_pnpn_init(this, msh, lx, params, user)    
+  subroutine fluid_pnpn_init(this, msh, lx, params, user, material_properties)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
+    type(material_properties_t), intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: found, logical_val
     integer :: integer_val
@@ -124,7 +126,8 @@ contains
     call this%free()
     
     ! Initialize base class
-    call this%scheme_init(msh, lx, params, .true., .true., scheme, user)
+    call this%scheme_init(msh, lx, params, .true., .true., scheme, user, &
+                          material_properties)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax)
@@ -374,7 +377,7 @@ contains
          pr_projection_dim => this%pr_projection_dim, &
          ksp_vel_maxiter => this%ksp_vel_maxiter, &
          ksp_pr_maxiter => this%ksp_pr_maxiter, &
-         rho => this%rho, Re => this%Re, mu => this%mu, &
+         rho => this%rho, mu => this%mu, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z)
       
       ! Get temporary arrays
@@ -429,7 +432,7 @@ contains
       call prs_res%compute(p, p_res, u, v, w, u_e, v_e, w_e, &
                            f_x, f_y, f_z, c_Xh, gs_Xh, this%bc_prs_surface, &
                            this%bc_sym_surface, Ax, ext_bdf%diffusion_coeffs(1), &
-                           dt, Re, rho)
+                           dt, mu, rho)
       
       call gs_Xh%op(p_res, GS_OP_ADD) 
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
@@ -466,7 +469,7 @@ contains
                            p, &
                            f_x, f_y, f_z, &
                            c_Xh, msh, Xh, &
-                           Re, rho, ext_bdf%diffusion_coeffs(1), &
+                           mu, rho, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
       
       call gs_Xh%op(u_res, GS_OP_ADD) 
@@ -514,7 +517,7 @@ contains
 
       if (this%forced_flow_rate) then
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho, Re,&
+              c_Xh, gs_Xh, ext_bdf, rho, mu,&
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, ksp_pr_maxiter, &

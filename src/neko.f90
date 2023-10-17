@@ -49,6 +49,7 @@ module neko
   use mesh_field, only : mesh_fld_t
   use map
   use mxm_wrapper
+  use global_interpolation
   use file
   use field, only : field_t
   use mpi_types
@@ -80,6 +81,7 @@ module neko
   use field_list, only : field_list_t
   use fluid_user_source_term
   use vector
+  use tensor
   use simulation_component
   use probes
   use spectral_error_indicator
@@ -88,6 +90,8 @@ module neko
   use scratch_registry, only : neko_scratch_registry
   use simulation_component_global, only : simcomps_global_init
   use data_streamer
+  use time_interpolator
+  use point_interpolator, only : point_interpolator_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none

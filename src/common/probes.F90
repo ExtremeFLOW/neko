@@ -48,6 +48,7 @@ module probes
   use field_registry, only : neko_field_registry
   use json_module, only : json_file
   use json_utils, only : json_get
+  use global_interpolation
   use device
   use file
   use math, only: rzero
@@ -66,20 +67,9 @@ module probes
      integer :: n_probes
      !> Number of output fields
      integer :: n_fields = 0
-     !! ===================== gslib variables ==================================
-     !> handle to pass in each findpts call
-     integer :: handle
-     !> List of owning processes
-     integer, allocatable :: proc_owner(:)
-     !> List of owning elements
-     integer, allocatable :: el_owner(:)
-     !> Distance squared between original and interpolated point (in xyz space)
-     real(kind=rp), allocatable :: dist2(:)
-     !> Error code for each point
-     integer, allocatable :: error_code(:)
-     !> x,y,z coordinates, findpts format
+     type(global_interpolation_t) :: global_interp
+     !> x,y,z coordinates
      real(kind=rp), allocatable :: xyz(:,:)
-     !! ========================================================================
      !> r,s,t coordinates
      type(point_t), allocatable :: rst(:)
      !> interpolated fields
@@ -200,10 +190,6 @@ contains
 
     if (allocated(this%xyz))        deallocate(this%xyz)
     if (allocated(this%rst))        deallocate(this%rst)
-    if (allocated(this%proc_owner)) deallocate(this%proc_owner)
-    if (allocated(this%el_owner))   deallocate(this%el_owner)
-    if (allocated(this%dist2))       deallocate(this%dist2)
-    if (allocated(this%error_code)) deallocate(this%error_code)
     if (allocated(this%out_fields)) deallocate(this%out_fields)
     if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
     if (allocated(this%local_el_owner)) deallocate(this%local_el_owner)
@@ -219,13 +205,8 @@ contains
     if (c_associated(this%weights_s_d)) call device_free(this%weights_s_d)
     if (c_associated(this%weights_t_d)) call device_free(this%weights_t_d)
 
-    call this%interpolator%free
-
-#ifdef HAVE_GSLIB
-    call fgslib_findpts_free(this%handle)
-#else
-    call neko_error('NEKO needs to be built with GSLIB support')
-#endif
+    call this%interpolator%free()
+    call this%global_interp%free()
 
   end subroutine probes_free
 
@@ -264,7 +245,8 @@ contains
     integer :: i
 
     do i = 1, this%n_probes
-       write (log_buf, *) pe_rank, "/", this%proc_owner(i), "/" , this%el_owner(i), "/", this%error_code(i)
+       write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), "/" ,&
+        this%global_interp%el_owner(i), "/",this%global_interp%error_code(i)
        call neko_log%message(log_buf)
        write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') "rst: ", this%rst(i)%x
        call neko_log%message(log_buf)
@@ -280,29 +262,7 @@ contains
     real(kind=rp) :: tolerance
     integer :: lx, ly, lz, nelv, max_pts_per_iter
 
-#ifdef HAVE_GSLIB
-
-    ! Tolerance for Newton iterations
-    tolerance = 5d-13
-    lx = coef%xh%lx
-    ly = coef%xh%ly
-    lz = coef%xh%lz
-    nelv = coef%msh%nelv
-    !Number of points to iterate on simultaneosuly
-    max_pts_per_iter = 128
-
-    call fgslib_findpts_setup(this%handle, &
-         NEKO_COMM, pe_size, &
-         coef%msh%gdim, &
-         coef%dof%x, coef%dof%y, coef%dof%z, & ! Physical nodal values
-         lx, ly, lz, nelv, & ! Mesh dimensions
-         2*lx, 2*ly, 2*lz, & ! Mesh size for bounding box computation
-         0.01, & ! relative size to expand bounding boxes by
-         lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
-         max_pts_per_iter, tolerance)
-#else
-    call neko_error('NEKO needs to be built with GSLIB support')
-#endif
+    call this%global_interp%init(coef%dof)
 
   end subroutine probes_setup
 
@@ -323,20 +283,8 @@ contains
     real(kind=rp) :: tol_dist = 5d-6
     integer :: i, local_index
 
-#ifdef HAVE_GSLIB
-
-    !
-    ! ------------------------ gslib -----------------------------------------
-    !
-    call fgslib_findpts(this%handle, &
-         this%error_code, 1, &
-         this%proc_owner, 1, &
-         this%el_owner, 1, &
-         rst_gslib_raw, coef%msh%gdim, &
-         this%dist2, 1, &
-         this%xyz(1,1), coef%msh%gdim, &
-         this%xyz(2,1), coef%msh%gdim, &
-         this%xyz(3,1), coef%msh%gdim, this%n_probes)
+    ! Global mapping, finding the points
+    call this%global_interp%find_points(this%xyz, this%n_probes)
 
     ! Number of points owned by a rank
     this%n_local_probes = 0
@@ -346,25 +294,15 @@ contains
        !
        ! Reformat the rst array into point_t
        !
-       this%rst(i)%x(1) = rst_gslib_raw(3*(i-1) + 1)
-       this%rst(i)%x(2) = rst_gslib_raw(3*(i-1) + 2)
-       this%rst(i)%x(3) = rst_gslib_raw(3*(i-1) + 3)
+       this%rst(i)%x(1) = this%global_interp%rst(1,i)
+       this%rst(i)%x(2) = this%global_interp%rst(2,i)
+       this%rst(i)%x(3) = this%global_interp%rst(3,i)
 
        !
        ! Count the number of local points
        !
-       if (pe_rank .eq. this%proc_owner(i)) this%n_local_probes = this%n_local_probes+1
+       if (pe_rank .eq. this%global_interp%proc_owner(i)) this%n_local_probes = this%n_local_probes+1
 
-       !
-       ! Check validity of points
-       !
-       if (this%error_code(i) .eq. 1) then
-          if (this%dist2(i) .gt. tol_dist) then
-             call neko_warning("Point on boundary or outside the mesh!")
-          end if
-       end if
-
-       if (this%error_code(i) .eq. 2) call neko_warning("Point not within the mesh!")
     end do
 
     ! -------------------------- END GSLIB ------------------------------------
@@ -384,8 +322,8 @@ contains
        local_index = 1
 
        do i = 1, this%n_probes
-          if (pe_rank .eq. this%proc_owner(i)) then
-             this%local_el_owner(local_index) = this%el_owner(i)
+          if (pe_rank .eq. this%global_interp%proc_owner(i)) then
+             this%local_el_owner(local_index) = this%global_interp%el_owner(i)
              this%local_to_global(local_index) = i
              this%local_rst(local_index) = this%rst(i)%x
              local_index = local_index + 1
@@ -406,10 +344,6 @@ contains
 
     end if
 
-#else
-    call neko_error('Neko needs to be built with GSLIB support')
-#endif
-
   end subroutine probes_map
 
   !> Interpolate each probe from its `r,s,t` coordinates.
@@ -425,8 +359,6 @@ contains
     real(kind=rp), allocatable :: tmp(:,:)
     integer :: i, ierr, lx
     integer :: size_outfields, size_weights
-
-#ifdef HAVE_GSLIB
 
     !> Check controller to determine if we must write
     if (this%controller%check(t, tstep, .false.)) then
@@ -513,10 +445,6 @@ contains
        call this%controller%register_execution()
     end if
 
-#else
-    call neko_error('NEKO needs to be built with GSLIB support')
-#endif
-
   end subroutine probes_interpolate
 
   !> Initialize the physical coordinates from a `csv` input file
@@ -585,10 +513,6 @@ contains
 
     ! Size of xyz as used in gslib
     allocate(this%xyz(3, n_probes))    
-    allocate(this%proc_owner(n_probes))
-    allocate(this%el_owner(n_probes))
-    allocate(this%dist2(n_probes))
-    allocate(this%error_code(n_probes))
     allocate(this%rst(n_probes))
     allocate(this%out_fields(n_probes, n_fields))
 
