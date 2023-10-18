@@ -47,8 +47,8 @@ module local_interpolation
   use neko_config, only: NEKO_BCKND_DEVICE
   implicit none
 
-  !> INterpolation 
-  !! on a set of points with known rst coordinates in elements local to this process
+  !> Interpolation on a set of points with known rst coordinates in elements local
+  !! to this process.
   type :: local_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
