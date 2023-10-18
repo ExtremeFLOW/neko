@@ -32,8 +32,15 @@
 !
 !> Defines various GMRES methods
 module gmres
-  use krylov
-  use math
+  use krylov, only : ksp_t, ksp_monitor_t
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use num_types, only: rp
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
+  use math, only : glsc3, rzero, rone, copy, sub2, cmult2
   use comm
   implicit none
   private

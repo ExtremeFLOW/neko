@@ -32,9 +32,17 @@
 !
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
-  use krylov
+  use num_types, only: rp
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use precon,  only : pc_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc, only : bc_list_t, bc_list_apply
   use device  
-  use device_math
+  use device_math, only : device_rzero, device_copy, device_glsc3, &
+                          device_add2s2, device_add2s1
   implicit none
 
   !> Device based preconditioned conjugate gradient method

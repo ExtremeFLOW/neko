@@ -47,11 +47,11 @@ module ax_product
 
   !> Abstract interface for computing\f$ Ax \f$ inside a Krylov method
   !!
-  !! @param w vector of size @a (lx,ly,lz,nelv)
-  !! @param z vector of size @a (lx,ly,lz,nelv)
-  !! @param coef Coefficients
-  !! @param msh mesh
-  !! @param Xh function space \f$ X_h \f$
+  !! @param w Vector of size @a (lx,ly,lz,nelv).
+  !! @param u Vector of size @a (lx,ly,lz,nelv).
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
   abstract interface
   subroutine ax_compute(w, u, coef, msh, Xh)
        import space_t
