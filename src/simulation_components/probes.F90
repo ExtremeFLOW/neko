@@ -96,6 +96,7 @@ module probes
           probes_init_from_attributes
      !> Destructor
      procedure, pass(this) :: free => probes_free
+     !> Setup offset for I/O when using sequential write/read from rank 0
      procedure, pass(this) :: setup_offset => probes_setup_offset
      !> Interpolate each probe from its `r,s,t` coordinates.
      procedure, pass(this) :: compute_ => probes_evaluate_and_write
