@@ -45,7 +45,7 @@ If no parameters for the `output_` parametersare provided, they areset to be the
  Currently produces no output.
 
  ## lambda2
- Computes Lambda2 for the velocity field and stores it in the normal output files as the first unused field.
+ Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
  This means that lambda2 can be found in the temeprature field in then fld files if running without a scalar
  and s1 if neko is run with one scalar.
  
