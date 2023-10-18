@@ -47,8 +47,8 @@ module local_interpolation
   use neko_config, only: NEKO_BCKND_DEVICE
   implicit none
 
-  !> INterpolation 
-  !! on a set of points with known rst coordinates in elements local to this process
+  !> Interpolation on a set of points with known rst coordinates in elements local
+  !! to this process.
   !! Similar to point_interpolator, but prioritizes performance
   !! Only works with arrays of coordinates
   !! Performs interpolation with the configured NEKO_BCKND
