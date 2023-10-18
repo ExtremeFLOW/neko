@@ -54,7 +54,6 @@ neko_fortran_SOURCES = \
 	mesh/facet_zone.f90\
 	mesh/point_zone.f90\
 	mesh/box_point_zone.f90\
-	mesh/point_zone_factory.f90\
 	mesh/mesh.f90\
 	mesh/octree.f90\
 	mesh/tet_mesh.f90\
