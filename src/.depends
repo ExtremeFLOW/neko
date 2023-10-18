@@ -48,8 +48,11 @@ adt/htable.o : adt/htable.f90 math/math.o adt/tuple.o mesh/point.o common/utils.
 adt/uset.o : adt/uset.f90 adt/htable.o config/num_types.o common/utils.o 
 adt/stack.o : adt/stack.f90 adt/tuple.o math/math.o common/structs.o mesh/point.o common/utils.o io/format/nmsh.o config/num_types.o 
 adt/tuple.o : adt/tuple.f90 config/num_types.o math/math.o 
-mesh/zone.o : mesh/zone.f90 common/utils.o adt/stack.o adt/tuple.o 
-mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/zone.o comm/comm.o common/distdata.o common/datadist.o adt/htable.o adt/tuple.o adt/stack.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
+mesh/facet_zone.o : mesh/facet_zone.f90 common/utils.o adt/stack.o adt/tuple.o 
+mesh/point_zone.o : mesh/point_zone.f90 sem/dofmap.o common/utils.o config/num_types.o adt/stack.o 
+mesh/box_point_zone.o : mesh/box_point_zone.f90 math/math.o common/json_utils.o sem/dofmap.o config/num_types.o mesh/point_zone.o 
+mesh/point_zone_factory.o : mesh/point_zone_factory.f90 common/utils.o sem/dofmap.o common/json_utils.o mesh/box_point_zone.o mesh/point_zone.o 
+mesh/mesh.o : mesh/mesh.f90 mesh/curve.o adt/uset.o math/math.o mesh/facet_zone.o comm/comm.o common/distdata.o common/datadist.o adt/htable.o adt/tuple.o adt/stack.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
 mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
@@ -111,7 +114,7 @@ common/sampler.o : common/sampler.f90 common/time_based_controller.o config/num_
 common/global_interpolation.o : common/global_interpolation.F90 comm/mpi_types.o math/math.o comm/comm.o common/utils.o common/log.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/craypat.o device/hip/roctx.o device/cuda/nvtx.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 common/utils.o adt/stack.o 
-bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
+bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/facet_zone.o mesh/mesh.o sem/space.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
 bc/dirichlet.o : bc/dirichlet.f90 bc/bc.o config/num_types.o bc/bcknd/device/device_dirichlet.o 
 bc/dong_outflow.o : bc/dong_outflow.f90 bc/bcknd/device/device_dong_outflow.o common/utils.o sem/coef.o sem/dofmap.o field/field.o bc/bc.o config/num_types.o device/device.o bc/dirichlet.o config/neko_config.o 
 bc/wall.o : bc/wall.f90 bc/dirichlet.o config/num_types.o bc/bcknd/device/device_wall.o 
@@ -187,7 +190,7 @@ math/bcknd/device/ax_helm_device.o : math/bcknd/device/ax_helm_device.F90 config
 common/projection.o : common/projection.f90 common/log.o common/profiler.o common/bcknd/device/device_projection.o math/bcknd/device/device_math.o device/device.o config/neko_config.o gs/gather_scatter.o comm/comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
 common/bcknd/device/device_projection.o : common/bcknd/device/device_projection.F90 common/utils.o config/num_types.o 
 comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
-comm/redist.o : comm/redist.f90 mesh/element.o mesh/zone.o io/format/nmsh.o mesh/mesh.o comm/comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o comm/mpi_types.o field/mesh_field.o 
+comm/redist.o : comm/redist.f90 mesh/element.o mesh/facet_zone.o io/format/nmsh.o mesh/mesh.o comm/comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o comm/mpi_types.o field/mesh_field.o 
 krylov/pc_hsmg.o : krylov/pc_hsmg.f90 krylov/krylov_fctry.o krylov/krylov.o mesh/mesh.o sem/coef.o field/field.o sem/dofmap.o sem/space.o common/profiler.o math/bcknd/device/device_math.o device/device.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/schwarz.o bc/dirichlet.o bc/bc.o sem/interpolation.o gs/gather_scatter.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o math/math.o config/num_types.o config/neko_config.o 
 common/signal.o : common/signal.f90 common/utils.o 
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
@@ -212,7 +215,7 @@ bc/bcknd/device/device_facet_normal.o : bc/bcknd/device/device_facet_normal.F90 
 bc/bcknd/device/device_inhom_dirichlet.o : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.o config/num_types.o 
 bc/bcknd/device/device_dong_outflow.o : bc/bcknd/device/device_dong_outflow.F90 common/utils.o config/num_types.o 
 scalar/bcknd/device/scalar_residual_device.o : scalar/bcknd/device/scalar_residual_device.F90 math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o math/operators.o gs/gather_scatter.o scalar/scalar_residual.o 
-scalar/scalar_scheme.o : scalar/scalar_scheme.f90 common/material_properties.o common/user_intf.o common/json_utils.o bc/usr_scalar.o field/field_registry.o common/log.o time_schemes/time_scheme_controller.o mesh/zone.o mesh/mesh.o bc/bc.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o scalar/source_scalar.o config/num_types.o common/checkpoint.o config/neko_config.o gs/gather_scatter.o 
+scalar/scalar_scheme.o : scalar/scalar_scheme.f90 common/material_properties.o common/user_intf.o common/json_utils.o bc/usr_scalar.o field/field_registry.o common/log.o time_schemes/time_scheme_controller.o mesh/facet_zone.o mesh/mesh.o bc/bc.o krylov/precon_fctry.o krylov/krylov_fctry.o bc/dirichlet.o sem/coef.o krylov/krylov.o sem/dofmap.o sem/space.o field/field.o scalar/source_scalar.o config/num_types.o common/checkpoint.o config/neko_config.o gs/gather_scatter.o 
 scalar/scalar_pnpn.o : scalar/scalar_pnpn.f90 common/material_properties.o common/user_intf.o common/json_utils.o common/profiler.o fluid/advection.o common/log.o math/math.o common/projection.o time_schemes/time_scheme_controller.o scalar/scalar_aux.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o bc/facet_normal.o field/field_series.o math/ax.o scalar/scalar_residual.o gs/gather_scatter.o sem/coef.o mesh/mesh.o bc/bc.o field/field.o bc/dirichlet.o scalar/scalar_scheme.o common/rhs_maker_fctry.o math/ax_helm_fctry.o scalar/scalar_residual_fctry.o 
 scalar/scalar_aux.o : scalar/scalar_aux.f90 krylov/krylov.o config/num_types.o common/log.o 
 scalar/scalar_residual.o : scalar/scalar_residual.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o scalar/source_scalar.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
