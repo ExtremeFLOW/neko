@@ -322,7 +322,6 @@ contains
   !! @note The final interpolated field is only available on rank 0.
   !! @param t Current simulation time.
   !! @param tstep Current time step.
-  !! @param write_output Flag for writing output data.
   subroutine probes_evaluate_and_write(this, t, tstep)
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
