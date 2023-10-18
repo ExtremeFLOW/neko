@@ -50,7 +50,7 @@ If no parameters for the `output_` parametersare provided, they areset to be the
  and s1 if neko is run with one scalar.
  
  ## probes
- Probes the fluid field in the points given by an input file. Example usage:
+ Probes selected solution fields at the points given inside an input file. Example usage:
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
