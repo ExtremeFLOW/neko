@@ -30,7 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Routines to obtain interpolated values on a set of points with known rst coordinates in elements local to this process
+!> Routines to obtain interpolated values on a set of points with known 
+!! rst coordinates in elements local to this process.
 module local_interpolation
   use tensor, only: triple_tensor_product, tnsr3d_el_list
   use space, only: space_t, GL, GLL
