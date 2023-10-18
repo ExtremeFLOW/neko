@@ -51,6 +51,7 @@ module point
      procedure :: point_add
      procedure :: point_subtract
      procedure :: point_scalar_mult
+     procedure, pass(p1) :: dist => point_euclid_dist
      procedure, pass(x) :: point_mat_mult
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
@@ -197,7 +198,7 @@ contains
 
   end function point_add
 
-  !> Returns the subtraction of 2 points \f$ p_{1} + p_{2} \f$.
+  !> Returns the subtraction of 2 points \f$ p_{1} - p_{2} \f$.
   function point_subtract(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     class(point_t), intent(in) :: p2
@@ -221,6 +222,17 @@ contains
 
   end function point_scalar_mult
 
+  !> Returns the Euclidean distance between two points \f$ \mid p_1 -  p_2 \mid \f$
+  pure function point_euclid_dist(p1, p2) result(res)
+    class(point_t), intent(in) :: p1
+    type(point_t), intent(in) :: p2
+    real(kind=rp) :: res
+
+    res = sqrt(  (p1%x(1) - p2%x(1))**2 &
+               + (p1%x(2) - p2%x(2))**2 &         
+               + (p1%x(3) - p2%x(3))**2 )
+  end function point_euclid_dist
+    
   !> Computes matrix-vector product in \f$ \mathbb{R}^3 \f$: \f$ b = Ax \f$.
   function point_mat_mult(A,x) result(b)
     class(point_t), intent(in) :: x
