@@ -39,26 +39,21 @@ module probes
   use matrix, only: matrix_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use comm
-  use mpi_types
   use field, only: field_t
-  use coefs, only: coef_t
-  use field_list
+  use field_list, only: field_list_t
   use simulation_component
   use field_registry, only : neko_field_registry
-  use dofmap
+  use dofmap, only: dofmap_t
   use json_module, only : json_file
   use json_utils, only : json_get
-  use global_interpolation
-  use datadist
+  use global_interpolation, only: global_interpolation_t
+  use math, only: rzero, copy
+  use tensor, only: trsp
+  use comm
+  use mpi_types
   use device
   use file
-  use math, only: rzero, copy
   use csv_file
-  use tensor
-  use point_interpolator
-  use point, only: point_t
-  use space, only: space_t
   use case
   use device
   use, intrinsic :: iso_c_binding
@@ -147,10 +142,9 @@ contains
   end subroutine probes_init_from_json
 
 
-  !> Initialize user defined variables.
-  !! @param t Current simulation time.
-  !! @param params case file.
-  !! @coef Xh Function space.
+  !> Initialize without json things
+  !! @param dof Dofmap to probe
+  !! @output_file Name of output file, current must be CSV
   subroutine probes_init_from_attributes(this, dof, output_file)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
@@ -405,7 +399,6 @@ contains
     integer, intent(inout) :: n_local_probes, n_global_probes
     type(matrix_t) :: mat_in, mat_in2
     integer :: ierr, file_unit, n_lines
-    type(linear_dist_t) :: dist
 
     if (pe_rank .eq. 0) n_lines = f%count_lines()
     call MPI_Bcast(n_lines, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
