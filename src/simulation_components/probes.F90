@@ -367,7 +367,7 @@ contains
   end subroutine probes_evaluate_and_write
 
   !> Initialize the physical coordinates from a `csv` input file
-  !! @param points_file A cvs file containing probes.
+  !! @param points_file A csv file containing probes.
   subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, points_file)
     class(probes_t), intent(inout) :: this
     character(len=:), allocatable  :: points_file
@@ -392,7 +392,12 @@ contains
     call file_free(file_in)
 
   end subroutine read_probe_locations 
+
   !> Read and initialize the number of probes from a `csv` input file
+  !! @param xyz xyz coordinates of the probes
+  !! @param n_local_probes The number of probes local to this process
+  !! @param n_global_probes The number of total probes on all processes
+  !! @param f The csv file we read from
   subroutine read_xyz_from_csv(this, xyz, n_local_probes, n_global_probes, f)
     class(probes_t), intent(inout) :: this
     type(csv_file_t), intent(inout) :: f
