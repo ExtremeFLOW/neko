@@ -33,6 +33,7 @@
 !> Abstract type for polytope alignment
 module alignment
   use num_types, only : i2, i4
+  use utils, only : neko_error
   implicit none
   private
 
@@ -40,21 +41,55 @@ module alignment
 
   !> Base type for polytope alignment
   type, abstract :: alignment_t
+     !> number of different operations excluding identity
+     integer(i2), private :: noperation_ = -1
      !> Relative polytope alignment
-     integer(i2), private :: alignment_
+     integer(i2), private :: alignment_ = -1
    contains
+     !> setter for number of operations
+     procedure, pass(this) :: set_nop => noperation_set
+     !> getter for number of operations
+     procedure, pass(this) :: nop => noperation_get
      !> setter for alignment
-     procedure, pass(this) :: aset => alignment_set
+     procedure, pass(this) :: set_algn => alignment_set
      !> getter for alignment
      procedure, pass(this) :: algn => alignment_get
+     !> initialisation routine setting noperation is required
+     procedure(alignment_init), pass(this), deferred :: init
   end type alignment_t
 
+  abstract interface
+     subroutine alignment_init(this)
+       import :: alignment_t
+       class(alignment_t), intent(inout) :: this
+     end subroutine alignment_init
+  end interface
+
 contains
+  !> @brief Set number of different operations excluding identity (marked by 0)
+  !! @parameter[in]   noperation    number of operations
+  subroutine  noperation_set(this, noperation)
+    class(alignment_t), intent(inout) :: this
+    integer(i4), intent(in) :: noperation
+    this%noperation_ = noperation
+    return
+  end subroutine noperation_set
+
+  !> @brief Get number of operations
+  !! @return   noperation
+  pure function noperation_get(this) result(noperation)
+    class(alignment_t), intent(in) :: this
+    integer(i4) :: noperation
+    noperation = this%noperation_
+  end function noperation_get
+
   !> @brief Set relative polytope alignment
   !! @parameter[in]   alignment       relative polytope alignment
   subroutine  alignment_set(this, alignment)
     class(alignment_t), intent(inout) :: this
     integer(i4), intent(in) :: alignment
+    if ((alignment < 0).or.(alignment > this%noperation_)) &
+         & call neko_error('Not proper alignment.')
     this%alignment_ = alignment
     return
   end subroutine alignment_set

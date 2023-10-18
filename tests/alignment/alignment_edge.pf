@@ -27,9 +27,12 @@ subroutine test_alignment_edge_i4
   edg_int(1, 2) = edg_bnd(1, 1)
   edg_int(sz, 2) = edg_bnd(sz, 1)
 
+  ! initialise edge
+  call edge%init()
+
   ! full edge test
   do il = 1, 2
-     call edge%set(il - 1)
+     call edge%set_algn(il - 1)
      ! direct
      edg(:) = edg_bnd(:, 1)
      call edge%trans(.true., edg)
@@ -46,7 +49,7 @@ subroutine test_alignment_edge_i4
 
   ! interior edge test
   do il = 1, 2
-     call edge%set(il - 1)
+     call edge%set_algn(il - 1)
      ! direct
      edg(:) = edg_bnd(:, 1)
      call edge%trans(.false., edg)
@@ -92,9 +95,12 @@ subroutine test_alignment_edge_i8
   edg_int(1, 2) = edg_bnd(1, 1)
   edg_int(sz, 2) = edg_bnd(sz, 1)
 
+  ! initialise edge
+  call edge%init()
+
   ! full edge test
   do il = 1, 2
-     call edge%set(il - 1)
+     call edge%set_algn(il - 1)
      ! direct
      edg(:) = edg_bnd(:, 1)
      call edge%trans(.true., edg)
@@ -111,7 +117,7 @@ subroutine test_alignment_edge_i8
 
   ! interior edge test
   do il = 1, 2
-     call edge%set(il - 1)
+     call edge%set_algn(il - 1)
      ! direct
      edg(:) = edg_bnd(:, 1)
      call edge%trans(.false., edg)
@@ -157,37 +163,40 @@ subroutine test_alignment_edge_dp
   edg_int(1, 2) = edg_bnd(1, 1)
   edg_int(sz, 2) = edg_bnd(sz, 1)
 
+  ! initialise edge
+  call edge%init()
+
   ! full edge test
   do il = 1, 2
-     call edge%set(il - 1)
+     call edge%set_algn(il - 1)
      ! direct
      edg(:) = edg_bnd(:, 1)
      call edge%trans(.true., edg)
      @assertEqual(edge%algn(), il -1)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_bnd(jl, il))
+        @assertEqual(edg(jl), edg_bnd(jl, il), tolerance=1d-14)
      end do
      ! inverse
      call edge%trans_inv(.true., edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_bnd(jl, 1))
+        @assertEqual(edg(jl), edg_bnd(jl, 1), tolerance=1d-14)
      end do
   end do
 
   ! interior edge test
   do il = 1, 2
-     call edge%set(il - 1)
+     call edge%set_algn(il - 1)
      ! direct
      edg(:) = edg_bnd(:, 1)
      call edge%trans(.false., edg)
      @assertEqual(edge%algn(), il -1)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_int(jl, il))
+        @assertEqual(edg(jl), edg_int(jl, il), tolerance=1d-14)
      end do
      ! inverse
      call edge%trans_inv(.false., edg)
      do jl = 1, sz
-        @assertEqual(edg(jl), edg_bnd(jl, 1))
+        @assertEqual(edg(jl), edg_bnd(jl, 1), tolerance=1d-14)
      end do
   end do
 

@@ -40,11 +40,14 @@ module alignment_edge
 
   public :: alignment_edge_t
 
+  !> number of operations different from identity
+  integer, parameter :: NEKO_EDGE_NOPERATION = 1
+
   !> Base type for polytope alignment
   type, extends(alignment_t) :: alignment_edge_t
    contains
-     !> setter for alignment
-     procedure, pass(this) :: set => alignment_edge_set
+     !> Set edge specific operation number
+     procedure, pass(this) :: init => alignment_edge_init
      !> array transformation
      procedure, pass(this) :: trans_i4 => transfrorm_edge_i4
      procedure, pass(this) :: trans_i8 => transfrorm_edge_i8
@@ -60,21 +63,17 @@ module alignment_edge
   end type alignment_edge_t
 
 contains
-  !> @brief Set relative edge alignment
-  !! @parameter[in]   alignment       relative edge alignment
-  subroutine  alignment_edge_set(this, alignment)
+  !> @brief Set edge specific operation number
+  subroutine  alignment_edge_init(this)
     class(alignment_edge_t), intent(inout) :: this
-    integer(i4), intent(in) :: alignment
-    if ((alignment < 0).or.(alignment > 1)) &
-         & call neko_error('Not proper edge alignment.')
-    call this%aset(alignment)
+    call this%set_nop(NEKO_EDGE_NOPERATION)
     return
-  end subroutine alignment_edge_set
+  end subroutine alignment_edge_init
 
   !> @brief Transform single integer array rank 1
   !! @parameter[in]     ifbnd    do we include boundary points
   !! @parameter[inout]  edg      edge data
-  pure subroutine transfrorm_edge_i4(this, ifbnd, edg)
+  subroutine transfrorm_edge_i4(this, ifbnd, edg)
     class(alignment_edge_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     integer(i4), dimension(:), intent(inout) :: edg
@@ -84,7 +83,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! edge size
        sz = size(edg, 1, i4)
        ! do we work on boundary points?
@@ -95,13 +94,18 @@ contains
        end if
        ! apply transformations
        ! P - permutation
-       itmp1 = sz + 1
-       do concurrent (il = istart: sz/2)
-          itmp2 = itmp1 - il
-          iedg = edg(il)
-          edg(il) = edg(itmp2)
-          edg(itmp2) = iedg
-       end do
+       select case(algn)
+       case(1) ! P
+          itmp1 = sz + 1
+          do il = istart, sz/2
+             itmp2 = itmp1 - il
+             iedg = edg(il)
+             edg(il) = edg(itmp2)
+             edg(itmp2) = iedg
+          end do
+       case default
+          call neko_error('Edge alignment not initialised properly')
+       end select
     end if
 
     return
@@ -110,7 +114,7 @@ contains
   !> @brief Transform double integer array rank 1
   !! @parameter[in]     ifbnd    do we include boundary points
   !! @parameter[inout]  edg      edge data
-  pure subroutine transfrorm_edge_i8(this, ifbnd, edg)
+  subroutine transfrorm_edge_i8(this, ifbnd, edg)
     class(alignment_edge_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     integer(i8), dimension(:), intent(inout) :: edg
@@ -120,7 +124,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! edge size
        sz = size(edg, 1, i4)
        ! do we work on boundary points?
@@ -131,13 +135,18 @@ contains
        end if
        ! apply transformations
        ! P - permutation
-       itmp1 = sz + 1
-       do concurrent (il = istart: sz/2)
-          itmp2 = itmp1 - il
-          iedg = edg(il)
-          edg(il) = edg(itmp2)
-          edg(itmp2) = iedg
-       end do
+       select case(algn)
+       case(1) ! P
+          itmp1 = sz + 1
+          do il = istart, sz/2
+             itmp2 = itmp1 - il
+             iedg = edg(il)
+             edg(il) = edg(itmp2)
+             edg(itmp2) = iedg
+          end do
+       case default
+          call neko_error('Edge alignment not initialised properly')
+       end select
     end if
 
     return
@@ -146,7 +155,7 @@ contains
   !> @brief Transform double real array rank 1
   !! @parameter[in]     ifbnd    do we include boundary points
   !! @parameter[inout]  edg      edge data
-  pure subroutine transfrorm_edge_dp(this, ifbnd, edg)
+  subroutine transfrorm_edge_dp(this, ifbnd, edg)
     class(alignment_edge_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     real(dp), dimension(:), intent(inout) :: edg
@@ -156,7 +165,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! edge size
        sz = size(edg, 1, i4)
        ! do we work on boundary points?
@@ -167,13 +176,18 @@ contains
        end if
        ! apply transformations
        ! P - permutation
-       itmp1 = sz + 1
-       do concurrent (il = istart: sz/2)
-          itmp2 = itmp1 - il
-          redg = edg(il)
-          edg(il) = edg(itmp2)
-          edg(itmp2) = redg
-       end do
+       select case(algn)
+       case(1) ! P
+          itmp1 = sz + 1
+          do il = istart, sz/2
+             itmp2 = itmp1 - il
+             redg = edg(il)
+             edg(il) = edg(itmp2)
+             edg(itmp2) = redg
+          end do
+       case default
+          call neko_error('Edge alignment not initialised properly')
+       end select
     end if
 
     return

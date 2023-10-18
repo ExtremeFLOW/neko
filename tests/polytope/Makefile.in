@@ -1,0 +1,28 @@
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: polytope_test
+
+
+polytope_test_TESTS := polytope_vertex.pf\
+		       polytope_edge.pf
+polytope_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+$(eval $(call make_pfunit_test,polytope_test))
+
+
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 polytope_test
+
+
+
+all:
+html:
+install:
+distdir:

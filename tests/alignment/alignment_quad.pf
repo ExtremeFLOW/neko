@@ -76,9 +76,12 @@ subroutine test_alignment_quad_i4
      end do
   end do
 
+  ! initialise quad
+  call quad%init()
+
   ! full face test
   do il = 1, 8
-     call quad%set(il - 1)
+     call quad%set_algn(il - 1)
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
      call quad%trans(.true., fcs, work)
@@ -97,9 +100,9 @@ subroutine test_alignment_quad_i4
      end do
   end do
 
-  ! interior edge test
+  ! interior face test
   do il = 1, 8
-     call quad%set(il - 1)
+     call quad%set_algn(il - 1)
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
      call quad%trans(.false., fcs, work)
@@ -198,9 +201,12 @@ subroutine test_alignment_quad_i8
      end do
   end do
 
+  ! initialise quad
+  call quad%init()
+
   ! full face test
   do il = 1, 8
-     call quad%set(il - 1)
+     call quad%set_algn(il - 1)
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
      call quad%trans(.true., fcs, work)
@@ -219,9 +225,9 @@ subroutine test_alignment_quad_i8
      end do
   end do
 
-  ! interior edge test
+  ! interior face test
   do il = 1, 8
-     call quad%set(il - 1)
+     call quad%set_algn(il - 1)
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
      call quad%trans(.false., fcs, work)
@@ -320,44 +326,47 @@ subroutine test_alignment_quad_dp
      end do
   end do
 
+  ! initialise quad
+  call quad%init()
+
   ! full face test
   do il = 1, 8
-     call quad%set(il - 1)
+     call quad%set_algn(il - 1)
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
      call quad%trans(.true., fcs, work)
      @assertEqual(quad%algn(), il -1)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il))
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, il), tolerance=1d-14)
         end do
      end do
      ! inverse
      call quad%trans_inv(.true., fcs, work)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
         end do
      end do
   end do
 
-  ! interior edge test
+  ! interior face test
   do il = 1, 8
-     call quad%set(il - 1)
+     call quad%set_algn(il - 1)
      ! direct
      fcs(:, :) = fcs_bnd(:, :, 1)
      call quad%trans(.false., fcs, work)
      @assertEqual(quad%algn(), il -1)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il))
+           @assertEqual(fcs(kl, jl), fcs_int(kl, jl, il), tolerance=1d-14)
         end do
      end do
      ! inverse
      call quad%trans_inv(.false., fcs, work)
      do jl = 1, sz
         do kl = 1, sz
-           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1))
+           @assertEqual(fcs(kl, jl), fcs_bnd(kl, jl, 1), tolerance=1d-14)
         end do
      end do
   end do

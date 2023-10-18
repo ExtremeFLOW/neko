@@ -40,11 +40,14 @@ module alignment_quad
 
   public :: alignment_quad_t
 
+  !> number of operations different from identity
+  integer, parameter :: NEKO_QUAD_NOPERATION = 7
+
   !> Base type for polytope alignment
   type, extends(alignment_t) :: alignment_quad_t
    contains
-     !> setter for alignment
-     procedure, pass(this) :: set => alignment_quad_set
+     !> Set quad specific operation number
+     procedure, pass(this) :: init => alignment_quad_init
      !> array transformation
      procedure, pass(this) :: trans_i4 => transfrorm_quad_i4
      procedure, pass(this) :: trans_i8 => transfrorm_quad_i8
@@ -60,22 +63,18 @@ module alignment_quad
   end type alignment_quad_t
 
 contains
-  !> @brief Set relative quad alignment
-  !! @parameter[in]   alignment       relative quad alignment
-  subroutine  alignment_quad_set(this, alignment)
+  !> @brief Set quad specific operation number
+  subroutine  alignment_quad_init(this)
     class(alignment_quad_t), intent(inout) :: this
-    integer(i4), intent(in) :: alignment
-    if ((alignment < 0).or.(alignment > 7)) &
-         & call neko_error('Not proper quad alignment.')
-    call this%aset(alignment)
+    call this%set_nop(NEKO_QUAD_NOPERATION)
     return
-  end subroutine alignment_quad_set
+  end subroutine alignment_quad_init
 
   !> @brief Transform single integer array rank 2
   !! @parameter[in]     ifbnd    do we include boundary point
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  pure subroutine transfrorm_quad_i4(this, ifbnd, fcs, work)
+  subroutine transfrorm_quad_i4(this, ifbnd, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     integer(i4), dimension(:, :), intent(inout) :: fcs
@@ -86,7 +85,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! face size
        ! I assume face is a square matrix and work has the same size
        ! possible place for check
@@ -106,96 +105,114 @@ contains
        ! PY - row permutation
        select case(algn)
        case(1) ! T
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(2) ! PX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
        case(3) ! PXT = TPY
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(4) ! PYT = TPX
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(5) ! PY
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
        case(6) ! PXPYT = PYPXT = TPXPY = TPYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(7) ! PXPY = PYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
-          ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
-          !end do
+       case default
+          call neko_error('Quad alignment not initialised properly')
        end select
     end if
 
@@ -206,7 +223,7 @@ contains
   !! @parameter[in]     ifbnd    do we include boundary point
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  pure subroutine transfrorm_quad_i8(this, ifbnd, fcs, work)
+  subroutine transfrorm_quad_i8(this, ifbnd, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     integer(i8), dimension(:, :), intent(inout) :: fcs
@@ -217,7 +234,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! face size
        ! I assume face is a square matrix and work has the same size
        ! possible place for check
@@ -237,96 +254,114 @@ contains
        ! PY - row permutation
        select case(algn)
        case(1) ! T
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(2) ! PX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
        case(3) ! PXT = TPY
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(4) ! PYT = TPX
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(5) ! PY
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
        case(6) ! PXPYT = PYPXT = TPXPY = TPYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(7) ! PXPY = PYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
-          ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
-          !end do
+       case default
+          call neko_error('Quad alignment not initialised properly')
        end select
     end if
 
@@ -337,7 +372,7 @@ contains
   !! @parameter[in]     ifbnd    do we include boundary point
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  pure subroutine transfrorm_quad_dp(this, ifbnd, fcs, work)
+  subroutine transfrorm_quad_dp(this, ifbnd, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     real(dp), dimension(:, :), intent(inout) :: fcs
@@ -348,7 +383,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! face size
        ! I assume face is a square matrix and work has the same size
        ! possible place for check
@@ -368,96 +403,114 @@ contains
        ! PY - row permutation
        select case(algn)
        case(1) ! T
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(2) ! PX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
        case(3) ! PXT = TPY
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(4) ! PYT = TPX
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      rface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = rface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(5) ! PY
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      rface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = rface
+          !   end do
           !end do
        case(6) ! PXPYT = PYPXT = TPXPY = TPYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      rface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = rface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(7) ! PXPY = PYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
-          ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
-          !end do
+       case default
+          call neko_error('Quad alignment not initialised properly')
        end select
     end if
 
@@ -468,7 +521,7 @@ contains
   !! @parameter[in]     ifbnd    do we include boundary point
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  pure subroutine transfrorm_inv_quad_i4(this, ifbnd, fcs, work)
+  subroutine transfrorm_inv_quad_i4(this, ifbnd, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     integer(i4), dimension(:, :), intent(inout) :: fcs
@@ -479,7 +532,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! face size
        ! I assume face is a square matrix and work has the same size
        ! possible place for check
@@ -499,96 +552,114 @@ contains
        ! PY - row permutation
        select case(algn)
        case(1) ! T
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(2) ! PX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
        case(3) ! PYT = TPX
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(4) ! PXT = TPY
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(5) ! PY
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
        case(6) ! PXPYT = PYPXT = TPXPY = TPYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(7) ! PXPY = PYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
-          ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
-          !end do
+       case default
+          call neko_error('Quad alignment not initialised properly')
        end select
     end if
 
@@ -599,7 +670,7 @@ contains
   !! @parameter[in]     ifbnd    do we include boundary point
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  pure subroutine transfrorm_inv_quad_i8(this, ifbnd, fcs, work)
+  subroutine transfrorm_inv_quad_i8(this, ifbnd, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     integer(i8), dimension(:, :), intent(inout) :: fcs
@@ -610,7 +681,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! face size
        ! I assume face is a square matrix and work has the same size
        ! possible place for check
@@ -630,96 +701,114 @@ contains
        ! PY - row permutation
        select case(algn)
        case(1) ! T
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(2) ! PX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
        case(3) ! PYT = TPX
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(4) ! PXT = TPY
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(5) ! PY
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
        case(6) ! PXPYT = PYPXT = TPXPY = TPYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      iface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = iface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = iface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = iface
+             end do
           end do
        case(7) ! PXPY = PYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             iface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = iface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                iface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = iface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
-          ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   iface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = iface
-          !end do
+       case default
+          call neko_error('Quad alignment not initialised properly')
        end select
     end if
 
@@ -730,7 +819,7 @@ contains
   !! @parameter[in]     ifbnd    do we include boundary point
   !! @parameter[inout]  fcs      face data
   !! @parameter[inout]  work     work space
-  pure subroutine transfrorm_inv_quad_dp(this, ifbnd, fcs, work)
+  subroutine transfrorm_inv_quad_dp(this, ifbnd, fcs, work)
     class(alignment_quad_t), intent(in) :: this
     logical, intent(in) :: ifbnd
     real(dp), dimension(:, :), intent(inout) :: fcs
@@ -741,7 +830,7 @@ contains
 
     ! check alignment type; zero means identity; nothing to do
     algn = this%algn()
-    if (algn > 0) then
+    if (algn /= 0) then
        ! face size
        ! I assume face is a square matrix and work has the same size
        ! possible place for check
@@ -761,96 +850,114 @@ contains
        ! PY - row permutation
        select case(algn)
        case(1) ! T
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(2) ! PX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
        case(3) ! PYT = TPX
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      rface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = rface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(4) ! PXT = TPY
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(5) ! PY
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      rface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = rface
+          !   end do
           !end do
        case(6) ! PXPYT = PYPXT = TPXPY = TPYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
           ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
+          !do jl = istart, sz/2 ! PY
+          !   do il = istart, iend
+          !      rface = fcs(il, jl)
+          !      fcs(il, jl) = fcs(il, sz + 1 - jl)
+          !      fcs(il, sz + 1 - jl) = rface
+          !   end do
           !end do
-          do concurrent (il = istart: iend, jl = istart: iend,  il < jl) ! T
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(jl, il)
-             fcs(jl, il) = rface
+          do jl = istart, iend ! T
+             do il = istart, jl -1
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(jl, il)
+                fcs(jl, il) = rface
+             end do
           end do
        case(7) ! PXPY = PYPX
-          do concurrent (il = istart: sz/2, jl = istart: iend) ! PX
-             rface = fcs(il, jl)
-             fcs(il, jl) = fcs(sz + 1 - il, jl)
-             fcs(sz + 1 - il, jl) = rface
+          do jl = istart, iend ! PX
+             do il = istart, sz/2
+                rface = fcs(il, jl)
+                fcs(il, jl) = fcs(sz + 1 - il, jl)
+                fcs(sz + 1 - il, jl) = rface
+             end do
           end do
-          do concurrent (jl = istart: sz/2) ! PY
+          do jl = istart, sz/2 ! PY
              work(istart:iend) = fcs(istart:iend, jl)
              fcs(istart:iend, jl) = fcs(istart:iend, sz + 1 - jl)
              fcs(istart:iend, sz + 1 - jl) = work(istart:iend)
           end do
-          ! or
-          !do concurrent (il = istart: iend, jl = istart: sz/2) ! PY
-          !   rface = fcs(il, jl)
-          !   fcs(il, jl) = fcs(il, sz + 1 - jl)
-          !   fcs(il, sz + 1 - jl) = rface
-          !end do
+       case default
+          call neko_error('Quad alignment not initialised properly')
        end select
     end if
 

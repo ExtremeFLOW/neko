@@ -1,5 +1,6 @@
 test-suite.log
 alignment/alignment_test
+polytope/polytope_test
 bc/bc_test
 device/device_test
 device_math/device_math_suite
