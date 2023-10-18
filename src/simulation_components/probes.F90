@@ -92,25 +92,23 @@ module probes
      real(kind=rp), allocatable :: global_output_values(:,:)
      !> Output variables
      type(file_t) :: fout
-     type(matrix_t) :: mat_out
-
-
-     contains
-       !> Initialize from json
-       procedure, pass(this) :: init => probes_init_from_json
-       ! Actual constructor
-       procedure, pass(this) :: init_from_attributes => &
-                                probes_init_from_attributes
-       !> Destructor
-       procedure, pass(this) :: free => probes_free
-       procedure, pass(this) :: setup_offset => probes_setup_offset
-       !> Interpolate each probe from its `r,s,t` coordinates.
-       procedure, pass(this) :: compute_ => probes_evaluate_and_write
-
-    end type probes_t
-
+     type(matrix_t) :: mat_out     
+   contains
+     !> Initialize from json
+     procedure, pass(this) :: init => probes_init_from_json
+     ! Actual constructor
+     procedure, pass(this) :: init_from_attributes => &
+          probes_init_from_attributes
+     !> Destructor
+     procedure, pass(this) :: free => probes_free
+     procedure, pass(this) :: setup_offset => probes_setup_offset
+     !> Interpolate each probe from its `r,s,t` coordinates.
+     procedure, pass(this) :: compute_ => probes_evaluate_and_write
+     
+  end type probes_t
+  
 contains
-
+  
   !> Constructor from json.
   subroutine probes_init_from_json(this, json, case)
     class(probes_t), intent(inout) :: this
@@ -140,7 +138,8 @@ contains
     !> This is distributed as to make it similar to parallel file 
     !! formats latera
     !! Reads all into rank 0
-    call read_probe_locations(this, this%xyz, this%n_local_probes, this%n_global_probes, points_file)
+    call read_probe_locations(this, this%xyz, this%n_local_probes, &
+         this%n_global_probes, points_file)
     call probes_show(this)
     call this%init_from_attributes(case%fluid%dm_Xh, output_file)
     if(allocated(xyz)) deallocate(xyz)
@@ -172,7 +171,7 @@ contains
     allocate(this%out_values(this%n_local_probes,this%n_fields))
     allocate(this%out_values_d(this%n_fields))
     allocate(this%out_vals_trsp(this%n_fields,this%n_local_probes))
- 
+    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%n_fields
           this%out_values_d(i) = c_null_ptr
@@ -223,13 +222,33 @@ contains
   subroutine probes_free(this)
     class(probes_t), intent(inout) :: this
 
-    if (allocated(this%xyz))        deallocate(this%xyz)
-    if (allocated(this%out_values)) deallocate(this%out_values)
-    if (allocated(this%out_vals_trsp)) deallocate(this%out_vals_trsp)
-    if (allocated(this%sampled_fields%fields)) deallocate(this%sampled_fields%fields)
-    if (allocated(this%n_local_probes_tot)) deallocate(this%n_local_probes_tot)
-    if (allocated(this%n_local_probes_tot_offset)) deallocate(this%n_local_probes_tot_offset)
-    if (allocated(this%global_output_values)) deallocate(this%global_output_values)
+    if (allocated(this%xyz)) then
+       deallocate(this%xyz)
+    end if
+
+    if (allocated(this%out_values)) then
+       deallocate(this%out_values)
+    end if
+    
+    if (allocated(this%out_vals_trsp)) then
+       deallocate(this%out_vals_trsp)
+    end if
+    
+    if (allocated(this%sampled_fields%fields)) then
+       deallocate(this%sampled_fields%fields)
+    end if
+    
+    if (allocated(this%n_local_probes_tot)) then
+       deallocate(this%n_local_probes_tot)
+    end if
+
+    if (allocated(this%n_local_probes_tot_offset)) then
+       deallocate(this%n_local_probes_tot_offset)
+    end if
+    
+    if (allocated(this%global_output_values)) then
+       deallocate(this%global_output_values)
+    end if
 
     call this%global_interp%free()
 
@@ -241,7 +260,7 @@ contains
     character(len=LOG_SIZE) :: log_buf ! For logging status
     integer :: i
 
-    !> Probes summary
+    ! Probes summary
     call neko_log%section('Probes')
     write(log_buf, '(A,I6)') "Number of probes: ", this%n_global_probes
     call neko_log%message(log_buf)
@@ -250,7 +269,7 @@ contains
        write(log_buf, '("(",F10.6,",",F10.6,",",F10.6,")")') this%xyz(:,i)
        call neko_log%message(log_buf)
     end do
-    !> Field summary
+    ! Field summary
     write(log_buf, '(A,I6)') "Number of fields: ", this%n_fields
     call neko_log%message(log_buf)
     do i=1,this%n_fields
@@ -298,6 +317,7 @@ contains
 
 
   end subroutine probes_setup_offset
+
   !> Interpolate each probe from its `r,s,t` coordinates.
   !! @note The final interpolated field is only available on rank 0.
   !! @param t Current simulation time.
@@ -330,14 +350,16 @@ contains
        ! Gather all values to rank 0
        ! If io is only done at root
        if (this%seq_io) then
-          call trsp(this%out_vals_trsp,this%n_fields,this%out_values,this%n_local_probes)
+          call trsp(this%out_vals_trsp, this%n_fields, &
+                    this%out_values,this%n_local_probes)
           call MPI_Gatherv(this%out_vals_trsp, this%n_fields*this%n_local_probes,&
                            MPI_DOUBLE_PRECISION, this%global_output_values,&
                            this%n_fields*this%n_local_probes_tot,&
                            this%n_fields*this%n_local_probes_tot_offset,&
                            MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr) 
           if (pe_rank .eq. 0) then
-             call trsp(this%mat_out%x,this%n_global_probes,this%global_output_values,this%n_fields)
+             call trsp(this%mat_out%x, this%n_global_probes, &
+                       this%global_output_values, this%n_fields)
              call this%fout%write(this%mat_out, t)
           end if
        else 
