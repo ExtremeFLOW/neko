@@ -45,6 +45,7 @@ module df_ibm_source_term
   use point, only : point_t
   use point_interpolator, only : point_interpolator_t
   use global_interpolation, only : global_interpolation_t
+  use math
   implicit none
   private
 
@@ -116,21 +117,21 @@ contains
     write(log_buf, '(A, A)') 'Model      : ', trim(fname)
     call neko_log%message(log_buf)
     if (this%model%mpts .lt. 1e1) then
-       write(log_buf, '(A, I1)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I1)') ' `-Points  : ', this%model%mpts
     else if (this%model%mpts .lt. 1e2) then
-       write(log_buf, '(A, I2)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I2)') ' `-Points  : ', this%model%mpts
     else if (this%model%mpts .lt. 1e3) then
-       write(log_buf, '(A, I3)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I3)') ' `-Points  : ', this%model%mpts
     else if (this%model%mpts .lt. 1e4) then
-       write(log_buf, '(A, I4)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I4)') ' `-Points  : ', this%model%mpts
     else if (this%model%mpts .lt. 1e5) then
-       write(log_buf, '(A, I5)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I5)') ' `-Points  : ', this%model%mpts
     else if (this%model%mpts .ge. 1e6) then
-       write(log_buf, '(A, I6)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I6)') ' `-Points  : ', this%model%mpts
     else if (this%model%mpts .ge. 1e7) then
-       write(log_buf, '(A, I7)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I7)') ' `-Points  : ', this%model%mpts
     else if (this%model%mpts .ge. 1e8) then
-       write(log_buf, '(A, I8)') '`-Points   : ', this%model%mpts
+       write(log_buf, '(A, I8)') ' `-Points  : ', this%model%mpts
     end if
     call neko_log%message(log_buf)
     call neko_log%end_section()
@@ -223,7 +224,18 @@ contains
                                               this%weights_r, &
                                               this%weights_s, &
                                               this%weights_t)
-      end subroutine df_ibm_source_term_compute
+  end subroutine df_ibm_source_term_compute
+
+  !> Gaussian kernel, for mapping Lagrangian to Eulerian
+  pure function df_ibm_source_term_gm(r, df, sigma) result(gmr)
+    real(kind=rp), intent(in) :: r
+    real(kind=rp), intent(in) :: df
+    real(kind=rp), intent(in) :: sigma
+    real(kind=rp) :: gmr
+
+    gmr = (1.0_rp / (sigma * sqrt(2 * pi))) * exp(-r**2 / (2 * sigma**2))
+    
+  end function df_ibm_source_term_gm
   
 end module df_ibm_source_term
 
