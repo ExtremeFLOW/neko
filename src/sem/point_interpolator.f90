@@ -45,9 +45,10 @@ module point_interpolator
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
   implicit none
-
+  private
+  
   !> Field interpolator to artbitrary points within an element.
-  type :: point_interpolator_t
+  type, public :: point_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
    contains
