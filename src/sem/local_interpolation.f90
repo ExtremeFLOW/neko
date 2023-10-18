@@ -70,7 +70,7 @@ module local_interpolation
      !> Destructor.
      procedure, pass(this) :: free => local_interpolator_free
      !> Interpolates the scalar field \f$ X \f$ on the specified coordinates
-     procedure, pass(this) :: evaluate => local_interpolator_evaluate_values
+     procedure, pass(this) :: evaluate => local_interpolator_evaluate
      !> COmputes weights based on rst coordinates
      procedure, pass(this) :: compute_weights => local_interpolator_compute_weights
 
@@ -172,7 +172,7 @@ contains
   !! number of points to interpolate.
   !! @note The weights can be generated with the subroutine `compute_weights`.
   !! Assumes weights have been computed for these points.
-  subroutine local_interpolator_evaluate_values(this, interp_values, el_list, field,nel)
+  subroutine local_interpolator_evaluate(this, interp_values, el_list, field,nel)
     class(local_interpolator_t), intent(inout) :: this
     integer, intent(in) :: el_list(this%n_points)
     integer, intent(in) :: nel
@@ -183,7 +183,7 @@ contains
     call tnsr3d_el_list(interp_values, 1, field, this%Xh%lx, &
          this%weights_r, this%weights_s, this%weights_t, el_list, this%n_points)
 
-  end subroutine local_interpolator_evaluate_values
+  end subroutine local_interpolator_evaluate
 
 
 end module local_interpolation
