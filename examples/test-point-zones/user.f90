@@ -30,15 +30,12 @@ contains
     type(box_point_zone_t), pointer :: bpz => null()
     type(sphere_point_zone_t), pointer :: spz => null()
 
-
-    pz => neko_point_zone_registry%get_point_zone("myzone")
-
-    write (*,*) type(pz)
+    pz => neko_point_zone_registry%get_point_zone("mysphere")
 
     select type(pz)
     type is (box_point_zone_t)
        bpz => pz
-       write (*,*) bpz%xmin, bpz%xmax, bpz%ymin, bpz%ymax, bpz%zmin, bpz%zmax
+       write (*,'(6(E24.16," "))') bpz%xmin, bpz%xmax, bpz%ymin, bpz%ymax, bpz%zmin, bpz%zmax
     type is (sphere_point_zone_t)
        spz => pz
        write (*,*) spz%x0, spz%y0, spz%z0, spz%radius
