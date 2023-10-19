@@ -1,3 +1,5 @@
+# This will be deleted once the PR will be merged
+
 A small test case to showcase point zones.
 
 ```bash
